@@ -1,0 +1,25 @@
+.idea
+.ipynb_checkpoints
+.mypy_cache
+.vscode
+__pycache__
+.pytest_cache
+venv
+env3.*
+env
+.env
+*.pyc
+*.pyo
+*.pod
+*.log
+build/
+dist/
+uploads/
+media/
+/ducklake/
+komforbi.backup
+celerybeat-schedule
+# Dataflow runtime temp files (per-user uploads/outputs)
+/dataflow/tmp_file/
+# Default --out report of commands/mcp_contract.py
+/mcp_tool_test_results.json
