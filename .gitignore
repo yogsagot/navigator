@@ -16,10 +16,3 @@ build/
 dist/
 uploads/
 media/
-/ducklake/
-komforbi.backup
-celerybeat-schedule
-# Dataflow runtime temp files (per-user uploads/outputs)
-/dataflow/tmp_file/
-# Default --out report of commands/mcp_contract.py
-/mcp_tool_test_results.json
