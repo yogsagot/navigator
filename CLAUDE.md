@@ -6,14 +6,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Early. `navkit` has its event loop, terminal layer, screen buffer and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them. `navml/` is still empty — the markup language, its parser, the code generator and the widget library are all unwritten, and the README is the design document for them.
 
-There is no test, lint or build tooling configured yet. When adding the first tests or dependencies, record the resulting commands here.
+There is no lint or build tooling configured yet. When adding one, record the command here.
 
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Stdlib only — `requirements.txt` is deliberately empty
+- Stdlib only at runtime — `requirements.txt` is deliberately empty. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python nav.py [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels, arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, F10 or Ctrl+Q quits)
-- The app takes over the terminal, so it cannot be driven from a captured pipe. To exercise it non-interactively, run it on a pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, and read what it paints back).
+- Run the tests: `./venv/bin/python -m pytest`; one file with `... -m pytest tests/test_screen.py`; one test with `... -m pytest tests/test_screen.py::test_only_changed_cells_are_emitted` or `-k <substring>`
+- pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `nav` from the repo root
+
+## Testing
+
+`tests/conftest.py` carries the two things every application test needs:
+
+- `FakeTerminal` — stands in for the tty (`is_tty` false, so no reader or raw mode is installed) and records one `frames` entry per flush. `len(frames)` is therefore the number of repaints that produced actual output, while a widget's own render counter is the number of render passes; an unchanged frame renders but writes nothing, so assert on whichever of the two you actually mean.
+- `run_app(app, actions)` — runs the app to completion on `asyncio.run`, applying each action (an event to post, or a callable taking the app) once the loop is live, and exiting afterwards if the app has not already stopped. Everything is wrapped in a timeout so a stuck loop fails instead of hanging the suite.
+
+Tests drive the loop through `Application.post_event()` and read `Application.is_running`; both exist so tests never have to reach into the private queue. Actions posted in a single callback land in one batch, which is how the "one frame per batch" behaviour is asserted.
+
+For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `nav.py` on a pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints). This is a manual check, not part of the suite.
 
 ## Intended architecture
 

@@ -98,6 +98,11 @@ class Application:
 
     # -- lifecycle ----------------------------------------------------------
 
+    @property
+    def is_running(self) -> bool:
+        """True between the first frame and :meth:`exit`."""
+        return self._running
+
     def run(self) -> Any:
         """Run the application until it exits, returning :attr:`result`."""
         return asyncio.run(self.run_async())
@@ -129,6 +134,14 @@ class Application:
             self.result = result
         self._running = False
         self._wake()
+
+    def post_event(self, event: Event) -> None:
+        """Queue *event* as if it had arrived from the terminal.
+
+        The event joins the current batch, so it is dispatched before the next
+        frame rather than after it.
+        """
+        self._events.put_nowait(event)
 
     def on_start(self) -> None:
         """Called once the terminal is ready, before the first frame."""
@@ -266,7 +279,7 @@ class Application:
             self.exit()
             return
         for event in self._parser.feed(data):
-            self._events.put_nowait(event)
+            self.post_event(event)
         self._schedule_escape_flush()
 
     def _schedule_escape_flush(self) -> None:
@@ -282,10 +295,10 @@ class Application:
     def _flush_escape(self) -> None:
         self._escape_timer = None
         for event in self._parser.flush():
-            self._events.put_nowait(event)
+            self.post_event(event)
 
     def _on_signal(self, signum: int) -> None:
         if signum == signal.SIGWINCH:
-            self._events.put_nowait(ResizeEvent(*self.terminal.size))
+            self.post_event(ResizeEvent(*self.terminal.size))
         else:
             self.exit()

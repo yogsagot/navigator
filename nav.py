@@ -289,13 +289,11 @@ class Manager(Widget):
 class Navigator(Application):
     """The file manager application."""
 
-    def __init__(self, left: Path, right: Path):
-        super().__init__(root=Manager(left, right), title="Navigator", background=DESKTOP)
-
-    @property
-    def manager(self) -> Manager:
-        assert isinstance(self.root, Manager)
-        return self.root
+    def __init__(self, left: Path, right: Path, **kwargs):
+        kwargs.setdefault("title", "Navigator")
+        kwargs.setdefault("background", DESKTOP)
+        self.manager = Manager(left, right)
+        super().__init__(root=self.manager, **kwargs)
 
     def on_key(self, event: KeyEvent) -> bool:
         manager = self.manager

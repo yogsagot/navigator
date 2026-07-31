@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Tests import navkit and nav from the repository root.
+pythonpath = ["."]
+addopts = "-q"
