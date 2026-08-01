@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent
+from navkit.reactive import bind
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
 from navkit.widget import Widget
 
-from conftest import RecordingWidget
+from conftest import RecordingWidget, run_app
 
 
 def test_add_sets_the_parent():
@@ -130,3 +132,44 @@ def test_application_is_none_outside_a_running_app():
 def test_widgets_keep_their_style():
     style = Style(fg=1)
     assert Widget(style=style).style is style
+
+def test_changing_the_geometry_asks_for_a_repaint(terminal):
+    root = RecordingWidget()
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: setattr(root, "x", 3)])
+    # The initial paint, then one more because moving the widget dirtied it.
+    assert root.renders == 2
+
+
+def test_a_style_assigned_the_same_value_asks_for_no_repaint(terminal):
+    style = Style(fg=1)
+    root = RecordingWidget(style=style)
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: setattr(root, "style", Style(fg=1))])
+    assert root.renders == 1  # an equal style is not a change
+
+
+def test_layout_does_not_overwrite_a_bound_size():
+    parent = Widget()
+    child = parent.add(Widget())
+    bind(child, "width", lambda w: w.parent.width // 2)
+    parent.layout(20, 10)
+    assert (child.width, child.height) == (10, 10)
+
+
+def test_a_bound_child_follows_the_terminal_across_a_resize():
+    parent = Widget()
+    child = parent.add(Widget())
+    bind(child, "width", lambda w: w.parent.width // 2)
+    parent.layout(20, 10)
+    parent.layout(60, 10)
+    assert child.width == 30
+
+
+def test_reparenting_re_evaluates_a_binding():
+    first, second = Widget(width=20), Widget(width=60)
+    child = first.add(Widget())
+    bind(child, "width", lambda w: w.parent.width // 2)
+    assert child.width == 10
+    second.add(child)
+    assert child.width == 30

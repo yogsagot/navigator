@@ -5,6 +5,11 @@ wires the terminal's input to an event queue, dispatches events to the widget
 tree, and repaints the screen once per batch of events rather than once per
 event -- so a burst of keystrokes or a fast mouse drag costs a single frame.
 
+The order within one turn of the loop is fixed: dispatch the whole batch, run
+the reactive effects it queued, then paint.  Effects may change state and so
+must run before the frame is composed; nothing reactive runs during the paint
+itself.
+
     class Hello(Application):
         def on_key(self, event):
             if event.matches("f10", "ctrl+q"):
@@ -30,6 +35,7 @@ from navkit.events import (
     ResizeEvent,
     WakeEvent,
 )
+from navkit.reactive import SCHEDULER, flush_effects
 from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.terminal import InputParser, Terminal
@@ -115,12 +121,17 @@ class Application:
         if self.title:
             self.terminal.set_title(self.title)
         try:
+            # An effect queued from outside a dispatch -- a timer callback, or
+            # a write to something that is not a widget -- has to be able to
+            # nudge a loop that is parked on the event queue.
+            SCHEDULER.wake = self._wake
             self._attach_input()
             self._resize(*self.terminal.size)
             self.on_start()
             await self._main_loop()
         finally:
             self._running = False
+            SCHEDULER.wake = None
             self._detach_input()
             with contextlib.suppress(Exception):
                 self.on_stop()
@@ -194,6 +205,7 @@ class Application:
     # -- event loop ---------------------------------------------------------
 
     async def _main_loop(self) -> None:
+        self._flush_effects()
         await self._render()
         while self._running:
             event = await self._events.get()
@@ -202,8 +214,24 @@ class Application:
             # drag should cost one frame, not one frame per event.
             while self._running and not self._events.empty():
                 self._handle(self._events.get_nowait())
+            if self._running:
+                self._flush_effects()
             if self._running and self._dirty:
                 await self._render()
+
+    def _flush_effects(self) -> None:
+        """Run the reactions this batch of events queued, before painting.
+
+        Effects assign reactive attributes, so they belong here rather than
+        inside :meth:`_render`: whatever they change is part of the frame that
+        is about to be composed.  A failing reaction takes the application
+        down the same way a failing event handler does.
+        """
+        try:
+            flush_effects()
+        except Exception:
+            self.exit()
+            raise
 
     def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):

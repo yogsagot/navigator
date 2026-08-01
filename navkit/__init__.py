@@ -13,6 +13,19 @@ from navkit.events import (
     PasteEvent,
     ResizeEvent,
 )
+from navkit.reactive import (
+    CycleError,
+    ReactiveError,
+    bind,
+    computed,
+    effect,
+    flush_effects,
+    is_bound,
+    peek,
+    reactive,
+    unbind,
+    untracked,
+)
 from navkit.screen import ScreenBuffer
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.terminal import Terminal
@@ -20,14 +33,25 @@ from navkit.widget import Widget
 
 __all__ = [
     "Application",
+    "CycleError",
     "DEFAULT_STYLE",
     "Event",
     "KeyEvent",
     "MouseEvent",
     "PasteEvent",
+    "ReactiveError",
     "ResizeEvent",
     "ScreenBuffer",
     "Style",
     "Terminal",
     "Widget",
+    "bind",
+    "computed",
+    "effect",
+    "flush_effects",
+    "is_bound",
+    "peek",
+    "reactive",
+    "unbind",
+    "untracked",
 ]

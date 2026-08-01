@@ -9,7 +9,7 @@ import pytest
 from navkit.events import KeyEvent, MouseEvent
 from navkit.screen import ScreenBuffer
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, run_app, settle
 from nav import DirEntry, Manager, Navigator, Panel
 
 
@@ -36,6 +36,11 @@ def panel(tree):
 
 def names(panel: Panel) -> list[str]:
     return [entry.name for entry in panel.entries]
+
+
+# A panel's model reacts to what it is told rather than doing it on the spot,
+# so a test driving it without a running application has to call ``settle()``
+# between acting and asserting -- that is what the event loop does per batch.
 
 
 def test_listing_puts_parent_first_then_directories(panel):
@@ -79,11 +84,31 @@ def test_size_column(name, is_dir, size, expected):
 def test_cursor_movement_is_clamped(panel):
     assert panel.cursor == 0
     panel.move_cursor(-5)
+    settle()
     assert panel.cursor == 0
     panel.move_cursor(2)
+    settle()
     assert panel.selected.name == "beta"
     panel.move_cursor(999)
+    settle()
     assert panel.cursor == len(panel.entries) - 1
+
+
+def test_the_cursor_is_clamped_however_it_was_moved(panel):
+    # Not through move_cursor: the invariant belongs to the panel, not to the
+    # one method that used to enforce it.
+    panel.cursor = 99
+    settle()
+    assert panel.cursor == len(panel.entries) - 1
+
+
+def test_a_rescan_puts_the_cursor_back_at_the_top(panel, tree):
+    panel.move_cursor(4)
+    settle()
+    (tree / "gamma").mkdir()
+    panel.reload()
+    settle()
+    assert panel.cursor == 0
 
 
 def test_cursor_scrolls_the_view(tmp_path):
@@ -92,36 +117,59 @@ def test_cursor_scrolls_the_view(tmp_path):
     panel = Panel(tmp_path, width=40, height=10)
     assert panel.scroll == 0
     panel.move_cursor(len(panel.entries))
+    settle()
     assert panel.scroll > 0
     assert panel.scroll <= panel.cursor < panel.scroll + panel.rows
     panel.move_cursor(-len(panel.entries))
+    settle()
     assert panel.scroll == 0
+
+
+def test_the_scroll_follows_the_cursor_when_the_panel_shrinks(tmp_path):
+    for index in range(50):
+        (tmp_path / f"file{index:02d}").write_text("")
+    panel = Panel(tmp_path, width=40, height=40)
+    panel.move_cursor(30)
+    settle()
+    assert panel.scroll == 0  # everything still fits
+    panel.height = 10
+    settle()
+    # Nothing moved the cursor, but the view has to come and find it.
+    assert panel.scroll <= panel.cursor < panel.scroll + panel.rows
 
 
 def test_entering_a_directory(panel, tree):
     panel.move_cursor(1)  # "alpha"
+    settle()
     panel.enter()
+    settle()
     assert panel.path == tree / "alpha"
     assert names(panel) == ["..", "nested.txt"]
 
 
 def test_leaving_a_directory_restores_the_cursor(panel, tree):
     panel.move_cursor(1)
+    settle()
     panel.enter()  # into alpha
+    settle()
     panel.enter()  # ".." back out
+    settle()
     assert panel.path == tree
     assert panel.selected.name == "alpha"
 
 
 def test_entering_a_file_does_nothing(panel, tree):
     panel.move_cursor(3)  # "one.txt"
+    settle()
     panel.enter()
+    settle()
     assert panel.path == tree
 
 
 def test_reload_picks_up_new_files(panel, tree):
     (tree / "gamma").mkdir()
     panel.reload()
+    settle()
     assert "gamma" in names(panel)
 
 
@@ -139,6 +187,24 @@ def test_manager_layout_survives_an_odd_width():
     manager = Manager(Path("."), Path("."))
     manager.layout(81, 24)
     assert manager.left.width + manager.right.width == 81
+
+
+def test_the_panels_follow_the_desktop_without_a_layout_method():
+    # Manager declares its children's geometry once and has no layout of its
+    # own; only the root's size is imperative, and everything else derives.
+    assert "layout" not in vars(Manager)
+    manager = Manager(Path("."), Path("."))
+    manager.layout(80, 24)
+    manager.layout(120, 40)
+    assert (manager.left.width, manager.right.x) == (60, 60)
+    assert manager.keybar.y == 39
+
+
+def test_the_panel_title_and_footer_follow_the_width(panel, tree):
+    wide = panel.title_text
+    panel.width = 12
+    assert panel.title_text != wide
+    assert len(panel.title_text) <= panel.width
 
 
 def test_the_left_panel_starts_active():

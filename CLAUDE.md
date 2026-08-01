@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Early. `navkit` has its event loop, terminal layer, screen buffer and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them. `navml/` is still empty — the markup language, its parser, the code generator and the widget library are all unwritten, and the README is the design document for them.
+Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` is still empty — the markup language, its parser, the code generator and the widget library are all unwritten, and the README is the design document for them.
 
 There is no lint or build tooling configured yet. When adding one, record the command here.
 
@@ -18,10 +18,11 @@ There is no lint or build tooling configured yet. When adding one, record the co
 
 ## Testing
 
-`tests/conftest.py` carries the two things every application test needs:
+`tests/conftest.py` carries the three things every application test needs:
 
 - `FakeTerminal` — stands in for the tty (`is_tty` false, so no reader or raw mode is installed) and records one `frames` entry per flush. `len(frames)` is therefore the number of repaints that produced actual output, while a widget's own render counter is the number of render passes; an unchanged frame renders but writes nothing, so assert on whichever of the two you actually mean.
 - `run_app(app, actions)` — runs the app to completion on `asyncio.run`, applying each action (an event to post, or a callable taking the app) once the loop is live, and exiting afterwards if the app has not already stopped. Everything is wrapped in a timeout so a stuck loop fails instead of hanging the suite.
+- `settle()` — runs the queued reactive effects, which is what the event loop does between dispatching a batch and painting. A test that drives a widget's model directly (`panel.enter()`, `panel.reload()`, `panel.cursor = 99`) has no loop draining the scheduler, so it must call this between acting and asserting. Tests going through `run_app` never need it. An autouse fixture clears the shared scheduler around every test so one test's queued work cannot leak into the next.
 
 Tests drive the loop through `Application.post_event()` and read `Application.is_running`; both exist so tests never have to reach into the private queue. Actions posted in a single callback land in one batch, which is how the "one frame per batch" behaviour is asserted.
 
@@ -35,15 +36,22 @@ Navigator is a faithful recreation of the DOS Navigator two-panel file manager f
 
 Written, and the pieces fit together like this:
 
-- `application.py` — `Application` owns the only asyncio loop. Terminal input arrives through a `loop.add_reader` callback that feeds `InputParser` and queues the resulting events; the loop dispatches a whole batch of queued events and *then* paints one frame, so a paste or a mouse drag costs a single repaint. `SIGWINCH` becomes a `ResizeEvent`; events reach the `Application.on_*` hooks first and the widget tree second.
+- `application.py` — `Application` owns the only asyncio loop. Terminal input arrives through a `loop.add_reader` callback that feeds `InputParser` and queues the resulting events. The order in one turn is fixed: **dispatch the whole batch, flush the reactive effects it queued, then paint one frame** — so a paste or a mouse drag costs a single repaint, and nothing reactive runs during the paint. `SIGWINCH` becomes a `ResizeEvent`; events reach the `Application.on_*` hooks first and the widget tree second.
 - `terminal.py` — `Terminal` owns the tty (raw mode, alternate screen, mouse tracking, bracketed paste, autowrap off) and restores it in `Application`'s `finally`. `InputParser` is fed incrementally and keeps undecodable tails, so sequences split across reads still decode. A lone `ESC` is inherently ambiguous: the parser reports `pending_escape` and the application resolves it with an `ESCAPE_TIMEOUT` timer.
 - `screen.py` — `ScreenBuffer` is the only thing widgets paint into; drawing clips silently, and double-width characters occupy a cell plus an empty continuation cell. `render_diff()` emits only the escapes needed to turn the last flushed buffer into the new one, and repaints fully when the size changed.
 - `style.py` — `Style` is an immutable cell appearance that knows its own SGR sequence. Nothing else writes colour codes.
-- `widget.py` — `Widget` has geometry, children, `render(buffer)`, `layout(width, height)` (called on the root at every resize) and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first.
+- `reactive.py` — observable attributes and the bindings between them; the mechanism `navml` markup relies on. `reactive()` declares a source, `computed()` a derived value, and `bind(obj, name, expression)` attaches an expression to *one instance* — which is what markup compiles to. Dependencies are discovered by running the expression and noting what it read, so a conditional subscribes only to the branch it took. Propagation is push-pull: a write eagerly marks dependents stale, values are recomputed lazily on read and memoised. That makes it glitch-free (a diamond recomputes once, from inputs that are all final) and mirrors the frame loop one layer up. `effect()` is the only eager node, for reactions that must happen whether or not anybody reads a value.
+- `widget.py` — `Widget` has children, `render(buffer)`, `layout(width, height)` (called on the root at every resize) and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first. Its geometry, `visible`, `style` and `parent` are reactive, so assigning one asks for a repaint on its own; `layout()` steps around any size that carries a binding.
+
+Things to know before touching this layer:
+
+- **Assigning over a live binding raises**, deliberately: call `unbind()` to take an attribute back by hand. This is why `Widget.layout()` checks `is_bound()` — without it the first `SIGWINCH` would take down every declaratively-sized widget in the tree.
+- **A computed may not write.** The write path refuses if any frame on the tracking stack is a computed, which is what makes it safe to pull a stale value in the middle of composing a frame. Use an `effect` for anything impure.
+- **A collection has to be replaced to count as changed.** `entries.append(x)` followed by `self.entries = entries` propagates nothing, because the equality guard sees the same object. Build a new list.
+- An object carrying reactive attributes needs a `__dict__`, so slotted value types (`Style`, `DirEntry`) cannot host them.
 
 Still to build here:
 
-- Observable widget attributes: changing one triggers recomputation of every attribute that references it (reactive binding, the mechanism `navml` markup relies on). Widgets currently repaint by calling `invalidate()` by hand.
 - A CSS-like stylesheet library and style lookup engine, resolving to the `Style` values `style.py` already defines
 
 ### `navml/` — markup language + widget library
@@ -56,7 +64,7 @@ Still to build here:
 
 ### `navigator` / `nav` — the file manager application
 
-`nav.py` currently holds the whole application: `Manager` (the desktop), `MenuBar`, `Panel`, `KeyBar` and the `Navigator` application subclass, all painting by hand. These screens move into `*.nml` markup once navml exists, leaving only event handlers behind — so treat the widget code here as scaffolding, not as the eventual home of the UI.
+`nav.py` currently holds the whole application: `Manager` (the desktop), `MenuBar`, `Panel`, `KeyBar` and the `Navigator` application subclass, all painting by hand. These screens move into `*.nml` markup once navml exists, leaving only event handlers behind — so treat the widget code here as scaffolding, not as the eventual home of the UI. `Manager._place()` and `Panel`'s effects are written the way markup will compile, and are the closest thing in the repo to a worked example: `Manager` has no `layout()` at all, and `Panel` assigns `path` and lets the listing, cursor and scroll follow.
 
 - `Manager` window with two file-listing panels
 - View and Edit file windows

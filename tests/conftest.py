@@ -13,6 +13,7 @@ import pytest
 
 from navkit.application import Application
 from navkit.events import Event
+from navkit.reactive import SCHEDULER, flush_effects
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
 from navkit.widget import Widget
@@ -121,6 +122,24 @@ def run_app(
             driver.cancel()
 
     return asyncio.run(asyncio.wait_for(main(), timeout))
+
+
+def settle() -> None:
+    """Run the effects a change has queued, as the event loop would.
+
+    Only needed by tests that drive a widget's model directly: with no
+    application running, nothing is draining the shared scheduler, so a
+    deferred reaction such as rescanning a directory has not happened yet.
+    """
+    flush_effects()
+
+
+@pytest.fixture(autouse=True)
+def _quiet_scheduler():
+    """Keep one test's queued effects out of the next one."""
+    SCHEDULER.clear()
+    yield
+    SCHEDULER.clear()
 
 
 @pytest.fixture

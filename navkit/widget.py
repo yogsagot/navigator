@@ -4,20 +4,34 @@ A widget owns a rectangle of the screen and knows how to paint it.  It never
 touches the terminal: :meth:`Widget.render` receives the
 :class:`~navkit.screen.ScreenBuffer` the frame is being composed in.
 
-Observable attributes -- where assigning one recomputes every attribute that
-references it -- will be layered onto this class; until then, widgets mark
-themselves dirty explicitly via :meth:`invalidate`.
+Geometry, visibility, style and the link to the parent are observable: assign
+one and everything derived from it goes out of date, and the screen is marked
+for a repaint without anybody calling :meth:`invalidate` by hand.  A size may
+also be *bound* to an expression -- ``bind(panel, "width", lambda w:
+w.parent.width // 2)`` -- which is what markup compiles to and what makes a
+container able to place its children without a :meth:`layout` method at all.
 """
 
 from __future__ import annotations
 
 from navkit.events import KeyEvent, MouseEvent
+from navkit.reactive import is_bound, reactive
 from navkit.screen import ScreenBuffer
 from navkit.style import DEFAULT_STYLE, Style
 
 
 class Widget:
     """A rectangular, nestable piece of user interface."""
+
+    x: int = reactive(0)
+    y: int = reactive(0)
+    width: int = reactive(0)
+    height: int = reactive(0)
+    style: Style = reactive(DEFAULT_STYLE)
+    visible: bool = reactive(True)
+    #: Observable too, so an expression written in terms of the parent is
+    #: re-evaluated when the widget moves to a different one.
+    parent: Widget | None = reactive(None)
 
     def __init__(
         self,
@@ -34,8 +48,6 @@ class Widget:
         self.width = width
         self.height = height
         self.style = style
-        self.visible = True
-        self.parent: Widget | None = None
         self.children: list[Widget] = []
         if parent is not None:
             parent.add(self)
@@ -74,6 +86,16 @@ class Widget:
         if app is not None:
             app.invalidate()
 
+    def _reactive_changed(self, name: str) -> None:
+        """An observable attribute really changed, so the screen is stale.
+
+        Only assignments to *sources* arrive here, which is enough: every
+        derived value that moved is downstream of one of them, and the
+        application tracks dirtiness with a single flag.  Per-widget damage
+        tracking would have to look at the derived values as well.
+        """
+        self.invalidate()
+
     # -- geometry -----------------------------------------------------------
 
     def contains(self, x: int, y: int) -> bool:
@@ -84,13 +106,20 @@ class Widget:
         """Fit this widget into *width* x *height*.
 
         Called on the root widget whenever the terminal is resized.  The
-        default fills the area and hands the same size to every child;
-        containers override this to place their children.
+        default fills the area and hands its own size to every child;
+        containers either override this or bind their children's geometry.
+
+        A size that carries a binding is left alone.  The binding is the
+        widget's own declaration of how big it wants to be, and assigning over
+        it is an error rather than a silent override -- so the cascade has to
+        step around it, or the first resize would take the whole tree down.
         """
-        self.width = width
-        self.height = height
+        if not is_bound(self, "width"):
+            self.width = width
+        if not is_bound(self, "height"):
+            self.height = height
         for child in self.children:
-            child.layout(width, height)
+            child.layout(self.width, self.height)
 
     # -- painting -----------------------------------------------------------
 

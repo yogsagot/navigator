@@ -15,6 +15,7 @@ from pathlib import Path
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent
+from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import ScreenBuffer
 from navkit.style import BLACK, BLUE, CYAN, LIGHT_CYAN, RED, WHITE, Style
 from navkit.widget import Widget
@@ -76,28 +77,48 @@ class DirEntry:
 
 
 class Panel(Widget):
-    """A file listing panel with a frame, a header and a cursor."""
+    """A file listing panel with a frame, a header and a cursor.
+
+    The model is declarative: ``path`` is the only thing a command really
+    assigns, and the listing, the cursor and the scroll offset follow it.  So
+    the invariants -- the cursor sits on a row that exists, the scroll keeps
+    it visible -- hold no matter which path changed the state, including a
+    terminal resize, which the old imperative version got wrong.
+    """
+
+    path: Path = reactive(Path("."))
+    entries: list[DirEntry] = reactive(factory=list)
+    error: str | None = reactive(None)
+    cursor: int = reactive(0)
+    scroll: int = reactive(0)
+    active: bool = reactive(False)
+    #: Bumped to re-read a directory whose path has not changed.
+    reload_token: int = reactive(0)
 
     def __init__(self, path: Path, **kwargs):
         super().__init__(style=PANEL, **kwargs)
+        #: Set by :meth:`enter` for the rescan that is about to happen, so the
+        #: cursor can land on the directory we just climbed out of.
+        self._return_to: str | None = None
         self.path = path
-        self.entries: list[DirEntry] = []
-        self.cursor = 0
-        self.scroll = 0
-        self.active = False
-        self.error: str | None = None
-        self.reload()
+        # Declaration order is flush order: rebuild the listing, put the
+        # cursor somewhere real, then scroll to it.
+        effect(self, Panel._rescan)
+        effect(self, Panel._clamp_cursor)
+        effect(self, Panel._follow_cursor)
 
     # -- model ---------------------------------------------------------------
 
-    def reload(self) -> None:
-        """Re-read the directory this panel shows."""
+    def _rescan(self) -> None:
+        """Re-read the directory, whenever the path or the token changes."""
+        _ = self.reload_token  # read for the dependency; this is what Ctrl+R moves
+        path = self.path
         entries: list[DirEntry] = []
-        self.error = None
-        if self.path != self.path.parent:
+        error: str | None = None
+        if path != path.parent:
             entries.append(DirEntry("..", True, 0))
         try:
-            with os.scandir(self.path) as scan:
+            with os.scandir(path) as scan:
                 for item in scan:
                     try:
                         is_dir = item.is_dir()
@@ -106,20 +127,51 @@ class Panel(Widget):
                         is_dir, size = False, 0
                     entries.append(DirEntry(item.name, is_dir, size))
         except OSError as exc:
-            self.error = exc.strerror or str(exc)
+            error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
-        self.entries = entries
-        self.cursor = 0
-        self.scroll = 0
-        self.invalidate()
 
-    @property
+        self.entries = entries
+        self.error = error
+        target, self._return_to = self._return_to, None
+        self.cursor = next(
+            (index for index, item in enumerate(entries) if item.name == target), 0
+        )
+        self.scroll = 0
+
+    def _clamp_cursor(self) -> None:
+        """Keep the cursor on a row that exists, however the listing changed.
+
+        Assigning what it also reads is allowed here: an effect's own writes
+        are part of the run it is in and do not wake it again.
+        """
+        last = len(self.entries) - 1
+        self.cursor = min(max(self.cursor, 0), last) if last >= 0 else 0
+
+    def _follow_cursor(self) -> None:
+        """Scroll just far enough to keep the cursor on screen.
+
+        ``scroll`` is read with :func:`~navkit.reactive.peek` because this is
+        the effect that assigns it; subscribing to it would be a loop.
+        """
+        cursor, rows = self.cursor, self.rows
+        scroll = peek(self, "scroll")
+        if cursor < scroll:
+            self.scroll = cursor
+        elif cursor >= scroll + rows:
+            self.scroll = cursor - rows + 1
+
+    def reload(self) -> None:
+        """Re-read the directory this panel shows."""
+        self.reload_token += 1
+
+    @computed
     def rows(self) -> int:
         """How many listing lines fit between the top and bottom frame."""
         return max(0, self.height - 2)
 
-    @property
+    @computed
     def selected(self) -> DirEntry | None:
+        """The entry the cursor is on, if the listing has one."""
         if 0 <= self.cursor < len(self.entries):
             return self.entries[self.cursor]
         return None
@@ -127,29 +179,42 @@ class Panel(Widget):
     def move_cursor(self, delta: int) -> None:
         if not self.entries:
             return
-        self.cursor = max(0, min(len(self.entries) - 1, self.cursor + delta))
-        if self.cursor < self.scroll:
-            self.scroll = self.cursor
-        elif self.cursor >= self.scroll + self.rows:
-            self.scroll = self.cursor - self.rows + 1
-        self.invalidate()
+        # Deliberately unclamped: _clamp_cursor owns that invariant.
+        self.cursor += delta
 
     def enter(self) -> None:
         """Descend into the selected directory."""
         entry = self.selected
         if entry is None or not entry.is_dir:
             return
-        previous = self.path.name
+        # The rescan is deferred, so the cursor we want afterwards has to be
+        # left behind as a note rather than applied on the next line.
+        self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
-        self.reload()
-        if entry.name == "..":
-            # Put the cursor back on the directory we came out of.
-            for index, item in enumerate(self.entries):
-                if item.name == previous:
-                    self.move_cursor(index)
-                    break
 
     # -- painting ------------------------------------------------------------
+
+    @computed
+    def title_text(self) -> str:
+        """The path across the top frame, clipped to fit."""
+        title = str(self.path)
+        room = max(1, self.width - 4)
+        if len(title) > room:
+            title = "..." + title[-(room - 3) :]
+        return f" {title} "
+
+    @computed
+    def footer_text(self) -> str:
+        """The selected name, or an item count when there is nothing to name."""
+        entry = self.selected
+        summary = f" {entry.name} " if entry else f" {len(self.entries)} items "
+        room = max(1, self.width - 4)
+        return summary[: room - 1] + " " if len(summary) > room else summary
+
+    @computed
+    def name_width(self) -> int:
+        """How much of a listing line is left once the size column is taken."""
+        return max(1, self.width - 12)
 
     def render(self, buffer: ScreenBuffer) -> None:
         buffer.draw_box(
@@ -166,11 +231,7 @@ class Panel(Widget):
         self._render_footer(buffer)
 
     def _render_title(self, buffer: ScreenBuffer) -> None:
-        title = str(self.path)
-        room = max(1, self.width - 4)
-        if len(title) > room:
-            title = "..." + title[-(room - 3) :]
-        label = f" {title} "
+        label = self.title_text
         style = PANEL_TITLE if self.active else PANEL_TITLE_DIM
         buffer.draw_text(
             self.x + max(1, (self.width - len(label)) // 2), self.y, label, style
@@ -182,7 +243,7 @@ class Panel(Widget):
                 self.x + 2, self.y + 2, self.error, PANEL_TEXT, self.width - 4
             )
             return
-        name_width = max(1, self.width - 12)
+        name_width = self.name_width
         for row in range(self.rows):
             index = self.scroll + row
             if index >= len(self.entries):
@@ -199,13 +260,7 @@ class Panel(Widget):
             )
 
     def _render_footer(self, buffer: ScreenBuffer) -> None:
-        entry = self.selected
-        summary = f" {len(self.entries)} items "
-        if entry is not None:
-            summary = f" {entry.name} "
-        room = max(1, self.width - 4)
-        if len(summary) > room:
-            summary = summary[: room - 1] + " "
+        summary = self.footer_text
         buffer.draw_text(
             self.x + max(1, (self.width - len(summary)) // 2),
             self.y + self.height - 1,
@@ -258,29 +313,41 @@ class Manager(Widget):
         self.keybar = KeyBar(style=KEYBAR_LABEL)
         for child in (self.menu, self.left, self.right, self.keybar):
             self.add(child)
+        self._place()
         self.left.active = True
 
-    @property
+    def _place(self) -> None:
+        """Say how the desktop is divided, once, in terms of its own size.
+
+        There is no ``layout`` method to go with this: every size that depends
+        on the terminal is an expression, so a resize propagates by itself.
+        This is the shape a ``*.nml`` file will compile to.
+        """
+        self.menu.x, self.menu.y = 0, 0
+        bind(self.menu, "width", lambda w: w.parent.width)
+        bind(self.menu, "height", lambda w: 1)
+
+        self.keybar.x = 0
+        bind(self.keybar, "y", lambda w: max(1, w.parent.height - 1))
+        bind(self.keybar, "width", lambda w: w.parent.width)
+        bind(self.keybar, "height", lambda w: 1)
+
+        self.left.x, self.left.y = 0, 1
+        bind(self.left, "width", lambda w: w.parent.width // 2)
+        bind(self.left, "height", lambda w: max(3, w.parent.height - 2))
+
+        self.right.y = 1
+        bind(self.right, "x", lambda w: w.parent.width // 2)
+        bind(self.right, "width", lambda w: w.parent.width - w.parent.width // 2)
+        bind(self.right, "height", lambda w: max(3, w.parent.height - 2))
+
+    @computed
     def active_panel(self) -> Panel:
+        """Whichever panel currently has the cursor."""
         return self.left if self.left.active else self.right
 
     def switch_panel(self) -> None:
         self.left.active, self.right.active = self.right.active, self.left.active
-        self.invalidate()
-
-    def layout(self, width: int, height: int) -> None:
-        self.width, self.height = width, height
-        self.menu.x, self.menu.y = 0, 0
-        self.menu.width, self.menu.height = width, 1
-        self.keybar.x, self.keybar.y = 0, max(1, height - 1)
-        self.keybar.width, self.keybar.height = width, 1
-
-        body_height = max(3, height - 2)
-        half = width // 2
-        self.left.x, self.left.y = 0, 1
-        self.left.width, self.left.height = half, body_height
-        self.right.x, self.right.y = half, 1
-        self.right.width, self.right.height = width - half, body_height
 
     def render(self, buffer: ScreenBuffer) -> None:
         buffer.fill(self.x, self.y, self.width, self.height, " ", DESKTOP)

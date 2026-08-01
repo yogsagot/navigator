@@ -6,6 +6,7 @@ import asyncio
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent, PasteEvent, ResizeEvent
+from navkit.reactive import effect, peek, reactive
 from navkit.style import Style
 
 from conftest import FakeTerminal, RecordingWidget, run_app
@@ -244,3 +245,66 @@ def test_a_second_terminal_size_is_picked_up_on_resize():
 
     run_app(app, [grow])
     assert (root.width, root.height) == (60, 20)
+
+class ReactingWidget(RecordingWidget):
+    """A widget whose label is kept in step with the last key by an effect."""
+
+    last_key = reactive("-")
+    label = reactive("")
+
+    def __init__(self):
+        super().__init__()
+        self.painted: list[str] = []
+        self.runs = 0
+        effect(self, ReactingWidget.follow)
+
+    def follow(self) -> None:
+        self.runs += 1
+        self.label = f"key {self.last_key}"
+
+    def on_key(self, event) -> bool:
+        self.last_key = event.name
+        return super().on_key(event)
+
+    def render(self, buffer) -> None:
+        super().render(buffer)
+        self.painted.append(peek(self, "label"))
+
+
+def test_effects_run_before_the_frame_is_painted(terminal):
+    root = ReactingWidget()
+    run_app(Application(root, terminal=terminal), [KeyEvent("a")])
+    # The second frame already sees what the effect assigned.
+    assert root.painted == ["key -", "key a"]
+
+
+def test_a_batch_of_events_flushes_effects_once(terminal):
+    root = ReactingWidget()
+
+    def burst(app):
+        # All five are queued before the loop wakes, so they form one batch.
+        for index in range(5):
+            app.post_event(KeyEvent(str(index)))
+
+    run_app(Application(root, terminal=terminal), [burst])
+    # One run when the effect was created, one for the whole batch.
+    assert (root.runs, root.label) == (2, "key 4")
+
+
+def test_an_effect_scheduled_while_the_loop_is_idle_wakes_it(terminal):
+    class Model(RecordingWidget):
+        n = reactive(0)
+
+        def __init__(self):
+            super().__init__()
+            self.seen: list[int] = []
+            effect(self, Model.watch)
+
+        def watch(self) -> None:
+            self.seen.append(self.n)
+
+    root = Model()
+    # Assigning from a plain callable, not from an event handler: nothing but
+    # the scheduler's wake hook can get the parked loop to notice.
+    run_app(Application(root, terminal=terminal), [lambda app: setattr(root, "n", 7)])
+    assert root.seen == [0, 7]
