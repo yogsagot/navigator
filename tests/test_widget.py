@@ -105,7 +105,8 @@ def test_mouse_goes_to_the_widget_under_the_pointer():
     left = parent.add(RecordingWidget(x=0, width=5, height=10))
     right = parent.add(RecordingWidget(x=5, width=5, height=10))
     parent.dispatch_mouse(MouseEvent(7, 2, "left"))
-    assert right.mice == [(7, 2)]
+    # Column 7 of the parent is column 2 of the right-hand child.
+    assert right.mice == [(2, 2)]
     assert left.mice == []
 
 
@@ -132,6 +133,7 @@ def test_application_is_none_outside_a_running_app():
 def test_widgets_keep_their_style():
     style = Style(fg=1)
     assert Widget(style=style).style is style
+
 
 def test_changing_the_geometry_asks_for_a_repaint(terminal):
     root = RecordingWidget()
@@ -173,3 +175,51 @@ def test_reparenting_re_evaluates_a_binding():
     assert child.width == 10
     second.add(child)
     assert child.width == 30
+
+
+def test_a_widget_paints_in_its_own_coordinates():
+    class Corner(Widget):
+        def render(self, surface):
+            surface.draw_text(0, 0, "X")
+
+    root = Widget(width=6, height=2)
+    root.add(Corner(x=4, y=1, width=1, height=1))
+    buffer = ScreenBuffer(6, 2)
+    root.render_tree(buffer)
+    # The widget asked for 0, 0 and landed where it was placed.
+    assert buffer.get(4, 1)[0] == "X"
+    assert buffer.get(0, 0)[0] == " "
+
+
+def test_a_widget_cannot_paint_outside_itself():
+    class Greedy(Widget):
+        def render(self, surface):
+            surface.fill(-5, -5, 99, 99, "#")
+
+    root = Widget(width=8, height=3)
+    root.add(Greedy(x=2, y=1, width=3, height=1))
+    buffer = ScreenBuffer(8, 3)
+    root.render_tree(buffer)
+    rows = ["".join(buffer.get(x, y)[0] for x in range(8)) for y in range(3)]
+    assert rows == ["        ", "  ###   ", "        "]
+
+
+def test_a_grandchild_is_placed_relative_to_its_parent():
+    class Dot(Widget):
+        def render(self, surface):
+            surface.draw_text(0, 0, "*")
+
+    root = Widget(width=10, height=3)
+    middle = root.add(Widget(x=3, y=1, width=6, height=2))
+    middle.add(Dot(x=2, y=0, width=1, height=1))
+    buffer = ScreenBuffer(10, 3)
+    root.render_tree(buffer)
+    assert buffer.get(5, 1)[0] == "*"  # 3 + 2 across, 1 + 0 down
+
+
+def test_a_mouse_position_is_relative_to_the_widget_that_handles_it():
+    root = RecordingWidget(width=10, height=6)
+    middle = root.add(RecordingWidget(x=3, y=1, width=6, height=4))
+    leaf = middle.add(RecordingWidget(x=2, y=1, width=2, height=2))
+    root.dispatch_mouse(MouseEvent(6, 3, "left"))
+    assert leaf.mice == [(1, 1)]  # 6 - 3 - 2 across, 3 - 1 - 1 down

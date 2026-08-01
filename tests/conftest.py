@@ -14,7 +14,7 @@ import pytest
 from navkit.application import Application
 from navkit.events import Event
 from navkit.reactive import SCHEDULER, flush_effects
-from navkit.screen import ScreenBuffer
+from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
@@ -74,9 +74,10 @@ class RecordingWidget(Widget):
         self.renders = 0
         self.handles = True
 
-    def render(self, buffer: ScreenBuffer) -> None:
+    def render(self, surface: Surface) -> None:
         self.renders += 1
-        buffer.fill(self.x, self.y, self.width, self.height, self.fill_char, self.style)
+        # From 0, 0: the surface already covers exactly this widget.
+        surface.fill(0, 0, self.width, self.height, self.fill_char, self.style)
 
     def on_key(self, event) -> bool:
         self.keys.append(event.name)

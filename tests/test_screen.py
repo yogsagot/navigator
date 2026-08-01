@@ -179,3 +179,99 @@ def test_style_change_alone_is_repainted():
     current.copy_from(previous)
     current.draw_text(0, 0, "a", GREEN)
     assert GREEN.sgr() in render_diff(previous, current)
+
+# -- views --------------------------------------------------------------------
+
+
+def test_a_view_shifts_what_is_painted_through_it():
+    buffer = ScreenBuffer(10, 3)
+    view = buffer.view(3, 1, 4, 2)
+    view.draw_text(0, 0, "ab", RED)
+    assert text_of(buffer, 0) == "          "
+    assert text_of(buffer, 1) == "   ab     "
+
+
+def test_a_view_reports_its_own_size():
+    view = ScreenBuffer(10, 3).view(3, 1, 4, 2)
+    assert (view.width, view.height) == (4, 2)
+
+
+def test_a_view_clips_what_would_land_outside_it():
+    buffer = ScreenBuffer(10, 1)
+    buffer.draw_text(0, 0, "..........")
+    view = buffer.view(3, 0, 4, 1)
+    view.draw_text(0, 0, "abcdefgh")  # twice as much text as there is room
+    assert text_of(buffer, 0) == "...abcd..."
+
+
+def test_a_view_ignores_paint_at_negative_coordinates():
+    buffer = ScreenBuffer(6, 1)
+    buffer.draw_text(0, 0, "......")
+    view = buffer.view(2, 0, 2, 1)
+    view.draw_text(-2, 0, "xy")
+    assert text_of(buffer, 0) == "......"
+
+
+def test_a_view_of_a_view_intersects_both_clips():
+    buffer = ScreenBuffer(12, 1)
+    buffer.draw_text(0, 0, "............")
+    inner = buffer.view(2, 0, 6, 1).view(1, 0, 3, 1)
+    inner.draw_text(0, 0, "abcdef")
+    assert text_of(buffer, 0) == "...abc......"
+
+
+def test_a_view_clips_a_fill():
+    buffer = ScreenBuffer(8, 3)
+    buffer.view(2, 1, 3, 1).fill(0, 0, 99, 99, "#")
+    assert text_of(buffer, 0) == "        "
+    assert text_of(buffer, 1) == "  ###   "
+    assert text_of(buffer, 2) == "        "
+
+
+def test_a_view_reads_through_to_the_buffer():
+    buffer = ScreenBuffer(6, 1)
+    buffer.draw_text(4, 0, "z", RED)
+    view = buffer.view(3, 0, 3, 1)
+    assert view.get(1, 0) == ("z", RED)
+    assert view.get(9, 0) == (" ", Style())  # outside the view
+
+
+def test_a_wide_character_cannot_spill_out_of_a_view():
+    buffer = ScreenBuffer(6, 1)
+    buffer.draw_text(0, 0, "......")
+    view = buffer.view(1, 0, 3, 1)
+    # The last cell of the view has no room for the trailing half, so the
+    # neighbour keeps its own content rather than being half overwritten.
+    assert view.set_cell(2, 0, "漢") == 2
+    assert text_of(buffer, 0) == "... .."  # the view's last cell went blank
+    assert buffer.get(4, 0)[0] == "."  # and the neighbour is untouched
+
+
+def test_a_wide_character_fits_inside_a_view_with_room():
+    buffer = ScreenBuffer(6, 1)
+    view = buffer.view(1, 0, 4, 1)
+    assert view.set_cell(1, 0, "漢") == 2
+    assert buffer.get(2, 0)[0] == "漢"
+    assert buffer.get(3, 0)[0] == ""  # the continuation cell
+
+
+def test_a_view_draws_a_box_in_its_own_coordinates():
+    buffer = ScreenBuffer(8, 4)
+    buffer.view(2, 1, 4, 3).draw_box(0, 0, 4, 3)
+    assert text_of(buffer, 0) == "        "
+    assert text_of(buffer, 1) == "  ┌──┐  "
+    assert text_of(buffer, 3) == "  └──┘  "
+
+
+# -- the row prefilter --------------------------------------------------------
+
+
+def test_an_untouched_row_is_not_re_emitted():
+    previous = ScreenBuffer(6, 3)
+    current = ScreenBuffer(6, 3)
+    current.draw_text(0, 1, "x")
+    output = render_diff(previous, current)
+    # Only row 2 is addressed, and only its one changed cell is sent.
+    assert output.count("\x1b[") == 3  # position, style, final reset
+    assert "\x1b[2;1H" in output
+    assert "\x1b[1;1H" not in output and "\x1b[3;1H" not in output

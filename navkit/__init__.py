@@ -26,7 +26,7 @@ from navkit.reactive import (
     unbind,
     untracked,
 )
-from navkit.screen import ScreenBuffer
+from navkit.screen import ScreenBuffer, Surface
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.terminal import Terminal
 from navkit.widget import Widget
@@ -42,6 +42,7 @@ __all__ = [
     "ReactiveError",
     "ResizeEvent",
     "ScreenBuffer",
+    "Surface",
     "Style",
     "Terminal",
     "Widget",

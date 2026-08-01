@@ -1,8 +1,12 @@
 """The widget base class.
 
 A widget owns a rectangle of the screen and knows how to paint it.  It never
-touches the terminal: :meth:`Widget.render` receives the
-:class:`~navkit.screen.ScreenBuffer` the frame is being composed in.
+touches the terminal, and it never learns where on the screen it is:
+:meth:`Widget.render` receives a :class:`~navkit.screen.Surface` covering the
+widget's own area, so it paints from ``0, 0`` in its own ``width`` x
+``height`` and anything it aims outside itself is clipped away.  Positions --
+``x``, ``y`` and the coordinates a :class:`~navkit.events.MouseEvent` carries
+-- are relative to the parent, not to the terminal.
 
 Geometry, visibility, style and the link to the parent are observable: assign
 one and everything derived from it goes out of date, and the screen is marked
@@ -16,7 +20,7 @@ from __future__ import annotations
 
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import is_bound, reactive
-from navkit.screen import ScreenBuffer
+from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, Style
 
 
@@ -99,7 +103,7 @@ class Widget:
     # -- geometry -----------------------------------------------------------
 
     def contains(self, x: int, y: int) -> bool:
-        """True if screen position *x*, *y* falls inside this widget."""
+        """True if *x*, *y* -- in the parent's coordinates -- is inside this."""
         return self.x <= x < self.x + self.width and self.y <= y < self.y + self.height
 
     def layout(self, width: int, height: int) -> None:
@@ -123,16 +127,26 @@ class Widget:
 
     # -- painting -----------------------------------------------------------
 
-    def render(self, buffer: ScreenBuffer) -> None:
-        """Paint this widget -- but not its children -- into *buffer*."""
+    def render(self, surface: Surface) -> None:
+        """Paint this widget -- but not its children -- into *surface*.
 
-    def render_tree(self, buffer: ScreenBuffer) -> None:
-        """Paint this widget and then, on top of it, its children."""
+        *surface* covers exactly this widget, so paint from ``0, 0``; there is
+        no need to add :attr:`x` and :attr:`y`, and no way to reach a sibling.
+        """
+
+    def render_tree(self, surface: Surface) -> None:
+        """Paint this widget and then, on top of it, its children.
+
+        *surface* covers the parent, so the first thing to do is narrow it to
+        this widget.  Children are then painted through that, which is what
+        keeps every widget's coordinates relative to the one above it.
+        """
         if not self.visible:
             return
-        self.render(buffer)
+        own = surface.view(self.x, self.y, self.width, self.height)
+        self.render(own)
         for child in self.children:
-            child.render_tree(buffer)
+            child.render_tree(own)
 
     # -- events -------------------------------------------------------------
 
@@ -152,9 +166,16 @@ class Widget:
         return self.on_key(event)
 
     def dispatch_mouse(self, event: MouseEvent) -> bool:
-        """Offer a mouse action to the child under the pointer, then to self."""
+        """Offer a mouse action to the child under the pointer, then to self.
+
+        *event* arrives in the parent's coordinates -- the same ones :attr:`x`
+        and :attr:`y` are in -- and is shifted into this widget's own before
+        going any further, so :meth:`on_mouse` always sees a position relative
+        to the widget handling it.
+        """
+        local = event.translated(-self.x, -self.y)
         for child in reversed(self.children):
-            if child.visible and child.contains(event.x, event.y):
-                if child.dispatch_mouse(event):
+            if child.visible and child.contains(local.x, local.y):
+                if child.dispatch_mouse(local):
                     return True
-        return self.on_mouse(event)
+        return self.on_mouse(local)

@@ -8,7 +8,7 @@ returning ``True``, never by mutating it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,6 +85,10 @@ class MouseEvent(Event):
     @property
     def is_wheel(self) -> bool:
         return self.button.startswith("wheel_")
+
+    def translated(self, dx: int, dy: int) -> MouseEvent:
+        """The same action, moved into another widget's coordinates."""
+        return replace(self, x=self.x + dx, y=self.y + dy)
 
 
 @dataclass(frozen=True, slots=True)

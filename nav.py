@@ -16,7 +16,7 @@ from pathlib import Path
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import bind, computed, effect, peek, reactive
-from navkit.screen import ScreenBuffer
+from navkit.screen import Surface
 from navkit.style import BLACK, BLUE, CYAN, LIGHT_CYAN, RED, WHITE, Style
 from navkit.widget import Widget
 
@@ -216,33 +216,25 @@ class Panel(Widget):
         """How much of a listing line is left once the size column is taken."""
         return max(1, self.width - 12)
 
-    def render(self, buffer: ScreenBuffer) -> None:
-        buffer.draw_box(
-            self.x,
-            self.y,
-            self.width,
-            self.height,
-            PANEL,
-            double=self.active,
-            fill=" ",
+    def render(self, surface: Surface) -> None:
+        surface.draw_box(
+            0, 0, self.width, self.height, PANEL, double=self.active, fill=" "
         )
-        self._render_title(buffer)
-        self._render_entries(buffer)
-        self._render_footer(buffer)
+        self._render_title(surface)
+        self._render_entries(surface)
+        self._render_footer(surface)
 
-    def _render_title(self, buffer: ScreenBuffer) -> None:
+    def _render_title(self, surface: Surface) -> None:
         label = self.title_text
         style = PANEL_TITLE if self.active else PANEL_TITLE_DIM
-        buffer.draw_text(
-            self.x + max(1, (self.width - len(label)) // 2), self.y, label, style
-        )
+        surface.draw_text(max(1, (self.width - len(label)) // 2), 0, label, style)
 
-    def _render_entries(self, buffer: ScreenBuffer) -> None:
+    def _render_entries(self, surface: Surface) -> None:
         if self.error is not None:
-            buffer.draw_text(
-                self.x + 2, self.y + 2, self.error, PANEL_TEXT, self.width - 4
-            )
+            surface.draw_text(2, 2, self.error, PANEL_TEXT, self.width - 4)
             return
+        # Still an explicit limit: the name stops where the size column
+        # begins, which is nearer than the edge the surface would clip at.
         name_width = self.name_width
         for row in range(self.rows):
             index = self.scroll + row
@@ -251,51 +243,46 @@ class Panel(Widget):
             entry = self.entries[index]
             selected = index == self.cursor and self.active
             style = CURSOR if selected else (PANEL_DIR if entry.is_dir else PANEL_TEXT)
-            y = self.y + 1 + row
+            y = 1 + row
             if selected:
-                buffer.fill(self.x + 1, y, self.width - 2, 1, " ", style)
-            buffer.draw_text(self.x + 1, y, entry.name, style, name_width)
-            buffer.draw_text(
-                self.x + self.width - 9, y, entry.display_size, style, 8
-            )
+                surface.fill(1, y, self.width - 2, 1, " ", style)
+            surface.draw_text(1, y, entry.name, style, name_width)
+            surface.draw_text(self.width - 9, y, entry.display_size, style, 8)
 
-    def _render_footer(self, buffer: ScreenBuffer) -> None:
+    def _render_footer(self, surface: Surface) -> None:
         summary = self.footer_text
-        buffer.draw_text(
-            self.x + max(1, (self.width - len(summary)) // 2),
-            self.y + self.height - 1,
-            summary,
-            PANEL,
+        surface.draw_text(
+            max(1, (self.width - len(summary)) // 2), self.height - 1, summary, PANEL
         )
 
 
 class MenuBar(Widget):
     """The pull-down menu bar across the top of the screen."""
 
-    def render(self, buffer: ScreenBuffer) -> None:
-        buffer.fill(self.x, self.y, self.width, 1, " ", MENU)
-        column = self.x + 1
+    def render(self, surface: Surface) -> None:
+        surface.fill(0, 0, self.width, 1, " ", MENU)
+        column = 1
         for item in MENU_ITEMS:
-            buffer.draw_text(column, self.y, item[0], MENU_HOTKEY)
-            buffer.draw_text(column + 1, self.y, item[1:], MENU)
+            surface.draw_text(column, 0, item[0], MENU_HOTKEY)
+            surface.draw_text(column + 1, 0, item[1:], MENU)
             column += len(item) + 2
 
 
 class KeyBar(Widget):
     """The F1..F10 hint bar across the bottom of the screen."""
 
-    def render(self, buffer: ScreenBuffer) -> None:
-        buffer.fill(self.x, self.y, self.width, 1, " ", KEYBAR_LABEL)
+    def render(self, surface: Surface) -> None:
+        surface.fill(0, 0, self.width, 1, " ", KEYBAR_LABEL)
         slot = max(3, self.width // len(FUNCTION_KEYS))
         for index, label in enumerate(FUNCTION_KEYS):
-            column = self.x + index * slot
-            if column >= self.x + self.width:
+            column = index * slot
+            if column >= self.width:
                 break
             number = str(index + 1)
-            buffer.draw_text(column, self.y, number, KEYBAR_NUMBER)
-            buffer.draw_text(
+            surface.draw_text(column, 0, number, KEYBAR_NUMBER)
+            surface.draw_text(
                 column + len(number),
-                self.y,
+                0,
                 label.ljust(slot - len(number)),
                 KEYBAR_LABEL,
                 slot - len(number),
@@ -349,8 +336,8 @@ class Manager(Widget):
     def switch_panel(self) -> None:
         self.left.active, self.right.active = self.right.active, self.left.active
 
-    def render(self, buffer: ScreenBuffer) -> None:
-        buffer.fill(self.x, self.y, self.width, self.height, " ", DESKTOP)
+    def render(self, surface: Surface) -> None:
+        surface.fill(0, 0, self.width, self.height, " ", DESKTOP)
 
 
 class Navigator(Application):
