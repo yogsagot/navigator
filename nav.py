@@ -299,7 +299,7 @@ class Navigator(Application):
         manager = self.manager
         panel = manager.active_panel
 
-        if event.matches("f10", "ctrl+q"):
+        if event.matches("f10", "ctrl+q", "alt+x"):
             self.exit()
         elif event.matches("tab"):
             manager.switch_panel()
