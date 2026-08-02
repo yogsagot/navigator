@@ -154,7 +154,7 @@ class Panel(Widget):
         the effect that assigns it; subscribing to it would be a loop.
         """
         cursor, rows = self.cursor, self.rows
-        scroll = peek(self, "scroll")
+        scroll = peek(self, Panel.scroll)
         if cursor < scroll:
             self.scroll = cursor
         elif cursor >= scroll + rows:
@@ -311,22 +311,22 @@ class Manager(Widget):
         This is the shape a ``*.nml`` file will compile to.
         """
         self.menu.x, self.menu.y = 0, 0
-        bind(self.menu, "width", lambda w: w.parent.width)
-        bind(self.menu, "height", lambda w: 1)
+        self.menu.width = bind(lambda w: w.parent.width)
+        self.menu.height = bind(lambda w: 1)
 
         self.keybar.x = 0
-        bind(self.keybar, "y", lambda w: max(1, w.parent.height - 1))
-        bind(self.keybar, "width", lambda w: w.parent.width)
-        bind(self.keybar, "height", lambda w: 1)
+        self.keybar.y = bind(lambda w: max(1, w.parent.height - 1))
+        self.keybar.width = bind(lambda w: w.parent.width)
+        self.keybar.height = bind(lambda w: 1)
 
         self.left.x, self.left.y = 0, 1
-        bind(self.left, "width", lambda w: w.parent.width // 2)
-        bind(self.left, "height", lambda w: max(3, w.parent.height - 2))
+        self.left.width = bind(lambda w: w.parent.width // 2)
+        self.left.height = bind(lambda w: max(3, w.parent.height - 2))
 
         self.right.y = 1
-        bind(self.right, "x", lambda w: w.parent.width // 2)
-        bind(self.right, "width", lambda w: w.parent.width - w.parent.width // 2)
-        bind(self.right, "height", lambda w: max(3, w.parent.height - 2))
+        self.right.x = bind(lambda w: w.parent.width // 2)
+        self.right.width = bind(lambda w: w.parent.width - w.parent.width // 2)
+        self.right.height = bind(lambda w: max(3, w.parent.height - 2))
 
     @computed
     def active_panel(self) -> Panel:

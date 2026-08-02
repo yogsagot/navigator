@@ -154,7 +154,7 @@ def test_a_style_assigned_the_same_value_asks_for_no_repaint(terminal):
 def test_layout_does_not_overwrite_a_bound_size():
     parent = Widget()
     child = parent.add(Widget())
-    bind(child, "width", lambda w: w.parent.width // 2)
+    child.width = bind(lambda w: w.parent.width // 2)
     parent.layout(20, 10)
     assert (child.width, child.height) == (10, 10)
 
@@ -162,7 +162,7 @@ def test_layout_does_not_overwrite_a_bound_size():
 def test_a_bound_child_follows_the_terminal_across_a_resize():
     parent = Widget()
     child = parent.add(Widget())
-    bind(child, "width", lambda w: w.parent.width // 2)
+    child.width = bind(lambda w: w.parent.width // 2)
     parent.layout(20, 10)
     parent.layout(60, 10)
     assert child.width == 30
@@ -171,7 +171,7 @@ def test_a_bound_child_follows_the_terminal_across_a_resize():
 def test_reparenting_re_evaluates_a_binding():
     first, second = Widget(width=20), Widget(width=60)
     child = first.add(Widget())
-    bind(child, "width", lambda w: w.parent.width // 2)
+    child.width = bind(lambda w: w.parent.width // 2)
     assert child.width == 10
     second.add(child)
     assert child.width == 30

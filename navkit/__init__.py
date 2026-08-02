@@ -14,6 +14,7 @@ from navkit.events import (
     ResizeEvent,
 )
 from navkit.reactive import (
+    Binding,
     CycleError,
     ReactiveError,
     bind,
@@ -33,6 +34,7 @@ from navkit.widget import Widget
 
 __all__ = [
     "Application",
+    "Binding",
     "CycleError",
     "DEFAULT_STYLE",
     "Event",

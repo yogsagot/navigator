@@ -15,10 +15,10 @@ Two declarations cover everything a widget class needs::
         def selected(self) -> DirEntry | None:
             return self.entries[self.cursor] if self.entries else None
 
-and one runtime call covers what markup needs, where the expression belongs to
-a single *instance* rather than to the class::
+and assigning a :func:`bind` expression covers what markup needs, where the
+expression belongs to a single *instance* rather than to the class::
 
-    bind(panel, "width", lambda w: w.parent.width // 2)
+    panel.width = bind(lambda w: w.parent.width // 2)
 
 Dependencies are discovered by running the expression and noting what it read,
 so nothing is ever declared twice and a conditional expression subscribes only
@@ -527,8 +527,21 @@ class Reactive(_Declaration, Generic[T]):
             return self
         return self.cell(obj).get()
 
-    def __set__(self, obj: object, value: T) -> None:
-        self.cell(obj).set(value)
+    def __set__(self, obj: object, value: T | Binding) -> None:
+        if isinstance(value, Binding):
+            self._bind(obj, value)
+        else:
+            self.cell(obj).set(value)
+
+    def _bind(self, obj: object, binding: Binding) -> None:
+        """Drive this attribute from *binding*'s expression from now on."""
+        cell = self.cell(obj)
+        _check_writable(cell)
+        cell.unlink()
+        cell.compute = binding.expression
+        cell.equal = binding.equal or self.equal or _equal
+        cell.state = _State.DIRTY
+        cell.notify()
 
 
 class Computed(_Declaration, Generic[T]):
@@ -562,7 +575,8 @@ class Computed(_Declaration, Generic[T]):
     def __set__(self, obj: object, value: T) -> None:
         raise AttributeError(
             f"{type(obj).__name__}.{self.name} is computed; assign what it "
-            f"derives from, or declare it reactive and use bind()"
+            f"derives from, or declare it reactive and assign a bind() "
+            f"expression"
         )
 
 
@@ -600,64 +614,89 @@ def computed(
 # -- runtime bindings ---------------------------------------------------------
 
 
-def _declaration(obj: object, name: str) -> _Declaration:
-    found = getattr(type(obj), name, None)
-    if not isinstance(found, _Declaration):
-        raise ReactiveError(f"{type(obj).__name__}.{name} is not reactive")
-    return found
+def _declaration(obj: object, attribute: Any) -> _Declaration:
+    """The declaration *attribute* refers to, checked against *obj*'s class.
+
+    The attribute is named by the class attribute itself -- ``Widget.width``,
+    which is the declaration object -- rather than by a string, so the editor
+    can complete it and a rename carries it along.
+    """
+    if not isinstance(attribute, _Declaration):
+        raise ReactiveError(f"{attribute!r} is not a reactive attribute")
+    if getattr(type(obj), attribute.name, None) is not attribute:
+        raise ReactiveError(
+            f"{type(obj).__name__} does not declare {attribute.name}"
+        )
+    return attribute
+
+
+class Binding:
+    """An expression on its way to a reactive attribute.
+
+    Assigning one is how a binding is installed: the descriptor recognises it
+    and drives the attribute from the expression instead of storing it as a
+    value.  Assigned to anything that is not reactive there is no descriptor
+    to notice, so it is simply stored -- which is what its repr is written to
+    make obvious.
+    """
+
+    __slots__ = ("equal", "expression")
+
+    def __init__(
+        self,
+        expression: Callable[[Any], Any],
+        equal: Callable[[Any, Any], bool] | None = None,
+    ):
+        self.expression = expression
+        self.equal = equal
+
+    def __repr__(self) -> str:
+        return f"<unassigned binding {self.expression!r}>"
 
 
 def bind(
-    obj: object,
-    name: str,
     expression: Callable[[Any], Any],
     *,
     equal: Callable[[Any, Any], bool] | None = None,
-) -> None:
-    """Make *name* on *obj* follow *expression* from now on.
+) -> Any:
+    """An expression for a reactive attribute to follow, assigned to it::
+
+        widget.width = bind(lambda w: w.parent.width // 2)
 
     This is the per-instance half of the system, and the one markup compiles
     to: ``width: parent.width // 2`` becomes a binding on that one widget, not
-    a declaration on its class.  Binding again replaces the expression, but a
-    plain assignment while a binding is live is an error rather than a silent
-    override -- call :func:`unbind` to take the attribute back by hand.
+    a declaration on its class.  The expression is called with the object that
+    owns the attribute and is not run until the value is read.
+
+    Assigning another one replaces the expression, but a plain value while a
+    binding is live is an error rather than a silent override -- call
+    :func:`unbind` to take the attribute back by hand.
     """
-    declaration = _declaration(obj, name)
-    if not isinstance(declaration, Reactive):
-        raise ReactiveError(
-            f"only a reactive attribute can be bound, and "
-            f"{type(obj).__name__}.{name} is not one"
-        )
-    cell = declaration.cell(obj)
-    cell.unlink()
-    cell.compute = expression
-    cell.equal = equal or declaration.equal or _equal
-    cell.state = _State.DIRTY
-    cell.notify()
+    return Binding(expression, equal)
 
 
-def unbind(obj: object, name: str) -> None:
-    """Detach the binding on *name*, keeping the value it last produced."""
-    cell = _declaration(obj, name).cell(obj)
+def unbind(obj: object, attribute: Any) -> None:
+    """Detach the binding on *attribute*, keeping the value it last produced."""
+    cell = _declaration(obj, attribute).cell(obj)
     with untracked(), contextlib.suppress(Exception):
         cell._validate()
     cell.error = None
     cell.unlink()
 
 
-def is_bound(obj: object, name: str) -> bool:
-    """True if *name* currently derives its value from an expression."""
-    return _declaration(obj, name).cell(obj).compute is not None
+def is_bound(obj: object, attribute: Any) -> bool:
+    """True if *attribute* currently derives its value from an expression."""
+    return _declaration(obj, attribute).cell(obj).compute is not None
 
 
-def peek(obj: object, name: str) -> Any:
-    """Read *name* without subscribing to it.
+def peek(obj: object, attribute: Any) -> Any:
+    """Read *attribute* without subscribing to it.
 
     What an effect uses to look at the value it is about to assign, so that
     assigning does not wake it up again.
     """
     with untracked():
-        return getattr(obj, name)
+        return getattr(obj, _declaration(obj, attribute).name)
 
 
 def effect(

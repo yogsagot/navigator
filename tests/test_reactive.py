@@ -257,7 +257,7 @@ def test_untracked_nests_inside_a_tracked_computation():
 def test_peek_reads_without_subscribing():
     class Quiet:
         a = reactive(1)
-        shy = computed(lambda self: peek(self, "a"))
+        shy = computed(lambda self: peek(self, Quiet.a))
 
     quiet = Quiet()
     assert quiet.shy == 1
@@ -372,7 +372,7 @@ def test_a_binding_attached_at_runtime_drives_the_attribute():
     root, child = Node(), Node()
     root.width = 80
     child.parent = root
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     assert child.width == 40
     root.width = 100
     assert child.width == 50
@@ -382,13 +382,21 @@ def test_only_one_instance_is_affected_by_a_binding():
     root, bound, plain = Node(), Node(), Node()
     root.width = 80
     bound.parent = plain.parent = root
-    bind(bound, "width", lambda n: n.parent.width // 2)
+    bound.width = bind(lambda n: n.parent.width // 2)
     assert (bound.width, plain.width) == (40, 0)
+
+
+def test_a_binding_can_be_assigned_before_the_expression_can_run():
+    """The expression is not called until somebody reads the value."""
+    child = Node()
+    child.width = bind(lambda n: 1 // 0)
+    with pytest.raises(ZeroDivisionError):
+        child.width
 
 
 def test_assigning_over_a_binding_raises():
     child = Node()
-    bind(child, "width", lambda n: 7)
+    child.width = bind(lambda n: 7)
     with pytest.raises(ReactiveError, match="unbind"):
         child.width = 5
 
@@ -397,9 +405,9 @@ def test_unbind_freezes_the_last_value():
     root, child = Node(), Node()
     root.width = 80
     child.parent = root
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     assert child.width == 40
-    unbind(child, "width")
+    unbind(child, Node.width)
     root.width = 1000
     assert child.width == 40
     child.width = 5  # and the attribute is writable again
@@ -408,25 +416,25 @@ def test_unbind_freezes_the_last_value():
 
 def test_a_rebind_replaces_the_previous_expression():
     child = Node()
-    bind(child, "width", lambda n: 7)
-    bind(child, "width", lambda n: 9)
+    child.width = bind(lambda n: 7)
+    child.width = bind(lambda n: 9)
     assert child.width == 9
 
 
 def test_is_bound_reports_whether_an_expression_is_driving_the_value():
     child = Node()
-    assert not is_bound(child, "width")
-    bind(child, "width", lambda n: 7)
-    assert is_bound(child, "width")
-    unbind(child, "width")
-    assert not is_bound(child, "width")
+    assert not is_bound(child, Node.width)
+    child.width = bind(lambda n: 7)
+    assert is_bound(child, Node.width)
+    unbind(child, Node.width)
+    assert not is_bound(child, Node.width)
 
 
 def test_a_binding_is_re_evaluated_when_the_parent_changes():
     first, second, child = Node(), Node(), Node()
     first.width, second.width = 80, 40
     child.parent = first
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     assert child.width == 40
     child.parent = second
     assert child.width == 20
@@ -435,7 +443,7 @@ def test_a_binding_is_re_evaluated_when_the_parent_changes():
 def test_a_binding_on_an_orphan_resolves_once_it_is_parented():
     root, child = Node(), Node()
     root.width = 80
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     with pytest.raises(AttributeError):
         child.width
     child.parent = root
@@ -443,10 +451,29 @@ def test_a_binding_on_an_orphan_resolves_once_it_is_parented():
 
 
 def test_only_a_reactive_attribute_can_be_bound():
-    with pytest.raises(ReactiveError, match="not one"):
-        bind(Box(), "total", lambda b: 1)
-    with pytest.raises(ReactiveError, match="not reactive"):
-        is_bound(Box(), "runs")
+    with pytest.raises(AttributeError, match="computed"):
+        Box().total = bind(lambda b: 1)
+
+
+def test_an_attribute_has_to_be_named_by_the_declaration_itself():
+    with pytest.raises(ReactiveError, match="not a reactive attribute"):
+        is_bound(Node(), "width")  # the name, rather than the attribute
+    with pytest.raises(ReactiveError, match="does not declare"):
+        is_bound(Node(), Box.a)  # somebody else's attribute
+
+
+def test_a_computed_may_not_install_a_binding():
+    class Sneak:
+        a = reactive(1)
+        target = reactive(0)
+
+        @computed
+        def impure(self) -> int:
+            self.target = bind(lambda s: 5)
+            return self.a
+
+    with pytest.raises(ReactiveError, match="may not assign"):
+        Sneak().impure
 
 
 # -- effects ------------------------------------------------------------------
@@ -584,7 +611,7 @@ def test_a_dependent_is_collected_even_though_its_source_saw_it():
     root, child = Node(), Node()
     root.width = 80
     child.parent = root
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     assert child.width == 40
 
     reference = weakref.ref(child)
@@ -597,7 +624,7 @@ def test_a_collected_subscriber_does_not_break_a_later_write():
     root, child = Node(), Node()
     root.width = 80
     child.parent = root
-    bind(child, "width", lambda n: n.parent.width // 2)
+    child.width = bind(lambda n: n.parent.width // 2)
     child.width
     del child
     gc.collect()

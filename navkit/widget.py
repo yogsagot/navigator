@@ -11,7 +11,7 @@ widget's own area, so it paints from ``0, 0`` in its own ``width`` x
 Geometry, visibility, style and the link to the parent are observable: assign
 one and everything derived from it goes out of date, and the screen is marked
 for a repaint without anybody calling :meth:`invalidate` by hand.  A size may
-also be *bound* to an expression -- ``bind(panel, "width", lambda w:
+also be *bound* to an expression -- ``panel.width = bind(lambda w:
 w.parent.width // 2)`` -- which is what markup compiles to and what makes a
 container able to place its children without a :meth:`layout` method at all.
 """
@@ -118,9 +118,9 @@ class Widget:
         it is an error rather than a silent override -- so the cascade has to
         step around it, or the first resize would take the whole tree down.
         """
-        if not is_bound(self, "width"):
+        if not is_bound(self, Widget.width):
             self.width = width
-        if not is_bound(self, "height"):
+        if not is_bound(self, Widget.height):
             self.height = height
         for child in self.children:
             child.layout(self.width, self.height)

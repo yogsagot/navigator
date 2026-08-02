@@ -268,7 +268,7 @@ class ReactingWidget(RecordingWidget):
 
     def render(self, buffer) -> None:
         super().render(buffer)
-        self.painted.append(peek(self, "label"))
+        self.painted.append(peek(self, ReactingWidget.label))
 
 
 def test_effects_run_before_the_frame_is_painted(terminal):
