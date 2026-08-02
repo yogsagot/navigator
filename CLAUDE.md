@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` is still empty — the markup language, its parser, the code generator and the widget library are all unwritten, and the README is the design document for them.
+Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them; `navml/DESIGN.md` records the decisions already taken, and is where the next one belongs.
 
 There is no lint or build tooling configured yet. When adding one, record the command here.
 
@@ -57,11 +57,13 @@ Still to build here:
 
 ### `navml/` — markup language + widget library
 
-- `*.nml` markup language inspired by QML and Kivy
+- `*.nml` markup language: QML for the architecture (a declarative tree, `id`s, properties that are re-evaluated expressions), Kivy for the syntax (blocks made by indentation, no braces, no semicolons, one property per line)
 - Parser translating `.nml` into a node graph
 - Code generator traversing that node graph to emit a Python class
 - The generated class is silently merged with a hand-written Python module holding the event handlers; Python's import machinery is overridden so a single `import` yields the merged class. This import hook is the crux of the layer — `.nml` files and their sibling `.py` handler modules are two halves of one class.
 - Rich widget library (windows, buttons, menus, labels, standard event handlers) modelled on Borland's TurboVision
+
+Nothing here is written yet, but `navml/DESIGN.md` records the decisions already made — currently how a property expression (`width: parent.width // 2`) is compiled into the one-argument lambda `bind()` expects, by rewriting the expression's free names on the syntax tree rather than by formatting strings. Read it before starting the parser or the generator, and add to it rather than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 

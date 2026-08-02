@@ -13,7 +13,8 @@ It contains of three parts:
       reference them
     - defines *.css like style sheet library and style lookup engine
 - **navml** - custom markup language and widget library
-    - defines a custom markup language in *.nml files heavily inspired by QML and Kivy frameworks
+    - defines a custom markup language in *.nml files heavily inspired by QML and Kivy frameworks - QML for the
+      architecture, Kivy for the syntax, so blocks are made by indentation and lines carry no semicolons
     - defines an *.nml file parser that translates it into node graph suitable for python class code-generator
     - defines a python class code-generator that traverses node graph from parser
     - silently merges code-generated python class with hand written python module with event handlers
