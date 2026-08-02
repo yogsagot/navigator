@@ -80,3 +80,5 @@ Nothing here is written yet, but `navml/DESIGN.md` records the decisions already
 
 - Keep `navkit` free of any dependency on `navml` or the application; keep `navml` free of any dependency on the file manager. The dependency direction is strictly one-way.
 - Prefer recreating original DOS Navigator behaviour over inventing modern alternatives when the two conflict — fidelity is the point of the project.
+
+P.S. NEVER suggest to commit code, unless you are explicitly asked to do so.
