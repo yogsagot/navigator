@@ -10,7 +10,8 @@ from navkit.events import KeyEvent, MouseEvent
 from navkit.screen import ScreenBuffer
 
 from conftest import FakeTerminal, run_app, settle
-from nav import DirEntry, Manager, Navigator, Panel
+from nav import SCHEME, DirEntry, Manager, Navigator, Panel
+from navkit.stylesheet import parse
 
 
 def navigator(path, size=(80, 24)) -> Navigator:
@@ -31,7 +32,11 @@ def tree(tmp_path):
 
 @pytest.fixture
 def panel(tree):
-    return Panel(tree, width=40, height=20)
+    # A panel outside the desktop has no scheme to resolve against, so it gets
+    # the Navigator one directly -- the same sheet Manager installs on itself.
+    widget = Panel(tree, width=40, height=20)
+    widget._stylesheet = parse(SCHEME)
+    return widget
 
 
 def names(panel: Panel) -> list[str]:
@@ -286,3 +291,32 @@ def test_the_wheel_scrolls_the_panel_under_the_pointer(tmp_path):
     app = navigator(tmp_path)
     run_app(app, [MouseEvent(x=5, y=5, button="wheel_down", action="press")])
     assert app.manager.left.cursor == 3
+
+def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
+    """Swapping the sheet must change what the panel paints.
+
+    The migration is only real if the render methods read the cascade.  A
+    theme that redefines one variable should reach the frame colour without
+    touching a single rule.
+    """
+    from navkit.style import RED
+    from navkit.stylesheet import load
+
+    assert panel.style.fg == 14  # light_cyan, from $panel-fg
+    panel._stylesheet = load([("s.nss", SCHEME), ("t.nss", "$panel-fg: red;")])
+    assert panel.style.fg == RED
+
+    buffer = ScreenBuffer(40, 20)
+    panel.render(buffer)
+    assert buffer.get(0, 0)[1].fg == RED  # the frame really is painted in it
+
+
+def test_the_border_comes_from_the_sheet_not_from_active(panel):
+    """``active`` picks the frame only because a rule says so."""
+    panel.active = True
+    assert panel.style_property("border") == "double"
+    panel._stylesheet = parse(SCHEME + "\nPanel:active { border: single }")
+    assert panel.style_property("border") == "single"
+    buffer = ScreenBuffer(40, 20)
+    panel.render(buffer)
+    assert "".join(buffer.get(x, 0)[0] for x in range(40)).startswith("┌")

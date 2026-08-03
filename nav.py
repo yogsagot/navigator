@@ -17,19 +17,46 @@ from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import Surface
-from navkit.style import BLACK, BLUE, CYAN, LIGHT_CYAN, RED, WHITE, Style
+from navkit.style import BLACK, CYAN, Style
+from navkit.stylesheet import parse, register_property
 from navkit.widget import Widget
 
-PANEL = Style(fg=LIGHT_CYAN, bg=BLUE)
-PANEL_TEXT = Style(fg=LIGHT_CYAN, bg=BLUE)
-PANEL_DIR = Style(fg=WHITE, bg=BLUE, bold=True)
-PANEL_TITLE = Style(fg=BLACK, bg=CYAN)
-PANEL_TITLE_DIM = Style(fg=LIGHT_CYAN, bg=BLUE)
-CURSOR = Style(fg=BLACK, bg=CYAN)
-MENU = Style(fg=BLACK, bg=CYAN)
-MENU_HOTKEY = Style(fg=RED, bg=CYAN)
-KEYBAR_NUMBER = Style(fg=WHITE, bg=BLACK)
-KEYBAR_LABEL = Style(fg=BLACK, bg=CYAN)
+#: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
+#: input to a drawing operation, not an appearance a cell can carry -- so the
+#: widget that reads it has to declare it before a sheet may name it.
+register_property("border")
+
+#: The classic DOS Navigator scheme.  Everything the screen looks like is here
+#: rather than spread through the ``render`` methods, and most of it is what
+#: is *not* written: a part with no rule of its own inherits its widget, which
+#: is why the panel title, the footer, the error line and an ordinary row need
+#: no declarations at all.
+SCHEME = """
+$panel-fg:  light_cyan;   $panel-bg:  red;
+$accent-fg: black;        $accent-bg: cyan;
+
+Manager { fg: cyan; bg: black }
+
+Panel                { fg: $panel-fg; bg: $panel-bg; border: single }
+Panel:active         { border: double }
+Panel:active::title  { fg: $accent-fg; bg: $accent-bg }
+Panel::row.directory { fg: white; bold: true }
+/* The cursor wins over the directory colour, and turns its bold off again --
+   without that the two rules tie on specificity and `bold` would survive,
+   which is the one place a per-property cascade differs from picking a
+   winning rule outright. */
+Panel::row:selected  { fg: $accent-fg; bg: $accent-bg; bold: false }
+
+MenuBar         { fg: $accent-fg; bg: $accent-bg }
+MenuBar::hotkey { fg: red }
+
+KeyBar          { fg: $accent-fg; bg: $accent-bg }
+KeyBar::number  { fg: white; bg: black }
+"""
+
+#: What the buffer is cleared to before the tree paints over it.  Kept as a
+#: value because :class:`~navkit.application.Application` clears the screen
+#: before any widget is consulted.
 DESKTOP = Style(fg=CYAN, bg=BLACK)
 
 MENU_ITEMS = ["Left", "Files", "Commands", "Options", "Right"]
@@ -96,7 +123,7 @@ class Panel(Widget):
     reload_token: int = reactive(0)
 
     def __init__(self, path: Path, **kwargs):
-        super().__init__(inline_style=PANEL, **kwargs)
+        super().__init__(**kwargs)
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
         #: cursor can land on the directory we just climbed out of.
         self._return_to: str | None = None
@@ -218,7 +245,13 @@ class Panel(Widget):
 
     def render(self, surface: Surface) -> None:
         surface.draw_box(
-            0, 0, self.width, self.height, PANEL, double=self.active, fill=" "
+            0,
+            0,
+            self.width,
+            self.height,
+            self.style,
+            double=self.style_property("border") == "double",
+            fill=" ",
         )
         self._render_title(surface)
         self._render_entries(surface)
@@ -226,12 +259,12 @@ class Panel(Widget):
 
     def _render_title(self, surface: Surface) -> None:
         label = self.title_text
-        style = PANEL_TITLE if self.active else PANEL_TITLE_DIM
+        style = self.part_style("title")
         surface.draw_text(max(1, (self.width - len(label)) // 2), 0, label, style)
 
     def _render_entries(self, surface: Surface) -> None:
         if self.error is not None:
-            surface.draw_text(2, 2, self.error, PANEL_TEXT, self.width - 4)
+            surface.draw_text(2, 2, self.error, self.part_style("error"), self.width - 4)
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
@@ -241,8 +274,15 @@ class Panel(Widget):
             if index >= len(self.entries):
                 break
             entry = self.entries[index]
+            # The cursor only shows on the panel that has focus, so the two
+            # conditions are ANDed here rather than left to a ``:active``
+            # selector: the row fill below is gated on the same answer.
             selected = index == self.cursor and self.active
-            style = CURSOR if selected else (PANEL_DIR if entry.is_dir else PANEL_TEXT)
+            style = self.part_style(
+                "row",
+                classes=("directory",) if entry.is_dir else (),
+                selected=selected,
+            )
             y = 1 + row
             if selected:
                 surface.fill(1, y, self.width - 2, 1, " ", style)
@@ -252,7 +292,10 @@ class Panel(Widget):
     def _render_footer(self, surface: Surface) -> None:
         summary = self.footer_text
         surface.draw_text(
-            max(1, (self.width - len(summary)) // 2), self.height - 1, summary, PANEL
+            max(1, (self.width - len(summary)) // 2),
+            self.height - 1,
+            summary,
+            self.part_style("footer"),
         )
 
 
@@ -260,11 +303,12 @@ class MenuBar(Widget):
     """The pull-down menu bar across the top of the screen."""
 
     def render(self, surface: Surface) -> None:
-        surface.fill(0, 0, self.width, 1, " ", MENU)
+        label, hotkey = self.style, self.part_style("hotkey")
+        surface.fill(0, 0, self.width, 1, " ", label)
         column = 1
         for item in MENU_ITEMS:
-            surface.draw_text(column, 0, item[0], MENU_HOTKEY)
-            surface.draw_text(column + 1, 0, item[1:], MENU)
+            surface.draw_text(column, 0, item[0], hotkey)
+            surface.draw_text(column + 1, 0, item[1:], label)
             column += len(item) + 2
 
 
@@ -272,19 +316,20 @@ class KeyBar(Widget):
     """The F1..F10 hint bar across the bottom of the screen."""
 
     def render(self, surface: Surface) -> None:
-        surface.fill(0, 0, self.width, 1, " ", KEYBAR_LABEL)
+        label_style, number_style = self.style, self.part_style("number")
+        surface.fill(0, 0, self.width, 1, " ", label_style)
         slot = max(3, self.width // len(FUNCTION_KEYS))
         for index, label in enumerate(FUNCTION_KEYS):
             column = index * slot
             if column >= self.width:
                 break
             number = str(index + 1)
-            surface.draw_text(column, 0, number, KEYBAR_NUMBER)
+            surface.draw_text(column, 0, number, number_style)
             surface.draw_text(
                 column + len(number),
                 0,
                 label.ljust(slot - len(number)),
-                KEYBAR_LABEL,
+                label_style,
                 slot - len(number),
             )
 
@@ -293,11 +338,15 @@ class Manager(Widget):
     """The Navigator desktop: menu bar, two panels and the key bar."""
 
     def __init__(self, left: Path, right: Path):
-        super().__init__(inline_style=DESKTOP)
-        self.menu = MenuBar(inline_style=MENU)
+        super().__init__()
+        # The desktop brings its own look, so the tree is styled with or
+        # without an application around it -- which is also what lets a single
+        # panel be built and painted on its own.
+        self._stylesheet = parse(SCHEME, filename="<navigator scheme>")
+        self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)
-        self.keybar = KeyBar(inline_style=KEYBAR_LABEL)
+        self.keybar = KeyBar()
         for child in (self.menu, self.left, self.right, self.keybar):
             self.add(child)
         self._place()
@@ -337,7 +386,7 @@ class Manager(Widget):
         self.left.active, self.right.active = self.right.active, self.left.active
 
     def render(self, surface: Surface) -> None:
-        surface.fill(0, 0, self.width, self.height, " ", DESKTOP)
+        surface.fill(0, 0, self.width, self.height, " ", self.style)
 
 
 class Navigator(Application):

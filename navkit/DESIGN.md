@@ -708,6 +708,30 @@ whatever a widget declares — its parts and its properties — plus whatever a 
 like. Anything outside both is the `render()` escape hatch, level 4 above, which answers to
 nothing precisely so that there is always somewhere to go.
 
+## What the migration settled
+
+`nav.py` now paints from `self.style` and `part_style()`, and its eleven module constants are
+gone. The frames are **byte-identical** — 18 variants across three terminal sizes, both panels
+active in turn and three cursor positions, 54,696 bytes of terminal output, matching hash
+before and after.
+
+Two things that only showed up once a real screen was expressed:
+
+- **Most of a scheme is what you do not write.** Ten rules replaced eleven constants and
+  thirteen branch decisions, because a part with no rule of its own inherits its widget. The
+  panel title when inactive, the footer, the error line and an ordinary row all needed nothing
+  at all — the four constants they used were duplicates of `PANEL` by value, which the
+  inheritance rule expresses as absence.
+- **A per-property cascade differs from picking a winning rule, and a real scheme finds it.**
+  `Panel::row.directory` and `Panel::row:selected` tie on specificity, so source order settles
+  the colours — but `bold` came from the directory rule and *survived* into the selected row,
+  because the selected rule never mentioned it. The old code, choosing one whole `Style`, could
+  not have that bug. The scheme says `bold: false` explicitly, and the comment there says why.
+
+A third is a mechanism the design had listed as merely possible: a widget may carry its own
+sheet in `_stylesheet`, the nearest winning. `Manager` uses it, which is what lets the desktop
+be styled with no application around it — and lets a test hold a single `Panel` and paint it.
+
 ## What building it settled
 
 Three things the design could not have known, found by writing `navkit/stylesheet.py` and
@@ -742,14 +766,11 @@ appears to work.
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates
   what `Manager.render` paints; once the desktop widget paints its resolved style, one of the
   two is redundant.
-- Migrating `nav.py` to paint from `self.style` and `part_style()` instead of its eleven module
-  constants. The engine has no consumer until this happens, and it is the only end-to-end
-  check that matters: the frames should come out byte-identical.
-- Which parts and properties each library widget declares. `Panel` needs the `row`, `title`,
-  `footer` and `error` parts and a `border` property; `MenuBar` needs `hotkey`; `KeyBar` needs
-  `number`. Together these are a widget's public styling surface, and they are what the parser
-  checks an unknown declaration key against, so they belong with the widget library rather than
-  here.
+- Which parts and properties the eventual *library* widgets declare. `nav.py` has settled its
+  own — `Panel` paints `row`, `title`, `footer` and `error` and reads a `border` property,
+  `MenuBar` paints `hotkey`, `KeyBar` paints `number` — but a widget's parts are its public
+  styling surface, and they are what the parser checks an unknown key against, so the library's
+  belong with the library.
 - What `border` may be set to, and whether `draw_box`'s `double=` keyword becomes a charset
   argument. The property has to name a set of box-drawing characters — `single`, `double`,
   `ascii` at least — which is a small vocabulary that belongs with the widget library too.

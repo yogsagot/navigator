@@ -53,6 +53,10 @@ class Widget:
     #: property by property rather than replacing it, so it does not stop the
     #: properties it leaves alone from being inherited.
     inline_style: Any = reactive(None)
+    #: A sheet governing this widget and everything under it, overriding the
+    #: application's.  Normally ``None``; set it on the root of a screen that
+    #: brings its own look.
+    _stylesheet: Stylesheet | None = reactive(None)
     #: Observable too, so an expression written in terms of the parent is
     #: re-evaluated when the widget moves to a different one.
     parent: Widget | None = reactive(None)
@@ -129,10 +133,19 @@ class Widget:
     def stylesheet(self) -> Stylesheet:
         """The sheet governing this widget, or an empty one.
 
-        Read through :attr:`application`, which is itself derived, so replacing
-        the application's sheet -- loading a theme -- restyles the whole tree
-        without anything having to walk it.
+        The nearest one wins: a widget carrying its own governs the subtree
+        beneath it, and otherwise the search ends at the application's.  That
+        is what lets a self-contained screen -- or a test holding one widget --
+        be styled without an application around it.
+
+        Both the walk and :attr:`application` are derived, so replacing either
+        sheet restyles everything below it without anything walking the tree.
         """
+        widget: Widget | None = self
+        while widget is not None:
+            if widget._stylesheet is not None:
+                return widget._stylesheet
+            widget = widget.parent
         app = self.application
         return getattr(app, "stylesheet", None) or stylesheet.EMPTY
 

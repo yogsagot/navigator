@@ -62,9 +62,7 @@ Things to know before touching the style layer:
 - **Widget properties do not inherit**, only `Style` fields do. `border: double` on a panel does not give its children a frame. Register a non-`Style` declaration name with `stylesheet.register_property()` or the parser rejects it.
 - `navkit/DESIGN.md` records why each of these went the way it did, including the parts that were measured rather than argued. Add to it rather than re-deciding.
 
-Still to build here:
-
-- Nothing paints from `self.style` yet — `nav.py` still uses its eleven module constants, so the engine is live but unconsumed. Migrating those render methods is the end-to-end check: the frames should come out byte-identical.
+- A widget may carry its own sheet in `_stylesheet`, governing the subtree under it; the nearest one wins and the search ends at the application's. `Manager` uses this, so the desktop is styled with or without an application around it.
 
 ### `navml/` — markup language + widget library
 
