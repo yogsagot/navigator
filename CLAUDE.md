@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them. Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.md` for the one unbuilt part of the core, the stylesheet and its lookup engine.
 
-There is no lint or build tooling configured yet. When adding one, record the command here.
+There is no lint tooling configured yet. When adding one, record the command here. Packaging is setuptools via `pyproject.toml`: `./venv/bin/python -m build --wheel` (needs `pip install build`).
+
+`navigator/` is a package of run-time **assets**, not code — `nav.py` at the repository root is still the application. It exists so the stylesheets have a name the project owns: they are loaded through `importlib.resources`, and anything outside a package reaches neither a wheel nor site-packages. `navigator/styles/*.nss` is declared as package data; a new asset directory needs a matching `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install.
 
 ## Environment and commands
 

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib.resources import files
 from pathlib import Path
 
 from navkit.application import Application
@@ -29,7 +30,11 @@ register_property("border")
 #: Where sheets live.  A directory rather than a single file because a theme is
 #: nothing more than another ``.nss`` loaded after the default one, so this is
 #: also where one would be dropped.
-STYLES = Path(__file__).parent / "data" / "styles"
+#:
+#: Located through the package rather than by walking out from ``__file__``, so
+#: it resolves the same from a source checkout and from an installed copy --
+#: which is the reason ``navigator/`` is a package at all.
+STYLES = Path(str(files("navigator.styles")))
 
 #: The colour scheme.  Everything the screen looks like is in there rather than
 #: spread through the ``render`` methods.

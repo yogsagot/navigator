@@ -1,3 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "navigator"
+version = "0.1.0"
+description = "A recreation of the DOS Navigator two-panel file manager for POSIX terminals"
+readme = "README.md"
+requires-python = ">=3.12"
+# Deliberately empty, for the same reason requirements.txt is: navkit is
+# stdlib-only at run time.  Test tooling lives in requirements-dev.txt.
+dependencies = []
+
+[project.scripts]
+nav = "nav:main"
+
+[tool.setuptools]
+# `nav` is a single module at the repository root rather than a package; the
+# `navigator` package beside it carries the assets that module loads at run
+# time, and exists so those assets have a name the project owns.
+py-modules = ["nav"]
+
+[tool.setuptools.packages.find]
+include = ["navkit*", "navml*", "navigator*"]
+
+[tool.setuptools.package-data]
+# Stylesheets are found through `importlib.resources`, so they have to live
+# inside the package rather than beside it: a top-level `data/` directory
+# reaches neither a wheel nor site-packages without claiming a name no project
+# should own.
+"navigator.styles" = ["*.nss"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Tests import navkit and nav from the repository root.
