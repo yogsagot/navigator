@@ -13,13 +13,7 @@ requires-python = ">=3.12"
 dependencies = []
 
 [project.scripts]
-nav = "nav:main"
-
-[tool.setuptools]
-# `nav` is a single module at the repository root rather than a package; the
-# `navigator` package beside it carries the assets that module loads at run
-# time, and exists so those assets have a name the project owns.
-py-modules = ["nav"]
+nav = "navigator.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["navkit*", "navml*", "navigator*"]
@@ -33,6 +27,6 @@ include = ["navkit*", "navml*", "navigator*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Tests import navkit and nav from the repository root.
+# Tests import navkit and navigator from the repository root.
 pythonpath = ["."]
 addopts = "-q"

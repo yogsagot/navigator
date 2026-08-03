@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them. Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.md` for the one unbuilt part of the core, the stylesheet and its lookup engine.
+Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `navigator/__main__.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them. Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.md` for the one unbuilt part of the core, the stylesheet and its lookup engine.
 
 There is no lint tooling configured yet. When adding one, record the command here. Packaging is setuptools via `pyproject.toml`: `./venv/bin/python -m build --wheel` (needs `pip install build`).
 
-`navigator/` is a package of run-time **assets**, not code — `nav.py` at the repository root is still the application. It exists so the stylesheets have a name the project owns: they are loaded through `importlib.resources`, and anything outside a package reaches neither a wheel nor site-packages. `navigator/styles/*.nss` is declared as package data; a new asset directory needs a matching `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install.
+The application lives in the `navigator/` package: `navigator/__main__.py` is the whole of it, and `navigator/styles/` holds the assets it loads. Assets are found through `importlib.resources` rather than relative to `__file__`, and `navigator/styles/*.nss` is declared as package data — a new asset directory needs a matching `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install.
 
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
 - Stdlib only at runtime — `requirements.txt` is deliberately empty. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
-- Run the file manager: `./venv/bin/python nav.py [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels, arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, F10 or Ctrl+Q quits)
+- Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels, arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, F10 or Ctrl+Q quits)
 - Run the tests: `./venv/bin/python -m pytest`; one file with `... -m pytest tests/test_screen.py`; one test with `... -m pytest tests/test_screen.py::test_only_changed_cells_are_emitted` or `-k <substring>`
-- pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `nav` from the repo root
+- pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `navigator` from the repo root
 
 ## Testing
 
@@ -28,7 +28,7 @@ There is no lint tooling configured yet. When adding one, record the command her
 
 Tests drive the loop through `Application.post_event()` and read `Application.is_running`; both exist so tests never have to reach into the private queue. Actions posted in a single callback land in one batch, which is how the "one frame per batch" behaviour is asserted.
 
-For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `nav.py` on a pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints). This is a manual check, not part of the suite.
+For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `python -m navigator` on a pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints). This is a manual check, not part of the suite.
 
 ## Intended architecture
 
@@ -78,7 +78,7 @@ Nothing here is written yet, but `navml/DESIGN.md` records the decisions already
 
 ### `navigator` / `nav` — the file manager application
 
-`nav.py` currently holds the whole application: `Manager` (the desktop), `MenuBar`, `Panel`, `KeyBar` and the `Navigator` application subclass, all painting by hand. These screens move into `*.nml` markup once navml exists, leaving only event handlers behind — so treat the widget code here as scaffolding, not as the eventual home of the UI. `Manager._place()` and `Panel`'s effects are written the way markup will compile, and are the closest thing in the repo to a worked example: `Manager` has no `layout()` at all, and `Panel` assigns `path` and lets the listing, cursor and scroll follow.
+`navigator/__main__.py` currently holds the whole application: `Manager` (the desktop), `MenuBar`, `Panel`, `KeyBar` and the `Navigator` application subclass, all painting by hand. These screens move into `*.nml` markup once navml exists, leaving only event handlers behind — so treat the widget code here as scaffolding, not as the eventual home of the UI. `Manager._place()` and `Panel`'s effects are written the way markup will compile, and are the closest thing in the repo to a worked example: `Manager` has no `layout()` at all, and `Panel` assigns `path` and lets the listing, cursor and scroll follow.
 
 - `Manager` window with two file-listing panels
 - View and Edit file windows

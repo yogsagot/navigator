@@ -54,7 +54,7 @@ the authoring side — see *Where a widget's style comes from*. Nothing selects 
   generator quietly emit one from the `id` would undo the whole distinction above and drag the
   document-scoped uniqueness problem into a global namespace.
 - **`:state` costs no new state at all.** `Panel.active` is already declared and already
-  chooses three of the styles `nav.py` paints; matching it directly is free. A `classes` set
+  chooses three of the styles `navigator/__main__.py` paints; matching it directly is free. A `classes` set
   that had to carry `"active"` alongside it would be the same fact stored twice, kept in step
   by an effect that exists only to serve the stylesheet.
 - **But `:state` draws its names from the widget's own namespace, so it inherits that
@@ -205,7 +205,7 @@ Small, and much smaller now than later — `style` is written at six places in t
 at one:
 
 - `Widget.__init__` takes `inline_style: str | Mapping | None = None` and assigns it. The
-  `style=` keyword goes away, so the four `nav.py` call sites (`nav.py:99,296,297,300`) become
+  `style=` keyword goes away, so the four `navigator/__main__.py` call sites (`navigator/__main__.py`) become
   `inline_style=`, and a stale `style=` raises on the unknown keyword rather than being
   quietly accepted.
 - `tests/conftest.py:80`'s `RecordingWidget` keeps reading `self.style` and is then reading the
@@ -242,7 +242,7 @@ dialog's background or it will punch a hole in it.
 
 Without inheritance every such pairing needs a rule that restates the container's colours:
 `Dialog Label`, `Dialog Button`, `Dialog CheckBox`, and so on for each widget type that can
-appear inside each container. That is tolerable at `nav.py`'s scale — its eleven style
+appear inside each container. That is tolerable at `navigator/__main__.py`'s scale — its eleven style
 constants collapse to about five distinct values — and it does not scale to the TurboVision-like
 library of windows, buttons, menus and labels the README plans.
 
@@ -293,8 +293,8 @@ the chain, which is one more thing the declarations form gets right.
 The root inherits from `DEFAULT_STYLE`, not from `Application.background`. The background is
 reached by walking to `_application`, which is a plain non-reactive attribute, so a background
 change would restyle nothing; and the desktop widget's own rule is the honest place to say what
-the desktop looks like. `nav.py` already carries this redundancy — `background=DESKTOP` at
-`nav.py:348` and `Manager.render` filling with `DESKTOP` at `nav.py:340`.
+the desktop looks like. `navigator/__main__.py` already carries this redundancy — `background=DESKTOP` at
+`navigator/__main__.py` and `Manager.render` filling with `DESKTOP` at `navigator/__main__.py`.
 
 ### A constraint this exposes: the sheet itself has to be reactive
 
@@ -565,7 +565,7 @@ Panel:active::row:selected { fg: black; bg: cyan }
 ### Why not row widgets
 
 **Because row widgets would not have finished the job.** The menu hotkey letter
-(`nav.py:266`) and the key bar's digit (`nav.py:282`) are substrings inside a single
+(`navigator/__main__.py`) and the key bar's digit (`navigator/__main__.py`) are substrings inside a single
 `draw_text` run; no widget granularity reaches them short of a widget per character run. A
 mechanism for styling what a widget paints rather than what it *is* was therefore needed
 whatever was decided about rows — and once it exists, rows need nothing further.
@@ -591,7 +591,7 @@ lost to surface views. Mouse hit-testing does not argue back: the row under a cl
 A part is not a widget and has no place in the tree. It inherits from its **owner's resolved
 style** — `self.style` is the `derive` base — and then the matching `::part` rules cascade over
 it exactly as rules cascade for a widget. Owner state composes with part state, which is what
-`Panel:active::row:selected` says and what `nav.py:244`'s real condition
+`Panel:active::row:selected` says and what `navigator/__main__.py`'s real condition
 (`index == self.cursor and self.active`) actually needs.
 
 A sub-control counts in the **type** column of the specificity tuple, as CSS counts a
@@ -613,8 +613,8 @@ condition of the design working.
 
 ## Widget properties: `Style` does **not** grow a border field
 
-The last of `nav.py`'s style decisions is the `Panel` frame doubling on `active`
-(`nav.py:221`), which picks a box-drawing character set. It should be stylable — but not by
+The last of `navigator/__main__.py`'s style decisions is the `Panel` frame doubling on `active`
+(`navigator/__main__.py`), which picks a box-drawing character set. It should be stylable — but not by
 adding a field to `Style`.
 
 ### Why not in `Style`
@@ -699,7 +699,7 @@ observable for exactly this class of reason.
 
 ## What a stylesheet still cannot reach
 
-Nothing, of what `nav.py` does today. All thirteen decisions are expressible: colour and
+Nothing, of what `navigator/__main__.py` does today. All thirteen decisions are expressible: colour and
 attributes through `Style`, spans and sub-elements through parts, and the border character set
 through a widget property.
 
@@ -710,7 +710,7 @@ nothing precisely so that there is always somewhere to go.
 
 ## What the migration settled
 
-`nav.py` now paints from `self.style` and `part_style()`, and its eleven module constants are
+`navigator/__main__.py` now paints from `self.style` and `part_style()`, and its eleven module constants are
 gone. The frames are **byte-identical** — 18 variants across three terminal sizes, both panels
 active in turn and three cursor positions, 54,696 bytes of terminal output, matching hash
 before and after.
@@ -766,7 +766,7 @@ appears to work.
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates
   what `Manager.render` paints; once the desktop widget paints its resolved style, one of the
   two is redundant.
-- Which parts and properties the eventual *library* widgets declare. `nav.py` has settled its
+- Which parts and properties the eventual *library* widgets declare. `navigator/__main__.py` has settled its
   own — `Panel` paints `row`, `title`, `footer` and `error` and reads a `border` property,
   `MenuBar` paints `hotkey`, `KeyBar` paints `number` — but a widget's parts are its public
   styling surface, and they are what the parser checks an unknown key against, so the library's

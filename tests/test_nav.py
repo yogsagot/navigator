@@ -10,7 +10,14 @@ from navkit.events import KeyEvent, MouseEvent
 from navkit.screen import ScreenBuffer
 
 from conftest import FakeTerminal, run_app, settle
-from nav import SCHEME, SCHEME_PATH, DirEntry, Manager, Navigator, Panel
+from navigator.__main__ import (
+    SCHEME,
+    SCHEME_PATH,
+    DirEntry,
+    Manager,
+    Navigator,
+    Panel,
+)
 from navkit.stylesheet import read
 
 

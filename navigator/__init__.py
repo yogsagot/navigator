@@ -1,8 +1,11 @@
-"""Assets belonging to the Navigator application.
+"""Navigator -- a recreation of DOS Navigator for POSIX terminals.
 
-Not code -- ``nav.py`` at the repository root is still the application.  This
-package exists so the things it loads at run time have a name the project owns
-and so they travel with an installed copy: a top-level ``data/`` directory
-reaches neither a wheel nor ``site-packages`` without claiming a name no
-project should.
+The application is :mod:`navigator.__main__`, run with ``python -m navigator``
+or through the ``nav`` console script.  Its run-time assets live beside it in
+:mod:`navigator.styles`, so they travel with an installed copy: anything
+outside a package reaches neither a wheel nor site-packages.
+
+This module stays empty deliberately.  Importing the package should not read a
+stylesheet or build a widget tree, so all of that happens in ``__main__`` and
+nothing here runs as a side effect of ``import navigator``.
 """

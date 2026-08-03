@@ -211,7 +211,7 @@ line. The banned set is exactly `declarations(component_class)` plus its ordinar
 
 ### Worked example
 
-The markup for the desktop `nav.py` builds by hand today:
+The markup for the desktop `navigator/__main__.py` builds by hand today:
 
 ```
 Manager:
@@ -242,7 +242,7 @@ Manager:
 ```
 
 and what the generator emits — verified output of the prototype, not an illustration. Run
-against a real widget tree it reproduces the geometry `nav.py` produces by hand, at 80x24,
+against a real widget tree it reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24,
 120x40 and 200x60:
 
 ```python
@@ -293,7 +293,7 @@ the outer `cursor` still resolves to `_o.cursor`.
   `height`: `Widget.layout()` cascades the parent's size into every child whose size is not
   bound, so a constant size assigned plainly is silently overwritten on the first resize.
   This was measured, not guessed — compiling `height: 1` to an assignment gave the menu bar a
-  height of 24 in an 80x24 terminal. `nav.py`'s `bind(lambda w: 1)` is therefore not
+  height of 24 in an 80x24 terminal. `navigator/__main__.py`'s `bind(lambda w: 1)` is therefore not
   redundancy; the binding is what protects the constant.
 
   The tidier fix belongs to navml rather than to the expression compiler: a component whose

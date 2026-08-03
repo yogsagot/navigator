@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Navigator -- a recreation of DOS Navigator for POSIX terminals.
 
-This is the application entry point.  For now it is a thin shell over navkit:
-a menu bar, two directory panels and the function key bar, drawn by hand.  As
-navml grows, these screens move into ``*.nml`` markup and this module keeps
-only the event handlers.
+The application entry point: ``python -m navigator``.  For now it is a thin
+shell over navkit -- a menu bar, two directory panels and the function key
+bar, drawn by hand.  As navml grows, these screens move into ``*.nml`` markup
+and this module keeps only the event handlers.
 """
 
 from __future__ import annotations
@@ -31,9 +31,9 @@ register_property("border")
 #: nothing more than another ``.nss`` loaded after the default one, so this is
 #: also where one would be dropped.
 #:
-#: Located through the package rather than by walking out from ``__file__``, so
-#: it resolves the same from a source checkout and from an installed copy --
-#: which is the reason ``navigator/`` is a package at all.
+#: Located through the package rather than by walking out from ``__file__``,
+#: so it resolves the same from a source checkout, from an installed copy, and
+#: whether this module is run as ``__main__`` or imported by name.
 STYLES = Path(str(files("navigator.styles")))
 
 #: The colour scheme.  Everything the screen looks like is in there rather than
