@@ -12,6 +12,7 @@ from navkit.screen import ScreenBuffer
 from conftest import FakeTerminal, run_app, settle
 from navigator.__main__ import (
     SCHEME,
+    THEMES,
     DirEntry,
     Manager,
     Navigator,
@@ -353,22 +354,48 @@ def test_every_theme_completes_the_scheme(tree):
         assert manager.left.style.bg is not None
 
 
-def test_no_theme_asks_for_bold(tree):
-    """A DOS attribute has no bold bit: intensity is which of the sixteen.
+def test_the_themes_all_carry_the_same_palette():
+    """Every theme must define the same variables, being the same 144 entries.
 
-    Saying `bold' as well would double-brighten on terminals that render it as
-    bright, so a theme that acquires one is a transcription mistake.
+    They are generated together from DOS Navigator's Colors dialog, so a theme
+    with a different set is one that was regenerated against a different table
+    -- or not regenerated at all.  Compared against each other rather than
+    against a count, so adding an entry to the tool needs no edit here.
     """
+    from navkit.stylesheet import read
+
+    sets = {theme: set(read(THEMES / f"{theme}.nss").variables)
+            for theme in theme_names()}
+    # The palettes that reprogram the VGA registers carry sixteen more names.
+    core = {theme: {v for v in names if not v.startswith("dn-")}
+            for theme, names in sets.items()}
+    reference = core["default"]
+    assert len(reference) >= 2 * 144
+    for theme, names in core.items():
+        assert names == reference, f"{theme} defines a different palette"
+    for theme, names in sets.items():
+        registers = names - core[theme]
+        assert len(registers) in (0, 16), f"{theme} has {len(registers)} registers"
+
+
+def test_a_theme_only_ever_sets_colours():
+    """A palette may not smuggle in a property.
+
+    A DOS attribute byte is four bits of foreground and four of background and
+    carries nothing else -- no bold, no underline, and no border. So a `.PAL'
+    has no way to express one, and a theme that defined anything but an `-fg'
+    or a `-bg' would be palconv inventing rather than transcribing.
+
+    Which is why this asks the theme files rather than the resolved styles: a
+    rule in navigator.nss may well set `bold' -- one does, on directory rows,
+    deliberately -- and that is the sheet's business, not the palette's.
+    """
+    from navkit.stylesheet import read
+
     for theme in theme_names():
-        manager = Manager(tree, tree, load_scheme(theme))
-        panel = manager.left
-        styles = [
-            panel.style,
-            panel.part_style("title"),
-            panel.part_style("row", classes=("directory",)),
-            panel.part_style("row", selected=True),
-            manager.menu.style,
-            manager.menu.part_style("hotkey"),
-            manager.keybar.part_style("number"),
-        ]
-        assert not any(style.bold for style in styles), theme
+        for name in read(THEMES / f"{theme}.nss").variables:
+            # The sixteen VGA registers a custom-DAC palette pins are whole
+            # colours rather than a slot's fore- or background.
+            if name.startswith("dn-"):
+                continue
+            assert name.rsplit("-", 1)[-1] in ("fg", "bg"), f"{theme}: ${name}"

@@ -105,6 +105,11 @@ def test_a_group_shares_its_declarations():
         ("$a: $b; $b: $a; P { fg: red }", "defined in terms of itself"),
         ("P > { fg: red }", "ends with '>'"),
         ("A::row B { fg: red }", "only appear on the last compound"),
+        # Braces are found before selectors are, so a stray one lands in the
+        # selector rather than in a check of its own -- it still has to fail.
+        ("} P { fg: red }", "cannot read selector"),
+        ("P { { }", "cannot read selector"),
+        ("P { fg: red", "stray text"),
     ],
 )
 def test_bad_input_fails_with_a_line(source, expected):
@@ -112,6 +117,33 @@ def test_bad_input_fails_with_a_line(source, expected):
         parse(source, filename="scheme.nss")
     assert expected in str(caught.value)
     assert str(caught.value).startswith("scheme.nss:")
+
+
+def test_a_big_sheet_parses_in_linear_time():
+    """A sheet that is mostly declarations must not cost quadratic time.
+
+    The palette themes are exactly that shape -- hundreds of variables and no
+    rules at all -- and the first version of the block regex led with an
+    unanchored ``[^{}]*``, which gives the engine no literal to seek: it
+    retried at every character and rescanned to the end each time.  A 17 kB
+    theme took 1.2 s to parse, so every one of the eleven cost more than the
+    whole test suite.
+
+    Timed rather than counted because there is nothing to count, and with a
+    thousandfold margin: the linear version does this in about a millisecond
+    and the quadratic one needs minutes.
+    """
+    import time
+
+    sheet = "\n".join(f"$name-{i}: red;" for i in range(4000)) + "\nP { fg: $name-0 }"
+    assert len(sheet) > 50_000
+    start = time.perf_counter()
+    parsed = parse(sheet)
+    elapsed = time.perf_counter() - start
+
+    assert len(parsed.rules) == 1
+    assert len(parsed.variables) == 4000
+    assert elapsed < 1.0, f"parsing {len(sheet)} bytes took {elapsed:.1f}s"
 
 
 def test_default_is_only_meaningful_on_a_colour():

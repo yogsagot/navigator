@@ -263,7 +263,13 @@ def properties(declarations: Mapping[str, Any]) -> dict[str, Any]:
 
 _COMMENT = re.compile(r"/\*.*?\*/", re.S)
 _VARIABLE = re.compile(r"\$([A-Za-z_][\w-]*)\s*:\s*([^;{}]*);")
-_RULE = re.compile(r"([^{}]*)\{([^{}]*)\}")
+#: A declaration block.  Deliberately *not* ``([^{}]*)\{([^{}]*)\}`` with the
+#: selector in front: a pattern starting with an unanchored ``[^{}]*`` gives the
+#: engine no literal to seek, so on a sheet that is mostly declarations it
+#: retries at every character and scans to the end each time -- quadratic, and
+#: about a second on a 17 kB palette sheet.  Seeking ``{`` first is a literal
+#: search, and the selector is simply the text since the last block closed.
+_BLOCK = re.compile(r"\{([^{}]*)\}")
 _HEX = re.compile(r"#([0-9A-Fa-f]{6})\Z")
 _KEYWORD = re.compile(r"[A-Za-z_][\w-]*\Z")
 _RGB = re.compile(r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\Z")
@@ -556,18 +562,15 @@ def _parse_with(
     )
     rules: list[Rule] = []
     consumed = 0
-    for match in _RULE.finditer(source):
-        between = source[consumed : match.start()]
-        if between.strip():
-            raise StylesheetError(
-                f"stray text {between.strip()!r} outside a rule",
-                _line_of(source, consumed),
-                filename,
-            )
+    for match in _BLOCK.finditer(source):
+        # Everything since the previous block closed is this block's selector
+        # list.  A stray brace therefore lands in the selector rather than in a
+        # check of its own, and `_parse_selector' rejects it with the line.
+        selectors = source[consumed : match.start()]
         consumed = match.end()
-        line = _line_of(source, match.start(2))
-        declarations = _parse_declarations(match.group(2), variables, line, filename)
-        for piece in match.group(1).split(","):
+        line = _line_of(source, match.start(1))
+        declarations = _parse_declarations(match.group(1), variables, line, filename)
+        for piece in selectors.split(","):
             if not piece.strip():
                 raise StylesheetError("empty selector in a group", line, filename)
             rules.append(

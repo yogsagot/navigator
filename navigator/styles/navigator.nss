@@ -18,11 +18,17 @@
  * its own inherits the widget that paints it, so the panel footer, the error
  * line and an ordinary listing row need no declarations at all.
  *
- * There is no `bold' anywhere below, and that is not an omission.  DOS
- * Navigator has no bold: an attribute byte carries four bits of foreground, so
- * intensity is a colour and `white' is already the bright form of
- * `light_gray'.  Saying `bold' as well would double-brighten it on terminals
- * that render bold as bright, and the two panels would stop matching.
+ * `bold' appears exactly once, on directory rows, and is a deliberate
+ * departure rather than a transcription slip.  DOS Navigator had no bold at
+ * all: an attribute byte carries four bits of foreground, so intensity is a
+ * colour there and `white' is already the bright form of `light_gray'.  It is
+ * set here because a listing reads better with directories emphasised.  The
+ * cost is that a terminal rendering bold as bright will brighten a colour that
+ * is already the bright one, so if directories ever stop standing out against
+ * an ordinary row, this is the line to look at.
+ *
+ * Nowhere else, and nowhere in a theme: a palette defines colours only, so a
+ * `.PAL' cannot introduce a property no DOS attribute could carry.
  */
 
 Manager { fg: $desktop-fg; bg: $desktop-bg }
@@ -43,7 +49,7 @@ Panel:active::title { fg: $active-title-fg; bg: $active-title-bg }
    second. Both name `fg' and `bg', so the winner takes the row outright; were
    either to mention a property the other left out, the per-property cascade
    would carry that one property across from the loser. */
-Panel::row.directory { fg: $directory-fg; bg: $directory-bg }
+Panel::row.directory { fg: $directory-fg; bg: $directory-bg; bold: true }
 Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 
 /* One palette entry, two bars: Turbo Vision gives `TMenuView' and
