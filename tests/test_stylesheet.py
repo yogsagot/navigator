@@ -19,6 +19,7 @@ from navkit.stylesheet import (
     StylesheetError,
     load,
     parse,
+    read,
     register_property,
 )
 from navkit.widget import Widget
@@ -354,3 +355,42 @@ def test_the_part_resolver_is_rebuilt_when_the_sheet_changes():
     assert app.root.part_style("row").fg == 6
     app.stylesheet = parse("Panel::row { fg: white }")
     assert app.root.part_style("row").fg == 15
+
+
+# -- reading sheets from disk -----------------------------------------------
+
+
+def test_read_loads_a_file(tmp_path):
+    sheet = tmp_path / "scheme.nss"
+    sheet.write_text("Panel { fg: white }")
+    assert read(sheet).declarations_for(Panel()) == {"fg": 15}
+
+
+def test_read_reports_a_missing_file_by_name(tmp_path):
+    with pytest.raises(StylesheetError, match="cannot read"):
+        read(tmp_path / "absent.nss")
+
+
+def test_read_names_the_file_in_a_parse_error(tmp_path):
+    sheet = tmp_path / "scheme.nss"
+    sheet.write_text("Panel { fg: white }\nPanel { fg: mauve }")
+    with pytest.raises(StylesheetError) as caught:
+        read(sheet)
+    assert "scheme.nss:2" in str(caught.value)
+
+
+def test_a_theme_file_redefines_variables_without_repeating_rules(tmp_path):
+    default = tmp_path / "default.nss"
+    default.write_text("$accent: cyan;\nPanel { fg: $accent; bg: blue }")
+    theme = tmp_path / "amber.nss"
+    theme.write_text("$accent: yellow;")
+    assert read(default).declarations_for(Panel()) == {"fg": 6, "bg": 4}
+    # The theme carries no rule at all -- only the variable moves.
+    assert read(default, theme).declarations_for(Panel()) == {"fg": 11, "bg": 4}
+
+
+def test_read_mixes_paths_with_inline_sheets(tmp_path):
+    default = tmp_path / "default.nss"
+    default.write_text("$accent: cyan;\nPanel { fg: $accent }")
+    sheet = read(default, ("override.nss", "$accent: white;"))
+    assert sheet.declarations_for(Panel()) == {"fg": 15}

@@ -18,7 +18,7 @@ from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import BLACK, CYAN, Style
-from navkit.stylesheet import parse, register_property
+from navkit.stylesheet import read, register_property
 from navkit.widget import Widget
 
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
@@ -26,33 +26,15 @@ from navkit.widget import Widget
 #: widget that reads it has to declare it before a sheet may name it.
 register_property("border")
 
-#: The classic DOS Navigator scheme.  Everything the screen looks like is here
-#: rather than spread through the ``render`` methods, and most of it is what
-#: is *not* written: a part with no rule of its own inherits its widget, which
-#: is why the panel title, the footer, the error line and an ordinary row need
-#: no declarations at all.
-SCHEME = """
-$panel-fg:  light_cyan;   $panel-bg:  red;
-$accent-fg: black;        $accent-bg: cyan;
+#: The colour scheme, beside this module.  Everything the screen looks like is
+#: in there rather than spread through the ``render`` methods.
+SCHEME_PATH = Path(__file__).with_name("navigator.nss")
 
-Manager { fg: cyan; bg: black }
-
-Panel                { fg: $panel-fg; bg: $panel-bg; border: single }
-Panel:active         { border: double }
-Panel:active::title  { fg: $accent-fg; bg: $accent-bg }
-Panel::row.directory { fg: white; bold: true }
-/* The cursor wins over the directory colour, and turns its bold off again --
-   without that the two rules tie on specificity and `bold` would survive,
-   which is the one place a per-property cascade differs from picking a
-   winning rule outright. */
-Panel::row:selected  { fg: $accent-fg; bg: $accent-bg; bold: false }
-
-MenuBar         { fg: $accent-fg; bg: $accent-bg }
-MenuBar::hotkey { fg: red }
-
-KeyBar          { fg: $accent-fg; bg: $accent-bg }
-KeyBar::number  { fg: white; bg: black }
-"""
+#: Parsed once, because the sheet is immutable and every desktop resolves
+#: against the same one.  A user theme joins it here rather than replacing it
+#: -- ``read(SCHEME_PATH, user_theme)`` -- so a two-line file can retheme the
+#: whole application by redefining the variables the rules already use.
+SCHEME = read(SCHEME_PATH)
 
 #: What the buffer is cleared to before the tree paints over it.  Kept as a
 #: value because :class:`~navkit.application.Application` clears the screen
@@ -342,7 +324,7 @@ class Manager(Widget):
         # The desktop brings its own look, so the tree is styled with or
         # without an application around it -- which is also what lets a single
         # panel be built and painted on its own.
-        self._stylesheet = parse(SCHEME, filename="<navigator scheme>")
+        self._stylesheet = SCHEME
         self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)

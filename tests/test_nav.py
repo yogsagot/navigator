@@ -10,8 +10,8 @@ from navkit.events import KeyEvent, MouseEvent
 from navkit.screen import ScreenBuffer
 
 from conftest import FakeTerminal, run_app, settle
-from nav import SCHEME, DirEntry, Manager, Navigator, Panel
-from navkit.stylesheet import parse
+from nav import SCHEME, SCHEME_PATH, DirEntry, Manager, Navigator, Panel
+from navkit.stylesheet import read
 
 
 def navigator(path, size=(80, 24)) -> Navigator:
@@ -35,7 +35,7 @@ def panel(tree):
     # A panel outside the desktop has no scheme to resolve against, so it gets
     # the Navigator one directly -- the same sheet Manager installs on itself.
     widget = Panel(tree, width=40, height=20)
-    widget._stylesheet = parse(SCHEME)
+    widget._stylesheet = SCHEME
     return widget
 
 
@@ -300,10 +300,11 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     touching a single rule.
     """
     from navkit.style import RED
-    from navkit.stylesheet import load
 
     assert panel.style.fg == 14  # light_cyan, from $panel-fg
-    panel._stylesheet = load([("s.nss", SCHEME), ("t.nss", "$panel-fg: red;")])
+    # A theme is a second sheet loaded after the first, redefining a variable
+    # its rules already use -- no rule here is repeated or overridden.
+    panel._stylesheet = read(SCHEME_PATH, ("theme.nss", "$panel-fg: red;"))
     assert panel.style.fg == RED
 
     buffer = ScreenBuffer(40, 20)
@@ -315,7 +316,9 @@ def test_the_border_comes_from_the_sheet_not_from_active(panel):
     """``active`` picks the frame only because a rule says so."""
     panel.active = True
     assert panel.style_property("border") == "double"
-    panel._stylesheet = parse(SCHEME + "\nPanel:active { border: single }")
+    panel._stylesheet = read(
+        SCHEME_PATH, ("theme.nss", "Panel:active { border: single }")
+    )
     assert panel.style_property("border") == "single"
     buffer = ScreenBuffer(40, 20)
     panel.render(buffer)

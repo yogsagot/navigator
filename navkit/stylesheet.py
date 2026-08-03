@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from navkit.style import Style
@@ -520,6 +521,30 @@ def load(sheets: Iterable[tuple[str, str]]) -> Stylesheet:
         sheet = _parse_with(text, filename, merged, len(rules))
         rules.extend(sheet.rules)
     return Stylesheet(tuple(rules), merged)
+
+
+def read(*sources: str | Path | tuple[str, str]) -> Stylesheet:
+    """Load sheets from disk, in order, and merge them.
+
+    A source is a path to a ``.nss`` file, or a ``(name, text)`` pair for one
+    that is not on disk.  Order is load order, so the theming story is just
+    ``read(default_path, user_theme_path)``: the later file redefines the
+    variables the earlier one's rules use, and wins any tie without having to
+    out-specify anything.
+    """
+    sheets: list[tuple[str, str]] = []
+    for source in sources:
+        if isinstance(source, tuple):
+            sheets.append(source)
+            continue
+        path = Path(source)
+        try:
+            sheets.append((str(path), path.read_text(encoding="utf-8")))
+        except OSError as exc:
+            raise StylesheetError(
+                f"cannot read {path}: {exc.strerror or exc}", 0, str(path)
+            ) from exc
+    return load(sheets)
 
 
 def _parse_with(
