@@ -39,6 +39,7 @@ is the mistake rather than the fix.
 | `.selected` | membership in `Widget.classes` | new: `classes: frozenset[str] = reactive(frozenset())` |
 | `:active` | a reactive boolean attribute of the widget that is currently true | exists — `Panel.active`, `Widget.visible` |
 | `#left-panel` | `Widget.name` | new: `name: str = reactive("")` |
+| `Panel::row` | a named part the widget paints itself — see *Parts* | the widget's own `render()` |
 
 Two new attributes on `Widget` for selectors to match against, and no more. Both reactive,
 which is what the next section turns out to depend on. (A third, `inline_style`, arrives from
@@ -314,7 +315,8 @@ to right, ties broken by source order with the last rule winning.** There is no 
 ### The tuple
 
 Count every simple selector across the whole complex selector; combinators contribute nothing,
-as in CSS. `Panel:active > Row.selected` is `(0, 2, 2)`.
+as in CSS. `Panel:active::row.selected` is `(0, 2, 2)` — `:active` and `.selected` in the
+middle column, `Panel` and the `::row` part in the last.
 
 **The columns do not add.** One `#name` beats any number of classes — a tuple comparison, not a
 weighted sum. This is worth keeping rather than simplifying: a sum needs an arbitrary base to
@@ -418,7 +420,7 @@ Panel {
     bg: blue;
 }
 
-Panel:active > Row:selected {
+Panel:active::row:selected {
     fg: black;
     bg: cyan;
 }
@@ -446,9 +448,10 @@ scale, and it lost.
 Braces also pay for themselves immediately, because two collisions that an indented grammar has
 to work around simply do not arise:
 
-- **The state colon.** `Panel:active > Row:selected { … }` is unambiguous. An indented grammar
-  opening blocks with a trailing colon gives `Panel:active > Row:selected:`, so it would have
-  to drop the colon and rely on column position instead — a special rule earning nothing.
+- **The state colon.** `Panel:active::row:selected { … }` is unambiguous. An indented grammar
+  opening blocks with a trailing colon gives `Panel:active::row:selected:`, so it would have
+  to drop the colon and rely on column position instead — a special rule earning nothing. Parts
+  make this worse, not better: they put a second colon form in the same selector.
 - **The `#` sigil.** Comments are `/* */`, so `#` is free. That is what lets `#0088ff` be a
   colour, in the table below, with position telling it apart from the `#left-panel` selector
   exactly as CSS does. An indented grammar wanting Python's `#` comments has to split the two
@@ -548,24 +551,162 @@ the `.nss` line, the same way `navml` rejects a bad `id`.
 Comma-separated selectors share a block, as in CSS. There is no `@import`: multiple sheets are
 loaded in order by the application, which is what the tie-break already relies on.
 
-## What a stylesheet cannot reach
+## Parts: listing rows do **not** become widgets
 
-A stylesheet selects widgets. Four of the thirteen style decisions `nav.py` makes today are
-not about widgets, and no selector grammar will reach them:
+A `Panel` keeps painting its own rows, and the stylesheet reaches them through a **part** —
+`Panel::row`, with states and classes of its own:
 
-- the `Panel` frame doubling on `active` (`nav.py:221`) — a choice of box-drawing character
-  set, and `Style` has no border field to hold it;
-- the menu hotkey letter (`nav.py:266`) and the key bar's digit (`nav.py:282`) — substring
-  spans inside a single run of text;
-- `entry.is_dir` choosing `PANEL_DIR` over `PANEL_TEXT` (`nav.py:245`) — a flag on `DirEntry`,
-  a slotted model value, with no widget per row to select.
+```
+Panel::row               { fg: white }
+Panel::row.directory     { fg: white; bold: true }
+Panel:active::row:selected { fg: black; bg: cyan }
+```
 
-The last one is the real limit on how much of `nav.py` a stylesheet can ever absorb, and it
-turns entirely on whether listing rows become widgets.
+### Why not row widgets
 
-One more thing that shape implies: the selected row is `index == self.cursor and self.active`
-(`nav.py:244`), a sub-element's own index conjoined with an *ancestor's* state — `Panel:active
-> Row:selected`. Combinators are load-bearing here, not a convenience.
+**Because row widgets would not have finished the job.** The menu hotkey letter
+(`nav.py:266`) and the key bar's digit (`nav.py:282`) are substrings inside a single
+`draw_text` run; no widget granularity reaches them short of a widget per character run. A
+mechanism for styling what a widget paints rather than what it *is* was therefore needed
+whatever was decided about rows — and once it exists, rows need nothing further.
+
+The precedent is not an analogy but the same problem, solved twice. Qt's style sheets have
+sub-controls — `QComboBox::drop-down`, `QScrollBar::handle` — precisely for a complex widget
+painted as one unit whose parts need styling. CSS has pseudo-elements — `::first-line`,
+`::selection`, `::marker` — for styling things that are not elements at all. `::` is their
+spelling and it is the right one to borrow.
+
+Fidelity agrees, and here it is a direct precedent rather than a parallel: TurboVision's
+`TListViewer` draws its own items and picks a palette entry per item according to its state.
+One view, many items, no per-item objects. Rows were never objects in the original.
+
+The costs avoided are real. Rows as widgets means a recycled pool sized to the visible count,
+resynced on every scroll and resize, each row carrying ten reactive cells — and this project
+has already declined per-widget overhead once on benchmark evidence, when per-widget buffers
+lost to surface views. Mouse hit-testing does not argue back: the row under a click is
+`y - 1 + scroll`.
+
+### How a part resolves
+
+A part is not a widget and has no place in the tree. It inherits from its **owner's resolved
+style** — `self.style` is the `derive` base — and then the matching `::part` rules cascade over
+it exactly as rules cascade for a widget. Owner state composes with part state, which is what
+`Panel:active::row:selected` says and what `nav.py:244`'s real condition
+(`index == self.cursor and self.active`) actually needs.
+
+A sub-control counts in the **type** column of the specificity tuple, as CSS counts a
+pseudo-element.
+
+The widget names its own parts and supplies their state when it paints, since it is the only
+thing that knows a row is selected:
+
+```python
+style = self.part_style("row", selected=..., classes=("directory",) if entry.is_dir else ())
+```
+
+**Caching needs one wrinkle.** A part lookup takes arguments, so it cannot be a plain
+`computed`. Make the computed return a *resolver* instead — rebuilt whenever the sheet or the
+widget's own style changes, memoising combinations internally. Measured at 120 rows against 50
+rules, naive rescanning costs 0.35 ms per frame and the memoised resolver 0.019 ms. Against a
+frame budget neither is a problem, so this is an optimisation to reach for rather than a
+condition of the design working.
+
+## Widget properties: `Style` does **not** grow a border field
+
+The last of `nav.py`'s style decisions is the `Panel` frame doubling on `active`
+(`nav.py:221`), which picks a box-drawing character set. It should be stylable — but not by
+adding a field to `Style`.
+
+### Why not in `Style`
+
+`Style` is a **per-cell** value — `type Cell = tuple[str, Style]` — and its entire contract is
+that it knows its own SGR sequence. A character set produces no escape sequence, and is
+meaningless for the overwhelming majority of cells, which are not borders.
+
+The contract is load-bearing rather than decorative, and breaking it breaks `render_diff` in
+two places at once. It compares whole cells (`screen.py:309`) and then styles
+(`screen.py:314`), both by equality, and emits `sgr()` whenever the latter differs. A field
+that `sgr()` cannot express makes both comparisons report a change the terminal cannot see.
+Measured on a 40x5 buffer whose glyphs and colours were identical and whose border field
+differed: **244 bytes emitted for a visually identical frame**, against 0 for the same style
+object. Emitting only what changed is the whole purpose of that function.
+
+There is a plainer objection underneath. The character set is not an appearance of a cell at
+all: once `draw_box` has chosen `╔` over `┌`, the choice *is* the cell's character. It is an
+input to a drawing operation, and inputs to drawing operations are not styles.
+
+### Why it should still be stylable
+
+Not really for the active-panel frame, which in DOS Navigator is a fixed focus convention
+rather than a matter of taste. The case that matters is **ASCII fallback**: a terminal or font
+without box-drawing glyphs needs `+-|`, and swapping that in wholesale is exactly what a
+stylesheet is for.
+
+### Where it goes instead
+
+Into the declarations, not into the type. The cascade already resolves a `dict[str, object]`;
+only the **bake** step changes. Keys that are `Style` fields become the `Style`; keys that are
+not are *widget properties*, which the widget reads when it paints:
+
+```
+Panel        { border: single }
+Panel:active { border: double }
+```
+
+Nothing else moves. Matching, specificity, variables, parts and the inheritance of colour are
+all untouched — `Style(**declarations)` simply becomes `Style(**appearance)` plus a leftover
+map the widget can consult.
+
+**Widget properties do not inherit.** This is the one split in the design, and it does not
+contradict the earlier refusal of a CSS-style inheritance list — it *locates* that refusal.
+Within `Style`, all seven fields inherit, and the reason given there still holds: every one of
+them is a cell appearance. The boundary is `Style` itself, which is a principle rather than a
+list, and it has to be there — an inherited `border: double` would hand a double frame to every
+child of an active panel.
+
+**Both halves stay checkable at parse time.** A declaration key is valid if it is a `Style`
+field *or* a stylable property some widget declares. Widgets already have to declare their
+parts; declaring their properties in the same place gives the parser a union to check against,
+so `bordr: double` still fails with a `.nss` line rather than being silently ignored the way a
+CSS typo is.
+
+## Reaching the application
+
+**Done, ahead of the engine, because it was a latent bug on its own.** `Widget._application` is
+now `reactive`, and `Widget.application` is a `computed` rather than a property that walks.
+
+The hazard it removes: `_application` was a plain attribute assigned by `Application.root`'s
+setter, so a value derived before that assignment memoised the answer it got when there was no
+application and never recovered — only an unrelated reactive write dislodged it. Since a
+widget reaches the stylesheet *through* the application, every style pulled before attachment
+would have resolved against no sheet and stayed that way. Normal startup paints after
+attachment, so the bug would have hidden until a test or an early access found it.
+
+Two things fell out that are worth knowing:
+
+- **It made the hot path faster, not slower.** `invalidate()` asks for `application` on every
+  reactive change. Making `_application` reactive but keeping the walk costs 2464 ns per lookup
+  at depth six, against 1347 ns for the plain walk it replaces — nearly twice as slow.
+  Memoising it as a computed costs 290 ns, because a clean cell skips the walk entirely. The
+  correct fix is the fast one, which is not the usual way round.
+- **Attaching a tree now asks for a repaint.** Assigning `_application` reaches
+  `_reactive_changed` like any other observable write, where before it was silent. That is
+  right — a tree that has just joined an application needs painting — but it is a behaviour
+  change, not just an optimisation.
+
+Reparenting still invalidates the memo, because the walk reads `parent`, which was already
+observable for exactly this class of reason.
+
+## What a stylesheet still cannot reach
+
+Nothing, of what `nav.py` does today. All thirteen decisions are expressible: colour and
+attributes through `Style`, spans and sub-elements through parts, and the border character set
+through a widget property.
+
+The shape that is left is clean and worth stating as the boundary it is. A stylesheet reaches
+whatever a widget declares — its parts and its properties — plus whatever a cell can look
+like. Anything outside both is the `render()` escape hatch, level 4 above, which answers to
+nothing precisely so that there is always somewhere to go.
 
 ## Still open
 
@@ -573,6 +714,20 @@ One more thing that shape implies: the selected row is `index == self.cursor and
   and what it does about a name a widget already uses for something else.
 - Where the parsed stylesheet lives and how a widget reaches it — `Widget.stylesheet` above is
   a placeholder. It has to be a reactive source, per *A constraint this exposes*, and reaching
-  it by walking `parent` is what would let a subtree carry its own sheet.
-- Whether listing rows become widgets, which decides whether the last group above is reachable.
-- Whether `Style` grows a field for the border character set.
+  it by walking `parent` is what would let a subtree carry its own sheet. Note that
+  `Application` hosts no reactive attribute today, so this makes it the first. The path to it
+  is ready: see *Reaching the application*.
+- Whether a type selector matches by class **name** or class identity. CSS, Qt and Textual all
+  match by name, so two unrelated classes both called `Panel` would both match. Probably right,
+  currently unstated.
+- What `Application.background` becomes. It clears the buffer each frame and already duplicates
+  what `Manager.render` paints; once the desktop widget paints its resolved style, one of the
+  two is redundant.
+- Which parts and properties each library widget declares. `Panel` needs the `row`, `title`,
+  `footer` and `error` parts and a `border` property; `MenuBar` needs `hotkey`; `KeyBar` needs
+  `number`. Together these are a widget's public styling surface, and they are what the parser
+  checks an unknown declaration key against, so they belong with the widget library rather than
+  here.
+- What `border` may be set to, and whether `draw_box`'s `double=` keyword becomes a charset
+  argument. The property has to name a set of box-drawing characters — `single`, `double`,
+  `ascii` at least — which is a small vocabulary that belongs with the widget library too.

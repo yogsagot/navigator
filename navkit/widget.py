@@ -18,10 +18,17 @@ container able to place its children without a :meth:`layout` method at all.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from navkit.events import KeyEvent, MouseEvent
-from navkit.reactive import is_bound, reactive
+from navkit.reactive import computed, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, Style
+
+if TYPE_CHECKING:
+    # Only for the annotations: importing it for real would be a cycle, since
+    # the application owns the widget tree.
+    from navkit.application import Application
 
 
 class Widget:
@@ -36,6 +43,13 @@ class Widget:
     #: Observable too, so an expression written in terms of the parent is
     #: re-evaluated when the widget moves to a different one.
     parent: Widget | None = reactive(None)
+    #: Set by :attr:`Application.root` on the root widget alone, and observable
+    #: for the same reason ``parent`` is: an expression written in terms of the
+    #: application -- which is how a widget will reach the stylesheet -- has to
+    #: be re-evaluated when the tree it belongs to is attached to one.  Without
+    #: this a value derived before the attachment memoises the answer it got
+    #: when there was no application, and only an unrelated write dislodges it.
+    _application: Application | None = reactive(None)
 
     def __init__(
         self,
@@ -73,12 +87,20 @@ class Widget:
             child.parent = None
             self.invalidate()
 
-    @property
-    def application(self):
-        """The :class:`~navkit.application.Application` this widget belongs to."""
+    @computed
+    def application(self) -> Application | None:
+        """The :class:`~navkit.application.Application` this widget belongs to.
+
+        Derived rather than walked afresh each time.  Both things the walk
+        reads are observable, so the answer is memoised until the widget is
+        reparented or a tree is attached to an application -- which is what
+        makes it correct, and incidentally makes it cheap:
+        :meth:`invalidate` asks for this on every reactive change, and a
+        memoised read costs a fraction of the walk it replaces.
+        """
         widget: Widget | None = self
         while widget is not None:
-            app = getattr(widget, "_application", None)
+            app = widget._application
             if app is not None:
                 return app
             widget = widget.parent
