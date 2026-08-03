@@ -12,6 +12,7 @@ import asyncio
 import pytest
 
 from navkit.application import Application
+from navkit.capabilities import FULL, TerminalInfo
 from navkit.events import Event
 from navkit.reactive import SCHEDULER, flush_effects
 from navkit.screen import Surface
@@ -26,7 +27,13 @@ class FakeTerminal:
     repaints the application actually performed.
     """
 
-    def __init__(self, width: int = 40, height: int = 10):
+    def __init__(
+        self, width: int = 40, height: int = 10, info: TerminalInfo | None = None
+    ):
+        # Full capability by default, so a test asserting on painted escapes
+        # sees what the styles say and not what the environment running the
+        # suite allows.  Pass a TerminalInfo to assert on the downgrade.
+        self.info = info or FULL
         self.size = (width, height)
         self.is_tty = False
         self.input_fd = -1

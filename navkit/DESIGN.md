@@ -761,6 +761,46 @@ the subject and needs to know how each ancestor relates to what came *after* it.
 natural way round silently turns every `>` into a descendant match, and every selector still
 appears to work.
 
+## Terminal capabilities: the palette stays exact, the edge quantises
+
+`TerminalInfo` in `capabilities.py` holds what the terminal supports and makes the decisions
+that follow. The question that forced it was whether the generated `.nss` themes should carry
+`#rrggbb` at all: eight of DOS Navigator's eleven palettes reprogram the sixteen VGA colour
+registers, and truecolor is near-universal but not universal.
+
+**The decision is made once, at the edge.** A widget asks for the colour it wants, a sheet
+records the colour the original asked for, and only `render_diff` — the last place a `Style`
+exists before it becomes bytes — asks whether this terminal can express it. Nothing upstream
+of that has to know or care.
+
+**So the palette stays exact.** Baking a sixteen-colour approximation into the sheet at
+generation time would throw the original away permanently, and on a terminal that can show it,
+for nothing. It would also be wrong rather than merely lossy: `BW.PAL` is a greyscale ramp
+whose *blue* register holds a mid grey, so writing the DOS colour name `blue` into the sheet
+would come back a real blue everywhere. Quantising at the edge gives a grey on a sixteen-colour
+terminal and the exact grey on a capable one.
+
+**An index is left alone; only a colour the terminal cannot name is quantised.** `blue` in a
+sheet reaches the terminal as index 4, so the user's own theme decides what blue looks like —
+approximating it against our reference table would replace their theme with ours. A truecolor
+triple on a sixteen-colour terminal has no such claim on anything and is quantised, against the
+fixed part of the xterm palette: indices 0–15 are skipped when targeting 256 colours for the
+same reason, since what a terminal paints for those is not knowable from here.
+
+**Detection is conservative and overridable.** A terminal that does not say it supports more
+gets sixteen colours, because being downgraded on a capable terminal is a disappointment while
+being upgraded on an incapable one is a screenful of unreadable escapes — and `COLORTERM` is
+the only reliable statement of truecolor support. `NAVKIT_COLORS` overrides the guess outright,
+and outranks `NO_COLOR`, which in turn outranks any claim of support.
+
+**The answer is fixed for the terminal's life**, detected in `Terminal.__init__` rather than on
+use. A frame that quantised differently from the one before it would show up as the diff
+repainting cells whose content never changed.
+
+A capability is separate from a preference, and either vetoes: `Terminal(mouse=False)` says the
+caller does not want mouse input, `info.mouse` says asking would be no use. `stop()` cancels
+exactly what `start()` asked for, so a feature never turned on is never turned off either.
+
 ## Still open
 
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates
@@ -774,3 +814,8 @@ appears to work.
 - What `border` may be set to, and whether `draw_box`'s `double=` keyword becomes a charset
   argument. The property has to name a set of box-drawing characters — `single`, `double`,
   `ascii` at least — which is a small vocabulary that belongs with the widget library too.
+- A `unicode` flag on `TerminalInfo`, deliberately not added yet because nothing would read
+  it. Detecting a UTF-8 locale is trivial; the flag only earns its place once `draw_box` can
+  fall back to an ASCII charset, which is the `border` question above. That is the one point
+  where a capability has to reach a drawing primitive rather than the escape stream, so it is
+  worth settling the vocabulary first and the detection second.
