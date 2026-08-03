@@ -12,13 +12,13 @@ from navkit.screen import ScreenBuffer
 from conftest import FakeTerminal, run_app, settle
 from navigator.__main__ import (
     SCHEME,
-    SCHEME_PATH,
     DirEntry,
     Manager,
     Navigator,
     Panel,
+    load_scheme,
+    theme_names,
 )
-from navkit.stylesheet import read
 
 
 def navigator(path, size=(80, 24)) -> Navigator:
@@ -306,12 +306,14 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     theme that redefines one variable should reach the frame colour without
     touching a single rule.
     """
-    from navkit.style import RED
+    from navkit.style import LIGHT_GRAY, RED
 
-    assert panel.style.fg == 14  # light_cyan, from $panel-fg
-    # A theme is a second sheet loaded after the first, redefining a variable
-    # its rules already use -- no rule here is repeated or overridden.
-    panel._stylesheet = read(SCHEME_PATH, ("theme.nss", "$panel-fg: red;"))
+    # $panel-fg, out of themes/default.nss: entry 85 of DEFAULT.PAL is $87,
+    # light gray on dark gray.
+    assert panel.style.fg == LIGHT_GRAY
+    # A theme is a further sheet loaded after the others, redefining a variable
+    # the rules already use -- no rule here is repeated or overridden.
+    panel._stylesheet = load_scheme("default", ("theme.nss", "$panel-fg: red;"))
     assert panel.style.fg == RED
 
     buffer = ScreenBuffer(40, 20)
@@ -323,10 +325,50 @@ def test_the_border_comes_from_the_sheet_not_from_active(panel):
     """``active`` picks the frame only because a rule says so."""
     panel.active = True
     assert panel.style_property("border") == "double"
-    panel._stylesheet = read(
-        SCHEME_PATH, ("theme.nss", "Panel:active { border: single }")
+    panel._stylesheet = load_scheme(
+        "default", ("theme.nss", "Panel:active { border: single }")
     )
     assert panel.style_property("border") == "single"
     buffer = ScreenBuffer(40, 20)
     panel.render(buffer)
     assert "".join(buffer.get(x, 0)[0] for x in range(40)).startswith("┌")
+
+
+# The themes are generated from DOS Navigator's `.PAL' palettes by
+# tools/palconv.py, and the sheet they complete defines no variable of its own.
+# So the two halves have to be checked against each other: renaming a variable
+# in navigator.nss without regenerating leaves a theme that no longer parses,
+# and the failure would otherwise surface only when someone asked for it.
+
+
+def test_every_theme_completes_the_scheme(tree):
+    """Each theme must define every variable the rules read, and paint."""
+    assert "default" in theme_names()
+    for theme in theme_names():
+        manager = Manager(tree, tree, load_scheme(theme))
+        buffer = ScreenBuffer(80, 24)
+        manager.layout(80, 24)
+        manager.render(buffer)  # raises if a variable went undefined
+        assert manager.left.style.fg is not None
+        assert manager.left.style.bg is not None
+
+
+def test_no_theme_asks_for_bold(tree):
+    """A DOS attribute has no bold bit: intensity is which of the sixteen.
+
+    Saying `bold' as well would double-brighten on terminals that render it as
+    bright, so a theme that acquires one is a transcription mistake.
+    """
+    for theme in theme_names():
+        manager = Manager(tree, tree, load_scheme(theme))
+        panel = manager.left
+        styles = [
+            panel.style,
+            panel.part_style("title"),
+            panel.part_style("row", classes=("directory",)),
+            panel.part_style("row", selected=True),
+            manager.menu.style,
+            manager.menu.part_style("hotkey"),
+            manager.keybar.part_style("number"),
+        ]
+        assert not any(style.bold for style in styles), theme

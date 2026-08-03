@@ -24,6 +24,7 @@ include = ["navkit*", "navml*", "navigator*"]
 # reaches neither a wheel nor site-packages without claiming a name no project
 # should own.
 "navigator.styles" = ["*.nss"]
+"navigator.styles.themes" = ["*.nss"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

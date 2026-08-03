@@ -9,6 +9,7 @@ and this module keeps only the event handlers.
 
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 from importlib.resources import files
@@ -18,8 +19,8 @@ from navkit.application import Application
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import Surface
-from navkit.style import BLACK, CYAN, Style
-from navkit.stylesheet import read, register_property
+from navkit.style import Style
+from navkit.stylesheet import Stylesheet, parse_value, read, register_property
 from navkit.widget import Widget
 
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
@@ -36,20 +37,59 @@ register_property("border")
 #: whether this module is run as ``__main__`` or imported by name.
 STYLES = Path(str(files("navigator.styles")))
 
-#: The colour scheme.  Everything the screen looks like is in there rather than
-#: spread through the ``render`` methods.
+#: What the screens are made of: the rules, in terms of variables it does not
+#: define.  It does not parse on its own; a palette always follows it.
 SCHEME_PATH = STYLES / "navigator.nss"
 
-#: Parsed once, because the sheet is immutable and every desktop resolves
-#: against the same one.  A user theme joins it here rather than replacing it
-#: -- ``read(SCHEME_PATH, user_theme)`` -- so a two-line file can retheme the
-#: whole application by redefining the variables the rules already use.
-SCHEME = read(SCHEME_PATH)
+#: The palettes, one per colour scheme, each defining every variable the sheet
+#: above reads.  They are DOS Navigator's own ``COLORS/*.PAL`` files decoded by
+#: ``tools/palconv.py``, so retheming is picking one rather than writing one.
+THEMES = STYLES / "themes"
 
-#: What the buffer is cleared to before the tree paints over it.  Kept as a
-#: value because :class:`~navkit.application.Application` clears the screen
-#: before any widget is consulted.
-DESKTOP = Style(fg=CYAN, bg=BLACK)
+#: The scheme DOS Navigator itself starts in -- ``DEFAULT.PAL``.
+DEFAULT_THEME = "default"
+
+
+def theme_names() -> list[str]:
+    """Every theme that can be asked for by name."""
+    return sorted(path.stem for path in THEMES.glob("*.nss"))
+
+
+def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
+    """The rules, with *theme*'s palette merged over them.
+
+    Merged rather than concatenated: the palette is only variable definitions,
+    and those resolve across sheets before any rule is read, so a palette needs
+    no rules of its own and cannot accidentally out-specify one.
+
+    *extra* is anything :func:`~navkit.stylesheet.read` accepts, loaded last --
+    a path to a sheet of one's own, or a ``(name, text)`` pair.
+    """
+    path = THEMES / f"{theme}.nss"
+    if not path.is_file():
+        raise LookupError(
+            f"no theme {theme!r}; there is " + ", ".join(theme_names())
+        )
+    return read(SCHEME_PATH, path, *extra)
+
+
+def desktop_style(scheme: Stylesheet) -> Style:
+    """What the buffer is cleared to before the tree paints over it.
+
+    Read out of the scheme's variables rather than resolved against a widget,
+    because :class:`~navkit.application.Application` clears the screen before
+    any widget exists to ask.
+    """
+    variables = scheme.variables
+    return Style(
+        fg=parse_value("fg", variables.get("desktop-fg", "default"), variables),
+        bg=parse_value("bg", variables.get("desktop-bg", "default"), variables),
+    )
+
+
+#: Parsed once, because a sheet is immutable and every desktop that does not
+#: ask for a theme resolves against the same one.
+SCHEME = load_scheme()
 
 MENU_ITEMS = ["Left", "Files", "Commands", "Options", "Right"]
 FUNCTION_KEYS = [
@@ -329,12 +369,12 @@ class KeyBar(Widget):
 class Manager(Widget):
     """The Navigator desktop: menu bar, two panels and the key bar."""
 
-    def __init__(self, left: Path, right: Path):
+    def __init__(self, left: Path, right: Path, scheme: Stylesheet = SCHEME):
         super().__init__()
         # The desktop brings its own look, so the tree is styled with or
         # without an application around it -- which is also what lets a single
         # panel be built and painted on its own.
-        self._stylesheet = SCHEME
+        self._stylesheet = scheme
         self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)
@@ -384,10 +424,10 @@ class Manager(Widget):
 class Navigator(Application):
     """The file manager application."""
 
-    def __init__(self, left: Path, right: Path, **kwargs):
+    def __init__(self, left: Path, right: Path, scheme: Stylesheet = SCHEME, **kwargs):
         kwargs.setdefault("title", "Navigator")
-        kwargs.setdefault("background", DESKTOP)
-        self.manager = Manager(left, right)
+        kwargs.setdefault("background", desktop_style(scheme))
+        self.manager = Manager(left, right, scheme)
         super().__init__(root=self.manager, **kwargs)
 
     def on_key(self, event: KeyEvent) -> bool:
@@ -436,10 +476,29 @@ class Navigator(Application):
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = sys.argv[1:] if argv is None else argv
-    left = Path(argv[0]).expanduser().resolve() if argv else Path.cwd()
-    right = Path(argv[1]).expanduser().resolve() if len(argv) > 1 else left
-    Navigator(left, right).run()
+    parser = argparse.ArgumentParser(prog="navigator", description=__doc__)
+    parser.add_argument("left", nargs="?", help="the directory the left panel opens")
+    parser.add_argument("right", nargs="?", help="the directory the right panel opens")
+    parser.add_argument(
+        "--theme", default=DEFAULT_THEME, metavar="NAME",
+        help="a colour scheme from navigator/styles/themes (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--list-themes", action="store_true", help="print the theme names and exit",
+    )
+    args = parser.parse_args(sys.argv[1:] if argv is None else argv)
+
+    if args.list_themes:
+        print("\n".join(theme_names()))
+        return 0
+    try:
+        scheme = load_scheme(args.theme)
+    except LookupError as exc:
+        parser.error(str(exc))
+
+    left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
+    right = Path(args.right).expanduser().resolve() if args.right else left
+    Navigator(left, right, scheme).run()
     return 0
 
 

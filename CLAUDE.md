@@ -8,13 +8,16 @@ Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attr
 
 There is no lint tooling configured yet. When adding one, record the command here. Packaging is setuptools via `pyproject.toml`: `./venv/bin/python -m build --wheel` (needs `pip install build`).
 
-The application lives in the `navigator/` package: `navigator/__main__.py` is the whole of it, and `navigator/styles/` holds the assets it loads. Assets are found through `importlib.resources` rather than relative to `__file__`, and `navigator/styles/*.nss` is declared as package data — a new asset directory needs a matching `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install.
+The application lives in the `navigator/` package: `navigator/__main__.py` is the whole of it, and `navigator/styles/` holds the assets it loads. Assets are found through `importlib.resources` rather than relative to `__file__`, and `navigator/styles/*.nss` is declared as package data — a new asset directory needs a matching `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install. `navigator/styles/themes/` is the second such directory and carries its own `__init__.py` and package-data entry for that reason.
+
+Colour is split from structure and neither half is authored by hand. `navigator/styles/navigator.nss` holds the rules and defines no variable, so it does not parse alone; `navigator/styles/themes/*.nss` define every variable and no rule, and one is always loaded after it (`load_scheme("norton")`, `python -m navigator --theme norton`). The themes are generated: each is a DOS Navigator 1.51 `COLORS/*.PAL` palette decoded by `tools/palconv.py`, which documents the file format and — the part that took the work — which of the 228 attribute bytes means what, by composing the Turbo Vision palette strings along each view chain. Re-derive rather than hand-edit a theme; the tool's docstring cites the Pascal for every slot.
 
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
 - Stdlib only at runtime — `requirements.txt` is deliberately empty. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
-- Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels, arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, F10 or Ctrl+Q quits)
+- Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels, arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, F10 or Ctrl+Q quits). `--theme NAME` picks a colour scheme, `--list-themes` names them
+- Regenerate the colour schemes from a DOS Navigator distribution: `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one palette's decoded slots instead
 - Run the tests: `./venv/bin/python -m pytest`; one file with `... -m pytest tests/test_screen.py`; one test with `... -m pytest tests/test_screen.py::test_only_changed_cells_are_emitted` or `-k <substring>`
 - pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `navigator` from the repo root
 
