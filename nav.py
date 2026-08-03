@@ -26,9 +26,14 @@ from navkit.widget import Widget
 #: widget that reads it has to declare it before a sheet may name it.
 register_property("border")
 
-#: The colour scheme, beside this module.  Everything the screen looks like is
-#: in there rather than spread through the ``render`` methods.
-SCHEME_PATH = Path(__file__).with_name("navigator.nss")
+#: Where sheets live.  A directory rather than a single file because a theme is
+#: nothing more than another ``.nss`` loaded after the default one, so this is
+#: also where one would be dropped.
+STYLES = Path(__file__).parent / "data" / "styles"
+
+#: The colour scheme.  Everything the screen looks like is in there rather than
+#: spread through the ``render`` methods.
+SCHEME_PATH = STYLES / "navigator.nss"
 
 #: Parsed once, because the sheet is immutable and every desktop resolves
 #: against the same one.  A user theme joins it here rather than replacing it
