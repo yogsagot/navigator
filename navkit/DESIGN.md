@@ -1,0 +1,496 @@
+# navkit design notes
+
+Decisions taken ahead of the code that will need them, so the work starts from a spec rather
+than rediscovering it. `navkit/` is otherwise written; what this file covers is the one part
+still to build — the CSS-like stylesheet library and its lookup engine, which `style.py`'s
+module docstring already promises will "grow on top of this module". Anything not written down
+here is still open.
+
+## Selectors
+
+### An id is not a selector
+
+The obvious reading of "\*.css like" is that a stylesheet names widgets the way CSS names
+elements: `.classname` for a class and `#id-name` for an id. The class half is right. The id
+half is not, and cannot be — a navml `id` is unreachable from here, for two independent
+reasons, either of which alone settles it:
+
+- **Layering.** The lookup engine is navkit; navkit does not depend on navml, and never will.
+  A navml id is a compile-time label that stops existing when the generator finishes, so there
+  is nothing at run time for the engine to match even in principle.
+- **Uniqueness.** A navml id is unique *within its document* (see `navml/DESIGN.md`, *Ids*).
+  CSS `#` presumes uniqueness across everything being styled. Two components each declaring
+  `id: cursor` is perfectly legal navml, and both would answer to `#cursor`.
+
+Qt reached the same split from the same starting point, and its answer is the one to copy: a
+QML `id` is a compile-time name in the document, `QObject::objectName` is a run-time property,
+and Qt Style Sheets match `QPushButton#okButton` against **`objectName`**. navkit and navml
+stand in the same relation as QtWidgets and QML.
+
+So this is not a limitation to be worked around later by teaching the engine about documents.
+The id and the selector name are different things with different scopes, and collapsing them
+is the mistake rather than the fix.
+
+### What each selector matches
+
+| Selector | Matches | Hook |
+| --- | --- | --- |
+| `Panel` | the widget's Python class, subclasses included — walk `type(w).__mro__` | exists |
+| `.selected` | membership in `Widget.classes` | new: `classes: frozenset[str] = reactive(frozenset())` |
+| `:active` | a reactive boolean attribute of the widget that is currently true | exists — `Panel.active`, `Widget.visible` |
+| `#left-panel` | `Widget.name` | new: `name: str = reactive("")` |
+
+Two new attributes on `Widget`, and no more. Both reactive, which is what the next section
+turns out to depend on.
+
+- **`classes` is a `frozenset`, not a `set`.** A collection has to be *replaced* to count as
+  changed — the equality guard sees the same object through an in-place mutation and
+  propagates nothing. A mutable set would silently fail to restyle anything; freezing it makes
+  the only expressible update the correct one.
+- **`name` is never derived from a navml `id`.** In markup it is an ordinary property,
+  `name: "left-panel"`, bindable like any other and absent unless written. Having the
+  generator quietly emit one from the `id` would undo the whole distinction above and drag the
+  document-scoped uniqueness problem into a global namespace.
+- **`:state` costs no new state at all.** `Panel.active` is already declared and already
+  chooses three of the styles `nav.py` paints; matching it directly is free. A `classes` set
+  that had to carry `"active"` alongside it would be the same fact stored twice, kept in step
+  by an effect that exists only to serve the stylesheet.
+- **But `:state` draws its names from the widget's own namespace, so it inherits that
+  namespace's collisions.** `Panel` already declares `selected` — a computed returning the
+  `DirEntry` under the cursor — so `Panel:selected` would mean "this panel's listing is not
+  empty", not "this panel is selected". A `.selected` class tag is a different name in a
+  different space and does not collide. Whether `:state` should be restricted to attributes
+  declared `bool`, or match any truthy value, is part of the grammar still to settle.
+- **Explicitly not adopted: Qt's `.QPushButton`,** which in QSS means *this exact class, no
+  subclasses*. Here `.` is a class tag, as in CSS and in Textual. Spending the same sigil on a
+  type distinction is a wart worth not inheriting.
+
+### Resolution belongs in a computed
+
+Every one of those matches is a reactive read: `name`, `classes`, the state booleans, and
+`parent` for any combinator. Resolve a widget's style inside a `computed` and the consequences
+follow on their own — a state change invalidates the resolved style, which invalidates the
+widget, which asks for a repaint, all through machinery `reactive.py` already has. Nothing new
+is needed to make a stylesheet react.
+
+It is also safe. A computed is pure and pull-based, so it may be recomputed in the middle of
+composing a frame; that is precisely the exemption the frame loop's "nothing reactive runs
+during the paint" rule leaves open. Resolving imperatively inside `render()` instead would
+re-run every selector on every frame and discard the result each time.
+
+### Two things `Style` and `Widget` do not do today
+
+Both surfaced from reading the existing code rather than from the language design, and both
+change what the engine can be built on.
+
+**`Style` cannot cascade.** It is `@dataclass(frozen=True, slots=True)` whose only composition
+is `derive(**changes)`, a `dataclasses.replace` wrapper. Every field defaults to `None` or
+`False`, which is indistinguishable from *not specified* — `Style(bold=False) == Style()` is
+`True`. There is no way to express "overlay the fields this rule actually set onto what was
+inherited", which is the whole of the cascade.
+
+Leave `Style` alone. Cascade over a `dict[str, object]` of declarations, where a key being
+absent is what carries "unset", and bake the winner into `Style(**declarations)` once at the
+end. That keeps `Style` frozen, slotted and hashable — `render_diff` compares styles per cell
+and leans on cheap equality — and keeps `style.py`'s promise that it is the value type the
+engine resolves *to*, not a participant in resolving.
+
+**Inline style and resolved style cannot be the same attribute.** `Widget.style` is a reactive
+source, assigned in `__init__`. If the engine drives it with `bind()`, then an inline `style:`
+written in markup becomes a plain assignment over a live binding — which navkit raises on,
+deliberately. In CSS an inline style *wins*; here it would crash instead. So the author's
+input and the cascade's result need separate attributes; the next section is which is which.
+
+## The inline / resolved split
+
+**`style` is the resolved value and a `computed`. `inline_style` is what the author wrote, a
+reactive source.** Every `render()` reads `self.style` and gets the cascaded answer.
+
+### Why the resolved value gets the short name
+
+This is the reverse of the DOM, where `element.style` is the *inline* declaration and the
+cascaded answer needs `getComputedStyle(element)`. The departure is deliberate, and it follows
+from who reads what. In the DOM, scripts write inline styles constantly and read computed ones
+rarely, so the short name goes to the thing that is written. Here it is the other way round: a
+style is read at every paint by every widget, and written at a handful of authoring sites. The
+name reached for most often should be the one that is right.
+
+The failure modes settle it even if the frequency argument does not. With `style` resolved,
+someone who writes `widget.style = PANEL` out of habit gets an immediate `AttributeError` from
+`Computed.__set__`, whose message already says what to do instead — assign what it derives
+from. With `style` inline, someone who writes `surface.fill(..., self.style)` in a render
+method silently paints the *un-cascaded* value, which for most widgets is nothing at all. One
+mistake is loud and self-correcting, the other is silent and looks like a stylesheet bug.
+
+### Why a computed rather than a bound source
+
+The engine could equally install `widget.style = bind(lambda w: sheet.resolve(w))` on a
+reactive source, and assigning over that also raises. But it only raises *while a binding
+happens to be installed*: a widget built outside any stylesheet'd tree would quietly accept
+`widget.style = X`, so the guarantee would hold in most places and not all. A computed refuses
+unconditionally. It is also the type-correct choice in this layer's own vocabulary — a source
+is written, a computed is derived, an effect is impure, and a resolved style is derived.
+
+Per-instance flexibility does not argue the other way, because the computed can consult
+whichever stylesheet governs the widget:
+
+```python
+@computed
+def style(self) -> Style:
+    if self.inline_style is not None:
+        return self.inline_style
+    sheet = self.stylesheet          # walks parents, which are reactive
+    return sheet.resolve(self) if sheet is not None else DEFAULT_STYLE
+```
+
+A subtree can carry its own sheet, and a widget opts out entirely through `inline_style`.
+
+### Why laziness is safe here, and the one thing that would break it
+
+A computed does not recompute when its inputs change; it is marked stale and waits to be read.
+Nothing pushes a repaint on its behalf either — `_Cell.notify()` calls `_reactive_changed` only
+on the cell that was *written*, so a widget whose style went stale because of an ancestor's
+write never hears about it.
+
+It works anyway because damage tracking is a single global flag. `Widget.invalidate()` sets
+`Application._dirty`, the frame re-renders the whole tree, and every widget pulls its own style
+on the way past — by which time the stale cell recomputes. `widget.py`'s `_reactive_changed`
+docstring already states this ("the application tracks dirtiness with a single flag ...
+per-widget damage tracking would have to look at the derived values as well").
+
+The stylesheet sharpens that constraint rather than merely relying on it. With descendant
+combinators a widget's style depends on its *ancestors'* state, so per-widget damage tracking
+would have to follow the reactive graph out of the widget entirely. Anyone adding it has to
+deal with this; the global flag is load-bearing, not a placeholder.
+
+### Inline wins wholesale, not per field
+
+`inline_style` is `Style | None`, and `None` means nothing was authored. When it is set it
+replaces the cascade's answer rather than overlaying it.
+
+That is forced by the same finding as the declarations-dict decision above: a `Style` cannot
+say which of its fields were meant. Folding `Style(fg=RED)` in as a high-specificity
+participant would carry `bold=False` and `bg=None` along with it and silently undo everything
+the sheet had set. A whole-value override is the only honest reading of a whole `Style`, and it
+preserves exactly what `nav.py` means today when it hands a widget a constant.
+
+Per-field inline overrides would need a partial-declaration type at the authoring site — the
+same `dict[str, object]` the cascade already uses, or a `Style` with a real unset marker.
+Deferred; nothing needs it yet.
+
+### What this costs to adopt
+
+Small, and much smaller now than later — `style` is written at six places in the repo and read
+at one:
+
+- `Widget.__init__` takes `inline_style: Style | None = None` and assigns it. The `style=`
+  keyword goes away, so the four `nav.py` call sites (`nav.py:99,296,297,300`) become
+  `inline_style=`, and a stale `style=` raises on the unknown keyword rather than being
+  quietly accepted.
+- `tests/conftest.py:80`'s `RecordingWidget` keeps reading `self.style` and is then reading the
+  resolved value, which is what it wants. `tests/test_widget.py:135,148` move to the new
+  keyword.
+- In markup the property is `inline_style:`. Writing `style:` needs no special case in the
+  generator: navml already rejects a `computed` target at generation time, with the line
+  number, which is exactly the right error.
+
+## Inheritance
+
+**Style inherits down the widget tree, and every field inherits.** A widget's cascade starts
+from its parent's *resolved* style rather than from nothing, so a widget the sheet says nothing
+about looks like its container.
+
+### Why all seven fields, with no CSS-style split list
+
+CSS inherits `color` and not `background-color`, and the split is not arbitrary: CSS
+properties include layout — inheriting `border` or `margin` would be absurd — and backgrounds
+do not need to inherit because they are transparent by default, so an ancestor's shows through.
+
+Neither reason survives the move to a cell buffer. `Style` holds only cell appearance; there is
+no field for which inheritance is nonsense. And a cell has exactly one `(char, Style)` pair
+with no transparency, so "the ancestor's background shows through" is not something
+inheritance provides — it is what happens when a widget simply *does not paint* a cell, which
+`render_tree` already gives for free.
+
+That last point is worth being precise about, because it narrows what inheritance is actually
+for. It is not for the empty parts of a widget; those already show the parent's paint. It is
+for the parts a widget *does* paint — a label drawing text inside a dialog, which must know the
+dialog's background or it will punch a hole in it.
+
+### Why inherit at all
+
+Without inheritance every such pairing needs a rule that restates the container's colours:
+`Dialog Label`, `Dialog Button`, `Dialog CheckBox`, and so on for each widget type that can
+appear inside each container. That is tolerable at `nav.py`'s scale — its eleven style
+constants collapse to about five distinct values — and it does not scale to the TurboVision-like
+library of windows, buttons, menus and labels the README plans.
+
+Fidelity points the same way. TurboVision resolves colours *through the ownership chain*: a
+view's palette indexes into its owner's palette, and so on up until an index lands on an
+absolute colour. The mechanism is index remapping rather than value inheritance, so this is a
+parallel and not a precedent — but the direction is the same, and colour descending the tree is
+what the original does.
+
+### The mechanism already exists
+
+Inheritance is: take the parent's resolved `Style`, overlay this widget's winning declarations.
+That is exactly `Style.derive(**declarations)`.
+
+This does **not** contradict "`Style` cannot cascade" above. Those are two different
+operations. Rule-versus-rule cascade needs `dict[str, object]` because a `Style` cannot say
+which of its fields a rule meant. Parent-to-child inheritance has no such problem: the parent's
+resolved style is complete, every field carries a real value, so there is no "unset" to lose.
+One type, two operations, and `style.py` already has the second one.
+
+`derive` also rejects a property name it does not know — `TypeError: Style.__init__() got an
+unexpected keyword argument 'colour'` — so baking the declarations gives the engine a free
+check on a misspelled property, at the point where the line number is still available.
+
+### How it composes with the two decisions above
+
+`style` is a computed, `parent` is reactive, so the chain is tracked and memoised per widget:
+
+```python
+@computed
+def style(self) -> Style:
+    if self.inline_style is not None:
+        return self.inline_style          # wholesale: blocks inheritance too
+    base = self.parent.style if self.parent is not None else DEFAULT_STYLE
+    sheet = self.stylesheet
+    return base.derive(**(sheet.declarations_for(self) if sheet is not None else {}))
+```
+
+An ancestor's state change lazily restyles everything beneath it — confirmed through two levels
+of nesting — at a cost of O(depth) per widget and O(n) for a tree, since each parent's answer
+is memoised for all its children.
+
+An inline style blocks inheritance as well as the cascade. That is what "wholesale" already
+meant, and it is what `Panel(inline_style=PANEL)` says today.
+
+The root inherits from `DEFAULT_STYLE`, not from `Application.background`. The background is
+reached by walking to `_application`, which is a plain non-reactive attribute, so a background
+change would restyle nothing; and the desktop widget's own rule is the honest place to say what
+the desktop looks like. `nav.py` already carries this redundancy — `background=DESKTOP` at
+`nav.py:348` and `Manager.render` filling with `DESKTOP` at `nav.py:340`.
+
+### A constraint this exposes: the sheet itself has to be reactive
+
+Inheritance propagates because everything it reads is reactive. The stylesheet's *contents* are
+not, unless they are made so. A sheet held in a plain dict can be edited, reloaded or swapped
+for a dark theme and **nothing will restyle** — every widget's `style` cell is clean, nothing
+marked it stale, and the values stay memoised until some unrelated write forces a frame.
+
+This is easy to miss because it fails silently and only for whole-sheet changes; per-widget
+state changes keep working perfectly. Whatever holds the parsed sheet has to be a reactive
+source, so that replacing it invalidates every style downstream.
+
+## Specificity and the tie-break
+
+**CSS's model, unchanged: a three-column tuple `(names, classes + states, types)` compared left
+to right, ties broken by source order with the last rule winning.** There is no `!important`.
+
+### The tuple
+
+Count every simple selector across the whole complex selector; combinators contribute nothing,
+as in CSS. `Panel:active > Row.selected` is `(0, 2, 2)`.
+
+**The columns do not add.** One `#name` beats any number of classes — a tuple comparison, not a
+weighted sum. This is worth keeping rather than simplifying: a sum needs an arbitrary base to
+carry each column, and the arbitrary base is wrong as soon as a selector is long enough to
+overflow it. Python's own tuple ordering is the comparator, so there is nothing to implement.
+
+**Class and state share a column,** as in CSS. They are orthogonal conditions — there is no
+principled reason `Panel:active` should outrank `Panel.wide` or the reverse — so source order
+settles it, which is what CSS concluded too.
+
+### The cascade is per property, not per rule
+
+The important consequence, and the one easiest to get wrong when reading "bake the winner"
+above: the *winner* is decided separately for each declaration, not once for the rule. A
+lower-specificity rule still supplies every property the higher one did not mention.
+
+Sorting the matching rules ascending by `(specificity, order)` and updating a dict with each
+rule's declarations in turn produces exactly this, because a later `update` only overwrites the
+keys it carries:
+
+```python
+declarations = {}
+for rule in sorted(matches, key=lambda r: (r.specificity, r.order)):
+    declarations.update(rule.declarations)
+return base.derive(**declarations)
+```
+
+Checked against the case that distinguishes it: with `Panel {fg; bg}`, `Panel:active {fg}` and
+`#left-panel {bg}`, the name rule wins overall on specificity yet `fg` still comes from
+`Panel:active`, because `#left-panel` never mentioned `fg`. A per-rule cascade would have
+dropped it.
+
+So the whole engine below the selector matcher is a sort, a dict update and one `derive`.
+
+### Last wins, and that is the theming mechanism
+
+Source order breaking a tie is not merely a convention inherited from CSS here — it is how a
+colour scheme is meant to work. A user's sheet loaded after the built-in one overrides it
+without having to out-specify it, rule by rule. For a project whose point is recreating a
+particular look, and whose users will want to swap schemes, that is the feature. "Order" is
+therefore sheet load order first, then position within the sheet.
+
+### No `!important`
+
+CSS needs it for two jobs, and both are already done here by other means:
+
+- **Beating an inline style.** Inline is wholesale and absolute by the decision above. An
+  `!important` that could beat it would have to override *some* fields and not others, which is
+  exactly the partiality a `Style` cannot express.
+- **Letting a user sheet override an author sheet.** Load order does this, per above.
+
+It would buy nothing and cost the wart, so it is left out deliberately rather than
+not-yet-implemented.
+
+### The full order, weakest to strongest
+
+1. the parent's resolved style, inherited;
+2. matching rules, by `(specificity, order)`;
+3. `inline_style`, wholesale.
+
+Inheritance sitting below everything needs no rule of its own — it falls out of the parent's
+style being the `derive` base, so any matching declaration, however weak, replaces it. CSS
+behaves the same way: an inherited value loses to any declaration on the element itself. A
+universal selector, if the grammar grows one, is `(0, 0, 0)` and loses to everything except
+inheritance.
+
+## The grammar
+
+**`.nss`, in classic CSS syntax — braces, semicolons, `/* */` comments, whitespace
+insensitive.** This is the one place the project does *not* take Kivy's surface, and the
+reasons are specific to what a stylesheet is.
+
+```
+/* The Navigator default scheme. */
+
+Manager { fg: cyan; bg: black }
+
+Panel {
+    fg: light_cyan;
+    bg: blue;
+}
+
+Panel:active > Row:selected {
+    fg: black;
+    bg: cyan;
+}
+
+MenuBar, KeyBar { fg: black; bg: cyan }
+```
+
+`.nss` follows `.nml`'s naming and sits beside Qt's `.qss` and Textual's `.tcss` — every
+CSS-like dialect renames the extension, because none of them is quite CSS.
+
+### Why the house syntax stops here
+
+The rule `navml` takes from Kivy is about markup: *the file should read like Python*, because
+markup describes a **tree**, and indentation carrying block structure is what makes a nested
+tree legible without punctuation. A stylesheet has no tree. It is a flat list of rules that are
+always exactly two levels deep, so the thing indentation is good at never comes up.
+
+The precedent runs the same way, including where the project already looks. Qt pairs QML's
+braces with QSS's braces. Textual — the closest analogue there is, a Python terminal UI
+framework with a CSS engine — uses literal CSS. And Sass ran the experiment directly: the
+original `.sass` was indentation-based, `.scss` added braces four years later, and SCSS is what
+essentially everyone writes now. A stylesheet is the one place this idea has been tried at
+scale, and it lost.
+
+Braces also pay for themselves immediately, because two collisions that an indented grammar has
+to work around simply do not arise:
+
+- **The state colon.** `Panel:active > Row:selected { … }` is unambiguous. An indented grammar
+  opening blocks with a trailing colon gives `Panel:active > Row:selected:`, so it would have
+  to drop the colon and rely on column position instead — a special rule earning nothing.
+- **The `#` sigil.** Comments are `/* */`, so `#` is free. That is what lets `#0088ff` be a
+  colour, in the table below, with position telling it apart from the `#left-panel` selector
+  exactly as CSS does. An indented grammar wanting Python's `#` comments has to split the two
+  by a following-whitespace rule, which is subtle in a way that produces baffling errors.
+
+Rules do not nest. CSS gained nesting late and SCSS made it popular, but it complicates
+specificity for no gain at two levels deep, and specificity staying simple is what the previous
+section depends on.
+
+### Values are literals, never expressions
+
+`navml` compiles a property's right-hand side as a Python expression, because it has a widget
+to evaluate it against. A stylesheet has no `self`, no tree and nothing to close over, so
+allowing expressions would buy nothing and cost a great deal. Every value is a literal from
+this list:
+
+| Kind | Spelling | Becomes |
+| --- | --- | --- |
+| named colour | `light_cyan` — `style.py`'s sixteen constants, lowercased | the palette index it already names |
+| palette index | `33` — any integer 0-255 | itself |
+| true colour | `#0088ff`, or `rgb(0, 136, 255)` | the `(r, g, b)` tuple `Color` already allows |
+| terminal default | `default` | `None`, which is what `Style` already means by it |
+| flag | `true` / `false` | the bool |
+
+Every colour form lands on the existing `Color = int | tuple[int, int, int]`; nothing new is
+needed in `style.py`. Lowercased constant names keep one source of truth for the palette — a
+colour named in a sheet is the same colour the Python constant names.
+
+`#0088ff` is available only because comments are `/* */`, and it is worth having: it is the one
+colour spelling every reader already knows. Nothing disambiguates it from a `#left-panel`
+selector except position — a value follows `prop:`, a selector precedes `{` — which is exactly
+how CSS has always resolved `#id { color: #fff }`.
+
+`default` also settles what was an open question: with inheritance being the rule rather than
+the exception here, the keyword actually needed is not CSS's `inherit` but its opposite, and
+`Style` already gives it a meaning.
+
+It is valid on `fg` and `bg` only. Those are the two fields whose type includes `None`, and the
+only two for which "the terminal's own" differs from "off"; on a flag the way not to inherit is
+`false`, which says it already. Allowing it everywhere would put `None` into a field declared
+`bool` — harmless today, since `sgr()` only tests truthiness, and wrong in a way that would
+outlive the reason.
+
+Flags are `true`/`false` rather than Python's `True`/`False`. The value grammar is a
+stylesheet's, not Python's, and every other stylesheet language a reader will have met spells
+them lowercase.
+
+### Declaration keys are checked when the sheet is parsed
+
+The keys are exactly `Style`'s fields — `fg`, `bg`, `bold`, `dim`, `italic`, `underline`,
+`reverse`. Baking already rejects anything else, since `derive` raises `TypeError` on an
+unknown keyword, but that happens when a widget is first painted and says nothing about where
+it was written. Check the key against `Style.__dataclass_fields__` at parse time and fail with
+the `.nss` line, the same way `navml` rejects a bad `id`.
+
+Comma-separated selectors share a block, as in CSS. There is no `@import`: multiple sheets are
+loaded in order by the application, which is what the tie-break already relies on.
+
+## What a stylesheet cannot reach
+
+A stylesheet selects widgets. Four of the thirteen style decisions `nav.py` makes today are
+not about widgets, and no selector grammar will reach them:
+
+- the `Panel` frame doubling on `active` (`nav.py:221`) — a choice of box-drawing character
+  set, and `Style` has no border field to hold it;
+- the menu hotkey letter (`nav.py:266`) and the key bar's digit (`nav.py:282`) — substring
+  spans inside a single run of text;
+- `entry.is_dir` choosing `PANEL_DIR` over `PANEL_TEXT` (`nav.py:245`) — a flag on `DirEntry`,
+  a slotted model value, with no widget per row to select.
+
+The last one is the real limit on how much of `nav.py` a stylesheet can ever absorb, and it
+turns entirely on whether listing rows become widgets.
+
+One more thing that shape implies: the selected row is `index == self.cursor and self.active`
+(`nav.py:244`), a sub-element's own index conjoined with an *ancestor's* state — `Panel:active
+> Row:selected`. Combinators are load-bearing here, not a convenience.
+
+## Still open
+
+- Whether `:state` is restricted to attributes declared `bool` or matches any truthy value,
+  and what it does about a name a widget already uses for something else.
+- Where the parsed stylesheet lives and how a widget reaches it — `Widget.stylesheet` above is
+  a placeholder. It has to be a reactive source, per *A constraint this exposes*, and reaching
+  it by walking `parent` is what would let a subtree carry its own sheet.
+- Whether `inline_style` ever gains per-field overrides, which needs a partial-declaration
+  type at the authoring site — see *Inline wins wholesale* above.
+- Whether listing rows become widgets, which decides whether the last group above is reachable.
+- Whether `Style` grows a field for the border character set.

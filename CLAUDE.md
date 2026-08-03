@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them; `navml/DESIGN.md` records the decisions already taken, and is where the next one belongs.
+Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attributes and widget base; `nav.py` is a working shell (menu bar, two live directory panels, key bar) that exercises them and is already written in the declarative style — its panels bind their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand. `navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all unwritten. The README sketches them. Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.md` for the one unbuilt part of the core, the stylesheet and its lookup engine.
 
 There is no lint or build tooling configured yet. When adding one, record the command here.
 
@@ -53,7 +53,7 @@ Things to know before touching this layer:
 
 Still to build here:
 
-- A CSS-like stylesheet library and style lookup engine, resolving to the `Style` values `style.py` already defines
+- A CSS-like stylesheet library and style lookup engine, resolving to the `Style` values `style.py` already defines. `navkit/DESIGN.md` settles the selector model — what `Panel`, `.tag`, `:state` and `#name` each match, why a navml `id` is not a selector, and the two things (`Style` cannot express an unset field; an inline style cannot share an attribute with a resolved one) that have to be decided before the engine is written. Read it first, and add to it rather than re-deciding.
 
 ### `navml/` — markup language + widget library
 
