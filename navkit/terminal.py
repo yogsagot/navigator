@@ -16,6 +16,7 @@ import termios
 import tty
 from typing import IO
 
+from navkit.capabilities import TerminalInfo
 from navkit.events import Event, KeyEvent, MouseEvent, PasteEvent
 
 ALT_SCREEN_ON = "\x1b[?1049h"
@@ -305,10 +306,19 @@ class Terminal:
         input_stream: IO[str] | None = None,
         output_stream: IO[str] | None = None,
         mouse: bool = True,
+        info: TerminalInfo | None = None,
     ):
         self._in = input_stream or sys.stdin
         self._out = output_stream or sys.stdout
-        self.mouse = mouse
+        #: What this terminal supports.  Detected from the environment unless
+        #: stated outright, and detected here rather than on first use so that
+        #: it is one fixed answer for the life of the terminal -- a frame that
+        #: quantised colours differently from the one before it would show up
+        #: as the diff repainting cells nothing had changed.
+        self.info = info or TerminalInfo.detect(is_tty=self.is_tty)
+        #: Asked for only if wanted *and* supported: a caller says whether it
+        #: wants mouse input at all, `info` says whether asking is any use.
+        self.mouse = mouse and self.info.mouse
         self._saved_attrs: list | None = None
         self._started = False
         self._pending: list[str] = []
@@ -340,27 +350,38 @@ class Terminal:
         if self.is_tty:
             self._saved_attrs = termios.tcgetattr(self.input_fd)
             tty.setraw(self.input_fd)
-        self.write(ALT_SCREEN_ON + AUTOWRAP_OFF + HIDE_CURSOR + CLEAR_SCREEN)
+        if self.info.alt_screen:
+            self.write(ALT_SCREEN_ON)
+        self.write(AUTOWRAP_OFF + HIDE_CURSOR + CLEAR_SCREEN)
         if self.mouse:
             self.write(MOUSE_ON)
-        self.write(PASTE_ON)
+        if self.info.bracketed_paste:
+            self.write(PASTE_ON)
         self.flush()
 
     def stop(self) -> None:
         if not self._started:
             return
         self._started = False
-        self.write(PASTE_OFF)
+        # Everything start() turned on, turned off in the reverse order.  Each
+        # is guarded by the same flag, so a feature that was never asked for is
+        # never cancelled either -- sending the reset regardless would be
+        # harmless on a real terminal and noise in a pipe.
+        if self.info.bracketed_paste:
+            self.write(PASTE_OFF)
         if self.mouse:
             self.write(MOUSE_OFF)
-        self.write(AUTOWRAP_ON + SHOW_CURSOR + "\x1b[0m" + ALT_SCREEN_OFF)
+        self.write(AUTOWRAP_ON + SHOW_CURSOR + "\x1b[0m")
+        if self.info.alt_screen:
+            self.write(ALT_SCREEN_OFF)
         self.flush()
         if self._saved_attrs is not None:
             termios.tcsetattr(self.input_fd, termios.TCSADRAIN, self._saved_attrs)
             self._saved_attrs = None
 
     def set_title(self, title: str) -> None:
-        self.write(f"\x1b]0;{title}\x07")
+        if self.info.title:
+            self.write(f"\x1b]0;{title}\x07")
 
     def read(self, size: int = 65536) -> bytes:
         """Read available input.  Returns ``b""`` at end of input."""

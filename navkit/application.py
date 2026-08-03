@@ -194,7 +194,7 @@ class Application:
         if self._root is not None:
             self._root.render_tree(self._back)
 
-        output = render_diff(self._front, self._back)
+        output = render_diff(self._front, self._back, self.terminal.info)
         if output:
             self.terminal.write(output)
             self.terminal.flush()

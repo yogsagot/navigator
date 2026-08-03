@@ -16,8 +16,14 @@ can scribble on its neighbours.
 from __future__ import annotations
 
 import unicodedata
+from typing import TYPE_CHECKING
 
 from navkit.style import DEFAULT_STYLE, RESET_SGR, Style
+
+if TYPE_CHECKING:
+    # Only for the annotation: the renderer takes whatever it is handed, and
+    # importing it for real would tie the buffer to the terminal layer.
+    from navkit.capabilities import TerminalInfo
 
 #: A painted cell: the character it shows and the style it shows it in.  The
 #: character is ``""`` for the second half of a double-width character, which
@@ -267,11 +273,21 @@ class ScreenBuffer(Surface):
         self._rows = [row.copy() for row in other._rows]
 
 
-def render_diff(previous: ScreenBuffer | None, current: ScreenBuffer) -> str:
+def render_diff(
+    previous: ScreenBuffer | None,
+    current: ScreenBuffer,
+    info: TerminalInfo | None = None,
+) -> str:
     """Return the escape sequences turning *previous* into *current*.
 
     Passing ``None`` -- or a buffer of a different size, as happens right after
     a resize -- forces a full repaint.
+
+    *info* is where a colour the terminal cannot name is quantised to one it
+    can: this is the last place a :class:`~navkit.style.Style` exists before it
+    becomes bytes, so it is the only place that decision belongs.  ``None``
+    means emit what the styles say, which is what a caller rendering to a
+    string rather than to a tty wants.
 
     Most frames change a handful of rows, so each row is first compared whole:
     one list comparison in C rules out a row that nobody touched, and only the
@@ -312,7 +328,7 @@ def render_diff(previous: ScreenBuffer | None, current: ScreenBuffer) -> str:
             if cursor != (x, y):
                 out.append(f"\x1b[{y + 1};{x + 1}H")
             if cell_style != style:
-                out.append(cell_style.sgr())
+                out.append(info.sgr(cell_style) if info else cell_style.sgr())
                 style = cell_style
             out.append(char)
             cursor = (x + width, y)
