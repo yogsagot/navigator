@@ -51,9 +51,20 @@ Things to know before touching this layer:
 - **A collection has to be replaced to count as changed.** `entries.append(x)` followed by `self.entries = entries` propagates nothing, because the equality guard sees the same object. Build a new list.
 - An object carrying reactive attributes needs a `__dict__`, so slotted value types (`Style`, `DirEntry`) cannot host them.
 
+- `stylesheet.py` — the `.nss` language and its lookup engine. CSS in shape (selectors, brace-delimited declarations, a cascade ordered by specificity) and not in scope: every declaration either names a `Style` field or names a property the widget interprets. `parse()` reads one sheet, `load()` merges several in order so a theme can redefine another's variables. Selectors are `Panel` (by class *name*, subclasses included), `.tag`, `:state` (any truthy attribute), `#name` and `Panel::part`, with descendant and child combinators. Specificity is CSS's `(names, classes + states, types)`, ties break on source order, and there is no `!important`.
+
+Things to know before touching the style layer:
+
+- **A widget's `style` is a `computed`, not a value you assign.** It cascades in four levels: the parent's resolved style (so appearance inherits), then matching `.nss` rules, then `inline_style`, then whatever `render()` passes straight to a drawing primitive. Assigning `widget.style` raises; author through `inline_style` or `merge_style()`.
+- **`inline_style` is partial.** `"bg: red"` overlays one property and leaves the rest inheriting; it is not a whole `Style`. A `Style` is accepted and becomes the seven declarations it makes.
+- **`classes` is a `frozenset` and `inline_style` is replaced, never mutated** — the reactive layer only counts a change when a collection is replaced. Use `add_class` / `remove_class` / `merge_style`.
+- **Only a *reactive* attribute restyles.** `:state` matches any truthy attribute, but a plain one is read outside the dependency graph: it matches the first time and never invalidates afterwards.
+- **Widget properties do not inherit**, only `Style` fields do. `border: double` on a panel does not give its children a frame. Register a non-`Style` declaration name with `stylesheet.register_property()` or the parser rejects it.
+- `navkit/DESIGN.md` records why each of these went the way it did, including the parts that were measured rather than argued. Add to it rather than re-deciding.
+
 Still to build here:
 
-- A CSS-like stylesheet library and style lookup engine, resolving to the `Style` values `style.py` already defines. `navkit/DESIGN.md` settles the selector model — what `Panel`, `.tag`, `:state` and `#name` each match, why a navml `id` is not a selector, and the two things (`Style` cannot express an unset field; an inline style cannot share an attribute with a resolved one) that have to be decided before the engine is written. Read it first, and add to it rather than re-deciding.
+- Nothing paints from `self.style` yet — `nav.py` still uses its eleven module constants, so the engine is live but unconsumed. Migrating those render methods is the end-to-end check: the frames should come out byte-identical.
 
 ### `navml/` — markup language + widget library
 

@@ -96,7 +96,7 @@ class Panel(Widget):
     reload_token: int = reactive(0)
 
     def __init__(self, path: Path, **kwargs):
-        super().__init__(style=PANEL, **kwargs)
+        super().__init__(inline_style=PANEL, **kwargs)
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
         #: cursor can land on the directory we just climbed out of.
         self._return_to: str | None = None
@@ -293,11 +293,11 @@ class Manager(Widget):
     """The Navigator desktop: menu bar, two panels and the key bar."""
 
     def __init__(self, left: Path, right: Path):
-        super().__init__(style=DESKTOP)
-        self.menu = MenuBar(style=MENU)
+        super().__init__(inline_style=DESKTOP)
+        self.menu = MenuBar(inline_style=MENU)
         self.left = Panel(left)
         self.right = Panel(right)
-        self.keybar = KeyBar(style=KEYBAR_LABEL)
+        self.keybar = KeyBar(inline_style=KEYBAR_LABEL)
         for child in (self.menu, self.left, self.right, self.keybar):
             self.add(child)
         self._place()

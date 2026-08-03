@@ -132,7 +132,9 @@ def test_application_is_none_outside_a_running_app():
 
 def test_widgets_keep_their_style():
     style = Style(fg=1)
-    assert Widget(style=style).style is style
+    # A whole Style inline is the seven declarations it makes, so it resolves
+    # back to itself -- there is no stylesheet here to cascade under it.
+    assert Widget(inline_style=style).style == style
 
 
 def test_changing_the_geometry_asks_for_a_repaint(terminal):
@@ -145,9 +147,9 @@ def test_changing_the_geometry_asks_for_a_repaint(terminal):
 
 def test_a_style_assigned_the_same_value_asks_for_no_repaint(terminal):
     style = Style(fg=1)
-    root = RecordingWidget(style=style)
+    root = RecordingWidget(inline_style=style)
     app = Application(root, terminal=terminal)
-    run_app(app, [lambda a: setattr(root, "style", Style(fg=1))])
+    run_app(app, [lambda a: setattr(root, "inline_style", Style(fg=1))])
     assert root.renders == 1  # an equal style is not a change
 
 

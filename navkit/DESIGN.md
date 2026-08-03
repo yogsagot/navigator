@@ -708,21 +708,43 @@ whatever a widget declares — its parts and its properties — plus whatever a 
 like. Anything outside both is the `render()` escape hatch, level 4 above, which answers to
 nothing precisely so that there is always somewhere to go.
 
+## What building it settled
+
+Three things the design could not have known, found by writing `navkit/stylesheet.py` and
+`tests/test_stylesheet.py`. Each is pinned by a test.
+
+**A type selector matches by class name**, walking `type(w).__mro__` and comparing `__name__`,
+as CSS, Qt and Textual all do. Two unrelated classes sharing a name therefore both match, which
+is the accepted cost of a sheet being able to name a type it cannot import.
+
+**A state matches any truthy attribute — but only a *reactive* one restyles.** Matching is
+`getattr(widget, state, False)`, so `Panel:error` works on a `str | None`. The catch is that a
+plain attribute is read outside the dependency graph: it matches correctly the first time and
+then never invalidates the memoised answer. A widget meaning a state to be stylable has to
+declare it reactive, and `test_a_state_on_a_plain_attribute_matches_but_does_not_restyle` pins
+the behaviour rather than endorsing it.
+
+**Caching part styles needs the widget's live states in the *key*, not as a dependency.** The
+resolver is derived from the sheet and the widget's own style, which is not enough on its own:
+a state naming only a part — `Panel:active::row` with no widget-level `Panel:active` rule —
+never alters the widget's own style, so nothing marks the resolver stale when it flips. Putting
+the live states into the cache key means a stale entry cannot be returned in the first place.
+`Stylesheet.state_names` exists to make that cheap, being bounded by the sheet.
+
+A fourth was a plain bug, worth recording only because the shape invites it: a combinator read
+from the source sits *before* the compound that follows it, while matching walks outwards from
+the subject and needs to know how each ancestor relates to what came *after* it. Storing it the
+natural way round silently turns every `>` into a descendant match, and every selector still
+appears to work.
+
 ## Still open
 
-- Whether `:state` is restricted to attributes declared `bool` or matches any truthy value,
-  and what it does about a name a widget already uses for something else.
-- Where the parsed stylesheet lives and how a widget reaches it — `Widget.stylesheet` above is
-  a placeholder. It has to be a reactive source, per *A constraint this exposes*, and reaching
-  it by walking `parent` is what would let a subtree carry its own sheet. Note that
-  `Application` hosts no reactive attribute today, so this makes it the first. The path to it
-  is ready: see *Reaching the application*.
-- Whether a type selector matches by class **name** or class identity. CSS, Qt and Textual all
-  match by name, so two unrelated classes both called `Panel` would both match. Probably right,
-  currently unstated.
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates
   what `Manager.render` paints; once the desktop widget paints its resolved style, one of the
   two is redundant.
+- Migrating `nav.py` to paint from `self.style` and `part_style()` instead of its eleven module
+  constants. The engine has no consumer until this happens, and it is the only end-to-end
+  check that matters: the frames should come out byte-identical.
 - Which parts and properties each library widget declares. `Panel` needs the `row`, `title`,
   `footer` and `error` parts and a `border` property; `MenuBar` needs `hotkey`; `KeyBar` needs
   `number`. Together these are a widget's public styling surface, and they are what the parser

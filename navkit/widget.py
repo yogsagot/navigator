@@ -18,12 +18,14 @@ container able to place its children without a :meth:`layout` method at all.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
+from navkit import stylesheet
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import computed, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, Style
+from navkit.stylesheet import Stylesheet
 
 if TYPE_CHECKING:
     # Only for the annotations: importing it for real would be a cycle, since
@@ -38,8 +40,19 @@ class Widget:
     y: int = reactive(0)
     width: int = reactive(0)
     height: int = reactive(0)
-    style: Style = reactive(DEFAULT_STYLE)
     visible: bool = reactive(True)
+    #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
+    #: compile-time label with no run-time existence -- see navml/DESIGN.md.
+    name: str = reactive("")
+    #: What ``.tag`` matches.  Frozen because the reactive layer counts a change
+    #: only when a collection is *replaced*: a mutable set would be mutated in
+    #: place and notify nothing.  Use :meth:`add_class` / :meth:`remove_class`.
+    classes: frozenset[str] = reactive(frozenset())
+    #: Declarations authored for this widget alone, as ``"bg: red"`` or the
+    #: mapping :meth:`merge_style` stores.  Partial: it overlays the cascade
+    #: property by property rather than replacing it, so it does not stop the
+    #: properties it leaves alone from being inherited.
+    inline_style: Any = reactive(None)
     #: Observable too, so an expression written in terms of the parent is
     #: re-evaluated when the widget moves to a different one.
     parent: Widget | None = reactive(None)
@@ -58,14 +71,18 @@ class Widget:
         y: int = 0,
         width: int = 0,
         height: int = 0,
-        style: Style = DEFAULT_STYLE,
+        name: str = "",
+        classes: Iterable[str] = (),
+        inline_style: Any = None,
         parent: Widget | None = None,
     ):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.style = style
+        self.name = name
+        self.classes = frozenset(classes)
+        self.inline_style = inline_style
         self.children: list[Widget] = []
         if parent is not None:
             parent.add(self)
@@ -105,6 +122,117 @@ class Widget:
                 return app
             widget = widget.parent
         return None
+
+    # -- style ---------------------------------------------------------------
+
+    @computed
+    def stylesheet(self) -> Stylesheet:
+        """The sheet governing this widget, or an empty one.
+
+        Read through :attr:`application`, which is itself derived, so replacing
+        the application's sheet -- loading a theme -- restyles the whole tree
+        without anything having to walk it.
+        """
+        app = self.application
+        return getattr(app, "stylesheet", None) or stylesheet.EMPTY
+
+    @computed
+    def declarations(self) -> Mapping[str, Any]:
+        """Everything the cascade says about this widget, before it is split.
+
+        Rules first, in ``(specificity, order)``, then the inline declarations
+        on top -- the one authoring channel that outranks every selector.
+        """
+        resolved = dict(self.stylesheet.declarations_for(self))
+        resolved.update(stylesheet.parse_declarations(self.inline_style))
+        return resolved
+
+    @computed
+    def style(self) -> Style:
+        """How this widget's own cells look, cascade and inheritance resolved.
+
+        Inherits from the parent by starting there rather than at nothing, so
+        a widget the sheet says nothing about looks like its container.  Only
+        the properties something actually declared stop descending.
+        """
+        base = self.parent.style if self.parent is not None else DEFAULT_STYLE
+        return base.derive(**stylesheet.appearance(self.declarations))
+
+    @computed
+    def _part_styles(self):
+        """A resolver for this widget's parts, rebuilt when the sheet or style moves.
+
+        A part lookup takes arguments, so it cannot be a computed itself; this
+        is the way round that.  The resolver memoises for as long as it lives,
+        which is until the sheet or this widget's own style changes.
+
+        That is not quite enough on its own, which is the subtle part.  A state
+        naming only a part -- ``Panel:active::row`` with no widget-level
+        ``Panel:active`` rule -- never alters the widget's own style, so
+        nothing here would be marked stale when it flips.  The widget's live
+        states therefore go into the cache *key* rather than being relied on as
+        a dependency, so a stale entry cannot be returned in the first place.
+        """
+        sheet, base = self.stylesheet, self.style
+        cache: dict[tuple[Any, ...], Style] = {}
+
+        def resolve(
+            part: str,
+            classes: frozenset[str],
+            states: frozenset[str],
+            own: frozenset[str],
+        ) -> Style:
+            key = (part, classes, states, own)
+            if key not in cache:
+                request = stylesheet.PartRequest(part, classes, states)
+                found = sheet.declarations_for(self, request)
+                cache[key] = base.derive(**stylesheet.appearance(found))
+            return cache[key]
+
+        return resolve
+
+    def part_style(self, part: str, *, classes: Iterable[str] = (), **states: Any) -> Style:
+        """How a *part* this widget paints itself should look.
+
+        The widget supplies the state because it is the only thing that knows
+        it -- ``self.part_style("row", selected=index == self.cursor)``.  Only
+        truthy states count, so a flag can be passed straight through.
+        """
+        sheet = self.stylesheet
+        own = frozenset(
+            name for name in sheet.state_names if getattr(self, name, False)
+        )
+        active = frozenset(name for name, on in states.items() if on)
+        return self._part_styles(part, frozenset(classes), active, own)
+
+    def style_property(self, name: str, default: Any = None) -> Any:
+        """A declaration that is not a ``Style`` field -- ``border``, say.
+
+        Unlike appearance these do **not** inherit: a border that descended
+        would hand a frame to every child of a framed widget.
+        """
+        return stylesheet.properties(self.declarations).get(name, default)
+
+    def add_class(self, *names: str) -> None:
+        """Tag this widget, so ``.name`` selectors match it."""
+        self.classes = self.classes | frozenset(names)
+
+    def remove_class(self, *names: str) -> None:
+        self.classes = self.classes - frozenset(names)
+
+    def merge_style(self, declarations: Any) -> None:
+        """Overlay *declarations* onto whatever is already authored here.
+
+        Merging rather than replacing is what makes this behave like the DOM's
+        ``el.style``: setting a background leaves an already-authored
+        foreground alone.  The result is stored as a mapping, because merging
+        strings by concatenation would grow without bound.
+        """
+        merged = stylesheet.parse_declarations(self.inline_style)
+        merged.update(stylesheet.parse_declarations(declarations))
+        self.inline_style = merged
+
+    # -- painting ------------------------------------------------------------
 
     def invalidate(self) -> None:
         """Ask for a repaint on the next turn of the event loop."""

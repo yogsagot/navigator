@@ -35,9 +35,10 @@ from navkit.events import (
     ResizeEvent,
     WakeEvent,
 )
-from navkit.reactive import SCHEDULER, flush_effects
+from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
+from navkit.stylesheet import Stylesheet
 from navkit.terminal import InputParser, Terminal
 from navkit.widget import Widget
 
@@ -52,6 +53,13 @@ _WAKE = WakeEvent()
 class Application:
     """Owns the event loop, the terminal and the root of the widget tree."""
 
+    #: The sheet every widget under this application resolves against.
+    #: Observable, which is what makes loading a theme restyle the tree: each
+    #: widget's style is derived from this, so replacing it marks all of them
+    #: stale and the next frame repaints in the new colours.  A sheet held in a
+    #: plain attribute would change nothing until an unrelated write happened.
+    stylesheet: Stylesheet | None = reactive(None)
+
     def __init__(
         self,
         root: Widget | None = None,
@@ -59,12 +67,14 @@ class Application:
         terminal: Terminal | None = None,
         title: str | None = None,
         background: Style = DEFAULT_STYLE,
+        stylesheet: Stylesheet | None = None,
         max_fps: int = 60,
         mouse: bool = True,
     ):
         self.terminal = terminal or Terminal(mouse=mouse)
         self.title = title
         self.background = background
+        self.stylesheet = stylesheet
         self.result: Any = None
 
         self._root: Widget | None = None
