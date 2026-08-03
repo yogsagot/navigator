@@ -40,8 +40,9 @@ is the mistake rather than the fix.
 | `:active` | a reactive boolean attribute of the widget that is currently true | exists — `Panel.active`, `Widget.visible` |
 | `#left-panel` | `Widget.name` | new: `name: str = reactive("")` |
 
-Two new attributes on `Widget`, and no more. Both reactive, which is what the next section
-turns out to depend on.
+Two new attributes on `Widget` for selectors to match against, and no more. Both reactive,
+which is what the next section turns out to depend on. (A third, `inline_style`, arrives from
+the authoring side — see *Where a widget's style comes from*. Nothing selects on it.)
 
 - **`classes` is a `frozenset`, not a `set`.** A collection has to be *replaced* to count as
   changed — the equality guard sees the same object through an in-place mutation and
@@ -163,28 +164,47 @@ combinators a widget's style depends on its *ancestors'* state, so per-widget da
 would have to follow the reactive graph out of the widget entirely. Anyone adding it has to
 deal with this; the global flag is load-bearing, not a placeholder.
 
-### Inline wins wholesale, not per field
+### Inline is partial, and cascades per property
 
-`inline_style` is `Style | None`, and `None` means nothing was authored. When it is set it
-replaces the cascade's answer rather than overlaying it.
+`inline_style` is `str | Mapping | None`, and `None` means nothing was authored. It is a set of
+declarations, not a `Style`, so it overlays the cascade's answer property by property — `"bg:
+red"` changes the background and leaves everything the sheet decided alone.
 
-That is forced by the same finding as the declarations-dict decision above: a `Style` cannot
-say which of its fields were meant. Folding `Style(fg=RED)` in as a high-specificity
-participant would carry `bold=False` and `bg=None` along with it and silently undo everything
-the sheet had set. A whole-value override is the only honest reading of a whole `Style`, and it
-preserves exactly what `nav.py` means today when it hands a widget a constant.
+It could not have been a `Style`. A `Style` cannot say which of its fields were meant, so
+folding `Style(fg=RED)` in as a high-specificity participant would carry `bold=False` and
+`bg=None` with it and silently undo the sheet. What was missing was a partial-declaration type
+to author with — and a declarations string is exactly that, in the value grammar the stylesheet
+already defines. The authoring channel supplies the type the cascade needed.
 
-Per-field inline overrides would need a partial-declaration type at the authoring site — the
-same `dict[str, object]` the cascade already uses, or a `Style` with a real unset marker.
-Deferred; nothing needs it yet.
+Two stored forms, for a reason:
+
+- **A string is stored verbatim**, and the `style` computed parses it against the live variable
+  table. That is what lets `"bg: $surface"` work inline and survive a theme swap: the parse
+  happens *inside* the computed, which reads the table, so replacing the sheet invalidates it.
+- **A mapping** is what `merge_style()` stores, because merging two strings by concatenating
+  them would grow without bound.
+
+Reading `inline_style` back gives whichever was last stored. The resolved answer is always
+`style`.
+
+Both collections a widget can carry need a helper, for the same reason: the reactive layer
+counts a change only when the collection is *replaced*, never mutated in place.
+
+- `merge_style(text_or_mapping)` — parse, overlay onto the current declarations, replace.
+- `add_class(*names)` / `remove_class(*names)` — replace the frozenset.
+
+One cost is accepted rather than solved: a malformed inline string fails when the widget is
+first painted, and a lazy failure is cached. The mitigation is the one `navml/DESIGN.md`
+already prescribes for property expressions — carry the source text into the error. The markup
+channel avoids it outright, because the generator can check the block before anything runs.
 
 ### What this costs to adopt
 
 Small, and much smaller now than later — `style` is written at six places in the repo and read
 at one:
 
-- `Widget.__init__` takes `inline_style: Style | None = None` and assigns it. The `style=`
-  keyword goes away, so the four `nav.py` call sites (`nav.py:99,296,297,300`) become
+- `Widget.__init__` takes `inline_style: str | Mapping | None = None` and assigns it. The
+  `style=` keyword goes away, so the four `nav.py` call sites (`nav.py:99,296,297,300`) become
   `inline_style=`, and a stale `style=` raises on the unknown keyword rather than being
   quietly accepted.
 - `tests/conftest.py:80`'s `RecordingWidget` keeps reading `self.style` and is then reading the
@@ -253,19 +273,21 @@ check on a misspelled property, at the point where the line number is still avai
 ```python
 @computed
 def style(self) -> Style:
-    if self.inline_style is not None:
-        return self.inline_style          # wholesale: blocks inheritance too
     base = self.parent.style if self.parent is not None else DEFAULT_STYLE
     sheet = self.stylesheet
-    return base.derive(**(sheet.declarations_for(self) if sheet is not None else {}))
+    declarations = dict(sheet.declarations_for(self)) if sheet is not None else {}
+    declarations.update(declarations_of(self.inline_style))   # level 3, per property
+    return base.derive(**declarations)
 ```
 
 An ancestor's state change lazily restyles everything beneath it — confirmed through two levels
 of nesting — at a cost of O(depth) per widget and O(n) for a tree, since each parent's answer
 is memoised for all its children.
 
-An inline style blocks inheritance as well as the cascade. That is what "wholesale" already
-meant, and it is what `Panel(inline_style=PANEL)` says today.
+Note that an inline declaration does **not** block inheritance. It overlays the base like any
+other declaration, so a widget carrying `"bg: red"` still inherits its parent's foreground and
+attributes. Only the properties it names stop descending; a whole-`Style` inline would have cut
+the chain, which is one more thing the declarations form gets right.
 
 The root inherits from `DEFAULT_STYLE`, not from `Application.background`. The background is
 reached by walking to `_application`, which is a plain non-reactive attribute, so a background
@@ -339,25 +361,46 @@ therefore sheet load order first, then position within the sheet.
 
 CSS needs it for two jobs, and both are already done here by other means:
 
-- **Beating an inline style.** Inline is wholesale and absolute by the decision above. An
-  `!important` that could beat it would have to override *some* fields and not others, which is
-  exactly the partiality a `Style` cannot express.
+- **Beating an inline style.** An inline declaration is the widget's own statement about itself,
+  and a sheet reaching past it inverts who is in charge. The reason people actually reach for
+  `!important` — forcing a theme through — is served here by variables, which change what the
+  rules resolve to instead of fighting them.
 - **Letting a user sheet override an author sheet.** Load order does this, per above.
 
 It would buy nothing and cost the wart, so it is left out deliberately rather than
 not-yet-implemented.
 
-### The full order, weakest to strongest
+## Where a widget's style comes from
 
-1. the parent's resolved style, inherited;
-2. matching rules, by `(specificity, order)`;
-3. `inline_style`, wholesale.
+Four channels feed one widget, and they are one ordering rather than four mechanisms — weakest
+to strongest:
 
-Inheritance sitting below everything needs no rule of its own — it falls out of the parent's
-style being the `derive` base, so any matching declaration, however weak, replaces it. CSS
-behaves the same way: an inherited value loses to any declaration on the element itself. A
-universal selector, if the grammar grows one, is `(0, 0, 0)` and loses to everything except
-inheritance.
+| | Channel | Written where |
+| --- | --- | --- |
+| 1 | the parent's resolved style, inherited | nowhere — it is the `derive` base |
+| 2 | matching `.nss` rules, by `(specificity, order)` | a stylesheet |
+| 3 | `inline_style`, per-widget declarations | a `.nml` `style` block, **or** code |
+| 4 | a `Style` passed straight to a drawing primitive | `render()` |
+
+Level 1 needs no rule of its own; it falls out of the parent's style being the `derive` base,
+so any matching declaration, however weak, replaces it. CSS behaves the same way — an inherited
+value loses to any declaration on the element itself. A universal selector, if the grammar
+grows one, is `(0, 0, 0)` and loses to everything except inheritance.
+
+**Level 3 is one slot, not two.** The markup block and a runtime string write the same
+attribute, exactly as the DOM's `el.style` is a single declaration set that markup fills in and
+code merges into. So a widget whose markup set `bg` keeps it when code later merges `fg`, and a
+code write that names `bg` replaces what markup said about `bg` and nothing else.
+
+**Level 4 is outside the cascade by construction**, and needs no design at all: `fill`,
+`draw_text` and `draw_box` already take a `Style`. It is how the decisions under *What a
+stylesheet cannot reach* are served — a substring span or a per-row model flag has no widget to
+select — and it stays the bottom escape hatch precisely because it answers to nothing.
+
+**Changing classes at run time costs nothing.** `classes` is reactive, so `add_class("wide")`
+re-runs selector matching through the `style` computed and repaints, with no machinery beyond
+what levels 1-3 already need. The same is true of the state selectors: `Panel.active` flipping
+restyles the panel because `style` read it.
 
 ## The grammar
 
@@ -429,6 +472,7 @@ this list:
 | true colour | `#0088ff`, or `rgb(0, 136, 255)` | the `(r, g, b)` tuple `Color` already allows |
 | terminal default | `default` | `None`, which is what `Style` already means by it |
 | flag | `true` / `false` | the bool |
+| variable | `$accent` | whatever the name resolves to — see *Variables* |
 
 Every colour form lands on the existing `Color = int | tuple[int, int, int]`; nothing new is
 needed in `style.py`. Lowercased constant names keep one source of truth for the palette — a
@@ -452,6 +496,46 @@ outlive the reason.
 Flags are `true`/`false` rather than Python's `True`/`False`. The value grammar is a
 stylesheet's, not Python's, and every other stylesheet language a reader will have met spells
 them lowercase.
+
+### Variables
+
+`$name: value;` at the top level of a sheet defines one; `$name` stands wherever a value is
+allowed. A theme is then a sheet that redefines the names rather than a fork of every rule:
+
+```
+/* theme-dark.nss, loaded after the default */
+$accent:  light_cyan;
+$surface: blue;
+
+/* default.nss */
+Panel        { fg: $accent; bg: $surface }
+Panel:active { fg: $accent; bold: true }
+```
+
+**They are substituted, not looked up.** Parse every loaded sheet, merge the variable tables in
+load order with later definitions winning, substitute into the rule values, and cascade over
+what is left — by which point no variable survives. The `$` sigil is Sass's, and Sass's `$` is
+compile-time substitution, so it is the honest one. CSS's `var(--name)` is a different thing: a
+runtime lookup against a value that inherits per element.
+
+Two decisions already taken carry this with nothing added. Ordering is the tie-break rule —
+sheet load order first, last wins — so a theme sheet needs no new notion of precedence. And
+propagation is *A constraint this exposes* paying for itself: substitution happens at sheet
+load, the parsed sheet is already required to be a reactive source, so replacing it invalidates
+every `style` computed downstream and the next frame repaints in the new colours.
+
+Details worth fixing now:
+
+- A variable holds **one value**, from the literal grammar above — not a group of declarations.
+  A named group is `@mixin`, a different feature, deliberately out.
+- A variable may name another (`$surface: $blue`), resolved after the merge. A cycle is a parse
+  error naming the line.
+- **An undefined name is an error**, naming the line. CSS falls back silently, which is a
+  well-known source of invisible breakage, and there is nothing here to fall back *to*.
+- Variables are global to the loaded sheet set; there is no per-subtree rebinding. That is what
+  classes are for. It is also not an additive thing to add later — per-subtree variables resolve
+  per widget rather than at load, so it would move *when* values resolve, and the substitution
+  model above would have to go.
 
 ### Declaration keys are checked when the sheet is parsed
 
@@ -490,7 +574,5 @@ One more thing that shape implies: the selected row is `index == self.cursor and
 - Where the parsed stylesheet lives and how a widget reaches it — `Widget.stylesheet` above is
   a placeholder. It has to be a reactive source, per *A constraint this exposes*, and reaching
   it by walking `parent` is what would let a subtree carry its own sheet.
-- Whether `inline_style` ever gains per-field overrides, which needs a partial-declaration
-  type at the authoring site — see *Inline wins wholesale* above.
 - Whether listing rows become widgets, which decides whether the last group above is reachable.
 - Whether `Style` grows a field for the border character set.

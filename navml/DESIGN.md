@@ -306,6 +306,38 @@ the outer `cursor` still resolves to `_o.cursor`.
   `title_text: …` in markup should be rejected with a line number instead of failing when the
   widget is first painted.
 
+### The `style` block
+
+One property is not compiled as a Python expression at all:
+
+```
+Panel:
+    style:
+        bg: $surface
+        fg: white
+```
+
+The block is a **stylesheet fragment**, in the `.nss` value grammar rather than Python, and it
+compiles to a declarations string assigned to `inline_style` — the same attribute a runtime
+`widget.inline_style = "bg: red"` writes, since `navkit/DESIGN.md` makes that one slot rather
+than two. Read that file's *Where a widget's style comes from* before implementing this.
+
+Two things follow, and both are worth having:
+
+- **`$name` is meaningful here and nowhere else in a `.nml` file.** A variable is a stylesheet
+  concept; inside an ordinary property expression the free names resolve by the table under
+  *Name resolution* above, where `$` is not even valid Python. The block is the boundary, and it
+  is a sharp one because the two sides are different languages.
+- **The generator validates the block, and should.** Property names check against `Style`'s
+  fields and values against the literal grammar, both at generation time with the `.nml` line —
+  leaving only variable *resolution* to run time, because the sheets do not exist yet. That
+  makes the markup channel strictly better than the code channel, where a malformed string
+  cannot surface until the widget is first painted and the failure is then cached.
+
+The variable reference surviving to run time is what makes a theme swap reach markup-authored
+styles: the string is parsed inside the `style` computed, which reads the reactive variable
+table, so replacing the sheet restyles these widgets along with everything else.
+
 ### Source mapping
 
 This matters more here than in most code generators. A binding is lazy and its failure is
