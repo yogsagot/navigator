@@ -32,9 +32,38 @@ MOUSE_OFF = "\x1b[?1006l\x1b[?1002l\x1b[?1000l"
 PASTE_ON = "\x1b[?2004h"
 PASTE_OFF = "\x1b[?2004l"
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
+# OSC 4 rewrites one of the sixteen colour registers, OSC 104 with no argument
+# puts all of them back.  This is the terminal's answer to what a DOS palette
+# did to the VGA DAC, and the only way to reach a terminal that names nothing
+# but the sixteen: pinning a colour cannot help when the terminal has no way to
+# be told what the colour is.
+PALETTE_RESET = "\x1b]104\x1b\\"
 
 PASTE_START = b"\x1b[200~"
 PASTE_END = b"\x1b[201~"
+
+
+def is_a_tty(*streams: IO[str]) -> bool:
+    """True when every one of *streams* is a terminal.
+
+    A free function rather than only a :class:`Terminal` property because the
+    answer is wanted *before* a terminal exists: an application that states its
+    own capabilities has to call :meth:`TerminalInfo.detect` first, and that
+    needs to know.
+    """
+    try:
+        return all(os.isatty(stream.fileno()) for stream in streams)
+    except (OSError, ValueError):
+        return False
+
+
+def palette_sgr(palette: tuple[tuple[int, int, int], ...]) -> str:
+    """The OSC 4 sequences setting the terminal's colour registers to *palette*."""
+    return "".join(
+        f"\x1b]4;{index};rgb:{r:02x}/{g:02x}/{b:02x}\x1b\\"
+        for index, (r, g, b) in enumerate(palette)
+    )
+
 
 #: ``CSI <n> ~`` keys.
 _TILDE_KEYS = {
@@ -306,6 +335,8 @@ class Terminal:
         input_stream: IO[str] | None = None,
         output_stream: IO[str] | None = None,
         mouse: bool = True,
+        palette: tuple[tuple[int, int, int], ...] | None = None,
+        reprogram_palette: bool = False,
         info: TerminalInfo | None = None,
     ):
         self._in = input_stream or sys.stdin
@@ -315,10 +346,18 @@ class Terminal:
         #: it is one fixed answer for the life of the terminal -- a frame that
         #: quantised colours differently from the one before it would show up
         #: as the diff repainting cells nothing had changed.
-        self.info = info or TerminalInfo.detect(is_tty=self.is_tty)
+        self.info = info or TerminalInfo.detect(is_tty=self.is_tty, palette=palette)
         #: Asked for only if wanted *and* supported: a caller says whether it
         #: wants mouse input at all, `info` says whether asking is any use.
         self.mouse = mouse and self.info.mouse
+        #: Whether to rewrite the terminal's own sixteen colour registers, so
+        #: that even a terminal naming nothing else paints the pinned palette.
+        #: Off by default: it changes colours outside this application's cells
+        #: for as long as it runs, and a process killed outright leaves them
+        #: changed until something resets them.
+        self.reprogram_palette = (
+            reprogram_palette and self.info.palette is not None and self.info.alt_screen
+        )
         self._saved_attrs: list | None = None
         self._started = False
         self._pending: list[str] = []
@@ -329,10 +368,7 @@ class Terminal:
 
     @property
     def is_tty(self) -> bool:
-        try:
-            return os.isatty(self.input_fd) and os.isatty(self._out.fileno())
-        except (OSError, ValueError):
-            return False
+        return is_a_tty(self._in, self._out)
 
     @property
     def size(self) -> tuple[int, int]:
@@ -357,6 +393,8 @@ class Terminal:
             self.write(MOUSE_ON)
         if self.info.bracketed_paste:
             self.write(PASTE_ON)
+        if self.reprogram_palette:
+            self.write(palette_sgr(self.info.palette))
         self.flush()
 
     def stop(self) -> None:
@@ -367,6 +405,8 @@ class Terminal:
         # is guarded by the same flag, so a feature that was never asked for is
         # never cancelled either -- sending the reset regardless would be
         # harmless on a real terminal and noise in a pipe.
+        if self.reprogram_palette:
+            self.write(PALETTE_RESET)
         if self.info.bracketed_paste:
             self.write(PASTE_OFF)
         if self.mouse:

@@ -153,8 +153,10 @@ DOS_COLORS = (
 )
 
 #: The IBM default DAC, as the six-bit values a ``.PAL`` stores.  A palette
-#: matching this one is emitted as colour names, so the terminal's own theme
-#: still applies; one that does not has reprogrammed the adapter and is emitted
+#: matching this one is emitted as colour names, and a name still carries these
+#: values: ``navkit.capabilities.VGA_PALETTE`` is this table widened to eight
+#: bits per channel, and is what Navigator resolves a name through by default.
+#: A palette that does *not* match has reprogrammed the adapter, and is emitted
 #: as the exact ``#rrggbb`` it asked for.
 STANDARD_DAC = (
     (0, 0, 0), (0, 0, 42), (0, 42, 0), (0, 42, 42),
@@ -642,8 +644,10 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
     else:
         out += [
             " * The palette leaves the sixteen VGA colour registers alone, so the",
-            " * colours below are named rather than pinned and the terminal's own",
-            " * theme still decides what, say, `cyan' looks like.",
+            " * colours below are named rather than pinned -- a name meaning the",
+            " * value the standard IBM DAC held, which is what Navigator paints",
+            " * unless `--palette terminal' hands the question to the terminal's",
+            " * own theme.",
             " */",
             "",
         ]
