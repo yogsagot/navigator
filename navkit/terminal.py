@@ -321,6 +321,77 @@ def _control_key(byte: int, *, alt: bool = False) -> KeyEvent:
     return KeyEvent(f"\\x{byte:02x}", ctrl=True, alt=alt)
 
 
+#: What a named key is sent back out as -- the inverse of ``_TILDE_KEYS`` and
+#: ``_LETTER_KEYS``, in the form a terminal in its normal (rather than
+#: application) cursor mode emits.  ``enter`` is a carriage return because that
+#: is what a tty in raw mode actually delivers, whatever the parser named it.
+_KEY_SEQUENCES = {
+    "up": "\x1b[A",
+    "down": "\x1b[B",
+    "right": "\x1b[C",
+    "left": "\x1b[D",
+    "home": "\x1b[H",
+    "end": "\x1b[F",
+    "insert": "\x1b[2~",
+    "delete": "\x1b[3~",
+    "pageup": "\x1b[5~",
+    "pagedown": "\x1b[6~",
+    "f1": "\x1bOP",
+    "f2": "\x1bOQ",
+    "f3": "\x1bOR",
+    "f4": "\x1bOS",
+    "f5": "\x1b[15~",
+    "f6": "\x1b[17~",
+    "f7": "\x1b[18~",
+    "f8": "\x1b[19~",
+    "f9": "\x1b[20~",
+    "f10": "\x1b[21~",
+    "f11": "\x1b[23~",
+    "f12": "\x1b[24~",
+    "tab": "\t",
+    "enter": "\r",
+    "backspace": "\x7f",
+    "escape": "\x1b",
+    "space": " ",
+}
+
+_SYMBOL_CTRL = {symbol: byte for byte, symbol in _CTRL_SYMBOLS.items()}
+
+
+def encode_key(event: KeyEvent) -> bytes:
+    """Turn a key press back into the bytes a terminal would have sent.
+
+    The inverse of :class:`InputParser`, and needed for the same reason
+    :mod:`navkit.console` exists: a child program on a pty this application
+    owns has to be typed at, and what it expects is bytes, not events.
+
+    Alt is the ESC prefix, which is how the parser recognises it coming the
+    other way.  A key with no encoding -- a bare modifier, or one of the
+    parser's ``\\xNN`` placeholders -- produces nothing rather than guessing.
+    """
+    key = event.key
+    if event.ctrl:
+        if len(key) == 1 and "a" <= key <= "z":
+            text = chr(ord(key) - ord("a") + 1)
+        elif key == "space":
+            text = "\x00"
+        elif key in _SYMBOL_CTRL:
+            text = chr(_SYMBOL_CTRL[key])
+        else:
+            text = _KEY_SEQUENCES.get(key, "")
+    elif key in _KEY_SEQUENCES:
+        text = _KEY_SEQUENCES[key]
+    elif event.char:
+        text = event.char
+    elif len(key) == 1:
+        text = key
+    else:
+        text = ""
+    if not text:
+        return b""
+    return (("\x1b" + text) if event.alt else text).encode("utf-8", "replace")
+
+
 class Terminal:
     """The tty the application draws on.
 

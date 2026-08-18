@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from navkit.screen import ScreenBuffer, char_width, render_diff
-from navkit.style import RESET_SGR, Style
+from navkit.style import DEFAULT_STYLE, RESET_SGR, Style
 
 RED = Style(fg=1)
 GREEN = Style(fg=2)
@@ -275,3 +275,91 @@ def test_an_untouched_row_is_not_re_emitted():
     assert output.count("\x1b[") == 3  # position, style, final reset
     assert "\x1b[2;1H" in output
     assert "\x1b[1;1H" not in output and "\x1b[3;1H" not in output
+
+
+# -- blit ------------------------------------------------------------------
+
+
+def test_blit_copies_a_whole_surface():
+    source = ScreenBuffer(4, 2)
+    source.draw_text(0, 0, "abcd", Style(fg=1))
+    source.draw_text(0, 1, "efgh")
+    target = ScreenBuffer(4, 2)
+    target.blit(source)
+    assert target.get(0, 0) == ("a", Style(fg=1))
+    assert target.get(3, 1) == ("h", DEFAULT_STYLE)
+
+
+def test_blit_lands_where_it_is_told_and_leaves_the_rest_alone():
+    source = ScreenBuffer(2, 1)
+    source.draw_text(0, 0, "xy")
+    target = ScreenBuffer(5, 3)
+    target.fill(0, 0, 5, 3, ".")
+    target.blit(source, 2, 1)
+    assert "".join(target.get(x, 1)[0] for x in range(5)) == "..xy."
+    assert "".join(target.get(x, 0)[0] for x in range(5)) == "....."
+
+
+def test_blit_clips_at_the_target_edge():
+    source = ScreenBuffer(4, 1)
+    source.draw_text(0, 0, "abcd")
+    target = ScreenBuffer(3, 1)
+    target.blit(source, 1, 0)
+    assert "".join(target.get(x, 0)[0] for x in range(3)) == " ab"
+
+
+def test_blit_clips_at_negative_coordinates():
+    source = ScreenBuffer(4, 1)
+    source.draw_text(0, 0, "abcd")
+    target = ScreenBuffer(4, 1)
+    target.blit(source, -2, 0)
+    assert "".join(target.get(x, 0)[0] for x in range(4)) == "cd  "
+
+
+def test_blit_takes_a_sub_rectangle_of_the_source():
+    source = ScreenBuffer(4, 2)
+    source.draw_text(0, 0, "abcd")
+    source.draw_text(0, 1, "efgh")
+    target = ScreenBuffer(2, 1)
+    target.blit(source, src_x=1, src_y=1, width=2, height=1)
+    assert "".join(target.get(x, 0)[0] for x in range(2)) == "fg"
+
+
+def test_a_wide_character_survives_a_blit_whole():
+    source = ScreenBuffer(4, 1)
+    source.draw_text(0, 0, "a\u65e5b")
+    target = ScreenBuffer(4, 1)
+    target.blit(source)
+    assert target.get(1, 0)[0] == "\u65e5"
+    assert target.get(2, 0)[0] == ""
+
+
+def test_a_wide_character_cut_in_half_becomes_a_blank():
+    source = ScreenBuffer(4, 1)
+    source.draw_text(0, 0, "a\u65e5b")
+    # Its owner is off the left edge of the copy: nothing to show but a blank.
+    left = ScreenBuffer(4, 1)
+    left.blit(source, src_x=2)
+    assert [left.get(x, 0)[0] for x in range(4)] == [" ", "b", " ", " "]
+    # Its trailing half is off the right edge of the copy: the same bargain.
+    right = ScreenBuffer(2, 1)
+    right.blit(source)
+    assert [right.get(x, 0)[0] for x in range(2)] == ["a", " "]
+
+
+def test_blit_through_a_view_is_offset_and_clipped():
+    source = ScreenBuffer(4, 1)
+    source.draw_text(0, 0, "abcd")
+    target = ScreenBuffer(6, 3)
+    target.fill(0, 0, 6, 3, ".")
+    target.view(1, 1, 3, 1).blit(source)
+    assert "".join(target.get(x, 1)[0] for x in range(6)) == ".abc.."
+    assert "".join(target.get(x, 0)[0] for x in range(6)) == "......"
+
+
+def test_blit_from_a_view_reads_the_right_cells():
+    source = ScreenBuffer(6, 2)
+    source.draw_text(0, 1, "abcdef")
+    target = ScreenBuffer(3, 1)
+    target.blit(source.view(2, 1, 3, 1))
+    assert "".join(target.get(x, 0)[0] for x in range(3)) == "cde"

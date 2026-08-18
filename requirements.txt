@@ -1,0 +1,6 @@
+# Navigator's run-time dependencies.  pyte is the VT emulator behind
+# `navkit.console`: it turns a child program's output into a grid of cells
+# Navigator owns, which is what lets Ctrl+O paint that output as the desktop
+# background instead of merely handing the screen back to the terminal.  It is
+# pure Python and brings only wcwidth with it.
+pyte>=0.8.2
