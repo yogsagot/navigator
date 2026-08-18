@@ -1,9 +1,14 @@
 """What the terminal supports, and what the renderer does about it.
 
-The colour tests are mostly about one decision: a palette index is left alone
-so the user's own terminal theme still decides what `blue' looks like, while a
-colour the terminal cannot name at all is quantised against a fixed reference.
-Getting that backwards is what makes a greyscale scheme come back in colour.
+The colour tests are mostly about one decision: what a colour the terminal
+cannot name at all becomes, quantised against a fixed reference.  Getting that
+backwards is what makes a greyscale scheme come back in colour.
+
+An *index* is the other half.  Left unpinned it reaches the terminal untouched,
+so the user's own theme decides what `blue' looks like; with a palette pinned it
+means the colour that palette holds, which is what a transcribed DOS scheme is
+actually asking for.  The test that matters most there is the one showing that
+pinning changes nothing on a terminal that names only sixteen colours.
 """
 
 from __future__ import annotations
@@ -14,6 +19,7 @@ import pytest
 
 from navkit.capabilities import (
     ANSI,
+    VGA_PALETTE,
     ANSI_BRIGHT,
     EXTENDED,
     FULL,
@@ -79,16 +85,85 @@ def test_a_dumb_terminal_keeps_its_scrollback():
 
 
 @pytest.mark.parametrize("depth", [TRUECOLOR, EXTENDED, ANSI_BRIGHT])
-def test_a_nameable_index_is_never_touched(depth):
+def test_a_nameable_index_is_never_touched_with_no_palette_pinned(depth):
     """The whole point of naming a colour rather than pinning it.
 
-    A sheet saying `blue' must reach the terminal as its own blue, whatever
-    the user themed it to -- quantising it against our reference table would
-    replace their theme with ours.
+    With nothing pinned a sheet saying `blue' must reach the terminal as its
+    own blue, whatever the user themed it to -- quantising it against our
+    reference table would replace their theme with ours.
     """
     info = TerminalInfo(colors=depth)
     for index in range(16):
         assert info.adapt(index) == index
+
+
+def test_a_pinned_index_means_the_colour_the_palette_holds():
+    """What a transcribed DOS palette is actually asking for.
+
+    `norton.nss' says `blue' because NORTON.PAL left the VGA registers alone,
+    not because it wanted the terminal's opinion. Pinned, that reaches a
+    capable terminal as the register value: #0000aa, and not the pale blue an
+    IDE's own scheme might paint.
+    """
+    info = TerminalInfo(colors=TRUECOLOR, palette=VGA_PALETTE)
+    assert info.adapt(BLUE) == (0, 0, 170)
+    assert info.adapt(7) == (170, 170, 170)
+    assert info.adapt(WHITE) == (255, 255, 255)
+
+
+@pytest.mark.parametrize("depth", [ANSI_BRIGHT, ANSI])
+def test_pinning_changes_nothing_a_sixteen_colour_terminal_could_show(depth):
+    """The property that makes pinning safe to do by default.
+
+    Resolving an index through the palette and quantising the result searches
+    the very table the palette came from, so it hands back the index it started
+    with. A terminal that can do no better is therefore asked for exactly what
+    it was asked for before -- only a terminal that *can* do better sees a
+    difference.
+    """
+    pinned = TerminalInfo(colors=depth, palette=VGA_PALETTE)
+    plain = TerminalInfo(colors=depth)
+    for index in range(16):
+        assert pinned.adapt(index) == plain.adapt(index), index
+
+
+def test_a_pinned_index_quantises_into_the_cube_on_256_colours():
+    """Still no target below 16: those are the ones the terminal themes."""
+    info = TerminalInfo(colors=EXTENDED, palette=VGA_PALETTE)
+    assert all(info.adapt(index) >= 16 for index in range(16))
+    assert info.adapt(BLUE) == 19            # #0000af, the nearest cube blue
+
+
+def test_pinning_does_not_revive_colour_a_terminal_cannot_take():
+    info = TerminalInfo(colors=MONOCHROME, palette=VGA_PALETTE)
+    assert info.adapt(BLUE) is None
+    assert info.sgr(Style(fg=BLUE, bg=WHITE)) == "\x1b[0m"
+
+
+def test_pinning_is_about_indices_and_leaves_a_triple_alone():
+    """A theme that reprograms the registers already says what it means."""
+    grey = (57, 57, 57)
+    assert TerminalInfo(colors=TRUECOLOR, palette=VGA_PALETTE).adapt(grey) == grey
+    assert TerminalInfo(colors=ANSI_BRIGHT, palette=VGA_PALETTE).adapt(grey) == 8
+
+
+@pytest.mark.parametrize(
+    "env, default, expected",
+    [
+        # Nothing said: the caller's own answer stands, either way round.
+        ({"TERM": "xterm"}, None, None),
+        ({"TERM": "xterm"}, VGA_PALETTE, VGA_PALETTE),
+        # ...and the variable outranks it, either way round.
+        ({"TERM": "xterm", "NAVKIT_PALETTE": "dos"}, None, VGA_PALETTE),
+        ({"TERM": "xterm", "NAVKIT_PALETTE": "vga"}, None, VGA_PALETTE),
+        ({"TERM": "xterm", "NAVKIT_PALETTE": "terminal"}, VGA_PALETTE, None),
+        ({"TERM": "xterm", "NAVKIT_PALETTE": "off"}, VGA_PALETTE, None),
+        # A typo is ignored rather than fatal, as with NAVKIT_COLORS.
+        ({"TERM": "xterm", "NAVKIT_PALETTE": "ega"}, VGA_PALETTE, VGA_PALETTE),
+    ],
+)
+def test_the_environment_may_pin_the_palette_or_hand_it_back(env, default, expected):
+    assert TerminalInfo.detect(env, palette=default).palette == expected
 
 
 def test_eight_colour_terminals_fold_the_bright_half():
@@ -204,6 +279,46 @@ def test_a_caller_may_decline_a_supported_feature():
     assert not terminal.mouse
     terminal.start()
     assert "?1000h" not in out.getvalue()
+
+
+def test_the_colour_registers_are_rewritten_only_when_asked():
+    """Opt-in, because it repaints colours outside this application's cells.
+
+    It is the one thing that helps a terminal naming nothing but the sixteen,
+    which is exactly the terminal a pinned palette cannot reach.
+    """
+    out = io.StringIO()
+    terminal = Terminal(
+        input_stream=io.StringIO(), output_stream=out,
+        reprogram_palette=True, info=TerminalInfo(palette=VGA_PALETTE),
+    )
+    terminal.start()
+    written = out.getvalue()
+    assert written.count("\x1b]4;") == 16
+    assert "\x1b]4;4;rgb:00/00/aa\x1b\\" in written
+
+    terminal.stop()
+    assert "\x1b]104" in out.getvalue()[len(written):]
+
+
+def test_the_registers_are_left_alone_by_default():
+    terminal, out = _terminal(palette=VGA_PALETTE)
+    terminal.start()
+    terminal.stop()
+    assert "\x1b]4;" not in out.getvalue() and "\x1b]104" not in out.getvalue()
+
+
+def test_reprogramming_needs_a_palette_to_program_with():
+    """Nothing to say, so nothing is said -- and nothing is reset either."""
+    out = io.StringIO()
+    terminal = Terminal(
+        input_stream=io.StringIO(), output_stream=out,
+        reprogram_palette=True, info=TerminalInfo(),
+    )
+    assert not terminal.reprogram_palette
+    terminal.start()
+    terminal.stop()
+    assert "\x1b]4;" not in out.getvalue() and "\x1b]104" not in out.getvalue()
 
 
 def test_the_title_is_left_alone_when_it_would_go_nowhere():

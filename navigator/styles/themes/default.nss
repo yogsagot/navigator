@@ -7,8 +7,10 @@
  *     python -m navigator --theme default
  *
  * The palette leaves the sixteen VGA colour registers alone, so the
- * colours below are named rather than pinned and the terminal's own
- * theme still decides what, say, `cyan' looks like.
+ * colours below are named rather than pinned -- a name meaning the
+ * value the standard IBM DAC held, which is what Navigator paints
+ * unless `--palette terminal' hands the question to the terminal's
+ * own theme.
  */
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and

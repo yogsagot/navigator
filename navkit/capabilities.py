@@ -16,6 +16,17 @@ away for good, and on a terminal that can show it, for nothing.  Keeping the
 palette exact and quantising here gives the same result on a sixteen-colour
 terminal and the right one everywhere else.
 
+An *index* is the other half of the same question.  A sheet that says ``blue``
+is not asking for whatever blue the terminal's own theme paints: it is the
+transcription of a palette that left the VGA colour registers alone, and those
+registers held values.  :attr:`TerminalInfo.palette` is where a caller says so.
+Set it and an index resolves to the colour the adapter really held, before the
+quantiser runs -- which costs nothing on a sixteen-colour terminal, where the
+result quantises straight back to the index it came from, and is what makes a
+theme look the same everywhere rather than only on terminals whose own palette
+happens to resemble a VGA one.  Left unset -- the default, because the kit
+knows nothing about DOS -- an index is passed through as it always was.
+
 Detection is deliberately conservative.  A terminal that does not say it
 supports more is assumed to do sixteen colours, because being downgraded on a
 capable terminal is a disappointment and being upgraded on an incapable one is
@@ -65,6 +76,15 @@ _ANSI_RGB = (
     (85, 85, 85), (255, 85, 85), (85, 255, 85), (255, 255, 85),
     (85, 85, 255), (255, 85, 255), (85, 255, 255), (255, 255, 255),
 )
+
+#: The same sixteen under the name that says what they *are*: the IBM VGA
+#: adapter's default DAC.  A DOS palette that reprograms no register is asking
+#: for exactly these.  ``tools/palconv.py`` carries them too, as the six-bit
+#: values a ``.PAL`` stores and in DOS's index order; here they are widened
+#: (``42 -> 170``, ``21 -> 85``, ``63 -> 255``) and in ANSI's.  One table
+#: serves both jobs -- the reference the quantiser measures against, and the
+#: meaning an index has when a caller pins one.
+VGA_PALETTE = _ANSI_RGB
 
 #: The 6x6x6 colour cube's per-channel levels, and the 24 greys after it.
 _CUBE_LEVELS = (0, 95, 135, 175, 215, 255)
@@ -145,6 +165,10 @@ class TerminalInfo:
     bracketed_paste: bool = True
     #: Whether ``OSC 0`` sets something a user can see.
     title: bool = True
+    #: What a palette index *means* -- sixteen ``(r, g, b)`` triples, or
+    #: ``None`` to leave that to the terminal's own theme.  See :meth:`adapt`.
+    #: A tuple rather than a list because this dataclass has to stay hashable.
+    palette: tuple[tuple[int, int, int], ...] | None = None
 
     @property
     def truecolor(self) -> bool:
@@ -156,7 +180,11 @@ class TerminalInfo:
 
     @classmethod
     def detect(
-        cls, env: Mapping[str, str] | None = None, *, is_tty: bool = True
+        cls,
+        env: Mapping[str, str] | None = None,
+        *,
+        is_tty: bool = True,
+        palette: tuple[tuple[int, int, int], ...] | None = None,
     ) -> TerminalInfo:
         """Read the environment for what this terminal admits to.
 
@@ -171,6 +199,13 @@ class TerminalInfo:
           anything, and the interactive features are switched off with it.
         - Anything else gets sixteen colours, which has been safe since about
           1990 and is the conservative half of a guess that has to be made.
+
+        *palette* is the caller's own answer to what an index means -- an
+        application that transcribes a fixed palette states it here rather than
+        discovering it, since no environment variable could say.
+        ``NAVKIT_PALETTE`` overrides it either way: ``dos`` or ``vga`` pins the
+        VGA registers, ``terminal`` (or ``none``, ``off``) hands the question
+        back to the terminal's own theme.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -192,8 +227,15 @@ class TerminalInfo:
             elif override.isdigit():
                 colors = int(override)
 
+        choice = env.get("NAVKIT_PALETTE", "").strip().lower()
+        if choice in ("dos", "vga"):
+            palette = VGA_PALETTE
+        elif choice in ("terminal", "none", "off"):
+            palette = None
+
         return cls(
             colors=colors,
+            palette=palette,
             alt_screen=not plain,
             mouse=not plain,
             bracketed_paste=not plain,
@@ -203,16 +245,27 @@ class TerminalInfo:
     def adapt(self, color: Color | None) -> Color | None:
         """*color* as the nearest thing this terminal can actually name.
 
-        An index the terminal can name is returned untouched, so a sheet that
-        says ``blue`` keeps whatever blue the user's own theme paints.  Only a
-        colour it cannot name -- a truecolor triple on a sixteen-colour tty, a
-        256-palette index on an eight-colour one -- is quantised, and then
-        against a fixed reference.
+        With no :attr:`palette` set, an index the terminal can name is returned
+        untouched, so a sheet that says ``blue`` keeps whatever blue the user's
+        own theme paints.  Only a colour it cannot name -- a truecolor triple
+        on a sixteen-colour tty, a 256-palette index on an eight-colour one --
+        is quantised, and then against a fixed reference.
+
+        With a palette set, an index is first resolved to the colour that
+        palette holds for it and then treated like any other triple.  On a
+        sixteen-colour terminal that is a round trip: :func:`_nearest` searches
+        the very table :data:`VGA_PALETTE` came from and hands back the index
+        it started with.  So pinning only ever changes what a terminal that can
+        do better is asked for, which is what makes it safe to do by default.
         """
-        if color is None or self.colors >= TRUECOLOR:
+        if color is None:
             return color
         if self.monochrome:
             return None
+        if self.palette and isinstance(color, int) and 0 <= color < len(self.palette):
+            color = self.palette[color]
+        if self.colors >= TRUECOLOR:
+            return color
         if isinstance(color, int) and color < min(self.colors, ANSI_BRIGHT):
             return color
         rgb = rgb_of(color)

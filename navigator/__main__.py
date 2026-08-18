@@ -12,15 +12,18 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from dataclasses import replace
 from importlib.resources import files
 from pathlib import Path
 
 from navkit.application import Application
+from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.events import KeyEvent, MouseEvent
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import Stylesheet, parse_value, read, register_property
+from navkit.terminal import Terminal, is_a_tty
 from navkit.widget import Widget
 
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
@@ -486,6 +489,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--list-themes", action="store_true", help="print the theme names and exit",
     )
+    parser.add_argument(
+        "--palette", choices=("dos", "terminal"), default=None,
+        help="what a colour name in a theme means: the VGA register value DOS "
+             "Navigator asked for (default), or whatever the terminal's own "
+             "scheme paints for it",
+    )
+    parser.add_argument(
+        "--reprogram-palette", action="store_true",
+        help="rewrite the terminal's sixteen colour registers to the DOS "
+             "palette for as long as Navigator runs -- the only thing that "
+             "helps on a terminal that names no other colours",
+    )
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     if args.list_themes:
@@ -496,9 +511,24 @@ def main(argv: list[str] | None = None) -> int:
     except LookupError as exc:
         parser.error(str(exc))
 
+    # A theme that names its colours is transcribing a palette that left the
+    # VGA registers alone, so `blue' means the value that adapter held and not
+    # whatever this terminal calls blue -- which is why Navigator pins by
+    # default where navkit, knowing nothing of DOS, does not.  Precedence runs
+    # flag, then NAVKIT_PALETTE, then that default; `detect' handles the last
+    # two, and an explicit flag is applied over its answer.
+    info = TerminalInfo.detect(
+        is_tty=is_a_tty(sys.stdin, sys.stdout), palette=VGA_PALETTE
+    )
+    if args.palette is not None:
+        info = replace(
+            info, palette=VGA_PALETTE if args.palette == "dos" else None
+        )
+    terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
+
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
     right = Path(args.right).expanduser().resolve() if args.right else left
-    Navigator(left, right, scheme).run()
+    Navigator(left, right, scheme, terminal=terminal).run()
     return 0
 
 

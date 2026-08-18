@@ -70,8 +70,15 @@ class Application:
         stylesheet: Stylesheet | None = None,
         max_fps: int = 60,
         mouse: bool = True,
+        palette: tuple[tuple[int, int, int], ...] | None = None,
+        reprogram_palette: bool = False,
     ):
-        self.terminal = terminal or Terminal(mouse=mouse)
+        # `mouse', `palette' and `reprogram_palette' are preferences for the
+        # terminal this constructs, and are ignored when one is handed in --
+        # a caller that built its own has already stated them.
+        self.terminal = terminal or Terminal(
+            mouse=mouse, palette=palette, reprogram_palette=reprogram_palette
+        )
         self.title = title
         self.background = background
         self.stylesheet = stylesheet
