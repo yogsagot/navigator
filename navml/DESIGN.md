@@ -211,7 +211,8 @@ line. The banned set is exactly `declarations(component_class)` plus its ordinar
 
 ### Worked example
 
-The markup for the desktop `navigator/__main__.py` builds by hand today:
+The markup for the desktop `navigator/__main__.py` builds by hand today, matching
+`Manager._place()` as it now stands:
 
 ```
 Manager:
@@ -233,17 +234,35 @@ Manager:
         y: 1
         width: parent.width // 2
         height: max(3, parent.height - 2)
+        visible: not parent.console_visible
     Panel:
         id: right
         y: 1
         x: parent.width // 2
         width: parent.width - left.width
         height: max(3, parent.height - 2)
+        visible: not parent.console_visible
+    Console:
+        id: console
+        x: 0
+        y: 1
+        width: parent.width
+        height: max(1, parent.height - 2)
+        visible: parent.console_visible
 ```
+
+The three `visible` lines are the whole of Ctrl+O, and they are ordinary boolean expressions
+over a reactive attribute — nothing about them needs a new language feature. What they do need
+is a way to *declare* `console_visible` on `Manager`, which is the second hole in the section
+after next. `Console(left)`'s constructor argument is the first.
 
 and what the generator emits — verified output of the prototype, not an illustration. Run
 against a real widget tree it reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24,
-120x40 and 200x60:
+120x40 and 200x60. The prototype predates the console, so the run covered the four widgets
+below and not the `Console` or the three `visible` lines; those compile by the same rules —
+`visible` is an ordinary reactive attribute and `not parent.console_visible` an ordinary
+expression — but they are unverified, and the emitted block is left as it was actually
+produced rather than extended by hand:
 
 ```python
     def _build(self) -> None:
@@ -265,8 +284,9 @@ against a real widget tree it reproduces the geometry `navigator/__main__.py` pr
         self.right.height = bind(lambda _o: max(3, _o.parent.height - 2))
 ```
 
-Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding — the reason is
-the constant-size trap described below. `self.left.width` in the last-but-one line is the id
+Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding — that was the
+constant-size trap described below, and the decision recorded there since supersedes it: with
+the generated class overriding `layout()`, `height: 1` compiles to a plain `1` too. `self.left.width` in the last-but-one line is the id
 reference, resolved through the closure over the component; every other name went to `_o`.
 
 The prototype was run against a widget tree that already existed, so what it emits is the
@@ -296,11 +316,19 @@ the outer `cursor` still resolves to `_o.cursor`.
   height of 24 in an 80x24 terminal. `navigator/__main__.py`'s `bind(lambda w: 1)` is therefore not
   redundancy; the binding is what protects the constant.
 
-  The tidier fix belongs to navml rather than to the expression compiler: a component whose
-  children are all placed by markup does not want the inherited cascade at all, so the
-  generated class should override `layout()` to size only itself. With that in place a
-  constant size is safe as a plain assignment. Until it is decided (see below), compile a
-  literal `width` or `height` to a binding and everything else to a value.
+  The tidier fix belongs to navml rather than to the expression compiler, and it is now
+  **decided**: a generated class overrides `layout()` to size only itself and does not
+  cascade into its children, because a component whose children are all placed by markup does
+  not want the inherited cascade at all. So a literal `width` or `height` compiles to a plain
+  value like everything else, and the trap does not exist for generated code.
+
+  Three things follow. `Widget.layout()`'s `is_bound` guard becomes a concern of hand-written
+  widgets only — it stays, because they still need it, but nothing the generator emits relies
+  on it. A markup child that says nothing about its size therefore *stays zero* rather than
+  silently filling its parent, which is the honest failure: the size is missing from the
+  document and the screen says so. And `Manager` already works this way, having no `layout()`
+  at all, so the emitted shape matches the worked example below rather than departing from
+  it.
 - **A `computed` target is a generation-time error.** `Panel.title_text` is a `@computed`,
   and `Computed.__set__` refuses a binding. The generator knows the widget's class, so
   `title_text: …` in markup should be rejected with a line number instead of failing when the
@@ -359,15 +387,60 @@ Already true, and worth stating so it does not get broken by accident:
   installed inside a method where that instance is in scope — `_build(self)` — not in a class
   body.
 - The generator needs the set of reactive attributes a class declares, inherited ones
-  included. `navkit.reactive` exposes no such helper; the prototype reached for the private
-  `_Declaration` and walked `cls.__mro__`. A public `declarations(cls)` belongs in
-  `navkit/reactive.py` when the generator is written, not before.
+  included. **Now there**: `navkit.reactive.declarations(cls)`, exported from `navkit`,
+  replacing the prototype's `properties()` in the appendix below. It maps each name to its
+  declaration rather than returning bare names, because the generator needs to tell the two
+  kinds apart in opposite directions — a `Reactive` is a rewrite target and a binding target,
+  a `Computed` is a generation-time error (see *A `computed` target is a generation-time
+  error* above). An override shadows what it inherits, as attribute lookup does.
+
+  The name is unambiguous: the widget-level property that used to share it is now
+  `Widget.style_declarations`, renamed when this function landed, because one meant the
+  reactive surface a *class* declares and the other the stylesheet declarations that
+  cascaded onto one *instance*.
+
+### What converting `Manager` needs and does not have
+
+The worked example above is the plan for proving the markup machinery: compile
+`navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the
+real class rather than the example turns up three things markup cannot say, none of them
+recorded anywhere until now. Each blocks that conversion, so each needs an answer before the
+generator is finished — and none is answered here, because each is a language decision rather
+than an oversight.
+
+**Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional
+constructor argument, and `Manager(left, right, scheme)` takes three. Markup has properties,
+which are set *after* construction, and no way to name a value arriving from outside the
+document at all. The two obvious shapes pull in opposite directions: a declared parameter list
+on the component (`Manager` takes `left`, `right`) keeps the Python call site unchanged and
+makes the document a function of its arguments; or every parameter becomes an ordinary
+reactive property assigned after `_build()`, which is uniform but changes when a `Panel` first
+knows its path — and `Panel` starts a directory scan from an effect the moment it is
+constructed, so "after" is not free. QML's answer is that a component has no constructor and
+everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
+
+**Declaring a reactive property in markup.** `Manager.console_visible` is a `reactive(False)`
+in the class body, and the three `visible` bindings read it — so the document cannot be
+compiled without a way to *declare* it, not merely to assign it. Same for `Console.revision`
+and `Panel`'s seven. QML spells this `property bool consoleVisible: false`; navml has no
+spelling at all. The question is not whether to have one but whether the declaration also
+carries `factory=` and `equal=`, which is where `reactive()`'s signature stops being a single
+default value.
+
+**`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is
+styled with or without an application around it, and a `style:` block compiles to
+`inline_style`, which is a different slot with different semantics — one is a sheet governing
+a subtree, the other is a handful of declarations for one widget. A component that brings its
+own look needs the first and can only say the second.
+
+Two smaller ones, recorded so they are not rediscovered: `effect()` registration order in
+`Panel.__init__` is load-bearing — the comment there says "declaration order is flush order" —
+and has no markup spelling either; and `MenuBar` and `KeyBar` paint loops over module-level
+constants, which is the repeater/model question that the *Parts* argument in
+`navkit/DESIGN.md` deliberately does **not** answer, because it answers the row case instead.
 
 ### Still open
 
-- Whether a generated class overrides `layout()` to size only itself, leaving its children
-  entirely to the markup. It would remove the constant-size trap above, and make
-  `Widget.layout()`'s `is_bound` guard a concern of hand-written widgets only.
 - Multi-line property bodies. With indentation carrying the block structure, the natural
   form is the expression continuing on lines indented under the `property:` — which is how
   Kivy writes a handler — compiling to a nested `def` rather than a lambda, still taking one

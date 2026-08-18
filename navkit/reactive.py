@@ -52,7 +52,7 @@ from __future__ import annotations
 import contextlib
 import itertools
 import weakref
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from enum import IntEnum
 from typing import Any, Generic, TypeVar, overload
 
@@ -609,6 +609,39 @@ def computed(
     if function is None:
         return lambda fn: Computed(fn, equal=equal)
     return Computed(function, equal=equal)
+
+
+def declarations(cls: type) -> Mapping[str, _Declaration]:
+    """Every reactive attribute *cls* declares, inherited ones included.
+
+    Maps each name to its declaration rather than returning bare names, which
+    is what tells a :class:`Reactive` and a :class:`Computed` apart::
+
+        writable = {n for n, d in declarations(cls).items()
+                    if not isinstance(d, Computed)}
+
+    A code generator needs both, and for opposite reasons: a reactive
+    attribute is one markup may bind, and a computed one is one it may *not*,
+    because :meth:`Computed.__set__` refuses a binding.  Reporting only the
+    first would leave the second to fail at the first paint instead of when
+    the document is compiled.
+
+    An override wins over the declaration it shadows, exactly as attribute
+    lookup does: ``cls.__mro__`` runs most-derived first and the first name
+    seen is the one kept.
+
+    Distinct from :attr:`navkit.widget.Widget.style_declarations`, which
+    holds the *stylesheet* declarations that cascaded onto one widget.  That
+    property carries the longer name because of this function: one is the
+    reactive surface a class declares, the other is what a sheet said about
+    an instance.
+    """
+    found: dict[str, _Declaration] = {}
+    for klass in cls.__mro__:
+        for name, value in vars(klass).items():
+            if isinstance(value, _Declaration):
+                found.setdefault(name, value)
+    return found
 
 
 # -- runtime bindings ---------------------------------------------------------

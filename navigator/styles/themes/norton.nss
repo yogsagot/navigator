@@ -1,4 +1,3 @@
-q
 /*
  * Norton Commander -- DOS Navigator's NORTON.PAL.
  *
