@@ -8,11 +8,14 @@ import weakref
 import pytest
 
 from navkit.reactive import (
+    Computed,
     CycleError,
+    Reactive,
     ReactiveError,
     Scheduler,
     bind,
     computed,
+    declarations,
     effect,
     flush_effects,
     is_bound,
@@ -641,3 +644,61 @@ def test_an_effect_on_a_collected_owner_is_skipped_by_the_flush():
     gc.collect()
     flush_effects(scheduler)  # must not raise
     assert not scheduler.pending
+
+
+# -- declarations -------------------------------------------------------------
+
+
+class Base:
+    """Two sources and a derived value, for the declaration walk."""
+
+    width = reactive(0)
+    height = reactive(0)
+    plain = "not reactive"
+
+    @computed
+    def area(self) -> int:
+        return self.width * self.height
+
+
+class Derived(Base):
+    depth = reactive(0)
+
+
+def test_declarations_finds_the_attributes_a_class_declares():
+    assert set(declarations(Base)) == {"width", "height", "area"}
+
+
+def test_declarations_includes_inherited_attributes():
+    assert set(declarations(Derived)) == {"width", "height", "area", "depth"}
+
+
+def test_declarations_tells_a_source_from_a_derived_value():
+    found = declarations(Base)
+    assert isinstance(found["width"], Reactive)
+    assert isinstance(found["area"], Computed)
+
+
+def test_declarations_leaves_out_a_plain_attribute():
+    assert "plain" not in declarations(Base)
+
+
+def test_an_override_wins_over_the_declaration_it_shadows():
+    class Overriding(Base):
+        width = reactive(80)
+
+    assert declarations(Overriding)["width"] is Overriding.width
+    assert declarations(Overriding)["width"] is not Base.width
+
+
+def test_declarations_maps_each_name_to_the_class_attribute_itself():
+    # What `unbind`, `is_bound` and `peek` take, so a generator can hand the
+    # declaration straight on rather than looking it up again by name.
+    assert declarations(Base)["width"] is Base.__dict__["width"]
+
+
+def test_declarations_of_a_class_with_none_is_empty():
+    class Bare:
+        pass
+
+    assert declarations(Bare) == {}

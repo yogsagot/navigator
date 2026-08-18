@@ -1,10 +1,11 @@
 # navkit design notes
 
 Decisions taken ahead of the code that will need them, so the work starts from a spec rather
-than rediscovering it. `navkit/` is otherwise written; what this file covers is the one part
-still to build — the CSS-like stylesheet library and its lookup engine, which `style.py`'s
-module docstring already promises will "grow on top of this module". Anything not written down
-here is still open.
+than rediscovering it, and — increasingly — the account of what building that code settled.
+`navkit/` is written, the stylesheet engine included: the sections below were written before
+`stylesheet.py` existed and *What the migration settled* and *What building it settled* record
+what happened when it did. Anything not written down here is still open, and the *Still open*
+section at the end is where the unbuilt parts are named.
 
 ## Selectors
 
@@ -963,9 +964,45 @@ detached and the child reaped.
   worth doing only once something actually launches an editor.
 - Where the console's key routing belongs. `Navigator.on_key` currently decides what the child
   gets and what Navigator keeps, which is the application's business only for as long as there
-  is one console; a focus notion in `Widget` is the eventual home.
+  is one console; a focus notion in `Widget` is the eventual home — the first item of the
+  section below.
 - A `unicode` flag on `TerminalInfo`, deliberately not added yet because nothing would read
   it. Detecting a UTF-8 locale is trivial; the flag only earns its place once `draw_box` can
   fall back to an ASCII charset, which is the `border` question above. That is the one point
   where a capability has to reach a drawing primitive rather than the escape stream, so it is
   worth settling the vocabulary first and the detection second.
+
+### What the widget library needs first
+
+The markup language does not need any of these — a `.nml` that declares a tree, binds geometry
+and carries a `style` block compiles onto what is already here, and `Manager._place()` is the
+proof. A **widget library** does, because a button, a dialog and a pull-down menu are all made
+of them. Listed in the order they block each other, which is also the order to build them:
+
+1. **Focus.** There is none. `dispatch_key` offers a key to *every* visible descendant, deepest
+   and last-added first, until one returns True — a positional lottery that works only because
+   nothing yet competes for a key. The application sidesteps it entirely: `Navigator.on_key` is
+   one central `if/elif` chain over a hand-rolled `Panel.active` bool, and `Manager.active_panel`
+   is what a focused widget would otherwise be. Everything below depends on this one.
+2. **Signals.** A widget cannot announce anything. `Application.post_event` accepts any `Event`,
+   but `_handle` dispatches only the four types it knows, so a user-defined event is queued and
+   dropped; `ResizeEvent` and `PasteEvent` never reach a widget at all. Reactive attributes plus
+   `effect()` are the current substitute and are the right one for *state* — a signal is for the
+   thing that has no state, "this button was pressed". `navml/DESIGN.md` lists the markup half
+   of this as open, and the two have to be settled together.
+3. **Mount and unmount.** `add()` appends and invalidates but never calls `layout()` on the new
+   child, so a widget added while the application is running is 0x0 until the next resize unless
+   every one of its sizes is bound — a dialog opened at run time silently paints nothing.
+   `remove()` sets `parent = None` and stops; `Effect.dispose()` exists and nothing calls it, and
+   a binding written as `w.parent.width` then raises on a detached widget and *caches* the
+   failure. Effects are held by weak reference, so this is a correctness question rather than a
+   leak.
+4. **Modal and overlay.** Z-order is child-list order — paint forwards, hit-test backwards — which
+   is enough to put a dialog on top and no help at all in stopping the widgets underneath from
+   also handling the keystroke. Exclusive input is what "modal" means, and it needs (1) first.
+   The application's `visible`-binding trick, where the console and the panels take turns, is
+   the whole-screen special case of this and does not generalise to a centred dialog.
+
+A fifth, smaller: **the cursor is unconditionally hidden** (`Terminal.start` emits `HIDE_CURSOR`
+and `render_diff` never places one), so a text input has no caret except a reversed cell — which
+is what `Console.render` already does by hand.

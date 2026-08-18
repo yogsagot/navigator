@@ -150,11 +150,16 @@ class Widget:
         return getattr(app, "stylesheet", None) or stylesheet.EMPTY
 
     @computed
-    def declarations(self) -> Mapping[str, Any]:
+    def style_declarations(self) -> Mapping[str, Any]:
         """Everything the cascade says about this widget, before it is split.
 
         Rules first, in ``(specificity, order)``, then the inline declarations
         on top -- the one authoring channel that outranks every selector.
+
+        Named for the half of the cascade it carries rather than just
+        ``declarations``, which collides with
+        :func:`navkit.reactive.declarations` -- the reactive attributes a
+        *class* declares, which is a different thing at a different level.
         """
         resolved = dict(self.stylesheet.declarations_for(self))
         resolved.update(stylesheet.parse_declarations(self.inline_style))
@@ -169,7 +174,7 @@ class Widget:
         the properties something actually declared stop descending.
         """
         base = self.parent.style if self.parent is not None else DEFAULT_STYLE
-        return base.derive(**stylesheet.appearance(self.declarations))
+        return base.derive(**stylesheet.appearance(self.style_declarations))
 
     @computed
     def _part_styles(self):
@@ -224,7 +229,7 @@ class Widget:
         Unlike appearance these do **not** inherit: a border that descended
         would hand a frame to every child of a framed widget.
         """
-        return stylesheet.properties(self.declarations).get(name, default)
+        return stylesheet.properties(self.style_declarations).get(name, default)
 
     def add_class(self, *names: str) -> None:
         """Tag this widget, so ``.name`` selectors match it."""
