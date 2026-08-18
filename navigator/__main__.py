@@ -18,12 +18,14 @@ from pathlib import Path
 
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
+from navkit.console import ConsoleScreen, seed_from_host
 from navkit.events import KeyEvent, MouseEvent
+from navkit.process import PtyProcess
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import Stylesheet, parse_value, read, register_property
-from navkit.terminal import Terminal, is_a_tty
+from navkit.terminal import Terminal, encode_key, is_a_tty
 from navkit.widget import Widget
 
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
@@ -369,8 +371,120 @@ class KeyBar(Widget):
             )
 
 
+class Console(Widget):
+    """The screen a program Navigator started paints on.
+
+    This is what Ctrl+O reveals.  DOS Navigator could show the last command's
+    output behind its panels because in DOS there was one screen and the
+    output was still in it; a terminal will not give its cells back, so the
+    only way to have them is to have received them.  A shell runs on a pty
+    this widget owns, its output goes through
+    :class:`~navkit.console.ConsoleScreen`, and what arrives is a grid of
+    cells like any other -- which is why the menu bar and the key bar can
+    stay painted over it, and why it can be scrolled back through.
+    """
+
+    #: Bumped whenever the child writes, so the reactive layer knows the cells
+    #: moved.  The screen behind it is not observable -- it is a great deal of
+    #: mutable state that changes together -- so one counter stands for it.
+    revision: int = reactive(0)
+
+    def __init__(self, cwd: Path | None = None, **kwargs):
+        super().__init__(**kwargs)
+        self.cwd = cwd
+        self.screen = ConsoleScreen(80, 24)
+        self.process: PtyProcess | None = None
+        self.seeded = False
+        # The pty is told how big it is whenever this widget is, which is the
+        # whole of the resize handling: the kernel raises SIGWINCH on the
+        # child itself once the size is set.
+        effect(self, Console._follow_size)
+
+    def _follow_size(self) -> None:
+        columns, lines = max(1, self.width), max(1, self.height)
+        self.screen.resize(columns, lines)
+        if self.process is not None:
+            self.process.set_size(columns, lines)
+
+    # -- the child -----------------------------------------------------------
+
+    def start(self, argv: list[str] | None = None) -> None:
+        """Start a program on the console, replacing any already running."""
+        if self.process is not None and self.process.is_running:
+            return
+        if not self.seeded:
+            # Whatever was on the real screen before Navigator ran, if this
+            # host happens to keep it.  Once only, and before the shell's
+            # first prompt lands on top of it.
+            self.seeded = True
+            seed_from_host(self.screen)
+        shell = argv or [os.environ.get("SHELL") or "/bin/sh"]
+        self.process = PtyProcess(
+            shell,
+            cwd=self.cwd,
+            columns=max(1, self.width),
+            lines=max(1, self.height),
+            on_output=self._on_output,
+            on_exit=self._on_exit,
+        )
+        try:
+            self.process.start()
+        except OSError:
+            self.process = None
+
+    def stop(self) -> None:
+        if self.process is not None:
+            self.process.terminate()
+            self.process.close()
+            self.process = None
+
+    def _on_output(self, data: bytes) -> None:
+        self.screen.feed(data)
+        self.revision += 1
+
+    def _on_exit(self, status: int) -> None:
+        self.process = None
+        self.revision += 1
+
+    # -- input ---------------------------------------------------------------
+
+    def send(self, event: KeyEvent) -> bool:
+        """Type *event* at the child; ``False`` if there is nobody to type at."""
+        if self.process is None or not self.process.is_running:
+            return False
+        data = encode_key(event)
+        if not data:
+            return False
+        self.process.write(data)
+        return True
+
+    def scroll_back(self) -> None:
+        self.screen.prev_page()
+        self.revision += 1
+
+    def scroll_forward(self) -> None:
+        self.screen.next_page()
+        self.revision += 1
+
+    # -- painting ------------------------------------------------------------
+
+    def render(self, surface: Surface) -> None:
+        _ = self.revision  # read for the dependency: this is what output moves
+        surface.fill(0, 0, self.width, self.height, " ", self.style)
+        self.screen.blit_into(surface)
+        column, row, hidden = self.screen.cursor
+        if not hidden and 0 <= column < self.width and 0 <= row < self.height:
+            char, style = surface.get(column, row)
+            surface.set_cell(column, row, char or " ", style.derive(reverse=True))
+
+
 class Manager(Widget):
     """The Navigator desktop: menu bar, two panels and the key bar."""
+
+    #: Whether Ctrl+O has swapped the panels for the console.  Reactive, so
+    #: the three widgets that care bind to it and nothing has to be repainted
+    #: by hand.
+    console_visible: bool = reactive(False)
 
     def __init__(self, left: Path, right: Path, scheme: Stylesheet = SCHEME):
         super().__init__()
@@ -381,11 +495,19 @@ class Manager(Widget):
         self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)
+        self.console = Console(left)
         self.keybar = KeyBar()
-        for child in (self.menu, self.left, self.right, self.keybar):
+        for child in (self.menu, self.left, self.right, self.console, self.keybar):
             self.add(child)
         self._place()
         self.left.active = True
+
+    def toggle_console(self) -> None:
+        """Show or hide the console, starting its shell the first time."""
+        showing = not self.console_visible
+        if showing:
+            self.console.start()
+        self.console_visible = showing
 
     def _place(self) -> None:
         """Say how the desktop is divided, once, in terms of its own size.
@@ -412,6 +534,18 @@ class Manager(Widget):
         self.right.width = bind(lambda w: w.parent.width - w.parent.width // 2)
         self.right.height = bind(lambda w: max(3, w.parent.height - 2))
 
+        # The console covers the band the two panels share, and the three of
+        # them take turns.  This is the whole of Ctrl+O: `visible' is
+        # reactive, so flipping the flag repaints without a layout pass, and
+        # the menu bar and key bar are simply left alone -- which is why they
+        # stay drawn over the output, as they were in DOS Navigator.
+        self.console.x, self.console.y = 0, 1
+        self.console.width = bind(lambda w: w.parent.width)
+        self.console.height = bind(lambda w: max(1, w.parent.height - 2))
+        self.console.visible = bind(lambda w: w.parent.console_visible)
+        self.left.visible = bind(lambda w: not w.parent.console_visible)
+        self.right.visible = bind(lambda w: not w.parent.console_visible)
+
     @computed
     def active_panel(self) -> Panel:
         """Whichever panel currently has the cursor."""
@@ -433,9 +567,30 @@ class Navigator(Application):
         self.manager = Manager(left, right, scheme)
         super().__init__(root=self.manager, **kwargs)
 
+    def on_stop(self) -> None:
+        # The shell would otherwise outlive the terminal it was talking to.
+        self.manager.console.stop()
+
     def on_key(self, event: KeyEvent) -> bool:
         manager = self.manager
         panel = manager.active_panel
+
+        if event.matches("ctrl+o"):
+            manager.toggle_console()
+            return True
+        if manager.console_visible:
+            # Everything else belongs to the program on the console -- it has
+            # the screen, so it should have the keyboard.  Only the two ways
+            # out and the scrollback are kept back.
+            if event.matches("f10", "ctrl+q"):
+                self.exit()
+            elif event.matches("shift+pageup"):
+                manager.console.scroll_back()
+            elif event.matches("shift+pagedown"):
+                manager.console.scroll_forward()
+            else:
+                return manager.console.send(event)
+            return True
 
         if event.matches("f10", "ctrl+q", "alt+x"):
             self.exit()
@@ -463,6 +618,14 @@ class Navigator(Application):
 
     def on_mouse(self, event: MouseEvent) -> bool:
         manager = self.manager
+        if manager.console_visible:
+            if event.is_wheel and manager.console.contains(event.x, event.y):
+                if event.button == "wheel_up":
+                    manager.console.scroll_back()
+                else:
+                    manager.console.scroll_forward()
+                return True
+            return False
         for panel in (manager.left, manager.right):
             if not panel.contains(event.x, event.y):
                 continue

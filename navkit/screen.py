@@ -51,6 +51,30 @@ def char_width(char: str) -> int:
     return 2 if unicodedata.east_asian_width(char) in ("W", "F") else 1
 
 
+def _blit_bounds(
+    target: Surface,
+    source: Surface,
+    x: int,
+    y: int,
+    src_x: int,
+    src_y: int,
+    width: int | None,
+    height: int | None,
+) -> tuple[int, int, int, int]:
+    """The source-relative rectangle a blit actually has to walk.
+
+    Clipped against both surfaces at once, so neither the loop nor the row
+    copy below it ever visits a cell that one of the two would throw away.
+    """
+    span = (source.width - src_x) if width is None else width
+    rows = (source.height - src_y) if height is None else height
+    left = max(0, -x, -src_x)
+    top = max(0, -y, -src_y)
+    right = min(span, target.width - x, source.width - src_x)
+    bottom = min(rows, target.height - y, source.height - src_y)
+    return left, top, max(left, right), max(top, bottom)
+
+
 class Surface:
     """Somewhere a widget can paint, in its own coordinates.
 
@@ -96,6 +120,46 @@ class Surface:
         nest: taking a view of a view intersects the two clips.
         """
         return _View(self, x, y, width, height)
+
+    def blit(
+        self,
+        source: Surface,
+        x: int = 0,
+        y: int = 0,
+        src_x: int = 0,
+        src_y: int = 0,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> None:
+        """Copy a rectangle of cells out of *source* and into *x*, *y* here.
+
+        The generic implementation, written in terms of :meth:`get` and
+        :meth:`set_cell` so any surface has it; :class:`ScreenBuffer` and
+        :class:`_View` override it with something that moves whole rows.
+
+        Both edges of a copy can fall in the middle of a double-width
+        character.  A cell whose owner was clipped away, and a wide character
+        whose trailing half was, both become a blank -- the same bargain
+        :meth:`ScreenBuffer.set_cell` makes at the edge of the screen.
+        """
+        left, top, right, bottom = _blit_bounds(
+            self, source, x, y, src_x, src_y, width, height
+        )
+        for row in range(top, bottom):
+            for col in range(left, right):
+                char, style = source.get(src_x + col, src_y + row)
+                if char == "":
+                    # The trailing half of a wide character.  Its owner
+                    # painted both cells, unless the owner is the cell we just
+                    # clipped off the left edge -- then there is nothing to
+                    # show but a blank.
+                    if col == left:
+                        self.set_cell(x + col, y + row, " ", style)
+                    continue
+                if char_width(char) == 2 and col + 1 >= right:
+                    self.set_cell(x + col, y + row, " ", style)
+                    continue
+                self.set_cell(x + col, y + row, char, style)
 
     def draw_text(
         self,
@@ -201,6 +265,34 @@ class _View(Surface):
                 self._x + left, self._y + top, right - left, bottom - top, char, style
             )
 
+    def blit(
+        self,
+        source: Surface,
+        x: int = 0,
+        y: int = 0,
+        src_x: int = 0,
+        src_y: int = 0,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> None:
+        # Clip here, then hand the whole rectangle to the target in one call.
+        # Forwarding rather than looping is what lets a widget -- which only
+        # ever sees a view -- reach ScreenBuffer's row copy underneath.
+        left, top, right, bottom = _blit_bounds(
+            self, source, x, y, src_x, src_y, width, height
+        )
+        if right <= left or bottom <= top:
+            return
+        self._target.blit(
+            source,
+            self._x + x + left,
+            self._y + y + top,
+            src_x + left,
+            src_y + top,
+            right - left,
+            bottom - top,
+        )
+
 
 class ScreenBuffer(Surface):
     """A grid of cells: the surface a whole frame is composed in."""
@@ -265,6 +357,38 @@ class ScreenBuffer(Surface):
         span = [cell] * (right - left)
         for row in range(max(0, y), min(self.height, y + height)):
             self._rows[row][left:right] = span
+
+    def blit(
+        self,
+        source: Surface,
+        x: int = 0,
+        y: int = 0,
+        src_x: int = 0,
+        src_y: int = 0,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> None:
+        if not isinstance(source, ScreenBuffer):
+            super().blit(source, x, y, src_x, src_y, width, height)
+            return
+        left, top, right, bottom = _blit_bounds(
+            self, source, x, y, src_x, src_y, width, height
+        )
+        if right <= left or bottom <= top:
+            return
+        # Both grids hold cells in the same representation, so a row is a
+        # slice assignment -- one list copy in C rather than a Python call per
+        # cell.  This is the path a console screen full of output takes every
+        # frame, which is the whole reason for the override.
+        for row in range(top, bottom):
+            span = source._rows[src_y + row][src_x + left : src_x + right]
+            if span[0][0] == "":
+                # Its owner was clipped off the left edge.
+                span[0] = (" ", span[0][1])
+            if char_width(span[-1][0]) == 2:
+                # Its trailing half was clipped off the right edge.
+                span[-1] = (" ", span[-1][1])
+            self._rows[y + row][x + left : x + right] = span
 
     def copy_from(self, other: ScreenBuffer) -> None:
         """Make this buffer an independent copy of *other*."""

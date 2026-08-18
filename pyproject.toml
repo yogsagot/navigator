@@ -8,9 +8,11 @@ version = "0.1.0"
 description = "A recreation of the DOS Navigator two-panel file manager for POSIX terminals"
 readme = "README.md"
 requires-python = ">=3.12"
-# Deliberately empty, for the same reason requirements.txt is: navkit is
-# stdlib-only at run time.  Test tooling lives in requirements-dev.txt.
-dependencies = []
+# The one run-time dependency, and the reason for it: pyte is the terminal
+# emulator behind `navkit.console` -- the screen a child program paints on so
+# that Ctrl+O can show its output.  Everything else is stdlib.  Test tooling
+# lives in requirements-dev.txt.
+dependencies = ["pyte>=0.8.2"]
 
 [project.scripts]
 nav = "navigator.__main__:main"

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 import pytest
 
 from navkit.events import KeyEvent, MouseEvent
 from navkit.screen import ScreenBuffer
+from navkit.terminal import encode_key
 
 from conftest import FakeTerminal, run_app, settle
 from navigator.__main__ import (
@@ -399,3 +401,131 @@ def test_a_theme_only_ever_sets_colours():
             if name.startswith("dn-"):
                 continue
             assert name.rsplit("-", 1)[-1] in ("fg", "bg"), f"{theme}: ${name}"
+
+
+# -- the console and Ctrl+O -------------------------------------------------
+
+
+@pytest.fixture
+def quiet_console(monkeypatch):
+    """Stop the console forking a shell.
+
+    Most of what Ctrl+O does has nothing to do with the child: it is which
+    widgets paint, and that is worth testing without a process in the way.
+    ``test_the_console_runs_a_real_child`` covers the other half.
+    """
+    monkeypatch.setattr(
+        "navigator.__main__.Console.start", lambda self, argv=None: None
+    )
+
+
+def desktop(app, size=(80, 24)) -> ScreenBuffer:
+    """Paint the whole desktop and hand back the buffer."""
+    buffer = ScreenBuffer(*size)
+    app.manager.layout(*size)
+    app.manager.render_tree(buffer)
+    return buffer
+
+
+def row_of(buffer: ScreenBuffer, y: int) -> str:
+    return "".join(buffer.get(x, y)[0] or " " for x in range(buffer.width))
+
+
+def test_ctrl_o_shows_the_console_in_place_of_the_panels(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True)])
+    manager = app.manager
+    assert manager.console_visible is True
+    # One flag, three widgets: nothing was made visible by hand.
+    assert manager.console.visible is True
+    assert manager.left.visible is False
+    assert manager.right.visible is False
+
+
+def test_ctrl_o_toggles_back(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("o", ctrl=True)])
+    assert app.manager.console_visible is False
+    assert app.manager.left.visible is True
+
+
+def test_the_menu_bar_and_key_bar_stay_over_the_console(tree, quiet_console):
+    """The whole point of Ctrl+O, and what Midnight Commander cannot do."""
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True),
+                  lambda a: a.manager.console._on_output(b"previous output")])
+    buffer = desktop(app)
+    assert "File" in row_of(buffer, 0)  # the menu bar, still there
+    assert "Quit" in row_of(buffer, 23)  # the key bar, still there
+    assert "previous output" in row_of(buffer, 1)  # and the output behind them
+    # The panels really are gone rather than merely covered.
+    assert "╔" not in row_of(buffer, 1)
+
+
+def test_the_console_is_the_size_of_the_band_the_panels_shared(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True)])
+    console = app.manager.console
+    assert (console.width, console.height) == (80, 22)
+    # And the screen behind it was resized to match, without a layout pass.
+    assert (console.screen.columns, console.screen.lines) == (80, 22)
+
+
+def test_keys_go_to_the_console_while_it_is_showing(tree, quiet_console):
+    app = navigator(tree)
+    typed: list[bytes] = []
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: setattr(a.manager.console, "send",
+                          lambda event: typed.append(encode_key(event)) or True),
+        KeyEvent("down"),
+        KeyEvent("x", "x"),
+    ])
+    assert typed == [b"\x1b[B", b"x"]
+    # The panel did not also act on them.
+    assert app.manager.left.cursor == 0
+
+
+def test_quit_still_works_from_the_console(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("f10"), KeyEvent("down")])
+    assert app.is_running is False
+
+
+def test_shift_pageup_scrolls_the_console_back(tree, quiet_console):
+    app = navigator(tree)
+    lines = b"".join(b"line%d\r\n" % n for n in range(60))
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: a.manager.console._on_output(lines),
+        KeyEvent("pageup", shift=True),
+    ])
+    assert app.manager.console.screen.scrolled_back is True
+
+
+def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
+    app = navigator(tree)
+    lines = b"".join(b"line%d\r\n" % n for n in range(60))
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: a.manager.console._on_output(lines),
+        MouseEvent(x=10, y=10, button="wheel_up", action="press"),
+    ])
+    assert app.manager.console.screen.scrolled_back is True
+    assert app.manager.left.cursor == 0
+
+
+def test_the_console_runs_a_real_child(tree):
+    """End to end: a program's output really does end up behind the panels."""
+    app = navigator(tree)
+
+    def start_child(a):
+        # Started before the toggle, so `toggle_console' finds a child already
+        # running and does not lay a shell over it.
+        a.manager.console.start(["/bin/sh", "-c", "printf 'captured\\r\\n'; sleep 5"])
+        a.manager.console_visible = True
+
+    # A generous settle: the driver's awaits are the only chance the loop gets
+    # to read from the pty, so the test has to yield rather than sleep.
+    run_app(app, [start_child, lambda a: None, lambda a: None], settle=0.3)
+    assert "captured" in row_of(desktop(app), 1)
