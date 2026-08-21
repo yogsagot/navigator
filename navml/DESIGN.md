@@ -1,20 +1,19 @@
 # navml design notes
 
-The markup language, its parser, the code generator and the widget library are all
-unwritten. This file records decisions made ahead of them, so the work starts from a spec
-rather than rediscovering it. Anything not written down here is still open.
+The markup language, its parser, the code generator and the widget library are all unwritten. This file records
+decisions made ahead of them, so the work starts from a spec rather than rediscovering it. Anything not written down
+here is still open.
 
 ## Where the inspiration is taken from
 
-**QML for the architecture, Kivy for the syntax.** From QML come the shape of the language
-and its semantics: a declarative tree of objects, `id`s naming them, properties that are
-expressions re-evaluated when what they read changes, and a component that is a class. From
-Kivy comes the surface, because the file should read like Python:
+**QML for the architecture, Kivy for the syntax.** From QML come the shape of the language and its semantics: a
+declarative tree of objects, `id`s naming them, properties that are expressions re-evaluated when what they read
+changes, and a component that is a class. From Kivy comes the surface, because the file should read like Python:
 
 - **blocks are made by indentation**, not by braces;
 - **no semicolons**, and one property per line;
-- a widget opens a block with a trailing colon — `Panel:` — and its properties and children
-  are the lines indented under it;
+- a widget opens a block with a trailing colon — `Panel:` — and its properties and children are the lines indented under
+  it;
 - `id: left` is a directive rather than a property — see *Ids* below.
 
 So a declaration reads:
@@ -29,29 +28,25 @@ and never `Panel { id: left; width: parent.width // 2 }`.
 
 ## Ids
 
-An id is a **name, never a value**, and both ancestors agree on that much. QML's docs are
-blunt about it — "it is not possible to access `myTextInput.id`" — and Kivy deprecated
-`Widget.id` through the 1.x line and removed it in 2.0.0, leaving only the `ids` dict. navml
-follows: a widget has no `id` attribute, and there is no reverse lookup either (QML keeps one
-for C++, `qmlContext(o)->nameForObject(o)`). Nothing needs one. An id exists so that one
-expression can name another widget in the same document, and that job is finished at
-generation time. If a test or a debugger ever wants to name a widget at run time, that is a
-separate reactive attribute on `Widget` — QML's `objectName`, which is a different thing with
-different rules — not this.
+An id is a **name, never a value**, and both ancestors agree on that much. QML's docs are blunt about it — "it is not
+possible to access `myTextInput.id`" — and Kivy deprecated
+`Widget.id` through the 1.x line and removed it in 2.0.0, leaving only the `ids` dict. navml follows: a widget has no
+`id` attribute, and there is no reverse lookup either (QML keeps one for C++, `qmlContext(o)->nameForObject(o)`).
+Nothing needs one. An id exists so that one expression can name another widget in the same document, and that job is
+finished at generation time. If a test or a debugger ever wants to name a widget at run time, that is a separate
+reactive attribute on `Widget` — QML's `objectName`, which is a different thing with different rules — not this.
 
-**In particular, an id is not a stylesheet selector.** `README.md` promises navkit a CSS-like
-stylesheet, and the obvious reading of that is `#left` matching `id: left`. It does not: the
-lookup engine is navkit, which cannot depend on navml and has nothing to match anyway, and a
-navml id is unique per document where CSS `#` presumes it is unique across everything being
-styled. `#` matches `Widget.name`, an ordinary run-time property written in markup as
+**In particular, an id is not a stylesheet selector.** `README.md` promises navkit a CSS-like stylesheet, and the
+obvious reading of that is `#left` matching `id: left`. It does not: the lookup engine is navkit, which cannot depend on
+navml and has nothing to match anyway, and a navml id is unique per document where CSS `#` presumes it is unique across
+everything being styled. `#` matches `Widget.name`, an ordinary run-time property written in markup as
 `name: "left-panel"` like any other. This is the same split Qt draws between a QML `id` and
 `QObject::objectName`; `navkit/DESIGN.md` records it in full.
 
-Where the two ancestors *disagree* is what an id compiles to, and there navml takes QML's
-side. QML assigns each id a slot index in the instance's `QQmlContextData` at compile time, so
-a reference costs an array read. Kivy stores a `WeakProxy` in a `DictProperty` and re-resolves
-the name out of that dict on every re-evaluation, because its compiled expression is `eval`'d
-with the id map as its globals.
+Where the two ancestors *disagree* is what an id compiles to, and there navml takes QML's side. QML assigns each id a
+slot index in the instance's `QQmlContextData` at compile time, so a reference costs an array read. Kivy stores a
+`WeakProxy` in a `DictProperty` and re-resolves the name out of that dict on every re-evaluation, because its compiled
+expression is `eval`'d with the id map as its globals.
 
 ### What an id becomes
 
@@ -67,85 +62,81 @@ self.left = Panel(parent=self)
 ```
 
 Not a dict. Three reasons, in order of weight: the expression rewriter already emits
-`self.left.width`, so an attribute is the form the compiled output wants anyway; the paired
-handler module writes `self.left` by hand and gets completion and a rename for it; and a
-mistyped id fails as an `AttributeError` naming the component, rather than a `KeyError` on a
-dict that could be anybody's.
+`self.left.width`, so an attribute is the form the compiled output wants anyway; the paired handler module writes
+`self.left` by hand and gets completion and a rename for it; and a mistyped id fails as an `AttributeError` naming the
+component, rather than a `KeyError` on a dict that could be anybody's.
 
 The attribute holds the widget itself, not a weak proxy. Kivy needs `WeakProxy` because its
-`ids` dict outlives the widget it names; a navml component owns its tree the way a QML context
-owns its objects and is collected with it, so there is no cycle to break by hand. That also
-avoids Kivy's sharpest corner, where the key survives the widget and `root.ids.gone` is a live
-entry holding a dead proxy that raises `ReferenceError` on any access.
+`ids` dict outlives the widget it names; a navml component owns its tree the way a QML context owns its objects and is
+collected with it, so there is no cycle to break by hand. That also avoids Kivy's sharpest corner, where the key
+survives the widget and `root.ids.gone` is a live entry holding a dead proxy that raises `ReferenceError` on any access.
 
 Two consequences worth stating outright:
 
-- **The id attribute is never reassigned after `_build()`**, and that is what makes an ordinary
-  non-reactive attribute safe. A binding compiled from `left.width` reads `self.left` and then
-  subscribes to `Panel.width`: it tracks the panel's width, but *not* a replacement of
-  `self.left`. QML does track its id slot — `captureProperty(context->idValueBindings(idx))` —
-  because incremental creation can refill one. navml has no such moment.
-- **Removing a widget from `children` leaves `self.left` pointing at it.** Deliberate: an id
-  names a widget the document declares, not a position in the tree.
+- **The id attribute is never reassigned after `_build()`**, and that is what makes an ordinary non-reactive attribute
+  safe. A binding compiled from `left.width` reads `self.left` and then subscribes to `Panel.width`: it tracks the
+  panel's width, but *not* a replacement of
+  `self.left`. QML does track its id slot — `captureProperty(context->idValueBindings(idx))` — because incremental
+  creation can refill one. navml has no such moment.
+- **Removing a widget from `children` leaves `self.left` pointing at it.** Deliberate: an id names a widget the document
+  declares, not a position in the tree.
 
 ### Naming rules
 
 Checked by the parser, each failing with the `.nml` line:
 
-| Rule | Rejects | Why |
-| --- | --- | --- |
-| a Python identifier, and not a keyword | `id: 2left`, `id: class` | it is emitted into generated source as an attribute name |
-| not one of the reserved words `self`, `root`, `parent` | `id: parent` | each already means something in the resolution table below |
-| not an attribute of the component's own class | `id: width` | it would be stored as `self.width` — see *Name resolution* |
-| unique within the document | two `id: left` | the second assignment would silently win |
+| Rule                                                   | Rejects                  | Why                                                        |
+|--------------------------------------------------------|--------------------------|------------------------------------------------------------|
+| a Python identifier, and not a keyword                 | `id: 2left`, `id: class` | it is emitted into generated source as an attribute name   |
+| not one of the reserved words `self`, `root`, `parent` | `id: parent`             | each already means something in the resolution table below |
+| not an attribute of the component's own class          | `id: width`              | it would be stored as `self.width` — see *Name resolution* |
+| unique within the document                             | two `id: left`           | the second assignment would silently win                   |
 
-The reserved-word row is the one both ancestors got wrong, in the same direction. QML checks
-id names against the JavaScript globals but not against `parent`, so `id: parent` compiles and
-shadows `Item.parent` for a whole component scope. Kivy rejects exactly `self` and `root` and
-silently shadows the rest — and shadows them *in opposite directions* depending on context:
-inside a property expression the globals overwrite the ids, inside an `on_*` handler the ids
-overwrite the globals. One explicit list, checked once, in the parser.
+The reserved-word row is the one both ancestors got wrong, in the same direction. QML checks id names against the
+JavaScript globals but not against `parent`, so `id: parent` compiles and shadows `Item.parent` for a whole component
+scope. Kivy rejects exactly `self` and `root` and silently shadows the rest — and shadows them *in opposite directions*
+depending on context:
+inside a property expression the globals overwrite the ids, inside an `on_*` handler the ids overwrite the globals. One
+explicit list, checked once, in the parser.
 
-Not adopted: QML's rule that an id must start with a lowercase letter. It exists to keep ids
-distinguishable from type names, and navml distinguishes them by position — a type opens a
-block, an `id:` is a directive line indented under it — so the rule buys nothing.
+Not adopted: QML's rule that an id must start with a lowercase letter. It exists to keep ids distinguishable from type
+names, and navml distinguishes them by position — a type opens a block, an `id:` is a directive line indented under it —
+so the rule buys nothing.
 
 ### Scope, order, and anonymity
 
-**An id is scoped to its document.** One `.nml` file declares one component, and its ids are
-visible from every expression in that file and from nowhere else. This is Kivy's per-rule
-boundary rather than QML's component scopes, which chain upward so that a delegate can read
-names from wherever it happened to be instantiated. The reason is mechanical rather than
-aesthetic: the compiled form is a closure over *one* component instance, and there is no
+**An id is scoped to its document.** One `.nml` file declares one component, and its ids are visible from every
+expression in that file and from nowhere else. This is Kivy's per-rule boundary rather than QML's component scopes,
+which chain upward so that a delegate can read names from wherever it happened to be instantiated. The reason is
+mechanical rather than aesthetic: the compiled form is a closure over *one* component instance, and there is no
 enclosing instance in scope to chain to.
 
 **Order does not matter.** An expression may name an id declared further down the document.
-`_build()` constructs every widget before it installs any binding, and a binding body is not
-run until something reads the value, so a forward reference costs nothing.
+`_build()` constructs every widget before it installs any binding, and a binding body is not run until something reads
+the value, so a forward reference costs nothing.
 
-**A widget without an id is anonymous, by construction.** It gets a local in `_build()`, which
-dies when `_build()` returns — the parent's `children` list is then the only reference to it:
+**A widget without an id is anonymous, by construction.** It gets a local in `_build()`, which dies when `_build()`
+returns — the parent's `children` list is then the only reference to it:
 
 ```python
     def _build(self) -> None:
-        _w1 = MenuBar(parent=self)
-        _w1.width = bind(lambda _o: _o.parent.width)
-
-        self.left = Panel(parent=self)          # id: left
-        self.left.width = bind(lambda _o: _o.parent.width // 2)
+      _w1 = MenuBar(parent=self)
+      _w1.width = bind(lambda _o: _o.parent.width)
+  
+      self.left = Panel(parent=self)  # id: left
+      self.left.width = bind(lambda _o: _o.parent.width // 2)
 ```
 
-No rule is needed to keep an un-id'd widget out of expressions: an id reference always
-compiles to `self.<id>` and never to a bare local, so the widget is unreachable from any
-expression whether or not the local is still alive.
+No rule is needed to keep an un-id'd widget out of expressions: an id reference always compiles to `self.<id>` and never
+to a bare local, so the widget is unreachable from any expression whether or not the local is still alive.
 
-**Ids are live before any hand-written code runs.** `_build()` assigns every id attribute
-before it installs the first binding, and runs to completion during the component's
-construction — so there is no window in which `self.left` is missing. Kivy has one, which is
-why its ids are unusable from `__init__` and why 1.11 had to add `on_kv_post` after years of
-`Clock.schedule_once` folklore. The contract this puts on the still-undecided merge with the
-hand-written half is a single line: the generated `__init__` calls `_build()`, and a
-hand-written `__init__` must call `super().__init__()` before it touches an id.
+**Ids are live before any hand-written code runs.** `_build()` assigns every id attribute before it installs the first
+binding, and runs to completion during the component's construction — so there is no window in which `self.left` is
+missing. Kivy has one, which is why its ids are unusable from `__init__` and why 1.11 had to add `on_kv_post` after
+years of
+`Clock.schedule_once` folklore. The contract this puts on the still-undecided merge with the hand-written half is a
+single line: the generated `__init__` calls `_build()`, and a hand-written `__init__` must call `super().__init__()`
+before it touches an id.
 
 ## Compiling a property expression
 
@@ -156,58 +147,56 @@ Panel:
     width: parent.width // 2
 ```
 
-`navkit.reactive.bind()` takes a callable of exactly one argument, called with the object
-that owns the attribute, so the generator has to produce:
+`navkit.reactive.bind()` takes a callable of exactly one argument, called with the object that owns the attribute, so
+the generator has to produce:
 
 ```python
 self.left.width = bind(lambda _o: _o.parent.width // 2)
 ```
 
-The bare `parent` in the markup is not a free variable there — it names something about the
-widget. Turning the text into a lambda is therefore a *rewrite*, not a wrapping: string
-formatting would have to know which names in an arbitrary expression refer to the widget,
-which refer to another object in the document, and which are ordinary globals like `max`.
+The bare `parent` in the markup is not a free variable there — it names something about the widget. Turning the text
+into a lambda is therefore a *rewrite*, not a wrapping: string formatting would have to know which names in an arbitrary
+expression refer to the widget, which refer to another object in the document, and which are ordinary globals like
+`max`.
 
-The rewrite is done on the syntax tree — `ast.parse(source, mode="eval")`, transform the
-free `Name` nodes, wrap the result in a one-argument `ast.Lambda`, `ast.unparse` it into the
-generated class. A prototype of exactly this compiled all eleven of the current
+The rewrite is done on the syntax tree — `ast.parse(source, mode="eval")`, transform the free `Name` nodes, wrap the
+result in a one-argument `ast.Lambda`, `ast.unparse` it into the generated class. A prototype of exactly this compiled
+all eleven of the current
 `Manager`'s bindings correctly, including the scoping corner cases below.
 
 ### Name resolution
 
-Checked in this order. **The widget's own property wins**: a bare name inside a widget means
-that widget first, so adding an `id` elsewhere in a document can never silently change what
-an existing expression refers to. An id that collides with a property name is simply
-unreachable by a bare name from inside that widget.
+Checked in this order. **The widget's own property wins**: a bare name inside a widget means that widget first, so
+adding an `id` elsewhere in a document can never silently change what an existing expression refers to. An id that
+collides with a property name is simply unreachable by a bare name from inside that widget.
 
-| A free name in the expression | compiles to | example |
-| --- | --- | --- |
-| bound inside the expression itself — a comprehension target, a nested lambda's argument | left alone | `e` in `', '.join(e.name for e in entries)` |
-| `self` | the lambda's argument | `self.width` → `_o.width` |
-| `root` | the component instance | `root.left.width` → `self.left.width` |
-| `parent`, or any reactive attribute the widget's class declares | an attribute of the lambda's argument | `parent.width` → `_o.parent.width` |
-| an `id` declared elsewhere in the same document | a closure reference to the component instance | `left.width` → `self.left.width` |
-| anything else | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the paired handler module imports |
+| A free name in the expression                                                           | compiles to                                              | example                                                      |
+|-----------------------------------------------------------------------------------------|----------------------------------------------------------|--------------------------------------------------------------|
+| bound inside the expression itself — a comprehension target, a nested lambda's argument | left alone                                               | `e` in `', '.join(e.name for e in entries)`                  |
+| `self`                                                                                  | the lambda's argument                                    | `self.width` → `_o.width`                                    |
+| `root`                                                                                  | the component instance                                   | `root.left.width` → `self.left.width`                        |
+| `parent`, or any reactive attribute the widget's class declares                         | an attribute of the lambda's argument                    | `parent.width` → `_o.parent.width`                           |
+| an `id` declared elsewhere in the same document                                         | a closure reference to the component instance            | `left.width` → `self.left.width`                             |
+| anything else                                                                           | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the paired handler module imports |
 
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
 
-`root` comes from Kivy and names the component the markup declares — the generated `self`,
-which is *not* what `self` means in the markup. That is the one place where the QML/Kivy
-vocabulary and the generated Python disagree, so the generator should never emit a bare
+`root` comes from Kivy and names the component the markup declares — the generated `self`, which is *not* what `self`
+means in the markup. That is the one place where the QML/Kivy vocabulary and the generated Python disagree, so the
+generator should never emit a bare
 `self` for anything but the component.
 
-Because the ids become attributes of the component, `root.<id>` also reaches an id that a
-widget's own property shadows: inside a `Panel`, `cursor` is the panel's own property and
+Because the ids become attributes of the component, `root.<id>` also reaches an id that a widget's own property shadows:
+inside a `Panel`, `cursor` is the panel's own property and
 `root.cursor` is the widget declared with `id: cursor`.
 
-**An id may not collide with an attribute of the component's own class**, and the generator
-has to reject one that does. The component is a `Widget`, so `id: width` would be stored as
+**An id may not collide with an attribute of the component's own class**, and the generator has to reject one that does.
+The component is a `Widget`, so `id: width` would be stored as
 `self.width` — the component's own reactive width, silently broken rather than shadowed, and
-`root.width` would read the geometry back instead of the widget. This is not a case the
-expression compiler can rescue; it has to fail when the document is compiled, naming the
-line. The banned set is exactly `declarations(component_class)` plus its ordinary attributes
-(`children`, `parent`, …).
+`root.width` would read the geometry back instead of the widget. This is not a case the expression compiler can rescue;
+it has to fail when the document is compiled, naming the line. The banned set is exactly `declarations(component_class)`
+plus its ordinary attributes (`children`, `parent`, …).
 
 ### Worked example
 
@@ -251,88 +240,80 @@ Manager:
         visible: parent.console_visible
 ```
 
-The three `visible` lines are the whole of Ctrl+O, and they are ordinary boolean expressions
-over a reactive attribute — nothing about them needs a new language feature. What they do need
-is a way to *declare* `console_visible` on `Manager`, which is the second hole in the section
-after next. `Console(left)`'s constructor argument is the first.
+The three `visible` lines are the whole of Ctrl+O, and they are ordinary boolean expressions over a reactive attribute —
+nothing about them needs a new language feature. What they do need is a way to *declare* `console_visible` on `Manager`,
+which is the second hole in the section after next. `Console(left)`'s constructor argument is the first.
 
-and what the generator emits — verified output of the prototype, not an illustration. Run
-against a real widget tree it reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24,
-120x40 and 200x60. The prototype predates the console, so the run covered the four widgets
-below and not the `Console` or the three `visible` lines; those compile by the same rules —
-`visible` is an ordinary reactive attribute and `not parent.console_visible` an ordinary
-expression — but they are unverified, and the emitted block is left as it was actually
-produced rather than extended by hand:
+and what the generator emits — verified output of the prototype, not an illustration. Run against a real widget tree it
+reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24, 120x40 and 200x60. The prototype predates
+the console, so the run covered the four widgets below and not the `Console` or the three `visible` lines; those compile
+by the same rules —
+`visible` is an ordinary reactive attribute and `not parent.console_visible` an ordinary expression — but they are
+unverified, and the emitted block is left as it was actually produced rather than extended by hand:
 
 ```python
     def _build(self) -> None:
-        self.menu.x = 0
-        self.menu.y = 0
-        self.menu.width = bind(lambda _o: _o.parent.width)
-        self.menu.height = bind(lambda _o: 1)
-        self.keybar.x = 0
-        self.keybar.y = bind(lambda _o: max(1, _o.parent.height - 1))
-        self.keybar.width = bind(lambda _o: _o.parent.width)
-        self.keybar.height = bind(lambda _o: 1)
-        self.left.x = 0
-        self.left.y = 1
-        self.left.width = bind(lambda _o: _o.parent.width // 2)
-        self.left.height = bind(lambda _o: max(3, _o.parent.height - 2))
-        self.right.y = 1
-        self.right.x = bind(lambda _o: _o.parent.width // 2)
-        self.right.width = bind(lambda _o: _o.parent.width - self.left.width)
-        self.right.height = bind(lambda _o: max(3, _o.parent.height - 2))
+      self.menu.x = 0
+      self.menu.y = 0
+      self.menu.width = bind(lambda _o: _o.parent.width)
+      self.menu.height = bind(lambda _o: 1)
+      self.keybar.x = 0
+      self.keybar.y = bind(lambda _o: max(1, _o.parent.height - 1))
+      self.keybar.width = bind(lambda _o: _o.parent.width)
+      self.keybar.height = bind(lambda _o: 1)
+      self.left.x = 0
+      self.left.y = 1
+      self.left.width = bind(lambda _o: _o.parent.width // 2)
+      self.left.height = bind(lambda _o: max(3, _o.parent.height - 2))
+      self.right.y = 1
+      self.right.x = bind(lambda _o: _o.parent.width // 2)
+      self.right.width = bind(lambda _o: _o.parent.width - self.left.width)
+      self.right.height = bind(lambda _o: max(3, _o.parent.height - 2))
 ```
 
-Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding — that was the
-constant-size trap described below, and the decision recorded there since supersedes it: with
-the generated class overriding `layout()`, `height: 1` compiles to a plain `1` too. `self.left.width` in the last-but-one line is the id
-reference, resolved through the closure over the component; every other name went to `_o`.
+Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding — that was the constant-size trap described
+below, and the decision recorded there since supersedes it: with the generated class overriding `layout()`, `height: 1`
+compiles to a plain `1` too. `self.left.width` in the last-but-one line is the id reference, resolved through the
+closure over the component; every other name went to `_o`.
 
-The prototype was run against a widget tree that already existed, so what it emits is the
-property half of `_build()` only. The real generator constructs the four widgets first — see
-*Ids* — and construction being a separate earlier pass is also why `right` may name `left`
+The prototype was run against a widget tree that already existed, so what it emits is the property half of `_build()`
+only. The real generator constructs the four widgets first — see *Ids* — and construction being a separate earlier pass
+is also why `right` may name `left`
 regardless of which of the two the document declares first.
 
 Two expressions written only to exercise the scope tracking, from the same run:
 
 ```python
-        self.left.footer_text = bind(lambda _o: ', '.join((e.name for e in _o.entries)))
-        self.left.error = bind(lambda _o: (lambda entries: entries)(_o.cursor))
+  self.left.footer_text = bind(lambda _o: ', '.join((e.name for e in _o.entries)))
+  self.left.error = bind(lambda _o: (lambda entries: entries)(_o.cursor))
 ```
 
-The first keeps `e` a comprehension target while `entries` beside it becomes `_o.entries`.
-In the second the nested lambda's argument `entries` shadows the property of that name, and
-the outer `cursor` still resolves to `_o.cursor`.
+The first keeps `e` a comprehension target while `entries` beside it becomes `_o.entries`. In the second the nested
+lambda's argument `entries` shadows the property of that name, and the outer `cursor` still resolves to `_o.cursor`.
 
 ### Two things that fall out of the rule
 
-- **A literal is not a binding — except for a size.** `height: 1` has nothing to depend on,
-  so it is tempting to compile it to a plain assignment rather than a cell holding a constant
-  expression. That is right for `x`, `y` and anything else, and *wrong* for `width` and
-  `height`: `Widget.layout()` cascades the parent's size into every child whose size is not
-  bound, so a constant size assigned plainly is silently overwritten on the first resize.
-  This was measured, not guessed — compiling `height: 1` to an assignment gave the menu bar a
-  height of 24 in an 80x24 terminal. `navigator/__main__.py`'s `bind(lambda w: 1)` is therefore not
-  redundancy; the binding is what protects the constant.
+- **A literal is not a binding — except for a size.** `height: 1` has nothing to depend on, so it is tempting to compile
+  it to a plain assignment rather than a cell holding a constant expression. That is right for `x`, `y` and anything
+  else, and *wrong* for `width` and
+  `height`: `Widget.layout()` cascades the parent's size into every child whose size is not bound, so a constant size
+  assigned plainly is silently overwritten on the first resize. This was measured, not guessed — compiling `height: 1`
+  to an assignment gave the menu bar a height of 24 in an 80x24 terminal. `navigator/__main__.py`'s `bind(lambda w: 1)`
+  is therefore not redundancy; the binding is what protects the constant.
 
-  The tidier fix belongs to navml rather than to the expression compiler, and it is now
-  **decided**: a generated class overrides `layout()` to size only itself and does not
-  cascade into its children, because a component whose children are all placed by markup does
-  not want the inherited cascade at all. So a literal `width` or `height` compiles to a plain
-  value like everything else, and the trap does not exist for generated code.
+  The tidier fix belongs to navml rather than to the expression compiler, and it is now **decided**: a generated class
+  overrides `layout()` to size only itself and does not cascade into its children, because a component whose children
+  are all placed by markup does not want the inherited cascade at all. So a literal `width` or `height` compiles to a
+  plain value like everything else, and the trap does not exist for generated code.
 
-  Three things follow. `Widget.layout()`'s `is_bound` guard becomes a concern of hand-written
-  widgets only — it stays, because they still need it, but nothing the generator emits relies
-  on it. A markup child that says nothing about its size therefore *stays zero* rather than
-  silently filling its parent, which is the honest failure: the size is missing from the
-  document and the screen says so. And `Manager` already works this way, having no `layout()`
-  at all, so the emitted shape matches the worked example below rather than departing from
-  it.
-- **A `computed` target is a generation-time error.** `Panel.title_text` is a `@computed`,
-  and `Computed.__set__` refuses a binding. The generator knows the widget's class, so
-  `title_text: …` in markup should be rejected with a line number instead of failing when the
-  widget is first painted.
+  Three things follow. `Widget.layout()`'s `is_bound` guard becomes a concern of hand-written widgets only — it stays,
+  because they still need it, but nothing the generator emits relies on it. A markup child that says nothing about its
+  size therefore *stays zero* rather than silently filling its parent, which is the honest failure: the size is missing
+  from the document and the screen says so. And `Manager` already works this way, having no `layout()`
+  at all, so the emitted shape matches the worked example below rather than departing from it.
+- **A `computed` target is a generation-time error.** `Panel.title_text` is a `@computed`, and `Computed.__set__`
+  refuses a binding. The generator knows the widget's class, so
+  `title_text: …` in markup should be rejected with a line number instead of failing when the widget is first painted.
 
 ### The `style` block
 
@@ -345,119 +326,107 @@ Panel:
         fg: white
 ```
 
-The block is a **stylesheet fragment**, in the `.nss` value grammar rather than Python, and it
-compiles to a declarations string assigned to `inline_style` — the same attribute a runtime
-`widget.inline_style = "bg: red"` writes, since `navkit/DESIGN.md` makes that one slot rather
-than two. Read that file's *Where a widget's style comes from* before implementing this.
+The block is a **stylesheet fragment**, in the `.nss` value grammar rather than Python, and it compiles to a
+declarations string assigned to `inline_style` — the same attribute a runtime
+`widget.inline_style = "bg: red"` writes, since `navkit/DESIGN.md` makes that one slot rather than two. Read that file's
+*Where a widget's style comes from* before implementing this.
 
 Two things follow, and both are worth having:
 
-- **`$name` is meaningful here and nowhere else in a `.nml` file.** A variable is a stylesheet
-  concept; inside an ordinary property expression the free names resolve by the table under
-  *Name resolution* above, where `$` is not even valid Python. The block is the boundary, and it
-  is a sharp one because the two sides are different languages.
-- **The generator validates the block, and should.** Property names check against `Style`'s
-  fields and values against the literal grammar, both at generation time with the `.nml` line —
-  leaving only variable *resolution* to run time, because the sheets do not exist yet. That
-  makes the markup channel strictly better than the code channel, where a malformed string
-  cannot surface until the widget is first painted and the failure is then cached.
+- **`$name` is meaningful here and nowhere else in a `.nml` file.** A variable is a stylesheet concept; inside an
+  ordinary property expression the free names resolve by the table under *Name resolution* above, where `$` is not even
+  valid Python. The block is the boundary, and it is a sharp one because the two sides are different languages.
+- **The generator validates the block, and should.** Property names check against `Style`'s fields and values against
+  the literal grammar, both at generation time with the `.nml` line — leaving only variable *resolution* to run time,
+  because the sheets do not exist yet. That makes the markup channel strictly better than the code channel, where a
+  malformed string cannot surface until the widget is first painted and the failure is then cached.
 
-The variable reference surviving to run time is what makes a theme swap reach markup-authored
-styles: the string is parsed inside the `style` computed, which reads the reactive variable
-table, so replacing the sheet restyles these widgets along with everything else.
+The variable reference surviving to run time is what makes a theme swap reach markup-authored styles: the string is
+parsed inside the `style` computed, which reads the reactive variable table, so replacing the sheet restyles these
+widgets along with everything else.
 
 ### Source mapping
 
-This matters more here than in most code generators. A binding is lazy and its failure is
-*cached* — `_Cell._recompute` in `navkit/reactive.py` stores the exception and re-raises it
-at every read — so a bad expression surfaces when something first reads the value,
-arbitrarily far from where it was written.
+This matters more here than in most code generators. A binding is lazy and its failure is *cached* — `_Cell._recompute`
+in `navkit/reactive.py` stores the exception and re-raises it at every read — so a bad expression surfaces when
+something first reads the value, arbitrarily far from where it was written.
 
 Carry the `.nml` line and column onto the rewritten nodes (`ast.increment_lineno`, then
-`ast.fix_missing_locations`), compile with the `.nml` path as the filename, and register the
-generated source with `linecache` so the traceback points at the markup.
+`ast.fix_missing_locations`), compile with the `.nml` path as the filename, and register the generated source with
+`linecache` so the traceback points at the markup.
 
 ### What this asks of navkit
 
 Already true, and worth stating so it does not get broken by accident:
 
-- `bind()` takes an expression of **exactly one argument**, called with the object that owns
-  the attribute. That convention is what makes a mechanical rewrite possible at all.
-- Ids resolve through a closure over the component instance, so generated bindings must be
-  installed inside a method where that instance is in scope — `_build(self)` — not in a class
-  body.
-- The generator needs the set of reactive attributes a class declares, inherited ones
-  included. **Now there**: `navkit.reactive.declarations(cls)`, exported from `navkit`,
-  replacing the prototype's `properties()` in the appendix below. It maps each name to its
-  declaration rather than returning bare names, because the generator needs to tell the two
-  kinds apart in opposite directions — a `Reactive` is a rewrite target and a binding target,
-  a `Computed` is a generation-time error (see *A `computed` target is a generation-time
-  error* above). An override shadows what it inherits, as attribute lookup does.
+- `bind()` takes an expression of **exactly one argument**, called with the object that owns the attribute. That
+  convention is what makes a mechanical rewrite possible at all.
+- Ids resolve through a closure over the component instance, so generated bindings must be installed inside a method
+  where that instance is in scope — `_build(self)` — not in a class body.
+- The generator needs the set of reactive attributes a class declares, inherited ones included. **Now there**:
+  `navkit.reactive.declarations(cls)`, exported from `navkit`, replacing the prototype's `properties()` in the appendix
+  below. It maps each name to its declaration rather than returning bare names, because the generator needs to tell the
+  two kinds apart in opposite directions — a `Reactive` is a rewrite target and a binding target, a `Computed` is a
+  generation-time error (see *A `computed` target is a generation-time error* above). An override shadows what it
+  inherits, as attribute lookup does.
 
   The name is unambiguous: the widget-level property that used to share it is now
-  `Widget.style_declarations`, renamed when this function landed, because one meant the
-  reactive surface a *class* declares and the other the stylesheet declarations that
-  cascaded onto one *instance*.
+  `Widget.style_declarations`, renamed when this function landed, because one meant the reactive surface a *class*
+  declares and the other the stylesheet declarations that cascaded onto one *instance*.
 
 ### What converting `Manager` needs and does not have
 
 The worked example above is the plan for proving the markup machinery: compile
-`navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the
-real class rather than the example turns up three things markup cannot say, none of them
-recorded anywhere until now. Each blocks that conversion, so each needs an answer before the
-generator is finished — and none is answered here, because each is a language decision rather
-than an oversight.
+`navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the real class rather than the
+example turns up three things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
+so each needs an answer before the generator is finished — and none is answered here, because each is a language
+decision rather than an oversight.
 
-**Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional
-constructor argument, and `Manager(left, right, scheme)` takes three. Markup has properties,
-which are set *after* construction, and no way to name a value arriving from outside the
-document at all. The two obvious shapes pull in opposite directions: a declared parameter list
-on the component (`Manager` takes `left`, `right`) keeps the Python call site unchanged and
-makes the document a function of its arguments; or every parameter becomes an ordinary
-reactive property assigned after `_build()`, which is uniform but changes when a `Panel` first
-knows its path — and `Panel` starts a directory scan from an effect the moment it is
-constructed, so "after" is not free. QML's answer is that a component has no constructor and
+**Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional constructor argument, and
+`Manager(left, right, scheme)` takes three. Markup has properties, which are set *after* construction, and no way to
+name a value arriving from outside the document at all. The two obvious shapes pull in opposite directions: a declared
+parameter list on the component (`Manager` takes `left`, `right`) keeps the Python call site unchanged and makes the
+document a function of its arguments; or every parameter becomes an ordinary reactive property assigned after
+`_build()`, which is uniform but changes when a `Panel` first knows its path — and `Panel` starts a directory scan from
+an effect the moment it is constructed, so "after" is not free. QML's answer is that a component has no constructor and
 everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
 
 **Declaring a reactive property in markup.** `Manager.console_visible` is a `reactive(False)`
-in the class body, and the three `visible` bindings read it — so the document cannot be
-compiled without a way to *declare* it, not merely to assign it. Same for `Console.revision`
-and `Panel`'s seven. QML spells this `property bool consoleVisible: false`; navml has no
-spelling at all. The question is not whether to have one but whether the declaration also
-carries `factory=` and `equal=`, which is where `reactive()`'s signature stops being a single
-default value.
+in the class body, and the three `visible` bindings read it — so the document cannot be compiled without a way to
+*declare* it, not merely to assign it. Same for `Console.revision`
+and `Panel`'s seven. QML spells this `property bool consoleVisible: false`; navml has no spelling at all. The question
+is not whether to have one but whether the declaration also carries `factory=` and `equal=`, which is where `reactive()`
+'s signature stops being a single default value.
 
-**`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is
-styled with or without an application around it, and a `style:` block compiles to
-`inline_style`, which is a different slot with different semantics — one is a sheet governing
-a subtree, the other is a handful of declarations for one widget. A component that brings its
-own look needs the first and can only say the second.
+**`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is styled with or without an
+application around it, and a `style:` block compiles to
+`inline_style`, which is a different slot with different semantics — one is a sheet governing a subtree, the other is a
+handful of declarations for one widget. A component that brings its own look needs the first and can only say the
+second.
 
 Two smaller ones, recorded so they are not rediscovered: `effect()` registration order in
-`Panel.__init__` is load-bearing — the comment there says "declaration order is flush order" —
-and has no markup spelling either; and `MenuBar` and `KeyBar` paint loops over module-level
-constants, which is the repeater/model question that the *Parts* argument in
+`Panel.__init__` is load-bearing — the comment there says "declaration order is flush order" — and has no markup
+spelling either; and `MenuBar` and `KeyBar` paint loops over module-level constants, which is the repeater/model
+question that the *Parts* argument in
 `navkit/DESIGN.md` deliberately does **not** answer, because it answers the row case instead.
 
 ### Still open
 
-- Multi-line property bodies. With indentation carrying the block structure, the natural
-  form is the expression continuing on lines indented under the `property:` — which is how
-  Kivy writes a handler — compiling to a nested `def` rather than a lambda, still taking one
-  argument. What is undecided is whether a body may contain statements at all, or only an
-  expression spread over several lines.
+- Multi-line property bodies. With indentation carrying the block structure, the natural form is the expression
+  continuing on lines indented under the `property:` — which is how Kivy writes a handler — compiling to a nested `def`
+  rather than a lambda, still taking one argument. What is undecided is whether a body may contain statements at all, or
+  only an expression spread over several lines.
 - Whether `bind()`'s `equal=` is expressible in markup.
 - Signal and handler syntax, and how it meets the hand-written half of the class.
 - How a component exports a widget inside it. Ids stop at the document, so markup that uses a
   `Panel` component cannot name anything declared inside `panel.nml`. QML's answer is
-  `property alias buttonText: textItem.text` — a compile-time redirect resolved against the
-  declaring component's own ids, at most one property deep, forwarding writes rather than
-  binding to them. Kivy has no answer at all, which is exactly why Kivy code reaches through
-  `outer.ids.child.ids.grandchild` and the boundary ends up meaning nothing. Deferred until
-  components in separate documents exist — but shipping the boundary without the hatch is a
-  known failure mode, not an open question.
-- Whether the generator emits type information for the id attributes, so that the paired
-  handler module completes `self.left` as a `Panel`. Class-level annotations or a generated
+  `property alias buttonText: textItem.text` — a compile-time redirect resolved against the declaring component's own
+  ids, at most one property deep, forwarding writes rather than binding to them. Kivy has no answer at all, which is
+  exactly why Kivy code reaches through
+  `outer.ids.child.ids.grandchild` and the boundary ends up meaning nothing. Deferred until components in separate
+  documents exist — but shipping the boundary without the hatch is a known failure mode, not an open question.
+- Whether the generator emits type information for the id attributes, so that the paired handler module completes
+  `self.left` as a `Panel`. Class-level annotations or a generated
   `.pyi`; it interacts with the import hook.
 
 ### Appendix: the transformer
@@ -579,7 +548,7 @@ class _Scope(ast.NodeTransformer):
 
 
 def compile_property(
-    source: str, cls: type, ids: set[str], owner: str = "_o"
+        source: str, cls: type, ids: set[str], owner: str = "_o"
 ) -> str:
     """The right-hand side of the assignment the generator should emit."""
     tree = ast.parse(source, mode="eval")
