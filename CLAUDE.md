@@ -53,7 +53,8 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
   it back, F10 or Ctrl+Q quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
-  gives the terminal's own scheme back the sixteen colour names
+  gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
+  terminal's font is assumed to draw
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
@@ -113,6 +114,11 @@ Written, and the pieces fit together like this:
   characters occupy a cell plus an empty continuation cell. `render_diff()` emits only the escapes needed to turn the
   last flushed buffer into the new one, comparing each row whole before walking its cells, and repaints fully when the
   size changed.
+- `glyphs.py` — the character sets a frame is drawn from (`single`, `double`, `round`, `ascii`) and the tiers that
+  govern them. Imports nothing, which is what lets `screen.py` keep having no runtime import of `capabilities.py`:
+  `draw_box` takes the six characters themselves, never a name for them, so the buffer never learns that a tier exists.
+  A widget resolves the two halves with `Widget.box_charset()` — the sheet says which set is *wanted*, the tier says
+  which can be *shown*, and either vetoes.
 - `style.py` — `Style` is an immutable cell appearance that knows its own SGR sequence. Nothing else writes colour
   codes.
 - `capabilities.py` — `TerminalInfo` is what the terminal supports (`colors`, `alt_screen`, `mouse`, `bracketed_paste`,
@@ -129,6 +135,12 @@ Written, and the pieces fit together like this:
   Detection is conservative — sixteen colours unless `COLORTERM` says otherwise — and `NAVKIT_COLORS` (`truecolor`,
   `256`, `16`, `8`, `mono`, or a number) overrides it, outranking `NO_COLOR`; `NAVKIT_PALETTE` (`dos`/`vga`, `terminal`/
   `none`/`off`) does the same for the palette, and `--palette` outranks it.
+  `TerminalInfo.glyphs` is the same question asked about *characters* — `GLYPHS_ASCII` < `GLYPHS_UNICODE` <
+  `GLYPHS_NERD`, `NAVKIT_GLYPHS` overriding and `--glyphs` outranking that. **A font cannot be detected**: no escape
+  sequence reports one, and the cursor-position probe measures the terminal's width table rather than the font's
+  coverage. So the Nerd tier is granted only to emulators that *bundle* a Nerd Font fallback (kitty, WezTerm, Ghostty)
+  or to a session that says so itself; a multiplexer hides all of it and needs the override. Guessing too high costs a
+  replacement box on every line, so a non-UTF-8 locale gets ASCII rather than the benefit of the doubt.
 - `reactive.py` — observable attributes and the bindings between them; the mechanism `navml` markup relies on.
   `reactive()` declares a source, `computed()` a derived value, and assigning `obj.attr = bind(expression)` attaches an
   expression to *one instance* — which is what markup compiles to. `bind()` only wraps the expression in a `Binding`;
@@ -243,6 +255,9 @@ scroll follow.
 - Keep `navkit` free of any dependency on `navml` or the application; keep `navml` free of any dependency on the file
   manager. The dependency direction is strictly one-way.
 - Prefer recreating original DOS Navigator behaviour over inventing modern alternatives when the two conflict — fidelity
-  is the point of the project.
+  is the point of the project. The **one standing exception** is the Nerd Font icon gutter in `Panel`, which the
+  original had no glyphs for; it was taken deliberately, is on only where the font is known to exist, and is reversible
+  with `icons: none` or `--glyphs unicode`. `navkit/DESIGN.md` records the argument — don't re-litigate it, and don't
+  read it as licence for the next modern flourish.
 
 P.S. NEVER suggest to commit code, unless you are explicitly asked to do so.

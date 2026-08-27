@@ -22,16 +22,25 @@ from navkit.console import ConsoleScreen, seed_from_host
 from navkit.events import KeyEvent, MouseEvent
 from navkit.process import PtyProcess
 from navkit.reactive import bind, computed, effect, peek, reactive
+from navkit.glyphs import GLYPHS_NERD, tier_named
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import Stylesheet, parse_value, read, register_property
 from navkit.terminal import Terminal, encode_key, is_a_tty
 from navkit.widget import Widget
 
+from navigator import icons
+
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
 #: input to a drawing operation, not an appearance a cell can carry -- so the
 #: widget that reads it has to declare it before a sheet may name it.
 register_property("border")
+
+#: ``icons`` says whether a listing shows a Nerd Font glyph beside each
+#: name.  ``auto`` -- the default -- means "whenever the terminal can draw
+#: one", and ``none`` refuses even then, which is what a sheet aiming at
+#: strict DOS fidelity sets.
+register_property("icons")
 
 #: Where sheets live.  A directory rather than a single file because a theme is
 #: nothing more than another ``.nss`` loaded after the default one, so this is
@@ -275,6 +284,27 @@ class Panel(Widget):
         room = max(1, self.width - 4)
         return summary[: room - 1] + " " if len(summary) > room else summary
 
+    @property
+    def show_icons(self) -> bool:
+        """Whether to reserve the icon gutter.
+
+        Both halves have to agree, the way a terminal's mouse support and the
+        caller's wish for it do: the sheet says whether icons are wanted and
+        the terminal says whether its font could draw one.
+        """
+        return self.style_property("icons", "auto") != "none" and self.glyphs >= GLYPHS_NERD
+
+    @property
+    def gutter(self) -> int:
+        """Columns held back at the left of a row for the icon.
+
+        Two, not one.  A Nerd Font *Mono* build patches its icons to a single
+        cell but the plain build does not, and no width table records which is
+        installed; spending the second cell on a space means a glyph that comes
+        out double-width covers it instead of shoving the name along.
+        """
+        return 2 if self.show_icons else 0
+
     @computed
     def name_width(self) -> int:
         """How much of a listing line is left once the size column is taken."""
@@ -287,7 +317,7 @@ class Panel(Widget):
             self.width,
             self.height,
             self.style,
-            double=self.style_property("border") == "double",
+            charset=self.box_charset(),
             fill=" ",
         )
         self._render_title(surface)
@@ -305,7 +335,8 @@ class Panel(Widget):
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
-        name_width = self.name_width
+        gutter = self.gutter
+        name_width = max(1, self.name_width - gutter)
         for row in range(self.rows):
             index = self.scroll + row
             if index >= len(self.entries):
@@ -323,7 +354,9 @@ class Panel(Widget):
             y = 1 + row
             if selected:
                 surface.fill(1, y, self.width - 2, 1, " ", style)
-            surface.draw_text(1, y, entry.name, style, name_width)
+            if gutter:
+                surface.draw_text(1, y, icons.icon_for(entry.name, entry.is_dir), style, gutter)
+            surface.draw_text(1 + gutter, y, entry.name, style, name_width)
             surface.draw_text(self.width - 9, y, entry.display_size, style, 8)
 
     def _render_footer(self, surface: Surface) -> None:
@@ -659,6 +692,12 @@ def main(argv: list[str] | None = None) -> int:
              "scheme paints for it",
     )
     parser.add_argument(
+        "--glyphs", choices=("auto", "ascii", "unicode", "nerd"), default="auto",
+        help="which characters the terminal's font can draw: `ascii' for plain "
+             "+-| frames, `unicode' for box drawing, `nerd' to add a Nerd Font "
+             "icon beside each name (default: detect)",
+    )
+    parser.add_argument(
         "--reprogram-palette", action="store_true",
         help="rewrite the terminal's sixteen colour registers to the DOS "
              "palette for as long as Navigator runs -- the only thing that "
@@ -687,6 +726,11 @@ def main(argv: list[str] | None = None) -> int:
         info = replace(
             info, palette=VGA_PALETTE if args.palette == "dos" else None
         )
+    # Same three-step precedence for the character repertoire, and the same
+    # reason for spelling it out: `detect' has already weighed NAVKIT_GLYPHS
+    # against what it found, so the flag is applied over that answer.
+    if args.glyphs != "auto":
+        info = replace(info, glyphs=tier_named(args.glyphs, info.glyphs))
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()

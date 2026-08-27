@@ -20,8 +20,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
+from navkit import glyphs as glyphs_module
 from navkit import stylesheet
 from navkit.events import KeyEvent, MouseEvent
+from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, Style
@@ -230,6 +232,30 @@ class Widget:
         would hand a frame to every child of a framed widget.
         """
         return stylesheet.properties(self.style_declarations).get(name, default)
+
+    @property
+    def glyphs(self) -> int:
+        """Which characters this widget may draw with -- a ``GLYPHS_*`` tier.
+
+        A stylesheet says which character set is *wanted* and this says which
+        can be *shown*; a widget that draws anything above ASCII owes both a
+        look, the way :class:`~navkit.terminal.Terminal` takes the caller's
+        wish for a mouse and the terminal's ability to report one and lets
+        either veto.
+
+        Deliberately a plain property rather than a ``computed``: the tier is
+        settled once, when the terminal is detected, and never changes
+        afterwards, so there is nothing for a dependency to invalidate.  A
+        detached widget assumes Unicode, which is what the kit assumes whenever
+        it has no terminal to ask.
+        """
+        app = self.application
+        terminal = getattr(app, "terminal", None)
+        return GLYPHS_UNICODE if terminal is None else terminal.info.glyphs
+
+    def box_charset(self, default: str = glyphs_module.DEFAULT_BOX) -> str:
+        """The six characters this widget's ``border`` asks for and can have."""
+        return glyphs_module.charset(self.style_property("border", default), self.glyphs)
 
     def add_class(self, *names: str) -> None:
         """Tag this widget, so ``.name`` selectors match it."""

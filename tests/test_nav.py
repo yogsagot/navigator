@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+from navkit.capabilities import FULL
 from navkit.events import KeyEvent, MouseEvent
-from navkit.screen import ScreenBuffer
+from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
+from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import encode_key
 
 from conftest import FakeTerminal, run_app, settle
+from navigator import icons
 from navigator.__main__ import (
     SCHEME,
     THEMES,
@@ -529,3 +533,122 @@ def test_the_console_runs_a_real_child(tree):
     # to read from the pty, so the test has to yield rather than sleep.
     run_app(app, [start_child, lambda a: None, lambda a: None], settle=0.3)
     assert "captured" in row_of(desktop(app), 1)
+
+
+# -- glyphs: what the terminal's font can actually draw ------------------------
+#
+# The sheet says which character set is *wanted* and the terminal says which
+# can be *shown*; a panel owes both a look.  These go through a live
+# application rather than the detached ``panel`` fixture, because the tier is
+# read off the terminal and a detached widget has none to read.
+
+
+def navigator_with(path, glyphs, size=(80, 24)) -> Navigator:
+    """A Navigator whose terminal admits to exactly *glyphs*."""
+    info = replace(FULL, glyphs=glyphs)
+    return Navigator(path, path, terminal=FakeTerminal(*size, info=info))
+
+
+def test_an_ascii_terminal_gets_a_plus_and_minus_frame(tree):
+    """The frame degrades wholesale rather than arriving as replacement boxes."""
+    app = navigator_with(tree, GLYPHS_ASCII)
+    run_app(app, [])
+    buffer = desktop(app)
+    assert row_of(buffer, 1).startswith("+")   # a corner
+    assert row_of(buffer, 2).startswith("|")   # and a side
+    # Nothing above US-ASCII survives anywhere on the desktop, which is the
+    # whole point: one replacement box per line is worse than a plain frame.
+    painted = "".join(row_of(buffer, y) for y in range(24))
+    assert not any(char in painted for char in "┌┐└┘─│╔╗╚╝═║")
+
+
+def test_a_unicode_terminal_still_gets_the_dos_frame(tree):
+    """The default look is unchanged by any of this."""
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [])
+    top = row_of(desktop(app), 1)
+    assert "╔" in top  # the active panel's double frame
+
+
+def test_icons_appear_only_when_the_font_can_draw_them(tree):
+    """A Nerd Font glyph is a replacement box without the font, so it waits."""
+    plain = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(plain, [])
+    assert not plain.manager.left.show_icons
+    assert plain.manager.left.gutter == 0
+
+    fancy = navigator_with(tree, GLYPHS_NERD)
+    run_app(fancy, [])
+    assert fancy.manager.left.show_icons
+    assert fancy.manager.left.gutter == 2
+
+
+def test_the_icon_gutter_shifts_the_name_without_touching_the_size_column(tree):
+    """Two cells go to the icon; the size column is where it always was."""
+    plain = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(plain, [])
+    without = row_of(desktop(plain), 2)
+
+    fancy = navigator_with(tree, GLYPHS_NERD)
+    run_app(fancy, [])
+    with_icons = row_of(desktop(fancy), 2)
+
+    # ".." is the first entry either way, and moves right by exactly the gutter.
+    assert without.index("..") + 2 == with_icons.index("..")
+    # The size column is drawn from the right edge and does not move.
+    assert without[-12:] == with_icons[-12:]
+    # A name has that much less room, so the two agree on the total width.
+    assert fancy.manager.left.name_width == plain.manager.left.name_width
+
+
+def test_a_sheet_may_refuse_icons_on_a_terminal_that_could_draw_them(tree):
+    """``icons: none`` is the escape hatch for strict DOS fidelity."""
+    app = navigator_with(tree, GLYPHS_NERD)
+    run_app(app, [])
+    panel = app.manager.left
+    assert panel.show_icons
+    panel._stylesheet = load_scheme("default", ("theme.nss", "Panel { icons: none }"))
+    settle()
+    assert panel.style_property("icons") == "none"
+    assert not panel.show_icons
+    assert panel.gutter == 0
+
+
+def test_a_directory_and_a_file_get_different_icons(tree):
+    app = navigator_with(tree, GLYPHS_NERD)
+    run_app(app, [])
+    buffer = desktop(app)
+    entries = app.manager.left.entries
+    # Row 2 is the first listing line; ".." leads, then the directories.
+    drawn = [buffer.get(1, 2 + row)[0] for row in range(len(entries))]
+    assert drawn[0] == icons.PARENT
+    assert drawn[entries.index(next(e for e in entries if e.is_dir and e.name != ".."))] == icons.FOLDER
+    assert drawn[entries.index(next(e for e in entries if not e.is_dir))] == icons.BY_EXTENSION["txt"]
+
+
+@pytest.mark.parametrize(
+    "name, is_dir, expected",
+    [
+        ("..", True, icons.PARENT),
+        ("src", True, icons.FOLDER),
+        ("main.py", False, icons.BY_EXTENSION["py"]),
+        ("MAIN.PY", False, icons.BY_EXTENSION["py"]),  # extensions fold case
+        ("README", False, icons.FILE),
+        (".gitignore", False, icons.FILE),  # a leading dot is not an extension
+        ("archive.tar.gz", False, icons.BY_EXTENSION["gz"]),
+        ("thing.unheardof", False, icons.FILE),
+    ],
+)
+def test_the_icon_table_reads_a_name(name, is_dir, expected):
+    assert icons.icon_for(name, is_dir) == expected
+
+
+def test_every_icon_is_a_single_cell():
+    """The gutter is two columns wide and the second is a space by design.
+
+    A Nerd Font *Mono* build patches its icons to one cell and ``char_width``
+    agrees, the Private Use Area measuring as ambiguous.  If one of these ever
+    measured two, the name would be shoved along on the Mono build too.
+    """
+    every = [icons.FOLDER, icons.PARENT, icons.FILE, *icons.BY_EXTENSION.values()]
+    assert {char_width(glyph) for glyph in every} == {1}
