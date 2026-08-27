@@ -18,6 +18,7 @@ from __future__ import annotations
 import unicodedata
 from typing import TYPE_CHECKING
 
+from navkit import glyphs
 from navkit.style import DEFAULT_STYLE, RESET_SGR, Style
 
 if TYPE_CHECKING:
@@ -30,8 +31,13 @@ if TYPE_CHECKING:
 #: the owning cell already emitted.
 type Cell = tuple[str, Style]
 
-SINGLE_BOX = "┌┐└┘─│"
-DOUBLE_BOX = "╔╗╚╝═║"
+#: Re-exported so that a caller already holding a ``Surface`` need not reach
+#: for another module to name the commonest two.  They live in
+#: :mod:`navkit.glyphs` with the rest of the vocabulary, because deciding
+#: *which* set to draw is a question about the terminal and this module is
+#: deliberately innocent of those.
+SINGLE_BOX = glyphs.SINGLE_BOX
+DOUBLE_BOX = glyphs.DOUBLE_BOX
 
 
 def char_width(char: str) -> int:
@@ -48,6 +54,11 @@ def char_width(char: str) -> int:
         return 1
     if unicodedata.combining(char):
         return 0
+    # The Private Use Area reports "A" here and so measures one cell, which is
+    # what a Nerd Font *Mono* build patches its icons to.  The plain build
+    # draws some of them two cells wide and there is no table that would say
+    # so, which is why a widget reserves the second cell rather than trusting
+    # this -- see ``Panel``'s icon gutter.
     return 2 if unicodedata.east_asian_width(char) in ("W", "F") else 1
 
 
@@ -190,13 +201,20 @@ class Surface:
         height: int,
         style: Style = DEFAULT_STYLE,
         *,
-        double: bool = False,
+        charset: str = SINGLE_BOX,
         fill: str | None = None,
     ) -> None:
-        """Draw a box frame, optionally filling its interior with *fill*."""
+        """Draw a box frame, optionally filling its interior with *fill*.
+
+        *charset* is the six characters themselves -- top-left, top-right,
+        bottom-left, bottom-right, horizontal, vertical -- and not a name for
+        them.  Which set a widget asks for is a question about the stylesheet
+        and the terminal's font, and both are answered before this is called;
+        see :func:`navkit.glyphs.charset`.
+        """
         if width < 2 or height < 2:
             return
-        tl, tr, bl, br, horizontal, vertical = DOUBLE_BOX if double else SINGLE_BOX
+        tl, tr, bl, br, horizontal, vertical = charset
         right = x + width - 1
         bottom = y + height - 1
         if fill is not None:

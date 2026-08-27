@@ -36,7 +36,7 @@ Manager { fg: $desktop-fg; bg: $desktop-bg }
 /* A panel's own colours are its listing colours, which is also what the frame
    and the fill inherit -- as in the original, where the frame and the interior
    of a file panel share a background and differ only in intensity. */
-Panel               { fg: $panel-fg; bg: $panel-bg; border: single }
+Panel               { fg: $panel-fg; bg: $panel-bg; border: single; icons: auto }
 Panel:active        { border: double }
 
 /* The path across the top frame. `TTopView.Draw' picks between these two on

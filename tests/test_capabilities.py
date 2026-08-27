@@ -27,6 +27,7 @@ from navkit.capabilities import (
     TRUECOLOR,
     TerminalInfo,
 )
+from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import Style
 from navkit.terminal import Terminal
@@ -326,3 +327,88 @@ def test_the_title_is_left_alone_when_it_would_go_nowhere():
     terminal.set_title("Navigator")
     terminal.flush()
     assert out.getvalue() == ""
+
+
+# -- the glyph tier -----------------------------------------------------------
+#
+# The character half of the same question the colour depth asks, and detected
+# the same way: from the environment, conservatively, with one variable that
+# overrides the guess.  What cannot be detected is the *font*, so the Nerd tier
+# is granted only to terminals that ship the fallback themselves.
+
+
+@pytest.mark.parametrize(
+    "env, expected",
+    [
+        # A terminal that bundles a Nerd Font symbol fallback, by each of the
+        # three routes it can be recognised through.
+        ({"TERM": "xterm-kitty", "LANG": "en_US.UTF-8"}, GLYPHS_NERD),
+        ({"TERM": "xterm-ghostty", "LANG": "en_US.UTF-8"}, GLYPHS_NERD),
+        ({"TERM": "xterm-256color", "TERM_PROGRAM": "WezTerm",
+          "LANG": "en_US.UTF-8"}, GLYPHS_NERD),
+        ({"TERM": "screen-256color", "KITTY_WINDOW_ID": "1",
+          "LANG": "en_US.UTF-8"}, GLYPHS_NERD),
+        # ...and the variable a user sets to say so outright.
+        ({"TERM": "xterm-256color", "NERD_FONT": "1",
+          "LANG": "en_US.UTF-8"}, GLYPHS_NERD),
+        # An ordinary terminal on a UTF-8 locale gets box drawing and no more.
+        ({"TERM": "xterm-256color", "LANG": "en_US.UTF-8"}, GLYPHS_UNICODE),
+        # A locale that is not UTF-8 cannot be sent box drawing at all.
+        ({"TERM": "xterm-256color", "LANG": "en_US.ISO-8859-1"}, GLYPHS_ASCII),
+        ({"TERM": "xterm-256color"}, GLYPHS_ASCII),
+        # LC_ALL outranks LANG, as POSIX orders them.
+        ({"TERM": "xterm-256color", "LC_ALL": "C",
+          "LANG": "en_US.UTF-8"}, GLYPHS_ASCII),
+        # A terminal that cannot be assumed to do anything gets nothing.
+        ({"TERM": "dumb", "LANG": "en_US.UTF-8"}, GLYPHS_ASCII),
+        # The override outranks every one of those, in both directions.
+        ({"TERM": "dumb", "NAVKIT_GLYPHS": "nerd"}, GLYPHS_NERD),
+        ({"TERM": "xterm-kitty", "LANG": "en_US.UTF-8",
+          "NAVKIT_GLYPHS": "ascii"}, GLYPHS_ASCII),
+        ({"TERM": "xterm-kitty", "LANG": "en_US.UTF-8",
+          "NAVKIT_GLYPHS": "unicode"}, GLYPHS_UNICODE),
+        # A typo is ignored rather than fatal, as with NAVKIT_COLORS.
+        ({"TERM": "xterm-kitty", "LANG": "en_US.UTF-8",
+          "NAVKIT_GLYPHS": "lots"}, GLYPHS_NERD),
+    ],
+)
+def test_the_glyph_tier_is_read_from_the_environment(env, expected):
+    assert TerminalInfo.detect(env, is_tty=True).glyphs == expected
+
+
+@pytest.mark.parametrize(
+    "env, default, expected",
+    [
+        # Nothing said: the caller's own answer stands.
+        ({"TERM": "xterm", "LANG": "en_US.UTF-8"}, GLYPHS_NERD, GLYPHS_NERD),
+        ({"TERM": "xterm", "LANG": "en_US.UTF-8"}, GLYPHS_ASCII, GLYPHS_ASCII),
+        # ...and the variable outranks it, as it does for the palette.
+        ({"TERM": "xterm", "NAVKIT_GLYPHS": "unicode"}, GLYPHS_NERD, GLYPHS_UNICODE),
+    ],
+)
+def test_a_caller_may_state_the_glyph_tier_outright(env, default, expected):
+    assert TerminalInfo.detect(env, glyphs=default).glyphs == expected
+
+
+def test_a_multiplexer_hides_the_terminal_underneath():
+    """A documented limit rather than a defect.
+
+    Inside tmux ``TERM`` becomes ``screen-256color`` and the marker variables
+    are not forwarded, so there is nothing left to recognise -- which is what
+    ``NAVKIT_GLYPHS`` is for.
+    """
+    env = {"TERM": "screen-256color", "LANG": "en_US.UTF-8", "TMUX": "/tmp/sock"}
+    assert TerminalInfo.detect(env).glyphs == GLYPHS_UNICODE
+    assert TerminalInfo.detect(env | {"NAVKIT_GLYPHS": "nerd"}).glyphs == GLYPHS_NERD
+
+
+def test_the_convenience_properties_follow_the_tier():
+    assert TerminalInfo(glyphs=GLYPHS_NERD).nerd_font
+    assert TerminalInfo(glyphs=GLYPHS_NERD).unicode
+    assert not TerminalInfo(glyphs=GLYPHS_UNICODE).nerd_font
+    assert TerminalInfo(glyphs=GLYPHS_UNICODE).unicode
+    assert not TerminalInfo(glyphs=GLYPHS_ASCII).unicode
+
+
+def test_everything_on_includes_the_top_glyph_tier():
+    assert FULL.glyphs == GLYPHS_NERD

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from navkit.glyphs import ASCII_BOX, DOUBLE_BOX
 from navkit.screen import ScreenBuffer, char_width, render_diff
 from navkit.style import DEFAULT_STYLE, RESET_SGR, Style
 
@@ -97,8 +98,15 @@ def test_draw_box_single_and_double():
     assert text_of(buffer, 1) == "│  │"
     assert text_of(buffer, 2) == "└──┘"
 
-    buffer.draw_box(0, 0, 4, 3, double=True)
+    buffer.draw_box(0, 0, 4, 3, charset=DOUBLE_BOX)
     assert text_of(buffer, 0) == "╔══╗"
+
+    # The set is the six characters themselves, so a caller may pass one the
+    # kit has never heard of -- which is what keeps `screen' free of any
+    # vocabulary for naming them.
+    buffer.draw_box(0, 0, 4, 3, charset=ASCII_BOX)
+    assert text_of(buffer, 0) == "+--+"
+    assert text_of(buffer, 1) == "|  |"
 
 
 def test_draw_box_fills_its_interior():

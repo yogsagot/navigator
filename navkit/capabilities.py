@@ -41,6 +41,12 @@ from dataclasses import dataclass, replace
 from functools import lru_cache
 from typing import Mapping
 
+from navkit.glyphs import (
+    GLYPHS_ASCII,
+    GLYPHS_NERD,
+    GLYPHS_UNICODE,
+    tier_named,
+)
 from navkit.style import Color, Style
 
 #: Colour depths, as the number of distinct colours the terminal can name.
@@ -50,6 +56,19 @@ ANSI = 8
 ANSI_BRIGHT = 16
 EXTENDED = 256
 TRUECOLOR = 1 << 24
+
+#: The glyph tiers are re-exported here so that a caller reading one kind of
+#: capability off this module can read the other from it too.  They are
+#: defined in :mod:`navkit.glyphs`, with the character sets they govern.
+__all__ = ["GLYPHS_ASCII", "GLYPHS_UNICODE", "GLYPHS_NERD", "TerminalInfo"]
+
+#: Terminals that **bundle** a Nerd Font symbol fallback, so the icons render
+#: whatever font the user configured.  That is a fact about the emulator
+#: rather than a guess about the font, which is what makes it safe to act on;
+#: every other terminal has to say so itself.
+_NERD_TERM_PROGRAMS = ("wezterm", "ghostty")
+_NERD_TERM_FRAGMENTS = ("kitty", "ghostty")
+_NERD_MARKERS = ("KITTY_WINDOW_ID", "WEZTERM_PANE", "GHOSTTY_RESOURCES_DIR")
 
 #: What ``NAVKIT_COLORS`` accepts, beyond a plain number.
 _DEPTH_NAMES = {
@@ -144,6 +163,40 @@ def rgb_of(color: Color) -> tuple[int, int, int]:
     return (0, 0, 0)
 
 
+def _nerd_font(env: Mapping[str, str]) -> bool:
+    """Whether Nerd Font glyphs can be expected to arrive as shapes.
+
+    Two kinds of evidence, and neither is a guess about which font the user
+    picked.  ``NERD_FONT`` is the de-facto variable a user already sets to say
+    so; the rest name terminals that ship the symbol fallback themselves.
+
+    A multiplexer hides all of it -- inside tmux or screen ``TERM`` becomes
+    ``screen-256color`` and the marker variables are not forwarded -- so a
+    session there reports Unicode and ``NAVKIT_GLYPHS=nerd`` is the answer.
+    """
+    if env.get("NERD_FONT", "").strip().lower() in ("1", "true", "yes"):
+        return True
+    if env.get("TERM_PROGRAM", "").strip().lower() in _NERD_TERM_PROGRAMS:
+        return True
+    term = env.get("TERM", "")
+    if any(fragment in term for fragment in _NERD_TERM_FRAGMENTS):
+        return True
+    return any(env.get(marker) for marker in _NERD_MARKERS)
+
+
+def _utf8(env: Mapping[str, str]) -> bool:
+    """Whether the locale says this terminal is reading UTF-8.
+
+    Most specific first, as POSIX orders them: ``LC_ALL`` overrides
+    ``LC_CTYPE``, which overrides ``LANG``.
+    """
+    for name in ("LC_ALL", "LC_CTYPE", "LANG"):
+        value = env.get(name, "")
+        if value:
+            return "utf-8" in value.lower() or "utf8" in value.lower()
+    return False
+
+
 @dataclass(frozen=True)
 class TerminalInfo:
     """What this terminal supports, and what to do about it.
@@ -169,6 +222,11 @@ class TerminalInfo:
     #: ``None`` to leave that to the terminal's own theme.  See :meth:`adapt`.
     #: A tuple rather than a list because this dataclass has to stay hashable.
     palette: tuple[tuple[int, int, int], ...] | None = None
+    #: Which characters will arrive as shapes: one of the ``GLYPHS_*`` tiers,
+    #: compared with ``>=``.  Unicode is the assumption when nobody has said
+    #: otherwise, box drawing being safe on any terminal of the last thirty
+    #: years that reads UTF-8.
+    glyphs: int = GLYPHS_UNICODE
 
     @property
     def truecolor(self) -> bool:
@@ -178,6 +236,14 @@ class TerminalInfo:
     def monochrome(self) -> bool:
         return self.colors < ANSI
 
+    @property
+    def nerd_font(self) -> bool:
+        return self.glyphs >= GLYPHS_NERD
+
+    @property
+    def unicode(self) -> bool:
+        return self.glyphs >= GLYPHS_UNICODE
+
     @classmethod
     def detect(
         cls,
@@ -185,6 +251,7 @@ class TerminalInfo:
         *,
         is_tty: bool = True,
         palette: tuple[tuple[int, int, int], ...] | None = None,
+        glyphs: int | None = None,
     ) -> TerminalInfo:
         """Read the environment for what this terminal admits to.
 
@@ -206,6 +273,14 @@ class TerminalInfo:
         ``NAVKIT_PALETTE`` overrides it either way: ``dos`` or ``vga`` pins the
         VGA registers, ``terminal`` (or ``none``, ``off``) hands the question
         back to the terminal's own theme.
+
+        *glyphs* is the same arrangement for the character repertoire, and
+        ``NAVKIT_GLYPHS`` (``ascii``, ``unicode``, ``nerd``) overrides it.  Left
+        to itself the guess runs: a plain terminal gets ASCII, one of the
+        emulators in :func:`_nerd_font` gets the Nerd tier, a UTF-8 locale gets
+        Unicode, and anything else gets ASCII -- conservative in the same
+        direction as the colour guess, since a missing glyph is a replacement
+        box on every line of the frame.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -227,6 +302,17 @@ class TerminalInfo:
             elif override.isdigit():
                 colors = int(override)
 
+        if glyphs is None:
+            if plain:
+                glyphs = GLYPHS_ASCII
+            elif _nerd_font(env):
+                glyphs = GLYPHS_NERD
+            elif _utf8(env):
+                glyphs = GLYPHS_UNICODE
+            else:
+                glyphs = GLYPHS_ASCII
+        glyphs = tier_named(env.get("NAVKIT_GLYPHS", ""), glyphs)
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -236,6 +322,7 @@ class TerminalInfo:
         return cls(
             colors=colors,
             palette=palette,
+            glyphs=glyphs,
             alt_screen=not plain,
             mouse=not plain,
             bracketed_paste=not plain,
@@ -297,4 +384,4 @@ def _sgr(info: TerminalInfo, style: Style) -> str:
 
 #: Everything on, for a caller that has no terminal to ask -- rendering to a
 #: string, a test, a buffer someone else will decide what to do with.
-FULL = TerminalInfo(colors=TRUECOLOR)
+FULL = TerminalInfo(colors=TRUECOLOR, glyphs=GLYPHS_NERD)

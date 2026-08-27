@@ -771,6 +771,66 @@ A capability is separate from a preference, and either vetoes: `Terminal(mouse=F
 mouse input, `info.mouse` says asking would be no use. `stop()` cancels exactly what `start()` asked for, so a feature
 never turned on is never turned off either.
 
+## Terminal capabilities: characters, and why a font cannot be detected
+
+Colour asks how many colours a terminal can name. The other half of the same question is which *characters* arrive as
+shapes rather than as replacement boxes, and it is answered the same way: once, at the edge, by
+`TerminalInfo.glyphs`. Three tiers, ordered and compared with `>=` exactly as the colour depths are —
+`GLYPHS_ASCII`, `GLYPHS_UNICODE`, `GLYPHS_NERD`.
+
+### The detection is honest about what it cannot know
+
+**No escape sequence reports the font a terminal is using.** The usual proposal is to print a glyph, ask for the cursor
+column with `CSI 6n` and infer from how far it moved. That measures the terminal's own width table and *not* whether
+the font has an outline for the codepoint, so on precisely the terminals where the answer is unknown it reports the
+same column either way. It would also be the first query round-trip in the codebase, and would have to run before raw
+mode. It was rejected on the first ground alone; the second only makes it worse.
+
+What can be known is which *emulators ship a Nerd Font fallback of their own* — kitty, WezTerm and Ghostty each bundle
+`Symbols Nerd Font Mono` and map the icon ranges onto it, so the glyphs render whatever font the user configured. That
+is a fact about the emulator rather than a guess about the font, which is what makes it safe to act on. Everything else
+has to say so itself, through `NERD_FONT` or `NAVKIT_GLYPHS`.
+
+The guess is conservative in the same direction the colour guess is, and for a sharper reason: a colour guessed too high
+is a slightly wrong shade, but a glyph guessed too high is a replacement box on every line of every frame. So a
+non-UTF-8 locale gets ASCII rather than the benefit of the doubt, and a multiplexer — where `TERM` becomes
+`screen-256color` and the marker variables are not forwarded — reports Unicode and is documented as needing the override
+rather than being guessed at.
+
+### The vocabulary lives apart from both the buffer and the capability
+
+`navkit/glyphs.py` holds the box character sets and the tiers, and imports nothing. That placement is what keeps two
+existing rules intact at once: `screen.py` still has no runtime import of `capabilities.py`, because `draw_box` takes
+the **six characters themselves** rather than a name for them and so never learns that tiers exist; and
+`capabilities.py` still describes the terminal rather than the drawing.
+
+This answers the two questions the *Still open* section carried. `draw_box`'s `double=` keyword **did** become a
+charset argument, and the `border` vocabulary is `single`, `double`, `round`, `ascii`. Resolution happens in the widget
+— `Widget.box_charset()` — because that is the one place both halves are in hand: the sheet says which set is *wanted*
+and the tier says which can be *shown*, and either vetoes, the same shape as `Terminal(mouse=False)` against
+`info.mouse`.
+
+Note what the tier does **not** do: no tier above `GLYPHS_UNICODE` changes a box frame, because box drawing is ordinary
+Unicode and a Nerd Font adds nothing to it. The tier matters at the lower boundary, where every set collapses to
+`+-|`. Icons are where the top tier earns its place, and icons are an application's vocabulary rather than the kit's.
+
+`Widget.glyphs` is a plain property and not a `computed`. The tier is settled when the terminal is detected and never
+changes, so there is nothing for a dependency to invalidate; a detached widget assumes Unicode, which is what the kit
+assumes whenever it has no terminal to ask.
+
+### Icons in the file manager are a departure, and a deliberate one
+
+DOS Navigator had no icons and could not have had them — CP437 has no such glyphs, and the original distinguished a
+directory by colour and by the word `DIR` in the size column, which Navigator still does. Showing a Nerd Font icon
+beside each name therefore cuts against the project's standing rule of preferring the original's behaviour to a modern
+alternative. It was taken anyway, on the grounds that a terminal shipping the font makes it free, and it is reversible
+in two ways rather than one: `icons: none` in a sheet, or `--glyphs unicode` on the command line.
+
+The gutter is **two cells, not one**. A Nerd Font *Mono* build patches its icons to a single cell and `char_width`
+agrees with it, the Private Use Area measuring as ambiguous — but the plain build draws some of them two cells wide and
+no table records which of the two is installed. Spending the second cell on a space means a glyph that comes out
+double-width covers the space instead of shoving the name along.
+
 ## The console: the screen is owned, never read back
 
 Ctrl+O in DOS Navigator hid the panels and showed the last program's output *as the desktop background*, with the menu
@@ -871,22 +931,18 @@ where the reader is detached and the child reaped.
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates what `Manager.render`
   paints; once the desktop widget paints its resolved style, one of the two is redundant.
 - Which parts and properties the eventual *library* widgets declare. `navigator/__main__.py` has settled its own —
-  `Panel` paints `row`, `title`, `footer` and `error` and reads a `border` property,
+  `Panel` paints `row`, `title`, `footer` and `error` and reads `border` and `icons` properties,
   `MenuBar` paints `hotkey`, `KeyBar` paints `number` — but a widget's parts are its public styling surface, and they
   are what the parser checks an unknown key against, so the library's belong with the library.
-- What `border` may be set to, and whether `draw_box`'s `double=` keyword becomes a charset argument. The property has
-  to name a set of box-drawing characters — `single`, `double`,
-  `ascii` at least — which is a small vocabulary that belongs with the widget library too.
 - What a full-screen child does. `run_on_terminal` hands over the real terminal and loses the output, which is the one
   thing the console exists to keep. The alternative is teaching the console an alternate buffer of its own — pyte stores
   `?1049` without obeying it — and that is worth doing only once something actually launches an editor.
 - Where the console's key routing belongs. `Navigator.on_key` currently decides what the child gets and what Navigator
   keeps, which is the application's business only for as long as there is one console; a focus notion in `Widget` is the
   eventual home — the first item of the section below.
-- A `unicode` flag on `TerminalInfo`, deliberately not added yet because nothing would read it. Detecting a UTF-8 locale
-  is trivial; the flag only earns its place once `draw_box` can fall back to an ASCII charset, which is the `border`
-  question above. That is the one point where a capability has to reach a drawing primitive rather than the escape
-  stream, so it is worth settling the vocabulary first and the detection second.
+- Which glyphs beyond a box frame the *library* widgets need — a scrollbar thumb, a menu's submenu arrow, a checkbox.
+  `navkit/glyphs.py` holds box character sets and nothing else, because those are all anything draws today. Each new one
+  needs the same three answers the box sets have: an ASCII form, a Unicode form, and whether a Nerd Font improves on it.
 
 ### What the widget library needs first
 
