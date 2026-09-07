@@ -1,6 +1,6 @@
 # navml design notes
 
-The markup language, its parser, the code generator and the widget library are all unwritten. This file records
+The markup language, its parser, the code generator, and the widget library are all unwritten. This file records
 decisions made ahead of them, so the work starts from a spec rather than rediscovering it. Anything not written down
 here is still open.
 
@@ -245,7 +245,7 @@ nothing about them needs a new language feature. What they do need is a way to *
 which is the second hole in the section after next. `Console(left)`'s constructor argument is the first.
 
 and what the generator emits — verified output of the prototype, not an illustration. Run against a real widget tree it
-reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24, 120x40 and 200x60. The prototype predates
+reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24, 120x40, and 200x60. The prototype predates
 the console, so the run covered the four widgets below and not the `Console` or the three `visible` lines; those compile
 by the same rules —
 `visible` is an ordinary reactive attribute and `not parent.console_visible` an ordinary expression — but they are
