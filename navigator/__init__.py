@@ -9,3 +9,9 @@ This module stays empty deliberately.  Importing the package should not read a
 stylesheet or build a widget tree, so all of that happens in ``__main__`` and
 nothing here runs as a side effect of ``import navigator``.
 """
+
+#: The one place the version is written.  ``pyproject.toml`` declares the
+#: version dynamic and reads this attribute, so a release means editing this
+#: line and nothing else; setuptools parses it out of the syntax tree rather
+#: than importing the package, which is why it has to stay a plain literal.
+__version__ = "0.0.1"
