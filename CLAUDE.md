@@ -26,10 +26,24 @@ stays `nav`. Plain `navigator` and `nav` were taken on PyPI before this project 
 existing one once those characters are deleted outright, so `navigator-fm` reserves `navigatorfm` against everybody,
 this project included; see below. Versions are placeholders in the 0.0.x series until the first real release, which
 keeps 0.1.0; PyPI never lets a version number be re-used, so a botched upload costs a version rather than being
-replaceable. Verify a build with
+replaceable.
+
+**The version is written in exactly one place**, `navigator/__init__.py`'s `__version__`. `pyproject.toml` declares
+`dynamic = ["version"]` and reads it through `[tool.setuptools.dynamic]`, which setuptools resolves by parsing the
+syntax tree rather than importing the package -- so it must stay a plain string literal, and the build needs none of
+the run-time dependencies to find it. `packaging/navfm/pyproject.toml` deliberately does *not* track it: the alias
+depends on `navigator-fm` unpinned, so it is re-uploaded approximately never.
+
+Verify a build with
 `./venv/bin/python -m twine check dist/*` and by installing the wheel into a throwaway venv and running `nav
 --list-themes` from *outside* the checkout -- that is what proves the `importlib.resources` asset lookup survives
 installation, which a run from the repository root cannot.
+
+`nav --version` prints the version, the directory the running copy was imported from, and the interpreter, in
+`pip --version`'s format. The path is the point: Navigator can be installed as a system package, a pipx copy and a
+checkout at once, and `~/.local/bin` precedes `/usr/bin` on most PATHs, so the copy that runs is often not the one
+that was just installed. `version_banner()` prefers `importlib.metadata` over `__version__` because the two diverge
+exactly when a checkout has been edited since it was installed.
 
 `packaging/navfm/` holds the one near-miss name worth holding, as its own project with its own `pyproject.toml`,
 `README.md` and a copy of the root `LICENSE` (setuptools will not follow `license-files` out of a project directory).
@@ -46,6 +60,28 @@ re-uploaded alongside it. Adding a module to it would defeat the point.
 `navigator-fm` has to reach PyPI before the alias is installable, so upload it first. The alias chain is verified by
 `pip install --find-links dist navfm` into a throwaway venv: it must pull `navigator-fm` and `pyte` in behind it and
 leave a working `nav`.
+
+`packaging/linux/` builds the `.deb` and the `.rpm`, both from one `nfpm.yaml`:
+`NFPM=/path/to/nfpm PYTHON=./venv/bin/python ./packaging/linux/build.sh` after a `python -m build`. Output lands in
+`build/pkg/` (gitignored). Three things about it are load-bearing:
+
+- **The tree is staged by `pip install --target`, not by copying directories**, so the files that reach the package
+  are exactly the ones the wheel declares -- `navigator/styles/*.nss` included. `build.sh` then asserts the stylesheet
+  and all eleven themes are present, because losing them yields an application that starts and *then* fails to theme.
+- **One `arch: all` / `noarch` package serves every interpreter from 3.12 up**, because every dependency is pure
+  Python. A venv could not: it bakes its minor version into `lib/python3.N/site-packages` and into `pyvenv.cfg`, so it
+  would need one build per distro. `build.sh` fails the build if a `.so` ever appears in the staged tree, since that
+  is the moment the claim stops being true.
+- **`/usr/bin/nav` runs `python3 -sP`, and the `-P` is not hygiene.** A file manager is launched inside arbitrary
+  directories, and without it a directory that merely *contains* an `icons.py` or a `pyte.py` shadows the real module,
+  so Navigator dies on startup in that one directory and nowhere else. This is verified, not assumed: dropping a
+  decoy `pyte.py` into the working directory crashes `-s` and leaves `-sP` untouched.
+
+`native_version.py` maps a PEP 440 version onto the Debian and RPM spelling, and `tests/test_packaging.py` checks the
+result against `dpkg --compare-versions` rather than against a table -- what matters is the ordering, not the string.
+A pre-release takes `~` so it sorts *below* its release; `.devN` takes **two**, because past a single tilde `a` < `d`
+would put `~dev5` after `~a1` and invert PEP 440. That inversion is asserted in the tests so the reason cannot be
+optimised away.
 
 **Do not add a `packaging/navigatorfm/` back.** It was tried and PyPI answered `400 Bad Request`. PyPI "ultranormalises"
 a proposed new name -- separators deleted rather than folded, and confusable characters such as `l`/`1`/`i` and `0`/`o`

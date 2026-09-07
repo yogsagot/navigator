@@ -1,0 +1,57 @@
+# The .deb and the .rpm, from one description.
+#
+# Both are built from the staging tree that build.sh assembles, and both are
+# `Architecture: all' / `noarch': every dependency is pure Python, so one
+# package serves every interpreter from 3.12 onwards and every machine.  The
+# moment something with a compiled extension enters the dependency set that
+# stops being true and this has to become a per-distro build -- see
+# packaging/linux/build.sh, which asserts the tree is free of them.
+#
+# Version fields come from the environment because build.sh derives them:
+# NAV_VERSION is the PEP 440 version mapped by native_version.py so that
+# Debian and RPM order pre-releases the way Python does.
+name: navigator-fm
+arch: all
+platform: linux
+version: ${NAV_VERSION}
+version_schema: none # the mapping is ours; nfpm must not second-guess it
+release: ${NAV_RELEASE}
+section: utils
+priority: optional
+maintainer: Juris Krumgolds <juris@wivvies.com>
+vendor: Juris Krumgolds
+homepage: https://github.com/yogsagot/navigator
+license: MIT
+description: |
+  DOS Navigator two-panel file manager for POSIX terminals
+  Navigator is a faithful recreation of the DOS Navigator file manager by
+  Ritlabs: two directory panels, the menu bar, the function-key bar and the
+  original colour schemes, decoded from DOS Navigator's own .PAL palettes.
+  .
+  Its Python dependencies are bundled in a private directory and it runs on
+  the system python3 interpreter.
+
+# python3 is the only thing this needs from the system.  Deliberately NOT
+# python3-pyte: Ubuntu 24.04 ships 0.8.0 where Navigator needs >= 0.8.2, which
+# is the whole reason the dependency is vendored instead.
+depends:
+  - python3 (>= 3.12)
+overrides:
+  rpm:
+    depends:
+      - python3 >= 3.12
+
+contents:
+  - src: build/root/usr/lib/navigator-fm
+    dst: /usr/lib/navigator-fm
+    type: tree
+  - src: build/root/usr/bin/nav
+    dst: /usr/bin/nav
+    file_info:
+      mode: 0755
+  - src: LICENSE
+    dst: /usr/share/doc/navigator-fm/copyright
+
+scripts:
+  postinstall: packaging/linux/postinstall.sh
+  postremove: packaging/linux/postremove.sh

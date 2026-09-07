@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import replace
+from importlib import metadata
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,7 @@ from navkit.terminal import encode_key
 
 from conftest import FakeTerminal, run_app, settle
 from navigator import icons
+from navigator import __version__
 from navigator.__main__ import (
     SCHEME,
     THEMES,
@@ -24,7 +26,9 @@ from navigator.__main__ import (
     Navigator,
     Panel,
     load_scheme,
+    main,
     theme_names,
+    version_banner,
 )
 
 
@@ -652,3 +656,51 @@ def test_every_icon_is_a_single_cell():
     """
     every = [icons.FOLDER, icons.PARENT, icons.FILE, *icons.BY_EXTENSION.values()]
     assert {char_width(glyph) for glyph in every} == {1}
+
+
+def test_the_version_banner_names_the_command_and_the_running_copy():
+    """Not the version alone: *which* copy printed it.
+
+    Navigator can be installed as a system package, as a pipx copy and as a
+    checkout at the same time, and PATH decides which one runs -- so the path
+    is the half of this that answers a bug report.
+    """
+    banner = version_banner()
+    assert banner.startswith("nav ")
+    # The directory holding navigator/__main__.py, whichever copy that is.
+    assert str(Path(main.__code__.co_filename).resolve().parent) in banner
+
+
+def test_the_version_falls_back_to_the_source_tree(monkeypatch):
+    """A checkout has no distribution metadata, and must still report.
+
+    This is the ordinary case while developing, so it is the one that would
+    go unnoticed if it broke: the installed-metadata path is what runs on a
+    machine that has Navigator installed, and never here.
+    """
+    def missing(name):
+        raise metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(metadata, "version", missing)
+    assert version_banner().startswith(f"nav {__version__} from ")
+
+
+def test_the_version_prefers_installed_metadata_over_the_source(monkeypatch):
+    """The two differ once a checkout is edited after being installed."""
+    monkeypatch.setattr(metadata, "version", lambda name: "9.9.9")
+    assert version_banner().startswith("nav 9.9.9 from ")
+
+
+def test_version_exits_zero_without_starting_the_application(capsys):
+    """``action="version"`` leaves through SystemExit -- deliberately."""
+    with pytest.raises(SystemExit) as exit:
+        main(["--version"])
+    assert exit.value.code == 0
+    assert capsys.readouterr().out.startswith("nav ")
+
+
+def test_usage_names_the_installed_command(capsys):
+    """The console script is ``nav``; ``prog`` used to say ``navigator``."""
+    with pytest.raises(SystemExit):
+        main(["--help"])
+    assert capsys.readouterr().out.startswith("usage: nav ")
