@@ -13,6 +13,7 @@ import argparse
 import os
 import sys
 from dataclasses import replace
+from importlib import metadata
 from importlib.resources import files
 from pathlib import Path
 
@@ -29,7 +30,7 @@ from navkit.stylesheet import Stylesheet, parse_value, read, register_property
 from navkit.terminal import Terminal, encode_key, is_a_tty
 from navkit.widget import Widget
 
-from navigator import icons
+from navigator import __version__, icons
 
 #: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
 #: input to a drawing operation, not an appearance a cell can carry -- so the
@@ -674,10 +675,57 @@ class Navigator(Application):
         return False
 
 
+class PrintVersion(argparse.Action):
+    """``--version``, printed verbatim.
+
+    argparse's own ``version`` action runs the string through the help
+    formatter, which word-wraps it to the terminal -- and the banner is mostly
+    one long path, so on a narrow window it comes back broken across lines and
+    cannot be copied out of a bug report.  Printing it directly is the whole
+    of the difference.
+    """
+
+    def __init__(self, option_strings, dest, help=None):
+        super().__init__(option_strings, dest, nargs=0, help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        print(version_banner())
+        parser.exit()
+
+
+def version_banner() -> str:
+    """What ``--version`` prints: the version, and *which copy* is running.
+
+    The second half is the useful half.  Navigator can be installed three ways
+    at once -- a system package under ``/usr/lib``, a pipx or ``pip --user``
+    copy under ``~/.local``, and a checkout -- and ``~/.local/bin`` comes
+    before ``/usr/bin`` on nearly every PATH, so the one that runs is often not
+    the one that was just installed.  Printing the path turns that from a
+    mystery into a glance, which is why ``pip --version`` has done it for
+    years and why the format here follows it.
+
+    The version itself prefers the distribution metadata over ``__version__``:
+    they differ exactly when a checkout has been edited since it was
+    installed, and metadata is absent precisely in the case where the source
+    tree is the honest answer.
+    """
+    try:
+        version = metadata.version("navigator-fm")
+    except metadata.PackageNotFoundError:
+        version = __version__
+    here = Path(__file__).resolve().parent
+    python = ".".join(str(n) for n in sys.version_info[:3])
+    return f"nav {version} from {here} (python {python})"
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="navigator", description=__doc__)
+    parser = argparse.ArgumentParser(prog="nav", description=__doc__)
     parser.add_argument("left", nargs="?", help="the directory the left panel opens")
     parser.add_argument("right", nargs="?", help="the directory the right panel opens")
+    parser.add_argument(
+        "--version", action=PrintVersion,
+        help="print the version, and which copy of Navigator is running",
+    )
     parser.add_argument(
         "--theme", default=DEFAULT_THEME, metavar="NAME",
         help="a colour scheme from navigator/styles/themes (default: %(default)s)",
