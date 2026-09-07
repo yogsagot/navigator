@@ -18,8 +18,11 @@ build-backend = "setuptools.build_meta"
 # covered, and is held by the alias project under `packaging/`.
 name = "navigator-fm"
 # 0.0.x is deliberately the placeholder series: PyPI never lets a version be
-# reused or re-uploaded, so the first real release keeps 0.1.0 free.
-version = "0.0.1"
+# reused or re-uploaded, so the first real release keeps 0.1.0 free.  The
+# number itself lives in `navigator/__init__.py` and is read from there --
+# see [tool.setuptools.dynamic] below -- so that `nav --version` and the
+# metadata can never disagree.
+dynamic = ["version"]
 description = "A recreation of the DOS Navigator two-panel file manager for POSIX terminals"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -69,6 +72,11 @@ Issues = "https://github.com/yogsagot/navigator/issues"
 
 [project.scripts]
 nav = "navigator.__main__:main"
+
+[tool.setuptools.dynamic]
+# Read statically, out of the syntax tree: setuptools does not import the
+# package to find this, so the build needs none of the run-time dependencies.
+version = { attr = "navigator.__version__" }
 
 [tool.setuptools.packages.find]
 include = ["navkit*", "navml*", "navigator*"]
