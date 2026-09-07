@@ -1,0 +1,248 @@
+# Cut a release: PyPI, then the .deb and .rpm, then the repository.
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# The tag is the trigger and the version is *not* taken from it -- it is taken
+# from navigator/__init__.py, and the first job refuses to go on if the two
+# disagree.  That way the tag cannot quietly ship a different version than the
+# source says, and the source stays the single place a version is written.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Two releases must never regenerate the repository at the same time: each
+# rewrites the whole index from the pool it checked out, so the slower one
+# would publish an index that has forgotten the faster one's package.
+concurrency:
+  group: publish-repository
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NFPM_VERSION: "2.47.0"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: python -m pytest
+
+      - name: The tag and the source agree
+        id: version
+        run: |
+          set -eu
+          source_version=$(python -c 'import navigator; print(navigator.__version__)')
+          if [ "v$source_version" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match" \
+                 "navigator/__init__.py (${source_version})"
+            exit 1
+          fi
+          echo "version=$source_version" >> "$GITHUB_OUTPUT"
+
+  pypi:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # Trusted publishing: PyPI trusts this workflow by name, so there is no
+      # API token stored anywhere.  Configure the publisher at
+      # https://pypi.org/manage/project/navigator-fm/settings/publishing/
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install build twine
+      - run: python -m build -o dist .
+      # The alias is deliberately left alone: navfm depends on navigator-fm
+      # unpinned, so it does not track releases and re-uploading it would only
+      # burn a version number.
+      - run: python -m twine check dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheel
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  packages:
+    needs: [verify, pypi]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v8
+        with:
+          name: wheel
+          path: dist/
+
+      - name: Install nfpm
+        run: |
+          set -eu
+          base="https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}"
+          curl -fsSL -o nfpm.tar.gz "${base}/nfpm_${NFPM_VERSION}_Linux_x86_64.tar.gz"
+          curl -fsSL -o checksums.txt "${base}/checksums.txt"
+          grep "nfpm_${NFPM_VERSION}_Linux_x86_64.tar.gz\$" checksums.txt \
+            | sed "s|nfpm_${NFPM_VERSION}_Linux_x86_64.tar.gz|nfpm.tar.gz|" \
+            | sha256sum -c -
+          tar xzf nfpm.tar.gz nfpm
+          sudo install -m 0755 nfpm /usr/local/bin/nfpm
+
+      # Signs the .rpm itself.  apt ignores per-package signatures -- it
+      # verifies the index instead -- but dnf's gpgcheck=1 checks exactly
+      # this, and it cannot be added after the fact by the repo job.
+      - uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      # nfpm signs from a key *file*, not from the agent, so the secret is
+      # written out for the length of this step.  The runner is torn down
+      # afterwards, but the file is removed anyway rather than relying on it.
+      - name: Build the .deb and the .rpm
+        env:
+          NFPM_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
+          # Through the environment, never interpolated into the script body:
+          # `${{ }}` is substituted as *text* before the shell sees it, so a
+          # secret containing a quote or a backtick would break the script or
+          # run as part of it.
+          SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          set -eu
+          umask 077
+          printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/signing.key"
+          trap 'rm -f "$RUNNER_TEMP/signing.key"' EXIT
+          NFPM_SIGNING_KEY_FILE="$RUNNER_TEMP/signing.key" ./packaging/linux/build.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: build/pkg/
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            build/pkg/*.deb
+            build/pkg/*.rpm
+            dist/*.whl
+            dist/*.tar.gz
+
+  publish-repo:
+    needs: packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: build/pkg/
+
+      # The published site is the durable store: regenerating either index
+      # requires every previously released file to be on disk, so the branch
+      # is checked out and added to rather than rebuilt.  On the very first
+      # release the branch does not exist yet, which is not an error.
+      - name: Fetch the published site
+        run: |
+          set -eu
+          mkdir -p site
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null 2>&1; then
+            git fetch origin gh-pages --depth 1
+            git --work-tree=site checkout FETCH_HEAD -- . || true
+            echo "site restored from gh-pages"
+          else
+            echo "gh-pages does not exist yet -- first publish"
+          fi
+
+      # What is live right now, read from the site itself.  Passed to the repo
+      # scripts so they refuse to publish an index smaller than reality --
+      # a guard that cannot work from the checked-out directory alone, since
+      # a failed checkout leaves nothing to compare against.
+      - name: Count what is already published
+        id: live
+        run: |
+          set -eu
+          index=site/deb/dists/stable/main/binary-all/Packages
+          debs=0; [ -f "$index" ] && debs=$(grep -c '^Package:' "$index" || echo 0)
+          rpms=$(ls site/rpm/*.rpm 2>/dev/null | wc -l)
+          echo "debs=$debs" >> "$GITHUB_OUTPUT"
+          echo "rpms=$rpms" >> "$GITHUB_OUTPUT"
+          echo "live: $debs deb(s), $rpms rpm(s)"
+
+      - run: sudo apt-get update && sudo apt-get install -y apt-utils createrepo-c
+
+      - uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Regenerate and sign the repositories
+        env:
+          GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          LIVE_DEBS: ${{ steps.live.outputs.debs }}
+          LIVE_RPMS: ${{ steps.live.outputs.rpms }}
+        run: |
+          set -eu
+          EXPECT_AT_LEAST="$LIVE_DEBS" ./packaging/linux/repo/build-apt-repo.sh site build/pkg/*.deb
+          EXPECT_AT_LEAST="$LIVE_RPMS" ./packaging/linux/repo/build-rpm-repo.sh site build/pkg/*.rpm
+
+      - name: Landing page and keys
+        run: |
+          set -eu
+          for key in navigator-fm-archive-keyring.asc navigator-fm-archive-keyring.gpg; do
+            if [ ! -f "packaging/linux/repo/$key" ]; then
+              echo "::error::packaging/linux/repo/$key is missing."
+              echo "::error::Run packaging/linux/make-signing-key.sh and commit"
+              echo "::error::the two public keyring files it writes."
+              exit 1
+            fi
+            cp "packaging/linux/repo/$key" "site/$key"
+          done
+          cp packaging/linux/repo/index.html site/index.html
+          # Pages would otherwise run Jekyll over the tree and drop the
+          # directories whose names begin with an underscore, among others.
+          touch site/.nojekyll
+
+      # The published key must be the one that just signed everything.  If
+      # they ever diverge, every client rejects the repository at once, and
+      # the error they see says nothing about why.
+      - name: The published key is the signing key
+        env:
+          GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
+        run: |
+          set -eu
+          published=$(gpg --show-keys --with-colons site/navigator-fm-archive-keyring.asc \
+                        | awk -F: '/^pub:/ { print $5; exit }')
+          if [ "$published" != "$GPG_KEY_ID" ]; then
+            echo "::error::the committed keyring is key $published but CI signs" \
+                 "with $GPG_KEY_ID -- clients would reject everything"
+            exit 1
+          fi
+          echo "published key $published matches the signing key"
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          # One commit per publish.  The tree still carries every past
+          # release -- it was assembled that way -- but the git history does
+          # not accumulate every binary forever.  The GitHub Release holds
+          # the same files, which is what makes discarding history safe.
+          force_orphan: true

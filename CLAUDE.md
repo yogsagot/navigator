@@ -77,6 +77,30 @@ leave a working `nav`.
   so Navigator dies on startup in that one directory and nowhere else. This is verified, not assumed: dropping a
   decoy `pyte.py` into the working directory crashes `-s` and leaves `-sP` untouched.
 
+`packaging/linux/repo/` publishes the two repositories, and `.github/workflows/release.yml` drives the whole release
+from a `v*` tag: tests, then PyPI, then the packages, then the site. Four things there are not obvious:
+
+- **The repository scripts add to a published site, they do not build one.** apt indexes by scanning the pool and
+  `createrepo_c` by scanning the directory, so the previously released files have to be *present* or the new index
+  silently forgets them and every pinned or older install breaks. The workflow checks out `gh-pages` first for that
+  reason, and passes `EXPECT_AT_LEAST` -- the count read off the live site -- so the scripts refuse to publish an index
+  smaller than reality. Comparing before with after inside one run cannot catch this: a run that started from an empty
+  directory has nothing to lose, which is exactly the failing case.
+- **`GPG_KEY_ID` must be the 16-hex-digit long key id.** nfpm parses it as a 64-bit integer and rejects a 40-character
+  fingerprint with `value out of range`. gpg accepts either, so the long id serves both.
+- **The two ecosystems verify different things.** apt verifies the *index* (`InRelease`/`Release.gpg`) and takes
+  per-package integrity from the SHA256 in `Packages` -- it does not check per-package signatures at all. dnf is the
+  reverse: `gpgcheck=1` verifies a signature inside each `.rpm`, which nfpm has to write at *build* time, and
+  `repo_gpgcheck=1` verifies `repomd.xml.asc`. Signing only one half of either leaves a repository that warns or
+  refuses.
+- **CI signs with a subkey.** `make-signing-key.sh` exports `--export-secret-subkeys`, so the certifying primary never
+  leaves the maintainer's machine and a leaked CI secret can be revoked without users having to trust a new key.
+
+The apt half is verified end to end without Docker: point the real `apt-get` at a private `Dir::State`/`Dir::Cache` and
+a `file://` source, and it accepts the signed repository, lists both published versions and refuses the same repository
+under a different key (exit 100, `NO_PUBKEY`). The rpm half has no such local check -- `createrepo_c` and `rpm` are not
+installed here -- and is exercised only in CI.
+
 `native_version.py` maps a PEP 440 version onto the Debian and RPM spelling, and `tests/test_packaging.py` checks the
 result against `dpkg --compare-versions` rather than against a table -- what matters is the ordering, not the string.
 A pre-release takes `~` so it sorts *below* its release; `.devN` takes **two**, because past a single tilde `a` < `d`

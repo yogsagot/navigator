@@ -1,0 +1,96 @@
+#!/bin/sh
+# Create the key that signs the apt and dnf repositories.  Run this once.
+#
+#   packaging/linux/make-signing-key.sh [OUTPUT_DIR]
+#
+# gpg prompts for the passphrase itself, so it is never typed on a command
+# line, never lands in shell history and never reaches a log.
+#
+# Two decisions worth knowing about:
+#
+# RSA-4096 rather than Ed25519.  Ed25519 is the better modern choice and is
+# accepted by apt and by rpm >= 4.16, which covers every distro this project
+# targets.  RSA is chosen anyway because the asymmetry is brutal: users import
+# this key *once* and keep it, so if some client rejects it the fix is
+# reissuing a key everybody has already trusted.  A larger signature is the
+# cheaper side of that trade.
+#
+# A separate signing subkey.  The primary key certifies and never leaves this
+# machine; only the subkey is exported for CI.  If the CI secret leaks, the
+# subkey is revoked and replaced without users having to trust a new key --
+# which is the whole point of the split, and is impossible after the fact.
+set -eu
+
+OUT=${1:-$HOME/navigator-fm-signing}
+NAME=${NAME:-Navigator FM package signing}
+EMAIL=${EMAIL:-juris@wivvies.com}
+UID_STR="$NAME <$EMAIL>"
+
+command -v gpg > /dev/null || { echo "make-signing-key.sh: gpg is not installed" >&2; exit 1; }
+
+if gpg --list-keys "$UID_STR" > /dev/null 2>&1; then
+    echo "make-signing-key.sh: a key for '$UID_STR' already exists." >&2
+    echo "  Delete it first, or set NAME= to something else." >&2
+    echo "  Existing:" >&2
+    gpg --list-keys --keyid-format long "$UID_STR" >&2
+    exit 1
+fi
+
+mkdir -p "$OUT"
+chmod 700 "$OUT"
+
+echo "Creating the certifying primary key.  gpg will ask for a passphrase --"
+echo "choose a strong one and keep it; CI needs it as a secret."
+echo
+gpg --quick-generate-key "$UID_STR" rsa4096 cert 5y
+
+FPR=$(gpg --list-keys --with-colons "$UID_STR" | awk -F: '/^fpr:/ { print $10; exit }')
+[ -n "$FPR" ] || { echo "make-signing-key.sh: could not read the fingerprint back" >&2; exit 1; }
+
+echo
+echo "Adding the signing subkey (this is the one CI gets)."
+gpg --quick-add-key "$FPR" rsa4096 sign 2y
+
+# The public half, in both encodings.  apt wants the dearmoured form in
+# /usr/share/keyrings; rpm --import wants the armoured one.  Publishing both
+# costs nothing and saves every user a conversion step.
+gpg --armor --export "$FPR" > "$OUT/navigator-fm-archive-keyring.asc"
+gpg --export "$FPR" > "$OUT/navigator-fm-archive-keyring.gpg"
+
+# The secret half, subkeys only: the exported block carries a stub in place of
+# the primary key, so this file cannot certify anything or make a new subkey.
+umask 077
+gpg --armor --export-secret-subkeys "$FPR" > "$OUT/ci-signing-subkey.asc"
+
+# nfpm parses key_id as a 64-bit integer, so it takes the 16-hex-digit long
+# key id and rejects a 40-character fingerprint outright.  gpg accepts either,
+# so the long id is what everything here is given.
+LONG=$(printf '%s' "$FPR" | tail -c 17)
+
+echo
+echo "================================================================"
+echo "Key created."
+echo "  fingerprint: $FPR"
+echo "  long key id: $LONG"
+echo
+echo "Commit the public halves -- they are public by definition, and the"
+echo "release workflow copies them from there into the published site:"
+echo "  cp $OUT/navigator-fm-archive-keyring.asc packaging/linux/repo/"
+echo "  cp $OUT/navigator-fm-archive-keyring.gpg packaging/linux/repo/"
+echo
+echo "Add these to GitHub -> Settings -> Secrets and variables -> Actions:"
+echo "  GPG_PRIVATE_KEY   the contents of $OUT/ci-signing-subkey.asc"
+echo "  GPG_PASSPHRASE    the passphrase you just chose"
+echo "  GPG_KEY_ID        $LONG        (a repository *variable*, not a secret --"
+echo "                                     key ids are public.  Must be the long"
+echo "                                     id: nfpm reads it as a number and"
+echo "                                     refuses a full fingerprint.)"
+echo
+echo "Then delete the exported secret, which has served its purpose:"
+echo "  shred -u $OUT/ci-signing-subkey.asc"
+echo
+echo "Back up the primary key somewhere offline before you do anything else:"
+echo "  gpg --armor --export-secret-keys $FPR"
+echo "Losing it means never being able to issue a new subkey under this"
+echo "identity, and every user having to trust a replacement key by hand."
+echo "================================================================"
