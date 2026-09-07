@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Navigator package repository</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0 auto; padding: 2rem 1.25rem; max-width: 46rem; line-height: 1.55;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: .2rem; }
+  h2 { font-size: 1.1rem; margin-top: 2.2rem; }
+  .sub { color: GrayText; margin-top: 0; }
+  pre {
+    overflow-x: auto; padding: .8rem 1rem; border-radius: 6px;
+    background: color-mix(in srgb, Canvas 90%, CanvasText); font-size: .85rem;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 3rem; color: GrayText; font-size: .85rem; }
+</style>
+
+<h1>Navigator</h1>
+<p class="sub">
+  A recreation of the DOS Navigator two-panel file manager for POSIX terminals.
+  This is its package repository; the source is on
+  <a href="https://github.com/yogsagot/navigator">GitHub</a>.
+</p>
+
+<h2>Debian, Ubuntu</h2>
+<p>Needs Ubuntu 24.04 or Debian 13 and later — Navigator wants Python 3.12.</p>
+<pre><code>sudo install -m 0755 -d /usr/share/keyrings
+sudo curl -fsSL -o /usr/share/keyrings/navigator-fm-archive-keyring.gpg \
+    https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.gpg
+
+sudo tee /etc/apt/sources.list.d/navigator-fm.sources &gt; /dev/null &lt;&lt;'EOF'
+Types: deb
+URIs: https://yogsagot.github.io/navigator/deb
+Suites: stable
+Components: main
+Architectures: all amd64 arm64
+Signed-By: /usr/share/keyrings/navigator-fm-archive-keyring.gpg
+EOF
+
+sudo apt update &amp;&amp; sudo apt install navigator-fm</code></pre>
+
+<h2>Fedora, RHEL, Alma, Rocky</h2>
+<p>Needs Fedora 39 or RHEL 10 and later.</p>
+<pre><code>sudo rpm --import https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.asc
+
+sudo tee /etc/yum.repos.d/navigator-fm.repo &gt; /dev/null &lt;&lt;'EOF'
+[navigator-fm]
+name=Navigator file manager
+baseurl=https://yogsagot.github.io/navigator/rpm
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.asc
+EOF
+
+sudo dnf install navigator-fm</code></pre>
+
+<h2>Anywhere else</h2>
+<p>
+  Navigator is on PyPI as <code>navigator-fm</code>. This route does not update
+  itself — that is the whole reason the repositories above exist.
+</p>
+<pre><code>pipx install navigator-fm</code></pre>
+
+<h2>Which copy am I running?</h2>
+<p>
+  <code>nav --version</code> prints the directory it was imported from, not just
+  the number. If Navigator is installed more than one way,
+  <code>~/.local/bin</code> comes before <code>/usr/bin</code> on most paths, so
+  the copy that runs may not be the one you just installed.
+</p>
+<pre><code>$ nav --version
+nav 0.1.0 from /usr/lib/navigator-fm/navigator (python 3.12.3)</code></pre>
+
+<footer>
+  Everything here is signed. If <code>apt update</code> stops complaining after
+  you delete the keyring, something is wrong — tell us.
+</footer>

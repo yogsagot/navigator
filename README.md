@@ -29,6 +29,48 @@ $ nav --version
 nav 0.0.1 from /home/you/.local/share/pipx/venvs/navigator-fm/lib/python3.12/site-packages/navigator (python 3.12.3)
 ```
 
+### Debian, Ubuntu
+
+Packages are published from a signed repository, so `apt upgrade` carries new releases along with everything else.
+Needs Ubuntu 24.04 or Debian 13 and later.
+
+```sh
+sudo install -m 0755 -d /usr/share/keyrings
+sudo curl -fsSL -o /usr/share/keyrings/navigator-fm-archive-keyring.gpg \
+    https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.gpg
+
+sudo tee /etc/apt/sources.list.d/navigator-fm.sources > /dev/null <<'EOF'
+Types: deb
+URIs: https://yogsagot.github.io/navigator/deb
+Suites: stable
+Components: main
+Architectures: all amd64 arm64
+Signed-By: /usr/share/keyrings/navigator-fm-archive-keyring.gpg
+EOF
+
+sudo apt update && sudo apt install navigator-fm
+```
+
+### Fedora, RHEL, Alma, Rocky
+
+Needs Fedora 39 or RHEL 10 and later.
+
+```sh
+sudo rpm --import https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.asc
+
+sudo tee /etc/yum.repos.d/navigator-fm.repo > /dev/null <<'EOF'
+[navigator-fm]
+name=Navigator file manager
+baseurl=https://yogsagot.github.io/navigator/rpm
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://yogsagot.github.io/navigator/navigator-fm-archive-keyring.asc
+EOF
+
+sudo dnf install navigator-fm
+```
+
 Run `nav --help` for the options; `--theme NAME` picks one of the eleven colour schemes, and `--list-themes`
 names them.
 

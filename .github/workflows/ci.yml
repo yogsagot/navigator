@@ -1,0 +1,31 @@
+# The test suite, on every push and pull request.
+#
+# The repository had no CI at all until this file; 494 tests existed and
+# nothing ran them except by hand.
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is the floor the project declares; 3.13 is what the newer
+        # target distributions ship.  Both matter, because the .deb is one
+        # architecture-independent package serving whichever the system has.
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: python -m pytest

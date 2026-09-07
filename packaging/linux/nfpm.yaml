@@ -55,3 +55,29 @@ contents:
 scripts:
   postinstall: packaging/linux/postinstall.sh
   postremove: packaging/linux/postremove.sh
+
+# Signing.  Both blocks are driven by the environment so that a local build
+# with nothing set produces unsigned packages and still works; CI sets them.
+#
+# GPG_KEY_ID must be the 16-hex-digit *long key id*, not the 40-character
+# fingerprint: nfpm parses it as a 64-bit integer and a fingerprint fails with
+# "value out of range".  gpg itself accepts either, so the repository scripts
+# are happy with the same value.
+#
+# The two formats mean different things by this:
+#
+#   rpm  dnf's gpgcheck=1 verifies this signature, inside the package itself.
+#        It cannot be added later by the repository job, so it has to happen
+#        here or not at all.
+#   deb  apt does not verify per-package signatures at all -- it verifies the
+#        signed index and takes per-package integrity from the SHA256 in
+#        Packages.  This costs nothing and is written for the handful of
+#        tools that do look, but it is not what secures the repository.
+deb:
+  signature:
+    key_file: ${NFPM_SIGNING_KEY_FILE}
+    key_id: ${GPG_KEY_ID}
+rpm:
+  signature:
+    key_file: ${NFPM_SIGNING_KEY_FILE}
+    key_id: ${GPG_KEY_ID}
