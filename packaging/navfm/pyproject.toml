@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# An alias, not a second copy of the project.  PyPI folds only runs of `-`,
+# `_` and `.` into one separator, so `navigator-fm` reserves neither
+# `navigatorfm` nor `navfm`; both are held here so a near-miss name cannot be
+# taken by someone else and mistaken for this project.  This distribution
+# installs no module of its own -- `packages = []` below is deliberate -- it
+# only depends on the real one, so `pip install navfm` installs exactly what
+# `pip install navigator-fm` installs, `nav` command included.
+name = "navfm"
+version = "0.0.1"
+description = "Alias of navigator-fm: a recreation of the DOS Navigator two-panel file manager"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+# A copy of the repository root's LICENSE.  setuptools will not follow a path
+# out of the project directory, and this directory is its own project.
+license-files = ["LICENSE"]
+authors = [{ name = "Juris Krumgolds", email = "juris@wivvies.com" }]
+# Unpinned on purpose: the alias is a name, not a version, so it should always
+# resolve to the current release rather than have to be re-uploaded alongside
+# every one of them.
+dependencies = ["navigator-fm"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Desktop Environment :: File Managers",
+    "Topic :: Terminals",
+]
+
+[project.urls]
+Homepage = "https://github.com/yogsagot/navigator"
+Repository = "https://github.com/yogsagot/navigator"
+Issues = "https://github.com/yogsagot/navigator/issues"
+
+[tool.setuptools]
+# Metadata only.  Without this, setuptools' flat-layout auto-discovery would
+# go looking for something to package and fail on finding nothing.
+packages = []

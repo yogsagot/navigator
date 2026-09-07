@@ -1,18 +1,71 @@
 [build-system]
-requires = ["setuptools>=68"]
+# 77 is the first setuptools that speaks PEP 639 -- the `license = "MIT"`
+# expression and `license-files` below -- rather than the deprecated
+# license table and classifier.
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "navigator"
-version = "0.1.0"
+# The distribution name, which is what `pip install` and PyPI see.  It is not
+# the import name: `navigator`, `navkit` and `navml` are the packages this
+# distribution installs, and `nav` is the command it puts on the PATH.  Plain
+# `navigator` and `nav` were both taken on PyPI before this project existed.
+# Registering this name also reserves every respelling of it: PyPI rejects a
+# new project whose name, with `-`, `_` and `.` removed outright, collides
+# with an existing one, so `navigatorfm`, `navigator_fm` and `navigator.fm`
+# are all closed to everyone else and cannot be registered here either.  A
+# name that is genuinely different once the separators go -- `navfm` -- is not
+# covered, and is held by the alias project under `packaging/`.
+name = "navigator-fm"
+# 0.0.x is deliberately the placeholder series: PyPI never lets a version be
+# reused or re-uploaded, so the first real release keeps 0.1.0 free.
+version = "0.0.1"
 description = "A recreation of the DOS Navigator two-panel file manager for POSIX terminals"
 readme = "README.md"
 requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Juris Krumgolds", email = "juris@wivvies.com" }]
+keywords = [
+    "file-manager",
+    "orthodox-file-manager",
+    "dos-navigator",
+    "tui",
+    "terminal",
+    "curses",
+    "turbovision",
+    "console",
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Environment :: Console :: Curses",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Desktop Environment :: File Managers",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Terminals",
+]
 # The one run-time dependency, and the reason for it: pyte is the terminal
 # emulator behind `navkit.console` -- the screen a child program paints on so
 # that Ctrl+O can show its output.  Everything else is stdlib.  Test tooling
-# lives in requirements-dev.txt.
+# lives in requirements-dev.txt and in the `dev` extra below, which mirrors it.
 dependencies = ["pyte>=0.8.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "build>=1.0"]
+
+[project.urls]
+Homepage = "https://github.com/yogsagot/navigator"
+Repository = "https://github.com/yogsagot/navigator"
+Issues = "https://github.com/yogsagot/navigator/issues"
 
 [project.scripts]
 nav = "navigator.__main__:main"
