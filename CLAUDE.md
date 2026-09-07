@@ -17,7 +17,42 @@ the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.
 section names what is left.
 
 There is no lint tooling configured yet. When adding one, record the command here. Packaging is setuptools via
-`pyproject.toml`: `./venv/bin/python -m build --wheel` (needs `pip install build`).
+`pyproject.toml`: `./venv/bin/python -m build` (needs `pip install build`, and setuptools 77+ for the PEP 639
+`license = "MIT"` expression the metadata uses).
+
+The **distribution** name is `navigator-fm`; the **import** names stay `navigator`, `navkit`, `navml` and the command
+stays `nav`. Plain `navigator` and `nav` were taken on PyPI before this project existed. Installation folds only runs of
+`-`, `_` and `.` into one separator, but *registration* is stricter -- PyPI refuses a new name that collides with an
+existing one once those characters are deleted outright, so `navigator-fm` reserves `navigatorfm` against everybody,
+this project included; see below. Versions are placeholders in the 0.0.x series until the first real release, which
+keeps 0.1.0; PyPI never lets a version number be re-used, so a botched upload costs a version rather than being
+replaceable. Verify a build with
+`./venv/bin/python -m twine check dist/*` and by installing the wheel into a throwaway venv and running `nav
+--list-themes` from *outside* the checkout -- that is what proves the `importlib.resources` asset lookup survives
+installation, which a run from the repository root cannot.
+
+`packaging/navfm/` holds the one near-miss name worth holding, as its own project with its own `pyproject.toml`,
+`README.md` and a copy of the root `LICENSE` (setuptools will not follow `license-files` out of a project directory).
+It is an **alias, not a build of this code**: `packages = []` makes it a metadata-only distribution whose sole
+dependency is `navigator-fm`, unpinned, so `pip install navfm` resolves to the current real release and never has to be
+re-uploaded alongside it. Adding a module to it would defeat the point.
+
+```
+./venv/bin/python -m build -o dist .
+./venv/bin/python -m build -o dist packaging/navfm
+./venv/bin/python -m twine check dist/*
+```
+
+`navigator-fm` has to reach PyPI before the alias is installable, so upload it first. The alias chain is verified by
+`pip install --find-links dist navfm` into a throwaway venv: it must pull `navigator-fm` and `pyte` in behind it and
+leave a working `nav`.
+
+**Do not add a `packaging/navigatorfm/` back.** It was tried and PyPI answered `400 Bad Request`. PyPI "ultranormalises"
+a proposed new name -- separators deleted rather than folded, and confusable characters such as `l`/`1`/`i` and `0`/`o`
+run together -- and refuses it if the result matches an existing project. `navigator-fm` ultranormalises to
+`navigatorfm`, so that spelling is already reserved against everyone and is unregisterable by us for the same reason.
+The 400 carries no explanation (warehouse#17375), which is what makes this worth writing down. The same rule is why
+`navfm` is a separate name and does have to be held deliberately.
 
 The application lives in the `navigator/` package: `navigator/__main__.py` is the whole of it, and `navigator/styles/`
 holds the assets it loads. Assets are found through `importlib.resources` rather than relative to `__file__`, and
