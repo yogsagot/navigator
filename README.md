@@ -26,7 +26,7 @@ copy that runs may not be the one you just installed.
 
 ```
 $ nav --version
-nav 0.0.3 from /home/you/.local/share/pipx/venvs/navigator-fm/lib/python3.12/site-packages/navigator (python 3.12.3)
+nav 0.0.4 from /home/you/.local/share/pipx/venvs/navigator-fm/lib/python3.12/site-packages/navigator (python 3.12.3)
 ```
 
 ### Debian, Ubuntu

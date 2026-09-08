@@ -14,4 +14,4 @@ nothing here runs as a side effect of ``import navigator``.
 #: version dynamic and reads this attribute, so a release means editing this
 #: line and nothing else; setuptools parses it out of the syntax tree rather
 #: than importing the package, which is why it has to stay a plain literal.
-__version__ = "0.0.3"
+__version__ = "0.0.4"
