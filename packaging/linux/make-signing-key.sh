@@ -63,18 +63,22 @@ umask 077
 gpg --armor --export-secret-subkeys "$FPR" > "$OUT/ci-signing-subkey.asc"
 
 # nfpm parses key_id as a 64-bit integer, so it takes the 16-hex-digit long
-# key id and rejects a 40-character fingerprint outright.  gpg accepts either,
-# so the long id is what everything here is given.  Read out of gpg's own
-# `pub` record rather than sliced off the fingerprint: release.yml checks the
-# published key against GPG_KEY_ID by reading exactly this field, so taking it
-# from anywhere else is a chance for the two to disagree.
-LONG=$(gpg --list-keys --with-colons "$UID_STR" | awk -F: '/^pub:/ { print $5; exit }')
+# key id and rejects a 40-character fingerprint outright.
+#
+# It must be the *signing subkey's* id, not the primary's.  The export above
+# is --export-secret-subkeys, so what CI holds is a stub primary with no
+# private key behind it -- and the primary is certify-only in any case.  Given
+# the primary's id nfpm searches for a signing key, finds the stub, and fails
+# with `no valid signing keys`, which names neither the key nor the reason.
+# Given the subkey's it signs.  gpg takes a subkey id for --local-user
+# happily, so the repository scripts are unaffected by the choice.
+LONG=$(gpg --list-keys --with-colons "$UID_STR" | awk -F: '/^sub:/ && $12 ~ /s/ { print $5; exit }')
 
 echo
 echo "================================================================"
 echo "Key created."
-echo "  fingerprint: $FPR"
-echo "  long key id: $LONG"
+echo "  primary fingerprint: $FPR"
+echo "  signing subkey id:   $LONG"
 echo
 echo "Commit the public halves -- they are public by definition, and the"
 echo "release workflow copies them from there into the published site:"
@@ -85,9 +89,12 @@ echo "Add these to GitHub -> Settings -> Secrets and variables -> Actions:"
 echo "  GPG_PRIVATE_KEY   the contents of $OUT/ci-signing-subkey.asc"
 echo "  GPG_PASSPHRASE    the passphrase you just chose"
 echo "  GPG_KEY_ID        $LONG        (a repository *variable*, not a secret --"
-echo "                                     key ids are public.  Must be the long"
-echo "                                     id: nfpm reads it as a number and"
-echo "                                     refuses a full fingerprint.)"
+echo "                                     key ids are public.  This is the"
+echo "                                     *signing subkey's* long id, which is"
+echo "                                     what nfpm can actually sign with; the"
+echo "                                     primary's id yields 'no valid signing"
+echo "                                     keys', and a full fingerprint is"
+echo "                                     rejected as a number out of range.)"
 echo
 echo "Then delete the exported secret, which has served its purpose:"
 echo "  shred -u $OUT/ci-signing-subkey.asc"

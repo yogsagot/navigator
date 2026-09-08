@@ -86,8 +86,17 @@ from a `v*` tag: tests, then PyPI, then the packages, then the site. Four things
   reason, and passes `EXPECT_AT_LEAST` -- the count read off the live site -- so the scripts refuse to publish an index
   smaller than reality. Comparing before with after inside one run cannot catch this: a run that started from an empty
   directory has nothing to lose, which is exactly the failing case.
-- **`GPG_KEY_ID` must be the 16-hex-digit long key id.** nfpm parses it as a 64-bit integer and rejects a 40-character
-  fingerprint with `value out of range`. gpg accepts either, so the long id serves both.
+- **`GPG_KEY_ID` must be the *signing subkey's* 16-hex-digit long key id**, and each half of that sentence was paid
+  for. nfpm parses it as a 64-bit integer, so a 40-character fingerprint is `value out of range` -- and so is a
+  17-character one, which is what `make-signing-key.sh` printed until it stopped slicing the id off the end of the
+  fingerprint. Given the *primary's* id nfpm fails differently and far less helpfully, with `no valid signing keys`:
+  CI holds an `--export-secret-subkeys` export, so the primary is a stub with no private key, and it is certify-only
+  besides. `ghaction-import-gpg` has the same blind spot from the other side -- without its `fingerprint` input it
+  presets the passphrase against the stub primary's keygrip and dies on gpg-agent error 67108891 (source 4,
+  code 27, `NOT_FOUND`) before nfpm is ever reached. gpg itself is the relaxed one: `--local-user` takes a subkey id
+  without complaint, which is why the repository scripts never noticed the question. `release.yml`'s
+  published-key check therefore matches `GPG_KEY_ID` against **both** the `pub` and `sub` records of the committed
+  keyring; matching `pub` alone rejected precisely the value that works.
 - **The two ecosystems verify different things.** apt verifies the *index* (`InRelease`/`Release.gpg`) and takes
   per-package integrity from the SHA256 in `Packages` -- it does not check per-package signatures at all. dnf is the
   reverse: `gpgcheck=1` verifies a signature inside each `.rpm`, which nfpm has to write at *build* time, and
