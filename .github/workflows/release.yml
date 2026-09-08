@@ -123,6 +123,32 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           fingerprint: 6FB5EAB1EBEEC6199FD11932871C144D2ED782DE
 
+      # nfpm reports a signing failure as `no valid signing keys' or `signing
+      # key is encrypted' and names neither the key nor the cause, so three
+      # releases were spent guessing which of the key id, the passphrase and
+      # the export shape was wrong.  The facts that decide it are printed
+      # first.  None of them is secret: a key id, the protection status and
+      # whether the primary is a stub are public properties of a public key,
+      # and `--list-packets' prints MPI *lengths*, never values.
+      - name: The signing material
+        env:
+          GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
+          SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          set -eu
+          umask 077
+          printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/inspect.key"
+          trap 'rm -f "$RUNNER_TEMP/inspect.key"' EXIT
+          echo "GPG_KEY_ID = ${GPG_KEY_ID:-<unset>}"
+          echo "key file   = $(wc -c < "$RUNNER_TEMP/inspect.key") bytes," \
+               "$(wc -l < "$RUNNER_TEMP/inspect.key") lines"
+          echo "first line = $(head -1 "$RUNNER_TEMP/inspect.key")"
+          echo "--- packets ---"
+          gpg --list-packets "$RUNNER_TEMP/inspect.key" 2>&1 \
+            | grep -E "^:(secret|public)|gnu-dummy|protect count|keyid:|skey\[" || true
+          echo "--- expected: a gnu-dummy primary, no 'protect count', and a"
+          echo "    secret sub key packet whose keyid is GPG_KEY_ID ---"
+
       # nfpm signs from a key *file*, not from the agent, so the secret is
       # written out for the length of this step.  The runner is torn down
       # afterwards, but the file is removed anyway rather than relying on it.
