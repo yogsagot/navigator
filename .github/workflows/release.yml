@@ -244,14 +244,20 @@ jobs:
           GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
         run: |
           set -eu
+          # GPG_KEY_ID is the signing *subkey*, so it appears in the published
+          # keyring as a `sub` record, not as `pub`.  Both are accepted here:
+          # what has to be true is that the key CI signs with is somewhere in
+          # the certificate users are told to trust, and matching only `pub`
+          # would reject the very id that nfpm requires.
           published=$(gpg --show-keys --with-colons site/navigator-fm-archive-keyring.asc \
-                        | awk -F: '/^pub:/ { print $5; exit }')
-          if [ "$published" != "$GPG_KEY_ID" ]; then
-            echo "::error::the committed keyring is key $published but CI signs" \
-                 "with $GPG_KEY_ID -- clients would reject everything"
+                        | awk -F: '/^(pub|sub):/ { print $5 }')
+          if ! echo "$published" | grep -qx "$GPG_KEY_ID"; then
+            echo "::error::CI signs with $GPG_KEY_ID, which is not in the" \
+                 "committed keyring (it holds: $(echo $published)) --" \
+                 "clients would reject everything"
             exit 1
           fi
-          echo "published key $published matches the signing key"
+          echo "signing key $GPG_KEY_ID is present in the published keyring"
 
       - uses: peaceiris/actions-gh-pages@v4
         with:
