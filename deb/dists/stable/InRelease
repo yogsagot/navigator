@@ -1,0 +1,55 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: all amd64 arm64
+Codename: stable
+Components: main
+Date: Tue, 08 Sep 2026 13:23:41 +0000
+Description: Navigator -- DOS Navigator for POSIX terminals
+Label: Navigator
+Origin: navigator-fm
+Suite: stable
+MD5Sum:
+ 7dbbe61390ad004b82c79f72923ce9f9             1022 main/binary-all/Packages
+ f25fc3529fda6ddff99bfb511fbbb3bb              677 main/binary-all/Packages.gz
+ 7dbbe61390ad004b82c79f72923ce9f9             1022 main/binary-amd64/Packages
+ f25fc3529fda6ddff99bfb511fbbb3bb              677 main/binary-amd64/Packages.gz
+ 7dbbe61390ad004b82c79f72923ce9f9             1022 main/binary-arm64/Packages
+ f25fc3529fda6ddff99bfb511fbbb3bb              677 main/binary-arm64/Packages.gz
+SHA1:
+ d6e7cf279918dfc701e54c468195ff1f734eb9ed             1022 main/binary-all/Packages
+ ad193f2ecfb54b1f5a35db8d879f204604a5b025              677 main/binary-all/Packages.gz
+ d6e7cf279918dfc701e54c468195ff1f734eb9ed             1022 main/binary-amd64/Packages
+ ad193f2ecfb54b1f5a35db8d879f204604a5b025              677 main/binary-amd64/Packages.gz
+ d6e7cf279918dfc701e54c468195ff1f734eb9ed             1022 main/binary-arm64/Packages
+ ad193f2ecfb54b1f5a35db8d879f204604a5b025              677 main/binary-arm64/Packages.gz
+SHA256:
+ 408465879cb7858a88b05eca8aaa44ffc08bb2d6ffbaf7c186b2497417c3760e             1022 main/binary-all/Packages
+ 693e9f5e167438d574344a4525b47e1fb3aaa8c1cf3a951c7c575ae2a7da76c5              677 main/binary-all/Packages.gz
+ 408465879cb7858a88b05eca8aaa44ffc08bb2d6ffbaf7c186b2497417c3760e             1022 main/binary-amd64/Packages
+ 693e9f5e167438d574344a4525b47e1fb3aaa8c1cf3a951c7c575ae2a7da76c5              677 main/binary-amd64/Packages.gz
+ 408465879cb7858a88b05eca8aaa44ffc08bb2d6ffbaf7c186b2497417c3760e             1022 main/binary-arm64/Packages
+ 693e9f5e167438d574344a4525b47e1fb3aaa8c1cf3a951c7c575ae2a7da76c5              677 main/binary-arm64/Packages.gz
+SHA512:
+ a47b840e68c96d5425f1b67da562ddf81d41e7f59460d098e391060e9047183c5f42acbe9597cb5595972368ee27fe7d9dd6b6d4fc1a3ca04858dde71c04cd0d             1022 main/binary-all/Packages
+ a59040fcc694814205560350ef8796ff32686777653adbbecaa566aaf3e80bf188e10fbbca9feb6a81e2fb1a73022f41cad8b04bd21a6302903549e310741ac4              677 main/binary-all/Packages.gz
+ a47b840e68c96d5425f1b67da562ddf81d41e7f59460d098e391060e9047183c5f42acbe9597cb5595972368ee27fe7d9dd6b6d4fc1a3ca04858dde71c04cd0d             1022 main/binary-amd64/Packages
+ a59040fcc694814205560350ef8796ff32686777653adbbecaa566aaf3e80bf188e10fbbca9feb6a81e2fb1a73022f41cad8b04bd21a6302903549e310741ac4              677 main/binary-amd64/Packages.gz
+ a47b840e68c96d5425f1b67da562ddf81d41e7f59460d098e391060e9047183c5f42acbe9597cb5595972368ee27fe7d9dd6b6d4fc1a3ca04858dde71c04cd0d             1022 main/binary-arm64/Packages
+ a59040fcc694814205560350ef8796ff32686777653adbbecaa566aaf3e80bf188e10fbbca9feb6a81e2fb1a73022f41cad8b04bd21a6302903549e310741ac4              677 main/binary-arm64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEb7Xqsevuxhmf0RkyhxwUTS7Xgt4FAmqgDF0ACgkQhxwUTS7X
+gt7y4RAAnRJArkFGq2eyYQFTKqwmWI3HbHBdigtyWmUqjGyXEiljEzblxd2M7YVq
+biC1ePyNKeli+f2IU2HtRco7d2ZJGSSVsGcBH555+GHrTneEwojH+Lm30EFu1Ngv
+aUahAPlo7WKv3MjGp22EzL3H7k3v44R8yJlEqc/C3Phns6stKsjMqH/P6EY4tTa4
+1pxfDE/4adZ4C5cYP5P/kpoCaNGlbcZzlmyt2+CmtkXAV9HK0d2SmY9iUgV/txkn
+bkQ3RGRZws3CZj5NGANs4GwVqwW11Y3N9yefpP1Tpu9IR2w4oN2YV4hZwRoxMtCu
+hAv/+48u637FLvjJ5IaHcAbN5I/gLwBdumN6LZIgm2Zy85r2A21KEd9Qb1VvbHx8
+nIfY3hJZ7y0KqUq4Ff53B/OJLk+ZpVPOnzu4YDGA00TQIhkcU54ZCu+Y2iJN++c/
+GC2etHCJsICWPhsnoykZxHp9zxJ2Ew2ItzdsXrqebWs63eh3qh1UIcq+CgNn92PJ
+IiRq8iduADw8Dp0QyemT/GevCH7UVjx999rCrQhh4X7Zqcq0fcheTaUkHI+/WUTI
+ape7SVN/ioC93kFqmvzGU+PgimlmWB0W9pNkGALGdtyGCOTR7+PQB6WJmadFPper
+Jq3VNAP6xmbcgInlIUcmXl5ZJh9Mc4R5xVaJqZlahM6Xlg4CAxQ=
+=G2p4
+-----END PGP SIGNATURE-----

@@ -1,0 +1,23 @@
+Package: navigator-fm
+Architecture: all
+Version: 0.0.4-1
+Priority: optional
+Section: utils
+Maintainer: Juris Krumgolds <juris.krumgolds@gmail.com>
+Installed-Size: 2784
+Depends: python3 (>= 3.12)
+Filename: pool/main/n/navigator-fm/navigator-fm_0.0.4-1_all.deb
+Size: 638522
+MD5sum: a9e03ad83457624245ce9acd67903f7d
+SHA1: 72dab8f1098cfd83e46bd1ac8f738b51e0964d50
+SHA256: fef467fb400c5d5acb4294a9690b7e6e0d06f78a9347dd7e2b5dcf2593202f9b
+SHA512: 38f7606d58e01767a22bdd9c87e623a27bbbc9ffe408538912e5764a7c89a1e4d2bfcfa9e15363ec1548a65ed22e2087d1ce962d69876fea99696d75e1f0019e
+Homepage: https://github.com/yogsagot/navigator
+Description: DOS Navigator two-panel file manager for POSIX terminals
+ Navigator is a faithful recreation of the DOS Navigator file manager by
+ Ritlabs: two directory panels, the menu bar, the function-key bar and the
+ original colour schemes, decoded from DOS Navigator's own .PAL palettes.
+ .
+ Its Python dependencies are bundled in a private directory and it runs on
+ the system python3 interpreter.
+
