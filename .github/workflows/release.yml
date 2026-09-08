@@ -112,16 +112,15 @@ jobs:
       # verifies the index instead -- but dnf's gpgcheck=1 checks exactly
       # this, and it cannot be added after the fact by the repo job.
       #
-      # `fingerprint` names the signing *subkey*, and it is load-bearing:
-      # make-signing-key.sh exports with --export-secret-subkeys, so the
-      # certifying primary reaches the runner as a stub with no private key
-      # behind its keygrip.  Left to itself the action presets the passphrase
-      # for that primary, gpg-agent answers "Not found" (error 67108891 --
-      # source 4, code 27) and the job dies before nfpm is ever reached.
+      # `fingerprint` names the signing *subkey*.  make-signing-key.sh exports
+      # with --export-secret-subkeys, so the certifying primary reaches the
+      # runner as a stub with no private key behind its keygrip, and anything
+      # that addresses the key by its primary operates on that stub.  There is
+      # no `passphrase` here because CI's copy carries none -- see the note in
+      # make-signing-key.sh for why nfpm leaves no other choice.
       - uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
           fingerprint: 6FB5EAB1EBEEC6199FD11932871C144D2ED782DE
 
       # nfpm signs from a key *file*, not from the agent, so the secret is
@@ -129,7 +128,6 @@ jobs:
       # afterwards, but the file is removed anyway rather than relying on it.
       - name: Build the .deb and the .rpm
         env:
-          NFPM_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
           # Through the environment, never interpolated into the script body:
           # `${{ }}` is substituted as *text* before the shell sees it, so a
@@ -205,13 +203,11 @@ jobs:
       - uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
           fingerprint: 6FB5EAB1EBEEC6199FD11932871C144D2ED782DE
 
       - name: Regenerate and sign the repositories
         env:
           GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           LIVE_DEBS: ${{ steps.live.outputs.debs }}
           LIVE_RPMS: ${{ steps.live.outputs.rpms }}
         run: |

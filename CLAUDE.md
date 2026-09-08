@@ -102,8 +102,17 @@ from a `v*` tag: tests, then PyPI, then the packages, then the site. Four things
   reverse: `gpgcheck=1` verifies a signature inside each `.rpm`, which nfpm has to write at *build* time, and
   `repo_gpgcheck=1` verifies `repomd.xml.asc`. Signing only one half of either leaves a repository that warns or
   refuses.
-- **CI signs with a subkey.** `make-signing-key.sh` exports `--export-secret-subkeys`, so the certifying primary never
-  leaves the maintainer's machine and a leaked CI secret can be revoked without users having to trust a new key.
+- **CI signs with a subkey, and that subkey is exported *without* a passphrase.** `make-signing-key.sh` exports
+  `--export-secret-subkeys`, so the certifying primary never leaves the maintainer's machine and a leaked CI secret
+  can be revoked without users having to trust a new key. The missing passphrase is not an oversight: **nfpm cannot
+  decrypt a subkey whose primary is the `gnu-dummy` stub such an export leaves behind**, and fails with
+  `signing key is encrypted` no matter what passphrase it is given -- measured against nfpm 2.47.0, which is the
+  latest, with a key whose passphrase was known. The same file with no passphrase signs. The alternatives were
+  handing CI the full secret key, which puts the certifying primary on a build runner and gives up the property
+  above, or taking the `.rpm` signature away from nfpm and doing it with `rpmsign`. Dropping the passphrase costs
+  least, because it never protected anything: it would have lived in the same GitHub secret store as the key it
+  protects. `make-signing-key.sh` asserts the export is unprotected rather than trusting it, since the failure
+  otherwise surfaces only in CI. There is consequently **no `GPG_PASSPHRASE` secret** -- do not reintroduce one.
 
 The apt half is verified end to end without Docker: point the real `apt-get` at a private `Dir::State`/`Dir::Cache` and
 a `file://` source, and it accepts the signed repository, lists both published versions and refuses the same repository

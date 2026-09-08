@@ -40,7 +40,8 @@ mkdir -p "$OUT"
 chmod 700 "$OUT"
 
 echo "Creating the certifying primary key.  gpg will ask for a passphrase --"
-echo "choose a strong one and keep it; CI needs it as a secret."
+echo "choose a strong one and keep it.  It protects the primary, which stays"
+echo "on this machine; CI's copy is stripped of it further down."
 echo
 gpg --quick-generate-key "$UID_STR" rsa4096 cert 5y
 
@@ -59,8 +60,44 @@ gpg --export "$FPR" > "$OUT/navigator-fm-archive-keyring.gpg"
 
 # The secret half, subkeys only: the exported block carries a stub in place of
 # the primary key, so this file cannot certify anything or make a new subkey.
+#
+# It is exported *unprotected*, and that is a considered choice rather than a
+# shortcut.  nfpm cannot decrypt a subkey whose primary is the `gnu-dummy'
+# stub this export leaves behind: given a protected subkeys-only file it fails
+# every time with `signing key is encrypted', whatever the passphrase.  The
+# alternatives were to hand CI the full secret key -- which would put the
+# certifying primary on a build runner and defeat the whole arrangement -- or
+# to stop letting nfpm sign at all.  Dropping the passphrase costs least,
+# because it was never protecting anything: it would have lived in the same
+# GitHub secret store as the key, so an attacker reading one reads both.  What
+# actually keeps the primary safe is that it is not in this file.
 umask 077
-gpg --armor --export-secret-subkeys "$FPR" > "$OUT/ci-signing-subkey.asc"
+STRIP=$(mktemp -d)
+trap 'rm -rf "$STRIP"' EXIT INT TERM
+chmod 700 "$STRIP"
+gpg --armor --export-secret-subkeys "$FPR" > "$STRIP/protected.asc"
+gpg --homedir "$STRIP" --batch --quiet --import "$STRIP/protected.asc"
+
+echo
+echo "Removing the passphrase from CI's copy -- gpg will ask for it once more,"
+echo "then for the new one: leave the new one EMPTY and confirm."
+gpg --homedir "$STRIP" --edit-key "$FPR" passwd save
+
+gpg --homedir "$STRIP" --batch --armor --export-secret-subkeys "$FPR" \
+    > "$OUT/ci-signing-subkey.asc"
+
+# An export that still carries `protect count' would be one nfpm cannot use,
+# and the failure would only show up in CI, so it is caught here instead.
+if gpg --list-packets "$OUT/ci-signing-subkey.asc" 2>/dev/null | grep -q "protect count"; then
+    echo "make-signing-key.sh: the exported subkey is still passphrase-protected." >&2
+    echo "          nfpm cannot sign with it.  Re-run and leave the new" >&2
+    echo "          passphrase empty when gpg asks." >&2
+    exit 1
+fi
+if ! gpg --list-packets "$OUT/ci-signing-subkey.asc" 2>/dev/null | grep -q "skey\["; then
+    echo "make-signing-key.sh: the export carries no secret key material." >&2
+    exit 1
+fi
 
 # nfpm parses key_id as a 64-bit integer, so it takes the 16-hex-digit long
 # key id and rejects a 40-character fingerprint outright.
@@ -87,7 +124,7 @@ echo "  cp $OUT/navigator-fm-archive-keyring.gpg packaging/linux/repo/"
 echo
 echo "Add these to GitHub -> Settings -> Secrets and variables -> Actions:"
 echo "  GPG_PRIVATE_KEY   the contents of $OUT/ci-signing-subkey.asc"
-echo "  GPG_PASSPHRASE    the passphrase you just chose"
+echo "  (GPG_PASSPHRASE is no longer needed -- CI's copy has no passphrase)"
 echo "  GPG_KEY_ID        $LONG        (a repository *variable*, not a secret --"
 echo "                                     key ids are public.  This is the"
 echo "                                     *signing subkey's* long id, which is"
