@@ -119,6 +119,11 @@ a `file://` source, and it accepts the signed repository, lists both published v
 under a different key (exit 100, `NO_PUBKEY`). The rpm half has no such local check -- `createrepo_c` and `rpm` are not
 installed here -- and is exercised only in CI.
 
+`native_version.py` imports **`packaging`, the PyPI distribution** -- not `packaging/`, this repository's directory of
+the same name -- so `build.sh` needs it installed and names it if it is missing. Every development venv carries it via
+`build` and `pytest` and a bare CI runner does not, which is why the release workflow installs it explicitly and why
+its absence first surfaced as a `ModuleNotFoundError` several jobs into a release.
+
 `native_version.py` maps a PEP 440 version onto the Debian and RPM spelling, and `tests/test_packaging.py` checks the
 result against `dpkg --compare-versions` rather than against a table -- what matters is the ordering, not the string.
 A pre-release takes `~` so it sorts *below* its release; `.devN` takes **two**, because past a single tilde `a` < `d`

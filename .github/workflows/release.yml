@@ -96,6 +96,15 @@ jobs:
           name: wheel
           path: dist/
 
+      # `packaging' the PyPI distribution, which native_version.py imports to
+      # parse PEP 440 -- not `packaging/', the directory of this repository
+      # that happens to share its name.  Nothing else in this job needs a
+      # Python dependency, so it was easy to miss that this one does: a
+      # developer's venv has it via build and pytest, and a bare runner does
+      # not, so the mapping from PEP 440 to the Debian and RPM spellings died
+      # with ModuleNotFoundError at the first line of build.sh's real work.
+      - run: pip install packaging
+
       - name: Install nfpm
         run: |
           set -eu
