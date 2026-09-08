@@ -28,7 +28,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{ name = "Juris Krumgolds", email = "juris@wivvies.com" }]
+authors = [{ name = "Juris Krumgolds", email = "juris.krumgolds@gmail.com" }]
 keywords = [
     "file-manager",
     "orthodox-file-manager",

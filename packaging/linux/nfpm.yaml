@@ -18,7 +18,7 @@ version_schema: none # the mapping is ours; nfpm must not second-guess it
 release: ${NAV_RELEASE}
 section: utils
 priority: optional
-maintainer: Juris Krumgolds <juris@wivvies.com>
+maintainer: Juris Krumgolds <juris.krumgolds@gmail.com>
 vendor: Juris Krumgolds
 homepage: https://github.com/yogsagot/navigator
 license: MIT

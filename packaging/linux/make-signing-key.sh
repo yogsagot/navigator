@@ -23,7 +23,7 @@ set -eu
 
 OUT=${1:-$HOME/navigator-fm-signing}
 NAME=${NAME:-Navigator FM package signing}
-EMAIL=${EMAIL:-juris@wivvies.com}
+EMAIL=${EMAIL:-juris.krumgolds@gmail.com}
 UID_STR="$NAME <$EMAIL>"
 
 command -v gpg > /dev/null || { echo "make-signing-key.sh: gpg is not installed" >&2; exit 1; }
