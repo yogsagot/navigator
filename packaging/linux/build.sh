@@ -27,6 +27,16 @@ WHEEL=$(ls dist/navigator_fm-*-py3-none-any.whl 2>/dev/null | head -1)
 
 # The version the wheel actually carries, not one typed here twice.
 PEP440=$(echo "$WHEEL" | sed 's|.*/navigator_fm-||; s|-py3-none-any.whl||')
+# native_version.py imports `packaging' -- the PyPI distribution that parses
+# PEP 440, not this repository's directory of the same name.  Named here
+# because a bare runner has no reason to carry it while every development venv
+# does, so the traceback lands a long way from the cause.
+"$PYTHON" -c 'import packaging.version' 2> /dev/null || {
+    echo "build.sh: the 'packaging' distribution is missing -- native_version.py" >&2
+    echo "          needs it to map PEP 440 onto the Debian and RPM spellings." >&2
+    echo "          Install it with: $PYTHON -m pip install packaging" >&2
+    exit 1
+}
 NAV_VERSION=$("$PYTHON" packaging/linux/native_version.py "$PEP440")
 NAV_RELEASE=${NAV_RELEASE:-1}
 export NAV_VERSION NAV_RELEASE
