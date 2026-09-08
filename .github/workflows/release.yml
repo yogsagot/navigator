@@ -75,6 +75,13 @@ jobs:
           name: wheel
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # PyPI never allows a file to be re-uploaded, so without this a
+          # release that fails *after* this job -- in packaging, or in the
+          # repository -- can only be retried by spending another version.
+          # Skipping what is already there makes the same tag re-runnable,
+          # and this job's real work is the upload, not the error.
+          skip-existing: true
 
   packages:
     needs: [verify, pypi]
@@ -104,10 +111,18 @@ jobs:
       # Signs the .rpm itself.  apt ignores per-package signatures -- it
       # verifies the index instead -- but dnf's gpgcheck=1 checks exactly
       # this, and it cannot be added after the fact by the repo job.
+      #
+      # `fingerprint` names the signing *subkey*, and it is load-bearing:
+      # make-signing-key.sh exports with --export-secret-subkeys, so the
+      # certifying primary reaches the runner as a stub with no private key
+      # behind its keygrip.  Left to itself the action presets the passphrase
+      # for that primary, gpg-agent answers "Not found" (error 67108891 --
+      # source 4, code 27) and the job dies before nfpm is ever reached.
       - uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          fingerprint: 6FB5EAB1EBEEC6199FD11932871C144D2ED782DE
 
       # nfpm signs from a key *file*, not from the agent, so the secret is
       # written out for the length of this step.  The runner is torn down
@@ -186,10 +201,12 @@ jobs:
 
       - run: sudo apt-get update && sudo apt-get install -y apt-utils createrepo-c
 
+      # The signing subkey, for the reason spelled out in the packages job.
       - uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          fingerprint: 6FB5EAB1EBEEC6199FD11932871C144D2ED782DE
 
       - name: Regenerate and sign the repositories
         env:
