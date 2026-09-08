@@ -86,6 +86,14 @@ jobs:
   packages:
     needs: [verify, pypi]
     runs-on: ubuntu-latest
+    permissions:
+      # The top of this file grants `contents: read', which is the right
+      # default and wrong for exactly one step here: this job creates the
+      # GitHub Release that carries the .deb, the .rpm, the wheel and the
+      # sdist.  Without the override the release API answers "Resource not
+      # accessible by integration" -- after the packages have been built and
+      # signed, so everything expensive has already happened.
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
