@@ -64,8 +64,11 @@ gpg --armor --export-secret-subkeys "$FPR" > "$OUT/ci-signing-subkey.asc"
 
 # nfpm parses key_id as a 64-bit integer, so it takes the 16-hex-digit long
 # key id and rejects a 40-character fingerprint outright.  gpg accepts either,
-# so the long id is what everything here is given.
-LONG=$(printf '%s' "$FPR" | tail -c 17)
+# so the long id is what everything here is given.  Read out of gpg's own
+# `pub` record rather than sliced off the fingerprint: release.yml checks the
+# published key against GPG_KEY_ID by reading exactly this field, so taking it
+# from anywhere else is a chance for the two to disagree.
+LONG=$(gpg --list-keys --with-colons "$UID_STR" | awk -F: '/^pub:/ { print $5; exit }')
 
 echo
 echo "================================================================"
