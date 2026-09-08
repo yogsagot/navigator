@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 # only depends on the real one, so `pip install navfm` installs exactly what
 # `pip install navigator-fm` installs, `nav` command included.
 name = "navfm"
-version = "0.0.1"
+version = "0.0.2"
 description = "Alias of navigator-fm: a recreation of the DOS Navigator two-panel file manager"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -19,7 +19,7 @@ license = "MIT"
 # A copy of the repository root's LICENSE.  setuptools will not follow a path
 # out of the project directory, and this directory is its own project.
 license-files = ["LICENSE"]
-authors = [{ name = "Juris Krumgolds", email = "juris@wivvies.com" }]
+authors = [{ name = "Juris Krumgolds", email = "juris.krumgolds@gmail.com" }]
 # Unpinned on purpose: the alias is a name, not a version, so it should always
 # resolve to the current release rather than have to be re-uploaded alongside
 # every one of them.
