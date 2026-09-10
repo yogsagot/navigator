@@ -91,6 +91,7 @@ Checked by the parser, each failing with the `.nml` line:
 | not one of the reserved words `self`, `root`, `parent` | `id: parent`             | each already means something in the resolution table below |
 | not an attribute of the component's own class          | `id: width`              | it would be stored as `self.width` — see *Name resolution* |
 | unique within the document                             | two `id: left`           | the second assignment would silently win                   |
+| not a property the document declares                   | `id: console_visible`    | both become `self.<name>`, and the descriptor wins the tie |
 
 The reserved-word row is the one both ancestors got wrong, in the same direction. QML checks id names against the
 JavaScript globals but not against `parent`, so `id: parent` compiles and shadows `Item.parent` for a whole component
@@ -138,9 +139,125 @@ years of
 single line: the generated `__init__` calls `_build()`, and a hand-written `__init__` must call `super().__init__()`
 before it touches an id.
 
+## Declaring a property
+
+A document may add a reactive attribute to the component it declares:
+
+```
+Manager:
+    property console_visible: False
+```
+
+`property` is a directive line like `id:`, told from an ordinary assignment by its two-token head. The `:` goes on
+meaning what it means everywhere else in the file — name on the left, value on the right — which is why the
+Python-flavoured `property console_visible: bool = False` loses: it would give one line's colon two jobs. QML's
+`property bool consoleVisible: false` keeps the colon honest and is where the word comes from; navml drops the type
+because nothing in navkit checks one, and the slot stays free if it is ever wanted.
+
+The word is deliberately the one this file already uses for every `name: value` line. That overload is QML's too —
+everything is a property, `property` declares a new one — and the alternative, `reactive`, would leak the name of the
+machinery into a language that otherwise never mentions it. Python's `@property` is the *opposite* thing, a computed
+rather than a source, which is the one real cost; navml is not Python and its `:` lines already are not, so it was
+judged smaller than either alternative.
+
+### Where the line lands
+
+The class body always gets the declaration, because that is where a descriptor has to live:
+
+```python
+class Manager(Widget):
+    console_visible = reactive(False)
+```
+
+Without it, `self.console_visible = bind(...)` would store a `Binding` on an ordinary attribute and do nothing, there
+being no descriptor to notice it — the failure whose only symptom is the `<unassigned binding ...>` repr.
+
+What varies is whether a second line joins it in `_build()`, and the test is **whether the expression reads anything
+reactive** — precisely whether the rewriter of the next section rewrote any free name:
+
+| The right-hand side  | rewritten? | compiles to                                                                  |
+|----------------------|------------|------------------------------------------------------------------------------|
+| `False`, `0`, `None` | no         | `console_visible = reactive(False)`                                          |
+| `[]`, `Path(".")`    | no         | `entries = reactive(factory=lambda: [])`                                     |
+| `self.width // 3`    | yes        | `w = reactive()`, and `self.w = bind(lambda _o: _o.width // 3)` in `_build()` |
+
+So a declared property may be derived, and `property first_column_width: self.width // 3` is one line rather than two.
+The test costs the generator nothing: the expression compiler already knows whether it touched a free name, so the
+answer falls out of a pass it runs anyway. It is the same rule as *A literal is not a binding* below, asked at the
+declaration site.
+
+The second row over-applies `factory=` on purpose, and the one case in the repository shows it: `Panel.path` is a plain
+`reactive(Path("."))` today, an immutable default instances can safely share, and markup generates a factory for it
+instead. The two are indistinguishable through the equality guard, and erring this way costs one object per instance
+where erring the other way costs a shared mutable.
+
+**Not "a constant is a default, everything else is a binding".** That is the obvious rule, and it is wrong in a way
+worth recording so it is not tried again. `property entries: []` is not a constant, and compiling it to a binding would
+leave `entries` a live bound cell — over which navkit refuses a plain assignment, so `Panel`'s scan effect could never
+write `self.entries = ...` again. A list display reads nothing, so it is an initial value; `factory=` is what stops the
+instances sharing it, and it is inferred rather than spelled for exactly this pair of cases. `equal=` gets no spelling
+at all: nothing in the repository needs one, and a property that does is declared in the paired hand-written module,
+which is the escape hatch that makes an incomplete `property` acceptable.
+
+**A bound property is read-only until something unbinds it.** The third row's consequence, stated here rather than
+discovered later: the hand-written half cannot assign `first_column_width` without calling `unbind()` first. That is
+the trade every bound attribute in the repository already makes, and the honest reading of having written a derived
+expression. It is still the right form rather than a `computed`, which fixes one function on the class; a binding
+belongs to one instance and can be replaced or taken back.
+
+**A default *and* a binding still take two lines** — `property width_hint: 0`, then `width_hint: parent.width // 2`
+lower down. Only the derived case stopped needing them. The two-line form remains for the case where the initial value
+is genuinely observed before the binding is installed.
+
+**A value is required.** `property console_visible` alone is rejected rather than quietly meaning `reactive(None)`.
+
+### Where it may appear
+
+**In the root block only.** `Reactive` is a descriptor installed on a class, and the root block is the only block in a
+document that becomes one — every other block is an *instance* of a class that already exists, so a `property` under
+it would have to synthesise a per-document subclass. One under a child is rejected with its `.nml` line, pointing at
+giving that child a document of its own or declaring the attribute in the `.py` half. Nothing is lost today: every
+declaration `navigator/__main__.py` carries — `Manager.console_visible`, `Console.revision` and `Panel`'s seven — is
+on a class that becomes some document's root.
+
+The ancestors sit on either side of this. QML allows a `property` on any object, because there an object carrying one
+becomes its own anonymous type. Kivy allows it nowhere: a `.kv` file declares nothing, the properties live in the
+Python class and the markup only assigns them — which is the hole this section fills.
+
+### Naming rules
+
+Everything the id rules say, and one more, each checked by the parser with the `.nml` line:
+
+- **A property may not collide with an id.** Both become `self.<name>`, and `Reactive` defines `__get__` *and*
+  `__set__`, so it is a data descriptor and beats the instance `__dict__`. `_build()`'s
+  `self.left = Panel(parent=self)` would therefore write the panel *into a reactive cell* rather than shadow the
+  declaration — wrong, and silently so.
+- **A property may not shadow an attribute of the component's base class**, reactive or not. `property width: 0` on a
+  `Manager` re-declares `Widget.width` with a fresh cell, and `property title_text: ...` on a `Panel` collides with a
+  `Computed` that *A `computed` target is a generation-time error* already rejects from the other side. The banned set
+  is the one the id rules name: `declarations(base)` plus the ordinary attributes.
+
+### What the generator has to do about it
+
+Declared properties join the `own` set the expression rewriter checks. The table under *Name resolution* reads "any
+reactive attribute the widget's class declares", and for the component's own expressions that class does not exist yet
+— so the generator collects declarations in a first pass and compiles expressions in a second. Construction is already
+a separate earlier pass, so this is one more table filled before an existing one rather than new structure. A
+declaration's own right-hand side is compiled in that second pass like everything else, which is what makes
+`property first_column_width: self.width // 3` safe: `self` resolves to the component, and the cell is lazy, so nothing
+is read while the class is still being built.
+
+One knock-on, flagged rather than solved: a binding installed in `_build()` lands *after* the children are constructed,
+and `Panel.__init__` starts a directory scan from an effect at construction — so a `Panel` whose `path` came from a
+component property would scan once against the default before the binding arrives. That is the *Component parameters*
+question under *What converting `Manager` needs and does not have*, which this decision makes reachable without
+answering.
+
+This asks navkit for nothing: `reactive()` is callable in a class body, and that is the whole requirement.
+
 ## Compiling a property expression
 
-Everything to the right of a `property:` is stored as source text:
+Everything to the right of a property's `:` is stored as source text:
 
 ```
 Panel:
@@ -179,6 +296,9 @@ collides with a property name is simply unreachable by a bare name from inside t
 | an `id` declared elsewhere in the same document                                         | a closure reference to the component instance            | `left.width` → `self.left.width`                             |
 | anything else                                                                           | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the paired handler module imports |
 
+For the component's own expressions the fourth row includes the properties the document itself declares, which are on
+no class until the generator has emitted one — see *Declaring a property* above.
+
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
 
@@ -205,6 +325,8 @@ The markup for the desktop `navigator/__main__.py` builds by hand today, matchin
 
 ```
 Manager:
+    property console_visible: False
+
     MenuBar:
         id: menu
         x: 0
@@ -241,8 +363,9 @@ Manager:
 ```
 
 The three `visible` lines are the whole of Ctrl+O, and they are ordinary boolean expressions over a reactive attribute —
-nothing about them needs a new language feature. What they do need is a way to *declare* `console_visible` on `Manager`,
-which is the second hole in the section after next. `Console(left)`'s constructor argument is the first.
+nothing about them needs a new language feature. What they do need is the `property` line above, which *Declaring a
+property* settles. `Console(left)`'s constructor argument is the one hole the example still has, and it is the first of
+the two left in the section after next.
 
 and what the generator emits — verified output of the prototype, not an illustration. Run against a real widget tree it
 reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24, 120x40, and 200x60. The prototype predates
@@ -275,6 +398,14 @@ Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding —
 below, and the decision recorded there since supersedes it: with the generated class overriding `layout()`, `height: 1`
 compiles to a plain `1` too. `self.left.width` in the last-but-one line is the id reference, resolved through the
 closure over the component; every other name went to `_o`.
+
+The `property` line compiles to neither of these but to a line of the generated *class body*, and is unverified for the
+same reason the `Console` is — the prototype predates it:
+
+```python
+class Manager(Widget):
+    console_visible = reactive(False)
+```
 
 The prototype was run against a widget tree that already existed, so what it emits is the property half of `_build()`
 only. The real generator constructs the four widgets first — see *Ids* — and construction being a separate earlier pass
@@ -373,14 +504,17 @@ Already true, and worth stating so it does not get broken by accident:
   The name is unambiguous: the widget-level property that used to share it is now
   `Widget.style_declarations`, renamed when this function landed, because one meant the reactive surface a *class*
   declares and the other the stylesheet declarations that cascaded onto one *instance*.
+- Nothing at all for `property`. `reactive()` is callable in a generated class body, and that is the entire
+  requirement — see *Declaring a property* above.
 
 ### What converting `Manager` needs and does not have
 
 The worked example above is the plan for proving the markup machinery: compile
 `navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the real class rather than the
 example turns up three things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
-so each needs an answer before the generator is finished — and none is answered here, because each is a language
-decision rather than an oversight.
+so each needs an answer before the generator is finished. One of the three, declaring a reactive property, is settled
+above under *Declaring a property*; the two that remain are not answered here, because each is a language decision
+rather than an oversight.
 
 **Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional constructor argument, and
 `Manager(left, right, scheme)` takes three. Markup has properties, which are set *after* construction, and no way to
@@ -390,13 +524,6 @@ document a function of its arguments; or every parameter becomes an ordinary rea
 `_build()`, which is uniform but changes when a `Panel` first knows its path — and `Panel` starts a directory scan from
 an effect the moment it is constructed, so "after" is not free. QML's answer is that a component has no constructor and
 everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
-
-**Declaring a reactive property in markup.** `Manager.console_visible` is a `reactive(False)`
-in the class body, and the three `visible` bindings read it — so the document cannot be compiled without a way to
-*declare* it, not merely to assign it. Same for `Console.revision`
-and `Panel`'s seven. QML spells this `property bool consoleVisible: false`; navml has no spelling at all. The question
-is not whether to have one but whether the declaration also carries `factory=` and `equal=`, which is where `reactive()`
-'s signature stops being a single default value.
 
 **`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is styled with or without an
 application around it, and a `style:` block compiles to
@@ -416,7 +543,11 @@ question that the *Parts* argument in
   continuing on lines indented under the `property:` — which is how Kivy writes a handler — compiling to a nested `def`
   rather than a lambda, still taking one argument. What is undecided is whether a body may contain statements at all, or
   only an expression spread over several lines.
-- Whether `bind()`'s `equal=` is expressible in markup.
+- Whether `equal=` is expressible in markup, on a `bind()` expression or on a `property` declaration. It is one
+  question asked at two sites, and until it is answered a property needing one is declared in the hand-written half.
+- Comment syntax. Kivy's `.kv` takes `#` and nothing here has said whether `.nml` does. Every declaration this file
+  moves into markup carries a `#:` doc comment in `navigator/__main__.py` — `Panel`'s seven, `Console.revision`,
+  `Manager.console_visible` — so without one the reason a property exists is lost in translation.
 - Signal and handler syntax, and how it meets the hand-written half of the class.
 - How a component exports a widget inside it. Ids stop at the document, so markup that uses a
   `Panel` component cannot name anything declared inside `panel.nml`. QML's answer is
