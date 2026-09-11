@@ -4,14 +4,18 @@ from __future__ import annotations
 
 import gc
 import weakref
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal, Optional
 
 import pytest
 
 from navkit.reactive import (
+    UNKNOWN,
     Computed,
     CycleError,
     Reactive,
     ReactiveError,
+    ReactiveTypeError,
     Scheduler,
     bind,
     computed,
@@ -21,9 +25,15 @@ from navkit.reactive import (
     is_bound,
     peek,
     reactive,
+    runtime_type,
     unbind,
     untracked,
 )
+
+if TYPE_CHECKING:
+    # Never imported at run time, so an annotation naming it cannot be
+    # resolved -- which is one of the cases the declared-type tests cover.
+    from decimal import Decimal
 
 
 class Box:
@@ -702,3 +712,237 @@ def test_declarations_of_a_class_with_none_is_empty():
         pass
 
     assert declarations(Bare) == {}
+
+
+# -- declared types -----------------------------------------------------------
+
+
+class Typed:
+    """One attribute per shape the declared-type check has to tell apart."""
+
+    count: int = reactive(0)
+    label: str = reactive("")
+    tags: frozenset[str] = reactive(frozenset())
+    maybe: str | None = reactive(None)
+    anything: Any = reactive(None)
+    unannotated = reactive(0)
+    #: Resolvable only under a type checker, so unchecked at run time.
+    absent: Decimal | None = reactive(None)
+
+
+def test_a_value_of_the_declared_type_is_stored():
+    typed = Typed()
+    typed.count = 5
+    assert typed.count == 5
+
+
+def test_a_value_contradicting_the_declared_type_is_refused():
+    typed = Typed()
+    with pytest.raises(ReactiveTypeError):
+        typed.count = "five"
+    assert typed.count == 0
+
+
+def test_the_refusal_is_also_a_type_error():
+    # Both bases, so either `except` catches it.
+    typed = Typed()
+    with pytest.raises(TypeError):
+        typed.count = "five"
+    with pytest.raises(ReactiveError):
+        typed.count = "five"
+
+
+def test_the_refusal_names_the_attribute_and_both_types():
+    typed = Typed()
+    with pytest.raises(ReactiveTypeError) as raised:
+        typed.count = "five"
+    message = str(raised.value)
+    assert "Typed.count" in message
+    assert "int" in message
+    assert "str" in message
+
+
+def test_none_is_refused_where_the_declared_type_does_not_admit_it():
+    typed = Typed()
+    with pytest.raises(ReactiveTypeError):
+        typed.count = None
+
+
+def test_every_arm_of_a_union_is_accepted():
+    typed = Typed()
+    typed.maybe = "here"
+    assert typed.maybe == "here"
+    typed.maybe = None
+    assert typed.maybe is None
+    with pytest.raises(ReactiveTypeError):
+        typed.maybe = 3
+
+
+def test_a_subclass_of_the_declared_type_is_accepted():
+    class Longer(str):
+        pass
+
+    typed = Typed()
+    typed.label = Longer("wide")
+    assert typed.label == "wide"
+
+
+def test_only_the_container_is_checked_not_what_is_in_it():
+    # The erasure is deliberately shallow: checking the elements would mean
+    # walking every collection on every write.
+    typed = Typed()
+    typed.tags = frozenset({1, 2})
+    assert typed.tags == frozenset({1, 2})
+    with pytest.raises(ReactiveTypeError):
+        typed.tags = {"a"}  # a set is not a frozenset
+
+
+def test_an_attribute_declared_any_takes_anything():
+    typed = Typed()
+    typed.anything = object()
+    typed.anything = None
+
+
+def test_an_unannotated_attribute_takes_anything():
+    # Opting out is the same act as never opting in, which is why there is
+    # no flag for it.
+    typed = Typed()
+    typed.unannotated = "not an int at all"
+    assert typed.unannotated == "not an int at all"
+
+
+def test_a_type_that_does_not_exist_at_run_time_is_unchecked():
+    # `Decimal` is imported under TYPE_CHECKING, so the annotation cannot be
+    # evaluated here -- which is a fact about the annotation, not an error.
+    typed = Typed()
+    typed.absent = "whatever"
+    assert typed.absent == "whatever"
+
+
+def test_one_unresolvable_annotation_does_not_disarm_the_others():
+    # What `typing.get_type_hints()` would have done to this whole class.
+    assert Typed.count.check is int
+    assert Typed.absent.check is None
+
+
+def test_a_contradicting_write_is_refused_even_when_it_compares_equal():
+    typed = Typed()
+    with pytest.raises(ReactiveTypeError):
+        typed.count = 0.0  # == 0, and still not an int
+
+
+def test_an_attribute_may_be_declared_with_the_class_being_defined():
+    # Resolved on first ask rather than in `__set_name__`, which runs while
+    # the class body is still executing.  Declared inside a function, so the
+    # name never becomes a module global and only the class itself resolves it.
+    class Tree:
+        parent: Tree | None = reactive(None)
+
+    root, child = Tree(), Tree()
+    child.parent = root
+    assert child.parent is root
+    with pytest.raises(ReactiveTypeError):
+        child.parent = "not a tree"
+
+
+def test_a_redeclared_attribute_inherits_the_type_it_was_annotated_with():
+    class Narrower(Typed):
+        count = reactive(1)  # no annotation of its own
+
+    narrower = Narrower()
+    assert Narrower.__dict__["count"].check is int
+    with pytest.raises(ReactiveTypeError):
+        narrower.count = "five"
+
+
+def test_a_declared_type_is_resolved_once():
+    class Once:
+        n: int = reactive(0)
+
+    declaration = Once.__dict__["n"]
+    assert declaration.type is declaration.type
+    assert declaration.check is declaration.check
+
+
+def test_a_binding_may_produce_a_value_of_any_type():
+    # The check guards the boundary where a value enters the graph from
+    # outside; what an expression computes came from values that were checked.
+    typed = Typed()
+    typed.count = bind(lambda _: "not an int")
+    assert typed.count == "not an int"
+
+
+def test_a_bound_attribute_says_it_is_bound_rather_than_reporting_the_type():
+    # Correcting the type would not make the assignment legal, so the guard
+    # that blocks every value alike is the one that should speak.
+    typed = Typed()
+    typed.count = bind(lambda _: 1)
+    with pytest.raises(ReactiveError) as raised:
+        typed.count = "five"
+    assert "bound" in str(raised.value)
+    assert not isinstance(raised.value, ReactiveTypeError)
+
+
+def test_a_declared_default_is_not_checked():
+    # It is written three characters from the annotation and a type checker
+    # catches it there; the run-time check is for values arriving later.
+    class Wrong:
+        n: int = reactive("zero")
+
+    assert Wrong().n == "zero"
+
+
+# -- erasing a declared type --------------------------------------------------
+
+
+type Color = int | tuple[int, int, int]
+
+
+def test_runtime_type_leaves_a_plain_class_alone():
+    assert runtime_type(int) is int
+
+
+def test_runtime_type_erases_a_parameterised_container_to_the_container():
+    assert runtime_type(list[str]) is list
+    assert runtime_type(dict[str, int]) is dict
+
+
+def test_runtime_type_flattens_a_union_into_a_tuple():
+    assert runtime_type(str | None) == (str, type(None))
+    assert runtime_type(Optional[str]) == (str, type(None))
+    assert runtime_type(list[int] | str) == (list, str)
+
+
+def test_runtime_type_unwraps_a_type_alias():
+    assert runtime_type(Color) == (int, tuple)
+
+
+def test_runtime_type_has_nothing_to_check_for_any_or_unknown():
+    assert runtime_type(Any) is None
+    assert runtime_type(UNKNOWN) is None
+
+
+def test_one_unconstrained_arm_leaves_the_whole_union_unconstrained():
+    assert runtime_type(int | Any) is None
+
+
+def test_runtime_type_erases_a_callable_to_something_checkable():
+    # `isinstance(f, Callable)` is a real question, so the arguments go and
+    # the check stays.
+    assert runtime_type(Callable[[int], str]) is Callable
+
+
+def test_runtime_type_gives_up_on_a_form_it_cannot_erase():
+    assert runtime_type(Literal["a", "b"]) is None
+    assert runtime_type("a string that is not a type") is None
+
+
+def test_an_arm_that_cannot_be_erased_disarms_the_whole_union():
+    # Half-checking a union would refuse values the annotation allows.
+    assert runtime_type(Literal[1] | None) is None
+
+
+def test_unknown_is_not_any():
+    # An answer and the absence of one, kept apart for a consumer that cares.
+    assert UNKNOWN is not Any
+    assert repr(UNKNOWN) == "UNKNOWN"

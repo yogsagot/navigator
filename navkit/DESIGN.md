@@ -926,6 +926,57 @@ option, which is the whole finding above.
 child's exit**: a pty reports `EIO` rather than an empty read once the last process holding the slave is gone, which is
 where the reader is detached and the child reaped.
 
+## Declared types: a write is checked, a computed value is not
+
+Every reactive attribute in the repository is already annotated — `width: int = reactive(0)`,
+`parent: Widget | None = reactive(None)` — and until now the annotation was addressed to the type checker alone. It is
+the only statement of intent an attribute carries, so `Reactive.__set__` reads it and refuses a write that contradicts
+it with `ReactiveTypeError`. Nothing had to be spelled twice for this: the declarations were not touched.
+
+**The check guards the boundary where a value enters the graph, and nothing else.** A plain assignment is that
+boundary — it is where a value arrives from outside, from an event handler, a parsed file, a test. A value a *bound
+expression* computed is not checked, and neither is a `computed`'s return, because both were derived from values that
+were already checked at their own boundaries. The alternative was checking inside `_Cell._recompute`, which is
+consistent in a different way and was rejected on two counts: the cell has no declaration to consult, so every cell
+would have to carry the erased check; and a recompute happens lazily on read, so the refusal would arrive during a
+paint, at a read far from the assignment that caused it, cached the way `_recompute` caches every other failure. A
+write is the rare operation and the one with a caller to blame. Recomputes are the hot path and have none.
+
+**Resolution is lazy, and one annotation at a time.** `typing.get_type_hints()` is all-or-nothing, and this repository
+already contains the case that breaks it: `Widget._application` is annotated `Application | None`, with `Application`
+imported only under `TYPE_CHECKING` to break an import cycle. One name it cannot see would take *every other
+annotation on the class* down with it, so a single unresolvable import would quietly disarm the check for the whole
+widget tree. `_resolve_annotation` therefore evaluates one string and answers `UNKNOWN` if it cannot, leaving that
+attribute unchecked and its eleven neighbours checked. Laziness is forced by a second case: `__set_name__` runs while
+the class body is still executing, and `parent: Widget | None` cannot be evaluated there, because `Widget` is precisely
+what is being defined. Both the type and its erased form are worked out on first ask and kept on the declaration, which
+is shared by every instance — resolving costs some hundred times what checking against the result does.
+
+**`UNKNOWN` is not `Any`.** `Any` is an answer: the author said this attribute takes anything. `UNKNOWN` is the absence
+of one — no annotation, or one naming something that does not exist at run time. Both go unchecked, so the distinction
+buys nothing today; it is kept because a consumer that wants to *report* on a class's reactive surface, which is
+exactly what the navml generator will do, needs to tell "unconstrained" from "unknown" and could not recover it later.
+
+**The erasure is shallow, on purpose.** `frozenset[str]` checks the container and not the elements, because checking
+them means walking every collection on every write — and `classes` is a `frozenset` that is replaced whenever a state
+changes. A union is flattened to the tuple `isinstance` takes rather than handed over whole, which works for `X | Y`
+but not for `Optional[X]` or a union with a parameterised arm. A form too clever to erase — `Literal`, or an arm that
+is itself unerasable — disarms the *whole* union rather than half-checking it, since a partial check would refuse
+values the annotation allows.
+
+**There is no flag to turn it off.** Opting out is the same act as never opting in: leave the annotation off, or write
+`Any`. A per-attribute switch would be a second way to say what the annotation already says.
+
+**The declared default is not checked.** `n: int = reactive("zero")` is accepted. The default sits three characters
+from the annotation that contradicts it, where a type checker catches it for free and a reader catches it faster; the
+run-time check exists for values arriving later, from somewhere else. Checking it would also mean running every
+`factory=` at declaration time or per instance, for a class of mistake that never survives its first reading.
+
+**A bound attribute reports being bound, not being mistyped.** Assigning a wrong-typed value over a live binding raises
+the existing "call `unbind()` first", because correcting the type would not make that assignment legal either — the
+guard that refuses every value alike is the one with something useful to say. So `__set__` consults the cell before it
+consults the annotation, which is the only reason the two lines are in that order.
+
 ## Still open
 
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates what `Manager.render`

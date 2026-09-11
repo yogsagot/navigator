@@ -292,6 +292,11 @@ Written, and the pieces fit together like this:
 
 Things to know before touching this layer:
 
+- **A write is checked against the annotation beside the declaration.** `width: int = reactive(0)` refuses a `str` with
+  `ReactiveTypeError`, which is a `TypeError` too. Only *writes* — a value a binding or a `computed` produced is not
+  checked, because it came from values that were. An attribute annotated `Any`, or not annotated, or annotated with a
+  name that only exists under `TYPE_CHECKING`, is unchecked; that is the opt-out, and there is no flag. The erasure is
+  shallow, so `frozenset[str]` checks the `frozenset` and not the strings.
 - **Assigning a *value* over a live binding raises**, deliberately: call `unbind()` to take an attribute back by hand.
   Assigning another `bind()` expression is fine and replaces the old one. This is why `Widget.layout()` checks
   `is_bound()` — without it the first `SIGWINCH` would take down every declaratively-sized widget in the tree.
