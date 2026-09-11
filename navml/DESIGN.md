@@ -91,7 +91,7 @@ Checked by the parser, each failing with the `.nml` line:
 | not one of the reserved words `self`, `root`, `parent` | `id: parent`             | each already means something in the resolution table below |
 | not an attribute of the component's own class          | `id: width`              | it would be stored as `self.width` — see *Name resolution* |
 | unique within the document                             | two `id: left`           | the second assignment would silently win                   |
-| not a property the document declares                   | `id: console_visible`    | both become `self.<name>`, and the descriptor wins the tie |
+| not a property or alias the document declares          | `id: console_visible`    | both become `self.<name>`, and the descriptor wins the tie |
 
 The reserved-word row is the one both ancestors got wrong, in the same direction. QML checks id names against the
 JavaScript globals but not against `parent`, so `id: parent` compiles and shadows `Item.parent` for a whole component
@@ -236,10 +236,12 @@ Python class and the markup only assigns them — which is the hole this section
 
 Everything the id rules say, and one more, each checked by the parser with the `.nml` line:
 
-- **A property may not collide with an id.** Both become `self.<name>`, and `Reactive` defines `__get__` *and*
+- **A property may not collide with an id, nor with an alias.** Both become `self.<name>`, and `Reactive` defines
+  `__get__` *and*
   `__set__`, so it is a data descriptor and beats the instance `__dict__`. `_build()`'s
   `self.left = Panel(parent=self)` would therefore write the panel *into a reactive cell* rather than shadow the
-  declaration — wrong, and silently so.
+  declaration — wrong, and silently so. An alias collides more simply, both being lines of the same class body: the
+  second name would overwrite the first outright.
 - **A property may not shadow an attribute of the component's base class**, reactive or not. `property width: 0` on a
   `Manager` re-declares `Widget.width` with a fresh cell, and `property title_text: ...` on a `Panel` collides with a
   `Computed` that *A `computed` target is a generation-time error* already rejects from the other side. The banned set
@@ -262,6 +264,166 @@ question under *What converting `Manager` needs and does not have*, which this d
 answering.
 
 This asks navkit for nothing: `reactive()` is callable in a class body, and that is the whole requirement.
+
+## Aliases
+
+Ids stop at the document, so markup that uses a `Panel` component cannot name anything declared inside `panel.nml`. A
+component says for itself what crosses that boundary:
+
+```
+Panel:
+    alias title: header.text
+
+    Label:
+        id: header
+```
+
+`alias` is a directive line with a two-token head, like `property`. QML spells it
+`property alias title: header.text` and navml does not, because the second token slot is empty *on purpose*: the type
+was dropped from `property bool consoleVisible: false` to keep one line's colon doing one job, and refilling that slot
+with a word that is not a type would undo the reason it is free. `alias` standing alone reads as the third member of
+the `id:` / `property` family, which is what it is.
+
+Kivy has no answer at all, which is exactly why Kivy code reaches through `outer.ids.child.ids.grandchild` and the
+boundary ends up meaning nothing. What separates the two is not how far a name can reach — chained aliases reach as far
+as anything — but that every hop here was declared by the component it crosses.
+
+### What an alias becomes
+
+A line of the generated class body, as `property` is, but carrying a descriptor of navml's own:
+
+```python
+class Panel(Widget):
+    title: str = _Alias("header", "text")
+```
+
+`__get__` and `__set__` forward by `getattr` and `setattr` to `<id>.<attribute>`, and that is the whole mechanism.
+Everything correct about it falls out of the *target's* descriptor doing the work rather than this one:
+
+- **Reads are tracked.** navkit captures a dependency at the moment of the read, against whatever binding is on its
+  stack, keyed by the cell — it never asks whether the read went through an attribute of the reading object, and it
+  subscribes outside the memoisation, so even a cached value subscribes. A forwarded read is an ordinary read of
+  `Header.text` that happens to sit a few plain Python calls deeper, so an expression mentioning `panel.title`
+  invalidates when `header.text` changes.
+- **Writes keep their semantics.** The value is type-checked against the *target's* annotation, refused if the target
+  holds a live binding, and propagates to dependents normally.
+- **A write from inside a `computed` is still refused**, because navkit asks that question of its stack rather than of
+  ownership. The number of forwarding hops is irrelevant to it.
+
+`_Alias` **subclasses navkit's declaration base** and overrides `cell()` to return the target's cell. That is not
+decoration — forwarding alone would leave the alias a descriptor navkit knows nothing about — and it buys four
+things:
+
+- `unbind()`, `is_bound()` and `peek()` work through the alias. Each names an attribute by its class declaration —
+  which is this descriptor — and navkit refuses anything that is not one of its own.
+- `declarations(cls)` returns aliases, so the `own` set the expression rewriter checks is one function rather than two
+  that have to stay in step.
+- An alias that *shadows* an inherited reactive attribute is reported correctly. `declarations()` walks the MRO keeping
+  what it sees first, but sees only its own declarations — so a plain descriptor shadowing a base class's `reactive`
+  would be walked straight past and the shadowed one returned in its place. That answer is not incomplete, it is
+  **wrong**, and a generator trusting it would emit code against a cell nothing ever reads.
+- An annotated alias carries a declared type, which is what the still-open `.pyi` question will want. Annotate every
+  one the generator emits: the type is resolved by walking the declaring class's MRO for the name, so an unannotated
+  alias silently inherits the annotation of whatever it shadows — and since the alias verifies nothing itself, that
+  type is advisory and can disagree with the target's without anything noticing.
+
+Both routes end at the same cell, so forwarding by attribute access and `cell()` pointing at the target cannot
+disagree about anything.
+
+### A binding through an alias is re-owned
+
+`bind()` calls its expression with the object that owns the attribute, and after forwarding that object is the
+*target*. So this:
+
+```
+Panel:
+    id: p
+    title: self.width * 2
+```
+
+compiles by the ordinary rules to `_o.width * 2`, in which `self` meant the `Panel` — and the expression is handed the
+`Label`. A `Label` has a `width` too, so nothing raises: it computes the wrong number and goes on computing it. That is
+the worst shape a binding failure can take, and it is why this is a section rather than an implementation detail.
+
+`_Alias.__set__` therefore re-wraps a `Binding` before forwarding it, so the expression keeps being called with the
+object the markup was written against:
+
+```python
+if isinstance(value, Binding):
+    expression = value.expression
+    value = bind(lambda _t, _o=obj: expression(_o), equal=value.equal)
+```
+
+In the descriptor rather than in the generator, for two reasons. It then holds for hand-written Python too, where
+`panel.title = bind(lambda p: p.width)` means the panel to whoever typed it. And it composes: the wrapper ignores its
+own argument, so an alias into a component that aliases further in re-wraps an expression that is already owned, and
+the outermost object wins rather than the innermost. The expression has to be lifted into a local first: closing
+over `value` while rebinding it on the same line gives a wrapper that finds itself at call time and recurses.
+
+This was measured rather than argued — argument identity, recompute on a property of the aliasing widget, the value
+landing on the target with no stray cell left on the component, `unbind()` through the `cell()` override, and `equal=`
+surviving the re-wrap.
+
+**It makes `bind()` mean something different at an alias**, and deliberately: one cell hands its expression a different
+object depending on which name the binding was installed through. An alias exists to make the target's location
+unobservable, and the argument is part of that location. It is stated beside the one-argument convention as well as
+here, because a hand-written caller meets it without having read this section.
+
+The strong reference the re-wrap adds — the target's cell holds the expression, which holds the aliasing widget — is
+the same cycle `Widget.parent` and `Widget.children` already form for every attached widget pair, between two objects
+that live and die together, and the collector breaks it exactly as it breaks those. What the weakrefs inside navkit's
+cells protect is the other direction, a long-lived widget not retaining a dead one through its subscriber set, and
+nothing here touches it.
+
+### Depth, and what is deliberately not offered
+
+**Exactly one property deep.** `alias title: header.text`, never `header.child.text`. Chaining is how reach goes
+further, and the rule is what makes the difference from `outer.ids.child.ids.grandchild` real: each hop is an export
+that the component in the middle declared, rather than a reach-through it never agreed to.
+
+**An alias to a widget is not offered.** QML has one — `property alias headerItem: header` — and it hands the widget
+out whole, which recreates the reach-through with one extra step and no further declaration. It would also be a
+declaration with no cell of its own, which `unbind()` and `is_bound()` could not answer for. The case that wants it is
+naming an inner button in order to connect a handler to it, and signals are open on both sides of the layer boundary;
+settle it with them rather than ahead of them.
+
+### Where it may appear, and what it may be called
+
+**In the root block only**, for the reason `property` is restricted there: it becomes a descriptor on a class, and the
+root block is the only block in a document that becomes one.
+
+An alias declares a name on the component, so it joins the `self.<name>` namespace the ids and the declared properties
+share, and takes those rules entire — not colliding with an id, not colliding with a declared property, not shadowing
+an attribute of the component's base class.
+
+### Checked when the document is compiled
+
+Each failing with the `.nml` line:
+
+- The target's leading name is an **id declared in this document**, and not `self`, `root` or `parent`, which name
+  things that have no stable meaning from the other side of the boundary.
+- The attribute **resolves to a reactive declaration** on that id's class. A plain attribute is rejected rather than
+  allowed through: a `bind()` forwarded onto one is silently stored, there being no descriptor to notice it, and the
+  author reading the outer document cannot see the target's declaration to work out why nothing happened.
+- A target that is a **`computed` makes the alias read-only**, classified here rather than left to fail when the widget
+  is first painted. navkit's own refusal is intelligible but names the target, and its advice — declare it reactive —
+  is addressed to somebody who can edit the target's class, which the outer author usually cannot.
+- A **self-referential alias is rejected**. It yields a `RecursionError` rather than navkit's `CycleError`: the cycle
+  detector sees cells, and an alias has none of its own to be seen.
+
+### Three things an alias cannot carry
+
+Each reads as an oversight until it is written down.
+
+- **An initial value.** There is no slot for one and there could not be: the cell it would fill belongs to a widget
+  that does not exist until `_build()` has run. A component wanting one assigns it there, like anything else.
+- **An `equal=`.** It has no cell to put one on. The `equal=` question left open below would otherwise be asked at a
+  third site, and this is why it is not: on an alias, never — the comparator belongs to the component that owns the
+  target, which is the only side that knows what the value means.
+- **A useful error location.** Every message navkit raises names `Header.text`, an attribute that does not appear in
+  the document its reader is looking at. `_Alias` should catch and re-raise naming both ends, and carry a `__repr__`
+  reading `<alias Panel.title -> header.text>`, so that the three functions which reject a non-declaration say
+  something legible when they do.
 
 ## Compiling a property expression
 
@@ -305,7 +467,10 @@ collides with a property name is simply unreachable by a bare name from inside t
 | anything else                                                                           | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the paired handler module imports |
 
 For the component's own expressions the fourth row includes the properties the document itself declares, which are on
-no class until the generator has emitted one — see *Declaring a property* above.
+no class until the generator has emitted one — see *Declaring a property* above. It includes aliases as well, in both
+directions: the component's own, and those of a component used as a child. `declarations()` returns them, because an
+alias is one of navkit's declarations — see *Aliases* above — so the rewriter needs no second source that could fall out
+of step with the first.
 
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
@@ -499,7 +664,9 @@ Carry the `.nml` line and column onto the rewritten nodes (`ast.increment_lineno
 Already true, and worth stating so it does not get broken by accident:
 
 - `bind()` takes an expression of **exactly one argument**, called with the object that owns the attribute. That
-  convention is what makes a mechanical rewrite possible at all.
+  convention is what makes a mechanical rewrite possible at all. An alias is the one place the second half of it is
+  deliberately set aside, and it is navml that sets it aside rather than navkit — see *A binding through an alias is
+  re-owned* above.
 - Ids resolve through a closure over the component instance, so generated bindings must be installed inside a method
   where that instance is in scope — `_build(self)` — not in a class body.
 - The generator needs the set of reactive attributes a class declares, inherited ones included. **Now there**:
@@ -514,6 +681,21 @@ Already true, and worth stating so it does not get broken by accident:
   declares and the other the stylesheet declarations that cascaded onto one *instance*.
 - Nothing at all for `property`. `reactive()` is callable in a generated class body, and that is the entire
   requirement — see *Declaring a property* above.
+
+Three small things for `alias`, none of them needed before the generator is written:
+
+- **`_Declaration` wants a public name.** navml subclasses it — see *Aliases* — and the prototype in the appendix
+  below already imports the private one. Renaming it `Declaration`, keeping the private spelling, turns an
+  implementation detail into the extension point it has become; its contract is that `cell()` may be overridden to
+  answer for a cell the declaration does not own.
+- **`Binding` wants a method returning a copy with the owner fixed.** Without one navml reads `Binding.expression`
+  directly, which is mild — it is `__slots__`-declared, unprefixed, and exactly what navkit's own binding installation
+  reads — but the re-wrap under *A binding through an alias is re-owned* is navkit's shape to give rather than
+  navml's to improvise.
+- **`unbind()` and `is_bound()` should refuse a `Computed`.** This one is a bug rather than a request, and it is
+  navkit's today with no markup anywhere near it: `is_bound()` answers `True` for a computed, and `unbind()` unlinks
+  its cell and leaves it frozen at whatever it last returned, never to update again. Aliases only made it easy to
+  reach, by giving `cell()` a second way in.
 
 ### What converting `Manager` needs and does not have
 
@@ -553,17 +735,13 @@ question that the *Parts* argument in
   only an expression spread over several lines.
 - Whether `equal=` is expressible in markup, on a `bind()` expression or on a `property` declaration. It is one
   question asked at two sites, and until it is answered a property needing one is declared in the hand-written half.
+  There is no third site: on an `alias` the answer is settled and it is no, for the reason under *Three things an alias
+  cannot carry*.
 - Comment syntax. Kivy's `.kv` takes `#` and nothing here has said whether `.nml` does. Every declaration this file
   moves into markup carries a `#:` doc comment in `navigator/__main__.py` — `Panel`'s seven, `Console.revision`,
   `Manager.console_visible` — so without one the reason a property exists is lost in translation.
-- Signal and handler syntax, and how it meets the hand-written half of the class.
-- How a component exports a widget inside it. Ids stop at the document, so markup that uses a
-  `Panel` component cannot name anything declared inside `panel.nml`. QML's answer is
-  `property alias buttonText: textItem.text` — a compile-time redirect resolved against the declaring component's own
-  ids, at most one property deep, forwarding writes rather than binding to them. Kivy has no answer at all, which is
-  exactly why Kivy code reaches through
-  `outer.ids.child.ids.grandchild` and the boundary ends up meaning nothing. Deferred until components in separate
-  documents exist — but shipping the boundary without the hatch is a known failure mode, not an open question.
+- Signal and handler syntax, and how it meets the hand-written half of the class — and with them whether an alias
+  may name a widget rather than a property, which *Aliases* defers to this question rather than settling alone.
 - Whether the generator emits type information for the id attributes, so that the paired handler module completes
   `self.left` as a `Panel`. Class-level annotations or a generated
   `.pyi`; it interacts with the import hook.
