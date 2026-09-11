@@ -51,6 +51,9 @@ from __future__ import annotations
 
 import contextlib
 import itertools
+import sys
+import types
+import typing
 import weakref
 from collections.abc import Callable, Iterator, Mapping
 from enum import IntEnum
@@ -73,6 +76,14 @@ class ReactiveError(RuntimeError):
 
 class CycleError(ReactiveError):
     """A value depends on itself, directly or through other values."""
+
+
+class ReactiveTypeError(ReactiveError, TypeError):
+    """A value contradicts the type its attribute was declared with.
+
+    Both bases are deliberate: it is a misuse of the reactive layer, and it
+    is a type error, so either ``except`` catches it.
+    """
 
 
 class _State(IntEnum):
@@ -472,19 +483,180 @@ def _cells(obj: object) -> dict[str, _Cell]:
     return cells
 
 
+# -- declared types -----------------------------------------------------------
+
+
+class _Unknown:
+    """No type could be determined, which is not the same as no constraint.
+
+    ``Any`` is an answer -- the author said this attribute takes anything.
+    This is the absence of one: an attribute with no annotation, or one whose
+    annotation names something that does not exist at run time, such as an
+    import made only under ``TYPE_CHECKING``.  Both go unchecked, and a
+    consumer that cares about the difference can still tell them apart.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "UNKNOWN"
+
+
+#: See :class:`_Unknown`.
+UNKNOWN = _Unknown()
+
+#: "Not asked yet", distinct from every answer including ``None``.
+_MISSING: Any = object()
+
+
+def _resolve_annotation(raw: Any, module: str, local: Mapping[str, Any]) -> Any:
+    """One annotation, resolved, or :data:`UNKNOWN` if it cannot be.
+
+    Resolved *one at a time* and never through :func:`typing.get_type_hints`,
+    which is all-or-nothing: a single name it cannot see -- ``Widget``'s
+    ``_application``, whose ``Application`` is imported only under
+    ``TYPE_CHECKING`` to break a cycle -- would take every other annotation
+    on the class down with it.
+
+    *local* carries the class being defined, because ``from __future__ import
+    annotations`` turns ``parent: Widget | None`` into a string that has to be
+    evaluated, and the module global may not be bound yet when it is.
+    """
+    if raw is None:
+        return UNKNOWN
+    if not isinstance(raw, str):
+        return raw
+    found = sys.modules.get(module)
+    try:
+        return eval(raw, vars(found) if found is not None else {}, dict(local))
+    except Exception:
+        # A name that does not exist at run time is a fact about the
+        # annotation, not an error: the attribute is simply unchecked.
+        return UNKNOWN
+
+
+def runtime_type(annotation: Any) -> Any:
+    """What :func:`isinstance` can be given for *annotation*, or ``None``.
+
+    ``None`` means "nothing to check" -- :data:`UNKNOWN`, ``Any``, or a form
+    too clever to erase.  Everything else comes back as a type or a tuple of
+    them, which is what ``isinstance`` takes.
+
+    The erasure is deliberately shallow.  ``frozenset[str]`` becomes
+    ``frozenset``: the container is checked and the elements are not, because
+    checking them would mean walking every collection on every write.  A union
+    becomes the tuple of its arms, so ``Stylesheet | None`` accepts both --
+    note that the arms are erased individually rather than the union being
+    handed to ``isinstance`` whole, which works for ``X | Y`` but not for
+    ``Optional[X]`` or for a union with a parameterised arm.
+    """
+    if annotation is UNKNOWN or annotation is Any:
+        return None
+    if annotation is None:
+        return type(None)
+    if isinstance(annotation, typing.TypeAliasType):
+        # PEP 695: ``type Color = int | tuple[int, int, int]``.
+        return runtime_type(annotation.__value__)
+    origin = typing.get_origin(annotation)
+    if origin in (types.UnionType, typing.Union):
+        arms = [runtime_type(arm) for arm in typing.get_args(annotation)]
+        if any(arm is None for arm in arms):
+            # One arm unconstrained leaves the whole union unconstrained.
+            return None
+        flat: list[type] = []
+        for arm in arms:
+            flat.extend(arm if isinstance(arm, tuple) else (arm,))
+        return tuple(flat)
+    if origin is not None:
+        return origin if isinstance(origin, type) else None
+    return annotation if isinstance(annotation, type) else None
+
+
+def _type_name(annotation: Any) -> str:
+    """How a declared type names itself in an error message."""
+    if isinstance(annotation, type):
+        return annotation.__name__
+    return str(annotation).replace("typing.", "")
+
+
 class _Declaration:
     """What the class-level declarations have in common.
 
     A declaration is shared by every instance and holds nothing that changes;
     everything mutable lives in the per-instance cell it hands out.  Keeping
     those apart is the whole reason two panels can have different widths.
+
+    It also carries the attribute's *declared type*, taken from the annotation
+    written beside it -- ``width: int = reactive(0)``.  Resolving one costs
+    some hundred times what checking a value against it does, so both the type
+    and its erased form are worked out once, lazily, and kept.
     """
 
     name: str
     equal: Callable[[Any, Any], bool] | None
+    #: The class whose body this declaration appeared in, kept so the
+    #: annotation written beside it can be found again.
+    declaring_class: type | None = None
+    _type: Any = _MISSING
+    _check: Any = _MISSING
 
     def __set_name__(self, owner: type, name: str) -> None:
         self.name = name
+        self.declaring_class = owner
+
+    @property
+    def type(self) -> Any:
+        """The type this attribute was declared with, or :data:`UNKNOWN`.
+
+        Resolved on first ask rather than in :meth:`__set_name__`, which runs
+        while the class body is still being executed -- ``parent: Widget |
+        None`` cannot be evaluated there, because ``Widget`` is precisely what
+        is being defined.
+        """
+        if self._type is _MISSING:
+            self._type = self._resolve_type()
+        return self._type
+
+    @property
+    def check(self) -> Any:
+        """The declared type as :func:`isinstance` takes it, or ``None``."""
+        if self._check is _MISSING:
+            self._check = runtime_type(self.type)
+        return self._check
+
+    def _resolve_type(self) -> Any:
+        """The annotation written beside this declaration.
+
+        The search starts at the class that declared the attribute and walks
+        its bases, so a subclass that re-declares an attribute without
+        annotating it inherits the type rather than losing it -- the same way
+        attribute lookup itself behaves.
+        """
+        cls = self.declaring_class
+        if cls is None:
+            return UNKNOWN
+        for klass in cls.__mro__:
+            raw = klass.__dict__.get("__annotations__", {}).get(self.name)
+            if raw is not None:
+                return _resolve_annotation(
+                    raw, klass.__module__, {klass.__name__: klass}
+                )
+        return UNKNOWN
+
+    def verify(self, obj: object, value: Any) -> None:
+        """Raise if *value* contradicts the type this attribute declares.
+
+        Silent for an attribute that declared nothing to contradict: no
+        annotation, one that names something absent at run time, or ``Any``.
+        Opting out is therefore the same act as never opting in, which is why
+        there is no flag for it.
+        """
+        check = self.check
+        if check is not None and not isinstance(value, check):
+            raise ReactiveTypeError(
+                f"{type(obj).__name__}.{self.name} is declared "
+                f"{_type_name(self.type)}; {type(value).__name__} was assigned"
+            )
 
     def cell(self, obj: object) -> _Cell:
         cells = _cells(obj)
@@ -498,7 +670,15 @@ class _Declaration:
 
 
 class Reactive(_Declaration, Generic[T]):
-    """An attribute that reports its reads and its writes."""
+    """An attribute that reports its reads and its writes.
+
+    A write is checked against the type the attribute was declared with, and
+    :class:`ReactiveTypeError` refuses one that contradicts it.  The check
+    guards the boundary where a value enters the graph from outside, so an
+    attribute that declared no type takes anything -- see :meth:`verify` --
+    and a value a bound expression *computed* is not checked at all, since it
+    was derived from values that were.
+    """
 
     def __init__(
         self,
@@ -530,11 +710,21 @@ class Reactive(_Declaration, Generic[T]):
     def __set__(self, obj: object, value: T | Binding) -> None:
         if isinstance(value, Binding):
             self._bind(obj, value)
-        else:
-            self.cell(obj).set(value)
+            return
+        cell = self.cell(obj)
+        if cell.compute is None:
+            # A bound cell refuses every value alike, so which one this was
+            # does not arise yet: let set() say the attribute is bound, since
+            # correcting the type would not make the assignment legal.
+            self.verify(obj, value)
+        cell.set(value)
 
     def _bind(self, obj: object, binding: Binding) -> None:
-        """Drive this attribute from *binding*'s expression from now on."""
+        """Drive this attribute from *binding*'s expression from now on.
+
+        The expression is not run here and what it will produce is unknown, so
+        there is nothing to check; neither is the value it later computes.
+        """
         cell = self.cell(obj)
         _check_writable(cell)
         cell.unlink()

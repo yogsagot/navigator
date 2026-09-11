@@ -152,7 +152,15 @@ Manager:
 meaning what it means everywhere else in the file — name on the left, value on the right — which is why the
 Python-flavoured `property console_visible: bool = False` loses: it would give one line's colon two jobs. QML's
 `property bool consoleVisible: false` keeps the colon honest and is where the word comes from; navml drops the type
-because nothing in navkit checks one, and the slot stays free if it is ever wanted.
+and the slot stays free if it is ever wanted.
+
+navkit *does* check one now — a reactive attribute is checked against the annotation written beside it, see *Declared
+types* in `navkit/DESIGN.md` — so what a typeless `property` generates is a declaration with no annotation, which that
+layer leaves unchecked. That is the right default rather than a gap: an attribute the document declares is written and
+read by that document and its paired handler module, where a wrong type is a local mistake, and the generator has no
+type to emit until the language has a spelling for one. What changed is the cost of adding the spelling later: it is
+now one annotation on the emitted line and the check follows, rather than a run-time mechanism that would have to be
+built first.
 
 The word is deliberately the one this file already uses for every `name: value` line. That overload is QML's too —
 everything is a property, `property` declares a new one — and the alternative, `reactive`, would leak the name of the
