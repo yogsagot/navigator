@@ -977,6 +977,31 @@ the existing "call `unbind()` first", because correcting the type would not make
 guard that refuses every value alike is the one with something useful to say. So `__set__` consults the cell before it
 consults the annotation, which is the only reason the two lines are in that order.
 
+### A declaration is an extension point
+
+`_Declaration` is the base of `Reactive` and `Computed`, and `declarations(cls)` is what a code generator asks for a
+class's reactive surface. navml needs to subclass the first so that its own descriptors are answered for by the second
+— an `alias`, which redirects a name on a component to an attribute of a widget declared inside it, is a declaration
+whose `cell()` returns a cell it does not own (`navml/DESIGN.md`, *Aliases*). That makes the base a documented shape
+rather than an implementation detail, and three things follow.
+
+**It should have a public name.** `Declaration`, with `_Declaration` kept, because navml's prototype already imports
+the private spelling and a dependency that is going to exist should be spelled honestly. The layering is unchanged:
+navkit still knows nothing of navml, and navml subclasses downward, which is the direction that was always allowed.
+
+**`cell()` is the overridable part, and the only one.** Everything that walks a declaration — `unbind()`, `is_bound()`,
+`peek()`, the identity check that the class really declares the attribute — goes through it or through ordinary
+attribute access, so a subclass answering with another object's cell is answered correctly everywhere without navkit
+learning why. `_resolve_annotation`'s caching is the constraint on such a subclass rather than on navkit: the type is
+worked out once and kept on the declaration that every instance shares, so a subclass must not derive it per instance.
+
+**`unbind()` and `is_bound()` should refuse a `Computed`.** Found while working the above out, and it is a bug here
+rather than anything markup caused: `_declaration()` checks only that its argument is a declaration, and `Computed` is
+one, so `is_bound()` answers `True` for every computed — a cell with a `compute` is what being bound means to it — and
+`unbind()` unlinks that cell, leaving the computed frozen at its last value and deaf to its inputs for good. Both
+should say that a computed is not a bound attribute. Nothing in the repository relies on the present behaviour; it has
+simply never been asked.
+
 ## Still open
 
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates what `Manager.render`
