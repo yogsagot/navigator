@@ -475,6 +475,30 @@ def test_an_attribute_has_to_be_named_by_the_declaration_itself():
         is_bound(Node(), Box.a)  # somebody else's attribute
 
 
+def test_is_bound_refuses_a_computed():
+    # A computed's cell always carries a compute, so the question is a
+    # category error rather than a question with the answer True.
+    with pytest.raises(ReactiveError, match="computed, not bound"):
+        is_bound(Box(), Box.total)
+
+
+def test_unbind_refuses_a_computed_rather_than_freezing_it():
+    box = Box()
+    assert box.total == 3
+    with pytest.raises(ReactiveError, match="computed, not bound"):
+        unbind(box, Box.total)
+    # Unlinking the cell would have left it answering 3 for ever.
+    box.a = 10
+    assert box.total == 12
+
+
+def test_peek_still_reads_a_computed():
+    # Only the two that talk about bindings refuse one; peeking a derived
+    # value without subscribing to it stays legitimate.
+    box = Box()
+    assert peek(box, Box.total) == 3
+
+
 def test_a_computed_may_not_install_a_binding():
     class Sneak:
         a = reactive(1)

@@ -853,6 +853,30 @@ def _declaration(obj: object, attribute: Any) -> _Declaration:
     return attribute
 
 
+def _bindable(obj: object, attribute: Any) -> _Declaration:
+    """The declaration *attribute* refers to, refusing a computed.
+
+    A computed is never *bound* in the sense :func:`unbind` and
+    :func:`is_bound` ask about.  Its cell carries a ``compute`` because that
+    is what a computed is, not because an expression was assigned to this one
+    instance -- so ``is_bound`` would answer True for every computed ever
+    declared, and ``unbind`` would unlink the cell and leave it frozen at
+    whatever it last returned, deaf to its sources for good.
+
+    The check is against ``Computed`` rather than for ``Reactive``, so that a
+    declaration subclassed outside this module -- which is what the markup
+    layer does, see ``navkit/DESIGN.md`` -- is still bindable.
+    """
+    declaration = _declaration(obj, attribute)
+    if isinstance(declaration, Computed):
+        raise ReactiveError(
+            f"{type(obj).__name__}.{declaration.name} is computed, not bound; "
+            f"it derives from a function on the class, so there is no "
+            f"binding on this instance to report or take away"
+        )
+    return declaration
+
+
 class Binding:
     """An expression on its way to a reactive attribute.
 
@@ -900,7 +924,7 @@ def bind(
 
 def unbind(obj: object, attribute: Any) -> None:
     """Detach the binding on *attribute*, keeping the value it last produced."""
-    cell = _declaration(obj, attribute).cell(obj)
+    cell = _bindable(obj, attribute).cell(obj)
     with untracked(), contextlib.suppress(Exception):
         cell._validate()
     cell.error = None
@@ -909,7 +933,7 @@ def unbind(obj: object, attribute: Any) -> None:
 
 def is_bound(obj: object, attribute: Any) -> bool:
     """True if *attribute* currently derives its value from an expression."""
-    return _declaration(obj, attribute).cell(obj).compute is not None
+    return _bindable(obj, attribute).cell(obj).compute is not None
 
 
 def peek(obj: object, attribute: Any) -> Any:

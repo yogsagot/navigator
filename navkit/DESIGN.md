@@ -995,12 +995,15 @@ attribute access, so a subclass answering with another object's cell is answered
 learning why. `_resolve_annotation`'s caching is the constraint on such a subclass rather than on navkit: the type is
 worked out once and kept on the declaration that every instance shares, so a subclass must not derive it per instance.
 
-**`unbind()` and `is_bound()` should refuse a `Computed`.** Found while working the above out, and it is a bug here
-rather than anything markup caused: `_declaration()` checks only that its argument is a declaration, and `Computed` is
-one, so `is_bound()` answers `True` for every computed — a cell with a `compute` is what being bound means to it — and
-`unbind()` unlinks that cell, leaving the computed frozen at its last value and deaf to its inputs for good. Both
-should say that a computed is not a bound attribute. Nothing in the repository relies on the present behaviour; it has
-simply never been asked.
+**`unbind()` and `is_bound()` refuse a `Computed`, and now say so.** Found while working the above out, and a bug
+here rather than anything markup caused: `_declaration()` checks only that its argument is a declaration, and
+`Computed` is one, so `is_bound()` answered `True` for every computed — a cell carrying a `compute` is what being
+bound means to it — and `unbind()` unlinked that cell, leaving the computed frozen at its last value and deaf to its
+inputs for good. Measured rather than reasoned about: a `total` of 3 stayed 3 after the source it sums went to 10.
+`_bindable()` is the guard, and it **rejects `Computed` rather than requiring `Reactive`**, so a declaration
+subclassed outside this module stays bindable — which is the extension point above being used the first time it is
+described. `peek()` still takes either, because reading a derived value without subscribing to it is a legitimate
+thing to ask of a computed.
 
 ## Still open
 
