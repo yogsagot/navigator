@@ -682,7 +682,8 @@ Already true, and worth stating so it does not get broken by accident:
 - Nothing at all for `property`. `reactive()` is callable in a generated class body, and that is the entire
   requirement — see *Declaring a property* above.
 
-Three small things for `alias`, none of them needed before the generator is written:
+Three small things for `alias`. The third turned out to be a bug and is already fixed; the other two are not
+needed before the generator is written:
 
 - **`_Declaration` wants a public name.** navml subclasses it — see *Aliases* — and the prototype in the appendix
   below already imports the private one. Renaming it `Declaration`, keeping the private spelling, turns an
@@ -692,10 +693,12 @@ Three small things for `alias`, none of them needed before the generator is writ
   directly, which is mild — it is `__slots__`-declared, unprefixed, and exactly what navkit's own binding installation
   reads — but the re-wrap under *A binding through an alias is re-owned* is navkit's shape to give rather than
   navml's to improvise.
-- **`unbind()` and `is_bound()` should refuse a `Computed`.** This one is a bug rather than a request, and it is
-  navkit's today with no markup anywhere near it: `is_bound()` answers `True` for a computed, and `unbind()` unlinks
-  its cell and leaves it frozen at whatever it last returned, never to update again. Aliases only made it easy to
-  reach, by giving `cell()` a second way in.
+- **`unbind()` and `is_bound()` refusing a `Computed`.** This one was a bug rather than a request, and navkit's
+  rather than markup's: `is_bound()` answered `True` for a computed, and `unbind()` unlinked its cell and left it
+  frozen at whatever it last returned, never to update again. Aliases only made it easy to reach, by giving `cell()`
+  a second way in. **Now fixed**, and the guard rejects `Computed` rather than requiring `Reactive`, so an `_Alias`
+  passes it — an alias whose *target* is a computed is navml's to reject, under *Checked when the document is
+  compiled* above.
 
 ### What converting `Manager` needs and does not have
 
