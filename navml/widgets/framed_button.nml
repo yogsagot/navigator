@@ -1,0 +1,11 @@
+FramedButton(Button):
+    property hint_text: "[enter]"
+
+    Label:
+        id: hint
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: 1
+        text: parent.hint_text
+        align: "right"

@@ -8,8 +8,10 @@ Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attr
 that runs child programs on a pty it owns; `navigator/__main__.py` is a working shell (menu bar, two live directory
 panels, key bar, Ctrl+O console) that exercises them and is already written in the declarative style — its panels bind
 their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand.
-`navml/` holds no code yet — the markup language, its parser, the code generator and the widget library are all
-unwritten. The README sketches them. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
+`navml/` now holds its import layer — `navml/_merge.py`, which joins a component's markup half to its hand-written
+half — and four example components exercising it, one per shape. The markup language itself, its parser and its code
+generator are still unwritten, so the four `*_nml.py` files are hand-written stand-ins for what the generator will
+emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
 included. What it does *not* have is the interaction layer a widget library needs — there is no focus notion, no signal
 or custom-event mechanism, no mount/unmount lifecycle and no modal or overlay support — and each of those blocks buttons
 and dialogs rather than the markup language. Decisions taken ahead of the code live in two design notes, and are where
@@ -350,17 +352,49 @@ Things to know before touching the style layer:
 
 - `*.nml` markup language: QML for the architecture (a declarative tree, `id`s, properties that are re-evaluated
   expressions), Kivy for the syntax (blocks made by indentation, no braces, no semicolons, one property per line)
-- Parser translating `.nml` into a node graph
-- Code generator traversing that node graph to emit a Python class
-- The generated class is silently merged with a hand-written Python module holding the event handlers; Python's import
-  machinery is overridden so a single `import` yields the merged class. This import hook is the crux of the layer —
-  `.nml` files and their sibling `.py` handler modules are two halves of one class.
+- Parser translating `.nml` into a node graph (unwritten)
+- Code generator traversing that node graph to emit a Python class (unwritten)
 - Rich widget library (windows, buttons, menus, labels, standard event handlers) modelled on Borland's TurboVision
+- `navml/_merge.py` — **written**, and the rest of this section is about it.
 
-Nothing here is written yet, but `navml/DESIGN.md` records the decisions already made — currently how a property
-expression (`width: parent.width // 2`) is compiled into the one-argument lambda `bind()` expects, by rewriting the
-expression's free names on the syntax tree rather than by formatting strings. Read it before starting the parser or the
-generator, and add to it rather than re-deciding.
+**Both halves of a component are optional, and a component is up to four files.** `button.nml` is the markup;
+`button_nml.py` is what the generator emits from it, tracked and shipped; `button.py` is the hand-written handlers;
+`button.pyi` is the generated stub. Markup alone, Python alone and both are three peer shapes, and
+`from navml.widgets.button import Button` is the same line for all three — a component can move between them without
+that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
+example of each: `spacer` is Python alone, `label` is markup alone, `button` is both, and `framed_button` is both *and*
+derived from a component that is itself both.
+
+Things to know before touching this layer:
+
+- **The merge is one line**, `handwritten.__bases__ = (generated,)`, and the generated class is always the base —
+  forced by the contract that a hand-written `__init__` calls `super().__init__()` and then finds every id live.
+- **The hand-written half never names the generated class.** `class Button(Widget)` is what a Python-only component
+  says too, and that is exactly why: it is what lets a component gain or lose its markup half without being edited.
+  The base it names is the one the markup names, and the loader refuses the pair if the two disagree — CPython does
+  not, it drops the declared base from the MRO in silence.
+- **A class based only on `object` cannot be spliced at all**, so `class Button:` is not an option: the assignment
+  fails with `deallocator differs from 'object'`.
+- **The finder keys on `button_nml.py`, never on `button.nml`.** Both halves are then ordinary `.py` files that reach a
+  wheel automatically, so the import path cannot be broken by a missing `package-data` entry. The markup ships anyway,
+  as source to read and rebuild from — `navml.widgets` therefore needs `["*.nml", "*.pyi"]` in
+  `[tool.setuptools.package-data]`, and a new component directory needs its own entry.
+- **A component module must never be a test module, a `conftest.py` or a pytest plugin.** pytest's assertion rewriter
+  consults `PathFinder` directly and bypasses `sys.meta_path`, so the splice would not happen and the component would
+  come up as a plain `Widget` subclass.
+- **A component package registers itself** with `navml.register(__name__)` in its `__init__.py`. Importing anything
+  inside a package runs that file first, so there is no ordering hole; a `.pth` file would not do, because the `.deb`
+  and `.rpm` mount their tree on `PYTHONPATH` rather than as a site directory.
+- **The generated class constructs its children inline in `__init__`, not in a `_build()` method.** A shared method
+  name would be overridden by a derived component's, so the base's children would never be built and the derived one's
+  would be built twice.
+
+`navml/DESIGN.md` records why each of these went the way it did, *The two halves of a component* for this layer, and
+records the decisions taken ahead of the parser and the generator — how a property expression
+(`width: parent.width // 2`) is compiled into the one-argument lambda `bind()` expects, by rewriting the expression's
+free names on the syntax tree rather than by formatting strings; and what markup still cannot say, which is four things
+and each of which blocks converting `Manager`. Read it before starting the parser or the generator, and add to it rather
+than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 

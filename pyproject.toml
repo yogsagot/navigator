@@ -88,6 +88,18 @@ include = ["navkit*", "navml*", "navigator*"]
 # should own.
 "navigator.styles" = ["*.nss"]
 "navigator.styles.themes" = ["*.nss"]
+# A component's markup is shipped even though nothing at run time reads it:
+# somebody reading a generated `*_nml.py' should be able to read what it was
+# generated from, and `python -m navml build' regenerates in place for anyone
+# who wants to change it.  The import path deliberately does not depend on it
+# -- see *The two halves of a component* in navml/DESIGN.md -- so a missing
+# `.nml' costs a reader a file rather than costing a user a running program.
+# The stubs are the other half of that: a markup-only component has no `.py'
+# at all, so its `.pyi' is the only thing a type checker can see for it.
+# A new component directory needs its own entry here or both work from a
+# checkout and vanish on install.
+"navml" = ["py.typed"]
+"navml.widgets" = ["*.nml", "*.pyi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -89,8 +89,10 @@ It contains of three parts:
       architecture, Kivy for the syntax, so blocks are made by indentation, and lines carry no semicolons
     - defines an *.nml file parser that translates it into a node graph suitable for python class code-generator
     - defines a python class code-generator that traverses node graph from parser
-    - silently merges a code-generated python class with a handwritten python module with event handlers
-    - overrides python import routine so a single import handles the merged class
+    - lets a component be written as markup, as python, or as both -- a widget class generated from `*.nml` and a
+      hand-written module of event handlers are two halves of one class, and either half may be absent
+    - extends python's import machinery so that one `import` yields the component whichever way it was written, and
+      the hand-written half never has to name the generated one
     - defines a rich widget library to handle windows, buttons, menus, labels, etc., defines standard event handlers.
       Heavily inspired by Borland's TurboVision library
 - **navigator** or nav - two panel file manager application
