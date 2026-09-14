@@ -10,21 +10,23 @@ from __future__ import annotations
 import pytest
 from conftest import RecordingWidget, run_app, settle
 
+from navkit import glyphs
 from navkit.application import Application
 from navkit.reactive import reactive
 from navkit.style import Style
 from navkit.stylesheet import (
     EMPTY,
     PartRequest,
+    PropertySpec,
+    StyleProperty,
     StylesheetError,
+    declared_property,
     load,
     parse,
     read,
     register_property,
 )
 from navkit.widget import Widget
-
-register_property("border")
 
 
 class Panel(Widget):
@@ -98,6 +100,11 @@ def test_a_group_shares_its_declarations():
     "source, expected",
     [
         ("P { bordr: red }", "unknown property"),
+        # The value half of a declaration, checked against what the widget
+        # declaring the key said it accepts -- see `border' on Widget.
+        ("P { border: dubble }", "not a valid border"),
+        ("P { border: true }", "expected a keyword"),
+        ("P { border: 2 }", "expected a keyword"),
         ("P { fg: mauve }", "cannot read value"),
         ("P { fg red }", "not a declaration"),
         ("P { fg: 300 }", "above 255"),
@@ -260,8 +267,68 @@ def test_a_widget_property_does_not_inherit():
     # which is why the split sits at the Style boundary.
     app = Application(Panel(), stylesheet=parse("Panel { border: double }"))
     label = Label(parent=app.root)
-    assert app.root.style_property("border") == "double"
-    assert label.style_property("border") is None
+    assert app.root.border == "double"
+    assert label.border == "single"  # the declaration's default, not the parent's
+    assert label.style_property("border") is None  # nothing cascaded onto it at all
+
+
+def test_a_declared_property_reads_the_cascade_through_its_attribute():
+    app = Application(Panel(), stylesheet=parse("Panel { border: round }"))
+    assert app.root.border == "round"
+    assert Panel().border == "single"  # no sheet: the declaration answers
+
+
+def test_a_declared_property_is_authored_in_a_sheet_and_not_assigned():
+    panel = Panel()
+    with pytest.raises(AttributeError, match="merge_style"):
+        panel.border = "double"
+    panel.merge_style("border: double")
+    assert panel.border == "double"
+
+
+def test_a_property_takes_the_type_of_its_default():
+    """The default's own form is the type, which is what lets ints and flags in."""
+
+    class Gauge(Widget):
+        margin = StyleProperty(0)
+        wrap = StyleProperty(True)
+
+    app = Application(Gauge(), stylesheet=parse("Gauge { margin: 3; wrap: false }"))
+    assert (app.root.margin, app.root.wrap) == (3, False)
+    with pytest.raises(StylesheetError, match="expected a number"):
+        parse("Gauge { margin: wide }")
+    # `true' is an int in Python and must not pass for one here.
+    with pytest.raises(StylesheetError, match="expected a number"):
+        parse("Gauge { margin: true }")
+
+
+def test_a_property_is_redeclared_by_default_but_not_by_vocabulary():
+    """A subclass may want another default frame; it may not want another word."""
+
+    class Framed(Widget):
+        border = StyleProperty("double", values=tuple(glyphs.BOX_CHARSETS))
+
+    assert Framed().border == "double"
+    assert Panel().border == "single"
+
+    with pytest.raises(ValueError, match="import order"):
+
+        class Odd(Widget):
+            border = StyleProperty("fancy", values=("fancy", "plain"))
+
+
+def test_the_bare_registration_declares_a_name_and_nothing_about_its_value():
+    """The route for a property no attribute is held for -- a name, checked."""
+    register_property("gutter-hint")
+    assert parse("P { gutter-hint: 4 }").rules[0].declarations == {"gutter-hint": 4}
+    assert parse("P { gutter-hint: wide }").rules[0].declarations["gutter-hint"] == "wide"
+    assert declared_property("gutter-hint") == PropertySpec()
+    assert declared_property("nothing-declares-this") is None
+
+
+def test_a_default_outside_its_own_vocabulary_is_refused():
+    with pytest.raises(ValueError, match="not one of the values"):
+        StyleProperty("dotted", values=("single", "double"))
 
 
 def test_inline_declarations_are_partial_and_beat_every_rule():

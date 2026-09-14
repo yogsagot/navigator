@@ -66,9 +66,12 @@ BOX_CHARSETS = {
     "ascii": ASCII_BOX,
 }
 
-#: What an unrecognised ``border`` value means.  A stylesheet comes from a file
-#: a user edits, so a typo there degrades rather than stopping the program --
-#: the same posture ``NAVKIT_COLORS`` takes towards a depth it cannot read.
+#: The frame a widget draws when nothing says otherwise, and what
+#: :func:`charset` falls back to for a name it does not know.  A sheet can no
+#: longer be the source of such a name -- ``Widget.border`` declares this
+#: vocabulary, so ``border: dubble`` fails at its ``.nss`` line -- but
+#: :func:`charset` is callable directly and still answers rather than raising,
+#: the posture ``NAVKIT_COLORS`` takes towards a depth it cannot read.
 DEFAULT_BOX = "single"
 
 

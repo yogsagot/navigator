@@ -622,6 +622,51 @@ field *or* a stylable property some widget declares. Widgets already have to dec
 properties in the same place gives the parser a union to check against, so `bordr: double` still fails with a `.nss`
 line rather than being silently ignored the way a CSS typo is.
 
+### The declaration is a class attribute
+
+**Done.** `StyleProperty` is the declared route and `register_property()` the bare one underneath it:
+
+```python
+class Widget:
+    border = StyleProperty(glyphs.DEFAULT_BOX, values=tuple(glyphs.BOX_CHARSETS))
+
+class Panel(Widget):
+    icons = StyleProperty("auto", values=("auto", "none"))
+```
+
+Three facts that lived in three places are one line. The **name** was a module-level `register_property("icons")` call
+in `navigator/__main__.py`, nowhere near the widget that read it, because a function with a side effect can be written
+anywhere; `__set_name__` takes it from the attribute instead. The **default** was at the read site,
+`style_property("icons", "auto")`, repeated at every read. The **vocabulary** was nowhere at all — implied by whatever
+the read site happened to compare against.
+
+That third one was a real hole rather than an untidiness. `Panel.show_icons` tested `!= "none"`, so `icons: mone` parsed
+cleanly and *turned icons on* — a typo silently meaning the opposite of what it said, which is precisely what
+registering the key was introduced to prevent, caught on one half of the declaration and not the other. A sheet already
+refuses an unknown variable, an unreadable colour and a palette index above 255; there was no reason for a widget
+property's value to be the one thing it waved through.
+
+**The type is the default's own.** `StyleProperty(0)` takes a number, `StyleProperty(True)` a flag,
+`StyleProperty("auto")` a keyword, and `values=` narrows a keyword further. Nothing is separately spelled, which is the
+inference navml's `property` directive already makes from its right-hand side, and it generalises the check past
+enumerations: `icons: 3` is refused because the default is a keyword. The comparison is `type(value) is kind` rather
+than `isinstance`, because `bool` is a subclass of `int` and `margin: true` must not pass for a number.
+
+**The registry holds only what every declaration of a key must agree on** — the type and the vocabulary, not the
+default. A subclass may reasonably want a `double` frame where its base wants `single` while both accept the same four
+words, and the default never reaches the parser anyway. Two *conflicting* vocabularies for one name raise at import,
+because the sheet cannot honour both and the winner would be whichever module imported last.
+
+**The check runs after `parse_value`, not inside it.** That function answers `true`, `false` and a digit string before
+it ever reaches its widget-property branch, so a check written there would miss `icons: true`. `check_value()` holds
+the value it produced, which covers every form it can produce.
+
+**The cost is import order, and it is worth paying.** A sheet can only be checked against properties that have been
+declared, so `navigator/__main__.py` could no longer parse its default sheet at import — `navigator.nss` names `icons`
+and `Panel` is defined further down the file. `SCHEME` became `default_scheme()`, parsed on first call and cached. The
+failure is loud and names the property, which is the right way round: the alternative is a sheet that silently drops a
+declaration because the widget that declares it had not been imported yet.
+
 ## Reaching the application
 
 **Done, ahead of the engine, because it was a latent bug on its own.** `Widget._application` is now `reactive`, and
