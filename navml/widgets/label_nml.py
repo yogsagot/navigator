@@ -10,11 +10,16 @@ a stand-in for what they will emit.  Its *shape* is the contract -- everything
 
 from __future__ import annotations
 
-from typing import Any
+#: Everything the generator needs for itself is underscored, so a document may
+#: import any name at all without colliding with it -- there is no reserved
+#: word.  A bare ``Label:`` head is what asks for ``_Widget``; markup never
+#: names it.  See *Importing another component* in navml/DESIGN.md.
+from typing import Any as _Any
 
-from navkit.reactive import is_bound, reactive
-from navkit.screen import Surface
-from navkit.widget import Widget
+from navkit.reactive import is_bound as _is_bound
+from navkit.reactive import reactive as _reactive
+from navkit.screen import Surface as _Surface
+from navkit.widget import Widget as _Widget
 
 #: The class this document declares.  The loader looks this name up in the
 #: hand-written half rather than guessing one from the file name.
@@ -23,13 +28,13 @@ __navml_component__ = "Label"
 __all__ = ["Label"]
 
 
-class Label(Widget):
+class Label(_Widget):
     """A line of text."""
 
-    text: str = reactive("")                                    # label.nml:2
-    align: str = reactive("left")                               # label.nml:3
+    text: str = _reactive("")                                    # label.nml:2
+    align: str = _reactive("left")                               # label.nml:3
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         # The tree goes here, inline.  See *Building the tree* in
         # navml/DESIGN.md for why it is not a `_build()' method: a derived
@@ -38,12 +43,12 @@ class Label(Widget):
 
     def layout(self, width: int, height: int) -> None:
         """Size only this widget: its children are placed by the markup."""
-        if not is_bound(self, Widget.width):
+        if not _is_bound(self, _Widget.width):
             self.width = width
-        if not is_bound(self, Widget.height):
+        if not _is_bound(self, _Widget.height):
             self.height = height
 
-    def render(self, surface: Surface) -> None:
+    def render(self, surface: _Surface) -> None:
         text = self.text[: max(0, self.width)]
         if self.align == "right":
             x = max(0, self.width - len(text))

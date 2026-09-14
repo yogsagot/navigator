@@ -388,6 +388,21 @@ Things to know before touching this layer:
 - **The generated class constructs its children inline in `__init__`, not in a `_build()` method.** A shared method
   name would be overridden by a derived component's, so the base's children would never be built and the derived one's
   would be built twice.
+- **A document says where its types come from in Python's own words** — `from navml.widgets.label import Label` at the
+  top of the `.nml`, copied into the generated module verbatim. `import *` and `__future__` imports are refused.
+  Components are the case it exists for, but any import is legal, and it is worth taking: a declared type is only
+  checked at run time if the generated module can resolve it (`_resolve_annotation` silently answers *unchecked* and
+  caches that), and a `style:` block can only be validated against a property whose widget has been imported.
+- **Markup writes a bare `Button:` to extend `Widget`, never `Button(Widget):`.** The parenthesised form names a type,
+  and a type a document names is one it imports — so `Button(Widget):` means whatever the document imported under that
+  name. The hand-written half still has to spell it, `class Button(Widget)`, because a Python class with no bases is
+  `object` and cannot be spliced.
+- **Everything the generator emits for itself is underscored** — `_bind`, `_reactive`, `_is_bound`, `_Any`, `_Widget`.
+  There is consequently no reserved word: a document may import any name at all and gets exactly what it asked for.
+- **A component package's `__init__.py` must not re-export eagerly.** The code generator reads `declarations(cls)` off
+  the classes a document names, so generating a component really imports the ones it uses; eager re-export would mean
+  importing any one component imported every one, and a cold build could generate nothing. `navml/widgets/__init__.py`
+  re-exports through a PEP 562 module `__getattr__` with a `TYPE_CHECKING` block beside it for the real types.
 
 `navml/DESIGN.md` records why each of these went the way it did, *The two halves of a component* for this layer, and
 records the decisions taken ahead of the parser and the generator — how a property expression
