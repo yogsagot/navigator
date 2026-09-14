@@ -1,0 +1,3 @@
+Label(Widget):
+    property text: ""
+    property align: "left"

@@ -1,0 +1,11 @@
+Button(Widget):
+    property text: ""
+
+    Label:
+        id: caption
+        x: 1
+        y: 0
+        width: max(0, parent.width - 2)
+        height: 1
+        text: parent.text
+        align: "center"

@@ -26,6 +26,177 @@ Panel:
 
 and never `Panel { id: left; width: parent.width // 2 }`.
 
+## The two halves of a component
+
+A component is written as markup, as Python, or as both, and **either half may be absent**. All three reach the same
+public module name, so nothing importing a component can tell which it is looking at:
+
+| shape       | files                                                   | what backs `navml.widgets.button`                    |
+|-------------|---------------------------------------------------------|-------------------------------------------------------|
+| Python only | `button.py`                                             | nothing of navml's — the stock `PathFinder`           |
+| markup only | `button.nml` → `button_nml.py`, `button.pyi`            | the generated module, re-homed onto the public name   |
+| both        | the above, plus `button.py`                             | `button.py`, with the generated class spliced beneath |
+
+- **`button.nml`** — hand-written markup. It ships, and it is the one file in the set that nothing at run time reads;
+  see *The markup ships* below.
+- **`button_nml.py`** — generated, tracked, shipped. `class Button(Widget)`: the tree, the bindings, the `layout()`
+  override.
+- **`button.py`** — hand-written. `class Button(Widget)`: the handlers. **It never names the generated class**, which is
+  the whole of *Why the hand-written half never names the base* below.
+- **`button.pyi`** — generated, tracked, shipped. Emitted whenever `button_nml.py` is, because in the markup-only shape
+  it is the only thing a type checker can see for that module name.
+
+The original sketch spelled the generated file `button.nml.py`. A dot makes it unimportable by name — `import
+navml.widgets.button.nml` splits on the dots — so no checker, no IDE and no `pkgutil` ever sees the class the
+hand-written half inherits from, which forecloses the id-annotation question in *Still open*. setuptools' `build_py`
+also globs `*.py` and ships it as a module literally named `button.nml`.
+
+**A component is not a kind of object.** There is no navml base class, no decorator, no metaclass and no registration on
+the class. The Python-only row touches none of this file's machinery at all: an ordinary `navkit.Widget` subclass
+already *is* a component, and giving it a `.nml` later changes not one line of it.
+
+### Why the generated half is the base
+
+Forced, not chosen: the contract under *Ids* says a hand-written `__init__` calls `super().__init__()` and then finds
+every id live, which only holds if the generated class is further along the MRO. The merge is therefore one line,
+`handwritten.__bases__ = (generated,)`, and everything in `navml/_merge.py` exists to reach that line safely.
+
+### Why the hand-written half never names the base
+
+The reason is not taste, and it is not hiding for its own sake: **it is what makes the three shapes interchangeable.**
+`class Button(Widget)` is exactly what the Python-only row says too, so adding a `.nml` to an existing Python component
+requires no edit to its `.py`, and deleting one leaves a file that still works. Were the base named explicitly, the two
+rows would need different source and every transition between them would be a hand edit.
+
+Four ways to join the halves were measured. All work at run time; they differ entirely in what everything *else* sees:
+
+| the hand-written half opens with            | mypy on that file                                  | loaded without the hook              |
+|---------------------------------------------|-----------------------------------------------------|---------------------------------------|
+| `class Button(_Button):`, base imported     | clean, ids included                                 | works                                 |
+| `class Button(Widget):`, base spliced in    | `"Button" has no attribute "caption"`               | imports; `AttributeError` on first id |
+| `class Button:`                             | also loses `width`, `add`, every `Widget` member    | **cannot be spliced at all**          |
+| `class Button(Button):`, name injected      | `Cannot resolve name "Button" (possible cyclic …)`  | `NameError` at import                 |
+
+The last row is the literal reading of "silently merges", and it is the worst: the file is not a valid Python module on
+its own. The third is worse than it looks — CPython refuses `__bases__` assignment on a class whose only base is
+`object`, because that is a different solid base from anything in the `Widget` lineage, and says so with
+`deallocator differs from 'object'`. So **naming a real widget base is a mechanical requirement of the merge**, not a
+style rule.
+
+What the second row costs is completion on ids, and that cost is real — *Ids* chooses an attribute over a dict partly
+because "the paired handler module writes `self.left` by hand and gets completion and a rename for it". `button.pyi` is
+what buys it back without an import line. Two things follow from the stub rather than being chosen: it **replaces** its
+module for a checker, so in the merged shape it has to carry the hand-written signatures as well as the generated
+surface (`mypy.stubgen` produces that half; the generator injects the base, the ids and the `property` and `alias`
+names) — and, measured, an error planted in `button.py` is then **not** reported even when mypy is pointed straight at
+it. The implementation needs checking by some other route, and the note says so here rather than leaving it to be
+discovered the day lint tooling is wired up.
+
+### Deriving from another component
+
+The root block carries the base — `FramedButton(Button):`, with a bare `Manager:` meaning `Manager(Widget)`. This is the
+one block head in a document read as a *declaration* rather than as an instantiation: a child block `Panel:` constructs
+an existing `Panel`, while the root block names the class being defined and what it extends. QML splits the two across
+the filename and the root element; putting both on one line suits a language whose blocks are already `Name:`.
+
+**The hand-written half repeats the markup's base** — `class FramedButton(Button)`, not `class FramedButton(Widget)`.
+Measured, both splice to an identical MRO, so this is a convention rather than something the mechanism enforces; it is
+the right one because it is what keeps the shapes interchangeable (above), because an editor resolves `self` from the
+class in the file being edited and `Widget` would hide every `Button` member from whoever is writing the handlers, and
+because it is true.
+
+**The loader checks the two agree, because CPython will not.** Measured: a hand-written `class FramedButton(Dialog)`
+splices without complaint and the resulting MRO contains no `Dialog` at all — the declared base is discarded silently,
+which is the worst shape this failure can take. So the loader captures `__bases__` before assigning and refuses unless
+`issubclass(generated, declared)`. That is permissive enough to allow a loose ancestor such as `Widget`, and strict
+enough to catch a real disagreement, and it names both files when it refuses.
+
+**Which class to rebase** comes from the generated module, which declares `__navml_component__ = "FramedButton"`. The
+loader looks that name up in the hand-written half rather than deriving a class name from a file name, so there is no
+`snake_case`/`CamelCase` convention to get wrong and a handler module may define helper classes freely. A `button.py`
+that exists and does not define the name is an error naming both files, not a silent fall back to the markup-only shape.
+
+This is also what makes the third blocker under *What converting `Manager` needs and does not have* acute rather than
+incidental: `FramedButton(Button):` names a type exactly as a child block does, so the generated module has to import
+`Button` from somewhere and markup has no import spelling. Inheritance and child construction are one question.
+
+### Building the tree
+
+The generated `__init__` constructs the children itself, **inline, with no `_build()` method**, and that is a correction
+to the earlier sketch rather than a detail. A method would be a single name shared down an inheritance chain, so a
+derived component's would override its base's — and `Button.__init__`'s `self._build()` would then resolve to
+`FramedButton._build`. Measured consequence: the base's children are never built at all and the derived component's are
+built twice. `super().__init__()` chaining gives the right order for free, with nothing to name and nothing to collide.
+Private name mangling would also fix it, and is not needed once there is no method.
+
+Everything *Ids* says survives unchanged — ids are assigned before any binding is installed, before any hand-written
+line runs, and an un-id'd widget still gets a local that dies when the constructor returns.
+
+### The import machinery
+
+`navml/_merge.py`, a `sys.meta_path` finder and two loaders. The merged shape is the interesting one, and it does as
+little as possible:
+
+- `ComponentFinder.find_spec` resolves the spec through `importlib.machinery.PathFinder` exactly as the import system
+  would have, and **wraps only its loader**. `RebaseLoader` forwards `create_module`, `get_code`, `get_source` and
+  everything else to the real `SourceFileLoader`, runs the ordinary execution of `button.py`, and then assigns
+  `__bases__`.
+- Delegating rather than executing two sources into one namespace is what keeps this cheap. The module has exactly one
+  source file, so `__file__`, `__spec__.origin`, `get_source` and `get_code` are each about one file and each true, and
+  `inspect`, `runpy`, `pydoc`, `linecache`, `pdb` and coverage all keep working. A two-source loader gives every one of
+  those up: `inspect.findsource` resolves a class through `sys.modules[cls.__module__].__file__`, one slot for two
+  files, so half the module becomes unsourceable or — when both halves define the same class name — silently returns the
+  wrong body.
+- **Markup only** takes the other branch. `GeneratedLoader` copies the generated module's public names across, points
+  `__file__` at `button_nml.py` and re-homes the class with `__module__`. Both halves of that are load-bearing:
+  `inspect` needs the public module's `__file__` to name the file the class really lives in.
+- **Keyed on `button_nml.py`, never on `button.nml`.** Both halves of a component are then ordinary `.py` files, which
+  reach a wheel automatically inside a declared package, so the import path never depends on a file a `package-data`
+  mistake can drop. Keying on the markup would invert that and repeat the failure `CLAUDE.md` records for
+  `navigator/styles/*.nss`.
+- **`navml.register(__name__)` in a component package's `__init__.py`** is the bootstrap. Importing anything inside a
+  package is guaranteed to run that file first, so there is no ordering hole, and the finder — which sits on
+  `sys.meta_path` and is therefore consulted for every import in the process — can bail on a set lookup that fails. A
+  `.pth` file would not do: those are executed only by `site.addsitedir()`, and `packaging/linux/` mounts its tree on
+  `PYTHONPATH` rather than as a site directory, so a `.pth` would work under pip and pipx and silently not in the `.deb`
+  and `.rpm` — the worst available difference.
+
+Three things this costs, none of them fatal and all of them worth naming:
+
+- **pytest's assertion rewriter calls `PathFinder.find_spec` directly**, bypassing the rest of `sys.meta_path`. Any
+  module it rewrites is loaded raw, so a merged component would come up as a plain `Widget` subclass. It fails loudly —
+  `AttributeError` on the first id — but the rule that follows is flat: **a component module must never be a test
+  module, a `conftest.py` or a pytest plugin.**
+- **A by-path load gets the same thing**, which is what `tests/test_navml.py` pins rather than leaves implicit.
+- **A zipapp or one-file build is foreclosed** while the finder stats real paths. Nothing needs one — the `.deb` is a
+  real directory staged by `pip install --target` — but it is a ceiling rather than an oversight.
+
+### The markup ships
+
+`.nml` files are in the wheel and in both native packages even though nothing loads them, for the reason an open-source
+project keeps its sources beside its build products: somebody reading `button_nml.py` should be able to read what it was
+generated *from*, and somebody who wants a different widget should be able to edit the markup and rebuild rather than
+reverse-engineer the emitted code.
+
+That makes `python -m navml build` a user-facing command rather than only a maintainer's. A pipx or venv install is
+writable, so editing `button.nml` in site-packages and rerunning it regenerates `button_nml.py` and `button.pyi` in
+place; `--check` reports markup that no longer matches its generated half. The `.deb`/`.rpm` tree is root-owned, so
+there the same workflow means copying the package out first, which is the ordinary situation for a system package.
+
+It costs two `[tool.setuptools.package-data]` entries, and a new component directory needs its own or its markup and its
+stubs work from a checkout and vanish on install. `packaging/linux/build.sh` therefore asserts all three extensions are
+staged, with the severities kept apart: a missing `*_nml.py` or `*.pyi` is a broken install, a missing `*.nml` is
+a stripped one.
+
+### What this asks of navkit
+
+Nothing. The merge is `__bases__` assignment, which is Python's; `declarations()` walks the MRO and so spans both halves
+already; `StyleProperty.__set_name__` fires per class body and `_PROPERTIES` is a module-global registry, so a style
+property declared in the generated half registers once; and `_is_a` matches a type selector by walking the MRO for a
+class *name*, so the two same-named classes a merged component puts there match `Button { }` exactly once — which is
+also why both halves keep the component's name rather than the generated one taking a private spelling. A sheet then
+reads the same whether or not a component has handlers.
+
 ## Ids
 
 An id is a **name, never a value**, and both ancestors agree on that much. QML's docs are blunt about it — "it is not
@@ -50,7 +221,7 @@ expression is `eval`'d with the id map as its globals.
 
 ### What an id becomes
 
-A plain instance attribute of the component, assigned in `_build()`:
+A plain instance attribute of the component, assigned in the generated `__init__`:
 
 ```
 Panel:
@@ -73,7 +244,7 @@ survives the widget and `root.ids.gone` is a live entry holding a dead proxy tha
 
 Two consequences worth stating outright:
 
-- **The id attribute is never reassigned after `_build()`**, and that is what makes an ordinary non-reactive attribute
+- **The id attribute is never reassigned after the generated `__init__` has run**, and that is what makes an ordinary
   safe. A binding compiled from `left.width` reads `self.left` and then subscribes to `Panel.width`: it tracks the
   panel's width, but *not* a replacement of
   `self.left`. QML does track its id slot — `captureProperty(context->idValueBindings(idx))` — because incremental
@@ -113,14 +284,15 @@ mechanical rather than aesthetic: the compiled form is a closure over *one* comp
 enclosing instance in scope to chain to.
 
 **Order does not matter.** An expression may name an id declared further down the document.
-`_build()` constructs every widget before it installs any binding, and a binding body is not run until something reads
+The generated `__init__` constructs every widget before it installs any binding, and a binding body is not run until
 the value, so a forward reference costs nothing.
 
-**A widget without an id is anonymous, by construction.** It gets a local in `_build()`, which dies when `_build()`
-returns — the parent's `children` list is then the only reference to it:
+**A widget without an id is anonymous, by construction.** It gets a local in the generated `__init__`, which dies when
+that returns — the parent's `children` list is then the only reference to it:
 
 ```python
-    def _build(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+      super().__init__(**kwargs)
       _w1 = MenuBar(parent=self)
       _w1.width = bind(lambda _o: _o.parent.width)
   
@@ -131,13 +303,14 @@ returns — the parent's `children` list is then the only reference to it:
 No rule is needed to keep an un-id'd widget out of expressions: an id reference always compiles to `self.<id>` and never
 to a bare local, so the widget is unreachable from any expression whether or not the local is still alive.
 
-**Ids are live before any hand-written code runs.** `_build()` assigns every id attribute before it installs the first
-binding, and runs to completion during the component's construction — so there is no window in which `self.left` is
+**Ids are live before any hand-written code runs.** The generated `__init__` assigns every id attribute before it
+installs the first binding, and runs to completion during the component's construction — so there is no window in which
+`self.left` is
 missing. Kivy has one, which is why its ids are unusable from `__init__` and why 1.11 had to add `on_kv_post` after
 years of
 `Clock.schedule_once` folklore. The contract this puts on the still-undecided merge with the hand-written half is a
-single line: the generated `__init__` calls `_build()`, and a hand-written `__init__` must call `super().__init__()`
-before it touches an id.
+single line: the generated `__init__` builds the tree, and a hand-written `__init__` must call `super().__init__()`
+before it touches an id. See *Building the tree* above for why that construction is not a `_build()` method.
 
 ## Declaring a property
 
@@ -180,14 +353,14 @@ class Manager(Widget):
 Without it, `self.console_visible = bind(...)` would store a `Binding` on an ordinary attribute and do nothing, there
 being no descriptor to notice it — the failure whose only symptom is the `<unassigned binding ...>` repr.
 
-What varies is whether a second line joins it in `_build()`, and the test is **whether the expression reads anything
+What varies is whether a second line joins it in the generated `__init__`, and the test is **whether the expression reads anything
 reactive** — precisely whether the rewriter of the next section rewrote any free name:
 
 | The right-hand side  | rewritten? | compiles to                                                                  |
 |----------------------|------------|------------------------------------------------------------------------------|
 | `False`, `0`, `None` | no         | `console_visible = reactive(False)`                                          |
 | `[]`, `Path(".")`    | no         | `entries = reactive(factory=lambda: [])`                                     |
-| `self.width // 3`    | yes        | `w = reactive()`, and `self.w = bind(lambda _o: _o.width // 3)` in `_build()` |
+| `self.width // 3`    | yes        | `w = reactive()`, and `self.w = bind(lambda _o: _o.width // 3)` in `__init__` |
 
 So a declared property may be derived, and `property first_column_width: self.width // 3` is one line rather than two.
 The test costs the generator nothing: the expression compiler already knows whether it touched a free name, so the
@@ -238,7 +411,7 @@ Everything the id rules say, and one more, each checked by the parser with the `
 
 - **A property may not collide with an id, nor with an alias.** Both become `self.<name>`, and `Reactive` defines
   `__get__` *and*
-  `__set__`, so it is a data descriptor and beats the instance `__dict__`. `_build()`'s
+  `__set__`, so it is a data descriptor and beats the instance `__dict__`. The generated `__init__`'s
   `self.left = Panel(parent=self)` would therefore write the panel *into a reactive cell* rather than shadow the
   declaration — wrong, and silently so. An alias collides more simply, both being lines of the same class body: the
   second name would overwrite the first outright.
@@ -257,7 +430,8 @@ declaration's own right-hand side is compiled in that second pass like everythin
 `property first_column_width: self.width // 3` safe: `self` resolves to the component, and the cell is lazy, so nothing
 is read while the class is still being built.
 
-One knock-on, flagged rather than solved: a binding installed in `_build()` lands *after* the children are constructed,
+One knock-on, flagged rather than solved: a binding installed in the generated `__init__` lands *after* the children are
+constructed,
 and `Panel.__init__` starts a directory scan from an effect at construction — so a `Panel` whose `path` came from a
 component property would scan once against the default before the binding arrives. That is the *Component parameters*
 question under *What converting `Manager` needs and does not have*, which this decision makes reachable without
@@ -487,7 +661,8 @@ Each failing with the `.nml` line:
 Each reads as an oversight until it is written down.
 
 - **An initial value.** There is no slot for one and there could not be: the cell it would fill belongs to a widget
-  that does not exist until `_build()` has run. A component wanting one assigns it there, like anything else.
+  that does not exist until the generated `__init__` has run. A component wanting one assigns it there, like anything
+  else.
 - **An `equal=`.** It has no cell to put one on. The `equal=` question left open below would otherwise be asked at a
   third site, and this is why it is not: on an alias, never — the comparator belongs to the component that owns the
   target, which is the only side that knows what the value means.
@@ -545,6 +720,16 @@ of step with the first.
 
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
+
+**An attribute the markup's expressions name has to be declared in the markup.** The `own` set is `declarations(base)`
+plus what the document itself declares, and the hand-written half is not in it — that module does not exist when the
+base is generated, and importing it would be a cycle. So a `reactive()` declared only in `button.py` falls through to
+the last row of the table, compiles to a global of the generated module, and raises a `NameError` that lazy-and-cached
+bindings surface at first read, arbitrarily far from the line that caused it. The rule is the cheap half of the fix and
+costs nothing: a property markup reads is a `property` line. The other half the generator can afford whenever it is
+wanted — `ast.parse` the sibling `.py` *without importing it*, collect the class-body `name: T = reactive(...)`
+assignments, and report the collision at generation time with the `.nml` line. The hand-written half may still declare
+whatever the markup never names.
 
 `root` comes from Kivy and names the component the markup declares — the generated `self`, which is *not* what `self`
 means in the markup. That is the one place where the QML/Kivy vocabulary and the generated Python disagree, so the
@@ -619,7 +804,8 @@ by the same rules —
 unverified, and the emitted block is left as it was actually produced rather than extended by hand:
 
 ```python
-    def _build(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+      super().__init__(**kwargs)
       self.menu.x = 0
       self.menu.y = 0
       self.menu.width = bind(lambda _o: _o.parent.width)
@@ -651,8 +837,8 @@ class Manager(Widget):
     console_visible = reactive(False)
 ```
 
-The prototype was run against a widget tree that already existed, so what it emits is the property half of `_build()`
-only. The real generator constructs the four widgets first — see *Ids* — and construction being a separate earlier pass
+The prototype was run against a widget tree that already existed, so what it emits is the property half of the generated
+`__init__` only. The real generator constructs the four widgets first — see *Ids* — and construction being a separate earlier pass
 is also why `right` may name `left`
 regardless of which of the two the document declares first.
 
@@ -729,9 +915,19 @@ This matters more here than in most code generators. A binding is lazy and its f
 in `navkit/reactive.py` stores the exception and re-raises it at every read — so a bad expression surfaces when
 something first reads the value, arbitrarily far from where it was written.
 
-Carry the `.nml` line and column onto the rewritten nodes (`ast.increment_lineno`, then
-`ast.fix_missing_locations`), compile with the `.nml` path as the filename, and register the generated source with
-`linecache` so the traceback points at the markup.
+That argued for carrying the `.nml` line and column onto the rewritten nodes (`ast.increment_lineno`, then
+`ast.fix_missing_locations`), compiling with the `.nml` path as the filename, and registering the generated source with
+`linecache` so the traceback points at the markup. **That was the right answer for generating in memory, and the file
+layout has since overtaken it.** `button_nml.py` is a real, tracked file, so a frame names it for free and `inspect`,
+`pydoc`, `pdb`, coverage and every checker follow without being told anything — none of which a `linecache` entry under
+a `.nml` filename gets, and coverage actively breaks on, since it parses `co_filename` as Python.
+
+So the generated code keeps its own filename and the markup location rides along as a trailing `# button.nml:12`
+comment on each emitted line, which costs nothing because `ast.unparse` is already called per statement. A reader who
+reaches a generated frame is one grep from the markup that produced it, and every tool that reads a traceback keeps
+working. If the balance ever tips back — if `.nml` frames matter more than tooling does — the earlier scheme is intact
+above and the cost of returning to it is `[tool.setuptools.package-data]` gaining nothing, since *The markup ships*
+already puts the `.nml` in the wheel.
 
 ### What this asks of navkit
 
@@ -742,7 +938,7 @@ Already true, and worth stating so it does not get broken by accident:
   deliberately set aside, and it is navml that sets it aside rather than navkit — see *A binding through an alias is
   re-owned* above.
 - Ids resolve through a closure over the component instance, so generated bindings must be installed inside a method
-  where that instance is in scope — `_build(self)` — not in a class body.
+  where that instance is in scope — the generated `__init__` — not in a class body.
 - The generator needs the set of reactive attributes a class declares, inherited ones included. **Now there**:
   `navkit.reactive.declarations(cls)`, exported from `navkit`, replacing the prototype's `properties()` in the appendix
   below. It maps each name to its declaration rather than returning bare names, because the generator needs to tell the
@@ -778,9 +974,9 @@ needed before the generator is written:
 
 The worked example above is the plan for proving the markup machinery: compile
 `navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the real class rather than the
-example turns up three things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
-so each needs an answer before the generator is finished. One of the three, declaring a reactive property, is settled
-above under *Declaring a property*; the two that remain are not answered here, because each is a language decision
+example turns up four things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
+so each needs an answer before the generator is finished. One of the four, declaring a reactive property, is settled
+above under *Declaring a property*; the three that remain are not answered here, because each is a language decision
 rather than an oversight.
 
 **Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional constructor argument, and
@@ -788,9 +984,19 @@ rather than an oversight.
 name a value arriving from outside the document at all. The two obvious shapes pull in opposite directions: a declared
 parameter list on the component (`Manager` takes `left`, `right`) keeps the Python call site unchanged and makes the
 document a function of its arguments; or every parameter becomes an ordinary reactive property assigned after
-`_build()`, which is uniform but changes when a `Panel` first knows its path — and `Panel` starts a directory scan from
+the generated `__init__`, which is uniform but changes when a `Panel` first knows its path — and `Panel` starts a scan from
 an effect the moment it is constructed, so "after" is not free. QML's answer is that a component has no constructor and
 everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
+
+**Child and base types have no import spelling.** `Manager:` names `MenuBar`, `Panel`, `Console` and `KeyBar`, and a
+root block may name a base as well — `ManagerWindow(Window):`, see *Deriving from another component* above — but nothing
+in a document says where any of those classes comes from, and the generated module is a Python module that has to import
+them. This blocks the conversion as hard as the other two, and it is one question rather than two: a base and a child
+are both just a type named in markup. The options are a resolution convention (an unqualified name means
+`navml.widgets`, with a sibling-document rule for components in the same package) or an explicit directive line. Kivy
+sidesteps it by having the Python class already exist and `#:import` for the rest; QML resolves against the directory
+and the import statements a document declares. Either answer also has to say what happens when two packages export the
+same component name.
 
 **`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is styled with or without an
 application around it, and a `style:` block compiles to
@@ -817,11 +1023,18 @@ question that the *Parts* argument in
 - Comment syntax. Kivy's `.kv` takes `#` and nothing here has said whether `.nml` does. Every declaration this file
   moves into markup carries a `#:` doc comment in `navigator/__main__.py` — `Panel`'s seven, `Console.revision`,
   `Manager.console_visible` — so without one the reason a property exists is lost in translation.
-- Signal and handler syntax, and how it meets the hand-written half of the class — and with them whether an alias
-  may name a widget rather than a property, which *Aliases* defers to this question rather than settling alone.
-- Whether the generator emits type information for the id attributes, so that the paired handler module completes
-  `self.left` as a `Panel`. Class-level annotations or a generated
-  `.pyi`; it interacts with the import hook.
+- Signal and handler syntax, and with it whether an alias may name a widget rather than a property, which *Aliases*
+  defers to this question rather than settling alone. How it *meets* the hand-written half is no longer part of it —
+  *The two halves of a component* settles that, and settles it in a way that raises the stakes rather than lowering
+  them: a markup-only component is a first-class shape, not a degenerate one, so handlers written in markup are what
+  make a document self-sufficient rather than a convenience. `navkit/DESIGN.md` still has the other half, that a widget
+  cannot announce anything yet, and the two have to be settled together.
+- **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
+  `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
+  measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not
+  reported even when mypy is pointed at the file. Options are a second pass with the stubs held aside, moving the stubs
+  somewhere only an IDE reads, or accepting that handler bodies are covered by tests rather than by a checker. Nothing
+  forces a choice yet, because `CLAUDE.md` records that no lint tooling is configured; the day it is, this is waiting.
 
 ### Appendix: the transformer
 
