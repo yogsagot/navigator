@@ -1,3 +1,6 @@
+from navml.widgets.button import Button
+from navml.widgets.label import Label
+
 FramedButton(Button):
     property hint_text: "[enter]"
 

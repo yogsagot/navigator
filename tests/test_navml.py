@@ -13,10 +13,14 @@ Python alone, ``Label`` is markup alone, ``Button`` is both, and
 
 from __future__ import annotations
 
+import ast
 import importlib
 import importlib.machinery
 import importlib.util
 import inspect
+import pathlib
+import re
+import subprocess
 import sys
 import textwrap
 from types import SimpleNamespace
@@ -25,6 +29,7 @@ from uuid import uuid4
 import pytest
 
 import navml
+import navml.widgets
 from navkit.reactive import declarations
 from navkit.stylesheet import parse
 from navkit.widget import Widget
@@ -133,7 +138,7 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     """
     assert label_module.__file__.endswith("label_nml.py")
     assert Label.__module__ == "navml.widgets.label"
-    assert inspect.getsource(Label).startswith("class Label(Widget):")
+    assert inspect.getsource(Label).startswith("class Label(_Widget):")
 
 
 # -- what the splice produces ------------------------------------------------
@@ -377,6 +382,146 @@ def test_reloading_a_merged_component_splices_again(package):
     module = package.load("thing")
     reloaded = importlib.reload(module)
     assert [c.__name__ for c in reloaded.Thing.__mro__[:3]] == ["Thing", "Thing", "Mid"]
+
+
+# -- what a document imports, and what the generator supplies ---------------
+
+
+WIDGETS = pathlib.Path(navml.widgets.__file__).parent
+
+
+def _bound(node: ast.Import | ast.ImportFrom) -> dict[str, str]:
+    """The names one import statement binds.
+
+    ``alias.asname or alias.name.split(".")[0]`` is the whole rule, and it is
+    Python's: ``import navml.widgets`` binds ``navml``, which is why a document
+    wanting ``Label:`` as a block head writes ``from ... import Label``.
+    """
+    where = getattr(node, "module", None) or ""
+    return {alias.asname or alias.name.split(".")[0]: where for alias in node.names}
+
+
+def _imports_of_python(source: str) -> dict[str, str]:
+    """Every name the import block of a generated module binds."""
+    bound: dict[str, str] = {}
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+            continue  # the module docstring
+        if not isinstance(node, (ast.Import, ast.ImportFrom)):
+            break
+        bound |= _bound(node)
+    return bound
+
+
+def _imports_of_markup(source: str) -> dict[str, str]:
+    """The same, for a document -- whose import block ends at the root block.
+
+    Read with Python's own grammar rather than a grammar of navml's: the lines
+    are Python and the generator copies them through untouched.
+    """
+    bound: dict[str, str] = {}
+    for line in source.splitlines():
+        if not line.strip():
+            continue
+        try:
+            node = ast.parse(line).body[0]
+        except SyntaxError:
+            break  # the root block: `Button(Widget):' is not Python
+        if not isinstance(node, (ast.Import, ast.ImportFrom)):
+            break
+        bound |= _bound(node)
+    return bound
+
+
+@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+def test_the_markup_imports_what_its_generated_half_imports(component):
+    """The two halves must not drift while the generator is a stand-in.
+
+    A document's imports are copied into the generated module verbatim, so the
+    document's bound names are exactly the generated module's non-underscored
+    ones.
+    """
+    markup = _imports_of_markup((WIDGETS / f"{component}.nml").read_text())
+    generated = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
+    supplied = {n for n in generated if n.startswith("_")}
+    assert set(markup) == set(generated) - supplied - {"annotations"}
+
+
+@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+def test_the_generator_s_machinery_is_underscored(component):
+    """So that a document may import any name at all -- there is no reserved word.
+
+    Markup never names ``Widget``: a bare ``Label:`` head is what asks for it,
+    and ``Label(X):`` names something the document imported.  So the generator
+    takes ``_Widget`` for itself along with the rest of its machinery, and a
+    document that imports its own ``Widget`` gets exactly that.
+    """
+    bound = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
+    assert "_Widget" in bound
+    supplied = {"Widget", "bind", "reactive", "is_bound", "Any", "Surface"}
+    assert not supplied & set(bound)
+
+
+@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+def test_every_markup_line_reference_points_at_a_real_line(component):
+    """The trailing ``# button.nml:12`` is how a reader gets back to the markup.
+
+    It is also the thing an edit to the markup silently invalidates, which is
+    why it is checked rather than trusted.
+    """
+    lines = (WIDGETS / f"{component}.nml").read_text().splitlines()
+    generated = (WIDGETS / f"{component}_nml.py").read_text()
+    found = re.findall(rf"# {component}\.nml:(\d+)", generated)
+    assert found, "no markup references at all"
+    for number in found:
+        assert 1 <= int(number) <= len(lines), f"{component}.nml:{number} does not exist"
+        assert lines[int(number) - 1].strip(), f"{component}.nml:{number} is blank"
+
+
+# -- the package re-exports lazily ------------------------------------------
+
+
+def test_importing_one_component_does_not_load_the_library(package):
+    """What a cold build needs, and the regression that would break it.
+
+    The generator reads ``declarations(cls)`` off the classes a document names,
+    so generating a component really imports the ones it uses.  If the package
+    re-exported eagerly, importing any one would import every one, and nothing
+    could be generated until everything already had been.
+    """
+    script = (
+        "import sys, importlib\n"
+        "importlib.import_module('navml.widgets.label')\n"
+        "print(' '.join(sorted(m for m in sys.modules "
+        "if m.startswith('navml.widgets.'))))\n"
+    )
+    loaded = subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True, check=True
+    ).stdout.split()
+    assert loaded == ["navml.widgets.label", "navml.widgets.label_nml"]
+
+
+def test_a_component_still_pulls_in_the_ones_it_really_uses():
+    script = (
+        "import sys, importlib\n"
+        "importlib.import_module('navml.widgets.framed_button')\n"
+        "print(' '.join(sorted(m for m in sys.modules "
+        "if m.startswith('navml.widgets.'))))\n"
+    )
+    loaded = subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True, check=True
+    ).stdout.split()
+    assert "navml.widgets.button" in loaded      # FramedButton's base
+    assert "navml.widgets.label" in loaded       # and the Label both use
+    assert "navml.widgets.spacer" not in loaded  # but nothing it does not
+
+
+def test_the_lazy_re_exports_are_transparent():
+    assert navml.widgets.Spacer is Spacer
+    assert "Spacer" in dir(navml.widgets)
+    assert navml.widgets.__all__ == ["Button", "FramedButton", "Label", "Spacer"]
+    with pytest.raises(AttributeError, match="Nonexistent"):
+        navml.widgets.Nonexistent
 
 
 def test_the_finder_declines_everything_it_is_not_asked_about():

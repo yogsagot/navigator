@@ -1,4 +1,6 @@
-Button(Widget):
+from navml.widgets.label import Label
+
+Button:
     property text: ""
 
     Label:

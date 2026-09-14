@@ -5,17 +5,16 @@
 this stub is the only thing a type checker can see for the module name.
 """
 
-from typing import Any
+from typing import Any as _Any
 
 from navkit.screen import Surface
-from navkit.widget import Widget
+from navkit.widget import Widget as _Widget
 
-__navml_component__: str
 __all__: list[str]
 
-class Label(Widget):
+class Label(_Widget):
     text: str
     align: str
-    def __init__(self, **kwargs: Any) -> None: ...
+    def __init__(self, **kwargs: _Any) -> None: ...
     def layout(self, width: int, height: int) -> None: ...
     def render(self, surface: Surface) -> None: ...

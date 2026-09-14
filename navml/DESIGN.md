@@ -94,16 +94,20 @@ discovered the day lint tooling is wired up.
 
 ### Deriving from another component
 
-The root block carries the base — `FramedButton(Button):`, with a bare `Manager:` meaning `Manager(Widget)`. This is the
-one block head in a document read as a *declaration* rather than as an instantiation: a child block `Panel:` constructs
-an existing `Panel`, while the root block names the class being defined and what it extends. QML splits the two across
-the filename and the root element; putting both on one line suits a language whose blocks are already `Name:`.
+The root block carries the base when there is one to carry — `FramedButton(Button):` — and **a bare `Manager:` is how a
+document says it extends `Widget`**, that being the only way it says so: see *A bare head, and why nothing is reserved*
+above. This is the one block head in a document read as a *declaration* rather than as an instantiation: a child block
+`Panel:` constructs an existing `Panel`, while the root block names the class being defined and what it extends. QML
+splits the two across the filename and the root element; putting both on one line suits a language whose blocks are
+already `Name:`.
 
-**The hand-written half repeats the markup's base** — `class FramedButton(Button)`, not `class FramedButton(Widget)`.
-Measured, both splice to an identical MRO, so this is a convention rather than something the mechanism enforces; it is
-the right one because it is what keeps the shapes interchangeable (above), because an editor resolves `self` from the
-class in the file being edited and `Widget` would hide every `Button` member from whoever is writing the handlers, and
-because it is true.
+**The hand-written half repeats the markup's base, and has to spell it either way** — `class FramedButton(Button)`, and
+`class Button(Widget)` for a document whose head is bare. Markup's bare head has no equivalent in Python: a class
+statement with no bases means `object`, which *cannot be spliced at all*, so the `.py` half names `Widget` where the
+`.nml` says nothing. Between two *component* bases it is a convention rather than a rule — measured, `Widget` and
+`Button` splice to an identical MRO — and it is the right convention because it keeps the shapes interchangeable
+(above), because an editor resolves `self` from the class in the file being edited and `Widget` would hide every
+`Button` member from whoever is writing the handlers, and because it is true.
 
 **The loader checks the two agree, because CPython will not.** Measured: a hand-written `class FramedButton(Dialog)`
 splices without complaint and the resulting MRO contains no `Dialog` at all — the declared base is discarded silently,
@@ -196,6 +200,121 @@ property declared in the generated half registers once; and `_is_a` matches a ty
 class *name*, so the two same-named classes a merged component puts there match `Button { }` exactly once — which is
 also why both halves keep the component's name rather than the generated one taking a private spelling. A sheet then
 reads the same whether or not a component has handlers.
+
+## Importing another component
+
+A document names types it does not otherwise say where to find: `Button:` as a child block, `FramedButton(Button):` as
+a root. It says where in **Python's own words**, at the top of the file:
+
+```
+from navml.widgets.label import Label
+
+Button:
+    property text: ""
+
+    Label:
+        id: caption
+```
+
+Components are the case this exists for, but the line is an ordinary Python import and anything importable may be
+imported — see *Why any import* below, which is a stronger argument than it first looks.
+
+### Where the lines go, and what they compile to
+
+**At indent 0, before the root block**, blank lines allowed between them. A line after the root block is rejected with
+its `.nml` line: blocks are made by indentation, and an import inside one would have no meaning to give it.
+
+**They compile to themselves.** `ast.parse` then `ast.unparse` round-trips every form exactly — measured across `as`,
+dotted paths, `from . import x`, `from ..widgets.label import Label` and multi-name lines — and the set of names a line
+binds falls out of the tree as `alias.asname or alias.name.split(".")[0]`. So navml invents no grammar here at all. It
+reuses Python's, which is the same move *Compiling a property expression* makes with `ast.parse(mode="eval")`, and it
+means a sibling component can be named relatively without anything being built for it.
+
+Two forms are refused, each with the `.nml` line:
+
+- **`from x import *`.** It makes the set of names a document binds unknowable, so the generator could no longer check
+  that a block head resolves — see below — and a name arriving that way is one no reader of the document can see.
+- **`from __future__ import …`.** A `__future__` import has to be the first statement in a module and the generator
+  emits its own; a second one is a `SyntaxError` in generated code, which is a poor way to learn this.
+
+**A block head is a single identifier.** `import navml.widgets` binds `navml`, not `widgets`, so it is no use for a
+head and a document wanting `Label:` writes `from … import Label`. Plain `import x` stays legal and is still worth
+having inside an expression, where an attribute chain is ordinary Python.
+
+### A bare head, and why nothing is reserved
+
+**`Label:` is how a document says it extends `Widget`, and the only way it says so.** `Label(Widget):` is not the
+clearer spelling of the same thing — the parenthesised form names a type, and a type a document names is a type it
+imports. So `Label(Widget):` means *whatever the document imported as `Widget`*, and a document that imported nothing of
+that name is told so when it is compiled.
+
+That is worth more than the two characters it saves. The generated module needs names of its own, and a document's
+imports land in the same namespace, so the two could collide — and the answer is now the whole answer:
+
+```python
+from __future__ import annotations                 # always first
+from typing import Any as _Any                     # everything the generator
+from navkit.reactive import bind as _bind          # needs for itself is
+from navkit.reactive import is_bound as _is_bound  # underscored, so that a
+from navkit.reactive import reactive as _reactive  # document's imports cannot
+from navkit.widget import Widget as _Widget        # reach any of it
+
+from navml.widgets.label import Label              # button.nml:1, verbatim
+```
+
+**There is no reserved word.** A document may import any name at all, `Widget` included, and gets exactly what it asked
+for; a bare head asks for navkit's and cannot be confused with it. Had `Widget` stayed implicit it would have had to be
+reserved, and then reserved alongside whatever the generator needed next — a list that grows by taking names away from
+documents that had them. Underscoring costs a little readability in a file nobody edits and settles the question for
+good.
+
+Each emitted line carries its origin as a trailing `# button.nml:1` comment, the import block included — the same
+convention *Source mapping* settles for everything else the generator writes.
+
+### What the generator checks
+
+**Every type a document names must resolve** against the names it binds — the root's base when it has one, and every
+child block head. One that does not fails when the document is compiled, naming the `.nml` line. That is worth having rather than leaving to
+Python: otherwise the failure is a `NameError` raised out of generated code at the first *read* of a lazy,
+failure-caching binding, arbitrarily far from the line that caused it.
+
+### Why any import, and not components only
+
+Restricting a document to components would read as the tidier rule. It is the wrong one, because two navkit mechanisms
+are **silently off** for a name the generated module cannot see, and an import is exactly what turns them on:
+
+- **A declared type is only checked if it resolves.** `_resolve_annotation` in `navkit/reactive.py` evaluates the
+  annotation in the globals of the module whose class carries it, and returns `UNKNOWN` — meaning *unchecked* — for
+  anything it cannot see, then caches that answer for the life of the process. *Declared types* in `navkit/DESIGN.md`
+  records this as the deliberate opt-out, and it is: but it means `property path: Path(".")` is checked against `Path`
+  when the document imports `pathlib` and unchecked when it does not, with no signal either way.
+- **A `style:` block can only be validated against a property whose widget has been imported.** `declared_property()`
+  reads a module-global registry that `StyleProperty.__set_name__` fills when a class body runs. That is the import-order
+  cost *Widget properties* already argues is worth paying, arriving at markup.
+
+It also keeps the conversion target reachable: `Panel.path` is `reactive(Path("."))` today, and *Declaring a property*
+uses `property path: Path(".")` as one of its own examples.
+
+### The cold build
+
+**The generator needs live class objects.** `compile_property(source, cls, ids)` walks `cls.__mro__`, so compiling
+`button.nml` really does import `Label` — generation is not a static pass over text, and the import lines are what make
+that legible rather than magic. Two things follow:
+
+- **`navml build` orders documents by their import graph**, which is readable without executing anything: parse the
+  import block, keep the edges that name another document in the build. A cycle between two documents is an error
+  rather than something to resolve; Python's own answer to a circular import is not one worth inheriting here.
+- **A component package's `__init__.py` must not re-export eagerly.** This was measured on this repository rather than
+  reasoned about: importing `navml.widgets.label` used to load all four components, because the package imported each
+  by name, so a cold build could import nothing until everything had already been generated. `navml/widgets/__init__.py`
+  now re-exports through :pep:`562`'s module `__getattr__`, which keeps `from navml.widgets import Button` working,
+  breaks the coupling, and takes the rest of the library out of the import path of anything that wanted one widget. A
+  `TYPE_CHECKING` block beside it carries the real types, because a module `__getattr__` answers `Any` to a checker and
+  would otherwise make every component untyped at every call site.
+
+### What this asks of navkit
+
+Nothing. The import block is copied into a Python module, and Python resolves it.
 
 ## Ids
 
@@ -294,10 +413,10 @@ that returns — the parent's `children` list is then the only reference to it:
     def __init__(self, **kwargs: Any) -> None:
       super().__init__(**kwargs)
       _w1 = MenuBar(parent=self)
-      _w1.width = bind(lambda _o: _o.parent.width)
+      _w1.width = _bind(lambda _o: _o.parent.width)
   
       self.left = Panel(parent=self)  # id: left
-      self.left.width = bind(lambda _o: _o.parent.width // 2)
+      self.left.width = _bind(lambda _o: _o.parent.width // 2)
 ```
 
 No rule is needed to keep an un-id'd widget out of expressions: an id reference always compiles to `self.<id>` and never
@@ -346,11 +465,11 @@ judged smaller than either alternative.
 The class body always gets the declaration, because that is where a descriptor has to live:
 
 ```python
-class Manager(Widget):
-    console_visible = reactive(False)
+class Manager(_Widget):
+    console_visible = _reactive(False)
 ```
 
-Without it, `self.console_visible = bind(...)` would store a `Binding` on an ordinary attribute and do nothing, there
+Without it, `self.console_visible = _bind(...)` would store a `Binding` on an ordinary attribute and do nothing, there
 being no descriptor to notice it — the failure whose only symptom is the `<unassigned binding ...>` repr.
 
 What varies is whether a second line joins it in the generated `__init__`, and the test is **whether the expression reads anything
@@ -358,9 +477,9 @@ reactive** — precisely whether the rewriter of the next section rewrote any fr
 
 | The right-hand side  | rewritten? | compiles to                                                                  |
 |----------------------|------------|------------------------------------------------------------------------------|
-| `False`, `0`, `None` | no         | `console_visible = reactive(False)`                                          |
-| `[]`, `Path(".")`    | no         | `entries = reactive(factory=lambda: [])`                                     |
-| `self.width // 3`    | yes        | `w = reactive()`, and `self.w = bind(lambda _o: _o.width // 3)` in `__init__` |
+| `False`, `0`, `None` | no         | `console_visible = _reactive(False)`                                         |
+| `[]`, `Path(".")`    | no         | `entries = _reactive(factory=lambda: [])`                                    |
+| `self.width // 3`    | yes        | `w = _reactive()`, and `self.w = _bind(lambda _o: _o.width // 3)` in `__init__`|
 
 So a declared property may be derived, and `property first_column_width: self.width // 3` is one line rather than two.
 The test costs the generator nothing: the expression compiler already knows whether it touched a free name, so the
@@ -453,7 +572,8 @@ Panel:
 
 A stylable property is a declaration a sheet may make that `Style` has no field for — `border` being the first of them,
 for the reason `navkit/DESIGN.md` argues at length — and navkit now takes it as a class attribute,
-`icons = StyleProperty("auto", values=("auto", "none"))`. This directive is that line, and compiles to exactly it.
+`icons = StyleProperty("auto", values=("auto", "none"))`. This directive is that line, and compiles to exactly it --
+spelled `_StyleProperty`, like everything else the generator imports for itself.
 
 `style_property` is a two-token head like `property` and `id`, so the directive rule stands unchanged; the underscored
 spelling is what keeps it decidable against the `style:` block without lookahead, and it is the name it compiles to.
@@ -538,7 +658,7 @@ as anything — but that every hop here was declared by the component it crosses
 A line of the generated class body, as `property` is, but carrying a descriptor of navml's own:
 
 ```python
-class Panel(Widget):
+class Panel(_Widget):
     title: str = _Alias("header", "text")
 ```
 
@@ -684,8 +804,12 @@ Panel:
 the generator has to produce:
 
 ```python
-self.left.width = bind(lambda _o: _o.parent.width // 2)
+self.left.width = _bind(lambda _o: _o.parent.width // 2)
 ```
+
+`_bind` rather than `bind` because that is the name the generated preamble imports it under — every generated-code
+example in this file spells the generator's own machinery with a leading underscore, and hand-written Python still
+calls `bind`. *Importing another component* says why.
 
 The bare `parent` in the markup is not a free variable there — it names something about the widget. Turning the text
 into a lambda is therefore a *rewrite*, not a wrapping: string formatting would have to know which names in an arbitrary
@@ -710,13 +834,18 @@ collides with a property name is simply unreachable by a bare name from inside t
 | `root`                                                                                  | the component instance                                   | `root.left.width` → `self.left.width`                        |
 | `parent`, or any reactive attribute the widget's class declares                         | an attribute of the lambda's argument                    | `parent.width` → `_o.parent.width`                           |
 | an `id` declared elsewhere in the same document                                         | a closure reference to the component instance            | `left.width` → `self.left.width`                             |
-| anything else                                                                           | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the paired handler module imports |
+| anything else                                                                           | left alone, resolved as a global of the generated module | `max`, `min`, and whatever the document imports              |
 
 For the component's own expressions the fourth row includes the properties the document itself declares, which are on
 no class until the generator has emitted one — see *Declaring a property* above. It includes aliases as well, in both
 directions: the component's own, and those of a component used as a child. `declarations()` returns them, because an
 alias is one of navkit's declarations — see *Aliases* above — so the rewriter needs no second source that could fall out
 of step with the first.
+
+That last row read "and whatever the paired handler module imports" until *The two halves of a component* was settled,
+and the `__bases__` splice made it false: the two halves are separate modules with separate globals, so a compiled
+expression cannot see what `button.py` imports and never could. *Importing another component* is what gives the document
+back the capability the row promises, and the row now says so.
 
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
@@ -753,6 +882,11 @@ The markup for the desktop `navigator/__main__.py` builds by hand today, matchin
 `Manager._place()` as it now stands:
 
 ```
+from navigator.widgets.console import Console
+from navigator.widgets.keybar import KeyBar
+from navigator.widgets.menubar import MenuBar
+from navigator.widgets.panel import Panel
+
 Manager:
     property console_visible: False
 
@@ -791,12 +925,21 @@ Manager:
         visible: parent.console_visible
 ```
 
+The four import lines name a package the conversion has to create. `MenuBar`, `Panel`, `Console` and `KeyBar` all live
+in `navigator/__main__.py` today, and while `from navigator.__main__ import Panel` would resolve, it would resolve to a
+*second* copy of the module `python -m navigator` is already running as `__main__` — so the widgets have to move out of
+the entry point before any of this compiles. That is a consequence of the import spelling rather than a cost of it: the
+document says where its children come from, and saying it makes the problem visible at the top of the file instead of
+at run time.
+
 The three `visible` lines are the whole of Ctrl+O, and they are ordinary boolean expressions over a reactive attribute —
 nothing about them needs a new language feature. What they do need is the `property` line above, which *Declaring a
 property* settles. `Console(left)`'s constructor argument is the one hole the example still has, and it is the first of
 the two left in the section after next.
 
-and what the generator emits — verified output of the prototype, not an illustration. Run against a real widget tree it
+and what the generator emits — verified output of the prototype, not an illustration, re-spelled only where *Importing
+another component* later underscored the generator's own names (`bind` to `_bind`), which is a rename and changes
+nothing the run established. Run against a real widget tree it
 reproduces the geometry `navigator/__main__.py` produces by hand, at 80x24, 120x40, and 200x60. The prototype predates
 the console, so the run covered the four widgets below and not the `Console` or the three `visible` lines; those compile
 by the same rules —
@@ -804,24 +947,24 @@ by the same rules —
 unverified, and the emitted block is left as it was actually produced rather than extended by hand:
 
 ```python
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: _Any) -> None:
       super().__init__(**kwargs)
       self.menu.x = 0
       self.menu.y = 0
-      self.menu.width = bind(lambda _o: _o.parent.width)
-      self.menu.height = bind(lambda _o: 1)
+      self.menu.width = _bind(lambda _o: _o.parent.width)
+      self.menu.height = _bind(lambda _o: 1)
       self.keybar.x = 0
-      self.keybar.y = bind(lambda _o: max(1, _o.parent.height - 1))
-      self.keybar.width = bind(lambda _o: _o.parent.width)
-      self.keybar.height = bind(lambda _o: 1)
+      self.keybar.y = _bind(lambda _o: max(1, _o.parent.height - 1))
+      self.keybar.width = _bind(lambda _o: _o.parent.width)
+      self.keybar.height = _bind(lambda _o: 1)
       self.left.x = 0
       self.left.y = 1
-      self.left.width = bind(lambda _o: _o.parent.width // 2)
-      self.left.height = bind(lambda _o: max(3, _o.parent.height - 2))
+      self.left.width = _bind(lambda _o: _o.parent.width // 2)
+      self.left.height = _bind(lambda _o: max(3, _o.parent.height - 2))
       self.right.y = 1
-      self.right.x = bind(lambda _o: _o.parent.width // 2)
-      self.right.width = bind(lambda _o: _o.parent.width - self.left.width)
-      self.right.height = bind(lambda _o: max(3, _o.parent.height - 2))
+      self.right.x = _bind(lambda _o: _o.parent.width // 2)
+      self.right.width = _bind(lambda _o: _o.parent.width - self.left.width)
+      self.right.height = _bind(lambda _o: max(3, _o.parent.height - 2))
 ```
 
 Note `x: 0` compiling to a plain `0` while `height: 1` compiles to a binding — that was the constant-size trap described
@@ -833,8 +976,8 @@ The `property` line compiles to neither of these but to a line of the generated 
 same reason the `Console` is — the prototype predates it:
 
 ```python
-class Manager(Widget):
-    console_visible = reactive(False)
+class Manager(_Widget):
+    console_visible = _reactive(False)
 ```
 
 The prototype was run against a widget tree that already existed, so what it emits is the property half of the generated
@@ -845,8 +988,8 @@ regardless of which of the two the document declares first.
 Two expressions written only to exercise the scope tracking, from the same run:
 
 ```python
-  self.left.footer_text = bind(lambda _o: ', '.join((e.name for e in _o.entries)))
-  self.left.error = bind(lambda _o: (lambda entries: entries)(_o.cursor))
+  self.left.footer_text = _bind(lambda _o: ', '.join((e.name for e in _o.entries)))
+  self.left.error = _bind(lambda _o: (lambda entries: entries)(_o.cursor))
 ```
 
 The first keeps `e` a comprehension target while `entries` beside it becomes `_o.entries`. In the second the nested
@@ -975,9 +1118,9 @@ needed before the generator is written:
 The worked example above is the plan for proving the markup machinery: compile
 `navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the real class rather than the
 example turns up four things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
-so each needs an answer before the generator is finished. One of the four, declaring a reactive property, is settled
-above under *Declaring a property*; the three that remain are not answered here, because each is a language decision
-rather than an oversight.
+so each needs an answer before the generator is finished. Two of the four are settled above — declaring a reactive
+property under *Declaring a property*, and naming another component under *Importing another component*; the two that
+remain are not answered here, because each is a language decision rather than an oversight.
 
 **Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional constructor argument, and
 `Manager(left, right, scheme)` takes three. Markup has properties, which are set *after* construction, and no way to
@@ -988,15 +1131,10 @@ the generated `__init__`, which is uniform but changes when a `Panel` first know
 an effect the moment it is constructed, so "after" is not free. QML's answer is that a component has no constructor and
 everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
 
-**Child and base types have no import spelling.** `Manager:` names `MenuBar`, `Panel`, `Console` and `KeyBar`, and a
-root block may name a base as well — `ManagerWindow(Window):`, see *Deriving from another component* above — but nothing
-in a document says where any of those classes comes from, and the generated module is a Python module that has to import
-them. This blocks the conversion as hard as the other two, and it is one question rather than two: a base and a child
-are both just a type named in markup. The options are a resolution convention (an unqualified name means
-`navml.widgets`, with a sibling-document rule for components in the same package) or an explicit directive line. Kivy
-sidesteps it by having the Python class already exist and `#:import` for the rest; QML resolves against the directory
-and the import statements a document declares. Either answer also has to say what happens when two packages export the
-same component name.
+**Child and base types have no import spelling** — **settled**, under *Importing another component* above. `Manager:`
+names `MenuBar`, `Panel`, `Console` and `KeyBar`, and a root block may name a base as well, and a document now says
+where each of them comes from in Python's own words. It was one question rather than two: a base and a child are both
+just a type named in markup, and one `from … import …` line answers for either.
 
 **`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is styled with or without an
 application around it, and a `style:` block compiles to
