@@ -12,6 +12,7 @@ import pytest
 from navkit.capabilities import FULL
 from navkit.events import KeyEvent, MouseEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
+from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import encode_key
 
@@ -19,12 +20,12 @@ from conftest import FakeTerminal, run_app, settle
 from navigator import icons
 from navigator import __version__
 from navigator.__main__ import (
-    SCHEME,
     THEMES,
     DirEntry,
     Manager,
     Navigator,
     Panel,
+    default_scheme,
     load_scheme,
     main,
     theme_names,
@@ -53,7 +54,7 @@ def panel(tree):
     # A panel outside the desktop has no scheme to resolve against, so it gets
     # the Navigator one directly -- the same sheet Manager installs on itself.
     widget = Panel(tree, width=40, height=20)
-    widget._stylesheet = SCHEME
+    widget._stylesheet = default_scheme()
     return widget
 
 
@@ -335,11 +336,11 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
 def test_the_border_comes_from_the_sheet_not_from_active(panel):
     """``active`` picks the frame only because a rule says so."""
     panel.active = True
-    assert panel.style_property("border") == "double"
+    assert panel.border == "double"
     panel._stylesheet = load_scheme(
         "default", ("theme.nss", "Panel:active { border: single }")
     )
-    assert panel.style_property("border") == "single"
+    assert panel.border == "single"
     buffer = ScreenBuffer(40, 20)
     panel.render(buffer)
     assert "".join(buffer.get(x, 0)[0] for x in range(40)).startswith("┌")
@@ -613,9 +614,20 @@ def test_a_sheet_may_refuse_icons_on_a_terminal_that_could_draw_them(tree):
     assert panel.show_icons
     panel._stylesheet = load_scheme("default", ("theme.nss", "Panel { icons: none }"))
     settle()
-    assert panel.style_property("icons") == "none"
+    assert panel.icons == "none"
     assert not panel.show_icons
     assert panel.gutter == 0
+
+
+def test_a_misspelled_icons_value_fails_at_the_sheet_and_not_silently():
+    """``icons: mone`` used to mean icons-on, since the read site only tested
+    for ``none``.  The declaration on ``Panel`` is what closes that."""
+    with pytest.raises(StylesheetError) as raised:
+        load_scheme("default", ("bad.nss", "Panel { icons: mone }"))
+    assert "not a valid icons" in str(raised.value)
+    assert "bad.nss:1" in str(raised.value)
+    # The spelling it was reaching for still loads.
+    load_scheme("default", ("bad.nss", "Panel { icons: none }"))
 
 
 def test_a_directory_and_a_file_get_different_icons(tree):

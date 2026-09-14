@@ -332,7 +332,14 @@ Things to know before touching the style layer:
 - **Only a *reactive* attribute restyles.** `:state` matches any truthy attribute, but a plain one is read outside the
   dependency graph: it matches the first time and never invalidates afterwards.
 - **Widget properties do not inherit**, only `Style` fields do. `border: double` on a panel does not give its children a
-  frame. Register a non-`Style` declaration name with `stylesheet.register_property()` or the parser rejects it.
+  frame. A non-`Style` declaration is declared on the widget that reads it — `icons = StyleProperty("auto",
+  values=("auto", "none"))` — which names it, defaults it, and says what a sheet may set it to; the parser rejects both
+  an unregistered name and a value outside the declared vocabulary, each with its `.nss` line. The type is the
+  default's own, so `StyleProperty(0)` takes a number. `stylesheet.register_property()` is the bare form underneath,
+  for a key no attribute is held for.
+- **A sheet cannot be parsed before the widgets it styles are imported**, which is the price of that check. This is why
+  `navigator/__main__.py` parses its default sheet in `default_scheme()` on first use rather than at import: the sheet
+  names `icons` and `Panel` is defined further down the file.
 - `navkit/DESIGN.md` records why each of these went the way it did, including the parts that were measured rather than
   argued. Add to it rather than re-deciding.
 

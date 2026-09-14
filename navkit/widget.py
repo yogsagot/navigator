@@ -55,6 +55,15 @@ class Widget:
     #: property by property rather than replacing it, so it does not stop the
     #: properties it leaves alone from being inherited.
     inline_style: Any = reactive(None)
+    #: Which box-drawing characters this widget frames itself with.  A widget
+    #: property rather than a ``Style`` field because a character set produces
+    #: no SGR sequence and is an input to a drawing operation rather than an
+    #: appearance a cell can carry -- navkit/DESIGN.md argues it at length.
+    #: Declared here rather than by the application because :meth:`box_charset`
+    #: reads it and :mod:`navkit.glyphs` owns its vocabulary.
+    border = stylesheet.StyleProperty(
+        glyphs_module.DEFAULT_BOX, values=tuple(glyphs_module.BOX_CHARSETS)
+    )
     #: A sheet governing this widget and everything under it, overriding the
     #: application's.  Normally ``None``; set it on the root of a screen that
     #: brings its own look.
@@ -253,9 +262,13 @@ class Widget:
         terminal = getattr(app, "terminal", None)
         return GLYPHS_UNICODE if terminal is None else terminal.info.glyphs
 
-    def box_charset(self, default: str = glyphs_module.DEFAULT_BOX) -> str:
-        """The six characters this widget's ``border`` asks for and can have."""
-        return glyphs_module.charset(self.style_property("border", default), self.glyphs)
+    def box_charset(self) -> str:
+        """The six characters this widget's ``border`` asks for and can have.
+
+        A widget wanting a different default frame declares :attr:`border`
+        again with one; the vocabulary a sheet may use is the same either way.
+        """
+        return glyphs_module.charset(self.border, self.glyphs)
 
     def add_class(self, *names: str) -> None:
         """Tag this widget, so ``.name`` selectors match it."""

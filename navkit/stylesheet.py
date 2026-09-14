@@ -51,23 +51,6 @@ COLOR_NAMES = {
     )
 }
 
-#: Declaration keys that are not ``Style`` fields but are still legal, because
-#: some widget interprets them.  A widget class registers its own; the parser
-#: checks against this so a misspelled property fails with a line number
-#: instead of being silently dropped the way a CSS typo is.
-_PROPERTIES: set[str] = set()
-
-
-def register_property(*names: str) -> None:
-    """Declare *names* as stylable widget properties.
-
-    Called by a widget class that reads a declaration the ``Style`` type has no
-    field for -- a border character set being the first of them.  Registration
-    is global because a stylesheet is parsed without knowing which widgets it
-    will meet.
-    """
-    _PROPERTIES.update(names)
-
 
 class StylesheetError(Exception):
     """A stylesheet could not be read.  Carries the source line."""
@@ -77,6 +60,190 @@ class StylesheetError(Exception):
         self.message = message
         self.line = line
         self.filename = filename
+
+
+@dataclass(frozen=True, slots=True)
+class PropertySpec:
+    """What a sheet is allowed to *say* about one widget property.
+
+    Not what it means, and not what it falls back to.  A default belongs to the
+    widget class that declared it, and two classes may sensibly disagree about
+    one -- a dialog framed ``double`` where a plain widget is framed ``single``
+    -- while both accept exactly the same four words from a sheet.  This
+    registry is global, so it holds only the half every declaration of a key
+    has to agree on.
+
+    The type is the default's own rather than a thing separately spelled --
+    ``StyleProperty(0)`` takes a number and ``StyleProperty("auto")`` a keyword
+    -- which is the inference navml's ``property`` directive already makes from
+    its right-hand side.  ``kind`` of ``None`` means nothing was said about the
+    type, which is what the bare :func:`register_property` leaves behind.
+    """
+
+    kind: type | None = None
+    values: frozenset | None = None
+
+    @classmethod
+    def of(
+        cls, default: Any = None, values: Iterable[Any] | None = None
+    ) -> PropertySpec:
+        allowed = None if values is None else frozenset(values)
+        if allowed is not None and default is not None and default not in allowed:
+            raise ValueError(
+                f"default {default!r} is not one of the values declared with it"
+            )
+        return cls(None if default is None else type(default), allowed)
+
+    def __str__(self) -> str:
+        if self.values is not None:
+            return " | ".join(sorted(str(v) for v in self.values))
+        return _kind_named(self.kind) if self.kind is not None else "anything"
+
+
+#: Declaration keys that are not ``Style`` fields but are still legal, because
+#: some widget interprets them.  A widget class declares its own -- see
+#: :class:`StyleProperty` -- and the parser checks against this, so a
+#: misspelled property fails with a line number instead of being silently
+#: dropped the way a CSS typo is.
+_PROPERTIES: dict[str, PropertySpec] = {}
+
+
+def register_property(
+    *names: str, default: Any = None, values: Iterable[Any] | None = None
+) -> None:
+    """Declare *names* as stylable widget properties.
+
+    The spec applies to each name given.  Registration is global because a
+    stylesheet is parsed without knowing which widgets it will meet;
+    :class:`StyleProperty` is the declared route to it and this is the bare
+    one, kept for a property nothing holds an attribute for.
+
+    Registering a name twice agreeably is a no-op, so a module imported twice
+    is harmless and a subclass may re-declare a property with a different
+    *default* -- which is not part of the spec, for the reason
+    :class:`PropertySpec` gives.  Registering it twice with conflicting
+    vocabularies raises, because the two would disagree about what a sheet may
+    say and the loser would be whichever imported last.
+    """
+    spec = PropertySpec.of(default, values)
+    for name in names:
+        existing = _PROPERTIES.get(name)
+        if existing is not None and existing != spec:
+            raise ValueError(
+                f"property {name!r} is already declared as {existing}; "
+                f"a second declaration as {spec} would depend on import order"
+            )
+        _PROPERTIES[name] = spec
+
+
+def declared_property(name: str) -> PropertySpec | None:
+    """What a sheet may say about *name*, or ``None`` if it may not say it.
+
+    The read side of the registry, for anything that has to check a
+    declaration without parsing a sheet -- a code generator validating markup
+    against the same union the parser uses.
+    """
+    return _PROPERTIES.get(name)
+
+
+def check_value(
+    key: str, value: Any, line: int = 0, filename: str = "<stylesheet>"
+) -> Any:
+    """Hold *value* against what the widget declaring *key* said it may be.
+
+    Deliberately a second pass over :func:`parse_value`'s result rather than a
+    branch inside it: that function answers ``true``, ``false`` and a digit
+    string before it ever reaches the widget-property branch, so a check
+    written there would pass ``icons: true`` through untouched.  Checking the
+    value it produced covers every form it can produce.
+    """
+    spec = _PROPERTIES.get(key)
+    if spec is None:
+        return value
+    # `type(...) is' rather than isinstance: bool is a subclass of int, so an
+    # int-valued property would otherwise accept `true'.
+    if spec.kind is not None and type(value) is not spec.kind:
+        raise StylesheetError(
+            f"{value!r} is not a valid {key}; expected {_kind_named(spec.kind)}",
+            line,
+            filename,
+        )
+    if spec.values is not None and value not in spec.values:
+        raise StylesheetError(
+            f"{value!r} is not a valid {key}; expected "
+            + _listed(sorted(str(v) for v in spec.values)),
+            line,
+            filename,
+        )
+    return value
+
+
+def _kind_named(kind: type) -> str:
+    return {bool: "true or false", int: "a number", str: "a keyword"}.get(
+        kind, kind.__name__
+    )
+
+
+def _listed(items: list[str]) -> str:
+    """``a``, ``a or b``, ``a, b or c`` -- an error message reads better than a repr."""
+    if len(items) <= 1:
+        return "".join(items)
+    return ", ".join(items[:-1]) + " or " + items[-1]
+
+
+class StyleProperty:
+    """A declaration about a widget that :class:`~navkit.style.Style` cannot hold.
+
+    A border character set is the first of them: it produces no SGR sequence
+    and is meaningless for the overwhelming majority of cells, so it is an
+    input to a drawing operation rather than an appearance a cell can carry --
+    see *Widget properties* in ``navkit/DESIGN.md``.  It is still stylable,
+    and this is how a widget says so::
+
+        class Panel(Widget):
+            icons = StyleProperty("auto", values=("auto", "none"))
+
+    Three facts that were in three places -- the name, in a module-level
+    ``register_property`` call; the default, at the read site; the vocabulary,
+    implied by whatever the read site compared against -- are one line beside
+    the widget that reads them.  The name comes from the attribute, and
+    ``__set_name__`` registers it, so a sheet may not name a property no
+    widget declares and a widget cannot declare one the parser has not been
+    told about.
+
+    The type is the default's own: ``StyleProperty(0)`` takes a number,
+    ``StyleProperty(True)`` a flag, ``StyleProperty("auto")`` a keyword, and
+    ``values`` narrows that further to a fixed vocabulary.  Both halves are
+    then checked where the declaration is read, with its ``.nss`` line.
+
+    Reading is the cascade's answer, so it inherits nothing and changes with
+    the sheet; writing raises, because a stylable property is authored in a
+    sheet or in ``inline_style`` and nowhere else.
+    """
+
+    __slots__ = ("name", "default", "values")
+
+    def __init__(self, default: Any, *, values: Iterable[Any] | None = None):
+        self.name = ""
+        self.default = default
+        self.values = None if values is None else tuple(values)
+        PropertySpec.of(default, self.values)  # raises now rather than at __set_name__
+
+    def __set_name__(self, owner: type, name: str) -> None:
+        self.name = name
+        register_property(name, default=self.default, values=self.values)
+
+    def __get__(self, obj: Any, owner: type | None = None) -> Any:
+        if obj is None:
+            return self
+        return obj.style_property(self.name, self.default)
+
+    def __set__(self, obj: Any, value: Any) -> None:
+        raise AttributeError(
+            f"{self.name!r} is resolved from the stylesheet and cannot be "
+            f"assigned; author it in a sheet, or with "
+            f'merge_style("{self.name}: {value}")'
+        )
 
 
 # -- selectors --------------------------------------------------------------
@@ -441,9 +608,10 @@ def parse_value(
         return number
 
     if key not in STYLE_FIELDS:
-        # A widget property.  Its vocabulary belongs to the widget that reads
-        # it -- ``border: single`` means nothing here -- so a bare keyword is
-        # handed over as-is, and only the widget can say it is wrong.
+        # A widget property.  A bare keyword is its own value here -- what
+        # ``single`` *means* belongs to the widget that reads it -- but whether
+        # this widget accepts that keyword at all is answered by
+        # :func:`check_value` against what the widget declared.
         if _KEYWORD.match(text):
             return text
         raise StylesheetError(f"cannot read value {text!r} for {key}", line, filename)
@@ -489,7 +657,9 @@ def _parse_declarations(
             raise StylesheetError(
                 f"unknown property {key!r}", line, filename
             )
-        declarations[key] = parse_value(key, value, variables, line, filename)
+        declarations[key] = check_value(
+            key, parse_value(key, value, variables, line, filename), line, filename
+        )
     return declarations
 
 

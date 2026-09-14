@@ -13,6 +13,7 @@ import argparse
 import os
 import sys
 from dataclasses import replace
+from functools import cache
 from importlib import metadata
 from importlib.resources import files
 from pathlib import Path
@@ -26,22 +27,15 @@ from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.glyphs import GLYPHS_NERD, tier_named
 from navkit.screen import Surface
 from navkit.style import Style
-from navkit.stylesheet import Stylesheet, parse_value, read, register_property
+from navkit.stylesheet import Stylesheet, StyleProperty, parse_value, read
 from navkit.terminal import Terminal, encode_key, is_a_tty
 from navkit.widget import Widget
 
-from navigator import __version__, icons
-
-#: ``border`` is not a field of ``Style`` -- a box-drawing character set is an
-#: input to a drawing operation, not an appearance a cell can carry -- so the
-#: widget that reads it has to declare it before a sheet may name it.
-register_property("border")
-
-#: ``icons`` says whether a listing shows a Nerd Font glyph beside each
-#: name.  ``auto`` -- the default -- means "whenever the terminal can draw
-#: one", and ``none`` refuses even then, which is what a sheet aiming at
-#: strict DOS fidelity sets.
-register_property("icons")
+# Imported under another name because ``Panel`` declares an ``icons`` style
+# property: inside a method the global still wins, but two ``icons`` a few
+# lines apart meaning a module and a keyword is a trap rather than a saving.
+from navigator import __version__
+from navigator import icons as icon_glyphs
 
 #: Where sheets live.  A directory rather than a single file because a theme is
 #: nothing more than another ``.nss`` loaded after the default one, so this is
@@ -102,9 +96,20 @@ def desktop_style(scheme: Stylesheet) -> Style:
     )
 
 
-#: Parsed once, because a sheet is immutable and every desktop that does not
-#: ask for a theme resolves against the same one.
-SCHEME = load_scheme()
+@cache
+def default_scheme() -> Stylesheet:
+    """The scheme a desktop that does not ask for a theme resolves against.
+
+    Parsed once, because a sheet is immutable and every such desktop wants the
+    same one -- but parsed on the first *call* rather than at import, which is
+    load-bearing.  A sheet is checked against the properties widgets declare,
+    so ``navigator.nss``'s ``icons: auto`` cannot be read until :class:`Panel`
+    has been defined, and :class:`Panel` is defined below.  Ordering is the
+    price of catching a misspelled property at its ``.nss`` line, and deferring
+    the parse is how a module pays it.
+    """
+    return load_scheme()
+
 
 MENU_ITEMS = ["Left", "Files", "Commands", "Options", "Right"]
 FUNCTION_KEYS = [
@@ -159,6 +164,13 @@ class Panel(Widget):
     it visible -- hold no matter which path changed the state, including a
     terminal resize, which the old imperative version got wrong.
     """
+
+    #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
+    #: means "whenever the terminal can draw one" and ``none`` refuses even
+    #: then, which is what a sheet aiming at strict DOS fidelity sets.  The
+    #: application's to declare rather than the kit's: navkit draws box frames
+    #: and knows nothing about icons.
+    icons = StyleProperty("auto", values=("auto", "none"))
 
     path: Path = reactive(Path("."))
     entries: list[DirEntry] = reactive(factory=list)
@@ -293,7 +305,7 @@ class Panel(Widget):
         caller's wish for it do: the sheet says whether icons are wanted and
         the terminal says whether its font could draw one.
         """
-        return self.style_property("icons", "auto") != "none" and self.glyphs >= GLYPHS_NERD
+        return self.icons != "none" and self.glyphs >= GLYPHS_NERD
 
     @property
     def gutter(self) -> int:
@@ -356,7 +368,8 @@ class Panel(Widget):
             if selected:
                 surface.fill(1, y, self.width - 2, 1, " ", style)
             if gutter:
-                surface.draw_text(1, y, icons.icon_for(entry.name, entry.is_dir), style, gutter)
+                icon = icon_glyphs.icon_for(entry.name, entry.is_dir)
+                surface.draw_text(1, y, icon, style, gutter)
             surface.draw_text(1 + gutter, y, entry.name, style, name_width)
             surface.draw_text(self.width - 9, y, entry.display_size, style, 8)
 
@@ -520,12 +533,12 @@ class Manager(Widget):
     #: by hand.
     console_visible: bool = reactive(False)
 
-    def __init__(self, left: Path, right: Path, scheme: Stylesheet = SCHEME):
+    def __init__(self, left: Path, right: Path, scheme: Stylesheet | None = None):
         super().__init__()
         # The desktop brings its own look, so the tree is styled with or
         # without an application around it -- which is also what lets a single
         # panel be built and painted on its own.
-        self._stylesheet = scheme
+        self._stylesheet = scheme or default_scheme()
         self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)
@@ -595,7 +608,10 @@ class Manager(Widget):
 class Navigator(Application):
     """The file manager application."""
 
-    def __init__(self, left: Path, right: Path, scheme: Stylesheet = SCHEME, **kwargs):
+    def __init__(
+        self, left: Path, right: Path, scheme: Stylesheet | None = None, **kwargs
+    ):
+        scheme = scheme or default_scheme()
         kwargs.setdefault("title", "Navigator")
         kwargs.setdefault("background", desktop_style(scheme))
         self.manager = Manager(left, right, scheme)
