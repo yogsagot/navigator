@@ -7,9 +7,10 @@ language in :mod:`navml` or about the file manager built on top of both.
 
 from navkit.application import Application
 from navkit.events import (
+    DoubleClickEvent,
     Event,
     KeyEvent,
-    MouseEvent,
+    MouseClickEvent,
     PasteEvent,
     ResizeEvent,
     emitted,
@@ -40,9 +41,10 @@ __all__ = [
     "Binding",
     "CycleError",
     "DEFAULT_STYLE",
+    "DoubleClickEvent",
     "Event",
     "KeyEvent",
-    "MouseEvent",
+    "MouseClickEvent",
     "PasteEvent",
     "ReactiveError",
     "ResizeEvent",

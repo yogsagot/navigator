@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from navkit.events import Event, KeyEvent, MouseEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -75,7 +75,7 @@ class Button(Widget):
             return await self.press()
         return False
 
-    async def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.action == "press" and event.button == "left":
             return await self.press()
         return False

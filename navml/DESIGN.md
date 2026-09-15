@@ -819,12 +819,12 @@ class Button(Widget):
         return await self.emit(ClickEvent())
 
     async def on_key(self, event): ...    # Space, Enter  -> press()
-    async def on_mouse(self, event): ...  # a left press  -> press()
+    async def on_mouse_click(self, event): ...  # a left press  -> press()
 ```
 
 **Two input routes, one thing they mean.** That is the whole reason a component declares an event rather than letting
-documents bind to `on_key` and `on_mouse` themselves: a listener that had to know which route fired would break the
-moment a third arrived.
+documents bind to `on_key` and `on_mouse_click` themselves: a listener that had to know which route fired would break
+the moment a third arrived.
 
 ### Where the class lives, and why it follows who emits it
 
@@ -1028,10 +1028,10 @@ wrongly. All are generation-time and all name the `.nml` line.
   block quietly beating `Button.on_key`, because the `.py` it parses is the document's and not the child's. Phrased
   about the object it is one rule asked two ways, the difference being which half exists yet — on the root block the
   class is the hand-written half, which cannot be imported and so is parsed; on a child block it is the child's class,
-  which *The cold build* already requires to be live. `Widget.on_key` and `Widget.on_mouse` are do-nothing stubs, so
-  ask which class in the MRO owns the name. A document meaning to replace a child's own handling gives the child a
-  subclass; a document wanting the keys the child left alone puts the line on an ancestor block, where the walk reaches
-  it anyway.
+  which *The cold build* already requires to be live. `Widget.on_key` and `Widget.on_mouse_click` are do-nothing
+  stubs, so ask which class in the MRO owns the name. A document meaning to replace a child's own handling gives the
+  child a subclass; a document wanting the keys the child left alone puts the line on an ancestor block, where the
+  walk reaches it anyway.
 - **A handler body must `await` a method the sibling `.py` defines with `async def`, and must not await a plain one.**
   Both failures are close to silent — an un-awaited coroutine is a `RuntimeWarning` at the next collection and a button
   that does nothing. Checked only where the `def` is visible in that file; an inherited method falls through to the
@@ -1391,8 +1391,8 @@ Label:
 ```
 
 A hand-written handler may call it whatever it likes — the call is positional — but there is nothing to gain by it:
-navkit's own hooks already say `event` throughout, `Widget.on_key(self, event)` and `Application.on_mouse(self, event)`
-included, so markup is adopting the house spelling rather than inventing one.
+navkit's own hooks already say `event` throughout, `Widget.on_key(self, event)` and `Application.on_mouse_click(self,
+event)` included, so markup is adopting the house spelling rather than inventing one.
 
 A `Label:` and not a `Button:`, deliberately, and the difference is the subject of *What the generator checks about a
 handler line* above: the line assigns onto the instance, and an instance attribute beats a class method, so on a
