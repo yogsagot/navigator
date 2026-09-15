@@ -1441,7 +1441,7 @@ that section's own reason: a document allowed to declare `id: event` or `propert
       self.b.on_key = _on_key
   ```
 
-  **`async def`, not `def`.** Every handler is awaited -- `navkit/DESIGN.md`, *Every handler is `async def`* -- and
+  **`async def`, not `def`.** Every handler is awaited — `navkit/DESIGN.md`, *Every handler is `async def`* — and
   `_call` holds an instance-assigned one to it at the call, which is precisely the case markup compiles to. A
   synchronous one raises `TypeError` at the first key rather than at generation, and a body that awaits anything, which
   the canonical routed body below does, could not be compiled at all.
@@ -1462,9 +1462,9 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   component written as both halves that inverts the usual precedence, the hand-written class being the derived one that
   wins everywhere else. `navkit/DESIGN.md` states the rule and leaves the catch here, under *One handler per widget per
   event*, because the assignment is legal and navkit cannot tell a shadow from an intention. **The rule is about the
-  object the line lands on, not about a name**, and *What the generator checks about a handler line* above states it and says why a check
-  phrased by name alone was wrong in both directions. A component that wants the Python one deletes the markup line; a
-  component that wants both writes the markup line to call the method.
+  object the line lands on, not about a name**, and *What the generator checks about a handler line* above states it
+  and says why a check phrased by name alone was wrong in both directions. A component that wants the Python one
+  deletes the markup line; a component that wants both writes the markup line to call the method.
 - **A markup handler always consumes.** navkit reads a handler's return value as *stop propagating* — `dispatch_key`
   offers a key to the children topmost-first and stops at the first `True` — and a body that is an assignment returns
   `None`, so without this the commonest handler there is would read its event and let it through. The third possible
