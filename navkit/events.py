@@ -147,5 +147,26 @@ class PasteEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
+class MountEvent(Event):
+    """A widget joined a live tree: it and its ancestors reach an application.
+
+    Carries nothing.  It exists as an object rather than as a bare
+    ``on_mount()`` call because every handler in navkit and every handler
+    markup can write takes exactly one argument -- so a lifecycle hook that
+    took none would be the one shape a ``.nml`` document could not spell.
+    """
+
+
+@dataclass(frozen=True, slots=True)
+class UnmountEvent(Event):
+    """A widget is leaving a live tree, delivered while it still has its place.
+
+    Sent before the widget is unlinked and before its effects are disposed, so
+    a handler can still read its parent, its geometry and whatever state it
+    was keeping.
+    """
+
+
+@dataclass(frozen=True, slots=True)
 class WakeEvent(Event):
     """Internal: wakes the event loop so it can repaint or shut down."""

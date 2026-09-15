@@ -971,3 +971,23 @@ def effect(
     else:
         reaction.schedule()
     return reaction
+
+
+def dispose_effects(obj: object) -> int:
+    """Stop every effect registered on *obj*.  Returns how many there were.
+
+    The counterpart of calling :func:`effect` without keeping the handle.  An
+    effect is eager, so one whose expression stops making sense -- a widget
+    reading ``self.parent.width`` after it was detached -- does not wait to be
+    read before it fails: it is queued by the very write that broke it and
+    raises at the next flush.  Disposing them is how an owner that is going
+    out of use stops that, and it is what
+    :meth:`navkit.widget.Widget.remove` does on its way out.
+
+    The list is cleared as well as disposed, so an owner that is put back to
+    work registers a fresh set rather than accumulating dead ones.
+    """
+    reactions = _store(obj).pop(_EFFECTS, None) or []
+    for reaction in reactions:
+        reaction.dispose()
+    return len(reactions)

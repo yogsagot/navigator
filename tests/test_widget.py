@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import pytest
+
 from navkit.application import Application
 from navkit.events import Event, KeyEvent, MouseEvent
-from navkit.reactive import bind
+from navkit.reactive import bind, effect, flush_effects
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
+from navkit.stylesheet import parse
 from navkit.widget import Widget
 
 from conftest import RecordingWidget, run_app
@@ -83,23 +86,41 @@ def test_invisible_widgets_and_their_children_are_skipped():
     assert (parent.renders, child.renders) == (0, 0)
 
 
-def test_keys_reach_the_topmost_child_first():
+def test_keys_go_to_the_focused_widget_and_not_its_siblings():
     parent = RecordingWidget()
     lower = parent.add(RecordingWidget())
     upper = parent.add(RecordingWidget())
+    Application(root=parent)
+    lower.can_focus = True
+    lower.focus()
     assert parent.dispatch_key(KeyEvent("a")) is True
-    assert upper.keys == ["a"]
-    assert lower.keys == []
+    assert lower.keys == ["a"]
+    assert upper.keys == []
     assert parent.keys == []
 
 
 def test_unhandled_keys_fall_through_to_the_parent():
     parent = RecordingWidget()
     child = parent.add(RecordingWidget())
+    Application(root=parent)
+    child.can_focus = True
+    child.focus()
     child.handles = False
     parent.dispatch_key(KeyEvent("a"))
     assert child.keys == ["a"]
     assert parent.keys == ["a"]
+
+
+def test_with_nothing_focused_a_key_reaches_nobody_in_the_tree():
+    # The old behaviour toured every descendant until one claimed the key.
+    # A key belongs to whatever holds the keyboard, and when nothing does,
+    # only the widget it was dispatched on is asked.
+    parent = RecordingWidget()
+    child = parent.add(RecordingWidget())
+    Application(root=parent)
+    assert parent.dispatch_key(KeyEvent("a")) is True
+    assert parent.keys == ["a"]
+    assert child.keys == []
 
 
 def test_mouse_goes_to_the_widget_under_the_pointer():
@@ -357,3 +378,523 @@ def test_a_mouse_press_can_be_turned_into_an_announcement_without_focus():
     assert button.heard == ["ok"]
     assert box.heard == ["ok"]
     assert root.heard == ["ok"]
+
+
+# -- focus -----------------------------------------------------------------
+
+
+def test_a_widget_does_not_take_focus_unless_it_says_so():
+    # False on the base class: a container, a label and a frame stay out of
+    # the tab order by saying nothing at all.
+    root = Widget()
+    child = root.add(Widget())
+    Application(root=root)
+    assert child.can_focus is False
+    assert child.focus() is False
+    assert child.focused is False
+
+
+def test_focus_moves_the_application_pointer_and_the_state_with_it():
+    root = Widget()
+    first = root.add(Widget())
+    second = root.add(Widget())
+    app = Application(root=root)
+    first.can_focus = second.can_focus = True
+
+    assert first.focus() is True
+    assert (app.focused, first.focused, second.focused) == (first, True, False)
+    assert second.focus() is True
+    assert (app.focused, first.focused, second.focused) == (second, False, True)
+
+
+def test_focused_is_a_stylesheet_state():
+    # It is a computed, so it is read through the same getattr every :state
+    # selector uses -- and moving focus restyles both widgets untold.
+    sheet = parse("Widget { bold: false } Widget:focused { bold: true }")
+    root = Widget()
+    widget = root.add(Widget())
+    app = Application(root=root, stylesheet=sheet)
+    widget.can_focus = True
+    assert widget.style.bold is False
+    widget.focus()
+    assert widget.style.bold is True
+    app.focused = None
+    assert widget.style.bold is False
+
+
+def test_an_invisible_widget_cannot_be_focused():
+    root = Widget()
+    widget = root.add(Widget())
+    Application(root=root)
+    widget.can_focus = True
+    widget.visible = False
+    assert widget.focus() is False
+
+
+def test_a_detached_widget_cannot_be_focused():
+    loose = Widget()
+    loose.can_focus = True
+    assert loose.focus() is False
+    assert loose.focused is False
+
+
+def test_the_tab_order_is_visible_focusable_widgets_in_tree_order():
+    root = Widget()
+    first = root.add(Widget())
+    box = root.add(Widget())
+    second = box.add(Widget())
+    third = box.add(Widget())
+    skipped = root.add(Widget())
+    hidden = root.add(Widget())
+    for widget in (first, second, third, hidden):
+        widget.can_focus = True
+    hidden.visible = False
+    assert skipped.can_focus is False
+    assert root.focusable() == [first, second, third]
+
+
+def test_a_container_that_takes_focus_comes_before_its_children():
+    root = Widget()
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    box.can_focus = inner.can_focus = True
+    assert root.focusable() == [box, inner]
+
+
+def test_a_subtree_orders_only_itself():
+    # What a modal dialog will run: the same walk over its own subtree, with
+    # nothing outside it reachable.
+    root = Widget()
+    outside = root.add(Widget())
+    dialog = root.add(Widget())
+    inner = dialog.add(Widget())
+    outside.can_focus = dialog.can_focus = inner.can_focus = True
+    assert dialog.focusable() == [dialog, inner]
+
+
+def test_focus_next_walks_the_order_and_wraps():
+    root = Widget()
+    first, second = root.add(Widget()), root.add(Widget())
+    app = Application(root=root)
+    first.can_focus = second.can_focus = True
+
+    assert app.focus_next() is first
+    assert app.focus_next() is second
+    assert app.focus_next() is first
+
+
+def test_focus_next_in_reverse_starts_at_the_end():
+    root = Widget()
+    first, second = root.add(Widget()), root.add(Widget())
+    app = Application(root=root)
+    first.can_focus = second.can_focus = True
+
+    assert app.focus_next(reverse=True) is second
+    assert app.focus_next(reverse=True) is first
+    assert app.focus_next(reverse=True) is second
+
+
+def test_focus_next_answers_none_when_nothing_can_be_focused():
+    root = Widget()
+    root.add(Widget())
+    app = Application(root=root)
+    assert app.focus_next() is None
+    assert app.focused is None
+
+
+def test_tab_out_of_a_widget_that_left_the_order_lands_on_the_first():
+    root = Widget()
+    first, second = root.add(Widget()), root.add(Widget())
+    app = Application(root=root)
+    first.can_focus = second.can_focus = True
+    second.focus()
+    second.visible = False
+    assert app.focus_next() is first
+
+
+def test_removing_the_focused_widget_clears_the_focus():
+    root = Widget()
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    app = Application(root=root)
+    inner.can_focus = True
+    inner.focus()
+
+    # Removing the container it sits in, not the widget itself: focus would
+    # otherwise keep pointing into a subtree that is no longer on screen.
+    root.remove(box)
+    assert app.focused is None
+    assert inner.focused is False
+
+
+def test_removing_an_unrelated_widget_leaves_the_focus_alone():
+    root = Widget()
+    keeper = root.add(Widget())
+    other = root.add(Widget())
+    app = Application(root=root)
+    keeper.can_focus = True
+    keeper.focus()
+    root.remove(other)
+    assert app.focused is keeper
+
+
+def test_a_key_is_not_delivered_through_an_invisible_ancestor():
+    # Focus is a pointer; whether it can be reached is decided when the key
+    # arrives, so hiding a container does not have to chase the focus inside
+    # it.  The container itself is offered the key instead.
+    root = RecordingWidget()
+    box = root.add(RecordingWidget())
+    inner = box.add(RecordingWidget())
+    Application(root=root)
+    inner.can_focus = True
+    inner.focus()
+    box.visible = False
+
+    root.dispatch_key(KeyEvent("a"))
+    assert inner.keys == []
+    assert root.keys == ["a"]
+
+
+# -- mounting --------------------------------------------------------------
+
+
+class LifecycleWidget(Widget):
+    """Records its own lifecycle, in the order it is told about it."""
+
+    def __init__(self, log: list[str], tag: str, **kwargs):
+        super().__init__(**kwargs)
+        self.log = log
+        self.tag = tag
+
+    def on_mount(self, event) -> None:
+        self.log.append(f"mount {self.tag}")
+
+    def on_unmount(self, event) -> None:
+        self.log.append(f"unmount {self.tag}")
+
+
+def test_a_tree_is_not_mounted_until_it_has_an_application():
+    log: list[str] = []
+    root = LifecycleWidget(log, "root")
+    root.add(LifecycleWidget(log, "child"))
+    assert log == []
+    assert root.mounted is False
+
+    Application(root=root)
+    assert log == ["mount root", "mount child"]
+    assert root.mounted is True
+
+
+def test_mounting_goes_parents_first_and_unmounting_children_first():
+    log: list[str] = []
+    root = LifecycleWidget(log, "root")
+    box = root.add(LifecycleWidget(log, "box"))
+    box.add(LifecycleWidget(log, "inner"))
+    app = Application(root=root)
+    assert log == ["mount root", "mount box", "mount inner"]
+
+    log.clear()
+    app.root = None
+    assert log == ["unmount inner", "unmount box", "unmount root"]
+
+
+def test_adding_to_a_mounted_widget_mounts_the_new_subtree():
+    log: list[str] = []
+    root = LifecycleWidget(log, "root")
+    Application(root=root)
+    log.clear()
+
+    box = LifecycleWidget(log, "box")
+    box.add(LifecycleWidget(log, "inner"))
+    root.add(box)
+    assert log == ["mount box", "mount inner"]
+    assert box.mounted is True
+
+
+def test_a_mount_handler_sees_a_settled_geometry_and_an_application():
+    seen = {}
+
+    class Probe(Widget):
+        def on_mount(self, event) -> None:
+            seen["size"] = (self.width, self.height)
+            seen["app"] = self.application is not None
+
+    root = Widget()
+    root.add(Probe())
+    Application(root=root, terminal=None)
+    assert seen["app"] is True
+    assert seen["size"] == (root.width, root.height)
+
+
+def test_an_unmount_handler_still_has_its_place():
+    seen = {}
+
+    class Probe(Widget):
+        def on_unmount(self, event) -> None:
+            seen["parent"] = self.parent
+            seen["mounted"] = self.mounted
+
+    root = Widget()
+    probe = root.add(Probe())
+    Application(root=root)
+    root.remove(probe)
+    assert seen["parent"] is root
+    assert seen["mounted"] is True
+    assert probe.mounted is False
+
+
+def test_a_widget_added_to_a_running_tree_is_laid_out():
+    # Without this it is 0x0 until the next terminal resize, and a dialog
+    # opened at run time paints nothing at all -- silently.
+    root = Widget()
+    Application(root=root)
+    root.width, root.height = 40, 10
+    child = root.add(Widget())
+    assert (child.width, child.height) == (40, 10)
+
+
+def test_adding_to_an_unattached_tree_does_not_touch_the_size():
+    # layout() hands the parent's size to every unbound child, so laying out
+    # at add() time would overwrite a width the caller just passed in.
+    parent = Widget(width=10, height=10)
+    child = parent.add(Widget(width=2, height=2))
+    assert (child.width, child.height) == (2, 2)
+
+
+def test_removing_a_widget_disposes_the_effects_it_registered():
+    root = Widget()
+    probe = root.add(Widget())
+    Application(root=root)
+    runs = []
+    effect(probe, lambda w: runs.append(w.width))
+    assert len(runs) == 1
+
+    root.remove(probe)
+    probe.width = probe.width + 7
+    flush_effects()
+    assert len(runs) == 1
+
+
+def test_an_effect_reading_the_parent_does_not_take_the_application_down():
+    # The failure the lifecycle exists for: an effect is eager, so the very
+    # write that detaches the widget queues it, and it raises at the next
+    # flush -- which Application turns into an exit and a re-raise.
+    root = Widget()
+    probe = root.add(Widget())
+    Application(root=root)
+    widths = []
+    effect(probe, lambda w: widths.append(w.parent.width))
+    assert len(widths) == 1
+
+    root.remove(probe)
+    flush_effects()  # would raise AttributeError without the disposal
+    assert len(widths) == 1
+
+
+def test_effects_registered_on_mount_come_back_when_it_is_mounted_again():
+    # The contract disposal buys: a widget that can be detached declares its
+    # effects in on_mount, and gets a live set every time it is put back.
+    runs = []
+
+    class Probe(Widget):
+        def on_mount(self, event) -> None:
+            effect(self, lambda w: runs.append(w.width))
+
+    root = Widget()
+    probe = Probe()
+    root.add(probe)
+    app = Application(root=root)
+    assert len(runs) == 1
+
+    root.remove(probe)
+    root.add(probe)
+    assert len(runs) == 2
+    probe.width = 3
+    flush_effects()
+    assert runs[-1] == 3
+    assert app.focused is None
+
+
+def test_mounting_twice_does_nothing_the_second_time():
+    log: list[str] = []
+    root = LifecycleWidget(log, "root")
+    Application(root=root)
+    root._mount()
+    assert log == ["mount root"]
+
+
+# -- modal and overlay -----------------------------------------------------
+
+
+def modal_app(**kwargs):
+    """A root with two background widgets and a dialog ready to be opened."""
+    root = RecordingWidget(width=40, height=10)
+    behind = root.add(RecordingWidget(x=0, y=0, width=40, height=10))
+    behind.can_focus = True
+    app = Application(root=root, **kwargs)
+    dialog = RecordingWidget(x=10, y=3, width=20, height=4)
+    dialog.modal = True
+    return app, root, behind, dialog
+
+
+def test_a_modal_takes_the_input_when_it_is_mounted():
+    app, root, behind, dialog = modal_app()
+    assert app.modal is None
+    app.overlay(dialog)
+    assert app.modal is dialog
+    root.remove(dialog)
+    assert app.modal is None
+
+
+def test_an_overlay_goes_on_top_of_everything():
+    app, root, behind, dialog = modal_app()
+    app.overlay(dialog)
+    # Rendering walks children forwards and hit-testing backwards, so last is
+    # painted over the rest and asked about a click first.
+    assert root.children[-1] is dialog
+
+
+def test_keys_do_not_reach_what_is_behind_a_modal():
+    app, root, behind, dialog = modal_app()
+    behind.focus()
+    field = dialog.add(RecordingWidget())
+    field.can_focus = True
+    app.overlay(dialog)
+
+    app._handle(KeyEvent("a"))
+    assert field.keys == ["a"]
+    assert behind.keys == []
+    assert root.keys == []
+
+
+def test_an_unhandled_key_does_not_bubble_out_of_a_modal():
+    app, root, behind, dialog = modal_app()
+    field = dialog.add(RecordingWidget())
+    field.can_focus = True
+    field.handles = False
+    app.overlay(dialog)
+
+    app._handle(KeyEvent("a"))
+    assert (field.keys, dialog.keys) == (["a"], ["a"])
+    assert root.keys == []
+
+
+def test_a_modal_with_nothing_focusable_absorbs_the_keys_itself():
+    app, root, behind, dialog = modal_app()
+    behind.focus()
+    app.overlay(dialog)
+    assert app.focused is None
+
+    app._handle(KeyEvent("a"))
+    assert dialog.keys == ["a"]
+    assert behind.keys == []
+
+
+def test_a_click_outside_a_modal_reaches_nothing():
+    app, root, behind, dialog = modal_app()
+    app.overlay(dialog)
+    app._handle(MouseEvent(2, 8, "left"))
+    assert behind.mice == []
+    assert root.mice == []
+    assert dialog.mice == []
+
+
+def test_a_click_inside_a_modal_arrives_in_its_own_coordinates():
+    app, root, behind, dialog = modal_app()
+    app.overlay(dialog)
+    # The dialog sits at 10, 3; screen 12, 4 is its own 2, 1.
+    app._handle(MouseEvent(12, 4, "left"))
+    assert dialog.mice == [(2, 1)]
+    assert behind.mice == []
+
+
+def test_a_click_reaches_a_modal_nested_below_the_root():
+    app, root, behind, dialog = modal_app()
+    box = root.add(RecordingWidget(x=4, y=2, width=30, height=8))
+    box.add(dialog)
+    assert dialog.mounted and app.modal is dialog
+    # box at 4,2 and the dialog at 10,3 within it: screen 15, 6 is its 1, 1.
+    app._handle(MouseEvent(15, 6, "left"))
+    assert dialog.mice == [(1, 1)]
+
+
+def test_focus_cannot_be_moved_outside_an_active_modal():
+    app, root, behind, dialog = modal_app()
+    field = dialog.add(RecordingWidget())
+    field.can_focus = True
+    app.overlay(dialog)
+    assert app.focused is field
+    assert behind.focus() is False
+    assert app.focused is field
+
+
+def test_tab_stays_inside_the_modal_and_wraps():
+    app, root, behind, dialog = modal_app()
+    first = dialog.add(RecordingWidget())
+    second = dialog.add(RecordingWidget())
+    first.can_focus = second.can_focus = True
+    app.overlay(dialog)
+
+    assert app.focused is first
+    assert app.focus_next() is second
+    assert app.focus_next() is first
+
+
+def test_opening_a_modal_focuses_its_first_field_and_closing_gives_it_back():
+    app, root, behind, dialog = modal_app()
+    field = dialog.add(RecordingWidget())
+    field.can_focus = True
+    behind.focus()
+    assert app.focused is behind
+
+    app.overlay(dialog)
+    assert app.focused is field
+    root.remove(dialog)
+    assert app.focused is behind
+
+
+def test_a_mount_handler_may_choose_the_field_itself():
+    app, root, behind, dialog = modal_app()
+    first = dialog.add(RecordingWidget())
+    second = dialog.add(RecordingWidget())
+    first.can_focus = second.can_focus = True
+    dialog.on_mount = lambda event: second.focus()
+
+    app.overlay(dialog)
+    assert app.focused is second
+
+
+def test_modals_nest_and_unwind_in_order():
+    app, root, behind, dialog = modal_app()
+    inner = RecordingWidget(x=1, y=1, width=5, height=2)
+    inner.modal = True
+    outer_field = dialog.add(RecordingWidget())
+    inner_field = inner.add(RecordingWidget())
+    outer_field.can_focus = inner_field.can_focus = True
+    behind.focus()
+
+    app.overlay(dialog)
+    assert (app.modal, app.focused) == (dialog, outer_field)
+    dialog.add(inner)
+    assert (app.modal, app.focused) == (inner, inner_field)
+
+    dialog.remove(inner)
+    assert (app.modal, app.focused) == (dialog, outer_field)
+    root.remove(dialog)
+    assert (app.modal, app.focused) == (None, behind)
+
+
+def test_a_modal_carried_off_by_an_ancestor_releases_the_input():
+    app, root, behind, dialog = modal_app()
+    box = root.add(RecordingWidget(width=30, height=8))
+    box.add(dialog)
+    assert app.modal is dialog
+    root.remove(box)
+    assert app.modal is None
+    assert dialog.mounted is False
+
+
+def test_overlay_refuses_when_there_is_no_root():
+    app = Application()
+    with pytest.raises(RuntimeError, match="no root"):
+        app.overlay(Widget())

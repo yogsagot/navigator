@@ -1050,6 +1050,332 @@ subclassed outside this module stays bindable — which is the extension point a
 described. `peek()` still takes either, because reading a derived value without subscribing to it is a legitimate
 thing to ask of a computed.
 
+## The cursor: shown where the keys go
+
+**Written**, and the fifth and smallest item of *What the widget library needs first* below. `Widget.cursor_position()`,
+the `caret` widget property, `terminal.place_cursor()`, and a few lines at the end of `Application._render`.
+
+The terminal's own cursor was hidden at startup and never placed again, so the only caret available was a reversed
+cell — which is what `Console.render` paints by hand, and which cannot blink, cannot be a bar, and is not where a
+screen reader or a terminal's own copy-mode thinks the cursor is.
+
+**A widget says where it wants one, in its own coordinates, and only the widget the keys are going to is asked.** The
+one the application asks is the head of the focus path — the same walk `dispatch_key` makes, so the same modal, the
+same invisible-ancestor test, and the same answer of "nobody" when nothing holds the keyboard. A caret drawn on a
+widget that could not receive what is typed into it would be a lie told once per frame, and reusing the walk is what
+makes it impossible rather than merely avoided.
+
+### Why it is not called `cursor`
+
+`navigator`'s `Panel` already has one: `cursor: int = reactive(0)`, the row its selection bar is on. A `cursor` on
+`Widget` would have been shadowed by it in silence — a subclass attribute beating a base-class method with no
+complaint from anything — and the application would have been handed a row number where it expected a position. The
+name is `cursor_position()` for that reason and no other.
+
+It is a **method rather than a reactive attribute** because exactly one widget per frame is asked, at paint time, and
+nothing derives from the answer. A cell on every widget would buy the ability to bind something to a caret's position,
+which nothing wants, and cost one on every widget that has no caret at all.
+
+### Where the escape goes
+
+At the end of the frame, after the diff, always: **painting moves the terminal's cursor as a side effect**, so
+anything placed before it is left wherever the last cell was written. Three cases, and the third is the one that keeps
+an existing promise:
+
+- the cursor changed, appeared or went away — place and show it, or hide it;
+- unchanged, but the frame painted something — re-emit the position alone, since it is already visible and already
+  the right shape, and the painting has just moved it;
+- unchanged, and the frame painted nothing — emit nothing, which is what keeps a frame that changes nothing writing
+  nothing, and `tests/test_application.py` has asserted that since long before there was a cursor.
+
+`render_diff` was left alone. It turns one buffer into another and the cursor is not in the buffer; the placement is
+the application's, which is the layer that already owns the terminal and knows what the focus is.
+
+### The shape is a widget property, from the sheet
+
+`caret` joins `border` as a `StyleProperty` — `Input { caret: bar }` — for the reason *Widget properties: `Style` does
+not grow a border field* above gives: a cursor shape produces no SGR sequence and is an input to an escape rather than
+an appearance a cell can carry. The vocabulary is DECSCUSR's, spelled out (`block`, `underline`, `bar`, each with a
+`blink-` form).
+
+**`default` means "leave the user's own alone", and is the default.** A terminal's cursor shape is a setting somebody
+chose, and a library that overrode it merely because it had the ability would be the rudest thing in it; the escape is
+not emitted at all unless a widget asks for something specific. The reset at shutdown *is* unconditional, like the SGR
+reset it sits beside, because a widget may have changed the shape at any point in the run and the flag that would say
+so belongs to a frame rather than to the terminal.
+
+### The console was the first thing converted
+
+`navigator`'s console painted the child program's cursor by reversing a cell, for want of a real one. It has the real
+one now, and the conversion is three small things worth recording because they are what any adopter does:
+
+- **It takes the focus while it is showing.** `Console.can_focus` is set in `__init__` — not in the class body, where
+  a plain `can_focus = True` would shadow the `Reactive` descriptor with an ordinary attribute — and a `Manager` effect
+  hands it the keyboard whenever `console_visible` goes true. Saying that to navkit is what gets the cursor drawn:
+  `Navigator.on_key` had been saying it in a comment for as long as the console has existed, "it has the screen, so it
+  should have the keyboard".
+- **`cursor_position()` is three lines**, `ConsoleScreen.cursor` having reported `(x, y, hidden)` all along.
+- **It fixed a bug on the way through.** The reversed cell was painted whether or not the view was scrolled back, so
+  scrolling into the history highlighted whatever happened to sit at the live cursor's coordinates among rows it has
+  nothing to do with. `cursor_position()` answers None while `scrolled_back`, which is the question the hack never
+  asked.
+
+Checked on a real pty rather than only against `FakeTerminal`, since this is output the fake one cannot prove: startup
+hides the cursor and never shows it, Ctrl+O emits the placement immediately after the frame's last cell, toggling back
+hides it again, and exit restores both the cursor and the shape.
+
+## Modal and overlay: the input, not the painting
+
+**Written**, and the fourth item of *What the widget library needs first* below — the last of them. `Widget.modal`,
+`Application.modal`, `Application.overlay()`, and the two dispatch paths rerouted around them.
+
+Z-order was never the missing piece. Rendering walks children forwards and hit-testing backwards, so a dialog added
+last is painted over everything and asked about a click first; what "modal" adds is that **the widgets underneath stop
+being reachable**, which is a question about input and about nothing else.
+
+### Modality is a property of the widget, maintained by the lifecycle
+
+`Widget.modal` is declared beside `can_focus`, and reads the same way: what kind of widget this is, on the class, with
+an instance free to differ. The application is told by the **mount walks** — mounting a modal pushes it, unmounting
+pops it — rather than by a `push_modal()` a caller has to remember to pair.
+
+That is the whole reason the mechanism is small. Every route a widget can leave a live tree by already runs the unmount
+walk: `remove()`, a replaced root, an ancestor carried off with it. So the input comes back on all of them without any
+of them knowing what a modal is, and there is no path on which a dialog can leave the screen still holding the
+keyboard. It is the second thing *Mounting: joining a live tree, and leaving one* above paid for, the first being the
+effect disposal it was built for.
+
+The flag is read **when the widget is mounted**. Flipping it on something already mounted does nothing until the next
+time, which is the shape a dialog is used in — declared modal, opened, closed — and the alternative is a stack that has
+to be re-derived whenever anything anywhere is assigned.
+
+### Keys: one substitution
+
+`Application._handle` dispatches a key on `self.modal or self._root`. That single change is the whole of keyboard
+exclusivity, and it is *Focus: one pointer, and eligibility decided at delivery* above paying out: `dispatch_key` walks
+from the focused widget up to the widget it was called on, so dispatching on the modal means the walk cannot start
+outside it — `_focus_path()` answers empty for a focus elsewhere — and cannot bubble past it, the modal being where the
+walk ends. Nothing was added to either method.
+
+A modal with nothing focusable inside it absorbs keys itself, which falls out of the same walk: an empty focus path
+leaves the widget that was dispatched on, and that is the modal.
+
+### The mouse is where modality actually costs something
+
+The mouse routes by **position**, not by focus, so every widget under the pointer is on its path whether or not it is
+supposed to be reachable. There is no equivalent of the focus path to reroute; the event has to be moved.
+
+`Application._dispatch_mouse` translates the event into the modal's *parent's* frame — `Widget.offset()` sums the
+ancestors' positions, the root sitting at the origin — and offers it there, because `dispatch_mouse` takes an event in
+the widget's parent's coordinates and shifts it inward itself. **An action landing outside the modal reaches nothing at
+all**: not the widgets underneath, which is the point, and not the modal either, whose coordinate system it is not in.
+
+**Dismissing on an outside click is a policy and is deliberately absent.** A widget that wants it watches the
+application's own `on_mouse`, which still sees every action before any of this and is where a policy about input
+belongs. Baking it in would make the other choice unexpressible.
+
+### Focus is confined, and handed back
+
+Three things, and the third is the one that was promised earlier:
+
+- `Widget.focus()` refuses a widget outside the active modal, so nothing can put the keyboard back behind the dialog.
+- `Application.focus_next()` runs the tab order over `self.modal or self._root`, which is the whole of what keeps a
+  dialog's Tab inside the dialog — `focusable()` was already subtree-scoped for exactly this.
+- **The stack remembers what had the focus when each modal took over, and hands it back when that modal leaves.** The
+  focus section above said a per-container memory is a feature that composes on top of one pointer and cannot be taken
+  back out of one; this is that feature, built the day something needed it, and the stack is the only place that did.
+
+A modal removed out of order — not the top one — simply leaves the stack without moving the focus, which stays with
+whatever is still holding the input rather than being handed back past it.
+
+Two smaller decisions inside that:
+
+- **The focus is settled after the subtree has finished mounting**, which is why `_mount` is two methods: a modal
+  choosing its first field has to be choosing from children that exist, and a mount handler that focuses something
+  itself must not then be overruled by a default. Handler last wins.
+- **A modal with nothing focusable takes the focus away rather than leaving it outside.** Otherwise a widget the user
+  can no longer reach keeps the `:focused` highlight and goes on looking like the live one.
+
+### Overlay is one method
+
+`Application.overlay(widget)` adds it as the last child of the root and returns it. A widget deep in the tree opens one
+with `self.application.overlay(dialog)`, which is the point: where a dialog is *created* has nothing to do with where
+it belongs on the screen.
+
+There is no `close_overlay()` to pair with it, because the inverse already exists and already does more than a wrapper
+would: `app.root.remove(dialog)` unmounts the subtree, disposes its effects, releases the input if it was modal and
+hands the focus back. A second name for that would only be a worse place to read about it.
+
+### What is deliberately not here
+
+- **Nothing dims or disables what is behind a modal.** `Application.modal` is a plain property over a plain list rather
+  than anything observable, so no widget can currently restyle itself for being blocked. A `computed` can be added the
+  day a widget asks; guessing at the shape now would cost a cell on every widget for a look nothing has asked for.
+- **The mouse is not *captured*.** A drag that starts inside the modal and leaves it stops being delivered at the
+  border rather than continuing to the widget that started it. That is a scrollbar's problem, and a scrollbar is what
+  should define it.
+- **`navigator`'s console is still the `visible`-binding trick**, where the console and the panels take turns. That is
+  the whole-screen special case of this, and it now has a general mechanism to be rewritten onto — but the rewrite is
+  the application's work, and taking turns on `visible` is not wrong, just narrower than what is here.
+
+## Mounting: joining a live tree, and leaving one
+
+**Written**, and the third item of *What the widget library needs first* below. `Widget.mounted`, `on_mount`,
+`on_unmount`, the walks behind them, and `navkit.reactive.dispose_effects()`.
+
+**Mounted means reachable from an application, not "has a parent".** A tree under construction is not mounted, however
+deeply it is nested; the whole of it mounts at once when its root is handed to `Application.root`, which is how
+`navigator` builds its desktop and then attaches it. A widget added to a tree that is already mounted mounts
+immediately, and that case — a dialog opened at run time — is the one the whole section exists for.
+
+The transition is **driven by the three operations that can cause it** — the `root` setter, `add()` and `remove()` —
+rather than derived from `Widget.application`. Deriving would be the tidier-looking answer and does not work: a
+`computed` is lazy, so nothing would notice the change until something happened to read it, and "notice" is the entire
+job. An effect per widget watching its own `application` would work and costs one eager cell per widget for a fact
+three methods already know.
+
+### Why the hook takes an event
+
+`on_mount(event)` and `on_unmount(event)`, with `MountEvent` and `UnmountEvent` carrying no fields at all. A bare
+`on_mount()` would be shorter and is the one shape markup cannot spell: `navml/DESIGN.md` fixes every handler at
+exactly one argument, called `event`, because a `.nml` document has no parameter list to declare anything else with. So
+the empty event is not ceremony, it is what keeps `on_mount:` writable in markup — and *Announcing: a widget event
+walks up* above had already promised this, that a future lifecycle hook would announce itself with an empty event
+rather than an empty argument list.
+
+The hooks are **called directly, not announced.** Announcing walks up, so mounting a subtree of twenty widgets would
+deliver twenty mounts to the root, each of which it can do nothing with. A widget that wants its ancestors to know it
+has arrived announces something of its own, which is one line and says what it actually means.
+
+### Parents first, children first
+
+Mounting is parents first, so a child's handler finds every ancestor already mounted. Unmounting is children first, so
+a child is taken apart while its parent is still whole. Both walk in child order, the tree told about in the order it
+is written.
+
+`on_unmount` runs **before** the unlink and before the effects are disposed. It is the only moment a leaving widget has
+everything it needs: still parented, still sized, still reachable through `application`. A handler releasing something
+outside the reactive graph — a subprocess, an open file, a timer — has no other place to do it from.
+
+### Why removal disposes effects, and what that asks of a widget
+
+This is the part that was a bug rather than a missing feature. **An effect is eager**, so an effect whose expression
+stops making sense does not wait to be read before it fails: `remove()` sets `parent = None`, that write queues every
+effect that read it, and the next flush raises `AttributeError: 'NoneType' object has no attribute 'width'` — which
+`Application._flush_effects` turns into an `exit()` and a re-raise. **Removing a widget took the application down**, and
+it is measured rather than argued: switching the disposal off and removing a widget whose effect reads
+`self.parent.width` reproduces it in six lines.
+
+So `remove()` disposes every effect registered on each widget of the subtree, through the new
+`reactive.dispose_effects(obj)` — the counterpart to calling `effect()` without keeping the handle, which is how every
+effect in this repository is created. `Effect.dispose()` existed and nothing called it; this is its caller.
+
+A binding needs no such rescue, and the asymmetry is the point: a binding is lazy, so a detached widget's
+`w.parent.width` is never evaluated while nothing paints it, and re-attaching writes `parent` again, which invalidates
+the cell and lets the cached failure recover. Eagerness is what makes effects the ones that have to be stopped.
+
+**What it asks of a widget is one sentence: a widget that can be removed and put back declares its effects in
+`on_mount`.** Disposal is permanent, so effects created in `__init__` do not come back — the widget would be detached
+once and dead afterwards, which is worse than the crash it replaces if it is not written down. A widget built once and
+never detached may keep declaring them in `__init__`, which is what `navigator`'s `Panel` does and why nothing in the
+application had to change: its panels are never removed. The flush order that `Panel.__init__`'s comment calls
+load-bearing is preserved either way, being the order the `effect()` calls are made in.
+
+### Two smaller things that fell out
+
+- **`add()` lays a child out, but only into a mounted parent.** Otherwise the child is 0x0 until the next terminal
+  resize and a run-time dialog paints nothing, silently. The restriction to mounted parents is not timidity: `layout()`
+  hands the parent's size to every child whose size is not bound, so laying out during construction would overwrite a
+  `width=` the caller had just passed to the constructor. A tree still being assembled has no size to cascade anyway,
+  and `Application.root` lays the whole of it out when it is attached.
+- **`Application.root = None` unmounts the outgoing tree and drops the focus into it.** The focus half was already
+  owed — *Focus: one pointer, and eligibility decided at delivery* above clears focus in `remove()` for the same reason
+  — and replacing the root is the other way a focused widget can leave the screen.
+
+## Focus: one pointer, and eligibility decided at delivery
+
+**Written**, and the first item of *What the widget library needs first* below. `Application.focused` holds the widget
+keys go to, `Widget.can_focus` says which widgets may hold it, `Widget.focus()` takes it, `Application.focus_next()`
+moves it along, and `Widget.dispatch_key` was rewritten around it.
+
+### The application holds it, the widget derives it
+
+One pointer, on the application, rather than a focused flag per widget or a remembered child per container. The flag
+would need every widget that takes focus to clear every other, and a per-container memory is a *feature* — a dialog
+restoring what it had — that composes on top of a pointer and cannot be taken back out of one.
+
+`Widget.focused` is therefore a `computed` reading `self.application.focused is self`, and that buys the thing worth
+having: **it is a stylesheet state for free.** `:state` selectors resolve through `getattr(widget, state, False)`
+inside the style cascade's own computed, so `Panel:focused { … }` matches with nothing added to the stylesheet engine,
+and moving focus restyles the widget that lost it and the one that took it without either being told. That is
+`navigator`'s hand-rolled `Panel.active` — which `Manager.active_panel` assigns and `navigator.nss` reads — arriving as
+a navkit notion.
+
+### A widget is not focusable until it says so
+
+`can_focus` is `False` on `Widget`, so a container, a frame and a label stay out of the tab order by saying nothing.
+The other default would put every box in the tree in it and make opting *out* the common case, which is the wrong way
+round for a library whose widgets are mostly structure.
+
+It is `reactive` rather than a plain class attribute because a widget withdraws from the order while it is disabled,
+and because a binding should be able to decide it. That costs one cell per widget and makes `Panel:focused` and
+a disabled button's exit from the tab order the same kind of fact.
+
+### Eligibility is decided when the key arrives, not when focus is set
+
+`focus()` refuses a widget that is not focusable, not visible, or not attached to an application. It does **not** walk
+up checking that every ancestor is visible, and `Application.focused` is not policed at all on assignment.
+
+The reason is that the alternative is worse than it looks. A focused widget can stop being reachable without anything
+touching it — `navigator` hides a whole band of the desktop when the console opens, by flipping one reactive flag that
+three `visible` bindings read — so keeping the pointer correct would mean an effect watching the visibility of every
+ancestor of the focused widget, re-established whenever focus moves. Instead `dispatch_key` walks from the focused
+widget up to itself and abandons the walk at the first invisible step, which is a walk it has to make anyway:
+
+- the focus is a *pointer*, and it stays where the author put it;
+- whether the keyboard can reach it is a question about the tree right now, asked once per key.
+
+So hiding a container does not have to chase the focus inside it, and showing it again does not have to restore
+anything. What the walk costs is one `parent` hop per level, on the key path, against an effect per focused widget on
+the write path.
+
+The one place the pointer *is* corrected is `remove()`: a focus left pointing into a detached subtree would send every
+key to a widget that is no longer on screen and can never be reached again. `remove()` clears it before the unlink,
+while the focused widget can still be walked back to the child being removed.
+
+### A key goes to the focused widget and bubbles up
+
+`dispatch_key` was a positional lottery — every visible descendant offered the key, deepest and last-added first, until
+one returned `True`. It now walks the focus path: the focused widget, then its ancestors up to the widget dispatch was
+called on. The same shape as `announce`, started from where the keyboard is rather than from where an event was raised,
+so a container can carry the bindings its children share and an unhandled key finds it.
+
+**With nothing focused, the widget dispatch was called on is offered the key and nobody else.** That is a deliberate
+change rather than a fallback: a key belongs to whatever holds the keyboard, and when nothing does, to nothing. The old
+behaviour only looked harmless because no widget in the repository defines `on_key` — `navigator` routes every key from
+one `if/elif` chain in `Navigator.on_key`, which runs before the tree and is untouched by this.
+
+Two things this deliberately does not do, both of them the widget library's:
+
+- **Nothing binds Tab.** navkit provides `focus_next(reverse=…)` and no key binding for it, because `navigator` spends
+  Tab on switching panels and a library that took it would be wrong there first.
+- **A mouse press does not focus what it hits.** `dispatch_mouse` routes by position and says nothing about the
+  keyboard; a Button that wants the pair calls `focus()` in its own `on_mouse`, which is one line and a policy.
+
+### The tab order is a walk, not a list
+
+`Widget.focusable()` returns the visible, focusable widgets of a subtree in tree order, pre-order, so a container that
+takes focus comes before the children it contains. `Application.focus_next()` runs it over the root each time rather
+than keeping one: the tree is reactive, so a kept order would be stale the moment a widget is added, hidden or
+disabled, and the walk is over a tree the loop already repaints whole.
+
+**It is scoped to a subtree because that is what modal will need.** A dialog runs the same walk over itself and nothing
+outside it is reachable — which is the half of *Modal and overlay* below that focus is responsible for, left in the
+right shape rather than built now.
+
+A focus that has left the order — hidden, or removed — does not stop a move: the search starts from the end it came
+from, so Tab out of a vanished widget lands on the first widget rather than on nothing.
+
 ## Announcing: a widget event walks up
 
 **Written**, and decided ahead of the code because `navml/DESIGN.md` had written its handler rules against it —
@@ -1189,8 +1515,15 @@ is a different sentence than the one that list was making.
 
 ## Still open
 
-- What `Application.background` becomes. It clears the buffer each frame and already duplicates what `Manager.render`
-  paints; once the desktop widget paints its resolved style, one of the two is redundant.
+- ~~What `Application.background` becomes.~~ **Answered: it is derived from the root widget's resolved style.** The
+  duplication was never the second *paint* — `Manager.render` filling its own area is what lets the desktop be painted
+  with no application around it, which `Manager.__init__`'s own sheet exists for. It was the second *derivation*:
+  `navigator.nss` says `Manager { fg: $desktop-fg; bg: $desktop-bg }`, and `desktop_style()` read those same two
+  variables by a separate route, going behind the cascade to the raw variable table because it ran "before any widget
+  exists to ask". Asking the root at paint time is later, and later is when the answer exists. `background=` is now
+  `None` by default and still accepted, for a root that paints only part of itself or for no root at all; `Navigator`
+  stops passing it and `desktop_style()` is gone. Checked across all eleven themes: every desktop colour resolves to
+  what it did before.
 - Which parts and properties the eventual *library* widgets declare. `navigator/__main__.py` has settled its own —
   `Panel` paints `row`, `title`, `footer` and `error` and reads `border` and `icons` properties,
   `MenuBar` paints `hotkey`, `KeyBar` paints `number` — but a widget's parts are its public styling surface, and they
@@ -1198,43 +1531,65 @@ is a different sentence than the one that list was making.
 - What a full-screen child does. `run_on_terminal` hands over the real terminal and loses the output, which is the one
   thing the console exists to keep. The alternative is teaching the console an alternate buffer of its own — pyte stores
   `?1049` without obeying it — and that is worth doing only once something actually launches an editor.
-- Where the console's key routing belongs. `Navigator.on_key` currently decides what the child gets and what Navigator
-  keeps, which is the application's business only for as long as there is one console; a focus notion in `Widget` is the
-  eventual home — the first item of the section below.
+- ~~Where the console's key routing belongs.~~ **Answered by focus, as predicted, and it took three methods instead
+  of one.** `Navigator.on_key` keeps only what means the same thing wherever the focus is — Ctrl+O, and F10/Ctrl+Q —
+  because an application hook runs before the widgets, so whatever is kept there is kept from the console, from the
+  panels and from every dialog not yet written. `Console.on_key` keeps the scrollback and sends the rest to the child.
+  `Manager.on_key` keeps the panel keys and Alt+X. **The `if manager.console_visible:` that used to arbitrate is gone
+  entirely**: the console holds the focus while it is showing, so the focus path answers that question and the
+  desktop's own handler never runs. Alt+X sits with the desktop rather than with the other two ways out because it has
+  always been a desktop key — with the console up it is a keystroke for the child, and the child gets it by
+  `Manager.on_key` never running.
+
+  One thing had to change to make it safe, and it is worth knowing before writing anything similar: **the focus
+  handover has to be synchronous with the flag it follows.** It was an effect for one commit, which is correct for the
+  cursor — an effect runs before the frame is composed, so the caret is never drawn in the wrong place. It is wrong
+  for a keyboard: a batch of events is dispatched *before* the effects flush, so a Ctrl+O and the keystroke behind it,
+  arriving together as a paste or fast typing do, would be routed by a focus that had not moved yet and the second key
+  would reach the panels. `toggle_console` now moves the focus itself, and a test posts both events in one callback to
+  pin it.
 - Which glyphs beyond a box frame the *library* widgets need — a scrollbar thumb, a menu's submenu arrow, a checkbox.
   `navkit/glyphs.py` holds box character sets and nothing else, because those are all anything draws today. Each new one
   needs the same three answers the box sets have: an ASCII form, a Unicode form, and whether a Nerd Font improves on it.
 
 ### What the widget library needs first
 
-The markup language does not need any of these — a `.nml` that declares a tree, binds geometry and carries a `style`
-block compiles onto what is already here, and `Manager._place()` is the proof. A **widget library** does, because a
-button, a dialog and a pull-down menu are all made of them. Listed in the order they block each other, which is also the
-order to build them:
+**All four are now built**, and this list is kept as the record of what they were and in which order they unblocked
+each other, because each one is cheaper than the last for reasons the previous one paid for. The markup language never
+needed any of them — a `.nml` that declares a tree, binds geometry and carries a `style` block compiles onto what was
+already here, and `Manager._place()` is the proof. A **widget library** needs all four, because a button, a dialog and
+a pull-down menu are made of them.
 
-1. **Focus.** There is none. `dispatch_key` offers a key to *every* visible descendant, deepest and last-added first,
-   until one returns True — a positional lottery that works only because nothing yet competes for a key. The application
-   sidesteps it entirely: `Navigator.on_key` is one central `if/elif` chain over a hand-rolled `Panel.active` bool, and
-   `Manager.active_panel`
-   is what a focused widget would otherwise be. (4) depends on this one; (2) and (3) turned out not to — see
-   *Announcing: a widget event walks up* above, where a nested button takes a mouse press by position with no focus
-   anywhere in the picture.
+1. **Focus — done.** `Application.focused`, `Widget.can_focus`, `Widget.focus()`, `Widget.focusable()` and
+   `Application.focus_next()` are written and tested, and `dispatch_key` now walks the focus path instead of touring
+   every descendant until one claimed the key; *Focus: one pointer, and eligibility decided at delivery* above is the
+   reasoning. (4) did depend on this one, and cost one substitution because of it. (2) and (3) turned out not to — see
+   *Announcing: a widget event walks up*, where a nested button takes a mouse press by position with no focus anywhere
+   in the picture. What is left here is the application's own use of it: `Navigator.on_key` is still one central
+   `if/elif` chain over a hand-rolled `Panel.active`, and `Manager.active_panel` is still what a focused widget would
+   otherwise be. Converting those is `navigator`'s work, not navkit's, and nothing forces it before the panels have to
+   compete with a dialog.
 2. **Signals — done.** `Widget.announce()`, `Event.handler` and the `_handle` fallback are written and tested;
    *Announcing: a widget event walks up* above is the whole of the reasoning, and `navml/DESIGN.md` has the markup half
    it had to be settled with. Reactive attributes plus `effect()` stay the right answer for *state*; a signal is for
    the thing that has no state, "this button was pressed". Of the two events that still never reach a widget,
    `ResizeEvent` is answered by `layout()` already and `PasteEvent` is waiting on focus rather than on this.
-3. **Mount and unmount.** `add()` appends and invalidates but never calls `layout()` on the new child, so a widget added
-   while the application is running is 0x0 until the next resize unless every one of its sizes is bound — a dialog
-   opened at run time silently paints nothing.
-   `remove()` sets `parent = None` and stops; `Effect.dispose()` exists and nothing calls it, and a binding written as
-   `w.parent.width` then raises on a detached widget and *caches* the failure. Effects are held by weak reference, so
-   this is a correctness question rather than a leak.
-4. **Modal and overlay.** Z-order is child-list order — paint forwards, hit-test backwards — which is enough to put a
-   dialog on top and no help at all in stopping the widgets underneath from also handling the keystroke. Exclusive input
-   is what "modal" means, and it needs (1) first. The application's `visible`-binding trick, where the console and the
-   panels take turns, is the whole-screen special case of this and does not generalise to a centred dialog.
+3. **Mount and unmount — done.** `Widget.mounted`, `on_mount`/`on_unmount` with their empty events, the two walks and
+   `reactive.dispose_effects()` are written and tested; *Mounting: joining a live tree, and leaving one* above is the
+   reasoning. `add()` now lays a child out into a mounted parent, and `remove()` disposes the subtree's effects — which
+   was a crash rather than a gap, since an eager effect reading `self.parent.width` raises at the flush that follows
+   the detach and `Application._flush_effects` turns that into an exit. The binding half needed nothing: lazy cells are
+   never evaluated while nothing paints them, and re-attaching invalidates the cached failure.
+4. **Modal and overlay — done.** `Widget.modal`, `Application.modal`, `Application.overlay()` and the two rerouted
+   dispatch paths are written and tested; *Modal and overlay: the input, not the painting* above is the reasoning.
+   Z-order needed nothing — paint forwards, hit-test backwards already puts a dialog on top. Keyboard exclusivity cost
+   one substitution, because (1) had made `dispatch_key` walk a focus path that a modal can be the end of. The mouse
+   cost an actual reroute, routing by position rather than by focus. And the modal stack is maintained by (3)'s mount
+   walks, so every way out of the tree gives the input back without knowing what a modal is.
 
-A fifth, smaller: **the cursor is unconditionally hidden** (`Terminal.start` emits `HIDE_CURSOR`
-and `render_diff` never places one), so a text input has no caret except a reversed cell — which is what
-`Console.render` already does by hand.
+A fifth, smaller — **done**: the cursor was unconditionally hidden (`Terminal.start` emits `HIDE_CURSOR` and
+`render_diff` still never places one), so a text input had no caret except a reversed cell. `Widget.cursor_position()`
+now says where one belongs, the application places it at the end of the frame for whichever widget the keys are going
+to, and `caret` is a widget property the sheet can set to a DECSCUSR shape. *The cursor: shown where the keys go*
+above is the reasoning. `navigator`'s console was converted with it: it takes the focus while it is showing and reports
+the child program's cursor, so `Console.render`'s reversed cell is gone.
