@@ -1,10 +1,20 @@
-"""Event value objects: naming, matching and modifiers."""
+"""Event value objects: naming, matching, modifiers and handler names."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import ClassVar
+
 import pytest
 
-from navkit.events import KeyEvent, MouseEvent
+from navkit.events import (
+    Event,
+    KeyEvent,
+    MouseEvent,
+    PasteEvent,
+    ResizeEvent,
+    WakeEvent,
+)
 
 
 @pytest.mark.parametrize(
@@ -70,3 +80,67 @@ def test_wheel_detection():
 def test_events_are_immutable():
     with pytest.raises(AttributeError):
         KeyEvent("a").key = "b"
+
+# -- handler names ---------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class ClickEvent(Event):
+    x: int = 0
+
+
+@dataclass(frozen=True, slots=True)
+class DoubleClickEvent(ClickEvent):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class SelectionChanged(Event):
+    index: int = 0
+
+
+@dataclass(frozen=True, slots=True)
+class Renamed(Event):
+    handler: ClassVar[str] = "on_something_else"
+
+
+@pytest.mark.parametrize(
+    ("event_class", "expected"),
+    [
+        (KeyEvent, "on_key"),
+        (MouseEvent, "on_mouse"),
+        (ResizeEvent, "on_resize"),
+        (PasteEvent, "on_paste"),
+        (WakeEvent, "on_wake"),
+    ],
+)
+def test_the_events_that_predate_the_rule_obey_it(event_class, expected):
+    # The derivation was read off these four, not imposed on them: each name
+    # is the hook Application already declares.
+    assert event_class.handler == expected
+
+
+@pytest.mark.parametrize(
+    ("event_class", "expected"),
+    [
+        (ClickEvent, "on_click"),
+        (SelectionChanged, "on_selection_changed"),
+        (Renamed, "on_something_else"),
+    ],
+)
+def test_a_new_event_names_its_own_handler(event_class, expected):
+    assert event_class.handler == expected
+
+
+def test_a_subclass_does_not_inherit_the_handler_it_refines():
+    # Otherwise a widget wanting only the plain click could not say so.
+    assert DoubleClickEvent.handler == "on_double_click"
+    assert issubclass(DoubleClickEvent, ClickEvent)
+
+
+def test_deriving_a_handler_leaves_the_dataclass_alone():
+    # @dataclass(slots=True) rebuilds the class; __init_subclass__ has to
+    # survive that, and so do the value semantics every event relies on.
+    assert ClickEvent.__slots__ == ("x",)
+    assert ClickEvent(2) == ClickEvent(2)
+    assert "handler" not in ClickEvent.__slots__

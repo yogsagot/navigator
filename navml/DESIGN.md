@@ -1174,6 +1174,15 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   The body is copied through with its free names rewritten and nothing else done to it, so the one statement under
   the comment is exactly the one markup line it names. The `return True` beneath it is the generator's own, for the
   reason in the next bullet.
+- **An assignment beats a method, which is backwards here, so the generator rejects the pair.**
+  `self.b.on_click = _on_click` lands on the instance and wins over a `def on_click` defined on the class — and for a
+  component written as both halves that inverts the usual precedence, the hand-written class being the derived one that
+  wins everywhere else. `navkit/DESIGN.md` states the rule and leaves the catch here, under *One handler per widget per
+  event*, because the assignment is legal and navkit cannot tell a shadow from an intention. The check is the one
+  *Name resolution* above already describes for reactive declarations the Python half alone declares: `ast.parse` the
+  sibling `.py` **without importing it**, collect the handler names its class body defines, and fail the document
+  naming both the `.nml` line and the `.py` method. A component that wants the Python one deletes the markup line; a
+  component that wants both writes the markup line to call the method.
 - **A markup handler always consumes.** navkit reads a handler's return value as *stop propagating* — `dispatch_key`
   offers a key to the children topmost-first and stops at the first `True` — and a body that is an assignment returns
   `None`, so without this the commonest handler there is would read its event and let it through. The third possible
@@ -1187,14 +1196,16 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   handler that stops running, with the document that claimed the event one level in.
 
   Two edges. Where the protocol ignores the value — `Application.on_resize` is annotated `-> None` — the `return True`
-  costs nothing, and where it reads it the answer is the same every time, which is the property being bought. And this
-  answers navkit's *propagation* protocol only: if the announce mechanism still open below gives navkit a broadcast
-  signal no listener can cancel, there is no value to return and the rule has nothing to say there.
-- **It works before signals do.** navkit cannot announce anything yet and `navkit/DESIGN.md` has that half of the
-  question, but `Widget.on_key` is a method `dispatch_key` calls as `self.on_key(event)` — so an instance attribute
-  holding a one-argument function shadows the method and is called with precisely the argument this rule names. Key and
-  mouse handlers in markup need nothing that does not exist. What a signal mechanism adds is more events to handle, not
-  a different shape of handler.
+  costs nothing, and where it reads it the answer is the same every time, which is the property being bought. And the
+  announce mechanism has since been designed around this same protocol rather than around a broadcast —
+  `navkit/DESIGN.md`, *Announcing: a widget event walks up* — so consuming means something for a widget's own events
+  too: the ancestors do
+  not see what the document that named the widget has claimed. The two notes agree on which claim is the specific one.
+- **It works for input as well as for signals.** `Widget.announce()` now exists — `navkit/DESIGN.md`, *Announcing: a
+  widget event walks up* — and it looks a handler up under `event.handler`, which finds an instance attribute exactly
+  as `dispatch_key` finds `self.on_key`. So one emitted assignment serves both directions: a key arriving from the
+  terminal and a `ClickEvent` a sibling raised reach the same generated function, with the same one argument, under the
+  same name. What the widget library adds is more events to handle, not a different shape of handler.
 
 ### Source mapping
 
@@ -1315,8 +1326,10 @@ question that the *Parts* argument in
   make a document self-sufficient rather than a convenience. `navkit/DESIGN.md` still has the other half, that a widget
   cannot announce anything yet, and the two have to be settled together. The *body* is no longer part of it either —
   *A handler body is one line* and *The handler's one argument is `event`* above settle the body, its argument and what
-  it returns — so what remains here is the spelling of the handler line, how a handler is attached to whatever
-  announces to it, and navkit's missing announce mechanism.
+  it returns — and `navkit/DESIGN.md`'s *Announcing: a widget event walks up* has settled the other half, an event
+  class whose handler name is derived from it and a walk from the emitter upward. So what remains here is the spelling
+  of the handler line itself and how the generator knows which event a name like `on_click` belongs to, neither of
+  which can be finished before the widget library declares some events to point at.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not
