@@ -752,11 +752,12 @@ nothing here touches it.
 further, and the rule is what makes the difference from `outer.ids.child.ids.grandchild` real: each hop is an export
 that the component in the middle declared, rather than a reach-through it never agreed to.
 
-**An alias to a widget is not offered.** QML has one — `property alias headerItem: header` — and it hands the widget
-out whole, which recreates the reach-through with one extra step and no further declaration. It would also be a
-declaration with no cell of its own, which `unbind()` and `is_bound()` could not answer for. The case that wants it is
-naming an inner button in order to connect a handler to it, and signals are open on both sides of the layer boundary;
-settle it with them rather than ahead of them.
+**An alias to a widget is not offered**, and the deferral this paragraph used to end on is now discharged. QML has
+one — `property alias headerItem: header` — and it hands the widget out whole, which recreates the reach-through with
+one extra step and no further declaration. It would also be a declaration with no cell of its own, which `unbind()`
+and `is_bound()` could not answer for. The case that wanted it was naming an inner button in order to connect a
+handler to it, and **that case has evaporated**: an emitted event walks up, so an outer document handles a click from
+a button it cannot name. See *This settles the widget-alias question, and settles it as no* below.
 
 ### Where it may appear, and what it may be called
 
@@ -796,6 +797,116 @@ Each reads as an oversight until it is written down.
   the document its reader is looking at. `_Alias` should catch and re-raise naming both ends, and carry a `__repr__`
   reading `<alias Panel.title -> header.text>`, so that the three functions which reject a non-declaration say
   something legible when they do.
+
+## Declaring an event
+
+A component says what it emits, and the widget library is where every event that is not terminal input comes from.
+`navkit/DESIGN.md`'s *What belongs in `navkit/events.py`* draws the other side of that line: navkit carries the events
+it raises itself and nothing a widget *means*.
+
+The worked example is the one the library will be full of — a `Button` clicked by a mouse press **or** by Space:
+
+```python
+@dataclass(frozen=True, slots=True)
+class ClickEvent(Event):
+    """The button was pressed, by whichever route."""
+
+
+class Button(Widget):
+    emits = (ClickEvent,)
+
+    async def press(self) -> bool:
+        return await self.emit(ClickEvent())
+
+    async def on_key(self, event): ...    # Space, Enter  -> press()
+    async def on_mouse(self, event): ...  # a left press  -> press()
+```
+
+**Two input routes, one thing they mean.** That is the whole reason a component declares an event rather than letting
+documents bind to `on_key` and `on_mouse` themselves: a listener that had to know which route fired would break the
+moment a third arrived.
+
+### Where the class lives, and why it follows who emits it
+
+**Beside the component, in its hand-written half** — `ClickEvent` in `button.py`, next to `Button`. Nothing is
+registered anywhere: navkit derives `on_click` from the class name at class creation, so a document that uses a Button
+writes `on_click:` without importing the class at all.
+
+Markup can declare one too, and **which half owns it is decided by which half emits it**. That is not a preference; it
+falls out of a rule already in this file. A markup `event` line puts the class in `button_nml.py`, and *Why the
+hand-written half never names the base* forbids that half from naming the generated module — so a `.py` that emitted
+it could not import it. Hence:
+
+| the event is emitted from | declared in | reached as |
+|---------------------------|-------------|------------|
+| the hand-written half     | `button.py`, beside the class | an ordinary global of that module |
+| a one-line markup handler | `button.nml`, with `event`    | a global of the generated module |
+
+**A component may not do both**, and the generator rejects it with the `ast.parse` of the sibling `.py` *without
+importing it* that *Name resolution* already specifies for reactive declarations the Python half alone declares.
+
+### `event ClickEvent`
+
+A directive line with a two-token head, like `property`, `alias` and `style_property`:
+
+```
+Button:
+    event ClickEvent
+    on_key: await self.emit(ClickEvent())
+```
+
+It emits both halves of the declaration into the generated class — the `Event` subclass, and the `emits` entry naming
+it — so a markup-only component is a first-class shape for events too, which *The two halves of a component* insists
+on everywhere else.
+
+**The document names the class, not the event.** `event click` would be shorter and would read like the handler it
+leads to, and it is refused for the reason *A bare head, and why nothing is reserved* gives: the generator would then
+be putting a non-underscored `ClickEvent` into a namespace the document shares with its own imports, which is a name
+taken from the author. Naming it is what keeps the generator reserving nothing. The handler name still derives from it
+— navkit's rule, unchanged — so `event SelectionChanged` is handled by `on_selection_changed`.
+
+**In the root block only**, for the reason `property` is: it emits onto the class the root block becomes, and every
+other block is an instance of a class that already exists.
+
+**A markup-declared event carries no fields**, there being no syntax for one, and none is invented here. An event that
+carries data is declared in the `.py` — the same escape hatch `equal=` uses, and the same boundary: markup says what a
+component emits, Python says what it emits *about*.
+
+### What the generator checks, and why it needs two answers
+
+An `on_*` line is legal in two different places, because emitting walks up:
+
+- **On the block that emits it** — checked against that widget's `emitted()` set, failing with the `.nml` line and a
+  list of what the widget does emit. This is the case that catches a typo where it hurts, on the component the author
+  is looking at.
+- **On an ancestor** — checked against the handler names of every `Event` subclass the document's imports have made
+  live, walked with `Event.__subclasses__()`. No registry: the classes are already there, and navkit's own handler
+  names are in the set for free, being `Event` subclasses like everything else.
+
+The second is the looser check and has to be, because a `Dialog` may legitimately handle a click from a button three
+levels down without knowing which component emitted it.
+
+### This settles the widget-alias question, and settles it as no
+
+*Depth, and what is deliberately not offered* refuses an alias that names a widget, and defers the refusal to this
+section: "the case that wants it is naming an inner button in order to connect a handler to it, and signals are open
+on both sides of the layer boundary". They are closed now, and the case has evaporated — **bubbling reaches what a
+widget alias was wanted for**. An outer document writes `on_click:` on the `Dialog:` block and catches clicks from any
+button inside it, without the dialog handing out a widget.
+
+Where a component must distinguish *which* inner widget, it translates in its own markup, one line per button:
+
+```
+Dialog:
+    event Accepted
+    Button:
+        id: ok
+        on_click: await root.emit(Accepted())
+```
+
+`self` is the Button and `root` is the Dialog — the *Name resolution* table already says so — so the translation costs
+one line and the outer document never learns the dialog has buttons in it at all. That is the boundary *Aliases* exists
+to defend, arrived at without a new kind of declaration.
 
 ## Compiling a property expression
 
@@ -1131,8 +1242,12 @@ Two halves to the rule, and the second is the one that needs defending:
   line are the same shape — `name:` and one line of Python — and a parameter list is precisely what would make them two
   shapes. So the arity cannot vary with the event. One serves an event that carries something and an event that carries
   nothing alike, provided the object always exists, which is navkit's side of it: an argumentless event is already
-  idiomatic there — `Event` declares no fields and `WakeEvent` adds none — so a future `on_mount` announces itself with
-  an empty event rather than with an empty argument list.
+  idiomatic there — `Event` declares no fields and `WakeEvent` adds none.
+
+  This once carried a second clause, that a future `on_mount` would announce itself with an empty event rather than an
+  empty argument list. **That is void.** navkit's lifecycle hooks are not handlers and not called `on_*`, because the
+  mount walk runs from a constructor and a constructor cannot await — `navkit/DESIGN.md`, *Why the hook is not an
+  event, and not called `on_*`*. The rule above is unaffected; only the example it reached for is.
 - **Fixed at the name `event`**, because with no parameter list there is nobody to ask. The author cannot name it, so
   the language names it, once, for every handler in every document.
 
@@ -1197,11 +1312,11 @@ that section's own reason: a document allowed to declare `id: event` or `propert
 
   Two edges. Where the protocol ignores the value — `Application.on_resize` is annotated `-> None` — the `return True`
   costs nothing, and where it reads it the answer is the same every time, which is the property being bought. And the
-  announce mechanism has since been designed around this same protocol rather than around a broadcast —
-  `navkit/DESIGN.md`, *Announcing: a widget event walks up* — so consuming means something for a widget's own events
+  emit mechanism has since been designed around this same protocol rather than around a broadcast —
+  `navkit/DESIGN.md`, *Emitting: a widget event walks up* — so consuming means something for a widget's own events
   too: the ancestors do
   not see what the document that named the widget has claimed. The two notes agree on which claim is the specific one.
-- **It works for input as well as for signals.** `Widget.announce()` now exists — `navkit/DESIGN.md`, *Announcing: a
+- **It works for input as well as for signals.** `Widget.emit()` now exists — `navkit/DESIGN.md`, *Emitting: a
   widget event walks up* — and it looks a handler up under `event.handler`, which finds an instance attribute exactly
   as `dispatch_key` finds `self.on_key`. So one emitted assignment serves both directions: a key arriving from the
   terminal and a `ClickEvent` a sibling raised reach the same generated function, with the same one argument, under the
@@ -1319,17 +1434,13 @@ question that the *Parts* argument in
 - Comment syntax. Kivy's `.kv` takes `#` and nothing here has said whether `.nml` does. Every declaration this file
   moves into markup carries a `#:` doc comment in `navigator/__main__.py` — `Panel`'s seven, `Console.revision`,
   `Manager.console_visible` — so without one the reason a property exists is lost in translation.
-- Signal and handler syntax, and with it whether an alias may name a widget rather than a property, which *Aliases*
-  defers to this question rather than settling alone. How it *meets* the hand-written half is no longer part of it —
-  *The two halves of a component* settles that, and settles it in a way that raises the stakes rather than lowering
-  them: a markup-only component is a first-class shape, not a degenerate one, so handlers written in markup are what
-  make a document self-sufficient rather than a convenience. `navkit/DESIGN.md` still has the other half, that a widget
-  cannot announce anything yet, and the two have to be settled together. The *body* is no longer part of it either —
-  *A handler body is one line* and *The handler's one argument is `event`* above settle the body, its argument and what
-  it returns — and `navkit/DESIGN.md`'s *Announcing: a widget event walks up* has settled the other half, an event
-  class whose handler name is derived from it and a walk from the emitter upward. So what remains here is the spelling
-  of the handler line itself and how the generator knows which event a name like `on_click` belongs to, neither of
-  which can be finished before the widget library declares some events to point at.
+- ~~Signal and handler syntax.~~ **Answered, and the last piece was the one this bullet said had to wait.** The body,
+  its argument and what it returns are settled under *A handler body is one line* and *The handler's one argument is
+  `event`*; navkit's half is *Emitting: a widget event walks up*; and *Declaring an event* above settles where an
+  event class lives, that a widget declares what it emits, how the generator checks an `on_click:` line in both of the
+  places bubbling makes it legal, and the `event ClickEvent` directive. The alias question *Aliases* deferred here is
+  answered with it, and answered as no. What this bullet was waiting for — "the widget library declares some events to
+  point at" — is `navml/widgets/button.py`, which emits a `ClickEvent` from two input routes.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not

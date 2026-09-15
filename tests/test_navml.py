@@ -30,10 +30,12 @@ import pytest
 
 import navml
 import navml.widgets
+from navkit.events import KeyEvent, MouseEvent, emitted
 from navkit.reactive import declarations
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
+from conftest import awaited
 from navml.widgets import Button, FramedButton, Label, Spacer
 from navml.widgets import button as button_module
 from navml.widgets import label as label_module
@@ -178,7 +180,7 @@ def test_declarations_spans_both_halves():
     """The rewriter's ``own`` set and ``unbind``/``is_bound`` both need this."""
     found = declarations(Button)
     assert "text" in found                       # declared by the markup half
-    assert "pressed" in found                    # declared by the hand-written half
+    assert "enabled" in found                    # declared by the hand-written half
     assert "width" in found                      # inherited from Widget
 
 
@@ -530,3 +532,92 @@ def test_the_finder_declines_everything_it_is_not_asked_about():
     assert finder.find_spec("json", None) is None
     assert finder.find_spec("navkit.widget", ["navkit"]) is None
     assert finder.find_spec("navml.widgets.button_nml", ["navml/widgets"]) is None
+
+
+# -- a component with an event of its own -----------------------------------
+
+
+def test_a_button_declares_the_event_it_emits():
+    """The public surface navml's generator will check an ``on_click:`` line
+    against, and the one a reader consults instead of hunting for emit calls."""
+    from navml.widgets.button import ClickEvent
+
+    assert emitted(Button) == {ClickEvent}
+    assert ClickEvent.handler == "on_click"
+
+
+@pytest.mark.parametrize("key", ["enter", "space"])
+def test_both_keys_reach_the_same_handler(key):
+    """Two routes, one thing they mean: a listener never learns which fired."""
+    root = Widget()
+    button = root.add(Button("OK"))
+    seen = []
+
+    async def on_click(event):
+        seen.append(event)
+        return True
+
+    button.on_click = on_click
+    assert awaited(button.on_key(KeyEvent(key))) is True
+    assert len(seen) == 1
+
+
+def test_a_mouse_press_reaches_the_same_handler_as_the_keys():
+    root = Widget()
+    button = root.add(Button("OK"))
+    seen = []
+
+    async def on_click(event):
+        seen.append(event)
+        return True
+
+    button.on_click = on_click
+    assert awaited(button.on_mouse(MouseEvent(0, 0, "left", "press"))) is True
+    assert len(seen) == 1
+
+
+def test_a_click_bubbles_to_an_ancestor_that_never_named_the_button():
+    """Why an alias to a widget is not needed: a container catches what its
+    children emit without reaching through them to connect anything."""
+    from navml.widgets.button import ClickEvent
+
+    root = Widget()
+    box = root.add(Widget())
+    button = box.add(Button("OK"))
+    seen = []
+
+    async def on_click(event):
+        seen.append(type(event))
+        return True
+
+    root.on_click = on_click
+    assert awaited(button.press()) is True
+    assert seen == [ClickEvent]
+
+
+def test_a_disabled_button_emits_nothing():
+    """State is reactive, what happened is an event -- the division the whole
+    mechanism rests on, with the two meeting in one method."""
+    root = Widget()
+    button = root.add(Button("OK"))
+    seen = []
+
+    async def on_click(event):
+        seen.append(event)
+        return True
+
+    button.on_click = on_click
+    button.enabled = False
+    assert awaited(button.press()) is False
+    assert seen == []
+
+
+def test_a_derived_component_keeps_the_event_its_base_emits():
+    """Through the four-deep merged MRO, which is the case only this repo has:
+    FramedButton, FramedButton, Button, Button, Widget."""
+    from navml.widgets.button import ClickEvent
+
+    assert emitted(FramedButton) == {ClickEvent}
+    assert [c.__name__ for c in FramedButton.__mro__][:5] == [
+        "FramedButton", "FramedButton", "Button", "Button", "Widget",
+    ]

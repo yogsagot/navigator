@@ -86,12 +86,12 @@ class RecordingWidget(Widget):
         # From 0, 0: the surface already covers exactly this widget.
         surface.fill(0, 0, self.width, self.height, self.fill_char, self.style)
 
-    def on_key(self, event) -> bool:
+    async def on_key(self, event) -> bool:
         self.keys.append(event.name)
         self.invalidate()
         return self.handles
 
-    def on_mouse(self, event) -> bool:
+    async def on_mouse(self, event) -> bool:
         self.mice.append((event.x, event.y))
         self.invalidate()
         return self.handles
@@ -130,6 +130,18 @@ def run_app(
             driver.cancel()
 
     return asyncio.run(asyncio.wait_for(main(), timeout))
+
+
+def awaited(coro):
+    """Run one awaitable to completion, for a test calling a handler directly.
+
+    Every event handler is ``async def``, so a test that reaches past the
+    event loop -- ``awaited(root.dispatch_key(KeyEvent("a")))`` -- needs a loop
+    of its own.  ``asyncio.run`` rather than a pytest plugin: the project
+    carries one runtime dependency and pytest alone for development, and this
+    is one line.
+    """
+    return asyncio.run(coro)
 
 
 def settle() -> None:

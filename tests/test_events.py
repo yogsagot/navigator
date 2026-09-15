@@ -14,6 +14,7 @@ from navkit.events import (
     PasteEvent,
     ResizeEvent,
     WakeEvent,
+    emitted,
 )
 
 
@@ -144,3 +145,50 @@ def test_deriving_a_handler_leaves_the_dataclass_alone():
     assert ClickEvent.__slots__ == ("x",)
     assert ClickEvent(2) == ClickEvent(2)
     assert "handler" not in ClickEvent.__slots__
+
+
+# -- what a widget declares it emits ---------------------------------------
+
+
+class Sender:
+    """Stands in for a widget: `emitted` only reads class attributes."""
+
+    emits: tuple[type[Event], ...] = ()
+
+
+def test_a_class_declaring_nothing_emits_nothing():
+    assert emitted(Sender) == frozenset()
+
+
+def test_emitted_unions_down_the_mro_rather_than_shadowing():
+    # Where it parts company with declarations(): two declarations of one
+    # attribute are two versions of the same thing, so the nearest wins --
+    # but a subclass that emits something new is *adding*, so a derived
+    # component keeps its base's events without naming them.
+    class Base(Sender):
+        emits = (ClickEvent,)
+
+    class Derived(Base):
+        emits = (SelectionChanged,)
+
+    assert emitted(Base) == {ClickEvent}
+    assert emitted(Derived) == {ClickEvent, SelectionChanged}
+
+
+def test_a_subclass_that_adds_nothing_keeps_what_it_inherits():
+    class Base(Sender):
+        emits = (ClickEvent,)
+
+    class Derived(Base):
+        pass
+
+    assert emitted(Derived) == {ClickEvent}
+
+
+def test_the_declaration_names_the_handler_each_event_reaches():
+    # What navml's generator asks: an `on_click:' line on this widget is
+    # legal because the widget says it emits something that lands there.
+    class Base(Sender):
+        emits = (ClickEvent, SelectionChanged)
+
+    assert {e.handler for e in emitted(Base)} == {"on_click", "on_selection_changed"}

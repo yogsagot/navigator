@@ -55,14 +55,14 @@ def test_application_hooks_see_events_before_the_widgets(terminal):
     seen = []
 
     class App(Application):
-        def on_event(self, event):
+        async def on_event(self, event):
             seen.append(type(event).__name__)
             return isinstance(event, KeyEvent) and event.key == "swallowed"
 
-        def on_key(self, event):
+        async def on_key(self, event):
             return event.key == "handled"
 
-        def on_paste(self, event):
+        async def on_paste(self, event):
             seen.append(event.text)
 
     root = RecordingWidget()
@@ -95,7 +95,7 @@ def test_a_batch_of_events_costs_a_single_frame(terminal):
 
 def test_an_unchanged_frame_writes_nothing(terminal):
     class Quiet(RecordingWidget):
-        def on_key(self, event):
+        async def on_key(self, event):
             self.invalidate()  # asks for a repaint, but paints the same thing
             return True
 
@@ -105,7 +105,7 @@ def test_an_unchanged_frame_writes_nothing(terminal):
 
 def test_nothing_is_rendered_when_no_repaint_was_asked_for(terminal):
     class Silent(RecordingWidget):
-        def on_key(self, event):
+        async def on_key(self, event):
             return True  # handled, and does not invalidate
 
     root = Silent()
@@ -136,7 +136,7 @@ def test_resize_hook_is_called(terminal):
     sizes = []
 
     class App(Application):
-        def on_resize(self, event):
+        async def on_resize(self, event):
             sizes.append((event.width, event.height))
 
     run_app(App(RecordingWidget(), terminal=terminal), [ResizeEvent(100, 40)])
@@ -187,7 +187,7 @@ def test_the_background_style_fills_unpainted_cells(terminal):
 
 def test_an_exception_in_a_handler_stops_the_application(terminal):
     class Boom(Application):
-        def on_key(self, event):
+        async def on_key(self, event):
             raise RuntimeError("boom")
 
     app = Boom(RecordingWidget(), terminal=terminal)
@@ -266,9 +266,9 @@ class ReactingWidget(RecordingWidget):
         self.runs += 1
         self.label = f"key {self.last_key}"
 
-    def on_key(self, event) -> bool:
+    async def on_key(self, event) -> bool:
         self.last_key = event.name
-        return super().on_key(event)
+        return await super().on_key(event)
 
     def render(self, buffer) -> None:
         super().render(buffer)
@@ -319,7 +319,7 @@ def test_an_effect_scheduled_while_the_loop_is_idle_wakes_it(terminal):
 
 @dataclass(frozen=True, slots=True)
 class TickEvent(Event):
-    """An event with no sender in the tree: posted, never announced."""
+    """An event with no sender in the tree: posted, never emitted."""
 
     n: int = 0
 
@@ -330,7 +330,7 @@ def test_a_posted_event_reaches_the_hook_its_class_names(terminal):
             super().__init__(**kwargs)
             self.ticks: list[int] = []
 
-        def on_tick(self, event: TickEvent) -> None:
+        async def on_tick(self, event: TickEvent) -> None:
             self.ticks.append(event.n)
 
     app = Ticking(root=RecordingWidget(), terminal=terminal)
@@ -350,10 +350,10 @@ def test_on_event_still_intercepts_an_unknown_event(terminal):
             super().__init__(**kwargs)
             self.ticks: list[int] = []
 
-        def on_event(self, event) -> bool:
+        async def on_event(self, event) -> bool:
             return isinstance(event, TickEvent)
 
-        def on_tick(self, event: TickEvent) -> None:
+        async def on_tick(self, event: TickEvent) -> None:
             self.ticks.append(event.n)
 
     app = Ticking(root=RecordingWidget(), terminal=terminal)
@@ -369,7 +369,7 @@ def test_a_bare_event_is_offered_to_on_event_once(terminal):
             super().__init__(**kwargs)
             self.seen = 0
 
-        def on_event(self, event) -> bool:
+        async def on_event(self, event) -> bool:
             self.seen += 1
             return False
 
@@ -500,3 +500,25 @@ def test_a_repaint_puts_the_cursor_back_after_the_painting(terminal):
     run_app(app, [lambda a: (field.focus(), a.invalidate()), repaint])
     last = terminal.frames[-1]
     assert last.rindex("\x1b[3;6H") > last.rindex("#")
+
+
+def test_a_handler_that_awaits_still_costs_one_frame(terminal):
+    # The guarantee this change is most likely to break.  A handler may now
+    # yield to the loop mid-batch, but `_render' is only ever awaited from
+    # `_main_loop', so nothing can paint until the batch has drained.
+    class Slow(Application):
+        async def on_key(self, event) -> bool:
+            await asyncio.sleep(0)  # a real yield to the loop
+            self.invalidate()
+            return True
+
+    root = RecordingWidget()
+    app = Slow(root=root, terminal=terminal)
+
+    def both(a):
+        a.post_event(KeyEvent("a"))
+        a.post_event(KeyEvent("b"))
+
+    before = len(terminal.frames)
+    run_app(app, [both])
+    assert len(terminal.frames) - before == 1

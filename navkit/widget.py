@@ -18,18 +18,14 @@ container able to place its children without a :meth:`layout` method at all.
 
 from __future__ import annotations
 
+import asyncio
+
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
 from navkit import terminal as terminal_module
-from navkit.events import (
-    Event,
-    KeyEvent,
-    MountEvent,
-    MouseEvent,
-    UnmountEvent,
-)
+from navkit.events import Event, KeyEvent, MouseEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
@@ -42,8 +38,58 @@ if TYPE_CHECKING:
     from navkit.application import Application
 
 
+def check_handlers(cls: type) -> None:
+    """Refuse a class whose own ``on_*`` methods are not ``async def``.
+
+    Run from ``__init_subclass__`` on both :class:`Widget` and
+    :class:`~navkit.application.Application`, so the mistake is caught once,
+    at import, naming the class and the method -- rather than at the first
+    keystroke that happens to reach it.  Only the class's *own* body is
+    checked; an inherited handler was checked where it was written.
+    """
+    for name, value in vars(cls).items():
+        if not name.startswith("on_") or not callable(value):
+            continue
+        if not asyncio.iscoroutinefunction(value):
+            raise TypeError(
+                f"{cls.__name__}.{name} must be `async def`: every `on_*` "
+                f"is awaited.  A hook that cannot be awaited where it is "
+                f"called does not get an `on_*` name -- see Widget.mounted()."
+            )
+
+
+async def _call(target: object, event: Event, handler: Any) -> bool:
+    """Await *handler*, refusing one that is not a coroutine function.
+
+    Every handler is ``async def`` -- the rule, and this is where an instance
+    attribute is held to it.  A class's own ``on_*`` methods are checked once
+    when the class is created; a handler *assigned onto an instance*, which is
+    what markup compiles to, can only be caught here.  Without the check the
+    failure is ``TypeError: object bool can't be used in 'await' expression``,
+    which names neither the widget nor the handler.
+    """
+    if not asyncio.iscoroutinefunction(handler):
+        raise TypeError(
+            f"{type(target).__name__}.{event.handler} must be `async def`; "
+            f"every event handler is awaited"
+        )
+    return bool(await handler(event))
+
+
 class Widget:
     """A rectangular, nestable piece of user interface."""
+
+    #: The event classes this widget emits, as its own declaration -- read
+    #: through :func:`navkit.events.emitted`, which unions the tuples down the
+    #: MRO, so a subclass names only what it adds.  It is the component's
+    #: public surface: what a reader, a checker and navml's code generator ask
+    #: instead of hunting for :meth:`emit` calls.  Widgets that emit nothing
+    #: of their own say nothing.
+    emits: tuple[type[Event], ...] = ()
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        check_handlers(cls)
 
     x: int = reactive(0)
     y: int = reactive(0)
@@ -148,7 +194,7 @@ class Widget:
             child.parent.remove(child)
         child.parent = self
         self.children.append(child)
-        if self.mounted:
+        if self.is_mounted:
             child.layout(self.width, self.height)
             child._mount()
         self.invalidate()
@@ -165,7 +211,7 @@ class Widget:
             app = self.application
             if app is not None and child._holds(app.focused):
                 app.focused = None
-            if child.mounted:
+            if child.is_mounted:
                 child._unmount()
             self.children.remove(child)
             child.parent = None
@@ -450,23 +496,24 @@ class Widget:
         """
         return None
 
-    def on_key(self, event: KeyEvent) -> bool:
+    async def on_key(self, event: KeyEvent) -> bool:
         """Handle a key press.  Return True to stop it propagating."""
         return False
 
-    def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse(self, event: MouseEvent) -> bool:
         """Handle a mouse action.  Return True to stop it propagating."""
         return False
 
     # -- mounting -----------------------------------------------------------
 
     #: Whether this widget is part of a tree that belongs to an application.
+    #: Spelled ``is_mounted`` so that :meth:`mounted` can be the callback.
     #: A plain attribute rather than a reactive one: it changes exactly when
     #: the mount walk sets it, and that walk already calls the hook, so an
     #: observable copy would be a second notification channel for one fact.
-    mounted: bool = False
+    is_mounted: bool = False
 
-    def on_mount(self, event: MountEvent) -> None:
+    def mounted(self) -> None:
         """Called once this widget is part of a live tree.
 
         The place for anything that needs an application, a stylesheet or a
@@ -475,14 +522,22 @@ class Widget:
         back, because :meth:`remove` disposes them on the way out -- see
         :func:`navkit.reactive.dispose_effects`.  A widget that is built once
         and never detached may keep declaring them in ``__init__``.
+
+        **Not an ``on_*`` handler, and synchronous**, which is forced rather
+        than chosen: every handler is ``async def``, and this runs from
+        :meth:`add`, which runs from ``__init__`` when a widget is constructed
+        with a parent -- and a constructor cannot await.  It takes no event
+        for the same reason it is not called ``on_mount``: nothing is being
+        dispatched, the tree is telling a widget where it now is.
         """
 
-    def on_unmount(self, event: UnmountEvent) -> None:
+    def unmounting(self) -> None:
         """Called before this widget leaves a live tree.
 
         Still parented, still sized, still reachable when this runs.  Anything
         outside the reactive graph -- a subprocess, an open file, a timer --
-        is released here; the effects are navkit's to dispose.
+        is released here; the effects are navkit's to dispose.  Synchronous
+        and eventless, for the reasons :meth:`mounted` gives.
         """
 
     def _mount(self) -> None:
@@ -492,7 +547,7 @@ class Widget:
         once its children are mounted, and because a mount handler that
         focuses something itself should not then be overruled by a default.
         """
-        if self.mounted:
+        if self.is_mounted:
             return
         self._mount_tree()
         app = self.application
@@ -503,18 +558,18 @@ class Widget:
         """Mount this widget and then everything under it.
 
         Parents first, so a child's handler finds every ancestor already
-        mounted, and depth-first in child order so the tree is announced in
-        the order it is written.  A modal is announced to the application
+        mounted, and depth-first in child order so the tree is visited in
+        the order it is written.  A modal is registered with the application
         *before* its own handler runs, so the handler already sees itself
         holding the input.
         """
-        if self.mounted:
+        if self.is_mounted:
             return
-        self.mounted = True
+        self.is_mounted = True
         app = self.application
         if self.modal and app is not None:
             app._push_modal(self)
-        self.on_mount(MountEvent())
+        self.mounted()
         for child in list(self.children):
             child._mount_tree()
 
@@ -525,13 +580,13 @@ class Widget:
         apart while its parent is still whole, and the widget's own handler
         runs before its effects are disposed rather than after.
         """
-        if not self.mounted:
+        if not self.is_mounted:
             return
         for child in reversed(list(self.children)):
             child._unmount()
-        self.on_unmount(UnmountEvent())
+        self.unmounting()
         dispose_effects(self)
-        self.mounted = False
+        self.is_mounted = False
         # Last, and while the widget is still attached: releasing the input is
         # the final thing a modal does, and the application has to be able to
         # reach it to hand the focus back.
@@ -606,7 +661,7 @@ class Widget:
             widget = widget.parent
         return []
 
-    def announce(self, event: Event) -> bool:
+    async def emit(self, event: Event) -> bool:
         """Offer *event* to this widget, its ancestors, then the application.
 
         The other direction from :meth:`dispatch_key`: input arrives from
@@ -616,8 +671,8 @@ class Widget:
         innermost claim on an event wins -- the widget that raised it gets
         first refusal.
 
-        A handler is anything callable found under ``event.handler``: the
-        ``on_*`` method a widget class defines, or an attribute of that name
+        A handler is anything awaitable found under ``event.handler``: the
+        ``async def on_*`` a widget class defines, or an attribute of that name
         assigned onto the instance, which is what markup compiles to.  A
         widget that declares neither is skipped, so a new event type needs no
         stub anywhere.
@@ -625,24 +680,24 @@ class Widget:
         widget: Widget | None = self
         while widget is not None:
             handler = getattr(widget, event.handler, None)
-            if handler is not None and handler(event):
+            if handler is not None and await _call(widget, event, handler):
                 return True
             widget = widget.parent
-        # The application sees input before the tree and announcements after
-        # it.  Its ``on_event`` hook is deliberately not offered one: that
+        # The application sees input before the tree and emitted events
+        # after it.  Its ``on_event`` hook is deliberately not offered one: it
         # exists to intercept an event *before* the widgets, and this one has
         # already passed every widget that could have claimed it.
         app = self.application
         if app is not None:
             handler = getattr(app, event.handler, None)
-            if handler is not None and handler(event):
+            if handler is not None and await _call(app, event, handler):
                 return True
         return False
 
-    def dispatch_key(self, event: KeyEvent) -> bool:
+    async def dispatch_key(self, event: KeyEvent) -> bool:
         """Offer a key to the focused widget in this subtree, then up to here.
 
-        The same walk :meth:`announce` makes, starting where the keyboard is
+        The same walk :meth:`emit` makes, starting where the keyboard is
         rather than where the event was raised -- so an unhandled key reaches
         the container that holds the focused widget, and a container can carry
         the bindings its children share.
@@ -654,11 +709,11 @@ class Widget:
         nothing does, to nothing.
         """
         for widget in self._focus_path() or (self,):
-            if widget.on_key(event):
+            if await widget.on_key(event):
                 return True
         return False
 
-    def dispatch_mouse(self, event: MouseEvent) -> bool:
+    async def dispatch_mouse(self, event: MouseEvent) -> bool:
         """Offer a mouse action to the child under the pointer, then to self.
 
         *event* arrives in the parent's coordinates -- the same ones :attr:`x`
@@ -669,6 +724,6 @@ class Widget:
         local = event.translated(-self.x, -self.y)
         for child in reversed(self.children):
             if child.visible and child.contains(local.x, local.y):
-                if child.dispatch_mouse(local):
+                if await child.dispatch_mouse(local):
                     return True
-        return self.on_mouse(local)
+        return await self.on_mouse(local)

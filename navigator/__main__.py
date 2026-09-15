@@ -495,7 +495,7 @@ class Console(Widget):
         self.process.write(data)
         return True
 
-    def on_key(self, event: KeyEvent) -> bool:
+    async def on_key(self, event: KeyEvent) -> bool:
         """Everything typed while the console has the keyboard.
 
         It has the screen, so it has the keys: the two scrollback bindings are
@@ -631,7 +631,7 @@ class Manager(Widget):
         self.left.visible = bind(lambda w: not w.parent.console_visible)
         self.right.visible = bind(lambda w: not w.parent.console_visible)
 
-    def on_key(self, event: KeyEvent) -> bool:
+    async def on_key(self, event: KeyEvent) -> bool:
         """The desktop's own keys: moving about the panels, and Alt+X.
 
         Reached only when nothing nearer the keyboard claimed the key, which
@@ -693,11 +693,11 @@ class Navigator(Application):
         self.manager = Manager(left, right, scheme)
         super().__init__(root=self.manager, **kwargs)
 
-    def on_stop(self) -> None:
+    async def on_stop(self) -> None:
         # The shell would otherwise outlive the terminal it was talking to.
         self.manager.console.stop()
 
-    def on_key(self, event: KeyEvent) -> bool:
+    async def on_key(self, event: KeyEvent) -> bool:
         """Only the keys that mean the same thing wherever the focus is.
 
         An application hook runs before the widgets, which is what makes it
@@ -720,7 +720,7 @@ class Navigator(Application):
             return True
         return False
 
-    def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse(self, event: MouseEvent) -> bool:
         manager = self.manager
         if manager.console_visible:
             if event.is_wheel and manager.console.contains(event.x, event.y):

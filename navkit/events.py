@@ -3,7 +3,7 @@
 Everything the outside world does to the application arrives as one of these:
 keys, mouse actions, terminal resizes and bracketed pastes.  A widget's own
 events -- "this button was pressed" -- are the same objects travelling the
-other way, through :meth:`navkit.widget.Widget.announce`.  Events are
+other way, through :meth:`navkit.widget.Widget.emit`.  Events are
 immutable value objects: handlers report that they consumed an event by
 returning ``True``, never by mutating it.
 
@@ -29,6 +29,27 @@ def handler_name(class_name: str) -> str:
     """The handler ``class_name`` is delivered to: ``KeyEvent`` -> ``on_key``."""
     stem = class_name[:-5] if class_name.endswith("Event") and len(class_name) > 5 else class_name
     return "on_" + _CAMEL.sub("_", stem).lower()
+
+
+def emitted(cls: type) -> frozenset[type[Event]]:
+    """Every event *cls* and its bases declare they emit.
+
+    The counterpart of :func:`navkit.reactive.declarations` for events, and
+    the one place a widget's emitted surface is answered for -- a reader, a
+    type checker and navml's code generator all ask this rather than looking
+    for ``emit`` calls.
+
+    **It unions over the MRO rather than shadowing**, which is where it parts
+    company with ``declarations()``: an override there replaces what it
+    inherits, because two declarations of one name are two versions of the
+    same attribute.  A subclass that emits something new is *adding* to what
+    its base emits, never replacing it, so a derived component need not name
+    its base's events to keep them.
+    """
+    found: set[type[Event]] = set()
+    for klass in cls.__mro__:
+        found.update(vars(klass).get("emits", ()))
+    return frozenset(found)
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,27 +165,6 @@ class PasteEvent(Event):
     """Text pasted while bracketed paste mode was active."""
 
     text: str
-
-
-@dataclass(frozen=True, slots=True)
-class MountEvent(Event):
-    """A widget joined a live tree: it and its ancestors reach an application.
-
-    Carries nothing.  It exists as an object rather than as a bare
-    ``on_mount()`` call because every handler in navkit and every handler
-    markup can write takes exactly one argument -- so a lifecycle hook that
-    took none would be the one shape a ``.nml`` document could not spell.
-    """
-
-
-@dataclass(frozen=True, slots=True)
-class UnmountEvent(Event):
-    """A widget is leaving a live tree, delivered while it still has its place.
-
-    Sent before the widget is unlinked and before its effects are disposed, so
-    a handler can still read its parent, its geometry and whatever state it
-    was keeping.
-    """
 
 
 @dataclass(frozen=True, slots=True)
