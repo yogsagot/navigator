@@ -26,8 +26,7 @@ from navkit.process import PtyProcess
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.glyphs import GLYPHS_NERD, tier_named
 from navkit.screen import Surface
-from navkit.style import Style
-from navkit.stylesheet import Stylesheet, StyleProperty, parse_value, read
+from navkit.stylesheet import Stylesheet, StyleProperty, read
 from navkit.terminal import Terminal, encode_key, is_a_tty
 from navkit.widget import Widget
 
@@ -80,20 +79,6 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
             f"no theme {theme!r}; there is " + ", ".join(theme_names())
         )
     return read(SCHEME_PATH, path, *extra)
-
-
-def desktop_style(scheme: Stylesheet) -> Style:
-    """What the buffer is cleared to before the tree paints over it.
-
-    Read out of the scheme's variables rather than resolved against a widget,
-    because :class:`~navkit.application.Application` clears the screen before
-    any widget exists to ask.
-    """
-    variables = scheme.variables
-    return Style(
-        fg=parse_value("fg", variables.get("desktop-fg", "default"), variables),
-        bg=parse_value("bg", variables.get("desktop-bg", "default"), variables),
-    )
 
 
 @cache
@@ -439,6 +424,11 @@ class Console(Widget):
     def __init__(self, cwd: Path | None = None, **kwargs):
         super().__init__(**kwargs)
         self.cwd = cwd
+        # It has the screen, so it should have the keyboard -- which is what
+        # `Navigator.on_key' has always said in words.  Saying it to navkit
+        # as well is what gets the child's own cursor drawn: the application
+        # asks whichever widget the keys are going to where its caret belongs.
+        self.can_focus = True
         self.screen = ConsoleScreen(80, 24)
         self.process: PtyProcess | None = None
         self.seeded = False
@@ -505,6 +495,26 @@ class Console(Widget):
         self.process.write(data)
         return True
 
+    def on_key(self, event: KeyEvent) -> bool:
+        """Everything typed while the console has the keyboard.
+
+        It has the screen, so it has the keys: the two scrollback bindings are
+        kept back and the rest goes to the child.  **Including the keys it has
+        nobody to send to** -- a console with no child still swallows them
+        rather than letting them fall through to the desktop underneath, which
+        is showing nothing and would act on keys the user aimed at a shell.
+
+        The way out is not here.  Ctrl+O and quit are the application's, and
+        the application sees every key before the tree does.
+        """
+        if event.matches("shift+pageup"):
+            self.scroll_back()
+        elif event.matches("shift+pagedown"):
+            self.scroll_forward()
+        else:
+            self.send(event)
+        return True
+
     def scroll_back(self) -> None:
         self.screen.prev_page()
         self.revision += 1
@@ -515,14 +525,28 @@ class Console(Widget):
 
     # -- painting ------------------------------------------------------------
 
+    def cursor_position(self) -> tuple[int, int] | None:
+        """Where the child program put its cursor, for navkit to place ours.
+
+        This used to be a reversed cell painted here by hand, because the
+        terminal's own cursor was hidden for the whole run.  The real one
+        blinks the way the user configured it, is the shape they chose, and
+        is where a screen reader and the terminal's own copy-mode agree it is.
+
+        None while the view is scrolled back: the rows on screen are history
+        then, and the live cursor's position means nothing among them.  The
+        reversed cell got that wrong, highlighting whatever happened to sit at
+        those coordinates in the scrollback.
+        """
+        if self.screen.scrolled_back:
+            return None
+        column, row, hidden = self.screen.cursor
+        return None if hidden else (column, row)
+
     def render(self, surface: Surface) -> None:
         _ = self.revision  # read for the dependency: this is what output moves
         surface.fill(0, 0, self.width, self.height, " ", self.style)
         self.screen.blit_into(surface)
-        column, row, hidden = self.screen.cursor
-        if not hidden and 0 <= column < self.width and 0 <= row < self.height:
-            char, style = surface.get(column, row)
-            surface.set_cell(column, row, char or " ", style.derive(reverse=True))
 
 
 class Manager(Widget):
@@ -550,11 +574,25 @@ class Manager(Widget):
         self.left.active = True
 
     def toggle_console(self) -> None:
-        """Show or hide the console, starting its shell the first time."""
+        """Show or hide the console, starting its shell the first time.
+
+        The focus moves with the flag, and **in the same call rather than from
+        an effect**.  An effect runs at the next flush, which is after the
+        whole batch of events has been dispatched -- so a Ctrl+O and the
+        keystroke behind it, arriving together as a paste or fast typing do,
+        would be routed by a focus that had not moved yet and the second key
+        would go to the panels.  Late is invisible for the cursor and a lost
+        keystroke for the keyboard.
+        """
         showing = not self.console_visible
         if showing:
             self.console.start()
         self.console_visible = showing
+        app = self.application
+        if showing:
+            self.console.focus()
+        elif app is not None and app.focused is self.console:
+            app.focused = None
 
     def _place(self) -> None:
         """Say how the desktop is divided, once, in terms of its own size.
@@ -593,6 +631,45 @@ class Manager(Widget):
         self.left.visible = bind(lambda w: not w.parent.console_visible)
         self.right.visible = bind(lambda w: not w.parent.console_visible)
 
+    def on_key(self, event: KeyEvent) -> bool:
+        """The desktop's own keys: moving about the panels, and Alt+X.
+
+        Reached only when nothing nearer the keyboard claimed the key, which
+        while the console is showing means never -- the console holds the
+        focus and swallows what it does not use, so none of this needs to ask
+        whether it is visible.  That question used to be an ``if`` at the top
+        of ``Navigator.on_key``; the focus path answers it now.
+
+        Alt+X is here rather than with the other two ways out because it has
+        always been a desktop key: with the console up it is a keystroke for
+        the child, and the child gets it by this method never running.
+        """
+        panel = self.active_panel
+        if event.matches("alt+x"):
+            if (app := self.application) is not None:
+                app.exit()
+        elif event.matches("tab"):
+            self.switch_panel()
+        elif event.matches("up"):
+            panel.move_cursor(-1)
+        elif event.matches("down"):
+            panel.move_cursor(1)
+        elif event.matches("pageup"):
+            panel.move_cursor(-max(1, panel.rows - 1))
+        elif event.matches("pagedown"):
+            panel.move_cursor(max(1, panel.rows - 1))
+        elif event.matches("home"):
+            panel.move_cursor(-len(panel.entries))
+        elif event.matches("end"):
+            panel.move_cursor(len(panel.entries))
+        elif event.matches("enter"):
+            panel.enter()
+        elif event.matches("ctrl+r"):
+            panel.reload()
+        else:
+            return False
+        return True
+
     @computed
     def active_panel(self) -> Panel:
         """Whichever panel currently has the cursor."""
@@ -613,7 +690,6 @@ class Navigator(Application):
     ):
         scheme = scheme or default_scheme()
         kwargs.setdefault("title", "Navigator")
-        kwargs.setdefault("background", desktop_style(scheme))
         self.manager = Manager(left, right, scheme)
         super().__init__(root=self.manager, **kwargs)
 
@@ -622,49 +698,27 @@ class Navigator(Application):
         self.manager.console.stop()
 
     def on_key(self, event: KeyEvent) -> bool:
-        manager = self.manager
-        panel = manager.active_panel
+        """Only the keys that mean the same thing wherever the focus is.
 
+        An application hook runs before the widgets, which is what makes it
+        the right place for exactly these and the wrong place for anything
+        else: whatever is kept here is kept from the console, from the panels
+        and from every dialog that has not been written yet.  Ctrl+O is the
+        way in and out of the console, and F10 and Ctrl+Q are the way out of
+        Navigator -- both of which have to work while a child program is
+        eating every other keystroke.
+
+        Everything else went to the widget that owns it: ``Console.on_key``
+        for the console's scrollback and the child, ``Manager.on_key`` for
+        moving about the panels and for Alt+X.
+        """
         if event.matches("ctrl+o"):
-            manager.toggle_console()
+            self.manager.toggle_console()
             return True
-        if manager.console_visible:
-            # Everything else belongs to the program on the console -- it has
-            # the screen, so it should have the keyboard.  Only the two ways
-            # out and the scrollback are kept back.
-            if event.matches("f10", "ctrl+q"):
-                self.exit()
-            elif event.matches("shift+pageup"):
-                manager.console.scroll_back()
-            elif event.matches("shift+pagedown"):
-                manager.console.scroll_forward()
-            else:
-                return manager.console.send(event)
-            return True
-
-        if event.matches("f10", "ctrl+q", "alt+x"):
+        if event.matches("f10", "ctrl+q"):
             self.exit()
-        elif event.matches("tab"):
-            manager.switch_panel()
-        elif event.matches("up"):
-            panel.move_cursor(-1)
-        elif event.matches("down"):
-            panel.move_cursor(1)
-        elif event.matches("pageup"):
-            panel.move_cursor(-max(1, panel.rows - 1))
-        elif event.matches("pagedown"):
-            panel.move_cursor(max(1, panel.rows - 1))
-        elif event.matches("home"):
-            panel.move_cursor(-len(panel.entries))
-        elif event.matches("end"):
-            panel.move_cursor(len(panel.entries))
-        elif event.matches("enter"):
-            panel.enter()
-        elif event.matches("ctrl+r"):
-            panel.reload()
-        else:
-            return False
-        return True
+            return True
+        return False
 
     def on_mouse(self, event: MouseEvent) -> bool:
         manager = self.manager

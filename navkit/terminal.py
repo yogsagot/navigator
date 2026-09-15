@@ -23,8 +23,37 @@ ALT_SCREEN_ON = "\x1b[?1049h"
 ALT_SCREEN_OFF = "\x1b[?1049l"
 HIDE_CURSOR = "\x1b[?25l"
 SHOW_CURSOR = "\x1b[?25h"
+#: Cursor shapes, as DECSCUSR (``CSI Ps SP q``) spells them.  ``default`` is
+#: the terminal's own configured shape, and is what navkit asks for unless a
+#: widget says otherwise -- a caret that ignored the user's setting for no
+#: reason would be the rudest thing in the library.
+CURSOR_SHAPES = {
+    "default": 0,
+    "blink-block": 1,
+    "block": 2,
+    "blink-underline": 3,
+    "underline": 4,
+    "blink-bar": 5,
+    "bar": 6,
+}
+CURSOR_SHAPE_RESET = "\x1b[0 q"
 AUTOWRAP_OFF = "\x1b[?7l"
 AUTOWRAP_ON = "\x1b[?7h"
+def place_cursor(x: int, y: int, shape: str = "default") -> str:
+    """Put the terminal's own cursor at *x*, *y* and show it.
+
+    Zero-based, like everything else in navkit; the escape is one-based.  The
+    shape is emitted first, because a terminal that does not know DECSCUSR
+    ignores it and one that does should have applied it before the cursor
+    appears.
+    """
+    out = ""
+    code = CURSOR_SHAPES.get(shape, 0)
+    if code:
+        out += f"\x1b[{code} q"
+    return out + f"\x1b[{y + 1};{x + 1}H" + SHOW_CURSOR
+
+
 # 1000: report button presses, 1002: also report drags, 1003: also report plain
 # motion, 1006: report them in the unambiguous SGR format.
 MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1006h"
@@ -482,7 +511,10 @@ class Terminal:
             self.write(PASTE_OFF)
         if self.mouse:
             self.write(MOUSE_OFF)
-        self.write(AUTOWRAP_ON + SHOW_CURSOR + "\x1b[0m")
+        # The shape reset is unconditional, like the SGR reset beside it: a
+        # widget may have changed it at any point in the run, and the flag
+        # that would say so belongs to a frame rather than to the terminal.
+        self.write(AUTOWRAP_ON + CURSOR_SHAPE_RESET + SHOW_CURSOR + "\x1b[0m")
         if self.info.alt_screen:
             self.write(ALT_SCREEN_OFF)
         self.flush()

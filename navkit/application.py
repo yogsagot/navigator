@@ -39,7 +39,7 @@ from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
-from navkit.terminal import InputParser, Terminal
+from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
 from navkit.widget import Widget
 
 #: How long to wait before deciding a lone ``ESC`` really was the escape key
@@ -59,6 +59,13 @@ class Application:
     #: stale and the next frame repaints in the new colours.  A sheet held in a
     #: plain attribute would change nothing until an unrelated write happened.
     stylesheet: Stylesheet | None = reactive(None)
+    #: The widget keys are sent to, or None while nothing holds the keyboard.
+    #: Observable for the same reason the sheet is: ``Widget.focused`` is
+    #: derived from it, so moving focus restyles the widget that had it and the
+    #: one that takes it without either being told.  Assigning it directly is
+    #: allowed and unpoliced -- :meth:`Widget.focus` is the door with the
+    #: checks on it, and delivery re-checks what it needs anyway.
+    focused: Widget | None = reactive(None)
 
     def __init__(
         self,
@@ -66,7 +73,7 @@ class Application:
         *,
         terminal: Terminal | None = None,
         title: str | None = None,
-        background: Style = DEFAULT_STYLE,
+        background: Style | None = None,
         stylesheet: Stylesheet | None = None,
         max_fps: int = 60,
         mouse: bool = True,
@@ -80,11 +87,14 @@ class Application:
             mouse=mouse, palette=palette, reprogram_palette=reprogram_palette
         )
         self.title = title
-        self.background = background
+        self._background = background
         self.stylesheet = stylesheet
         self.result: Any = None
 
         self._root: Widget | None = None
+        #: Modal widgets, innermost last, each with whatever held the focus
+        #: when it took over.  Maintained by the mount walks.
+        self._modals: list[tuple[Widget, Widget | None]] = []
         self._running = False
         self._dirty = True
         self._events: asyncio.Queue[Event] = asyncio.Queue()
@@ -94,13 +104,41 @@ class Application:
         self._signals: list[int] = []
         self._reader_fd: int | None = None
 
-        self._back = ScreenBuffer(*self.terminal.size, background)
+        self._back = ScreenBuffer(*self.terminal.size, self.background)
         self._front: ScreenBuffer | None = None
         self._min_frame_interval = 1.0 / max_fps if max_fps > 0 else 0.0
         self._last_frame = 0.0
+        #: What the last frame left the terminal's cursor doing, so a frame
+        #: that changes nothing about it emits nothing about it either.
+        self._cursor_shown: tuple[int, int, str] | None = None
 
         if root is not None:
             self.root = root
+
+    @property
+    def background(self) -> Style:
+        """What a cell looks like where no widget painted.
+
+        **Derived from the root widget's resolved style**, not stated twice.
+        The sheet already says what the desktop looks like -- `navigator.nss`
+        has ``Manager { fg: $desktop-fg; bg: $desktop-bg }`` -- and an
+        application that also took the colour as a constructor argument was
+        reading the same two variables by a second route, through a helper
+        that had to go behind the cascade to the raw variables because it ran
+        "before any widget exists to ask".  Asking the root at paint time is
+        later, and later is when the answer exists.
+
+        Passing an explicit ``background=`` still overrides it, for a root
+        that paints only part of itself, or for no root at all.
+        """
+        if self._background is not None:
+            return self._background
+        return self._root.style if self._root is not None else DEFAULT_STYLE
+
+    @background.setter
+    def background(self, style: Style | None) -> None:
+        self._background = style
+        self.invalidate()
 
     # -- widget tree --------------------------------------------------------
 
@@ -112,11 +150,20 @@ class Application:
     @root.setter
     def root(self, widget: Widget | None) -> None:
         if self._root is not None:
+            # Unmounted while it is still attached, so a handler sees the
+            # application it is leaving, and before the focus into it goes
+            # stale.
+            self._root._unmount()
             self._root._application = None
+            if self.focused is not None:
+                self.focused = None
         self._root = widget
         if widget is not None:
             widget._application = self
             widget.layout(*self.terminal.size)
+            # After the layout: a mount handler is owed a settled geometry,
+            # which is most of why it exists rather than __init__.
+            widget._mount()
         self.invalidate()
 
     # -- lifecycle ----------------------------------------------------------
@@ -163,6 +210,100 @@ class Application:
         self._running = False
         self._wake()
 
+    # -- modal and overlay ---------------------------------------------------
+
+    @property
+    def modal(self) -> Widget | None:
+        """The widget holding all input, or None.  The innermost, if nested.
+
+        Maintained by the mount walks rather than by a caller: a widget whose
+        :attr:`Widget.modal` is set claims the input when it is mounted and
+        releases it when it is unmounted, so every route out of the tree --
+        ``remove()``, a replaced root, an ancestor going with it -- gives the
+        input back without anybody remembering to.  A plain property over a
+        plain list: nothing derives from it reactively yet, and a widget that
+        wants to *look* different while it is blocked can be given a computed
+        when something actually asks for one.
+        """
+        return self._modals[-1][0] if self._modals else None
+
+    def overlay(self, widget: Widget) -> Widget:
+        """Put *widget* on top of everything, and return it.
+
+        The last child of the root: rendering walks children forwards and
+        hit-testing backwards, so last is on top and asked first.  A widget
+        deep in the tree opens one with ``self.application.overlay(dialog)``,
+        which is the point -- where a dialog is *created* has nothing to do
+        with where it belongs on the screen.
+
+        Closing it is ``app.root.remove(dialog)``, which already unmounts the
+        subtree, disposes its effects, releases the input if it was modal and
+        hands the focus back to whatever had it.
+        """
+        if self._root is None:
+            raise RuntimeError("no root widget to put an overlay on")
+        return self._root.add(widget)
+
+    def _push_modal(self, widget: Widget) -> None:
+        """Called by the mount walk.  Remembers what had the focus."""
+        self._modals.append((widget, self.focused))
+
+    def _pop_modal(self, widget: Widget) -> None:
+        """Called by the unmount walk.  Hands the focus back if it was on top.
+
+        A modal that is not the top one -- removed out of order, or carried
+        off with an ancestor -- simply leaves the stack: the focus belongs to
+        whatever is still holding the input, not to the thing behind it.
+        """
+        for index, (held, restore) in enumerate(self._modals):
+            if held is not widget:
+                continue
+            del self._modals[index]
+            if index == len(self._modals):
+                self.focused = None
+                if restore is not None and restore.mounted:
+                    restore.focus()
+            return
+
+    def _claim_focus(self) -> None:
+        """Put the focus inside the active modal, if it is not there already.
+
+        Run once a subtree has finished mounting, so a modal is choosing from
+        children that exist. A modal with nothing focusable in it takes the
+        focus away rather than leaving it outside, where it would keep a
+        widget the user can no longer reach looking like the live one.
+        """
+        modal = self.modal
+        if modal is None or (self.focused is not None and modal._holds(self.focused)):
+            return
+        order = modal.focusable()
+        self.focused = order[0] if order else None
+
+    def focus_next(self, reverse: bool = False) -> Widget | None:
+        """Move focus along the tab order, wrapping.  The new holder, or None.
+
+        The order is ``root.focusable()`` -- visible, focusable widgets in tree
+        order -- or the active modal's, which is the whole of what makes a
+        dialog's Tab stay inside the dialog.  Taken fresh each time rather than kept, because the tree is
+        reactive and a cached order would be wrong the moment a widget is
+        added, hidden or disabled; the walk is over the tree an event loop
+        already repaints in full.
+
+        A focus that is no longer in the order -- the widget was hidden, or
+        removed -- does not stop the move: the search starts from the end it
+        came from, so Tab out of a vanished widget lands on the first one.
+        """
+        scope = self.modal or self._root
+        order = scope.focusable() if scope is not None else []
+        if not order:
+            return None
+        if self.focused in order:
+            index = order.index(self.focused) + (-1 if reverse else 1)
+        else:
+            index = -1 if reverse else 0
+        self.focused = order[index % len(order)]
+        return self.focused
+
     def post_event(self, event: Event) -> None:
         """Queue *event* as if it had arrived from the terminal.
 
@@ -202,6 +343,17 @@ class Application:
             self._root.render_tree(self._back)
 
         output = render_diff(self._front, self._back, self.terminal.info)
+        cursor = self._cursor()
+        if cursor != self._cursor_shown:
+            # Emitted after the diff, always: painting moves the terminal's
+            # own cursor as a side effect, so anything placed before it would
+            # be left wherever the last cell was written.
+            output += place_cursor(*cursor) if cursor is not None else HIDE_CURSOR
+            self._cursor_shown = cursor
+        elif output and cursor is not None:
+            # Unchanged, but the paint just moved it.  The position alone --
+            # it is already visible and already the right shape.
+            output += f"\x1b[{cursor[1] + 1};{cursor[0] + 1}H"
         if output:
             self.terminal.write(output)
             self.terminal.flush()
@@ -211,6 +363,35 @@ class Application:
         self._front.copy_from(self._back)
         self._dirty = False
         self._last_frame = self._loop.time() if self._loop is not None else 0.0
+
+    def _cursor(self) -> tuple[int, int, str] | None:
+        """Screen position and shape of the terminal cursor, or None for none.
+
+        **Shown exactly where the keys go.** The widget asked is the one at
+        the head of the focus path -- the same walk :meth:`Widget.dispatch_key`
+        makes, so the same modal, the same visibility test and the same answer
+        of "nobody" when nothing holds the keyboard. A caret on a widget that
+        could not receive what is typed into it would be a lie told once per
+        frame.
+        """
+        scope = self.modal or self._root
+        if scope is None:
+            return None
+        path = scope._focus_path()
+        if not path:
+            return None
+        widget = path[0]
+        position = widget.cursor_position()
+        if position is None:
+            return None
+        x, y = position
+        if not (0 <= x < widget.width and 0 <= y < widget.height):
+            return None
+        offset_x, offset_y = widget.offset()
+        x, y = offset_x + widget.x + x, offset_y + widget.y + y
+        if not (0 <= x < self._back.width and 0 <= y < self._back.height):
+            return None
+        return x, y, widget.style_property("caret", "default")
 
     def _resize(self, width: int, height: int) -> None:
         self._back.resize(width, height, self.background)
@@ -259,11 +440,16 @@ class Application:
             if self.on_event(event):
                 return
             if isinstance(event, KeyEvent):
-                if not self.on_key(event) and self._root is not None:
-                    self._root.dispatch_key(event)
+                # Dispatching on the modal rather than the root is the whole
+                # of keyboard exclusivity: the walk runs from the focused
+                # widget up to whatever it was called on, so it neither starts
+                # outside the modal nor bubbles past it.
+                target = self.modal or self._root
+                if not self.on_key(event) and target is not None:
+                    target.dispatch_key(event)
             elif isinstance(event, MouseEvent):
-                if not self.on_mouse(event) and self._root is not None:
-                    self._root.dispatch_mouse(event)
+                if not self.on_mouse(event):
+                    self._dispatch_mouse(event)
             elif isinstance(event, ResizeEvent):
                 self.on_resize(event)
             elif isinstance(event, PasteEvent):
@@ -282,6 +468,30 @@ class Application:
         except Exception:
             self.exit()
             raise
+
+    def _dispatch_mouse(self, event: MouseEvent) -> None:
+        """Route a mouse action into the tree, or into the modal alone.
+
+        The mouse is where modality costs something, because it routes by
+        position rather than by focus: every widget under the pointer is on
+        the path, whether or not it is supposed to be reachable. So the event
+        is moved into the modal's parent's frame and offered there, and one
+        that lands outside the modal reaches nothing at all -- not the widgets
+        underneath, and not the modal either, whose coordinates it is not in.
+
+        Dismissing on an outside click is a *policy*, and belongs to whatever
+        widget wants it: it can watch the application's own ``on_mouse``,
+        which still sees every action before any of this.
+        """
+        modal = self.modal
+        if modal is None:
+            if self._root is not None:
+                self._root.dispatch_mouse(event)
+            return
+        dx, dy = modal.offset()
+        local = event.translated(-dx, -dy)
+        if modal.contains(local.x, local.y):
+            modal.dispatch_mouse(local)
 
     # Hooks -- an application subclass sees every event before the widgets do.
 

@@ -12,12 +12,30 @@ their geometry to the desktop and derive their listing from a path rather than b
 half — and four example components exercising it, one per shape. The markup language itself, its parser and its code
 generator are still unwritten, so the four `*_nml.py` files are hand-written stand-ins for what the generator will
 emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
-included. What it does *not* have is the interaction layer a widget library needs — there is no focus notion, no
-mount/unmount lifecycle and no modal or overlay support — and each of those blocks buttons and dialogs rather than the
-markup language. **Signals are done**: `Widget.announce(event)` walks the event from the widget that raised it up
-through its ancestors to the application, stopping at the first handler that returns True, and an event class names its
-own handler (`Event.handler`, derived from the class name — `ClickEvent` reaches `on_click`). `navkit/DESIGN.md`'s
-*Announcing: a widget event walks up* records why each part of it went that way.
+included, and **the interaction layer a widget library needs is now complete**: focus, signals, the mount/unmount
+lifecycle, modal/overlay support and a real cursor. That was the whole of *What the widget library needs first* in
+`navkit/DESIGN.md`; its **`Still open` list is a separate one** — read it before starting the library. Two of its
+five entries were navkit's own work and are now answered (`Application.background`, and where the console's key
+routing belongs); the other three are the library's by their own argument: which parts and properties the library
+widgets declare, which glyphs beyond a box frame they need, and what a full-screen child does.
+`Widget.announce(event)` walks an event from the widget that raised it up through its ancestors to the application,
+stopping at the first handler that returns True, and an event class names its own handler (`Event.handler`, derived
+from the class name — `ClickEvent` reaches `on_click`). `Application.focused` holds the widget keys go to,
+`Widget.can_focus` (False by default) says who may hold it, `Widget.focus()` takes it and `Application.focus_next()`
+moves it; `dispatch_key` now walks the focus path rather than touring every descendant, so **with nothing focused a key
+reaches no widget at all**. `Widget.focused` is a computed, which makes `:focused` a stylesheet state for free.
+`Widget.mounted` says whether a widget is in a tree an application owns; `on_mount(event)`/`on_unmount(event)` are
+called by the walks that `Application.root`, `add()` and `remove()` drive, and **`remove()` disposes the subtree's
+effects** (`navkit.reactive.dispose_effects`), so **a widget that can be removed and put back declares its effects in
+`on_mount`, not `__init__`**. `Widget.modal` makes a widget take all input while it is mounted — the mount walks
+maintain `Application.modal`, so every way out of the tree gives the input back — and `Application.overlay(widget)`
+puts one on top of everything, closed again with `app.root.remove(widget)`. `Widget.cursor_position()` returns where
+the terminal's own cursor belongs in a widget's coordinates, and the application places it at the end of each frame for
+whichever widget the keys are going to — so a caret is never shown on a widget that cannot receive what is typed; the
+`caret` widget property sets its DECSCUSR shape from a sheet and defaults to leaving the user's own alone.
+`navkit/DESIGN.md`'s *The cursor: shown where the keys go*, *Modal and overlay: the input, not the painting*,
+*Mounting: joining a live tree, and leaving one*, *Focus: one pointer, and eligibility decided at delivery* and
+*Announcing: a widget event walks up* record why each part went the way it did.
 Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for
 the markup language, `navkit/DESIGN.md` for the core, whose *Still open* section names what is left.
 
@@ -440,7 +458,16 @@ scroll follow.
 
 - `Manager` window with two file-listing panels, and a `Console` covering the band they share. Ctrl+O swaps them, which
   is one reactive flag that three `visible` bindings read; the menu bar and key bar are simply left alone, which is why
-  they stay painted over the output and why this is DOS Navigator's Ctrl+O rather than Midnight Commander's
+  they stay painted over the output and why this is DOS Navigator's Ctrl+O rather than Midnight Commander's.
+  `toggle_console` hands the console the keyboard **in the same call that flips the flag, never from an effect** — an
+  effect runs after the whole batch is dispatched, so a Ctrl+O and the keystroke behind it would be routed by a focus
+  that had not moved yet. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
+  reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
+  the caret is the terminal's own
+- **Keys belong to the widget that owns them.** `Navigator.on_key` keeps only Ctrl+O and F10/Ctrl+Q, because an
+  application hook runs before the widgets and so keeps a key from everything; `Console.on_key` keeps the scrollback
+  and sends the rest to the child; `Manager.on_key` keeps the panel keys and Alt+X. There is no `console_visible`
+  check in any of them — the console holds the focus while it is showing, and the focus path decides
 - View and Edit file windows
 - File operations over the selected files
 - Pluggable filesystem handlers so operations work over ssh, smb, inside zip archives, etc.

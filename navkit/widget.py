@@ -22,9 +22,16 @@ from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
-from navkit.events import Event, KeyEvent, MouseEvent
+from navkit import terminal as terminal_module
+from navkit.events import (
+    Event,
+    KeyEvent,
+    MountEvent,
+    MouseEvent,
+    UnmountEvent,
+)
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.reactive import computed, is_bound, reactive
+from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
@@ -43,6 +50,18 @@ class Widget:
     width: int = reactive(0)
     height: int = reactive(0)
     visible: bool = reactive(True)
+    #: Whether this widget takes the keyboard when focus is moved onto it.
+    #: False on the base class, so a container, a label and a frame stay out of
+    #: the tab order by saying nothing; a widget that wants keys opts in.
+    #: Reactive rather than a plain class attribute so a widget can withdraw
+    #: from the order while disabled, and so a binding can decide it.
+    can_focus: bool = reactive(False)
+    #: Whether this widget takes *all* input while it is mounted: keys go to
+    #: it or to what it contains, focus cannot leave it, and a click outside
+    #: it reaches nothing.  Read when the widget is mounted, because that is
+    #: when the application is told -- a dialog declares it in its class body
+    #: and is opened, which is the shape it is for.
+    modal: bool = reactive(False)
     #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
     #: compile-time label with no run-time existence -- see navml/DESIGN.md.
     name: str = reactive("")
@@ -64,6 +83,12 @@ class Widget:
     border = stylesheet.StyleProperty(
         glyphs_module.DEFAULT_BOX, values=tuple(glyphs_module.BOX_CHARSETS)
     )
+    #: What the terminal's own cursor looks like while it sits on this widget.
+    #: ``default`` leaves the shape the user configured alone, which is what
+    #: anything that is not a text field should want.  A widget property for
+    #: the same reason ``border`` is one: a shape is an input to an escape
+    #: sequence rather than an appearance a cell can carry.
+    caret = stylesheet.StyleProperty("default", values=tuple(terminal_module.CURSOR_SHAPES))
     #: A sheet governing this widget and everything under it, overriding the
     #: application's.  Normally ``None``; set it on the root of a screen that
     #: brings its own look.
@@ -105,19 +130,69 @@ class Widget:
     # -- tree ---------------------------------------------------------------
 
     def add(self, child: Widget) -> Widget:
-        """Add *child* to this widget and return it."""
+        """Add *child* to this widget and return it.
+
+        A child added to a *mounted* widget is laid out and mounted at once.
+        Without the layout it stays 0x0 until the next terminal resize, so a
+        dialog opened at run time paints nothing at all, silently, unless
+        every one of its sizes carries a binding.
+
+        A tree still being assembled is left alone, because it has no size to
+        cascade yet and :attr:`Application.root` lays the whole of it out when
+        it is attached.  That also keeps the cascade where it was: ``layout``
+        hands the parent's size to every child that is not bound, so laying
+        out earlier than this would overwrite a width a caller had just
+        passed to the constructor.
+        """
         if child.parent is not None:
             child.parent.remove(child)
         child.parent = self
         self.children.append(child)
+        if self.mounted:
+            child.layout(self.width, self.height)
+            child._mount()
         self.invalidate()
         return child
 
     def remove(self, child: Widget) -> None:
+        """Detach *child*, unmounting it and everything under it first."""
         if child in self.children:
+            # Both of these happen before the unlink, and have to.  The focused
+            # widget can still be walked back to *child* -- a focus left
+            # pointing into a detached subtree would send every key to a widget
+            # that is no longer on screen.  And an ``on_unmount`` handler is
+            # owed the place it is being removed from.
+            app = self.application
+            if app is not None and child._holds(app.focused):
+                app.focused = None
+            if child.mounted:
+                child._unmount()
             self.children.remove(child)
             child.parent = None
             self.invalidate()
+
+    def _holds(self, other: Widget | None) -> bool:
+        """True if *other* is this widget or somewhere beneath it."""
+        while other is not None:
+            if other is self:
+                return True
+            other = other.parent
+        return False
+
+    def offset(self) -> tuple[int, int]:
+        """Where this widget's parent's coordinates start, in screen ones.
+
+        The sum of every ancestor's position, the root sitting at the origin.
+        What :meth:`dispatch_mouse` needs to be handed an event for a widget
+        that is not the root: it takes one in its *parent's* frame.
+        """
+        x = y = 0
+        node = self.parent
+        while node is not None:
+            x += node.x
+            y += node.y
+            node = node.parent
+        return x, y
 
     @computed
     def application(self) -> Application | None:
@@ -357,6 +432,24 @@ class Widget:
 
     # -- events -------------------------------------------------------------
 
+    def cursor_position(self) -> tuple[int, int] | None:
+        """Where the terminal's cursor belongs, in this widget's coordinates.
+
+        None -- the default -- means this widget does not want one, which is
+        every widget that is not editable. A text field returns the column and
+        row of its insertion point and gets a real caret: the terminal's own,
+        blinking the way the user configured it, in the shape :attr:`caret`
+        asks for.
+
+        Only the widget the keys are going to is asked, so a widget need not
+        check whether it is focused. **Not spelled ``cursor``**, which
+        `navigator`'s ``Panel`` already uses for the row its selection bar is
+        on -- an int, and a reactive one. A base-class ``cursor`` would have
+        been shadowed by it silently and the application would have been
+        handed a row number where it expected a position.
+        """
+        return None
+
     def on_key(self, event: KeyEvent) -> bool:
         """Handle a key press.  Return True to stop it propagating."""
         return False
@@ -364,6 +457,154 @@ class Widget:
     def on_mouse(self, event: MouseEvent) -> bool:
         """Handle a mouse action.  Return True to stop it propagating."""
         return False
+
+    # -- mounting -----------------------------------------------------------
+
+    #: Whether this widget is part of a tree that belongs to an application.
+    #: A plain attribute rather than a reactive one: it changes exactly when
+    #: the mount walk sets it, and that walk already calls the hook, so an
+    #: observable copy would be a second notification channel for one fact.
+    mounted: bool = False
+
+    def on_mount(self, event: MountEvent) -> None:
+        """Called once this widget is part of a live tree.
+
+        The place for anything that needs an application, a stylesheet or a
+        size: the geometry is settled and :attr:`application` answers.  It is
+        also **where effects belong** for a widget that can be removed and put
+        back, because :meth:`remove` disposes them on the way out -- see
+        :func:`navkit.reactive.dispose_effects`.  A widget that is built once
+        and never detached may keep declaring them in ``__init__``.
+        """
+
+    def on_unmount(self, event: UnmountEvent) -> None:
+        """Called before this widget leaves a live tree.
+
+        Still parented, still sized, still reachable when this runs.  Anything
+        outside the reactive graph -- a subprocess, an open file, a timer --
+        is released here; the effects are navkit's to dispose.
+        """
+
+    def _mount(self) -> None:
+        """Mount this subtree, then let the application settle the focus.
+
+        Two steps rather than one because a modal only knows what it can focus
+        once its children are mounted, and because a mount handler that
+        focuses something itself should not then be overruled by a default.
+        """
+        if self.mounted:
+            return
+        self._mount_tree()
+        app = self.application
+        if app is not None:
+            app._claim_focus()
+
+    def _mount_tree(self) -> None:
+        """Mount this widget and then everything under it.
+
+        Parents first, so a child's handler finds every ancestor already
+        mounted, and depth-first in child order so the tree is announced in
+        the order it is written.  A modal is announced to the application
+        *before* its own handler runs, so the handler already sees itself
+        holding the input.
+        """
+        if self.mounted:
+            return
+        self.mounted = True
+        app = self.application
+        if self.modal and app is not None:
+            app._push_modal(self)
+        self.on_mount(MountEvent())
+        for child in list(self.children):
+            child._mount_tree()
+
+    def _unmount(self) -> None:
+        """Unmount everything under this widget and then the widget itself.
+
+        The mirror of :meth:`_mount`: children first, so a child is taken
+        apart while its parent is still whole, and the widget's own handler
+        runs before its effects are disposed rather than after.
+        """
+        if not self.mounted:
+            return
+        for child in reversed(list(self.children)):
+            child._unmount()
+        self.on_unmount(UnmountEvent())
+        dispose_effects(self)
+        self.mounted = False
+        # Last, and while the widget is still attached: releasing the input is
+        # the final thing a modal does, and the application has to be able to
+        # reach it to hand the focus back.
+        app = self.application
+        if self.modal and app is not None:
+            app._pop_modal(self)
+
+    # -- focus --------------------------------------------------------------
+
+    @computed
+    def focused(self) -> bool:
+        """Whether this widget is the one the application sends keys to.
+
+        A ``computed``, so it is also a stylesheet state: ``Panel:focused``
+        matches through the same ``getattr`` every ``:state`` selector uses,
+        and moving focus restyles both widgets without anybody asking for a
+        repaint.
+        """
+        app = self.application
+        return app is not None and app.focused is self
+
+    def focus(self) -> bool:
+        """Take the keyboard.  False if this widget cannot have it.
+
+        A widget must be :attr:`can_focus`, visible, attached to an
+        application, and inside the active modal if there is one.  Whether it
+        is *reachable* -- inside a container that is itself visible -- is not
+        asked here but at delivery, in :meth:`dispatch_key`, so that hiding a
+        container does not have to chase the focus that happens to be inside
+        it.
+        """
+        app = self.application
+        if app is None or not self.can_focus or not self.visible:
+            return False
+        modal = app.modal
+        if modal is not None and not modal._holds(self):
+            return False
+        app.focused = self
+        return True
+
+    def focusable(self) -> list[Widget]:
+        """The tab order of this subtree: visible, focusable, in tree order.
+
+        Pre-order, so a container that can take focus itself comes before the
+        children it contains.  Scoped to a subtree rather than global because
+        that is what a modal dialog will need -- it runs the same walk over
+        itself and nothing outside it is reachable.
+        """
+        if not self.visible:
+            return []
+        order = [self] if self.can_focus else []
+        for child in self.children:
+            order.extend(child.focusable())
+        return order
+
+    def _focus_path(self) -> list[Widget]:
+        """The focused widget and its ancestors up to this one, innermost first.
+
+        Empty if the focus is outside this subtree or behind something
+        invisible, which is the eligibility test :meth:`dispatch_key` makes at
+        delivery time rather than when focus was set.
+        """
+        app = self.application
+        widget = app.focused if app is not None else None
+        path: list[Widget] = []
+        while widget is not None:
+            if not widget.visible:
+                return []
+            path.append(widget)
+            if widget is self:
+                return path
+            widget = widget.parent
+        return []
 
     def announce(self, event: Event) -> bool:
         """Offer *event* to this widget, its ancestors, then the application.
@@ -399,11 +640,23 @@ class Widget:
         return False
 
     def dispatch_key(self, event: KeyEvent) -> bool:
-        """Offer a key to the children (topmost first), then to this widget."""
-        for child in reversed(self.children):
-            if child.visible and child.dispatch_key(event):
+        """Offer a key to the focused widget in this subtree, then up to here.
+
+        The same walk :meth:`announce` makes, starting where the keyboard is
+        rather than where the event was raised -- so an unhandled key reaches
+        the container that holds the focused widget, and a container can carry
+        the bindings its children share.
+
+        With nothing focused, or with the focus outside this subtree or behind
+        something invisible, this widget alone is offered the key. That is
+        deliberately *not* the old behaviour of touring every descendant until
+        one claimed it: a key belongs to whatever holds the keyboard, and when
+        nothing does, to nothing.
+        """
+        for widget in self._focus_path() or (self,):
+            if widget.on_key(event):
                 return True
-        return self.on_key(event)
+        return False
 
     def dispatch_mouse(self, event: MouseEvent) -> bool:
         """Offer a mouse action to the child under the pointer, then to self.

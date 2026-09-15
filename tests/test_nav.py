@@ -14,7 +14,7 @@ from navkit.events import KeyEvent, MouseEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
-from navkit.terminal import encode_key
+from navkit.terminal import SHOW_CURSOR, encode_key
 
 from conftest import FakeTerminal, run_app, settle
 from navigator import icons
@@ -716,3 +716,154 @@ def test_usage_names_the_installed_command(capsys):
     with pytest.raises(SystemExit):
         main(["--help"])
     assert capsys.readouterr().out.startswith("usage: nav ")
+
+
+# -- the console's cursor is the terminal's own ------------------------------
+
+
+def test_the_console_takes_the_keyboard_while_it_is_showing(tree, quiet_console):
+    app = navigator(tree)
+    console = app.manager.console
+    run_app(app, [KeyEvent("o", ctrl=True), lambda a: None])
+    assert app.focused is console
+
+
+def test_hiding_the_console_gives_the_keyboard_back(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("o", ctrl=True), lambda a: None])
+    assert app.focused is None
+
+
+def test_the_console_reports_the_childs_cursor(tree, quiet_console):
+    app = navigator(tree)
+    console = app.manager.console
+
+    def show(a):
+        a.manager.toggle_console()
+        console._on_output(b"hello: ")
+
+    run_app(app, [show, lambda a: None])
+    # Seven characters in, on the first line of the console's own area.
+    assert console.cursor_position() == (7, 0)
+    # The console starts one row down, under the menu bar.
+    assert app._cursor() == (7, 1, "default")
+
+
+def test_the_terminals_cursor_is_placed_where_the_child_put_it(tree, quiet_console):
+    app = navigator(tree)
+    terminal = app.terminal
+
+    def show(a):
+        a.manager.toggle_console()
+        a.manager.console._on_output(b"hello: ")
+
+    run_app(app, [show, lambda a: None])
+    assert "\x1b[2;8H" + SHOW_CURSOR in terminal.painted
+
+
+def test_no_cursor_is_shown_while_the_panels_are_up(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app)
+    assert SHOW_CURSOR not in app.terminal.painted
+
+
+def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_console):
+    app = navigator(tree)
+    console = app.manager.console
+
+    def show(a):
+        a.manager.toggle_console()
+        console._on_output(b"\r\n".join(b"line %d" % n for n in range(60)))
+
+    run_app(app, [show, lambda a: console.scroll_back(), lambda a: None])
+    assert console.screen.scrolled_back is True
+    # The rows on screen are history; the live cursor means nothing among them.
+    assert console.cursor_position() is None
+    assert app._cursor() is None
+
+
+def test_a_hidden_child_cursor_is_not_drawn(tree, quiet_console):
+    app = navigator(tree)
+    console = app.manager.console
+
+    def show(a):
+        a.manager.toggle_console()
+        console._on_output(b"\x1b[?25l")  # the child hides its own cursor
+
+    run_app(app, [show, lambda a: None])
+    assert console.cursor_position() is None
+
+
+# -- who owns which key ------------------------------------------------------
+
+
+def test_ctrl_o_and_the_key_behind_it_arrive_in_one_batch(tree, quiet_console):
+    # A paste, or fast typing: both events are dispatched before any effect
+    # runs, so a focus handover queued as an effect would still be pointing at
+    # the panels when the second key is routed.
+    app = navigator(tree)
+    typed: list[bytes] = []
+
+    def stub(a):
+        a.manager.console.send = lambda e: typed.append(encode_key(e)) or True
+
+    def both(a):
+        a.post_event(KeyEvent("o", ctrl=True))
+        a.post_event(KeyEvent("x", "x"))
+
+    run_app(app, [stub, both])
+    assert typed == [b"x"]
+    assert app.manager.left.cursor == 0
+
+
+def test_the_console_swallows_keys_it_has_no_child_for(tree, quiet_console):
+    # Nothing to type at, and the panels are behind it showing nothing -- a
+    # key that fell through would move a cursor the user cannot see.
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("down"), KeyEvent("down")])
+    assert app.manager.console.process is None
+    assert app.manager.left.cursor == 0
+
+
+def test_alt_x_quits_from_the_panels(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("x", "x", alt=True)])
+    assert app.is_running is False
+
+
+def test_alt_x_goes_to_the_child_from_the_console(tree, quiet_console):
+    # It has always been a desktop key rather than a global one: with the
+    # console up it is a keystroke like any other.
+    app = navigator(tree)
+    typed: list[bytes] = []
+    alive: list[bool] = []
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: setattr(a.manager.console, "send",
+                          lambda e: typed.append(encode_key(e)) or True),
+        KeyEvent("x", "x", alt=True),
+        # run_app exits the application itself once the actions are done, so
+        # "still running" has to be read while it still is.
+        lambda a: alive.append(a.is_running),
+    ])
+    assert alive == [True]
+    assert typed == [b"\x1bx"]
+
+
+def test_the_desktop_owns_the_panel_keys(tree):
+    # Reached through the tree now, not from the application hook: nothing is
+    # focused while the panels are up, so the root widget is offered the key.
+    app = navigator(tree)
+    run_app(app, [KeyEvent("down")])
+    assert app.manager.left.cursor == 1
+
+
+def test_the_application_keeps_only_what_is_global(tree, quiet_console):
+    app = navigator(tree)
+    handled = []
+    run_app(app, [lambda a: handled.append(
+        (a.on_key(KeyEvent("down")), a.on_key(KeyEvent("tab")),
+         a.on_key(KeyEvent("x", "x", alt=True)), a.on_key(KeyEvent("o", ctrl=True))))])
+    down, tab, altx, ctrlo = handled[0]
+    assert (down, tab, altx) == (False, False, False)
+    assert ctrlo is True

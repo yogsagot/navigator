@@ -9,6 +9,9 @@ from navkit.application import Application
 from navkit.events import Event, KeyEvent, MouseEvent, PasteEvent, ResizeEvent
 from navkit.reactive import effect, peek, reactive
 from navkit.style import Style
+from navkit.stylesheet import parse
+from navkit.terminal import HIDE_CURSOR, SHOW_CURSOR
+from navkit.widget import Widget
 
 from conftest import FakeTerminal, RecordingWidget, run_app
 
@@ -373,3 +376,127 @@ def test_a_bare_event_is_offered_to_on_event_once(terminal):
     app = Counting(root=RecordingWidget(), terminal=terminal)
     run_app(app, [Event()])
     assert app.seen == 1
+
+
+# -- the terminal's own cursor ---------------------------------------------
+
+
+class Field(Widget):
+    """A widget that wants a caret, wherever it says it is."""
+
+    def __init__(self, at: tuple[int, int] | None = (0, 0), **kwargs):
+        super().__init__(**kwargs)
+        self.at = at
+        self.can_focus = True
+
+    def render(self, surface) -> None:
+        surface.fill(0, 0, self.width, self.height, "_", self.style)
+
+    def cursor_position(self):
+        return self.at
+
+
+def field_app(terminal, **kwargs):
+    root = RecordingWidget(width=terminal.size[0], height=terminal.size[1])
+    field = root.add(Field(x=5, y=2, width=10, height=1))
+    return Application(root=root, terminal=terminal, **kwargs), root, field
+
+
+def test_no_cursor_is_shown_while_nothing_asks_for_one(terminal):
+    app, root, field = field_app(terminal)
+    run_app(app)
+    assert SHOW_CURSOR not in terminal.painted
+
+
+def test_a_focused_field_places_and_shows_the_cursor(terminal):
+    app, root, field = field_app(terminal)
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    # The field sits at 5, 2 and wants its own 0, 0: screen 5, 2, which the
+    # escape counts from one.
+    assert "\x1b[3;6H" + SHOW_CURSOR in terminal.painted
+
+
+def test_the_cursor_follows_the_position_the_widget_reports(terminal):
+    app, root, field = field_app(terminal)
+
+    def move(a):
+        field.focus()
+        field.at = (4, 0)
+        a.invalidate()
+
+    run_app(app, [move])
+    assert "\x1b[3;10H" in terminal.painted
+
+
+def test_a_widget_that_wants_no_cursor_hides_it_again(terminal):
+    app, root, field = field_app(terminal)
+
+    def drop(a):
+        field.at = None
+        a.invalidate()
+
+    run_app(app, [lambda a: (field.focus(), a.invalidate()), drop])
+    assert terminal.painted.rindex(HIDE_CURSOR) > terminal.painted.rindex(SHOW_CURSOR)
+
+
+def test_losing_the_focus_hides_the_cursor(terminal):
+    app, root, field = field_app(terminal)
+    run_app(
+        app,
+        [
+            lambda a: (field.focus(), a.invalidate()),
+            lambda a: (setattr(a, "focused", None), a.invalidate()),
+        ],
+    )
+    assert terminal.painted.rindex(HIDE_CURSOR) > terminal.painted.rindex(SHOW_CURSOR)
+
+
+def test_a_cursor_behind_an_invisible_ancestor_is_not_shown(terminal):
+    app, root, field = field_app(terminal)
+
+    def hide(a):
+        field.focus()
+        field.visible = False
+        a.invalidate()
+
+    run_app(app, [hide])
+    assert SHOW_CURSOR not in terminal.painted
+
+
+def test_a_cursor_outside_the_widget_is_refused(terminal):
+    app, root, field = field_app(terminal)
+    field.at = (99, 0)
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert SHOW_CURSOR not in terminal.painted
+
+
+def test_the_caret_shape_comes_from_the_stylesheet(terminal):
+    app, root, field = field_app(terminal, stylesheet=parse("Field { caret: bar }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert "\x1b[6 q" in terminal.painted
+
+
+def test_the_default_shape_leaves_the_terminals_own_alone(terminal):
+    app, root, field = field_app(terminal)
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert " q" not in terminal.painted
+
+
+def test_an_unchanged_cursor_is_not_reemitted(terminal):
+    app, root, field = field_app(terminal)
+    run_app(app, [lambda a: (field.focus(), a.invalidate()), lambda a: None])
+    assert terminal.painted.count(SHOW_CURSOR) == 1
+
+
+def test_a_repaint_puts_the_cursor_back_after_the_painting(terminal):
+    # Painting moves the terminal's own cursor as a side effect, so a frame
+    # that drew anything has to place it again even though it did not move.
+    app, root, field = field_app(terminal)
+
+    def repaint(a):
+        root.fill_char = "#"
+        a.invalidate()
+
+    run_app(app, [lambda a: (field.focus(), a.invalidate()), repaint])
+    last = terminal.frames[-1]
+    assert last.rindex("\x1b[3;6H") > last.rindex("#")
