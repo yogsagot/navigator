@@ -25,9 +25,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import signal
+import time
 from typing import Any
 
 from navkit.events import (
+    DoubleClickEvent,
     Event,
     KeyEvent,
     MouseEvent,
@@ -46,8 +48,76 @@ from navkit.widget import Widget, _call, check_handlers
 #: and not the start of a sequence the terminal is still sending.
 ESCAPE_TIMEOUT = 0.05
 
+#: How long after a press a second one at the same cell is a double-click.
+#: What GTK and Qt both default to.  Unlike :data:`ESCAPE_TIMEOUT` the
+#: constructor takes it: the escape window is calibrated against a terminal's
+#: transmission, which is nobody's preference, and this one against a user's
+#: hand, which is the application's to state.
+DOUBLE_CLICK_TIMEOUT = 0.4
+
 
 _WAKE = WakeEvent()
+
+
+class ClickTracker:
+    """Counts presses of one button at one cell into a run of clicks.
+
+    **Deliberately clockless**: :meth:`press` is told the time rather than
+    reading one.  That is what lets the whole rule be tested in a plain
+    function with no event loop, no application and no fake clock -- the one
+    thing ``tests/conftest.py`` cannot provide.  The application owns
+    ``loop.time()`` and passes it in.
+
+    See *What the detector keys on* in ``navkit/DESIGN.md``.
+    """
+
+    def __init__(self, timeout: float = DOUBLE_CLICK_TIMEOUT) -> None:
+        #: Zero disables double-click detection altogether.
+        self.timeout = timeout
+        self._where: tuple[int, int, str] | None = None
+        self._when = 0.0
+        self._count = 0
+
+    def press(self, event: MouseEvent, now: float) -> int:
+        """How many clicks *event* completes -- 1, 2, 3... -- or 0 for none.
+
+        **The run counts upward and never restarts inside itself**, so a
+        triple click reports 3 and a fourth press 4.  Only a count of exactly
+        two raises anything, which is how a fast triple click cannot fire a
+        second double-click: restarting at 1 after each pair would have
+        entered the same directory twice.
+
+        A wheel detent arrives as a press and is not one -- two notches at one
+        cell inside the window is the *normal* way to use a wheel.  It ends
+        the run as well as being excluded from it, because the content under
+        the pointer has just moved and the cell no longer denotes what it did.
+        """
+        if event.action != "press" or event.button == "none":
+            return 0
+        if event.is_wheel:
+            self.reset()
+            return 0
+        where = (event.x, event.y, event.button)
+        if (
+            self.timeout > 0
+            and where == self._where
+            and now - self._when <= self.timeout
+        ):
+            self._count += 1
+        else:
+            self._count = 1
+        self._where, self._when = where, now
+        return self._count
+
+    def reset(self) -> None:
+        """Forget the run: the cell no longer denotes what it did.
+
+        Called whenever navkit knows that much -- a wheel scrolled the content
+        out from under the pointer, a resize moved the layout, a modal opened
+        or closed over it.
+        """
+        self._where = None
+        self._count = 0
 
 
 class Application:
@@ -81,6 +151,7 @@ class Application:
         stylesheet: Stylesheet | None = None,
         max_fps: int = 60,
         mouse: bool = True,
+        double_click: float = DOUBLE_CLICK_TIMEOUT,
         palette: tuple[tuple[int, int, int], ...] | None = None,
         reprogram_palette: bool = False,
     ):
@@ -105,6 +176,8 @@ class Application:
         self._parser = InputParser()
         self._loop: asyncio.AbstractEventLoop | None = None
         self._escape_timer: asyncio.TimerHandle | None = None
+        #: Turns two presses and a clock into a double-click.  Zero off.
+        self._clicks = ClickTracker(double_click)
         self._signals: list[int] = []
         self._reader_fd: int | None = None
 
@@ -250,6 +323,9 @@ class Application:
 
     def _push_modal(self, widget: Widget) -> None:
         """Called by the mount walk.  Remembers what had the focus."""
+        # Something else is under the pointer now, so a press before this and
+        # one after it are not two clicks on one thing.
+        self._clicks.reset()
         self._modals.append((widget, self.focused))
 
     def _pop_modal(self, widget: Widget) -> None:
@@ -259,6 +335,7 @@ class Application:
         off with an ancestor -- simply leaves the stack: the focus belongs to
         whatever is still holding the input, not to the thing behind it.
         """
+        self._clicks.reset()  # as `_push_modal': the cell changed meaning
         for index, (held, restore) in enumerate(self._modals):
             if held is not widget:
                 continue
@@ -405,6 +482,7 @@ class Application:
         return x, y, widget.style_property("caret", "default")
 
     def _resize(self, width: int, height: int) -> None:
+        self._clicks.reset()  # the layout moved out from under the pointer
         self._back.resize(width, height, self.background)
         self._front = None  # sizes differ -- force a full repaint
         if self._root is not None:
@@ -462,8 +540,25 @@ class Application:
                 if not await self.on_key(event) and target is not None:
                     await target.dispatch_key(event)
             elif isinstance(event, MouseEvent):
-                if not await self.on_mouse(event):
-                    await self._dispatch_mouse(event)
+                # Counted from the press itself, before it is delivered and
+                # whatever claims it: whether a widget consumed a press says
+                # nothing about whether the user clicked twice.  A
+                # DoubleClickEvent is a conclusion *about* presses and is
+                # never counted as one, which bounds the recursion below at
+                # one level.
+                clicks = (
+                    0
+                    if isinstance(event, DoubleClickEvent)
+                    else self._clicks.press(event, self._now())
+                )
+                await self._deliver_mouse(event)
+                if clicks == 2:
+                    # Inline rather than posted, so cause and effect stay
+                    # adjacent: the press's own release is usually already in
+                    # the queue from the same read, and queueing would deliver
+                    # it in between.  Through `_handle' so `on_event' sees it,
+                    # as it sees the escape key navkit manufactures.
+                    await self._handle(DoubleClickEvent.of(event))
             elif isinstance(event, ResizeEvent):
                 await self.on_resize(event)
             elif isinstance(event, PasteEvent):
@@ -482,6 +577,30 @@ class Application:
         except Exception:
             self.exit()
             raise
+
+    def _now(self) -> float:
+        """The loop's clock, or a real one when there is no loop yet.
+
+        Not ``_render``'s fallback of ``0.0``: a frame stamped "long ago" is
+        the right default there, but two presses both stamped ``0.0`` are a
+        double-click by the rule, so a test calling :meth:`_handle` directly
+        would manufacture one out of nothing.  ``monotonic()`` is the clock
+        asyncio's own is built on, and is always there.
+        """
+        return self._loop.time() if self._loop is not None else time.monotonic()
+
+    async def _deliver_mouse(self, event: MouseEvent) -> None:
+        """Offer *event* to this application's own hook, then to the tree.
+
+        Looked up under ``event.handler`` for the reason
+        :meth:`Widget.dispatch_mouse` does it: ``on_mouse`` is what a plain
+        ``MouseEvent`` derives, so this is the call that was always made, and
+        a refinement reaches its own hook or goes straight past the
+        application to the widgets.
+        """
+        hook = getattr(self, event.handler, None)
+        if hook is None or not await _call(self, event, hook):
+            await self._dispatch_mouse(event)
 
     async def _dispatch_mouse(self, event: MouseEvent) -> None:
         """Route a mouse action into the tree, or into the modal alone.

@@ -33,9 +33,9 @@ from navigator.__main__ import (
 )
 
 
-def navigator(path, size=(80, 24)) -> Navigator:
+def navigator(path, size=(80, 24), **kwargs) -> Navigator:
     """A Navigator on a fake terminal of *size*, both panels showing *path*."""
-    return Navigator(path, path, terminal=FakeTerminal(*size))
+    return Navigator(path, path, terminal=FakeTerminal(*size), **kwargs)
 
 
 @pytest.fixture
@@ -302,6 +302,100 @@ def test_clicking_the_other_panel_activates_it(tree):
     app = navigator(tree)
     run_app(app, [MouseEvent(x=60, y=3, button="left", action="press")])
     assert app.manager.active_panel is app.manager.right
+
+
+# The original entered a directory on a double-click, and until navkit grew
+# one the mouse could not enter a directory at all.  Row 3 of the left panel
+# is "alpha", which is a directory.
+
+DOUBLE = MouseEvent(x=5, y=3, button="left", action="press")
+
+
+def test_double_clicking_a_directory_row_enters_it(tree):
+    app = navigator(tree)
+    run_app(app, [DOUBLE, DOUBLE])
+    assert app.manager.left.path.name == "alpha"
+
+
+def test_double_clicking_dotdot_goes_up_and_puts_the_cursor_back(tree):
+    """``..`` is an entry like any other, so ``enter()`` needed nothing added
+    for it -- and the cursor lands on the directory just left, which is what
+    ``_return_to`` is for."""
+    app = navigator(tree / "alpha")
+    # Screen row 2 is the first listing line, which is always "..".
+    up = MouseEvent(x=5, y=2, button="left", action="press")
+    run_app(app, [up, up])
+
+    assert app.manager.left.path == tree
+    assert app.manager.left.selected.name == "alpha"
+
+
+def test_the_panel_under_the_pointer_is_the_one_that_opens(tree):
+    """The handler is the panel's, so routing by position picks which one
+    without anything having to ask."""
+    app = navigator(tree)
+    click = MouseEvent(x=60, y=3, button="left", action="press")
+    run_app(app, [click, click])
+
+    assert app.manager.right.path.name == "alpha"
+    assert app.manager.left.path == tree
+
+
+def test_entering_by_mouse_is_the_panel_s_own_handler(tree):
+    """Not the application's.  An application hook runs before the widgets and
+    would keep the gesture from every panel and dialog there will ever be; this
+    one needs nothing but the panel it lands on."""
+    assert hasattr(Panel, "on_double_click")
+    assert not hasattr(Navigator, "on_double_click")
+
+
+def test_one_click_only_moves_the_cursor(tree):
+    """The press is delivered either way -- the double-click is *additional*
+    -- which is what lets on_double_click be three lines that only enter."""
+    app = navigator(tree)
+    run_app(app, [DOUBLE])
+    assert app.manager.left.selected.name == "alpha"
+    assert app.manager.left.path == tree
+
+
+def test_two_clicks_on_different_rows_are_not_a_double_click(tree):
+    app = navigator(tree)
+    run_app(app, [DOUBLE, MouseEvent(x=5, y=4, button="left", action="press")])
+    assert app.manager.left.path == tree
+
+
+def test_a_slow_pair_is_not_a_double_click(tree):
+    """The window is shrunk rather than the test sleeping 0.4s: run_app leaves
+    0.02s between actions, which is twenty times too slow for this one."""
+    app = navigator(tree, double_click=0.001)
+    run_app(app, [DOUBLE, DOUBLE])
+    assert app.manager.left.path == tree
+
+
+def test_double_clicking_a_file_row_does_nothing(tree):
+    """`enter()' no-ops on anything but a directory, so the guard in the hook
+    is about rows that exist rather than about what is on them."""
+    app = navigator(tree)
+    one_txt = MouseEvent(x=5, y=5, button="left", action="press")
+    run_app(app, [one_txt, one_txt])
+    assert app.manager.left.path == tree
+    assert app.manager.left.selected.name == "one.txt"
+
+
+def test_the_wheel_never_enters_anything(tree):
+    """A detent arrives as a press and is not one -- two notches in a cell is
+    the normal way to use a wheel."""
+    app = navigator(tree)
+    wheel = MouseEvent(x=5, y=3, button="wheel_down", action="press")
+    run_app(app, [wheel, wheel])
+    assert app.manager.left.path == tree
+
+
+def test_the_wheel_ends_a_run_of_clicks(tree):
+    app = navigator(tree)
+    wheel = MouseEvent(x=5, y=3, button="wheel_up", action="press")
+    run_app(app, [DOUBLE, wheel, DOUBLE])
+    assert app.manager.left.path == tree
 
 
 def test_the_wheel_scrolls_the_panel_under_the_pointer(tmp_path):

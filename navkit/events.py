@@ -153,6 +153,52 @@ class MouseEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
+class DoubleClickEvent(MouseEvent):
+    """One button pressed twice at one cell, inside the double-click window.
+
+    A statement about *input*, not about meaning.  navkit says the two presses
+    happened close together in one place and never that the thing under them
+    should open -- that is the application's, exactly as navkit says F10 was
+    pressed and never that F10 quits.  The terminal reports no such thing
+    itself: SGR gives ``press``, ``release`` and ``move``, so this is
+    synthesised from two presses and a clock, the way a lone ``ESC`` becomes
+    an escape key.  See *Double-click: a timer, not a meaning* in
+    ``navkit/DESIGN.md``.
+
+    It carries the press it completed -- same cell, same button, same
+    modifiers, ``action`` still ``"press"`` -- so a handler filters by button
+    the way one reading a plain press already does.
+
+    Delivered to ``on_double_click`` and never to ``on_mouse``: the handler
+    name is derived from the class and both dispatch walks read it.  A widget
+    defining no ``on_double_click`` is skipped, and skipped is what "did not
+    claim it" already means there, so the event falls outward to an ancestor
+    exactly as an unhandled press does and nothing needs a stub.
+
+    **A `MouseEvent`, so that routing costs nothing.**  :meth:`translated`
+    rebuilds through :func:`~dataclasses.replace`, which keeps the subclass,
+    so the inward coordinate shift, the hit test and the modal reroute all
+    work on one of these without knowing it exists.  The price is that
+    ``isinstance(event, MouseEvent)`` is true of it -- relied on in
+    ``Application._handle``, and a trap anywhere that meant *only* a plain
+    mouse action.
+    """
+
+    @classmethod
+    def of(cls, press: MouseEvent) -> DoubleClickEvent:
+        """The same press, re-raised as the double-click it completed."""
+        return cls(
+            x=press.x,
+            y=press.y,
+            button=press.button,
+            action=press.action,
+            ctrl=press.ctrl,
+            alt=press.alt,
+            shift=press.shift,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class ResizeEvent(Event):
     """The terminal window changed size."""
 

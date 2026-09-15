@@ -263,6 +263,30 @@ class Panel(Widget):
         self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
 
+    async def on_double_click(self, event: MouseEvent) -> bool:
+        """Open the row that was double-clicked: a directory, or ``..`` up.
+
+        The original's mouse, and the panel's own rather than the
+        application's -- this needs nothing but the panel it lands on, so it
+        belongs to the panel, the way ``Manager.on_key`` holds the keys that
+        need to know which panel is active and ``Console.on_key`` holds the
+        scrollback.  Routing here is by position, so the event arrives in this
+        panel's coordinates and the listing row is ``event.y - 1``, the 1
+        being the top frame.
+
+        It only has to enter.  navkit delivers the press that completed the
+        double-click *as well*, and that press has already moved the cursor
+        onto this row -- which is what the additive delivery is for.
+        :meth:`enter` no-ops on a file and on a row with nothing on it, and
+        treats ``..`` as the directory it is, so the guard here is only about
+        rows inside the listing rather than the frame.
+        """
+        if event.button != "left":
+            return False
+        if 0 <= event.y - 1 < self.rows:
+            self.enter()
+        return True
+
     # -- painting ------------------------------------------------------------
 
     @computed

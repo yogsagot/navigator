@@ -260,7 +260,8 @@ Written, and the pieces fit together like this:
   callback that feeds `InputParser` and queues the resulting events. The order in one turn is fixed: **dispatch the
   whole batch, flush the reactive effects it queued, then paint one frame** — so a paste or a mouse drag costs a single
   repaint, and nothing reactive runs during the paint. `SIGWINCH` becomes a `ResizeEvent`; events reach the
-  `Application.on_*` hooks first and the widget tree second.
+  `Application.on_*` hooks first and the widget tree second. It also holds `ClickTracker`, which turns two presses and
+  a clock into a `DoubleClickEvent` — see below.
 - `terminal.py` — `Terminal` owns the tty (raw mode, alternate screen, mouse tracking, bracketed paste, autowrap off)
   and restores it in `Application`'s `finally`. `InputParser` is fed incrementally and keeps undecodable tails, so
   sequences split across reads still decode. A lone `ESC` is inherently ambiguous: the parser reports `pending_escape`
@@ -312,11 +313,27 @@ Written, and the pieces fit together like this:
   mirrors the frame loop one layer up. `effect()` is the only eager node, for reactions that must happen whether or not
   anybody reads a value.
 - `widget.py` — `Widget` has children, `render(surface)`, `layout(width, height)` (called on the root at every resize)
-  and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first. Its geometry, `visible`, `style`
+  and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first — `dispatch_mouse` under
+  `event.handler` rather than to `on_mouse` by name, which is what makes a refinement of a mouse action reach its own
+  handler. Its geometry, `visible`, `style`
   and `parent` are reactive, so assigning one asks for a repaint on its own; `layout()` steps around any size that
   carries a binding. **All coordinates are relative to the parent** — `x`/`y`, `contains()`, and the position a
   `MouseEvent` carries, which `dispatch_mouse` shifts as it descends. Only the root sits in screen coordinates, and it
   sits at the origin.
+
+**A double-click is navkit's, and it is a fact rather than a meaning.** The terminal reports no such thing — SGR gives
+`press`, `release` and `move` — so `ClickTracker` synthesises one from two presses and a clock, the way a lone `ESC`
+becomes an escape key. It belongs here and `ClickEvent` does not because the membership test is *does navkit raise it*,
+and because `Application._loop.time()` is the only clock event handling can reach; a widget library doing this would
+have to reach into the private loop of the object that owns it. Four things to know: **the press is still delivered**
+(the double-click is *additional*, so a widget acting on both acts twice — which is what lets
+`Panel.on_double_click` be three lines that only `enter()`, the press having already moved the cursor); it is
+dispatched **inline** right after that press and re-enters `_handle`, so `on_event` sees it; the run keys on the
+**exact cell and button** with no tolerance, counts upward so a triple click raises one double-click and not two, and
+is forgotten on a wheel, a resize or a modal push/pop; and `DOUBLE_CLICK_TIMEOUT` is 0.4 but `Application(double_click=
+…)` overrides it — unlike `ESCAPE_TIMEOUT`, because this window is a property of the user's hand rather than of the
+terminal. `ClickTracker` is **clockless by construction** — told `now` rather than reading one — which is what makes
+the whole rule testable without a fake clock.
 
 - `console.py` — the screen a *child program* paints on, and the mirror image of `terminal.py`: there, bytes from the
   user become events; here, bytes from a program Navigator started become cells. The emulation is `pyte`; what lives
@@ -506,6 +523,11 @@ scroll follow.
   application hook runs before the widgets and so keeps a key from everything; `Console.on_key` keeps the scrollback
   and sends the rest to the child; `Manager.on_key` keeps the panel keys and Alt+X. There is no `console_visible`
   check in any of them — the console holds the focus while it is showing, and the focus path decides
+- **And so do mouse gestures, by the same rule.** `Panel.on_double_click` enters the clicked row — a directory, or
+  `..` — because it needs nothing but the panel it lands on, and routing by position is what picks which panel. It
+  needs no `console_visible` check either: the panels' `visible` is bound to that flag and `dispatch_mouse` skips an
+  invisible child. What stays on `Navigator.on_mouse` is what genuinely needs the desktop — activating the other panel
+  on a press, the wheel, and the console's scrollback
 - View and Edit file windows
 - File operations over the selected files
 - Pluggable filesystem handlers so operations work over ssh, smb, inside zip archives, etc.
