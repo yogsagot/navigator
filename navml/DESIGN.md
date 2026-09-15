@@ -153,7 +153,12 @@ little as possible:
   wrong body.
 - **Markup only** takes the other branch. `GeneratedLoader` copies the generated module's public names across, points
   `__file__` at `button_nml.py` and re-homes the class with `__module__`. Both halves of that are load-bearing:
-  `inspect` needs the public module's `__file__` to name the file the class really lives in.
+  `inspect` needs the public module's `__file__` to name the file the class really lives in. Re-homing has one cost
+  that only shows on Python 3.13: a class carries its body's line in `__firstlineno__` there, `inspect` reads it rather
+  than scanning, and `type.__setattr__` **deletes it when `__module__` is assigned** (CPython gh-118465) on the
+  assumption that a re-homed class has moved. It has not — only its published name changed — so `_rehome()` puts the
+  number back, and without that `inspect.getsource` on a markup-only component raises `OSError` on 3.13 while working
+  on 3.12.
 - **Keyed on `button_nml.py`, never on `button.nml`.** Both halves of a component are then ordinary `.py` files, which
   reach a wheel automatically inside a declared package, so the import path never depends on a file a `package-data`
   mistake can drop. Keying on the markup would invert that and repeat the failure `CLAUDE.md` records for

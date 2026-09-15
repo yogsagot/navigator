@@ -258,7 +258,7 @@ class GeneratedLoader(importlib.abc.Loader):
             setattr(module, attribute, getattr(generated, attribute))
         setattr(module, "__all__", list(exported))
         module.__doc__ = generated.__doc__
-        getattr(generated, name).__module__ = module.__name__
+        _rehome(getattr(generated, name), module.__name__)
 
     def get_source(self, fullname: str) -> str | None:
         """Hand back the generated half's source, for :mod:`linecache`.
@@ -274,6 +274,24 @@ class GeneratedLoader(importlib.abc.Loader):
 
     def __repr__(self) -> str:
         return f"<navml generated loader for {self._generated_name}>"
+
+
+def _rehome(component: type, module_name: str) -> None:
+    """Publish *component* under *module_name*, keeping it sourceable.
+
+    Python 3.13 gave every class a ``__firstlineno__``, and ``inspect`` now
+    reads the class body's line from it rather than by scanning the file --
+    but ``type.__setattr__`` *deletes* it when ``__module__`` is assigned, on
+    the assumption that a re-homed class no longer lives where it was compiled
+    (CPython gh-118465).  Here that assumption is wrong: only the name the
+    class is published under changes, and ``__file__`` still names the file it
+    was compiled from.  So put the line number back, or ``inspect.getsource``
+    on a markup-only component raises ``OSError`` on 3.13 and works on 3.12.
+    """
+    first_line = vars(component).get("__firstlineno__")
+    component.__module__ = module_name
+    if first_line is not None and "__firstlineno__" not in vars(component):
+        component.__firstlineno__ = first_line  # type: ignore[attr-defined]
 
 
 def _component_name(generated: ModuleType) -> str:
