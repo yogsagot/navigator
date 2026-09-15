@@ -40,7 +40,7 @@ from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
-from navkit.widget import Widget
+from navkit.widget import Widget, _call, check_handlers
 
 #: How long to wait before deciding a lone ``ESC`` really was the escape key
 #: and not the start of a sequence the terminal is still sending.
@@ -52,6 +52,10 @@ _WAKE = WakeEvent()
 
 class Application:
     """Owns the event loop, the terminal and the root of the widget tree."""
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        check_handlers(cls)
 
     #: The sheet every widget under this application resolves against.
     #: Observable, which is what makes loading a theme restyle the tree: each
@@ -191,14 +195,14 @@ class Application:
             SCHEDULER.wake = self._wake
             self._attach_input()
             self._resize(*self.terminal.size)
-            self.on_start()
+            await self.on_start()
             await self._main_loop()
         finally:
             self._running = False
             SCHEDULER.wake = None
             self._detach_input()
             with contextlib.suppress(Exception):
-                self.on_stop()
+                await self.on_stop()
             self.terminal.stop()
             self._loop = None
         return self.result
@@ -261,7 +265,7 @@ class Application:
             del self._modals[index]
             if index == len(self._modals):
                 self.focused = None
-                if restore is not None and restore.mounted:
+                if restore is not None and restore.is_mounted:
                     restore.focus()
             return
 
@@ -312,10 +316,17 @@ class Application:
         """
         self._events.put_nowait(event)
 
-    def on_start(self) -> None:
-        """Called once the terminal is ready, before the first frame."""
+    async def on_start(self) -> None:
+        """Called once the terminal is ready, before the first frame.
 
-    def on_stop(self) -> None:
+        ``async def`` like every other ``on_*``, and it costs nothing here:
+        this runs inside :meth:`run_async`, which can await it.  That is the
+        whole of the rule -- a hook that *cannot* be awaited where it is
+        called does not get an ``on_*`` name, which is why the widget
+        lifecycle is :meth:`Widget.mounted` rather than ``on_mount``.
+        """
+
+    async def on_stop(self) -> None:
         """Called after the loop ends, before the terminal is restored."""
 
     # -- painting -----------------------------------------------------------
@@ -407,11 +418,14 @@ class Application:
         await self._render()
         while self._running:
             event = await self._events.get()
-            self._handle(event)
+            await self._handle(event)
             # Drain whatever else arrived in the meantime: a paste or a mouse
-            # drag should cost one frame, not one frame per event.
+            # drag should cost one frame, not one frame per event.  A handler
+            # that awaits lets the loop's other work run -- reading input,
+            # pty output, timers -- but cannot produce a frame, because
+            # ``_render`` is only ever awaited from here.
             while self._running and not self._events.empty():
-                self._handle(self._events.get_nowait())
+                await self._handle(self._events.get_nowait())
             if self._running:
                 self._flush_effects()
             if self._running and self._dirty:
@@ -431,13 +445,13 @@ class Application:
             self.exit()
             raise
 
-    def _handle(self, event: Event) -> None:
+    async def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):
             return
         if isinstance(event, ResizeEvent):
             self._resize(event.width, event.height)
         try:
-            if self.on_event(event):
+            if await self.on_event(event):
                 return
             if isinstance(event, KeyEvent):
                 # Dispatching on the modal rather than the root is the whole
@@ -445,31 +459,31 @@ class Application:
                 # widget up to whatever it was called on, so it neither starts
                 # outside the modal nor bubbles past it.
                 target = self.modal or self._root
-                if not self.on_key(event) and target is not None:
-                    target.dispatch_key(event)
+                if not await self.on_key(event) and target is not None:
+                    await target.dispatch_key(event)
             elif isinstance(event, MouseEvent):
-                if not self.on_mouse(event):
-                    self._dispatch_mouse(event)
+                if not await self.on_mouse(event):
+                    await self._dispatch_mouse(event)
             elif isinstance(event, ResizeEvent):
-                self.on_resize(event)
+                await self.on_resize(event)
             elif isinstance(event, PasteEvent):
-                self.on_paste(event)
+                await self.on_paste(event)
             else:
                 # Anything posted that the four branches above do not know.
-                # It has no sender in the widget tree -- nobody announced it --
+                # It has no sender in the widget tree -- nobody emitted it --
                 # so it stops here, at the hook its own class names.  A widget's
-                # event goes the other way, through ``Widget.announce``.
+                # event goes the other way, through ``Widget.emit``.
                 handler = getattr(self, event.handler, None)
                 # A bare ``Event`` derives ``on_event``, which every event has
                 # already been offered to above; the hooks are only distinct
                 # when the names are.
                 if handler is not None and handler != self.on_event:
-                    handler(event)
+                    await _call(self, event, handler)
         except Exception:
             self.exit()
             raise
 
-    def _dispatch_mouse(self, event: MouseEvent) -> None:
+    async def _dispatch_mouse(self, event: MouseEvent) -> None:
         """Route a mouse action into the tree, or into the modal alone.
 
         The mouse is where modality costs something, because it routes by
@@ -486,29 +500,29 @@ class Application:
         modal = self.modal
         if modal is None:
             if self._root is not None:
-                self._root.dispatch_mouse(event)
+                await self._root.dispatch_mouse(event)
             return
         dx, dy = modal.offset()
         local = event.translated(-dx, -dy)
         if modal.contains(local.x, local.y):
-            modal.dispatch_mouse(local)
+            await modal.dispatch_mouse(local)
 
     # Hooks -- an application subclass sees every event before the widgets do.
 
-    def on_event(self, event: Event) -> bool:
+    async def on_event(self, event: Event) -> bool:
         """Handle any event.  Return True to stop it reaching the widgets."""
         return False
 
-    def on_key(self, event: KeyEvent) -> bool:
+    async def on_key(self, event: KeyEvent) -> bool:
         return False
 
-    def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse(self, event: MouseEvent) -> bool:
         return False
 
-    def on_resize(self, event: ResizeEvent) -> None:
+    async def on_resize(self, event: ResizeEvent) -> None:
         pass
 
-    def on_paste(self, event: PasteEvent) -> None:
+    async def on_paste(self, event: PasteEvent) -> None:
         pass
 
     # -- input plumbing -----------------------------------------------------

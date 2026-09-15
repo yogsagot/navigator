@@ -1,4 +1,4 @@
-"""The widget tree: parenting, geometry, event dispatch and announcements."""
+"""The widget tree: parenting, geometry, event dispatch and emitted events."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from navkit.style import Style
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 
-from conftest import RecordingWidget, run_app
+from conftest import RecordingWidget, awaited, run_app
 
 
 def test_add_sets_the_parent():
@@ -93,7 +93,7 @@ def test_keys_go_to_the_focused_widget_and_not_its_siblings():
     Application(root=parent)
     lower.can_focus = True
     lower.focus()
-    assert parent.dispatch_key(KeyEvent("a")) is True
+    assert awaited(parent.dispatch_key(KeyEvent("a"))) is True
     assert lower.keys == ["a"]
     assert upper.keys == []
     assert parent.keys == []
@@ -106,7 +106,7 @@ def test_unhandled_keys_fall_through_to_the_parent():
     child.can_focus = True
     child.focus()
     child.handles = False
-    parent.dispatch_key(KeyEvent("a"))
+    awaited(parent.dispatch_key(KeyEvent("a")))
     assert child.keys == ["a"]
     assert parent.keys == ["a"]
 
@@ -118,7 +118,7 @@ def test_with_nothing_focused_a_key_reaches_nobody_in_the_tree():
     parent = RecordingWidget()
     child = parent.add(RecordingWidget())
     Application(root=parent)
-    assert parent.dispatch_key(KeyEvent("a")) is True
+    assert awaited(parent.dispatch_key(KeyEvent("a"))) is True
     assert parent.keys == ["a"]
     assert child.keys == []
 
@@ -127,7 +127,7 @@ def test_mouse_goes_to_the_widget_under_the_pointer():
     parent = RecordingWidget(width=10, height=10)
     left = parent.add(RecordingWidget(x=0, width=5, height=10))
     right = parent.add(RecordingWidget(x=5, width=5, height=10))
-    parent.dispatch_mouse(MouseEvent(7, 2, "left"))
+    awaited(parent.dispatch_mouse(MouseEvent(7, 2, "left")))
     # Column 7 of the parent is column 2 of the right-hand child.
     assert right.mice == [(2, 2)]
     assert left.mice == []
@@ -136,15 +136,15 @@ def test_mouse_goes_to_the_widget_under_the_pointer():
 def test_mouse_outside_every_child_lands_on_the_parent():
     parent = RecordingWidget(width=10, height=10)
     child = parent.add(RecordingWidget(x=0, width=2, height=2))
-    parent.dispatch_mouse(MouseEvent(8, 8, "left"))
+    awaited(parent.dispatch_mouse(MouseEvent(8, 8, "left")))
     assert child.mice == []
     assert parent.mice == [(8, 8)]
 
 
 def test_default_widget_handles_nothing():
     widget = Widget()
-    assert widget.on_key(KeyEvent("a")) is False
-    assert widget.on_mouse(MouseEvent(0, 0)) is False
+    assert awaited(widget.on_key(KeyEvent("a"))) is False
+    assert awaited(widget.on_mouse(MouseEvent(0, 0))) is False
 
 
 def test_application_is_none_outside_a_running_app():
@@ -246,11 +246,11 @@ def test_a_mouse_position_is_relative_to_the_widget_that_handles_it():
     root = RecordingWidget(width=10, height=6)
     middle = root.add(RecordingWidget(x=3, y=1, width=6, height=4))
     leaf = middle.add(RecordingWidget(x=2, y=1, width=2, height=2))
-    root.dispatch_mouse(MouseEvent(6, 3, "left"))
+    awaited(root.dispatch_mouse(MouseEvent(6, 3, "left")))
     assert leaf.mice == [(1, 1)]  # 6 - 3 - 2 across, 3 - 1 - 1 down
 
 
-# -- announcing ------------------------------------------------------------
+# -- emitting --------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -269,45 +269,50 @@ class Listener(Widget):
         self.heard: list[str] = []
         self.claims = claims
 
-    def on_click(self, event: ClickEvent) -> bool:
+    async def on_click(self, event: ClickEvent) -> bool:
         self.heard.append(event.label)
         return self.claims
 
 
-def test_an_announcement_starts_at_the_widget_that_made_it():
+def test_an_emitted_event_starts_at_the_widget_that_raised_it():
     root = Listener("root")
     box = root.add(Listener("box"))
     button = box.add(Listener("button"))
-    assert button.announce(ClickEvent("ok")) is False
+    assert awaited(button.emit(ClickEvent("ok"))) is False
     assert (button.heard, box.heard, root.heard) == (["ok"], ["ok"], ["ok"])
 
 
-def test_a_claimed_announcement_stops_where_it_was_claimed():
+def test_a_claimed_event_stops_where_it_was_claimed():
     root = Listener("root")
     box = root.add(Listener("box", claims=True))
     button = box.add(Listener("button"))
-    assert button.announce(ClickEvent("ok")) is True
+    assert awaited(button.emit(ClickEvent("ok"))) is True
     assert button.heard == ["ok"]
     assert box.heard == ["ok"]
     assert root.heard == []
 
 
-def test_the_widget_that_announces_gets_first_refusal():
+def test_the_widget_that_emits_gets_first_refusal():
     # What markup compiles to: the handler sits on the block that raises it.
     root = Listener("root")
     button = root.add(Listener("button", claims=True))
-    button.announce(ClickEvent("ok"))
+    awaited(button.emit(ClickEvent("ok")))
     assert root.heard == []
 
 
 def test_a_handler_may_be_assigned_onto_the_instance():
-    # The shape navml's generated __init__ emits: a one-argument callable
-    # under the event's handler name, shadowing whatever the class defines.
+    # The shape navml's generated __init__ emits: an async one-argument
+    # function under the event's handler name, shadowing the class's.
     root = Widget()
     button = root.add(Widget())
     seen = []
-    button.on_click = lambda event: seen.append(event.label) or True
-    assert button.announce(ClickEvent("ok")) is True
+
+    async def on_click(event):
+        seen.append(event.label)
+        return True
+
+    button.on_click = on_click
+    assert awaited(button.emit(ClickEvent("ok"))) is True
     assert seen == ["ok"]
 
 
@@ -316,65 +321,65 @@ def test_a_widget_declaring_no_handler_is_skipped():
     root = Widget()
     middle = root.add(Widget())
     button = middle.add(Listener("button"))
-    assert button.announce(ClickEvent("ok")) is False
+    assert awaited(button.emit(ClickEvent("ok"))) is False
     assert button.heard == ["ok"]
 
 
-def test_a_detached_widget_announces_into_nothing():
+def test_a_detached_widget_emits_into_nothing():
     loose = Listener("loose")
-    assert loose.announce(ClickEvent("ok")) is False
+    assert awaited(loose.emit(ClickEvent("ok"))) is False
     assert loose.heard == ["ok"]
 
 
-def test_an_announcement_reaches_the_application_after_the_tree():
+def test_an_emitted_event_reaches_the_application_after_the_tree():
     class Watching(Application):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
             self.heard: list[str] = []
 
-        def on_click(self, event: ClickEvent) -> bool:
+        async def on_click(self, event: ClickEvent) -> bool:
             self.heard.append(event.label)
             return True
 
     root = Listener("root")
     button = root.add(Listener("button"))
     app = Watching(root=root)
-    assert button.announce(ClickEvent("ok")) is True
+    assert awaited(button.emit(ClickEvent("ok"))) is True
     assert root.heard == ["ok"]
     assert app.heard == ["ok"]
 
 
-def test_the_application_on_event_hook_does_not_see_an_announcement():
+def test_the_application_on_event_hook_does_not_see_an_emitted_event():
     # on_event exists to intercept an event *before* the widgets; an
-    # announcement has already passed every one of them.
+    # emitted event has already passed every one of them.
     class Watching(Application):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
             self.intercepted: list[object] = []
 
-        def on_event(self, event) -> bool:
+        async def on_event(self, event) -> bool:
             self.intercepted.append(event)
             return True
 
     root = Listener("root")
     app = Watching(root=root)
-    root.announce(ClickEvent("ok"))
+    awaited(root.emit(ClickEvent("ok")))
     assert app.intercepted == []
 
 
-def test_a_mouse_press_can_be_turned_into_an_announcement_without_focus():
+def test_a_mouse_press_can_be_turned_into_an_emitted_event_without_focus():
     # The whole of a mouse-driven button, with no focus notion in navkit:
-    # dispatch_mouse routes by position, the widget announces from there.
+    # dispatch_mouse routes by position, the widget emits from there.
     class Button(Listener):
-        def on_mouse(self, event: MouseEvent) -> bool:
+        async def on_mouse(self, event: MouseEvent) -> bool:
             if event.action == "press":
-                return self.announce(ClickEvent(self.name))
+                return await self.emit(ClickEvent(self.name))
             return False
 
     root = Listener("root", width=40, height=10)
     box = root.add(Listener("box", x=4, y=2, width=20, height=4))
     button = box.add(Button("ok", x=1, y=1, width=8, height=1))
-    root.dispatch_mouse(MouseEvent(5, 3, "left", "press"))
+    awaited(root.dispatch_mouse(MouseEvent(5, 3, "left", "press")))
     assert button.heard == ["ok"]
     assert box.heard == ["ok"]
     assert root.heard == ["ok"]
@@ -550,7 +555,7 @@ def test_a_key_is_not_delivered_through_an_invisible_ancestor():
     inner.focus()
     box.visible = False
 
-    root.dispatch_key(KeyEvent("a"))
+    awaited(root.dispatch_key(KeyEvent("a")))
     assert inner.keys == []
     assert root.keys == ["a"]
 
@@ -566,10 +571,10 @@ class LifecycleWidget(Widget):
         self.log = log
         self.tag = tag
 
-    def on_mount(self, event) -> None:
+    def mounted(self) -> None:
         self.log.append(f"mount {self.tag}")
 
-    def on_unmount(self, event) -> None:
+    def unmounting(self) -> None:
         self.log.append(f"unmount {self.tag}")
 
 
@@ -578,11 +583,11 @@ def test_a_tree_is_not_mounted_until_it_has_an_application():
     root = LifecycleWidget(log, "root")
     root.add(LifecycleWidget(log, "child"))
     assert log == []
-    assert root.mounted is False
+    assert root.is_mounted is False
 
     Application(root=root)
     assert log == ["mount root", "mount child"]
-    assert root.mounted is True
+    assert root.is_mounted is True
 
 
 def test_mounting_goes_parents_first_and_unmounting_children_first():
@@ -608,14 +613,14 @@ def test_adding_to_a_mounted_widget_mounts_the_new_subtree():
     box.add(LifecycleWidget(log, "inner"))
     root.add(box)
     assert log == ["mount box", "mount inner"]
-    assert box.mounted is True
+    assert box.is_mounted is True
 
 
 def test_a_mount_handler_sees_a_settled_geometry_and_an_application():
     seen = {}
 
     class Probe(Widget):
-        def on_mount(self, event) -> None:
+        def mounted(self) -> None:
             seen["size"] = (self.width, self.height)
             seen["app"] = self.application is not None
 
@@ -630,9 +635,9 @@ def test_an_unmount_handler_still_has_its_place():
     seen = {}
 
     class Probe(Widget):
-        def on_unmount(self, event) -> None:
+        def unmounting(self) -> None:
             seen["parent"] = self.parent
-            seen["mounted"] = self.mounted
+            seen["mounted"] = self.is_mounted
 
     root = Widget()
     probe = root.add(Probe())
@@ -640,7 +645,7 @@ def test_an_unmount_handler_still_has_its_place():
     root.remove(probe)
     assert seen["parent"] is root
     assert seen["mounted"] is True
-    assert probe.mounted is False
+    assert probe.is_mounted is False
 
 
 def test_a_widget_added_to_a_running_tree_is_laid_out():
@@ -697,7 +702,7 @@ def test_effects_registered_on_mount_come_back_when_it_is_mounted_again():
     runs = []
 
     class Probe(Widget):
-        def on_mount(self, event) -> None:
+        def mounted(self) -> None:
             effect(self, lambda w: runs.append(w.width))
 
     root = Widget()
@@ -761,7 +766,7 @@ def test_keys_do_not_reach_what_is_behind_a_modal():
     field.can_focus = True
     app.overlay(dialog)
 
-    app._handle(KeyEvent("a"))
+    awaited(app._handle(KeyEvent("a")))
     assert field.keys == ["a"]
     assert behind.keys == []
     assert root.keys == []
@@ -774,7 +779,7 @@ def test_an_unhandled_key_does_not_bubble_out_of_a_modal():
     field.handles = False
     app.overlay(dialog)
 
-    app._handle(KeyEvent("a"))
+    awaited(app._handle(KeyEvent("a")))
     assert (field.keys, dialog.keys) == (["a"], ["a"])
     assert root.keys == []
 
@@ -785,7 +790,7 @@ def test_a_modal_with_nothing_focusable_absorbs_the_keys_itself():
     app.overlay(dialog)
     assert app.focused is None
 
-    app._handle(KeyEvent("a"))
+    awaited(app._handle(KeyEvent("a")))
     assert dialog.keys == ["a"]
     assert behind.keys == []
 
@@ -793,7 +798,7 @@ def test_a_modal_with_nothing_focusable_absorbs_the_keys_itself():
 def test_a_click_outside_a_modal_reaches_nothing():
     app, root, behind, dialog = modal_app()
     app.overlay(dialog)
-    app._handle(MouseEvent(2, 8, "left"))
+    awaited(app._handle(MouseEvent(2, 8, "left")))
     assert behind.mice == []
     assert root.mice == []
     assert dialog.mice == []
@@ -803,7 +808,7 @@ def test_a_click_inside_a_modal_arrives_in_its_own_coordinates():
     app, root, behind, dialog = modal_app()
     app.overlay(dialog)
     # The dialog sits at 10, 3; screen 12, 4 is its own 2, 1.
-    app._handle(MouseEvent(12, 4, "left"))
+    awaited(app._handle(MouseEvent(12, 4, "left")))
     assert dialog.mice == [(2, 1)]
     assert behind.mice == []
 
@@ -812,9 +817,9 @@ def test_a_click_reaches_a_modal_nested_below_the_root():
     app, root, behind, dialog = modal_app()
     box = root.add(RecordingWidget(x=4, y=2, width=30, height=8))
     box.add(dialog)
-    assert dialog.mounted and app.modal is dialog
+    assert dialog.is_mounted and app.modal is dialog
     # box at 4,2 and the dialog at 10,3 within it: screen 15, 6 is its 1, 1.
-    app._handle(MouseEvent(15, 6, "left"))
+    awaited(app._handle(MouseEvent(15, 6, "left")))
     assert dialog.mice == [(1, 1)]
 
 
@@ -858,7 +863,7 @@ def test_a_mount_handler_may_choose_the_field_itself():
     first = dialog.add(RecordingWidget())
     second = dialog.add(RecordingWidget())
     first.can_focus = second.can_focus = True
-    dialog.on_mount = lambda event: second.focus()
+    dialog.mounted = lambda: second.focus()
 
     app.overlay(dialog)
     assert app.focused is second
@@ -891,10 +896,61 @@ def test_a_modal_carried_off_by_an_ancestor_releases_the_input():
     assert app.modal is dialog
     root.remove(box)
     assert app.modal is None
-    assert dialog.mounted is False
+    assert dialog.is_mounted is False
 
 
 def test_overlay_refuses_when_there_is_no_root():
     app = Application()
     with pytest.raises(RuntimeError, match="no root"):
         app.overlay(Widget())
+
+
+# -- every handler is async ------------------------------------------------
+
+
+def test_a_synchronous_handler_is_refused_when_the_class_is_created():
+    # The common mistake, caught once at import rather than at the first
+    # keystroke that happens to reach it.  The message has to name both the
+    # class and the method, because a traceback here points at the class
+    # statement and nothing else.
+    with pytest.raises(TypeError, match=r"Slow\.on_key must be `async def`"):
+
+        class Slow(Widget):
+            def on_key(self, event):
+                return False
+
+
+def test_a_synchronous_handler_assigned_onto_an_instance_is_refused():
+    # What class creation cannot see: markup compiles to an assignment, so
+    # this is the only place a generated handler's shape is checked.
+    root = Widget()
+    button = root.add(Widget())
+    button.on_click = lambda event: True
+
+    with pytest.raises(TypeError, match=r"Widget\.on_click must be `async def`"):
+        awaited(button.emit(ClickEvent("ok")))
+
+
+def test_a_lifecycle_callback_is_not_spelled_on_star():
+    # It runs from add(), which runs from __init__ when a widget is
+    # constructed with a parent -- and a constructor cannot await.  So it is
+    # `mounted()`, outside the rule rather than an exception to it.
+    seen = []
+
+    class Probe(Widget):
+        def mounted(self) -> None:
+            seen.append("mounted")
+
+    root = Widget()
+    root.add(Probe())
+    Application(root=root)
+    assert seen == ["mounted"]
+
+
+def test_a_widget_may_still_define_an_ordinary_method_called_on_something():
+    # The check looks at on_* names only, and only at callables the class
+    # body defines -- a plain attribute of that name is not a handler.
+    class Odd(Widget):
+        on_purpose = "not a handler"
+
+    assert Odd().on_purpose == "not a handler"

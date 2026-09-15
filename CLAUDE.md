@@ -25,16 +25,27 @@ hand-written stand-ins for what the generator will emit. Writing library widgets
 mean hand-writing more of those stand-ins, which is the one thing that file layout exists to stop. So the order is
 parser, then generator, then widgets — and `navml/DESIGN.md` is the spec for the first two, with *Still open* there
 naming what the parser must decide before it can be finished.
-`Widget.announce(event)` walks an event from the widget that raised it up through its ancestors to the application,
+**Every `on_*` handler is `async def`, and navkit refuses a synchronous one** — at class creation for a handler a
+class body defines, and at the call for one assigned onto an instance, which is what markup compiles to. The rule's
+boundary: **a hook that cannot be awaited where it is called does not get an `on_*` name.** `Widget.mounted()` and
+`unmounting()` run from `add()`, which runs from `__init__`, so they are plain synchronous callbacks taking no event;
+`Application.on_start`/`on_stop` keep their names because `run_async` can await them. A handler that awaits lets the
+loop run mid-batch but **cannot cause a repaint** — `_render` is only ever awaited from `_main_loop` — so one frame
+per batch still holds.
+`Widget.emit(event)` walks an event from the widget that raised it up through its ancestors to the application,
 stopping at the first handler that returns True, and an event class names its own handler (`Event.handler`, derived
-from the class name — `ClickEvent` reaches `on_click`). `Application.focused` holds the widget keys go to,
+from the class name — `ClickEvent` reaches `on_click`). A widget declares what it raises with `emits = (ClickEvent,)`,
+read through `navkit.events.emitted(cls)`, which **unions down the MRO** rather than shadowing as `declarations()`
+does. `navkit/events.py` carries only the events navkit itself raises — terminal input and the loop's wake — and
+everything a *widget* means belongs to the library. `Application.focused` holds the widget keys go to,
 `Widget.can_focus` (False by default) says who may hold it, `Widget.focus()` takes it and `Application.focus_next()`
 moves it; `dispatch_key` now walks the focus path rather than touring every descendant, so **with nothing focused a key
 reaches no widget at all**. `Widget.focused` is a computed, which makes `:focused` a stylesheet state for free.
-`Widget.mounted` says whether a widget is in a tree an application owns; `on_mount(event)`/`on_unmount(event)` are
-called by the walks that `Application.root`, `add()` and `remove()` drive, and **`remove()` disposes the subtree's
-effects** (`navkit.reactive.dispose_effects`), so **a widget that can be removed and put back declares its effects in
-`on_mount`, not `__init__`**. `Widget.modal` makes a widget take all input while it is mounted — the mount walks
+`Widget.is_mounted` says whether a widget is in a tree an application owns — spelled that way so `mounted()` can be
+the callback — and `mounted()`/`unmounting()` are called by the walks that `Application.root`, `add()` and `remove()`
+drive. **`remove()` disposes the subtree's effects** (`navkit.reactive.dispose_effects`), so **a widget that can be
+removed and put back declares its effects in `mounted()`, not `__init__`**. `Widget.modal` makes a widget take all
+input while it is mounted — the mount walks
 maintain `Application.modal`, so every way out of the tree gives the input back — and `Application.overlay(widget)`
 puts one on top of everything, closed again with `app.root.remove(widget)`. `Widget.cursor_position()` returns where
 the terminal's own cursor belongs in a widget's coordinates, and the application places it at the end of each frame for
@@ -42,7 +53,7 @@ whichever widget the keys are going to — so a caret is never shown on a widget
 `caret` widget property sets its DECSCUSR shape from a sheet and defaults to leaving the user's own alone.
 `navkit/DESIGN.md`'s *The cursor: shown where the keys go*, *Modal and overlay: the input, not the painting*,
 *Mounting: joining a live tree, and leaving one*, *Focus: one pointer, and eligibility decided at delivery* and
-*Announcing: a widget event walks up* record why each part went the way it did.
+*Emitting: a widget event walks up* record why each part went the way it did.
 Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for
 the markup language, `navkit/DESIGN.md` for the core, whose *Still open* section names what is left.
 
@@ -425,6 +436,13 @@ Things to know before touching this layer:
   and a type a document names is one it imports — so `Button(Widget):` means whatever the document imported under that
   name. The hand-written half still has to spell it, `class Button(Widget)`, because a Python class with no bases is
   `object` and cannot be spliced.
+- **An event a component raises is declared beside it, and the widget says so.** `navml/widgets/button.py` declares
+  `class ClickEvent(Event)` next to `class Button` and sets `emits = (ClickEvent,)`; a mouse press and a Space press
+  both go through one `press()` that emits it, so a listener never learns which route fired. Markup may declare one
+  instead with `event ClickEvent` (root block only, no fields), and **which half declares it follows which half emits
+  it** — a markup `event` line puts the class in the generated module, which the hand-written half may never name. A
+  component may not do both. `navml/DESIGN.md`'s *Declaring an event* has the whole of it, including why this settles
+  the widget-alias question as no.
 - **A handler in markup is one line, and it takes one argument called `event`.** Anything longer — a branch, a loop, a
   `try`, two statements in sequence — is a method in the hand-written half that the markup line calls
   (`on_click: self.confirm_quit()`); one line keeps a handler body going through the same expression compiler and the

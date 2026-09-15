@@ -16,7 +16,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import FakeTerminal, run_app, settle
+from conftest import FakeTerminal, awaited, run_app, settle
 from navigator import icons
 from navigator import __version__
 from navigator.__main__ import (
@@ -859,11 +859,16 @@ def test_the_desktop_owns_the_panel_keys(tree):
 
 
 def test_the_application_keeps_only_what_is_global(tree, quiet_console):
+    # Asked of the hook directly, outside the loop: `awaited' runs its own
+    # loop, so it cannot be called from inside a run_app action.
     app = navigator(tree)
-    handled = []
-    run_app(app, [lambda a: handled.append(
-        (a.on_key(KeyEvent("down")), a.on_key(KeyEvent("tab")),
-         a.on_key(KeyEvent("x", "x", alt=True)), a.on_key(KeyEvent("o", ctrl=True))))])
-    down, tab, altx, ctrlo = handled[0]
-    assert (down, tab, altx) == (False, False, False)
-    assert ctrlo is True
+    claimed = {
+        spec: awaited(app.on_key(event))
+        for spec, event in (
+            ("down", KeyEvent("down")),
+            ("tab", KeyEvent("tab")),
+            ("alt+x", KeyEvent("x", "x", alt=True)),
+            ("ctrl+o", KeyEvent("o", ctrl=True)),
+        )
+    }
+    assert claimed == {"down": False, "tab": False, "alt+x": False, "ctrl+o": True}
