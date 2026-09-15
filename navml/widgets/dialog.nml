@@ -1,0 +1,39 @@
+from navml.widgets.button import Button
+from navml.widgets.label import Label
+
+Dialog:
+    property prompt: ""
+
+    Label:
+        id: message
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: 1
+        text: parent.prompt
+        align: "left"
+
+    Button:
+        id: ok
+        x: 1
+        y: 3
+        width: 10
+        height: 1
+        text: "OK"
+
+    Button:
+        id: cancel
+        x: 12
+        y: 3
+        width: 10
+        height: 1
+        text: "Cancel"
+
+    Button:
+        id: info
+        x: 23
+        y: 3
+        width: 10
+        height: 1
+        text: "Help"
+        on_click: await root.show_info(event)

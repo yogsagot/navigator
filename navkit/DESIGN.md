@@ -1557,9 +1557,16 @@ A slot, not a list. `w.on_click = handler` is the whole of connecting, and there
 method, so a handler assigned onto the instance wins over one defined on the class. For a component written as both
 halves that is backwards: `button.py`'s `def on_click` is on the *derived* class, which wins everywhere else in the
 language, and the generated `__init__`'s assignment silently beats it. navkit cannot catch this — the assignment is
-legal and the two names are equal — so it is navml's to catch when the document is compiled, with the same
-`ast.parse` of the sibling `.py` *without importing it* that `navml/DESIGN.md` already proposes under *Name
-resolution* for reactive declarations that only the Python half declares.
+legal and the two names are equal — so it is navml's to catch when the document is compiled. The rule it catches it
+with is about the **object the assignment lands on** rather than about a name: a markup `on_X:` line may not land on
+an object whose class already implements `on_X`. Phrased by name alone it was wrong in both directions — it refused a
+line that lands on a *child* and shadows nothing, and it never saw a line on a child block quietly beating that
+child's own `on_key`. `navml/DESIGN.md`, *What the generator checks about a handler line*, has the whole of it.
+
+The same inversion is what makes navml's `on_<id>_<event>` convention safe, by turning it the right way up: the
+generated half declares a no-op handler for each id'd child and *assigns a bound method of the component*, so the
+hand-written half overrides it as an ordinary derived class and nothing is assigned onto an instance at all. The
+component's own `on_click` still sits behind it on the walk, because the stub returns False.
 
 ### What it cost `Application`
 

@@ -9,8 +9,8 @@ that runs child programs on a pty it owns; `navigator/__main__.py` is a working 
 panels, key bar, Ctrl+O console) that exercises them and is already written in the declarative style — its panels bind
 their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand.
 `navml/` now holds its import layer — `navml/_merge.py`, which joins a component's markup half to its hand-written
-half — and four example components exercising it, one per shape. The markup language itself, its parser and its code
-generator are still unwritten, so the four `*_nml.py` files are hand-written stand-ins for what the generator will
+half — and five example components exercising it. The markup language itself, its parser and its code
+generator are still unwritten, so the `*_nml.py` files are hand-written stand-ins for what the generator will
 emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
 included, and **the interaction layer a widget library needs is now complete**: focus, signals, the mount/unmount
 lifecycle, modal/overlay support and a real cursor. That was the whole of *What the widget library needs first* in
@@ -20,7 +20,7 @@ widget library by their own argument: which parts and properties the library wid
 box frame they need, and what a full-screen child does.
 
 **The next thing to build is the `.nml` parser, then the code generator — not the widget library.** The library is
-*written in markup*: `navml/widgets/` already holds one component per shape, and its four `*_nml.py` files are
+*written in markup*: `navml/widgets/` already holds one component per shape, and its `*_nml.py` files are
 hand-written stand-ins for what the generator will emit. Writing library widgets before the generator exists would
 mean hand-writing more of those stand-ins, which is the one thing that file layout exists to stop. So the order is
 parser, then generator, then widgets — and `navml/DESIGN.md` is the spec for the first two, with *Still open* there
@@ -402,7 +402,8 @@ Things to know before touching the style layer:
 `from navml.widgets.button import Button` is the same line for all three — a component can move between them without
 that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
 example of each: `spacer` is Python alone, `label` is markup alone, `button` is both, and `framed_button` is both *and*
-derived from a component that is itself both.
+derived from a component that is itself both. `dialog` is a fifth, on a different axis: it is the one whose *children*
+raise the events its hand-written half handles, and it pins the `on_<id>_<event>` convention below.
 
 Things to know before touching this layer:
 
@@ -455,7 +456,19 @@ Things to know before touching this layer:
   component's generated class would shadow its base's by the same naming rule. **A markup handler always consumes** —
   the generated function ends `return True`, because the alternative leaves a markup-only component unable to bind a
   key without growing a Python half, whereas this one only sends the rarer watch-without-consuming case there. The
-  spelling of the handler line is still open; the body, its argument and its return value are not.
+  body, its argument and its return value are settled.
+- **A child's event reaches the hand-written half under `on_<id>_<event>`, and the generator writes both ends.** For
+  every id'd child and every event its class declares in `emits`, the generated class declares a **no-op handler
+  returning False** and assigns it (`self.cancel.on_click = self.on_cancel_click`); the hand-written half overrides it
+  as an ordinary derived class. `Event` carries no sender and `ClickEvent` is fieldless, so this is the only thing that
+  can say *which* child spoke — and the stub is what makes it free. Three consequences worth knowing: the generated
+  file never reads the sibling `.py` to decide what to emit, so there is **no `--check` drift**; a stub nobody
+  overrides **declines**, so the component's own `on_click` still catches every child the `.py` did not name; and
+  `check_handlers` enforces `async def` on both halves for free. An explicit `on_click:` line on that child
+  **suppresses** the convention, and the method such a line routes to is **never** named `on_*` — the prefix means
+  navkit found it under `event.handler`, and `self.info.on_click = self.on_click` would be called twice by one walk.
+  Renaming an `id` would silently orphan the method, so the generator refuses an `on_<X>_<event>` in the `.py` whose
+  `X` names no id.
 - **Everything the generator emits for itself is underscored** — `_bind`, `_reactive`, `_is_bound`, `_Any`, `_Widget`.
   The generator consequently reserves no word: a document may import any name at all and gets exactly what it asked
   for. The language reserves exactly one, `event` above, and the parser rejects an import of that name rather than
