@@ -6,9 +6,12 @@ property every other decision in ``navml/DESIGN.md`` was taken to protect, and
 then the guards -- each of which exists because the failure it catches is
 silent rather than loud.
 
-The four components under ``navml/widgets`` are one per shape: ``Spacer`` is
+The components under ``navml/widgets`` are one per shape: ``Spacer`` is
 Python alone, ``Label`` is markup alone, ``Button`` is both, and
 ``FramedButton`` is both *and* derived from a component that is itself both.
+``Dialog`` is a fifth, on a different axis: it is the one whose *children*
+raise the events its hand-written half handles, and it pins the
+``on_<id>_<event>`` convention the generator has to emit for them.
 """
 
 from __future__ import annotations
@@ -36,7 +39,7 @@ from navkit.stylesheet import parse
 from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
 from conftest import awaited
-from navml.widgets import Button, FramedButton, Label, Spacer
+from navml.widgets import Button, Dialog, FramedButton, Label, Spacer
 from navml.widgets import button as button_module
 from navml.widgets import label as label_module
 from navml.widgets import spacer as spacer_module
@@ -521,7 +524,9 @@ def test_a_component_still_pulls_in_the_ones_it_really_uses():
 def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
-    assert navml.widgets.__all__ == ["Button", "FramedButton", "Label", "Spacer"]
+    assert navml.widgets.__all__ == [
+        "Button", "Dialog", "FramedButton", "Label", "Spacer",
+    ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent
 
@@ -621,3 +626,113 @@ def test_a_derived_component_keeps_the_event_its_base_emits():
     assert [c.__name__ for c in FramedButton.__mro__][:5] == [
         "FramedButton", "FramedButton", "Button", "Button", "Widget",
     ]
+
+
+# -- a child's event reaches the hand-written half -------------------------
+#
+# ``Dialog`` has three buttons in it and never asks which one spoke: the
+# generated half wires each id'd child to an ``on_<id>_<event>`` method, so the
+# question is answered by the time ``dialog.py`` runs.  See *Which child it was
+# is a question the generator answers* in navml/DESIGN.md.
+
+
+def test_a_child_event_reaches_the_method_its_id_names():
+    """``ok`` raises a ClickEvent and ``on_ok_click`` is what runs.
+
+    The name is composed from the ``id:`` line and the handler navkit derives
+    from the event class -- no registry, and no second naming rule.
+    """
+    dialog = Dialog()
+    assert awaited(dialog.ok.press()) is True
+    assert dialog.result is True
+
+
+def test_an_unoverridden_stub_declines_and_the_click_carries_on():
+    """The property the whole convention rests on.
+
+    ``dialog.py`` overrides ``on_ok_click`` and leaves ``on_cancel_click``
+    alone, so the generated stub answers for Cancel, returns False, and
+    ``emit`` walks on to the dialog's own ``on_click``.  A stub nobody
+    overrides costs nothing, which is what makes it safe for the generator to
+    write one for every child without being told which are wanted.
+    """
+    dialog = Dialog()
+    assert awaited(dialog.cancel.press()) is True
+    assert dialog.result is False
+
+
+def test_the_stub_is_on_the_generated_half_and_the_override_on_the_other():
+    """Which is what makes the override work, and is the merge direction.
+
+    The generated class is always the *base*, so a hand-written method of the
+    same name wins without either half naming the other -- the same fact that
+    lets a hand-written ``__init__`` call ``super().__init__()`` and find every
+    id live.
+    """
+    handwritten = Dialog
+    (generated,) = handwritten.__bases__
+
+    assert "on_cancel_click" in vars(generated)
+    assert "on_cancel_click" not in vars(handwritten)
+    assert "on_ok_click" in vars(generated)
+    assert "on_ok_click" in vars(handwritten)
+    assert awaited(generated.on_ok_click(Dialog(), None)) is False
+
+
+def test_an_explicit_markup_handler_suppresses_the_convention():
+    """``info`` carries an ``on_click:`` line, so no stub is generated for it.
+
+    Both would have assigned to ``self.info.on_click`` and one would have won
+    silently, so the generator emits only the markup's.
+    """
+    dialog = Dialog()
+
+    assert not hasattr(dialog, "on_info_click")
+    assert dialog.info.on_click.__qualname__.endswith("__init__.<locals>._on_click")
+    assert dialog.ok.on_click == dialog.on_ok_click
+
+
+def test_a_markup_handler_consumes_whatever_its_body_returns():
+    """``show_info`` returns None; the generated function supplies the True."""
+    dialog = Dialog()
+
+    assert awaited(dialog.show_info(None)) is None
+    assert awaited(dialog.info.press()) is True
+    assert dialog.prompt == "OK accepts, Cancel dismisses."
+
+
+def test_every_generated_handler_is_async():
+    """navkit refuses a synchronous one, and for a generated stub it refuses
+    at class creation -- ``check_handlers`` scans ``vars(cls)`` for ``on_*``.
+    That free check is what the ``on_*`` spelling buys here, and is why the
+    *routed* method the markup calls is deliberately not spelled that way."""
+    import asyncio
+
+    (generated,) = Dialog.__bases__
+    handlers = [
+        value
+        for name, value in vars(generated).items()
+        if name.startswith("on_") and callable(value)
+    ]
+    assert handlers
+    assert all(asyncio.iscoroutinefunction(h) for h in handlers)
+
+
+def test_the_markup_names_every_composed_handler_the_python_half_defines():
+    """The orphan check, run against the shipped component.
+
+    A renamed ``id:`` would leave an ``on_<id>_<event>`` in ``dialog.py`` that
+    nothing calls -- the method still there, the button silently dead.  The
+    generator is specified to refuse that by parsing the sibling ``.py``; this
+    asserts the shipped pair is consistent, which is the same question asked
+    of the one document that exists.
+    """
+    markup = (WIDGETS / "dialog.nml").read_text()
+    ids = set(re.findall(r"^\s+id: (\w+)$", markup, re.M))
+    assert ids == {"message", "ok", "cancel", "info"}
+
+    source = (WIDGETS / "dialog.py").read_text()
+    composed = re.findall(r"async def on_(\w+)_click\(", source)
+    assert composed, "the example is supposed to have one"
+    for stem in composed:
+        assert stem in ids, f"on_{stem}_click names no id in dialog.nml"

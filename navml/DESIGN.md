@@ -908,6 +908,158 @@ Dialog:
 one line and the outer document never learns the dialog has buttons in it at all. That is the boundary *Aliases* exists
 to defend, arrived at without a new kind of declaration.
 
+That is the answer for telling somebody *outside*. For the component's own hand-written half the next section is
+the answer, and it does not cost even the one line.
+
+### Which child it was is a question the generator answers
+
+Bubbling gets a child's event to the component; it cannot say **which** child. `Widget.emit()` walks from the emitter
+upward and hands each handler the event alone, `Event` declares no fields, and `ClickEvent` deliberately adds none —
+*Declaring an event* above is what makes that a feature, since two input routes have to arrive as one thing. So a
+`Dialog` with an OK and a Cancel button in it hears both clicks through one `on_click` and has nothing to switch on.
+
+**The component never asks. The generator answers, by wiring each id'd child to a handler named after it.** For every
+id'd child and every event that child's class declares in `emits`, the generated class declares a handler and assigns
+it:
+
+```
+Dialog:
+    Button:
+        id: cancel
+        text: "Cancel"
+```
+
+```python
+class Dialog(_Widget):
+
+    cancel: Button
+
+    async def on_cancel_click(self, event: _Event) -> bool:     # dialog.nml:25
+        """``cancel`` raised an event whose handler is ``on_click``."""
+        return False
+
+    def __init__(self, **kwargs: _Any) -> None:
+        super().__init__(**kwargs)
+        self.cancel = Button(parent=self)                       # dialog.nml:24
+        self.cancel.text = "Cancel"                             # dialog.nml:30
+        self.cancel.on_click = self.on_cancel_click             # dialog.nml:25
+```
+
+```python
+class Dialog(Widget):
+    async def on_cancel_click(self, event: Event) -> bool:
+        self.result = False
+        return True
+```
+
+The name is `on_` + the id + the stem of the event's own handler: `cancel` and `ClickEvent`, whose handler navkit
+derives as `on_click`, compose to `on_cancel_click`. **There is no second naming rule** — the stem is read off
+`Event.handler`, the same value `emit()` looks the handler up under, so an event class that renames its handler renames
+this too and nothing has to be told twice.
+
+#### The stub is the whole mechanism
+
+`on_cancel_click` on the generated class is a no-op returning False, and the hand-written half overrides it. Every
+property worth having falls out of that one shape, and it works only because the generated class is the **base** and
+the hand-written one the derived — the same fact *The two halves of a component* forced for its own reasons, here
+paying for itself a second time.
+
+- **The generated file stays a pure function of the `.nml`.** It never reads `dialog.py` to decide what to emit. This
+  is the objection that would otherwise have sunk the whole convention: the alternative is emitting the wiring only
+  when an `ast.parse` of the sibling finds a matching method, which makes a generated file's *contents* depend on a
+  file it is forbidden to know, so deleting a method rewrites `dialog_nml.py` and `navml build --check` reports drift
+  for an edit made somewhere else.
+- **A component that does not care pays nothing.** No `AttributeError` at construction for the stub nobody wanted, and
+  no `getattr(self, f"on_{id}_{stem}", None)` in the generated `__init__` — which would be lookup by computed name,
+  the registry *The handler name is read off the event class, not invented* refuses.
+- **The specific hook does not take the general one away.** The stub returns False, so a click the hand-written half
+  did not name carries on up to the component's own `on_click`, exactly as it would have if the stub were not there.
+  A component may write both, and reading them together reads in the order `emit()` walks: the named child first, then
+  everything else. `navml/widgets/dialog.py` is that example — `ok` overrides its stub, `cancel` does not, and the
+  dialog's `on_click` is what dismisses it.
+- **`check_handlers` enforces `async def` on both halves, for free.** It scans `vars(cls)` for `on_*` at class
+  creation, so a synchronous stub or a synchronous override fails where it is written rather than at the first click.
+  This is what the `on_*` spelling buys, and it is why the *routed* method below is deliberately spelled otherwise.
+- **The author owns the return value.** This is not a markup handler, so *A markup handler always consumes* does not
+  reach it: watching without consuming is `return False`, and needs no escape hatch.
+
+#### What an explicit markup line is still for
+
+The convention cannot name two children routed to one method, cannot reach a widget with no id, and has nothing to say
+when the method wants to be named for what the component *does* rather than for what happened to it. Those keep the
+form *A handler body is one line* below already implies, which at a child block reaches the component through `root`:
+
+```
+Button:
+    id: info
+    on_click: await root.show_info(event)
+```
+
+**The routed method is not an `on_*`** — `show_info`, never `on_info`. The prefix means one thing in this codebase,
+*navkit found me under `event.handler`*, and a method reached from one markup line was found by nobody. Two costs
+beyond the misreading. Its return value would mean two things at once, since the generated function discards what it
+returns while the bubbling walk would read it. And wired by hand it is called twice: `self.info.on_click =
+self.on_click` is found by the walk on the button, called, and — if it declines — found again on the component one step
+up, under the same name, and called again with the same event. What the `on_*` name would have bought is the
+`check_handlers` coverage above, and the last check below buys it back while naming the `.nml` line as well.
+
+**An explicit handler line suppresses the convention for that child and that event.** Both would assign to
+`self.info.on_click` and one would win silently, so the generator emits only the markup's and declares no stub.
+
+#### What the generator checks about a handler line
+
+Four, of which the first two are the convention's own and the third replaces a check this file previously specified
+wrongly. All are generation-time and all name the `.nml` line.
+
+- **A composed name the sibling `.py` defines must name an id the document declares.** `ast.parse` the sibling `.py`
+  **without importing it** — the pass *Name resolution* above already describes — and refuse an `async def on_X_Y`
+  whose `on_Y` is the handler name of a live `Event` subclass and whose `X` is no id. This is the price of composing a
+  name out of an id, and paying it is what makes the composition safe: without it, renaming `id: cancel` leaves
+  `on_cancel_click` sitting in the other file with nothing calling it and the button silently dead, which is the worst
+  shape any failure in this document takes. With it, the rename fails the build naming both files.
+- **A composed name may not collide with a handler navkit would derive anyway.** `on_cancel_click` is `cancel` +
+  `on_click`, and it is also what a `CancelClickEvent` would be delivered to. Refuse the document naming both
+  readings. The set to test against is the one *What the generator checks, and why it needs two answers* above already
+  walks with `Event.__subclasses__()`. Composed names are checked against the component's own properties and ids too,
+  as ids already are against its class.
+- **A markup `on_X:` line may not land on an object whose class already implements `on_X`.** This replaces the
+  by-name check under *The handler's one argument is `event`*, which was wrong in both directions: read by name alone
+  it refuses a document whose line lands on a *child* and shadows nothing, and it never sees `on_key:` on a `Button:`
+  block quietly beating `Button.on_key`, because the `.py` it parses is the document's and not the child's. Phrased
+  about the object it is one rule asked two ways, the difference being which half exists yet — on the root block the
+  class is the hand-written half, which cannot be imported and so is parsed; on a child block it is the child's class,
+  which *The cold build* already requires to be live. `Widget.on_key` and `Widget.on_mouse` are do-nothing stubs, so
+  ask which class in the MRO owns the name. A document meaning to replace a child's own handling gives the child a
+  subclass; a document wanting the keys the child left alone puts the line on an ancestor block, where the walk reaches
+  it anyway.
+- **A handler body must `await` a method the sibling `.py` defines with `async def`, and must not await a plain one.**
+  Both failures are close to silent — an un-awaited coroutine is a `RuntimeWarning` at the next collection and a button
+  that does nothing. Checked only where the `def` is visible in that file; an inherited method falls through to the
+  run-time `TypeError`, which is what any hand-written call already gets.
+
+Not checked, deliberately: that the routed method exists. Being right about an inherited one means following the
+import graph into a base component's `.py`, and what it buys is an `AttributeError` naming the component and the
+method, raised at the click. Nothing here fails late or lies.
+
+#### Not adopted
+
+- **A `sender` field on `Event`.** It adds no information — the wiring already knows which child it was — and
+  relocates it into the one place it is least useful, inviting `if event.sender is self.cancel:` in a component's
+  `on_click`: dispatch by identity, in Python, over widgets the document declared, re-broken by every rename. The
+  convention is that `if` chain compiled away. It would also have to be written by `emit()` into a frozen dataclass
+  every widget shares, for the benefit of the callers that do not want it.
+- **Bubbling alone, with no convention at all.** It cannot tell a component's children from its children's children:
+  a `Dialog` containing a `FramedButton` catches that button's click identically. Kept for what it is actually good
+  at, which is the two cases the convention does not serve — treating every click alike, and watching one without
+  claiming it.
+- **Wiring by hand in the hand-written `__init__`.** `self.cancel.on_click = self._cancelled` works, ids being live on
+  the line after `super().__init__()`. It is refused as the ordinary form because it moves *what is connected to what*
+  out of the document, which is the split the file layout rests on; because it is invisible from the `.nml`, where the
+  reader sees `id: cancel` and no handler; because it forfeits every check above; and because it runs *after* the
+  generated `__init__`, so it silently overwrites a markup line for the same child and event and leaves a document
+  that lies about itself. It remains the only spelling for a widget the markup never declared — one built in a method,
+  one handed to `Application.overlay()` — and for the Python-only shape, where there is no markup line to write.
+
 ## Compiling a property expression
 
 Everything to the right of a property's `:` is stored as source text:
@@ -1183,12 +1335,18 @@ line calls it:
 ```
 Button:
     text: "Quit"
-    on_click: self.confirm_quit()
+    on_click: await self.confirm_quit()
 ```
 
-`confirm_quit()` lives in `button.py` and may be as long as it needs to be. What the spelling of `on_click` finally is
-belongs to *Still open* below, and so does what the lambda is handed besides the component; neither touches this rule,
-which governs the body rather than the line introducing it.
+`confirm_quit()` lives in `button.py` and may be as long as it needs to be. **The `await` is not decoration**: the
+method is `async def` like everything else a handler reaches, and without it the line builds a coroutine, drops it,
+returns `True`, and the button does nothing — a `RuntimeWarning` at the next collection and no traceback. *What the
+generator checks about a handler line* above is what catches the omission.
+
+The spelling of the handler line and what the function is handed besides the component were both deferred to *Still
+open* from here, and both are answered now — *The handler's one argument is `event`* below, and *Which child it was is
+a question the generator answers* above for the line that routes to a method. Neither touches this rule, which governs
+the body rather than the line introducing it.
 
 Four reasons, in the order they carry weight:
 
@@ -1227,14 +1385,19 @@ it. The advice that follows in both is to keep such bodies short, and enforcing 
 **Every handler takes exactly one argument, the event object, and in markup it is always called `event`.**
 
 ```
-Button:
+Label:
     id: b
-    on_key: self.title = event.key
+    on_key: self.text = event.key
 ```
 
 A hand-written handler may call it whatever it likes — the call is positional — but there is nothing to gain by it:
 navkit's own hooks already say `event` throughout, `Widget.on_key(self, event)` and `Application.on_mouse(self, event)`
 included, so markup is adopting the house spelling rather than inventing one.
+
+A `Label:` and not a `Button:`, deliberately, and the difference is the subject of *What the generator checks about a
+handler line* above: the line assigns onto the instance, and an instance attribute beats a class method, so on a
+`Button` it would land in front of `Button.on_key` and take Space and Enter away from the button without saying so. A
+`Label` implements neither handler, so this is what the rule permits.
 
 Two halves to the rule, and the second is the one that needs defending:
 
@@ -1270,13 +1433,18 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   ```python
   def __init__(self, **kwargs: Any) -> None:
       super().__init__(**kwargs)
-      self.b = Button(parent=self)  # id: b
+      self.b = Label(parent=self)  # id: b
 
-      def _on_key(event):  # button.nml:4
-          self.b.title = event.key
+      async def _on_key(event):  # button.nml:4
+          self.b.text = event.key
           return True
       self.b.on_key = _on_key
   ```
+
+  **`async def`, not `def`.** Every handler is awaited -- `navkit/DESIGN.md`, *Every handler is `async def`* -- and
+  `_call` holds an instance-assigned one to it at the call, which is precisely the case markup compiles to. A
+  synchronous one raises `TypeError` at the first key rather than at generation, and a body that awaits anything, which
+  the canonical routed body below does, could not be compiled at all.
 
   **Not a lambda**, because the commonest handler body there is — the one in the example above — is an assignment, and a
   lambda cannot hold one. The way to keep the literal lambda is to rewrite `self.title = event.key` into a `setattr`
@@ -1293,10 +1461,9 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   `self.b.on_click = _on_click` lands on the instance and wins over a `def on_click` defined on the class — and for a
   component written as both halves that inverts the usual precedence, the hand-written class being the derived one that
   wins everywhere else. `navkit/DESIGN.md` states the rule and leaves the catch here, under *One handler per widget per
-  event*, because the assignment is legal and navkit cannot tell a shadow from an intention. The check is the one
-  *Name resolution* above already describes for reactive declarations the Python half alone declares: `ast.parse` the
-  sibling `.py` **without importing it**, collect the handler names its class body defines, and fail the document
-  naming both the `.nml` line and the `.py` method. A component that wants the Python one deletes the markup line; a
+  event*, because the assignment is legal and navkit cannot tell a shadow from an intention. **The rule is about the
+  object the line lands on, not about a name**, and *What the generator checks about a handler line* above states it and says why a check
+  phrased by name alone was wrong in both directions. A component that wants the Python one deletes the markup line; a
   component that wants both writes the markup line to call the method.
 - **A markup handler always consumes.** navkit reads a handler's return value as *stop propagating* — `dispatch_key`
   offers a key to the children topmost-first and stops at the first `True` — and a body that is an assignment returns

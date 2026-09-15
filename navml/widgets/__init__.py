@@ -32,6 +32,7 @@ navml.register(__name__)
 #: read from a zip or a wheel.
 _COMPONENTS = {
     "Button": "button",
+    "Dialog": "dialog",
     "FramedButton": "framed_button",
     "Label": "label",
     "Spacer": "spacer",
@@ -63,6 +64,7 @@ if TYPE_CHECKING:
     # every component untyped at every call site.  These are the real types;
     # they are never imported at run time, so the laziness above is intact.
     from navml.widgets.button import Button
+    from navml.widgets.dialog import Dialog
     from navml.widgets.framed_button import FramedButton
     from navml.widgets.label import Label
     from navml.widgets.spacer import Spacer
