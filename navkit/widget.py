@@ -720,10 +720,21 @@ class Widget:
         and :attr:`y` are in -- and is shifted into this widget's own before
         going any further, so :meth:`on_mouse` always sees a position relative
         to the widget handling it.
+
+        **Delivered under ``event.handler``, not to ``on_mouse`` by name**,
+        which is the same lookup :meth:`emit` makes and the whole of what lets
+        a refinement of a mouse action -- a ``DoubleClickEvent`` -- reach
+        ``on_double_click`` and nothing else.  A plain ``MouseEvent`` derives
+        ``on_mouse``, which every widget has, so that call is the one this
+        always made.  A widget defining no handler for the refinement is
+        skipped, and skipped is what "did not claim it" already means here, so
+        the event falls outward to an ancestor exactly as an unhandled press
+        does and no widget needs a stub.
         """
         local = event.translated(-self.x, -self.y)
         for child in reversed(self.children):
             if child.visible and child.contains(local.x, local.y):
                 if await child.dispatch_mouse(local):
                     return True
-        return await self.on_mouse(local)
+        handler = getattr(self, event.handler, None)
+        return handler is not None and await _call(self, local, handler)

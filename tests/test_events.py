@@ -8,6 +8,7 @@ from typing import ClassVar
 import pytest
 
 from navkit.events import (
+    DoubleClickEvent,
     Event,
     KeyEvent,
     MouseEvent,
@@ -91,11 +92,6 @@ class ClickEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
-class DoubleClickEvent(ClickEvent):
-    pass
-
-
-@dataclass(frozen=True, slots=True)
 class SelectionChanged(Event):
     index: int = 0
 
@@ -134,9 +130,12 @@ def test_a_new_event_names_its_own_handler(event_class, expected):
 
 
 def test_a_subclass_does_not_inherit_the_handler_it_refines():
-    # Otherwise a widget wanting only the plain click could not say so.
+    # Otherwise a widget wanting only the plain press could not say so.
+    # Asked of navkit's own refinement rather than a fixture: this is the
+    # case the rule was written for, and the one both dispatch walks read.
     assert DoubleClickEvent.handler == "on_double_click"
-    assert issubclass(DoubleClickEvent, ClickEvent)
+    assert issubclass(DoubleClickEvent, MouseEvent)
+    assert MouseEvent.handler == "on_mouse"
 
 
 def test_deriving_a_handler_leaves_the_dataclass_alone():
@@ -192,3 +191,37 @@ def test_the_declaration_names_the_handler_each_event_reaches():
         emits = (ClickEvent, SelectionChanged)
 
     assert {e.handler for e in emitted(Base)} == {"on_click", "on_selection_changed"}
+
+
+# -- the double-click navkit synthesises -----------------------------------
+
+
+def test_a_double_click_is_a_mouse_event_and_is_not_equal_to_one():
+    """Both halves matter: it is a MouseEvent so that positional routing,
+    coordinate translation and the modal reroute cost nothing, and it is not
+    *equal* to one so that a test -- or a handler -- can tell them apart."""
+    press = MouseEvent(3, 4, "left", "press")
+    double = DoubleClickEvent.of(press)
+
+    assert isinstance(double, MouseEvent)
+    assert double != press
+    assert (double.x, double.y, double.button, double.action) == (3, 4, "left", "press")
+
+
+def test_translating_a_double_click_keeps_it_one():
+    """``translated`` rebuilds through ``dataclasses.replace``, which keeps the
+    subclass -- which is the whole of why modal routing needed no changes."""
+    double = DoubleClickEvent.of(MouseEvent(3, 4, "left", "press"))
+    moved = double.translated(-1, -2)
+
+    assert type(moved) is DoubleClickEvent
+    assert (moved.x, moved.y) == (2, 2)
+
+
+def test_it_carries_the_modifiers_of_the_press_it_completed():
+    press = MouseEvent(1, 1, "right", "press", ctrl=True, shift=True)
+    double = DoubleClickEvent.of(press)
+
+    assert (double.button, double.ctrl, double.alt, double.shift) == (
+        "right", True, False, True,
+    )

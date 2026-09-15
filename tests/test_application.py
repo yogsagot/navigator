@@ -5,8 +5,15 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass
 
-from navkit.application import Application
-from navkit.events import Event, KeyEvent, MouseEvent, PasteEvent, ResizeEvent
+from navkit.application import Application, ClickTracker
+from navkit.events import (
+    DoubleClickEvent,
+    Event,
+    KeyEvent,
+    MouseEvent,
+    PasteEvent,
+    ResizeEvent,
+)
 from navkit.reactive import effect, peek, reactive
 from navkit.style import Style
 from navkit.stylesheet import parse
@@ -522,3 +529,142 @@ def test_a_handler_that_awaits_still_costs_one_frame(terminal):
     before = len(terminal.frames)
     run_app(app, [both])
     assert len(terminal.frames) - before == 1
+
+
+# -- the double-click navkit synthesises -----------------------------------
+#
+# The terminal reports no such thing: SGR gives press, release and move, so
+# two presses and a clock have to produce it.  `ClickTracker' is clockless on
+# purpose -- it is *told* the time -- which is what lets the whole rule be
+# tested here with no loop and no fake clock.
+
+
+PRESS = MouseEvent(3, 4, "left", "press")
+
+
+def test_a_second_press_at_the_same_cell_inside_the_window_is_a_double():
+    tracker = ClickTracker(0.4)
+    assert tracker.press(PRESS, 1.00) == 1
+    assert tracker.press(PRESS, 1.10) == 2
+
+
+def test_a_third_rapid_press_is_not_a_second_double_click():
+    """The run counts upward and never restarts inside itself.
+
+    Only a count of exactly two raises anything, so a fast triple click fires
+    one double-click; restarting at 1 after each pair would have entered the
+    same directory twice.
+    """
+    tracker = ClickTracker(0.4)
+    counts = [tracker.press(PRESS, t) for t in (1.00, 1.10, 1.15, 1.20)]
+    assert counts == [1, 2, 3, 4]
+
+
+def test_a_gap_longer_than_the_window_starts_a_new_run():
+    tracker = ClickTracker(0.4)
+    assert tracker.press(PRESS, 1.0) == 1
+    assert tracker.press(PRESS, 1.5) == 1
+
+
+def test_another_cell_or_another_button_starts_a_new_run():
+    """The exact cell, with no tolerance: missing a double-click costs the
+    user a repeat, inventing one on the row next door opens something nobody
+    asked to open."""
+    tracker = ClickTracker(0.4)
+    assert tracker.press(PRESS, 1.00) == 1
+    assert tracker.press(MouseEvent(3, 5, "left", "press"), 1.05) == 1
+    assert tracker.press(MouseEvent(3, 5, "right", "press"), 1.10) == 1
+
+
+def test_a_wheel_detent_is_not_a_click_and_ends_the_run():
+    """Two notches in one cell inside the window is the normal way to use a
+    wheel -- and the content under the pointer has just moved, so the cell no
+    longer denotes what it did."""
+    tracker = ClickTracker(0.4)
+    wheel = MouseEvent(3, 4, "wheel_up", "press")
+    assert tracker.press(PRESS, 1.00) == 1
+    assert tracker.press(wheel, 1.02) == 0
+    assert tracker.press(PRESS, 1.04) == 1
+
+
+def test_a_release_or_a_move_is_never_counted():
+    tracker = ClickTracker(0.4)
+    assert tracker.press(MouseEvent(3, 4, "left", "release"), 1.0) == 0
+    assert tracker.press(MouseEvent(3, 4, "left", "move"), 1.0) == 0
+    assert tracker.press(MouseEvent(3, 4, "none", "press"), 1.0) == 0
+
+
+def test_a_zero_window_disables_it():
+    tracker = ClickTracker(0)
+    assert [tracker.press(PRESS, t) for t in (1.0, 1.0)] == [1, 1]
+
+
+def test_a_double_click_is_delivered_as_well_as_the_press(terminal):
+    """Additive, deliberately: suppressing the second press would take input
+    away from every on_mouse already written against the stream."""
+    widget = RecordingWidget(width=20, height=10)
+    app = Application(widget, terminal=terminal)
+    run_app(app, [PRESS, PRESS])
+
+    assert widget.mice == [(3, 4), (3, 4)]
+    assert widget.doubles == [(3, 4)]
+
+
+def test_a_press_a_widget_consumed_still_counts_toward_a_double(terminal):
+    """Whether anything claimed a press says nothing about whether the user
+    clicked twice -- and Navigator's own hook claims every press in a panel,
+    so the other choice would make the feature unreachable."""
+    widget = RecordingWidget(width=20, height=10)
+    widget.handles = True
+    app = Application(widget, terminal=terminal)
+    run_app(app, [PRESS, PRESS])
+
+    assert widget.doubles == [(3, 4)]
+
+
+def test_a_slow_pair_is_two_presses_and_nothing_else(terminal):
+    """Shrinking the window rather than sleeping 0.4s of real time: run_app
+    leaves 0.02s between actions, which is twenty times too slow for this."""
+    widget = RecordingWidget(width=20, height=10)
+    app = Application(widget, terminal=terminal, double_click=0.001)
+    run_app(app, [PRESS, PRESS])
+
+    assert widget.mice == [(3, 4), (3, 4)]
+    assert widget.doubles == []
+
+
+def test_the_double_click_is_offered_to_on_event_like_any_other(terminal):
+    """It re-enters `_handle', as the escape key navkit manufactures does."""
+    seen: list[str] = []
+
+    class App(Application):
+        async def on_event(self, event) -> bool:
+            seen.append(type(event).__name__)
+            return False
+
+    app = App(RecordingWidget(width=20, height=10), terminal=terminal)
+    run_app(app, [PRESS, PRESS])
+
+    assert seen.count("DoubleClickEvent") == 1
+    assert seen.count("MouseEvent") == 2
+
+
+def test_a_double_click_is_never_counted_as_a_press(terminal):
+    """What bounds the recursion at one level: four presses raise two
+    double-clicks, not a cascade."""
+    widget = RecordingWidget(width=20, height=10)
+    app = Application(widget, terminal=terminal)
+    run_app(app, [PRESS, PRESS, PRESS, PRESS])
+
+    assert widget.mice == [(3, 4)] * 4
+    assert widget.doubles == [(3, 4)]
+
+
+def test_a_resize_forgets_the_run(terminal):
+    """The layout moved out from under the pointer, so the cell no longer
+    denotes what it did."""
+    widget = RecordingWidget(width=20, height=10)
+    app = Application(widget, terminal=terminal)
+    run_app(app, [PRESS, ResizeEvent(40, 12), PRESS])
+
+    assert widget.doubles == []

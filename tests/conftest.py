@@ -78,6 +78,7 @@ class RecordingWidget(Widget):
         self.fill_char = fill
         self.keys: list[str] = []
         self.mice: list[tuple[int, int]] = []
+        self.doubles: list[tuple[int, int]] = []
         self.renders = 0
         self.handles = True
 
@@ -93,6 +94,13 @@ class RecordingWidget(Widget):
 
     async def on_mouse(self, event) -> bool:
         self.mice.append((event.x, event.y))
+        self.invalidate()
+        return self.handles
+
+    async def on_double_click(self, event) -> bool:
+        # Separate from `mice': a double-click is delivered *as well as* the
+        # press that completed it, so a test wants to see the two apart.
+        self.doubles.append((event.x, event.y))
         self.invalidate()
         return self.handles
 

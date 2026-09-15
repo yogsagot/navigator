@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pytest
 
 from navkit.application import Application
-from navkit.events import Event, KeyEvent, MouseEvent
+from navkit.events import DoubleClickEvent, Event, KeyEvent, MouseEvent
 from navkit.reactive import bind, effect, flush_effects
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
@@ -954,3 +954,104 @@ def test_a_widget_may_still_define_an_ordinary_method_called_on_something():
         on_purpose = "not a handler"
 
     assert Odd().on_purpose == "not a handler"
+
+
+# -- dispatching a refinement of a mouse action ----------------------------
+#
+# `dispatch_mouse' looks the handler up under `event.handler', the way `emit'
+# does, which is what makes a DoubleClickEvent reach `on_double_click' and
+# nothing else.  A plain MouseEvent derives `on_mouse', so that path is the
+# one it always was.
+
+
+class Clickable(Widget):
+    """Records mouse actions, keeping the two gestures apart."""
+
+    def __init__(self, name: str, doubles: bool = False, claims: bool = True, **kw):
+        super().__init__(**kw)
+        self.name = name
+        self.claims = claims
+        self.presses: list[str] = []
+        self.doubles: list[str] = []
+        self._wants_doubles = doubles
+        if doubles:
+            self.on_double_click = self._on_double_click  # type: ignore[method-assign]
+
+    async def on_mouse(self, event: MouseEvent) -> bool:
+        self.presses.append(self.name)
+        return self.claims
+
+    async def _on_double_click(self, event: MouseEvent) -> bool:
+        self.doubles.append(self.name)
+        return self.claims
+
+
+def test_a_double_click_reaches_on_double_click_and_not_on_mouse():
+    root = Clickable("root", doubles=True, width=40, height=10)
+    awaited(root.dispatch_mouse(DoubleClickEvent(1, 1, "left", "press")))
+
+    assert root.doubles == ["root"]
+    assert root.presses == []
+
+
+def test_a_plain_press_is_unaffected_by_the_handler_lookup():
+    root = Clickable("root", doubles=True, width=40, height=10)
+    awaited(root.dispatch_mouse(MouseEvent(1, 1, "left", "press")))
+
+    assert root.presses == ["root"]
+    assert root.doubles == []
+
+
+def test_a_widget_with_no_double_click_handler_lets_it_fall_outward():
+    """Skipped is what "did not claim it" already means here, so the event
+    reaches an ancestor exactly as an unhandled press does -- which is why no
+    widget needs a stub."""
+    root = Clickable("root", doubles=True, width=40, height=10)
+    inner = root.add(Clickable("inner", x=2, y=2, width=10, height=4))
+
+    awaited(root.dispatch_mouse(DoubleClickEvent(3, 3, "left", "press")))
+
+    assert inner.doubles == []
+    assert inner.presses == []
+    assert root.doubles == ["root"]
+
+
+def test_the_innermost_double_click_handler_wins():
+    root = Clickable("root", doubles=True, width=40, height=10)
+    inner = root.add(Clickable("inner", doubles=True, x=2, y=2, width=10, height=4))
+
+    awaited(root.dispatch_mouse(DoubleClickEvent(3, 3, "left", "press")))
+
+    assert inner.doubles == ["inner"]
+    assert root.doubles == []
+
+
+def test_a_double_click_arrives_in_the_widgets_own_coordinates():
+    root = Clickable("root", width=40, height=10)
+    inner = root.add(Clickable("inner", doubles=True, x=4, y=2, width=10, height=4))
+    seen: list[tuple[int, int]] = []
+
+    async def record(event):
+        seen.append((event.x, event.y))
+        return True
+
+    inner.on_double_click = record
+    awaited(root.dispatch_mouse(DoubleClickEvent(6, 3, "left", "press")))
+
+    assert seen == [(2, 1)]
+
+
+def test_a_double_click_outside_a_modal_reaches_nothing(terminal):
+    """Inherited from `translated' keeping the subclass, so `_dispatch_mouse'
+    reroutes one without knowing the class exists."""
+    root = Clickable("root", doubles=True, width=40, height=10)
+    app = Application(root, terminal=terminal)
+    dialog = Clickable("dialog", doubles=True, x=10, y=4, width=8, height=3)
+    dialog.modal = True
+    app.root.add(dialog)
+
+    awaited(app._handle(DoubleClickEvent(1, 1, "left", "press")))
+    assert (dialog.doubles, root.doubles) == ([], [])
+
+    awaited(app._handle(DoubleClickEvent(11, 5, "left", "press")))
+    assert dialog.doubles == ["dialog"]
