@@ -14,10 +14,17 @@ generator are still unwritten, so the four `*_nml.py` files are hand-written sta
 emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
 included, and **the interaction layer a widget library needs is now complete**: focus, signals, the mount/unmount
 lifecycle, modal/overlay support and a real cursor. That was the whole of *What the widget library needs first* in
-`navkit/DESIGN.md`; its **`Still open` list is a separate one** — read it before starting the library. Two of its
-five entries were navkit's own work and are now answered (`Application.background`, and where the console's key
-routing belongs); the other three are the library's by their own argument: which parts and properties the library
-widgets declare, which glyphs beyond a box frame they need, and what a full-screen child does.
+`navkit/DESIGN.md`; its **`Still open` list is a separate one**. Two of its five entries were navkit's own work and
+are now answered (`Application.background`, and where the console's key routing belongs); the other three wait for the
+widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
+box frame they need, and what a full-screen child does.
+
+**The next thing to build is the `.nml` parser, then the code generator — not the widget library.** The library is
+*written in markup*: `navml/widgets/` already holds one component per shape, and its four `*_nml.py` files are
+hand-written stand-ins for what the generator will emit. Writing library widgets before the generator exists would
+mean hand-writing more of those stand-ins, which is the one thing that file layout exists to stop. So the order is
+parser, then generator, then widgets — and `navml/DESIGN.md` is the spec for the first two, with *Still open* there
+naming what the parser must decide before it can be finished.
 `Widget.announce(event)` walks an event from the widget that raised it up through its ancestors to the application,
 stopping at the first handler that returns True, and an event class names its own handler (`Event.handler`, derived
 from the class name — `ClickEvent` reaches `on_click`). `Application.focused` holds the widget keys go to,
