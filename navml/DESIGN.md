@@ -262,11 +262,17 @@ from navkit.widget import Widget as _Widget        # reach any of it
 from navml.widgets.label import Label              # button.nml:1, verbatim
 ```
 
-**There is no reserved word.** A document may import any name at all, `Widget` included, and gets exactly what it asked
-for; a bare head asks for navkit's and cannot be confused with it. Had `Widget` stayed implicit it would have had to be
-reserved, and then reserved alongside whatever the generator needed next — a list that grows by taking names away from
-documents that had them. Underscoring costs a little readability in a file nobody edits and settles the question for
-good.
+**The generator reserves no word.** A document may import any name at all, `Widget` included, and gets exactly what it
+asked for; a bare head asks for navkit's and cannot be confused with it. Had `Widget` stayed implicit it would have had
+to be reserved, and then reserved alongside whatever the generator needed next — a list that grows by taking names away
+from documents that had them. Underscoring costs a little readability in a file nobody edits and settles the question
+for good.
+
+The *language* reserves one, and the distinction is the point of this section: `event` names every handler's argument —
+*The handler's one argument is `event`* below — so an import of that name would be shadowed inside a handler body and
+nowhere else. The parser rejects the import rather than letting the shadow happen quietly, which is the same list the
+ids are checked against. It is one name, taken deliberately and once; `_bind` and its siblings are how the generator
+avoids taking any.
 
 Each emitted line carries its origin as a trailing `# button.nml:1` comment, the import block included — the same
 convention *Source mapping* settles for everything else the generator writes.
@@ -378,7 +384,7 @@ Checked by the parser, each failing with the `.nml` line:
 | Rule                                                   | Rejects                  | Why                                                        |
 |--------------------------------------------------------|--------------------------|------------------------------------------------------------|
 | a Python identifier, and not a keyword                 | `id: 2left`, `id: class` | it is emitted into generated source as an attribute name   |
-| not one of the reserved words `self`, `root`, `parent` | `id: parent`             | each already means something in the resolution table below |
+| not one of the reserved words `self`, `root`, `parent`, `event` | `id: parent`       | each already means something in the resolution table below |
 | not an attribute of the component's own class          | `id: width`              | it would be stored as `self.width` — see *Name resolution* |
 | unique within the document                             | two `id: left`           | the second assignment would silently win                   |
 | not a property or alias the document declares          | `id: console_visible`    | both become `self.<name>`, and the descriptor wins the tie |
@@ -765,8 +771,8 @@ an attribute of the component's base class.
 
 Each failing with the `.nml` line:
 
-- The target's leading name is an **id declared in this document**, and not `self`, `root` or `parent`, which name
-  things that have no stable meaning from the other side of the boundary.
+- The target's leading name is an **id declared in this document**, and not `self`, `root`, `parent` or `event`,
+  which name things that have no stable meaning from the other side of the boundary.
 - The attribute **resolves to a reactive declaration** on that id's class. A plain attribute is rejected rather than
   allowed through: a `bind()` forwarded onto one is silently stored, there being no descriptor to notice it, and the
   author reading the outer document cannot see the target's declaration to work out why nothing happened.
@@ -846,6 +852,11 @@ That last row read "and whatever the paired handler module imports" until *The t
 and the `__bases__` splice made it false: the two halves are separate modules with separate globals, so a compiled
 expression cannot see what `button.py` imports and never could. *Importing another component* is what gives the document
 back the capability the row promises, and the row now says so.
+
+**Inside a handler body the same table applies, with one substitution.** The function's one argument is the event
+rather than the owner — *The handler's one argument is `event`* below — so every row reading "the lambda's argument"
+means instead the expression naming the owner in the enclosing `__init__`, `event` joins the first row as a name the
+function itself binds, and nothing else moves.
 
 Only the leftmost name of an attribute chain is rewritten: `parent.width` becomes
 `_o.parent.width`, never `_o.parent._o.width`.
@@ -1052,6 +1063,121 @@ The variable reference surviving to run time is what makes a theme swap reach ma
 parsed inside the `style` computed, which reads the reactive variable table, so replacing the sheet restyles these
 widgets along with everything else.
 
+### A handler body is one line
+
+**A handler written in markup is one line, and it compiles to a function holding that one statement.** Anything
+longer — a branch, a loop, a `try`, two statements in sequence — is a method in the hand-written half, and the markup
+line calls it:
+
+```
+Button:
+    text: "Quit"
+    on_click: self.confirm_quit()
+```
+
+`confirm_quit()` lives in `button.py` and may be as long as it needs to be. What the spelling of `on_click` finally is
+belongs to *Still open* below, and so does what the lambda is handed besides the component; neither touches this rule,
+which governs the body rather than the line introducing it.
+
+Four reasons, in the order they carry weight:
+
+- **There is one expression compiler, and this is what keeps it one.** A handler body goes through the transformer in
+  the appendix exactly as a property expression does, and its free names resolve by the table under *Name resolution*
+  above — `self`, the ids and the reactive attributes mean there what they mean everywhere else in the document. A
+*block* needs a second set of rules stacked on that one, for the names a body may *write* rather than read:
+  `count = 0` in a handler is a dead local, `self.count = 0` is an attribute of the owner, and the two look alike. One
+  statement asks that question once and leaves it answerable by the parser, the statement being the whole body; a block
+  interleaves reads and writes until the rewriter has to carry a scope of its own. *Naming rules* above records that
+  Kivy resolves names one way inside a property expression and the opposite way inside an `on_*` handler; a second set
+  of rules is how a language arrives there, and one table used in both places is the whole of the alternative.
+- **The failure stays findable.** A binding's failure is already cached and surfaces arbitrarily far from where it was
+  written — *Source mapping* above — and the answer there was that generated code is a real file every tool can
+  read. A one-line body is one emitted statement carrying one `# button.nml:12` comment, so the frame a traceback
+  names and the markup line its reader wants are the same line. A block is one frame standing in for many markup lines,
+  and the line wanted is the one the block opened on, which nothing in the traceback names.
+- **It is the split the file layout already makes.** *The two halves of a component* gives `button_nml.py` the tree and
+  `button.py` the handlers. This rule reads that same sentence one level down: markup says *what* is connected to what,
+  Python says *how*. A document grown a body of logic has stopped describing a tree.
+- **It costs the markup-only shape nothing.** A component with no `.py` half that needs a real handler gains one, and
+  *The two halves of a component* is explicit that gaining it changes no import line anywhere and no line of the markup
+  either. The escape hatch is one new file and no edit.
+
+The parser check is mechanical: a line indented under a handler line is an error, and the message names the component's
+`.py` file. Lines indented under a *property* line are a different question, still open below.
+
+Not adopted: allowing the long form and leaving its length to convention, which is what both ancestors do. Kivy takes an
+indented block of statements under `on_press:` and compiles it out of the file's text at load time, so nothing but Kivy
+reads it — no completion, no checker. QML takes a JavaScript function body inline, which its engine does report
+properly; the cost there is not tooling but the document, which stops being a tree and becomes a program with a tree in
+it. The advice that follows in both is to keep such bodies short, and enforcing that is cheaper than repeating it.
+
+### The handler's one argument is `event`
+
+**Every handler takes exactly one argument, the event object, and in markup it is always called `event`.**
+
+```
+Button:
+    id: b
+    on_key: self.title = event.key
+```
+
+A hand-written handler may call it whatever it likes — the call is positional — but there is nothing to gain by it:
+navkit's own hooks already say `event` throughout, `Widget.on_key(self, event)` and `Application.on_mouse(self, event)`
+included, so markup is adopting the house spelling rather than inventing one.
+
+Two halves to the rule, and the second is the one that needs defending:
+
+- **Fixed at one argument**, because markup has no parameter list and should not grow one. A property line and a handler
+  line are the same shape — `name:` and one line of Python — and a parameter list is precisely what would make them two
+  shapes. So the arity cannot vary with the event. One serves an event that carries something and an event that carries
+  nothing alike, provided the object always exists, which is navkit's side of it: an argumentless event is already
+  idiomatic there — `Event` declares no fields and `WakeEvent` adds none — so a future `on_mount` announces itself with
+  an empty event rather than with an empty argument list.
+- **Fixed at the name `event`**, because with no parameter list there is nobody to ask. The author cannot name it, so
+  the language names it, once, for every handler in every document.
+
+**`event` therefore joins `self`, `root` and `parent` in the reserved list** that *Naming rules* above checks, and for
+that section's own reason: a document allowed to declare `id: event` or `property event:` would have the name mean
+`self.event` in a property expression and the handler's argument inside a handler body. That is the divergence
+*Naming rules* convicts Kivy of, arrived at from a different direction. One list, checked once, in the parser.
+
+**What it does to the compiled form** — three things, the second of which amends the section above:
+
+- **A handler does not take the owner, so it closes over it.** `bind()`'s convention is that an expression's one
+  argument is the object that owns the attribute — *What this asks of navkit* below — and a handler's one argument is
+  now spoken for. So markup's `self` compiles not to the function's parameter but to the expression that names the
+  owner in the enclosing `__init__`: `self.b` for a widget with an id, the anonymous local otherwise. **This is one
+  change to the transformer in the appendix**, whose `owner` becomes an expression rather than a name; every other row
+  of *Name resolution* reads unchanged, `root` still being the component's bare `self` and an id still `self.<id>`.
+- **The emitted form is a one-statement `def` inside `__init__`** — not a lambda, and not a method on the generated
+  class:
+
+  ```python
+  def __init__(self, **kwargs: Any) -> None:
+      super().__init__(**kwargs)
+      self.b = Button(parent=self)  # id: b
+
+      def _on_key(event):  # button.nml:4
+          self.b.title = event.key
+      self.b.on_key = _on_key
+  ```
+
+  **Not a lambda**, because the commonest handler body there is — the one in the example above — is an assignment, and a
+  lambda cannot hold one. The way to keep the literal lambda is to rewrite `self.title = event.key` into a `setattr`
+  call, which makes the transformer rewrite *statements* as well as names and drags in augmented assignment, subscript
+  targets and chained targets behind it. That is the seam *A handler body is one line* exists to avoid, so the emitted
+  shape gives way rather than the rule. **Not a method**, because *Building the tree* above already establishes the
+  hazard: a derived component's generated class would name its handlers by the same rule as its base's and shadow them,
+  which is the argument that keeps the tree out of a `_build()` method.
+
+  The body is copied through with its free names rewritten and nothing else done to it, so a `def` carrying one
+  statement is exactly one markup line and the comment says which.
+- **It works before signals do.** navkit cannot announce anything yet and `navkit/DESIGN.md` has that half of the
+  question, but `Widget.on_key` is a method `dispatch_key` calls as `self.on_key(event)` — so an instance attribute
+  holding a one-argument function shadows the method and is called with precisely the argument this rule names. Key and
+  mouse handlers in markup need nothing that does not exist. What a signal mechanism adds is more events to handle, not
+  a different shape of handler.
+
 ### Source mapping
 
 This matters more here than in most code generators. A binding is lazy and its failure is *cached* — `_Cell._recompute`
@@ -1151,9 +1277,12 @@ question that the *Parts* argument in
 ### Still open
 
 - Multi-line property bodies. With indentation carrying the block structure, the natural form is the expression
-  continuing on lines indented under the `property:` — which is how Kivy writes a handler — compiling to a nested `def`
-  rather than a lambda, still taking one argument. What is undecided is whether a body may contain statements at all, or
-  only an expression spread over several lines.
+  continuing on lines indented under the `property:` — which is how Kivy writes a handler. **Half of this is now
+  answered.** *A handler body is one line* above refuses statements, and refuses them for reasons that do not care
+  whether the line is a handler or a property: one expression compiler, one resolution table, and a hand-written half
+  that is already where length belongs. What is left is the lexical question of whether a single expression may be
+  *spread* over several indented lines, which changes nothing about what is emitted — still a one-argument lambda —
+  and so can be settled by the parser alone.
 - Whether `equal=` is expressible in markup, on a `bind()` expression or on a `property` declaration. It is one
   question asked at two sites, and until it is answered a property needing one is declared in the hand-written half.
   There is no third site: on an `alias` the answer is settled and it is no, for the reason under *Three things an alias
@@ -1166,7 +1295,18 @@ question that the *Parts* argument in
   *The two halves of a component* settles that, and settles it in a way that raises the stakes rather than lowering
   them: a markup-only component is a first-class shape, not a degenerate one, so handlers written in markup are what
   make a document self-sufficient rather than a convenience. `navkit/DESIGN.md` still has the other half, that a widget
-  cannot announce anything yet, and the two have to be settled together.
+  cannot announce anything yet, and the two have to be settled together. The *body* is no longer part of it either —
+  *A handler body is one line* and *The handler's one argument is `event`* above settle the body and its argument — so
+  what remains here is the spelling of the handler line, how a handler is attached to whatever announces to it, and
+  navkit's missing announce mechanism.
+- **What a markup handler returns.** navkit reads a handler's return value as *consumed*: `Widget.on_key` is annotated
+  `-> bool` and `dispatch_key` stops at the first `True`. A one-statement handler whose statement is an assignment
+  returns `None`, so `on_key: self.title = event.key` reads the key and lets it through. Three answers are available
+  and none is plainly right — a markup handler always consumes, which is wrong for one that merely watches; never
+  consumes, which is wrong for a key binding; or passes its body's value through, which makes `on_key: self.close()`
+  consume or not according to what `close()` happens to return, the value-dependent divergence this file refuses
+  everywhere else. It cannot be settled before the announce mechanism above, since a signal nobody can consume never
+  asks the question.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not

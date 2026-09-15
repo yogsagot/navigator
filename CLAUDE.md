@@ -397,8 +397,21 @@ Things to know before touching this layer:
   and a type a document names is one it imports — so `Button(Widget):` means whatever the document imported under that
   name. The hand-written half still has to spell it, `class Button(Widget)`, because a Python class with no bases is
   `object` and cannot be spliced.
+- **A handler in markup is one line, and it takes one argument called `event`.** Anything longer — a branch, a loop, a
+  `try`, two statements in sequence — is a method in the hand-written half that the markup line calls
+  (`on_click: self.confirm_quit()`); one line keeps a handler body going through the same expression compiler and the
+  same name-resolution table a property expression does, and keeps a failing body one emitted statement with one
+  `# button.nml:12` on it. The argument is fixed at one and named by the language because markup has no parameter list
+  and should not grow one — a hand-written handler may name it anything, and navkit's own hooks already all say
+  `event`. Two things follow: **`event` is reserved** alongside `self`, `root` and `parent`, and **a handler compiles
+  to a one-statement `def` in the generated `__init__`, closing over its widget** — not a lambda, because
+  `on_key: self.title = event.key` is an assignment and a lambda cannot hold one; not a method, because a derived
+  component's generated class would shadow its base's by the same naming rule. The spelling of the handler line and
+  what its return value means are still open; the body and its argument are not.
 - **Everything the generator emits for itself is underscored** — `_bind`, `_reactive`, `_is_bound`, `_Any`, `_Widget`.
-  There is consequently no reserved word: a document may import any name at all and gets exactly what it asked for.
+  The generator consequently reserves no word: a document may import any name at all and gets exactly what it asked
+  for. The language reserves exactly one, `event` above, and the parser rejects an import of that name rather than
+  letting it be shadowed inside handler bodies alone.
 - **A component package's `__init__.py` must not re-export eagerly.** The code generator reads `declarations(cls)` off
   the classes a document names, so generating a component really imports the ones it uses; eager re-export would mean
   importing any one component imported every one, and a cold build could generate nothing. `navml/widgets/__init__.py`
