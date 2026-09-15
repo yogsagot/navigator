@@ -1159,6 +1159,7 @@ that section's own reason: a document allowed to declare `id: event` or `propert
 
       def _on_key(event):  # button.nml:4
           self.b.title = event.key
+          return True
       self.b.on_key = _on_key
   ```
 
@@ -1170,8 +1171,25 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   hazard: a derived component's generated class would name its handlers by the same rule as its base's and shadow them,
   which is the argument that keeps the tree out of a `_build()` method.
 
-  The body is copied through with its free names rewritten and nothing else done to it, so a `def` carrying one
-  statement is exactly one markup line and the comment says which.
+  The body is copied through with its free names rewritten and nothing else done to it, so the one statement under
+  the comment is exactly the one markup line it names. The `return True` beneath it is the generator's own, for the
+  reason in the next bullet.
+- **A markup handler always consumes.** navkit reads a handler's return value as *stop propagating* — `dispatch_key`
+  offers a key to the children topmost-first and stops at the first `True` — and a body that is an assignment returns
+  `None`, so without this the commonest handler there is would read its event and let it through. The third possible
+  answer goes out first: passing the body's value through makes `on_key: self.close()` consume or not according to what
+  `close()` happens to return, which is the value-dependent divergence this file refuses everywhere else. The two that
+  remain are both fixed and so both uniform, and the choice between them is not about the body at all but about which
+  of the two cases stays reachable from the other side. Under *never consumes*, a markup-only component could not bind
+  a key at all without growing a Python half, which would make the first-class markup-only shape degenerate after all.
+  Under *always consumes*, a component that merely watches an event writes that one handler in its `.py`, where a
+  handler returns what it likes. The rarer case is the one that pays, and the failure it can cause is legible: an outer
+  handler that stops running, with the document that claimed the event one level in.
+
+  Two edges. Where the protocol ignores the value — `Application.on_resize` is annotated `-> None` — the `return True`
+  costs nothing, and where it reads it the answer is the same every time, which is the property being bought. And this
+  answers navkit's *propagation* protocol only: if the announce mechanism still open below gives navkit a broadcast
+  signal no listener can cancel, there is no value to return and the rule has nothing to say there.
 - **It works before signals do.** navkit cannot announce anything yet and `navkit/DESIGN.md` has that half of the
   question, but `Widget.on_key` is a method `dispatch_key` calls as `self.on_key(event)` — so an instance attribute
   holding a one-argument function shadows the method and is called with precisely the argument this rule names. Key and
@@ -1296,17 +1314,9 @@ question that the *Parts* argument in
   them: a markup-only component is a first-class shape, not a degenerate one, so handlers written in markup are what
   make a document self-sufficient rather than a convenience. `navkit/DESIGN.md` still has the other half, that a widget
   cannot announce anything yet, and the two have to be settled together. The *body* is no longer part of it either —
-  *A handler body is one line* and *The handler's one argument is `event`* above settle the body and its argument — so
-  what remains here is the spelling of the handler line, how a handler is attached to whatever announces to it, and
-  navkit's missing announce mechanism.
-- **What a markup handler returns.** navkit reads a handler's return value as *consumed*: `Widget.on_key` is annotated
-  `-> bool` and `dispatch_key` stops at the first `True`. A one-statement handler whose statement is an assignment
-  returns `None`, so `on_key: self.title = event.key` reads the key and lets it through. Three answers are available
-  and none is plainly right — a markup handler always consumes, which is wrong for one that merely watches; never
-  consumes, which is wrong for a key binding; or passes its body's value through, which makes `on_key: self.close()`
-  consume or not according to what `close()` happens to return, the value-dependent divergence this file refuses
-  everywhere else. It cannot be settled before the announce mechanism above, since a signal nobody can consume never
-  asks the question.
+  *A handler body is one line* and *The handler's one argument is `event`* above settle the body, its argument and what
+  it returns — so what remains here is the spelling of the handler line, how a handler is attached to whatever
+  announces to it, and navkit's missing announce mechanism.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not
