@@ -406,8 +406,10 @@ Things to know before touching this layer:
   `event`. Two things follow: **`event` is reserved** alongside `self`, `root` and `parent`, and **a handler compiles
   to a one-statement `def` in the generated `__init__`, closing over its widget** — not a lambda, because
   `on_key: self.title = event.key` is an assignment and a lambda cannot hold one; not a method, because a derived
-  component's generated class would shadow its base's by the same naming rule. The spelling of the handler line and
-  what its return value means are still open; the body and its argument are not.
+  component's generated class would shadow its base's by the same naming rule. **A markup handler always consumes** —
+  the generated function ends `return True`, because the alternative leaves a markup-only component unable to bind a
+  key without growing a Python half, whereas this one only sends the rarer watch-without-consuming case there. The
+  spelling of the handler line is still open; the body, its argument and its return value are not.
 - **Everything the generator emits for itself is underscored** — `_bind`, `_reactive`, `_is_bound`, `_Any`, `_Widget`.
   The generator consequently reserves no word: a document may import any name at all and gets exactly what it asked
   for. The language reserves exactly one, `event` above, and the parser rejects an import of that name rather than
