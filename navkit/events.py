@@ -11,8 +11,10 @@ Every event class knows the name of the handler that receives it.  It is
 derived from the class name rather than registered anywhere -- strip a
 trailing ``Event``, snake-case the rest, prefix ``on_`` -- so ``KeyEvent``
 reaches ``on_key`` and a ``ClickEvent`` declared elsewhere reaches
-``on_click`` without asking anybody.  The four events below already obeyed
-that rule before it was written down.
+``on_click`` without asking anybody.  The rule is old enough here that the
+classes are named to fit it rather than the other way round -- which is why
+:class:`MouseClickEvent` is called that and not ``MouseEvent``, and why
+nothing below sets ``handler`` by hand.
 """
 
 from __future__ import annotations
@@ -127,12 +129,23 @@ class KeyEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
-class MouseEvent(Event):
+class MouseClickEvent(Event):
     """A mouse action at zero-based cell coordinates *x*, *y*.
 
     ``button`` is one of ``left``, ``middle``, ``right``, ``wheel_up``,
     ``wheel_down``, ``wheel_left``, ``wheel_right`` or ``none``; ``action`` is
     ``press``, ``release`` or ``move``.
+
+    **The name is narrower than the class, and deliberately so.**  This is
+    every mouse action the terminal reports, a drag and a wheel notch
+    included -- not only a click.  It is named for the handler rather than the
+    other way round: ``on_mouse_click`` is what the derivation rule produces
+    from this class name, and pinning the handler with an explicit
+    ``handler`` instead would have put the first hole in a table whose value
+    is that a reader can predict one from the other.  So **check ``action``
+    and ``button``**; a handler that assumes a click will also run on every
+    move of a held button.  ``navkit/DESIGN.md``, *The handler name is read
+    off the event class*, records the trade.
     """
 
     x: int
@@ -147,13 +160,13 @@ class MouseEvent(Event):
     def is_wheel(self) -> bool:
         return self.button.startswith("wheel_")
 
-    def translated(self, dx: int, dy: int) -> MouseEvent:
+    def translated(self, dx: int, dy: int) -> MouseClickEvent:
         """The same action, moved into another widget's coordinates."""
         return replace(self, x=self.x + dx, y=self.y + dy)
 
 
 @dataclass(frozen=True, slots=True)
-class DoubleClickEvent(MouseEvent):
+class DoubleClickEvent(MouseClickEvent):
     """One button pressed twice at one cell, inside the double-click window.
 
     A statement about *input*, not about meaning.  navkit says the two presses
@@ -169,23 +182,23 @@ class DoubleClickEvent(MouseEvent):
     modifiers, ``action`` still ``"press"`` -- so a handler filters by button
     the way one reading a plain press already does.
 
-    Delivered to ``on_double_click`` and never to ``on_mouse``: the handler
+    Delivered to ``on_double_click`` and never to ``on_mouse_click``: the handler
     name is derived from the class and both dispatch walks read it.  A widget
     defining no ``on_double_click`` is skipped, and skipped is what "did not
     claim it" already means there, so the event falls outward to an ancestor
     exactly as an unhandled press does and nothing needs a stub.
 
-    **A `MouseEvent`, so that routing costs nothing.**  :meth:`translated`
+    **A `MouseClickEvent`, so that routing costs nothing.**  :meth:`translated`
     rebuilds through :func:`~dataclasses.replace`, which keeps the subclass,
     so the inward coordinate shift, the hit test and the modal reroute all
     work on one of these without knowing it exists.  The price is that
-    ``isinstance(event, MouseEvent)`` is true of it -- relied on in
+    ``isinstance(event, MouseClickEvent)`` is true of it -- relied on in
     ``Application._handle``, and a trap anywhere that meant *only* a plain
     mouse action.
     """
 
     @classmethod
-    def of(cls, press: MouseEvent) -> DoubleClickEvent:
+    def of(cls, press: MouseClickEvent) -> DoubleClickEvent:
         """The same press, re-raised as the double-click it completed."""
         return cls(
             x=press.x,

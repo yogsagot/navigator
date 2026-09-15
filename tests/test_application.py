@@ -10,7 +10,7 @@ from navkit.events import (
     DoubleClickEvent,
     Event,
     KeyEvent,
-    MouseEvent,
+    MouseClickEvent,
     PasteEvent,
     ResizeEvent,
 )
@@ -54,7 +54,7 @@ def test_keys_reach_the_root_widget(terminal):
 
 def test_mouse_events_reach_the_root_widget(terminal):
     root = RecordingWidget(width=40, height=10)
-    run_app(Application(root, terminal=terminal), [MouseEvent(3, 4, "left")])
+    run_app(Application(root, terminal=terminal), [MouseClickEvent(3, 4, "left")])
     assert root.mice == [(3, 4)]
 
 
@@ -539,7 +539,7 @@ def test_a_handler_that_awaits_still_costs_one_frame(terminal):
 # tested here with no loop and no fake clock.
 
 
-PRESS = MouseEvent(3, 4, "left", "press")
+PRESS = MouseClickEvent(3, 4, "left", "press")
 
 
 def test_a_second_press_at_the_same_cell_inside_the_window_is_a_double():
@@ -572,8 +572,8 @@ def test_another_cell_or_another_button_starts_a_new_run():
     asked to open."""
     tracker = ClickTracker(0.4)
     assert tracker.press(PRESS, 1.00) == 1
-    assert tracker.press(MouseEvent(3, 5, "left", "press"), 1.05) == 1
-    assert tracker.press(MouseEvent(3, 5, "right", "press"), 1.10) == 1
+    assert tracker.press(MouseClickEvent(3, 5, "left", "press"), 1.05) == 1
+    assert tracker.press(MouseClickEvent(3, 5, "right", "press"), 1.10) == 1
 
 
 def test_a_wheel_detent_is_not_a_click_and_ends_the_run():
@@ -581,7 +581,7 @@ def test_a_wheel_detent_is_not_a_click_and_ends_the_run():
     wheel -- and the content under the pointer has just moved, so the cell no
     longer denotes what it did."""
     tracker = ClickTracker(0.4)
-    wheel = MouseEvent(3, 4, "wheel_up", "press")
+    wheel = MouseClickEvent(3, 4, "wheel_up", "press")
     assert tracker.press(PRESS, 1.00) == 1
     assert tracker.press(wheel, 1.02) == 0
     assert tracker.press(PRESS, 1.04) == 1
@@ -589,9 +589,9 @@ def test_a_wheel_detent_is_not_a_click_and_ends_the_run():
 
 def test_a_release_or_a_move_is_never_counted():
     tracker = ClickTracker(0.4)
-    assert tracker.press(MouseEvent(3, 4, "left", "release"), 1.0) == 0
-    assert tracker.press(MouseEvent(3, 4, "left", "move"), 1.0) == 0
-    assert tracker.press(MouseEvent(3, 4, "none", "press"), 1.0) == 0
+    assert tracker.press(MouseClickEvent(3, 4, "left", "release"), 1.0) == 0
+    assert tracker.press(MouseClickEvent(3, 4, "left", "move"), 1.0) == 0
+    assert tracker.press(MouseClickEvent(3, 4, "none", "press"), 1.0) == 0
 
 
 def test_a_zero_window_disables_it():
@@ -601,7 +601,7 @@ def test_a_zero_window_disables_it():
 
 def test_a_double_click_is_delivered_as_well_as_the_press(terminal):
     """Additive, deliberately: suppressing the second press would take input
-    away from every on_mouse already written against the stream."""
+    away from every on_mouse_click already written against the stream."""
     widget = RecordingWidget(width=20, height=10)
     app = Application(widget, terminal=terminal)
     run_app(app, [PRESS, PRESS])
@@ -646,7 +646,7 @@ def test_the_double_click_is_offered_to_on_event_like_any_other(terminal):
     run_app(app, [PRESS, PRESS])
 
     assert seen.count("DoubleClickEvent") == 1
-    assert seen.count("MouseEvent") == 2
+    assert seen.count("MouseClickEvent") == 2
 
 
 def test_a_double_click_is_never_counted_as_a_press(terminal):

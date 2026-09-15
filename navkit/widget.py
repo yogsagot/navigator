@@ -5,7 +5,7 @@ touches the terminal, and it never learns where on the screen it is:
 :meth:`Widget.render` receives a :class:`~navkit.screen.Surface` covering the
 widget's own area, so it paints from ``0, 0`` in its own ``width`` x
 ``height`` and anything it aims outside itself is clipped away.  Positions --
-``x``, ``y`` and the coordinates a :class:`~navkit.events.MouseEvent` carries
+``x``, ``y`` and the coordinates a :class:`~navkit.events.MouseClickEvent` carries
 -- are relative to the parent, not to the terminal.
 
 Geometry, visibility, style and the link to the parent are observable: assign
@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Mapping
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
 from navkit import terminal as terminal_module
-from navkit.events import Event, KeyEvent, MouseEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
@@ -500,7 +500,7 @@ class Widget:
         """Handle a key press.  Return True to stop it propagating."""
         return False
 
-    async def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """Handle a mouse action.  Return True to stop it propagating."""
         return False
 
@@ -713,19 +713,19 @@ class Widget:
                 return True
         return False
 
-    async def dispatch_mouse(self, event: MouseEvent) -> bool:
+    async def dispatch_mouse(self, event: MouseClickEvent) -> bool:
         """Offer a mouse action to the child under the pointer, then to self.
 
         *event* arrives in the parent's coordinates -- the same ones :attr:`x`
         and :attr:`y` are in -- and is shifted into this widget's own before
-        going any further, so :meth:`on_mouse` always sees a position relative
+        going any further, so :meth:`on_mouse_click` always sees a position relative
         to the widget handling it.
 
-        **Delivered under ``event.handler``, not to ``on_mouse`` by name**,
+        **Delivered under ``event.handler``, not to ``on_mouse_click`` by name**,
         which is the same lookup :meth:`emit` makes and the whole of what lets
         a refinement of a mouse action -- a ``DoubleClickEvent`` -- reach
-        ``on_double_click`` and nothing else.  A plain ``MouseEvent`` derives
-        ``on_mouse``, which every widget has, so that call is the one this
+        ``on_double_click`` and nothing else.  A plain ``MouseClickEvent`` derives
+        ``on_mouse_click``, which every widget has, so that call is the one this
         always made.  A widget defining no handler for the refinement is
         skipped, and skipped is what "did not claim it" already means here, so
         the event falls outward to an ancestor exactly as an unhandled press

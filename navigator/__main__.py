@@ -21,7 +21,7 @@ from pathlib import Path
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.console import ConsoleScreen, seed_from_host
-from navkit.events import KeyEvent, MouseEvent
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit.process import PtyProcess
 from navkit.reactive import bind, computed, effect, peek, reactive
 from navkit.glyphs import GLYPHS_NERD, tier_named
@@ -263,7 +263,7 @@ class Panel(Widget):
         self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
 
-    async def on_double_click(self, event: MouseEvent) -> bool:
+    async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Open the row that was double-clicked: a directory, or ``..`` up.
 
         The original's mouse, and the panel's own rather than the
@@ -744,7 +744,7 @@ class Navigator(Application):
             return True
         return False
 
-    async def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         manager = self.manager
         if manager.console_visible:
             if event.is_wheel and manager.console.contains(event.x, event.y):

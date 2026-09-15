@@ -32,7 +32,7 @@ from navkit.events import (
     DoubleClickEvent,
     Event,
     KeyEvent,
-    MouseEvent,
+    MouseClickEvent,
     PasteEvent,
     ResizeEvent,
     WakeEvent,
@@ -78,7 +78,7 @@ class ClickTracker:
         self._when = 0.0
         self._count = 0
 
-    def press(self, event: MouseEvent, now: float) -> int:
+    def press(self, event: MouseClickEvent, now: float) -> int:
         """How many clicks *event* completes -- 1, 2, 3... -- or 0 for none.
 
         **The run counts upward and never restarts inside itself**, so a
@@ -539,7 +539,7 @@ class Application:
                 target = self.modal or self._root
                 if not await self.on_key(event) and target is not None:
                     await target.dispatch_key(event)
-            elif isinstance(event, MouseEvent):
+            elif isinstance(event, MouseClickEvent):
                 # Counted from the press itself, before it is delivered and
                 # whatever claims it: whether a widget consumed a press says
                 # nothing about whether the user clicked twice.  A
@@ -589,12 +589,12 @@ class Application:
         """
         return self._loop.time() if self._loop is not None else time.monotonic()
 
-    async def _deliver_mouse(self, event: MouseEvent) -> None:
+    async def _deliver_mouse(self, event: MouseClickEvent) -> None:
         """Offer *event* to this application's own hook, then to the tree.
 
         Looked up under ``event.handler`` for the reason
-        :meth:`Widget.dispatch_mouse` does it: ``on_mouse`` is what a plain
-        ``MouseEvent`` derives, so this is the call that was always made, and
+        :meth:`Widget.dispatch_mouse` does it: ``on_mouse_click`` is what a plain
+        ``MouseClickEvent`` derives, so this is the call that was always made, and
         a refinement reaches its own hook or goes straight past the
         application to the widgets.
         """
@@ -602,7 +602,7 @@ class Application:
         if hook is None or not await _call(self, event, hook):
             await self._dispatch_mouse(event)
 
-    async def _dispatch_mouse(self, event: MouseEvent) -> None:
+    async def _dispatch_mouse(self, event: MouseClickEvent) -> None:
         """Route a mouse action into the tree, or into the modal alone.
 
         The mouse is where modality costs something, because it routes by
@@ -613,7 +613,7 @@ class Application:
         underneath, and not the modal either, whose coordinates it is not in.
 
         Dismissing on an outside click is a *policy*, and belongs to whatever
-        widget wants it: it can watch the application's own ``on_mouse``,
+        widget wants it: it can watch the application's own ``on_mouse_click``,
         which still sees every action before any of this.
         """
         modal = self.modal
@@ -635,7 +635,7 @@ class Application:
     async def on_key(self, event: KeyEvent) -> bool:
         return False
 
-    async def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         return False
 
     async def on_resize(self, event: ResizeEvent) -> None:

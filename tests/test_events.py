@@ -11,7 +11,7 @@ from navkit.events import (
     DoubleClickEvent,
     Event,
     KeyEvent,
-    MouseEvent,
+    MouseClickEvent,
     PasteEvent,
     ResizeEvent,
     WakeEvent,
@@ -74,9 +74,9 @@ def test_is_printable(event, printable):
 
 
 def test_wheel_detection():
-    assert MouseEvent(0, 0, "wheel_up").is_wheel
-    assert MouseEvent(0, 0, "wheel_down").is_wheel
-    assert not MouseEvent(0, 0, "left").is_wheel
+    assert MouseClickEvent(0, 0, "wheel_up").is_wheel
+    assert MouseClickEvent(0, 0, "wheel_down").is_wheel
+    assert not MouseClickEvent(0, 0, "left").is_wheel
 
 
 def test_events_are_immutable():
@@ -105,7 +105,7 @@ class Renamed(Event):
     ("event_class", "expected"),
     [
         (KeyEvent, "on_key"),
-        (MouseEvent, "on_mouse"),
+        (MouseClickEvent, "on_mouse_click"),
         (ResizeEvent, "on_resize"),
         (PasteEvent, "on_paste"),
         (WakeEvent, "on_wake"),
@@ -134,8 +134,8 @@ def test_a_subclass_does_not_inherit_the_handler_it_refines():
     # Asked of navkit's own refinement rather than a fixture: this is the
     # case the rule was written for, and the one both dispatch walks read.
     assert DoubleClickEvent.handler == "on_double_click"
-    assert issubclass(DoubleClickEvent, MouseEvent)
-    assert MouseEvent.handler == "on_mouse"
+    assert issubclass(DoubleClickEvent, MouseClickEvent)
+    assert MouseClickEvent.handler == "on_mouse_click"
 
 
 def test_deriving_a_handler_leaves_the_dataclass_alone():
@@ -197,13 +197,13 @@ def test_the_declaration_names_the_handler_each_event_reaches():
 
 
 def test_a_double_click_is_a_mouse_event_and_is_not_equal_to_one():
-    """Both halves matter: it is a MouseEvent so that positional routing,
+    """Both halves matter: it is a MouseClickEvent so that positional routing,
     coordinate translation and the modal reroute cost nothing, and it is not
     *equal* to one so that a test -- or a handler -- can tell them apart."""
-    press = MouseEvent(3, 4, "left", "press")
+    press = MouseClickEvent(3, 4, "left", "press")
     double = DoubleClickEvent.of(press)
 
-    assert isinstance(double, MouseEvent)
+    assert isinstance(double, MouseClickEvent)
     assert double != press
     assert (double.x, double.y, double.button, double.action) == (3, 4, "left", "press")
 
@@ -211,7 +211,7 @@ def test_a_double_click_is_a_mouse_event_and_is_not_equal_to_one():
 def test_translating_a_double_click_keeps_it_one():
     """``translated`` rebuilds through ``dataclasses.replace``, which keeps the
     subclass -- which is the whole of why modal routing needed no changes."""
-    double = DoubleClickEvent.of(MouseEvent(3, 4, "left", "press"))
+    double = DoubleClickEvent.of(MouseClickEvent(3, 4, "left", "press"))
     moved = double.translated(-1, -2)
 
     assert type(moved) is DoubleClickEvent
@@ -219,7 +219,7 @@ def test_translating_a_double_click_keeps_it_one():
 
 
 def test_it_carries_the_modifiers_of_the_press_it_completed():
-    press = MouseEvent(1, 1, "right", "press", ctrl=True, shift=True)
+    press = MouseClickEvent(1, 1, "right", "press", ctrl=True, shift=True)
     double = DoubleClickEvent.of(press)
 
     assert (double.button, double.ctrl, double.alt, double.shift) == (

@@ -312,14 +312,13 @@ Written, and the pieces fit together like this:
   lazily on read and memoised. That makes it glitch-free (a diamond recomputes once, from inputs that are all final) and
   mirrors the frame loop one layer up. `effect()` is the only eager node, for reactions that must happen whether or not
   anybody reads a value.
-- `widget.py` — `Widget` has children, `render(surface)`, `layout(width, height)` (called on the root at every resize)
-  and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first — `dispatch_mouse` under
-  `event.handler` rather than to `on_mouse` by name, which is what makes a refinement of a mouse action reach its own
-  handler. Its geometry, `visible`, `style`
-  and `parent` are reactive, so assigning one asks for a repaint on its own; `layout()` steps around any size that
-  carries a binding. **All coordinates are relative to the parent** — `x`/`y`, `contains()`, and the position a
-  `MouseEvent` carries, which `dispatch_mouse` shifts as it descends. Only the root sits in screen coordinates, and it
-  sits at the origin.
+- `widget.py` — `Widget` has children, `render(surface)`, `layout(width, height)` (called on the root at every
+  resize) and `dispatch_key`/`dispatch_mouse`, which offer events to the topmost child first — `dispatch_mouse` under
+  `event.handler` rather than to `on_mouse_click` by name, which is what makes a refinement of a mouse action reach
+  its own handler. Its geometry, `visible`, `style` and `parent` are reactive, so assigning one asks for a repaint on
+  its own; `layout()` steps around any size that carries a binding. **All coordinates are relative to the parent** —
+  `x`/`y`, `contains()`, and the position a `MouseClickEvent` carries, which `dispatch_mouse` shifts as it descends.
+  Only the root sits in screen coordinates, and it sits at the origin.
 
 **A double-click is navkit's, and it is a fact rather than a meaning.** The terminal reports no such thing — SGR gives
 `press`, `release` and `move` — so `ClickTracker` synthesises one from two presses and a clock, the way a lone `ESC`
@@ -526,8 +525,8 @@ scroll follow.
 - **And so do mouse gestures, by the same rule.** `Panel.on_double_click` enters the clicked row — a directory, or
   `..` — because it needs nothing but the panel it lands on, and routing by position is what picks which panel. It
   needs no `console_visible` check either: the panels' `visible` is bound to that flag and `dispatch_mouse` skips an
-  invisible child. What stays on `Navigator.on_mouse` is what genuinely needs the desktop — activating the other panel
-  on a press, the wheel, and the console's scrollback
+  invisible child. What stays on `Navigator.on_mouse_click` is what genuinely needs the desktop — activating the other
+  panel on a press, the wheel, and the console's scrollback
 - View and Edit file windows
 - File operations over the selected files
 - Pluggable filesystem handlers so operations work over ssh, smb, inside zip archives, etc.

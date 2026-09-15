@@ -92,7 +92,7 @@ class RecordingWidget(Widget):
         self.invalidate()
         return self.handles
 
-    async def on_mouse(self, event) -> bool:
+    async def on_mouse_click(self, event) -> bool:
         self.mice.append((event.x, event.y))
         self.invalidate()
         return self.handles

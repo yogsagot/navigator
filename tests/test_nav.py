@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from navkit.capabilities import FULL
-from navkit.events import KeyEvent, MouseEvent
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
@@ -293,14 +293,14 @@ def test_unhandled_keys_are_ignored(tree):
 
 def test_clicking_a_row_moves_the_cursor(tree):
     app = navigator(tree)
-    run_app(app, [MouseEvent(x=5, y=3, button="left", action="press")])
+    run_app(app, [MouseClickEvent(x=5, y=3, button="left", action="press")])
     # Screen row 3 is the second listing line of the left panel: "alpha".
     assert app.manager.left.selected.name == "alpha"
 
 
 def test_clicking_the_other_panel_activates_it(tree):
     app = navigator(tree)
-    run_app(app, [MouseEvent(x=60, y=3, button="left", action="press")])
+    run_app(app, [MouseClickEvent(x=60, y=3, button="left", action="press")])
     assert app.manager.active_panel is app.manager.right
 
 
@@ -308,7 +308,7 @@ def test_clicking_the_other_panel_activates_it(tree):
 # one the mouse could not enter a directory at all.  Row 3 of the left panel
 # is "alpha", which is a directory.
 
-DOUBLE = MouseEvent(x=5, y=3, button="left", action="press")
+DOUBLE = MouseClickEvent(x=5, y=3, button="left", action="press")
 
 
 def test_double_clicking_a_directory_row_enters_it(tree):
@@ -323,7 +323,7 @@ def test_double_clicking_dotdot_goes_up_and_puts_the_cursor_back(tree):
     ``_return_to`` is for."""
     app = navigator(tree / "alpha")
     # Screen row 2 is the first listing line, which is always "..".
-    up = MouseEvent(x=5, y=2, button="left", action="press")
+    up = MouseClickEvent(x=5, y=2, button="left", action="press")
     run_app(app, [up, up])
 
     assert app.manager.left.path == tree
@@ -334,7 +334,7 @@ def test_the_panel_under_the_pointer_is_the_one_that_opens(tree):
     """The handler is the panel's, so routing by position picks which one
     without anything having to ask."""
     app = navigator(tree)
-    click = MouseEvent(x=60, y=3, button="left", action="press")
+    click = MouseClickEvent(x=60, y=3, button="left", action="press")
     run_app(app, [click, click])
 
     assert app.manager.right.path.name == "alpha"
@@ -360,7 +360,7 @@ def test_one_click_only_moves_the_cursor(tree):
 
 def test_two_clicks_on_different_rows_are_not_a_double_click(tree):
     app = navigator(tree)
-    run_app(app, [DOUBLE, MouseEvent(x=5, y=4, button="left", action="press")])
+    run_app(app, [DOUBLE, MouseClickEvent(x=5, y=4, button="left", action="press")])
     assert app.manager.left.path == tree
 
 
@@ -376,7 +376,7 @@ def test_double_clicking_a_file_row_does_nothing(tree):
     """`enter()' no-ops on anything but a directory, so the guard in the hook
     is about rows that exist rather than about what is on them."""
     app = navigator(tree)
-    one_txt = MouseEvent(x=5, y=5, button="left", action="press")
+    one_txt = MouseClickEvent(x=5, y=5, button="left", action="press")
     run_app(app, [one_txt, one_txt])
     assert app.manager.left.path == tree
     assert app.manager.left.selected.name == "one.txt"
@@ -386,14 +386,14 @@ def test_the_wheel_never_enters_anything(tree):
     """A detent arrives as a press and is not one -- two notches in a cell is
     the normal way to use a wheel."""
     app = navigator(tree)
-    wheel = MouseEvent(x=5, y=3, button="wheel_down", action="press")
+    wheel = MouseClickEvent(x=5, y=3, button="wheel_down", action="press")
     run_app(app, [wheel, wheel])
     assert app.manager.left.path == tree
 
 
 def test_the_wheel_ends_a_run_of_clicks(tree):
     app = navigator(tree)
-    wheel = MouseEvent(x=5, y=3, button="wheel_up", action="press")
+    wheel = MouseClickEvent(x=5, y=3, button="wheel_up", action="press")
     run_app(app, [DOUBLE, wheel, DOUBLE])
     assert app.manager.left.path == tree
 
@@ -402,7 +402,7 @@ def test_the_wheel_scrolls_the_panel_under_the_pointer(tmp_path):
     for index in range(30):
         (tmp_path / f"file{index:02d}").write_text("")
     app = navigator(tmp_path)
-    run_app(app, [MouseEvent(x=5, y=5, button="wheel_down", action="press")])
+    run_app(app, [MouseClickEvent(x=5, y=5, button="wheel_down", action="press")])
     assert app.manager.left.cursor == 3
 
 def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
@@ -612,7 +612,7 @@ def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
     run_app(app, [
         KeyEvent("o", ctrl=True),
         lambda a: a.manager.console._on_output(lines),
-        MouseEvent(x=10, y=10, button="wheel_up", action="press"),
+        MouseClickEvent(x=10, y=10, button="wheel_up", action="press"),
     ])
     assert app.manager.console.screen.scrolled_back is True
     assert app.manager.left.cursor == 0

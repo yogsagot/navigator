@@ -1171,7 +1171,7 @@ the widget's parent's coordinates and shifts it inward itself. **An action landi
 all**: not the widgets underneath, which is the point, and not the modal either, whose coordinate system it is not in.
 
 **Dismissing on an outside click is a policy and is deliberately absent.** A widget that wants it watches the
-application's own `on_mouse`, which still sees every action before any of this and is where a policy about input
+application's own `on_mouse_click`, which still sees every action before any of this and is where a policy about input
 belongs. Baking it in would make the other choice unexpressible.
 
 ### Focus is confined, and handed back
@@ -1371,7 +1371,7 @@ Two things this deliberately does not do, both of them the widget library's:
 - **Nothing binds Tab.** navkit provides `focus_next(reverse=…)` and no key binding for it, because `navigator` spends
   Tab on switching panels and a library that took it would be wrong there first.
 - **A mouse press does not focus what it hits.** `dispatch_mouse` routes by position and says nothing about the
-  keyboard; a Button that wants the pair calls `focus()` in its own `on_mouse`, which is one line and a policy.
+  keyboard; a Button that wants the pair calls `focus()` in its own `on_mouse_click`, which is one line and a policy.
 
 ### The tab order is a walk, not a list
 
@@ -1420,29 +1420,38 @@ async def emit(self, event: Event) -> bool:
 
 That is the whole mechanism, `_call` being the one line that holds an instance-assigned handler to the async rule
 below. **A handler is an `async def on_*`, or an instance attribute of the same name, taking one argument and
-returning a bool** — which is what `Widget.on_key` and `Application.on_mouse` already are, so a signal
+returning a bool** — which is what `Widget.on_key` and `Application.on_mouse_click` already are, so a signal
 introduces no second convention for handlers, no second one for consumption, and no new kind of object. A widget
 emits something by declaring an `Event` subclass and calling the one method.
 
 ### The handler name is read off the event class, not invented
 
 `Event` gains a `handler` class attribute, derived from the class name at class creation: strip a trailing `Event`,
-snake-case what is left, prefix `on_`. **The rule was not chosen, it was measured** — the four events that exist
-already obey it, and so does the one that is never dispatched:
+snake-case what is left, prefix `on_`. **The rule was not chosen, it was measured** — every event that existed when
+it was written down already obeyed it, the one that is never dispatched included:
 
-| event            | derived     | today                             |
-|------------------|-------------|-----------------------------------|
-| `KeyEvent`       | `on_key`    | `Widget.on_key`, `Application.on_key`     |
-| `MouseEvent`     | `on_mouse`  | `Widget.on_mouse`, `Application.on_mouse` |
-| `ResizeEvent`    | `on_resize` | `Application.on_resize`                   |
-| `PasteEvent`     | `on_paste`  | `Application.on_paste`                    |
-| `WakeEvent`      | `on_wake`   | never dispatched                          |
+| event              | derived          | today                                                    |
+|--------------------|------------------|----------------------------------------------------------|
+| `KeyEvent`         | `on_key`         | `Widget.on_key`, `Application.on_key`                    |
+| `MouseClickEvent`  | `on_mouse_click` | `Widget.on_mouse_click`, `Application.on_mouse_click`    |
+| `DoubleClickEvent` | `on_double_click`| a widget's, when it wants one                            |
+| `ResizeEvent`      | `on_resize`      | `Application.on_resize`                                  |
+| `PasteEvent`       | `on_paste`       | `Application.on_paste`                                   |
+| `WakeEvent`        | `on_wake`        | never dispatched                                         |
+
+The second row is the one honest exception to "measured": it was `MouseEvent` reaching `on_mouse` when the rule was
+written, and the class was **renamed to `MouseClickEvent` so that `on_mouse_click` would derive** rather than being
+pinned with an explicit `handler`. That is the trade the rule asks for and the right way round — an override would
+have put the first hole in a table whose whole value is that a reader can predict the handler from the class. What it
+costs is that the class name is narrower than the class: a `MouseClickEvent` still carries `action="move"` for a drag
+and `button="wheel_up"` for the wheel, so **the name says click and the type says every mouse action**. The docstring
+says so too, since the name no longer can.
 
 so `ClickEvent` reaches `on_click` and `SelectionChanged` reaches `on_selection_changed` without anything being
 registered anywhere. A class may set `handler` explicitly and is then left alone. **A subclass derives its own name
-rather than inheriting one**: `DoubleClickEvent(MouseEvent)` reaches `on_double_click` and not `on_mouse`, because a
-refinement that arrived at the handler for the thing it refines would be indistinguishable from it, and the widget that
-wanted only the plain event could not say so.
+rather than inheriting one**: `DoubleClickEvent(MouseClickEvent)` reaches `on_double_click` and not `on_mouse_click`,
+because a refinement that arrived at the handler for the thing it refines would be indistinguishable from it, and the
+widget that wanted only the plain event could not say so.
 
 One measured trap, because it costs an hour to find and a line to avoid: **`@dataclass(slots=True)` replaces the class
 it decorates**, so the `__class__` cell a zero-argument `super()` closes over inside `__init_subclass__` names the
@@ -1453,7 +1462,7 @@ case, it is the first line written.
 
 ### Every handler is `async def`, and a synchronous one raises
 
-`Widget.on_key`, `Widget.on_mouse`, `Widget.emit`, both dispatchers, every `Application` hook, and every `on_*` a
+`Widget.on_key`, `Widget.on_mouse_click`, `Widget.emit`, both dispatchers, every `Application` hook, and every `on_*` a
 widget library or an application declares. `_main_loop` awaits `_handle`; the emit walk awaits each handler in turn,
 which is what keeps consumption meaning what it meant.
 
@@ -1500,9 +1509,9 @@ nothing about emitting one event says anything about another.
 
 ### What belongs in `navkit/events.py`, and what does not
 
-**Only events navkit itself raises**: `KeyEvent`, `MouseEvent`, `ResizeEvent` and `PasteEvent` come from the terminal,
-and `WakeEvent` from the loop. A `ClickEvent` does not belong here however generally useful it sounds, because a click
-is something a *widget* means and navkit has no widgets beyond the base class.
+**Only events navkit itself raises**: `KeyEvent`, `MouseClickEvent`, `ResizeEvent` and `PasteEvent` come from the
+terminal, and `WakeEvent` from the loop. A `ClickEvent` does not belong here however generally useful it sounds,
+because a click is something a *widget* means and navkit has no widgets beyond the base class.
 
 The boundary is the layering rule read at the level of one module, and it is what the deleted `MountEvent` was already
 straining: navkit knew what it meant, but nothing in navkit ever emitted it. The widget library declares its own,
@@ -1628,11 +1637,11 @@ because the cell is the only answer navkit can give and it is the right default.
 
 ### The dispatch had to learn to read `event.handler`
 
-*The handler name is read off the event class* promised that `DoubleClickEvent(MouseEvent)` reaches `on_double_click`
-and not `on_mouse`. **It was not true when it was written.** `Widget.dispatch_mouse` ended in
-`await self.on_mouse(local)`, and `Application._handle` matched `isinstance(event, MouseEvent)` and called
-`self.on_mouse(event)` — so the one worked example in this file would have gone to the very handler it was the example
-of not going to. Both now look the handler up the way `emit` already did:
+*The handler name is read off the event class* promised that `DoubleClickEvent(MouseClickEvent)` reaches
+`on_double_click` and not `on_mouse_click`. **It was not true when it was written.** `Widget.dispatch_mouse` ended in
+`await self.on_mouse_click(local)`, and `Application._handle` matched `isinstance(event, MouseClickEvent)` and called
+`self.on_mouse_click(event)` — so the one worked example in this file would have gone to the very handler it was the
+example of not going to. Both now look the handler up the way `emit` already did:
 
 ```python
 handler = getattr(self, event.handler, None)
@@ -1641,33 +1650,34 @@ return handler is not None and await _call(self, local, handler)
 
 Four consequences, none of which needed anything else written:
 
-- **A plain `MouseEvent` is unchanged.** `Widget.on_mouse` and `Application.on_mouse` are defined on the base classes,
-  so the lookup always finds them and the call is the one that was always made. It *gains* the instance-handler async
-  check `_call` carries, which *Every handler is `async def`* above already claimed both dispatch walks had and which
-  only `emit` actually did.
+- **A plain `MouseClickEvent` is unchanged.** `Widget.on_mouse_click` and `Application.on_mouse_click` are defined
+  on the base classes, so the lookup always finds them and the call is the one that was always made. It *gains* the
+  instance-handler async check `_call` carries, which *Every handler is `async def`* above already claimed both
+  dispatch walks had and which only `emit` actually did.
 - **A widget defining no `on_double_click` is skipped, and skipped already means unclaimed** — so the event falls
   outward to an overlapping sibling and then to an ancestor, exactly as an unhandled press does, and no widget needs a
   stub. The same property `emit` has for the same reason.
 - **Modal routing cost nothing.** `translated()` rebuilds through `dataclasses.replace`, which keeps the subclass, so
   `_dispatch_mouse` reroutes a double-click into the modal's parent's frame and drops one landing outside it without
   knowing the class exists.
-- **`isinstance(event, MouseEvent)` is true of it** — relied on in `_handle`'s branch chain, and a trap anywhere that
-  meant only a plain mouse action. That is the price of the subclass and it is the right price: a standalone class
-  would have needed a duplicate of every field, a duplicate `translated()`, and a second positional-routing path.
+- **`isinstance(event, MouseClickEvent)` is true of it** — relied on in `_handle`'s branch chain, and a trap
+  anywhere that meant only a plain mouse action. That is the price of the subclass and it is the right price: a
+  standalone class would have needed a duplicate of every field, a duplicate `translated()`, and a second
+  positional-routing path.
 
-Refused: **a `clicks: int = 1` field on `MouseEvent`**. It is the cheapest option mechanically, needing no routing
-change at all, and it is the case *The handler name is read off the event class* already refuses — "a refinement that
-arrived at the handler for the thing it refines would be indistinguishable from it, and the widget that wanted only
-the plain event could not say so". A field is opt-*out*: every `on_mouse` acting on a press would act twice, silently,
-until its author noticed a field they had never heard of.
+Refused: **a `clicks: int = 1` field on `MouseClickEvent`**. It is the cheapest option mechanically, needing no
+routing change at all, and it is the case *The handler name is read off the event class* already refuses — "a
+refinement that arrived at the handler for the thing it refines would be indistinguishable from it, and the widget
+that wanted only the plain event could not say so". A field is opt-*out*: every `on_mouse_click` acting on a press
+would act twice, silently, until its author noticed a field they had never heard of.
 
 ### Additive, and inline
 
 **The second press is still delivered.** Suppressing it needs no deferral — the count is known *at* press two — so it
 is the serious alternative, and it loses because it takes input away from code that never asked for the feature:
-`Navigator.on_mouse` would stop moving the cursor onto the row it was clicked on, and a double-clicked `Button` would
-fire one `ClickEvent` instead of two. A facility is not added to a kit by changing the contract of the stream every
-existing widget is written against.
+`Navigator.on_mouse_click` would stop moving the cursor onto the row it was clicked on, and a double-clicked `Button`
+would fire one `ClickEvent` instead of two. A facility is not added to a kit by changing the contract of the stream
+every existing widget is written against.
 
 **Deferring the press until a timer expires is refused harder.** `ESCAPE_TIMEOUT` can spend 50ms because a lone `ESC`
 is genuinely undecidable until then — there is no correct thing to do with it meanwhile. A press is a press whatever
@@ -1690,9 +1700,9 @@ navkit manufactures. The cost is that an `on_event` swallowing the press swallow
 `on_event` being the outermost door and not a special case.
 
 **The count is taken from the press before it is delivered, and regardless of who consumes it.** Whether a widget
-claimed a press says nothing about whether the user clicked twice — and `Navigator.on_mouse` returns True for every
-press inside a panel, so the other choice would have made the feature unreachable in the only application here. A
-`DoubleClickEvent` is never counted as a press, which is what bounds the recursion at one level.
+claimed a press says nothing about whether the user clicked twice — and `Navigator.on_mouse_click` returns True for
+every press inside a panel, so the other choice would have made the feature unreachable in the only application here.
+A `DoubleClickEvent` is never counted as a press, which is what bounds the recursion at one level.
 
 ### What the detector keys on
 

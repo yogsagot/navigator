@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pytest
 
 from navkit.application import Application
-from navkit.events import DoubleClickEvent, Event, KeyEvent, MouseEvent
+from navkit.events import DoubleClickEvent, Event, KeyEvent, MouseClickEvent
 from navkit.reactive import bind, effect, flush_effects
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
@@ -127,7 +127,7 @@ def test_mouse_goes_to_the_widget_under_the_pointer():
     parent = RecordingWidget(width=10, height=10)
     left = parent.add(RecordingWidget(x=0, width=5, height=10))
     right = parent.add(RecordingWidget(x=5, width=5, height=10))
-    awaited(parent.dispatch_mouse(MouseEvent(7, 2, "left")))
+    awaited(parent.dispatch_mouse(MouseClickEvent(7, 2, "left")))
     # Column 7 of the parent is column 2 of the right-hand child.
     assert right.mice == [(2, 2)]
     assert left.mice == []
@@ -136,7 +136,7 @@ def test_mouse_goes_to_the_widget_under_the_pointer():
 def test_mouse_outside_every_child_lands_on_the_parent():
     parent = RecordingWidget(width=10, height=10)
     child = parent.add(RecordingWidget(x=0, width=2, height=2))
-    awaited(parent.dispatch_mouse(MouseEvent(8, 8, "left")))
+    awaited(parent.dispatch_mouse(MouseClickEvent(8, 8, "left")))
     assert child.mice == []
     assert parent.mice == [(8, 8)]
 
@@ -144,7 +144,7 @@ def test_mouse_outside_every_child_lands_on_the_parent():
 def test_default_widget_handles_nothing():
     widget = Widget()
     assert awaited(widget.on_key(KeyEvent("a"))) is False
-    assert awaited(widget.on_mouse(MouseEvent(0, 0))) is False
+    assert awaited(widget.on_mouse_click(MouseClickEvent(0, 0))) is False
 
 
 def test_application_is_none_outside_a_running_app():
@@ -246,7 +246,7 @@ def test_a_mouse_position_is_relative_to_the_widget_that_handles_it():
     root = RecordingWidget(width=10, height=6)
     middle = root.add(RecordingWidget(x=3, y=1, width=6, height=4))
     leaf = middle.add(RecordingWidget(x=2, y=1, width=2, height=2))
-    awaited(root.dispatch_mouse(MouseEvent(6, 3, "left")))
+    awaited(root.dispatch_mouse(MouseClickEvent(6, 3, "left")))
     assert leaf.mice == [(1, 1)]  # 6 - 3 - 2 across, 3 - 1 - 1 down
 
 
@@ -371,7 +371,7 @@ def test_a_mouse_press_can_be_turned_into_an_emitted_event_without_focus():
     # The whole of a mouse-driven button, with no focus notion in navkit:
     # dispatch_mouse routes by position, the widget emits from there.
     class Button(Listener):
-        async def on_mouse(self, event: MouseEvent) -> bool:
+        async def on_mouse_click(self, event: MouseClickEvent) -> bool:
             if event.action == "press":
                 return await self.emit(ClickEvent(self.name))
             return False
@@ -379,7 +379,7 @@ def test_a_mouse_press_can_be_turned_into_an_emitted_event_without_focus():
     root = Listener("root", width=40, height=10)
     box = root.add(Listener("box", x=4, y=2, width=20, height=4))
     button = box.add(Button("ok", x=1, y=1, width=8, height=1))
-    awaited(root.dispatch_mouse(MouseEvent(5, 3, "left", "press")))
+    awaited(root.dispatch_mouse(MouseClickEvent(5, 3, "left", "press")))
     assert button.heard == ["ok"]
     assert box.heard == ["ok"]
     assert root.heard == ["ok"]
@@ -798,7 +798,7 @@ def test_a_modal_with_nothing_focusable_absorbs_the_keys_itself():
 def test_a_click_outside_a_modal_reaches_nothing():
     app, root, behind, dialog = modal_app()
     app.overlay(dialog)
-    awaited(app._handle(MouseEvent(2, 8, "left")))
+    awaited(app._handle(MouseClickEvent(2, 8, "left")))
     assert behind.mice == []
     assert root.mice == []
     assert dialog.mice == []
@@ -808,7 +808,7 @@ def test_a_click_inside_a_modal_arrives_in_its_own_coordinates():
     app, root, behind, dialog = modal_app()
     app.overlay(dialog)
     # The dialog sits at 10, 3; screen 12, 4 is its own 2, 1.
-    awaited(app._handle(MouseEvent(12, 4, "left")))
+    awaited(app._handle(MouseClickEvent(12, 4, "left")))
     assert dialog.mice == [(2, 1)]
     assert behind.mice == []
 
@@ -819,7 +819,7 @@ def test_a_click_reaches_a_modal_nested_below_the_root():
     box.add(dialog)
     assert dialog.is_mounted and app.modal is dialog
     # box at 4,2 and the dialog at 10,3 within it: screen 15, 6 is its 1, 1.
-    awaited(app._handle(MouseEvent(15, 6, "left")))
+    awaited(app._handle(MouseClickEvent(15, 6, "left")))
     assert dialog.mice == [(1, 1)]
 
 
@@ -960,7 +960,7 @@ def test_a_widget_may_still_define_an_ordinary_method_called_on_something():
 #
 # `dispatch_mouse' looks the handler up under `event.handler', the way `emit'
 # does, which is what makes a DoubleClickEvent reach `on_double_click' and
-# nothing else.  A plain MouseEvent derives `on_mouse', so that path is the
+# nothing else.  A plain MouseClickEvent derives `on_mouse_click', so that path is the
 # one it always was.
 
 
@@ -977,11 +977,11 @@ class Clickable(Widget):
         if doubles:
             self.on_double_click = self._on_double_click  # type: ignore[method-assign]
 
-    async def on_mouse(self, event: MouseEvent) -> bool:
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         self.presses.append(self.name)
         return self.claims
 
-    async def _on_double_click(self, event: MouseEvent) -> bool:
+    async def _on_double_click(self, event: MouseClickEvent) -> bool:
         self.doubles.append(self.name)
         return self.claims
 
@@ -996,7 +996,7 @@ def test_a_double_click_reaches_on_double_click_and_not_on_mouse():
 
 def test_a_plain_press_is_unaffected_by_the_handler_lookup():
     root = Clickable("root", doubles=True, width=40, height=10)
-    awaited(root.dispatch_mouse(MouseEvent(1, 1, "left", "press")))
+    awaited(root.dispatch_mouse(MouseClickEvent(1, 1, "left", "press")))
 
     assert root.presses == ["root"]
     assert root.doubles == []

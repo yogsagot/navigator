@@ -17,7 +17,7 @@ import tty
 from typing import IO
 
 from navkit.capabilities import TerminalInfo
-from navkit.events import Event, KeyEvent, MouseEvent, PasteEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 
 ALT_SCREEN_ON = "\x1b[?1049h"
 ALT_SCREEN_OFF = "\x1b[?1049l"
@@ -319,7 +319,7 @@ def _mouse_event(body: bytes, terminator: str) -> Event | None:
     else:
         button = _MOUSE_BUTTONS.get(code & 3, "none")
         action = "release" if terminator == "m" else "press"
-    return MouseEvent(
+    return MouseClickEvent(
         x=column - 1,
         y=row - 1,
         button=button,

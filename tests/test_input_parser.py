@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from navkit.events import KeyEvent, MouseEvent, PasteEvent
+from navkit.events import KeyEvent, MouseClickEvent, PasteEvent
 from navkit.terminal import InputParser
 
 
@@ -127,7 +127,7 @@ def test_unknown_sequence_is_dropped_not_replayed(parser):
 )
 def test_mouse_reports(parser, data, expected):
     (event,) = parser.feed(data)
-    assert isinstance(event, MouseEvent)
+    assert isinstance(event, MouseClickEvent)
     assert (event.x, event.y, event.button, event.action) == expected
 
 

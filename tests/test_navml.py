@@ -33,7 +33,7 @@ import pytest
 
 import navml
 import navml.widgets
-from navkit.events import KeyEvent, MouseEvent, emitted
+from navkit.events import KeyEvent, MouseClickEvent, emitted
 from navkit.reactive import declarations
 from navkit.stylesheet import parse
 from navkit.widget import Widget
@@ -577,7 +577,7 @@ def test_a_mouse_press_reaches_the_same_handler_as_the_keys():
         return True
 
     button.on_click = on_click
-    assert awaited(button.on_mouse(MouseEvent(0, 0, "left", "press"))) is True
+    assert awaited(button.on_mouse_click(MouseClickEvent(0, 0, "left", "press"))) is True
     assert len(seen) == 1
 
 
