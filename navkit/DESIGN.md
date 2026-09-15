@@ -1050,6 +1050,143 @@ subclassed outside this module stays bindable — which is the extension point a
 described. `peek()` still takes either, because reading a derived value without subscribing to it is a legitimate
 thing to ask of a computed.
 
+## Announcing: a widget event walks up
+
+**Written**, and decided ahead of the code because `navml/DESIGN.md` had written its handler rules against it —
+*A handler body is one line* and *The handler's one argument is `event`* — and *What the widget library needs first*
+below said the two halves had to be settled together. This is navkit's half: `Event.handler` in `navkit/events.py`,
+`Widget.announce()` in `navkit/widget.py`, and one fallback branch in `Application._handle`.
+
+`Widget.announce(event)` offers the event to the widget itself, then to each of its ancestors in turn, then to the
+application, and stops at the first handler that returns `True`:
+
+```python
+def announce(self, event: Event) -> bool:
+    """Offer *event* to this widget, then to its ancestors, then to the application."""
+    widget: Widget | None = self
+    while widget is not None:
+        handler = getattr(widget, event.handler, None)
+        if handler is not None and handler(event):
+            return True
+        widget = widget.parent
+    app = self.application
+    if app is not None:
+        handler = getattr(app, event.handler, None)
+        if handler is not None and handler(event):
+            return True
+    return False
+```
+
+That is the whole mechanism. **A handler is an `on_*` method, or an instance attribute of the same name, taking one
+argument and returning a bool** — which is what `Widget.on_key` and `Application.on_mouse` already are, so a signal
+introduces no second convention for handlers, no second one for consumption, and no new kind of object. A widget
+announces something by declaring an `Event` subclass and calling the one method.
+
+### The handler name is read off the event class, not invented
+
+`Event` gains a `handler` class attribute, derived from the class name at class creation: strip a trailing `Event`,
+snake-case what is left, prefix `on_`. **The rule was not chosen, it was measured** — the four events that exist
+already obey it, and so does the one that is never dispatched:
+
+| event            | derived     | today                             |
+|------------------|-------------|-----------------------------------|
+| `KeyEvent`       | `on_key`    | `Widget.on_key`, `Application.on_key`     |
+| `MouseEvent`     | `on_mouse`  | `Widget.on_mouse`, `Application.on_mouse` |
+| `ResizeEvent`    | `on_resize` | `Application.on_resize`                   |
+| `PasteEvent`     | `on_paste`  | `Application.on_paste`                    |
+| `WakeEvent`      | `on_wake`   | never dispatched                          |
+
+so `ClickEvent` reaches `on_click` and `SelectionChanged` reaches `on_selection_changed` without anything being
+registered anywhere. A class may set `handler` explicitly and is then left alone. **A subclass derives its own name
+rather than inheriting one**: `DoubleClickEvent(MouseEvent)` reaches `on_double_click` and not `on_mouse`, because a
+refinement that arrived at the handler for the thing it refines would be indistinguishable from it, and the widget that
+wanted only the plain event could not say so.
+
+One measured trap, because it costs an hour to find and a line to avoid: **`@dataclass(slots=True)` replaces the class
+it decorates**, so the `__class__` cell a zero-argument `super()` closes over inside `__init_subclass__` names the
+*pre-slots* class, and every subclass then fails to be created with
+`TypeError: super(type, obj): obj must be an instance or subtype of type`. Spelling it `super(Event, cls)` resolves the
+global at call time and works. Every event in `navkit/events.py` is `frozen=True, slots=True`, so this is not a corner
+case, it is the first line written.
+
+### Why synchronous, and not through the queue
+
+`post_event` exists and an announcement could have gone through it. It does not, for three reasons and at one cost:
+
+- **The return value is the protocol.** A queued event's answer goes nowhere, and consumption is what `dispatch_key`
+  already means by `True` — and what navml made load-bearing when it settled that a markup handler always consumes.
+- **The batching that matters happens at the frame, not at the queue.** The loop dispatches a whole batch, flushes the
+  effects it queued and paints once; a handler that changes reactive state during dispatch is already inside that
+  batch. So queueing an announcement would buy none of the coalescing the queue exists for.
+- **Cause and effect stay adjacent.** A queued announcement is handled after everything else the terminal has delivered
+  in the meantime, so the press and its consequence would be separated by whatever arrived between them — for no gain,
+  since both land in the same frame either way.
+
+The cost is that a handler which announces back into its own emitter recurses. That is the author's cycle rather than
+the mechanism's, and the stack names every frame of it; the same cycle through the queue would spin the loop forever
+and leave no trace of where it started.
+
+### Why up, and what the application sees
+
+Input travels **down** because the user pointed at a place, or at what focus will eventually designate. An announcement
+travels **up** because it already knows its sender and does not know its audience. So the application sees input
+*before* the tree and announcements *after* it, which is the same asymmetry read from the other end.
+
+`Application.on_event` is **not** offered an announcement. Its contract is to intercept an event before the widgets get
+it, and an announcement reaching the application has already passed every widget that could have claimed it; the named
+hook is offered instead.
+
+**The emitter is offered its own event first.** Without that a component could not handle what it itself raises, which
+is exactly what markup writes — `on_click:` sits on the `Button:` block that announces it. And it agrees with the two
+notes' other precedence rules: `dispatch_key` offers a key innermost-first, and navml resolves a bare name to the
+widget's own property before anything else. The most specific claim wins in all three.
+
+### One handler per widget per event
+
+A slot, not a list. `w.on_click = handler` is the whole of connecting, and there is no `connect()`, no
+`disconnect()` and no `Signal` object.
+
+- **Bubbling already covers the second listener.** The usual reason for a listener list is that two objects care, and
+  here the second one is an ancestor, which the walk reaches anyway.
+- **A list would need a disconnect story navkit does not have.** `Effect.dispose()` exists and nothing calls it, and
+  `remove()` sets `parent = None` and stops — *Mount and unmount* below. A listener list would add a second kind of
+  reference held across a detach, on top of the one already unresolved.
+- **Markup assigns.** navml's generator emits `self.b.on_click = _on_click`; a list would need a different spelling
+  there for no benefit the walk does not already give.
+
+**The one hazard is a precedence inversion, and it is worth stating plainly.** An instance attribute beats a class
+method, so a handler assigned onto the instance wins over one defined on the class. For a component written as both
+halves that is backwards: `button.py`'s `def on_click` is on the *derived* class, which wins everywhere else in the
+language, and the generated `__init__`'s assignment silently beats it. navkit cannot catch this — the assignment is
+legal and the two names are equal — so it is navml's to catch when the document is compiled, with the same
+`ast.parse` of the sibling `.py` *without importing it* that `navml/DESIGN.md` already proposes under *Name
+resolution* for reactive declarations that only the Python half declares.
+
+### What it cost `Application`
+
+One fix, small and owed anyway: `_handle` dispatched only the four types it knew, so an event posted with `post_event`
+reached `on_event` and then nothing. It now falls back to `event.handler`, so `post_event(TickEvent())` reaches
+`Application.on_tick`. There are then three paths and each has a reason: input arrives from outside and goes **down**;
+a widget's own event goes **up**; a posted event has no sender in the tree and stops at the application.
+
+**One edge came out of writing it**, and it is the reason the fallback is four lines rather than two: a bare `Event`
+derives `on_event`, which `_handle` has *already* offered every event to at the top — so the fallback called the same
+hook a second time, measured at two calls for one `post_event(Event())`. The guard compares the bound method rather
+than the name, which also covers an event class that names `on_event` deliberately.
+
+### What the tests pin
+
+`tests/test_widget.py` holds the walk and `tests/test_events.py` the naming. Four of them are pinning a decision rather
+than an implementation, and should be read as the decision: the emitter is offered its own event before its ancestors;
+a handler returning `True` stops the walk where it stands; `Application.on_event` is **not** offered an announcement;
+and a widget with no parent and no application announces into nothing and returns `False` rather than raising. A fifth
+pins the derivation against the four events that predate it, so a renamed hook cannot drift from the class it serves.
+
+The last one is the useful one: **a mouse press is turned into an announcement with no focus notion anywhere**, which
+is a whole mouse-driven button in twelve lines of test, and it corrects the build order below. `dispatch_mouse` already
+routes by position, so announcing never needed focus. What waits for focus is a button driven by the *keyboard*, which
+is a different sentence than the one that list was making.
+
 ## Still open
 
 - What `Application.background` becomes. It clears the buffer each frame and already duplicates what `Manager.render`
@@ -1079,13 +1216,14 @@ order to build them:
    until one returns True — a positional lottery that works only because nothing yet competes for a key. The application
    sidesteps it entirely: `Navigator.on_key` is one central `if/elif` chain over a hand-rolled `Panel.active` bool, and
    `Manager.active_panel`
-   is what a focused widget would otherwise be. Everything below depends on this one.
-2. **Signals.** A widget cannot announce anything. `Application.post_event` accepts any `Event`, but `_handle`
-   dispatches only the four types it knows, so a user-defined event is queued and dropped; `ResizeEvent` and
-   `PasteEvent` never reach a widget at all. Reactive attributes plus
-   `effect()` are the current substitute and are the right one for *state* — a signal is for the thing that has no
-   state, "this button was pressed". `navml/DESIGN.md` lists the markup half of this as open, and the two have to be
-   settled together.
+   is what a focused widget would otherwise be. (4) depends on this one; (2) and (3) turned out not to — see
+   *Announcing: a widget event walks up* above, where a nested button takes a mouse press by position with no focus
+   anywhere in the picture.
+2. **Signals — done.** `Widget.announce()`, `Event.handler` and the `_handle` fallback are written and tested;
+   *Announcing: a widget event walks up* above is the whole of the reasoning, and `navml/DESIGN.md` has the markup half
+   it had to be settled with. Reactive attributes plus `effect()` stay the right answer for *state*; a signal is for
+   the thing that has no state, "this button was pressed". Of the two events that still never reach a widget,
+   `ResizeEvent` is answered by `layout()` already and `PasteEvent` is waiting on focus rather than on this.
 3. **Mount and unmount.** `add()` appends and invalidates but never calls `layout()` on the new child, so a widget added
    while the application is running is 0x0 until the next resize unless every one of its sizes is bound — a dialog
    opened at run time silently paints nothing.

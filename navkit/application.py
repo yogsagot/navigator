@@ -268,6 +268,17 @@ class Application:
                 self.on_resize(event)
             elif isinstance(event, PasteEvent):
                 self.on_paste(event)
+            else:
+                # Anything posted that the four branches above do not know.
+                # It has no sender in the widget tree -- nobody announced it --
+                # so it stops here, at the hook its own class names.  A widget's
+                # event goes the other way, through ``Widget.announce``.
+                handler = getattr(self, event.handler, None)
+                # A bare ``Event`` derives ``on_event``, which every event has
+                # already been offered to above; the hooks are only distinct
+                # when the names are.
+                if handler is not None and handler != self.on_event:
+                    handler(event)
         except Exception:
             self.exit()
             raise

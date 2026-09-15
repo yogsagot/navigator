@@ -1,9 +1,11 @@
-"""The widget tree: parenting, geometry and event dispatch."""
+"""The widget tree: parenting, geometry, event dispatch and announcements."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from navkit.application import Application
-from navkit.events import KeyEvent, MouseEvent
+from navkit.events import Event, KeyEvent, MouseEvent
 from navkit.reactive import bind
 from navkit.screen import ScreenBuffer
 from navkit.style import Style
@@ -225,3 +227,133 @@ def test_a_mouse_position_is_relative_to_the_widget_that_handles_it():
     leaf = middle.add(RecordingWidget(x=2, y=1, width=2, height=2))
     root.dispatch_mouse(MouseEvent(6, 3, "left"))
     assert leaf.mice == [(1, 1)]  # 6 - 3 - 2 across, 3 - 1 - 1 down
+
+
+# -- announcing ------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class ClickEvent(Event):
+    """A widget's own event, of the kind a button would raise."""
+
+    label: str = ""
+
+
+class Listener(Widget):
+    """Records the clicks it is offered, and claims them on request."""
+
+    def __init__(self, name: str, claims: bool = False, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.heard: list[str] = []
+        self.claims = claims
+
+    def on_click(self, event: ClickEvent) -> bool:
+        self.heard.append(event.label)
+        return self.claims
+
+
+def test_an_announcement_starts_at_the_widget_that_made_it():
+    root = Listener("root")
+    box = root.add(Listener("box"))
+    button = box.add(Listener("button"))
+    assert button.announce(ClickEvent("ok")) is False
+    assert (button.heard, box.heard, root.heard) == (["ok"], ["ok"], ["ok"])
+
+
+def test_a_claimed_announcement_stops_where_it_was_claimed():
+    root = Listener("root")
+    box = root.add(Listener("box", claims=True))
+    button = box.add(Listener("button"))
+    assert button.announce(ClickEvent("ok")) is True
+    assert button.heard == ["ok"]
+    assert box.heard == ["ok"]
+    assert root.heard == []
+
+
+def test_the_widget_that_announces_gets_first_refusal():
+    # What markup compiles to: the handler sits on the block that raises it.
+    root = Listener("root")
+    button = root.add(Listener("button", claims=True))
+    button.announce(ClickEvent("ok"))
+    assert root.heard == []
+
+
+def test_a_handler_may_be_assigned_onto_the_instance():
+    # The shape navml's generated __init__ emits: a one-argument callable
+    # under the event's handler name, shadowing whatever the class defines.
+    root = Widget()
+    button = root.add(Widget())
+    seen = []
+    button.on_click = lambda event: seen.append(event.label) or True
+    assert button.announce(ClickEvent("ok")) is True
+    assert seen == ["ok"]
+
+
+def test_a_widget_declaring_no_handler_is_skipped():
+    # A new event type needs no stub on Widget, or anywhere else.
+    root = Widget()
+    middle = root.add(Widget())
+    button = middle.add(Listener("button"))
+    assert button.announce(ClickEvent("ok")) is False
+    assert button.heard == ["ok"]
+
+
+def test_a_detached_widget_announces_into_nothing():
+    loose = Listener("loose")
+    assert loose.announce(ClickEvent("ok")) is False
+    assert loose.heard == ["ok"]
+
+
+def test_an_announcement_reaches_the_application_after_the_tree():
+    class Watching(Application):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.heard: list[str] = []
+
+        def on_click(self, event: ClickEvent) -> bool:
+            self.heard.append(event.label)
+            return True
+
+    root = Listener("root")
+    button = root.add(Listener("button"))
+    app = Watching(root=root)
+    assert button.announce(ClickEvent("ok")) is True
+    assert root.heard == ["ok"]
+    assert app.heard == ["ok"]
+
+
+def test_the_application_on_event_hook_does_not_see_an_announcement():
+    # on_event exists to intercept an event *before* the widgets; an
+    # announcement has already passed every one of them.
+    class Watching(Application):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.intercepted: list[object] = []
+
+        def on_event(self, event) -> bool:
+            self.intercepted.append(event)
+            return True
+
+    root = Listener("root")
+    app = Watching(root=root)
+    root.announce(ClickEvent("ok"))
+    assert app.intercepted == []
+
+
+def test_a_mouse_press_can_be_turned_into_an_announcement_without_focus():
+    # The whole of a mouse-driven button, with no focus notion in navkit:
+    # dispatch_mouse routes by position, the widget announces from there.
+    class Button(Listener):
+        def on_mouse(self, event: MouseEvent) -> bool:
+            if event.action == "press":
+                return self.announce(ClickEvent(self.name))
+            return False
+
+    root = Listener("root", width=40, height=10)
+    box = root.add(Listener("box", x=4, y=2, width=20, height=4))
+    button = box.add(Button("ok", x=1, y=1, width=8, height=1))
+    root.dispatch_mouse(MouseEvent(5, 3, "left", "press"))
+    assert button.heard == ["ok"]
+    assert box.heard == ["ok"]
+    assert root.heard == ["ok"]

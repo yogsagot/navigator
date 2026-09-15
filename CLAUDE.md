@@ -12,11 +12,14 @@ their geometry to the desktop and derive their listing from a path rather than b
 half — and four example components exercising it, one per shape. The markup language itself, its parser and its code
 generator are still unwritten, so the four `*_nml.py` files are hand-written stand-ins for what the generator will
 emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
-included. What it does *not* have is the interaction layer a widget library needs — there is no focus notion, no signal
-or custom-event mechanism, no mount/unmount lifecycle and no modal or overlay support — and each of those blocks buttons
-and dialogs rather than the markup language. Decisions taken ahead of the code live in two design notes, and are where
-the next one belongs: `navml/DESIGN.md` for the markup language, `navkit/DESIGN.md` for the core, whose *Still open*
-section names what is left.
+included. What it does *not* have is the interaction layer a widget library needs — there is no focus notion, no
+mount/unmount lifecycle and no modal or overlay support — and each of those blocks buttons and dialogs rather than the
+markup language. **Signals are done**: `Widget.announce(event)` walks the event from the widget that raised it up
+through its ancestors to the application, stopping at the first handler that returns True, and an event class names its
+own handler (`Event.handler`, derived from the class name — `ClickEvent` reaches `on_click`). `navkit/DESIGN.md`'s
+*Announcing: a widget event walks up* records why each part of it went that way.
+Decisions taken ahead of the code live in two design notes, and are where the next one belongs: `navml/DESIGN.md` for
+the markup language, `navkit/DESIGN.md` for the core, whose *Still open* section names what is left.
 
 There is no lint tooling configured yet. When adding one, record the command here. Packaging is setuptools via
 `pyproject.toml`: `./venv/bin/python -m build` (needs `pip install build`, and setuptools 77+ for the PEP 639

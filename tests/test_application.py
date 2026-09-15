@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
 
 from navkit.application import Application
-from navkit.events import KeyEvent, MouseEvent, PasteEvent, ResizeEvent
+from navkit.events import Event, KeyEvent, MouseEvent, PasteEvent, ResizeEvent
 from navkit.reactive import effect, peek, reactive
 from navkit.style import Style
 
@@ -308,3 +309,67 @@ def test_an_effect_scheduled_while_the_loop_is_idle_wakes_it(terminal):
     # the scheduler's wake hook can get the parked loop to notice.
     run_app(Application(root, terminal=terminal), [lambda app: setattr(root, "n", 7)])
     assert root.seen == [0, 7]
+
+
+# -- events the loop does not know about -----------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class TickEvent(Event):
+    """An event with no sender in the tree: posted, never announced."""
+
+    n: int = 0
+
+
+def test_a_posted_event_reaches_the_hook_its_class_names(terminal):
+    class Ticking(Application):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.ticks: list[int] = []
+
+        def on_tick(self, event: TickEvent) -> None:
+            self.ticks.append(event.n)
+
+    app = Ticking(root=RecordingWidget(), terminal=terminal)
+    run_app(app, [TickEvent(1), TickEvent(2)])
+    assert app.ticks == [1, 2]
+
+
+def test_a_posted_event_with_no_hook_is_dropped_quietly(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+    run_app(app, [TickEvent(1)])
+    assert not app.is_running
+
+
+def test_on_event_still_intercepts_an_unknown_event(terminal):
+    class Ticking(Application):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.ticks: list[int] = []
+
+        def on_event(self, event) -> bool:
+            return isinstance(event, TickEvent)
+
+        def on_tick(self, event: TickEvent) -> None:
+            self.ticks.append(event.n)
+
+    app = Ticking(root=RecordingWidget(), terminal=terminal)
+    run_app(app, [TickEvent(1)])
+    assert app.ticks == []
+
+
+def test_a_bare_event_is_offered_to_on_event_once(terminal):
+    # ``Event`` derives the handler name ``on_event``, which every event has
+    # already been offered to before the fallback is reached.
+    class Counting(Application):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.seen = 0
+
+        def on_event(self, event) -> bool:
+            self.seen += 1
+            return False
+
+    app = Counting(root=RecordingWidget(), terminal=terminal)
+    run_app(app, [Event()])
+    assert app.seen == 1

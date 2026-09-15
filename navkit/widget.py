@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
-from navkit.events import KeyEvent, MouseEvent
+from navkit.events import Event, KeyEvent, MouseEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, is_bound, reactive
 from navkit.screen import Surface
@@ -363,6 +363,39 @@ class Widget:
 
     def on_mouse(self, event: MouseEvent) -> bool:
         """Handle a mouse action.  Return True to stop it propagating."""
+        return False
+
+    def announce(self, event: Event) -> bool:
+        """Offer *event* to this widget, its ancestors, then the application.
+
+        The other direction from :meth:`dispatch_key`: input arrives from
+        outside and travels *down* to where the user pointed, while a widget's
+        own event travels *up*, because it knows its sender and not its
+        audience.  The walk stops at the first handler returning True, so the
+        innermost claim on an event wins -- the widget that raised it gets
+        first refusal.
+
+        A handler is anything callable found under ``event.handler``: the
+        ``on_*`` method a widget class defines, or an attribute of that name
+        assigned onto the instance, which is what markup compiles to.  A
+        widget that declares neither is skipped, so a new event type needs no
+        stub anywhere.
+        """
+        widget: Widget | None = self
+        while widget is not None:
+            handler = getattr(widget, event.handler, None)
+            if handler is not None and handler(event):
+                return True
+            widget = widget.parent
+        # The application sees input before the tree and announcements after
+        # it.  Its ``on_event`` hook is deliberately not offered one: that
+        # exists to intercept an event *before* the widgets, and this one has
+        # already passed every widget that could have claimed it.
+        app = self.application
+        if app is not None:
+            handler = getattr(app, event.handler, None)
+            if handler is not None and handler(event):
+                return True
         return False
 
     def dispatch_key(self, event: KeyEvent) -> bool:

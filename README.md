@@ -91,9 +91,9 @@ It contains of three parts:
     - defines a python class code-generator that traverses node graph from parser
     - lets a component be written as markup, as python, or as both -- a widget class generated from `*.nml` and a
       hand-written module of event handlers are two halves of one class, and either half may be absent
-    - keeps an event handler written in markup to a single line taking one argument, always named `event` -- anything
-      longer is a method in the hand-written half that the markup line calls, so a document stays a description of a
-      tree
+    - keeps an event handler written in markup to a single line taking one argument, always named `event`, and always
+      consuming the event it handles -- anything longer, or a handler that lets the event through, is a method in the
+      hand-written half that the markup line calls, so a document stays a description of a tree
     - extends python's import machinery so that one `import` yields the component whichever way it was written, and
       the hand-written half never has to name the generated one
     - defines a rich widget library to handle windows, buttons, menus, labels, etc., defines standard event handlers.
