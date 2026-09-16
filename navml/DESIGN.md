@@ -51,9 +51,38 @@ navml.widgets.button.nml` splits on the dots — so no checker, no IDE and no `p
 hand-written half inherits from, which forecloses the id-annotation question in *Still open*. setuptools' `build_py`
 also globs `*.py` and ships it as a module literally named `button.nml`.
 
-**A component is not a kind of object.** There is no navml base class, no decorator, no metaclass and no registration on
-the class. The Python-only row touches none of this file's machinery at all: an ordinary `navkit.Widget` subclass
-already *is* a component, and giving it a `.nml` later changes not one line of it.
+**A component is not a kind of object, and the mark that is missing is the one on the *class*.** Registration exists,
+twice over, and both times at the granularity the machinery actually asks at: `navml.register(__name__)` per package,
+because the finder is per package, and `__navml_component__` per generated module, because the splice is per module.
+Neither wants a class, and no class carries a navml base, a decorator or a metaclass. `navml/widgets/spacer.py` is the
+proof: `navml/_merge.py` claims that module nowhere at all, an ordinary `navkit.Widget` subclass already *is* a
+component, and giving it a `spacer.nml` later changes not one line of it.
+
+The reason is *Why the hand-written half never names the base*, below, arriving one level up: the three shapes are
+interchangeable only if the Python-only row needs nothing. A marker base would also reach outside this package —
+`Manager`, `Panel` and `Console` in `navigator/__main__.py` would each have to import navml in order to be
+*convertible*, and the plan under *What converting `Manager` needs and does not have* is to compile a `.nml` and check
+the frames still match, with no edit to a class line.
+
+**Two of the four mechanisms do not work, rather than having been declined**, and both were measured:
+
+- **A metaclass is not run by the splice.** `__bases__` assignment does not re-create the class, so after
+  `handwritten.__bases__ = (generated,)` with a metaclass on the generated side, `type(handwritten)` is still `type`,
+  the metaclass's `__new__` never ran for it, and `isinstance(handwritten, Meta)` is **False**. A metaclass would be
+  inert on exactly the half that most wants checking, and a metaclass-based componenthood test would answer *no* for
+  every merged component.
+- **A decorator on the hand-written half sees `(Widget,)`.** It runs at class creation, which is before
+  `RebaseLoader.exec_module` assigns `__bases__` — so it cannot see the generated base, the ids or the markup, and
+  could register a name and nothing else.
+
+**What this does not close is provenance.** *Is this class a component?* and *was this class built from markup, and
+from what?* are different questions, and only the first is refused here. The second has no answer today — `navml build
+--check` compares files and has no run-time route to a stale generated half — and both shapes an answer could take are
+compatible with everything above, because the hand-written half would no more name them than it names the generated
+class: an attribute the generator writes onto the generated class, or a base the **generated** half alone declares
+(`_check_bases` passes on `issubclass(Component, Widget)`, and the merged MRO gains one entry). *Still open* below
+carries it. One thing has to be said wherever it lands: such a test is **asymmetric** — true for a markup component and
+false for a Python-only one — so it answers *built from markup*, and may never be read as *is a component*.
 
 ### Why the generated half is the base
 
@@ -1619,6 +1648,20 @@ question that the *Parts* argument in
   reported even when mypy is pointed at the file. Options are a second pass with the stubs held aside, moving the stubs
   somewhere only an IDE reads, or accepting that handler bodies are covered by tests rather than by a checker. Nothing
   forces a choice yet, because `CLAUDE.md` records that no lint tooling is configured; the day it is, this is waiting.
+- **Whether the generated half gets a base of its own.** Not identity — *The two halves of a component* settles that,
+  and settles it as no — but a home for what every generated module would otherwise repeat. Three things point at one.
+  The emitted `layout()` is `navkit.Widget.layout` minus the recursion into children, because markup places them, so
+  it will be byte-identical in every generated file (`navml/widgets/button_nml.py` has the first copy). Provenance has
+  nowhere else to live, and with it `navml build --check` would gain a run-time route to a stale generated half rather
+  than only a file comparison. And, if they land that way, declared component parameters need something to interpret
+  them at construction and a component-owned `_stylesheet` is a class-level fact — the two blockers still open under
+  *What converting `Manager` needs and does not have*. Three things argue against settling it now. `_is_a` matches a
+  type selector by class **name** walking the MRO, so the class's name becomes a live `.nss` selector matching every
+  markup-built widget, and would have to be chosen deliberately rather than underscored away — underscoring the
+  generator's binding does not hide `__name__`. *A bare head, and why nothing is reserved* would need a footnote,
+  since `Label:` would then compile to `_Component` and be "extends `Widget`" only one step removed. And every
+  `*_nml.py` in the tree is a hand-written stand-in, so the boilerplate the first argument rests on is asserted and
+  not yet observed. The parser does not block on this. The generator does.
 
 ### Appendix: the transformer
 
