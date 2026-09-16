@@ -3,9 +3,10 @@
 There is no ``spacer.nml`` and no ``spacer_nml.py``, so :mod:`navml._merge`
 claims nothing here and the stock :class:`importlib.machinery.SourceFileLoader`
 imports this module.  That is the point of it: an ordinary
-:class:`navkit.Widget` subclass already *is* a component, with no base class of
-navml's, no decorator and no registration.  Adding a ``spacer.nml`` later would
-not change one line of this file.
+:class:`navkit.Widget` subclass already *is* a component, carrying no mark of
+navml's on the class -- no base, no decorator, no metaclass and no
+registration.  Adding a ``spacer.nml`` later would not change one line of this
+file.
 """
 
 from __future__ import annotations
