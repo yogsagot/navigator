@@ -11,13 +11,13 @@ from typing import Any as _Any
 
 from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.screen import Surface
-from navkit.widget import Widget as _Widget
 
+from navml.component import Component as _Component
 from navml.widgets.label import Label
 
 class ClickEvent(Event): ...
 
-class Button(_Widget):
+class Button(_Component):
     text: str
     caption: Label
     emits: tuple[type[Event], ...]
@@ -26,5 +26,4 @@ class Button(_Widget):
     async def press(self) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...
     async def on_mouse_click(self, event: MouseClickEvent) -> bool: ...
-    def layout(self, width: int, height: int) -> None: ...
     def render(self, surface: Surface) -> None: ...

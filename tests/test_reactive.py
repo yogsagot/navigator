@@ -11,8 +11,10 @@ import pytest
 
 from navkit.reactive import (
     UNKNOWN,
+    Binding,
     Computed,
     CycleError,
+    Declaration,
     Reactive,
     ReactiveError,
     ReactiveTypeError,
@@ -970,3 +972,83 @@ def test_unknown_is_not_any():
     # An answer and the absence of one, kept apart for a consumer that cares.
     assert UNKNOWN is not Any
     assert repr(UNKNOWN) == "UNKNOWN"
+
+
+# -- a binding whose owner is fixed -------------------------------------------
+#
+# `bind()' calls an expression with the object that owns the attribute, and
+# there is one place where the owner and the object the expression was written
+# against are not the same: an attribute that forwards to another widget's.
+# `Binding.owned_by' is what the markup layer's alias descriptor re-wraps with
+# -- see *A binding through an alias is re-owned* in navml/DESIGN.md -- and it
+# lives here rather than there because the convention it bends is navkit's.
+
+
+class Source:
+    width: int = reactive(10)
+
+
+class Target:
+    width: int = reactive(99)
+    label: str = reactive("")
+
+
+def test_owned_by_calls_the_expression_with_the_owner_it_was_given():
+    """Without it the expression is handed the *target*, which has a ``width``
+    of its own -- so nothing raises and the wrong number is computed for ever.
+    """
+    source, target = Source(), Target()
+    target.label = bind(lambda w: f"{w.width}").owned_by(source)
+    assert target.label == "10"
+
+
+def test_owned_by_keeps_following_the_object_it_was_fixed_to():
+    source, target = Source(), Target()
+    target.label = bind(lambda w: f"{w.width}").owned_by(source)
+    source.width = 20
+    assert target.label == "20"
+    target.width = 1  # the object it landed on is not the one it reads
+    assert target.label == "20"
+
+
+def test_owned_by_carries_equal_across():
+    """The copy replaces the original at the cell, so it has to bring the
+    comparator with it."""
+    same = lambda a, b: True                                   # noqa: E731
+    copy = bind(lambda w: w.width, equal=same).owned_by(Source())
+    assert copy.equal is same
+    assert isinstance(copy, Binding)
+
+
+def test_owned_by_composes_and_the_outermost_owner_wins():
+    """An alias into a component that aliases further in re-wraps an
+    expression that is already owned.  The wrapper ignores its own argument,
+    so wrapping it again cannot dislodge the object it closed over."""
+    outer, middle, target = Source(), Target(), Target()
+    middle.width = 50
+    once = bind(lambda w: w.width).owned_by(outer)
+    target.label = bind(lambda w: str(once.expression(w))).owned_by(middle)
+    assert target.label == "10"
+
+
+def test_owned_by_leaves_the_original_alone():
+    original = bind(lambda w: w.width)
+    copy = original.owned_by(Source())
+    assert copy is not original
+    assert original.expression is not copy.expression
+
+
+# -- the declaration base is public -------------------------------------------
+
+
+def test_the_declaration_base_is_public_and_is_what_declarations_returns():
+    """navml subclasses it to declare an alias, so it is an extension point
+    rather than an implementation detail -- and ``_Declaration`` still works,
+    because the expression-compiler prototype in navml/DESIGN.md imports it."""
+    from navkit.reactive import _Declaration
+
+    assert _Declaration is Declaration
+    assert issubclass(Reactive, Declaration) and issubclass(Computed, Declaration)
+    assert all(
+        isinstance(d, Declaration) for d in declarations(Target).values()
+    )

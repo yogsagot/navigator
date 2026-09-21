@@ -166,12 +166,22 @@ class Panel(Widget):
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
 
-    def __init__(self, path: Path, **kwargs):
+    def __init__(self, path: Path | None = None, **kwargs):
+        """*path* is optional because a widget markup constructs must be.
+
+        A child block compiles to ``Panel(parent=self)`` and nothing else --
+        markup sets every property *after* construction -- so a required
+        positional argument is what would keep this widget out of a document
+        altogether.  The reactive already defaults to ``Path(".")``, so the
+        only thing this costs is one directory scan against that default
+        before a bound ``path:`` arrives.
+        """
         super().__init__(**kwargs)
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
         #: cursor can land on the directory we just climbed out of.
         self._return_to: str | None = None
-        self.path = path
+        if path is not None:
+            self.path = path
         # Declaration order is flush order: rebuild the listing, put the
         # cursor somewhere real, then scroll to it.
         effect(self, Panel._rescan)
@@ -586,7 +596,7 @@ class Manager(Widget):
         # The desktop brings its own look, so the tree is styled with or
         # without an application around it -- which is also what lets a single
         # panel be built and painted on its own.
-        self._stylesheet = scheme or default_scheme()
+        self.stylesheet = scheme or default_scheme()
         self.menu = MenuBar()
         self.left = Panel(left)
         self.right = Panel(right)

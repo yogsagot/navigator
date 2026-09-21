@@ -11,15 +11,14 @@ from __future__ import annotations
 
 #: Everything the generator needs for itself is underscored, so a document may
 #: import any name at all without colliding with it -- there is no reserved
-#: word.  A bare ``Label:`` head is what asks for ``_Widget``; markup never
-#: names it.  See *Importing another component* in navml/DESIGN.md.
+#: word.  A bare ``Label:`` head is what asks for ``_Component``; markup
+#: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
 from navkit.reactive import bind as _bind
-from navkit.reactive import is_bound as _is_bound
 from navkit.reactive import reactive as _reactive
-from navkit.widget import Widget as _Widget
 
+from navml.component import Component as _Component
 from navml.widgets.button import Button  # framed_button.nml:1
 from navml.widgets.label import Label  # framed_button.nml:2
 
@@ -28,12 +27,15 @@ __navml_component__ = "FramedButton"
 __all__ = ["FramedButton"]
 
 
-class FramedButton(Button):
+class FramedButton(Button, _Component):
     """A :class:`~navml.widgets.button.Button` that also shows a key hint.
 
     Its base is itself a component with two halves, so this class sits on top
     of a four-deep chain once both are merged.
     """
+
+    #: The document this class was generated from.
+    __navml_source__ = "framed_button.nml"
 
     hint_text: str = _reactive("[enter]")                 # framed_button.nml:5
 
@@ -56,10 +58,3 @@ class FramedButton(Button):
             lambda _o: _o.parent.hint_text
         )
         self.hint.align = "right"                        # framed_button.nml:14
-
-    def layout(self, width: int, height: int) -> None:
-        """Size only this widget: its children are placed by the markup."""
-        if not _is_bound(self, _Widget.width):
-            self.width = width
-        if not _is_bound(self, _Widget.height):
-            self.height = height

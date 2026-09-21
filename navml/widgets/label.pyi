@@ -8,13 +8,13 @@ this stub is the only thing a type checker can see for the module name.
 from typing import Any as _Any
 
 from navkit.screen import Surface
-from navkit.widget import Widget as _Widget
+
+from navml.component import Component as _Component
 
 __all__: list[str]
 
-class Label(_Widget):
+class Label(_Component):
     text: str
     align: str
     def __init__(self, **kwargs: _Any) -> None: ...
-    def layout(self, width: int, height: int) -> None: ...
     def render(self, surface: Surface) -> None: ...

@@ -35,6 +35,27 @@ an error; **a logical line continues only while a bracket is open**, Python's ow
 else; and **`#` opens a comment only when a space, an end of line or a `:` follows it**, because `#rrggbb` is a
 colour inside a `style:` block. A `#:` run above a declaration is captured for the generator to re-emit. The root
 block takes no `id` — it is `root` in every expression already.
+
+**Everything that blocked the generator is now settled**, and the answers converged on one mechanism.
+`navml.component.Component` is the base every generated class names (`class Label(_Component)`, or
+`class FramedButton(Button, _Component)` — always, so a component derived from a *Python-only* widget still stops
+`Widget.layout` cascading into children the markup placed). It holds the `layout()` override, `__navml_source__`, and
+the constructor that makes the rest work. **A component's parameters are the properties it declares, arriving as
+keywords** — `Component.__init__` takes the names `type(self)` declares out of `**kwargs` and sets them *before*
+`Widget.__init__` joins the widget to its parent, because that constructor is keyword-only and closed and would refuse
+them. A keyword naming no declaration is left in `kwargs` and still raises. **And a widget markup constructs must take
+no required constructor argument**, because a child block compiles to `Type(parent=self)` and nothing else — which is
+why `Panel.path` now has a default. Beware: `navkit.stylesheet._is_a` matches a type selector by class *name*, so
+**`Component { }` is a live `.nss` selector** matching every markup-built widget and no hand-written one; it reads
+*built from markup*, never *is a component* (`spacer.py` is a component and does not match).
+`Widget._stylesheet` is now the public `Widget.stylesheet`, matching `Application.stylesheet`, and the computed that
+walks up to the nearest sheet is `effective_stylesheet`: **`stylesheet` is what an object brings and is assigned,
+`effective_stylesheet` is what a widget resolves against and is derived.** So markup assigns a component's own sheet
+like any other property. `equal=` is deliberately not
+expressible in markup: a comparator is a function and a document has nowhere to put one, so a property needing one is
+declared in the hand-written half. navkit grew the three things navml asked of it: a public `Declaration`,
+`Binding.owned_by(owner)`, and `stylesheet.check_declarations(text, *, line, filename)`, which checks a declaration
+set's names and grammar while leaving `$variables` for run time.
 **Every `on_*` handler is `async def`, and navkit refuses a synchronous one** — at class creation for a handler a
 class body defines, and at the call for one assigned onto an instance, which is what markup compiles to. The rule's
 boundary: **a hook that cannot be awaited where it is called does not get an `on_*` name.** `Widget.mounted()` and
@@ -410,7 +431,7 @@ Things to know before touching the style layer:
 - `navkit/DESIGN.md` records why each of these went the way it did, including the parts that were measured rather than
   argued. Add to it rather than re-deciding.
 
-- A widget may carry its own sheet in `_stylesheet`, governing the subtree under it; the nearest one wins and the search
+- A widget may carry its own sheet in `stylesheet`, governing the subtree under it; the nearest one wins and the search
   ends at the application's. `Manager` uses this, so the desktop is styled with or without an application around it.
 
 ### `navml/` — markup language + widget library

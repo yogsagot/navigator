@@ -20,6 +20,7 @@ from navkit.stylesheet import (
     PropertySpec,
     StyleProperty,
     StylesheetError,
+    check_declarations,
     declared_property,
     load,
     parse,
@@ -351,7 +352,7 @@ def test_merge_style_keeps_what_was_already_authored():
 
 
 def test_a_widget_with_no_application_still_resolves():
-    assert Label().stylesheet is EMPTY
+    assert Label().effective_stylesheet is EMPTY
     assert Label(inline_style="fg: red").style == Style(fg=1)
 
 
@@ -493,3 +494,56 @@ def test_read_mixes_paths_with_inline_sheets(tmp_path):
     default.write_text("$accent: cyan;\nPanel { fg: $accent }")
     sheet = read(default, ("override.nss", "$accent: white;"))
     assert sheet.declarations_for(Panel()) == {"fg": 15}
+
+
+# -- checking declarations before any sheet exists ----------------------------
+#
+# What a code generator asks of a markup `style:' block.  The property names
+# and the value grammar can be checked the moment the widgets are imported,
+# but a `$variable' cannot: the sheets do not exist yet, and the reference has
+# to survive to run time or a theme swap would never reach these widgets.  See
+# *The `style` block* in navml/DESIGN.md.
+
+
+def test_check_declarations_passes_over_a_variable_it_cannot_resolve():
+    register_property("gutter", default=2)
+    check_declarations("bg: $surface; fg: white; gutter: $wide")
+
+
+def test_check_declarations_still_refuses_an_unknown_property():
+    with pytest.raises(StylesheetError) as caught:
+        check_declarations("bakground: red", line=12, filename="panel.nml")
+    assert caught.value.line == 12
+    assert caught.value.filename == "panel.nml"
+    assert "unknown property 'bakground'" in caught.value.message
+
+
+def test_check_declarations_still_refuses_a_value_it_cannot_read():
+    with pytest.raises(StylesheetError) as caught:
+        check_declarations("bg: sideways", line=4, filename="panel.nml")
+    assert "cannot read value 'sideways'" in caught.value.message
+    assert caught.value.line == 4
+
+
+def test_check_declarations_holds_a_literal_against_the_declared_vocabulary():
+    """The half a variable takes away, kept for the values that stayed."""
+    register_property("frame", default="single", values=("single", "double"))
+    check_declarations("frame: double")
+    with pytest.raises(StylesheetError) as caught:
+        check_declarations("frame: triple", line=7, filename="panel.nml")
+    assert "not a valid frame" in caught.value.message
+
+
+def test_check_declarations_names_the_position_it_was_given():
+    """Which is what ``parse_declarations`` cannot do: it is for an inline
+    string arriving at run time and has no position to name."""
+    with pytest.raises(StylesheetError) as caught:
+        check_declarations("bold", line=31, filename="dialog.nml")
+    assert str(caught.value).startswith("dialog.nml:31: ")
+
+
+def test_resolving_a_variable_is_still_an_error_on_the_ordinary_path():
+    """Deferring is something a caller asks for, not a relaxation."""
+    with pytest.raises(StylesheetError) as caught:
+        parse("Panel { bg: $nothing }")
+    assert "undefined variable $nothing" in caught.value.message

@@ -583,16 +583,25 @@ def _resolve_variables(
 
 def parse_value(
     key: str, text: str, variables: Mapping[str, str], line: int = 0,
-    filename: str = "<stylesheet>",
+    filename: str = "<stylesheet>", *, defer: bool = False,
 ) -> Any:
     """One declaration value, as the literal it denotes.
 
     Substitution happens first, so a variable may hold any of the forms below
     -- and by the time this returns, nothing downstream ever sees a ``$name``.
+
+    Unless *defer* is set, which is how something checking a declaration
+    *before* any sheet exists asks for the grammar to be read and the variable
+    left alone: the reference is returned as it was written, for whatever
+    resolves it later.  :func:`check_declarations` is the caller that wants
+    this, and it exists for markup -- see *The `style` block* in
+    ``navml/DESIGN.md``.
     """
     text = text.strip()
     if text.startswith("$"):
         name = text[1:]
+        if defer and name not in variables:
+            return text
         if name not in variables:
             raise StylesheetError(f"undefined variable ${name}", line, filename)
         text = variables[name].strip()
@@ -639,7 +648,8 @@ def parse_value(
 
 
 def _parse_declarations(
-    body: str, variables: Mapping[str, str], line: int, filename: str
+    body: str, variables: Mapping[str, str], line: int, filename: str,
+    *, defer: bool = False,
 ) -> dict[str, Any]:
     declarations: dict[str, Any] = {}
     for part in body.split(";"):
@@ -657,9 +667,14 @@ def _parse_declarations(
             raise StylesheetError(
                 f"unknown property {key!r}", line, filename
             )
-        declarations[key] = check_value(
-            key, parse_value(key, value, variables, line, filename), line, filename
-        )
+        parsed = parse_value(key, value, variables, line, filename, defer=defer)
+        if defer and isinstance(parsed, str) and parsed.startswith("$"):
+            # An unresolved reference: what it will hold is not knowable yet,
+            # so there is nothing to hold against the vocabulary.  The key was
+            # checked above, which is the half that does not need a sheet.
+            declarations[key] = parsed
+            continue
+        declarations[key] = check_value(key, parsed, line, filename)
     return declarations
 
 
@@ -779,3 +794,23 @@ def parse_declarations(
     if isinstance(text, Mapping):
         return dict(text)
     return _parse_declarations(text, variables or {}, 0, "<inline style>")
+
+
+def check_declarations(
+    text: str, *, line: int = 0, filename: str = "<declarations>"
+) -> None:
+    """Read a declaration set for its grammar alone, resolving no variable.
+
+    What a code generator asks before any sheet has been loaded: every
+    property name is held against the same union :func:`parse` checks -- the
+    ``Style`` fields and whatever widgets have declared -- and every literal
+    value against the same grammar, while a ``$name`` is passed over because
+    what it will hold is not knowable yet.  Raises
+    :class:`StylesheetError` naming *filename* and *line*, which is the half
+    :func:`parse_declarations` cannot do: it is for an inline string arriving
+    at run time and has no position to give.
+
+    Returns nothing.  The declarations it produces would be half-resolved, and
+    a caller that wanted them would have to know which half.
+    """
+    _parse_declarations(text, {}, line, filename, defer=True)

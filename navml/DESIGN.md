@@ -40,8 +40,8 @@ public module name, so nothing importing a component can tell which it is lookin
 
 - **`button.nml`** — hand-written markup. It ships, and it is the one file in the set that nothing at run time reads;
   see *The markup ships* below.
-- **`button_nml.py`** — generated, tracked, shipped. `class Button(Widget)`: the tree, the bindings, the `layout()`
-  override.
+- **`button_nml.py`** — generated, tracked, shipped. `class Button(_Component)`: the tree and the bindings. The
+  `layout()` override moved onto the shared base once there was one — see *The shared base, and how a value gets in*.
 - **`button.py`** — hand-written. `class Button(Widget)`: the handlers. **It never names the generated class**, which is
   the whole of *Why the hand-written half never names the base* below.
 - **`button.pyi`** — generated, tracked, shipped. Emitted whenever `button_nml.py` is, because in the markup-only shape
@@ -76,13 +76,13 @@ the frames still match, with no edit to a class line.
   `RebaseLoader.exec_module` assigns `__bases__` — so it cannot see the generated base, the ids or the markup, and
   could register a name and nothing else.
 
-**What this does not close is provenance.** *Is this class a component?* and *was this class built from markup, and
-from what?* are different questions, and only the first is refused here. The second has no answer today — `navml build
---check` compares files and has no run-time route to a stale generated half — and both shapes an answer could take are
-compatible with everything above, because the hand-written half would no more name them than it names the generated
-class: an attribute the generator writes onto the generated class, or a base the **generated** half alone declares
-(`_check_bases` passes on `issubclass(Component, Widget)`, and the merged MRO gains one entry). *Still open* below
-carries it. One thing has to be said wherever it lands: such a test is **asymmetric** — true for a markup component and
+**What this does not close is provenance**, and that is now answered elsewhere. *Is this class a component?* and *was
+this class built from markup, and from what?* are different questions, and only the first is refused here. The second
+is answered by both of the shapes sketched here at once, which turned out not to be a choice: the **generated** half
+alone declares a base (`_check_bases` passes on `issubclass(Component, Widget)`, and the merged MRO gains one entry),
+and that base declares `__navml_source__`, which the generator fills with the document's name. See *The shared base,
+and how a value gets in* below. Neither reaches the hand-written half, which no more names them than it names the
+generated class. One thing has to be said wherever it lands: such a test is **asymmetric** — true for a markup component and
 false for a Python-only one — so it answers *built from markup*, and may never be read as *is a component*.
 
 ### Why the generated half is the base
@@ -1095,6 +1095,118 @@ method, raised at the click. Nothing here fails late or lies.
   that lies about itself. It remains the only spelling for a widget the markup never declared — one built in a method,
   one handed to `Application.overlay()` — and for the Python-only shape, where there is no markup line to write.
 
+## The shared base, and how a value gets in
+
+Three questions were open here and they turned out to be one mechanism: **whether every generated class shares a
+base**, **how a component is handed a value from outside**, and **how markup says `_stylesheet`**. The first is
+answered yes, and the other two are free once it is.
+
+### Why there is a base: `navml.component.Component`
+
+It holds three things, each of which the generator would otherwise repeat in every file it writes:
+
+- **`layout()`**, which sizes the widget and does not cascade into its children — *Two things that fall out of the
+  rule* below decided that, and it was byte-identical in all four hand-written stand-ins, which is the observation the
+  argument for a base was waiting on.
+- **`__init__`**, which is the whole of *How a value gets in* below. This is the one that turned the question from a
+  tidiness argument into a blocker.
+- **`__navml_source__`**, the document a class was generated from. *The two halves of a component* above says
+  provenance had nowhere to live; now it has one, and `navml build --check` gains a run-time route to a stale
+  generated half rather than only a file comparison.
+
+**It is not a test of componenthood, and the asymmetry is visible outside Python.** It is true of a component written
+in markup and false of one written in Python — `navml/widgets/spacer.py` is a component and is not a `Component` — so
+it answers *built from markup* and may never be read as *is a component*. That was already stated above as a property
+of any such test. What is new is where it shows: **`navkit.stylesheet._is_a` matches a type selector by class *name*
+walking the MRO, so `Component { }` is a live `.nss` selector** with exactly that membership. Underscoring the name
+the generator imports it under (`_Component`, like the rest of its machinery) does not hide `__name__` and nothing
+can, so the name was chosen knowing it would be one. A sheet author reading `Component { }` should read *everything
+written in markup*.
+
+**The generator emits it unconditionally** — `class Label(_Component)` for a bare head, `class FramedButton(Button,
+_Component)` for a named one. Not only when the head is bare, because a component derived from a *Python-only* widget
+would otherwise inherit `Widget.layout` and cascade into children the markup placed. C3 puts it in one place however
+deep the chain goes: `FramedButton, FramedButton, Button, Button, Component, Widget`, which `tests/test_navml.py`
+pins. `_merge.py`'s `_check_bases` is unaffected — it constrains the *hand-written* half's bases, which stay single.
+
+### How a value gets in
+
+**A component's parameters are the properties it declares, and they arrive as keywords.** Markup has no parameter
+list and grows none — the reason *The handler's one argument is `event`* gives holds here too, that a property line
+and a directive line are the same shape and a parameter list is what would make them two. So:
+
+```
+Manager:
+    property left_path: Path(".")
+    property right_path: Path(".")
+
+    Panel:
+        id: left
+        path: root.left_path
+```
+
+```python
+Manager(left_path=a, right_path=b, stylesheet=scheme)
+```
+
+`Component.__init__` takes the names `type(self)` declares out of `**kwargs`, sets them, and hands the rest to
+`Widget.__init__`. **That constructor is keyword-only and closed** — no `**kwargs`, eight named parameters — so
+without this a component could not be given anything it declares at all, and a caller would have to construct first
+and assign after. Three consequences worth stating:
+
+- **A keyword naming no declaration still raises**, because it is left in `kwargs` and reaches the constructor that
+  already refuses it. A typo fails at the call with the name in it, exactly as it does today.
+- **They are set before the tree is joined, not after.** `Widget.__init__` finishes with `parent.add(self)`, which
+  lays the widget out and runs its `mounted()`; a value assigned afterwards would arrive after the callbacks most
+  likely to read it. The cells these writes create do not need `Widget.__init__` to have run — a cell belongs to the
+  instance and is made on first touch.
+- **The set of parameters is read off `Widget.__init__`'s signature**, not spelled in navml, so the two cannot drift.
+
+QML's answer is that a component has no constructor and everything is a property; Kivy's is that `__init__` keeps
+taking Python arguments. This is QML's, with Python's keyword syntax doing the work — and it costs no new language.
+**A hand-written half may still take a positional argument if it wants one**: `navml/widgets/button.py` spells
+`def __init__(self, text: str = "", **kwargs)`, which captures `text` before `Component` ever sees it. That is a
+choice a component makes about its own call site, not something markup needs to know.
+
+### A widget markup constructs takes no required constructor arguments
+
+The other half, and a rule on the **library** rather than on the language: a child block compiles to
+`Type(parent=self)` and nothing else, because markup sets every property *after* construction. So a type with a
+required positional argument cannot appear in a document at all.
+
+This was not written down anywhere and it was the sharpest blocker of the set: `Panel.__init__(self, path: Path)`
+made `Panel(parent=self)` a `TypeError`, so the desktop conversion — the proof the generator exists to produce — was
+unreachable. `Panel` now defaults its `path`, which is the reactive's own default anyway.
+
+**What it costs is one scan against the default.** `Panel` starts a directory scan from an effect at construction, and
+a `path:` line in markup is a binding installed after the child is built, so the panel lists the working directory once
+before the binding arrives. That is a wasted scan rather than a wrong answer — the effect re-runs when `path` changes —
+and it is the honest price of "construct, then bind", which is what a declarative tree does. A widget that cannot
+afford it takes the value in its hand-written `__init__` instead.
+
+### The sheet a component brings
+
+`Manager.__init__` assigns a stylesheet so the desktop is styled with or without an application around it, and markup
+had no spelling for it. It needs none: **the attribute was already reactive and only lacked a public name.**
+`Widget._stylesheet` is now `Widget.stylesheet`, and a document assigns it like any other property —
+
+```
+Manager:
+    stylesheet: default_scheme()
+```
+
+— while the computed that walks up to the nearest one becomes `effective_stylesheet`. That is the swap round the
+right way: `Application.stylesheet` was already the settable sheet an *application* brings, so the widget-level name
+now means the same thing one layer down, and the derived one is the one that says it is derived. **`stylesheet` is
+what an object brings and is assigned; `effective_stylesheet` is what a widget resolves against and cannot be.** A
+`style:` block remains a different slot again with different semantics, `inline_style`: one is a sheet governing a
+subtree, the other a handful of declarations for one widget.
+
+`Manager`'s `scheme or default_scheme()` does **not** become a markup line. A line on the root block compiles to an
+assignment in the generated `__init__`, which runs *after* `super().__init__()` has applied the caller's keywords — so
+it would silently clobber a sheet that was passed in. A default that depends on whether the caller supplied one is
+logic, and logic is the hand-written half's, which is the split this file rests on everywhere else.
+
 ## Reading a document
 
 The parser answers *what does this document say*, and the code generator answers *what Python does it become*. The
@@ -1203,14 +1315,15 @@ Nothing for the parser. It reads `parse_value` and `PropertySpec.of` out of `nav
 `style_property` vocabulary, rather than inventing a second reader for a grammar that already has one, and that is
 the whole of its dependency.
 
-**One thing for the generator, found while writing the parser and recorded here so it is not rediscovered.** *The
-`style` block* says the generator validates a block's property names and values at generation time, leaving only
-variable *resolution* to run time. `navkit.stylesheet.parse_declarations()` cannot do that as it stands, for two
-independent reasons: `parse_value` raises `undefined variable $surface` for any `$name` not in the mapping it is
-handed, so a block validated with no sheet loaded fails on exactly the lines the design wants deferred; and the
-public entry point hardcodes `line=0` and `"<inline style>"`, so a failure cannot name the `.nml` line every other
-message in this file does. The generator needs either a navkit entry point that defers variables and takes a
-position, or a navml-side check that skips a `$`-valued declaration and asks navkit only about the rest.
+**One thing for the generator, found while writing the parser** — and **now there**. *The `style` block* says the
+generator validates a block's property names and values at generation time, leaving only variable *resolution* to run
+time. `navkit.stylesheet.parse_declarations()` could not do that: `parse_value` raised `undefined variable $surface`
+for any `$name` not in the mapping it was handed, so a block validated with no sheet loaded failed on exactly the
+lines the design wants deferred, and the public entry point hardcoded `line=0` and `"<inline style>"`, so a failure
+could not name the `.nml` line every other message in this file does. `navkit.stylesheet.check_declarations(text, *,
+line, filename)` is the answer: the same key check and the same value grammar, a `$name` passed over because what it
+will hold is not knowable yet, and a position to name. It returns nothing — the declarations it produced would be
+half-resolved and a caller would have to know which half.
 
 ## Compiling a property expression
 
@@ -1684,17 +1797,14 @@ Already true, and worth stating so it does not get broken by accident:
 - Nothing at all for `property`. `reactive()` is callable in a generated class body, and that is the entire
   requirement — see *Declaring a property* above.
 
-Three small things for `alias`. The third turned out to be a bug and is already fixed; the other two are not
-needed before the generator is written:
+Three small things for `alias`, and **all three are now there**:
 
-- **`_Declaration` wants a public name.** navml subclasses it — see *Aliases* — and the prototype in the appendix
-  below already imports the private one. Renaming it `Declaration`, keeping the private spelling, turns an
-  implementation detail into the extension point it has become; its contract is that `cell()` may be overridden to
-  answer for a cell the declaration does not own.
-- **`Binding` wants a method returning a copy with the owner fixed.** Without one navml reads `Binding.expression`
-  directly, which is mild — it is `__slots__`-declared, unprefixed, and exactly what navkit's own binding installation
-  reads — but the re-wrap under *A binding through an alias is re-owned* is navkit's shape to give rather than
-  navml's to improvise.
+- ~~**`_Declaration` wants a public name.**~~ **Done.** `navkit.reactive.Declaration`, exported from `navkit`, with
+  `_Declaration` kept as an alias because the prototype in the appendix below imports the private spelling. Its
+  contract is that `cell()` may be overridden to answer for a cell the declaration does not own.
+- ~~**`Binding` wants a method returning a copy with the owner fixed.**~~ **Done:** `Binding.owned_by(owner)`. The
+  re-wrap under *A binding through an alias is re-owned* is navkit's shape to give rather than navml's to improvise,
+  and it carries `equal` across, because the copy replaces the original at the cell.
 - **`unbind()` and `is_bound()` refusing a `Computed`.** This one was a bug rather than a request, and navkit's
   rather than markup's: `is_bound()` answered `True` for a computed, and `unbind()` unlinked its cell and left it
   frozen at whatever it last returned, never to update again. Aliases only made it easy to reach, by giving `cell()`
@@ -1711,31 +1821,38 @@ so each needs an answer before the generator is finished. Two of the four are se
 property under *Declaring a property*, and naming another component under *Importing another component*; the two that
 remain are not answered here, because each is a language decision rather than an oversight.
 
-**Component parameters.** `Panel(left)`, `Panel(right)` and `Console(left)` take a positional constructor argument, and
-`Manager(left, right, scheme)` takes three. Markup has properties, which are set *after* construction, and no way to
-name a value arriving from outside the document at all. The two obvious shapes pull in opposite directions: a declared
-parameter list on the component (`Manager` takes `left`, `right`) keeps the Python call site unchanged and makes the
-document a function of its arguments; or every parameter becomes an ordinary reactive property assigned after
-the generated `__init__`, which is uniform but changes when a `Panel` first knows its path — and `Panel` starts a scan from
-an effect the moment it is constructed, so "after" is not free. QML's answer is that a component has no constructor and
-everything is a property; Kivy's is that `__init__` keeps taking Python arguments.
+**Component parameters** — **settled**, under *How a value gets in* above, and the second shape won: every parameter
+is an ordinary declared property, arriving as a keyword. What made it affordable was noticing that "after" need not
+mean after the tree is built — `Component.__init__` applies the keywords before `Widget.__init__` joins the widget to
+its parent, so a `mounted()` sees them. `Panel`'s scan against the default remains, and is recorded there as the price
+of "construct, then bind" rather than as an open question. The half that was *not* in this paragraph turned out to
+block harder: `Panel(parent=self)` was a `TypeError`, because a required positional argument keeps a widget out of a
+document altogether.
 
 **Child and base types have no import spelling** — **settled**, under *Importing another component* above. `Manager:`
 names `MenuBar`, `Panel`, `Console` and `KeyBar`, and a root block may name a base as well, and a document now says
 where each of them comes from in Python's own words. It was one question rather than two: a base and a child are both
 just a type named in markup, and one `from … import …` line answers for either.
 
-**`_stylesheet` has no markup spelling.** `Manager.__init__` assigns it so the desktop is styled with or without an
-application around it, and a `style:` block compiles to
-`inline_style`, which is a different slot with different semantics — one is a sheet governing a subtree, the other is a
-handful of declarations for one widget. A component that brings its own look needs the first and can only say the
-second.
+**`_stylesheet` has no markup spelling** — **settled**, under *The sheet a component brings* above, and it needed no
+spelling of its own: the attribute was already reactive and only lacked a public name. It is `Widget.stylesheet` now
+— the walk-up that had the name became `effective_stylesheet` — and a document assigns it like any other property. A `style:` block still compiles to `inline_style`, which remains the
+different slot with the different semantics — one is a sheet governing a subtree, the other is a handful of
+declarations for one widget.
 
-Two smaller ones, recorded so they are not rediscovered: `effect()` registration order in
-`Panel.__init__` is load-bearing — the comment there says "declaration order is flush order" — and has no markup
-spelling either; and `MenuBar` and `KeyBar` paint loops over module-level constants, which is the repeater/model
-question that the *Parts* argument in
-`navkit/DESIGN.md` deliberately does **not** answer, because it answers the row case instead.
+Two smaller ones, recorded so they are not rediscovered, and **neither blocks this conversion**.
+
+`effect()` registration order in `Panel.__init__` is load-bearing — the comment there says "declaration order is flush
+order" — and markup has no spelling for an effect at all. The ordering itself is *guaranteed* rather than merely
+observed, which is worth knowing before anything is built on it: `Effect.order` is stamped from a process-global
+`itertools.count()` at the moment `effect()` is called, and `Scheduler.flush` sorts the pending list on it, so the
+order holds across owners and across whatever queued them. What is missing is only a way to *say* it in markup, and
+`Panel` stays a Python-only component until something needs one.
+
+`MenuBar` and `KeyBar` paint loops over module-level constants, which is the repeater/model question that the *Parts*
+argument in `navkit/DESIGN.md` deliberately does **not** answer, because it answers the row case instead. `Manager`
+reaches neither of their internals — a zero-argument constructor and four geometry bindings each is the whole of their
+markup surface — so they stay hand-written and a `manager.nml` needs nothing of them.
 
 ### Still open
 
@@ -1744,10 +1861,14 @@ question that the *Parts* argument in
   left was the lexical half, whether a single expression may be *spread* over indented lines. It may not: a logical
   line continues while a bracket is open, which is Python's own implicit continuation, and an indent goes on meaning
   exactly one thing. See *An expression continues inside brackets, and nowhere else* above.
-- Whether `equal=` is expressible in markup, on a `bind()` expression or on a `property` declaration. It is one
-  question asked at two sites, and until it is answered a property needing one is declared in the hand-written half.
-  There is no third site: on an `alias` the answer is settled and it is no, for the reason under *Three things an alias
-  cannot carry*.
+- ~~Whether `equal=` is expressible in markup.~~ **Answered, and answered as no**, at both sites — a `bind()`
+  expression and a `property` declaration. A comparator is a *function*, and a document has nowhere to define one:
+  every value in the language is a one-line expression, and a language that grew a place to put a function body would
+  have stopped describing a tree, which is the argument *A handler body is one line* already makes. Nothing in the
+  repository needs one. A property that does is declared in the hand-written half — the same escape hatch a fielded
+  event and a property with no default already use, and the one that makes an incomplete `property` acceptable. The
+  third site was settled first and settled the same way: on an `alias`, never, for the reason under *Three things an
+  alias cannot carry*.
 - ~~Comment syntax.~~ **Answered: `#` to end of line, and `#:` above a declaration is kept.** The doc comments
   `navigator/__main__.py` writes beside every reactive attribute it declares are carried onto the node and emitted
   above the generated declaration, so the reason a property exists survives the move into markup. The one wrinkle is
@@ -1766,20 +1887,17 @@ question that the *Parts* argument in
   reported even when mypy is pointed at the file. Options are a second pass with the stubs held aside, moving the stubs
   somewhere only an IDE reads, or accepting that handler bodies are covered by tests rather than by a checker. Nothing
   forces a choice yet, because `CLAUDE.md` records that no lint tooling is configured; the day it is, this is waiting.
-- **Whether the generated half gets a base of its own.** Not identity — *The two halves of a component* settles that,
-  and settles it as no — but a home for what every generated module would otherwise repeat. Three things point at one.
-  The emitted `layout()` is `navkit.Widget.layout` minus the recursion into children, because markup places them, so
-  it will be byte-identical in every generated file (`navml/widgets/button_nml.py` has the first copy). Provenance has
-  nowhere else to live, and with it `navml build --check` would gain a run-time route to a stale generated half rather
-  than only a file comparison. And, if they land that way, declared component parameters need something to interpret
-  them at construction and a component-owned `_stylesheet` is a class-level fact — the two blockers still open under
-  *What converting `Manager` needs and does not have*. Three things argue against settling it now. `_is_a` matches a
-  type selector by class **name** walking the MRO, so the class's name becomes a live `.nss` selector matching every
-  markup-built widget, and would have to be chosen deliberately rather than underscored away — underscoring the
-  generator's binding does not hide `__name__`. *A bare head, and why nothing is reserved* would need a footnote,
-  since `Label:` would then compile to `_Component` and be "extends `Widget`" only one step removed. And every
-  `*_nml.py` in the tree is a hand-written stand-in, so the boilerplate the first argument rests on is asserted and
-  not yet observed. The parser does not block on this. The generator does.
+- ~~Whether the generated half gets a base of its own.~~ **Answered: yes, `navml.component.Component`** — see *The
+  shared base, and how a value gets in* above, which has the whole of it. Still not identity: *The two halves of a
+  component* settles that and settles it as no, and the base is a home for what every generated module would otherwise
+  repeat rather than a test of anything. Two of the three arguments against it dissolved rather than being overruled.
+  The one that decided it was the third of the arguments *for*: component parameters needed something to interpret
+  them at construction, and that turned out to be the blocker standing between the generator and the `Manager`
+  conversion, not a tidiness question. The `.nss` selector is real and is kept as a documented consequence —
+  `Component { }` matches every markup-built widget and no hand-written one. *A bare head, and why nothing is
+  reserved* needs no footnote after all: `Label:` compiles to `_Component`, underscored like everything else the
+  generator names for itself, so a document that imports its own `Component` still gets exactly that. And the
+  byte-identical `layout()` the first argument rested on is now observed in all four stand-ins rather than asserted.
 
 ### Appendix: the transformer
 

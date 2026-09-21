@@ -18,6 +18,7 @@ from navkit.events import (
 from navkit.reactive import (
     Binding,
     CycleError,
+    Declaration,
     ReactiveError,
     bind,
     computed,
@@ -41,6 +42,7 @@ __all__ = [
     "Binding",
     "CycleError",
     "DEFAULT_STYLE",
+    "Declaration",
     "DoubleClickEvent",
     "Event",
     "KeyEvent",
