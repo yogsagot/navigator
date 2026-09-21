@@ -138,7 +138,13 @@ class Widget:
     #: A sheet governing this widget and everything under it, overriding the
     #: application's.  Normally ``None``; set it on the root of a screen that
     #: brings its own look.
-    _stylesheet: Stylesheet | None = reactive(None)
+    #:
+    #: Public, and named to match :attr:`Application.stylesheet`, which is the
+    #: same thing one layer up: the sheet an object *brings*.  What a widget
+    #: *resolves against* is :attr:`effective_stylesheet`, which is derived and
+    #: cannot be assigned.  Markup assigns this one like any other reactive,
+    #: rather than through a spelling of its own.
+    stylesheet: Stylesheet | None = reactive(None)
     #: Observable too, so an expression written in terms of the parent is
     #: re-evaluated when the widget moves to a different one.
     parent: Widget | None = reactive(None)
@@ -262,7 +268,7 @@ class Widget:
     # -- style ---------------------------------------------------------------
 
     @computed
-    def stylesheet(self) -> Stylesheet:
+    def effective_stylesheet(self) -> Stylesheet:
         """The sheet governing this widget, or an empty one.
 
         The nearest one wins: a widget carrying its own governs the subtree
@@ -270,13 +276,18 @@ class Widget:
         is what lets a self-contained screen -- or a test holding one widget --
         be styled without an application around it.
 
+        Named apart from :attr:`stylesheet` because they are different
+        questions: that one is the sheet this widget *brings*, and is assigned;
+        this one is the sheet it *resolves against*, and is derived from every
+        sheet above it.  Most widgets bring none and resolve against one.
+
         Both the walk and :attr:`application` are derived, so replacing either
         sheet restyles everything below it without anything walking the tree.
         """
         widget: Widget | None = self
         while widget is not None:
-            if widget._stylesheet is not None:
-                return widget._stylesheet
+            if widget.stylesheet is not None:
+                return widget.stylesheet
             widget = widget.parent
         app = self.application
         return getattr(app, "stylesheet", None) or stylesheet.EMPTY
@@ -293,7 +304,7 @@ class Widget:
         :func:`navkit.reactive.declarations` -- the reactive attributes a
         *class* declares, which is a different thing at a different level.
         """
-        resolved = dict(self.stylesheet.declarations_for(self))
+        resolved = dict(self.effective_stylesheet.declarations_for(self))
         resolved.update(stylesheet.parse_declarations(self.inline_style))
         return resolved
 
@@ -323,7 +334,7 @@ class Widget:
         states therefore go into the cache *key* rather than being relied on as
         a dependency, so a stale entry cannot be returned in the first place.
         """
-        sheet, base = self.stylesheet, self.style
+        sheet, base = self.effective_stylesheet, self.style
         cache: dict[tuple[Any, ...], Style] = {}
 
         def resolve(
@@ -348,7 +359,7 @@ class Widget:
         it -- ``self.part_style("row", selected=index == self.cursor)``.  Only
         truthy states count, so a flag can be passed straight through.
         """
-        sheet = self.stylesheet
+        sheet = self.effective_stylesheet
         own = frozenset(
             name for name in sheet.state_names if getattr(self, name, False)
         )

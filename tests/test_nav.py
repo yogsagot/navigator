@@ -54,7 +54,7 @@ def panel(tree):
     # A panel outside the desktop has no scheme to resolve against, so it gets
     # the Navigator one directly -- the same sheet Manager installs on itself.
     widget = Panel(tree, width=40, height=20)
-    widget._stylesheet = default_scheme()
+    widget.stylesheet = default_scheme()
     return widget
 
 
@@ -419,7 +419,7 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     assert panel.style.fg == LIGHT_GRAY
     # A theme is a further sheet loaded after the others, redefining a variable
     # the rules already use -- no rule here is repeated or overridden.
-    panel._stylesheet = load_scheme("default", ("theme.nss", "$panel-fg: red;"))
+    panel.stylesheet = load_scheme("default", ("theme.nss", "$panel-fg: red;"))
     assert panel.style.fg == RED
 
     buffer = ScreenBuffer(40, 20)
@@ -431,7 +431,7 @@ def test_the_border_comes_from_the_sheet_not_from_active(panel):
     """``active`` picks the frame only because a rule says so."""
     panel.active = True
     assert panel.border == "double"
-    panel._stylesheet = load_scheme(
+    panel.stylesheet = load_scheme(
         "default", ("theme.nss", "Panel:active { border: single }")
     )
     assert panel.border == "single"
@@ -706,7 +706,7 @@ def test_a_sheet_may_refuse_icons_on_a_terminal_that_could_draw_them(tree):
     run_app(app, [])
     panel = app.manager.left
     assert panel.show_icons
-    panel._stylesheet = load_scheme("default", ("theme.nss", "Panel { icons: none }"))
+    panel.stylesheet = load_scheme("default", ("theme.nss", "Panel { icons: none }"))
     settle()
     assert panel.icons == "none"
     assert not panel.show_icons
@@ -966,3 +966,20 @@ def test_the_application_keeps_only_what_is_global(tree, quiet_console):
         )
     }
     assert claimed == {"down": False, "tab": False, "alt+x": False, "ctrl+o": True}
+
+
+def test_a_panel_can_be_built_the_way_markup_builds_one(tree):
+    """A child block compiles to ``Panel(parent=self)``, so that has to work.
+
+    It did not: ``path`` was a required positional argument, which would have
+    kept the panel out of any document and the desktop out of markup for a
+    reason nothing had written down.  The default is the reactive's own, so a
+    panel built this way lists the working directory until a ``path:`` binding
+    arrives.
+    """
+    panel = Panel(parent=None, width=40, height=20)
+    settle()
+    assert panel.path == Path(".")
+    assert panel.width == 40
+    # And the ordinary spelling is untouched.
+    assert Panel(tree, width=40, height=20).path == tree

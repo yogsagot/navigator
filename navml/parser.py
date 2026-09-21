@@ -157,8 +157,12 @@ class EventDecl:
     doc: tuple[str, ...] = ()
 
 
-#: Everything a root block may declare about the component itself.
-Declaration = PropertyDecl | StylePropertyDecl | AliasDecl | EventDecl
+#: Everything a root block may declare about the component itself.  Named for
+#: what the language calls these lines -- and named apart from
+#: :class:`navkit.reactive.Declaration`, which the code generator holds in the
+#: same breath and which is a different thing entirely: a descriptor on a
+#: class, rather than a line in a document.
+Directive = PropertyDecl | StylePropertyDecl | AliasDecl | EventDecl
 
 
 @dataclass(frozen=True, slots=True)
@@ -196,7 +200,7 @@ class Block:
     base: str | None = None
     id: str | None = None
     id_line: int | None = None
-    declarations: tuple[Declaration, ...] = ()
+    declarations: tuple[Directive, ...] = ()
     properties: tuple[Property, ...] = ()
     handlers: tuple[Handler, ...] = ()
     style: StyleBlock | None = None
@@ -718,7 +722,7 @@ def _read_block(
     index += 1
     identifier: str | None = None
     identifier_line: int | None = None
-    declarations: list[Declaration] = []
+    declarations: list[Directive] = []
     properties: list[Property] = []
     handlers: list[Handler] = []
     children: list[Block] = []

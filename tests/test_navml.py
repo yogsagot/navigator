@@ -33,6 +33,7 @@ import pytest
 
 import navml
 import navml.widgets
+from navml import Component
 from navkit.events import KeyEvent, MouseClickEvent, emitted
 from navkit.reactive import declarations
 from navkit.stylesheet import parse
@@ -144,7 +145,7 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     """
     assert label_module.__file__.endswith("label_nml.py")
     assert Label.__module__ == "navml.widgets.label"
-    assert inspect.getsource(Label).startswith("class Label(_Widget):")
+    assert inspect.getsource(Label).startswith("class Label(_Component):")
 
 
 # -- what the splice produces ------------------------------------------------
@@ -158,7 +159,7 @@ def test_the_generated_class_is_the_base():
     """
     generated = importlib.import_module("navml.widgets.button_nml")
     assert [c.__name__ for c in Button.__mro__] == [
-        "Button", "Button", "Widget", "object"
+        "Button", "Button", "Component", "Widget", "object"
     ]
     assert Button.__mro__[1] is generated.Button
     assert Button is not generated.Button
@@ -192,8 +193,18 @@ def test_declarations_spans_both_halves():
 
 
 def test_a_component_may_derive_from_a_component():
+    """And ``Component`` appears once, however deep the chain gets.
+
+    Every generated class names it, so a component derived from a component
+    names it twice over -- and C3 puts it in one place, below the whole
+    inheritance chain and above ``Widget``.  That is what makes it safe for the
+    generator to emit it unconditionally, which it must: a component derived
+    from a *Python-only* widget has no other way to stop ``Widget.layout``
+    cascading into children the markup placed.
+    """
     assert [c.__name__ for c in FramedButton.__mro__] == [
-        "FramedButton", "FramedButton", "Button", "Button", "Widget", "object"
+        "FramedButton", "FramedButton", "Button", "Button",
+        "Component", "Widget", "object",
     ]
 
 
@@ -221,7 +232,7 @@ def test_a_type_selector_reaches_through_the_splice():
     the base component still reaches the derived one.
     """
     framed = FramedButton(width=10, height=4)
-    framed._stylesheet = parse("Button { bg: blue }")
+    framed.stylesheet = parse("Button { bg: blue }")
     assert framed.style.bg == 4
 
 
@@ -449,14 +460,15 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
 def test_the_generator_s_machinery_is_underscored(component):
     """So that a document may import any name at all -- there is no reserved word.
 
-    Markup never names ``Widget``: a bare ``Label:`` head is what asks for it,
-    and ``Label(X):`` names something the document imported.  So the generator
-    takes ``_Widget`` for itself along with the rest of its machinery, and a
-    document that imports its own ``Widget`` gets exactly that.
+    Markup never names the base a bare head asks for: ``Label:`` is what asks
+    for it, and ``Label(X):`` names something the document imported.  So the
+    generator takes ``_Component`` for itself along with the rest of its
+    machinery, and a document that imports its own ``Component`` -- or its own
+    ``Widget`` -- gets exactly that.
     """
     bound = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
-    assert "_Widget" in bound
-    supplied = {"Widget", "bind", "reactive", "is_bound", "Any", "Surface"}
+    assert "_Component" in bound
+    supplied = {"Component", "Widget", "bind", "reactive", "is_bound", "Any", "Surface"}
     assert not supplied & set(bound)
 
 
@@ -612,12 +624,12 @@ def test_a_disabled_button_emits_nothing():
 
 def test_a_derived_component_keeps_the_event_its_base_emits():
     """Through the four-deep merged MRO, which is the case only this repo has:
-    FramedButton, FramedButton, Button, Button, Widget."""
+    FramedButton, FramedButton, Button, Button, then the shared base."""
     from navml.widgets.button import ClickEvent
 
     assert emitted(FramedButton) == {ClickEvent}
     assert [c.__name__ for c in FramedButton.__mro__][:5] == [
-        "FramedButton", "FramedButton", "Button", "Button", "Widget",
+        "FramedButton", "FramedButton", "Button", "Button", "Component",
     ]
 
 
@@ -729,3 +741,109 @@ def test_the_markup_names_every_composed_handler_the_python_half_defines():
     assert composed, "the example is supposed to have one"
     for stem in composed:
         assert stem in ids, f"on_{stem}_click names no id in dialog.nml"
+
+
+# -- the base every generated class shares ----------------------------------
+#
+# `navml/DESIGN.md`'s *Whether the generated half gets a base of its own* is
+# answered yes, and these are the three things it holds.  The second is the
+# one that unblocked the `Manager' conversion: `Widget.__init__' is
+# keyword-only and closed, so without it a component could not be handed
+# anything it declares.
+
+
+def test_every_generated_class_shares_the_base():
+    """And a Python-only component does not, which is the asymmetry.
+
+    ``Component`` answers *built from markup*, never *is a component* --
+    ``Spacer`` is a component and is not one.  It matters outside Python too:
+    a type selector matches by class name walking the MRO, so ``Component { }``
+    is a live ``.nss`` selector with exactly this membership.
+    """
+    assert issubclass(Label, Component) and issubclass(Dialog, Component)
+    assert issubclass(FramedButton, Component)
+    assert not issubclass(Spacer, Component)
+
+
+def test_the_generated_half_says_which_document_it_came_from():
+    """Provenance had nowhere to live until the base existed."""
+    assert Dialog.__navml_source__ == "dialog.nml"
+    assert Label.__navml_source__ == "label.nml"
+    assert not hasattr(Spacer, "__navml_source__")  # not a Component at all
+
+
+def test_a_component_is_handed_what_it_declares_by_keyword():
+    """A component's parameters are the properties it declares.
+
+    Markup has no parameter list and grows none, so this is how a value gets
+    in from outside -- and it has to happen before ``Widget.__init__``, which
+    accepts none of them and would refuse the lot.
+    """
+    dialog = Dialog(prompt="Overwrite?", width=30, height=6)
+    assert dialog.prompt == "Overwrite?"
+    assert (dialog.width, dialog.height) == (30, 6)
+    assert dialog.message.text == "Overwrite?"      # the markup binding followed
+
+
+def test_a_keyword_naming_nothing_still_raises():
+    """The split hands the mistakes on to the constructor that refuses them,
+    so a typo fails at the call rather than being set as an attribute."""
+    with pytest.raises(TypeError) as caught:
+        Dialog(promt="Overwrite?")
+    assert "promt" in str(caught.value)
+
+
+def test_a_declared_property_reaches_through_the_splice(package):
+    """Declared in markup, set by keyword, read from the hand-written half.
+
+    The whole chain in one test, because each link was written separately: the
+    generated class declares it, the shared base peels it out of ``kwargs``,
+    and the hand-written half -- which is the *derived* class -- sees it live.
+    """
+    package.write(
+        "thing_nml.py",
+        """
+        from typing import Any as _Any
+
+        from navkit.reactive import reactive as _reactive
+
+        from navml.component import Component as _Component
+
+        __navml_component__ = "Thing"
+
+        class Thing(_Component):
+            caption: str = _reactive("")
+            __navml_source__ = "thing.nml"
+        """,
+    )
+    package.write(
+        "thing.py",
+        """
+        from navkit.widget import Widget
+
+        class Thing(Widget):
+            def shout(self) -> str:
+                return self.caption.upper()
+        """,
+    )
+    thing = package.load("thing").Thing(caption="ready", width=4)
+    assert thing.shout() == "READY"
+    assert thing.width == 4
+
+
+def test_the_base_sizes_only_itself():
+    """``Widget.layout`` cascades into every child whose size is not bound,
+    which is what a hand-written widget wants and what a generated one must
+    not have -- markup has already said where each child goes."""
+    dialog = Dialog()
+    dialog.layout(80, 24)
+    assert (dialog.width, dialog.height) == (80, 24)
+    assert (dialog.ok.width, dialog.ok.height) == (10, 1)   # its own, from markup
+    assert dialog.message.height == 1
+
+
+def test_a_widget_markup_constructs_needs_no_constructor_argument():
+    """A child block compiles to ``Type(parent=self)`` and nothing else, so a
+    required positional argument is what keeps a widget out of a document."""
+    for component in (Label, Button, Dialog, FramedButton, Spacer):
+        assert component(parent=None) is not None

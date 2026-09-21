@@ -718,8 +718,17 @@ Two things that only showed up once a real screen was expressed:
   old code, choosing one whole `Style`, could not have that bug. The scheme says `bold: false` explicitly, and the
   comment there says why.
 
-A third is a mechanism the design had listed as merely possible: a widget may carry its own sheet in `_stylesheet`, the
-nearest winning. `Manager` uses it, which is what lets the desktop be styled with no application around it — and lets a
+A third is a mechanism the design had listed as merely possible: a widget may carry its own sheet in `stylesheet`,
+the nearest winning. It was `_stylesheet` until markup needed to say it — a private name is one a document cannot
+write without reaching into something, and this attribute was always meant to be set from outside. Making it public
+is the whole of what markup needed; there is no spelling of its own (`navml/DESIGN.md`, *How a value gets in*).
+
+**The name it took was already spoken for, and the swap is the right way round.** `Application.stylesheet` is a
+settable reactive holding the sheet the *application* brings, so a `Widget.stylesheet` holding the sheet a *widget*
+brings is the same idea one layer down; the odd name out was the walk-up, which is the only thing in the codebase
+that meant *resolved*. It is `effective_stylesheet` now. The pair says which is which: **`stylesheet` is what an
+object brings and is assigned, `effective_stylesheet` is what a widget resolves against and is derived.** Most
+widgets bring none and resolve against one. `Manager` uses it, which is what lets the desktop be styled with no application around it — and lets a
 test hold a single `Panel` and paint it.
 
 ## What building it settled
@@ -1030,8 +1039,9 @@ class's reactive surface. navml needs to subclass the first so that its own desc
 whose `cell()` returns a cell it does not own (`navml/DESIGN.md`, *Aliases*). That makes the base a documented shape
 rather than an implementation detail, and three things follow.
 
-**It should have a public name.** `Declaration`, with `_Declaration` kept, because navml's prototype already imports
-the private spelling and a dependency that is going to exist should be spelled honestly. The layering is unchanged:
+**It should have a public name. Now done:** `Declaration`, exported from `navkit`, with `_Declaration` kept as an
+alias because navml's prototype already imports the private spelling and a dependency that is going to exist should be
+spelled honestly. The layering is unchanged:
 navkit still knows nothing of navml, and navml subclasses downward, which is the direction that was always allowed.
 
 **`cell()` is the overridable part, and the only one.** Everything that walks a declaration — `unbind()`, `is_bound()`,
@@ -1039,6 +1049,20 @@ navkit still knows nothing of navml, and navml subclasses downward, which is the
 attribute access, so a subclass answering with another object's cell is answered correctly everywhere without navkit
 learning why. `_resolve_annotation`'s caching is the constraint on such a subclass rather than on navkit: the type is
 worked out once and kept on the declaration that every instance shares, so a subclass must not derive it per instance.
+
+**A `Binding` can be copied with its owner fixed, and that method is navkit's to give.** `bind()`'s convention is
+that an expression's one argument is the object that *owns* the attribute, and there is exactly one place where the
+owner and the object the expression was written against differ: a declaration that forwards to another widget's
+attribute. The expression would be handed the target, which usually has an attribute of that name too — so nothing
+raises, a wrong number is computed, and it goes on being computed. `Binding.owned_by(owner)` returns a copy whose
+expression is always called with `owner`, carrying `equal` across because the copy replaces the original at the cell.
+
+It lives here rather than in navml for two reasons. It bends navkit's own convention, so navkit should be the one to
+say how; and it composes — the wrapper ignores its own argument, so a forward into something that forwards further
+re-wraps an expression that is already owned and the *outermost* owner wins, which is the answer a reader of the outer
+document expects. The expression has to be lifted into a local before the lambda closes over it: closing over the
+`Binding` while the caller rebinds the name on the same line gives a wrapper that finds itself at call time and
+recurses.
 
 **`unbind()` and `is_bound()` refuse a `Computed`, and now say so.** Found while working the above out, and a bug
 here rather than anything markup caused: `_declaration()` checks only that its argument is a declaration, and

@@ -11,16 +11,15 @@ from __future__ import annotations
 
 #: Everything the generator needs for itself is underscored, so a document may
 #: import any name at all without colliding with it -- there is no reserved
-#: word.  A bare ``Label:`` head is what asks for ``_Widget``; markup never
-#: names it.  See *Importing another component* in navml/DESIGN.md.
+#: word.  A bare ``Label:`` head is what asks for ``_Component``; markup
+#: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
-from navkit.reactive import is_bound as _is_bound
 from navkit.reactive import reactive as _reactive
-from navkit.widget import Widget as _Widget
 
+from navml.component import Component as _Component
 from navml.widgets.button import Button  # dialog.nml:1
 from navml.widgets.label import Label  # dialog.nml:2
 
@@ -29,7 +28,7 @@ __navml_component__ = "Dialog"
 __all__ = ["Dialog"]
 
 
-class Dialog(_Widget):
+class Dialog(_Component):
     """A prompt with three buttons, and the worked example of a component
     whose *children* raise the events its hand-written half handles.
 
@@ -39,6 +38,9 @@ class Dialog(_Widget):
     escape hatch for a handler named after what the component does rather than
     after what happened.
     """
+
+    #: The document this class was generated from.
+    __navml_source__ = "dialog.nml"
 
     prompt: str = _reactive("")                                  # dialog.nml:5
 
@@ -108,10 +110,3 @@ class Dialog(_Widget):
             return True
 
         self.info.on_click = _on_click
-
-    def layout(self, width: int, height: int) -> None:
-        """Size only this widget: its children are placed by the markup."""
-        if not _is_bound(self, _Widget.width):
-            self.width = width
-        if not _is_bound(self, _Widget.height):
-            self.height = height

@@ -10,12 +10,12 @@ from typing import Any as _Any
 
 from navkit.events import Event
 from navkit.screen import Surface
-from navkit.widget import Widget as _Widget
 
+from navml.component import Component as _Component
 from navml.widgets.button import Button
 from navml.widgets.label import Label
 
-class Dialog(_Widget):
+class Dialog(_Component):
     prompt: str
     message: Label
     ok: Button
@@ -27,5 +27,4 @@ class Dialog(_Widget):
     async def on_cancel_click(self, event: Event) -> bool: ...
     async def on_click(self, event: Event) -> bool: ...
     async def show_info(self, event: Event) -> None: ...
-    def layout(self, width: int, height: int) -> None: ...
     def render(self, surface: Surface) -> None: ...

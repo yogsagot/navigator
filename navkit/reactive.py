@@ -579,8 +579,17 @@ def _type_name(annotation: Any) -> str:
     return str(annotation).replace("typing.", "")
 
 
-class _Declaration:
+class Declaration:
     """What the class-level declarations have in common.
+
+    Public because it is an extension point rather than an implementation
+    detail: the markup layer subclasses it to declare an *alias*, an attribute
+    that forwards to one on another widget.  The contract a subclass takes on
+    is one method -- :meth:`cell` may be overridden to answer for a cell the
+    declaration does not own, and every other path here funnels through it, so
+    reads, writes, ``bind()``, ``unbind()``, ``is_bound()`` and ``peek()``
+    follow without being told.  See *Aliases* in ``navml/DESIGN.md``.
+
 
     A declaration is shared by every instance and holds nothing that changes;
     everything mutable lives in the per-instance cell it hands out.  Keeping
@@ -669,7 +678,12 @@ class _Declaration:
         raise NotImplementedError
 
 
-class Reactive(_Declaration, Generic[T]):
+#: The name this was called before it was an extension point.  Kept because
+#: the expression-compiler prototype in ``navml/DESIGN.md`` imports it.
+_Declaration = Declaration
+
+
+class Reactive(Declaration, Generic[T]):
     """An attribute that reports its reads and its writes.
 
     A write is checked against the type the attribute was declared with, and
@@ -734,7 +748,7 @@ class Reactive(_Declaration, Generic[T]):
         cell.notify()
 
 
-class Computed(_Declaration, Generic[T]):
+class Computed(Declaration, Generic[T]):
     """An attribute derived from other reactive attributes."""
 
     def __init__(
@@ -801,7 +815,7 @@ def computed(
     return Computed(function, equal=equal)
 
 
-def declarations(cls: type) -> Mapping[str, _Declaration]:
+def declarations(cls: type) -> Mapping[str, Declaration]:
     """Every reactive attribute *cls* declares, inherited ones included.
 
     Maps each name to its declaration rather than returning bare names, which
@@ -826,10 +840,10 @@ def declarations(cls: type) -> Mapping[str, _Declaration]:
     reactive surface a class declares, the other is what a sheet said about
     an instance.
     """
-    found: dict[str, _Declaration] = {}
+    found: dict[str, Declaration] = {}
     for klass in cls.__mro__:
         for name, value in vars(klass).items():
-            if isinstance(value, _Declaration):
+            if isinstance(value, Declaration):
                 found.setdefault(name, value)
     return found
 
@@ -837,14 +851,14 @@ def declarations(cls: type) -> Mapping[str, _Declaration]:
 # -- runtime bindings ---------------------------------------------------------
 
 
-def _declaration(obj: object, attribute: Any) -> _Declaration:
+def _declaration(obj: object, attribute: Any) -> Declaration:
     """The declaration *attribute* refers to, checked against *obj*'s class.
 
     The attribute is named by the class attribute itself -- ``Widget.width``,
     which is the declaration object -- rather than by a string, so the editor
     can complete it and a rename carries it along.
     """
-    if not isinstance(attribute, _Declaration):
+    if not isinstance(attribute, Declaration):
         raise ReactiveError(f"{attribute!r} is not a reactive attribute")
     if getattr(type(obj), attribute.name, None) is not attribute:
         raise ReactiveError(
@@ -853,7 +867,7 @@ def _declaration(obj: object, attribute: Any) -> _Declaration:
     return attribute
 
 
-def _bindable(obj: object, attribute: Any) -> _Declaration:
+def _bindable(obj: object, attribute: Any) -> Declaration:
     """The declaration *attribute* refers to, refusing a computed.
 
     A computed is never *bound* in the sense :func:`unbind` and
@@ -896,6 +910,27 @@ class Binding:
     ):
         self.expression = expression
         self.equal = equal
+
+    def owned_by(self, owner: object) -> Binding:
+        """A copy whose expression is always called with *owner*.
+
+        ``bind()``'s convention is that an expression's one argument is the
+        object that owns the attribute, and there is one place where those two
+        are not the same object: an attribute that *forwards* to another
+        widget's.  The expression was written against the forwarding object
+        and would otherwise be handed the target -- which usually has an
+        attribute of that name too, so nothing raises and the wrong number is
+        computed for ever.  That is the worst shape a binding failure takes,
+        which is why the copy is navkit's to hand out rather than something
+        each caller improvises.
+
+        The expression is lifted into a local first: closing over ``self``
+        while the caller rebinds the name on the same line gives a wrapper
+        that finds itself at call time and recurses.  ``equal`` comes along,
+        because the copy replaces the original at the cell.
+        """
+        expression = self.expression
+        return Binding(lambda _target: expression(owner), self.equal)
 
     def __repr__(self) -> str:
         return f"<unassigned binding {self.expression!r}>"
