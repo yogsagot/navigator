@@ -9,9 +9,9 @@ that runs child programs on a pty it owns; `navigator/__main__.py` is a working 
 panels, key bar, Ctrl+O console) that exercises them and is already written in the declarative style — its panels bind
 their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand.
 `navml/` now holds its import layer — `navml/_merge.py`, which joins a component's markup half to its hand-written
-half — and five example components exercising it. The markup language itself, its parser and its code
-generator are still unwritten, so the `*_nml.py` files are hand-written stand-ins for what the generator will
-emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
+half — five example components exercising it, and **the `.nml` parser**: `navml/parser.py` reads a document into a
+node graph and `navml/errors.py` carries `MarkupError`, the one exception both halves of the toolchain raise. The
+code generator is still unwritten, so the `*_nml.py` files are hand-written stand-ins for what it will emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
 included, and **the interaction layer a widget library needs is now complete**: focus, signals, the mount/unmount
 lifecycle, modal/overlay support and a real cursor. That was the whole of *What the widget library needs first* in
 `navkit/DESIGN.md`; its **`Still open` list is a separate one**. Two of its five entries were navkit's own work and
@@ -19,12 +19,22 @@ are now answered (`Application.background`, and where the console's key routing 
 widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
 box frame they need, and what a full-screen child does.
 
-**The next thing to build is the `.nml` parser, then the code generator — not the widget library.** The library is
+**The next thing to build is the code generator — not the widget library.** The library is
 *written in markup*: `navml/widgets/` already holds one component per shape, and its `*_nml.py` files are
 hand-written stand-ins for what the generator will emit. Writing library widgets before the generator exists would
 mean hand-writing more of those stand-ins, which is the one thing that file layout exists to stop. So the order is
-parser, then generator, then widgets — and `navml/DESIGN.md` is the spec for the first two, with *Still open* there
-naming what the parser must decide before it can be finished.
+generator, then widgets — and `navml/DESIGN.md` is the spec, with *Still open* there naming what the generator must
+decide before it can be finished.
+
+**The parser imports nothing the document names**, and that is the line between it and the generator: every check
+a document can fail on its own — structure, identifiers, reserved words, collisions with itself — is
+`navml/parser.py`'s, and every check needing a live class is the generator's. `parse(text)` / `parse_file(path)`
+return a `Document`; `imports_of(path)` reads only the import block, which is what orders a cold build by its
+import graph without executing anything. Three lexical rules it settled: **blocks are made of spaces** and a tab is
+an error; **a logical line continues only while a bracket is open**, Python's own implicit continuation and nothing
+else; and **`#` opens a comment only when a space, an end of line or a `:` follows it**, because `#rrggbb` is a
+colour inside a `style:` block. A `#:` run above a declaration is captured for the generator to re-emit. The root
+block takes no `id` — it is `root` in every expression already.
 **Every `on_*` handler is `async def`, and navkit refuses a synchronous one** — at class creation for a handler a
 class body defines, and at the call for one assigned onto an instance, which is what markup compiles to. The rule's
 boundary: **a hook that cannot be awaited where it is called does not get an `on_*` name.** `Widget.mounted()` and
