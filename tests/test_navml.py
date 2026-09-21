@@ -38,6 +38,7 @@ from navkit.reactive import declarations
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
+from navml.parser import imports_of
 from conftest import awaited
 from navml.widgets import Button, Dialog, FramedButton, Label, Spacer
 from navml.widgets import button as button_module
@@ -418,24 +419,16 @@ def _imports_of_python(source: str) -> dict[str, str]:
     return bound
 
 
-def _imports_of_markup(source: str) -> dict[str, str]:
+def _imports_of_markup(path: pathlib.Path) -> dict[str, str]:
     """The same, for a document -- whose import block ends at the root block.
 
-    Read with Python's own grammar rather than a grammar of navml's: the lines
-    are Python and the generator copies them through untouched.
+    Through the parser rather than a miniature of it kept here: ``imports_of``
+    exists because ``navml build`` has to order a cold build by the import
+    graph without executing anything, and a document's bound names are what
+    that reads.  The lines are Python either way -- the generator copies them
+    through untouched -- but there is now one reader of them.
     """
-    bound: dict[str, str] = {}
-    for line in source.splitlines():
-        if not line.strip():
-            continue
-        try:
-            node = ast.parse(line).body[0]
-        except SyntaxError:
-            break  # the root block: `Button(Widget):' is not Python
-        if not isinstance(node, (ast.Import, ast.ImportFrom)):
-            break
-        bound |= _bound(node)
-    return bound
+    return {name: line.module for line in imports_of(path) for name in line.names}
 
 
 @pytest.mark.parametrize("component", ["label", "button", "framed_button"])
@@ -446,7 +439,7 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
     document's bound names are exactly the generated module's non-underscored
     ones.
     """
-    markup = _imports_of_markup((WIDGETS / f"{component}.nml").read_text())
+    markup = _imports_of_markup(WIDGETS / f"{component}.nml")
     generated = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
     supplied = {n for n in generated if n.startswith("_")}
     assert set(markup) == set(generated) - supplied - {"annotations"}

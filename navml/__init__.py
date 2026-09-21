@@ -14,9 +14,11 @@ from navkit.reactive import bind, computed, effect, reactive
 from navkit.widget import Widget
 
 from navml._merge import ComponentError, install, register
+from navml.errors import MarkupError
 
 __all__ = [
     "ComponentError",
+    "MarkupError",
     "Widget",
     "bind",
     "computed",
