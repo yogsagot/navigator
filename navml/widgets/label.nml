@@ -1,3 +1,4 @@
+#: A line of text.
 Label:
     property text: ""
     property align: "left"

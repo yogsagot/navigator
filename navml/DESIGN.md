@@ -1,9 +1,14 @@
 # navml design notes
 
-The code generator and the widget library are unwritten; the language's **parser is written** --
-`navml/parser.py`, with `navml/errors.py` beside it -- and *Reading a document* below records what it decided and
-where the line between it and the generator falls. This file records decisions made ahead of the rest, so the work
-starts from a spec rather than rediscovering it. Anything not written down here is still open.
+The widget library is unwritten; the language's **parser and code generator are both written**. The parser is
+`navml/parser.py`, with `navml/errors.py` beside it, and *Reading a document* below records what it decided and where
+the line between it and the generator falls. The generator is seven modules -- `navml/expression.py` (the transformer
+the appendix prototypes), `navml/sibling.py` (the hand-written half, read rather than imported), `navml/resolve.py`
+(the one module that imports what a document names), `navml/checks.py`, `navml/generator.py`, `navml/stubs.py` and
+`navml/build.py` behind `python -m navml build [--check]` -- with `navml/_alias.py` beside `navml/component.py` as the
+run-time support generated code names. Most of this file was written *ahead* of that code, which is what it was for;
+where the code then decided something the spec had left open, *What the generator settled by being written* below
+records it. Anything not written down here is still open.
 
 ## Where the inspiration is taken from
 
@@ -1544,6 +1549,11 @@ lambda's argument `entries` shadows the property of that name, and the outer `cu
   to an assignment gave the menu bar a height of 24 in an 80x24 terminal. `navigator/__main__.py`'s `bind(lambda w: 1)`
   is therefore not redundancy; the binding is what protects the constant.
 
+  **This is the decision that was taken and the generator now depends on**: a generated class overrides `layout()` to
+  size only itself, so a literal `width` or `height` compiles to a plain value like everything else and the trap does
+  not exist for generated code. `navml/expression.py` reports `constant` and `rewritten` separately for exactly this
+  reason, and `tests/test_nml_generator.py` pins that a `Button`'s caption is not bound to its height.
+
   The tidier fix belongs to navml rather than to the expression compiler, and it is now **decided**: a generated class
   overrides `layout()` to size only itself and does not cascade into its children, because a component whose children
   are all placed by markup does not want the inherited cascade at all. So a literal `width` or `height` compiles to a
@@ -1754,6 +1764,33 @@ that section's own reason: a document allowed to declare `id: event` or `propert
   terminal and a `ClickEvent` a sibling raised reach the same generated function, with the same one argument, under the
   same name. What the widget library adds is more events to handle, not a different shape of handler.
 
+### What the generator emits, and what writes it
+
+**The file is written as lines, through `navml/coder.py`'s `Coder`, and not as a syntax tree that is unparsed once.**
+A tree carries no comments, and comments are load-bearing in the output: every emitted statement ends in a trailing
+`# button.nml:12`, which is the whole of the source map below, and a `#:` run above a declaration in the markup is
+re-emitted above the declaration in the Python. `ast.unparse` is still what turns a document's *expressions* into
+source, one fragment at a time through `navml/expression.py`; the frame around them is lines. `Coder` gives the
+emitter logical indent levels (`add`), a trailing comment on the line just written (`comment(-1, ..., same_line=True)`),
+multi-line constants (`add_formatted`) and sub-builders that compose (`block`), which is the whole of what the job
+needs.
+
+Three things follow, and they are the emitter's contract rather than its taste:
+
+- **Every widget is constructed before any property is installed.** The stand-ins interleaved the two per child; the
+  order matters because `Widget.add` lays out and mounts a child the moment it joins a tree that is already mounted, so
+  a widget can be asked for a value before a sibling named further down the document exists. `__init__` is therefore
+  one block of `self.<id> = Type(parent=self)` lines and then one block of installations, grouped per widget.
+- **Formatting is fixed here rather than left to a formatter**, because `navml build --check` compares text: a rule
+  nobody applies twice the same way would report drift on every run. One statement per line, `Coder`'s comment gutter,
+  and a binding past 79 columns wrapped at its own `_bind(` bracket. The trailing source-map comment is allowed to
+  overhang, since wrapping a line to make room for a comment about it would be the tail wagging the dog.
+- **A markup-declared event class in a *merged* component is reachable only from `<stem>_nml`.** `GeneratedLoader`
+  republishes `__all__` onto the public module name, so the markup-only shape is fine; `RebaseLoader` copies nothing,
+  because the hand-written half owns that namespace. It is a corner rather than a problem: which half declares an event
+  follows which half emits it, so a component with a `.py` that wanted to name the class would be declaring it there in
+  the first place.
+
 ### Source mapping
 
 This matters more here than in most code generators. A binding is lazy and its failure is *cached* — `_Cell._recompute`
@@ -1854,6 +1891,35 @@ argument in `navkit/DESIGN.md` deliberately does **not** answer, because it answ
 reaches neither of their internals — a zero-argument constructor and four geometry bindings each is the whole of their
 markup surface — so they stay hand-written and a `manager.nml` needs nothing of them.
 
+### What the generator settled by being written
+
+Five things this file had left implicit, each found by writing the code and each now pinned by a test.
+
+- **A `StyleProperty` joins the `own` set, though it is not a `Declaration`.** *Name resolution* says a bare name
+  resolves against what the widget's class declares, and `declarations()` was the obvious reading of that — but a style
+  property is authored in a sheet rather than assigned, so it is not in that mapping at all. A bare `icons` would have
+  fallen to the last row, compiled to a module global and raised `NameError` at the first read. `navml.resolve`'s
+  `attributes(cls)` is the union, and it is what the compiler is handed.
+- **`_Component` is appended to every base except `Component` itself.** *The shared base* says the generator emits it
+  unconditionally, which is right for every base a document can name but one: `class X(Component, _Component)` is
+  `TypeError: duplicate base class`. A document naming it is refused and told to write a bare head, which is the
+  spelling that asks for exactly that.
+- **A property line carrying a binding must name a declaration on the target class.** *Where the line lands* records
+  the failure from the other side — a `Binding` assigned to something that is not reactive is silently *stored*, and
+  the only symptom is the `<unassigned binding ...>` repr. The generator has the class in hand, so it says so at
+  compile time instead. A literal onto a plain attribute stays legal; it is the binding that cannot work.
+- **A widget that paints cannot be markup-only, and `Label` was.** Its `render()` lived in the *generated* file, which
+  was tenable only while that file was hand-written; regenerating it would have blanked every `Button` caption. `Label`
+  now has a `label.py` holding the painting, and `navml/widgets/field.nml` is the markup-only example in its place: a
+  caption and a value composed out of two `Label`s, which paints nothing itself and so needs no hand-written half. The
+  general rule is worth stating, because it arrives for every future component: **markup declares and places, Python
+  paints**, so a component with a `render()` has two halves by construction.
+- **Resolution and checking are separate modules, and the split is not the obvious one.** `navml/resolve.py` refuses
+  the two failures that stop a document being resolved at all — an import that does not import, and a type the document
+  names that its imports do not bind — because it cannot produce anything without them. Everything else a live class
+  can reveal is `navml/checks.py`'s. The reason to keep them apart is that resolution is the one pass that imports
+  arbitrary user code, so a test can build a resolution by hand and exercise the emitter with no imports at all.
+
 ### Still open
 
 - ~~Multi-line property bodies.~~ **Answered, and the parser settled it as the bracket rule.** *A handler body is
@@ -1901,8 +1967,13 @@ markup surface — so they stay hand-written and a `manager.nml` needs nothing o
 
 ### Appendix: the transformer
 
-The prototype, minus its `__main__` block. `properties()` is the part that should become
-`navkit.reactive.declarations()`.
+The prototype, minus its `__main__` block, kept as the record of what was reasoned out before the code existed.
+**`navml/expression.py` is the real one**, and differs in five places, each recorded above: `properties()` became
+`navkit.reactive.declarations()` and then `navml.resolve.attributes()`; `owner` became an expression rather than a
+name, deep-copied at each substitution site; `event` joins the bound names for a handler body; the scope stack starts
+with one frame rather than none, so a top-level walrus records its target; and `compile_property` reports whether it
+rewrote anything instead of special-casing a constant, the constant-size caveat in its docstring here having been
+retired by the `layout()` override.
 
 ```python
 import ast

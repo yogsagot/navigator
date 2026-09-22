@@ -8,10 +8,11 @@ Early. `navkit` has its event loop, terminal layer, screen buffer, reactive attr
 that runs child programs on a pty it owns; `navigator/__main__.py` is a working shell (menu bar, two live directory
 panels, key bar, Ctrl+O console) that exercises them and is already written in the declarative style — its panels bind
 their geometry to the desktop and derive their listing from a path rather than being placed and refreshed by hand.
-`navml/` now holds its import layer — `navml/_merge.py`, which joins a component's markup half to its hand-written
-half — five example components exercising it, and **the `.nml` parser**: `navml/parser.py` reads a document into a
-node graph and `navml/errors.py` carries `MarkupError`, the one exception both halves of the toolchain raise. The
-code generator is still unwritten, so the `*_nml.py` files are hand-written stand-ins for what it will emit. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
+**`navml/` is now a working toolchain end to end.** `navml/_merge.py` joins a component's markup half to its
+hand-written half; `navml/parser.py` reads a document into a node graph and `navml/errors.py` carries `MarkupError`,
+the one exception both halves raise; and **the code generator is written**, so `navml/widgets/*_nml.py` and `*.pyi`
+are generated artefacts rather than stand-ins — `python -m navml build` regenerates them and `--check` reports markup
+that no longer matches. The README sketches the rest. `navkit` itself is complete for what it does, the stylesheet and its lookup engine
 included, and **the interaction layer a widget library needs is now complete**: focus, signals, the mount/unmount
 lifecycle, modal/overlay support and a real cursor. That was the whole of *What the widget library needs first* in
 `navkit/DESIGN.md`; its **`Still open` list is a separate one**. Two of its five entries were navkit's own work and
@@ -19,12 +20,24 @@ are now answered (`Application.background`, and where the console's key routing 
 widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
 box frame they need, and what a full-screen child does.
 
-**The next thing to build is the code generator — not the widget library.** The library is
-*written in markup*: `navml/widgets/` already holds one component per shape, and its `*_nml.py` files are
-hand-written stand-ins for what the generator will emit. Writing library widgets before the generator exists would
-mean hand-writing more of those stand-ins, which is the one thing that file layout exists to stop. So the order is
-generator, then widgets — and `navml/DESIGN.md` is the spec, with *Still open* there naming what the generator must
-decide before it can be finished.
+**The next thing to build is the widget library, and the `Manager` conversion is what would prove it.** The
+generator is no longer in the way: a library widget is now written as markup plus, where it paints, a hand-written
+half, and `python -m navml build` emits the rest. `navml/DESIGN.md` is still the spec — *What the generator settled by
+being written* records the five things writing it decided, and *What converting `Manager` needs and does not have*
+names what that conversion still wants, which is a `navigator.widgets` package to move `MenuBar`, `Panel`, `KeyBar`
+and `Console` into.
+
+**The generator is seven modules with one concern each**, in a one-way chain: `expression.py` compiles a property
+expression or a handler body by rewriting free names on the syntax tree; `sibling.py` reads the hand-written `.py`
+**without importing it**; `resolve.py` is the only module that imports what a document names; `checks.py` refuses
+everything a live class can reveal; `generator.py` and `stubs.py` emit the two artefacts; `build.py` orders a
+directory by its import graph and writes. `navml/_alias.py` sits beside `navml/component.py` as run-time support the
+generated code names. **Anything emitting code goes through `navml/coder.py`'s `Coder`** — a line buffer with logical
+indents and trailing comments — and not through string assembly or a whole-module `ast.unparse`, because `ast` carries
+no comments and navml's source map *is* comments.
+
+**A component that paints has two halves by construction.** Markup declares and places; Python paints. `Label` had to
+gain a `label.py` for exactly this, and `navml/widgets/field.nml` is the markup-only example in its place.
 
 **The parser imports nothing the document names**, and that is the line between it and the generator: every check
 a document can fail on its own — structure, identifiers, reserved words, collisions with itself — is
@@ -248,6 +261,10 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
+- Regenerate a component's Python from its markup: `./venv/bin/python -m navml build` (the whole installed package by
+  default, or the paths given); `--check` reports markup that no longer matches its generated half and exits 1, which
+  is what to run after editing any `.nml`. A generated file is only ever overwritten if its first line is
+  `# navml: generated`
 - Run the tests: `./venv/bin/python -m pytest`; one file with `... -m pytest tests/test_screen.py`; one test with
   `... -m pytest tests/test_screen.py::test_only_changed_cells_are_emitted` or `-k <substring>`
 - pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `navigator` from
@@ -438,8 +455,9 @@ Things to know before touching the style layer:
 
 - `*.nml` markup language: QML for the architecture (a declarative tree, `id`s, properties that are re-evaluated
   expressions), Kivy for the syntax (blocks made by indentation, no braces, no semicolons, one property per line)
-- Parser translating `.nml` into a node graph (unwritten)
-- Code generator traversing that node graph to emit a Python class (unwritten)
+- Parser translating `.nml` into a node graph — **written**, `navml/parser.py`
+- Code generator traversing that node graph to emit a Python class — **written**, and reached through
+  `python -m navml build [PATH ...] [--check]`
 - Rich widget library (windows, buttons, menus, labels, standard event handlers) modelled on Borland's TurboVision
 - `navml/_merge.py` — **written**, and the rest of this section is about it.
 
@@ -448,7 +466,8 @@ Things to know before touching the style layer:
 `button.pyi` is the generated stub. Markup alone, Python alone and both are three peer shapes, and
 `from navml.widgets.button import Button` is the same line for all three — a component can move between them without
 that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
-example of each: `spacer` is Python alone, `label` is markup alone, `button` is both, and `framed_button` is both *and*
+example of each: `spacer` is Python alone, `field` is markup alone, `button` and `label` are both, and
+`framed_button` is both *and*
 derived from a component that is itself both. `dialog` is a fifth, on a different axis: it is the one whose *children*
 raise the events its hand-written half handles, and it pins the `on_<id>_<event>` convention below.
 

@@ -1,0 +1,29 @@
+from navml.widgets.label import Label
+
+#: A caption and a value side by side.
+#:
+#: The library's one component written in markup alone: it paints nothing
+#: itself, so it needs no hand-written half, and ``navml.widgets.field`` is
+#: backed by the generated module directly.
+Field:
+    property label_text: ""
+    property value_text: ""
+    property label_width: 12
+
+    Label:
+        id: caption
+        x: 0
+        y: 0
+        width: parent.label_width
+        height: 1
+        text: parent.label_text
+        align: "left"
+
+    Label:
+        id: value
+        x: parent.label_width
+        y: 0
+        width: max(0, parent.width - parent.label_width)
+        height: 1
+        text: parent.value_text
+        align: "left"

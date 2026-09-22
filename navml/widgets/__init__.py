@@ -33,6 +33,7 @@ navml.register(__name__)
 _COMPONENTS = {
     "Button": "button",
     "Dialog": "dialog",
+    "Field": "field",
     "FramedButton": "framed_button",
     "Label": "label",
     "Spacer": "spacer",
@@ -65,6 +66,7 @@ if TYPE_CHECKING:
     # they are never imported at run time, so the laziness above is intact.
     from navml.widgets.button import Button
     from navml.widgets.dialog import Dialog
+    from navml.widgets.field import Field
     from navml.widgets.framed_button import FramedButton
     from navml.widgets.label import Label
     from navml.widgets.spacer import Spacer

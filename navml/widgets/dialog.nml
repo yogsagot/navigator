@@ -1,6 +1,13 @@
 from navml.widgets.button import Button
 from navml.widgets.label import Label
 
+#: A prompt with three buttons.
+#:
+#: The worked example of a component whose *children* raise the events its
+#: hand-written half handles: two of the buttons are routed by the
+#: ``on_<id>_<event>`` convention and the third by an explicit markup line,
+#: which is the escape hatch for a handler named after what the component
+#: does rather than after what happened.
 Dialog:
     property prompt: ""
 
