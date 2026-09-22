@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 import time
 from dataclasses import replace
 from importlib import metadata
@@ -12,6 +14,7 @@ import pytest
 from navkit.capabilities import FULL
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
+from navkit.reactive import is_bound
 from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
@@ -19,18 +22,9 @@ from navkit.terminal import SHOW_CURSOR, encode_key
 from conftest import FakeTerminal, awaited, run_app, settle
 from navigator import icons
 from navigator import __version__
-from navigator.__main__ import (
-    THEMES,
-    DirEntry,
-    Manager,
-    Navigator,
-    Panel,
-    default_scheme,
-    load_scheme,
-    main,
-    theme_names,
-    version_banner,
-)
+from navigator.__main__ import Navigator, main, version_banner
+from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
+from navigator.widgets import DirEntry, Manager, Panel
 
 
 def navigator(path, size=(80, 24), **kwargs) -> Navigator:
@@ -222,6 +216,46 @@ def test_the_panels_follow_the_desktop_without_a_layout_method():
     manager.layout(120, 40)
     assert (manager.left.width, manager.right.x) == (60, 60)
     assert manager.keybar.y == 39
+
+
+# -- the desktop is markup ---------------------------------------------------
+
+
+def test_the_desktop_is_built_from_its_document():
+    """`Manager' is the first screen converted, and says so."""
+    from navml.component import Component
+
+    assert Manager.__navml_source__ == "manager.nml"
+    assert issubclass(Manager, Component)
+
+
+def test_the_geometry_in_the_document_is_what_places_the_children():
+    """Every line of the old ``_place()`` is now a line of ``manager.nml``."""
+    manager = Manager(Path("."), Path("."))
+    manager.layout(100, 30)
+    assert is_bound(manager.left, Panel.width)
+    assert is_bound(manager.console, Panel.visible)
+    assert (manager.left.width, manager.console.height) == (50, 28)
+
+
+def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
+    """The one rule converting this screen turned up.
+
+    A markup property line compiles to a binding, and navkit refuses a plain
+    assignment over a live binding -- so binding ``path`` would have made
+    ``enter()`` an error rather than a move.  A property a widget *navigates*
+    takes a starting value from its parent and cannot be bound to one, which
+    is why the document declares nothing about these three.
+    """
+    manager = Manager(tree, tree)
+    assert not is_bound(manager.left, Panel.path)
+    settle()
+    assert manager.left.path == tree
+    manager.left.cursor = next(
+        i for i, e in enumerate(manager.left.entries) if e.name == "alpha"
+    )
+    manager.left.enter()          # would raise if `path' were bound
+    assert manager.left.path == tree / "alpha"
 
 
 def test_the_panel_title_and_footer_follow_the_width(panel, tree):
@@ -506,6 +540,66 @@ def test_a_theme_only_ever_sets_colours():
             assert name.rsplit("-", 1)[-1] in ("fg", "bg"), f"{theme}: ${name}"
 
 
+# -- where the widgets live --------------------------------------------------
+
+
+def _in_a_fresh_process(script: str) -> list[str]:
+    return subprocess.run(
+        [sys.executable, "-c", script], capture_output=True, text=True, check=True
+    ).stdout.split()
+
+
+def test_a_scheme_parses_without_the_caller_importing_anything_first():
+    """``load_scheme`` imports the widgets whose properties the sheet names.
+
+    A sheet is checked against the properties widgets declare, and a widget
+    declares them by its class body running -- so ``navigator.nss``'s
+    ``icons: auto`` is an unknown property until ``Panel`` has been imported.
+    While every screen lived in one module that was a rule about where to put
+    the parse; now it is a rule about what to import before it, and the import
+    is inside ``load_scheme`` so that no caller has to know.
+    """
+    assert _in_a_fresh_process(
+        "from navigator.scheme import default_scheme\n"
+        "print(len(default_scheme().rules))\n"
+    )[0].isdigit()
+
+
+def test_one_widget_does_not_import_the_others():
+    """The lazy re-export, for the same reason ``navml.widgets`` has one.
+
+    Generating a component imports the classes its document names, so a
+    package that re-exported eagerly would make importing any one widget
+    import every widget -- and a cold build of ``manager.nml`` could then
+    generate nothing until everything already had been.
+    """
+    loaded = _in_a_fresh_process(
+        "import importlib, sys\n"
+        "importlib.import_module('navigator.widgets.keybar')\n"
+        "print(' '.join(sorted(m for m in sys.modules "
+        "if m.startswith('navigator.widgets.'))))\n"
+    )
+    assert loaded == ["navigator.widgets.keybar"]
+
+
+def test_the_desktop_still_pulls_in_the_screens_it_places():
+    """And its own generated half, which is what places them."""
+    loaded = _in_a_fresh_process(
+        "import importlib, sys\n"
+        "importlib.import_module('navigator.widgets.manager')\n"
+        "print(' '.join(sorted(m for m in sys.modules "
+        "if m.startswith('navigator.widgets.'))))\n"
+    )
+    assert loaded == [
+        "navigator.widgets.console",
+        "navigator.widgets.keybar",
+        "navigator.widgets.manager",
+        "navigator.widgets.manager_nml",
+        "navigator.widgets.menubar",
+        "navigator.widgets.panel",
+    ]
+
+
 # -- the console and Ctrl+O -------------------------------------------------
 
 
@@ -518,7 +612,7 @@ def quiet_console(monkeypatch):
     ``test_the_console_runs_a_real_child`` covers the other half.
     """
     monkeypatch.setattr(
-        "navigator.__main__.Console.start", lambda self, argv=None: None
+        "navigator.widgets.console.Console.start", lambda self, argv=None: None
     )
 
 

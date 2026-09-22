@@ -100,6 +100,11 @@ include = ["navkit*", "navml*", "navigator*"]
 # checkout and vanish on install.
 "navml" = ["py.typed"]
 "navml.widgets" = ["*.nml", "*.pyi"]
+# The application's own screens are a component package too, and will hold
+# `manager.nml' once the desktop is converted.  The entry is here now because
+# the failure it prevents is silent: markup and stubs reach a checkout without
+# being declared and reach a wheel only by being declared.
+"navigator.widgets" = ["*.nml", "*.pyi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -293,7 +293,11 @@ def _collect_declaration(
         return
 
     # A ``#:`` run above a declaration in the markup is re-emitted above the
-    # declaration in the Python, so the reason a property exists survives.
+    # declaration in the Python, so the reason a property exists survives.  It
+    # gets a blank line above it unless it opens the block, since a comment
+    # butted against the line before reads as a trailer on that line.
+    if declaration.doc and build.declarations:
+        build.declarations.append(_Line(""))
     build.declarations.extend(_Line(f"#: {line}") for line in declaration.doc)
 
     if isinstance(declaration, StylePropertyDecl):
