@@ -167,9 +167,15 @@ def test_the_command_reports_a_broken_document_in_one_line(package, capsys):
 # -- the components this repository ships ------------------------------------
 
 
-def test_the_shipped_components_are_in_step_with_their_markup():
-    """The regression that keeps the tree honest once it has been cut over."""
-    report = build(["navml/widgets"], check_only=True)
+@pytest.mark.parametrize("tree", ["navml/widgets", "navigator/widgets"])
+def test_the_shipped_components_are_in_step_with_their_markup(tree):
+    """The regression that keeps both component packages honest.
+
+    Two directories rather than one: the application's screens are a component
+    package too, and a `--check' that named only navml's would pass while
+    `manager.nml' drifted.
+    """
+    report = build([tree], check_only=True)
     assert report.ok, [
         f"{a.path.name}:{a.differs}" for a in report.stale
     ]

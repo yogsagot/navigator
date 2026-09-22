@@ -20,12 +20,15 @@ are now answered (`Application.background`, and where the console's key routing 
 widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
 box frame they need, and what a full-screen child does.
 
-**The next thing to build is the widget library, and the `Manager` conversion is what would prove it.** The
-generator is no longer in the way: a library widget is now written as markup plus, where it paints, a hand-written
-half, and `python -m navml build` emits the rest. `navml/DESIGN.md` is still the spec — *What the generator settled by
-being written* records the five things writing it decided, and *What converting `Manager` needs and does not have*
-names what that conversion still wants, which is a `navigator.widgets` package to move `MenuBar`, `Panel`, `KeyBar`
-and `Console` into.
+**The toolchain is proved end to end: `navigator/widgets/manager.nml` is the desktop.** The conversion `navml`
+existed to make possible is done, and it is a byte-for-byte proof rather than a plausible one — the commit before it
+and the commit after paint the same 3725 bytes on a pty at 80x24, `cmp`-identical. `manager.py` keeps the handlers and
+the three seeded values; the tree, the geometry and the `visible` flags are markup.
+
+**The next thing to build is the widget library.** A library widget is written as markup plus, where it paints, a
+hand-written half, and `python -m navml build` emits the rest. `navml/DESIGN.md` is still the spec — *What the
+generator settled by being written* and *What converting `Manager` needed, and what it turned up* record what the two
+pieces of work decided.
 
 **The generator is seven modules with one concern each**, in a one-way chain: `expression.py` compiles a property
 expression or a handler body by rewriting free names on the syntax tree; `sibling.py` reads the hand-written `.py`
@@ -38,6 +41,13 @@ no comments and navml's source map *is* comments.
 
 **A component that paints has two halves by construction.** Markup declares and places; Python paints. `Label` had to
 gain a `label.py` for exactly this, and `navml/widgets/field.nml` is the markup-only example in its place.
+
+**And a property a widget *navigates* cannot be bound** — the one rule converting the desktop turned up. A markup
+property line compiles to a binding, a bound attribute is read-only until something unbinds it, and `Panel.enter()`
+assigns `path` on every descent, so `path: root.left_path` compiles, paints correctly, and then raises the first time
+somebody presses Enter. A starting value is not something markup can say, so `manager.py` seeds `left.path`,
+`right.path` and `console.cwd` after `super().__init__()` and the document says nothing about them. *A property a
+widget navigates cannot be bound* in `navml/DESIGN.md` has the three alternatives that were rejected.
 
 **The parser imports nothing the document names**, and that is the line between it and the generator: every check
 a document can fail on its own — structure, identifiers, reserved words, collisions with itself — is
@@ -222,8 +232,8 @@ run together -- and refuses it if the result matches an existing project. `navig
 The 400 carries no explanation (warehouse#17375), which is what makes this worth writing down. The same rule is why
 `navfm` is a separate name and does have to be held deliberately.
 
-The application lives in the `navigator/` package: `navigator/__main__.py` is the whole of it, and `navigator/styles/`
-holds the assets it loads. Assets are found through `importlib.resources` rather than relative to `__file__`, and
+The application lives in the `navigator/` package: `navigator/__main__.py` is the entry point, `navigator/widgets/`
+the screens, `navigator/scheme.py` the stylesheet loader, and `navigator/styles/` the assets it reads. Assets are found through `importlib.resources` rather than relative to `__file__`, and
 `navigator/styles/*.nss` is declared as package data — a new asset directory needs a matching
 `[tool.setuptools.package-data]` entry or it will work from a checkout and vanish on install. `navigator/styles/themes/`
 is the second such directory and carries its own `__init__.py` and package-data entry for that reason.
@@ -261,10 +271,11 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
-- Regenerate a component's Python from its markup: `./venv/bin/python -m navml build` (the whole installed package by
-  default, or the paths given); `--check` reports markup that no longer matches its generated half and exits 1, which
-  is what to run after editing any `.nml`. A generated file is only ever overwritten if its first line is
-  `# navml: generated`
+- Regenerate a component's Python from its markup: **`./venv/bin/python -m navml build navml navigator`** — both
+  component packages, and naming them is necessary because the no-argument form builds the installed `navml` package
+  alone, which is the edit-in-site-packages workflow rather than this repository's. `--check` reports markup that no
+  longer matches its generated half and exits 1, which is what to run after editing any `.nml`; a generated file is
+  only ever overwritten if its first line is `# navml: generated`
 - Run the tests: `./venv/bin/python -m pytest`; one file with `... -m pytest tests/test_screen.py`; one test with
   `... -m pytest tests/test_screen.py::test_only_changed_cells_are_emitted` or `-k <substring>`
 - pytest config lives in `pyproject.toml`; `pythonpath = ["."]` is what lets tests import `navkit` and `navigator` from
@@ -553,12 +564,29 @@ than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 
-`navigator/__main__.py` currently holds the whole application: `Manager` (the desktop), `MenuBar`, `Panel`, `KeyBar` and
-the `Navigator` application subclass, all painting by hand. These screens move into `*.nml` markup once navml exists,
-leaving only event handlers behind — so treat the widget code here as scaffolding, not as the eventual home of the UI.
-`Manager._place()` and `Panel`'s effects are written the way markup will compile, and are the closest thing in the repo
-to a worked example: `Manager` has no `layout()` at all, and `Panel` assigns `path` and lets the listing, cursor and
-scroll follow.
+The application is three parts. **`navigator/widgets/` holds the screens**, one module each — `manager.py` (the
+desktop), `panel.py` (with `DirEntry` beside it), `menubar.py`, `keybar.py` and `console.py` — and it is a registered
+navml component package with lazy re-exports, so `manager.nml` can be dropped in without anything else changing.
+**`navigator/scheme.py` holds the sheet**: `load_scheme`, `default_scheme`, `theme_names` and where the `.nss` files
+are. **`navigator/__main__.py` holds the command line**, the terminal it hands to navkit, and the `Navigator`
+application subclass.
+
+**Why the widgets are not in `__main__.py` any more**: that module is what the command runs, so it is already in
+`sys.modules` as `__main__`, and `from navigator.__main__ import Panel` imports a *second* copy of it — a second
+`Panel` class and two of everything the two copies then disagree about. A widget a document names has to be importable
+by its own name.
+
+**`load_scheme()` imports `navigator.widgets.panel` before it parses**, and that import is the whole reason it has a
+body. A sheet is checked against the properties widgets declare and a widget declares them by its class body running,
+so `navigator.nss`'s `icons: auto` is an unknown property until `Panel` has been imported. While every screen lived in
+one module this was a rule about where to put the parse; now it is a rule about what to import before it, so the import
+is inside the function rather than left to whoever calls.
+
+**`manager.py` is the worked example of a converted screen**: the document holds the tree, the geometry and the three
+`visible` bindings, and the Python holds the keys, `toggle_console`, `active_panel` and the three values markup may
+not bind. The other four screens are still hand-written and move next. `Panel` is the one to read before converting
+another — it assigns `path` and lets the listing, cursor and scroll follow, which is the model markup wants, and it is
+also the widget that showed why a navigated property is seeded rather than bound.
 
 - `Manager` window with two file-listing panels, and a `Console` covering the band they share. Ctrl+O swaps them, which
   is one reactive flag that three `visible` bindings read; the menu bar and key bar are simply left alone, which is why

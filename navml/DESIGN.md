@@ -1150,6 +1150,10 @@ Manager:
         path: root.left_path
 ```
 
+**That last line is wrong, and converting the desktop is what found it** — see *A property a widget navigates cannot
+be bound* below. The mechanism it illustrates is right; the example should bind something the child does not itself
+assign. Read it as `text: root.caption` and it says the same thing truthfully.
+
 ```python
 Manager(left_path=a, right_path=b, stylesheet=scheme)
 ```
@@ -1184,10 +1188,37 @@ made `Panel(parent=self)` a `TypeError`, so the desktop conversion — the proof
 unreachable. `Panel` now defaults its `path`, which is the reactive's own default anyway.
 
 **What it costs is one scan against the default.** `Panel` starts a directory scan from an effect at construction, and
-a `path:` line in markup is a binding installed after the child is built, so the panel lists the working directory once
-before the binding arrives. That is a wasted scan rather than a wrong answer — the effect re-runs when `path` changes —
-and it is the honest price of "construct, then bind", which is what a declarative tree does. A widget that cannot
-afford it takes the value in its hand-written `__init__` instead.
+a value arriving afterwards — whether a markup binding or an assignment from the parent — reaches it only after that
+scan has run. So the panel lists the working directory once before the real path arrives, and, because an effect is
+flushed rather than run immediately, *it goes on listing it until the next flush*. That is a wasted scan rather than a
+wrong answer — the application flushes before it paints, so the first frame is already right — and it is the honest
+price of "construct, then bind", which is what a declarative tree does. A widget that cannot afford it takes the value
+in its hand-written `__init__` instead.
+
+### A property a widget navigates cannot be bound
+
+The one thing converting `Manager` turned up, and it cost nothing to fix once it was named. **A markup property line
+compiles to a binding, a bound attribute is read-only until something unbinds it, and `Panel.enter()` assigns `path`
+every time the user descends a directory.** So `path: root.left_path` compiles, runs, paints the right listing, and
+then raises `ReactiveError: Panel.path is bound to an expression` the first time somebody presses Enter.
+
+The rule is about what the *child* does with the property, not about what the parent wants to say:
+
+| the child | the parent may |
+|---|---|
+| never assigns it — `Label.text`, `Panel.visible`, every geometry line | bind it, and should |
+| assigns it itself — `Panel.path`, a scroll offset, a cursor | give it a starting value, and only that |
+
+A starting value is not something markup can say. Every line in a document is an expression that is re-evaluated, which
+is the whole point of the language, and "once, then never again" is the opposite of that. So it stays in the
+hand-written half: `manager.py` assigns `self.left.path`, `self.right.path` and `self.console.cwd` after
+`super().__init__()` has built the tree, and `manager.nml` says nothing about any of them.
+
+Three things were considered and not adopted. An **initial-value spelling** (`path =: root.left_path`, say) buys one
+line and adds a second kind of property line to a language whose whole claim is that there is one. **Unbinding on
+first write** makes `enter()` silently change what a document said, which is worse than refusing. And **making the
+parent the source of truth**, so that `enter()` writes `root.left_path` back, asks the panel to know which side of the
+desktop it is on — the panel owns its path, and that is the design rather than an accident of it.
 
 ### The sheet a component brings
 
@@ -1469,10 +1500,13 @@ Manager:
         visible: parent.console_visible
 ```
 
-The four import lines name a package the conversion has to create. `MenuBar`, `Panel`, `Console` and `KeyBar` all live
-in `navigator/__main__.py` today, and while `from navigator.__main__ import Panel` would resolve, it would resolve to a
-*second* copy of the module `python -m navigator` is already running as `__main__` — so the widgets have to move out of
-the entry point before any of this compiles. That is a consequence of the import spelling rather than a cost of it: the
+The four import lines name a package that **now exists**: `navigator/widgets/`, one module per screen, with
+`navigator/scheme.py` beside it holding the sheet those screens resolve against. They used to live in
+`navigator/__main__.py`, and while `from navigator.__main__ import Panel` would have resolved, it would have resolved
+to a *second* copy of the module `python -m navigator` is already running as `__main__` — so moving them out was the
+prerequisite for any of this compiling, and it is done. The move also turned one implicit rule into a stated one:
+`load_scheme()` imports `navigator.widgets.panel` before it parses, because `navigator.nss` names the `icons` property
+that class declares. That is a consequence of the import spelling rather than a cost of it: the
 document says where its children come from, and saying it makes the problem visible at the top of the file instead of
 at run time.
 
@@ -1849,14 +1883,20 @@ Three small things for `alias`, and **all three are now there**:
   passes it — an alias whose *target* is a computed is navml's to reject, under *Checked when the document is
   compiled* above.
 
-### What converting `Manager` needs and does not have
+### What converting `Manager` needed, and what it turned up
 
-The worked example above is the plan for proving the markup machinery: compile
-`navigator/__main__.py`'s desktop from a `.nml` and check the frames still match. Walking the real class rather than the
-example turns up four things markup cannot say, none of them recorded anywhere until now. Each blocks that conversion,
-so each needs an answer before the generator is finished. Two of the four are settled above — declaring a reactive
-property under *Declaring a property*, and naming another component under *Importing another component*; the two that
-remain are not answered here, because each is a language decision rather than an oversight.
+**The conversion is done, and the frames match.** `navigator/widgets/manager.nml` is the desktop and
+`navigator/widgets/manager.py` is the handlers. The proof is the one this section always asked for and is worth
+keeping the shape of: run both trees — the commit before the conversion and the one after — on a pty at 80x24 against
+the same two absolute paths, read the escape stream each writes up to its first complete frame, and compare. It is
+3725 bytes either way and `cmp` reports no difference, so the desktop is not merely equivalent but identical down to
+the cursor moves. What is left here is the record of what stood in the way, because three of the four blockers were
+found by walking the real class and none of them was written down anywhere until it was.
+
+One thing the conversion turned up that this list did not anticipate has a section of its own: *A property a widget
+navigates cannot be bound* above. It is the only place where the finished document says *less* than the old
+`_place()` did, and the only rule in the language that is about what the child does rather than what the parent
+wants.
 
 **Component parameters** — **settled**, under *How a value gets in* above, and the second shape won: every parameter
 is an ordinary declared property, arriving as a keyword. What made it affordable was noticing that "after" need not

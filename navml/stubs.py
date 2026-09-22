@@ -133,7 +133,18 @@ def _composed(resolved: Resolved):
                 yield f"on_{block.id}_{event.handler.removeprefix('on_')}"
 
 
+#: Decorators that turn a ``def`` into an attribute.  ``computed`` is navkit's
+#: and ``property`` and ``cached_property`` are Python's; all three are read
+#: rather than called, so a stub that declared a method would be wrong at every
+#: call site.
+_ATTRIBUTE_DECORATORS = {"computed", "property", "cached_property"}
+
+
 def _write_method(coder: Coder, method) -> None:
+    for decorator in method.decorators:
+        if decorator.rsplit(".", 1)[-1] in _ATTRIBUTE_DECORATORS:
+            coder.add(1, f"{method.name}: {method.returns or '_Any'}")
+            return
     prefix = "async def" if method.is_async else "def"
     returns = f" -> {method.returns}" if method.returns else ""
     coder.add(

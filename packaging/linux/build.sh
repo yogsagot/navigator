@@ -67,6 +67,9 @@ install -m 0755 packaging/linux/nav.sh build/root/usr/bin/nav
 themes=$(ls "$LIB"/navigator/styles/themes/*.nss 2>/dev/null | wc -l)
 [ "$themes" -eq 11 ] || { echo "build.sh: expected 11 themes, packaged $themes" >&2; exit 1; }
 
+components=$(ls "$LIB"/navml/widgets/*_nml.py 2>/dev/null | wc -l)
+[ "$components" -gt 0 ] || { echo "build.sh: no components in the tree" >&2; exit 1; }
+
 # A component is up to four files and only two of them are ordinary modules
 # that `pip install --target' carries without being told to.  The markup and
 # the stubs need a [tool.setuptools.package-data] entry each, so a new widget
@@ -75,8 +78,8 @@ themes=$(ls "$LIB"/navigator/styles/themes/*.nss 2>/dev/null | wc -l)
 # same: losing a generated half breaks the import, while losing the markup
 # only leaves a package nobody can read or rebuild -- see *The markup ships*
 # in navml/DESIGN.md.
-for pair in "$LIB"/navml/widgets/*_nml.py; do
-    [ -e "$pair" ] || { echo "build.sh: no components in the tree" >&2; exit 1; }
+for pair in "$LIB"/navml/widgets/*_nml.py "$LIB"/navigator/widgets/*_nml.py; do
+    case "$pair" in *'*_nml.py') continue ;; esac   # a directory with none yet
     component=${pair%_nml.py}
     [ -f "$component.pyi" ] || {
         echo "build.sh: $(basename "$component") has no stub -- check package-data" >&2
@@ -95,7 +98,7 @@ if find "$LIB" -name '*.so' | grep -q .; then
     exit 1
 fi
 
-"$PYTHON" -c "import sys; sys.path.insert(0, '$LIB'); import navigator, navkit, pyte; import navml.widgets" \
+"$PYTHON" -c "import sys; sys.path.insert(0, '$LIB'); import navigator, navkit, pyte; import navml.widgets, navigator.widgets" \
     || { echo "build.sh: the staged tree does not import" >&2; exit 1; }
 
 echo "build.sh: staged $(du -sh "$LIB" | cut -f1) in $LIB"

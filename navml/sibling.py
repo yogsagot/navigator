@@ -44,6 +44,10 @@ class Method:
     is_async: bool
     signature: str = "self"
     returns: str | None = None
+    #: Each decorator as written, so a stub can say what one made of the
+    #: ``def`` -- ``@computed`` and ``@property`` both turn one into an
+    #: attribute, and a stub that still called it a method would be wrong.
+    decorators: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,6 +134,9 @@ def _read_class(node: ast.ClassDef) -> SiblingClass:
                 signature=_signature(statement.args),
                 returns=(
                     ast.unparse(statement.returns) if statement.returns else None
+                ),
+                decorators=tuple(
+                    ast.unparse(d) for d in statement.decorator_list
                 ),
             )
             continue
