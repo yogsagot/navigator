@@ -1,5 +1,6 @@
 from navml.widgets.label import Label
 
+#: A pressable box with a centred caption.
 Button:
     property text: ""
 

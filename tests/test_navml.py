@@ -7,7 +7,7 @@ then the guards -- each of which exists because the failure it catches is
 silent rather than loud.
 
 The components under ``navml/widgets`` are one per shape: ``Spacer`` is
-Python alone, ``Label`` is markup alone, ``Button`` is both, and
+Python alone, ``Field`` is markup alone, ``Button`` is both, and
 ``FramedButton`` is both *and* derived from a component that is itself both.
 ``Dialog`` is a fifth, on a different axis: it is the one whose *children*
 raise the events its hand-written half handles, and it pins the
@@ -41,9 +41,9 @@ from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
 from conftest import awaited
-from navml.widgets import Button, Dialog, FramedButton, Label, Spacer
+from navml.widgets import Button, Dialog, Field, FramedButton, Label, Spacer
 from navml.widgets import button as button_module
-from navml.widgets import label as label_module
+from navml.widgets import field as field_module
 from navml.widgets import spacer as spacer_module
 
 
@@ -100,7 +100,8 @@ def package(tmp_path, monkeypatch):
     "module, component",
     [
         ("navml.widgets.spacer", "Spacer"),       # Python alone
-        ("navml.widgets.label", "Label"),         # markup alone
+        ("navml.widgets.field", "Field"),         # markup alone
+        ("navml.widgets.label", "Label"),         # both
         ("navml.widgets.button", "Button"),       # both
         ("navml.widgets.framed_button", "FramedButton"),
     ],
@@ -143,9 +144,9 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     So the public module has to point at the file that really holds the class,
     and the class has to be re-homed onto the public name.
     """
-    assert label_module.__file__.endswith("label_nml.py")
-    assert Label.__module__ == "navml.widgets.label"
-    assert inspect.getsource(Label).startswith("class Label(_Component):")
+    assert field_module.__file__.endswith("field_nml.py")
+    assert Field.__module__ == "navml.widgets.field"
+    assert inspect.getsource(Field).startswith("class Field(_Component):")
 
 
 # -- what the splice produces ------------------------------------------------
@@ -442,7 +443,9 @@ def _imports_of_markup(path: pathlib.Path) -> dict[str, str]:
     return {name: line.module for line in imports_of(path) for name in line.names}
 
 
-@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+@pytest.mark.parametrize(
+    "component", ["field", "label", "button", "framed_button", "dialog"]
+)
 def test_the_markup_imports_what_its_generated_half_imports(component):
     """The two halves must not drift while the generator is a stand-in.
 
@@ -456,7 +459,9 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
     assert set(markup) == set(generated) - supplied - {"annotations"}
 
 
-@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+@pytest.mark.parametrize(
+    "component", ["field", "label", "button", "framed_button", "dialog"]
+)
 def test_the_generator_s_machinery_is_underscored(component):
     """So that a document may import any name at all -- there is no reserved word.
 
@@ -472,7 +477,9 @@ def test_the_generator_s_machinery_is_underscored(component):
     assert not supplied & set(bound)
 
 
-@pytest.mark.parametrize("component", ["label", "button", "framed_button"])
+@pytest.mark.parametrize(
+    "component", ["field", "label", "button", "framed_button", "dialog"]
+)
 def test_every_markup_line_reference_points_at_a_real_line(component):
     """The trailing ``# button.nml:12`` is how a reader gets back to the markup.
 
@@ -501,14 +508,15 @@ def test_importing_one_component_does_not_load_the_library(package):
     """
     script = (
         "import sys, importlib\n"
-        "importlib.import_module('navml.widgets.label')\n"
+        "importlib.import_module('navml.widgets.field')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navml.widgets.'))))\n"
     )
     loaded = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
-    assert loaded == ["navml.widgets.label", "navml.widgets.label_nml"]
+    assert loaded == ["navml.widgets.field", "navml.widgets.field_nml",
+                      "navml.widgets.label", "navml.widgets.label_nml"]
 
 
 def test_a_component_still_pulls_in_the_ones_it_really_uses():
@@ -530,7 +538,7 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "Dialog", "FramedButton", "Label", "Spacer",
+        "Button", "Dialog", "Field", "FramedButton", "Label", "Spacer",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent

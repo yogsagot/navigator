@@ -1,6 +1,10 @@
 from navml.widgets.button import Button
 from navml.widgets.label import Label
 
+#: A :class:`~navml.widgets.button.Button` that also shows a key hint.
+#:
+#: Its base is itself a component with two halves, so this class sits on top
+#: of a four-deep chain once both are merged.
 FramedButton(Button):
     property hint_text: "[enter]"
 

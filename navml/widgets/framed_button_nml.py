@@ -2,9 +2,6 @@
 """Generated from ``framed_button.nml``.
 
 Do not edit: edit the markup and rerun ``python -m navml build``.
-
-(Written by hand until the parser and the code generator exist, as a stand-in
-for what they will emit.)
 """
 
 from __future__ import annotations
@@ -19,8 +16,8 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.button import Button  # framed_button.nml:1
-from navml.widgets.label import Label  # framed_button.nml:2
+from navml.widgets.button import Button    # framed_button.nml:1
+from navml.widgets.label import Label    # framed_button.nml:2
 
 __navml_component__ = "FramedButton"
 
@@ -37,24 +34,18 @@ class FramedButton(Button, _Component):
     #: The document this class was generated from.
     __navml_source__ = "framed_button.nml"
 
-    hint_text: str = _reactive("[enter]")                 # framed_button.nml:5
+    hint_text: str = _reactive('[enter]')    # framed_button.nml:9
 
-    hint: Label
+    #: Ids, annotated so the hand-written half completes them.
+    hint: Label    # framed_button.nml:12
 
     def __init__(self, **kwargs: _Any) -> None:
-        # Builds the base component's tree first -- which is exactly why the
-        # children are constructed here rather than in an overridable
-        # ``_build()``: a shared name would mean this ran instead of Button's,
-        # not after it.
         super().__init__(**kwargs)
-        self.hint = Label(parent=self)                   # framed_button.nml:7
-        self.hint.x = 1                                  # framed_button.nml:9
-        self.hint.y = 1                                  # framed_button.nml:10
-        self.hint.width = _bind(                          # framed_button.nml:11
-            lambda _o: max(0, _o.parent.width - 2)
-        )
-        self.hint.height = 1                             # framed_button.nml:12
-        self.hint.text = _bind(                           # framed_button.nml:13
-            lambda _o: _o.parent.hint_text
-        )
-        self.hint.align = "right"                        # framed_button.nml:14
+        self.hint = Label(parent=self)    # framed_button.nml:11
+
+        self.hint.x = 1    # framed_button.nml:13
+        self.hint.y = 1    # framed_button.nml:14
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # framed_button.nml:15
+        self.hint.height = 1    # framed_button.nml:16
+        self.hint.text = _bind(lambda _o: _o.parent.hint_text)    # framed_button.nml:17
+        self.hint.align = 'right'    # framed_button.nml:18
