@@ -28,7 +28,7 @@ def written(tmp_path):
 
 
 def test_the_component_class_is_found_by_name():
-    sibling = Sibling.read("navml/widgets/button.py")
+    sibling = Sibling.read("navml/widgets/button/button.py")
     button = sibling.component("Button")
     assert button.bases == ("Widget",)
     assert button.emits == ("ClickEvent",)
@@ -36,24 +36,24 @@ def test_the_component_class_is_found_by_name():
 
 def test_a_helper_class_beside_the_component_is_read_too():
     """Which is how ``event`` declared in both halves is caught."""
-    sibling = Sibling.read("navml/widgets/button.py")
+    sibling = Sibling.read("navml/widgets/button/button.py")
     assert "ClickEvent" in sibling.classes
 
 
 def test_a_handler_says_whether_it_is_async():
-    dialog = Sibling.read("navml/widgets/dialog.py").component("Dialog")
+    dialog = Sibling.read("navml/widgets/dialog/dialog.py").component("Dialog")
     assert dialog.methods["show_info"].is_async is True
     assert dialog.methods["render"].is_async is False
 
 
 def test_a_reactive_declared_in_the_hand_written_half_is_reported():
     """The markup cannot see these, so a collision has to be reported."""
-    button = Sibling.read("navml/widgets/button.py").component("Button")
+    button = Sibling.read("navml/widgets/button/button.py").component("Button")
     assert "enabled" in button.reactive
 
 
 def test_a_component_with_no_hand_written_half_reads_as_nothing():
-    assert Sibling.read("navml/widgets/field.py") is None
+    assert Sibling.read("navml/widgets/field/field.py") is None
 
 
 # -- the shapes it has to get right ------------------------------------------

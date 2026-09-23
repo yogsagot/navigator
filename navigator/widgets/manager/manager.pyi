@@ -1,5 +1,5 @@
 # navml: generated
-"""The merged surface of ``navigator.widgets.manager``."""
+"""The merged surface of ``navigator.widgets.manager.manager``."""
 
 from typing import Any as _Any
 

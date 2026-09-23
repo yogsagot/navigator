@@ -37,7 +37,7 @@ and never `Panel { id: left; width: parent.width // 2 }`.
 A component is written as markup, as Python, or as both, and **either half may be absent**. All three reach the same
 public module name, so nothing importing a component can tell which it is looking at:
 
-| shape       | files                                                   | what backs `navml.widgets.button`                    |
+| shape       | files in `navml/widgets/button/`                        | what backs `navml.widgets.button.button`              |
 |-------------|---------------------------------------------------------|-------------------------------------------------------|
 | Python only | `button.py`                                             | nothing of navml's — the stock `PathFinder`           |
 | markup only | `button.nml` → `button_nml.py`, `button.pyi`            | the generated module, re-homed onto the public name   |
@@ -52,6 +52,53 @@ public module name, so nothing importing a component can tell which it is lookin
 - **`button.pyi`** — generated, tracked, shipped. Emitted whenever `button_nml.py` is, because in the markup-only shape
   it is the only thing a type checker can see for that module name.
 
+### A component is a directory
+
+Four files per component in one flat package is 22 files in two directories before the widget library has been
+started, and every widget it gains adds up to four more. So **each component lives in a directory of its own**, with
+an `__init__.py` beside the four that re-exports the class:
+
+```
+navml/widgets/button/__init__.py      from navml.widgets.button.button import Button
+navml/widgets/button/button.nml
+navml/widgets/button/button.py
+navml/widgets/button/button_nml.py
+navml/widgets/button/button.pyi
+```
+
+`from navml.widgets.button import Button` is unchanged, and so is `from navml.widgets import Button` — the directory
+takes the name the module had, so **no document, no hand-written half and no call site was edited by the move.** Four
+things about it were decided rather than fallen into:
+
+- **The files repeat the directory's name** rather than being `component.py`. Everything navml prints is a bare
+  filename — `__navml_source__`, the `# button.nml:12` source map, `--check`'s `button_nml.py: stale from line 14`,
+  `MarkupError`'s `button.nml:12:` — and a generic name would make every one of those ambiguous across components.
+  `packaging/linux/build.sh` relies on it too: it finds a component's three other files by stripping `_nml.py`.
+- **Every component gets one, including the ones written in Python alone.** `spacer/` holds a single `spacer.py`.
+  The directory is what a component *is*, so gaining a markup half adds files instead of moving them — which is what
+  keeps `spacer.py`'s own claim (*adding a `spacer.nml` later would not change one line of this file*) literally true.
+- **The library registers, not the component.** `navml.register("navml.widgets")` is still the one call, and
+  `_merge._registered` walks up the dotted name to find it. A component directory has no reason to know it is one —
+  the same argument that keeps navml's mark off the class — so its `__init__.py` is a docstring, an import and an
+  `__all__`, and there is no line to forget when a component is added.
+- **The flat shape stays legal.** Nothing in the language or the loader requires a directory; a package whose
+  component modules sit straight in it still works, and `tests/test_nml_build.py`'s `package` fixture is deliberately
+  flat so that it keeps being exercised.
+
+Two things had to change underneath, and both failed silently rather than loudly, which is why they are recorded here.
+`build.order()` keyed its dependency graph on where a document's module really is (`navml.widgets.button.button`)
+while every document imports the directory (`navml.widgets.label`) — so every edge vanished and the topological sort
+fell back on the alphabet, which compiles `button.nml` before `label.nml` and breaks a cold build with a complaint
+about an undeclared property. `_names_of` now yields both names. And `build._forget()` evicted the module it had just
+rewritten but not the component's package, which holds a binding to the very class the write replaced — so a second
+build in one process resolved later documents against the class from before it. Both have a regression test that was
+checked to fail without its fix.
+
+What a component *package* deliberately does not do is re-export lazily. It imports its own one module and nothing
+else, so the laziness that matters — one component not dragging in the library — stays entirely `navml/widgets/
+__init__.py`'s job. And an event a component declares is part of its surface, so it is re-exported too:
+`navml/widgets/button/__init__.py` publishes `ClickEvent` beside `Button`.
+
 The original sketch spelled the generated file `button.nml.py`. A dot makes it unimportable by name — `import
 navml.widgets.button.nml` splits on the dots — so no checker, no IDE and no `pkgutil` ever sees the class the
 hand-written half inherits from, which forecloses the id-annotation question in *Still open*. setuptools' `build_py`
@@ -60,7 +107,7 @@ also globs `*.py` and ships it as a module literally named `button.nml`.
 **A component is not a kind of object, and the mark that is missing is the one on the *class*.** Registration exists,
 twice over, and both times at the granularity the machinery actually asks at: `navml.register(__name__)` per package,
 because the finder is per package, and `__navml_component__` per generated module, because the splice is per module.
-Neither wants a class, and no class carries a navml base, a decorator or a metaclass. `navml/widgets/spacer.py` is the
+Neither wants a class, and no class carries a navml base, a decorator or a metaclass. `navml/widgets/spacer/spacer.py` is the
 proof: `navml/_merge.py` claims that module nowhere at all, an ordinary `navkit.Widget` subclass already *is* a
 component, and giving it a `spacer.nml` later changes not one line of it.
 
@@ -200,7 +247,10 @@ little as possible:
   `navigator/styles/*.nss`.
 - **`navml.register(__name__)` in a component package's `__init__.py`** is the bootstrap. Importing anything inside a
   package is guaranteed to run that file first, so there is no ordering hole, and the finder — which sits on
-  `sys.meta_path` and is therefore consulted for every import in the process — can bail on a set lookup that fails. A
+  `sys.meta_path` and is therefore consulted for every import in the process — bails on a set lookup that fails. It is
+  the *widget library* that registers: a component is a directory, so the package a component module lives in is the
+  component's own and never the one anybody registered, and `_registered()` walks up the dotted name to find the
+  library above it. `json` costs one failed lookup, `os.path` two. A
   `.pth` file would not do: those are executed only by `site.addsitedir()`, and `packaging/linux/` mounts its tree on
   `PYTHONPATH` rather than as a site directory, so a `.pth` would work under pip and pipx and silently not in the `.deb`
   and `.rpm` — the worst available difference.
@@ -227,10 +277,15 @@ writable, so editing `button.nml` in site-packages and rerunning it regenerates 
 place; `--check` reports markup that no longer matches its generated half. The `.deb`/`.rpm` tree is root-owned, so
 there the same workflow means copying the package out first, which is the ordinary situation for a system package.
 
-It costs two `[tool.setuptools.package-data]` entries, and a new component directory needs its own or its markup and its
-stubs work from a checkout and vanish on install. `packaging/linux/build.sh` therefore asserts all three extensions are
-staged, with the severities kept apart: a missing `*_nml.py` or `*.pyi` is a broken install, a missing `*.nml` is
-a stripped one.
+It costs one `[tool.setuptools.package-data]` entry, `"*" = ["*.nml", "*.pyi"]` — setuptools' every-package key, which
+it merges with the exact keys beside it rather than replacing them. Naming the packages instead was what the entry used
+to do, and a component being a directory is what ended it: markup and stubs now live one package deeper than the
+library that holds them and these keys do not inherit, so the honest spelling would be one line per component and a
+silent hole — working from a checkout, absent from a wheel — the first time somebody forgot one.
+`packaging/linux/build.sh` still asserts all three extensions are staged, with the severities kept apart: a missing
+`*_nml.py` or `*.pyi` is a broken install, a missing `*.nml` is a stripped one. That is now belt and braces rather than
+the only defence — and its smoke import had to grow teeth for the same reason, because `import navml.widgets` imports
+no component at all and would pass with every component directory missing.
 
 ### What this asks of navkit
 
@@ -1015,7 +1070,7 @@ paying for itself a second time.
 - **The specific hook does not take the general one away.** The stub returns False, so a click the hand-written half
   did not name carries on up to the component's own `on_click`, exactly as it would have if the stub were not there.
   A component may write both, and reading them together reads in the order `emit()` walks: the named child first, then
-  everything else. `navml/widgets/dialog.py` is that example — `ok` overrides its stub, `cancel` does not, and the
+  everything else. `navml/widgets/dialog/dialog.py` is that example — `ok` overrides its stub, `cancel` does not, and the
   dialog's `on_click` is what dismisses it.
 - **`check_handlers` enforces `async def` on both halves, for free.** It scans `vars(cls)` for `on_*` at class
   creation, so a synchronous stub or a synchronous override fails where it is written rather than at the first click.
@@ -1120,7 +1175,7 @@ It holds three things, each of which the generator would otherwise repeat in eve
   generated half rather than only a file comparison.
 
 **It is not a test of componenthood, and the asymmetry is visible outside Python.** It is true of a component written
-in markup and false of one written in Python — `navml/widgets/spacer.py` is a component and is not a `Component` — so
+in markup and false of one written in Python — `navml/widgets/spacer/spacer.py` is a component and is not a `Component` — so
 it answers *built from markup* and may never be read as *is a component*. That was already stated above as a property
 of any such test. What is new is where it shows: **`navkit.stylesheet._is_a` matches a type selector by class *name*
 walking the MRO, so `Component { }` is a live `.nss` selector** with exactly that membership. Underscoring the name
@@ -1173,7 +1228,7 @@ and assign after. Three consequences worth stating:
 
 QML's answer is that a component has no constructor and everything is a property; Kivy's is that `__init__` keeps
 taking Python arguments. This is QML's, with Python's keyword syntax doing the work — and it costs no new language.
-**A hand-written half may still take a positional argument if it wants one**: `navml/widgets/button.py` spells
+**A hand-written half may still take a positional argument if it wants one**: `navml/widgets/button/button.py` spells
 `def __init__(self, text: str = "", **kwargs)`, which captures `text` before `Component` ever sees it. That is a
 choice a component makes about its own call site, not something markup needs to know.
 
@@ -1885,8 +1940,8 @@ Three small things for `alias`, and **all three are now there**:
 
 ### What converting `Manager` needed, and what it turned up
 
-**The conversion is done, and the frames match.** `navigator/widgets/manager.nml` is the desktop and
-`navigator/widgets/manager.py` is the handlers. The proof is the one this section always asked for and is worth
+**The conversion is done, and the frames match.** `navigator/widgets/manager/manager.nml` is the desktop and
+`navigator/widgets/manager/manager.py` is the handlers. The proof is the one this section always asked for and is worth
 keeping the shape of: run both trees — the commit before the conversion and the one after — on a pty at 80x24 against
 the same two absolute paths, read the escape stream each writes up to its first complete frame, and compare. It is
 3725 bytes either way and `cmp` reports no difference, so the desktop is not merely equivalent but identical down to
@@ -1950,7 +2005,7 @@ Five things this file had left implicit, each found by writing the code and each
   compile time instead. A literal onto a plain attribute stays legal; it is the binding that cannot work.
 - **A widget that paints cannot be markup-only, and `Label` was.** Its `render()` lived in the *generated* file, which
   was tenable only while that file was hand-written; regenerating it would have blanked every `Button` caption. `Label`
-  now has a `label.py` holding the painting, and `navml/widgets/field.nml` is the markup-only example in its place: a
+  now has a `label.py` holding the painting, and `navml/widgets/field/field.nml` is the markup-only example in its place: a
   caption and a value composed out of two `Label`s, which paints nothing itself and so needs no hand-written half. The
   general rule is worth stating, because it arrives for every future component: **markup declares and places, Python
   paints**, so a component with a `render()` has two halves by construction.
@@ -1986,7 +2041,7 @@ Five things this file had left implicit, each found by writing the code and each
   event class lives, that a widget declares what it emits, how the generator checks an `on_click:` line in both of the
   places bubbling makes it legal, and the `event ClickEvent` directive. The alias question *Aliases* deferred here is
   answered with it, and answered as no. What this bullet was waiting for — "the widget library declares some events to
-  point at" — is `navml/widgets/button.py`, which emits a `ClickEvent` from two input routes.
+  point at" — is `navml/widgets/button/button.py`, which emits a `ClickEvent` from two input routes.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not

@@ -88,6 +88,7 @@ include = ["navkit*", "navml*", "navigator*"]
 # should own.
 "navigator.styles" = ["*.nss"]
 "navigator.styles.themes" = ["*.nss"]
+"navml" = ["py.typed"]
 # A component's markup is shipped even though nothing at run time reads it:
 # somebody reading a generated `*_nml.py' should be able to read what it was
 # generated from, and `python -m navml build' regenerates in place for anyone
@@ -96,15 +97,15 @@ include = ["navkit*", "navml*", "navigator*"]
 # `.nml' costs a reader a file rather than costing a user a running program.
 # The stubs are the other half of that: a markup-only component has no `.py'
 # at all, so its `.pyi' is the only thing a type checker can see for it.
-# A new component directory needs its own entry here or both work from a
-# checkout and vanish on install.
-"navml" = ["py.typed"]
-"navml.widgets" = ["*.nml", "*.pyi"]
-# The application's own screens are a component package too, and will hold
-# `manager.nml' once the desktop is converted.  The entry is here now because
-# the failure it prevents is silent: markup and stubs reach a checkout without
-# being declared and reach a wheel only by being declared.
-"navigator.widgets" = ["*.nml", "*.pyi"]
+#
+# `*' is setuptools' every-package key, and it is chosen over naming the two
+# widget packages because **a component is a directory**: its markup and its
+# stub live one package deeper than the library that holds them, and these
+# keys do not inherit.  Naming them would be one line per component and a
+# silent hole -- working from a checkout, absent from a wheel -- the first
+# time somebody forgot one.  packaging/linux/build.sh still asserts the files
+# arrived, but that is now belt and braces rather than the only defence.
+"*" = ["*.nml", "*.pyi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -42,9 +42,13 @@ from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
 from conftest import awaited
 from navml.widgets import Button, Dialog, Field, FramedButton, Label, Spacer
-from navml.widgets import button as button_module
-from navml.widgets import field as field_module
-from navml.widgets import spacer as spacer_module
+# The *component modules*, not their packages: a component is a directory whose
+# `__init__.py' re-exports the class, so the questions these tests ask about a
+# module -- its `__file__', its loader, where a class is re-homed -- are about
+# the module one level in.
+from navml.widgets.button import button as button_module
+from navml.widgets.field import field as field_module
+from navml.widgets.spacer import spacer as spacer_module
 
 
 @pytest.fixture(autouse=True)
@@ -133,8 +137,8 @@ def test_a_merged_component_keeps_one_truthful_source_file():
     """
     assert button_module.__file__.endswith("button.py")
     assert button_module.__spec__.origin == button_module.__file__
-    assert button_module.__loader__.get_source("navml.widgets.button")
-    assert button_module.__loader__.get_code("navml.widgets.button") is not None
+    assert button_module.__loader__.get_source("navml.widgets.button.button")
+    assert button_module.__loader__.get_code("navml.widgets.button.button") is not None
     assert inspect.getsource(Button).startswith("class Button(Widget):")
 
 
@@ -145,7 +149,7 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     and the class has to be re-homed onto the public name.
     """
     assert field_module.__file__.endswith("field_nml.py")
-    assert Field.__module__ == "navml.widgets.field"
+    assert Field.__module__ == "navml.widgets.field.field"
     assert inspect.getsource(Field).startswith("class Field(_Component):")
 
 
@@ -158,7 +162,7 @@ def test_the_generated_class_is_the_base():
     Keeping the name means a sheet's ``Button { }`` reads the same whether or
     not a component has a hand-written half.
     """
-    generated = importlib.import_module("navml.widgets.button_nml")
+    generated = importlib.import_module("navml.widgets.button.button_nml")
     assert [c.__name__ for c in Button.__mro__] == [
         "Button", "Button", "Component", "Widget", "object"
     ]
@@ -408,6 +412,15 @@ def test_reloading_a_merged_component_splices_again(package):
 WIDGETS = pathlib.Path(navml.widgets.__file__).parent
 
 
+def shipped(stem: str, suffix: str) -> pathlib.Path:
+    """One file of a shipped component.
+
+    A component is a directory whose files repeat its name, so the paths in
+    here go through this rather than being spelled out.
+    """
+    return WIDGETS / stem / f"{stem}{suffix}"
+
+
 def _bound(node: ast.Import | ast.ImportFrom) -> dict[str, str]:
     """The names one import statement binds.
 
@@ -453,8 +466,8 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
     document's bound names are exactly the generated module's non-underscored
     ones.
     """
-    markup = _imports_of_markup(WIDGETS / f"{component}.nml")
-    generated = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
+    markup = _imports_of_markup(shipped(component, ".nml"))
+    generated = _imports_of_python(shipped(component, "_nml.py").read_text())
     supplied = {n for n in generated if n.startswith("_")}
     assert set(markup) == set(generated) - supplied - {"annotations"}
 
@@ -471,7 +484,7 @@ def test_the_generator_s_machinery_is_underscored(component):
     machinery, and a document that imports its own ``Component`` -- or its own
     ``Widget`` -- gets exactly that.
     """
-    bound = _imports_of_python((WIDGETS / f"{component}_nml.py").read_text())
+    bound = _imports_of_python(shipped(component, "_nml.py").read_text())
     assert "_Component" in bound
     supplied = {"Component", "Widget", "bind", "reactive", "is_bound", "Any", "Surface"}
     assert not supplied & set(bound)
@@ -486,8 +499,8 @@ def test_every_markup_line_reference_points_at_a_real_line(component):
     It is also the thing an edit to the markup silently invalidates, which is
     why it is checked rather than trusted.
     """
-    lines = (WIDGETS / f"{component}.nml").read_text().splitlines()
-    generated = (WIDGETS / f"{component}_nml.py").read_text()
+    lines = (shipped(component, ".nml")).read_text().splitlines()
+    generated = shipped(component, "_nml.py").read_text()
     found = re.findall(rf"# {component}\.nml:(\d+)", generated)
     assert found, "no markup references at all"
     for number in found:
@@ -505,6 +518,11 @@ def test_importing_one_component_does_not_load_the_library(package):
     so generating a component really imports the ones it uses.  If the package
     re-exported eagerly, importing any one would import every one, and nothing
     could be generated until everything already had been.
+
+    Three entries per component, not one: a component is a directory, so its
+    package, its module and its generated module each get a slot.  **What this
+    pins is the absence** -- ``button``, ``dialog``, ``framed_button`` and
+    ``spacer`` -- and that is untouched by the count going up.
     """
     script = (
         "import sys, importlib\n"
@@ -515,8 +533,14 @@ def test_importing_one_component_does_not_load_the_library(package):
     loaded = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
-    assert loaded == ["navml.widgets.field", "navml.widgets.field_nml",
-                      "navml.widgets.label", "navml.widgets.label_nml"]
+    assert loaded == [
+        "navml.widgets.field",
+        "navml.widgets.field.field",
+        "navml.widgets.field.field_nml",
+        "navml.widgets.label",
+        "navml.widgets.label.label",
+        "navml.widgets.label.label_nml",
+    ]
 
 
 def test_a_component_still_pulls_in_the_ones_it_really_uses():
@@ -549,7 +573,54 @@ def test_the_finder_declines_everything_it_is_not_asked_about():
     finder = ComponentFinder()
     assert finder.find_spec("json", None) is None
     assert finder.find_spec("navkit.widget", ["navkit"]) is None
-    assert finder.find_spec("navml.widgets.button_nml", ["navml/widgets"]) is None
+    assert finder.find_spec(
+        "navml.widgets.button.button_nml", ["navml/widgets/button"]
+    ) is None
+
+
+def test_registering_a_library_covers_the_components_inside_it(package):
+    """One ``navml.register`` call per widget library, not per component.
+
+    A component is a directory, so the package a component module lives in is
+    the component's own and never the one anybody registered.  The finder
+    walks up the dotted name to find the library above it, which is what lets
+    a component directory's ``__init__.py`` be a re-export and nothing else.
+    """
+    component = package.path / "leaf"
+    component.mkdir()
+    (component / "__init__.py").write_text(
+        f"from {package.name}.leaf.leaf import Leaf\n", encoding="utf-8"
+    )
+    (component / "leaf_nml.py").write_text(
+        "__navml_component__ = 'Leaf'\n"
+        "__all__ = ['Leaf']\n"
+        "from navkit.widget import Widget\n"
+        "class Leaf(Widget):\n    pass\n",
+        encoding="utf-8",
+    )
+    module = package.load("leaf")
+    assert issubclass(module.Leaf, Widget)
+    assert module.Leaf.__module__ == f"{package.name}.leaf.leaf"
+
+
+def test_the_finder_never_claims_a_package(package):
+    """**A component is a module.**
+
+    A stale flat ``leaf_nml.py`` left beside a ``leaf/`` directory -- an
+    untracked copy, or a native package upgrade that adds files without
+    removing them -- would otherwise make the finder rebase whatever the
+    directory re-exported onto a generated class from before the move.  CPython
+    gives no warning for that; declining does.
+    """
+    component = package.path / "leaf"
+    component.mkdir()
+    (component / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (package.path / "leaf_nml.py").write_text(
+        "__navml_component__ = 'Leaf'\n__all__ = []\n", encoding="utf-8"
+    )
+    module = package.load("leaf")
+    assert module.VALUE == 1          # the package, loaded by PathFinder
+    assert hasattr(module, "__path__")
 
 
 # -- a component with an event of its own -----------------------------------
@@ -740,11 +811,11 @@ def test_the_markup_names_every_composed_handler_the_python_half_defines():
     asserts the shipped pair is consistent, which is the same question asked
     of the one document that exists.
     """
-    markup = (WIDGETS / "dialog.nml").read_text()
+    markup = (shipped("dialog", ".nml")).read_text()
     ids = set(re.findall(r"^\s+id: (\w+)$", markup, re.M))
     assert ids == {"message", "ok", "cancel", "info"}
 
-    source = (WIDGETS / "dialog.py").read_text()
+    source = (shipped("dialog", ".py")).read_text()
     composed = re.findall(r"async def on_(\w+)_click\(", source)
     assert composed, "the example is supposed to have one"
     for stem in composed:

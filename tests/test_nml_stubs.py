@@ -19,14 +19,23 @@ from navml.stubs import stub
 
 SHIPPED = ["label", "button", "framed_button", "dialog"]
 
+def shipped(stem: str, suffix: str) -> str:
+    """One file of a shipped component.
+
+    A component is a directory whose files repeat its name, so every path in
+    here goes through this rather than being spelled out -- the next layout
+    question then has one place to answer.
+    """
+    return f"navml/widgets/{stem}/{stem}{suffix}"
+
 
 def build(stem: str) -> str:
-    document = parse_file(f"navml/widgets/{stem}.nml")
+    document = parse_file(shipped(stem, ".nml"))
     return stub(
         resolve(
             document,
-            package="navml.widgets",
-            sibling=Sibling.read(f"navml/widgets/{stem}.py"),
+            package=f"navml.widgets.{stem}",
+            sibling=Sibling.read(shipped(stem, ".py")),
         )
     )
 

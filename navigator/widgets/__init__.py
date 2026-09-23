@@ -1,6 +1,6 @@
 """The file manager's own widgets.
 
-The screens `python -m navigator` paints, one module each, moved out of the
+The screens `python -m navigator` paints, one directory each, moved out of the
 entry point so that they can be imported by name.  **That is the point of the
 package rather than a side effect of it**: `navigator/__main__.py` is what the
 command runs, so it is already in `sys.modules` as `__main__`, and
@@ -31,8 +31,9 @@ import navml
 
 navml.register(__name__)
 
-#: Name -> the module in this package that defines it.  Written out rather
-#: than discovered, so a typo is an `AttributeError' naming the widget.
+#: Name -> the package in here that publishes it.  Written out rather than
+#: discovered, so a typo is an `AttributeError' naming the widget.  Two names
+#: map to `panel': its module carries `DirEntry' beside `Panel'.
 _WIDGETS = {
     "Console": "console",
     "DirEntry": "panel",

@@ -5,7 +5,7 @@ be absent**.  All three shapes reach the same public module name, so nothing
 importing a component can tell which it is looking at:
 
 ======================  ==================================  ==================
-shape                   files                               backs ``button``
+shape                   files in ``button/``                backs ``button``
 ======================  ==================================  ==================
 Python only             ``button.py``                       nothing here --
                                                             the stock
@@ -16,6 +16,12 @@ both                    ``button.py`` and ``button_nml.py``  ``button.py``,
                                                             with the generated
                                                             class spliced in
 ======================  ==================================  ==================
+
+**A component is a directory**, and the files above sit in it beside an
+``__init__.py`` that re-exports the class -- so ``navml.widgets.button`` is a
+package and the component itself is ``navml.widgets.button.button``.  That is
+this repository's convention rather than a rule of the language: a flat package
+whose modules sit directly in it still works, and the tests build them.
 
 The merge itself is one line -- ``cls.__bases__ = (generated,)`` -- and
 everything in this module exists to reach it safely.  See *The two halves of a
@@ -48,9 +54,10 @@ GENERATED_SUFFIX = "_nml"
 #: convention to get wrong and a handler module may define helpers freely.
 COMPONENT_ATTR = "__navml_component__"
 
-#: Packages that may contain components, filled in by :func:`register`.  The
-#: finder sits on ``sys.meta_path`` and is therefore consulted for *every*
-#: import in the process, so its first act is a set lookup that fails.
+#: Packages that may contain components, filled in by :func:`register`.  A
+#: *library* is what registers -- ``navml.widgets`` -- and everything below it
+#: is covered, because a component is a directory and so lives one package
+#: deeper than the library that holds it.
 _REGISTERED: set[str] = set()
 
 
@@ -68,9 +75,32 @@ def register(package: str) -> None:
     the ``.deb``/``.rpm`` tree is mounted on ``PYTHONPATH`` rather than being a
     site directory, so it would work for pip and pipx and silently not for the
     native packages.
+
+    **It is the widget library that registers, not each component.**
+    ``navml.register("navml.widgets")`` covers ``navml.widgets.button`` and
+    everything below it, which is what lets a component directory's
+    ``__init__.py`` be a re-export and nothing else -- a component has no
+    reason to know it is one, which is the same argument that keeps navml's
+    mark off the class.
     """
     _REGISTERED.add(package)
     install()
+
+
+def _registered(package: str) -> bool:
+    """Whether *package* is registered, or sits inside one that is.
+
+    The walk up the dotted name is what a component directory costs: the
+    package a component module lives in is the component's own, and the one
+    somebody registered is the library above it.  The finder is consulted for
+    *every* import in the process, so the loop has to stay cheap -- ``json``
+    fails on one set lookup, ``os.path`` on two.
+    """
+    while package:
+        if package in _REGISTERED:
+            return True
+        package = package.rpartition(".")[0]
+    return False
 
 
 def install() -> None:
@@ -89,7 +119,10 @@ class ComponentFinder(importlib.abc.MetaPathFinder):
         self, fullname: str, path: Sequence[str] | None = None, target: Any = None
     ) -> importlib.machinery.ModuleSpec | None:
         package, _, name = fullname.rpartition(".")
-        if package not in _REGISTERED or path is None:
+        # `path is None' is the cheaper of the two and fails for every
+        # top-level import, so it goes first: this runs for every import in
+        # the process.
+        if path is None or not _registered(package):
             return None
         if name.endswith(GENERATED_SUFFIX):
             # The generated half is an ordinary module and loads as one.
@@ -103,6 +136,15 @@ class ComponentFinder(importlib.abc.MetaPathFinder):
 
         generated_name = f"{package}.{name}{GENERATED_SUFFIX}"
         spec = importlib.machinery.PathFinder.find_spec(fullname, path, target)
+        if spec is not None and spec.submodule_search_locations is not None:
+            # **A component is a module, never a package.**  Without this, a
+            # stale flat `button_nml.py' left beside a `button/' directory --
+            # an untracked copy, or a native package upgrade that adds files
+            # without removing them -- would make this finder rebase whatever
+            # `button/__init__.py' re-exported onto a generated class from
+            # before the move.  Declining hands the import back to PathFinder,
+            # which turns a silent wrong MRO into an ordinary one.
+            return None
         if spec is not None and spec.loader is not None:
             # Both halves.  Delegate to the real source loader and add one
             # line afterwards, so __file__, __spec__, get_source and get_code
