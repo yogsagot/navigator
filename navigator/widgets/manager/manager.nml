@@ -1,61 +1,39 @@
-from navigator.widgets.console import Console
-from navigator.widgets.keybar import KeyBar
-from navigator.widgets.menubar import MenuBar
 from navigator.widgets.panel import Panel
+from navml.widgets.window import Window
 
-#: The Navigator desktop: menu bar, two panels and the key bar.
+#: The file manager: two panels, in a window on the desktop.
 #:
-#: The first screen written as markup rather than placed by hand, and it reads
-#: the way the old ``_place()`` did because that method was written to compile
-#: to this.  There is no ``layout()`` anywhere: every size that depends on the
-#: terminal is an expression, so a resize propagates by itself.
+#: DOS Navigator's ``TDoubleWindow``, and **frameless**: the two panels'
+#: frames are the window's frame, so there is nothing to draw around them.
+#: The close and zoom icons go on the panels' top edges and the resize grip on
+#: the right panel's corner, which ``Window.render_after`` paints over them.
 #:
-#: Where the two panels open is not here, and that is the one thing converting
-#: this screen turned up: a panel *navigates* its ``path``, and markup can only
-#: bind, so binding it would make ``enter()`` an error rather than a move.  The
-#: hand-written half seeds all three instead -- see ``manager.py``.
-Manager:
-    #: Whether Ctrl+O has swapped the panels for the console.  One flag that
-    #: the three ``visible`` lines below read, which is the whole of Ctrl+O.
-    property console_visible: False
-
-    MenuBar:
-        id: menu
-        x: 0
-        y: 0
-        width: parent.width
-        height: 1
+#: The panels' geometry is bound to the window's, and the window's is not
+#: bound to anything: a drag assigns it, and the panels follow because what
+#: they read is reactive.  The window opens zoomed, filling the desktop, which
+#: is what the desktop looked like before there was one.
+#:
+#: Where the two panels open is not here: a panel *navigates* its ``path``, and
+#: markup can only bind, so binding it would make ``enter()`` an error rather
+#: than a move.  The hand-written half seeds both instead -- see
+#: ``manager.py``.
+Manager(Window):
+    zoomed: True
+    min_width: 24
+    min_height: 5
 
     Panel:
         id: left
         x: 0
-        y: 1
+        y: 0
         width: parent.width // 2
-        height: max(3, parent.height - 2)
-        visible: not parent.console_visible
+        height: parent.height
+        title_margin: 5
 
     Panel:
         id: right
         x: parent.width // 2
-        y: 1
+        y: 0
         width: parent.width - parent.width // 2
-        height: max(3, parent.height - 2)
-        visible: not parent.console_visible
-
-    # The console covers the band the two panels share, and the three of them
-    # take turns.  The menu bar and the key bar are simply left alone, which is
-    # why they stay drawn over the output, as they were in DOS Navigator.
-    Console:
-        id: console
-        x: 0
-        y: 1
-        width: parent.width
-        height: max(1, parent.height - 2)
-        visible: parent.console_visible
-
-    KeyBar:
-        id: keybar
-        x: 0
-        y: max(1, parent.height - 1)
-        width: parent.width
-        height: 1
+        height: parent.height
+        title_margin: 5

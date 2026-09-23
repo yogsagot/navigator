@@ -298,7 +298,7 @@ reads the same whether or not a component has handlers.
 
 ## The widget library
 
-Thirteen components under `navml/widgets/`, and **not one of them was designed.** DOS Navigator's Colors dialog
+Fifteen components under `navml/widgets/`, and **not one of the first thirteen was designed.** DOS Navigator's Colors dialog
 exposes 144 slots, `tools/palconv.py` transcribed every one into all eleven themes, and the *Dialogs* group names the
 widgets outright — frame and frame icons, scroll bar page and icons, static text, label, button, cluster, input,
 history, list, information pane — with their states spelled out beside them. A colour table is a strange place to
@@ -318,8 +318,10 @@ project's standing rule says to take them rather than invent six of our own.
 | `RadioButtons` | Python | inherited | inherited | — |
 | `ScrollBar` | both | `arrow`, `thumb` | — | `ScrollEvent` |
 | `ListViewer` | both | `title`, `row`, `footer`, `error`, `divider` | `:disabled`, `:focused` | — |
-| `Window` | both | `title`, `icon` | `:focused` | — |
+| `Modal` | both | `title`, `icon` | `:focused` | — |
 | `Dialog` | both | inherited | inherited | — |
+| `Window` | both | `title`, `icon` | `:active` | — |
+| `Desktop` | Python | — | — | `EmptiedEvent` |
 | `Field` | **markup only** | — | — | — |
 | `Spacer` | Python | — | — | — |
 
@@ -340,7 +342,7 @@ called from exactly two painters; `~~` is a literal tilde and an unpaired `~` is
 text first and a declaration second.
 
 **The container dispatches it, and needs no new mechanism.** `dispatch_key` walks the focus path *upward*, so a
-`Window` is offered every key its own controls did not claim — it then walks its own subtree for a `Control` whose
+`Modal` is offered every key its own controls did not claim — it then walks its own subtree for a `Control` whose
 letter matches. Turbo Vision broadcasts because it has no focus path; navkit has one, and the walk is the downward
 half of it. **Alt and a letter only**: the original also accepts a bare letter when no input line holds the focus,
 and reproducing that would mean asking the focused control whether it eats printable keys, which is an implicit
@@ -381,18 +383,19 @@ ternary, which is markup saying something about a value rather than about the sh
 `Component.layout()` does not cascade into children — but `Widget.add()` still calls
 `child.layout(parent.width, parent.height)`, and `Component.layout` steps around a side only when it carries a
 *binding*. So a dialog sized with a literal is resized to the whole terminal the moment `overlay()` adds it; measured
-at 40x8 asked for and 100x30 got. Every dialog therefore routes its size through a declared property the base binds
+at 40x8 asked for and 100x30 got. Every modal therefore routes its size through a declared property the base binds
 from:
 
 ```
-Dialog:
-    property dialog_width: 50
-    width: self.dialog_width
+Modal:
+    property modal_width: 50
+    width: self.modal_width
 ```
 
 which is also the only way a *derived* document can change it. `width: 44` in `MkdirDialog` would be a value over a
-live binding installed by `super().__init__()` a moment earlier, and would raise; `dialog_width: 44` is a literal
-onto an attribute nothing has bound.
+live binding installed by `super().__init__()` a moment earlier, and would raise; `modal_width: 44` is a literal
+onto an attribute nothing has bound. The binding lives on `Modal` rather than `Dialog` since the split below, and so
+does the centring — which is also exactly why a modal cannot be dragged.
 
 ### A derived component's own children land after its base's
 
@@ -429,9 +432,54 @@ and a list of imports is a thing to forget.
 
 One consequence worth knowing: `Panel` is a `ListViewer` now, and a type selector matches by class *name* over the
 whole MRO — so a bare `ListViewer { }` rule ties with `Panel { }` on specificity and wins on source order. The
-dialog list and scrollbar rules are scoped `Window ListViewer` for that reason, which is also what the original
-does: DOS Navigator carries `[35-36]`/`[57-60]` under *Dialogs* and `[83-84]` under *File Manager* precisely because
+dialog list and scrollbar rules are scoped `Modal ListViewer` for that reason — and the scope is load-bearing twice
+over now that the file manager is itself a `Window`, because `Window ListViewer` would reach every panel. That is also
+what the original does: DOS Navigator carries `[35-36]`/`[57-60]` under *Dialogs* and `[83-84]` under *File Manager* precisely because
 the same widget is a different colour inside a dialog.
+
+### Windows, the desktop and the modal
+
+The library's first `Window` was a framed box a dialog was made of. It is `Modal` now, and `Window` is what Turbo
+Vision meant by one: a detached, overlapping rectangle on a desktop that the user drags, resizes, zooms and brings
+forward. The two differ in **where they live**, and every other difference follows from that.
+
+- **A modal is overlaid on the application's root; a window lives on a `Desktop` one level below it.** `overlay()` is
+  `root.add()`, and every desktop is a child of the root, so no window can be raised past a modal however it is
+  raised — the guarantee is structural, not a z-index to keep in order. Blocking the input outside it was already
+  navkit's (`modal = True`, read by the mount walk), and the one leak was the *application's* own hooks, which run
+  before routing: `Navigator.on_key` and `on_mouse_click` return early while `app.modal` is set, or Ctrl+O would put
+  the windows away under an open dialog.
+- **A modal's geometry is bound; a window's is state.** A drag assigns `x`/`y`, a resize `width`/`height`, a zoom all
+  four — and by *A property a widget navigates cannot be bound*, those four are plain values. So `Window.layout()` is
+  not the cascade: it keeps its own rectangle and only clamps it into the desktop, leaving eight columns and the title
+  row to take hold of again, or, zoomed, takes the desktop's size. A derived document gives a starting size with
+  literal lines — `zoomed: True` is one — because a literal is an assignment and not a binding.
+- **A desktop re-fits its windows from an effect on its own size.** A markup parent does not cascade `layout()`, so a
+  resize reaches a bound desktop as a changed value and never as a call; `Desktop.mounted()` watches its width and
+  height and lays out every window, untracked, so the window geometry it assigns does not wake it again.
+- **Raising is a reorder** (`Widget.raise_child`, navkit's), because re-adding unmounts. `Desktop.active_window` is
+  reactive because the children list is not, and it is what `Window.active` — the `:active` state — reads.
+- **The focus moves with the activation, in the same call.** Each window remembers what had the keyboard when it went
+  to the back, and `Desktop.activate()` gives it back — so Ctrl+O's return and a click on a background window both
+  land on exactly the widget that had it. Not from an effect, for `toggle_console`'s reason.
+- **The first click on a background window is delivered, not swallowed**, as in Turbo Vision: it activates the
+  window and then reaches the child under it, so one click selects the other file manager *and* moves its cursor. The
+  exception is the chrome: an inactive window does not paint its icons, so it cannot be closed by a click on where
+  one would have been.
+- **Chrome is tested before the children.** A frameless window has children on row 0 — the file manager's panels are
+  its frame — and they would otherwise claim every press on the title. `chrome_hit()` and the painter read one column
+  table, so the icons drawn and the icons clicked cannot drift apart; a frameless window paints them in
+  `render_after`, over the panels. `Panel.title_margin` keeps a long path from running under them.
+- **A drag holds the mouse** through navkit's `capture_mouse`, so the pointer outrunning the window does not end it.
+- **The window keys live on `Desktop.on_key`**, reached after the active window's children, so a panel or an input
+  line keeps first refusal. `WINDOW_KEYS` is one table: Ctrl+F5 move/size mode, Shift+F5 zoom, Ctrl+F6 and
+  Ctrl+Shift+F6 next and previous, Alt+F3 close. Turbo Vision's plain F5 and F6 are Copy and RenMov in DOS
+  Navigator's panels, which is why two of these carry a modifier; **they are still to be checked against DOS
+  Navigator's own window menu in `DN.DNR`**, and the table is where that check will land.
+- **An emptied desktop says so** with `EmptiedEvent`, whose handler name makes the generator's stub for a child with
+  id `desktop` read `on_desktop_emptied` — the name was chosen for that. The event is emitted from a spawned task
+  because closing is synchronous and emitting is not, so a key in the same batch as the close still meets the old
+  focus; that is the one place the same-call rule is bent.
 
 ## Importing another component
 

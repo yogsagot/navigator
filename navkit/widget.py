@@ -223,6 +223,28 @@ class Widget:
             child.parent = None
             self.invalidate()
 
+    def raise_child(self, child: Widget) -> None:
+        """Move *child* to the top of the z-order: painted last, hit first.
+
+        **A reorder, never a re-add.**  :meth:`add` would move it too, but by
+        detaching it first -- which unmounts the subtree, disposes its effects,
+        takes the focus away if the focus was inside it and pops it off the
+        modal stack.  Bringing a window forward must do none of that: it is
+        the same window, still holding the same keyboard.  The children list
+        is not reactive, so the repaint is asked for by hand.
+        """
+        if child in self.children and self.children[-1] is not child:
+            self.children.remove(child)
+            self.children.append(child)
+            self.invalidate()
+
+    def lower_child(self, child: Widget) -> None:
+        """Move *child* to the bottom of the z-order.  See :meth:`raise_child`."""
+        if child in self.children and self.children[0] is not child:
+            self.children.remove(child)
+            self.children.insert(0, child)
+            self.invalidate()
+
     def _holds(self, other: Widget | None) -> bool:
         """True if *other* is this widget or somewhere beneath it."""
         while other is not None:
@@ -525,6 +547,16 @@ class Widget:
         self.render(own)
         for child in self.children:
             child.render_tree(own)
+        self.render_after(own)
+
+    def render_after(self, surface: Surface) -> None:
+        """Paint over this widget's children, into the same *surface*.
+
+        Empty by default.  For a widget whose own decoration has to sit on top
+        of what its children draw -- a frameless window whose icons go on the
+        top edge of the panels inside it.  Everything else paints in
+        :meth:`render` and never needs this.
+        """
 
     # -- events -------------------------------------------------------------
 
@@ -644,6 +676,9 @@ class Widget:
         self.unmounting()
         dispose_effects(self)
         self.is_mounted = False
+        app = self.application
+        if app is not None and app.mouse_capture is self:
+            app.release_mouse()
         # Last, and while the widget is still attached: releasing the input is
         # the final thing a modal does, and the application has to be able to
         # reach it to hand the focus back.

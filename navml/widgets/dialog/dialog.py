@@ -30,17 +30,11 @@ from navkit.events import Event, KeyEvent
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
-from navml.widgets.window import Window
+from navml.widgets.modal import Modal
 
 
-class Dialog(Window):
+class Dialog(Modal):
     """A modal window with an OK and a Cancel, and an answer."""
-
-    #: All input while it is mounted.  Read by the mount walk, which pushes
-    #: the dialog onto the application's modal stack before ``mounted()``
-    #: runs -- so Tab containment, the focus claim and the focus restore are
-    #: all navkit's and none of them is repeated here.
-    modal: bool = True
 
     #: What OK meant, readable while the dialog is still up.  A *state*, so
     #: reactive; :meth:`execute`'s return value is this at the moment it
@@ -157,7 +151,7 @@ class Dialog(Window):
             if button is not None:
                 return await button.press()
             return False
-        # Alt+letter, and whatever else Window knows about.
+        # Alt+letter, and whatever else Modal knows about.
         return await super().on_key(event)
 
     def _application_or_raise(self) -> Application:

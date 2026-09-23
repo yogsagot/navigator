@@ -31,7 +31,17 @@
  * `.PAL' cannot introduce a property no DOS attribute could carry.
  */
 
-Manager { fg: $desktop-fg; bg: $desktop-bg }
+Shell { fg: $desktop-fg; bg: $desktop-bg }
+
+/* A window on the desktop takes the File Manager's frame slots [80-82]: the
+   one window that exists is the file manager, and the frame colours are what
+   DOS Navigator's CDoubleWindow palette gives it.  The active window is drawn
+   double, as a focused panel is. */
+Window              { fg: $frame-fg; bg: $frame-bg; border: single }
+Window:active       { fg: $active-frame-fg; bg: $active-frame-bg; border: double }
+Window::title       { fg: $frame-fg; bg: $frame-bg }
+Window:active::title { fg: $active-frame-fg; bg: $active-frame-bg }
+Window::icon        { fg: $frame-icon-fg; bg: $frame-icon-bg }
 
 /* A panel's own colours are its listing colours, which is also what the frame
    and the fill inherit -- as in the original, where the frame and the interior
@@ -75,9 +85,9 @@ KeyBar::number { fg: $bar-key-fg; bg: $bar-key-bg }
  * which parts and which states each widget paints, declared on the classes.
  */
 
-Window, Dialog        { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
-Window::title         { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
-Window::icon          { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg }
+Modal                 { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+Modal::title          { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+Modal::icon           { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg }
 
 StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text-bg }
 
@@ -128,10 +138,10 @@ ScrollBar                { fg: $scrollbar-page-fg;  bg: $scrollbar-page-bg }
 ScrollBar::arrow,
 ScrollBar::thumb         { fg: $scrollbar-arrow-fg; bg: $scrollbar-arrow-bg }
 
-Window ScrollBar         { fg: $dialog-scroll-bar-page-fg;  bg: $dialog-scroll-bar-page-bg }
-Window ScrollBar::arrow,
-Window ScrollBar::thumb  { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg }
+Modal ScrollBar          { fg: $dialog-scroll-bar-page-fg;  bg: $dialog-scroll-bar-page-bg }
+Modal ScrollBar::arrow,
+Modal ScrollBar::thumb   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg }
 
-Window ListViewer            { fg: $dialog-list-normal-fg;     bg: $dialog-list-normal-bg }
-Window ListViewer::row:selected { fg: $dialog-list-focused-fg; bg: $dialog-list-focused-bg }
-Window ListViewer::divider   { fg: $dialog-list-divider-fg;    bg: $dialog-list-divider-bg }
+Modal ListViewer             { fg: $dialog-list-normal-fg;     bg: $dialog-list-normal-bg }
+Modal ListViewer::row:selected { fg: $dialog-list-focused-fg;  bg: $dialog-list-focused-bg }
+Modal ListViewer::divider    { fg: $dialog-list-divider-fg;    bg: $dialog-list-divider-bg }

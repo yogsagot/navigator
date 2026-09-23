@@ -1,13 +1,36 @@
-#: A framed box with a title, and the thing a dialog is made of.
+#: A detached window on a desktop: dragged, resized, zoomed and raised.
 #:
-#: DOS Navigator's ``[33] Frame/background`` and ``[34] Frame icons``, and
-#: Turbo Vision's ``TWindow``.  It paints the frame, centres the title on the
-#: top edge, and puts a close icon in the corner -- and it is what carries the
-#: ``Alt+letter`` walk, because a window is the smallest thing that holds a
-#: whole set of controls.
+#: Turbo Vision's ``TWindow``, and what DOS Navigator's file panels, viewer
+#: and editor all are.  It lives in a :class:`~navml.widgets.desktop.Desktop`,
+#: which owns the z-order and says which window is active; the window owns
+#: its own rectangle and the chrome that changes it.
+#:
+#: **Nothing about the geometry is written here, and that is the rule this
+#: component exists under.**  A drag assigns ``x`` and ``y``, a resize assigns
+#: ``width`` and ``height``, a zoom assigns all four -- and a bound attribute
+#: is read-only until something unbinds it.  So the rectangle is *state*, like
+#: a panel's ``path``: a derived document may give it a starting value with a
+#: literal line, which is an assignment and not a binding, and may never bind
+#: it.  See *A property a widget navigates cannot be bound* in DESIGN.md.
 Window:
-    #: Shown centred on the top edge, with a space either side of it.
+    #: Shown centred on the top edge of a framed window.
     property title: ""
 
-    #: Whether the ``[■]`` icon is painted, and the corner answers a click.
+    #: Whether the ``[■]`` icon is painted, and answers a click.
     property closable: True
+
+    #: Whether the ``[↑]`` icon is painted, and the title answers a double
+    #: click.
+    property zoomable: True
+
+    #: Whether the bottom-right corner is a grip.
+    property resizable: True
+
+    #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
+    property min_width: 16
+    property min_height: 6
+
+    #: Filling the whole desktop, with the rectangle it came from kept aside.
+    #: Declared here so that a derived document can open zoomed with one
+    #: literal line; toggled by :meth:`toggle_zoom`, never bound.
+    property zoomed: False

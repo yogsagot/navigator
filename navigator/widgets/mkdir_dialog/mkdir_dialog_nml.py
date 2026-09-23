@@ -46,8 +46,8 @@ class MkdirDialog(Dialog, _Component):
         super().__init__(**kwargs)
         self.entry = Field(parent=self)    # mkdir_dialog.nml:19
 
-        self.dialog_width = 48    # mkdir_dialog.nml:15
-        self.dialog_height = 8    # mkdir_dialog.nml:16
+        self.modal_width = 48    # mkdir_dialog.nml:15
+        self.modal_height = 8    # mkdir_dialog.nml:16
         self.title = 'Make directory'    # mkdir_dialog.nml:17
 
         self.entry.x = 2    # mkdir_dialog.nml:23

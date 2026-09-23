@@ -171,6 +171,9 @@ class Application:
         #: Modal widgets, innermost last, each with whatever held the focus
         #: when it took over.  Maintained by the mount walks.
         self._modals: list[tuple[Widget, Widget | None]] = []
+        #: The widget every mouse action goes to regardless of position, or
+        #: None.  See :meth:`capture_mouse`.
+        self._capture: Widget | None = None
         self._running = False
         self._dirty = True
         self._events: asyncio.Queue[Event] = asyncio.Queue()
@@ -381,11 +384,40 @@ class Application:
             raise RuntimeError("no root widget to put an overlay on")
         return self._root.add(widget)
 
+    # -- mouse capture -------------------------------------------------------
+
+    @property
+    def mouse_capture(self) -> Widget | None:
+        """The widget holding the mouse, or None."""
+        return self._capture
+
+    def capture_mouse(self, widget: Widget) -> None:
+        """Send every mouse action to *widget* until the button is released.
+
+        What a drag needs.  Routing is by position, and a pointer dragging a
+        window's edge is routinely *outside* the window by the time the
+        terminal reports it -- a fast hand, or a resize the window refuses
+        past its minimum -- so without this the drag stops the moment the
+        pointer outruns what it is dragging.  While held, an action is
+        delivered straight to *widget*'s handler in its own coordinates, with
+        no hit test; the application's own hook still sees it first.
+
+        Released by itself after a ``release`` is delivered, when *widget* is
+        unmounted, and when a modal opens that does not hold it.
+        """
+        self._capture = widget
+
+    def release_mouse(self) -> None:
+        """Let the mouse route by position again."""
+        self._capture = None
+
     def _push_modal(self, widget: Widget) -> None:
         """Called by the mount walk.  Remembers what had the focus."""
         # Something else is under the pointer now, so a press before this and
         # one after it are not two clicks on one thing.
         self._clicks.reset()
+        if self._capture is not None and not widget._holds(self._capture):
+            self._capture = None
         self._modals.append((widget, self.focused))
 
     def _pop_modal(self, widget: Widget) -> None:
@@ -683,6 +715,18 @@ class Application:
         widget wants it: it can watch the application's own ``on_mouse_click``,
         which still sees every action before any of this.
         """
+        capture = self._capture
+        if capture is not None:
+            dx, dy = capture.offset()
+            local = event.translated(-dx - capture.x, -dy - capture.y)
+            try:
+                handler = getattr(capture, event.handler, None)
+                if handler is not None:
+                    await _call(capture, local, handler)
+            finally:
+                if event.action == "release" and self._capture is capture:
+                    self._capture = None
+            return
         modal = self.modal
         if modal is None:
             if self._root is not None:

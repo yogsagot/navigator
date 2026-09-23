@@ -1,0 +1,48 @@
+from navigator.widgets.console import Console
+from navigator.widgets.keybar import KeyBar
+from navigator.widgets.menubar import MenuBar
+from navml.widgets.desktop import Desktop
+
+#: The Navigator screen: menu bar, the console, the desktop over it, key bar.
+#:
+#: The band between the two bars holds two layers, and the order of the
+#: children is the whole of how they stack.  The console is the bottom one and
+#: is **always showing** -- it is the background the windows float over, as the
+#: user screen was in DOS Navigator.  The desktop is the layer above it and
+#: holds every window; it paints nothing of its own, so the console shows
+#: between them.  Ctrl+O hides the desktop, which is one reactive flag and one
+#: ``visible`` line.  The key bar is last so nothing covers it, and a modal is
+#: overlaid on this root, which puts it above the desktop by construction.
+Shell:
+    #: Whether Ctrl+O has put the windows away.  One flag that the desktop's
+    #: ``visible`` line reads, which is the whole of Ctrl+O.
+    property console_visible: False
+
+    MenuBar:
+        id: menu
+        x: 0
+        y: 0
+        width: parent.width
+        height: 1
+
+    Console:
+        id: console
+        x: 0
+        y: 1
+        width: parent.width
+        height: max(1, parent.height - 2)
+
+    Desktop:
+        id: desktop
+        x: 0
+        y: 1
+        width: parent.width
+        height: max(1, parent.height - 2)
+        visible: not parent.console_visible
+
+    KeyBar:
+        id: keybar
+        x: 0
+        y: max(1, parent.height - 1)
+        width: parent.width
+        height: 1

@@ -172,7 +172,7 @@ def test_a_dialog_binds_its_geometry_so_that_overlay_cannot_resize_it():
     declared property is what makes it survive, and what lets a derived
     document change it.
     """
-    dialog = Dialog(dialog_width=34, dialog_height=9)
+    dialog = Dialog(modal_width=34, modal_height=9)
     dialog.layout(200, 60)
     assert (dialog.width, dialog.height) == (34, 9)
 

@@ -42,6 +42,7 @@ _WIDGETS = {
     "MkdirDialog": "mkdir_dialog",
     "MenuBar": "menubar",
     "Panel": "panel",
+    "Shell": "shell",
 }
 
 __all__ = sorted(_WIDGETS)
@@ -70,3 +71,4 @@ if TYPE_CHECKING:
     from navigator.widgets.mkdir_dialog import MkdirDialog
     from navigator.widgets.menubar import MenuBar
     from navigator.widgets.panel import DirEntry, Panel
+    from navigator.widgets.shell import Shell

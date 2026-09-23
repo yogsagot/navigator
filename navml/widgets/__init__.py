@@ -37,11 +37,13 @@ _COMPONENTS = {
     "CheckBoxes": "check_boxes",
     "Cluster": "cluster",
     "Control": "control",
+    "Desktop": "desktop",
     "Dialog": "dialog",
     "Field": "field",
     "InputLine": "input_line",
     "Label": "label",
     "ListViewer": "list_viewer",
+    "Modal": "modal",
     "RadioButtons": "radio_buttons",
     "ScrollBar": "scroll_bar",
     "Spacer": "spacer",
@@ -98,11 +100,13 @@ if TYPE_CHECKING:
     from navml.widgets.check_boxes import CheckBoxes
     from navml.widgets.cluster import Cluster
     from navml.widgets.control import Control
+    from navml.widgets.desktop import Desktop
     from navml.widgets.dialog import Dialog
     from navml.widgets.field import Field
     from navml.widgets.input_line import InputLine
     from navml.widgets.label import Label
     from navml.widgets.list_viewer import ListViewer
+    from navml.widgets.modal import Modal
     from navml.widgets.radio_buttons import RadioButtons
     from navml.widgets.scroll_bar import ScrollBar
     from navml.widgets.spacer import Spacer

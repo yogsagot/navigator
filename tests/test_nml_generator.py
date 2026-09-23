@@ -23,7 +23,7 @@ from navml.parser import parse, parse_file
 from navml.resolve import resolve
 from navml.sibling import Sibling
 
-SHIPPED = ["static_text", "label", "button", "window", "dialog"]
+SHIPPED = ["static_text", "label", "button", "modal", "window", "dialog"]
 
 def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
@@ -101,10 +101,10 @@ def test_a_bare_head_extends_the_shared_base():
 
 def test_a_named_base_keeps_the_shared_base_beside_it():
     """A component derived from a Python-only widget still needs it."""
-    from navml.widgets.window import Window
+    from navml.widgets.modal import Modal
 
     namespace = run(build("dialog"))
-    assert namespace["Dialog"].__bases__ == (Window, Component)
+    assert namespace["Dialog"].__bases__ == (Modal, Component)
 
 
 def test_generation_is_stable():

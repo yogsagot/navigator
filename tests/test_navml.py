@@ -8,7 +8,7 @@ silent rather than loud.
 
 The components under ``navml/widgets`` are one per shape: ``Spacer`` is
 Python alone, ``Field`` is markup alone, ``Button`` is both, and
-``Dialog`` is both *and* derived from ``Window``, which is itself both.
+``Dialog`` is both *and* derived from ``Modal``, which is itself both.
 ``Dialog`` is a fifth, on a different axis: it is the one whose *children*
 raise the events its hand-written half handles, and it pins the
 ``on_<id>_<event>`` convention the generator has to emit for them.
@@ -42,7 +42,7 @@ from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
 from conftest import awaited
 from navml.widgets import (
-    Button, Dialog, Field, Label, Spacer, StaticText, Window,
+    Button, Dialog, Field, Label, Modal, Spacer, StaticText, Window,
 )
 # The *component modules*, not their packages: a component is a directory whose
 # `__init__.py' re-exports the class, so the questions these tests ask about a
@@ -210,7 +210,7 @@ def test_a_component_may_derive_from_a_component():
     cascading into children the markup placed.
     """
     assert [c.__name__ for c in Dialog.__mro__] == [
-        "Dialog", "Dialog", "Window", "Window",
+        "Dialog", "Dialog", "Modal", "Modal",
         "Component", "Widget", "object",
     ]
 
@@ -223,13 +223,13 @@ def test_each_half_of_each_level_builds_its_tree_exactly_once():
     one's would be built twice.  ``super().__init__()`` chaining gets the order
     right with no mechanism at all.
     """
-    dialog = Dialog(prompt="Save?", dialog_width=40, dialog_height=10)
+    dialog = Dialog(prompt="Save?", modal_width=40, modal_height=10)
     assert len(dialog.children) == 4
     assert dialog.children[0] is dialog.message   # the derived document's own
     assert dialog.children[1] is dialog.ok
     assert dialog.message.text == "Save?"
 
-    # Window declares no children at all, so this is also the proof that a
+    # Modal declares no children at all, so this is also the proof that a
     # base with an empty tree costs the derived one nothing.
     assert dialog.title == ""
 
@@ -241,8 +241,8 @@ def test_a_type_selector_reaches_through_the_splice():
     so the duplicate matches once rather than twice -- and a rule written for
     the base component still reaches the derived one.
     """
-    dialog = Dialog(dialog_width=20, dialog_height=8)
-    dialog.stylesheet = parse("Window { bg: blue }")
+    dialog = Dialog(modal_width=20, modal_height=8)
+    dialog.stylesheet = parse("Modal { bg: blue }")
     assert dialog.style.bg == 4
 
 
@@ -462,7 +462,7 @@ def _imports_of_markup(path: pathlib.Path) -> dict[str, str]:
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "static_text", "window", "dialog"]
+    "component", ["field", "label", "button", "static_text", "modal", "window", "dialog"]
 )
 def test_the_markup_imports_what_its_generated_half_imports(component):
     """The two halves must not drift while the generator is a stand-in.
@@ -478,7 +478,7 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "static_text", "window", "dialog"]
+    "component", ["field", "label", "button", "static_text", "modal", "window", "dialog"]
 )
 def test_the_generator_s_machinery_is_underscored(component):
     """So that a document may import any name at all -- there is no reserved word.
@@ -496,7 +496,7 @@ def test_the_generator_s_machinery_is_underscored(component):
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "static_text", "window", "dialog"]
+    "component", ["field", "label", "button", "static_text", "modal", "window", "dialog"]
 )
 def test_every_markup_line_reference_points_at_a_real_line(component):
     """The trailing ``# button.nml:12`` is how a reader gets back to the markup.
@@ -567,7 +567,7 @@ def test_a_component_still_pulls_in_the_ones_it_really_uses():
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
     assert "navml.widgets.button" in loaded      # Dialog's buttons
-    assert "navml.widgets.window" in loaded      # and the base it derives
+    assert "navml.widgets.modal" in loaded       # and the base it derives
     assert "navml.widgets.spacer" not in loaded  # but nothing it does not
 
 
@@ -575,9 +575,9 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "CheckBoxes", "Cluster", "Control", "Dialog", "Field",
-        "InputLine", "Label", "ListViewer", "RadioButtons", "ScrollBar",
-        "Spacer", "StaticText", "Window",
+        "Button", "CheckBoxes", "Cluster", "Control", "Desktop", "Dialog",
+        "Field", "InputLine", "Label", "ListViewer", "Modal", "RadioButtons",
+        "ScrollBar", "Spacer", "StaticText", "Window",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent
@@ -718,12 +718,12 @@ def test_a_disabled_button_emits_nothing():
 
 def test_a_derived_component_keeps_the_event_its_base_emits():
     """Through the four-deep merged MRO, which is the case only this repo has:
-    Window, Window, Button, Button, then the shared base."""
+    Dialog, Dialog, Modal, Modal, then the shared base."""
     from navml.widgets.button import ClickEvent
 
     assert emitted(Button) == {ClickEvent}
     assert [c.__name__ for c in Dialog.__mro__][:5] == [
-        "Dialog", "Dialog", "Window", "Window", "Component",
+        "Dialog", "Dialog", "Modal", "Modal", "Component",
     ]
 
 
@@ -873,7 +873,7 @@ def test_a_component_is_handed_what_it_declares_by_keyword():
     in from outside -- and it has to happen before ``Widget.__init__``, which
     accepts none of them and would refuse the lot.
     """
-    dialog = Dialog(prompt="Overwrite?", dialog_width=30, dialog_height=6)
+    dialog = Dialog(prompt="Overwrite?", modal_width=30, modal_height=6)
     assert dialog.prompt == "Overwrite?"
     assert (dialog.width, dialog.height) == (30, 6)
     assert dialog.message.text == "Overwrite?"      # the markup binding followed
@@ -945,5 +945,5 @@ def test_the_base_sizes_only_itself():
 def test_a_widget_markup_constructs_needs_no_constructor_argument():
     """A child block compiles to ``Type(parent=self)`` and nothing else, so a
     required positional argument is what keeps a widget out of a document."""
-    for component in (Label, Button, Dialog, Window, StaticText, Spacer):
+    for component in (Label, Button, Dialog, Modal, Window, StaticText, Spacer):
         assert component(parent=None) is not None

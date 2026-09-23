@@ -22,23 +22,46 @@ __all__ = ["Window"]
 
 
 class Window(_Component):
-    """A framed box with a title, and the thing a dialog is made of.
+    """A detached window on a desktop: dragged, resized, zoomed and raised.
 
-    DOS Navigator's ``[33] Frame/background`` and ``[34] Frame icons``, and
-    Turbo Vision's ``TWindow``.  It paints the frame, centres the title on the
-    top edge, and puts a close icon in the corner -- and it is what carries the
-    ``Alt+letter`` walk, because a window is the smallest thing that holds a
-    whole set of controls.
+    Turbo Vision's ``TWindow``, and what DOS Navigator's file panels, viewer
+    and editor all are.  It lives in a :class:`~navml.widgets.desktop.Desktop`,
+    which owns the z-order and says which window is active; the window owns
+    its own rectangle and the chrome that changes it.
+
+    **Nothing about the geometry is written here, and that is the rule this
+    component exists under.**  A drag assigns ``x`` and ``y``, a resize assigns
+    ``width`` and ``height``, a zoom assigns all four -- and a bound attribute
+    is read-only until something unbinds it.  So the rectangle is *state*, like
+    a panel's ``path``: a derived document may give it a starting value with a
+    literal line, which is an assignment and not a binding, and may never bind
+    it.  See *A property a widget navigates cannot be bound* in DESIGN.md.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "window.nml"
 
-    #: Shown centred on the top edge, with a space either side of it.
-    title: str = _reactive('')    # window.nml:10
+    #: Shown centred on the top edge of a framed window.
+    title: str = _reactive('')    # window.nml:17
 
-    #: Whether the ``[■]`` icon is painted, and the corner answers a click.
-    closable: bool = _reactive(True)    # window.nml:13
+    #: Whether the ``[■]`` icon is painted, and answers a click.
+    closable: bool = _reactive(True)    # window.nml:20
+
+    #: Whether the ``[↑]`` icon is painted, and the title answers a double
+    #: click.
+    zoomable: bool = _reactive(True)    # window.nml:24
+
+    #: Whether the bottom-right corner is a grip.
+    resizable: bool = _reactive(True)    # window.nml:27
+
+    #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
+    min_width: int = _reactive(16)    # window.nml:30
+    min_height: int = _reactive(6)    # window.nml:31
+
+    #: Filling the whole desktop, with the rectangle it came from kept aside.
+    #: Declared here so that a derived document can open zoomed with one
+    #: literal line; toggled by :meth:`toggle_zoom`, never bound.
+    zoomed: bool = _reactive(False)    # window.nml:36
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
