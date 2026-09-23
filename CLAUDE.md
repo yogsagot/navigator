@@ -20,7 +20,7 @@ are now answered (`Application.background`, and where the console's key routing 
 widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
 box frame they need, and what a full-screen child does.
 
-**The toolchain is proved end to end: `navigator/widgets/manager.nml` is the desktop.** The conversion `navml`
+**The toolchain is proved end to end: `navigator/widgets/manager/manager.nml` is the desktop.** The conversion `navml`
 existed to make possible is done, and it is a byte-for-byte proof rather than a plausible one — the commit before it
 and the commit after paint the same 3725 bytes on a pty at 80x24, `cmp`-identical. `manager.py` keeps the handlers and
 the three seeded values; the tree, the geometry and the `visible` flags are markup.
@@ -40,7 +40,7 @@ indents and trailing comments — and not through string assembly or a whole-mod
 no comments and navml's source map *is* comments.
 
 **A component that paints has two halves by construction.** Markup declares and places; Python paints. `Label` had to
-gain a `label.py` for exactly this, and `navml/widgets/field.nml` is the markup-only example in its place.
+gain a `label.py` for exactly this, and `navml/widgets/field/field.nml` is the markup-only example in its place.
 
 **And a property a widget *navigates* cannot be bound** — the one rule converting the desktop turned up. A markup
 property line compiles to a binding, a bound attribute is read-only until something unbinds it, and `Panel.enter()`
@@ -482,6 +482,21 @@ example of each: `spacer` is Python alone, `field` is markup alone, `button` and
 derived from a component that is itself both. `dialog` is a fifth, on a different axis: it is the one whose *children*
 raise the events its hand-written half handles, and it pins the `on_<id>_<event>` convention below.
 
+**And a component is a directory.** Those four files live in `navml/widgets/button/` beside an `__init__.py` that
+re-exports the class (and any event it declares — `button` publishes `ClickEvent` too), so the import line is
+unchanged and the files that make one component sit together. **The files repeat the directory's name**, because
+everything navml prints is a bare filename and `packaging/linux/build.sh` finds a component's siblings by stripping
+`_nml.py`. **Every component gets a directory, Python-only ones included**, so gaining a markup half adds files rather
+than moving them. **The library registers, not the component**: `navml.register("navml.widgets")` is still the one
+call and `navml/_merge.py`'s `_registered()` walks up the dotted name, so a component directory's `__init__.py` is a
+docstring, an import and an `__all__` with no line to forget. **The flat shape stays legal** — nothing in the loader
+requires a directory, and `tests/test_nml_build.py`'s `package` fixture is deliberately flat so it keeps being
+exercised. Two things underneath had to learn the rule and both failed *silently* before they did: `build.order()`
+keys its graph on the name a document is imported by (the directory) as well as the module's own, or every dependency
+edge vanishes and a cold build compiles in alphabetical order; and `build._forget()` evicts the component's package
+along with its module, or a second build in one process resolves later documents against the class from before it.
+*A component is a directory* in `navml/DESIGN.md` has the whole of it.
+
 Things to know before touching this layer:
 
 - **The merge is one line**, `handwritten.__bases__ = (generated,)`, and the generated class is always the base —
@@ -494,8 +509,13 @@ Things to know before touching this layer:
   fails with `deallocator differs from 'object'`.
 - **The finder keys on `button_nml.py`, never on `button.nml`.** Both halves are then ordinary `.py` files that reach a
   wheel automatically, so the import path cannot be broken by a missing `package-data` entry. The markup ships anyway,
-  as source to read and rebuild from — `navml.widgets` therefore needs `["*.nml", "*.pyi"]` in
-  `[tool.setuptools.package-data]`, and a new component directory needs its own entry.
+  as source to read and rebuild from — which is one `"*" = ["*.nml", "*.pyi"]` entry in
+  `[tool.setuptools.package-data]`, setuptools' every-package key, merged with the exact keys beside it. It is spelled
+  that way rather than per package because a component is a directory: markup and stubs live one package deeper than
+  the library and these keys do not inherit, so naming them would be one line per component and a silent hole the
+  first time one was forgotten. **A component is a module, never a package**, and the finder now refuses to claim one
+  — a stale flat `button_nml.py` left beside a `button/` directory would otherwise make it splice a re-exported class
+  onto a generated base from before the move.
 - **A component module must never be a test module, a `conftest.py` or a pytest plugin.** pytest's assertion rewriter
   consults `PathFinder` directly and bypasses `sys.meta_path`, so the splice would not happen and the component would
   come up as a plain `Widget` subclass.
@@ -514,7 +534,7 @@ Things to know before touching this layer:
   and a type a document names is one it imports — so `Button(Widget):` means whatever the document imported under that
   name. The hand-written half still has to spell it, `class Button(Widget)`, because a Python class with no bases is
   `object` and cannot be spliced.
-- **An event a component raises is declared beside it, and the widget says so.** `navml/widgets/button.py` declares
+- **An event a component raises is declared beside it, and the widget says so.** `navml/widgets/button/button.py` declares
   `class ClickEvent(Event)` next to `class Button` and sets `emits = (ClickEvent,)`; a mouse press and a Space press
   both go through one `press()` that emits it, so a listener never learns which route fired. Markup may declare one
   instead with `event ClickEvent` (root block only, no fields), and **which half declares it follows which half emits
@@ -564,9 +584,9 @@ than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 
-The application is three parts. **`navigator/widgets/` holds the screens**, one module each — `manager.py` (the
-desktop), `panel.py` (with `DirEntry` beside it), `menubar.py`, `keybar.py` and `console.py` — and it is a registered
-navml component package with lazy re-exports, so `manager.nml` can be dropped in without anything else changing.
+The application is three parts. **`navigator/widgets/` holds the screens**, one directory each — `manager/` (the
+desktop), `panel/` (whose `panel.py` carries `DirEntry` beside `Panel`, and whose `__init__.py` re-exports both),
+`menubar/`, `keybar/` and `console/` — and it is a registered navml component package with lazy re-exports.
 **`navigator/scheme.py` holds the sheet**: `load_scheme`, `default_scheme`, `theme_names` and where the `.nss` files
 are. **`navigator/__main__.py` holds the command line**, the terminal it hands to navkit, and the `Navigator`
 application subclass.

@@ -579,7 +579,7 @@ def test_one_widget_does_not_import_the_others():
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navigator.widgets.'))))\n"
     )
-    assert loaded == ["navigator.widgets.keybar"]
+    assert loaded == ["navigator.widgets.keybar", "navigator.widgets.keybar.keybar"]
 
 
 def test_the_desktop_still_pulls_in_the_screens_it_places():
@@ -592,11 +592,16 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
     )
     assert loaded == [
         "navigator.widgets.console",
+        "navigator.widgets.console.console",
         "navigator.widgets.keybar",
+        "navigator.widgets.keybar.keybar",
         "navigator.widgets.manager",
-        "navigator.widgets.manager_nml",
+        "navigator.widgets.manager.manager",
+        "navigator.widgets.manager.manager_nml",
         "navigator.widgets.menubar",
+        "navigator.widgets.menubar.menubar",
         "navigator.widgets.panel",
+        "navigator.widgets.panel.panel",
     ]
 
 

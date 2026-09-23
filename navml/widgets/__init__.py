@@ -1,9 +1,10 @@
 """The widget library.
 
-Every module in here is a component, in one of the three shapes
-:mod:`navml._merge` describes.  ``from navml.widgets import Button`` is the
-ordinary way in, and it also means the shape a component happens to be written
-in never reaches the call site.
+Every directory in here is a component, in one of the three shapes
+:mod:`navml._merge` describes -- its files sit inside it and its ``__init__``
+re-exports the class.  ``from navml.widgets import Button`` is the ordinary way
+in, and it also means the shape a component happens to be written in never
+reaches the call site.
 
 **The re-exports are lazy, and that is load-bearing rather than tidy.** The
 code generator needs live class objects -- it reads ``declarations(cls)`` off
@@ -26,7 +27,7 @@ import navml
 
 navml.register(__name__)
 
-#: Component name -> the module in this package that defines it.  Written out
+#: Component name -> the package in here that publishes it.  Written out
 #: rather than discovered, so that a typo is an `AttributeError' naming the
 #: component and not a silent miss, and so that the listing survives being
 #: read from a zip or a wheel.

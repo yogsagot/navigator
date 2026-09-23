@@ -16,7 +16,7 @@ was otherwise going to be repeated in every file the code generator writes:
   provenance to live, which it had not had.
 
 **What this is not is a test of componenthood.**  It is true of a component
-written in markup and false of one written in Python -- `navml/widgets/spacer.py`
+written in markup and false of one written in Python -- `navml/widgets/spacer/spacer.py`
 is a component and is not a :class:`Component` -- so it answers *built from
 markup* and may never be read as *is a component*.  That asymmetry has one
 visible consequence, and it is visible to people who never read Python:

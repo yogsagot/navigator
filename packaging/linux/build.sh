@@ -67,19 +67,27 @@ install -m 0755 packaging/linux/nav.sh build/root/usr/bin/nav
 themes=$(ls "$LIB"/navigator/styles/themes/*.nss 2>/dev/null | wc -l)
 [ "$themes" -eq 11 ] || { echo "build.sh: expected 11 themes, packaged $themes" >&2; exit 1; }
 
-components=$(ls "$LIB"/navml/widgets/*_nml.py 2>/dev/null | wc -l)
+# `find', not a glob: a component is a directory, so the generated halves sit
+# one level below the widget package.  It also keeps working if one ever sits
+# flat again.
+components=$(find "$LIB/navml/widgets" -name '*_nml.py' | wc -l)
 [ "$components" -gt 0 ] || { echo "build.sh: no components in the tree" >&2; exit 1; }
 
 # A component is up to four files and only two of them are ordinary modules
 # that `pip install --target' carries without being told to.  The markup and
-# the stubs need a [tool.setuptools.package-data] entry each, so a new widget
-# directory is one forgotten line away from working in a checkout and being
-# absent here.  The two failures are not the same and are not reported the
+# the stubs reach a wheel through [tool.setuptools.package-data], so a
+# component whose files are not declared is one that works in a checkout and
+# is absent here.  The two failures are not the same and are not reported the
 # same: losing a generated half breaks the import, while losing the markup
 # only leaves a package nobody can read or rebuild -- see *The markup ships*
 # in navml/DESIGN.md.
-for pair in "$LIB"/navml/widgets/*_nml.py "$LIB"/navigator/widgets/*_nml.py; do
-    case "$pair" in *'*_nml.py') continue ;; esac   # a directory with none yet
+#
+# `for' over a command substitution, never `find | while read': the loop body
+# would run in a subshell and its `exit 1' would not stop this script.  And
+# stripping `_nml.py' finds the siblings only because the files in a component
+# directory repeat its name -- see *A component is a directory* in
+# navml/DESIGN.md.
+for pair in $(find "$LIB/navml/widgets" "$LIB/navigator/widgets" -name '*_nml.py'); do
     component=${pair%_nml.py}
     [ -f "$component.pyi" ] || {
         echo "build.sh: $(basename "$component") has no stub -- check package-data" >&2
@@ -98,7 +106,16 @@ if find "$LIB" -name '*.so' | grep -q .; then
     exit 1
 fi
 
-"$PYTHON" -c "import sys; sys.path.insert(0, '$LIB'); import navigator, navkit, pyte; import navml.widgets, navigator.widgets" \
+# One component of every shape the loader has, because `import navml.widgets'
+# alone imports no component at all -- the re-exports are lazy, so it would
+# pass with every component directory missing.  Button is both halves, Field
+# is markup alone, Spacer is Python alone, and Panel/DirEntry is the one
+# module publishing two names.  This is also the only place the finder meets
+# a real `pip install --target' tree rather than the checkout.
+"$PYTHON" -c "import sys; sys.path.insert(0, '$LIB')
+import navigator, navkit, pyte
+from navml.widgets import Button, Field, Spacer
+from navigator.widgets import DirEntry, Manager, Panel" \
     || { echo "build.sh: the staged tree does not import" >&2; exit 1; }
 
 echo "build.sh: staged $(du -sh "$LIB" | cut -f1) in $LIB"

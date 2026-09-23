@@ -37,6 +37,15 @@ from navml.parser import (
 
 WIDGETS = pathlib.Path(__file__).resolve().parent.parent / "navml" / "widgets"
 
+
+def shipped(stem: str, suffix: str) -> pathlib.Path:
+    """One file of a shipped component.
+
+    A component is a directory whose files repeat its name, so the paths in
+    here go through this rather than being spelled out.
+    """
+    return WIDGETS / stem / f"{stem}{suffix}"
+
 SHIPPED = ["label", "button", "framed_button", "dialog"]
 
 
@@ -53,15 +62,15 @@ def fails(text: str) -> MarkupError:
 @pytest.mark.parametrize("component", SHIPPED)
 def test_every_shipped_document_parses(component):
     """The four are one per shape, and they are the only real markup there is."""
-    document = parse_file(WIDGETS / f"{component}.nml")
+    document = parse_file(shipped(component, ".nml"))
     assert document.filename == f"{component}.nml"
     assert document.root.type
 
 
 def test_the_root_block_declares_a_component():
     """A bare head extends ``Widget``; a parenthesised one names what it extends."""
-    assert parse_file(WIDGETS / "button.nml").root.base is None
-    assert parse_file(WIDGETS / "framed_button.nml").root.base == "Button"
+    assert parse_file(shipped("button", ".nml")).root.base is None
+    assert parse_file(shipped("framed_button", ".nml")).root.base == "Button"
 
 
 def test_the_dialog_is_read_the_way_its_generated_half_was_written():
@@ -70,7 +79,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     ``dialog_nml.py`` is the agreed output, so matching it is the strongest
     regression available before the generator exists.
     """
-    document = parse_file(WIDGETS / "dialog.nml")
+    document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [("Button",), ("Label",)]
     assert [d.name for d in document.root.declarations] == ["prompt"]
     assert list(document.ids()) == ["message", "ok", "cancel", "info"]
@@ -105,7 +114,7 @@ def test_the_generated_half_cites_lines_the_parser_found(component):
     reference can point at -- the ``id:`` line is what a child's wired-up
     handler is named after, which is why the block carries its own.
     """
-    document = parse_file(WIDGETS / f"{component}.nml")
+    document = parse_file(shipped(component, ".nml"))
     found = set()
     for line in document.imports:
         found.add(line.line)
@@ -119,7 +128,7 @@ def test_the_generated_half_cites_lines_the_parser_found(component):
         if block.style is not None:
             found.update(d.line for d in block.style.declarations)
 
-    generated = (WIDGETS / f"{component}_nml.py").read_text()
+    generated = shipped(component, "_nml.py").read_text()
     cited = {
         int(number)
         for name, number in re.findall(r"#\s*(\w+)\.nml:(\d+)", generated)
@@ -135,7 +144,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     The edges of the import graph have to be readable before anything has been
     generated, so this stops at the root block and never looks further.
     """
-    lines = imports_of(WIDGETS / "dialog.nml")
+    lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
         ("navml.widgets.button",),
         ("navml.widgets.label",),

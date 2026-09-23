@@ -1,5 +1,5 @@
 # navml: generated
-"""The merged surface of ``navml.widgets.field``."""
+"""The merged surface of ``navml.widgets.field.field``."""
 
 from typing import Any as _Any
 

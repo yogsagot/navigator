@@ -1,7 +1,8 @@
 """Building a directory of documents, and checking one that was built.
 
 ``python -m navml build`` regenerates ``<stem>_nml.py`` and ``<stem>.pyi`` beside
-every ``<stem>.nml`` it is pointed at; ``--check`` reports the ones that no
+every ``<stem>.nml`` it is pointed at -- *beside* meaning inside the component's
+own directory, since a component is one; ``--check`` reports the ones that no
 longer match their markup and writes nothing.  It is a user-facing command
 rather than only a maintainer's: the markup ships, so somebody who installed
 Navigator can edit a component's ``.nml`` in place and rebuild it.
@@ -139,7 +140,7 @@ def order(documents: list[Path]) -> list[Path]:
     :func:`~navml.parser.imports_of` exists: reading them costs a parse that
     stops at the root block, and no import at all.
     """
-    modules = {_module_of(path): path for path in documents}
+    modules = {name: path for path in documents for name in _names_of(path)}
     edges: dict[Path, set[Path]] = {path: set() for path in documents}
     for path in documents:
         for line in imports_of(path):
@@ -168,9 +169,35 @@ def order(documents: list[Path]) -> list[Path]:
     return ordered
 
 
-def _module_of(path: Path) -> str:
+def _own_directory(package: str | None, stem: str) -> str | None:
+    """*package*, when *stem* is the module it publishes under its own name.
+
+    A component is a directory and the files in it repeat its name, so
+    ``navml/widgets/button/button.nml`` compiles to
+    ``navml.widgets.button.button`` -- while every document that wants it
+    writes ``from navml.widgets.button import Button``, because the directory
+    is the public name and the module inside it is where the class happens to
+    sit.  A flat package answers ``None`` here, which is the whole of why the
+    flat layout keeps working.
+    """
+    if package and package.rpartition(".")[2] == stem:
+        return package
+    return None
+
+
+def _names_of(path: Path) -> tuple[str, ...]:
+    """Every dotted name another document may import this one by.
+
+    Two of them when a component is a directory, and they are not
+    interchangeable: the inner name is where the module really is, the public
+    one is what gets written.  Keying on only the first is what made this
+    function plural -- the lookup in :func:`order` missed, every edge
+    disappeared, and a cold build silently fell back on alphabetical order.
+    """
     package = package_of(path)
-    return f"{package}.{path.stem}" if package else path.stem
+    inner = f"{package}.{path.stem}" if package else path.stem
+    public = _own_directory(package, path.stem)
+    return (inner, public) if public else (inner,)
 
 
 def _absolute(module: str, package: str | None) -> str:
@@ -241,9 +268,27 @@ def _forget(path: Path) -> None:
     A build runs in one process and a document may import one generated a
     moment ago; without this the second would resolve against whatever was
     imported before the build started.
+
+    **The component's own package goes too.**  A component is a directory
+    whose ``__init__`` re-exports the class, so that package holds a binding
+    to the very class this write just replaced -- and a later
+    ``from navml.widgets.label import Label`` would find the package in
+    ``sys.modules``, never re-import, and resolve against the class from
+    before the write.  :func:`order` keeps that from reaching a cold build,
+    where nothing has been imported yet; what it bites is a second build in
+    the same process, which is what a test session does.
+
+    The *library* above it -- ``navml.widgets`` -- is deliberately left alone.
+    Its :pep:`562` ``__getattr__`` caches into its own globals and so goes
+    stale too, but no build path reads a component through it: every document
+    and every generated module names the component's own module.
     """
     importlib.invalidate_caches()
     package = package_of(path)
     stem = path.stem
-    for name in (f"{package}.{stem}", f"{package}.{stem.removesuffix('_nml')}"):
+    base = stem.removesuffix("_nml")
+    names = {f"{package}.{stem}", f"{package}.{base}"}
+    if (public := _own_directory(package, base)) is not None:
+        names.add(public)
+    for name in names:
         sys.modules.pop(name, None)

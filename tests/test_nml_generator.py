@@ -25,14 +25,23 @@ from navml.sibling import Sibling
 
 SHIPPED = ["label", "button", "framed_button", "dialog"]
 
+def shipped(stem: str, suffix: str) -> str:
+    """One file of a shipped component.
+
+    A component is a directory whose files repeat its name, so every path in
+    here goes through this rather than being spelled out -- the next layout
+    question then has one place to answer.
+    """
+    return f"navml/widgets/{stem}/{stem}{suffix}"
+
 
 def build(stem: str):
     """Generate one of the documents the repository ships."""
-    document = parse_file(f"navml/widgets/{stem}.nml")
+    document = parse_file(shipped(stem, ".nml"))
     resolved = resolve(
         document,
-        package="navml.widgets",
-        sibling=Sibling.read(f"navml/widgets/{stem}.py"),
+        package=f"navml.widgets.{stem}",
+        sibling=Sibling.read(shipped(stem, ".py")),
     )
     return generate(resolved)
 
@@ -255,7 +264,7 @@ def test_a_markup_handler_always_consumes(generated):
 
 @pytest.mark.parametrize("stem", SHIPPED)
 def test_every_line_reference_points_at_a_real_line(stem):
-    document = open(f"navml/widgets/{stem}.nml").read().splitlines()
+    document = open(shipped(stem, ".nml")).read().splitlines()
     cited = re.findall(rf"# {stem}\.nml:(\d+)", build(stem))
     assert cited
     for number in cited:
@@ -265,7 +274,7 @@ def test_every_line_reference_points_at_a_real_line(stem):
 
 @pytest.mark.parametrize("stem", SHIPPED)
 def test_the_generated_module_imports_what_the_document_imports(stem):
-    document = parse_file(f"navml/widgets/{stem}.nml")
+    document = parse_file(shipped(stem, ".nml"))
     namespace = run(build(stem))
     bare = {
         name
