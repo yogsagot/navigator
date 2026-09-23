@@ -1,0 +1,28 @@
+from navml.widgets.dialog import Dialog
+from navml.widgets.field import Field
+
+#: F7: make a directory in the active panel.
+#:
+#: The smallest dialog Navigator actually wants, and the first one wired into
+#: the application -- an ``InputLine``, a ``Label`` that focuses it, the two
+#: buttons ``Dialog`` already has, and an answer that ends in a directory on
+#: disk.
+#:
+#: The size is set by *assigning the properties the base binds from*, never by
+#: assigning ``width`` -- a value over a live binding raises, and the binding
+#: is installed by ``super().__init__()`` before this document's own lines run.
+MkdirDialog(Dialog):
+    dialog_width: 48
+    dialog_height: 8
+    title: "Make directory"
+
+    Field:
+        #: Not ``name``: ``Widget.name`` is what a ``#name`` selector
+        #: matches, and the generator refuses an id that shadows it.
+        id: entry
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~N~ame"
+        label_width: 7

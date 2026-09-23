@@ -1,0 +1,18 @@
+from navml.widgets.control import Control
+
+#: One line of editable text, with a caret.
+#:
+#: DOS Navigator's ``[50-52] Input normal / selected / arrow``, and Turbo
+#: Vision's ``TInputLine``.  The widget the terminal's own cursor exists for:
+#: ``cursor_position()`` reports where the caret belongs and the application
+#: puts it there at the end of the frame, for whichever widget the keys are
+#: actually going to.
+InputLine(Control):
+    #: The text.  **Seeded, never bound** -- this is a property the widget
+    #: *navigates*: every keystroke assigns it, and a markup line would
+    #: compile to a binding that makes the first keypress an error.  A
+    #: document hands it over with a constructor keyword instead.
+    property value: ""
+
+    #: The longest text this line will accept, or 0 for no limit.
+    property max_length: 0

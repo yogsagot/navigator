@@ -30,7 +30,7 @@ def written(tmp_path):
 def test_the_component_class_is_found_by_name():
     sibling = Sibling.read("navml/widgets/button/button.py")
     button = sibling.component("Button")
-    assert button.bases == ("Widget",)
+    assert button.bases == ("Control",)
     assert button.emits == ("ClickEvent",)
 
 
@@ -42,14 +42,14 @@ def test_a_helper_class_beside_the_component_is_read_too():
 
 def test_a_handler_says_whether_it_is_async():
     dialog = Sibling.read("navml/widgets/dialog/dialog.py").component("Dialog")
-    assert dialog.methods["show_info"].is_async is True
-    assert dialog.methods["render"].is_async is False
+    assert dialog.methods["execute"].is_async is True
+    assert dialog.methods["close"].is_async is False
 
 
 def test_a_reactive_declared_in_the_hand_written_half_is_reported():
     """The markup cannot see these, so a collision has to be reported."""
-    button = Sibling.read("navml/widgets/button/button.py").component("Button")
-    assert "enabled" in button.reactive
+    dialog = Sibling.read("navml/widgets/dialog/dialog.py").component("Dialog")
+    assert "result" in dialog.reactive
 
 
 def test_a_component_with_no_hand_written_half_reads_as_nothing():

@@ -50,17 +50,17 @@ class Manager(_Component):
     #: Ids, annotated so the hand-written half completes them.
     menu: MenuBar    # manager.nml:23
     left: Panel    # manager.nml:30
-    right: Panel    # manager.nml:39
-    console: Console    # manager.nml:50
-    keybar: KeyBar    # manager.nml:58
+    right: Panel    # manager.nml:38
+    console: Console    # manager.nml:49
+    keybar: KeyBar    # manager.nml:57
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.menu = MenuBar(parent=self)    # manager.nml:22
         self.left = Panel(parent=self)    # manager.nml:29
-        self.right = Panel(parent=self)    # manager.nml:38
-        self.console = Console(parent=self)    # manager.nml:49
-        self.keybar = KeyBar(parent=self)    # manager.nml:57
+        self.right = Panel(parent=self)    # manager.nml:37
+        self.console = Console(parent=self)    # manager.nml:48
+        self.keybar = KeyBar(parent=self)    # manager.nml:56
 
         self.menu.x = 0    # manager.nml:24
         self.menu.y = 0    # manager.nml:25
@@ -72,23 +72,22 @@ class Manager(_Component):
         self.left.width = _bind(lambda _o: _o.parent.width // 2)    # manager.nml:33
         self.left.height = _bind(lambda _o: max(3, _o.parent.height - 2))    # manager.nml:34
         self.left.visible = _bind(lambda _o: not _o.parent.console_visible)    # manager.nml:35
-        self.left.active = True    # manager.nml:36
 
-        self.right.x = _bind(lambda _o: _o.parent.width // 2)    # manager.nml:40
-        self.right.y = 1    # manager.nml:41
-        self.right.width = _bind(    # manager.nml:42
+        self.right.x = _bind(lambda _o: _o.parent.width // 2)    # manager.nml:39
+        self.right.y = 1    # manager.nml:40
+        self.right.width = _bind(    # manager.nml:41
             lambda _o: _o.parent.width - _o.parent.width // 2
         )
-        self.right.height = _bind(lambda _o: max(3, _o.parent.height - 2))    # manager.nml:43
-        self.right.visible = _bind(lambda _o: not _o.parent.console_visible)    # manager.nml:44
+        self.right.height = _bind(lambda _o: max(3, _o.parent.height - 2))    # manager.nml:42
+        self.right.visible = _bind(lambda _o: not _o.parent.console_visible)    # manager.nml:43
 
-        self.console.x = 0    # manager.nml:51
-        self.console.y = 1    # manager.nml:52
-        self.console.width = _bind(lambda _o: _o.parent.width)    # manager.nml:53
-        self.console.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # manager.nml:54
-        self.console.visible = _bind(lambda _o: _o.parent.console_visible)    # manager.nml:55
+        self.console.x = 0    # manager.nml:50
+        self.console.y = 1    # manager.nml:51
+        self.console.width = _bind(lambda _o: _o.parent.width)    # manager.nml:52
+        self.console.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # manager.nml:53
+        self.console.visible = _bind(lambda _o: _o.parent.console_visible)    # manager.nml:54
 
-        self.keybar.x = 0    # manager.nml:59
-        self.keybar.y = _bind(lambda _o: max(1, _o.parent.height - 1))    # manager.nml:60
-        self.keybar.width = _bind(lambda _o: _o.parent.width)    # manager.nml:61
-        self.keybar.height = 1    # manager.nml:62
+        self.keybar.x = 0    # manager.nml:58
+        self.keybar.y = _bind(lambda _o: max(1, _o.parent.height - 1))    # manager.nml:59
+        self.keybar.width = _bind(lambda _o: _o.parent.width)    # manager.nml:60
+        self.keybar.height = 1    # manager.nml:61

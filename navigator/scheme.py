@@ -67,7 +67,14 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     is here instead of being left to whoever calls.  Ordering is the price of
     catching a misspelled property at its ``.nss`` line.
     """
+    import navml.widgets
+
     import navigator.widgets.panel  # noqa: F401 -- declares `icons'
+
+    # And every library widget, because the sheet below styles them and a
+    # `StyleProperty' is registered by its class body running.  One call
+    # rather than a list of imports: a list is a thing to forget.
+    navml.widgets.import_all()
 
     path = THEMES / f"{theme}.nss"
     if not path.is_file():

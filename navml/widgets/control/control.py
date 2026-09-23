@@ -27,6 +27,8 @@ from navkit.events import MouseClickEvent
 from navkit.reactive import bind, computed, reactive
 from navkit.widget import Widget
 
+from navml.component import take_declared
+
 
 def parse_shortcut(text: str) -> tuple[str, int, str]:
     """Split ``"~O~K"`` into the caption, where the marked letter is, and it.
@@ -87,6 +89,12 @@ class Control(Widget):
     accepts_focus: bool = True
 
     def __init__(self, **kwargs: Any) -> None:
+        # The same keywords a markup-built component takes, so that a control
+        # written in Python alone -- `CheckBoxes', `RadioButtons' -- has the
+        # constructor its neighbours have.  `Component.__init__' does this for
+        # anything with a document; nothing did it for anything without one,
+        # and the difference reached the call site.
+        take_declared(self, kwargs)
         super().__init__(**kwargs)
         # Bound rather than assigned, so that `disabled' is the only thing
         # anybody sets and the tab order follows it.  That makes `can_focus'
@@ -94,20 +102,18 @@ class Control(Widget):
         # navigates cannot be bound*, arrived at from the other end.
         self.can_focus = bind(lambda o: o.accepts_focus and not o.disabled)
 
-    @property
-    def caption(self) -> str:
-        """The text this control's ``~A~`` is marked in.
-
-        A plain property so that a control whose caption is not called ``text``
-        -- a cluster's item, say -- can answer differently without declaring a
-        second attribute.
-        """
-        return getattr(self, "text", "")
-
     @computed
     def shortcut(self) -> str:
-        """The letter that reaches this control, lower case, or ``""``."""
-        return parse_shortcut(self.caption)[2]
+        """The letter that reaches this control, lower case, or ``""``.
+
+        Read off ``text`` with a :func:`getattr`, not through a property of
+        its own.  A property would be a second name for the caption, and the
+        generator refuses an ``id`` that collides with a class attribute --
+        which is how this was found: ``Button``'s caption child is called
+        ``caption``, and so was the property.  A control whose caption is not
+        ``text`` at all, like a cluster's items, parses its own.
+        """
+        return parse_shortcut(getattr(self, "text", ""))[2]
 
     def shortcut_match(self, letter: str) -> bool:
         """Whether *letter* reaches this control right now."""

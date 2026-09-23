@@ -1,0 +1,29 @@
+from navml.widgets.control import Control
+
+#: A framed list with a cursor, a title and a footer.
+#:
+#: DOS Navigator's ``[57-60] List normal / focused / selected / divider``, and
+#: Turbo Vision's ``TListViewer``.  **It paints its own rows** -- there are no
+#: child widgets in here, for the reason ``navkit/DESIGN.md``'s *Parts:
+#: listing rows do not become widgets* settles by fidelity: "``TListViewer``
+#: draws its own items and picks a palette entry per item according to its
+#: state.  One view, many items, no per-item objects.  Rows were never objects
+#: in the original."
+#:
+#: ``items`` and ``cursor`` are properties a viewer **navigates**, so a
+#: document seeds them with a constructor keyword rather than binding them --
+#: the rule *A property a widget navigates cannot be bound* covers both.
+ListViewer(Control):
+    #: What is listed.  Replaced rather than mutated, because the reactive
+    #: layer counts a change only when a collection is replaced.
+    property items: []
+
+    #: Which row the cursor is on.
+    property cursor: 0
+
+    #: The first row shown.  Followed automatically; assign it only to jump.
+    property scroll: 0
+
+    #: A line under the top frame, or 0 for none.  ``Panel`` uses it for the
+    #: column headings the original draws there.
+    property header: 0

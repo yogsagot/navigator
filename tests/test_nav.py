@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import pathlib
 import subprocess
 import sys
 import time
@@ -19,10 +21,14 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import FakeTerminal, awaited, run_app, settle
+from conftest import FakeTerminal, awaited, mounted, run_app, settle
 from navigator import icons
 from navigator import __version__
+from navkit.application import Application
 from navigator.__main__ import Navigator, main, version_banner
+from navigator.widgets.manager import Manager
+from navigator.widgets.mkdir_dialog import MkdirDialog
+from navml.widgets import InputLine
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
 from navigator.widgets import DirEntry, Manager, Panel
 
@@ -49,11 +55,14 @@ def panel(tree):
     # the Navigator one directly -- the same sheet Manager installs on itself.
     widget = Panel(tree, width=40, height=20)
     widget.stylesheet = default_scheme()
-    return widget
+    # Mounted, because a panel's effects live in ``mounted()`` now -- see
+    # ``conftest.mounted``.  A detached one never rescans, so its listing
+    # would be empty and every assertion below would be about nothing.
+    return mounted(widget, size=(40, 20))
 
 
 def names(panel: Panel) -> list[str]:
-    return [entry.name for entry in panel.entries]
+    return [entry.name for entry in panel.items]
 
 
 # A panel's model reacts to what it is told rather than doing it on the spot,
@@ -71,17 +80,21 @@ def test_root_has_no_parent_entry():
 
 
 def test_unreadable_directory_reports_an_error(tmp_path):
-    missing = Panel(tmp_path / "nope", width=40, height=20)
+    missing = mounted(Panel(tmp_path / "nope", width=40, height=20), size=(40, 20))
     assert missing.error is not None
     # ".." survives, so the user can still climb back out of a dead end.
     assert names(missing) == [".."]
 
 
 def test_the_error_is_painted_instead_of_a_listing(tmp_path):
-    missing = Panel(tmp_path / "nope", width=40, height=20)
+    missing = mounted(Panel(tmp_path / "nope", width=40, height=20), size=(40, 20))
     buffer = ScreenBuffer(40, 20)
     missing.render(buffer)
-    painted = "".join(buffer.get(x, 2)[0] for x in range(40))
+    # Row 1, immediately under the top frame, which is where a list's first
+    # row goes.  It was row 2 while the panel painted its own listing and the
+    # blank line was nothing in particular; `ListViewer' puts the message
+    # where the rows it replaces would have started.
+    painted = "".join(buffer.get(x, 1)[0] for x in range(40))
     assert missing.error[:20] in painted
 
 
@@ -109,7 +122,7 @@ def test_cursor_movement_is_clamped(panel):
     assert panel.selected.name == "beta"
     panel.move_cursor(999)
     settle()
-    assert panel.cursor == len(panel.entries) - 1
+    assert panel.cursor == len(panel.items) - 1
 
 
 def test_the_cursor_is_clamped_however_it_was_moved(panel):
@@ -117,7 +130,7 @@ def test_the_cursor_is_clamped_however_it_was_moved(panel):
     # one method that used to enforce it.
     panel.cursor = 99
     settle()
-    assert panel.cursor == len(panel.entries) - 1
+    assert panel.cursor == len(panel.items) - 1
 
 
 def test_a_rescan_puts_the_cursor_back_at_the_top(panel, tree):
@@ -132,13 +145,13 @@ def test_a_rescan_puts_the_cursor_back_at_the_top(panel, tree):
 def test_cursor_scrolls_the_view(tmp_path):
     for index in range(50):
         (tmp_path / f"file{index:02d}").write_text("")
-    panel = Panel(tmp_path, width=40, height=10)
+    panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
     assert panel.scroll == 0
-    panel.move_cursor(len(panel.entries))
+    panel.move_cursor(len(panel.items))
     settle()
     assert panel.scroll > 0
     assert panel.scroll <= panel.cursor < panel.scroll + panel.rows
-    panel.move_cursor(-len(panel.entries))
+    panel.move_cursor(-len(panel.items))
     settle()
     assert panel.scroll == 0
 
@@ -247,33 +260,41 @@ def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
     takes a starting value from its parent and cannot be bound to one, which
     is why the document declares nothing about these three.
     """
-    manager = Manager(tree, tree)
+    manager = mounted(Manager(tree, tree))
     assert not is_bound(manager.left, Panel.path)
     settle()
     assert manager.left.path == tree
     manager.left.cursor = next(
-        i for i, e in enumerate(manager.left.entries) if e.name == "alpha"
+        i for i, e in enumerate(manager.left.items) if e.name == "alpha"
     )
     manager.left.enter()          # would raise if `path' were bound
     assert manager.left.path == tree / "alpha"
 
 
 def test_the_panel_title_and_footer_follow_the_width(panel, tree):
-    wide = panel.title_text
+    wide = panel.title_text()
     panel.width = 12
-    assert panel.title_text != wide
-    assert len(panel.title_text) <= panel.width
+    assert panel.title_text() != wide
+    assert len(panel.title_text()) <= panel.width
 
 
 def test_the_left_panel_starts_active():
-    manager = Manager(Path("."), Path("."))
+    """And "active" is now "holds the keyboard", not a flag of its own.
+
+    ``Manager.mounted()`` is what puts it there, and it has to: the panel
+    keys reach a panel along the focus path, and ``Panel:focused`` is what
+    paints the cursor row.
+    """
+    manager = mounted(Manager(Path("."), Path(".")))
+    assert manager.left.focused
     assert manager.active_panel is manager.left
     manager.switch_panel()
+    assert manager.right.focused
     assert manager.active_panel is manager.right
 
 
 def test_panel_renders_its_frame_and_contents(panel):
-    panel.active = True
+    panel.focus()
     buffer = ScreenBuffer(40, 20)
     panel.render(buffer)
     top = "".join(buffer.get(x, 0)[0] for x in range(40))
@@ -284,7 +305,7 @@ def test_panel_renders_its_frame_and_contents(panel):
 
 
 def test_inactive_panel_uses_a_single_frame(panel):
-    panel.active = False
+    panel.application.focused = None
     buffer = ScreenBuffer(40, 20)
     panel.render(buffer)
     assert "".join(buffer.get(x, 0)[0] for x in range(40)).startswith("┌")
@@ -461,12 +482,12 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     assert buffer.get(0, 0)[1].fg == RED  # the frame really is painted in it
 
 
-def test_the_border_comes_from_the_sheet_not_from_active(panel):
-    """``active`` picks the frame only because a rule says so."""
-    panel.active = True
+def test_the_border_comes_from_the_sheet_not_from_focus(panel):
+    """Holding the keyboard picks the frame only because a rule says so."""
+    panel.focus()
     assert panel.border == "double"
     panel.stylesheet = load_scheme(
-        "default", ("theme.nss", "Panel:active { border: single }")
+        "default", ("theme.nss", "Panel:focused { border: single }")
     )
     assert panel.border == "single"
     buffer = ScreenBuffer(40, 20)
@@ -600,6 +621,9 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.manager.manager_nml",
         "navigator.widgets.menubar",
         "navigator.widgets.menubar.menubar",
+        "navigator.widgets.mkdir_dialog",          # F7, imported by the desktop
+        "navigator.widgets.mkdir_dialog.mkdir_dialog",
+        "navigator.widgets.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.panel",
         "navigator.widgets.panel.panel",
     ]
@@ -827,7 +851,7 @@ def test_a_directory_and_a_file_get_different_icons(tree):
     app = navigator_with(tree, GLYPHS_NERD)
     run_app(app, [])
     buffer = desktop(app)
-    entries = app.manager.left.entries
+    entries = app.manager.left.items
     # Row 2 is the first listing line; ".." leads, then the directories.
     drawn = [buffer.get(1, 2 + row)[0] for row in range(len(entries))]
     assert drawn[0] == icons.PARENT
@@ -1112,3 +1136,140 @@ def test_every_part_the_sheet_names_is_one_a_widget_paints():
         )
         checked += 1
     assert checked, "the sheet names no parts at all -- has the selector moved?"
+
+
+# -- the desktop, frozen -----------------------------------------------------
+
+
+GOLDEN = pathlib.Path(__file__).resolve().parent / "fixtures" / "desktop-80x24.txt"
+
+
+def desktop_dump(manager, width=80, height=24) -> str:
+    """Every cell of the desktop, as its character and its style runs.
+
+    Characters alone would miss a colour regression and a whole ``Style``
+    per cell would be unreadable, so each row is its text followed by the
+    style runs underneath it.  That is enough to catch a frame that moved by
+    one column *or* one palette entry.
+    """
+    buffer = ScreenBuffer(width, height)
+    manager.render_tree(buffer)
+    lines = []
+    for y in range(height):
+        chars, styles = [], []
+        for x in range(width):
+            char, style = buffer.get(x, y)
+            chars.append(char or " ")
+            styles.append(f"{style.fg},{style.bg},{int(style.bold)}")
+        runs, last, count = [], None, 0
+        for spec in styles:
+            if spec == last:
+                count += 1
+            else:
+                if last is not None:
+                    runs.append(f"{last}x{count}")
+                last, count = spec, 1
+        runs.append(f"{last}x{count}")
+        lines.append("".join(chars).rstrip() + "\n  | " + " ".join(runs))
+    return "\n".join(lines) + "\n"
+
+
+def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
+    """The frame this refactor may not change, captured before it started.
+
+    ``manager.nml``'s conversion was proved by running the trees before and
+    after on a pty and comparing the escape streams byte for byte -- 3725
+    bytes, ``cmp``-identical.  That check was a one-off between two commits
+    and lived only as prose.  This is the same guarantee in a form the suite
+    can run on every change: a fixture captured from the tree as it was, and
+    compared against what the tree paints now.
+    """
+    (tmp_path / "alpha").mkdir()
+    (tmp_path / "beta").mkdir()
+    (tmp_path / "one.txt").touch()
+    (tmp_path / "two.txt").touch()
+    # A relative path, from inside the tree: the panel titles are then "." in
+    # both panels rather than a `tmp_path' whose length changes what the
+    # title clips to, so the fixture is about the desktop and not about where
+    # pytest happened to put a directory.
+    monkeypatch.chdir(tmp_path)
+
+    async def main():
+        manager = Manager(pathlib.Path("."), pathlib.Path("."))
+        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.15)
+        dump = desktop_dump(manager)
+        app.exit()
+        await task
+        return dump
+
+    dump = asyncio.run(asyncio.wait_for(main(), 10))
+    assert dump == GOLDEN.read_text(encoding="utf-8")
+
+
+# -- the first dialog wired into the application -----------------------------
+
+
+def test_f7_makes_a_directory(tmp_path):
+    """The library, end to end, in the real desktop.
+
+    Everything the widget library is for happens in this one path: a handler
+    *starts* a dialog rather than waiting for one, the dialog paints while
+    the loop keeps running, the keyboard goes into its input line, Enter
+    accepts, the answer comes back out of ``execute`` into the task, and the
+    focus lands back on the panel because the mount walks put it there.
+    """
+
+    async def main():
+        manager = Manager(tmp_path, tmp_path)
+        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+
+        app.post_event(KeyEvent(key="f7"))
+        await asyncio.sleep(0.06)
+        # Painted *before* anything answers it, which is the whole rule.
+        assert "Make directory" in app.terminal.frames[-1]
+        assert isinstance(app.modal, MkdirDialog)
+        assert isinstance(app.focused, InputLine)
+
+        for char in "reports":
+            app.post_event(KeyEvent(key=char, char=char))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent(key="enter"))
+        await asyncio.sleep(0.12)
+
+        made = (tmp_path / "reports").is_dir()
+        listed = [entry.name for entry in manager.left.items]
+        back = app.focused
+        app.exit()
+        await task
+        return made, listed, back
+
+    made, listed, back = asyncio.run(asyncio.wait_for(main(), 10))
+    assert made, "the directory was not created"
+    assert "reports" in listed, "the panel did not rescan"
+    assert isinstance(back, Panel), "the keyboard did not come back"
+
+
+def test_escaping_f7_makes_nothing(tmp_path):
+    async def main():
+        manager = Manager(tmp_path, tmp_path)
+        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+        app.post_event(KeyEvent(key="f7"))
+        await asyncio.sleep(0.06)
+        for char in "nope":
+            app.post_event(KeyEvent(key=char, char=char))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent(key="escape"))
+        await asyncio.sleep(0.12)
+        modal = app.modal
+        app.exit()
+        await task
+        return modal
+
+    assert asyncio.run(asyncio.wait_for(main(), 10)) is None
+    assert not (tmp_path / "nope").exists()

@@ -1,0 +1,13 @@
+#: A framed box with a title, and the thing a dialog is made of.
+#:
+#: DOS Navigator's ``[33] Frame/background`` and ``[34] Frame icons``, and
+#: Turbo Vision's ``TWindow``.  It paints the frame, centres the title on the
+#: top edge, and puts a close icon in the corner -- and it is what carries the
+#: ``Alt+letter`` walk, because a window is the smallest thing that holds a
+#: whole set of controls.
+Window:
+    #: Shown centred on the top edge, with a space either side of it.
+    property title: ""
+
+    #: Whether the ``[■]`` icon is painted, and the corner answers a click.
+    property closable: True

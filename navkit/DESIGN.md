@@ -1515,7 +1515,19 @@ names, because `run_async` can await them.
 input, pty output, timers, signals — so a batch is no longer an uninterrupted stretch of Python. But **it cannot cause
 a repaint**: `_render` has exactly two call sites, both inside `_main_loop`, so nothing paints until the batch has
 drained. One frame per batch survives untouched, and `tests/test_application.py` pins it with a handler that yields.
-The real cost is the one a slow handler already had: the frame waits for it.
+The real cost is bigger than "the frame waits for it", and the omission was paid for. **The batch waits too.**
+`Application._events` has exactly one consumer — the `while` loop in `_main_loop` — so a handler that awaits is
+holding it: input is read and queued by the reader callback and *nothing dispatches it*. For a handler awaiting
+something that will resolve on its own, that is only latency. For a handler awaiting something a **later keystroke**
+must resolve, it is a deadlock with the old frame still on the screen: the widget library's first dialog was written
+this way, mounted correctly, took the modal focus correctly, and was never painted and never answered.
+
+So `Application.spawn(coro)` exists, and the rule is **a handler starts work that waits; it does not wait itself.**
+The task is held rather than left to the caller — an unreferenced `create_task` may be collected mid-flight and takes
+its exception with it — and whatever is still pending when the application stops is cancelled, so a dialog left open
+at exit tears itself down through its own `finally`. `Application._dispatching` is set around `_handle` so that the
+mistake can be *refused*: `navml.widgets.Dialog.execute` reads it and raises a `RuntimeError` naming `spawn`, which
+is three lines and the difference between a diagnosable error and a frozen terminal.
 
 ### A widget declares what it emits
 
@@ -1783,10 +1795,22 @@ to 0.001 instead of sleeping 0.4s of real time.
   `None` by default and still accepted, for a root that paints only part of itself or for no root at all; `Navigator`
   stops passing it and `desktop_style()` is gone. Checked across all eleven themes: every desktop colour resolves to
   what it did before.
-- Which parts and properties the eventual *library* widgets declare. `navigator/__main__.py` has settled its own —
-  `Panel` paints `row`, `title`, `footer` and `error` and reads `border` and `icons` properties,
-  `MenuBar` paints `hotkey`, `KeyBar` paints `number` — but a widget's parts are its public styling surface, and they
-  are what the parser checks an unknown key against, so the library's belong with the library.
+- ~~Which parts and properties the eventual *library* widgets declare.~~ **Answered, and the answer was read off
+  DOS Navigator rather than designed.** The Colors dialog's slot table — all 144 entries of it, already transcribed
+  into every theme by `tools/palconv.py` and carried inert — *names the widgets and their states*: frame and frame
+  icons, scroll bar page and icons, static text, label normal/selected/shortcut, button
+  normal/default/selected/disabled/shortcut/shadow, cluster normal/selected/shortcut, input normal/selected/arrow,
+  list normal/focused/selected/divider. So the library's parts are a transcription, `navigator/styles/navigator.nss`
+  binds them, and `navml/DESIGN.md`'s *The widget library* has the table.
+
+  The half of this bullet that was *wrong* is now fixed too. "They are what the parser checks an unknown key
+  against" was not true of parts: a `::part` selector was accepted whatever it named, so `Panel::rwo { }` matched
+  nothing and said nothing. It cannot be checked at parse time — a selector matches by class *name* over the MRO, so
+  the parser has no class to ask and a sheet may legally name a type it could not import. It is checked where the
+  class is in hand instead: `Widget.parts` declares them, `stylesheet.parts_of()` unions them down the MRO the way
+  `emitted()` does, and `part_style()` refuses a name its widget never declared. A test loads the shipped sheet with
+  the widgets imported and asks the same question of every `::part` in it, which is the parse-time check spelled the
+  only way it can be.
 - What a full-screen child does. `run_on_terminal` hands over the real terminal and loses the output, which is the one
   thing the console exists to keep. The alternative is teaching the console an alternate buffer of its own — pyte stores
   `?1049` without obeying it — and that is worth doing only once something actually launches an editor.
@@ -1807,9 +1831,19 @@ to 0.001 instead of sleeping 0.4s of real time.
   arriving together as a paste or fast typing do, would be routed by a focus that had not moved yet and the second key
   would reach the panels. `toggle_console` now moves the focus itself, and a test posts both events in one callback to
   pin it.
-- Which glyphs beyond a box frame the *library* widgets need — a scrollbar thumb, a menu's submenu arrow, a checkbox.
-  `navkit/glyphs.py` holds box character sets and nothing else, because those are all anything draws today. Each new one
-  needs the same three answers the box sets have: an ASCII form, a Unicode form, and whether a Nerd Font improves on it.
+- ~~Which glyphs beyond a box frame the *library* widgets need.~~ **Answered: three vocabularies, and the third
+  answer is the same for all of them.** `SCROLLBARS` is six characters — up, down, left, right, track, thumb, which is
+  Turbo Vision's `TScrollBar.Chars` plus the thumb; `MARKS` is four — check off, check on, radio off, radio on, with
+  the brackets around them fixed in the widget because they are ASCII in the original too; and `BOX_JOINS` is five
+  tees keyed by *the frame's own name*, because a single rule meeting a double frame is `╤` and not `┬`, and
+  `border: double` with `+` tees is a bug rather than a preference. Each has a lookup mirroring `charset()` and each
+  collapses at the same lower boundary.
+
+  **A Nerd Font improves on none of them.** Every shape is box-drawing, block-element or geometric-shape, all of
+  which `GLYPHS_UNICODE` already guarantees; the Private Use Area carries icons, and an icon is a *replacement* for
+  one of these rather than a better version — the one real candidate, a single-glyph check box, is refused because it
+  collapses three cells into one and moves every caption in the cluster. `navigator/icons.py` remains the project's
+  one deliberate departure and this is not a second.
 
 ### What the widget library needs first
 

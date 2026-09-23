@@ -1,22 +1,30 @@
 """The file listing panel, and the entries it lists.
 
-One of the screens that will move into ``*.nml`` markup: its geometry is
-already assigned by the desktop as bindings and its listing already follows its
-``path`` rather than being refreshed by hand, so what is left to convert is the
-placement rather than the model.
+Everything here is about *files*.  Everything about *a list* -- the cursor,
+the scroll, the two invariants that keep them honest, the framed container,
+the row painting and the keys that move through it -- is
+:class:`~navml.widgets.list_viewer.ListViewer`'s, which was extracted from
+this file because this file was the only place in the repository that had it.
+
+What is left is the four things a file manager adds to a list: where it is
+(``path``), how it reads a directory (``_rescan``), what it does when you
+press Enter on one (``enter``), and how a row of it looks -- the icon gutter,
+the name, and the size column the original draws on the right.
 """
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 
-from navkit.events import MouseClickEvent
 from navkit.glyphs import GLYPHS_NERD
-from navkit.reactive import computed, effect, peek, reactive
+from navkit.reactive import computed, effect, reactive
 from navkit.screen import Surface
+from navkit.style import Style
 from navkit.stylesheet import StyleProperty
-from navkit.widget import Widget
+
+from navml.widgets.list_viewer import ListViewer
 
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few
@@ -53,14 +61,16 @@ class DirEntry:
         return f"{self.size:>8}"
 
 
-class Panel(Widget):
-    """A file listing panel with a frame, a header and a cursor.
+class Panel(ListViewer):
+    """One side of the desktop: a directory, listed.
 
-    The model is declarative: ``path`` is the only thing a command really
-    assigns, and the listing, the cursor and the scroll offset follow it.  So
-    the invariants -- the cursor sits on a row that exists, the scroll keeps
-    it visible -- hold no matter which path changed the state, including a
-    terminal resize, which the old imperative version got wrong.
+    The model is the one :class:`ListViewer` defines -- assign ``path`` and
+    the listing, the cursor and the scroll all follow -- with one effect of
+    its own in front of the two it inherits: re-read the directory.  The
+    ordering matters and is guaranteed: ``Effect.order`` is stamped when
+    ``effect()`` is called and the scheduler sorts on it, so a rescan runs,
+    then the cursor is clamped onto the new listing, then the scroll follows
+    it.
     """
 
     #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
@@ -70,29 +80,16 @@ class Panel(Widget):
     #: and knows nothing about icons.
     icons = StyleProperty("auto", values=("auto", "none"))
 
-    #: What a sheet may reach inside a listing: the path across the top
-    #: frame, one row, the summary along the bottom, and the message a
-    #: directory that would not open leaves in place of the rows.
-    parts = ("title", "row", "footer", "error")
-
     path: Path = reactive(Path("."))
-    entries: list[DirEntry] = reactive(factory=list)
-    error: str | None = reactive(None)
-    cursor: int = reactive(0)
-    scroll: int = reactive(0)
-    active: bool = reactive(False)
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
 
-    def __init__(self, path: Path | None = None, **kwargs):
+    def __init__(self, path: Path | None = None, **kwargs: Any):
         """*path* is optional because a widget markup constructs must be.
 
-        A child block compiles to ``Panel(parent=self)`` and nothing else --
-        markup sets every property *after* construction -- so a required
-        positional argument is what would keep this widget out of a document
-        altogether.  The reactive already defaults to ``Path(".")``, so the
-        only thing this costs is one directory scan against that default
-        before a bound ``path:`` arrives.
+        It is also *seeded* rather than bound, which is the rule a panel is
+        the reason for: ``enter()`` assigns ``path`` on every descent, and an
+        attribute carrying a binding is read-only until something unbinds it.
         """
         super().__init__(**kwargs)
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
@@ -100,13 +97,14 @@ class Panel(Widget):
         self._return_to: str | None = None
         if path is not None:
             self.path = path
-        # Declaration order is flush order: rebuild the listing, put the
-        # cursor somewhere real, then scroll to it.
-        effect(self, Panel._rescan)
-        effect(self, Panel._clamp_cursor)
-        effect(self, Panel._follow_cursor)
 
-    # -- model ---------------------------------------------------------------
+    def mounted(self) -> None:
+        # Before ListViewer's two, because a rescan replaces the very list
+        # they are about to clamp a cursor onto.
+        effect(self, Panel._rescan)
+        super().mounted()
+
+    # -- the listing ---------------------------------------------------------
 
     def _rescan(self) -> None:
         """Re-read the directory, whenever the path or the token changes."""
@@ -129,7 +127,7 @@ class Panel(Widget):
             error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
 
-        self.entries = entries
+        self.items = entries
         self.error = error
         target, self._return_to = self._return_to, None
         self.cursor = next(
@@ -137,49 +135,9 @@ class Panel(Widget):
         )
         self.scroll = 0
 
-    def _clamp_cursor(self) -> None:
-        """Keep the cursor on a row that exists, however the listing changed.
-
-        Assigning what it also reads is allowed here: an effect's own writes
-        are part of the run it is in and do not wake it again.
-        """
-        last = len(self.entries) - 1
-        self.cursor = min(max(self.cursor, 0), last) if last >= 0 else 0
-
-    def _follow_cursor(self) -> None:
-        """Scroll just far enough to keep the cursor on screen.
-
-        ``scroll`` is read with :func:`~navkit.reactive.peek` because this is
-        the effect that assigns it; subscribing to it would be a loop.
-        """
-        cursor, rows = self.cursor, self.rows
-        scroll = peek(self, Panel.scroll)
-        if cursor < scroll:
-            self.scroll = cursor
-        elif cursor >= scroll + rows:
-            self.scroll = cursor - rows + 1
-
     def reload(self) -> None:
         """Re-read the directory this panel shows."""
         self.reload_token += 1
-
-    @computed
-    def rows(self) -> int:
-        """How many listing lines fit between the top and bottom frame."""
-        return max(0, self.height - 2)
-
-    @computed
-    def selected(self) -> DirEntry | None:
-        """The entry the cursor is on, if the listing has one."""
-        if 0 <= self.cursor < len(self.entries):
-            return self.entries[self.cursor]
-        return None
-
-    def move_cursor(self, delta: int) -> None:
-        if not self.entries:
-            return
-        # Deliberately unclamped: _clamp_cursor owns that invariant.
-        self.cursor += delta
 
     def enter(self) -> None:
         """Descend into the selected directory."""
@@ -191,48 +149,12 @@ class Panel(Widget):
         self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
 
-    async def on_double_click(self, event: MouseClickEvent) -> bool:
-        """Open the row that was double-clicked: a directory, or ``..`` up.
-
-        The original's mouse, and the panel's own rather than the
-        application's -- this needs nothing but the panel it lands on, so it
-        belongs to the panel, the way ``Manager.on_key`` holds the keys that
-        need to know which panel is active and ``Console.on_key`` holds the
-        scrollback.  Routing here is by position, so the event arrives in this
-        panel's coordinates and the listing row is ``event.y - 1``, the 1
-        being the top frame.
-
-        It only has to enter.  navkit delivers the press that completed the
-        double-click *as well*, and that press has already moved the cursor
-        onto this row -- which is what the additive delivery is for.
-        :meth:`enter` no-ops on a file and on a row with nothing on it, and
-        treats ``..`` as the directory it is, so the guard here is only about
-        rows inside the listing rather than the frame.
-        """
-        if event.button != "left":
-            return False
-        if 0 <= event.y - 1 < self.rows:
-            self.enter()
+    async def choose(self) -> bool:
+        """What Enter and a double click mean here: descend."""
+        self.enter()
         return True
 
     # -- painting ------------------------------------------------------------
-
-    @computed
-    def title_text(self) -> str:
-        """The path across the top frame, clipped to fit."""
-        title = str(self.path)
-        room = max(1, self.width - 4)
-        if len(title) > room:
-            title = "..." + title[-(room - 3) :]
-        return f" {title} "
-
-    @computed
-    def footer_text(self) -> str:
-        """The selected name, or an item count when there is nothing to name."""
-        entry = self.selected
-        summary = f" {entry.name} " if entry else f" {len(self.entries)} items "
-        room = max(1, self.width - 4)
-        return summary[: room - 1] + " " if len(summary) > room else summary
 
     @property
     def show_icons(self) -> bool:
@@ -249,9 +171,8 @@ class Panel(Widget):
         """Columns held back at the left of a row for the icon.
 
         Two, not one.  A Nerd Font *Mono* build patches its icons to a single
-        cell but the plain build does not, and no width table records which is
-        installed; spending the second cell on a space means a glyph that comes
-        out double-width covers it instead of shoving the name along.
+        cell but the plain build does not, and the difference is invisible
+        until a name starts one column late on somebody else's terminal.
         """
         return 2 if self.show_icons else 0
 
@@ -260,61 +181,36 @@ class Panel(Widget):
         """How much of a listing line is left once the size column is taken."""
         return max(1, self.width - 12)
 
-    def render(self, surface: Surface) -> None:
-        surface.draw_box(
-            0,
-            0,
-            self.width,
-            self.height,
-            self.style,
-            charset=self.box_charset(),
-            fill=" ",
+    def title_text(self) -> str:
+        """The path across the top frame, clipped to fit."""
+        title = str(self.path)
+        room = max(1, self.width - 4)
+        if len(title) > room:
+            title = "..." + title[-(room - 3) :]
+        return f" {title} "
+
+    def footer_text(self) -> str:
+        """The selected name, or an item count when there is nothing to name."""
+        entry = self.selected
+        summary = f" {entry.name} " if entry else f" {len(self.items)} items "
+        room = max(1, self.width - 4)
+        return summary[: room - 1] + " " if len(summary) > room else summary
+
+    def row_style(self, index: int, item: DirEntry) -> Style:
+        return self.part_style(
+            "row",
+            classes=("directory",) if item.is_dir else (),
+            selected=self.row_selected(index),
         )
-        self._render_title(surface)
-        self._render_entries(surface)
-        self._render_footer(surface)
 
-    def _render_title(self, surface: Surface) -> None:
-        label = self.title_text
-        style = self.part_style("title")
-        surface.draw_text(max(1, (self.width - len(label)) // 2), 0, label, style)
-
-    def _render_entries(self, surface: Surface) -> None:
-        if self.error is not None:
-            surface.draw_text(2, 2, self.error, self.part_style("error"), self.width - 4)
-            return
+    def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
+        style = self.row_style(index, item)
+        gutter = self.gutter
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
-        gutter = self.gutter
         name_width = max(1, self.name_width - gutter)
-        for row in range(self.rows):
-            index = self.scroll + row
-            if index >= len(self.entries):
-                break
-            entry = self.entries[index]
-            # The cursor only shows on the panel that has focus, so the two
-            # conditions are ANDed here rather than left to a ``:active``
-            # selector: the row fill below is gated on the same answer.
-            selected = index == self.cursor and self.active
-            style = self.part_style(
-                "row",
-                classes=("directory",) if entry.is_dir else (),
-                selected=selected,
-            )
-            y = 1 + row
-            if selected:
-                surface.fill(1, y, self.width - 2, 1, " ", style)
-            if gutter:
-                icon = icon_glyphs.icon_for(entry.name, entry.is_dir)
-                surface.draw_text(1, y, icon, style, gutter)
-            surface.draw_text(1 + gutter, y, entry.name, style, name_width)
-            surface.draw_text(self.width - 9, y, entry.display_size, style, 8)
-
-    def _render_footer(self, surface: Surface) -> None:
-        summary = self.footer_text
-        surface.draw_text(
-            max(1, (self.width - len(summary)) // 2),
-            self.height - 1,
-            summary,
-            self.part_style("footer"),
-        )
+        if gutter:
+            icon = icon_glyphs.icon_for(item.name, item.is_dir)
+            surface.draw_text(1, y, icon, style, gutter)
+        surface.draw_text(1 + gutter, y, item.name, style, name_width)
+        surface.draw_text(self.width - 9, y, item.display_size, style, 8)
