@@ -17,7 +17,7 @@ from navml.resolve import resolve
 from navml.sibling import Sibling
 from navml.stubs import stub
 
-SHIPPED = ["static_text", "label", "button", "framed_button", "dialog"]
+SHIPPED = ["static_text", "label", "button", "window", "dialog"]
 
 def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
@@ -87,10 +87,17 @@ def test_a_markup_only_component_is_its_generated_surface():
 
 
 def test_a_merged_component_carries_both_halves():
+    """Both halves of *this* component, which is not the same as both bases.
+
+    An inherited member is not restated: ``disabled`` is declared by
+    ``Control`` and a checker reads it from there, so what this stub owes is
+    the markup's ids and properties plus the hand-written half's own methods.
+    """
     source = build("button")
     assert "caption: StaticText" in source          # the markup's
-    assert "enabled: bool" in source           # the hand-written half's
-    assert "async def press(self) -> bool: ..." in source
+    assert "text: str" in source                    # the markup's, too
+    assert "async def press(self) -> bool: ..." in source   # the Python half's
+    assert "class Button(Control, _Component):" in source   # and the base it names
 
 
 def test_the_event_class_beside_a_component_is_part_of_the_module():
@@ -102,7 +109,7 @@ def test_a_hand_written_constructor_wins():
 
 
 def test_a_derived_component_keeps_both_bases():
-    assert "class FramedButton(Button, _Component):" in build("framed_button")
+    assert "class Dialog(Window, _Component):" in build("dialog")
 
 
 # -- the composed handlers ---------------------------------------------------

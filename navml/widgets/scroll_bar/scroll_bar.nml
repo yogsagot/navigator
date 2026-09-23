@@ -1,0 +1,24 @@
+#: A bar showing where a view sits in something longer than itself.
+#:
+#: DOS Navigator's ``[35] Scroll bar page`` and ``[36] Scroll bar icons``, and
+#: Turbo Vision's ``TScrollBar``.  It paints its own arrows, track and thumb
+#: -- there are no child widgets in here, for the reason
+#: ``navkit/DESIGN.md``'s *Parts: listing rows do not become widgets* gives:
+#: one view, many cells, no per-cell objects.
+ScrollBar:
+    #: ``vertical`` or ``horizontal``.
+    property orientation: "vertical"
+
+    #: Where the view starts, from 0 to ``maximum``.
+    property value: 0
+
+    #: The largest ``value`` there is.  Zero means nothing to scroll, and the
+    #: bar paints a full track with no thumb.
+    property maximum: 0
+
+    #: How much one page-up or page-down moves, and how long the thumb is
+    #: drawn relative to the track.
+    property page: 1
+
+    #: How far one click on an arrow moves.
+    property step: 1

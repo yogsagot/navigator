@@ -44,6 +44,30 @@ _WIDGET_PARAMETERS = frozenset(inspect.signature(Widget.__init__).parameters) - 
 }
 
 
+def take_declared(widget: Widget, kwargs: dict[str, Any]) -> None:
+    """Set the declarations *widget*'s class makes out of *kwargs*, in place.
+
+    Split out of :meth:`Component.__init__` so that a widget written in
+    **Python alone** can offer the same constructor its markup-built
+    neighbours do.  Without it ``CheckBoxes(items=[...])`` is a ``TypeError``
+    while ``Button(text="OK")`` is fine, purely because one has a document and
+    the other does not -- and "the shape a component happens to be written in
+    never reaches the call site" is the promise the whole library is built on.
+
+    A keyword naming neither a declaration nor a ``Widget`` parameter is left
+    where it is, so it reaches the constructor that already refuses it and the
+    typo still fails at the call, loudly, with the name in it.
+    """
+    declared = declarations(type(widget))
+    mine = {
+        name: kwargs.pop(name)
+        for name in list(kwargs)
+        if name not in _WIDGET_PARAMETERS and name in declared
+    }
+    for name, value in mine.items():
+        setattr(widget, name, value)
+
+
 class Component(Widget):
     """A widget whose tree was declared in markup."""
 
@@ -68,14 +92,7 @@ class Component(Widget):
         create do not need ``Widget.__init__`` to have run: a cell belongs to
         the instance and is made on first touch.
         """
-        declared = declarations(type(self))
-        mine = {
-            name: kwargs.pop(name)
-            for name in list(kwargs)
-            if name not in _WIDGET_PARAMETERS and name in declared
-        }
-        for name, value in mine.items():
-            setattr(self, name, value)
+        take_declared(self, kwargs)
         super().__init__(**kwargs)
 
     def layout(self, width: int, height: int) -> None:

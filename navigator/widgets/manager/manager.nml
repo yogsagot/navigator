@@ -33,7 +33,6 @@ Manager:
         width: parent.width // 2
         height: max(3, parent.height - 2)
         visible: not parent.console_visible
-        active: True
 
     Panel:
         id: right

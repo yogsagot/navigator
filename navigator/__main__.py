@@ -72,28 +72,29 @@ class Navigator(Application):
         return False
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        manager = self.manager
-        if manager.console_visible:
-            if event.is_wheel and manager.console.contains(event.x, event.y):
-                if event.button == "wheel_up":
-                    manager.console.scroll_back()
-                else:
-                    manager.console.scroll_forward()
-                return True
+        """The console's scrollback, and nothing else.
+
+        This used to hold the panels' mouse too -- hit-testing both of them,
+        switching the active one, moving the cursor to the clicked row and
+        scrolling on the wheel.  All four went away with the widget library
+        rather than being moved: ``Control.on_mouse_click`` takes the keyboard
+        on a press, which *is* switching now that the active panel is the
+        focused one, and ``ListViewer`` owns the row click and the wheel.
+        Routing by position is what puts them in the right panel.
+
+        What is left genuinely needs the desktop: a wheel over the console
+        scrolls its history, and the console is not a list.
+        """
+        console = self.manager.console
+        if not self.manager.console_visible or not event.is_wheel:
             return False
-        for panel in (manager.left, manager.right):
-            if not panel.contains(event.x, event.y):
-                continue
-            if not panel.active:
-                manager.switch_panel()
-            if event.is_wheel:
-                panel.move_cursor(-3 if event.button == "wheel_up" else 3)
-            elif event.action == "press" and event.button == "left":
-                row = event.y - panel.y - 1
-                if 0 <= row < panel.rows:
-                    panel.move_cursor(panel.scroll + row - panel.cursor)
-            return True
-        return False
+        if not console.contains(event.x, event.y):
+            return False
+        if event.button == "wheel_up":
+            console.scroll_back()
+        else:
+            console.scroll_forward()
+        return True
 
 
 class PrintVersion(argparse.Action):

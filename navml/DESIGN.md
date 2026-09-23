@@ -1,6 +1,6 @@
 # navml design notes
 
-The widget library is unwritten; the language's **parser and code generator are both written**. The parser is
+The widget library's first tier is **written**, and so are the language's parser and code generator. The parser is
 `navml/parser.py`, with `navml/errors.py` beside it, and *Reading a document* below records what it decided and where
 the line between it and the generator falls. The generator is seven modules -- `navml/expression.py` (the transformer
 the appendix prototypes), `navml/sibling.py` (the hand-written half, read rather than imported), `navml/resolve.py`
@@ -295,6 +295,143 @@ property declared in the generated half registers once; and `_is_a` matches a ty
 class *name*, so the two same-named classes a merged component puts there match `Button { }` exactly once — which is
 also why both halves keep the component's name rather than the generated one taking a private spelling. A sheet then
 reads the same whether or not a component has handlers.
+
+## The widget library
+
+Thirteen components under `navml/widgets/`, and **not one of them was designed.** DOS Navigator's Colors dialog
+exposes 144 slots, `tools/palconv.py` transcribed every one into all eleven themes, and the *Dialogs* group names the
+widgets outright — frame and frame icons, scroll bar page and icons, static text, label, button, cluster, input,
+history, list, information pane — with their states spelled out beside them. A colour table is a strange place to
+find a specification and it is a complete one: `[41] Button normal`, `[42] Button default`, `[43] Button selected`,
+`[44] Button disabled`, `[45] Button shortcut`, `[46] Button shadow` is six facts about what a button *is*, and the
+project's standing rule says to take them rather than invent six of our own.
+
+| widget | shape | parts | states | emits |
+|---|---|---|---|---|
+| `Control` | Python | — | `:disabled`, `:focused` | — |
+| `Cluster` | Python | `item`, `mark`, `shortcut` | `:disabled`, `:focused` | — |
+| `StaticText` | both | `shortcut` | — | — |
+| `Label` | both | `shortcut` | `:selected` | — |
+| `Button` | both | `shadow` | `:default`, `:disabled`, `:focused` | `ClickEvent` |
+| `InputLine` | both | `arrow`, `selection` | `:disabled`, `:focused` | — |
+| `CheckBoxes` | Python | inherited | inherited | — |
+| `RadioButtons` | Python | inherited | inherited | — |
+| `ScrollBar` | both | `arrow`, `thumb` | — | `ScrollEvent` |
+| `ListViewer` | both | `title`, `row`, `footer`, `error`, `divider` | `:disabled`, `:focused` | — |
+| `Window` | both | `title`, `icon` | `:focused` | — |
+| `Dialog` | both | inherited | inherited | — |
+| `Field` | **markup only** | — | — | — |
+| `Spacer` | Python | — | — | — |
+
+### `disabled`, never `enabled`
+
+Forced rather than preferred. `:state` matches any truthy attribute and the selector grammar has **no `:not()`** —
+`Button:not(disabled) { }` raises — so a positively-spelled `enabled` could never style the disabled case, which is
+the one DOS Navigator gives a slot of its own. `Control.disabled` is reactive, so `:disabled` is a stylesheet state
+for free, and `can_focus` is *bound* to it, so a disabled control leaves the tab order with nothing else being told.
+That makes `can_focus` read-only on a control, which is *A property a widget navigates cannot be bound* arrived at
+from the other end: a document writes `disabled:` and never `can_focus:`.
+
+### The shortcut is a rendering of the caption
+
+Turbo Vision marks it inline, `~O~K`, and keeping that rather than adding a `shortcut` property means a translated
+caption carries its own accelerator with nothing to hold in step. `parse_shortcut` lives in `control.py` and is
+called from exactly two painters; `~~` is a literal tilde and an unpaired `~` is drawn as one, because a caption is
+text first and a declaration second.
+
+**The container dispatches it, and needs no new mechanism.** `dispatch_key` walks the focus path *upward*, so a
+`Window` is offered every key its own controls did not claim — it then walks its own subtree for a `Control` whose
+letter matches. Turbo Vision broadcasts because it has no focus path; navkit has one, and the walk is the downward
+half of it. **Alt and a letter only**: the original also accepts a bare letter when no input line holds the focus,
+and reproducing that would mean asking the focused control whether it eats printable keys, which is an implicit
+coupling between every control and every container. `KeyEvent.is_printable` is already false when `alt` is set, so
+an `InputLine` never has to think about it.
+
+`activate()` is the one virtual: a `Button` focuses and presses, an `InputLine` focuses and selects what is there so
+that typing replaces it, a `Cluster` moves to the item that owns the letter and turns it on, and a `Label`
+**delegates to its link** — which is what makes `~N~ame` beside a field mean the same thing as `~N~` on the field.
+
+### A handler starts a dialog; it does not wait for one
+
+The rule the whole library rests on, and it was found by running the obvious thing and watching it freeze.
+`await dialog.execute(app)` inside `on_key` mounts the dialog, takes the modal focus, and **never paints it**:
+`_main_loop` awaits `_handle` and only then renders, and it is the only consumer of the event queue, so the key that
+would dismiss the dialog is read, queued and never dispatched. The measurement is in `navkit/DESIGN.md` under *What
+the frame model gives up*, which has been corrected to say so.
+
+So a handler calls `self.spawn(self._make_directory())` and returns; the batch finishes, the frame paints, and the
+waiting happens in a task. `Dialog.execute` reads `Application._dispatching` and raises rather than hanging, and
+`tests/test_widgets.py` asserts the dialog is *in the frame* before anything answers it.
+
+### Rows are not widgets, and that is why markup needs no repeater
+
+`ScrollBar`, `ListViewer`, `CheckBoxes` and `RadioButtons` all paint their own items. `navkit/DESIGN.md`'s *Parts:
+listing rows do not become widgets* settled this by fidelity before there was a library to apply it to — "one view,
+many items, no per-item objects; rows were never objects in the original" — and the consequence is the one that
+matters here: **the thing markup cannot say turns out not to need saying.** A list's items are a *value*, and a
+value is something a document can already express.
+
+The same trick answers conditionals. `Dialog` declares all three of its buttons and binds their `visible`, because a
+hidden widget is already out of the tab order, out of the shortcut walk and out of the paint. And where a *number*
+varies, a conditional **expression** is still one line: `Dialog.button_row` centres two buttons or three with a
+ternary, which is markup saying something about a value rather than about the shape of the tree.
+
+### A dialog's geometry is bound, and that is not a style choice
+
+`Component.layout()` does not cascade into children — but `Widget.add()` still calls
+`child.layout(parent.width, parent.height)`, and `Component.layout` steps around a side only when it carries a
+*binding*. So a dialog sized with a literal is resized to the whole terminal the moment `overlay()` adds it; measured
+at 40x8 asked for and 100x30 got. Every dialog therefore routes its size through a declared property the base binds
+from:
+
+```
+Dialog:
+    property dialog_width: 50
+    width: self.dialog_width
+```
+
+which is also the only way a *derived* document can change it. `width: 44` in `MkdirDialog` would be a value over a
+live binding installed by `super().__init__()` a moment earlier, and would raise; `dialog_width: 44` is a literal
+onto an attribute nothing has bound.
+
+### A derived component's own children land after its base's
+
+`super().__init__(**kwargs)` is the generated constructor's first line, so the base's tree is built first and
+`focusable()` — which is pre-order — would open every derived dialog with the focus on OK and run Tab backwards.
+`Dialog.focusable()` moves its own buttons to the end; one override fixes both, because `_claim_focus` reads the
+first of that list and `focus_next` reads the same list. `MkdirDialog` opens with the keyboard in its input line
+because of it.
+
+### What the library took from `Panel`, and what it left
+
+`ListViewer` is `navigator/widgets/panel/panel.py`'s generic half, extracted: the reactive `items`/`cursor`/`scroll`,
+the `rows` computed, the two invariants that keep them honest, the framed container with its centred title and
+footer, the row painting, the row hit-test, and the list keys that used to sit in `Manager.on_key`. What stayed is
+everything about *files*.
+
+Two things the extraction turned up. **The invariants moved from `__init__` into `mounted()`**, because `remove()`
+disposes a subtree's effects and every widget in a dialog can be removed and put back — `Panel` could get away with
+the constructor only because the desktop never lets it go. And **a row is filled only when it is the cursor row**:
+filling every row looks identical and is not, because `render_diff` compares cells by style and emits an SGR run for
+every difference, so a fill nobody can see is real bytes on the wire. That one was caught by
+`tests/fixtures/desktop-80x24.txt`, a dump of every character *and every style run* of the desktop captured before
+the extraction started — which now reproduces exactly, and is the automated form of the pty `cmp` that proved
+`manager.nml`.
+
+### Where the colours live
+
+In `navigator/styles/navigator.nss`, not with the library. `$dialog-*` is *the file manager's* theme vocabulary,
+decoded from `.PAL` files, and `CLAUDE.md` is explicit that navml may not depend on the file manager — a library
+sheet naming those would not parse without a Navigator palette behind it. What navml ships is the **contract**: the
+parts and states table above, declared on the classes, which is what a sheet is written against. `load_scheme()`
+calls `navml.widgets.import_all()` before parsing, because a `StyleProperty` is registered by its class body running
+and a list of imports is a thing to forget.
+
+One consequence worth knowing: `Panel` is a `ListViewer` now, and a type selector matches by class *name* over the
+whole MRO — so a bare `ListViewer { }` rule ties with `Panel { }` on specificity and wins on source order. The
+dialog list and scrollbar rules are scoped `Window ListViewer` for that reason, which is also what the original
+does: DOS Navigator carries `[35-36]`/`[57-60]` under *Dialogs* and `[83-84]` under *File Manager* precisely because
+the same widget is a different colour inside a dialog.
 
 ## Importing another component
 

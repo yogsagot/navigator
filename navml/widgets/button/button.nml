@@ -1,14 +1,27 @@
+from navml.widgets.control import Control
 from navml.widgets.static_text import StaticText
 
 #: A pressable box with a centred caption.
-Button:
+#:
+#: DOS Navigator's ``[41-46] Button normal / default / selected / disabled /
+#: shortcut / shadow``, and Turbo Vision's ``TButton``.  Two rows and one
+#: column wider than its face: the shadow is inside the button's own rectangle
+#: rather than painted over its neighbour, which is what keeps it a widget
+#: that can be placed anywhere.
+Button(Control):
+    #: The caption, with one ``~A~`` run marking the letter that presses it.
     property text: ""
+
+    #: Whether Enter presses this button from anywhere in the dialog.  One
+    #: per dialog, and the dialog is what enforces that rather than this.
+    property default: False
 
     StaticText:
         id: caption
         x: 1
         y: 0
-        width: max(0, parent.width - 2)
+        #: Two for the brackets and one for the shadow's column.
+        width: max(0, parent.width - 3)
         height: 1
         text: parent.text
         align: "center"

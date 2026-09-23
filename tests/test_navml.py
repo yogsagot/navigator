@@ -8,7 +8,7 @@ silent rather than loud.
 
 The components under ``navml/widgets`` are one per shape: ``Spacer`` is
 Python alone, ``Field`` is markup alone, ``Button`` is both, and
-``FramedButton`` is both *and* derived from a component that is itself both.
+``Dialog`` is both *and* derived from ``Window``, which is itself both.
 ``Dialog`` is a fifth, on a different axis: it is the one whose *children*
 raise the events its hand-written half handles, and it pins the
 ``on_<id>_<event>`` convention the generator has to emit for them.
@@ -42,7 +42,7 @@ from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
 from conftest import awaited
 from navml.widgets import (
-    Button, Dialog, Field, FramedButton, Label, Spacer, StaticText,
+    Button, Dialog, Field, Label, Spacer, StaticText, Window,
 )
 # The *component modules*, not their packages: a component is a directory whose
 # `__init__.py' re-exports the class, so the questions these tests ask about a
@@ -109,7 +109,7 @@ def package(tmp_path, monkeypatch):
         ("navml.widgets.field", "Field"),         # markup alone
         ("navml.widgets.label", "Label"),         # both
         ("navml.widgets.button", "Button"),       # both
-        ("navml.widgets.framed_button", "FramedButton"),
+        ("navml.widgets.window", "Window"),
     ],
 )
 def test_every_shape_imports_the_same_way(module, component):
@@ -141,7 +141,7 @@ def test_a_merged_component_keeps_one_truthful_source_file():
     assert button_module.__spec__.origin == button_module.__file__
     assert button_module.__loader__.get_source("navml.widgets.button.button")
     assert button_module.__loader__.get_code("navml.widgets.button.button") is not None
-    assert inspect.getsource(Button).startswith("class Button(Widget):")
+    assert inspect.getsource(Button).startswith("class Button(Control):")
 
 
 def test_a_markup_only_component_is_sourced_from_its_generated_half():
@@ -166,7 +166,7 @@ def test_the_generated_class_is_the_base():
     """
     generated = importlib.import_module("navml.widgets.button.button_nml")
     assert [c.__name__ for c in Button.__mro__] == [
-        "Button", "Button", "Component", "Widget", "object"
+        "Button", "Button", "Control", "Component", "Widget", "object"
     ]
     assert Button.__mro__[1] is generated.Button
     assert Button is not generated.Button
@@ -177,7 +177,7 @@ def test_ids_are_live_before_any_hand_written_line_runs():
     button = Button(text="OK", width=20, height=3)
     assert isinstance(button.caption, StaticText)
     assert button.caption.text == "OK"          # the hand-written __init__ set it
-    assert button.caption.width == 18           # and the markup's binding followed
+    assert button.caption.width == 17           # and the markup's binding followed
 
 
 def test_a_binding_written_in_markup_keeps_following():
@@ -185,14 +185,14 @@ def test_a_binding_written_in_markup_keeps_following():
     button.text = "Cancel"
     assert button.caption.text == "Cancel"
     button.width = 40
-    assert button.caption.width == 38
+    assert button.caption.width == 37
 
 
 def test_declarations_spans_both_halves():
     """The rewriter's ``own`` set and ``unbind``/``is_bound`` both need this."""
     found = declarations(Button)
     assert "text" in found                       # declared by the markup half
-    assert "enabled" in found                    # declared by the hand-written half
+    assert "disabled" in found                   # declared by the base, Control
     assert "width" in found                      # inherited from Widget
 
 
@@ -209,8 +209,8 @@ def test_a_component_may_derive_from_a_component():
     from a *Python-only* widget has no other way to stop ``Widget.layout``
     cascading into children the markup placed.
     """
-    assert [c.__name__ for c in FramedButton.__mro__] == [
-        "FramedButton", "FramedButton", "Button", "Button",
+    assert [c.__name__ for c in Dialog.__mro__] == [
+        "Dialog", "Dialog", "Window", "Window",
         "Component", "Widget", "object",
     ]
 
@@ -223,12 +223,15 @@ def test_each_half_of_each_level_builds_its_tree_exactly_once():
     one's would be built twice.  ``super().__init__()`` chaining gets the order
     right with no mechanism at all.
     """
-    framed = FramedButton(text="Save", width=30, height=4)
-    assert len(framed.children) == 2
-    assert framed.children[0] is framed.caption   # the base's tree, first
-    assert framed.children[1] is framed.hint      # then the derived one's
-    assert framed.caption.text == "Save"
-    assert framed.hint.text == "[enter]"
+    dialog = Dialog(prompt="Save?", dialog_width=40, dialog_height=10)
+    assert len(dialog.children) == 4
+    assert dialog.children[0] is dialog.message   # the derived document's own
+    assert dialog.children[1] is dialog.ok
+    assert dialog.message.text == "Save?"
+
+    # Window declares no children at all, so this is also the proof that a
+    # base with an empty tree costs the derived one nothing.
+    assert dialog.title == ""
 
 
 def test_a_type_selector_reaches_through_the_splice():
@@ -238,9 +241,9 @@ def test_a_type_selector_reaches_through_the_splice():
     so the duplicate matches once rather than twice -- and a rule written for
     the base component still reaches the derived one.
     """
-    framed = FramedButton(width=10, height=4)
-    framed.stylesheet = parse("Button { bg: blue }")
-    assert framed.style.bg == 4
+    dialog = Dialog(dialog_width=20, dialog_height=8)
+    dialog.stylesheet = parse("Window { bg: blue }")
+    assert dialog.style.bg == 4
 
 
 # -- the guards --------------------------------------------------------------
@@ -459,7 +462,7 @@ def _imports_of_markup(path: pathlib.Path) -> dict[str, str]:
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "framed_button", "dialog"]
+    "component", ["field", "label", "button", "static_text", "window", "dialog"]
 )
 def test_the_markup_imports_what_its_generated_half_imports(component):
     """The two halves must not drift while the generator is a stand-in.
@@ -475,7 +478,7 @@ def test_the_markup_imports_what_its_generated_half_imports(component):
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "framed_button", "dialog"]
+    "component", ["field", "label", "button", "static_text", "window", "dialog"]
 )
 def test_the_generator_s_machinery_is_underscored(component):
     """So that a document may import any name at all -- there is no reserved word.
@@ -493,7 +496,7 @@ def test_the_generator_s_machinery_is_underscored(component):
 
 
 @pytest.mark.parametrize(
-    "component", ["field", "label", "button", "framed_button", "dialog"]
+    "component", ["field", "label", "button", "static_text", "window", "dialog"]
 )
 def test_every_markup_line_reference_points_at_a_real_line(component):
     """The trailing ``# button.nml:12`` is how a reader gets back to the markup.
@@ -523,7 +526,7 @@ def test_importing_one_component_does_not_load_the_library(package):
 
     Three entries per component, not one: a component is a directory, so its
     package, its module and its generated module each get a slot.  **What this
-    pins is the absence** -- ``button``, ``dialog``, ``framed_button`` and
+    pins is the absence** -- ``button``, ``dialog``, ``window`` and
     ``spacer`` -- and that is untouched by the count going up.
     """
     script = (
@@ -536,12 +539,18 @@ def test_importing_one_component_does_not_load_the_library(package):
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
     assert loaded == [
-        "navml.widgets.control",          # StaticText parses ~A~ with its help
-        "navml.widgets.control.control",
+        "navml.widgets.control",          # the base both of Field's children
+        "navml.widgets.control.control",  # derive from
         "navml.widgets.field",
         "navml.widgets.field.field",
         "navml.widgets.field.field_nml",
-        "navml.widgets.static_text",
+        "navml.widgets.input_line",
+        "navml.widgets.input_line.input_line",
+        "navml.widgets.input_line.input_line_nml",
+        "navml.widgets.label",
+        "navml.widgets.label.label",
+        "navml.widgets.label.label_nml",
+        "navml.widgets.static_text",      # Label's shortcut painter
         "navml.widgets.static_text.static_text",
         "navml.widgets.static_text.static_text_nml",
     ]
@@ -550,15 +559,15 @@ def test_importing_one_component_does_not_load_the_library(package):
 def test_a_component_still_pulls_in_the_ones_it_really_uses():
     script = (
         "import sys, importlib\n"
-        "importlib.import_module('navml.widgets.framed_button')\n"
+        "importlib.import_module('navml.widgets.dialog')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navml.widgets.'))))\n"
     )
     loaded = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
-    assert "navml.widgets.button" in loaded      # FramedButton's base
-    assert "navml.widgets.static_text" in loaded # and the caption both use
+    assert "navml.widgets.button" in loaded      # Dialog's buttons
+    assert "navml.widgets.window" in loaded      # and the base it derives
     assert "navml.widgets.spacer" not in loaded  # but nothing it does not
 
 
@@ -566,8 +575,9 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "Control", "Dialog", "Field", "FramedButton",
-        "Label", "Spacer", "StaticText",
+        "Button", "CheckBoxes", "Cluster", "Control", "Dialog", "Field",
+        "InputLine", "Label", "ListViewer", "RadioButtons", "ScrollBar",
+        "Spacer", "StaticText", "Window",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent
@@ -701,19 +711,19 @@ def test_a_disabled_button_emits_nothing():
         return True
 
     button.on_click = on_click
-    button.enabled = False
+    button.disabled = True
     assert awaited(button.press()) is False
     assert seen == []
 
 
 def test_a_derived_component_keeps_the_event_its_base_emits():
     """Through the four-deep merged MRO, which is the case only this repo has:
-    FramedButton, FramedButton, Button, Button, then the shared base."""
+    Window, Window, Button, Button, then the shared base."""
     from navml.widgets.button import ClickEvent
 
-    assert emitted(FramedButton) == {ClickEvent}
-    assert [c.__name__ for c in FramedButton.__mro__][:5] == [
-        "FramedButton", "FramedButton", "Button", "Button", "Component",
+    assert emitted(Button) == {ClickEvent}
+    assert [c.__name__ for c in Dialog.__mro__][:5] == [
+        "Dialog", "Dialog", "Window", "Window", "Component",
     ]
 
 
@@ -747,7 +757,7 @@ def test_an_unoverridden_stub_declines_and_the_click_carries_on():
     """
     dialog = Dialog()
     assert awaited(dialog.cancel.press()) is True
-    assert dialog.result is False
+    assert dialog.result is None
 
 
 def test_the_stub_is_on_the_generated_half_and_the_override_on_the_other():
@@ -787,7 +797,7 @@ def test_a_markup_handler_consumes_whatever_its_body_returns():
 
     assert awaited(dialog.show_info(None)) is None
     assert awaited(dialog.info.press()) is True
-    assert dialog.prompt == "OK accepts, Cancel dismisses."
+    assert dialog.prompt == "Enter accepts, Escape dismisses."
 
 
 def test_every_generated_handler_is_async():
@@ -845,7 +855,7 @@ def test_every_generated_class_shares_the_base():
     is a live ``.nss`` selector with exactly this membership.
     """
     assert issubclass(Label, Component) and issubclass(Dialog, Component)
-    assert issubclass(FramedButton, Component)
+    assert issubclass(Window, Component)
     assert not issubclass(Spacer, Component)
 
 
@@ -863,7 +873,7 @@ def test_a_component_is_handed_what_it_declares_by_keyword():
     in from outside -- and it has to happen before ``Widget.__init__``, which
     accepts none of them and would refuse the lot.
     """
-    dialog = Dialog(prompt="Overwrite?", width=30, height=6)
+    dialog = Dialog(prompt="Overwrite?", dialog_width=30, dialog_height=6)
     assert dialog.prompt == "Overwrite?"
     assert (dialog.width, dialog.height) == (30, 6)
     assert dialog.message.text == "Overwrite?"      # the markup binding followed
@@ -919,15 +929,21 @@ def test_the_base_sizes_only_itself():
     """``Widget.layout`` cascades into every child whose size is not bound,
     which is what a hand-written widget wants and what a generated one must
     not have -- markup has already said where each child goes."""
+    button = Button()
+    button.layout(80, 24)
+    assert (button.width, button.height) == (80, 24)
+    assert (button.caption.height) == 1        # its own, from markup
+
+    # And the other half of the rule: a size the markup *bound* is stepped
+    # around rather than overwritten, which is what stops a dialog becoming
+    # full-screen the moment `overlay' adds it.
     dialog = Dialog()
     dialog.layout(80, 24)
-    assert (dialog.width, dialog.height) == (80, 24)
-    assert (dialog.ok.width, dialog.ok.height) == (10, 1)   # its own, from markup
-    assert dialog.message.height == 1
+    assert (dialog.width, dialog.height) == (50, 10)
 
 
 def test_a_widget_markup_constructs_needs_no_constructor_argument():
     """A child block compiles to ``Type(parent=self)`` and nothing else, so a
     required positional argument is what keeps a widget out of a document."""
-    for component in (Label, Button, Dialog, FramedButton, Spacer):
+    for component in (Label, Button, Dialog, Window, StaticText, Spacer):
         assert component(parent=None) is not None

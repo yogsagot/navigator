@@ -42,8 +42,17 @@ class Label(Control):
         return isinstance(link, Widget) and link.focused
 
     async def activate(self, letter: str = "") -> bool:
-        """Hand the keyboard to the control this caption belongs to."""
+        """Do to the linked control what its own shortcut would.
+
+        Delegating rather than merely focusing, because ``~N~ame`` beside a
+        field has to mean the same thing as ``~N~`` on the field itself --
+        which for an ``InputLine`` includes selecting what is already there,
+        so that typing replaces it.  A link that is not a ``Control`` is
+        simply focused.
+        """
         link = self.link
+        if isinstance(link, Control):
+            return await link.activate(letter)
         return link.focus() if isinstance(link, Widget) else False
 
     async def on_mouse_click(self, event) -> bool:

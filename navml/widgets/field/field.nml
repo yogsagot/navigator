@@ -1,29 +1,42 @@
-from navml.widgets.static_text import StaticText
+from navml.widgets.input_line import InputLine
+from navml.widgets.label import Label
 
-#: A caption and a value side by side.
+#: A caption and the line it names, side by side.
 #:
 #: The library's one component written in markup alone: it paints nothing
 #: itself, so it needs no hand-written half, and ``navml.widgets.field`` is
 #: backed by the generated module directly.
+#:
+#: It is also where ``alias`` and ``link`` are each worth their existence.
+#: ``alias value: entry.value`` is how the text gets in and out without the
+#: caller reaching through ``field.entry``, and ``link: entry`` is what makes
+#: the caption's ``~N~`` put the keyboard in the line beside it -- which is
+#: the whole of what Turbo Vision's ``TLabel`` is *for*.
 Field:
+    #: The caption, with one ``~A~`` run.
     property label_text: ""
-    property value_text: ""
+
+    #: How many columns the caption takes before the line begins.
     property label_width: 12
 
-    StaticText:
+    #: The text in the line.  An alias, so a read and a write both reach the
+    #: ``InputLine``'s own reactive one property deep, and a binding assigned
+    #: through it is re-owned by whoever wrote it.
+    alias value: entry.value
+
+    Label:
         id: caption
         x: 0
         y: 0
         width: parent.label_width
         height: 1
         text: parent.label_text
+        link: entry
         align: "left"
 
-    StaticText:
-        id: value
+    InputLine:
+        id: entry
         x: parent.label_width
         y: 0
         width: max(0, parent.width - parent.label_width)
         height: 1
-        text: parent.value_text
-        align: "left"

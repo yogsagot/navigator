@@ -39,6 +39,7 @@ _WIDGETS = {
     "DirEntry": "panel",
     "KeyBar": "keybar",
     "Manager": "manager",
+    "MkdirDialog": "mkdir_dialog",
     "MenuBar": "menubar",
     "Panel": "panel",
 }
@@ -66,5 +67,6 @@ if TYPE_CHECKING:
     from navigator.widgets.console import Console
     from navigator.widgets.keybar import KeyBar
     from navigator.widgets.manager import Manager
+    from navigator.widgets.mkdir_dialog import MkdirDialog
     from navigator.widgets.menubar import MenuBar
     from navigator.widgets.panel import DirEntry, Panel

@@ -178,3 +178,27 @@ def terminal() -> FakeTerminal:
 @pytest.fixture
 def blue() -> Style:
     return Style(fg=7, bg=4)
+
+def mounted(widget, *, size=(80, 24), stylesheet=None):
+    """*widget* as the root of a live application, laid out and mounted.
+
+    Needed because a widget's effects belong in ``mounted()`` rather than in
+    ``__init__`` -- ``remove()`` disposes a subtree's effects, so anything
+    that can be taken out and put back has to declare them where they will be
+    declared again.  A detached widget therefore has *no* effects running, and
+    a test that builds one and asserts on its model is asserting on a model
+    that was never computed.
+
+    The application is real but its terminal is not, so nothing is painted
+    until something asks.  The widget is returned, not the application; reach
+    it with ``widget.application`` when a test needs one.
+    """
+    from navkit.application import Application
+
+    application = Application(
+        widget, terminal=FakeTerminal(width=size[0], height=size[1])
+    )
+    if stylesheet is not None:
+        application.stylesheet = stylesheet
+    settle()
+    return widget

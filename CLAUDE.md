@@ -25,10 +25,30 @@ existed to make possible is done, and it is a byte-for-byte proof rather than a 
 and the commit after paint the same 3725 bytes on a pty at 80x24, `cmp`-identical. `manager.py` keeps the handlers and
 the three seeded values; the tree, the geometry and the `visible` flags are markup.
 
-**The next thing to build is the widget library.** A library widget is written as markup plus, where it paints, a
-hand-written half, and `python -m navml build` emits the rest. `navml/DESIGN.md` is still the spec — *What the
-generator settled by being written* and *What converting `Manager` needed, and what it turned up* record what the two
-pieces of work decided.
+**The widget library's first tier is written**, and none of it was designed: DOS Navigator's Colors dialog names the
+widgets and their states, `tools/palconv.py` had already transcribed all 144 slots into every theme, and the
+*Dialogs* group is the specification. Thirteen components — `Control`, `Cluster`, `StaticText`, `Label`, `Button`,
+`InputLine`, `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Window`, `Dialog`, `Field` — plus `Spacer`.
+`navigator/styles/navigator.nss` binds them to the `$dialog-*` variables the eleven themes had been carrying inert,
+and **F7 Mkdir is the first dialog wired into the application**, proved on a pty. *The widget library* in
+`navml/DESIGN.md` records what each decision cost. **The next tier is menus** — `[2-7]` — then History `[53-56]` and
+Tree `[104-110]`.
+
+Four rules from building it, each of which was found by running something rather than by reasoning:
+
+- **A handler starts a dialog; it does not wait for one.** `await dialog.execute(app)` inside `on_key` mounts the
+  dialog, takes the modal focus and *never paints it*: `_main_loop` awaits `_handle` before rendering and is the
+  event queue's only consumer, so the key that would dismiss the dialog is never dispatched. Use
+  `self.spawn(self._work())` and let the handler return. `Dialog.execute` raises rather than hanging.
+- **A dialog's geometry must be bound, not assigned.** `Widget.add()` lays a child out into its parent and
+  `Component.layout` steps around a side only when it carries a binding — so a dialog sized with a literal becomes
+  full-screen the moment `overlay()` adds it. Route the size through a declared property the base binds from, which
+  is also the only way a derived document can change it.
+- **A derived component's own children land *after* its base's**, because `super().__init__()` is the generated
+  constructor's first line. `Dialog.focusable()` moves its buttons to the end; without it every derived dialog opens
+  with the focus on OK.
+- **Effects belong in `mounted()`, not `__init__`**, for any widget that can be removed and put back — which is
+  every widget in a dialog. `remove()` disposes a subtree's effects.
 
 **The generator is seven modules with one concern each**, in a one-way chain: `expression.py` compiles a property
 expression or a handler body by rewriting free names on the syntax tree; `sibling.py` reads the hand-written `.py`
@@ -40,7 +60,10 @@ indents and trailing comments — and not through string assembly or a whole-mod
 no comments and navml's source map *is* comments.
 
 **A component that paints has two halves by construction.** Markup declares and places; Python paints. `Label` had to
-gain a `label.py` for exactly this, and `navml/widgets/field/field.nml` is the markup-only example in its place.
+gain a `label.py` for exactly this, and `navml/widgets/field/field.nml` is the markup-only example in its place. The
+converse bit too: `CheckBoxes` and `RadioButtons` *lost* their markup halves by being finished, because everything
+they declare is `Cluster`'s and everything they show is painted — a document holding nothing but a head says only
+what its `class` statement already says.
 
 **And a property a widget *navigates* cannot be bound** — the one rule converting the desktop turned up. A markup
 property line compiles to a binding, a bound attribute is read-only until something unbinds it, and `Panel.enter()`
@@ -477,10 +500,10 @@ Things to know before touching the style layer:
 `button.pyi` is the generated stub. Markup alone, Python alone and both are three peer shapes, and
 `from navml.widgets.button import Button` is the same line for all three — a component can move between them without
 that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
-example of each: `spacer` is Python alone, `field` is markup alone, `button` and `label` are both, and
-`framed_button` is both *and*
-derived from a component that is itself both. `dialog` is a fifth, on a different axis: it is the one whose *children*
-raise the events its hand-written half handles, and it pins the `on_<id>_<event>` convention below.
+example of each and they are all real widgets now: `spacer` and `control` are Python alone, `field` is markup alone,
+`button` and `label` are both, and `dialog` is both *and* derived from `window`, which is itself both.
+`dialog` is also the one whose *children* raise the events its hand-written half handles, and it pins the
+`on_<id>_<event>` convention below — which a dialog with an OK and a Cancel in it does by being one.
 
 **And a component is a directory.** Those four files live in `navml/widgets/button/` beside an `__init__.py` that
 re-exports the class (and any event it declares — `button` publishes `ClickEvent` too), so the import line is

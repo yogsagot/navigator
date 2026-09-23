@@ -1,46 +1,86 @@
 from navml.widgets.button import Button
 from navml.widgets.static_text import StaticText
+from navml.widgets.window import Window
 
-#: A prompt with three buttons.
+#: A modal window with an OK and a Cancel, and an answer.
 #:
-#: The worked example of a component whose *children* raise the events its
-#: hand-written half handles: two of the buttons are routed by the
-#: ``on_<id>_<event>`` convention and the third by an explicit markup line,
-#: which is the escape hatch for a handler named after what the component
-#: does rather than after what happened.
-Dialog:
+#: Still the worked example of a component whose *children* raise the events
+#: its hand-written half handles -- a dialog with two buttons in it is what
+#: the ``on_<id>_<event>`` convention was written for, and it is now a widget
+#: that earns the example rather than a demonstration built to carry it.
+#:
+#: **The geometry is bound, and that is not a style choice.**  ``Widget.add``
+#: lays a child out into its parent's size, and ``Component.layout`` only
+#: steps around a side that carries a *binding* -- so a dialog whose width is
+#: a literal is resized to the whole terminal the moment it is overlaid.
+#: Routing the size through a declared property is also what lets a derived
+#: dialog change it: ``dialog_width: 44`` is a literal onto an attribute
+#: nothing has bound, where ``width: 44`` would be a value over a live binding
+#: and would raise.
+Dialog(Window):
+    #: The size the dialog asks for.  Overridden by a derived document.
+    property dialog_width: 50
+    property dialog_height: 10
+
+    #: ``ok``, ``ok-cancel`` or ``ok-cancel-help``.  Which buttons is a
+    #: *visibility* question, because markup has no conditional and needs
+    #: none: all three are declared and a hidden one is already out of the
+    #: tab order, out of the shortcut walk and out of the paint.
+    property buttons: "ok-cancel"
+
+    #: The line of text above the buttons.
     property prompt: ""
+
+    #: Where the row of buttons starts, so that it stays centred whether two
+    #: of them are showing or three.  A *conditional expression* rather than a
+    #: conditional: markup has no branch and needs none here, because what
+    #: varies is a value and not the shape of the tree.  Each button is 11
+    #: columns -- nine of face, two of bracket, one of shadow -- with two
+    #: between, so three span 37 and two span 24.
+    property button_row: (self.width - 37) // 2 if self.buttons == "ok-cancel-help" else (self.width - 24) // 2
+
+    width: self.dialog_width
+    height: self.dialog_height
+    x: max(0, (parent.width - self.width) // 2)
+    y: max(0, (parent.height - self.height) // 2)
 
     StaticText:
         id: message
-        x: 1
-        y: 1
-        width: max(0, parent.width - 2)
-        height: 1
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: max(1, parent.height - 6)
         text: parent.prompt
-        align: "left"
+        wrap: True
 
     Button:
         id: ok
-        x: 1
-        y: 3
-        width: 10
-        height: 1
-        text: "OK"
+        text: "O~K~"
+        default: True
+        x: max(1, parent.button_row)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
 
     Button:
         id: cancel
-        x: 12
-        y: 3
-        width: 10
-        height: 1
-        text: "Cancel"
+        text: "~C~ancel"
+        visible: parent.buttons != "ok"
+        x: max(1, parent.button_row + 13)
+        width: 11
+        height: 2
+        y: max(0, parent.height - 4)
 
+    #: Routed by an explicit line, because :meth:`show_info` is named for what
+    #: the dialog *does* rather than for what happened to it -- the escape
+    #: hatch from the ``on_<id>_<event>`` convention, and the third of the
+    #: three ways a child's event reaches this component's Python half.
     Button:
         id: info
-        x: 23
-        y: 3
-        width: 10
-        height: 1
-        text: "Help"
+        text: "~H~elp"
+        visible: parent.buttons == "ok-cancel-help"
+        x: max(1, parent.button_row + 26)
+        width: 11
+        height: 2
+        y: max(0, parent.height - 4)
         on_click: await root.show_info(event)
