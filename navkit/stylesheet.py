@@ -136,6 +136,28 @@ def register_property(
         _PROPERTIES[name] = spec
 
 
+def parts_of(cls: type) -> frozenset[str]:
+    """Every part *cls* and its bases declare they paint.
+
+    The counterpart of :func:`navkit.events.emitted`, and it **unions over the
+    MRO** for the same reason: a subclass that paints a new part is adding to
+    what its base paints, never replacing it, so ``ListBox`` keeps its base's
+    ``row`` without restating it.
+
+    This is what makes a part name checkable at all.  A ``::part`` selector
+    cannot be checked when a sheet is parsed -- selectors match by class
+    *name* over the MRO, so the parser has no class to ask, and a sheet may
+    legally name a type it could not import.  The check therefore lives where
+    the class is in hand: :meth:`navkit.widget.Widget.part_style` refuses a
+    part its widget never declared, which fires at the first paint, in the
+    widget, naming both.
+    """
+    found: set[str] = set()
+    for klass in cls.__mro__:
+        found.update(vars(klass).get("parts", ()))
+    return frozenset(found)
+
+
 def declared_property(name: str) -> PropertySpec | None:
     """What a sheet may say about *name*, or ``None`` if it may not say it.
 

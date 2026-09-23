@@ -28,6 +28,9 @@ FUNCTION_KEYS = [
 class KeyBar(Widget):
     """The F1..F10 hint bar across the bottom of the screen."""
 
+    #: The digit in front of each label.
+    parts = ("number",)
+
     def render(self, surface: Surface) -> None:
         label_style, number_style = self.style, self.part_style("number")
         surface.fill(0, 0, self.width, 1, " ", label_style)

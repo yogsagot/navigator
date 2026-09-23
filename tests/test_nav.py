@@ -1082,3 +1082,33 @@ def test_a_panel_can_be_built_the_way_markup_builds_one(tree):
     assert panel.width == 40
     # And the ordinary spelling is untouched.
     assert Panel(tree, width=40, height=20).path == tree
+
+
+def test_every_part_the_sheet_names_is_one_a_widget_paints():
+    """The half of the part check a stylesheet parse cannot do for itself.
+
+    A ``::part`` selector matches by class *name* over the MRO, so the parser
+    has no class to ask and `Panel::rwo' would be accepted and silently match
+    nothing.  Here the widgets are imported, so the question can be asked --
+    and asking it of the shipped sheet is what turns a typo into a failure.
+    """
+    import navigator.widgets
+    from navkit.stylesheet import parts_of
+    from navigator.scheme import default_scheme
+
+    widgets = {name: getattr(navigator.widgets, name) for name in navigator.widgets.__all__}
+    checked = 0
+    for rule in default_scheme().rules:
+        # Only the subject may carry a part; the grammar allows it nowhere else.
+        compound = rule.selector.subject
+        if compound.part is None:
+            continue
+        widget = widgets.get(compound.type_name or "")
+        if widget is None:
+            continue              # a type this package does not define
+        assert compound.part in parts_of(widget), (
+            f"{compound.type_name}::{compound.part} names a part "
+            f"{compound.type_name} does not paint"
+        )
+        checked += 1
+    assert checked, "the sheet names no parts at all -- has the selector moved?"

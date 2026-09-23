@@ -80,12 +80,14 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     regression available before the generator exists.
     """
     document = parse_file(shipped("dialog", ".nml"))
-    assert [line.names for line in document.imports] == [("Button",), ("Label",)]
+    assert [line.names for line in document.imports] == [("Button",), ("StaticText",)]
     assert [d.name for d in document.root.declarations] == ["prompt"]
     assert list(document.ids()) == ["message", "ok", "cancel", "info"]
 
     blocks = {block.id: block for block in document.root.walk() if block.id}
-    assert [b.type for b in document.root.children] == ["Label", "Button", "Button", "Button"]
+    assert [b.type for b in document.root.children] == [
+        "StaticText", "Button", "Button", "Button",
+    ]
     assert dict(
         (p.name, p.expression) for p in blocks["message"].properties
     ) == {
@@ -147,11 +149,11 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
         ("navml.widgets.button",),
-        ("navml.widgets.label",),
+        ("navml.widgets.static_text",),
     ]
     assert [line.source for line in lines] == [
         "from navml.widgets.button import Button",
-        "from navml.widgets.label import Label",
+        "from navml.widgets.static_text import StaticText",
     ]
 
 

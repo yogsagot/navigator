@@ -16,7 +16,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.label import Label    # button.nml:1
+from navml.widgets.static_text import StaticText    # button.nml:1
 
 __navml_component__ = "Button"
 
@@ -32,11 +32,11 @@ class Button(_Component):
     text: str = _reactive('')    # button.nml:5
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # button.nml:8
+    caption: StaticText    # button.nml:8
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # button.nml:7
+        self.caption = StaticText(parent=self)    # button.nml:7
 
         self.caption.x = 1    # button.nml:9
         self.caption.y = 0    # button.nml:10

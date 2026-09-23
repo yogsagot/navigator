@@ -18,7 +18,7 @@ from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
 from navml.widgets.button import Button    # dialog.nml:1
-from navml.widgets.label import Label    # dialog.nml:2
+from navml.widgets.static_text import StaticText    # dialog.nml:2
 
 __navml_component__ = "Dialog"
 
@@ -41,7 +41,7 @@ class Dialog(_Component):
     prompt: str = _reactive('')    # dialog.nml:12
 
     #: Ids, annotated so the hand-written half completes them.
-    message: Label    # dialog.nml:15
+    message: StaticText    # dialog.nml:15
     ok: Button    # dialog.nml:24
     cancel: Button    # dialog.nml:32
     info: Button    # dialog.nml:40
@@ -64,7 +64,7 @@ class Dialog(_Component):
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.message = Label(parent=self)    # dialog.nml:14
+        self.message = StaticText(parent=self)    # dialog.nml:14
         self.ok = Button(parent=self)    # dialog.nml:23
         self.cancel = Button(parent=self)    # dialog.nml:31
         self.info = Button(parent=self)    # dialog.nml:39

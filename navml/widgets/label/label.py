@@ -1,30 +1,66 @@
 """The handlers behind ``label.nml``.
 
-Nothing but the painting.  ``label.nml`` declares the two properties and this
-file reads them, which is the division the file layout is for -- and it is worth
-noticing that the markup half of this component has no children at all: a
-document is a good place to say *what a widget has* even when it places nothing.
+A label is the one control that never takes the keyboard and still wants a
+shortcut: pressing its letter focuses something *else*.  That is what
+``activate()`` is virtual for, and it is why `accepts_focus' is a class fact
+rather than an instance one -- no label ever changes its mind about it.
 
-This file never names the generated class.  ``class Label(Widget)`` is what a
-Python-only component would say too, which is what lets a component gain or lose
-its markup half without being edited.
+``selected`` is a computed rather than a flag anybody sets, so
+``Label:selected`` in a sheet lights the caption whenever its control holds
+the focus, with nothing keeping the two in step by hand.
 """
 
 from __future__ import annotations
 
+from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.widget import Widget
 
+from navml.widgets.control import Control, parse_shortcut
+from navml.widgets.static_text import draw_caption
 
-class Label(Widget):
-    """A line of text."""
+
+class Label(Control):
+    """A caption that belongs to the control beside it."""
+
+    #: The marked letter.  ``[40] Label shortcut`` in the original.
+    parts = ("shortcut",)
+
+    #: A caption is never in the tab order: Turbo Vision's ``TLabel`` is not
+    #: selectable either, and a Tab stop on a piece of text that cannot do
+    #: anything is a stop the user has to press past.
+    accepts_focus = False
+
+    @computed
+    def selected(self) -> bool:
+        """Whether the control this caption names holds the keyboard.
+
+        A computed, so ``Label:selected`` is a stylesheet state for free --
+        the same trick ``Widget.focused`` plays, and for the same reason.
+        """
+        link = self.link
+        return isinstance(link, Widget) and link.focused
+
+    async def activate(self, letter: str = "") -> bool:
+        """Hand the keyboard to the control this caption belongs to."""
+        link = self.link
+        return link.focus() if isinstance(link, Widget) else False
+
+    async def on_mouse_click(self, event) -> bool:
+        """A click on a caption means its control, which is what a user means."""
+        if event.action == "press" and event.button == "left" and not self.disabled:
+            return await self.activate()
+        return False
 
     def render(self, surface: Surface) -> None:
-        text = self.text[: max(0, self.width)]
+        caption, _, _ = parse_shortcut(self.text)
         if self.align == "right":
-            x = max(0, self.width - len(text))
+            x = max(0, self.width - len(caption))
         elif self.align == "center":
-            x = max(0, (self.width - len(text)) // 2)
+            x = max(0, (self.width - len(caption)) // 2)
         else:
             x = 0
-        surface.draw_text(x, 0, text, self.style)
+        draw_caption(
+            surface, x, 0, self.text, self.style,
+            self.part_style("shortcut"), self.width - x,
+        )

@@ -16,7 +16,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.label import Label    # field.nml:1
+from navml.widgets.static_text import StaticText    # field.nml:1
 
 __navml_component__ = "Field"
 
@@ -39,13 +39,13 @@ class Field(_Component):
     label_width: int = _reactive(12)    # field.nml:11
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # field.nml:14
-    value: Label    # field.nml:23
+    caption: StaticText    # field.nml:14
+    value: StaticText    # field.nml:23
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # field.nml:13
-        self.value = Label(parent=self)    # field.nml:22
+        self.caption = StaticText(parent=self)    # field.nml:13
+        self.value = StaticText(parent=self)    # field.nml:22
 
         self.caption.x = 0    # field.nml:15
         self.caption.y = 0    # field.nml:16

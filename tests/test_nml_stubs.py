@@ -17,7 +17,7 @@ from navml.resolve import resolve
 from navml.sibling import Sibling
 from navml.stubs import stub
 
-SHIPPED = ["label", "button", "framed_button", "dialog"]
+SHIPPED = ["static_text", "label", "button", "framed_button", "dialog"]
 
 def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
@@ -88,7 +88,7 @@ def test_a_markup_only_component_is_its_generated_surface():
 
 def test_a_merged_component_carries_both_halves():
     source = build("button")
-    assert "caption: Label" in source          # the markup's
+    assert "caption: StaticText" in source          # the markup's
     assert "enabled: bool" in source           # the hand-written half's
     assert "async def press(self) -> bool: ..." in source
 

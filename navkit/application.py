@@ -26,6 +26,7 @@ import asyncio
 import contextlib
 import signal
 import time
+from collections.abc import Coroutine
 from typing import Any
 
 from navkit.events import (
@@ -178,6 +179,12 @@ class Application:
         self._escape_timer: asyncio.TimerHandle | None = None
         #: Turns two presses and a clock into a double-click.  Zero off.
         self._clicks = ClickTracker(double_click)
+        #: Work started by :meth:`spawn`, held so that nothing is collected
+        #: mid-flight and everything can be cancelled on the way out.
+        self._tasks: set[asyncio.Task[Any]] = set()
+        #: True while a handler is running, which is what makes waiting for
+        #: input from inside one a diagnosable error -- see :meth:`spawn`.
+        self._dispatching = False
         self._signals: list[int] = []
         self._reader_fd: int | None = None
 
@@ -273,6 +280,7 @@ class Application:
         finally:
             self._running = False
             SCHEDULER.wake = None
+            await self._cancel_tasks()
             self._detach_input()
             with contextlib.suppress(Exception):
                 await self.on_stop()
@@ -286,6 +294,58 @@ class Application:
             self.result = result
         self._running = False
         self._wake()
+
+    # -- work that outlives a handler ----------------------------------------
+
+    def spawn(self, work: Coroutine[Any, Any, Any]) -> asyncio.Task[Any]:
+        """Run *work* beside the event loop, so that it may wait for input.
+
+        **A handler cannot wait for input, and this is the way out.**
+        :meth:`_main_loop` awaits ``_handle`` and only then paints, so a
+        handler that awaits something a later keystroke will resolve is
+        holding the one consumer of the event queue: the keystroke is read,
+        queued, and never dispatched, and no frame is produced in the
+        meantime.  A dialog awaited from inside ``on_key`` therefore never
+        appears and never answers.  Starting the work here instead lets the
+        handler return, the batch finish and the frame paint, and the waiting
+        happens in a task that is not in anybody's way.
+
+        The task is **held** rather than left to the caller: a bare
+        ``create_task`` whose result nobody keeps may be collected while it is
+        still running, and takes its exception with it.  Whatever is still
+        pending when the application stops is cancelled, so a dialog left open
+        at exit tears itself down through its own ``finally`` instead of
+        leaking.
+        """
+        if self._loop is None:
+            raise RuntimeError("the application is not running")
+        task = self._loop.create_task(work)
+        self._tasks.add(task)
+        task.add_done_callback(self._finished)
+        return task
+
+    def _finished(self, task: asyncio.Task[Any]) -> None:
+        """Forget a finished task, and let its failure out.
+
+        A task that raised would otherwise be reported by asyncio long
+        afterwards, as "exception was never retrieved", with the loop still
+        running and the screen unchanged.  Failing the way a handler does --
+        stop, then re-raise -- keeps one rule for both.
+        """
+        self._tasks.discard(task)
+        if not task.cancelled() and task.exception() is not None:
+            self.exit()
+            raise task.exception()  # type: ignore[misc]
+
+    async def _cancel_tasks(self) -> None:
+        """Stop everything :meth:`spawn` started, on the way out."""
+        pending = [task for task in self._tasks if not task.done()]
+        for task in pending:
+            task.cancel()
+        for task in pending:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await task
+        self._tasks.clear()
 
     # -- modal and overlay ---------------------------------------------------
 
@@ -528,6 +588,11 @@ class Application:
             return
         if isinstance(event, ResizeEvent):
             self._resize(event.width, event.height)
+        # Saved and restored rather than set and cleared: `_handle' returns
+        # early for a claimed event and re-enters itself for a double click,
+        # so a plain reset would report "not dispatching" while the outer call
+        # still is.
+        dispatching, self._dispatching = self._dispatching, True
         try:
             if await self.on_event(event):
                 return
@@ -577,6 +642,8 @@ class Application:
         except Exception:
             self.exit()
             raise
+        finally:
+            self._dispatching = dispatching
 
     def _now(self) -> float:
         """The loop's clock, or a real one when there is no loop yet.

@@ -27,6 +27,7 @@ from navkit.stylesheet import (
     read,
     register_property,
 )
+from navkit.stylesheet import parts_of
 from navkit.widget import Widget
 
 
@@ -39,6 +40,8 @@ class Panel(Widget):
     """
 
     active: bool = reactive(False)
+    #: Declared because `part_style' refuses a part its widget does not paint.
+    parts = ("row", "title")
 
 
 class Label(Widget):
@@ -547,3 +550,36 @@ def test_resolving_a_variable_is_still_an_error_on_the_ordinary_path():
     with pytest.raises(StylesheetError) as caught:
         parse("Panel { bg: $nothing }")
     assert "undefined variable $nothing" in caught.value.message
+
+
+# -- a part has to be declared -----------------------------------------------
+
+
+def test_a_part_a_widget_does_not_paint_is_refused():
+    """The check navkit/DESIGN.md claimed existed, and now does.
+
+    A ``::part`` selector cannot be checked when a sheet is parsed -- it
+    matches by class *name*, so the parser has no class to ask and a sheet may
+    legally name a type it could not import.  So the check lives where the
+    class is in hand, and fires at the first paint.
+    """
+    with pytest.raises(LookupError) as caught:
+        Panel().part_style("rwo")
+    assert "Panel paints no part 'rwo'" in str(caught.value)
+    assert "row, title" in str(caught.value)
+
+
+def test_a_widget_that_paints_nothing_says_so():
+    with pytest.raises(LookupError, match="it declares none"):
+        Label().part_style("anything")
+
+
+def test_parts_union_down_the_mro():
+    """Unlike declarations(), a subclass *adds* to what its base paints."""
+
+    class Listing(Panel):
+        parts = ("divider",)
+
+    assert parts_of(Listing) == {"row", "title", "divider"}
+    Listing().part_style("divider")   # the base's check does not refuse it
+    Listing().part_style("row")

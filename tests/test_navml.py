@@ -41,7 +41,9 @@ from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
 from conftest import awaited
-from navml.widgets import Button, Dialog, Field, FramedButton, Label, Spacer
+from navml.widgets import (
+    Button, Dialog, Field, FramedButton, Label, Spacer, StaticText,
+)
 # The *component modules*, not their packages: a component is a directory whose
 # `__init__.py' re-exports the class, so the questions these tests ask about a
 # module -- its `__file__', its loader, where a class is re-homed -- are about
@@ -173,7 +175,7 @@ def test_the_generated_class_is_the_base():
 def test_ids_are_live_before_any_hand_written_line_runs():
     """``super().__init__()`` builds the tree, so the next line may use it."""
     button = Button(text="OK", width=20, height=3)
-    assert isinstance(button.caption, Label)
+    assert isinstance(button.caption, StaticText)
     assert button.caption.text == "OK"          # the hand-written __init__ set it
     assert button.caption.width == 18           # and the markup's binding followed
 
@@ -534,12 +536,14 @@ def test_importing_one_component_does_not_load_the_library(package):
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
     assert loaded == [
+        "navml.widgets.control",          # StaticText parses ~A~ with its help
+        "navml.widgets.control.control",
         "navml.widgets.field",
         "navml.widgets.field.field",
         "navml.widgets.field.field_nml",
-        "navml.widgets.label",
-        "navml.widgets.label.label",
-        "navml.widgets.label.label_nml",
+        "navml.widgets.static_text",
+        "navml.widgets.static_text.static_text",
+        "navml.widgets.static_text.static_text_nml",
     ]
 
 
@@ -554,7 +558,7 @@ def test_a_component_still_pulls_in_the_ones_it_really_uses():
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
     assert "navml.widgets.button" in loaded      # FramedButton's base
-    assert "navml.widgets.label" in loaded       # and the Label both use
+    assert "navml.widgets.static_text" in loaded # and the caption both use
     assert "navml.widgets.spacer" not in loaded  # but nothing it does not
 
 
@@ -562,7 +566,8 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "Dialog", "Field", "FramedButton", "Label", "Spacer",
+        "Button", "Control", "Dialog", "Field", "FramedButton",
+        "Label", "Spacer", "StaticText",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent
