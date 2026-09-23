@@ -1,5 +1,5 @@
 from navml.widgets.button import Button
-from navml.widgets.label import Label
+from navml.widgets.static_text import StaticText
 
 #: A prompt with three buttons.
 #:
@@ -11,7 +11,7 @@ from navml.widgets.label import Label
 Dialog:
     property prompt: ""
 
-    Label:
+    StaticText:
         id: message
         x: 1
         y: 1

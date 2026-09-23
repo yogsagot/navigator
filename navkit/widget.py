@@ -358,7 +358,20 @@ class Widget:
         The widget supplies the state because it is the only thing that knows
         it -- ``self.part_style("row", selected=index == self.cursor)``.  Only
         truthy states count, so a flag can be passed straight through.
+
+        The name is checked against :attr:`parts`, which is the only place it
+        *can* be checked: a ``.nss`` selector matches by class name and may
+        legally name a type the parser cannot import, so the sheet half of the
+        question has no class to ask.  Here there is one, and a typo fails at
+        the first paint naming the widget and what it really paints.
         """
+        if part not in stylesheet.parts_of(type(self)):
+            known = ", ".join(sorted(stylesheet.parts_of(type(self)))) or "none"
+            raise LookupError(
+                f"{type(self).__name__} paints no part {part!r}; it declares "
+                f"{known}.  A part is named in `parts' on the class that "
+                f"paints it."
+            )
         sheet = self.effective_stylesheet
         own = frozenset(
             name for name in sheet.state_names if getattr(self, name, False)
@@ -402,6 +415,15 @@ class Widget:
         """
         return glyphs_module.charset(self.border, self.glyphs)
 
+    def box_joins(self) -> str:
+        """The five tee characters that match this widget's frame.
+
+        Read off the same ``border`` property rather than one of its own, so a
+        divider inside a double frame cannot end up drawn with single tees.
+        See :func:`navkit.glyphs.joins`.
+        """
+        return glyphs_module.joins(self.border, self.glyphs)
+
     def add_class(self, *names: str) -> None:
         """Tag this widget, so ``.name`` selectors match it."""
         self.classes = self.classes | frozenset(names)
@@ -422,6 +444,23 @@ class Widget:
         self.inline_style = merged
 
     # -- painting ------------------------------------------------------------
+
+    def spawn(self, work: Any) -> Any:
+        """Run *work* beside the event loop -- see :meth:`Application.spawn`.
+
+        The shorthand a handler reaches for, because the thing most likely to
+        need it is a widget opening a dialog: a handler that *awaits* one
+        holds the event queue's only consumer, so the dialog is never painted
+        and the key that would dismiss it is never dispatched.  Starting the
+        work instead lets the handler return and the frame appear.
+        """
+        app = self.application
+        if app is None:
+            raise RuntimeError(
+                f"{type(self).__name__} is not in a running application, so "
+                f"there is no event loop to start work beside"
+            )
+        return app.spawn(work)
 
     def invalidate(self) -> None:
         """Ask for a repaint on the next turn of the event loop."""
@@ -523,6 +562,13 @@ class Widget:
     #: the mount walk sets it, and that walk already calls the hook, so an
     #: observable copy would be a second notification channel for one fact.
     is_mounted: bool = False
+
+    #: The names this widget paints as ``::part``\ s, its public styling
+    #: surface beside the properties it declares.  Unioned down the MRO by
+    #: :func:`navkit.stylesheet.parts_of`, the way ``emits`` is and for the
+    #: same reason: a subclass that paints a new part adds to what its base
+    #: paints.
+    parts: tuple[str, ...] = ()
 
     def mounted(self) -> None:
         """Called once this widget is part of a live tree.

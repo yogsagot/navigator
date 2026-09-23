@@ -21,5 +21,6 @@ class FramedButton(Button):
         super().render(surface)
         if self.width >= 2 and self.height >= 2:
             surface.draw_box(
-                0, 0, self.width, self.height, *self.box_charset(), self.style
+                0, 0, self.width, self.height, self.style,
+                charset=self.box_charset(),
             )

@@ -1,0 +1,17 @@
+#: A block of text that wraps, and never takes the keyboard.
+#:
+#: DOS Navigator's ``[37] Static text``, and Turbo Vision's ``TStaticText``.
+#: The plain one: a caption a dialog puts on itself, and what a ``Button``
+#: composes to draw its own.  ``Label`` is the *other* one -- a caption that
+#: belongs to a control beside it and focuses it.
+StaticText:
+    #: The text, which may carry one ``~A~`` run and any number of newlines.
+    property text: ""
+
+    #: ``left``, ``center`` or ``right``, applied to each line separately.
+    property align: "left"
+
+    #: Whether a line longer than the widget is broken onto the next one.
+    #: Off gives one line clipped at the edge, which is what a caption inside
+    #: a button wants.
+    property wrap: False

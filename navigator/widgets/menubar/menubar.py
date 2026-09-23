@@ -16,6 +16,9 @@ MENU_ITEMS = ["Left", "Files", "Commands", "Options", "Right"]
 class MenuBar(Widget):
     """The pull-down menu bar across the top of the screen."""
 
+    #: The highlighted letter in each name.
+    parts = ("hotkey",)
+
     def render(self, surface: Surface) -> None:
         label, hotkey = self.style, self.part_style("hotkey")
         surface.fill(0, 0, self.width, 1, " ", label)

@@ -23,7 +23,7 @@ from navml.parser import parse, parse_file
 from navml.resolve import resolve
 from navml.sibling import Sibling
 
-SHIPPED = ["label", "button", "framed_button", "dialog"]
+SHIPPED = ["static_text", "label", "button", "framed_button", "dialog"]
 
 def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
@@ -90,8 +90,13 @@ def test_the_generated_class_says_where_it_came_from(stem):
 
 
 def test_a_bare_head_extends_the_shared_base():
-    namespace = run(build("label"))
-    assert namespace["Label"].__bases__ == (Component,)
+    """``StaticText:`` names no base, so the generator supplies the shared one.
+
+    ``Label`` used to be this example and is now ``Label(Control):``, which is
+    the *other* case -- see `test_a_named_base_keeps_the_shared_one_beneath`.
+    """
+    namespace = run(build("static_text"))
+    assert namespace["StaticText"].__bases__ == (Component,)
 
 
 def test_a_named_base_keeps_the_shared_base_beside_it():
@@ -111,10 +116,10 @@ def test_generation_is_stable():
 
 
 def test_ids_are_live_by_the_time_the_constructor_returns():
-    from navml.widgets.label import Label
+    from navml.widgets.static_text import StaticText
 
     button = run(build("button"))["Button"]()
-    assert isinstance(button.caption, Label)
+    assert isinstance(button.caption, StaticText)
     assert button.caption.parent is button
 
 

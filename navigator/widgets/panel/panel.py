@@ -70,6 +70,11 @@ class Panel(Widget):
     #: and knows nothing about icons.
     icons = StyleProperty("auto", values=("auto", "none"))
 
+    #: What a sheet may reach inside a listing: the path across the top
+    #: frame, one row, the summary along the bottom, and the message a
+    #: directory that would not open leaves in place of the rows.
+    parts = ("title", "row", "footer", "error")
+
     path: Path = reactive(Path("."))
     entries: list[DirEntry] = reactive(factory=list)
     error: str | None = reactive(None)

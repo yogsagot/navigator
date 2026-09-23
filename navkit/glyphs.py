@@ -29,6 +29,19 @@ Box character sets are held here rather than in :mod:`navkit.screen` because
 they are a vocabulary, and a vocabulary is what a stylesheet names.  ``screen``
 takes the six characters and draws them; it never learns their names, which is
 what keeps the buffer free of any runtime knowledge of capabilities.
+
+The widget library's vocabularies -- frame joins, scrollbar characters, check
+and radio marks -- sit beside the box sets for the same reason, and every one
+of them answers the same three questions a box set does.  **The third answer is
+the same for all of them: a Nerd Font improves on none of them.**  Every shape
+here is box-drawing, block-element or geometric-shape, all of which
+:data:`GLYPHS_UNICODE` already guarantees; the Private Use Area carries icons
+and no better arrow, shade or tee.  The one case with a real candidate is a
+check box, where ``nf-fa-check_square`` is a single glyph -- and it is refused
+because it collapses three cells into one and would move every caption in a
+cluster.  Icons remain the application's vocabulary, and
+``navigator/icons.py`` records why they are the project's one deliberate
+departure rather than a licence for more.
 """
 
 from __future__ import annotations
@@ -74,6 +87,50 @@ BOX_CHARSETS = {
 #: the posture ``NAVKIT_COLORS`` takes towards a depth it cannot read.
 DEFAULT_BOX = "single"
 
+#: Where an inner rule meets a frame: left tee, right tee, top tee, bottom
+#: tee, cross.  Keyed by the **frame's** name rather than standing alone,
+#: because a tee has to line up with the corners around it -- a single divider
+#: descending from a double top edge is ``╤`` and not ``┬``.  Every divider
+#: DOS Navigator draws is single, which is what makes one table enough instead
+#: of a matrix of frame against rule.
+SINGLE_JOINS = "├┤┬┴┼"
+DOUBLE_JOINS = "╟╢╤╧┼"
+ROUND_JOINS = "├┤┬┴┼"
+ASCII_JOINS = "+++++"
+
+#: Parallel to :data:`BOX_CHARSETS`, one entry per key.  A widget reads it
+#: through the same ``border`` property, so the two cannot disagree: there is
+#: deliberately no ``joins`` declaration a sheet could set on its own, because
+#: ``border: double`` with ``+`` tees is a bug and not a preference.
+BOX_JOINS = {
+    "single": SINGLE_JOINS,
+    "double": DOUBLE_JOINS,
+    "round": ROUND_JOINS,
+    "ascii": ASCII_JOINS,
+}
+
+#: A scrollbar's six characters, in the order a scrollbar draws them: up,
+#: down, left, right, track, thumb.  Turbo Vision keeps the same five in
+#: ``TScrollBar.Chars`` and DOS Navigator inherits them unchanged -- CP437 30,
+#: 31, 17, 16 for the arrows, 177 for the shaded track and 254 for the thumb.
+DOS_SCROLLBAR = "▲▼◄►▒■"
+ASCII_SCROLLBAR = "^v<>:#"
+
+#: The sets a ``chars`` declaration may name on a scrollbar.
+SCROLLBARS = {"dos": DOS_SCROLLBAR, "ascii": ASCII_SCROLLBAR}
+DEFAULT_SCROLLBAR = "dos"
+
+#: Four marks: check box off, check box on, radio off, radio on.  The brackets
+#: around them are *not* here.  ``[ ]`` and ``( )`` are ASCII in the original
+#: too and are fixed in the widget, which is how Turbo Vision spells them --
+#: what varies between tiers is only what goes in the middle.
+DOS_MARKS = " X \u2022"
+ASCII_MARKS = " X *"
+
+#: The sets a ``marks`` declaration may name on a cluster.
+MARKS = {"dos": DOS_MARKS, "ascii": ASCII_MARKS}
+DEFAULT_MARKS = "dos"
+
 
 def charset(name: str, tier: int = GLYPHS_UNICODE) -> str:
     """The named box character set, degraded to what *tier* can render.
@@ -87,6 +144,36 @@ def charset(name: str, tier: int = GLYPHS_UNICODE) -> str:
     """
     chars = BOX_CHARSETS.get(name, BOX_CHARSETS[DEFAULT_BOX])
     return ASCII_BOX if tier < GLYPHS_UNICODE else chars
+
+
+def joins(name: str, tier: int = GLYPHS_UNICODE) -> str:
+    """The five tee characters that match the named box set.
+
+    Takes the *frame's* name, not a name of its own, because the two have to
+    agree: a single rule meeting a double frame is ``╤`` and a double frame
+    drawn with ``+`` tees is simply wrong.  One argument makes that
+    unexpressible.
+    """
+    chars = BOX_JOINS.get(name, BOX_JOINS[DEFAULT_BOX])
+    return ASCII_JOINS if tier < GLYPHS_UNICODE else chars
+
+
+def scrollbar(name: str, tier: int = GLYPHS_UNICODE) -> str:
+    """The named scrollbar characters, degraded to what *tier* can render."""
+    chars = SCROLLBARS.get(name, SCROLLBARS[DEFAULT_SCROLLBAR])
+    return ASCII_SCROLLBAR if tier < GLYPHS_UNICODE else chars
+
+
+def marks(name: str, tier: int = GLYPHS_UNICODE) -> str:
+    """The named check and radio marks, degraded to what *tier* can render.
+
+    Only the radio dot actually moves: ``X`` and the two blanks are ASCII in
+    every set, which is why the ASCII form reads as a near-copy rather than as
+    a fallback.  That is the original's doing -- CP437's check box was ``[X]``
+    on a VGA text screen too.
+    """
+    chars = MARKS.get(name, MARKS[DEFAULT_MARKS])
+    return ASCII_MARKS if tier < GLYPHS_UNICODE else chars
 
 
 def tier_named(name: str, default: int | None = None) -> int | None:

@@ -1,10 +1,10 @@
-from navml.widgets.label import Label
+from navml.widgets.static_text import StaticText
 
 #: A pressable box with a centred caption.
 Button:
     property text: ""
 
-    Label:
+    StaticText:
         id: caption
         x: 1
         y: 0

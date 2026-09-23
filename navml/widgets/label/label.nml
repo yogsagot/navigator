@@ -1,4 +1,20 @@
-#: A line of text.
-Label:
+from navml.widgets.control import Control
+
+#: A caption that belongs to the control beside it.
+#:
+#: DOS Navigator's ``[38-40] Label normal / selected / shortcut``, and Turbo
+#: Vision's ``TLabel``.  Not the plain one: this is the caption that carries a
+#: ``~N~`` and hands the keyboard to whatever its ``link`` names, which is
+#: what ``[39] Label selected`` is a colour *for* -- it lights up while its
+#: control has the focus.  Plain text is ``StaticText``.
+Label(Control):
+    #: The caption, with one ``~A~`` run marking the letter that reaches it.
     property text: ""
+
+    #: ``left``, ``center`` or ``right``.
     property align: "left"
+
+    #: The control this caption belongs to -- in markup, an ``id`` from the
+    #: same document.  A label with no link is a label that does nothing, and
+    #: is a mistake rather than a shape worth having.
+    property link: None

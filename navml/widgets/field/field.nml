@@ -1,4 +1,4 @@
-from navml.widgets.label import Label
+from navml.widgets.static_text import StaticText
 
 #: A caption and a value side by side.
 #:
@@ -10,7 +10,7 @@ Field:
     property value_text: ""
     property label_width: 12
 
-    Label:
+    StaticText:
         id: caption
         x: 0
         y: 0
@@ -19,7 +19,7 @@ Field:
         text: parent.label_text
         align: "left"
 
-    Label:
+    StaticText:
         id: value
         x: parent.label_width
         y: 0

@@ -4,7 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navml.widgets.label import Label
+from navml.widgets.static_text import StaticText
 
 from dataclasses import dataclass
 from typing import Any
@@ -19,7 +19,7 @@ class ClickEvent(Event): ...
 
 class Button(_Component):
     text: str
-    caption: Label
+    caption: StaticText
     enabled: bool
     emits: _Any
     def __init__(self, text: str = ..., **kwargs: Any) -> None: ...

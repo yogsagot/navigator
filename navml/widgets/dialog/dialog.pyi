@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navml.widgets.button import Button
-from navml.widgets.label import Label
+from navml.widgets.static_text import StaticText
 
 from navkit.events import Event
 from navkit.reactive import reactive
@@ -17,7 +17,7 @@ from navkit.widget import Widget
 
 class Dialog(_Component):
     prompt: str
-    message: Label
+    message: StaticText
     ok: Button
     cancel: Button
     info: Button
