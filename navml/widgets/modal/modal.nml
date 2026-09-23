@@ -1,0 +1,38 @@
+#: A fixed, centred box that holds all input until it closes.
+#:
+#: DOS Navigator's ``[33] Frame/background`` and ``[34] Frame icons``, and
+#: Turbo Vision's ``TDialog`` frame.  It paints the frame, centres the title on
+#: the top edge, and puts a close icon in the corner -- and it is what carries
+#: the ``Alt+letter`` walk, because it is the smallest thing that holds a whole
+#: set of controls.
+#:
+#: **It is not a window**, and the difference is structural rather than a
+#: flag.  A :class:`~navml.widgets.window.Window` lives on a desktop, moves,
+#: resizes and changes places with its neighbours; a modal is overlaid on the
+#: application's root, one level *above* every desktop, so no window can be
+#: raised past it and nothing outside it is reachable until it is gone.
+#:
+#: **The geometry is bound, and that is not a style choice.**  ``Widget.add``
+#: lays a child out into its parent's size, and ``Component.layout`` only
+#: steps around a side that carries a *binding* -- so a modal whose width is a
+#: literal is resized to the whole terminal the moment it is overlaid.
+#: Routing the size through a declared property is also what lets a derived
+#: document change it: ``modal_width: 44`` is a literal onto an attribute
+#: nothing has bound, where ``width: 44`` would be a value over a live binding
+#: and would raise.  And because it is bound it is never dragged, which is
+#: exactly what a modal is.
+Modal:
+    #: Shown centred on the top edge, with a space either side of it.
+    property title: ""
+
+    #: Whether the ``[■]`` icon is painted, and the corner answers a click.
+    property closable: True
+
+    #: The size the modal asks for.  Overridden by a derived document.
+    property modal_width: 50
+    property modal_height: 10
+
+    width: self.modal_width
+    height: self.modal_height
+    x: max(0, (parent.width - self.width) // 2)
+    y: max(0, (parent.height - self.height) // 2)
