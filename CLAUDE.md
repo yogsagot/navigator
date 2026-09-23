@@ -25,10 +25,23 @@ existed to make possible is done, and it is a byte-for-byte proof rather than a 
 and the commit after paint the same 3725 bytes on a pty at 80x24, `cmp`-identical. `manager.py` keeps the handlers and
 the three seeded values; the tree, the geometry and the `visible` flags are markup.
 
+**The screen is now a desktop of overlapping windows.** The root is `navigator/widgets/shell/` — menu bar, `Console`,
+navml's `Desktop` over it, key bar — and `Manager` is a frameless `Window` on that desktop, opened zoomed, which the
+user can drag, resize from its corner, zoom with `[↕]`/`[↑]`, close with `[■]`, and bring forward by clicking it.
+**The console is the background and is always showing**; Ctrl+O hides the desktop, which is one `visible` binding.
+The old framed `Window` is `Modal` — fixed, centred, bound geometry, `modal = True` — and `Dialog` derives from it.
+Three rules from building it: **a window's rectangle is state, never bound** (drag, resize and zoom assign it);
+**raising is `Widget.raise_child`, a reorder** — `add()` would unmount; and **the application's own `on_key` /
+`on_mouse_click` must step aside while `app.modal` is set**, because they run before navkit's modal routing. navkit
+grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget.render_after` for it; *Windows: raising,
+capturing, painting over* in `navkit/DESIGN.md` and *Windows, the desktop and the modal* in `navml/DESIGN.md` have
+the rest.
+
 **The widget library's first tier is written**, and none of it was designed: DOS Navigator's Colors dialog names the
 widgets and their states, `tools/palconv.py` had already transcribed all 144 slots into every theme, and the
 *Dialogs* group is the specification. Thirteen components — `Control`, `Cluster`, `StaticText`, `Label`, `Button`,
-`InputLine`, `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Window`, `Dialog`, `Field` — plus `Spacer`.
+`InputLine`, `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Modal`, `Dialog`, `Field` — plus `Spacer`, and
+since then `Window` and `Desktop`, which are Turbo Vision's rather than the Colors dialog's.
 `navigator/styles/navigator.nss` binds them to the `$dialog-*` variables the eleven themes had been carrying inert,
 and **F7 Mkdir is the first dialog wired into the application**, proved on a pty. *The widget library* in
 `navml/DESIGN.md` records what each decision cost. **The next tier is menus** — `[2-7]` — then History `[53-56]` and
@@ -501,7 +514,7 @@ Things to know before touching the style layer:
 `from navml.widgets.button import Button` is the same line for all three — a component can move between them without
 that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
 example of each and they are all real widgets now: `spacer` and `control` are Python alone, `field` is markup alone,
-`button` and `label` are both, and `dialog` is both *and* derived from `window`, which is itself both.
+`button` and `label` are both, and `dialog` is both *and* derived from `modal`, which is itself both.
 `dialog` is also the one whose *children* raise the events its hand-written half handles, and it pins the
 `on_<id>_<event>` convention below — which a dialog with an OK and a Cancel in it does by being one.
 
@@ -607,9 +620,10 @@ than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 
-The application is three parts. **`navigator/widgets/` holds the screens**, one directory each — `manager/` (the
-desktop), `panel/` (whose `panel.py` carries `DirEntry` beside `Panel`, and whose `__init__.py` re-exports both),
-`menubar/`, `keybar/` and `console/` — and it is a registered navml component package with lazy re-exports.
+The application is three parts. **`navigator/widgets/` holds the screens**, one directory each — `shell/` (the root:
+the bars, the console and the desktop), `manager/` (the file manager window), `panel/` (whose `panel.py` carries
+`DirEntry` beside `Panel`, and whose `__init__.py` re-exports both), `menubar/`, `keybar/` and `console/` — and it is
+a registered navml component package with lazy re-exports.
 **`navigator/scheme.py` holds the sheet**: `load_scheme`, `default_scheme`, `theme_names` and where the `.nss` files
 are. **`navigator/__main__.py` holds the command line**, the terminal it hands to navkit, and the `Navigator`
 application subclass.
@@ -625,27 +639,30 @@ so `navigator.nss`'s `icons: auto` is an unknown property until `Panel` has been
 one module this was a rule about where to put the parse; now it is a rule about what to import before it, so the import
 is inside the function rather than left to whoever calls.
 
-**`manager.py` is the worked example of a converted screen**: the document holds the tree, the geometry and the three
-`visible` bindings, and the Python holds the keys, `toggle_console`, `active_panel` and the three values markup may
-not bind. The other four screens are still hand-written and move next. `Panel` is the one to read before converting
-another — it assigns `path` and lets the listing, cursor and scroll follow, which is the model markup wants, and it is
+**`manager.py` is the worked example of a converted screen**: the document holds the tree and the geometry, and the
+Python holds the keys, `active_panel` and the two paths markup may not bind. `shell.py` holds `toggle_console` and the
+console's seeded `cwd`. The other screens are still hand-written and move next. `Panel` is the one to read before
+converting another — it assigns `path` and lets the listing, cursor and scroll follow, which is the model markup wants, and it is
 also the widget that showed why a navigated property is seeded rather than bound.
 
-- `Manager` window with two file-listing panels, and a `Console` covering the band they share. Ctrl+O swaps them, which
-  is one reactive flag that three `visible` bindings read; the menu bar and key bar are simply left alone, which is why
-  they stay painted over the output and why this is DOS Navigator's Ctrl+O rather than Midnight Commander's.
-  `toggle_console` hands the console the keyboard **in the same call that flips the flag, never from an effect** — an
-  effect runs after the whole batch is dispatched, so a Ctrl+O and the keystroke behind it would be routed by a focus
-  that had not moved yet. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
+- `Manager` window with two file-listing panels on a `Desktop`, and the `Console` behind the desktop covering the
+  band between the bars. Ctrl+O hides the desktop, which is one reactive flag and one `visible` binding; the menu bar
+  and key bar are simply left alone, which is why they stay painted over the output and why this is DOS Navigator's
+  Ctrl+O rather than Midnight Commander's. `toggle_console` hands the console the keyboard **in the same call that
+  flips the flag, never from an effect** — an effect runs after the whole batch is dispatched, so a Ctrl+O and the
+  keystroke behind it would be routed by a focus that had not moved yet — and hiding the console again re-activates
+  the top window, which hands the keyboard back to exactly the widget that had it. Closing the last window
+  (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
   reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
   the caret is the terminal's own
 - **Keys belong to the widget that owns them.** `Navigator.on_key` keeps only Ctrl+O and F10/Ctrl+Q, because an
   application hook runs before the widgets and so keeps a key from everything; `Console.on_key` keeps the scrollback
-  and sends the rest to the child; `Manager.on_key` keeps the panel keys and Alt+X. There is no `console_visible`
-  check in any of them — the console holds the focus while it is showing, and the focus path decides
+  and sends the rest to the child; `Manager.on_key` keeps the panel keys and Alt+X; `Desktop.on_key` keeps the window
+  keys (`WINDOW_KEYS`). There is no `console_visible` check in any of them — the console holds the focus while it is
+  showing, and the focus path decides. Both application hooks return False while `app.modal` is set
 - **And so do mouse gestures, by the same rule.** `Panel.on_double_click` enters the clicked row — a directory, or
   `..` — because it needs nothing but the panel it lands on, and routing by position is what picks which panel. It
-  needs no `console_visible` check either: the panels' `visible` is bound to that flag and `dispatch_mouse` skips an
+  needs no `console_visible` check either: the desktop's `visible` is bound to that flag and `dispatch_mouse` skips an
   invisible child. What stays on `Navigator.on_mouse_click` is what genuinely needs the desktop — activating the other
   panel on a press, the wheel, and the console's scrollback
 - View and Edit file windows

@@ -12,8 +12,8 @@ from navml.widgets.field import Field
 #: assigning ``width`` -- a value over a live binding raises, and the binding
 #: is installed by ``super().__init__()`` before this document's own lines run.
 MkdirDialog(Dialog):
-    dialog_width: 48
-    dialog_height: 8
+    modal_width: 48
+    modal_height: 8
     title: "Make directory"
 
     Field:

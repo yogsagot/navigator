@@ -1,4 +1,4 @@
-"""A framed box with a title."""
+"""A detached window on a desktop: dragged, resized, zoomed and raised."""
 
 from navml.widgets.window.window import Window
 

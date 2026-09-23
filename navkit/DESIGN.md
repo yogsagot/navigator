@@ -1235,12 +1235,50 @@ hands the focus back. A second name for that would only be a worse place to read
 - **Nothing dims or disables what is behind a modal.** `Application.modal` is a plain property over a plain list rather
   than anything observable, so no widget can currently restyle itself for being blocked. A `computed` can be added the
   day a widget asks; guessing at the shape now would cost a cell on every widget for a look nothing has asked for.
-- **The mouse is not *captured*.** A drag that starts inside the modal and leaves it stops being delivered at the
-  border rather than continuing to the widget that started it. That is a scrollbar's problem, and a scrollbar is what
-  should define it.
-- **`navigator`'s console is still the `visible`-binding trick**, where the console and the panels take turns. That is
-  the whole-screen special case of this, and it now has a general mechanism to be rewritten onto — but the rewrite is
-  the application's work, and taking turns on `visible` is not wrong, just narrower than what is here.
+- ~~**The mouse is not *captured*.**~~ It is now — see *Windows: raising, capturing, painting over* below. It was
+  left to "a scrollbar's problem", and a window's title bar turned out to be the first thing that needed it.
+- ~~**`navigator`'s console is still the `visible`-binding trick.**~~ Rewritten: the console is the background layer
+  of the screen and is always showing, and Ctrl+O hides the desktop above it. One `visible` binding is left, on the
+  desktop, and that is the whole of Ctrl+O.
+
+## Windows: raising, capturing, painting over
+
+**Written**, for navml's overlapping `Window` and its `Desktop`. Three additions, each small, each something a widget
+library could not do for itself without reaching into navkit's privates.
+
+### Raising is a reorder, never a re-add
+
+*Z-order needed nothing* was true while the only thing on top was a dialog added last. A window that is clicked has to
+*become* the last child, and `add()` already moves a child — by detaching it first, which unmounts the subtree,
+disposes its effects, takes the focus away if the focus was inside it and pops it off the modal stack. Bringing a
+window forward must do none of that: it is the same window, still holding the same keyboard.
+`Widget.raise_child(child)` and `lower_child(child)` reorder `children` in place and call `invalidate()` by hand,
+because the children list is not reactive. Anything that needs to *observe* the order — a window's `:active` state —
+is given a reactive of its own by whoever does the raising (`Desktop.active_window`), rather than navkit making every
+children list observable to serve one reader.
+
+### Mouse capture
+
+Routing is by position, and a pointer dragging a window's edge is routinely outside the window by the time the
+terminal reports it — a fast hand, or a resize the window refuses past its minimum. So
+`Application.capture_mouse(widget)` sends every mouse action to *widget*'s handler, under `event.handler` and in its
+own coordinates, with **no hit test**. It is the application's rather than the widget's because `_dispatch_mouse` is
+the one place every action passes through. The application's own `on_mouse_click` hook still sees each action first,
+as it always has.
+
+It is released in three places, each of which would otherwise leave the mouse stuck on something unreachable: **after
+a `release` is delivered** (the ordinary end of a drag), **when the holder is unmounted** (a window closed mid-drag),
+and **when a modal opens that does not hold it** (the modal's rule is that nothing outside it is reachable, and a
+capture is a way of reaching). A double-click, which is dispatched inline right after its second press, goes to the
+holder too — which is how a window zooms on a double-click on the title it has just started dragging.
+
+### `render_after`: painting over the children
+
+`render_tree` paints a widget and then its children, so nothing a widget draws in `render()` can sit on top of them.
+A frameless window needs exactly that: the file manager's panels *are* its frame, and its close and zoom icons belong
+on their top edge. `Widget.render_after(surface)` is an empty hook called after the children, on the same view. The
+alternative — asking the panels to leave gaps for icons they know nothing about — would have put a window's chrome
+into a list widget.
 
 ## Mounting: joining a live tree, and leaving one
 

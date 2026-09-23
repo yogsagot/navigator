@@ -17,7 +17,7 @@ from navml.resolve import resolve
 from navml.sibling import Sibling
 from navml.stubs import stub
 
-SHIPPED = ["static_text", "label", "button", "window", "dialog"]
+SHIPPED = ["static_text", "label", "button", "modal", "window", "dialog"]
 
 def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
@@ -109,7 +109,7 @@ def test_a_hand_written_constructor_wins():
 
 
 def test_a_derived_component_keeps_both_bases():
-    assert "class Dialog(Window, _Component):" in build("dialog")
+    assert "class Dialog(Modal, _Component):" in build("dialog")
 
 
 # -- the composed handlers ---------------------------------------------------

@@ -1,6 +1,6 @@
 from navml.widgets.button import Button
 from navml.widgets.static_text import StaticText
-from navml.widgets.window import Window
+from navml.widgets.modal import Modal
 
 #: A modal window with an OK and a Cancel, and an answer.
 #:
@@ -9,19 +9,9 @@ from navml.widgets.window import Window
 #: the ``on_<id>_<event>`` convention was written for, and it is now a widget
 #: that earns the example rather than a demonstration built to carry it.
 #:
-#: **The geometry is bound, and that is not a style choice.**  ``Widget.add``
-#: lays a child out into its parent's size, and ``Component.layout`` only
-#: steps around a side that carries a *binding* -- so a dialog whose width is
-#: a literal is resized to the whole terminal the moment it is overlaid.
-#: Routing the size through a declared property is also what lets a derived
-#: dialog change it: ``dialog_width: 44`` is a literal onto an attribute
-#: nothing has bound, where ``width: 44`` would be a value over a live binding
-#: and would raise.
-Dialog(Window):
-    #: The size the dialog asks for.  Overridden by a derived document.
-    property dialog_width: 50
-    property dialog_height: 10
-
+#: Its size and its place are :class:`~navml.widgets.modal.Modal`'s: a derived
+#: document says ``modal_width: 44``, and the centring is the base's binding.
+Dialog(Modal):
     #: ``ok``, ``ok-cancel`` or ``ok-cancel-help``.  Which buttons is a
     #: *visibility* question, because markup has no conditional and needs
     #: none: all three are declared and a hidden one is already out of the
@@ -38,11 +28,6 @@ Dialog(Window):
     #: columns -- nine of face, two of bracket, one of shadow -- with two
     #: between, so three span 37 and two span 24.
     property button_row: (self.width - 37) // 2 if self.buttons == "ok-cancel-help" else (self.width - 24) // 2
-
-    width: self.dialog_width
-    height: self.dialog_height
-    x: max(0, (parent.width - self.width) // 2)
-    y: max(0, (parent.height - self.height) // 2)
 
     StaticText:
         id: message

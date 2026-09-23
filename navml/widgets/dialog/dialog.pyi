@@ -8,7 +8,7 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navml.widgets.button import Button
 from navml.widgets.static_text import StaticText
-from navml.widgets.window import Window
+from navml.widgets.modal import Modal
 
 import asyncio
 from typing import Any
@@ -18,9 +18,7 @@ from navkit.reactive import reactive
 from navkit.widget import Widget
 
 
-class Dialog(Window, _Component):
-    dialog_width: int
-    dialog_height: int
+class Dialog(Modal, _Component):
     buttons: str
     prompt: str
     button_row: _Any
@@ -28,7 +26,6 @@ class Dialog(Window, _Component):
     ok: Button
     cancel: Button
     info: Button
-    modal: bool
     result: Any
     def __init__(self, **kwargs: Any) -> None: ...
     async def on_cancel_click(self, event: _Event) -> bool: ...

@@ -31,6 +31,7 @@ from navkit.terminal import Terminal, is_a_tty
 from navigator import __version__
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
+from navigator.widgets.shell import Shell
 
 
 class Navigator(Application):
@@ -41,12 +42,17 @@ class Navigator(Application):
     ):
         scheme = scheme or default_scheme()
         kwargs.setdefault("title", "Navigator")
-        self.manager = Manager(left, right, scheme)
-        super().__init__(root=self.manager, **kwargs)
+        self.shell = Shell(left, right, scheme)
+        super().__init__(root=self.shell, **kwargs)
+
+    @property
+    def manager(self) -> Manager:
+        """The file manager window, whether or not it is still open."""
+        return self.shell.manager
 
     async def on_stop(self) -> None:
         # The shell would otherwise outlive the terminal it was talking to.
-        self.manager.console.stop()
+        self.shell.console.stop()
 
     async def on_key(self, event: KeyEvent) -> bool:
         """Only the keys that mean the same thing wherever the focus is.
@@ -61,10 +67,19 @@ class Navigator(Application):
 
         Everything else went to the widget that owns it: ``Console.on_key``
         for the console's scrollback and the child, ``Manager.on_key`` for
-        moving about the panels and for Alt+X.
+        moving about the panels and for Alt+X, ``Desktop.on_key`` for the
+        window keys.
+
+        **Nothing here reaches past a modal.**  An application hook runs
+        before navkit routes a key to the modal, so without the first line
+        Ctrl+O would put the windows away under an open dialog and F10 would
+        quit out of the middle of one.  A modal means *nothing outside me*,
+        and these keys are outside it.
         """
+        if self.modal is not None:
+            return False
         if event.matches("ctrl+o"):
-            self.manager.toggle_console()
+            self.shell.toggle_console()
             return True
         if event.matches("f10", "ctrl+q"):
             self.exit()
@@ -85,8 +100,10 @@ class Navigator(Application):
         What is left genuinely needs the desktop: a wheel over the console
         scrolls its history, and the console is not a list.
         """
-        console = self.manager.console
-        if not self.manager.console_visible or not event.is_wheel:
+        if self.modal is not None:
+            return False
+        console = self.shell.console
+        if not self.shell.console_visible or not event.is_wheel:
             return False
         if not console.contains(event.x, event.y):
             return False

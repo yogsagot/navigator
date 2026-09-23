@@ -46,7 +46,7 @@ def shipped(stem: str, suffix: str) -> pathlib.Path:
     """
     return WIDGETS / stem / f"{stem}{suffix}"
 
-SHIPPED = ["static_text", "label", "button", "window", "dialog"]
+SHIPPED = ["static_text", "label", "button", "modal", "window", "dialog"]
 
 
 def fails(text: str) -> MarkupError:
@@ -71,7 +71,7 @@ def test_the_root_block_declares_a_component():
     """A bare head extends ``Widget``; a parenthesised one names what it extends."""
     assert parse_file(shipped("static_text", ".nml")).root.base is None
     assert parse_file(shipped("button", ".nml")).root.base == "Control"
-    assert parse_file(shipped("dialog", ".nml")).root.base == "Window"
+    assert parse_file(shipped("dialog", ".nml")).root.base == "Modal"
 
 
 def test_the_dialog_is_read_the_way_its_generated_half_was_written():
@@ -82,10 +82,10 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     """
     document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [
-        ("Button",), ("StaticText",), ("Window",),
+        ("Button",), ("StaticText",), ("Modal",),
     ]
     assert [d.name for d in document.root.declarations] == [
-        "dialog_width", "dialog_height", "buttons", "prompt", "button_row",
+        "buttons", "prompt", "button_row",
     ]
     assert list(document.ids()) == ["message", "ok", "cancel", "info"]
 
@@ -155,12 +155,12 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     assert [line.modules for line in lines] == [
         ("navml.widgets.button",),
         ("navml.widgets.static_text",),
-        ("navml.widgets.window",),
+        ("navml.widgets.modal",),
     ]
     assert [line.source for line in lines] == [
         "from navml.widgets.button import Button",
         "from navml.widgets.static_text import StaticText",
-        "from navml.widgets.window import Window",
+        "from navml.widgets.modal import Modal",
     ]
 
 

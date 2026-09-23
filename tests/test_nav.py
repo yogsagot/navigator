@@ -30,7 +30,8 @@ from navigator.widgets.manager import Manager
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
-from navigator.widgets import DirEntry, Manager, Panel
+from navigator.widgets import DirEntry, Manager, Panel, Shell
+from navml.widgets import Window
 
 
 def navigator(path, size=(80, 24), **kwargs) -> Navigator:
@@ -204,51 +205,68 @@ def test_reload_picks_up_new_files(panel, tree):
     assert "gamma" in names(panel)
 
 
+def screen(left=Path("."), right=Path("."), size=(80, 24)) -> Shell:
+    """The whole Navigator screen, mounted on a fake terminal of *size*."""
+    return mounted(Shell(left, right), size=size)
+
+
 def test_manager_layout_splits_the_screen():
-    manager = Manager(Path("."), Path("."))
-    manager.layout(80, 24)
+    shell = screen()
+    manager = shell.manager
     assert (manager.left.x, manager.left.width) == (0, 40)
     assert (manager.right.x, manager.right.width) == (40, 40)
-    assert manager.menu.y == 0
-    assert manager.keybar.y == 23
+    assert shell.menu.y == 0
+    assert shell.keybar.y == 23
     assert manager.left.height == manager.right.height == 22
 
 
 def test_manager_layout_survives_an_odd_width():
-    manager = Manager(Path("."), Path("."))
-    manager.layout(81, 24)
+    manager = screen(size=(81, 24)).manager
     assert manager.left.width + manager.right.width == 81
 
 
 def test_the_panels_follow_the_desktop_without_a_layout_method():
-    # Manager declares its children's geometry once and has no layout of its
-    # own; only the root's size is imperative, and everything else derives.
-    assert "layout" not in vars(Manager)
-    manager = Manager(Path("."), Path("."))
-    manager.layout(80, 24)
-    manager.layout(120, 40)
+    # The screen declares its children's geometry once; only the root's size
+    # is imperative, and everything else derives -- the zoomed file manager
+    # included, which the desktop re-fits when its own size moves.
+    shell = screen()
+    manager = shell.manager
+    shell.layout(120, 40)
+    settle()
     assert (manager.left.width, manager.right.x) == (60, 60)
-    assert manager.keybar.y == 39
+    assert manager.left.height == 38
+    assert shell.keybar.y == 39
 
 
-# -- the desktop is markup ---------------------------------------------------
+# -- the screen is markup ----------------------------------------------------
 
 
 def test_the_desktop_is_built_from_its_document():
-    """`Manager' is the first screen converted, and says so."""
+    """`Manager' and `Shell' are both markup, and say so."""
     from navml.component import Component
 
     assert Manager.__navml_source__ == "manager.nml"
+    assert Shell.__navml_source__ == "shell.nml"
     assert issubclass(Manager, Component)
+    assert issubclass(Manager, Window)
 
 
 def test_the_geometry_in_the_document_is_what_places_the_children():
-    """Every line of the old ``_place()`` is now a line of ``manager.nml``."""
-    manager = Manager(Path("."), Path("."))
-    manager.layout(100, 30)
+    shell = screen(size=(100, 30))
+    manager = shell.manager
     assert is_bound(manager.left, Panel.width)
-    assert is_bound(manager.console, Panel.visible)
-    assert (manager.left.width, manager.console.height) == (50, 28)
+    assert is_bound(shell.desktop, Panel.visible)
+    assert not is_bound(manager, Panel.width)
+    assert (manager.left.width, shell.console.height) == (50, 28)
+
+
+def test_the_file_manager_opens_zoomed_on_the_desktop():
+    shell = screen()
+    manager = shell.manager
+    assert manager.parent is shell.desktop
+    assert shell.desktop.active_window is manager
+    assert manager.zoomed
+    assert (manager.x, manager.y, manager.width, manager.height) == (0, 0, 80, 22)
 
 
 def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
@@ -260,7 +278,7 @@ def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
     takes a starting value from its parent and cannot be bound to one, which
     is why the document declares nothing about these three.
     """
-    manager = mounted(Manager(tree, tree))
+    manager = screen(tree, tree).manager
     assert not is_bound(manager.left, Panel.path)
     settle()
     assert manager.left.path == tree
@@ -281,11 +299,11 @@ def test_the_panel_title_and_footer_follow_the_width(panel, tree):
 def test_the_left_panel_starts_active():
     """And "active" is now "holds the keyboard", not a flag of its own.
 
-    ``Manager.mounted()`` is what puts it there, and it has to: the panel
-    keys reach a panel along the focus path, and ``Panel:focused`` is what
-    paints the cursor row.
+    Opening the window on the desktop is what puts it there, and it has to:
+    the panel keys reach a panel along the focus path, and ``Panel:focused``
+    is what paints the cursor row.
     """
-    manager = mounted(Manager(Path("."), Path(".")))
+    manager = screen().manager
     assert manager.left.focused
     assert manager.active_panel is manager.left
     manager.switch_panel()
@@ -506,10 +524,12 @@ def test_every_theme_completes_the_scheme(tree):
     """Each theme must define every variable the rules read, and paint."""
     assert "default" in theme_names()
     for theme in theme_names():
-        manager = Manager(tree, tree, load_scheme(theme))
+        shell = Shell(tree, tree, load_scheme(theme))
+        manager = shell.manager
         buffer = ScreenBuffer(80, 24)
-        manager.layout(80, 24)
-        manager.render(buffer)  # raises if a variable went undefined
+        shell.layout(80, 24)
+        manager.layout(80, 22)
+        shell.render_tree(buffer)  # raises if a variable went undefined
         assert manager.left.style.fg is not None
         assert manager.left.style.bg is not None
 
@@ -607,7 +627,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
     """And its own generated half, which is what places them."""
     loaded = _in_a_fresh_process(
         "import importlib, sys\n"
-        "importlib.import_module('navigator.widgets.manager')\n"
+        "importlib.import_module('navigator.widgets.shell')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navigator.widgets.'))))\n"
     )
@@ -626,6 +646,9 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.panel",
         "navigator.widgets.panel.panel",
+        "navigator.widgets.shell",
+        "navigator.widgets.shell.shell",
+        "navigator.widgets.shell.shell_nml",
     ]
 
 
@@ -646,10 +669,11 @@ def quiet_console(monkeypatch):
 
 
 def desktop(app, size=(80, 24)) -> ScreenBuffer:
-    """Paint the whole desktop and hand back the buffer."""
+    """Paint the whole screen and hand back the buffer."""
     buffer = ScreenBuffer(*size)
-    app.manager.layout(*size)
-    app.manager.render_tree(buffer)
+    app.shell.layout(*size)
+    settle()
+    app.shell.render_tree(buffer)
     return buffer
 
 
@@ -660,26 +684,27 @@ def row_of(buffer: ScreenBuffer, y: int) -> str:
 def test_ctrl_o_shows_the_console_in_place_of_the_panels(tree, quiet_console):
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True)])
-    manager = app.manager
-    assert manager.console_visible is True
-    # One flag, three widgets: nothing was made visible by hand.
-    assert manager.console.visible is True
-    assert manager.left.visible is False
-    assert manager.right.visible is False
+    shell = app.shell
+    assert shell.console_visible is True
+    # One flag, one widget: the desktop goes, and every window with it.  The
+    # console was showing all along, behind the windows.
+    assert shell.console.visible is True
+    assert shell.desktop.visible is False
+    assert app.focused is shell.console
 
 
 def test_ctrl_o_toggles_back(tree, quiet_console):
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("o", ctrl=True)])
-    assert app.manager.console_visible is False
-    assert app.manager.left.visible is True
+    assert app.shell.console_visible is False
+    assert app.shell.desktop.visible is True
 
 
 def test_the_menu_bar_and_key_bar_stay_over_the_console(tree, quiet_console):
     """The whole point of Ctrl+O, and what Midnight Commander cannot do."""
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True),
-                  lambda a: a.manager.console._on_output(b"previous output")])
+                  lambda a: a.shell.console._on_output(b"previous output")])
     buffer = desktop(app)
     assert "File" in row_of(buffer, 0)  # the menu bar, still there
     assert "Quit" in row_of(buffer, 23)  # the key bar, still there
@@ -691,7 +716,7 @@ def test_the_menu_bar_and_key_bar_stay_over_the_console(tree, quiet_console):
 def test_the_console_is_the_size_of_the_band_the_panels_shared(tree, quiet_console):
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True)])
-    console = app.manager.console
+    console = app.shell.console
     assert (console.width, console.height) == (80, 22)
     # And the screen behind it was resized to match, without a layout pass.
     assert (console.screen.columns, console.screen.lines) == (80, 22)
@@ -702,7 +727,7 @@ def test_keys_go_to_the_console_while_it_is_showing(tree, quiet_console):
     typed: list[bytes] = []
     run_app(app, [
         KeyEvent("o", ctrl=True),
-        lambda a: setattr(a.manager.console, "send",
+        lambda a: setattr(a.shell.console, "send",
                           lambda event: typed.append(encode_key(event)) or True),
         KeyEvent("down"),
         KeyEvent("x", "x"),
@@ -723,10 +748,10 @@ def test_shift_pageup_scrolls_the_console_back(tree, quiet_console):
     lines = b"".join(b"line%d\r\n" % n for n in range(60))
     run_app(app, [
         KeyEvent("o", ctrl=True),
-        lambda a: a.manager.console._on_output(lines),
+        lambda a: a.shell.console._on_output(lines),
         KeyEvent("pageup", shift=True),
     ])
-    assert app.manager.console.screen.scrolled_back is True
+    assert app.shell.console.screen.scrolled_back is True
 
 
 def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
@@ -734,10 +759,10 @@ def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
     lines = b"".join(b"line%d\r\n" % n for n in range(60))
     run_app(app, [
         KeyEvent("o", ctrl=True),
-        lambda a: a.manager.console._on_output(lines),
+        lambda a: a.shell.console._on_output(lines),
         MouseClickEvent(x=10, y=10, button="wheel_up", action="press"),
     ])
-    assert app.manager.console.screen.scrolled_back is True
+    assert app.shell.console.screen.scrolled_back is True
     assert app.manager.left.cursor == 0
 
 
@@ -748,8 +773,8 @@ def test_the_console_runs_a_real_child(tree):
     def start_child(a):
         # Started before the toggle, so `toggle_console' finds a child already
         # running and does not lay a shell over it.
-        a.manager.console.start(["/bin/sh", "-c", "printf 'captured\\r\\n'; sleep 5"])
-        a.manager.console_visible = True
+        a.shell.console.start(["/bin/sh", "-c", "printf 'captured\\r\\n'; sleep 5"])
+        a.shell.console_visible = True
 
     # A generous settle: the driver's awaits are the only chance the loop gets
     # to read from the pty, so the test has to yield rather than sleep.
@@ -940,23 +965,29 @@ def test_usage_names_the_installed_command(capsys):
 
 def test_the_console_takes_the_keyboard_while_it_is_showing(tree, quiet_console):
     app = navigator(tree)
-    console = app.manager.console
+    console = app.shell.console
     run_app(app, [KeyEvent("o", ctrl=True), lambda a: None])
     assert app.focused is console
 
 
 def test_hiding_the_console_gives_the_keyboard_back(tree, quiet_console):
+    """To exactly the widget that had it -- activating a window restores it."""
     app = navigator(tree)
-    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("o", ctrl=True), lambda a: None])
-    assert app.focused is None
+    run_app(app, [
+        lambda a: a.manager.right.focus(),
+        KeyEvent("o", ctrl=True),
+        KeyEvent("o", ctrl=True),
+        lambda a: None,
+    ])
+    assert app.focused is app.manager.right
 
 
 def test_the_console_reports_the_childs_cursor(tree, quiet_console):
     app = navigator(tree)
-    console = app.manager.console
+    console = app.shell.console
 
     def show(a):
-        a.manager.toggle_console()
+        a.shell.toggle_console()
         console._on_output(b"hello: ")
 
     run_app(app, [show, lambda a: None])
@@ -971,8 +1002,8 @@ def test_the_terminals_cursor_is_placed_where_the_child_put_it(tree, quiet_conso
     terminal = app.terminal
 
     def show(a):
-        a.manager.toggle_console()
-        a.manager.console._on_output(b"hello: ")
+        a.shell.toggle_console()
+        a.shell.console._on_output(b"hello: ")
 
     run_app(app, [show, lambda a: None])
     assert "\x1b[2;8H" + SHOW_CURSOR in terminal.painted
@@ -986,10 +1017,10 @@ def test_no_cursor_is_shown_while_the_panels_are_up(tree, quiet_console):
 
 def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_console):
     app = navigator(tree)
-    console = app.manager.console
+    console = app.shell.console
 
     def show(a):
-        a.manager.toggle_console()
+        a.shell.toggle_console()
         console._on_output(b"\r\n".join(b"line %d" % n for n in range(60)))
 
     run_app(app, [show, lambda a: console.scroll_back(), lambda a: None])
@@ -1001,10 +1032,10 @@ def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_con
 
 def test_a_hidden_child_cursor_is_not_drawn(tree, quiet_console):
     app = navigator(tree)
-    console = app.manager.console
+    console = app.shell.console
 
     def show(a):
-        a.manager.toggle_console()
+        a.shell.toggle_console()
         console._on_output(b"\x1b[?25l")  # the child hides its own cursor
 
     run_app(app, [show, lambda a: None])
@@ -1022,7 +1053,7 @@ def test_ctrl_o_and_the_key_behind_it_arrive_in_one_batch(tree, quiet_console):
     typed: list[bytes] = []
 
     def stub(a):
-        a.manager.console.send = lambda e: typed.append(encode_key(e)) or True
+        a.shell.console.send = lambda e: typed.append(encode_key(e)) or True
 
     def both(a):
         a.post_event(KeyEvent("o", ctrl=True))
@@ -1038,7 +1069,7 @@ def test_the_console_swallows_keys_it_has_no_child_for(tree, quiet_console):
     # key that fell through would move a cursor the user cannot see.
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("down"), KeyEvent("down")])
-    assert app.manager.console.process is None
+    assert app.shell.console.process is None
     assert app.manager.left.cursor == 0
 
 
@@ -1056,7 +1087,7 @@ def test_alt_x_goes_to_the_child_from_the_console(tree, quiet_console):
     alive: list[bool] = []
     run_app(app, [
         KeyEvent("o", ctrl=True),
-        lambda a: setattr(a.manager.console, "send",
+        lambda a: setattr(a.shell.console, "send",
                           lambda e: typed.append(encode_key(e)) or True),
         KeyEvent("x", "x", alt=True),
         # run_app exits the application itself once the actions are done, so
@@ -1183,6 +1214,11 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     and lived only as prose.  This is the same guarantee in a form the suite
     can run on every change: a fixture captured from the tree as it was, and
     compared against what the tree paints now.
+
+    It has changed once, deliberately: when the file manager became a window
+    on a desktop, the fixture gained exactly its two icons -- ``[■]`` on the
+    left panel's top edge and ``[↕]`` on the right's -- and not one other
+    cell, which is what the conversion was checked against.
     """
     (tmp_path / "alpha").mkdir()
     (tmp_path / "beta").mkdir()
@@ -1195,11 +1231,11 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     async def main():
-        manager = Manager(pathlib.Path("."), pathlib.Path("."))
-        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        shell = Shell(pathlib.Path("."), pathlib.Path("."))
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.15)
-        dump = desktop_dump(manager)
+        dump = desktop_dump(shell)
         app.exit()
         await task
         return dump
@@ -1222,8 +1258,9 @@ def test_f7_makes_a_directory(tmp_path):
     """
 
     async def main():
-        manager = Manager(tmp_path, tmp_path)
-        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        shell = Shell(tmp_path, tmp_path)
+        manager = shell.manager
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.1)
 
@@ -1255,8 +1292,9 @@ def test_f7_makes_a_directory(tmp_path):
 
 def test_escaping_f7_makes_nothing(tmp_path):
     async def main():
-        manager = Manager(tmp_path, tmp_path)
-        app = Application(manager, terminal=FakeTerminal(width=80, height=24))
+        shell = Shell(tmp_path, tmp_path)
+        manager = shell.manager
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.1)
         app.post_event(KeyEvent(key="f7"))
@@ -1273,3 +1311,60 @@ def test_escaping_f7_makes_nothing(tmp_path):
 
     assert asyncio.run(asyncio.wait_for(main(), 10)) is None
     assert not (tmp_path / "nope").exists()
+
+
+# -- the file manager is a window --------------------------------------------
+
+
+def test_ctrl_o_and_f10_wait_while_a_dialog_is_open(tmp_path, quiet_console):
+    """An application hook runs before the modal routing, so it has to ask."""
+    app = navigator(tmp_path)
+    seen = []
+    run_app(app, [
+        KeyEvent("f7"),
+        lambda a: None,
+        KeyEvent("o", ctrl=True),
+        KeyEvent("f10"),
+        lambda a: None,
+        lambda a: seen.append((a.modal, a.is_running, a.shell.console_visible)),
+    ])
+    modal, running, console_visible = seen[0]
+    assert isinstance(modal, MkdirDialog)
+    assert running and not console_visible
+
+
+def test_closing_the_file_manager_leaves_the_console(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f3", alt=True), lambda a: None, lambda a: None])
+    assert app.manager.parent is None
+    assert app.shell.console_visible is True
+    assert app.focused is app.shell.console
+    # And Ctrl+O has no windows to bring back.
+    app.shell.toggle_console()
+    assert app.shell.console_visible is True
+
+
+def test_dragging_the_restored_file_manager_moves_both_panels(tree, quiet_console):
+    app = navigator(tree)
+    manager = app.manager
+    zoom = MouseClickEvent(80 - 5, 1, "left", "press")
+    start: list[tuple[int, int]] = []
+
+    def drag(a):
+        # Restored now: take hold of the left panel's title and pull.
+        x, y = manager.x, manager.y
+        start.append((x, y))
+        grab = MouseClickEvent(x + 10, 1 + y, "left", "press")
+        for event in (grab, replace(grab, x=x + 13, y=1 + y + 2, action="move"),
+                      replace(grab, x=x + 13, y=1 + y + 2, action="release")):
+            a.post_event(event)
+
+    run_app(app, [zoom, replace(zoom, action="release"), lambda a: None,
+                  drag, lambda a: None])
+    x, y = start[0]
+    assert not manager.zoomed
+    assert (manager.x, manager.y) == (x + 3, y + 2)
+    assert manager.right.x == manager.width // 2
+    buffer = desktop(app)
+    # The console shows around the window now, and the panels moved with it.
+    assert row_of(buffer, 1 + y + 2)[x + 3] in "╔┌"

@@ -83,6 +83,11 @@ class Panel(ListViewer):
     path: Path = reactive(Path("."))
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
+    #: Columns kept clear at each end of the top edge, so the path never runs
+    #: under a window icon painted there -- the file manager's close and zoom
+    #: icons sit on its panels' frames.  Kept at both ends because the title
+    #: is centred.
+    title_margin: int = reactive(0)
 
     def __init__(self, path: Path | None = None, **kwargs: Any):
         """*path* is optional because a widget markup constructs must be.
@@ -184,7 +189,7 @@ class Panel(ListViewer):
     def title_text(self) -> str:
         """The path across the top frame, clipped to fit."""
         title = str(self.path)
-        room = max(1, self.width - 4)
+        room = max(4, self.width - 4 - 2 * self.title_margin)
         if len(title) > room:
             title = "..." + title[-(room - 3) :]
         return f" {title} "
