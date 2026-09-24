@@ -149,6 +149,12 @@ which time the stale cell recomputes. `widget.py`'s `_reactive_changed`
 docstring already states this ("the application tracks dirtiness with a single flag ... per-widget damage tracking would
 have to look at the derived values as well").
 
+        **The application is an owner too, and was once forgotten as one.** `Application.focused` and
+`Application.stylesheet` are reactive, and a write to either only marks widgets stale — so until `Application` grew
+its own `_reactive_changed`, a key that moved the focus and did nothing else (Tab between the two panels) painted no
+frame, and the switch appeared with the next unrelated key. Any object carrying a reactive the screen depends on needs
+the hook, and a test for one counts frames rather than reading state, because the state was right all along.
+
 The stylesheet sharpens that constraint rather than merely relying on it. With descendant combinators a widget's style
 depends on its *ancestors'* state, so per-widget damage tracking would have to follow the reactive graph out of the
 widget entirely. Anyone adding it has to deal with this; the global flag is load-bearing, not a placeholder.

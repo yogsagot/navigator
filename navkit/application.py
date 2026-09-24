@@ -164,7 +164,6 @@ class Application:
         )
         self.title = title
         self._background = background
-        self.stylesheet = stylesheet
         self.result: Any = None
 
         self._root: Widget | None = None
@@ -190,6 +189,9 @@ class Application:
         self._dispatching = False
         self._signals: list[int] = []
         self._reader_fd: int | None = None
+        # An observable, so its write asks for a frame -- which needs the
+        # loop state above to exist already.
+        self.stylesheet = stylesheet
 
         self._back = ScreenBuffer(*self.terminal.size, self.background)
         self._front: ScreenBuffer | None = None
@@ -505,6 +507,18 @@ class Application:
         if not self._dirty:
             self._dirty = True
             self._wake()
+
+    def _reactive_changed(self, name: str) -> None:
+        """One of the application's own observables changed: repaint.
+
+        The same hook ``Widget`` has, and needed for the same reason.  A
+        write reaches ``_reactive_changed`` only on the object it was made
+        to, and every widget derived from ``focused`` or ``stylesheet`` is
+        merely marked stale -- so without this, moving the focus and nothing
+        else (Tab between two panels) restyled both widgets and asked for no
+        frame, and the change showed up with the next unrelated key.
+        """
+        self.invalidate()
 
     def _wake(self) -> None:
         """Nudge the loop when it is parked waiting for input."""
