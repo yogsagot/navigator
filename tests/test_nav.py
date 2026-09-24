@@ -1079,9 +1079,21 @@ def test_alt_x_quits_from_the_panels(tree):
     assert app.is_running is False
 
 
+def test_alt_x_quits_once_the_file_manager_is_closed(tree, quiet_console):
+    # It used to be Manager's, so closing the window took the key with it.
+    app = navigator(tree)
+    run_app(app, [
+        KeyEvent("f3", alt=True),
+        lambda a: None,
+        KeyEvent("x", "x", alt=True),
+    ])
+    assert app.manager.parent is None
+    assert app.is_running is False
+
+
 def test_alt_x_goes_to_the_child_from_the_console(tree, quiet_console):
-    # It has always been a desktop key rather than a global one: with the
-    # console up it is a keystroke like any other.
+    # It is a desktop key rather than a global one: with the console up over
+    # the windows it is a keystroke like any other.
     app = navigator(tree)
     typed: list[bytes] = []
     alive: list[bool] = []
@@ -1119,7 +1131,7 @@ def test_the_application_keeps_only_what_is_global(tree, quiet_console):
             ("ctrl+o", KeyEvent("o", ctrl=True)),
         )
     }
-    assert claimed == {"down": False, "tab": False, "alt+x": False, "ctrl+o": True}
+    assert claimed == {"down": False, "tab": False, "alt+x": True, "ctrl+o": True}
 
 
 def test_a_panel_can_be_built_the_way_markup_builds_one(tree):

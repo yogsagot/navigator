@@ -655,10 +655,13 @@ also the widget that showed why a navigated property is seeded rather than bound
   (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
   reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
   the caret is the terminal's own
-- **Keys belong to the widget that owns them.** `Navigator.on_key` keeps only Ctrl+O and F10/Ctrl+Q, because an
-  application hook runs before the widgets and so keeps a key from everything; `Console.on_key` keeps the scrollback
-  and sends the rest to the child; `Manager.on_key` keeps the panel keys and Alt+X; `Desktop.on_key` keeps the window
-  keys (`WINDOW_KEYS`). There is no `console_visible` check in any of them — the console holds the focus while it is
+- **Keys belong to the widget that owns them.** `Navigator.on_key` keeps only Ctrl+O, F10/Ctrl+Q and Alt+X, because an
+  application hook runs before the widgets and so keeps a key from everything. Alt+X is there because a way out
+  cannot live on a window the user can close (it was `Manager`'s, and closing the file manager took it along), and it
+  is the one application key that asks a question: while Ctrl+O has put windows away it is left for the child, and
+  with no window left it quits from the console; `Console.on_key` keeps the scrollback
+  and sends the rest to the child; `Manager.on_key` keeps the panel keys; `Desktop.on_key` keeps the window
+  keys (`WINDOW_KEYS`). There is no `console_visible` check in any of the widgets — the console holds the focus while it is
   showing, and the focus path decides. Both application hooks return False while `app.modal` is set
 - **And so do mouse gestures, by the same rule.** `Panel.on_double_click` enters the clicked row — a directory, or
   `..` — because it needs nothing but the panel it lands on, and routing by position is what picks which panel. It

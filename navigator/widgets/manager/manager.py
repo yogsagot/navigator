@@ -47,27 +47,23 @@ class Manager(Window):
         self.right.path = right
 
     async def on_key(self, event: KeyEvent) -> bool:
-        """The desktop's own keys: switching panels, rescanning, and Alt+X.
+        """The window's own keys: switching panels, rescanning and Mkdir.
 
         The keys that move *within* a panel are no longer here: up, down, the
         pages, home, end and Enter belong to the list and are
         ``ListViewer``'s, reached along the focus path.  What is left is what
-        genuinely needs the desktop -- which panel, and the ways out.
+        genuinely needs the window -- which panel, and what to do in it.
 
         Reached only when nothing nearer the keyboard claimed the key, which
         while the console is showing means never -- the console holds the
         focus and the desktop this window is on is hidden, so none of this
         needs to ask whether it is visible.
 
-        Alt+X is here rather than with the other two ways out because it has
-        always been a desktop key: with the console up it is a keystroke for
-        the child, and the child gets it by this method never running.
+        Alt+X is not here: a way out of Navigator cannot live on a window the
+        user can close, so it is ``Navigator.on_key``'s.
         """
         panel = self.active_panel
-        if event.matches("alt+x"):
-            if (app := self.application) is not None:
-                app.exit()
-        elif event.matches("tab"):
+        if event.matches("tab"):
             self.switch_panel()
         elif event.matches("f7"):
             # **Started, not awaited.**  A handler that waits for a dialog

@@ -65,10 +65,16 @@ class Navigator(Application):
         Navigator -- both of which have to work while a child program is
         eating every other keystroke.
 
+        **Alt+X is the third way out, and it is here because a window can be
+        closed.**  It lived on ``Manager`` once, and closing the file manager
+        took the key with it.  It is still a desktop key rather than a global
+        one: while Ctrl+O has put the windows away it is a keystroke for the
+        child -- Meta+X in a shell or an editor -- and is left alone.  With no
+        window left the console *is* the desktop, and Alt+X quits from it.
+
         Everything else went to the widget that owns it: ``Console.on_key``
         for the console's scrollback and the child, ``Manager.on_key`` for
-        moving about the panels and for Alt+X, ``Desktop.on_key`` for the
-        window keys.
+        moving about the panels, ``Desktop.on_key`` for the window keys.
 
         **Nothing here reaches past a modal.**  An application hook runs
         before navkit routes a key to the modal, so without the first line
@@ -84,7 +90,15 @@ class Navigator(Application):
         if event.matches("f10", "ctrl+q"):
             self.exit()
             return True
+        if event.matches("alt+x") and not self._console_over_windows():
+            self.exit()
+            return True
         return False
+
+    def _console_over_windows(self) -> bool:
+        """Whether Ctrl+O has put windows away to show the console."""
+        shell = self.shell
+        return shell.console_visible and shell.desktop.active_window is not None
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """The console's scrollback, and nothing else.
