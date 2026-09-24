@@ -286,14 +286,10 @@ class Window(Widget):
 
     def _start_drag(self, kind: str, local: MouseClickEvent) -> None:
         if kind == "move" and self.zoomed:
-            # Dragging a zoomed window takes it back to its own size first,
-            # under the pointer rather than wherever it used to be.
-            pointer_x, pointer_y = self.x + local.x, self.y + local.y
-            self.toggle_zoom()
-            grab = min(local.x, max(0, self.width - 1))
-            self.move_to(pointer_x - grab, pointer_y)
-            local = local.translated(grab - local.x, 0)
-        if kind == "move":
+            # Only a pointer that actually moves unzooms: a press alone is
+            # half of what may be a double click, and that is what zooms.
+            self._drag = ("unzoom", local.x, local.y)
+        elif kind == "move":
             self._drag = ("move", local.x, local.y)
         else:
             self._drag = ("resize", self.width - local.x, self.height - local.y)
@@ -309,11 +305,25 @@ class Window(Widget):
         if event.action == "release":
             self._drag = None
         elif event.action == "move":
-            if kind == "move":
+            if kind == "unzoom":
+                self._drag_out_of_zoom(dx, event)
+            elif kind == "move":
                 self.move_to(self.x + event.x - dx, self.y + event.y - dy)
             else:
                 self.resize_to(event.x + dx, event.y + dy)
         return True
+
+    def _drag_out_of_zoom(self, grab_x: int, event: MouseClickEvent) -> None:
+        """The first move of a drag that began on a zoomed title.
+
+        The window goes back to its own size under the pointer rather than
+        wherever it used to be, and the drag carries on as an ordinary move.
+        """
+        pointer_x, pointer_y = self.x + event.x, self.y + event.y
+        self.toggle_zoom()
+        grab = min(grab_x, max(0, self.width - 1))
+        self.move_to(pointer_x - grab, pointer_y)
+        self._drag = ("move", grab, 0)
 
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
         """A double click on the title zooms, as in Turbo Vision."""

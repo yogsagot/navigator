@@ -214,6 +214,30 @@ def test_a_double_click_on_the_title_zooms(desk):
     handle(app, press(15, 6), release(15, 6), press(15, 6), release(15, 6))
     assert win.zoomed
     assert app.mouse_capture is None
+    handle(app, press(15, 1), release(15, 1), press(15, 1), release(15, 1))
+    assert not win.zoomed
+    assert (win.x, win.y, win.width, win.height) == (10, 5, 30, 10)
+
+
+def test_a_single_click_on_a_zoomed_title_does_not_unzoom(desk):
+    app, desktop = desk
+    win = desktop.open(window(10, 5, 30, 10))
+    win.toggle_zoom()
+    handle(app, press(15, 1), release(15, 1))
+    assert win.zoomed
+    assert app.mouse_capture is None
+
+
+def test_dragging_a_zoomed_title_unzooms_under_the_pointer(desk):
+    app, desktop = desk
+    win = desktop.open(window(10, 5, 30, 10))
+    win.toggle_zoom()
+    handle(app, press(15, 1), move(20, 4))
+    assert not win.zoomed
+    assert (win.x, win.y, win.width, win.height) == (5, 3, 30, 10)
+    handle(app, move(22, 4), release(22, 4))
+    assert (win.x, win.y) == (7, 3)
+    assert app.mouse_capture is None
 
 
 def test_the_close_icon_closes_and_the_next_window_takes_over(desk):
