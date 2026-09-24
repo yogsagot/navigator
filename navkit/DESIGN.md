@@ -1856,11 +1856,14 @@ to 0.001 instead of sleeping 0.4s of real time.
   of one.** `Navigator.on_key` keeps only what means the same thing wherever the focus is — Ctrl+O, and F10/Ctrl+Q —
   because an application hook runs before the widgets, so whatever is kept there is kept from the console, from the
   panels and from every dialog not yet written. `Console.on_key` keeps the scrollback and sends the rest to the child.
-  `Manager.on_key` keeps the panel keys and Alt+X. **The `if manager.console_visible:` that used to arbitrate is gone
+  `Manager.on_key` keeps the panel keys. **The `if manager.console_visible:` that used to arbitrate is gone
   entirely**: the console holds the focus while it is showing, so the focus path answers that question and the
-  desktop's own handler never runs. Alt+X sits with the desktop rather than with the other two ways out because it has
-  always been a desktop key — with the console up it is a keystroke for the child, and the child gets it by
-  `Manager.on_key` never running.
+  desktop's own handler never runs. Alt+X sat with the desktop rather than with the other two ways out because it has
+  always been a desktop key — with the console up it is a keystroke for the child, and the child got it by
+  `Manager.on_key` never running. **That stopped being true once windows could be closed**: closing the file manager
+  took the key with it, and the user was left with no Alt+X at all. It is `Navigator.on_key`'s now, and the one
+  application key that asks a question — it is left for the child while Ctrl+O has put windows away, and quits when
+  there are none, because then the console *is* the desktop.
 
   One thing had to change to make it safe, and it is worth knowing before writing anything similar: **the focus
   handover has to be synchronous with the flag it follows.** It was an effect for one commit, which is correct for the
