@@ -343,6 +343,20 @@ def test_tab_switches_panels(tree):
     assert app.manager.left.cursor == 0
 
 
+def test_tab_repaints_on_its_own(tree):
+    # Tab moves the focus and nothing else, and the application did not
+    # repaint for its own observables -- so the switch appeared only with the
+    # next key.  Counted in frames, because the state was right all along.
+    app = navigator(tree)
+    painted: list[int] = []
+    run_app(app, [
+        lambda a: painted.append(len(a.terminal.frames)),
+        KeyEvent("tab"),
+        lambda a: painted.append(len(a.terminal.frames)),
+    ])
+    assert painted[1] == painted[0] + 1
+
+
 def test_enter_descends_in_the_active_panel(tree):
     app = navigator(tree)
     run_app(app, [KeyEvent("down"), KeyEvent("enter")])
