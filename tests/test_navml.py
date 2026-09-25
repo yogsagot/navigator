@@ -577,7 +577,7 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.__all__ == [
         "Button", "CheckBoxes", "Cluster", "Control", "Desktop", "Dialog",
         "Field", "InputLine", "Label", "ListViewer", "Modal", "RadioButtons",
-        "ScrollBar", "Spacer", "StaticText", "Window",
+        "ScrollBar", "Spacer", "StaticText", "Timer", "Window",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent

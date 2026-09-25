@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
+from navigator.widgets.clock import Clock
 from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
 from navigator.widgets.menubar import MenuBar
@@ -23,6 +24,7 @@ from navigator.widgets.manager import Manager
 class Shell(_Component):
     console_visible: bool
     menu: MenuBar
+    clock: Clock
     console: Console
     desktop: Desktop
     keybar: KeyBar

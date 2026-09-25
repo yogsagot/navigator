@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass
 
+import pytest
+
 from navkit.application import Application, ClickTracker
 from navkit.events import (
     DoubleClickEvent,
@@ -668,3 +670,120 @@ def test_a_resize_forgets_the_run(terminal):
     run_app(app, [PRESS, ResizeEvent(40, 12), PRESS])
 
     assert widget.doubles == []
+
+
+# -- call_every: a timer delivered through the queue -------------------------
+
+
+def test_call_every_registered_before_the_loop_starts_with_it(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+    ticks = []
+
+    async def tick():
+        ticks.append(app._dispatching)
+
+    app.call_every(0.01, tick)
+    run_app(app, settle=0.1)
+    # Ran several times, and every time inside a dispatch like a handler.
+    assert len(ticks) >= 3
+    assert all(ticks)
+
+
+def test_a_tick_that_changes_something_is_painted(terminal):
+    class Counter(Widget):
+        count: int = reactive(0)
+
+        def render(self, surface):
+            surface.draw_text(0, 0, str(self.count), self.style)
+
+    root = Counter()
+    app = Application(root, terminal=terminal)
+
+    async def tick():
+        root.count += 1
+
+    app.call_every(0.01, tick)
+    run_app(app, settle=0.1)
+    assert root.count >= 3
+    assert len(terminal.frames) >= 3
+
+
+def test_cancel_stops_it_and_is_idempotent(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+    ticks = []
+
+    async def tick():
+        ticks.append(1)
+
+    repeat = app.call_every(0.01, tick)
+
+    def cancel(app):
+        repeat.cancel()
+        repeat.cancel()
+        ticks.clear()
+
+    run_app(app, [cancel], settle=0.08)
+    assert ticks == []
+    assert repeat.cancelled
+
+
+def test_a_tick_already_queued_when_cancelled_is_dropped(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+    ticks = []
+
+    async def tick():
+        ticks.append(1)
+
+    repeat = app.call_every(1000, tick)
+
+    async def main():
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.02)
+        repeat._fire(asyncio.get_running_loop())  # a tick lands in the queue
+        repeat.cancel()  # ...and its owner lets go before it is dispatched
+        await asyncio.sleep(0.02)
+        app.exit()
+        await task
+
+    asyncio.run(asyncio.wait_for(main(), 5))
+    assert ticks == []
+
+
+def test_stopping_the_application_cancels_every_repeat(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+
+    async def tick():
+        pass
+
+    repeat = app.call_every(0.01, tick)
+    run_app(app)
+    assert repeat.cancelled
+    assert app._repeats == set()
+
+
+def test_a_failing_tick_stops_the_application(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+
+    async def tick():
+        raise RuntimeError("tick")
+
+    app.call_every(0.01, tick)
+    try:
+        run_app(app, settle=0.1)
+    except RuntimeError as error:
+        assert str(error) == "tick"
+    else:
+        raise AssertionError("the failure was swallowed")
+    assert not app.is_running
+
+
+def test_call_every_refuses_a_bad_interval_or_a_sync_callback(terminal):
+    app = Application(RecordingWidget(), terminal=terminal)
+
+    async def tick():
+        pass
+
+    with pytest.raises(ValueError):
+        app.call_every(0, tick)
+    with pytest.raises(TypeError):
+        app.call_every(1, lambda: None)

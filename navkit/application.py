@@ -24,9 +24,12 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import inspect
+import math
 import signal
 import time
-from collections.abc import Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
+from dataclasses import dataclass
 from typing import Any
 
 from navkit.events import (
@@ -58,6 +61,75 @@ DOUBLE_CLICK_TIMEOUT = 0.4
 
 
 _WAKE = WakeEvent()
+
+
+class Repeat:
+    """A callback :meth:`Application.call_every` runs every *seconds*.
+
+    Returned rather than hidden so its owner can :meth:`cancel` it -- a widget
+    from :meth:`Widget.unmounting`, which is the hook that exists for exactly
+    this.  Every tick is delivered **through the event queue**, so the callback
+    runs inside a batch like any handler: its effects are flushed and one frame
+    is painted after it, and an exception it raises stops the application.
+    See *Timers: through the queue* in ``navkit/DESIGN.md``.
+    """
+
+    def __init__(
+        self,
+        app: Application,
+        seconds: float,
+        callback: Callable[[], Awaitable[Any]],
+    ) -> None:
+        self.seconds = seconds
+        self.callback = callback
+        #: True once :meth:`cancel` has run, or the application stopped.
+        self.cancelled = False
+        self._app = app
+        self._handle: asyncio.TimerHandle | None = None
+        self._next = 0.0
+
+    def cancel(self) -> None:
+        """Stop ticking.  Idempotent, and a tick already queued is dropped."""
+        self.cancelled = True
+        if self._handle is not None:
+            self._handle.cancel()
+            self._handle = None
+        self._app._repeats.discard(self)
+
+    def _arm(self, loop: asyncio.AbstractEventLoop) -> None:
+        """Start counting from now.  The first tick is one period away."""
+        self._next = loop.time() + self.seconds
+        self._handle = loop.call_at(self._next, self._fire, loop)
+
+    def _fire(self, loop: asyncio.AbstractEventLoop) -> None:
+        """The loop's timer went off: queue a tick and arm the next one.
+
+        Scheduled against the original start rather than the moment this ran,
+        so a slow batch does not push every later tick back.  A loop that fell
+        more than a period behind **skips** the slots it missed instead of
+        queueing a burst of them -- a clock that was stalled has nothing to
+        catch up on.
+        """
+        self._handle = None
+        if self.cancelled:
+            return
+        self._app.post_event(_Tick(self))
+        now = loop.time()
+        self._next += self.seconds
+        if self._next <= now:
+            self._next += math.floor((now - self._next) / self.seconds + 1) * self.seconds
+        self._handle = loop.call_at(self._next, self._fire, loop)
+
+
+@dataclass(frozen=True, slots=True)
+class _Tick(Event):
+    """Internal: one period of a :class:`Repeat` elapsed.
+
+    Private, like the wake, and never offered to ``on_event``: it is how a
+    timer gets into a batch, not something the terminal said.
+    """
+
+    repeat: Repeat
 
 
 class ClickTracker:
@@ -184,6 +256,9 @@ class Application:
         #: Work started by :meth:`spawn`, held so that nothing is collected
         #: mid-flight and everything can be cancelled on the way out.
         self._tasks: set[asyncio.Task[Any]] = set()
+        #: Everything :meth:`call_every` is running, armed or waiting for
+        #: the loop to start.
+        self._repeats: set[Repeat] = set()
         #: True while a handler is running, which is what makes waiting for
         #: input from inside one a diagnosable error -- see :meth:`spawn`.
         self._dispatching = False
@@ -279,6 +354,8 @@ class Application:
             # nudge a loop that is parked on the event queue.
             SCHEDULER.wake = self._wake
             self._attach_input()
+            for repeat in self._repeats:
+                repeat._arm(self._loop)
             self._resize(*self.terminal.size)
             await self.on_start()
             await self._main_loop()
@@ -286,6 +363,8 @@ class Application:
             self._running = False
             SCHEDULER.wake = None
             await self._cancel_tasks()
+            for repeat in list(self._repeats):
+                repeat.cancel()
             self._detach_input()
             with contextlib.suppress(Exception):
                 await self.on_stop()
@@ -328,6 +407,30 @@ class Application:
         self._tasks.add(task)
         task.add_done_callback(self._finished)
         return task
+
+    def call_every(
+        self, seconds: float, callback: Callable[[], Awaitable[Any]]
+    ) -> Repeat:
+        """Await *callback* every *seconds*, inside a batch, until cancelled.
+
+        **The one clock navkit offers**, because the loop is the only one event
+        handling can reach.  May be called before the application runs -- a
+        tree is mounted from the constructor, long before there is a loop --
+        in which case the count starts when :meth:`run_async` does.  Stopping
+        the application cancels every one.
+
+        *callback* takes no argument and must be ``async``, for the reason
+        every ``on_*`` must: it is awaited where a handler would be.
+        """
+        if not seconds > 0:
+            raise ValueError(f"call_every needs a positive interval, not {seconds!r}")
+        if not inspect.iscoroutinefunction(callback):
+            raise TypeError(f"call_every needs an async callback, not {callback!r}")
+        repeat = Repeat(self, seconds, callback)
+        self._repeats.add(repeat)
+        if self._running and self._loop is not None:
+            repeat._arm(self._loop)
+        return repeat
 
     def _finished(self, task: asyncio.Task[Any]) -> None:
         """Forget a finished task, and let its failure out.
@@ -632,6 +735,9 @@ class Application:
     async def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):
             return
+        if isinstance(event, _Tick):
+            await self._tick(event.repeat)
+            return
         if isinstance(event, ResizeEvent):
             self._resize(event.width, event.height)
         # Saved and restored rather than set and cleared: `_handle' returns
@@ -685,6 +791,23 @@ class Application:
                 # when the names are.
                 if handler is not None and handler != self.on_event:
                     await _call(self, event, handler)
+        except Exception:
+            self.exit()
+            raise
+        finally:
+            self._dispatching = dispatching
+
+    async def _tick(self, repeat: Repeat) -> None:
+        """Run one tick of *repeat*, as a handler: failure stops the app.
+
+        A cancelled one is skipped here as well as at the timer, because its
+        tick may already have been queued when its owner let go of it.
+        """
+        if repeat.cancelled:
+            return
+        dispatching, self._dispatching = self._dispatching, True
+        try:
+            await repeat.callback()
         except Exception:
             self.exit()
             raise

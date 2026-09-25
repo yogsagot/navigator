@@ -1,9 +1,11 @@
+from navigator.widgets.clock import Clock
 from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
 from navigator.widgets.menubar import MenuBar
 from navml.widgets.desktop import Desktop
 
-#: The Navigator screen: menu bar, the console, the desktop over it, key bar.
+#: The Navigator screen: menu bar and clock, the console, the desktop over it,
+#: key bar.
 #:
 #: The band between the two bars holds two layers, and the order of the
 #: children is the whole of how they stack.  The console is the bottom one and
@@ -24,6 +26,12 @@ Shell:
         y: 0
         width: parent.width
         height: 1
+
+    #: Over the menu bar's right end, which is why it comes after it.
+    Clock:
+        id: clock
+        x: max(0, parent.width - self.width)
+        y: 0
 
     Console:
         id: console

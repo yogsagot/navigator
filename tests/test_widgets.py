@@ -227,3 +227,61 @@ def test_a_hidden_button_is_out_of_the_tab_order_and_the_shortcut_walk():
     dialog = Dialog(buttons="ok")
     assert dialog.cancel not in dialog.focusable()
     assert dialog.cancel not in list(dialog.controls())
+
+
+# -- Timer --------------------------------------------------------------------
+
+
+from conftest import run_app                                # noqa: E402
+from navml.widgets import Timer                             # noqa: E402
+
+
+class _Listener(Widget):
+    """Counts the ``TimerEvent``s its children raise."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ticks = 0
+
+    async def on_timer(self, event):
+        self.ticks += 1
+        return True
+
+
+def test_a_timer_emits_every_interval_to_whoever_handles_it():
+    root = _Listener()
+    Timer(parent=root).interval = 10
+    run_app(Application(root, terminal=FakeTerminal()), settle=0.1)
+    assert root.ticks >= 3
+
+
+def test_a_removed_timer_stops_and_a_zero_interval_never_starts():
+    root = _Listener()
+    timer = Timer(parent=root)
+    timer.interval = 10
+    Timer(parent=root).interval = 0
+    seen = []
+
+    def remove(app):
+        root.remove(timer)
+        seen.append(root.ticks)
+
+    run_app(Application(root, terminal=FakeTerminal()), [remove], settle=0.08)
+    assert seen[0] >= 1
+    assert root.ticks == seen[0]
+    assert timer._repeat is None
+
+
+def test_changing_the_interval_rearms_the_timer():
+    root = _Listener()
+    timer = Timer(parent=root)
+    timer.interval = 0
+    counts = []
+
+    def start(app):
+        counts.append(root.ticks)
+        timer.interval = 10
+
+    run_app(Application(root, terminal=FakeTerminal()), [start], settle=0.1)
+    assert counts == [0]
+    assert root.ticks >= 3

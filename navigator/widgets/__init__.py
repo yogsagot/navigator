@@ -35,6 +35,7 @@ navml.register(__name__)
 #: discovered, so a typo is an `AttributeError' naming the widget.  Two names
 #: map to `panel': its module carries `DirEntry' beside `Panel'.
 _WIDGETS = {
+    "Clock": "clock",
     "Console": "console",
     "DirEntry": "panel",
     "KeyBar": "keybar",
@@ -65,6 +66,7 @@ def __dir__() -> list[str]:
 if TYPE_CHECKING:
     # A module `__getattr__' answers `Any' to a type checker, which would make
     # every widget untyped at every call site.  These are the real types.
+    from navigator.widgets.clock import Clock
     from navigator.widgets.console import Console
     from navigator.widgets.keybar import KeyBar
     from navigator.widgets.manager import Manager
