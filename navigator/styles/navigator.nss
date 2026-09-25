@@ -68,6 +68,10 @@ Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 MenuBar         { fg: $bar-fg; bg: $bar-bg }
 MenuBar::hotkey { fg: $bar-key-fg; bg: $bar-key-bg }
 
+/* DOS Navigator's Colors dialog names slot [1] "Timer": it is the clock's
+   colour first, and the background (CBackground) shares it. */
+Clock { fg: $desktop-fg; bg: $desktop-bg }
+
 KeyBar         { fg: $bar-fg; bg: $bar-bg }
 KeyBar::number { fg: $bar-key-fg; bg: $bar-key-bg }
 

@@ -48,6 +48,7 @@ _COMPONENTS = {
     "ScrollBar": "scroll_bar",
     "Spacer": "spacer",
     "StaticText": "static_text",
+    "Timer": "timer",
     "Window": "window",
 }
 
@@ -111,4 +112,5 @@ if TYPE_CHECKING:
     from navml.widgets.scroll_bar import ScrollBar
     from navml.widgets.spacer import Spacer
     from navml.widgets.static_text import StaticText
+    from navml.widgets.timer import Timer
     from navml.widgets.window import Window

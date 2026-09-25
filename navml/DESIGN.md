@@ -437,6 +437,19 @@ over now that the file manager is itself a `Window`, because `Window ListViewer`
 what the original does: DOS Navigator carries `[35-36]`/`[57-60]` under *Dialogs* and `[83-84]` under *File Manager* precisely because
 the same widget is a different colour inside a dialog.
 
+### `Timer`: the first component with nothing to show
+
+`Timer` emits a fieldless `TimerEvent` (→ `on_timer`) every `interval` milliseconds while it is mounted, and paints
+nothing. It is **Python alone** for the reason `CheckBoxes` is: it places nothing and paints nothing, so a markup half
+would say only what its `class` line says. The clock underneath is navkit's `Application.call_every` — see *Timers:
+through the queue* in `navkit/DESIGN.md` — so a tick reaches a markup handler inside a batch like a key does.
+
+It arms from an **effect declared in `mounted()`** that reads `interval`: changing the interval re-arms, `interval <=
+0` stops it, `remove()` disposes the effect and `unmounting()` cancels the running handle. `_repeat` is assigned
+*before* `super().__init__()`, because that constructor joins the parent and a live parent calls `mounted()` from
+inside it. Navigator's `Clock` is the first user: `on_timer: root.blink = not root.blink` in `clock.nml`, with
+`clock.py` reading the wall clock at paint time — the time is not state, and the tick is what guarantees a paint.
+
 ### Windows, the desktop and the modal
 
 The library's first `Window` was a framed box a dialog was made of. It is `Modal` now, and `Window` is what Turbo

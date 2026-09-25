@@ -41,7 +41,9 @@ the rest.
 widgets and their states, `tools/palconv.py` had already transcribed all 144 slots into every theme, and the
 *Dialogs* group is the specification. Thirteen components — `Control`, `Cluster`, `StaticText`, `Label`, `Button`,
 `InputLine`, `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Modal`, `Dialog`, `Field` — plus `Spacer`, and
-since then `Window` and `Desktop`, which are Turbo Vision's rather than the Colors dialog's.
+since then `Window` and `Desktop`, which are Turbo Vision's rather than the Colors dialog's, and `Timer`, which paints
+nothing and emits `TimerEvent` every `interval` ms — Navigator's `Clock` (`navigator/widgets/clock/`, top-right of the
+menu bar, `HH:MM` with a blinking colon, coloured by the Colors dialog's *Timer* slot `[1]`) is built on it.
 `navigator/styles/navigator.nss` binds them to the `$dialog-*` variables the eleven themes had been carrying inert,
 and **F7 Mkdir is the first dialog wired into the application**, proved on a pty. *The widget library* in
 `navml/DESIGN.md` records what each decision cost. **The next tier is menus** — `[2-7]` — then History `[53-56]` and
@@ -437,6 +439,10 @@ the whole rule testable without a fake clock.
   `ConsoleScreen` keeps a `ScreenBuffer` mirror in step with pyte's sparse grid, converting only the rows pyte marks
   dirty; `seed_from_host` makes a best-effort grab of whatever was on screen *before* Navigator started, from tmux,
   kitty or `/dev/vcsa`, and usually fails, which is expected.
+- **The one clock is `Application.call_every(seconds, async_callback)`**, returning a cancellable `Repeat`. It may be
+  called before the loop runs (a tree is mounted from the constructor) and every tick is *posted* and awaited inside a
+  dispatch, so it is painted with its batch and a failure stops the app like a handler's. *Timers: through the queue*
+  in `navkit/DESIGN.md`.
 - `process.py` — `PtyProcess` runs a child on a pty this application owns, reading it through `loop.add_reader` and
   sizing it with `TIOCSWINSZ` on the master (the kernel raises `SIGWINCH` on the child itself, so nothing signals it by
   hand). `run_on_terminal` is the escape hatch for a program that needs the real terminal, and its output is *not*

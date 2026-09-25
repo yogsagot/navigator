@@ -17,10 +17,11 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navigator.widgets.console import Console    # shell.nml:1
-from navigator.widgets.keybar import KeyBar    # shell.nml:2
-from navigator.widgets.menubar import MenuBar    # shell.nml:3
-from navml.widgets.desktop import Desktop    # shell.nml:4
+from navigator.widgets.clock import Clock    # shell.nml:1
+from navigator.widgets.console import Console    # shell.nml:2
+from navigator.widgets.keybar import KeyBar    # shell.nml:3
+from navigator.widgets.menubar import MenuBar    # shell.nml:4
+from navml.widgets.desktop import Desktop    # shell.nml:5
 
 __navml_component__ = "Shell"
 
@@ -28,7 +29,9 @@ __all__ = ["Shell"]
 
 
 class Shell(_Component):
-    """The Navigator screen: menu bar, the console, the desktop over it, key bar.
+    """The Navigator screen: menu bar and clock, the console, the desktop over it,
+
+    key bar.
 
     The band between the two bars holds two layers, and the order of the
     children is the whole of how they stack.  The console is the bottom one and
@@ -45,13 +48,14 @@ class Shell(_Component):
 
     #: Whether Ctrl+O has put the windows away.  One flag that the desktop's
     #: ``visible`` line reads, which is the whole of Ctrl+O.
-    console_visible: bool = _reactive(False)    # shell.nml:19
+    console_visible: bool = _reactive(False)    # shell.nml:21
 
     #: Ids, annotated so the hand-written half completes them.
-    menu: MenuBar    # shell.nml:22
-    console: Console    # shell.nml:29
-    desktop: Desktop    # shell.nml:36
-    keybar: KeyBar    # shell.nml:44
+    menu: MenuBar    # shell.nml:24
+    clock: Clock    # shell.nml:32
+    console: Console    # shell.nml:37
+    desktop: Desktop    # shell.nml:44
+    keybar: KeyBar    # shell.nml:52
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -61,35 +65,39 @@ class Shell(_Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_desktop_emptied(self, event: _Event) -> bool:    # shell.nml:36
+    async def on_desktop_emptied(self, event: _Event) -> bool:    # shell.nml:44
         """``desktop`` raised an event whose handler is ``on_emptied``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.menu = MenuBar(parent=self)    # shell.nml:21
-        self.console = Console(parent=self)    # shell.nml:28
-        self.desktop = Desktop(parent=self)    # shell.nml:35
-        self.keybar = KeyBar(parent=self)    # shell.nml:43
+        self.menu = MenuBar(parent=self)    # shell.nml:23
+        self.clock = Clock(parent=self)    # shell.nml:31
+        self.console = Console(parent=self)    # shell.nml:36
+        self.desktop = Desktop(parent=self)    # shell.nml:43
+        self.keybar = KeyBar(parent=self)    # shell.nml:51
 
-        self.menu.x = 0    # shell.nml:23
-        self.menu.y = 0    # shell.nml:24
-        self.menu.width = _bind(lambda _o: _o.parent.width)    # shell.nml:25
-        self.menu.height = 1    # shell.nml:26
+        self.menu.x = 0    # shell.nml:25
+        self.menu.y = 0    # shell.nml:26
+        self.menu.width = _bind(lambda _o: _o.parent.width)    # shell.nml:27
+        self.menu.height = 1    # shell.nml:28
 
-        self.console.x = 0    # shell.nml:30
-        self.console.y = 1    # shell.nml:31
-        self.console.width = _bind(lambda _o: _o.parent.width)    # shell.nml:32
-        self.console.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # shell.nml:33
+        self.clock.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # shell.nml:33
+        self.clock.y = 0    # shell.nml:34
 
-        self.desktop.x = 0    # shell.nml:37
-        self.desktop.y = 1    # shell.nml:38
-        self.desktop.width = _bind(lambda _o: _o.parent.width)    # shell.nml:39
-        self.desktop.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # shell.nml:40
-        self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:41
-        self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:36
+        self.console.x = 0    # shell.nml:38
+        self.console.y = 1    # shell.nml:39
+        self.console.width = _bind(lambda _o: _o.parent.width)    # shell.nml:40
+        self.console.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # shell.nml:41
 
-        self.keybar.x = 0    # shell.nml:45
-        self.keybar.y = _bind(lambda _o: max(1, _o.parent.height - 1))    # shell.nml:46
-        self.keybar.width = _bind(lambda _o: _o.parent.width)    # shell.nml:47
-        self.keybar.height = 1    # shell.nml:48
+        self.desktop.x = 0    # shell.nml:45
+        self.desktop.y = 1    # shell.nml:46
+        self.desktop.width = _bind(lambda _o: _o.parent.width)    # shell.nml:47
+        self.desktop.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # shell.nml:48
+        self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:49
+        self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:44
+
+        self.keybar.x = 0    # shell.nml:53
+        self.keybar.y = _bind(lambda _o: max(1, _o.parent.height - 1))    # shell.nml:54
+        self.keybar.width = _bind(lambda _o: _o.parent.width)    # shell.nml:55
+        self.keybar.height = 1    # shell.nml:56

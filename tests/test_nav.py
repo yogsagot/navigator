@@ -7,6 +7,7 @@ import pathlib
 import subprocess
 import sys
 import time
+from datetime import datetime
 from dataclasses import replace
 from importlib import metadata
 from pathlib import Path
@@ -30,7 +31,8 @@ from navigator.widgets.manager import Manager
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
-from navigator.widgets import DirEntry, Manager, Panel, Shell
+from navigator.widgets import Clock, DirEntry, Manager, Panel, Shell
+from navigator.widgets.clock import clock as clock_module
 from navml.widgets import Window
 
 
@@ -646,6 +648,9 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "if m.startswith('navigator.widgets.'))))\n"
     )
     assert loaded == [
+        "navigator.widgets.clock",
+        "navigator.widgets.clock.clock",
+        "navigator.widgets.clock.clock_nml",
         "navigator.widgets.console",
         "navigator.widgets.console.console",
         "navigator.widgets.keybar",
@@ -1244,8 +1249,11 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     It has changed once, deliberately: when the file manager became a window
     on a desktop, the fixture gained exactly its two icons -- ``[■]`` on the
     left panel's top edge and ``[↕]`` on the right's -- and not one other
-    cell, which is what the conversion was checked against.
+    cell, which is what the conversion was checked against.  And once more
+    when the clock arrived: the last five cells of the menu bar, pinned to
+    ``12:34`` here so the fixture does not depend on when it runs.
     """
+    monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
     (tmp_path / "beta").mkdir()
     (tmp_path / "one.txt").touch()
@@ -1394,3 +1402,40 @@ def test_dragging_the_restored_file_manager_moves_both_panels(tree, quiet_consol
     buffer = desktop(app)
     # The console shows around the window now, and the panels moved with it.
     assert row_of(buffer, 1 + y + 2)[x + 3] in "╔┌"
+
+
+# -- the clock ---------------------------------------------------------------
+
+
+def test_the_clock_sits_in_the_top_right_corner(tree):
+    app = navigator(tree, size=(80, 24))
+    clock = app.shell.clock
+    assert isinstance(clock, Clock)
+    assert (clock.x, clock.y, clock.width, clock.height) == (75, 0, 5, 1)
+
+
+def test_the_clock_shows_24_hour_time_and_blinks_its_colon(monkeypatch):
+    monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 17, 5))
+    clock = Clock()
+    assert clock.text() == "17:05"
+    clock.blink = False
+    assert clock.text() == "17 05"
+
+
+def test_the_clock_blinks_once_a_second(tree):
+    app = navigator(tree, size=(80, 24))
+    clock = app.shell.clock
+    assert clock.tick.interval == 1000
+    seen = []
+    run_app(app, [lambda a: seen.append(clock.blink)], settle=0.02)
+    assert seen == [True]
+
+    # One tick of its timer flips it, and the next flips it back.
+    async def two_ticks():
+        await clock.tick._tick()
+        seen.append(clock.blink)
+        await clock.tick._tick()
+        seen.append(clock.blink)
+
+    asyncio.run(two_ticks())
+    assert seen == [True, False, True]

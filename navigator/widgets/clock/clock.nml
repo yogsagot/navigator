@@ -1,0 +1,19 @@
+from navml.widgets.timer import Timer
+
+#: DOS Navigator's clock, in the top-right corner of the menu bar.
+#:
+#: ``HH:MM`` in 24-hour time, its colon blinking once a second.
+#: The document holds the blink and ``clock.py`` paints.  The time itself is
+#: not state: it is read from the wall clock at every paint, and the tick that
+#: flips ``blink`` is what guarantees there is a paint every second.
+Clock:
+    #: Whether the colon is showing this second.
+    property blink: True
+
+    width: 5
+    height: 1
+
+    Timer:
+        id: tick
+        interval: 1000
+        on_timer: root.blink = not root.blink
