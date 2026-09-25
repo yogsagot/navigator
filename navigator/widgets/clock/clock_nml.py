@@ -47,7 +47,7 @@ class Clock(_Component):
         self.width = 5    # clock.nml:13
         self.height = 1    # clock.nml:14
 
-        self.tick.interval = 1000    # clock.nml:18
+        self.tick.interval = 500    # clock.nml:18
 
         async def _on_timer(event):    # clock.nml:19
             self.blink = not self.blink
