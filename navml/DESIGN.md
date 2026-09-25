@@ -421,6 +421,15 @@ every difference, so a fill nobody can see is real bytes on the wire. That one w
 the extraction started — which now reproduces exactly, and is the automated form of the pty `cmp` that proved
 `manager.nml`.
 
+**A list carries its own vertical scrollbar**, Turbo Vision's `vScrollBar`, as a `ScrollBar` child in
+`list_viewer.nml` placed on the right frame (`x: parent.width - 1`, between the corners). So `Panel` and every
+dialog list get it without doing anything. It is **visible only while the list overflows** its rows, which leaves a
+short listing with its plain frame, and the desktop fixture unchanged. **Its value is the cursor, not `scroll`**,
+because that is what `TListViewer` gives its bar. Working the bar raises a `ScrollEvent`; `on_bar_scroll` assigns
+`cursor`, and `_follow_cursor` moves the scroll after it. Binding the bar to `scroll` instead would have put a second
+writer on the value `_follow_cursor` owns, and the two would fight. Binding `value` is legal because `ScrollBar`
+never assigns its own value: it emits and lets the owner decide.
+
 ### Where the colours live
 
 In `navigator/styles/navigator.nss`, not with the library. `$dialog-*` is *the file manager's* theme vocabulary,

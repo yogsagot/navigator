@@ -1422,10 +1422,10 @@ def test_the_clock_shows_24_hour_time_and_blinks_its_colon(monkeypatch):
     assert clock.text() == "17 05"
 
 
-def test_the_clock_blinks_once_a_second(tree):
+def test_the_clock_blinks_every_half_second(tree):
     app = navigator(tree, size=(80, 24))
     clock = app.shell.clock
-    assert clock.tick.interval == 1000
+    assert clock.tick.interval == 500
     seen = []
     run_app(app, [lambda a: seen.append(clock.blink)], settle=0.02)
     assert seen == [True]
@@ -1439,3 +1439,50 @@ def test_the_clock_blinks_once_a_second(tree):
 
     asyncio.run(two_ticks())
     assert seen == [True, False, True]
+
+
+# -- the panel's scrollbar ---------------------------------------------------
+
+
+def test_a_panel_that_fits_shows_no_scrollbar(panel):
+    settle()
+    assert len(panel.items) <= panel.rows
+    assert not panel.bar.visible
+
+
+def test_a_long_listing_shows_the_scrollbar_on_the_right_frame(tmp_path):
+    for n in range(60):
+        (tmp_path / f"file{n:02}").touch()
+    panel = Panel(tmp_path, width=40, height=20)
+    panel.stylesheet = default_scheme()
+    mounted(panel, size=(40, 20))
+    settle()
+    bar = panel.bar
+    assert bar.visible
+    assert (bar.x, bar.y, bar.width, bar.height) == (39, 1, 1, 18)
+    # Turbo Vision's rule: the bar's value is the cursor, not the scroll.
+    assert (bar.value, bar.maximum) == (0, len(panel.items) - 1)
+    panel.cursor = 45
+    settle()
+    assert bar.value == 45
+
+    buffer = ScreenBuffer(40, 20)
+    panel.render_tree(buffer)
+    column = "".join(buffer.get(39, y)[0] for y in range(1, 19))
+    assert column[0] == "▲" and column[-1] == "▼"
+
+
+def test_working_the_scrollbar_moves_the_cursor_and_the_scroll_follows(tmp_path):
+    for n in range(60):
+        (tmp_path / f"file{n:02}").touch()
+    panel = mounted(Panel(tmp_path, width=40, height=20), size=(40, 20))
+    settle()
+    # A click on the bottom arrow asks for one more; on the track below the
+    # thumb, a page more.
+    awaited(panel.bar.on_mouse_click(MouseClickEvent(0, 17, "left", "press")))
+    settle()
+    assert panel.cursor == 1
+    awaited(panel.bar.on_mouse_click(MouseClickEvent(0, 10, "left", "press")))
+    settle()
+    assert panel.cursor == 1 + panel.page()
+    assert panel.scroll <= panel.cursor < panel.scroll + panel.rows
