@@ -3,14 +3,18 @@
 
 from typing import Any as _Any
 
+from navkit.events import Event as _Event
+
 from navml.component import Component as _Component
 from navml.widgets.control import Control
+from navml.widgets.scroll_bar import ScrollBar
 
 from typing import Any
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
+from navml.widgets.scroll_bar import ScrollEvent
 
 
 class ListViewer(Control, _Component):
@@ -18,6 +22,7 @@ class ListViewer(Control, _Component):
     cursor: int
     scroll: int
     header: int
+    bar: ScrollBar
     error: str | None
     parts: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
@@ -39,6 +44,7 @@ class ListViewer(Control, _Component):
     def row_at(self, y: int) -> int | None: ...
     async def on_mouse_click(self, event: MouseClickEvent) -> bool: ...
     async def on_double_click(self, event: MouseClickEvent) -> bool: ...
+    async def on_bar_scroll(self, event: ScrollEvent) -> bool: ...
     def render(self, surface: Surface) -> None: ...
     def render_header(self, surface: Surface) -> None: ...
     def _render_label(self, surface: Surface, y: int, text: str, part: str) -> None: ...

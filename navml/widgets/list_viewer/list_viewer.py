@@ -26,6 +26,7 @@ from navkit.screen import Surface
 from navkit.style import Style
 
 from navml.widgets.control import Control
+from navml.widgets.scroll_bar import ScrollEvent
 
 #: How many rows one wheel notch moves.
 WHEEL_ROWS = 3
@@ -188,6 +189,15 @@ class ListViewer(Control):
         if event.button != "left" or self.row_at(event.y) is None:
             return False
         return await self.choose()
+
+    async def on_bar_scroll(self, event: ScrollEvent) -> bool:
+        """The user worked the scrollbar: move the cursor where it asked.
+
+        Named by the generator's ``on_<id>_<event>`` convention.  The bar's
+        value is the cursor, so this is the whole of it -- the scroll follows.
+        """
+        self.cursor = event.value
+        return True
 
     # -- painting ------------------------------------------------------------
 
