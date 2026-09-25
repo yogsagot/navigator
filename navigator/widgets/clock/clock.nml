@@ -15,5 +15,5 @@ Clock:
 
     Timer:
         id: tick
-        interval: 1000
+        interval: 500
         on_timer: root.blink = not root.blink
