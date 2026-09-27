@@ -174,6 +174,16 @@ def _quiet_scheduler():
 
 
 @pytest.fixture(autouse=True)
+def _forget_history():
+    """Keep one test's input history out of the next one: the store is shared."""
+    from navml.history import HISTORY
+
+    HISTORY.clear()
+    yield
+    HISTORY.clear()
+
+
+@pytest.fixture(autouse=True)
 def _repository_root(monkeypatch):
     """Run every test from the repository root, whatever pytest was started in.
 

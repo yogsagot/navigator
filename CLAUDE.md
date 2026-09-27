@@ -53,8 +53,11 @@ is DOS Navigator 1.51's own `dlgMainMenu`, transcribed into `navigator/widgets/m
 entry whose feature does not exist greyed. **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`),
 and `MenuBar`/`SubMenu` share `MenuContainer`'s Python API for plugins: `add_item`/`add_submenu`/`add_line` with
 `before=`/`after=` anchors (an entry, a caption, or a command), `remove_entry`, `move_entry`, `entry`,
-`item_for(command)`, plus reactive `hidden`/`disabled` on every entry. *Menus* in `navml/DESIGN.md` has the geometry and the rules. **The next
-tier is** History `[53-56]` and Tree `[104-110]`.
+`item_for(command)`, plus reactive `hidden`/`disabled` on every entry. *Menus* in `navml/DESIGN.md` has the geometry and the rules. **History is
+written** (`[53-56]`): `navml/history.py`'s `HistoryStore`/`HISTORY` (DOS Navigator's `HistList`: per-id lists,
+newest first, 20 each, pinned entries kept) and the `History` button with its `HistoryList` drop-down, which
+`Field(history_id=...)` places after its line; Make directory has `"mkdir"`. *History* in `navml/DESIGN.md` has the
+rest. **The next tier is** Tree `[104-110]`.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

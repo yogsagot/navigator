@@ -56,3 +56,4 @@ class MkdirDialog(Dialog, _Component):
         self.entry.height = 1    # mkdir_dialog.nml:26
         self.entry.label_text = '~N~ame'    # mkdir_dialog.nml:27
         self.entry.label_width = 7    # mkdir_dialog.nml:28
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:30

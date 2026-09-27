@@ -551,12 +551,20 @@ def test_importing_one_component_does_not_load_the_library(package):
         "navml.widgets.dialog.field",
         "navml.widgets.dialog.field.field",
         "navml.widgets.dialog.field.field_nml",
+        "navml.widgets.dialog.history",   # the line's history button
+        "navml.widgets.dialog.history.history",
         "navml.widgets.dialog.input_line",
         "navml.widgets.dialog.input_line.input_line",
         "navml.widgets.dialog.input_line.input_line_nml",
         "navml.widgets.dialog.label",
         "navml.widgets.dialog.label.label",
         "navml.widgets.dialog.label.label_nml",
+        "navml.widgets.dialog.list_viewer",  # the list the history drops
+        "navml.widgets.dialog.list_viewer.list_viewer",
+        "navml.widgets.dialog.list_viewer.list_viewer_nml",
+        "navml.widgets.dialog.scroll_bar",   # and that list's scroll bar
+        "navml.widgets.dialog.scroll_bar.scroll_bar",
+        "navml.widgets.dialog.scroll_bar.scroll_bar_nml",
         "navml.widgets.dialog.static_text",  # Label's shortcut painter
         "navml.widgets.dialog.static_text.static_text",
         "navml.widgets.dialog.static_text.static_text_nml",
@@ -588,7 +596,8 @@ def test_the_lazy_re_exports_are_transparent():
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
         "Button", "CheckBoxes", "Cluster", "Control", "Desktop", "Dialog",
-        "DockLayout", "Field", "GridLayout", "HorizontalLayout", "InputLine",
+        "DockLayout", "Field", "GridLayout", "History", "HorizontalLayout",
+        "InputLine",
         "Label", "Layout", "LinearLayout", "ListViewer", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "RadioButtons", "ScrollBar",
         "Spacer", "StackLayout", "StaticText", "SubMenu", "Timer",

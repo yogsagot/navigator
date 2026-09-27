@@ -37,6 +37,12 @@ from navml.widgets.dialog.control import Control
 class InputLine(Control):
     """One line of editable text, with a caret."""
 
+    #: The :class:`~navml.widgets.dialog.history.History` button beside this
+    #: line, or None.  Set by the button, which names the line it serves; the
+    #: line only needs it for Down, which arrives here because the line holds
+    #: the keyboard and the button is not on the way up from it.
+    history: Any = None
+
     #: Where the caret is, as an index into ``value``.
     cursor: int = reactive(0)
 
@@ -153,6 +159,9 @@ class InputLine(Control):
             self._move(0, shift)
         elif event.key == "end":
             self._move(len(self.value), shift)
+        elif event.matches("down") and self.history is not None:
+            # Turbo Vision's THistory took Down from its focused line.
+            self.history.open()
         else:
             # Enter and Escape are *not* claimed: they belong to the dialog,
             # and a field that swallowed them would make every dialog holding

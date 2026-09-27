@@ -26,3 +26,5 @@ MkdirDialog(Dialog):
         height: 1
         label_text: "~N~ame"
         label_width: 7
+        #: DOS Navigator's ``hsMakeDir``: the names made before, a Down away.
+        history_id: "mkdir"

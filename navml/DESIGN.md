@@ -714,6 +714,52 @@ What is not here yet: the status line has nothing to show while a menu is open, 
 menu's help-context hints. The menu's own key shortcuts are not bound either: `TMenuBar` answered every item's key
 itself, whereas here a key is a key table's, and the menu only reads it.
 
+## History
+
+An input line's history is two parts, and DOS Navigator's sources hold only one of them. `HISTLIST.PAS` is
+Borland's `HistList` rewritten, and the three views — `THistory`, `THistoryWindow`, `THistoryViewer` — are Turbo
+Vision's stock `Dialogs` unit, which is not in the dump. So the store follows DOS Navigator and the views follow
+Borland.
+
+**`navml/history.py` is the store**, `HistoryStore`, with one shared instance, `HISTORY`, where the original had one
+`HistoryBlock`. It keeps a list of strings per *history id*: `"mkdir"` where DOS Navigator had `hsMakeDir`, a string
+rather than a byte. Its rules are `HistoryAdd`'s:
+
+- Newest first.
+- A repeat moves to the front.
+- An empty string is never recorded.
+- **Twenty entries** (`MaxHistorySize`), the oldest unpinned one going first.
+
+**Pinning** is DOS Navigator's addition. Every stored string carried a trailing `' '` or `'+'`; a `'+'` entry is
+never evicted, and a string added again keeps its flag. The store saves to and loads from plain data
+(`to_data` / `load_data`), so whoever owns a configuration file decides where it lives. Navigator does not persist
+it yet.
+
+**`History` is the button** (`navml/widgets/dialog/history/`), and every measurement is Turbo Vision's:
+
+- It is three cells, `▐↓▌`, placed straight after its line, as a dialog script placed `History 44, 2, hsMakeDir`
+  after `InputLine 2, 2, 44, 3`. The arrow uses slot [53] and the half-blocks [54]. An ASCII terminal gets `[v]`.
+- A click, or Down in the linked line, **records what the line holds and then drops the list**. The list is one
+  column wider than the line on either side, starts on the row above it, is eight rows tall, and is clipped to the
+  modal the line is in. It opens on the **second** entry, because Turbo Vision's viewer did so unconditionally: the
+  first is normally the text just recorded. With an empty line nothing was recorded, and the focus lands one entry
+  older. That is Borland's behaviour, kept.
+- Enter or a double click puts the entry into the line, selected whole so that typing replaces it. Esc leaves the
+  line alone.
+- **Down reaches the line, not the button**, because the line holds the keyboard and the button is not on the way
+  up from it. So the button registers itself as `InputLine.history` when it mounts. That plain attribute is the
+  one coupling, and the line imports nothing for it.
+
+**The dropped list is a `ListViewer`** (`HistoryList`), made modal and overlaid. Turbo Vision composed a window, a
+viewer and a scroll bar, and a `ListViewer` is all three already: its frame, its rows, and a bar on its right edge.
+It is coloured as `CHistoryWindow` coloured it: frame and rows in the input line's own [50], the selected row
+[51], and its scroll bar [55]/[56]. Turbo Vision's close icon on its frame is not drawn.
+
+**Accepting a dialog records every line in it that has a history**, which is what Turbo Vision's `cmRecordHistory`
+broadcast did: `Dialog.on_ok_click` walks the dialog for `History` buttons before it closes. Cancelling records
+nothing. `Field` takes a `history_id` and puts the button after its line when one is given, which is how
+Make directory got DOS Navigator's `hsMakeDir`.
+
 ## What Textual has that the library takes
 
 Textual (`github.com/Textualize/textual`, read at 8.2.8) is the nearest neighbour: a Python TUI framework with a

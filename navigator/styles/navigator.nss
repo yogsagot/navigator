@@ -135,6 +135,17 @@ InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-norma
 InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg }
 InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg }
 InputLine::arrow      { fg: $dialog-input-arrow-fg;      bg: $dialog-input-arrow-bg }
+/* The history button, [53] and [54]; and the list it drops, which Turbo
+   Vision's CHistoryWindow draws in the input line's own colours -- frame and
+   rows [50], the selected row [51] -- with a scroll bar of its own, [55] and
+   [56]. */
+History                          { fg: $dialog-history-sides-fg;     bg: $dialog-history-sides-bg }
+History::arrow                   { fg: $dialog-history-button-fg;    bg: $dialog-history-button-bg }
+HistoryList                      { fg: $dialog-input-normal-fg;      bg: $dialog-input-normal-bg }
+HistoryList::row:selected        { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg }
+HistoryList ScrollBar            { fg: $dialog-history-bar-page-fg;  bg: $dialog-history-bar-page-bg }
+HistoryList ScrollBar::arrow,
+HistoryList ScrollBar::thumb     { fg: $dialog-history-bar-icons-fg; bg: $dialog-history-bar-icons-bg }
 
 CheckBoxes, RadioButtons     { fg: $dialog-cluster-normal-fg;   bg: $dialog-cluster-normal-bg }
 CheckBoxes::item:selected,

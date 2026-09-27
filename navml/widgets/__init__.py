@@ -42,6 +42,7 @@ _COMPONENTS = {
     "DockLayout": "layout.dock_layout",
     "Field": "dialog.field",
     "GridLayout": "layout.grid_layout",
+    "History": "dialog.history",
     "HorizontalLayout": "layout.horizontal_layout",
     "InputLine": "dialog.input_line",
     "Label": "dialog.label",
@@ -118,6 +119,7 @@ if TYPE_CHECKING:
     from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.dialog.field import Field
     from navml.widgets.layout.grid_layout import GridLayout
+    from navml.widgets.dialog.history import History
     from navml.widgets.layout.horizontal_layout import HorizontalLayout
     from navml.widgets.dialog.input_line import InputLine
     from navml.widgets.dialog.label import Label

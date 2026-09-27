@@ -18,6 +18,7 @@ from navkit.terminal import CURSOR_SHAPES
 class InputLine(Control, _Component):
     value: str
     max_length: int
+    history: Any
     cursor: int
     first: int
     anchor: int | None

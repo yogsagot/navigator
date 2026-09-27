@@ -32,6 +32,7 @@ from navkit.reactive import reactive
 from navkit.widget import Widget
 
 from navml.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.history import History
 from navml.widgets.dialog.modal import Modal
 
 
@@ -174,8 +175,23 @@ class Dialog(Modal):
 
     async def on_ok_click(self, event: Event) -> bool:
         """``ok`` was clicked, and the generated half said so by name."""
+        self.record_history()
         self.close(self.accept())
         return True
+
+    def record_history(self) -> None:
+        """Remember every line in this dialog that has a history button.
+
+        What accepting a dialog did in Turbo Vision, by its ``cmRecordHistory``
+        broadcast.  Cancelling records nothing, so a mistyped name abandoned
+        with Esc does not come back to be picked.
+        """
+        stack = list(self.children)
+        while stack:
+            widget = stack.pop()
+            if isinstance(widget, History):
+                widget.record()
+            stack.extend(widget.children)
 
     async def on_click(self, event: Event) -> bool:
         """Any click a more specific handler did not claim.
