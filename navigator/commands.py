@@ -1,6 +1,7 @@
 """What the user can ask Navigator for, by name rather than by key.
 
-The ten key bar commands carry DOS Navigator's own captions as their titles,
+The key bar commands carry DOS Navigator's own captions as their titles --
+the file panel's status line, ``StatusDef hcFilePanel`` in ``DN.DNR`` --
 because the key bar is where they are read.  Most of them have no handler yet
 -- View, Edit, Copy and the rest are the file operations still to be written
 -- and a command nobody handles is a disabled one, so the key bar shows them
@@ -8,8 +9,8 @@ in the status line's *Disabled* colour until they exist.  That is the original
 behaving as it did whenever a command was unavailable, not a placeholder look.
 
 Where each is bound says whose it is: the panel commands on ``Manager``, since
-they act on a panel; Help, the pull-down menu and the ways out on the
-application, since they mean the same wherever the focus is.
+they act on a panel; Help, the menu and the way out on the application, since
+they mean the same wherever the focus is.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ class Help(Command):
 
 
 class UserMenu(Command):
-    title = "Menu"
+    title = "User"
 
 
 class View(Command):
@@ -40,19 +41,15 @@ class Copy(Command):
 
 
 class RenameMove(Command):
-    title = "RenMov"
+    title = "Ren"
 
 
 class MakeDirectory(Command):
-    title = "Mkdir"
+    title = "MkDir"
 
 
 class Delete(Command):
-    title = "Delete"
-
-
-class PullDown(Command):
-    title = "PullDn"
+    title = "Del"
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,7 +62,7 @@ class Quit(Command):
     commands, because both mean *quit* and a key bar shows them as one.
     """
 
-    title = "Quit"
+    title = "Exit"
 
     desktop: bool = False
 
@@ -88,7 +85,6 @@ __all__ = [
     "Edit",
     "Help",
     "MakeDirectory",
-    "PullDown",
     "Quit",
     "RenameMove",
     "Rescan",

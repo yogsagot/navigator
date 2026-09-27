@@ -1,8 +1,8 @@
 """The commands the widget library runs: Turbo Vision's window and dialog set.
 
 Named after ``cmClose``, ``cmZoom``, ``cmResize``, ``cmNext``, ``cmPrev``,
-``cmCancel`` and ``cmDefault``, with ``Window`` spelled out where the bare
-word would be a handler name somebody else already means -- ``Resize`` would
+``cmCancel``, ``cmDefault`` and ``cmMenu``, with ``Window`` spelled out where
+the bare word would be a handler name somebody else already means -- ``Resize`` would
 be delivered to ``on_resize``, which is :class:`~navkit.events.ResizeEvent`'s.
 Tab and Shift+Tab are commands here too, where Turbo Vision had ``TGroup``
 select the next view directly: as commands they are rebindable, and a dialog
@@ -61,6 +61,15 @@ class Default(Command):
     title = "OK"
 
 
+class OpenMenu(Command):
+    """Highlight the menu bar's first entry and give it the keyboard: ``cmMenu``.
+
+    Handled by whoever holds the bar, since a bar is nowhere near the focus.
+    """
+
+    title = "Menu"
+
+
 class SelectNext(Command):
     """Move the keyboard to the next control."""
 
@@ -74,6 +83,7 @@ __all__ = [
     "CloseWindow",
     "Default",
     "NextWindow",
+    "OpenMenu",
     "PreviousWindow",
     "SelectNext",
     "SelectPrevious",

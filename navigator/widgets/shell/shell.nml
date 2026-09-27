@@ -1,7 +1,7 @@
 from navigator.widgets.clock import Clock
 from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
-from navigator.widgets.menubar import MenuBar
+from navigator.widgets.main_menu import MainMenu
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 
@@ -26,7 +26,7 @@ Shell(DockLayout):
     #: ``visible`` line reads, which is the whole of Ctrl+O.
     property console_visible: False
 
-    MenuBar:
+    MainMenu:
         id: menu
         style:
             dock: top

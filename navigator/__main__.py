@@ -30,7 +30,8 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator.commands import Help, PullDown, Quit, ToggleConsole
+from navigator.commands import Help, Quit, ToggleConsole
+from navml.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
 from navigator.widgets.shell import Shell
@@ -62,15 +63,15 @@ class Navigator(Application):
     #: what makes it the right place for exactly these and the wrong place for
     #: anything else: whatever is bound here is kept from the console, from
     #: the panels and from every dialog not yet written.  Ctrl+O is the way in
-    #: and out of the console, and F10 and Ctrl+Q are the way out of Navigator
-    #: -- all of which have to work while a child program is eating every
-    #: other keystroke.  F1 and F9 are here because Help and the menus are
-    #: not a panel's; neither has a handler yet, so both are disabled, and a
-    #: disabled command's key is left for whoever is next -- the console's
-    #: child gets F1 while Ctrl+O is showing it.
+    #: and out of the console and F10 is DOS Navigator's ``cmMenu`` -- both of
+    #: which have to work while a child program is eating every other
+    #: keystroke, and F10 is how File > Exit is reached from the console.  F1
+    #: is here because Help is not a panel's; it has no handler yet, so it is
+    #: disabled, and a disabled command's key is left for whoever is next --
+    #: the console's child gets F1 while Ctrl+O is showing it.  Ctrl+Q is not
+    #: here: it is DOS Navigator's Quick view, and quitting is Alt+X.
     #:
-    #: **Alt+X is the third way out, and it is here because a window can be
-    #: closed.**  It lived on ``Manager`` once, and closing the file manager
+    #: **Alt+X is here because a window can be closed.**  It lived on ``Manager`` once, and closing the file manager
     #: took the key with it.  It is still a desktop key rather than a global
     #: one, which is what ``Quit(desktop=True)`` and :meth:`enables` say: while
     #: Ctrl+O has put the windows away it is Meta+X for the child.
@@ -80,9 +81,7 @@ class Navigator(Application):
     keys = {
         "ctrl+o": ToggleConsole,
         "f1": Help,
-        "f9": PullDown,
-        "f10": Quit,
-        "ctrl+q": Quit,
+        "f10": OpenMenu,
         "alt+x": Quit(desktop=True),
     }
 

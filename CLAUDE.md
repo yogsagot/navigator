@@ -47,8 +47,14 @@ nothing and emits `TimerEvent` every `interval` ms — Navigator's `Clock` (`nav
 menu bar, `HH:MM` with a blinking colon, coloured by the Colors dialog's *Timer* slot `[1]`) is built on it.
 `navigator/styles/navigator.nss` binds them to the `$dialog-*` variables the eleven themes had been carrying inert,
 and **F7 Mkdir is the first dialog wired into the application**, proved on a pty. *The widget library* in
-`navml/DESIGN.md` records what each decision cost. **The next tier is menus** — `[2-7]` — then History `[53-56]` and
-Tree `[104-110]`.
+`navml/DESIGN.md` records what each decision cost. **Menus are written** (`navml/widgets/menu/`, slots `[2-7]`):
+`MenuBar`, `MenuBox`, and `SubMenu`/`MenuItem`/`MenuLine` blocks that are invisible data widgets. Navigator's menu
+is DOS Navigator 1.51's own `dlgMainMenu`, transcribed into `navigator/widgets/main_menu/main_menu.nml`, with every
+entry whose feature does not exist greyed. **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`),
+and `MenuBar`/`SubMenu` share `MenuContainer`'s Python API for plugins: `add_item`/`add_submenu`/`add_line` with
+`before=`/`after=` anchors (an entry, a caption, or a command), `remove_entry`, `move_entry`, `entry`,
+`item_for(command)`, plus reactive `hidden`/`disabled` on every entry. *Menus* in `navml/DESIGN.md` has the geometry and the rules. **The next
+tier is** History `[53-56]` and Tree `[104-110]`.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 
@@ -319,7 +325,7 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
   stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
-  it back, F10 or Ctrl+Q quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
+  it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw
 - Regenerate the colour schemes from a DOS Navigator distribution:
@@ -684,8 +690,8 @@ also the widget that showed why a navigated property is seeded rather than bound
   markup `keys:` block (root block only). It is consulted at each step of the focus path before that widget's
   `on_key`, and the application's table before the tree, never under a modal. **The nearest widget with the
   handler decides whether the command is enabled**, through `enables(command)`, and a command nobody handles is
-  disabled. A disabled command's key falls through as if unbound. `Navigator.keys` holds Ctrl+O, F1, F9, F10,
-  Ctrl+Q and Alt+X; `manager.nml` holds Tab, Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
+  disabled. A disabled command's key falls through as if unbound. `Navigator.keys` holds Ctrl+O, F1, F10 (the
+  menu) and Alt+X; `manager.nml` holds Tab, Alt+R/Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
   `dialog.nml` holds Esc, Enter and Tab. Navigator's commands are in `navigator/commands.py`, the library's in
   `navml/commands.py`. Alt+X is on the application because a way out cannot live on a window the user can close, and
   it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while Ctrl+O has put windows away, so the child gets

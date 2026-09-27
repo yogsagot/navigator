@@ -284,9 +284,9 @@ def test_the_window_keys(desk):
     second = desktop.open(window(20, 5, 30, 10))
     handle(app, KeyEvent("f6", ctrl=True))
     assert desktop.active_window is first
-    handle(app, KeyEvent("f5", shift=True))
+    handle(app, KeyEvent("z", "z", alt=True))
     assert first.zoomed
-    handle(app, KeyEvent("f3", alt=True))
+    handle(app, KeyEvent("f4", ctrl=True))
     assert first.parent is None and desktop.active_window is second
 
 

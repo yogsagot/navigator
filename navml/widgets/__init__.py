@@ -48,12 +48,17 @@ _COMPONENTS = {
     "Layout": "layout.layout",
     "LinearLayout": "layout.layout",
     "ListViewer": "dialog.list_viewer",
+    "MenuBar": "menu.menu_bar",
+    "MenuBox": "menu.menu_box",
+    "MenuItem": "menu.menu_item",
+    "MenuLine": "menu.menu_line",
     "Modal": "dialog.modal",
     "RadioButtons": "dialog.radio_buttons",
     "ScrollBar": "dialog.scroll_bar",
     "Spacer": "spacer",
     "StackLayout": "layout.stack_layout",
     "StaticText": "dialog.static_text",
+    "SubMenu": "menu.sub_menu",
     "Timer": "timer",
     "VerticalLayout": "layout.vertical_layout",
     "Window": "window",
@@ -118,6 +123,11 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.label import Label
     from navml.widgets.layout.layout import Layout, LinearLayout
     from navml.widgets.dialog.list_viewer import ListViewer
+    from navml.widgets.menu.menu_bar import MenuBar
+    from navml.widgets.menu.menu_box import MenuBox
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.menu_line import MenuLine
+    from navml.widgets.menu.sub_menu import SubMenu
     from navml.widgets.dialog.modal import Modal
     from navml.widgets.dialog.radio_buttons import RadioButtons
     from navml.widgets.dialog.scroll_bar import ScrollBar

@@ -56,36 +56,37 @@ class Manager(Window, _Component):
     #: handler in ``manager.py`` is disabled, and greyed on the bar.
     keys = {    # manager.nml:34
         'tab': SwitchPanel,    # manager.nml:35
-        'ctrl+r': Rescan,    # manager.nml:36
-        'f2': UserMenu,    # manager.nml:37
-        'f3': View,# manager.nml:38
-        'f4': Edit,# manager.nml:39
-        'f5': Copy,# manager.nml:40
-        'f6': RenameMove,    # manager.nml:41
-        'f7': MakeDirectory,    # manager.nml:42
-        'f8': Delete,    # manager.nml:43
+        'alt+r': Rescan,    # manager.nml:36
+        'ctrl+r': Rescan,    # manager.nml:37
+        'f2': UserMenu,    # manager.nml:38
+        'f3': View,# manager.nml:39
+        'f4': Edit,# manager.nml:40
+        'f5': Copy,# manager.nml:41
+        'f6': RenameMove,    # manager.nml:42
+        'f7': MakeDirectory,    # manager.nml:43
+        'f8': Delete,    # manager.nml:44
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    panels: HorizontalLayout    # manager.nml:46
-    left: Panel    # manager.nml:53
-    right: Panel    # manager.nml:57
+    panels: HorizontalLayout    # manager.nml:47
+    left: Panel    # manager.nml:54
+    right: Panel    # manager.nml:58
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.panels = HorizontalLayout(parent=self)    # manager.nml:45
-        self.left = Panel(parent=self.panels)    # manager.nml:52
-        self.right = Panel(parent=self.panels)    # manager.nml:56
+        self.panels = HorizontalLayout(parent=self)    # manager.nml:46
+        self.left = Panel(parent=self.panels)    # manager.nml:53
+        self.right = Panel(parent=self.panels)    # manager.nml:57
 
         self.zoomed = True    # manager.nml:25
         self.min_width = 24    # manager.nml:26
         self.min_height = 5    # manager.nml:27
 
-        self.panels.x = 0    # manager.nml:47
-        self.panels.y = 0    # manager.nml:48
-        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:49
-        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:50
+        self.panels.x = 0    # manager.nml:48
+        self.panels.y = 0    # manager.nml:49
+        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:50
+        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:51
 
-        self.left.title_margin = 5    # manager.nml:54
+        self.left.title_margin = 5    # manager.nml:55
 
-        self.right.title_margin = 5    # manager.nml:58
+        self.right.title_margin = 5    # manager.nml:59

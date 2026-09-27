@@ -33,6 +33,7 @@ Manager(Window):
     #: handler in ``manager.py`` is disabled, and greyed on the bar.
     keys:
         tab: SwitchPanel
+        alt+r: Rescan
         ctrl+r: Rescan
         f2: UserMenu
         f3: View

@@ -940,13 +940,19 @@ class Application:
         """
         return await commands.run(self, binding)
 
-    def command_enabled(self, binding: commands.Binding) -> bool:
-        """Whether asking for *binding*'s command now would run it."""
-        return commands.enabled(self, binding)
+    def command_enabled(
+        self, binding: commands.Binding, start: Widget | None = None
+    ) -> bool:
+        """Whether asking for *binding*'s command now would run it.
 
-    def bindings(self) -> dict[str, commands.Command]:
+        *start* asks from a widget other than the focus -- see
+        :func:`navkit.commands.origin`.
+        """
+        return commands.enabled(self, binding, start)
+
+    def bindings(self, start: Widget | None = None) -> dict[str, commands.Command]:
         """Every key that asks for a command right now -- what a key bar shows."""
-        return commands.bindings(self)
+        return commands.bindings(self, start)
 
     def enables(self, command: commands.Command) -> bool:
         """Whether the application will run *command* now.  See

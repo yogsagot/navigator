@@ -2003,6 +2003,7 @@ hover then follows presses alone.
   `?1049` without obeying it — and that is worth doing only once something actually launches an editor.
 - ~~Where the console's key routing belongs.~~ **Answered by focus, as predicted, and it took three methods instead
   of one.** `Navigator.on_key` keeps only what means the same thing wherever the focus is — Ctrl+O, and F10/Ctrl+Q —
+  (since superseded twice: it is `Navigator.keys` now, a key table, and F10 is DOS Navigator's menu, not Quit)
   because an application hook runs before the widgets, so whatever is kept there is kept from the console, from the
   panels and from every dialog not yet written. `Console.on_key` keeps the scrollback and sends the rest to the child.
   `Manager.on_key` keeps the panel keys. **The `if manager.console_visible:` that used to arbitrate is gone

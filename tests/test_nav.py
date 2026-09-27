@@ -371,12 +371,14 @@ def test_enter_descends_in_the_active_panel(tree):
     assert app.manager.left.path == tree / "alpha"
 
 
-@pytest.mark.parametrize("quit_key", [KeyEvent("f10"), KeyEvent("q", ctrl=True)])
-def test_quit_keys_stop_the_application(tree, quit_key):
+def test_f10_is_the_menu_and_holds_the_keys_after_it(tree):
+    # DOS Navigator's F10 is cmMenu, not Quit: it highlights the first entry
+    # on the bar, and the keys after it are the menu's.
     app = navigator(tree)
-    run_app(app, [quit_key, KeyEvent("down")])
-    assert app.is_running is False
-    # The key after the quit was never acted on.
+    seen = []
+    run_app(app, [KeyEvent("f10"), KeyEvent("down"),
+                  lambda a: seen.append((a.shell.menu.current, a.is_running))])
+    assert seen == [(0, True)]
     assert app.manager.left.cursor == 0
 
 
@@ -661,11 +663,12 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.console.console",
         "navigator.widgets.keybar",
         "navigator.widgets.keybar.keybar",
+        "navigator.widgets.main_menu",
+        "navigator.widgets.main_menu.main_menu",
+        "navigator.widgets.main_menu.main_menu_nml",
         "navigator.widgets.manager",
         "navigator.widgets.manager.manager",
         "navigator.widgets.manager.manager_nml",
-        "navigator.widgets.menubar",
-        "navigator.widgets.menubar.menubar",
         "navigator.widgets.mkdir_dialog",          # F7, imported by the desktop
         "navigator.widgets.mkdir_dialog.mkdir_dialog",
         "navigator.widgets.mkdir_dialog.mkdir_dialog_nml",
@@ -732,7 +735,7 @@ def test_the_menu_bar_and_key_bar_stay_over_the_console(tree, quiet_console):
                   lambda a: a.shell.console._on_output(b"previous output")])
     buffer = desktop(app)
     assert "File" in row_of(buffer, 0)  # the menu bar, still there
-    assert "Quit" in row_of(buffer, 23)  # the key bar, still there
+    assert "Menu" in row_of(buffer, 23)  # the key bar, still there
     assert "previous output" in row_of(buffer, 1)  # and the output behind them
     # The panels really are gone rather than merely covered.
     assert "╔" not in row_of(buffer, 1)
@@ -763,8 +766,11 @@ def test_keys_go_to_the_console_while_it_is_showing(tree, quiet_console):
 
 
 def test_quit_still_works_from_the_console(tree, quiet_console):
+    # Alt+X is the child's while the console is over the windows, so the way
+    # out is the one DOS Navigator gave: F10, File, Exit.
     app = navigator(tree)
-    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("f10"), KeyEvent("down")])
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("f10"),
+                  KeyEvent("f", "f"), KeyEvent("x", "x")])
     assert app.is_running is False
 
 
@@ -1108,7 +1114,7 @@ def test_alt_x_quits_once_the_file_manager_is_closed(tree, quiet_console):
     # It used to be Manager's, so closing the window took the key with it.
     app = navigator(tree)
     run_app(app, [
-        KeyEvent("f3", alt=True),
+        KeyEvent("f4", ctrl=True),
         lambda a: None,
         KeyEvent("x", "x", alt=True),
     ])
@@ -1147,13 +1153,14 @@ def test_the_application_keeps_only_what_is_global():
     # The application's table is consulted before any widget's, so what it
     # binds is kept from the whole tree -- the ways in and out of the console
     # and of Navigator, and the two commands that are nobody's panel's.
-    from navigator.commands import Help, PullDown, Quit, ToggleConsole
+    from navigator.commands import Help, Quit, ToggleConsole
+    from navml.commands import OpenMenu
 
     table = key_table(Navigator)
-    assert set(table) == {"ctrl+o", "f1", "f9", "f10", "ctrl+q", "alt+x"}
+    assert set(table) == {"ctrl+o", "f1", "f10", "alt+x"}
     assert table["ctrl+o"] is ToggleConsole
-    assert (table["f1"], table["f9"]) == (Help, PullDown)
-    assert table["f10"] is table["ctrl+q"] is Quit
+    assert table["f1"] is Help
+    assert table["f10"] is OpenMenu
     assert table["alt+x"] == Quit(desktop=True)
 
 
@@ -1382,7 +1389,7 @@ def test_ctrl_o_and_f10_wait_while_a_dialog_is_open(tmp_path, quiet_console):
 
 def test_closing_the_file_manager_leaves_the_console(tree, quiet_console):
     app = navigator(tree)
-    run_app(app, [KeyEvent("f3", alt=True), lambda a: None, lambda a: None])
+    run_app(app, [KeyEvent("f4", ctrl=True), lambda a: None, lambda a: None])
     assert app.manager.parent is None
     assert app.shell.console_visible is True
     assert app.focused is app.shell.console
@@ -1504,26 +1511,24 @@ def test_working_the_scrollbar_moves_the_cursor_and_the_scroll_follows(tmp_path)
 # -- the key bar reads the key tables ---------------------------------------------
 
 
-CAPTIONS = ["Help", "Menu", "View", "Edit", "Copy", "RenMov", "Mkdir", "Delete",
-            "PullDn", "Quit"]
+#: DOS Navigator's own file-panel status line, ``StatusDef hcFilePanel``.
+STATUS = " F1 Help  F2 User  F3 View  F4 Edit  F5 Copy  F6 Ren  F7 MkDir  F8 Del  F10 Menu"
 
 
-def test_the_key_bar_captions_are_the_bound_commands_titles(tree):
+def test_the_key_bar_is_dos_navigators_status_line(tree):
     app = navigator(tree)
-    seen = []
-    run_app(app, [lambda a: seen.append(a.shell.keybar.commands())])
-    (commands,) = seen
-    assert [c.title for c in commands] == CAPTIONS
+    run_app(app, [])
+    assert row_of(desktop(app), 23).rstrip() == STATUS
 
 
 def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
     app = navigator(tree)
     enabled = []
     run_app(app, [lambda a: enabled.extend(
-        a.command_enabled(c) for c in a.shell.keybar.commands()
+        (c.title, a.command_enabled(c)) for _, c, _, _ in a.shell.keybar.items()
     )])
-    # Mkdir and Quit are written; the rest are file operations still to come.
-    assert [title for title, on in zip(CAPTIONS, enabled) if on] == ["Mkdir", "Quit"]
+    # MkDir and the menu work; the rest are file operations still to come.
+    assert [title for title, on in enabled if on] == ["MkDir", "Menu"]
 
 
 def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):
@@ -1531,26 +1536,25 @@ def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):
     seen = []
     run_app(app, [
         KeyEvent("o", ctrl=True),
-        lambda a: seen.append(a.shell.keybar.commands()),
+        lambda a: seen.append([c.title for _, c, _, _ in a.shell.keybar.items()]),
     ])
-    (commands,) = seen
     # The panel keys are the file manager's, and the console has the keyboard.
-    shown = [c.title if c else None for c in commands]
-    assert shown == ["Help"] + [None] * 7 + ["PullDn", "Quit"]
+    assert seen == [["Help", "Menu"]]
 
 
-def test_a_click_on_a_caption_asks_for_its_command(tree):
+def test_a_click_on_an_item_asks_for_its_command(tree):
     app = navigator(tree)
-    slot = 80 // 10
-    run_app(app, [MouseClickEvent(9 * slot + 1, 23, "left")])
-    assert app.is_running is False
+    column = STATUS.index("F10")
+    run_app(app, [MouseClickEvent(column, 23, "left"),
+                  lambda a: None])
+    assert app.shell.menu.current == 0
 
 
 def test_a_click_on_a_greyed_caption_does_nothing_and_goes_nowhere(tree):
     app = navigator(tree)
     cursor = []
     run_app(app, [
-        MouseClickEvent(2 * 8 + 1, 23, "left"),
+        MouseClickEvent(STATUS.index("F3"), 23, "left"),
         lambda a: cursor.append((a.is_running, a.modal)),
     ])
     assert cursor == [(True, None)]
@@ -1568,3 +1572,118 @@ def test_alt_x_is_vetoed_while_the_console_is_over_the_windows(tree, quiet_conso
         lambda a: answers.append(a.command_enabled(Quit)),
     ])
     assert answers == [True, False, True]
+
+
+# -- DOS Navigator's main menu ------------------------------------------------------
+
+
+def _entry(menu, *captions):
+    """The entry reached by following *captions* down the menu tree."""
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    node = menu
+    for caption in captions:
+        node = next(e for e in node.entries()
+                    if parse_shortcut(getattr(e, "text", ""))[0] == caption)
+    return node
+
+
+def test_the_menu_is_dos_navigators_own(tree):
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    app = navigator(tree)
+    bar = [parse_shortcut(e.text)[0] for e in app.shell.menu.entries()]
+    assert bar == ["≡", "File", "Disk", "Utilities", "Panel", "Manager",
+                   "Options", "Window"]
+
+
+def test_the_menu_makes_a_directory_like_f7_does(tree):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [KeyEvent("f10"), KeyEvent("f", "f"), KeyEvent("m", "m"),
+                  lambda a: None, lambda a: seen.append(type(a.modal).__name__)])
+    assert seen == ["MkdirDialog"]
+
+
+def test_alt_letter_drops_its_menu_from_the_panels(tree):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [KeyEvent("d", "d", alt=True),
+                  lambda a: seen.append((a.shell.menu.current, len(a.modal.boxes)))])
+    assert seen == [(2, 1)]  # Disk, dropped
+
+
+def test_a_bound_entry_shows_its_live_key_and_an_unbound_one_dos_navigators(tree):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(tree)
+    menu, behind = app.shell.menu, app.manager.left
+    captions = []
+    run_app(app, [lambda a: captions.extend(
+        key_caption(_entry(menu, *path), a, behind) for path in (
+            ("File", "Make directory"),     # bound: F7
+            ("File", "Exit"),               # unbound Quit(): the original's
+            ("Panel", "Re-read"),           # bound twice: the first binding
+            ("Window", "Zoom"),             # the desktop's table
+            ("Utilities", "Calculator"),    # no command at all
+        )
+    )])
+    assert captions == ["F7", "Alt-X", "Alt-R", "Alt-Z", "Ctrl-F6"]
+
+
+def test_only_entries_with_a_handler_behind_them_are_enabled(tree):
+    from navml.widgets.menu.menu_box import MenuBox
+
+    app = navigator(tree)
+    seen = []
+
+    def probe(a):
+        box = MenuBox(_entry(a.shell.menu, "File"))
+        box.behind = a.manager.left
+        a.shell.add(box)
+        seen.extend(parse(e.text) for e in box.entries()
+                     if not isinstance(e, MenuLine) and box.enabled(e))
+        a.shell.remove(box)
+
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_line import MenuLine
+
+    def parse(text):
+        return parse_shortcut(text)[0]
+
+    run_app(app, [probe])
+    assert seen == ["View", "Edit", "Make directory", "Exit"]
+
+
+def test_a_nested_menu_shades_the_box_it_opened_from(tree):
+    # Options > Configuration opens inside the Options box, and its shadow
+    # falls on it -- which it only does if each box is painted over its own
+    # shadow in turn, as Turbo Vision drew them.
+    from navml.widgets.menu.menu_bar.menu_session import SHADOW
+
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        buffer = desktop(a)
+        parent, nested = a.modal.boxes
+        x, y = nested.x + nested.width, nested.y + 1
+        seen.append((parent.contains(x, y), buffer.get(x, y)[1] == SHADOW))
+
+    run_app(app, [KeyEvent("o", "o", alt=True), KeyEvent("right"), look])
+    assert seen == [(True, True)]
+
+
+def test_every_menu_has_an_id_a_plugin_can_reach_it_by(tree):
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    menu = navigator(tree).shell.menu
+    ids = ["system", "file", "file_view", "file_edit", "disk", "utilities",
+           "panel", "manager", "options", "options_configuration",
+           "options_file_manager", "options_archives", "window"]
+    assert all(isinstance(getattr(menu, name), SubMenu) for name in ids)
+    assert menu.file_view.parent is menu.file
+    # And the one-line way in for a plugin.
+    menu.file.add_item("~Z~ip...", key="Alt-Z", after="Make directory")
+    assert menu.file.entries()[menu.file.entries().index(
+        menu.file.entry("Make directory")) + 1].text == "~Z~ip..."

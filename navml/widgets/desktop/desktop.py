@@ -51,17 +51,19 @@ class Desktop(Widget):
 
     emits = (EmptiedEvent,)
 
-    #: The window keys.  One table so that the bindings can be checked against
-    #: DOS Navigator's own menus in one place; Turbo Vision's F5 and F6 are
-    #: Copy and Move in the panels, so the zoom and next-window keys take a
-    #: modifier.  Consulted after the active window's own children, because
-    #: this desktop is further from the focus than they are.
+    #: The window keys, checked against DOS Navigator's own *Window* menu
+    #: (``dlgMainMenu`` in ``DN.DNR``): Size/Move Ctrl-F5, Zoom Alt-Z, Close
+    #: Ctrl-F4.  Its Next and Previous are Alt-Tab and Ctrl-Tab, which a
+    #: terminal cannot deliver -- the window manager takes the one, and the
+    #: other arrives as a plain Tab -- so those two keep Ctrl-F6 and
+    #: Ctrl-Shift-F6.  Consulted after the active window's own children,
+    #: because this desktop is further from the focus than they are.
     keys = {
         "ctrl+f5": SizeMoveWindow,
-        "shift+f5": ZoomWindow,
+        "alt+z": ZoomWindow,
         "ctrl+f6": NextWindow,
         "ctrl+shift+f6": PreviousWindow,
-        "alt+f3": CloseWindow,
+        "ctrl+f4": CloseWindow,
     }
 
     #: The top window, which has the keyboard.  None on an empty desktop.

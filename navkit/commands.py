@@ -155,14 +155,20 @@ def key_table(cls: type) -> dict[str, Binding]:
 # -- where a command goes -------------------------------------------------------
 
 
-def origin(app: Application) -> Widget | None:
+def origin(app: Application, start: Widget | None = None) -> Widget | None:
     """The widget a command starts from: the one holding the keyboard.
 
     Asked the way :meth:`~navkit.widget.Widget.dispatch_key` asks it -- the
     focus path inside the modal, or inside the root -- so a command never
     starts somewhere a key could not have reached.  With nothing holding the
     keyboard it starts at the modal or the root itself.
+
+    *start* overrides all of that with a widget of the caller's choosing.  A
+    menu is the case it is for: while one is open it holds the input, so the
+    question it asks -- *could Mkdir run?* -- is about the focus behind it.
     """
+    if start is not None:
+        return start
     scope = app.modal or app.root
     if scope is None:
         return None
@@ -170,16 +176,16 @@ def origin(app: Application) -> Widget | None:
     return path[0] if path else scope
 
 
-def chain(app: Application) -> Iterable[Any]:
+def chain(app: Application, start: Widget | None = None) -> Iterable[Any]:
     """The origin, its ancestors, then the application: where a command goes."""
-    widget = origin(app)
+    widget = origin(app, start)
     while widget is not None:
         yield widget
         widget = widget.parent
     yield app
 
 
-def target(app: Application, command: Command) -> Any:
+def target(app: Application, command: Command, start: Widget | None = None) -> Any:
     """Whoever would run *command* now, or None if it is disabled.
 
     The nearest object on :func:`chain` with a handler decides: it runs the
@@ -187,18 +193,22 @@ def target(app: Application, command: Command) -> Any:
     further out would let a distant handler answer for a command the nearer
     one has just declared impossible here.
     """
-    for candidate in chain(app):
+    for candidate in chain(app, start):
         if getattr(candidate, command.handler, None) is not None:
             return candidate if candidate.enables(command) else None
     return None
 
 
-def enabled(app: Application, binding: Binding) -> bool:
+def enabled(
+    app: Application, binding: Binding, start: Widget | None = None
+) -> bool:
     """Whether *binding*'s command would run if it were asked for now."""
-    return target(app, command_of(binding)) is not None
+    return target(app, command_of(binding), start) is not None
 
 
-async def run(app: Application, binding: Binding) -> bool:
+async def run(
+    app: Application, binding: Binding, start: Widget | None = None
+) -> bool:
     """Ask for *binding*'s command.  False if disabled or nobody claimed it.
 
     Emitted from :func:`origin`, so it walks the same chain :func:`target`
@@ -206,32 +216,80 @@ async def run(app: Application, binding: Binding) -> bool:
     event.
     """
     command = command_of(binding)
-    if target(app, command) is None:
+    if target(app, command, start) is None:
         return False
-    start = origin(app)
-    if start is not None:
-        return await start.emit(command)
+    first = origin(app, start)
+    if first is not None:
+        return await first.emit(command)
     # No tree at all: the application is the whole chain.
     from navkit.widget import _call
 
     return await _call(app, command, getattr(app, command.handler))
 
 
-def bindings(app: Application) -> dict[str, Command]:
+def bindings(app: Application, start: Widget | None = None) -> dict[str, Command]:
     """Every key that asks for a command right now, and the command it asks for.
 
     What a key bar shows.  The tables along :func:`chain` from the outside in,
     so the nearest binding of a key wins -- and the application's own table
     last of all, since it is consulted before any widget's and so wins every
     tie.  While a modal is up the application's table is not consulted, and
-    is not shown.
+    is not shown -- unless *start* names the widget to ask from, which is a
+    caller asking about the focus behind the modal rather than inside it.
     """
-    tables = [key_table(type(widget)) for widget in chain(app)][:-1]
+    tables = [key_table(type(widget)) for widget in chain(app, start)][:-1]
     found: dict[str, Command] = {}
     for table in reversed(tables):
         found.update({key: command_of(b) for key, b in table.items()})
-    if app.modal is None:
+    if app.modal is None or start is not None:
         found.update(
             {key: command_of(b) for key, b in key_table(type(app)).items()}
         )
     return found
+
+
+#: How :func:`key_label` spells the keys whose names are not their caption.
+_KEY_LABELS = {
+    "pageup": "PgUp",
+    "pagedown": "PgDn",
+    "delete": "Del",
+    "insert": "Ins",
+    "backspace": "BkSp",
+    "escape": "Esc",
+    "enter": "Enter",
+    "tab": "Tab",
+    "space": "Space",
+    "home": "Home",
+    "end": "End",
+    "up": "Up",
+    "down": "Down",
+    "left": "Left",
+    "right": "Right",
+}
+
+
+def key_label(spec: str) -> str:
+    """A key as a menu or a status line shows it: ``"ctrl+f5"`` is ``Ctrl-F5``.
+
+    Turbo Vision's spelling, which DOS Navigator's menus use throughout --
+    modifiers capitalised and joined with a hyphen, function keys and letters
+    upper case.
+    """
+    *mods, key = parse_key(spec).split("+")
+    name = _KEY_LABELS.get(key, key.upper() if len(key) <= 3 else key.title())
+    return "-".join([*(m.title() for m in mods), name])
+
+
+def key_for(
+    app: Application, binding: Binding, start: Widget | None = None
+) -> str | None:
+    """The key that asks for *binding*'s command right now, or None.
+
+    What a menu item shows beside its caption: read off the same tables a key
+    press is, so the caption cannot claim a key that does something else.
+    """
+    command = command_of(binding)
+    for key, bound in bindings(app, start).items():
+        if bound == command:
+            return key
+    return None

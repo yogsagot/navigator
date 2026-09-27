@@ -65,20 +65,32 @@ Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 /* One palette entry, two bars: Turbo Vision gives `TMenuView' and
    `TStatusLine' the same six colours (MENUS.PAS), and DOS Navigator never
    split them. Hence `$bar-' rather than a name that claims otherwise. */
-MenuBar         { fg: $bar-fg; bg: $bar-bg }
-MenuBar::hotkey { fg: $bar-key-fg; bg: $bar-key-bg }
+MenuBar, MenuBox                      { fg: $bar-fg; bg: $bar-bg }
+MenuBar::hotkey, MenuBox::hotkey      { fg: $bar-key-fg; bg: $bar-key-bg }
+MenuBar::item:selected,
+MenuBox::item:selected                { fg: $bar-selected-fg; bg: $bar-selected-bg }
+MenuBar::hotkey:selected,
+MenuBox::hotkey:selected              { fg: $bar-selected-key-fg; bg: $bar-selected-key-bg }
+/* A disabled entry is greyed whole, its marked letter included: Turbo
+   Vision draws it with one colour pair, [3] or [6], for both halves. */
+MenuBar::item:disabled, MenuBar::hotkey:disabled,
+MenuBox::item:disabled, MenuBox::hotkey:disabled
+                                      { fg: $bar-disabled-fg; bg: $bar-disabled-bg }
+MenuBar::item:selected:disabled, MenuBar::hotkey:selected:disabled,
+MenuBox::item:selected:disabled, MenuBox::hotkey:selected:disabled
+                                      { fg: $bar-selected-disabled-fg; bg: $bar-selected-disabled-bg }
 
 /* DOS Navigator's Colors dialog names slot [1] "Timer": it is the clock's
    colour first, and the background (CBackground) shares it. */
 Clock { fg: $desktop-fg; bg: $desktop-bg }
 
-KeyBar         { fg: $bar-fg; bg: $bar-bg }
-KeyBar::number { fg: $bar-key-fg; bg: $bar-key-bg }
+KeyBar      { fg: $bar-fg; bg: $bar-bg }
+KeyBar::key { fg: $bar-key-fg; bg: $bar-key-bg }
 /* A command that cannot run: slot [3], "Disabled -- CMenuView, CStatusLine".
-   Turbo Vision greys the whole item, its key included, so the number takes
-   it too -- and wins over the rule above by being the more specific. */
+   Turbo Vision greys the whole item, its key included, so the key takes it
+   too -- and wins over the rule above by being the more specific. */
 KeyBar::label:disabled,
-KeyBar::number:disabled { fg: $bar-disabled-fg; bg: $bar-disabled-bg }
+KeyBar::key:disabled { fg: $bar-disabled-fg; bg: $bar-disabled-bg }
 
 /*
  * The widget library, bound to the slots DOS Navigator's Colors dialog

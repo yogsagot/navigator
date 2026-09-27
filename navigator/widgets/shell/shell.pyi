@@ -9,21 +9,22 @@ from navml.component import Component as _Component
 from navigator.widgets.clock import Clock
 from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
-from navigator.widgets.menubar import MenuBar
+from navigator.widgets.main_menu import MainMenu
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 
 from pathlib import Path
-from navkit.events import Event
+from navkit.events import Event, KeyEvent
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
+from navml.commands import OpenMenu
 from navigator.scheme import default_scheme
 from navigator.widgets.manager import Manager
 
 
 class Shell(DockLayout, _Component):
     console_visible: bool
-    menu: MenuBar
+    menu: MainMenu
     clock: Clock
     console: Console
     desktop: Desktop
@@ -31,5 +32,7 @@ class Shell(DockLayout, _Component):
     def __init__(self, left: Path, right: Path, scheme: Stylesheet | None = ..., **kwargs): ...
     def toggle_console(self) -> None: ...
     def show_console(self) -> None: ...
+    async def on_open_menu(self, event: OpenMenu) -> bool: ...
+    async def on_key(self, event: KeyEvent) -> bool: ...
     async def on_desktop_emptied(self, event: Event) -> bool: ...
     def render(self, surface: Surface) -> None: ...

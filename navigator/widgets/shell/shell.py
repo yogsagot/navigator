@@ -12,9 +12,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from navkit.events import Event
+from navkit.events import Event, KeyEvent
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
+from navml.commands import OpenMenu
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
@@ -85,6 +86,28 @@ class Shell(DockLayout):
             self.console.start()
             self.console_visible = True
         self.console.focus()
+
+    # -- the menu ---------------------------------------------------------------
+
+    async def on_open_menu(self, event: OpenMenu) -> bool:
+        """F10: the menu bar is this screen's, so the command stops here.
+
+        The bar is nowhere near the focus -- it is a sibling of the desktop --
+        so the command, which starts from the focus and walks up, reaches it
+        only through the screen that holds both.
+        """
+        self.menu.open(0)
+        return True
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        """Alt+letter drops the menu whose caption carries that letter.
+
+        Reached only by a key that everything nearer the keyboard declined,
+        so a dialog's Alt+letter walk and the console's child both come
+        first: the console sends Meta+F to its program, as DOS Navigator's
+        user screen would have.
+        """
+        return await self.menu.open_hotkey(event)
 
     async def on_desktop_emptied(self, event: Event) -> bool:
         """The last window on ``desktop`` closed: the console is all there is.

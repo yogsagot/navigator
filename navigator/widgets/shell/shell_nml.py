@@ -20,7 +20,7 @@ from navml.component import Component as _Component
 from navigator.widgets.clock import Clock    # shell.nml:1
 from navigator.widgets.console import Console    # shell.nml:2
 from navigator.widgets.keybar import KeyBar    # shell.nml:3
-from navigator.widgets.menubar import MenuBar    # shell.nml:4
+from navigator.widgets.main_menu import MainMenu    # shell.nml:4
 from navml.widgets.desktop import Desktop    # shell.nml:5
 from navml.widgets.layout.dock_layout import DockLayout    # shell.nml:6
 
@@ -57,7 +57,7 @@ class Shell(DockLayout, _Component):
     console_visible: bool = _reactive(False)    # shell.nml:27
 
     #: Ids, annotated so the hand-written half completes them.
-    menu: MenuBar    # shell.nml:30
+    menu: MainMenu    # shell.nml:30
     clock: Clock    # shell.nml:38
     console: Console    # shell.nml:45
     desktop: Desktop    # shell.nml:48
@@ -77,7 +77,7 @@ class Shell(DockLayout, _Component):
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.menu = MenuBar(parent=self)    # shell.nml:29
+        self.menu = MainMenu(parent=self)    # shell.nml:29
         self.clock = Clock(parent=self)    # shell.nml:37
         self.console = Console(parent=self)    # shell.nml:44
         self.desktop = Desktop(parent=self)    # shell.nml:47

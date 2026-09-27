@@ -1,0 +1,458 @@
+from navigator.commands import Copy, Delete, Edit, MakeDirectory, Quit, RenameMove, Rescan, ToggleConsole, UserMenu, View
+from navml.commands import CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, ZoomWindow
+from navml.widgets.menu.menu_bar import MenuBar
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
+
+#: DOS Navigator 1.51's main menu, transcribed from ``dlgMainMenu`` in
+#: ``RESOURCE/ENGLISH/DN.DNR`` -- every entry, in the original's order and
+#: with the original's captions and hotkeys.
+#:
+#: Every submenu carries an ``id``, which is how Python reaches it: an id is
+#: an attribute of the document's class, so a plugin adds to the File menu
+#: with ``app.shell.menu.file.add_item(...)``.  A nested submenu's id is its
+#: parent's joined to its own -- ``file_view``, ``options_configuration`` --
+#: because an id is unique across the whole document.
+#:
+#: An entry names a ``command`` once the feature behind it exists, and is
+#: greyed until then: an entry with no command is one nobody can run, the
+#: same rule as a command nobody handles.  ``key`` is the original's caption
+#: for the entry's key, shown while no key table binds the command; a bound
+#: key is read off the binding instead.  Giving a feature its entry is one
+#: ``command:`` line here.
+MainMenu(MenuBar):
+    SubMenu:
+        id: system
+        text: '~≡~'
+        MenuItem:
+            text: '~A~bout...'
+        MenuItem:
+            text: '~R~efresh display'
+        MenuItem:
+            text: '~S~creen rest'
+        MenuLine:
+        MenuItem:
+            text: 'Screen gra~b~ber'
+            key: 'Shift-Alt-Ins'
+        MenuItem:
+            text: '~U~ser screen'
+            key: 'Alt-F5'
+        MenuItem:
+            text: '~O~utput window'
+            command: ToggleConsole
+            key: 'Ctrl-O'
+        MenuItem:
+            text: 'S~m~artPad (TM)'
+            key: 'Alt-Q'
+        MenuItem:
+            text: '~T~rashcan on/off'
+        MenuLine:
+        MenuItem:
+            text: '~E~GA/VGA lines'
+            key: 'Shift-F10'
+        MenuItem:
+            text: 'Custom video mode ~1~'
+            key: 'Alt-F10'
+        MenuItem:
+            text: 'Custom video mode ~2~'
+            key: 'Ctrl-F10'
+        MenuLine:
+        MenuItem:
+            text: '~G~ame'
+            key: 'Alt-F9'
+    SubMenu:
+        id: file
+        text: '~F~ile'
+        SubMenu:
+            id: file_view
+            text: '~V~iew'
+            MenuItem:
+                text: '~A~s is'
+                command: View
+                key: 'F3'
+            MenuItem:
+                text: 'As ~T~ext'
+            MenuItem:
+                text: 'As He~x~'
+            MenuItem:
+                text: 'As ~D~ataBase'
+            MenuItem:
+                text: 'As ~S~preadsheet'
+            MenuLine:
+            MenuItem:
+                text: 'Alternate vie~w~'
+                key: 'Alt-F3'
+        SubMenu:
+            id: file_edit
+            text: '~E~dit'
+            MenuItem:
+                text: '~E~dit'
+                command: Edit
+                key: 'F4'
+            MenuItem:
+                text: '~A~lternate edit'
+                key: 'Alt-F4'
+            MenuLine:
+            MenuItem:
+                text: 'Edit ~n~ew file...'
+                key: 'Shift-F4'
+        MenuItem:
+            text: '~F~ind...'
+            key: 'Alt-F7'
+        MenuItem:
+            text: '~C~opy...'
+            command: Copy
+            key: 'F5'
+        MenuItem:
+            text: '~R~ename/Move...'
+            command: RenameMove
+            key: 'F6'
+        MenuItem:
+            text: 'Cop~y~ to archive...'
+            key: 'Shift-F1'
+        MenuItem:
+            text: 'Ex~t~ract archive...'
+            key: 'Shift-F2'
+        MenuItem:
+            text: '~S~plit/combine...'
+            key: 'Shift-F5'
+        MenuItem:
+            text: '~P~rint'
+            key: 'Ctrl-F9'
+        MenuItem:
+            text: '~M~ake directory'
+            command: MakeDirectory
+            key: 'F7'
+        MenuItem:
+            text: '~D~elete'
+            command: Delete
+            key: 'F8'
+        MenuItem:
+            text: 'File ~A~ttributes...'
+            key: 'Alt-E'
+        MenuItem:
+            text: 'UU E~n~code...'
+            key: 'Ctrl-F7'
+        MenuItem:
+            text: '~U~U Decode...'
+            key: 'Ctrl-F8'
+        MenuItem:
+            text: 'Unpack diskette images'
+            key: 'Ctrl-I'
+        MenuItem:
+            text: 'Delete single file'
+            key: 'Shift-Del'
+        MenuLine:
+        MenuItem:
+            text: 'Execute ~O~S command'
+        MenuItem:
+            text: 'E~x~it'
+            command: Quit
+            key: 'Alt-X'
+    SubMenu:
+        id: disk
+        text: '~D~isk'
+        MenuItem:
+            text: '~F~ormat disk...'
+            key: 'Shift-F7'
+        MenuItem:
+            text: '~V~olume label...'
+        MenuItem:
+            text: '~R~eanimator...'
+            key: 'Shift-F6'
+        MenuItem:
+            text: 'Disk ~e~ditor'
+        MenuItem:
+            text: '~D~irectory tree'
+    SubMenu:
+        id: utilities
+        text: '~U~tilities'
+        MenuItem:
+            text: '~M~emory Information'
+            key: 'Alt-Y'
+        MenuItem:
+            text: 'S~y~stem Information'
+        MenuLine:
+        MenuItem:
+            text: '~C~alculator'
+            key: 'Ctrl-F6'
+        MenuItem:
+            text: 'ASCII Ta~b~le'
+            key: 'Ctrl-B'
+        MenuItem:
+            text: '~P~hone Book'
+            key: 'Shift-F3'
+        MenuItem:
+            text: '~O~pen spreadsheet'
+            key: 'Shift-F11'
+        MenuItem:
+            text: 'C~D~ Player'
+            key: 'Ctrl-F11'
+        MenuLine:
+        MenuItem:
+            text: 'Te~r~minal'
+            key: 'Alt-J'
+        MenuItem:
+            text: 'Navigator ~L~ink'
+            key: 'Alt-F11'
+        MenuItem:
+            text: 'Manual di~a~l...'
+            key: 'Alt-A'
+        MenuItem:
+            text: 'Di~s~connect'
+            key: 'Alt-H'
+        MenuLine:
+        MenuItem:
+            text: 'Edi~t~ DOS Environment'
+        MenuItem:
+            text: '~U~ser menu'
+            command: UserMenu
+            key: 'F2'
+        MenuItem:
+            text: 'Commands ~H~istory'
+            key: 'Alt-F8'
+        MenuItem:
+            text: 'File ~E~dit History'
+            key: 'Alt-PgUp'
+        MenuItem:
+            text: 'File ~V~iew History'
+            key: 'Alt-PgDn'
+    SubMenu:
+        id: panel
+        text: '~P~anel'
+        MenuItem:
+            text: '~M~ake list file...'
+            key: 'Alt-L'
+        MenuItem:
+            text: 'Read file ~l~ist'
+            key: 'Alt-V'
+        MenuItem:
+            text: '~C~ompare directories'
+            key: 'Ctrl-C'
+        MenuItem:
+            text: 'Count directory len~g~th'
+            key: 'Alt-G'
+        MenuItem:
+            text: 'Directory Branc~h~'
+            key: 'Ctrl-H'
+        MenuLine:
+        MenuItem:
+            text: 'Setup c~o~lumns'
+            key: 'Alt-K'
+        MenuItem:
+            text: '~S~etup Panel'
+            key: 'Alt-S'
+        MenuItem:
+            text: 'Sort ~b~y...'
+            key: 'Alt-B'
+        MenuLine:
+        MenuItem:
+            text: 'Select grou~p~...'
+            key: 'Gray "+"'
+        MenuItem:
+            text: '~U~nselect group...'
+            key: 'Gray "-"'
+        MenuItem:
+            text: 'In~v~ert selection'
+            key: 'Gray "*"'
+        MenuItem:
+            text: 'Advanced filter...'
+            key: 'Alt-Del'
+        MenuLine:
+        MenuItem:
+            text: 'Change ~d~rive'
+            key: 'Alt-C'
+        MenuItem:
+            text: 'Change direc~t~ory'
+            key: 'Alt-T'
+        MenuItem:
+            text: '~R~e-read'
+            command: Rescan
+            key: 'Alt-R'
+        MenuItem:
+            text: '~Q~uick dirs...'
+            key: 'Alt-Shift-0'
+        MenuItem:
+            text: 'History of directories...'
+            key: 'Alt-BkSp'
+    SubMenu:
+        id: manager
+        text: '~M~anager'
+        MenuItem:
+            text: '~N~ew'
+            key: 'Ctrl-F3'
+        MenuItem:
+            text: '~D~irectory tree'
+            key: 'Ctrl-T'
+        MenuItem:
+            text: '~I~nfo'
+            key: 'Ctrl-L'
+        MenuItem:
+            text: '~Q~uick view'
+            key: 'Ctrl-Q'
+        MenuLine:
+        MenuItem:
+            text: '~S~wap panels'
+            key: 'Ctrl-U'
+        MenuItem:
+            text: 'Show/hide ~l~eft panel'
+            key: 'Ctrl-F1'
+        MenuItem:
+            text: 'Show/hide ~r~ight panel'
+            key: 'Ctrl-F2'
+        MenuItem:
+            text: 'Show/hide inactive ~p~anel'
+            key: 'Ctrl-P'
+        MenuLine:
+        MenuItem:
+            text: 'Change drive le~f~t'
+            key: 'Alt-F1'
+        MenuItem:
+            text: 'Change drive rig~h~t'
+            key: 'Alt-F2'
+    SubMenu:
+        id: options
+        text: '~O~ptions'
+        SubMenu:
+            id: options_configuration
+            text: '~C~onfiguration'
+            MenuItem:
+                text: 'S~y~stem Setup...'
+            MenuItem:
+                text: '~S~tartup...'
+            MenuItem:
+                text: '~I~nterface...'
+            MenuItem:
+                text: '~C~onfirmations...'
+            MenuLine:
+            MenuItem:
+                text: 'Screen sa~v~ers...'
+            MenuItem:
+                text: 'P~r~inter setup...'
+            MenuItem:
+                text: 'C~o~untry support...'
+            MenuItem:
+                text: '~M~ouse...'
+            MenuItem:
+                text: 'Comm~u~nications...'
+            MenuLine:
+            MenuItem:
+                text: '~E~ditor/Viewer...'
+            MenuItem:
+                text: '~T~erminal...'
+        SubMenu:
+            id: options_file_manager
+            text: '~F~ile Manager'
+            MenuItem:
+                text: '~S~etup...'
+            MenuItem:
+                text: '~I~nformation panel...'
+            MenuItem:
+                text: 'New Manager ~d~efaults...'
+            MenuItem:
+                text: '~C~olumn defaults...'
+            MenuItem:
+                text: '~H~ighlight groups...'
+        SubMenu:
+            id: options_archives
+            text: 'A~r~chives'
+            MenuItem:
+                text: '~A~RC - Arc (C) NoGate Consulting'
+            MenuItem:
+                text: 'AR~J~ - ARJ (C) Robert K. Jung'
+            MenuItem:
+                text: '~B~SA - BSArc v1.xx (C) PhysTechSoft'
+            MenuItem:
+                text: 'BS~2~ - BSArc v2.xx (C) PhysTechSoft'
+            MenuItem:
+                text: '~C~HZ - ChArc (C) Dialogue'
+            MenuItem:
+                text: '~H~A  - HA (C) Harry Hirvola'
+            MenuItem:
+                text: 'HAP - HAP (C) Hamarsoft'
+            MenuItem:
+                text: 'H~P~K - HPack (C) Peter Gutmann'
+            MenuItem:
+                text: 'H~Y~P - Hyper (C) P.Sawatzki & K.P.Nicshke'
+            MenuItem:
+                text: '~L~HA - LHArc (C) Haruyasu Yoshizaki'
+            MenuItem:
+                text: 'L~I~M - Limit (C) J Y Lim'
+            MenuItem:
+                text: '~R~AR - RAR (C) E. Roshal'
+            MenuItem:
+                text: '~S~QZ - SQZ (C) J.I.Hammarberg'
+            MenuItem:
+                text: '~T~AR - Tape ARchiver for *NIX'
+            MenuItem:
+                text: '~U~C2 - Ultra Compressor II (C) Ad Infinitum Programs'
+            MenuItem:
+                text: '~Z~IP - PKZIP (C) PKWARE Inc.'
+            MenuItem:
+                text: 'ZO~O~ - Zoo (C) Rahul Dhesi'
+            MenuLine:
+            MenuItem:
+                text: 'Current archiver...'
+                key: 'Alt-N'
+        MenuLine:
+        MenuItem:
+            text: '~Q~uick run file edit...'
+        MenuItem:
+            text: 'E~x~tension file edit...'
+        MenuItem:
+            text: '~H~ighlight file edit...'
+        MenuItem:
+            text: '~G~lobal menu definition...'
+        MenuItem:
+            text: 'Local ~m~enu definition...'
+        MenuItem:
+            text: '~V~iewers...'
+        MenuItem:
+            text: '~E~ditors...'
+        MenuLine:
+        MenuItem:
+            text: '~S~ave desktop'
+        MenuItem:
+            text: '~L~oad desktop'
+        MenuLine:
+        MenuItem:
+            text: 'C~o~lors...'
+        MenuItem:
+            text: 'S~t~ore palette'
+        MenuItem:
+            text: 'Lo~a~d palette'
+    SubMenu:
+        id: window
+        text: '~W~indow'
+        MenuItem:
+            text: '~T~ile'
+        MenuItem:
+            text: 'C~a~scade'
+        MenuItem:
+            text: 'Cl~o~se all'
+        MenuLine:
+        MenuItem:
+            text: '~S~ize/Move'
+            command: SizeMoveWindow
+            key: 'Ctrl-F5'
+        MenuItem:
+            text: '~Z~oom'
+            command: ZoomWindow
+            key: 'Alt-Z'
+        MenuItem:
+            text: '~N~ext'
+            command: NextWindow
+            key: 'Alt-Tab'
+        MenuItem:
+            text: '~P~revious'
+            command: PreviousWindow
+            key: 'Ctrl-Tab'
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow
+            key: 'Ctrl-F4'
+        MenuLine:
+        MenuItem:
+            text: '~L~ist...'
+            key: 'Alt-0'
