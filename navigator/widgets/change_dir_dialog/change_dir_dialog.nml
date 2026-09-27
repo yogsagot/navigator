@@ -1,0 +1,81 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.dialog.tree_view import TreeView
+
+#: Panel > Change directory (Alt+T): DOS Navigator's ``TTreeDialog``, which
+#: ``ChangeDir`` opens as *Choose Directory*.
+#:
+#: Every rectangle is ``TTreeDialog.Init``'s, in a 49 by 17 dialog: the tree
+#: fills the left of it with no frame of its own -- the dialog's is its frame,
+#: and its scroll bar is its last column -- the path under the cursor is the
+#: one row beneath it, and the buttons stand in a column on the right, eleven
+#: wide, three rows apart.  ``Dialog``'s own row of buttons along the bottom is
+#: not this dialog's, and the hand-written half hides it.
+ChangeDirDialog(Dialog):
+    modal_width: 49
+    modal_height: 17
+    title: "Choose Directory"
+
+    TreeView:
+        id: tree
+        framed: False
+        x: 1
+        y: 1
+        width: 34
+        height: 14
+
+    #: ``TDTreeInfoView``: one row of it, which shows its first line -- the
+    #: path.  Named, so a sheet can give it the information pane's colours.
+    StaticText:
+        id: where
+        name: "info"
+        x: 1
+        y: 15
+        width: 33
+        height: 1
+        text: " " + str(tree.selected_node.data) if tree.selected_node is not None else ""
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 36
+        y: 2
+        width: 11
+        height: 2
+
+    #: DOS Navigator chose a drive letter here.  A POSIX filesystem has one
+    #: root, so the button is shown, as the original's was, and disabled.
+    Button:
+        id: drive
+        text: "~D~rive..."
+        disabled: True
+        x: 36
+        y: 5
+        width: 11
+        height: 2
+
+    Button:
+        id: reread
+        text: "~R~e-read"
+        x: 36
+        y: 8
+        width: 11
+        height: 2
+
+    Button:
+        id: mkdir
+        text: "~M~kDir"
+        x: 36
+        y: 11
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 36
+        y: 14
+        width: 11
+        height: 2

@@ -1,4 +1,4 @@
-from navigator.commands import Copy, Delete, Edit, MakeDirectory, RenameMove
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.panel import Panel
@@ -37,6 +37,7 @@ Manager(Window):
         alt+r: Rescan
         ctrl+r: Rescan
         ctrl+t: ToggleTree
+        alt+t: ChangeDirectory
         f2: UserMenu
         f3: View
         f4: Edit

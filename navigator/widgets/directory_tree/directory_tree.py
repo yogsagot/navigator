@@ -64,6 +64,18 @@ def directory_node(path: Path, name: str | None = None) -> TreeNode:
     )
 
 
+def directory_root() -> TreeNode:
+    """The filesystem from ``/``, its first level open and nothing yet read below."""
+    root = directory_node(Path("/"), "/")
+    root.expanded = True
+    return root
+
+
+def show_path(tree: TreeView, path: Path) -> None:
+    """Put *tree*'s cursor on *path*, opening every branch on the way down."""
+    tree.locate(Path(path).resolve().parts)
+
+
 def count_files(path: Path) -> tuple[int, int]:
     """How many files *path* holds directly, and their bytes together.
 
@@ -102,8 +114,7 @@ class DirectoryTree(TreeView):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.root = directory_node(Path("/"), "/")
-        self.root.expanded = True
+        self.root = directory_root()
         #: ``count_files`` per path, cleared by :meth:`reload`: counting runs
         #: when the cursor stops on a directory, not on every repaint.
         self._counts: dict[Path, tuple[int, int]] = {}
@@ -120,15 +131,13 @@ class DirectoryTree(TreeView):
 
     def show(self, path: Path) -> None:
         """Put the cursor on *path*, opening every branch on the way down."""
-        self.locate(Path(path).resolve().parts)
+        show_path(self, path)
 
     def reload(self) -> None:
         """Read the tree again: ``Reread``, keeping the cursor where it was."""
         here = self.selected_path
         self._counts.clear()
-        root = directory_node(Path("/"), "/")
-        root.expanded = True
-        self.root = root
+        self.root = directory_root()
         if here is not None:
             self.show(here)
 

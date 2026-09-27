@@ -44,6 +44,24 @@ class ListViewer(Control):
     #: from something it caught.
     error: str | None = reactive(None)
 
+    #: Whether the list draws its own frame.  Turbo Vision's list views had
+    #: none -- a dialog's frame or a window's was theirs -- and a file panel
+    #: has one; a list set inside a dialog, as DOS Navigator's tree in *Choose
+    #: Directory* is, turns it off and gives the frame's cells to its rows.
+    #: The scroll bar then takes the last column, as ``TScrollBar`` sat beside
+    #: its view.
+    framed: bool = reactive(True)
+
+    @computed
+    def inset(self) -> int:
+        """Where the rows begin: inside the frame, or at the edge without one."""
+        return 1 if self.framed else 0
+
+    @computed
+    def inner_width(self) -> int:
+        """Columns a row may use: between the frame, or up to the scroll bar."""
+        return max(0, self.width - 2 if self.framed else self.width - 1)
+
     def mounted(self) -> None:
         super().mounted()
         # Declaration order is flush order: put the cursor on a row that
@@ -56,7 +74,7 @@ class ListViewer(Control):
     @computed
     def rows(self) -> int:
         """How many listing lines fit between the frames and the header."""
-        return max(0, self.height - 2 - self.header)
+        return max(0, self.height - 2 * self.inset - self.header)
 
     @computed
     def selected(self) -> Any:
@@ -122,8 +140,8 @@ class ListViewer(Control):
 
     def render_row(self, surface: Surface, y: int, index: int, item: Any) -> None:
         """Paint one row into the already-filled band at *y*."""
-        surface.draw_text(1, y, self.row_text(index, item), self.row_style(index, item),
-                          max(0, self.width - 2))
+        surface.draw_text(self.inset, y, self.row_text(index, item),
+                          self.row_style(index, item), self.inner_width)
 
     def title_text(self) -> str:
         return ""
@@ -156,7 +174,7 @@ class ListViewer(Control):
 
     def row_at(self, y: int) -> int | None:
         """Which item is painted at *y*, in this widget's coordinates."""
-        row = y - 1 - self.header
+        row = y - self.inset - self.header
         if 0 <= row < self.rows:
             index = self.scroll + row
             if index < len(self.items):
@@ -202,18 +220,22 @@ class ListViewer(Control):
     # -- painting ------------------------------------------------------------
 
     def render(self, surface: Surface) -> None:
-        if self.width < 2 or self.height < 2:
-            return
-        surface.draw_box(
-            0, 0, self.width, self.height, self.style,
-            charset=self.box_charset(), fill=" ",
-        )
-        self._render_label(surface, 0, self.title_text(), "title")
-        self._render_label(surface, self.height - 1, self.footer_text(), "footer")
+        inset = self.inset
+        if self.framed:
+            if self.width < 2 or self.height < 2:
+                return
+            surface.draw_box(
+                0, 0, self.width, self.height, self.style,
+                charset=self.box_charset(), fill=" ",
+            )
+            self._render_label(surface, 0, self.title_text(), "title")
+            self._render_label(surface, self.height - 1, self.footer_text(), "footer")
+        else:
+            surface.fill(0, 0, self.width, self.height, " ", self.style)
         self.render_header(surface)
         if self.error is not None:
             surface.draw_text(
-                2, 1 + self.header, self.error,
+                inset + 1, inset + self.header, self.error,
                 self.part_style("error"), max(0, self.width - 4),
             )
             return
@@ -221,7 +243,7 @@ class ListViewer(Control):
             index = self.scroll + row
             if index >= len(self.items):
                 break
-            y = 1 + self.header + row
+            y = inset + self.header + row
             item = self.items[index]
             # **Filled only when it is the cursor row.**  An unselected row is
             # drawn as text on whatever the list already painted, and the gaps
@@ -231,7 +253,7 @@ class ListViewer(Control):
             # style and emits an SGR sequence for every run that differs, so a
             # fill nobody can see is real bytes on the wire.
             if self.row_selected(index):
-                surface.fill(1, y, max(0, self.width - 2), 1, " ",
+                surface.fill(inset, y, self.inner_width, 1, " ",
                              self.row_style(index, item))
             self.render_row(surface, y, index, item)
 

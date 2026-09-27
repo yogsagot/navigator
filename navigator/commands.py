@@ -79,6 +79,15 @@ class Rescan(Command):
     """Ctrl+R: read the active panel's directory again."""
 
 
+class ChangeDirectory(Command):
+    """Alt+T: choose a directory from a tree, and send the active panel there.
+
+    DOS Navigator's ``cmChangeDir``, Panel > Change directory.
+    """
+
+    title = "ChDir"
+
+
 class ToggleTree(Command):
     """Ctrl+T: the passive panel becomes a directory tree, or a panel again.
 
@@ -89,6 +98,7 @@ class ToggleTree(Command):
 
 
 __all__ = [
+    "ChangeDirectory",
     "Copy",
     "Delete",
     "Edit",

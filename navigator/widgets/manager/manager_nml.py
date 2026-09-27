@@ -16,7 +16,7 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.commands import Copy, Delete, Edit, MakeDirectory, RenameMove    # manager.nml:1
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove    # manager.nml:1
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View    # manager.nml:2
 from navigator.widgets.directory_tree import DirectoryTree    # manager.nml:3
 from navigator.widgets.panel import Panel    # manager.nml:4
@@ -61,20 +61,21 @@ class Manager(Window, _Component):
         'alt+r': Rescan,    # manager.nml:37
         'ctrl+r': Rescan,    # manager.nml:38
         'ctrl+t': ToggleTree,    # manager.nml:39
-        'f2': UserMenu,    # manager.nml:40
-        'f3': View,# manager.nml:41
-        'f4': Edit,# manager.nml:42
-        'f5': Copy,# manager.nml:43
-        'f6': RenameMove,    # manager.nml:44
-        'f7': MakeDirectory,    # manager.nml:45
-        'f8': Delete,    # manager.nml:46
+        'alt+t': ChangeDirectory,    # manager.nml:40
+        'f2': UserMenu,    # manager.nml:41
+        'f3': View,# manager.nml:42
+        'f4': Edit,# manager.nml:43
+        'f5': Copy,# manager.nml:44
+        'f6': RenameMove,    # manager.nml:45
+        'f7': MakeDirectory,    # manager.nml:46
+        'f8': Delete,    # manager.nml:47
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    panels: HorizontalLayout    # manager.nml:49
-    left: Panel    # manager.nml:56
-    right: Panel    # manager.nml:60
-    tree: DirectoryTree    # manager.nml:67
+    panels: HorizontalLayout    # manager.nml:50
+    left: Panel    # manager.nml:57
+    right: Panel    # manager.nml:61
+    tree: DirectoryTree    # manager.nml:68
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -84,28 +85,28 @@ class Manager(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:67
+    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:68
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.panels = HorizontalLayout(parent=self)    # manager.nml:48
-        self.left = Panel(parent=self.panels)    # manager.nml:55
-        self.right = Panel(parent=self.panels)    # manager.nml:59
-        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:66
+        self.panels = HorizontalLayout(parent=self)    # manager.nml:49
+        self.left = Panel(parent=self.panels)    # manager.nml:56
+        self.right = Panel(parent=self.panels)    # manager.nml:60
+        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:67
 
         self.zoomed = True    # manager.nml:26
         self.min_width = 24    # manager.nml:27
         self.min_height = 5    # manager.nml:28
 
-        self.panels.x = 0    # manager.nml:50
-        self.panels.y = 0    # manager.nml:51
-        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:52
-        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:53
+        self.panels.x = 0    # manager.nml:51
+        self.panels.y = 0    # manager.nml:52
+        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:53
+        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:54
 
-        self.left.title_margin = 5    # manager.nml:57
+        self.left.title_margin = 5    # manager.nml:58
 
-        self.right.title_margin = 5    # manager.nml:61
+        self.right.title_margin = 5    # manager.nml:62
 
-        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:67
+        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:68

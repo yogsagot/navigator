@@ -4,7 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navigator.commands import Copy, Delete, Edit, MakeDirectory, Quit, RenameMove, Rescan, ToggleConsole, ToggleTree, UserMenu, View
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, Quit, RenameMove, Rescan, ToggleConsole, ToggleTree, UserMenu, View
 from navml.commands import CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem

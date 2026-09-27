@@ -335,7 +335,7 @@ class TreeView(ListViewer):
         row = self.selected
         if row is None:
             return 0
-        inner = max(1, self.width - 2)
+        inner = max(1, self.inner_width)
         need = row.level * 3 + 6 + len(row.node.name)
         shift = max(0, need - inner)
         return max(0, min(shift, row.level * 3 - 4))
@@ -349,8 +349,8 @@ class TreeView(ListViewer):
     def render_row(self, surface: Surface, y: int, index: int, item: TreeRow) -> None:
         line_style = self.style
         _, _, _, vertical, _ = self._chars()
-        shift = self.shift
-        inner = max(0, self.width - 2)
+        shift, inset = self.shift, self.inset
+        inner = self.inner_width
 
         def put(column: int, text: str, style: Style) -> None:
             x = column - shift
@@ -358,7 +358,7 @@ class TreeView(ListViewer):
                 return
             if x < 0:
                 text, x = text[-x:], 0
-            surface.draw_text(1 + x, y, text, style, inner - x)
+            surface.draw_text(inset + x, y, text, style, inner - x)
 
         column = 2
         for more in item.rails:
@@ -378,8 +378,8 @@ class TreeView(ListViewer):
         row = self.selected
         if not self.search or row is None:
             return None
-        row_y = 1 + self.header + self.cursor - self.scroll
-        return 1 + self.name_column(row) - self.shift + len(self.search), row_y
+        row_y = self.inset + self.header + self.cursor - self.scroll
+        return self.inset + self.name_column(row) - self.shift + len(self.search), row_y
 
     # -- keys and the mouse ---------------------------------------------------------------
 
@@ -430,7 +430,7 @@ class TreeView(ListViewer):
             index = self.row_at(event.y)
             if index is not None:
                 row = self.items[index]
-                column = event.x - 1 + self.shift
+                column = event.x - self.inset + self.shift
                 start = 2 + 3 * max(0, row.level - 1) + 1
                 if row.level > 0 and start <= column < start + 3:
                     self.focus()

@@ -825,9 +825,32 @@ dialog tree needs them.
 list that was, and it keeps a list that gives up rows of its own (the tree's info band) from running its bar
 through them.
 
-Not yet: the other two places DOS Navigator showed a tree. One is Panel > Change directory (Alt+T), `TTreeDialog`,
-the expanded kind with OK / Drive / Re-read / MkDir buttons. The other is Disk > Directory tree, `TTreeWindow`, a
-tree window on the desktop. Both are the same widget in a different host.
+**Panel > Change directory (Alt+T) is `TTreeDialog`**, which `ChangeDir` opened as *Choose Directory*:
+`navigator/widgets/change_dir_dialog/`. Every rectangle is `TTreeDialog.Init`'s, in a 49 by 17 dialog:
+
+- The tree fills the left, 34 by 14.
+- The path under the cursor is the one row below it: `TDTreeInfoView`, one row tall, so only its first line shows.
+  It uses the information pane's colours, [61].
+- The buttons stand in a column on the right, 11 wide at rows 2, 5, 8, 11 and 14: `O~K~`, `~D~rive...`,
+  `~R~e-read`, `~M~kDir` and `Cancel`.
+- `Dialog`'s own bottom row of buttons is hidden, since this layout is not that one.
+
+Behaviour:
+
+- OK, or Enter in the tree, answers the directory under the cursor, and the panel that asked goes there. Esc
+  answers nothing.
+- MkDir makes the new directory where the tree points, as the tree's own `MkDirectory` did, and puts the cursor on
+  it. Re-read reads the tree again and keeps the cursor.
+- **Drive is shown and disabled.** A POSIX filesystem has one root, and a drive letter has nothing to name.
+- The tree here is lazy and collapsible, like the panel's, where `TTreeDialog` read the whole drive and drew the
+  expanded kind. That trade was made once for all trees.
+
+**The tree has no frame of its own there, and `ListViewer` learnt to do without one.** Turbo Vision's list views
+never had frames; a dialog's or a window's frame was theirs. A file panel has one, so `ListViewer.framed` defaults
+on and every list that existed is unchanged. Off, the rows begin at the edge (`inset` is 0) and the scroll bar
+takes the last column (`inner_width` is one less than the width), as `TScrollBar` sat beside its view.
+
+Not yet: Disk > Directory tree, `TTreeWindow`, a tree window on the desktop. It is the same widget in another host.
 
 ## What Textual has that the library takes
 

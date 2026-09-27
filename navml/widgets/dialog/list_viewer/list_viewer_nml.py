@@ -78,7 +78,7 @@ class ListViewer(Control, _Component):
         self.bar = ScrollBar(parent=self)    # list_viewer.nml:37
 
         self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # list_viewer.nml:39
-        self.bar.y = 1    # list_viewer.nml:40
+        self.bar.y = _bind(lambda _o: _o.parent.inset)    # list_viewer.nml:40
         self.bar.width = 1    # list_viewer.nml:41
         self.bar.height = _bind(    # list_viewer.nml:42
             lambda _o: max(0, _o.parent.rows + _o.parent.header)

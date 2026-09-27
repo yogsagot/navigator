@@ -190,7 +190,10 @@ Modal ScrollBar::thumb   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-b
 Modal ListViewer             { fg: $dialog-list-normal-fg;     bg: $dialog-list-normal-bg }
 Modal ListViewer::row:selected { fg: $dialog-list-focused-fg;  bg: $dialog-list-focused-bg }
 Modal ListViewer::divider    { fg: $dialog-list-divider-fg;    bg: $dialog-list-divider-bg }
-/* A tree in a dialog: the Dialogs group's Tree, [104] to [110]. */
+/* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
+   line under it (TDTreeInfoView in Choose Directory) is the Information
+   pane, [61]. */
+Modal StaticText#info                 { fg: $dialog-information-pane-fg;  bg: $dialog-information-pane-bg }
 Modal TreeView                        { fg: $dialog-tree-normal-tree-fg;      bg: $dialog-tree-normal-tree-bg }
 Modal TreeView::node                  { fg: $dialog-tree-normal-nodes-fg;     bg: $dialog-tree-normal-nodes-bg }
 Modal TreeView::node:selected         { fg: $dialog-tree-selected-passive-fg; bg: $dialog-tree-selected-passive-bg }

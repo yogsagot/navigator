@@ -320,3 +320,108 @@ def test_the_menu_entry_is_ctrl_t_and_is_enabled(places):
 
     run_app(app, [look])
     assert seen == [("Ctrl-T", True)]
+
+
+# -- Choose Directory (Alt+T) --------------------------------------------------------------
+
+
+def test_a_list_without_its_frame_gives_the_frame_cells_to_its_rows():
+    _, tree = mounted_tree()
+    tree.framed = False
+    settle()
+    assert (tree.inset, tree.inner_width, tree.rows) == (0, tree.width - 1, tree.height)
+    assert rows(tree)[0] == "  /"          # the root at DOS Navigator's column 2
+    assert tree.bar.x == tree.width - 1 and tree.bar.y == 0
+
+
+def test_the_dialog_is_laid_out_as_ttreedialog_lays_it_out(places):
+    from navigator.widgets.change_dir_dialog import ChangeDirDialog
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    dialog = ChangeDirDialog(start=places)
+    assert (dialog.modal_width, dialog.modal_height, dialog.title) == (49, 17, "Choose Directory")
+    tree = dialog.tree
+    assert (tree.framed, tree.x, tree.y, tree.width, tree.height) == (False, 1, 1, 34, 14)
+    buttons = dialog.buttons_row
+    assert [parse_shortcut(b.text)[0] for b in buttons] == [
+        "OK", "Drive...", "Re-read", "MkDir", "Cancel"]
+    assert [(b.x, b.y, b.width) for b in buttons] == [(36, y, 11) for y in (2, 5, 8, 11, 14)]
+    assert dialog.pick.default and dialog.drive.disabled
+    assert dialog.row.visible is False     # Dialog's own bottom row is not this one's
+    assert dialog.accept() == places.resolve()
+
+
+def chdir_run(places, *actions):
+    from test_nav import navigator
+
+    app = navigator(places)
+    run_app(app, [KeyEvent("t", "t", alt=True), lambda a: None, *actions, lambda a: None])
+    return app
+
+
+def test_alt_t_opens_it_on_the_active_panels_directory(places):
+    seen = []
+    chdir_run(places, lambda a: seen.append((type(a.modal).__name__, a.modal.accept(),
+                                              a.focused is a.modal.tree)))
+    assert seen == [("ChangeDirDialog", places.resolve(), True)]
+
+
+def test_enter_in_the_tree_sends_the_panel_there(places):
+    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"))
+    assert app.modal is None
+    assert app.manager.left.path == (places / "alpha").resolve()
+    assert app.focused is app.manager.left
+
+
+def test_ok_sends_the_panel_and_escape_leaves_it(places):
+    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("down"),
+                    KeyEvent("down"), KeyEvent("k", "k", alt=True))
+    assert app.manager.left.path == (places / "gamma").resolve()
+    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("escape"))
+    assert app.modal is None and app.manager.left.path == places
+
+
+def test_mkdir_makes_the_directory_where_the_tree_points(places):
+    seen = []
+    chdir_run(
+        places,
+        KeyEvent("+", "+"), KeyEvent("down"),              # alpha
+        KeyEvent("m", "m", alt=True), lambda a: None,      # MkDir, over the dialog
+        KeyEvent("n", "n"), KeyEvent("e", "e"), KeyEvent("w", "w"),
+        KeyEvent("enter"), lambda a: None,
+        lambda a: seen.append((type(a.modal).__name__, a.modal.accept())),
+    )
+    assert (places / "alpha" / "new").is_dir()
+    assert seen == [("ChangeDirDialog", (places / "alpha" / "new").resolve())]
+
+
+def test_reread_keeps_the_cursor_and_finds_what_appeared(places):
+    seen = []
+
+    def appear(a):
+        (places / "alpha" / "fresh").mkdir()
+
+    chdir_run(
+        places, KeyEvent("+", "+"), KeyEvent("down"), appear,
+        KeyEvent("r", "r", alt=True),
+        lambda a: seen.append(a.modal.accept()),
+        KeyEvent("+", "+"),
+        lambda a: seen.append([n.name for n in a.modal.tree.selected_node.children()]),
+    )
+    assert seen == [(places / "alpha").resolve(), ["fresh", "inner"]]
+
+
+def test_the_menu_entry_is_alt_t_and_is_enabled(places):
+    from test_nav import navigator, _entry
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(places)
+    seen = []
+
+    def look(a):
+        item = _entry(a.shell.menu, "Panel", "Change directory")
+        seen.append((key_caption(item, a, a.manager.left),
+                     a.command_enabled(item.command, a.manager.left)))
+
+    run_app(app, [look])
+    assert seen == [("Alt-T", True)]

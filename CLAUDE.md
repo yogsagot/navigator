@@ -61,8 +61,10 @@ rest. **Trees are written** (`[94-101]`, `[104-110]`): the
 library's `TreeView` (a `ListViewer` of flattened, lazily loaded `TreeNode`s drawn as `TTreeView.Draw` draws them)
 and Navigator's `DirectoryTree`, which Ctrl+T puts in the passive panel's place (`DBLWND.PAS`'s `SwitchView`):
 the tree follows the active panel, and Enter or a resting cursor sends the panel where the tree points. *Trees* in
-`navml/DESIGN.md` has the rest; Change directory (Alt+T) and the Directory tree window are the same widget in other
-hosts, still to do.
+`navml/DESIGN.md` has the rest. **Alt+T is DOS Navigator's *Choose Directory*** (`TTreeDialog`,
+`navigator/widgets/change_dir_dialog/`): the tree frameless in a dialog (`ListViewer.framed = False`), the path under
+it, and OK / Drive (disabled: one root) / Re-read / MkDir / Cancel down the right; OK sends the active panel there.
+The Directory tree window (Disk > Directory tree) is still to do.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

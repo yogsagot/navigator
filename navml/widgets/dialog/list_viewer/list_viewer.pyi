@@ -24,8 +24,11 @@ class ListViewer(Control, _Component):
     header: int
     bar: ScrollBar
     error: str | None
+    framed: bool
     parts: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
+    inset: int
+    inner_width: int
     def mounted(self) -> None: ...
     rows: int
     selected: Any

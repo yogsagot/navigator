@@ -19,7 +19,13 @@ from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
-from navigator.commands import MakeDirectory, Rescan, SwitchPanel, ToggleTree
+from navigator.commands import (
+    ChangeDirectory,
+    MakeDirectory,
+    Rescan,
+    SwitchPanel,
+    ToggleTree,
+)
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navigator.widgets.panel import Panel
 
@@ -80,6 +86,26 @@ class Manager(Window):
         else:
             self.active_panel.reload()
         return True
+
+    async def on_change_directory(self, event: ChangeDirectory) -> bool:
+        # Started, not awaited, for the reason ``on_make_directory`` gives.
+        self.spawn(self.change_directory())
+        return True
+
+    async def change_directory(self) -> None:
+        """Alt+T: *Choose Directory*, and the active panel goes where it says.
+
+        The panel that asked, remembered before the dialog takes the keyboard:
+        while it is up the focus is in the dialog, and which panel was active
+        is no longer something the focus can say.
+        """
+        from navigator.widgets.change_dir_dialog import ChangeDirDialog
+
+        panel = self.active_panel
+        chosen = await ChangeDirDialog(start=panel.path).execute(self.application)
+        if chosen is not None:
+            panel.path = Path(chosen)
+            panel.focus()
 
     async def on_toggle_tree(self, event: ToggleTree) -> bool:
         self.toggle_tree()
