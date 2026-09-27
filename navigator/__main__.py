@@ -30,7 +30,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator.commands import Help, Quit, ToggleConsole
+from navigator.commands import Help, NewManager, Quit, ToggleConsole
 from navml.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
@@ -69,10 +69,12 @@ class Navigator(Application):
     #: is here because Help is not a panel's; it has no handler yet, so it is
     #: disabled, and a disabled command's key is left for whoever is next --
     #: the console's child gets F1 while Ctrl+O is showing it.  Ctrl+Q is not
-    #: here: it is DOS Navigator's Quick view, and quitting is Alt+X.
+    #: here: it is DOS Navigator's Quick view, and quitting is Alt+X.  Ctrl+F3
+    #: (Manager > New) is, because it has to work with no file manager open --
+    #: from the console, after the last one was closed.
     #:
-    #: **Alt+X is here because a window can be closed.**  It lived on ``Manager`` once, and closing the file manager
-    #: took the key with it.  It is still a desktop key rather than a global
+    #: **Alt+X is here because a window can be closed.**  It lived on
+    #: ``Manager`` once, and closing the file manager took the key with it.  It is still a desktop key rather than a global
     #: one, which is what ``Quit(desktop=True)`` and :meth:`enables` say: while
     #: Ctrl+O has put the windows away it is Meta+X for the child.
     #:
@@ -80,6 +82,7 @@ class Navigator(Application):
     #: navkit stands the application's table aside while one is up.
     keys = {
         "ctrl+o": ToggleConsole,
+        "ctrl+f3": NewManager,
         "f1": Help,
         "f10": OpenMenu,
         "alt+x": Quit(desktop=True),

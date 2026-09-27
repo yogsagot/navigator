@@ -88,6 +88,15 @@ class ChangeDirectory(Command):
     title = "ChDir"
 
 
+class NewManager(Command):
+    """Ctrl+F3: another file manager window, the size of the desktop.
+
+    DOS Navigator's ``cmCreatePanel``, Manager > New.
+    """
+
+    title = "New"
+
+
 class OpenTreeWindow(Command):
     """Disk > Directory tree: a *Directory Tree* window on the desktop.
 
@@ -114,6 +123,7 @@ __all__ = [
     "Edit",
     "Help",
     "MakeDirectory",
+    "NewManager",
     "OpenTreeWindow",
     "Quit",
     "RenameMove",

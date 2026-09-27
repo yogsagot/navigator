@@ -18,7 +18,7 @@ from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
 
-from navigator.commands import OpenTreeWindow
+from navigator.commands import NewManager, OpenTreeWindow
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
@@ -112,14 +112,45 @@ class Shell(DockLayout):
         """
         return await self.menu.open_hotkey(event)
 
+    # -- file managers --------------------------------------------------------
+
+    @property
+    def active_manager(self) -> Manager | None:
+        """The file manager nearest the top of the desktop, or None if none is open.
+
+        What a command meaning "the file manager" asks for, now that Manager >
+        New can open several: the one the user last had in front, whatever
+        other window -- a tree window, say -- is in front of it.
+        ``manager`` stays the first one, kept for whoever asks what it was.
+        """
+        for window in reversed(self.desktop.windows()):
+            if isinstance(window, Manager):
+                return window
+        return None
+
+    async def on_new_manager(self, event: NewManager) -> bool:
+        """Ctrl+F3: ``OpenWindow``.  Another file manager, filling the desktop.
+
+        DOS Navigator asked for a drive first and opened both panels on that
+        drive's current directory.  One root has no drive to ask for, so both
+        panels open where the file manager in front is -- or where Navigator was
+        started, with none open.
+        """
+        current = self.active_manager
+        start = current.active_panel.path if current is not None else Path.cwd()
+        self.desktop.open(Manager(start, start))
+        if self.console_visible:
+            self.toggle_console()
+        return True
+
     # -- the directory tree window --------------------------------------------
 
     async def on_open_tree_window(self, event: OpenTreeWindow) -> bool:
         """Disk > Directory tree: a tree window, opened on the active panel's directory."""
         from navigator.widgets.tree_window import TreeWindow
 
-        manager = self.manager
-        start = manager.active_panel.path if manager.parent is not None else None
+        manager = self.active_manager
+        start = manager.active_panel.path if manager is not None else None
         self.desktop.open(TreeWindow(start=start))
         return True
 
@@ -131,8 +162,8 @@ class Shell(DockLayout):
         that knows where the file manager is.  The keyboard stays in the tree,
         as ``SendLocated`` left it.
         """
-        manager = self.manager
-        if manager.parent is None or event.node is None:
+        manager = self.active_manager
+        if manager is None or event.node is None:
             return False
         manager.active_panel.path = Path(event.node.data)
         return True

@@ -1159,7 +1159,7 @@ def test_the_application_keeps_only_what_is_global():
     from navml.commands import OpenMenu
 
     table = key_table(Navigator)
-    assert set(table) == {"ctrl+o", "f1", "f10", "alt+x"}
+    assert set(table) == {"ctrl+o", "ctrl+f3", "f1", "f10", "alt+x"}
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help
     assert table["f10"] is OpenMenu
@@ -1689,3 +1689,66 @@ def test_every_menu_has_an_id_a_plugin_can_reach_it_by(tree):
     menu.file.add_item("~Z~ip...", key="Alt-Z", after="Make directory")
     assert menu.file.entries()[menu.file.entries().index(
         menu.file.entry("Make directory")) + 1].text == "~Z~ip..."
+
+
+# -- Manager > New (Ctrl+F3) ----------------------------------------------------------------
+
+
+def managers(app):
+    return [w for w in app.shell.desktop.windows() if isinstance(w, Manager)]
+
+
+def test_ctrl_f3_opens_another_file_manager_where_the_active_panel_is(tree):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        KeyEvent("down"), KeyEvent("enter"),              # left panel into alpha
+        KeyEvent("f3", ctrl=True),
+        lambda a: seen.append(a.shell.desktop.active_window),
+    ])
+    first, second = managers(app)
+    assert seen == [second] and first is app.manager
+    assert second.zoomed
+    assert second.left.path == second.right.path == tree / "alpha"
+    assert second._holds(app.focused)
+
+
+def test_ctrl_f3_from_the_console_with_no_file_manager_left(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [
+        KeyEvent("f4", ctrl=True), lambda a: None,        # close the only one
+        KeyEvent("f3", ctrl=True), lambda a: None,
+    ])
+    assert app.manager.parent is None
+    (only,) = managers(app)
+    assert app.shell.console_visible is False
+    assert only._holds(app.focused)
+
+
+def test_the_tree_window_steers_the_file_manager_in_front(tree):
+    from navigator.commands import OpenTreeWindow
+
+    app = navigator(tree)
+    run_app(app, [
+        KeyEvent("f3", ctrl=True), lambda a: None,
+        lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None,
+        KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"),
+    ])
+    first, second = managers(app)
+    assert second.left.path == (tree / "alpha").resolve()
+    assert first.left.path == tree
+
+
+def test_the_new_entry_is_ctrl_f3_and_is_enabled(tree):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        item = _entry(a.shell.menu, "Manager", "New")
+        seen.append((key_caption(item, a, a.manager.left),
+                     a.command_enabled(item.command, a.manager.left)))
+
+    run_app(app, [look])
+    assert seen == [("Ctrl-F3", True)]
