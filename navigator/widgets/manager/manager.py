@@ -1,8 +1,8 @@
 """The handlers behind ``manager.nml``.
 
-The file manager window.  What the document says is the two panels and their
-geometry; what is left here is the logic -- the keys, which panel is active,
-and where the panels open.
+The file manager window.  What the document says is the two panels, their
+geometry and the keys; what is left here is the logic -- what the commands
+do, which panel is active, and where the panels open.
 
 This file never names the generated class.  ``class Manager(Window)`` is the
 base the markup's ``Manager(Window):`` head asks for.
@@ -12,12 +12,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from navkit.events import KeyEvent
 from navkit.reactive import computed
 
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
+from navigator.commands import MakeDirectory, Rescan, SwitchPanel
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navigator.widgets.panel import Panel
 
@@ -46,36 +46,27 @@ class Manager(Window):
         self.left.path = left
         self.right.path = right
 
-    async def on_key(self, event: KeyEvent) -> bool:
-        """The window's own keys: switching panels, rescanning and Mkdir.
+    # -- commands ------------------------------------------------------------
+    #
+    # The keys are the markup's ``keys:`` block.  Alt+X is not among them: a
+    # way out of Navigator cannot live on a window the user can close, so it
+    # is the application's.
 
-        The keys that move *within* a panel are no longer here: up, down, the
-        pages, home, end and Enter belong to the list and are
-        ``ListViewer``'s, reached along the focus path.  What is left is what
-        genuinely needs the window -- which panel, and what to do in it.
+    async def on_switch_panel(self, event: SwitchPanel) -> bool:
+        self.switch_panel()
+        return True
 
-        Reached only when nothing nearer the keyboard claimed the key, which
-        while the console is showing means never -- the console holds the
-        focus and the desktop this window is on is hidden, so none of this
-        needs to ask whether it is visible.
+    async def on_rescan(self, event: Rescan) -> bool:
+        self.active_panel.reload()
+        return True
 
-        Alt+X is not here: a way out of Navigator cannot live on a window the
-        user can close, so it is ``Navigator.on_key``'s.
-        """
-        panel = self.active_panel
-        if event.matches("tab"):
-            self.switch_panel()
-        elif event.matches("f7"):
-            # **Started, not awaited.**  A handler that waits for a dialog
-            # holds the event queue's only consumer, so the dialog is never
-            # painted and the key that would dismiss it is never dispatched.
-            # `spawn' lets this handler return, the batch finish and the frame
-            # appear -- see `Dialog.execute', which refuses the mistake.
-            self.spawn(self.make_directory())
-        elif event.matches("ctrl+r"):
-            panel.reload()
-        else:
-            return False
+    async def on_make_directory(self, event: MakeDirectory) -> bool:
+        # **Started, not awaited.**  A handler that waits for a dialog holds
+        # the event queue's only consumer, so the dialog is never painted and
+        # the key that would dismiss it is never dispatched.  `spawn' lets
+        # this handler return, the batch finish and the frame appear -- see
+        # `Dialog.execute', which refuses the mistake.
+        self.spawn(self.make_directory())
         return True
 
     async def make_directory(self) -> None:

@@ -1,3 +1,4 @@
+from navml.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.button import Button
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.dialog.static_text import StaticText
@@ -21,6 +22,15 @@ Dialog(Modal):
 
     #: The line of text above the buttons.
     property prompt: ""
+
+    #: Turbo Vision's dialog keys.  Reached only once a key has passed the
+    #: control that has the keyboard, so an input line that wants Enter or Tab
+    #: for itself takes it first.
+    keys:
+        escape: Cancel
+        enter: Default
+        tab: SelectNext
+        shift+tab: SelectPrevious
 
     StaticText:
         id: message

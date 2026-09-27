@@ -85,9 +85,16 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     """
     document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [
+        ("Cancel", "Default", "SelectNext", "SelectPrevious"),
         ("Button",), ("HorizontalLayout",), ("StaticText",), ("Modal",),
     ]
     assert [d.name for d in document.root.declarations] == ["buttons", "prompt"]
+    assert [(b.key, b.command) for b in document.root.keys.bindings] == [
+        ("escape", "Cancel"),
+        ("enter", "Default"),
+        ("tab", "SelectNext"),
+        ("shift+tab", "SelectPrevious"),
+    ]
     assert list(document.ids()) == ["message", "row", "ok", "cancel", "info"]
 
     blocks = {block.id: block for block in document.root.walk() if block.id}
@@ -137,6 +144,9 @@ def test_the_generated_half_cites_lines_the_parser_found(component):
         if block.style is not None:
             found.add(block.style.line)
             found.update(d.line for d in block.style.declarations)
+        if block.keys is not None:
+            found.add(block.keys.line)
+            found.update(b.line for b in block.keys.bindings)
 
     generated = shipped(component, "_nml.py").read_text()
     cited = {
@@ -156,12 +166,14 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     """
     lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
+        ("navml.commands",),
         ("navml.widgets.dialog.button",),
         ("navml.widgets.layout.horizontal_layout",),
         ("navml.widgets.dialog.static_text",),
         ("navml.widgets.dialog.modal",),
     ]
     assert [line.source for line in lines] == [
+        "from navml.commands import Cancel, Default, SelectNext, SelectPrevious",
         "from navml.widgets.dialog.button import Button",
         "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
         "from navml.widgets.dialog.static_text import StaticText",
@@ -657,3 +669,37 @@ def test_a_declared_property_value_has_to_be_an_expression():
     error = fails("Panel:\n    property count: 1 +\n")
     assert error.line == 2
     assert "cannot read the value of 'count'" in error.message
+
+
+# -- the keys block --------------------------------------------------------------
+
+
+def test_a_keys_block_is_read_in_canonical_spellings():
+    document = parse(
+        "Editor:\n"
+        "    keys:\n"
+        "        Ctrl+S: Save\n"
+        "        alt+x: Quit(desktop=True)\n"
+    )
+    table = document.root.keys
+    assert table.line == 2
+    assert [(b.key, b.command, b.line) for b in table.bindings] == [
+        ("ctrl+s", "Save", 3),
+        ("alt+x", "Quit(desktop=True)", 4),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("body", "message"),
+    [
+        ("    keys:\n        cmd+s: Save\n", "not a key"),
+        ("    keys:\n        f2: Save\n        F2: Quit\n", "already bound"),
+        ("    keys:\n        f2 Save\n", "not a binding"),
+        ("    keys:\n        f2: Save +\n", "asks for"),
+        ("    keys:\n", "binds nothing"),
+        ("    keys:\n        f2: Save\n    keys:\n        f3: Save\n", "second keys"),
+        ("    Label:\n        keys:\n            f2: Save\n", "root block only"),
+    ],
+)
+def test_a_keys_block_that_cannot_mean_anything_is_refused(body, message):
+    assert message in fails("Editor:\n" + body).message

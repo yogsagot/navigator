@@ -27,10 +27,18 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event, KeyEvent
+from navkit.commands import Command
+from navkit.events import Event
 from navkit.reactive import effect, reactive, untracked
 from navkit.widget import Widget
 
+from navml.commands import (
+    CloseWindow,
+    NextWindow,
+    PreviousWindow,
+    SizeMoveWindow,
+    ZoomWindow,
+)
 from navml.widgets.window import Window
 
 
@@ -38,23 +46,23 @@ class EmptiedEvent(Event):
     """The last window on a desktop was closed."""
 
 
-#: The window keys, and what each one does to the active window.  One table so
-#: that the bindings can be checked against DOS Navigator's own menus in one
-#: place; Turbo Vision's F5 and F6 are Copy and Move in the panels, so the
-#: zoom and next-window keys take a modifier.
-WINDOW_KEYS = {
-    "ctrl+f5": "move",
-    "shift+f5": "zoom",
-    "ctrl+f6": "next",
-    "ctrl+shift+f6": "previous",
-    "alt+f3": "close",
-}
-
-
 class Desktop(Widget):
     """The layer windows live on."""
 
     emits = (EmptiedEvent,)
+
+    #: The window keys.  One table so that the bindings can be checked against
+    #: DOS Navigator's own menus in one place; Turbo Vision's F5 and F6 are
+    #: Copy and Move in the panels, so the zoom and next-window keys take a
+    #: modifier.  Consulted after the active window's own children, because
+    #: this desktop is further from the focus than they are.
+    keys = {
+        "ctrl+f5": SizeMoveWindow,
+        "shift+f5": ZoomWindow,
+        "ctrl+f6": NextWindow,
+        "ctrl+shift+f6": PreviousWindow,
+        "alt+f3": CloseWindow,
+    }
 
     #: The top window, which has the keyboard.  None on an empty desktop.
     active_window: Any = reactive(None)
@@ -148,13 +156,38 @@ class Desktop(Widget):
             self.lower_child(windows[-1])
             self.activate(self.windows()[-1])
 
-    # -- keys ----------------------------------------------------------------
+    # -- commands ------------------------------------------------------------
 
-    async def on_key(self, event: KeyEvent) -> bool:
-        """The window keys, reached after the active window's own children."""
+    def enables(self, command: Command) -> bool:
+        """Every window command needs a window, and two need its consent."""
         window = self.active_window
         if window is None:
             return False
+        if isinstance(command, ZoomWindow):
+            return window.zoomable
+        if isinstance(command, CloseWindow):
+            return window.closable
+        return True
+
+    async def on_size_move_window(self, event: SizeMoveWindow) -> bool:
+        self.active_window.begin_move()
+        return True
+
+    async def on_zoom_window(self, event: ZoomWindow) -> bool:
+        self.active_window.toggle_zoom()
+        return True
+
+    async def on_next_window(self, event: NextWindow) -> bool:
+        self.next_window()
+        return True
+
+    async def on_previous_window(self, event: PreviousWindow) -> bool:
+        self.previous_window()
+        return True
+
+    async def on_close_window(self, event: CloseWindow) -> bool:
+        self.active_window.close()
+        return True
         for spec, action in WINDOW_KEYS.items():
             if not event.matches(spec):
                 continue

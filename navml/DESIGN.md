@@ -539,9 +539,10 @@ forward. The two differ in **where they live**, and every other difference follo
   table, so the icons drawn and the icons clicked cannot drift apart; a frameless window paints them in
   `render_after`, over the panels. `Panel.title_margin` keeps a long path from running under them.
 - **A drag holds the mouse** through navkit's `capture_mouse`, so the pointer outrunning the window does not end it.
-- **The window keys live on `Desktop.on_key`**, reached after the active window's children, so a panel or an input
-  line keeps first refusal. `WINDOW_KEYS` is one table: Ctrl+F5 move/size mode, Shift+F5 zoom, Ctrl+F6 and
-  Ctrl+Shift+F6 next and previous, Alt+F3 close. Turbo Vision's plain F5 and F6 are Copy and RenMov in DOS
+- **The window keys are `Desktop.keys`**, reached after the active window's children, so a panel or an input
+  line keeps first refusal. They are one table of `navml.commands`: Ctrl+F5 `SizeMoveWindow`, Shift+F5
+  `ZoomWindow`, Ctrl+F6 and Ctrl+Shift+F6 `NextWindow` and `PreviousWindow`, Alt+F3 `CloseWindow`.
+  `Desktop.enables` vetoes zoom and close for a window that refuses them. Turbo Vision's plain F5 and F6 are Copy and RenMov in DOS
   Navigator's panels, which is why two of these carry a modifier; **they are still to be checked against DOS
   Navigator's own window menu in `DN.DNR`**, and the table is where that check will land.
 - **An emptied desktop says so** with `EmptiedEvent`, whose handler name makes the generator's stub for a child with
@@ -623,14 +624,15 @@ only the reference. Paths below are under Textual's `src/textual/`.
 - `:hovered` — `Widget.mouse_hover`, with mouse mode 1003. See `navkit/DESIGN.md`, *Hover: a position the
   application keeps*.
 - A disabled state that cascades — `Widget.is_disabled`. It is `inert` here; see *`disabled`, never `enabled`*.
+- **Commands and key tables** — `binding.py`, `actions.py`, `check_action`; Turbo Vision `cmXXX`. A command is an
+  event, a key table is a class attribute or a markup `keys:` block, and the nearest handler decides whether a
+  command is enabled. The key bar reads its captions off the tables and greys what cannot run. Action *strings* are
+  not taken, and nor is the modifier-held key bar, which a terminal cannot see. See *Commands and key tables* in
+  `navkit/DESIGN.md` and *The `keys` block* above. **Menus are the next consumer**: a menu item names a command and
+  greys with it.
 
 **Next**, in rough order:
 
-- **Commands and key tables** — `binding.py`, `actions.py`, `check_action`; Turbo Vision `cmXXX`,
-  `enableCommands`. A widget declares key → command, resolved along the focus path. A command has an enabled state,
-  so a menu item, a key bar label and a hotkey name one command and grey out together. Textual's `ActiveBinding` is
-  what a key bar derives its labels from, and DOS Navigator's key bar already changes with Alt, Ctrl and Shift.
-  Action *strings* are not taken: a command is a Python name.
 - **A public test pilot** — `pilot.py`, `run_test()`, the snapshot plugin. It offers `press`, `click(widget or
   selector)`, `resize` and golden-frame comparison, generalising `tests/conftest.py`'s `run_app` and `desktop_dump`.
 - **`Widget.query(selector)`** — `css/query.py`, reusing the selector matcher. The walk is the only new part.
@@ -2085,6 +2087,39 @@ Two things follow, and both are worth having:
 The variable reference surviving to run time is what makes a theme swap reach markup-authored styles: the string is
 parsed inside the `style` computed, which reads the reactive variable table, so replacing the sheet restyles these
 widgets along with everything else.
+
+### The `keys` block
+
+The other block that is not a widget, and the root block's alone:
+
+```
+Dialog(Modal):
+    keys:
+        escape: Cancel
+        enter: Default
+        tab: SelectNext
+        shift+tab: SelectPrevious
+```
+
+It compiles to the class's `keys` attribute (`navkit/DESIGN.md`, *Commands and key tables*), one entry per line,
+each carrying its `# dialog.nml:N`. A `#:` run above the block is re-emitted above the attribute.
+
+- **The left side is a key spec**, read by `navkit.commands.parse_key` in the parser. It is written in its
+  canonical spelling, so `Ctrl+R` and `ctrl+r` are one key, and binding it twice is an error with both line
+  numbers. A modifier navkit does not know is refused there, not left to never match.
+- **The right side is a Python expression, but a class-level one.** A key table is made once, when the class is,
+  before any instance exists, so `self`, `root`, `parent` and every id mean nothing in it. The generator refuses any
+  name the import block did not bind, *by name*, instead of letting it surface as a `NameError` on import. What is
+  left is evaluated as the class body will evaluate it and has to be a `Command` class or instance. That is the check
+  navkit makes too, only earlier and with a line number.
+- **Root block only.** A child block is an instance of a class that already exists, and a key table is a class's.
+  A child that needs keys of its own is a component of its own.
+- **The hand-written half may have a `keys` too**, and the two merge down the MRO like any two tables. The
+  hand-written half is the derived class, so its binding of a key wins. The markup is where a component's keys are
+  read; the `.py` is where a key whose binding needs Python goes.
+
+`Manager` shows the shape: its document binds Tab, Ctrl+R and F2 to F8, and `manager.py` holds three handlers.
+Every panel command without a handler is disabled, and its caption on the key bar is greyed.
 
 ### A handler body is one line
 

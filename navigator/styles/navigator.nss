@@ -74,6 +74,11 @@ Clock { fg: $desktop-fg; bg: $desktop-bg }
 
 KeyBar         { fg: $bar-fg; bg: $bar-bg }
 KeyBar::number { fg: $bar-key-fg; bg: $bar-key-bg }
+/* A command that cannot run: slot [3], "Disabled -- CMenuView, CStatusLine".
+   Turbo Vision greys the whole item, its key included, so the number takes
+   it too -- and wins over the rule above by being the more specific. */
+KeyBar::label:disabled,
+KeyBar::number:disabled { fg: $bar-disabled-fg; bg: $bar-disabled-bg }
 
 /*
  * The widget library, bound to the slots DOS Navigator's Colors dialog

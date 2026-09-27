@@ -32,7 +32,8 @@ user can drag, resize from its corner, zoom with `[↕]`/`[↑]`, close with `[�
 The old framed `Window` is `Modal` — fixed, centred, bound geometry, `modal = True` — and `Dialog` derives from it.
 Three rules from building it: **a window's rectangle is state, never bound** (drag, resize and zoom assign it);
 **raising is `Widget.raise_child`, a reorder** — `add()` would unmount; and **the application's own `on_key` /
-`on_mouse_click` must step aside while `app.modal` is set**, because they run before navkit's modal routing. navkit
+`on_mouse_click` must step aside while `app.modal` is set**, because they run before navkit's modal routing (the
+application's *key table* does this by itself). navkit
 grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget.render_after` for it; *Windows: raising,
 capturing, painting over* in `navkit/DESIGN.md` and *Windows, the desktop and the modal* in `navml/DESIGN.md` have
 the rest.
@@ -677,14 +678,22 @@ also the widget that showed why a navigated property is seeded rather than bound
   (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
   reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
   the caret is the terminal's own
-- **Keys belong to the widget that owns them.** `Navigator.on_key` keeps only Ctrl+O, F10/Ctrl+Q and Alt+X, because an
-  application hook runs before the widgets and so keeps a key from everything. Alt+X is there because a way out
-  cannot live on a window the user can close (it was `Manager`'s, and closing the file manager took it along), and it
-  is the one application key that asks a question: while Ctrl+O has put windows away it is left for the child, and
-  with no window left it quits from the console; `Console.on_key` keeps the scrollback
-  and sends the rest to the child; `Manager.on_key` keeps the panel keys; `Desktop.on_key` keeps the window
-  keys (`WINDOW_KEYS`). There is no `console_visible` check in any of the widgets — the console holds the focus while it is
-  showing, and the focus path decides. Both application hooks return False while `app.modal` is set
+- **Keys are commands, bound in key tables** (`navkit/commands.py`; *Commands and key tables* in `navkit/DESIGN.md`).
+  A command is an `Event` subclass (`class MakeDirectory(Command)`, handled by `on_make_directory`), emitted from
+  the focused widget up to the application. A key table is a class attribute, `keys = {"f7": MakeDirectory}`, or a
+  markup `keys:` block (root block only). It is consulted at each step of the focus path before that widget's
+  `on_key`, and the application's table before the tree, never under a modal. **The nearest widget with the
+  handler decides whether the command is enabled**, through `enables(command)`, and a command nobody handles is
+  disabled. A disabled command's key falls through as if unbound. `Navigator.keys` holds Ctrl+O, F1, F9, F10,
+  Ctrl+Q and Alt+X; `manager.nml` holds Tab, Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
+  `dialog.nml` holds Esc, Enter and Tab. Navigator's commands are in `navigator/commands.py`, the library's in
+  `navml/commands.py`. Alt+X is on the application because a way out cannot live on a window the user can close, and
+  it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while Ctrl+O has put windows away, so the child gets
+  Meta+X. **The key bar reads its captions off the bindings** (`app.bindings()`) and greys a disabled command in
+  DOS Navigator's `$bar-disabled` slot; a click on a caption runs its command. `Console.on_key` still keeps the
+  scrollback and sends the rest to the child. There is no `console_visible` check in any of the widgets — the
+  console holds the focus while it is showing, and the focus path decides. `Navigator.on_mouse_click` returns False
+  while `app.modal` is set
 - **And so do mouse gestures, by the same rule.** `Panel.on_double_click` enters the clicked row — a directory, or
   `..` — because it needs nothing but the panel it lands on, and routing by position is what picks which panel. It
   needs no `console_visible` check either: the desktop's `visible` is bound to that flag and `dispatch_mouse` skips an

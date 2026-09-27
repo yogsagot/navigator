@@ -23,12 +23,14 @@ from pathlib import Path
 
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
-from navkit.events import KeyEvent, MouseClickEvent
+from navkit.commands import Command
+from navkit.events import MouseClickEvent
 from navkit.glyphs import tier_named
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator.commands import Help, PullDown, Quit, ToggleConsole
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
 from navigator.widgets.shell import Shell
@@ -54,46 +56,48 @@ class Navigator(Application):
         # The shell would otherwise outlive the terminal it was talking to.
         self.shell.console.stop()
 
-    async def on_key(self, event: KeyEvent) -> bool:
-        """Only the keys that mean the same thing wherever the focus is.
+    #: Only the keys that mean the same thing wherever the focus is.
+    #:
+    #: The application's table is consulted before any widget's, which is
+    #: what makes it the right place for exactly these and the wrong place for
+    #: anything else: whatever is bound here is kept from the console, from
+    #: the panels and from every dialog not yet written.  Ctrl+O is the way in
+    #: and out of the console, and F10 and Ctrl+Q are the way out of Navigator
+    #: -- all of which have to work while a child program is eating every
+    #: other keystroke.  F1 and F9 are here because Help and the menus are
+    #: not a panel's; neither has a handler yet, so both are disabled, and a
+    #: disabled command's key is left for whoever is next -- the console's
+    #: child gets F1 while Ctrl+O is showing it.
+    #:
+    #: **Alt+X is the third way out, and it is here because a window can be
+    #: closed.**  It lived on ``Manager`` once, and closing the file manager
+    #: took the key with it.  It is still a desktop key rather than a global
+    #: one, which is what ``Quit(desktop=True)`` and :meth:`enables` say: while
+    #: Ctrl+O has put the windows away it is Meta+X for the child.
+    #:
+    #: **Nothing here reaches past a modal**, and nothing here has to say so:
+    #: navkit stands the application's table aside while one is up.
+    keys = {
+        "ctrl+o": ToggleConsole,
+        "f1": Help,
+        "f9": PullDown,
+        "f10": Quit,
+        "ctrl+q": Quit,
+        "alt+x": Quit(desktop=True),
+    }
 
-        An application hook runs before the widgets, which is what makes it
-        the right place for exactly these and the wrong place for anything
-        else: whatever is kept here is kept from the console, from the panels
-        and from every dialog that has not been written yet.  Ctrl+O is the
-        way in and out of the console, and F10 and Ctrl+Q are the way out of
-        Navigator -- both of which have to work while a child program is
-        eating every other keystroke.
+    def enables(self, command: Command) -> bool:
+        if isinstance(command, Quit) and command.desktop:
+            return not self._console_over_windows()
+        return True
 
-        **Alt+X is the third way out, and it is here because a window can be
-        closed.**  It lived on ``Manager`` once, and closing the file manager
-        took the key with it.  It is still a desktop key rather than a global
-        one: while Ctrl+O has put the windows away it is a keystroke for the
-        child -- Meta+X in a shell or an editor -- and is left alone.  With no
-        window left the console *is* the desktop, and Alt+X quits from it.
+    async def on_toggle_console(self, event: ToggleConsole) -> bool:
+        self.shell.toggle_console()
+        return True
 
-        Everything else went to the widget that owns it: ``Console.on_key``
-        for the console's scrollback and the child, ``Manager.on_key`` for
-        moving about the panels, ``Desktop.on_key`` for the window keys.
-
-        **Nothing here reaches past a modal.**  An application hook runs
-        before navkit routes a key to the modal, so without the first line
-        Ctrl+O would put the windows away under an open dialog and F10 would
-        quit out of the middle of one.  A modal means *nothing outside me*,
-        and these keys are outside it.
-        """
-        if self.modal is not None:
-            return False
-        if event.matches("ctrl+o"):
-            self.shell.toggle_console()
-            return True
-        if event.matches("f10", "ctrl+q"):
-            self.exit()
-            return True
-        if event.matches("alt+x") and not self._console_over_windows():
-            self.exit()
-            return True
-        return False
+    async def on_quit(self, event: Quit) -> bool:
+        self.exit()
+        return True
 
     def _console_over_windows(self) -> bool:
         """Whether Ctrl+O has put windows away to show the console."""

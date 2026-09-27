@@ -1,3 +1,5 @@
+from navigator.commands import Copy, Delete, Edit, MakeDirectory, RenameMove
+from navigator.commands import Rescan, SwitchPanel, UserMenu, View
 from navigator.widgets.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.window import Window
@@ -23,6 +25,22 @@ Manager(Window):
     zoomed: True
     min_width: 24
     min_height: 5
+
+    #: The panel keys.  Up, down, the pages and Enter are not here: they move
+    #: *within* a panel and are ``ListViewer``'s, reached first along the
+    #: focus path.  What is here needs the window -- which panel, and what to
+    #: do in it.  F2 to F8 are the key bar's panel half; every one without a
+    #: handler in ``manager.py`` is disabled, and greyed on the bar.
+    keys:
+        tab: SwitchPanel
+        ctrl+r: Rescan
+        f2: UserMenu
+        f3: View
+        f4: Edit
+        f5: Copy
+        f6: RenameMove
+        f7: MakeDirectory
+        f8: Delete
 
     HorizontalLayout:
         id: panels

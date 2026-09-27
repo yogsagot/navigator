@@ -46,6 +46,7 @@ from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
+from navkit import commands
 from navkit.widget import Widget, _call, check_handlers
 
 #: How long to wait before deciding a lone ``ESC`` really was the escape key
@@ -204,6 +205,13 @@ class Application:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         check_handlers(cls)
+        commands.check_keys(cls)
+
+    #: Keys bound before any widget sees them -- the application's key table,
+    #: which runs where :meth:`on_key` runs and so keeps its keys from the
+    #: whole tree.  Stood aside from while a modal is up, because a modal
+    #: means *nothing outside me* and this table is outside it.
+    keys: Any = {}
 
     #: The sheet every widget under this application resolves against.
     #: Observable, which is what makes loading a theme restyle the tree: each
@@ -773,6 +781,8 @@ class Application:
                 # widget up to whatever it was called on, so it neither starts
                 # outside the modal nor bubbles past it.
                 target = self.modal or self._root
+                if await self._run_key(event):
+                    return
                 if not await self.on_key(event) and target is not None:
                     await target.dispatch_key(event)
             elif isinstance(event, MouseClickEvent):
@@ -911,6 +921,37 @@ class Application:
         local = event.translated(-dx, -dy)
         if modal.contains(local.x, local.y):
             await modal.dispatch_mouse(local)
+
+    # -- commands ------------------------------------------------------------
+
+    async def _run_key(self, event: KeyEvent) -> bool:
+        """The application's own key table, before the tree and never past a
+        modal."""
+        if self.modal is not None:
+            return False
+        binding = commands.key_table(type(self)).get(event.name)
+        return binding is not None and await commands.run(self, binding)
+
+    async def run_command(self, binding: commands.Binding) -> bool:
+        """Ask for a command as if its key had been pressed.
+
+        What a key bar button and a menu item call.  False if the command is
+        disabled or nobody claimed it.
+        """
+        return await commands.run(self, binding)
+
+    def command_enabled(self, binding: commands.Binding) -> bool:
+        """Whether asking for *binding*'s command now would run it."""
+        return commands.enabled(self, binding)
+
+    def bindings(self) -> dict[str, commands.Command]:
+        """Every key that asks for a command right now -- what a key bar shows."""
+        return commands.bindings(self)
+
+    def enables(self, command: commands.Command) -> bool:
+        """Whether the application will run *command* now.  See
+        :meth:`Widget.enables`."""
+        return True
 
     # Hooks -- an application subclass sees every event before the widgets do.
 

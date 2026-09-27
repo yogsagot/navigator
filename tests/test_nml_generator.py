@@ -301,3 +301,21 @@ def test_the_generator_s_machinery_is_underscored(stem):
     for taken in ("Component", "Widget", "bind", "reactive", "Any", "StyleProperty"):
         assert taken not in namespace
     assert "_Component" in namespace
+
+
+def test_a_keys_block_becomes_the_class_key_table(generated):
+    from navkit.commands import key_table
+    from navml.commands import Cancel, Default
+
+    source, namespace = generated(
+        "from navml.commands import Cancel, Default\n\n"
+        "Box:\n"
+        "    #: What the box binds.\n"
+        "    keys:\n"
+        "        Escape: Cancel\n"
+        "        enter: Default()\n",
+        name="box",
+    )
+    assert "#: What the box binds." in source
+    assert "'escape': Cancel,    # box.nml:6" in source
+    assert key_table(namespace["Box"]) == {"escape": Cancel, "enter": Default()}

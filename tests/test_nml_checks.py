@@ -326,3 +326,28 @@ def test_a_reactive_the_markup_cannot_see_is_reported(checked):
         ),
     )
     assert "declares enabled, which this document declares too" in error.message
+
+
+# -- the keys block --------------------------------------------------------------
+
+
+def test_a_key_table_may_name_only_what_is_imported(checked):
+    error = refused(
+        checked,
+        "from navml.commands import Cancel\n\nWidget:\n    keys:\n"
+        "        escape: Cancel\n        f2: root.thing\n",
+    )
+    assert error.line == 6
+    assert "'root' is not imported" in error.message
+
+
+def test_a_key_table_names_commands(checked):
+    error = refused(checked, PRELUDE + "Widget:\n    keys:\n        f2: Button\n")
+    assert "not a Command" in error.message
+
+
+def test_a_key_table_of_commands_passes(checked):
+    checked(
+        "from navml.commands import Cancel, Default\n\nWidget:\n    keys:\n"
+        "        escape: Cancel\n        enter: Default()\n"
+    )

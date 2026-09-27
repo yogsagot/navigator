@@ -15,6 +15,7 @@ from pathlib import Path
 import pytest
 
 from navkit.capabilities import FULL
+from navkit.commands import key_table
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.reactive import is_bound
@@ -1142,20 +1143,18 @@ def test_the_desktop_owns_the_panel_keys(tree):
     assert app.manager.left.cursor == 1
 
 
-def test_the_application_keeps_only_what_is_global(tree, quiet_console):
-    # Asked of the hook directly, outside the loop: `awaited' runs its own
-    # loop, so it cannot be called from inside a run_app action.
-    app = navigator(tree)
-    claimed = {
-        spec: awaited(app.on_key(event))
-        for spec, event in (
-            ("down", KeyEvent("down")),
-            ("tab", KeyEvent("tab")),
-            ("alt+x", KeyEvent("x", "x", alt=True)),
-            ("ctrl+o", KeyEvent("o", ctrl=True)),
-        )
-    }
-    assert claimed == {"down": False, "tab": False, "alt+x": True, "ctrl+o": True}
+def test_the_application_keeps_only_what_is_global():
+    # The application's table is consulted before any widget's, so what it
+    # binds is kept from the whole tree -- the ways in and out of the console
+    # and of Navigator, and the two commands that are nobody's panel's.
+    from navigator.commands import Help, PullDown, Quit, ToggleConsole
+
+    table = key_table(Navigator)
+    assert set(table) == {"ctrl+o", "f1", "f9", "f10", "ctrl+q", "alt+x"}
+    assert table["ctrl+o"] is ToggleConsole
+    assert (table["f1"], table["f9"]) == (Help, PullDown)
+    assert table["f10"] is table["ctrl+q"] is Quit
+    assert table["alt+x"] == Quit(desktop=True)
 
 
 def test_a_panel_can_be_built_the_way_markup_builds_one(tree):
@@ -1256,7 +1255,12 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     left panel's top edge and ``[↕]`` on the right's -- and not one other
     cell, which is what the conversion was checked against.  And once more
     when the clock arrived: the last five cells of the menu bar, pinned to
-    ``12:34`` here so the fixture does not depend on when it runs.
+    ``12:34`` here so the fixture does not depend on when it runs.  And once
+    more when the key bar began reading its captions off the key tables: the
+    same ten captions, with every one whose command has no handler yet in the
+    status line's *Disabled* colour -- the bottom row's styles, and nothing
+    else.  That is also why this runs under ``Navigator`` rather than a bare
+    ``Application``: F1, F9 and F10 are the application's keys.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
@@ -1270,8 +1274,12 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     async def main():
-        shell = Shell(pathlib.Path("."), pathlib.Path("."))
-        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        app = Navigator(
+            pathlib.Path("."),
+            pathlib.Path("."),
+            terminal=FakeTerminal(width=80, height=24),
+        )
+        shell = app.shell
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.15)
         dump = desktop_dump(shell)
@@ -1491,3 +1499,72 @@ def test_working_the_scrollbar_moves_the_cursor_and_the_scroll_follows(tmp_path)
     settle()
     assert panel.cursor == 1 + panel.page()
     assert panel.scroll <= panel.cursor < panel.scroll + panel.rows
+
+
+# -- the key bar reads the key tables ---------------------------------------------
+
+
+CAPTIONS = ["Help", "Menu", "View", "Edit", "Copy", "RenMov", "Mkdir", "Delete",
+            "PullDn", "Quit"]
+
+
+def test_the_key_bar_captions_are_the_bound_commands_titles(tree):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [lambda a: seen.append(a.shell.keybar.commands())])
+    (commands,) = seen
+    assert [c.title for c in commands] == CAPTIONS
+
+
+def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
+    app = navigator(tree)
+    enabled = []
+    run_app(app, [lambda a: enabled.extend(
+        a.command_enabled(c) for c in a.shell.keybar.commands()
+    )])
+    # Mkdir and Quit are written; the rest are file operations still to come.
+    assert [title for title, on in zip(CAPTIONS, enabled) if on] == ["Mkdir", "Quit"]
+
+
+def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: seen.append(a.shell.keybar.commands()),
+    ])
+    (commands,) = seen
+    # The panel keys are the file manager's, and the console has the keyboard.
+    shown = [c.title if c else None for c in commands]
+    assert shown == ["Help"] + [None] * 7 + ["PullDn", "Quit"]
+
+
+def test_a_click_on_a_caption_asks_for_its_command(tree):
+    app = navigator(tree)
+    slot = 80 // 10
+    run_app(app, [MouseClickEvent(9 * slot + 1, 23, "left")])
+    assert app.is_running is False
+
+
+def test_a_click_on_a_greyed_caption_does_nothing_and_goes_nowhere(tree):
+    app = navigator(tree)
+    cursor = []
+    run_app(app, [
+        MouseClickEvent(2 * 8 + 1, 23, "left"),
+        lambda a: cursor.append((a.is_running, a.modal)),
+    ])
+    assert cursor == [(True, None)]
+
+
+def test_alt_x_is_vetoed_while_the_console_is_over_the_windows(tree, quiet_console):
+    from navigator.commands import Quit
+
+    app = navigator(tree)
+    answers = []
+    run_app(app, [
+        lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
+        KeyEvent("o", ctrl=True),
+        lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
+        lambda a: answers.append(a.command_enabled(Quit)),
+    ])
+    assert answers == [True, False, True]

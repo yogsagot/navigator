@@ -30,6 +30,7 @@ follows.
 
 from __future__ import annotations
 
+import ast
 import builtins
 from dataclasses import dataclass, field
 from typing import Any
@@ -430,6 +431,19 @@ def _write(build: _Build) -> str:
         coder.add(1, "#: What this component emits, read through emitted().")
         names = ", ".join(name for _, name in build.events)
         coder.add(1, f"emits = ({names},)")
+    if root.keys is not None:
+        coder.new_line()
+        for line in root.keys.doc or (
+            "The keys this component binds, read through key_table().",
+        ):
+            coder.add(1, f"#: {line}")
+        coder.add(1, "keys = {")
+        coder.comment(-1, f"{document.filename}:{root.keys.line}", True)
+        for binding in root.keys.bindings:
+            command = ast.unparse(ast.parse(binding.command, mode="eval"))
+            coder.add(2, f"{binding.key!r}: {command},")
+            coder.comment(-1, f"{document.filename}:{binding.line}", True)
+        coder.add(1, "}")
 
     if build.declarations:
         coder.new_line()

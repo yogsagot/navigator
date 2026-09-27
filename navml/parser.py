@@ -44,6 +44,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Sequence
 
+from navkit.commands import parse_key
 from navkit.stylesheet import PropertySpec, parse_value
 from navkit.stylesheet import StylesheetError
 
@@ -64,6 +65,11 @@ DIRECTIVES = frozenset({"property", "style_property", "alias"})
 #: The one block in a document that is not a widget.  Its body is a stylesheet
 #: fragment rather than Python, so it is read by different rules.
 STYLE = "style"
+
+#: The other one: a key table, ``key: Command`` a line.  Root block only,
+#: because it becomes the ``keys`` attribute of the class this document
+#: declares, and a child is an instance of a class that already exists.
+KEYS = "keys"
 
 _HEAD = re.compile(r"(\w+)\s*(?:\(\s*([\w.]+)\s*\))?\s*:\Z")
 _NAMES = re.compile(r"[A-Za-z_]\w*\Z")
@@ -187,6 +193,29 @@ class StyleBlock:
 
 
 @dataclass(frozen=True, slots=True)
+class KeyBinding:
+    """One line of a ``keys:`` block: a key, and the command it asks for.
+
+    ``key`` is already canonical -- ``"ctrl+shift+f6"`` however it was
+    written -- and ``command`` is Python source, an expression naming a
+    command class or constructing an instance of one.
+    """
+
+    key: str
+    command: str
+    line: int
+
+
+@dataclass(frozen=True, slots=True)
+class KeyTable:
+    """A ``keys:`` block, which becomes the class's ``keys`` attribute."""
+
+    bindings: tuple[KeyBinding, ...]
+    line: int
+    doc: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class Block:
     """A widget: the root block declares one, every other constructs one.
 
@@ -204,6 +233,7 @@ class Block:
     properties: tuple[Property, ...] = ()
     handlers: tuple[Handler, ...] = ()
     style: StyleBlock | None = None
+    keys: KeyTable | None = None
     children: tuple[Block, ...] = ()
     doc: tuple[str, ...] = ()
 
@@ -713,6 +743,49 @@ def _read_style(lines: Sequence[_Line], index: int, filename: str
     return StyleBlock(tuple(declarations), head.line), index
 
 
+def _read_keys(lines: Sequence[_Line], index: int, filename: str
+               ) -> tuple[KeyTable, int]:
+    """A ``keys:`` block: a key spec, a colon, and a Python expression."""
+    head = lines[index]
+    index += 1
+    bindings: list[KeyBinding] = []
+    seen: dict[str, int] = {}
+    if index < len(lines) and lines[index].indent > head.indent:
+        indent = lines[index].indent
+        while index < len(lines) and lines[index].indent >= indent:
+            line = lines[index]
+            if line.indent > indent:
+                raise MarkupError(
+                    "unexpected indent inside a keys block", line.line, filename
+                )
+            spec, colon, command = line.text.partition(":")
+            spec, command = spec.strip(), command.strip()
+            if not colon or not command:
+                raise MarkupError(
+                    f"{line.text!r} is not a binding; expected 'key: Command'",
+                    line.line,
+                    filename,
+                )
+            try:
+                key = parse_key(spec)
+            except ValueError as error:
+                raise MarkupError(str(error), line.line, filename) from None
+            if key in seen:
+                raise MarkupError(
+                    f"{key!r} is already bound on line {seen[key]}; one key "
+                    f"asks for one command",
+                    line.line,
+                    filename,
+                )
+            seen[key] = line.line
+            _expression(command, f"the command {spec!r} asks for", line.line, filename)
+            bindings.append(KeyBinding(key, command, line.line))
+            index += 1
+    if not bindings:
+        raise MarkupError("a keys block binds nothing", head.line, filename)
+    return KeyTable(tuple(bindings), head.line, head.doc), index
+
+
 def _read_block(
     lines: Sequence[_Line], index: int, filename: str, *, root: bool
 ) -> tuple[Block, int]:
@@ -727,6 +800,7 @@ def _read_block(
     handlers: list[Handler] = []
     children: list[Block] = []
     style: StyleBlock | None = None
+    keys: KeyTable | None = None
     if index < len(lines) and lines[index].indent > head.indent:
         indent = lines[index].indent
         while index < len(lines) and lines[index].indent >= indent:
@@ -744,6 +818,16 @@ def _read_block(
                             filename,
                         )
                     style, index = _read_style(lines, index, filename)
+                elif line.text.rstrip(":").strip() == KEYS:
+                    if not root:
+                        raise _root_only("keys", line, filename)
+                    if keys is not None:
+                        raise MarkupError(
+                            "a second keys block; a component has one table",
+                            line.line,
+                            filename,
+                        )
+                    keys, index = _read_keys(lines, index, filename)
                 else:
                     child, index = _read_block(lines, index, filename, root=False)
                     children.append(child)
@@ -792,6 +876,7 @@ def _read_block(
             properties=tuple(properties),
             handlers=tuple(handlers),
             style=style,
+            keys=keys,
             children=tuple(children),
             doc=head.doc,
         ),

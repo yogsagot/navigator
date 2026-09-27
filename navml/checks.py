@@ -21,6 +21,7 @@ import ast
 import inspect
 from typing import Iterable, Iterator
 
+from navkit.commands import Command
 from navkit.events import Event, emitted
 from navkit.reactive import Computed
 from navkit.stylesheet import (
@@ -51,6 +52,7 @@ def check(resolved: Resolved) -> None:
     _check_children(resolved)
     _check_properties(resolved)
     _check_styles(resolved)
+    _check_keys(resolved)
     _check_handlers(resolved)
     _check_sibling(resolved)
 
@@ -272,6 +274,53 @@ def _check_styles(resolved: Resolved) -> None:
                 )
             except StylesheetError as error:
                 _refuse(resolved, declaration.line, error.message)
+
+
+# -- what a keys block binds -------------------------------------------------
+
+
+def _check_keys(resolved: Resolved) -> None:
+    """Every binding names a command, and reads nothing but the imports.
+
+    A key table is a class attribute, evaluated once when the generated class
+    is made, so there is no instance for ``self``, ``root`` or an id to mean:
+    a name the import block did not bind is refused by name here, rather than
+    by a ``NameError`` at import.  What remains is evaluated, the way the
+    class body will evaluate it, and has to be a command class or an instance
+    of one -- the check navkit makes too, only earlier and with a line number.
+    """
+    table = resolved.document.root.keys
+    if table is None:
+        return
+    for binding in table.bindings:
+        tree = ast.parse(binding.command, mode="eval")
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id not in resolved.namespace:
+                _refuse(
+                    resolved,
+                    binding.line,
+                    f"{node.id!r} is not imported; a key table belongs to the "
+                    f"class and is made before any instance, so it can name "
+                    f"only what the import block brings in",
+                )
+        try:
+            value = eval(  # noqa: S307 - the document's own expression
+                compile(tree, resolved.filename, "eval"), dict(resolved.namespace)
+            )
+        except Exception as error:  # noqa: BLE001 - reported with its line
+            _refuse(
+                resolved,
+                binding.line,
+                f"the command for {binding.key!r} failed to evaluate: {error}",
+            )
+        is_class = isinstance(value, type) and issubclass(value, Command)
+        if not is_class and not isinstance(value, Command):
+            _refuse(
+                resolved,
+                binding.line,
+                f"{binding.command} is not a Command class or instance, so "
+                f"{binding.key!r} would ask for nothing",
+            )
 
 
 # -- what a handler line lands on --------------------------------------------

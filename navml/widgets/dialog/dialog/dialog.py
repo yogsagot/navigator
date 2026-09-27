@@ -26,10 +26,12 @@ import asyncio
 from typing import Any
 
 from navkit.application import Application
-from navkit.events import Event, KeyEvent
+from navkit.commands import Command
+from navkit.events import Event
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
+from navml.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.modal import Modal
 
 
@@ -134,25 +136,33 @@ class Dialog(Modal):
                 return control
         return None
 
-    # -- keys ----------------------------------------------------------------
+    # -- commands ------------------------------------------------------------
+    #
+    # The keys are the markup's ``keys:`` block.  Alt+letter is not among them
+    # and is still ``Modal.on_key``'s: which letters mean anything depends on
+    # the captions of whatever controls the dialog holds, and a table is fixed
+    # when the class is made.
 
-    async def on_key(self, event: KeyEvent) -> bool:
-        if event.matches("escape"):
-            self.close(None)
-            return True
-        if event.matches("tab"):
-            self._application_or_raise().focus_next()
-            return True
-        if event.matches("shift+tab"):
-            self._application_or_raise().focus_next(reverse=True)
-            return True
-        if event.matches("enter"):
-            button = self.default_button
-            if button is not None:
-                return await button.press()
-            return False
-        # Alt+letter, and whatever else Modal knows about.
-        return await super().on_key(event)
+    def enables(self, command: Command) -> bool:
+        """Enter needs a default button to press."""
+        if isinstance(command, Default):
+            return self.default_button is not None
+        return super().enables(command)
+
+    async def on_cancel(self, event: Cancel) -> bool:
+        self.close(None)
+        return True
+
+    async def on_default(self, event: Default) -> bool:
+        return await self.default_button.press()
+
+    async def on_select_next(self, event: SelectNext) -> bool:
+        self._application_or_raise().focus_next()
+        return True
+
+    async def on_select_previous(self, event: SelectPrevious) -> bool:
+        self._application_or_raise().focus_next(reverse=True)
+        return True
 
     def _application_or_raise(self) -> Application:
         app = self.application

@@ -22,6 +22,7 @@ import asyncio
 
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
+from navkit import commands
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
 from navkit import terminal as terminal_module
@@ -86,10 +87,16 @@ class Widget:
     #: instead of hunting for :meth:`emit` calls.  Widgets that emit nothing
     #: of their own say nothing.
     emits: tuple[type[Event], ...] = ()
+    #: Keys this widget binds to commands, as ``{"f7": MakeDirectory}`` --
+    #: read through :func:`navkit.commands.key_table`, which merges the tables
+    #: down the MRO with a subclass's binding winning.  Consulted when a key
+    #: reaches this widget on the focus path, before :meth:`on_key`.
+    keys: Mapping[str, commands.Binding] = {}
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         check_handlers(cls)
+        commands.check_keys(cls)
 
     x: int = reactive(0)
     y: int = reactive(0)
@@ -863,9 +870,37 @@ class Widget:
         nothing does, to nothing.
         """
         for widget in self._focus_path() or (self,):
+            if await widget._run_key(event):
+                return True
             if await widget.on_key(event):
                 return True
         return False
+
+    async def _run_key(self, event: KeyEvent) -> bool:
+        """Run the command this widget's key table binds *event* to, if any.
+
+        False when the key is unbound here, when its command is disabled, and
+        when nobody claimed it -- each of which leaves the key to
+        :meth:`on_key` and to the widgets further out, exactly as an unbound
+        key would be.  Off an application there is nowhere for a command to
+        go, so the table is not consulted.
+        """
+        binding = commands.key_table(type(self)).get(event.name)
+        app = self.application
+        if binding is None or app is None:
+            return False
+        return await commands.run(app, binding)
+
+    def enables(self, command: commands.Command) -> bool:
+        """Whether this widget will run *command* now.  Asked only of a widget
+        that has the handler, and only when it is the nearest one to the focus
+        that does -- see :func:`navkit.commands.target`.
+
+        Override it to say *not here, not now*: a window that cannot be zoomed
+        vetoes ``Zoom``.  Read it from reactive state, and a key bar or a menu
+        showing the command greys it out by itself.
+        """
+        return True
 
     async def dispatch_mouse(self, event: MouseClickEvent) -> bool:
         """Offer a mouse action to the child under the pointer, then to self.
