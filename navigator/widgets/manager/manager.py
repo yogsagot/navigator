@@ -15,7 +15,7 @@ from pathlib import Path
 from navkit.events import KeyEvent
 from navkit.reactive import computed
 
-from navml.widgets.dialog import Dialog
+from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
 from navigator.widgets.mkdir_dialog import MkdirDialog

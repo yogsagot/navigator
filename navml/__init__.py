@@ -2,7 +2,7 @@
 
 A component is written as markup (``button.nml``), as Python (``button.py``),
 or as both, and the three are interchangeable: the consumer writes
-``from navml.widgets.button import Button`` and cannot tell which shape it is
+``from navml.widgets.dialog.button import Button`` and cannot tell which shape it is
 looking at.  :mod:`navml._merge` is what makes that true; *The two halves of a
 component* in ``navml/DESIGN.md`` records why it works the way it does.
 

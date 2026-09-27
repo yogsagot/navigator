@@ -15,8 +15,8 @@ from typing import Any as _Any
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navml.widgets.dialog import Dialog    # mkdir_dialog.nml:1
-from navml.widgets.field import Field    # mkdir_dialog.nml:2
+from navml.widgets.dialog.dialog import Dialog    # mkdir_dialog.nml:1
+from navml.widgets.dialog.field import Field    # mkdir_dialog.nml:2
 
 __navml_component__ = "MkdirDialog"
 

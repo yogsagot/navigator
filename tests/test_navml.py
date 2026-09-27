@@ -48,8 +48,8 @@ from navml.widgets import (
 # `__init__.py' re-exports the class, so the questions these tests ask about a
 # module -- its `__file__', its loader, where a class is re-homed -- are about
 # the module one level in.
-from navml.widgets.button import button as button_module
-from navml.widgets.field import field as field_module
+from navml.widgets.dialog.button import button as button_module
+from navml.widgets.dialog.field import field as field_module
 from navml.widgets.spacer import spacer as spacer_module
 
 
@@ -106,9 +106,9 @@ def package(tmp_path, monkeypatch):
     "module, component",
     [
         ("navml.widgets.spacer", "Spacer"),       # Python alone
-        ("navml.widgets.field", "Field"),         # markup alone
-        ("navml.widgets.label", "Label"),         # both
-        ("navml.widgets.button", "Button"),       # both
+        ("navml.widgets.dialog.field", "Field"),         # markup alone
+        ("navml.widgets.dialog.label", "Label"),         # both
+        ("navml.widgets.dialog.button", "Button"),       # both
         ("navml.widgets.window", "Window"),
     ],
 )
@@ -139,8 +139,8 @@ def test_a_merged_component_keeps_one_truthful_source_file():
     """
     assert button_module.__file__.endswith("button.py")
     assert button_module.__spec__.origin == button_module.__file__
-    assert button_module.__loader__.get_source("navml.widgets.button.button")
-    assert button_module.__loader__.get_code("navml.widgets.button.button") is not None
+    assert button_module.__loader__.get_source("navml.widgets.dialog.button.button")
+    assert button_module.__loader__.get_code("navml.widgets.dialog.button.button") is not None
     assert inspect.getsource(Button).startswith("class Button(Control):")
 
 
@@ -151,7 +151,7 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     and the class has to be re-homed onto the public name.
     """
     assert field_module.__file__.endswith("field_nml.py")
-    assert Field.__module__ == "navml.widgets.field.field"
+    assert Field.__module__ == "navml.widgets.dialog.field.field"
     assert inspect.getsource(Field).startswith(
         "class Field(HorizontalLayout, _Component):"
     )
@@ -166,7 +166,7 @@ def test_the_generated_class_is_the_base():
     Keeping the name means a sheet's ``Button { }`` reads the same whether or
     not a component has a hand-written half.
     """
-    generated = importlib.import_module("navml.widgets.button.button_nml")
+    generated = importlib.import_module("navml.widgets.dialog.button.button_nml")
     assert [c.__name__ for c in Button.__mro__] == [
         "Button", "Button", "Control", "Component", "Widget", "object"
     ]
@@ -424,7 +424,10 @@ def shipped(stem: str, suffix: str) -> pathlib.Path:
     A component is a directory whose files repeat its name, so the paths in
     here go through this rather than being spelled out.
     """
-    return WIDGETS / stem / f"{stem}{suffix}"
+    return next(
+        path for path in sorted(WIDGETS.rglob(f"{stem}{suffix}"))
+        if path.parent.name == stem
+    )
 
 
 def _bound(node: ast.Import | ast.ImportFrom) -> dict[str, str]:
@@ -528,11 +531,13 @@ def test_importing_one_component_does_not_load_the_library(package):
     Three entries per component, not one: a component is a directory, so its
     package, its module and its generated module each get a slot.  **What this
     pins is the absence** -- ``button``, ``dialog``, ``window`` and
-    ``spacer`` -- and that is untouched by the count going up.
+    ``spacer`` -- and that is untouched by the count going up.  A group's
+    package is loaded on the way to its members and is not the library: it
+    imports none of them.
     """
     script = (
         "import sys, importlib\n"
-        "importlib.import_module('navml.widgets.field')\n"
+        "importlib.import_module('navml.widgets.dialog.field')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navml.widgets.'))))\n"
     )
@@ -540,40 +545,41 @@ def test_importing_one_component_does_not_load_the_library(package):
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
     assert loaded == [
-        "navml.widgets.control",          # the base both of Field's children
-        "navml.widgets.control.control",  # derive from
-        "navml.widgets.field",
-        "navml.widgets.field.field",
-        "navml.widgets.field.field_nml",
-        "navml.widgets.input_line",
-        "navml.widgets.input_line.input_line",
-        "navml.widgets.input_line.input_line_nml",
-        "navml.widgets.label",
-        "navml.widgets.label.label",
-        "navml.widgets.label.label_nml",
-        "navml.widgets.layout",           # the group, which imports nothing,
+        "navml.widgets.dialog",           # the group, which imports nothing
+        "navml.widgets.dialog.control",   # the base both of Field's children
+        "navml.widgets.dialog.control.control",  # derive from
+        "navml.widgets.dialog.field",
+        "navml.widgets.dialog.field.field",
+        "navml.widgets.dialog.field.field_nml",
+        "navml.widgets.dialog.input_line",
+        "navml.widgets.dialog.input_line.input_line",
+        "navml.widgets.dialog.input_line.input_line_nml",
+        "navml.widgets.dialog.label",
+        "navml.widgets.dialog.label.label",
+        "navml.widgets.dialog.label.label_nml",
+        "navml.widgets.dialog.static_text",  # Label's shortcut painter
+        "navml.widgets.dialog.static_text.static_text",
+        "navml.widgets.dialog.static_text.static_text_nml",
+        "navml.widgets.layout",           # another group, which imports nothing
         "navml.widgets.layout.horizontal_layout",  # the base Field derives from
         "navml.widgets.layout.horizontal_layout.horizontal_layout",
         "navml.widgets.layout.layout",    # and the base that derives from
         "navml.widgets.layout.layout.layout",
-        "navml.widgets.static_text",      # Label's shortcut painter
-        "navml.widgets.static_text.static_text",
-        "navml.widgets.static_text.static_text_nml",
     ]
 
 
 def test_a_component_still_pulls_in_the_ones_it_really_uses():
     script = (
         "import sys, importlib\n"
-        "importlib.import_module('navml.widgets.dialog')\n"
+        "importlib.import_module('navml.widgets.dialog.dialog')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navml.widgets.'))))\n"
     )
     loaded = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, check=True
     ).stdout.split()
-    assert "navml.widgets.button" in loaded      # Dialog's buttons
-    assert "navml.widgets.modal" in loaded       # and the base it derives
+    assert "navml.widgets.dialog.button" in loaded      # Dialog's buttons
+    assert "navml.widgets.dialog.modal" in loaded       # and the base it derives
     assert "navml.widgets.spacer" not in loaded  # but nothing it does not
 
 
@@ -597,7 +603,7 @@ def test_the_finder_declines_everything_it_is_not_asked_about():
     assert finder.find_spec("json", None) is None
     assert finder.find_spec("navkit.widget", ["navkit"]) is None
     assert finder.find_spec(
-        "navml.widgets.button.button_nml", ["navml/widgets/button"]
+        "navml.widgets.dialog.button.button_nml", ["navml/widgets/dialog/button"]
     ) is None
 
 
@@ -652,7 +658,7 @@ def test_the_finder_never_claims_a_package(package):
 def test_a_button_declares_the_event_it_emits():
     """The public surface navml's generator will check an ``on_click:`` line
     against, and the one a reader consults instead of hunting for emit calls."""
-    from navml.widgets.button import ClickEvent
+    from navml.widgets.dialog.button import ClickEvent
 
     assert emitted(Button) == {ClickEvent}
     assert ClickEvent.handler == "on_click"
@@ -691,7 +697,7 @@ def test_a_mouse_press_reaches_the_same_handler_as_the_keys():
 def test_a_click_bubbles_to_an_ancestor_that_never_named_the_button():
     """Why an alias to a widget is not needed: a container catches what its
     children emit without reaching through them to connect anything."""
-    from navml.widgets.button import ClickEvent
+    from navml.widgets.dialog.button import ClickEvent
 
     root = Widget()
     box = root.add(Widget())
@@ -727,7 +733,7 @@ def test_a_disabled_button_emits_nothing():
 def test_a_derived_component_keeps_the_event_its_base_emits():
     """Through the four-deep merged MRO, which is the case only this repo has:
     Dialog, Dialog, Modal, Modal, then the shared base."""
-    from navml.widgets.button import ClickEvent
+    from navml.widgets.dialog.button import ClickEvent
 
     assert emitted(Button) == {ClickEvent}
     assert [c.__name__ for c in Dialog.__mro__][:5] == [

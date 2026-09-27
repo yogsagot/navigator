@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import re
 
+import pathlib
+
 import pytest
 
 from navkit.events import emitted
@@ -29,10 +31,13 @@ def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
 
     A component is a directory whose files repeat its name, so every path in
-    here goes through this rather than being spelled out -- the next layout
-    question then has one place to answer.
+    here goes through this rather than being spelled out.  A component may sit
+    in a group directory, so it is found by name rather than by a fixed depth.
     """
-    return f"navml/widgets/{stem}/{stem}{suffix}"
+    return next(
+        str(path) for path in sorted(pathlib.Path("navml/widgets").rglob(f"{stem}{suffix}"))
+        if path.parent.name == stem
+    )
 
 
 def build(stem: str):
@@ -101,7 +106,7 @@ def test_a_bare_head_extends_the_shared_base():
 
 def test_a_named_base_keeps_the_shared_base_beside_it():
     """A component derived from a Python-only widget still needs it."""
-    from navml.widgets.modal import Modal
+    from navml.widgets.dialog.modal import Modal
 
     namespace = run(build("dialog"))
     assert namespace["Dialog"].__bases__ == (Modal, Component)
@@ -116,7 +121,7 @@ def test_generation_is_stable():
 
 
 def test_ids_are_live_by_the_time_the_constructor_returns():
-    from navml.widgets.static_text import StaticText
+    from navml.widgets.dialog.static_text import StaticText
 
     button = run(build("button"))["Button"]()
     assert isinstance(button.caption, StaticText)
@@ -219,7 +224,7 @@ def test_a_style_property_is_declared_as_one(generated):
 
 def test_an_alias_forwards(generated):
     _, namespace = generated(
-        "from navml.widgets.label import Label\n\n"
+        "from navml.widgets.dialog.label import Label\n\n"
         "Panel:\n    alias title: cap.text\n\n    Label:\n        id: cap\n"
     )
     panel = namespace["Panel"]()
@@ -243,7 +248,7 @@ def test_a_style_block_becomes_one_inline_style(generated):
 
 def test_a_markup_handler_is_a_one_statement_async_def(generated):
     source, namespace = generated(
-        "from navml.widgets.label import Label\n\n"
+        "from navml.widgets.dialog.label import Label\n\n"
         "Panel:\n    Label:\n        id: cap\n        on_key: self.text = event.key\n"
     )
     assert "async def _on_key(event):" in source
@@ -256,7 +261,7 @@ def test_a_markup_handler_always_consumes(generated):
     from navkit.events import KeyEvent
 
     _, namespace = generated(
-        "from navml.widgets.label import Label\n\n"
+        "from navml.widgets.dialog.label import Label\n\n"
         "Panel:\n    Label:\n        id: cap\n        on_key: self.text = event.key\n"
     )
     panel = namespace["Panel"]()

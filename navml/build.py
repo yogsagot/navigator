@@ -173,9 +173,9 @@ def _own_directory(package: str | None, stem: str) -> str | None:
     """*package*, when *stem* is the module it publishes under its own name.
 
     A component is a directory and the files in it repeat its name, so
-    ``navml/widgets/button/button.nml`` compiles to
-    ``navml.widgets.button.button`` -- while every document that wants it
-    writes ``from navml.widgets.button import Button``, because the directory
+    ``navml/widgets/dialog/button/button.nml`` compiles to
+    ``navml.widgets.dialog.button.button`` -- while every document that wants it
+    writes ``from navml.widgets.dialog.button import Button``, because the directory
     is the public name and the module inside it is where the class happens to
     sit.  A flat package answers ``None`` here, which is the whole of why the
     flat layout keeps working.
@@ -272,7 +272,7 @@ def _forget(path: Path) -> None:
     **The component's own package goes too.**  A component is a directory
     whose ``__init__`` re-exports the class, so that package holds a binding
     to the very class this write just replaced -- and a later
-    ``from navml.widgets.label import Label`` would find the package in
+    ``from navml.widgets.dialog.label import Label`` would find the package in
     ``sys.modules``, never re-import, and resolve against the class from
     before the write.  :func:`order` keeps that from reaching a cold build,
     where nothing has been imported yet; what it bites is a second build in

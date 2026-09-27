@@ -1,5 +1,5 @@
-from navml.widgets.dialog import Dialog
-from navml.widgets.field import Field
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
 
 #: F7: make a directory in the active panel.
 #:

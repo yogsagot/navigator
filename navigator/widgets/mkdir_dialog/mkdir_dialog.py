@@ -2,7 +2,7 @@
 
 ``accept()`` is the one thing a derived dialog usually has to say: everything
 else -- the frame, the modality, Tab, Enter, Escape, the ``Alt+letter`` walk,
-the answer coming back out of :meth:`~navml.widgets.dialog.Dialog.execute` --
+the answer coming back out of :meth:`~navml.widgets.dialog.dialog.Dialog.execute` --
 is ``Dialog``'s already.
 """
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navml.widgets.dialog import Dialog
+from navml.widgets.dialog.dialog import Dialog
 
 
 class MkdirDialog(Dialog):

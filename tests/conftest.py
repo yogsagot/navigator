@@ -178,7 +178,7 @@ def _repository_root(monkeypatch):
     """Run every test from the repository root, whatever pytest was started in.
 
     The generator tests name the shipped components by relative path
-    (``navml/widgets/button/button.nml``) and the import tests start a
+    (``navml/widgets/dialog/button/button.nml``) and the import tests start a
     subprocess that has to find ``navml`` on its own, so a run started from
     ``tests/`` -- an IDE's default -- would otherwise fail them in bulk.
     """

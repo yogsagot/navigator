@@ -1,0 +1,46 @@
+from navml.widgets.dialog.control import Control
+from navml.widgets.dialog.scroll_bar import ScrollBar
+
+#: A framed list with a cursor, a title and a footer.
+#:
+#: DOS Navigator's ``[57-60] List normal / focused / selected / divider``, and
+#: Turbo Vision's ``TListViewer``.  **It paints its own rows** -- there are no
+#: child widgets in here, for the reason ``navkit/DESIGN.md``'s *Parts:
+#: listing rows do not become widgets* settles by fidelity: "``TListViewer``
+#: draws its own items and picks a palette entry per item according to its
+#: state.  One view, many items, no per-item objects.  Rows were never objects
+#: in the original."
+#:
+#: ``items`` and ``cursor`` are properties a viewer **navigates**, so a
+#: document seeds them with a constructor keyword rather than binding them --
+#: the rule *A property a widget navigates cannot be bound* covers both.
+ListViewer(Control):
+    #: What is listed.  Replaced rather than mutated, because the reactive
+    #: layer counts a change only when a collection is replaced.
+    property items: []
+
+    #: Which row the cursor is on.
+    property cursor: 0
+
+    #: The first row shown.  Followed automatically; assign it only to jump.
+    property scroll: 0
+
+    #: A line under the top frame, or 0 for none.  ``Panel`` uses it for the
+    #: column headings the original draws there.
+    property header: 0
+
+    #: Turbo Vision's ``vScrollBar``, on the right frame and only while the
+    #: list is longer than the rows it has.  Its value is the **cursor**, not
+    #: the first row shown, because that is what ``TListViewer`` gives its bar:
+    #: a click on the bar moves the cursor and the scroll follows it, so the
+    #: bar and ``_follow_cursor`` never pull against each other.
+    ScrollBar:
+        id: bar
+        x: parent.width - 1
+        y: 1
+        width: 1
+        height: max(0, parent.height - 2)
+        value: parent.cursor
+        maximum: max(0, len(parent.items) - 1)
+        page: max(1, parent.rows - 1)
+        visible: parent.error is None and len(parent.items) > parent.rows

@@ -1,0 +1,39 @@
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.input_line import InputLine
+from navml.widgets.dialog.label import Label
+
+#: A caption and the line it names, side by side.
+#:
+#: The library's one component written in markup alone: it paints nothing
+#: itself, so it needs no hand-written half, and ``navml.widgets.dialog.field`` is
+#: backed by the generated module directly.
+#:
+#: It is also where ``alias`` and ``link`` are each worth their existence.
+#: ``alias value: entry.value`` is how the text gets in and out without the
+#: caller reaching through ``field.entry``, and ``link: entry`` is what makes
+#: the caption's ``~N~`` put the keyboard in the line beside it -- which is
+#: the whole of what Turbo Vision's ``TLabel`` is *for*.
+#:
+#: And it is a row, so it *is* a ``HorizontalLayout``: the caption asks for
+#: ``label_width`` columns and no more, and the line takes the rest.
+Field(HorizontalLayout):
+    #: The caption, with one ``~A~`` run.
+    property label_text: ""
+
+    #: How many columns the caption takes before the line begins.
+    property label_width: 12
+
+    #: The text in the line.  An alias, so a read and a write both reach the
+    #: ``InputLine``'s own reactive one property deep, and a binding assigned
+    #: through it is re-owned by whoever wrote it.
+    alias value: entry.value
+
+    Label:
+        id: caption
+        inline_style: "basis: %d; grow: 0" % parent.label_width
+        text: parent.label_text
+        link: entry
+        align: "left"
+
+    InputLine:
+        id: entry

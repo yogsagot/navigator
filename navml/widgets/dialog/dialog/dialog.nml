@@ -1,0 +1,74 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.dialog.modal import Modal
+
+#: A modal window with an OK and a Cancel, and an answer.
+#:
+#: Still the worked example of a component whose *children* raise the events
+#: its hand-written half handles -- a dialog with two buttons in it is what
+#: the ``on_<id>_<event>`` convention was written for, and it is now a widget
+#: that earns the example rather than a demonstration built to carry it.
+#:
+#: Its size and its place are :class:`~navml.widgets.dialog.modal.Modal`'s: a derived
+#: document says ``modal_width: 44``, and the centring is the base's binding.
+Dialog(Modal):
+    #: ``ok``, ``ok-cancel`` or ``ok-cancel-help``.  Which buttons is a
+    #: *visibility* question, because markup has no conditional and needs
+    #: none: all three are declared and a hidden one is already out of the
+    #: tab order, out of the shortcut walk and out of the paint.
+    property buttons: "ok-cancel"
+
+    #: The line of text above the buttons.
+    property prompt: ""
+
+    StaticText:
+        id: message
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: max(1, parent.height - 6)
+        text: parent.prompt
+        wrap: True
+
+    #: The buttons, centred as a row.  Each is 11 columns -- nine of face, two
+    #: of bracket, one of shadow -- with two between, and a hidden one gives
+    #: up its slot, so two stay centred as well as three do.
+    HorizontalLayout:
+        id: row
+        x: 0
+        y: max(0, parent.height - 4)
+        width: parent.width
+        height: 2
+        spacing: 2
+        justify: "center"
+
+        Button:
+            id: ok
+            text: "O~K~"
+            default: True
+            style:
+                basis: 11
+                grow: 0
+
+        Button:
+            id: cancel
+            text: "~C~ancel"
+            visible: root.buttons != "ok"
+            style:
+                basis: 11
+                grow: 0
+
+        #: Routed by an explicit line, because :meth:`show_info` is named for
+        #: what the dialog *does* rather than for what happened to it -- the
+        #: escape hatch from the ``on_<id>_<event>`` convention, and the third
+        #: of the three ways a child's event reaches this component's Python
+        #: half.
+        Button:
+            id: info
+            text: "~H~elp"
+            visible: root.buttons == "ok-cancel-help"
+            style:
+                basis: 11
+                grow: 0
+            on_click: await root.show_info(event)

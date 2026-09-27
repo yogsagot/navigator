@@ -44,7 +44,10 @@ def shipped(stem: str, suffix: str) -> pathlib.Path:
     A component is a directory whose files repeat its name, so the paths in
     here go through this rather than being spelled out.
     """
-    return WIDGETS / stem / f"{stem}{suffix}"
+    return next(
+        path for path in sorted(WIDGETS.rglob(f"{stem}{suffix}"))
+        if path.parent.name == stem
+    )
 
 SHIPPED = ["static_text", "label", "button", "modal", "window", "dialog"]
 
@@ -153,16 +156,16 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     """
     lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
-        ("navml.widgets.button",),
+        ("navml.widgets.dialog.button",),
         ("navml.widgets.layout.horizontal_layout",),
-        ("navml.widgets.static_text",),
-        ("navml.widgets.modal",),
+        ("navml.widgets.dialog.static_text",),
+        ("navml.widgets.dialog.modal",),
     ]
     assert [line.source for line in lines] == [
-        "from navml.widgets.button import Button",
+        "from navml.widgets.dialog.button import Button",
         "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
-        "from navml.widgets.static_text import StaticText",
-        "from navml.widgets.modal import Modal",
+        "from navml.widgets.dialog.static_text import StaticText",
+        "from navml.widgets.dialog.modal import Modal",
     ]
 
 

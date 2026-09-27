@@ -37,7 +37,7 @@ and never `Panel { id: left; width: parent.width // 2 }`.
 A component is written as markup, as Python, or as both, and **either half may be absent**. All three reach the same
 public module name, so nothing importing a component can tell which it is looking at:
 
-| shape       | files in `navml/widgets/button/`                        | what backs `navml.widgets.button.button`              |
+| shape       | files in `navml/widgets/dialog/button/`                        | what backs `navml.widgets.dialog.button.button`              |
 |-------------|---------------------------------------------------------|-------------------------------------------------------|
 | Python only | `button.py`                                             | nothing of navml's — the stock `PathFinder`           |
 | markup only | `button.nml` → `button_nml.py`, `button.pyi`            | the generated module, re-homed onto the public name   |
@@ -59,15 +59,17 @@ started, and every widget it gains adds up to four more. So **each component liv
 an `__init__.py` beside the four that re-exports the class:
 
 ```
-navml/widgets/button/__init__.py      from navml.widgets.button.button import Button
-navml/widgets/button/button.nml
-navml/widgets/button/button.py
-navml/widgets/button/button_nml.py
-navml/widgets/button/button.pyi
+navml/widgets/dialog/button/__init__.py      from navml.widgets.dialog.button.button import Button
+navml/widgets/dialog/button/button.nml
+navml/widgets/dialog/button/button.py
+navml/widgets/dialog/button/button_nml.py
+navml/widgets/dialog/button/button.pyi
 ```
 
-`from navml.widgets.button import Button` is unchanged, and so is `from navml.widgets import Button` — the directory
-takes the name the module had, so **no document, no hand-written half and no call site was edited by the move.** Four
+When components first became directories, `from navml.widgets.button import Button` was unchanged, and so was
+`from navml.widgets import Button`. The directory took the name the module had, so **no document, no hand-written half
+and no call site was edited by that move.** Grouping them later did change the first line, as *Components come in
+groups* below records. Four
 things about it were decided rather than fallen into:
 
 - **The files repeat the directory's name** rather than being `component.py`. Everything navml prints is a bare
@@ -86,8 +88,8 @@ things about it were decided rather than fallen into:
   flat so that it keeps being exercised.
 
 Two things had to change underneath, and both failed silently rather than loudly, which is why they are recorded here.
-`build.order()` keyed its dependency graph on where a document's module really is (`navml.widgets.button.button`)
-while every document imports the directory (`navml.widgets.label`) — so every edge vanished and the topological sort
+`build.order()` keyed its dependency graph on where a document's module really is (`navml.widgets.dialog.button.button`)
+while every document imports the directory (`navml.widgets.dialog.label`) — so every edge vanished and the topological sort
 fell back on the alphabet, which compiles `button.nml` before `label.nml` and breaks a cold build with a complaint
 about an undeclared property. `_names_of` now yields both names. And `build._forget()` evicted the module it had just
 rewritten but not the component's package, which holds a binding to the very class the write replaced — so a second
@@ -97,13 +99,19 @@ checked to fail without its fix.
 What a component *package* deliberately does not do is re-export lazily. It imports its own one module and nothing
 else, so the laziness that matters — one component not dragging in the library — stays entirely `navml/widgets/
 __init__.py`'s job. And an event a component declares is part of its surface, so it is re-exported too:
-`navml/widgets/button/__init__.py` publishes `ClickEvent` beside `Button`.
+`navml/widgets/dialog/button/__init__.py` publishes `ClickEvent` beside `Button`.
 
 ### Components come in groups
 
-A family of components shares a **group directory**: `navml/widgets/layout/` holds `layout/` (the `Layout` base and
-`LinearLayout`), `horizontal_layout/`, `vertical_layout/`, `grid_layout/`, `dock_layout/` and `stack_layout/`, and
-each of those is a component directory exactly as above. The import names one level deeper —
+A family of components shares a **group directory**, and each member is a component directory exactly as above.
+There are two groups:
+- `navml/widgets/layout/` holds `layout/` (the `Layout` base and `LinearLayout`), `horizontal_layout/`,
+  `vertical_layout/`, `grid_layout/`, `dock_layout/` and `stack_layout/`.
+- `navml/widgets/dialog/` holds the thirteen components the Colors dialog's *Dialogs* group names: `control/`,
+  `cluster/`, `static_text/`, `label/`, `button/`, `input_line/`, `check_boxes/`, `radio_buttons/`, `scroll_bar/`,
+  `list_viewer/`, `modal/`, `dialog/` and `field/`.
+
+`Window`, `Desktop`, `Timer` and `Spacer` belong to neither group and stay at the top. The import names one level deeper —
 `from navml.widgets.layout.horizontal_layout import HorizontalLayout` — while `from navml.widgets import
 HorizontalLayout` is unchanged, because `_COMPONENTS` maps a name to a dotted path under the library
 (`"layout.horizontal_layout"`) and the lazy `__getattr__` imports whatever that path names.
@@ -114,12 +122,21 @@ HorizontalLayout` is unchanged, because `_COMPONENTS` maps a name to a dotted pa
   beside the group's directories. Every component gets a directory, and the rule holds one level down. That spells
   the base's module `navml.widgets.layout.layout.layout`, which is ugly but not ambiguous, and nobody outside the
   group imports it by that name.
+- **A group is named for its family, and the family's central component takes the same name one level down.** So
+  `navml.widgets.dialog` is the group, and `Dialog` is `navml.widgets.dialog.dialog`, whose module is
+  `navml.widgets.dialog.dialog.dialog`. `layout` works the same way. When a component moves into a group, every import
+  of it changes, including a derived document's (`mkdir_dialog.nml` now says
+  `from navml.widgets.dialog.dialog import Dialog`). `from navml.widgets import Dialog` does not change.
+- **Nothing underneath had to learn about depth, and markup components prove it.** A cold build of a copy with every
+  `_nml.py` and `.pyi` deleted regenerates all 28 files byte-identical to the tracked ones, with the markup halves of
+  `dialog/` one level down. The tests' `shipped()` helpers find a component by name (`rglob`, with the parent
+  directory matching the stem) rather than at a fixed depth.
 - **Nothing underneath had to learn about depth.** Registration walks up the dotted name, which works at any depth.
   `build` finds documents with `rglob`. The every-package `"*"` key in `package-data` ships markup at any depth. And
   `build.sh` strips `_nml.py` from a bare filename.
 
 The original sketch spelled the generated file `button.nml.py`. A dot makes it unimportable by name — `import
-navml.widgets.button.nml` splits on the dots — so no checker, no IDE and no `pkgutil` ever sees the class the
+navml.widgets.dialog.button.nml` splits on the dots — so no checker, no IDE and no `pkgutil` ever sees the class the
 hand-written half inherits from, which forecloses the id-annotation question in *Still open*. setuptools' `build_py`
 also globs `*.py` and ships it as a module literally named `button.nml`.
 
@@ -587,7 +604,7 @@ A document names types it does not otherwise say where to find: `Button:` as a c
 a root. It says where in **Python's own words**, at the top of the file:
 
 ```
-from navml.widgets.label import Label
+from navml.widgets.dialog.label import Label
 
 Button:
     property text: ""
@@ -639,7 +656,7 @@ from navkit.reactive import is_bound as _is_bound  # underscored, so that a
 from navkit.reactive import reactive as _reactive  # document's imports cannot
 from navkit.widget import Widget as _Widget        # reach any of it
 
-from navml.widgets.label import Label              # button.nml:1, verbatim
+from navml.widgets.dialog.label import Label              # button.nml:1, verbatim
 ```
 
 **The generator reserves no word.** A document may import any name at all, `Widget` included, and gets exactly what it
@@ -691,7 +708,7 @@ that legible rather than magic. Two things follow:
   import block, keep the edges that name another document in the build. A cycle between two documents is an error
   rather than something to resolve; Python's own answer to a circular import is not one worth inheriting here.
 - **A component package's `__init__.py` must not re-export eagerly.** This was measured on this repository rather than
-  reasoned about: importing `navml.widgets.label` used to load all four components, because the package imported each
+  reasoned about: importing `navml.widgets.dialog.label` used to load all four components, because the package imported each
   by name, so a cold build could import nothing until everything had already been generated. `navml/widgets/__init__.py`
   now re-exports through :pep:`562`'s module `__getattr__`, which keeps `from navml.widgets import Button` working,
   breaks the coupling, and takes the rest of the library out of the import path of anything that wanted one widget. A
@@ -1355,7 +1372,7 @@ paying for itself a second time.
 - **The specific hook does not take the general one away.** The stub returns False, so a click the hand-written half
   did not name carries on up to the component's own `on_click`, exactly as it would have if the stub were not there.
   A component may write both, and reading them together reads in the order `emit()` walks: the named child first, then
-  everything else. `navml/widgets/dialog/dialog.py` is that example — `ok` overrides its stub, `cancel` does not, and the
+  everything else. `navml/widgets/dialog/dialog/dialog.py` is that example — `ok` overrides its stub, `cancel` does not, and the
   dialog's `on_click` is what dismisses it.
 - **`check_handlers` enforces `async def` on both halves, for free.** It scans `vars(cls)` for `on_*` at class
   creation, so a synchronous stub or a synchronous override fails where it is written rather than at the first click.
@@ -1513,7 +1530,7 @@ and assign after. Three consequences worth stating:
 
 QML's answer is that a component has no constructor and everything is a property; Kivy's is that `__init__` keeps
 taking Python arguments. This is QML's, with Python's keyword syntax doing the work — and it costs no new language.
-**A hand-written half may still take a positional argument if it wants one**: `navml/widgets/button/button.py` spells
+**A hand-written half may still take a positional argument if it wants one**: `navml/widgets/dialog/button/button.py` spells
 `def __init__(self, text: str = "", **kwargs)`, which captures `text` before `Component` ever sees it. That is a
 choice a component makes about its own call site, not something markup needs to know.
 
@@ -2290,7 +2307,7 @@ Five things this file had left implicit, each found by writing the code and each
   compile time instead. A literal onto a plain attribute stays legal; it is the binding that cannot work.
 - **A widget that paints cannot be markup-only, and `Label` was.** Its `render()` lived in the *generated* file, which
   was tenable only while that file was hand-written; regenerating it would have blanked every `Button` caption. `Label`
-  now has a `label.py` holding the painting, and `navml/widgets/field/field.nml` is the markup-only example in its place: a
+  now has a `label.py` holding the painting, and `navml/widgets/dialog/field/field.nml` is the markup-only example in its place: a
   caption and a value composed out of two `Label`s, which paints nothing itself and so needs no hand-written half. The
   general rule is worth stating, because it arrives for every future component: **markup declares and places, Python
   paints**, so a component with a `render()` has two halves by construction.
@@ -2326,7 +2343,7 @@ Five things this file had left implicit, each found by writing the code and each
   event class lives, that a widget declares what it emits, how the generator checks an `on_click:` line in both of the
   places bubbling makes it legal, and the `event ClickEvent` directive. The alias question *Aliases* deferred here is
   answered with it, and answered as no. What this bullet was waiting for — "the widget library declares some events to
-  point at" — is `navml/widgets/button/button.py`, which emits a `ClickEvent` from two input routes.
+  point at" — is `navml/widgets/dialog/button/button.py`, which emits a `ClickEvent` from two input routes.
 - **How the hand-written half gets type-checked.** The id-annotation question is answered — the generated class carries
   `left: Panel` and the generated `.pyi` carries the merged surface — but the answer brought its own problem with it,
   measured rather than predicted: a stub replaces its module for a checker, so an error planted in `button.py` is not

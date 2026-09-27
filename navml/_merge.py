@@ -18,8 +18,8 @@ both                    ``button.py`` and ``button_nml.py``  ``button.py``,
 ======================  ==================================  ==================
 
 **A component is a directory**, and the files above sit in it beside an
-``__init__.py`` that re-exports the class -- so ``navml.widgets.button`` is a
-package and the component itself is ``navml.widgets.button.button``.  That is
+``__init__.py`` that re-exports the class -- so ``navml.widgets.dialog.button`` is a
+package and the component itself is ``navml.widgets.dialog.button.button``.  That is
 this repository's convention rather than a rule of the language: a flat package
 whose modules sit directly in it still works, and the tests build them.
 
@@ -77,7 +77,7 @@ def register(package: str) -> None:
     native packages.
 
     **It is the widget library that registers, not each component.**
-    ``navml.register("navml.widgets")`` covers ``navml.widgets.button`` and
+    ``navml.register("navml.widgets")`` covers ``navml.widgets.dialog.button`` and
     everything below it, which is what lets a component directory's
     ``__init__.py`` be a re-export and nothing else -- a component has no
     reason to know it is one, which is the same argument that keeps navml's

@@ -3,7 +3,7 @@
 Everything here is about *files*.  Everything about *a list* -- the cursor,
 the scroll, the two invariants that keep them honest, the framed container,
 the row painting and the keys that move through it -- is
-:class:`~navml.widgets.list_viewer.ListViewer`'s, which was extracted from
+:class:`~navml.widgets.dialog.list_viewer.ListViewer`'s, which was extracted from
 this file because this file was the only place in the repository that had it.
 
 What is left is the four things a file manager adds to a list: where it is
@@ -24,7 +24,7 @@ from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
 
-from navml.widgets.list_viewer import ListViewer
+from navml.widgets.dialog.list_viewer import ListViewer
 
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few

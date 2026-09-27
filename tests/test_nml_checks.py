@@ -20,8 +20,8 @@ from navml.parser import parse
 from navml.resolve import resolve
 from navml.sibling import Sibling
 
-PRELUDE = "from navml.widgets.button import Button\n" \
-          "from navml.widgets.label import Label\n\n"
+PRELUDE = "from navml.widgets.dialog.button import Button\n" \
+          "from navml.widgets.dialog.label import Label\n\n"
 
 
 @pytest.fixture

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import ast
 
+import pathlib
+
 import pytest
 
 from navml.generator import MARKER
@@ -23,10 +25,13 @@ def shipped(stem: str, suffix: str) -> str:
     """One file of a shipped component.
 
     A component is a directory whose files repeat its name, so every path in
-    here goes through this rather than being spelled out -- the next layout
-    question then has one place to answer.
+    here goes through this rather than being spelled out.  A component may sit
+    in a group directory, so it is found by name rather than by a fixed depth.
     """
-    return f"navml/widgets/{stem}/{stem}{suffix}"
+    return next(
+        str(path) for path in sorted(pathlib.Path("navml/widgets").rglob(f"{stem}{suffix}"))
+        if path.parent.name == stem
+    )
 
 
 def build(stem: str) -> str:
@@ -136,7 +141,7 @@ def test_a_child_with_an_explicit_handler_gets_no_stub():
 
 def test_an_alias_is_annotated_with_the_target_s_type(written):
     source = written(
-        "from navml.widgets.label import Label\n\n"
+        "from navml.widgets.dialog.label import Label\n\n"
         "Panel:\n    alias title: cap.text\n\n    Label:\n        id: cap\n"
     )
     assert "title: str" in source

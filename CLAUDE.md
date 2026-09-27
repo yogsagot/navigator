@@ -71,10 +71,13 @@ that paints nothing. A child asks for room with **style hints the layout reads o
 (default 1, so siblings that say nothing share evenly) and `dock` — so a `style:` block or a sheet rule says it. A
 layout re-arranges from an effect on its own size, its children's `visible` and their hints, which makes a child's
 geometry *navigated*: its markup says nothing about it. `Field` is `Field(HorizontalLayout)`, `Shell` is
-`Shell(DockLayout)`, and `Dialog`'s buttons and `Manager`'s panels sit in an id'd `HorizontalLayout`. They are the
-library's first **group**, one component directory each under `navml/widgets/layout/`
-(`from navml.widgets.layout.horizontal_layout import HorizontalLayout`). A group's `__init__.py` is a docstring and
-never re-exports, and `_COMPONENTS` maps a name to its dotted path (`"layout.horizontal_layout"`). All four
+`Shell(DockLayout)`, and `Dialog`'s buttons and `Manager`'s panels sit in an id'd `HorizontalLayout`. **Components are grouped**: the layouts are one component directory each under `navml/widgets/layout/`, and the
+thirteen *Dialogs* components (`Control` through `Field`, `Modal` and `Dialog` included) under `navml/widgets/dialog/`
+(`from navml.widgets.layout.horizontal_layout import HorizontalLayout`,
+`from navml.widgets.dialog.dialog import Dialog`). `Window`, `Desktop`, `Timer` and `Spacer` stay at the top. A
+group's `__init__.py` is a docstring and never re-exports, `_COMPONENTS` maps a name to its dotted path
+(`"dialog.button"`), and `from navml.widgets import Button` is unchanged. *Components come in groups* in
+`navml/DESIGN.md` has the rest. All four
 conversions paint `cmp`-identically on a pty. *Layouts* in `navml/DESIGN.md` has the rules.
 
 **The generator is seven modules with one concern each**, in a one-way chain: `expression.py` compiles a property
@@ -87,7 +90,7 @@ indents and trailing comments — and not through string assembly or a whole-mod
 no comments and navml's source map *is* comments.
 
 **A component that paints has two halves by construction.** Markup declares and places; Python paints. `Label` had to
-gain a `label.py` for exactly this, and `navml/widgets/field/field.nml` is the markup-only example in its place. The
+gain a `label.py` for exactly this, and `navml/widgets/dialog/field/field.nml` is the markup-only example in its place. The
 converse bit too: `CheckBoxes` and `RadioButtons` *lost* their markup halves by being finished, because everything
 they declare is `Cluster`'s and everything they show is painted — a document holding nothing but a head says only
 what its `class` statement already says.
@@ -529,14 +532,14 @@ Things to know before touching the style layer:
 **Both halves of a component are optional, and a component is up to four files.** `button.nml` is the markup;
 `button_nml.py` is what the generator emits from it, tracked and shipped; `button.py` is the hand-written handlers;
 `button.pyi` is the generated stub. Markup alone, Python alone and both are three peer shapes, and
-`from navml.widgets.button import Button` is the same line for all three — a component can move between them without
+`from navml.widgets.dialog.button import Button` is the same line for all three — a component can move between them without
 that line changing and, going from Python to both, without its `.py` changing either. `navml/widgets/` carries one
 example of each and they are all real widgets now: `spacer` and `control` are Python alone, `field` is markup alone,
 `button` and `label` are both, and `dialog` is both *and* derived from `modal`, which is itself both.
 `dialog` is also the one whose *children* raise the events its hand-written half handles, and it pins the
 `on_<id>_<event>` convention below — which a dialog with an OK and a Cancel in it does by being one.
 
-**And a component is a directory.** Those four files live in `navml/widgets/button/` beside an `__init__.py` that
+**And a component is a directory.** Those four files live in `navml/widgets/dialog/button/` beside an `__init__.py` that
 re-exports the class (and any event it declares — `button` publishes `ClickEvent` too), so the import line is
 unchanged and the files that make one component sit together. **The files repeat the directory's name**, because
 everything navml prints is a bare filename and `packaging/linux/build.sh` finds a component's siblings by stripping
@@ -579,7 +582,7 @@ Things to know before touching this layer:
 - **The generated class constructs its children inline in `__init__`, not in a `_build()` method.** A shared method
   name would be overridden by a derived component's, so the base's children would never be built and the derived one's
   would be built twice.
-- **A document says where its types come from in Python's own words** — `from navml.widgets.label import Label` at the
+- **A document says where its types come from in Python's own words** — `from navml.widgets.dialog.label import Label` at the
   top of the `.nml`, copied into the generated module verbatim. `import *` and `__future__` imports are refused.
   Components are the case it exists for, but any import is legal, and it is worth taking: a declared type is only
   checked at run time if the generated module can resolve it (`_resolve_annotation` silently answers *unchecked* and
@@ -588,7 +591,7 @@ Things to know before touching this layer:
   and a type a document names is one it imports — so `Button(Widget):` means whatever the document imported under that
   name. The hand-written half still has to spell it, `class Button(Widget)`, because a Python class with no bases is
   `object` and cannot be spliced.
-- **An event a component raises is declared beside it, and the widget says so.** `navml/widgets/button/button.py` declares
+- **An event a component raises is declared beside it, and the widget says so.** `navml/widgets/dialog/button/button.py` declares
   `class ClickEvent(Event)` next to `class Button` and sets `emits = (ClickEvent,)`; a mouse press and a Space press
   both go through one `press()` that emits it, so a listener never learns which route fired. Markup may declare one
   instead with `event ClickEvent` (root block only, no fields), and **which half declares it follows which half emits

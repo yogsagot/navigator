@@ -4,8 +4,8 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navml.widgets.dialog import Dialog
-from navml.widgets.field import Field
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
 
 from typing import Any
 
