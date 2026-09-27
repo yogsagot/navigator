@@ -8,8 +8,9 @@ it by being a base rather than a leaf.
 
 Three things live here, and each is the same in every control that has it:
 
-* **`disabled`**, which is a *state* and so reactive, and which takes the
-  control out of the tab order without anything else being told.
+* **the tab order following `inert`**, so that setting `Widget.disabled` on
+  the control or on anything holding it takes the control out of the order
+  without anything else being told.
 * **the `~A~` shortcut**, parsed once so that ten widgets do not each parse it,
   and reachable as the letter a container looks for.
 * **focus on a mouse press**, which is what a pointing device means by
@@ -24,7 +25,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import MouseClickEvent
-from navkit.reactive import bind, computed, reactive
+from navkit.reactive import bind, computed
 from navkit.widget import Widget
 
 from navml.component import take_declared
@@ -75,14 +76,6 @@ def parse_shortcut(text: str) -> tuple[str, int, str]:
 class Control(Widget):
     """A widget a dialog can put the keyboard into."""
 
-    #: Refused input, painted greyed, and out of the tab order.  Spelled
-    #: positively rather than as `enabled' because that is the only spelling a
-    #: sheet can use: `:state' matches a truthy attribute and the selector
-    #: grammar has no `:not()', so `Button:disabled { }' is one line while
-    #: `enabled' could never reach the case DOS Navigator gives a colour slot
-    #: of its own.
-    disabled: bool = reactive(False)
-
     #: Whether this control would take the keyboard if it were enabled.  A
     #: class fact rather than an instance one, so plain: a `Label' is never
     #: focusable and a `Button' always is, and neither changes its mind.
@@ -97,10 +90,11 @@ class Control(Widget):
         take_declared(self, kwargs)
         super().__init__(**kwargs)
         # Bound rather than assigned, so that `disabled' is the only thing
-        # anybody sets and the tab order follows it.  That makes `can_focus'
+        # anybody sets and the tab order follows it -- through `inert', so a
+        # disabled container takes its controls out of the order as well.  That makes `can_focus'
         # read-only on a control -- the same shape as *A property a widget
         # navigates cannot be bound*, arrived at from the other end.
-        self.can_focus = bind(lambda o: o.accepts_focus and not o.disabled)
+        self.can_focus = bind(lambda o: o.accepts_focus and not o.inert)
 
     @computed
     def shortcut(self) -> str:
@@ -121,7 +115,7 @@ class Control(Widget):
             bool(self.shortcut)
             and self.shortcut == letter.lower()
             and self.visible
-            and not self.disabled
+            and not self.inert
         )
 
     async def activate(self, letter: str = "") -> bool:
@@ -136,6 +130,6 @@ class Control(Widget):
         click, which is what lets a control be focusable without becoming a
         target for every press that lands on it.
         """
-        if event.action == "press" and event.button == "left" and not self.disabled:
+        if event.action == "press" and event.button == "left" and not self.inert:
             self.focus()
         return False

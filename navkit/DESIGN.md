@@ -9,6 +9,23 @@ section at the end is where the unbuilt parts are named.
 
 ## Selectors
 
+### `:not()`
+
+Added after the fact. The first grammar had none, and `navml`'s `disabled` flag was named around that absence. The
+argument is **one compound, and a plain one**: no combinator, no comma, no `::part`, and no nested `:not`. Excluding
+several things is `:not(.a):not(.b)`. That is where CSS 3 drew the line, and it keeps negation a test on one widget:
+`:not(A > B)` would have to match a chain it cannot see.
+
+- **Before or after the part.** A `:not` before `::part` is about the widget, so `Panel:not(:active)::row` works. One
+  after it is about the part, and may name only classes and states, the only things a part carries:
+  `Panel::row:not(:selected)`.
+- **Counted as its argument.** A `:not(x)` adds the specificity of `x`, as in CSS. The negation itself is free, and
+  `:not(#left)` still outranks any number of classes.
+- **A negated state is still a state the sheet names.** `Stylesheet.state_names` includes it, because
+  `Widget.part_style` keys its cache on that set, and a state it missed would never invalidate a part.
+- **The comma is split at the top level only**, so that `:not(.a, .b)` gets an error that names the fix, rather than
+  one about half a selector.
+
 ### An id is not a selector
 
 The obvious reading of "\*.css like" is that a stylesheet names widgets the way CSS names elements: `.classname` for a
@@ -38,6 +55,7 @@ name are different things with different scopes, and collapsing them is the mist
 | `:active`     | a reactive boolean attribute of the widget that is currently true       | exists — `Panel.active`, `Widget.visible`              |
 | `#left-panel` | `Widget.name`                                                           | new: `name: str = reactive("")`                        |
 | `Panel::row`  | a named part the widget paints itself — see *Parts*                     | the widget's own `render()`                            |
+| `:not(.wide)` | everything its one-compound argument does not — see *`:not()`*          | none: it is grammar                                    |
 
 Two new attributes on `Widget` for selectors to match against, and no more. Both are reactive, which is what the next
 section turns out to depend on. (A third, `inline_style`, arrives from the authoring side — see *Where a widget's style
@@ -1238,9 +1256,12 @@ hands the focus back. A second name for that would only be a worse place to read
 
 ### What is deliberately not here
 
-- **Nothing dims or disables what is behind a modal.** `Application.modal` is a plain property over a plain list rather
-  than anything observable, so no widget can currently restyle itself for being blocked. A `computed` can be added the
-  day a widget asks; guessing at the shape now would cost a cell on every widget for a look nothing has asked for.
+- **Nothing dims or disables what is behind a modal, by default.** `Application.modal` is a plain property over a
+  plain list rather than anything observable, so no widget can currently restyle itself for being blocked. A
+  `computed` can be added the day a widget asks; guessing at the shape now would cost a cell on every widget for a look
+  nothing has asked for. **Dimming is planned as an experimental opt-in** — rewriting the cells beneath the top modal
+  after they are painted, which needs no widget's cooperation. See *What Textual has that the library takes* in
+  `navml/DESIGN.md`.
 - ~~**The mouse is not *captured*.**~~ It is now — see *Windows: raising, capturing, painting over* below. It was
   left to "a scrollbar's problem", and a window's title bar turned out to be the first thing that needed it.
 - ~~**`navigator`'s console is still the `visible`-binding trick.**~~ Rewritten: the console is the background layer
@@ -1417,6 +1438,13 @@ widget up to itself and abandons the walk at the first invisible step, which is 
 So hiding a container does not have to chase the focus inside it, and showing it again does not have to restore
 anything. What the walk costs is one `parent` hop per level, on the key path, against an effect per focused widget on
 the write path.
+
+**`inert` is asked at the same moment, for the same reason.** `Widget.disabled` is the flag, and `Widget.inert` is a
+computed that is true when the widget or any ancestor has it set. `focus()` refuses an inert widget,
+`focusable()` skips an inert subtree, and the walk to the focused widget abandons at an inert step exactly as it does
+at an invisible one. `dispatch_mouse` and `widget_at` pass over an inert child the way they pass over a hidden one.
+So disabling a group does not move the focus out of it. It stops delivering to it, and enabling the group again
+needs nothing restored.
 
 The one place the pointer *is* corrected is `remove()`: a focus left pointing into a detached subtree would send every
 key to a widget that is no longer on screen and can never be reached again. `remove()` clears it before the unlink,
@@ -1849,6 +1877,28 @@ Three details, each for a reason:
   queueing a burst — a blinking colon has nothing to catch up on.
 - **A cancelled handle's queued tick is dropped at dispatch.** The tick may already be in the queue when its owner
   lets go — a timer removed in the same batch — and cancelling the loop's timer cannot reach that.
+
+## Hover: a position the application keeps
+
+`:hovered` needs the pointer's position when no button is held. Terminals report that only under mode 1003 (*any
+motion*), which `MOUSE_ON` now asks for next to 1000, 1002 and 1006. A terminal without it ignores the request, and
+hover then follows presses alone.
+
+- **A plain motion reaches no widget, and not `on_event` either.** Mode 1003 reports one event per cell crossed, and
+  every `on_mouse_click` in the tree was written for presses, releases and drags. `Application._handle` recognises a
+  `move` with button `none` before anything else, moves `Application.hovered`, and returns. A drag (a move with a
+  button held) is delivered as before, and the `ClickTracker` never sees a plain motion.
+- **`Application.hovered` is the innermost widget under the pointer**, found by `Widget.widget_at(x, y)`. That is
+  `dispatch_mouse`'s hit test asked as a question: topmost child first, skipping invisible and inert children. It is
+  confined to the active modal, since outside it nothing is reachable. It is left alone while the mouse is captured,
+  because a drag is not the pointer wandering. A press moves it too, so hover is right on a terminal that sends no
+  motion. `remove()` clears it the way it clears the focus.
+- **`Widget.hovered` is a computed**, true for the widget under the pointer *and every ancestor of it*, as CSS's
+  `:hover` is. So `:hovered` is a stylesheet state for free, spelled like `focused`.
+- **What it costs.** `hovered` is an application reactive, so a change asks for a frame. It changes only when the
+  pointer crosses into a different widget, not per cell, since the reactive guard sees the same widget. Rows are
+  painted rather than being widgets, so sweeping down a panel is one widget. A frame nothing restyled writes nothing.
+  No sheet uses `:hovered` yet, so Navigator paints exactly what it did before.
 
 ## Still open
 

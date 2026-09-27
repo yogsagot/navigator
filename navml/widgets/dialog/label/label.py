@@ -57,7 +57,7 @@ class Label(Control):
 
     async def on_mouse_click(self, event) -> bool:
         """A click on a caption means its control, which is what a user means."""
-        if event.action == "press" and event.button == "left" and not self.disabled:
+        if event.action == "press" and event.button == "left" and not self.inert:
             return await self.activate()
         return False
 

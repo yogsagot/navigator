@@ -489,7 +489,8 @@ Things to know before touching this layer:
 - `stylesheet.py` — the `.nss` language and its lookup engine. CSS in shape (selectors, brace-delimited declarations, a
   cascade ordered by specificity) and not in scope: every declaration either names a `Style` field or names a property
   the widget interprets. `parse()` reads one sheet, `load()` merges several in order so a theme can redefine another's
-  variables. Selectors are `Panel` (by class *name*, subclasses included), `.tag`, `:state` (any truthy attribute),
+  variables. Selectors are `Panel` (by class *name*, subclasses included), `.tag`, `:state` (any truthy attribute, including
+  navkit's own `focused`, `focus_within`, `hovered` and `inert`), `:not(compound)`,
   `#name` and `Panel::part`, with descendant and child combinators. Specificity is CSS's
   `(names, classes + states, types)`, ties break on source order, and there is no `!important`.
 

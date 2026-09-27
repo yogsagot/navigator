@@ -127,7 +127,7 @@ class InputLine(Control):
     # -- input ---------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
-        if self.disabled:
+        if self.inert:
             return False
         shift = event.shift
         if event.is_printable and event.char:
@@ -162,7 +162,7 @@ class InputLine(Control):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         await super().on_mouse_click(event)
-        if event.action != "press" or event.button != "left" or self.disabled:
+        if event.action != "press" or event.button != "left" or self.inert:
             return False
         self._move(self.first + max(0, event.x - 1), event.shift)
         return True

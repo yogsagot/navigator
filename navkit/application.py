@@ -193,6 +193,11 @@ class ClickTracker:
         self._count = 0
 
 
+def _is_plain_motion(event: MouseClickEvent) -> bool:
+    """A report of the pointer moving with no button held -- mode 1003's."""
+    return event.action == "move" and event.button == "none"
+
+
 class Application:
     """Owns the event loop, the terminal and the root of the widget tree."""
 
@@ -213,6 +218,12 @@ class Application:
     #: allowed and unpoliced -- :meth:`Widget.focus` is the door with the
     #: checks on it, and delivery re-checks what it needs anyway.
     focused: Widget | None = reactive(None)
+    #: The innermost widget under the mouse pointer, or None.  Moved by every
+    #: report of the pointer's position -- a plain motion, which reaches no
+    #: widget, and a press -- so ``Widget.hovered`` and the ``:hovered`` state
+    #: follow it the way ``focused`` follows the keyboard.  Left alone while
+    #: the mouse is captured: a drag is not the pointer wandering.
+    hovered: Widget | None = reactive(None)
 
     def __init__(
         self,
@@ -744,6 +755,14 @@ class Application:
         # early for a claimed event and re-enters itself for a double click,
         # so a plain reset would report "not dispatching" while the outer call
         # still is.
+        if isinstance(event, MouseClickEvent) and _is_plain_motion(event):
+            # The pointer moving with no button held.  A fact the application
+            # keeps rather than an event anybody is offered: mode 1003 reports
+            # one per cell crossed, every existing ``on_mouse_click`` was
+            # written for presses, releases and drags, and all a motion can
+            # mean on its own is "the pointer is here now".
+            self._hover(event)
+            return
         dispatching, self._dispatching = self._dispatching, True
         try:
             if await self.on_event(event):
@@ -768,6 +787,10 @@ class Application:
                     if isinstance(event, DoubleClickEvent)
                     else self._clicks.press(event, self._now())
                 )
+                # A press says where the pointer is as well, which keeps the
+                # hover right on a terminal that never reports plain motion.
+                if event.action == "press":
+                    self._hover(event)
                 await self._deliver_mouse(event)
                 if clicks == 2:
                     # Inline rather than posted, so cause and effect stay
@@ -837,6 +860,21 @@ class Application:
         hook = getattr(self, event.handler, None)
         if hook is None or not await _call(self, event, hook):
             await self._dispatch_mouse(event)
+
+    def _hover(self, event: MouseClickEvent) -> None:
+        """Move :attr:`hovered` to whatever is under *event*'s position.
+
+        Confined to the modal the way delivery is: outside it nothing is
+        hovered, because nothing out there is reachable.
+        """
+        if self._capture is not None:
+            return
+        modal = self.modal
+        if modal is not None:
+            dx, dy = modal.offset()
+            self.hovered = modal.widget_at(event.x - dx, event.y - dy)
+        elif self._root is not None:
+            self.hovered = self._root.widget_at(event.x, event.y)
 
     async def _dispatch_mouse(self, event: MouseClickEvent) -> None:
         """Route a mouse action into the tree, or into the modal alone.

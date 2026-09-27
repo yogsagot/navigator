@@ -344,16 +344,16 @@ project's standing rule says to take them rather than invent six of our own.
 
 | widget | shape | parts | states | emits |
 |---|---|---|---|---|
-| `Control` | Python | — | `:disabled`, `:focused` | — |
-| `Cluster` | Python | `item`, `mark`, `shortcut` | `:disabled`, `:focused` | — |
+| `Control` | Python | — | `:inert`, `:focused` | — |
+| `Cluster` | Python | `item`, `mark`, `shortcut` | `:inert`, `:focused` | — |
 | `StaticText` | both | `shortcut` | — | — |
 | `Label` | both | `shortcut` | `:selected` | — |
-| `Button` | both | `shadow` | `:default`, `:disabled`, `:focused` | `ClickEvent` |
-| `InputLine` | both | `arrow`, `selection` | `:disabled`, `:focused` | — |
+| `Button` | both | `shadow` | `:default`, `:inert`, `:focused` | `ClickEvent` |
+| `InputLine` | both | `arrow`, `selection` | `:inert`, `:focused` | — |
 | `CheckBoxes` | Python | inherited | inherited | — |
 | `RadioButtons` | Python | inherited | inherited | — |
 | `ScrollBar` | both | `arrow`, `thumb` | — | `ScrollEvent` |
-| `ListViewer` | both | `title`, `row`, `footer`, `error`, `divider` | `:disabled`, `:focused` | — |
+| `ListViewer` | both | `title`, `row`, `footer`, `error`, `divider` | `:inert`, `:focused` | — |
 | `Modal` | both | `title`, `icon` | `:focused` | — |
 | `Dialog` | both | inherited | inherited | — |
 | `Window` | both | `title`, `icon` | `:active` | — |
@@ -361,14 +361,23 @@ project's standing rule says to take them rather than invent six of our own.
 | `Field` | **markup only** | — | — | — |
 | `Spacer` | Python | — | — | — |
 
-### `disabled`, never `enabled`
+### `disabled`, never `enabled` — and `inert` to ask
 
-Forced rather than preferred. `:state` matches any truthy attribute and the selector grammar has **no `:not()`** —
-`Button:not(disabled) { }` raises — so a positively-spelled `enabled` could never style the disabled case, which is
-the one DOS Navigator gives a slot of its own. `Control.disabled` is reactive, so `:disabled` is a stylesheet state
-for free, and `can_focus` is *bound* to it, so a disabled control leaves the tab order with nothing else being told.
-That makes `can_focus` read-only on a control, which is *A property a widget navigates cannot be bound* arrived at
-from the other end: a document writes `disabled:` and never `can_focus:`.
+Forced at first, and kept now it no longer is. The selector grammar had no `:not()`, so a positively-spelled `enabled`
+could never have styled the disabled case, which is the one DOS Navigator gives a slot of its own. The grammar has
+`:not()` now (`navkit/DESIGN.md`, *`:not()`*), and the flag still stays `disabled`, because it is the one somebody
+*sets*: a widget is enabled by saying nothing.
+
+**The flag moved from `Control` to `Widget`, and what is asked is `inert`.** `Widget.inert` is a computed, true when
+the widget or any ancestor is `disabled` (Textual's `is_disabled`; HTML's word). So disabling a container takes every
+control inside it out of reach without anybody walking it, and re-enabling it gives back exactly the flags the
+children had of their own. **A document writes `disabled:`, and code and sheets ask `inert`**: `can_focus` is bound to
+`not inert`, every control's refusal tests `self.inert`, and `navigator.nss` greys a button with `Button:inert`, which
+matches a button disabled in its own right and one inside a disabled group alike. `:disabled` still exists, and means
+only the flag on that widget.
+
+`can_focus` stays *bound*, which makes it read-only on a control. That is *A property a widget navigates cannot be
+bound* arrived at from the other end: a document writes `disabled:` and never `can_focus:`.
 
 ### The shortcut is a rendering of the caption
 
@@ -597,6 +606,91 @@ All five derive from `Layout`, which is Python alone and paints nothing, and the
   wants, and a hint language for tracks is better decided against the first dialog that needs one.
 - **The old `max(1, …)` floors are gone.** The shell's bars no longer keep the console at least one row tall in a
   terminal two rows high: at that size the dock simply runs out. The pty proof covers ordinary sizes, not that one.
+
+## What Textual has that the library takes
+
+Textual (`github.com/Textualize/textual`, read at 8.2.8) is the nearest neighbour: a Python TUI framework with a
+stylesheet, a reactive layer and a widget library. It was surveyed for what navkit and navml are missing. The point
+was not to copy it or compete with it. **Fidelity decides the look and the defaults, not what the framework can
+do**, so a capability DOS Navigator lacked is still taken when it is generally useful. It is then made optional where
+it would change DOS Navigator's look. Where Turbo Vision has the same idea, its name and behaviour win and Textual is
+only the reference. Paths below are under Textual's `src/textual/`.
+
+**Taken, and built:**
+
+- `:not()` — `css/match.py`. It takes one compound, as CSS 3 does. See `navkit/DESIGN.md`, *`:not()`*.
+- `:focus_within` — `Widget.has_focus_within`. A computed on `Widget`, spelled as the attribute it reads.
+- `:hovered` — `Widget.mouse_hover`, with mouse mode 1003. See `navkit/DESIGN.md`, *Hover: a position the
+  application keeps*.
+- A disabled state that cascades — `Widget.is_disabled`. It is `inert` here; see *`disabled`, never `enabled`*.
+
+**Next**, in rough order:
+
+- **Commands and key tables** — `binding.py`, `actions.py`, `check_action`; Turbo Vision `cmXXX`,
+  `enableCommands`. A widget declares key → command, resolved along the focus path. A command has an enabled state,
+  so a menu item, a key bar label and a hotkey name one command and grey out together. Textual's `ActiveBinding` is
+  what a key bar derives its labels from, and DOS Navigator's key bar already changes with Alt, Ctrl and Shift.
+  Action *strings* are not taken: a command is a Python name.
+- **A public test pilot** — `pilot.py`, `run_test()`, the snapshot plugin. It offers `press`, `click(widget or
+  selector)`, `resize` and golden-frame comparison, generalising `tests/conftest.py`'s `run_app` and `desktop_dump`.
+- **`Widget.query(selector)`** — `css/query.py`, reusing the selector matcher. The walk is the only new part.
+- **Paste reaches the focused widget** — `events.Paste`. Today it stops at `Application.on_paste`, so `InputLine`
+  cannot be pasted into. Copying out through OSC 52 comes after.
+- **Input validators** — `validation.py`; Turbo Vision `TValidator`, `TPXPictureValidator`, `TRangeValidator`,
+  `TFilterValidator`, `TStringLookupValidator`. Turbo Vision's names and taxonomy, with Textual's result object and
+  an `:invalid` state.
+
+**Taken when the tier that needs them arrives:**
+
+- **A `Scroller` base** — `scroll_view.py`; Turbo Vision `TScroller`. `ListViewer`, the console scrollback, View and
+  Edit would share one virtual-size and offset model, instead of each doing its own arithmetic against a
+  `ScrollBar`.
+- **Background work** — `worker.py`, `@work(group, exclusive, thread)`. `spawn` gains groups with exclusive
+  cancellation, plus a thread variant that posts its result back through the queue. File operations and slow or
+  remote filesystems need it.
+- **`ProgressBar`** — `widgets/_progress_bar.py`, for DOS Navigator's copy dialog. The model is taken, not the look.
+- **Tree** `[104-110]` — `widgets/_tree.py`, `_directory_tree.py`; Turbo Vision `TOutline`. The node API and lazy
+  expansion are taken. Rows stay painted, not widgets.
+- **History** `[53-56]` — Turbo Vision `THistory`. Only the async lookup shape of `suggester.py` is taken, not inline
+  ghost text.
+- **The editor's document and undo model** — `widgets/_text_area.py`, `document/`. A reference architecture for View
+  and Edit.
+- **`min`/`max` layout hints, and track sizes and spans for `GridLayout`** — `_resolve.py`'s fr clamp loop.
+- **Status-line hints** instead of tooltips — `Binding.tooltip`, `HELP`; Turbo Vision help contexts.
+
+**New widgets DOS Navigator did not have:**
+
+- **Toasts** — `notifications.py`, `widgets/_toast.py`. `Application.notify(text, severity, timeout)` shows a
+  non-modal overlay that never takes the focus.
+- **Tabs** — `widgets/_tabs.py`, `_tabbed_content.py`. A tab strip over the existing `StackLayout`.
+- **Markdown** — `widgets/_markdown.py`, on **`markdown-it-py`**. That is a second run-time dependency. It is pure
+  Python, so the noarch `.deb`/`.rpm` claim holds; `requirements.txt` and `pyproject.toml` gain it when it is built.
+  Blocks are painted rows, not widgets, the same rule as a listing.
+
+**Optional, and off by default:**
+
+- **Animation** — `_animator.py`, `_easing.py`. `animate(obj, attr, to, duration, easing)` runs on `call_every`.
+  DOS Navigator's modals open by growing, which is the case it exists for. Dialog geometry must stay bound, so the
+  animation drives a reactive `opening` factor from 0 to 1 that the binding reads, rather than assigning the size.
+  It is switched on by `--animate` or a sheet property.
+- **Dimming behind a modal, experimental** — `ModalScreen`. After everything beneath the top modal is painted, those
+  cells are rewritten dimmed. This reverses *What is deliberately not here* in `navkit/DESIGN.md`, but only as an
+  opt-in.
+
+**Small:** `Application.bell()`, since DOS Navigator beeps on errors. A coerce hook on `reactive()`, like Textual's
+`validate_<name>`, so a `cursor` clamps itself. A `--log` sink, because the application owns the tty and `print`
+cannot be used. `--watch-css`, which reloads the sheet when it changes.
+
+**Not taken:**
+
+- **`@on(Message, "#selector")` and `Message.control`.** Both need a sender on an event, which *Which child it was*
+  rejected. `on_<id>_<event>` already answers the question.
+- **`!important` and nesting.** Rejected in `navkit/DESIGN.md`.
+- **Generated theme shades.** Themes are transcribed from `.PAL` files, not derived.
+- **The command palette, `DataTable`, `Switch`, `Sparkline` and `Digits`.** Nothing asks for them.
+- **`compose()` and `recompose`.** Markup already builds the tree declaratively.
+- **`COMPONENT_CLASSES`.** `::part` already covers it, and is checked.
+- **`layers`, `offset` and `position`.** Tree order, `raise_child` and `overlay()` already cover them.
 
 ## Importing another component
 

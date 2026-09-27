@@ -134,7 +134,7 @@ class ListViewer(Control):
     # -- input ---------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
-        if self.disabled:
+        if self.inert:
             return False
         if event.key == "up":
             self.move_cursor(-1)
@@ -165,7 +165,7 @@ class ListViewer(Control):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         await super().on_mouse_click(event)
-        if self.disabled:
+        if self.inert:
             return False
         if event.is_wheel:
             step = -WHEEL_ROWS if event.button == "wheel_up" else WHEEL_ROWS

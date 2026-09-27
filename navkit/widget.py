@@ -102,6 +102,12 @@ class Widget:
     #: Reactive rather than a plain class attribute so a widget can withdraw
     #: from the order while disabled, and so a binding can decide it.
     can_focus: bool = reactive(False)
+    #: Refused input, painted greyed, and out of the tab order -- together
+    #: with everything beneath it, which is :attr:`inert`.  This is the flag
+    #: anybody sets; :attr:`inert` is what anybody asks.  Spelled positively
+    #: as `disabled' rather than `enabled' because it is the one that gets set:
+    #: a widget is enabled by saying nothing.
+    disabled: bool = reactive(False)
     #: Whether this widget takes *all* input while it is mounted: keys go to
     #: it or to what it contains, focus cannot leave it, and a click outside
     #: it reaches nothing.  Read when the widget is mounted, because that is
@@ -217,6 +223,8 @@ class Widget:
             app = self.application
             if app is not None and child._holds(app.focused):
                 app.focused = None
+            if app is not None and child._holds(app.hovered):
+                app.hovered = None
             if child.is_mounted:
                 child._unmount()
             self.children.remove(child)
@@ -506,6 +514,23 @@ class Widget:
         """True if *x*, *y* -- in the parent's coordinates -- is inside this."""
         return self.x <= x < self.x + self.width and self.y <= y < self.y + self.height
 
+    def widget_at(self, x: int, y: int) -> Widget | None:
+        """The innermost widget at *x*, *y* -- in the parent's coordinates.
+
+        The hit test :meth:`dispatch_mouse` makes, as a question rather than a
+        delivery: topmost child first, skipping what is invisible or
+        :attr:`inert`, and answering this widget itself when no child is
+        there.  None if the point is not inside this widget at all.
+        """
+        if not self.visible or self.inert or not self.contains(x, y):
+            return None
+        x, y = x - self.x, y - self.y
+        for child in reversed(self.children):
+            found = child.widget_at(x, y)
+            if found is not None:
+                return found
+        return self
+
     def layout(self, width: int, height: int) -> None:
         """Fit this widget into *width* x *height*.
 
@@ -700,18 +725,55 @@ class Widget:
         app = self.application
         return app is not None and app.focused is self
 
+    @computed
+    def focus_within(self) -> bool:
+        """Whether the focused widget is this one or somewhere beneath it.
+
+        CSS's ``:focus-within``, spelled as the attribute it reads, because a
+        ``:state`` *is* an attribute name.  What lets a frame light up while
+        any control inside it has the keyboard, which :attr:`focused` alone
+        says of one widget.
+        """
+        app = self.application
+        return app is not None and self._holds(app.focused)
+
+    @computed
+    def inert(self) -> bool:
+        """Whether this widget or any ancestor is :attr:`disabled`.
+
+        HTML's word for a subtree that takes no input.  Disabling a container
+        disables what it holds without anybody walking it, and re-enabling it
+        gives back exactly the flags the children had of their own.  Asked at
+        delivery, the way :attr:`visible` is, so nothing chases the focus out
+        of a subtree that has just been disabled: it stops being delivered to.
+        """
+        parent = self.parent
+        return self.disabled or (parent is not None and parent.inert)
+
+    @computed
+    def hovered(self) -> bool:
+        """Whether the mouse pointer is over this widget or anything in it.
+
+        An ancestor of the widget under the pointer is under it too, as in
+        CSS.  Read off :attr:`Application.hovered`, which the application moves
+        on every report of the pointer's position.
+        """
+        app = self.application
+        return app is not None and self._holds(app.hovered)
+
     def focus(self) -> bool:
         """Take the keyboard.  False if this widget cannot have it.
 
-        A widget must be :attr:`can_focus`, visible, attached to an
-        application, and inside the active modal if there is one.  Whether it
+        A widget must be :attr:`can_focus`, visible, not :attr:`inert`,
+        attached to an application, and inside the active modal if there is
+        one.  Whether it
         is *reachable* -- inside a container that is itself visible -- is not
         asked here but at delivery, in :meth:`dispatch_key`, so that hiding a
         container does not have to chase the focus that happens to be inside
         it.
         """
         app = self.application
-        if app is None or not self.can_focus or not self.visible:
+        if app is None or not self.can_focus or not self.visible or self.inert:
             return False
         modal = app.modal
         if modal is not None and not modal._holds(self):
@@ -727,7 +789,7 @@ class Widget:
         that is what a modal dialog will need -- it runs the same walk over
         itself and nothing outside it is reachable.
         """
-        if not self.visible:
+        if not self.visible or self.inert:
             return []
         order = [self] if self.can_focus else []
         for child in self.children:
@@ -738,14 +800,14 @@ class Widget:
         """The focused widget and its ancestors up to this one, innermost first.
 
         Empty if the focus is outside this subtree or behind something
-        invisible, which is the eligibility test :meth:`dispatch_key` makes at
+        invisible or :attr:`inert`, which is the eligibility test :meth:`dispatch_key` makes at
         delivery time rather than when focus was set.
         """
         app = self.application
         widget = app.focused if app is not None else None
         path: list[Widget] = []
         while widget is not None:
-            if not widget.visible:
+            if not widget.visible or widget.inert:
                 return []
             path.append(widget)
             if widget is self:
@@ -825,7 +887,7 @@ class Widget:
         """
         local = event.translated(-self.x, -self.y)
         for child in reversed(self.children):
-            if child.visible and child.contains(local.x, local.y):
+            if child.visible and not child.inert and child.contains(local.x, local.y):
                 if await child.dispatch_mouse(local):
                     return True
         handler = getattr(self, event.handler, None)

@@ -287,6 +287,35 @@ class Compound:
     part: str | None = None
     part_classes: frozenset[str] = frozenset()
     part_states: frozenset[str] = frozenset()
+    #: One compound per ``:not(...)`` written before the ``::part``, each
+    #: of which must fail to match the widget.
+    negated: tuple[Compound, ...] = ()
+    #: One per ``:not(...)`` written after it.  These hold classes and states
+    #: alone, which are the only things a part carries.
+    part_negated: tuple[Compound, ...] = ()
+
+    @property
+    def specificity(self) -> tuple[int, int, int]:
+        """This compound's share of :attr:`Selector.specificity`.
+
+        A ``:not(x)`` adds what ``x`` would, as CSS counts it: the negation
+        itself is free, and ``:not(#left)`` still outranks any number of
+        classes.
+        """
+        names = int(self.name is not None)
+        classes = len(self.classes) + len(self.states)
+        classes += len(self.part_classes) + len(self.part_states)
+        # A part counts as a type, the way CSS counts a pseudo-element.
+        types = int(self.type_name is not None) + int(self.part is not None)
+        for negation in (*self.negated, *self.part_negated):
+            n, c, t = negation.specificity
+            names, classes, types = names + n, classes + c, types + t
+        return names, classes, types
+
+    @property
+    def state_names(self) -> frozenset[str]:
+        """The widget states this compound reads, negated ones included."""
+        return self.states.union(*(n.states for n in self.negated))
 
     def matches(self, widget: Widget, request: PartRequest) -> bool:
         if self.part != request.part:
@@ -301,7 +330,14 @@ class Compound:
             return False
         if not self.part_classes <= request.classes:
             return False
-        return self.part_states <= request.states
+        if not self.part_states <= request.states:
+            return False
+        if any(n.matches(widget, _WIDGET) for n in self.negated):
+            return False
+        return not any(
+            n.part_classes <= request.classes and n.part_states <= request.states
+            for n in self.part_negated
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -325,12 +361,8 @@ class Selector:
         """
         names = classes = types = 0
         for compound in (self.subject, *(a for a, _ in self.ancestors)):
-            names += compound.name is not None
-            classes += len(compound.classes) + len(compound.states)
-            classes += len(compound.part_classes) + len(compound.part_states)
-            types += compound.type_name is not None
-            # A part counts as a type, the way CSS counts a pseudo-element.
-            types += compound.part is not None
+            n, c, t = compound.specificity
+            names, classes, types = names + n, classes + c, types + t
         return names, classes, types
 
     def matches(self, widget: Widget, request: PartRequest) -> bool:
@@ -414,7 +446,7 @@ class Stylesheet:
             state
             for rule in self.rules
             for compound in (rule.selector.subject, *(a for a, _ in rule.selector.ancestors))
-            for state in compound.states
+            for state in compound.state_names
         )
 
     def declarations_for(
@@ -465,12 +497,15 @@ _RGB = re.compile(r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\Z")
 _COMPOUND = re.compile(
     r"""
     (?P<type>\*|[A-Za-z_]\w*)?          # Panel, or * for anything
-    (?P<rest>(?:\#[\w-]+|\.[\w-]+|::[\w-]+|:[\w-]+)*)
+    (?P<rest>(?:\#[\w-]+|\.[\w-]+|::[\w-]+|:not\([^()]*\)|:[\w-]+)*)
     \Z
     """,
     re.X,
 )
-_PIECE = re.compile(r"(::|[#.:])([\w-]+)")
+_PIECE = re.compile(r":not\(([^()]*)\)|(::|[#.:])([\w-]+)")
+#: A ``:not(...)`` anywhere in a selector, found before the selector is split
+#: into compounds so that what is inside the parentheses can be refused whole.
+_NOT = re.compile(r":not\(([^()]*)\)")
 
 
 def _blank_comments(text: str) -> str:
@@ -483,6 +518,28 @@ def _blank_comments(text: str) -> str:
 
 def _line_of(text: str, position: int) -> int:
     return text.count("\n", 0, position) + 1
+
+
+def _parse_negation(text: str, line: int, filename: str) -> Compound:
+    """The argument of one ``:not(...)``: a single compound, and a plain one.
+
+    One compound because a combinator inside would have to be matched against
+    a chain the negation cannot see, and CSS 3 drew the line in the same
+    place.  Several things to exclude are written ``:not(.a):not(.b)``, and
+    a nested ``:not`` cannot be read at all, the parentheses being unbalanced
+    for :data:`_COMPOUND`.
+    """
+    if not text:
+        raise StylesheetError("':not()' needs a selector", line, filename)
+    compound = _parse_compound(text, line, filename)
+    if compound.part is not None:
+        raise StylesheetError(
+            f"':not({text})' names a part; write the part outside it, "
+            f"as '::part:not(:state)'",
+            line,
+            filename,
+        )
+    return compound
 
 
 def _parse_compound(text: str, line: int, filename: str) -> Compound:
@@ -498,9 +555,28 @@ def _parse_compound(text: str, line: int, filename: str) -> Compound:
     states: set[str] = set()
     part_classes: set[str] = set()
     part_states: set[str] = set()
+    negated: list[Compound] = []
+    part_negated: list[Compound] = []
 
-    for sigil, word in _PIECE.findall(match.group("rest")):
-        if sigil == "::":
+    for argument, sigil, word in _PIECE.findall(match.group("rest")):
+        if not sigil:
+            inner = _parse_negation(argument, line, filename)
+            if part is None:
+                negated.append(inner)
+                continue
+            # After a ``::part`` the negation is about the part, which carries
+            # classes and states and nothing else.
+            if inner.type_name is not None or inner.name is not None:
+                raise StylesheetError(
+                    f"':not({argument})' after '::{part}' may only name "
+                    f"classes and states",
+                    line,
+                    filename,
+                )
+            part_negated.append(
+                Compound(part_classes=inner.classes, part_states=inner.states)
+            )
+        elif sigil == "::":
             if part is not None:
                 raise StylesheetError(
                     f"{text!r} names more than one part", line, filename
@@ -523,10 +599,22 @@ def _parse_compound(text: str, line: int, filename: str) -> Compound:
         part=part,
         part_classes=frozenset(part_classes),
         part_states=frozenset(part_states),
+        negated=tuple(negated),
+        part_negated=tuple(part_negated),
     )
 
 
 def _parse_selector(text: str, line: int, filename: str) -> Selector:
+    for argument in _NOT.findall(text):
+        # Refused here, before the split below would turn ``:not(A > B)``
+        # into three compounds and a confusing complaint about the first.
+        if ">" in argument or argument != "".join(argument.split()):
+            raise StylesheetError(
+                f"':not({argument})' takes one compound, with no combinator; "
+                f"write ':not(.a):not(.b)' to exclude several",
+                line,
+                filename,
+            )
     tokens = text.replace(">", " > ").split()
     if not tokens:
         raise StylesheetError("empty selector", line, filename)
@@ -760,6 +848,32 @@ def read(*sources: str | Path | tuple[str, str]) -> Stylesheet:
     return load(sheets)
 
 
+def _split_group(selectors: str, line: int, filename: str) -> list[str]:
+    """A selector list, split on the commas that are not inside ``:not(...)``.
+
+    A comma inside is refused rather than supported: ``:not(.a, .b)`` is CSS 4,
+    and ``:not(.a):not(.b)`` already says it.
+    """
+    pieces, depth, start = [], 0, 0
+    for index, char in enumerate(selectors):
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        elif char == ",":
+            if depth:
+                raise StylesheetError(
+                    "':not()' takes one compound; write ':not(.a):not(.b)' "
+                    "to exclude several",
+                    line,
+                    filename,
+                )
+            pieces.append(selectors[start:index])
+            start = index + 1
+    pieces.append(selectors[start:])
+    return pieces
+
+
 def _parse_with(
     text: str, filename: str, variables: Mapping[str, str], order: int
 ) -> Stylesheet:
@@ -777,7 +891,7 @@ def _parse_with(
         consumed = match.end()
         line = _line_of(source, match.start(1))
         declarations = _parse_declarations(match.group(1), variables, line, filename)
-        for piece in selectors.split(","):
+        for piece in _split_group(selectors, line, filename):
             if not piece.strip():
                 raise StylesheetError("empty selector in a group", line, filename)
             rules.append(

@@ -73,7 +73,7 @@ class Cluster(Control):
             self.sel = min(max(self.sel + delta, 0), len(self.items) - 1)
 
     async def on_key(self, event: KeyEvent) -> bool:
-        if self.disabled or not self.items:
+        if self.inert or not self.items:
             return False
         if event.key == "up":
             self._move(-1)
@@ -87,7 +87,7 @@ class Cluster(Control):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         await super().on_mouse_click(event)
-        if event.action != "press" or event.button != "left" or self.disabled:
+        if event.action != "press" or event.button != "left" or self.inert:
             return False
         if 0 <= event.y < len(self.items):
             self.sel = event.y
@@ -97,7 +97,7 @@ class Cluster(Control):
 
     def shortcut_match(self, letter: str) -> bool:
         """A cluster answers to every letter any of its items marks."""
-        if self.disabled or not self.visible:
+        if self.inert or not self.visible:
             return False
         return any(
             parse_shortcut(item)[2] == letter.lower() for item in self.items

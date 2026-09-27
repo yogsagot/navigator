@@ -56,8 +56,10 @@ def place_cursor(x: int, y: int, shape: str = "default") -> str:
 
 # 1000: report button presses, 1002: also report drags, 1003: also report plain
 # motion, 1006: report them in the unambiguous SGR format.
-MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1006h"
-MOUSE_OFF = "\x1b[?1006l\x1b[?1002l\x1b[?1000l"
+# Plain motion is what makes ``:hovered`` possible; the application keeps it
+# to itself, so no widget sees the extra traffic.
+MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1003h\x1b[?1006h"
+MOUSE_OFF = "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l"
 PASTE_ON = "\x1b[?2004h"
 PASTE_OFF = "\x1b[?2004l"
 CLEAR_SCREEN = "\x1b[H\x1b[2J"

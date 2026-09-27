@@ -121,6 +121,8 @@ def test_unknown_sequence_is_dropped_not_replayed(parser):
         (b"\x1b[<1;1;1M", (0, 0, "middle", "press")),
         (b"\x1b[<2;3;4M", (2, 3, "right", "press")),
         (b"\x1b[<32;7;8M", (6, 7, "left", "move")),
+        # Mode 1003: the pointer moving with no button held.
+        (b"\x1b[<35;7;8M", (6, 7, "none", "move")),
         (b"\x1b[<64;3;3M", (2, 2, "wheel_up", "press")),
         (b"\x1b[<65;3;3M", (2, 2, "wheel_down", "press")),
     ],

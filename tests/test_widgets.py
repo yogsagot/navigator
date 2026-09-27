@@ -285,3 +285,17 @@ def test_changing_the_interval_rearms_the_timer():
     run_app(Application(root, terminal=FakeTerminal()), [start], settle=0.1)
     assert counts == [0]
     assert root.ticks >= 3
+
+
+def test_a_control_in_a_disabled_container_is_out_of_reach():
+    box = Widget()
+    button = Button(parent=box, text="~O~K")
+    Application(root=box, terminal=FakeTerminal())
+    assert button.can_focus is True
+    box.disabled = True
+    assert button.can_focus is False
+    assert button.focus() is False
+    assert button.shortcut_match("o") is False
+    assert asyncio.run(button.press()) is False
+    box.disabled = False
+    assert button.can_focus is True

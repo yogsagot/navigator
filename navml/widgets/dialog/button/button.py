@@ -71,7 +71,7 @@ class Button(Control):
 
     async def press(self) -> bool:
         """Emit the click.  False if disabled, or if nothing claimed it."""
-        if self.disabled:
+        if self.inert:
             return False
         return await self.emit(ClickEvent())
 

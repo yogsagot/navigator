@@ -583,3 +583,91 @@ def test_parts_union_down_the_mro():
     assert parts_of(Listing) == {"row", "title", "divider"}
     Listing().part_style("divider")   # the base's check does not refuse it
     Listing().part_style("row")
+
+
+# -- :not() -------------------------------------------------------------------
+
+
+def test_not_excludes_a_state():
+    sheet = parse("Panel:not(:active) { fg: red }")
+    panel = Panel()
+    assert sheet.declarations_for(panel) == {"fg": 1}
+    panel.active = True
+    assert sheet.declarations_for(panel) == {}
+
+
+def test_not_excludes_a_class_a_type_and_a_name():
+    sheet = parse(
+        "*:not(.wide) { fg: red } *:not(Label) { bg: blue } *:not(#left) { bold: true }"
+    )
+    panel = Panel()
+    assert sheet.declarations_for(panel) == {"fg": 1, "bg": 4, "bold": True}
+    panel.classes = frozenset({"wide"})
+    panel.name = "left"
+    assert sheet.declarations_for(panel) == {"bg": 4}
+    assert sheet.declarations_for(Label()) == {"fg": 1, "bold": True}
+
+
+def test_chained_negations_must_all_hold():
+    sheet = parse("Panel:not(.a):not(.b) { fg: red }")
+    panel = Panel()
+    assert sheet.declarations_for(panel) == {"fg": 1}
+    panel.classes = frozenset({"b"})
+    assert sheet.declarations_for(panel) == {}
+
+
+def test_not_after_a_part_is_about_the_part():
+    sheet = parse("Panel::row:not(:selected) { fg: red } Panel::row:not(.dir) { bg: blue }")
+    panel = Panel()
+    assert sheet.declarations_for(panel, PartRequest("row")) == {"fg": 1, "bg": 4}
+    assert sheet.declarations_for(
+        panel, PartRequest("row", frozenset({"dir"}), frozenset({"selected"}))
+    ) == {}
+    # And it says nothing about the widget itself.
+    assert sheet.declarations_for(panel) == {}
+
+
+def test_not_adds_the_specificity_of_its_argument():
+    # CSS counts the argument, not the negation: `:not(#x)' outranks classes.
+    (rule,) = parse("Panel:not(#x):not(.a) { fg: red }").rules
+    assert rule.selector.specificity == (1, 1, 1)
+    sheet = parse("Panel:not(#x) { fg: red } Panel.a.b.c { fg: blue }")
+    panel = Panel()
+    panel.classes = frozenset({"a", "b", "c"})
+    assert sheet.declarations_for(panel) == {"fg": 1}
+
+
+def test_a_negated_state_is_one_the_sheet_names():
+    # `part_style' keys its cache on these, so a negated state has to count.
+    assert parse("Panel:not(:active)::row { fg: red }").state_names == {"active"}
+
+
+def test_a_negated_reactive_state_restyles(terminal):
+    app = Application(
+        Panel(), terminal=terminal, stylesheet=parse("Panel:not(:active) { fg: red }")
+    )
+    assert app.root.style.fg == 1
+    app.root.active = True
+    assert app.root.style.fg is None
+
+
+@pytest.mark.parametrize(
+    ("text", "message"),
+    [
+        ("Panel:not(.a, .b) { }", "one compound"),
+        ("Panel:not(A > B) { }", "one compound"),
+        ("Panel:not(A B) { }", "one compound"),
+        ("Panel:not(Panel::row) { }", "names a part"),
+        ("Panel::row:not(Label) { }", "classes and states"),
+        ("Panel:not() { }", "needs a selector"),
+        ("Panel:not(:not(.a)) { }", "cannot read"),
+    ],
+)
+def test_a_malformed_negation_is_refused(text, message):
+    with pytest.raises(StylesheetError, match=message):
+        parse(text)
+
+
+def test_a_comma_outside_not_still_separates_selectors():
+    sheet = parse("Panel:not(.a), Label { fg: red }")
+    assert len(sheet.rules) == 2

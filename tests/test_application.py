@@ -787,3 +787,106 @@ def test_call_every_refuses_a_bad_interval_or_a_sync_callback(terminal):
         app.call_every(0, tick)
     with pytest.raises(TypeError):
         app.call_every(1, lambda: None)
+
+
+# -- hover -----------------------------------------------------------------------
+
+
+def _motion(x, y):
+    """What mode 1003 reports for the pointer moving with no button held."""
+    return MouseClickEvent(x, y, "none", action="move")
+
+
+def _hover_tree():
+    root = RecordingWidget()
+    left = root.add(RecordingWidget(x=0, y=0, width=20, height=10))
+    right = root.add(RecordingWidget(x=20, y=0, width=20, height=10))
+    return root, left, right
+
+
+def test_the_terminal_asks_for_plain_motion():
+    from navkit.terminal import MOUSE_OFF, MOUSE_ON
+
+    assert "\x1b[?1003h" in MOUSE_ON
+    assert "\x1b[?1003l" in MOUSE_OFF
+
+
+def test_plain_motion_moves_the_hover_and_reaches_nobody(terminal):
+    seen = []
+
+    class App(Application):
+        async def on_event(self, event):
+            seen.append(event)
+            return False
+
+    root, left, right = _hover_tree()
+    app = App(root, terminal=terminal)
+    hovered = []
+    run_app(
+        app,
+        [
+            _motion(3, 3),
+            lambda a: hovered.append(a.hovered),
+            _motion(25, 3),
+            lambda a: hovered.append(a.hovered),
+        ],
+    )
+    assert hovered == [left, right]
+    assert (left.hovered, right.hovered, root.hovered) == (False, True, True)
+    assert not any(isinstance(e, MouseClickEvent) for e in seen)
+    assert (root.mice, left.mice, right.mice) == ([], [], [])
+
+
+def test_a_drag_is_still_delivered(terminal):
+    root, left, right = _hover_tree()
+    run_app(
+        Application(root, terminal=terminal),
+        [MouseClickEvent(3, 3, "left", action="move")],
+    )
+    assert left.mice == [(3, 3)]
+
+
+def test_a_press_moves_the_hover_too(terminal):
+    root, left, right = _hover_tree()
+    app = Application(root, terminal=terminal)
+    run_app(app, [MouseClickEvent(25, 3, "left")])
+    assert app.hovered is right
+
+
+def test_a_modal_confines_the_hover(terminal):
+    root, left, right = _hover_tree()
+    right.modal = True
+    app = Application(root, terminal=terminal)
+    hovered = []
+    run_app(
+        app,
+        [
+            _motion(3, 3),
+            lambda a: hovered.append(a.hovered),
+            _motion(25, 3),
+            lambda a: hovered.append(a.hovered),
+        ],
+    )
+    assert hovered == [None, right]
+
+
+def test_removing_the_hovered_widget_clears_the_hover():
+    root, left, right = _hover_tree()
+    app = Application(root)
+    app.hovered = left
+    root.remove(left)
+    assert app.hovered is None
+
+
+def test_hovered_is_a_stylesheet_state_and_repaints(terminal):
+    root, left, right = _hover_tree()
+    app = Application(
+        root,
+        terminal=terminal,
+        stylesheet=parse("RecordingWidget RecordingWidget:hovered { bg: red }"),
+    )
+    run_app(app, [_motion(3, 3)])
+    assert left.style.bg == 1
+    assert right.style.bg is None
+    # The frame after the motion carries the colour: no second event needed.
+    assert "41m" in terminal.frames[-1]

@@ -105,7 +105,7 @@ Label::shortcut       { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-short
 Button                { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg }
 Button:default        { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg }
 Button:focused        { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg }
-Button:disabled       { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg }
+Button:inert          { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg }
 Button::shadow        { fg: $dialog-button-shadow-fg;    bg: $dialog-button-shadow-bg }
 /* The caption inherits the button, so only its marked letter needs a rule --
  * and it takes its background from whichever button rule won, which is the

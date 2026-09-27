@@ -1055,3 +1055,119 @@ def test_a_double_click_outside_a_modal_reaches_nothing(terminal):
 
     awaited(app._handle(DoubleClickEvent(11, 5, "left", "press")))
     assert dialog.doubles == ["dialog"]
+
+
+# -- focus_within, inert and the hit test ----------------------------------------
+
+
+def test_focus_within_holds_for_the_focused_widget_and_its_ancestors():
+    root = Widget()
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    other = root.add(Widget())
+    app = Application(root=root)
+    inner.can_focus = other.can_focus = True
+    assert box.focus_within is False
+    inner.focus()
+    assert (root.focus_within, box.focus_within, inner.focus_within) == (True, True, True)
+    assert other.focus_within is False
+    other.focus()
+    assert (box.focus_within, other.focus_within) == (False, True)
+    app.focused = None
+    assert root.focus_within is False
+
+
+def test_focus_within_follows_a_reparented_focus():
+    root = Widget()
+    left = root.add(Widget())
+    right = root.add(Widget())
+    widget = left.add(Widget())
+    Application(root=root)
+    widget.can_focus = True
+    widget.focus()
+    assert (left.focus_within, right.focus_within) == (True, False)
+    # Moving a widget removes it first, which lets go of the focus -- so the
+    # move is followed by taking it back, and the answer follows the parent.
+    right.add(widget)
+    assert (left.focus_within, right.focus_within) == (False, False)
+    widget.focus()
+    assert (left.focus_within, right.focus_within) == (False, True)
+
+
+def test_focus_within_is_a_stylesheet_state():
+    sheet = parse("Widget:focus_within { bold: true }")
+    root = Widget()
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    Application(root=root, stylesheet=sheet)
+    inner.can_focus = True
+    assert box.style.bold is False
+    inner.focus()
+    assert box.style.bold is True
+
+
+def test_disabling_a_container_makes_its_subtree_inert():
+    root = Widget()
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    inner.disabled = True
+    assert (box.inert, inner.inert) == (False, True)
+    box.disabled = True
+    assert (box.inert, inner.inert) == (True, True)
+    box.disabled = False
+    # Re-enabling the container hands back the child's own flag, untouched.
+    assert (box.inert, inner.inert) == (False, True)
+    inner.disabled = False
+    assert inner.inert is False
+
+
+def test_an_inert_subtree_leaves_the_tab_order_and_refuses_focus():
+    root = Widget()
+    first = root.add(Widget())
+    box = root.add(Widget())
+    inner = box.add(Widget())
+    Application(root=root)
+    first.can_focus = inner.can_focus = True
+    box.disabled = True
+    assert root.focusable() == [first]
+    assert inner.focus() is False
+    box.disabled = False
+    assert root.focusable() == [first, inner]
+
+
+def test_keys_are_not_delivered_into_an_inert_subtree():
+    # Decided at delivery, the way visibility is: disabling the container does
+    # not move the focus, it stops the keys arriving.
+    root = RecordingWidget()
+    box = root.add(RecordingWidget())
+    inner = box.add(RecordingWidget())
+    app = Application(root=root)
+    inner.can_focus = True
+    inner.focus()
+    box.disabled = True
+    assert app.focused is inner
+    awaited(root.dispatch_key(KeyEvent("a")))
+    assert (inner.keys, box.keys, root.keys) == ([], [], ["a"])
+
+
+def test_a_click_passes_over_an_inert_child():
+    root = RecordingWidget(width=10, height=4)
+    child = root.add(RecordingWidget(width=10, height=4))
+    child.disabled = True
+    awaited(root.dispatch_mouse(MouseClickEvent(2, 1, "left")))
+    assert (child.mice, root.mice) == ([], [(2, 1)])
+
+
+def test_widget_at_answers_the_innermost_visible_widget():
+    root = Widget(width=20, height=10)
+    lower = root.add(Widget(x=0, y=0, width=10, height=10))
+    upper = root.add(Widget(x=5, y=0, width=10, height=10))
+    inner = upper.add(Widget(x=1, y=1, width=2, height=2))
+    assert root.widget_at(2, 2) is lower
+    assert root.widget_at(5, 0) is upper  # the topmost of two overlapping
+    assert root.widget_at(6, 1) is inner  # upper's (1, 1), in root's frame
+    assert root.widget_at(25, 2) is None
+    upper.visible = False
+    assert root.widget_at(6, 1) is lower
+    lower.disabled = True
+    assert root.widget_at(6, 1) is root
