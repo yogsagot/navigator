@@ -79,6 +79,15 @@ class Rescan(Command):
     """Ctrl+R: read the active panel's directory again."""
 
 
+class ToggleTree(Command):
+    """Ctrl+T: the passive panel becomes a directory tree, or a panel again.
+
+    DOS Navigator's ``cmDirTree``, Manager > Directory tree.
+    """
+
+    title = "Tree"
+
+
 __all__ = [
     "Copy",
     "Delete",
@@ -90,6 +99,7 @@ __all__ = [
     "Rescan",
     "SwitchPanel",
     "ToggleConsole",
+    "ToggleTree",
     "UserMenu",
     "View",
 ]

@@ -601,7 +601,7 @@ def test_the_lazy_re_exports_are_transparent():
         "Label", "Layout", "LinearLayout", "ListViewer", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "RadioButtons", "ScrollBar",
         "Spacer", "StackLayout", "StaticText", "SubMenu", "Timer",
-        "VerticalLayout", "Window",
+        "TreeView", "VerticalLayout", "Window",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent

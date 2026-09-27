@@ -61,6 +61,7 @@ _COMPONENTS = {
     "StaticText": "dialog.static_text",
     "SubMenu": "menu.sub_menu",
     "Timer": "timer",
+    "TreeView": "dialog.tree_view",
     "VerticalLayout": "layout.vertical_layout",
     "Window": "window",
 }
@@ -125,6 +126,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.label import Label
     from navml.widgets.layout.layout import Layout, LinearLayout
     from navml.widgets.dialog.list_viewer import ListViewer
+    from navml.widgets.dialog.tree_view import TreeView
     from navml.widgets.menu.menu_bar import MenuBar
     from navml.widgets.menu.menu_box import MenuBox
     from navml.widgets.menu.menu_item import MenuItem

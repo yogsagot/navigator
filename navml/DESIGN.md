@@ -760,6 +760,75 @@ broadcast did: `Dialog.on_ok_click` walks the dialog for `History` buttons befor
 nothing. `Field` takes a `history_id` and puts the button after its line when one is given, which is how
 Make directory got DOS Navigator's `hsMakeDir`.
 
+## Trees
+
+`navml/widgets/dialog/tree_view/` is DOS Navigator's `TTreeView` (`TREE.PAS`), and Navigator's
+`navigator/widgets/directory_tree/` is its `THTreeView`, the tree a panel becomes.
+
+**The rows are a flat list**, as DOS Navigator's `DC` collection is: the visible nodes, depth first, each knowing its
+level. So `TreeView` is a `ListViewer` whose items are those rows, re-flattened whenever a branch opens or closes,
+and it inherits the frame, the scroll bar on it, the cursor, the wheel and the clicks. A node is data, never a
+widget, which is the recorded rule for listings. The node model is not reactive, so `revision` is one counter
+standing for all of it, as `Console.revision` stands for a screen.
+
+**Nodes load lazily.** A `TreeNode` carries its children or a *loader* that produces them when the branch is first
+opened, plus an optional *probe* that answers "has it any?" without reading them all. The probe is asked only for a
+row about to be painted, and the answer is remembered. DOS Navigator read a drive's whole tree up front; a
+filesystem rooted at `/` cannot afford that. The tree panel loses no fidelity by it, because `THTreeView` is the
+collapsible kind (`Parital` on), and its `[+]` and `[-]` are the original's.
+
+**Every measurement is `TTreeView.Draw`'s**, with DOS Navigator's column 0 at the first column inside the frame:
+
+- The root sits at column 2, and each level indents three.
+- `│` continues for every ancestor that has siblings below.
+- A branch is `├───` or `└───`. In the collapsible view a node with children gets `├─[+] ` or `├─[-] `; in the
+  expanded view (`collapsible` off, the dialog kind) it gets `├──┬`.
+- **The cursor is ` name ` in the cursor colour, begun one column early** over the last cell of its branch. The
+  line is not filled the way a listing's cursor line is.
+- The view scrolls sideways to keep the cursor's name in sight.
+- Tree lines are always single, whatever frame the widget has, because the original's were.
+
+**The keys are `HandleCommand`'s:**
+
+- Left and Right move up and down, as they did.
+- Space, `+` and `-` open or close the branch under the cursor.
+- `*` opens every branch *already read*. The original opened the whole tree, which lazily means the whole disk.
+- Typing searches forward for a name beginning with what was typed, with the terminal's caret after it. Backspace
+  shortens the search, and any other key ends it. The original matched an 8.3 mask, which a modern name has no
+  reason to fit.
+- Enter emits `ChosenEvent(node)`.
+- A press on a row's `[+]` opens it.
+
+**Colours** come from two groups. A tree in a dialog takes the Dialogs group's Tree, [104] to [110]. The tree panel
+takes the File Manager group's own, [94] to [101], which DOS Navigator gave `CDoubleWindow`. In both, the lines
+and ground are *Normal tree* and names are *Normal nodes*. The cursor is *Selected node* while the tree has the
+keyboard and *Selected passive* while it has not, which a sheet says with the owner's `:focused` in front of
+`::node:selected`. The *default node* slots, the current directory in the expanded view, are carried for when a
+dialog tree needs them.
+
+**Ctrl+T is `SwitchView(dtTree)`**, from `DBLWND.PAS`:
+
+- The **passive** panel gives way to the tree, in its place, and the keyboard stays with the active panel. The tree
+  is a hidden child of the panels' row, and the manager moves it next to the panel it replaces, since a row lays its
+  children out in order.
+- Ctrl+T again restores the panel, and gives it the keyboard if the tree had it.
+- The tree follows the active panel's directory (`cmChangeTree`), opening the branches *above* it, as `ExpandFor`
+  did, but not the directory's own.
+- With the keyboard in the tree, **Enter sends the panel there at once**, and a cursor that rests for thirty ticks
+  of the 18.2 Hz timer (`NeedLocated`, `Manager.LOCATE_DELAY`) takes the panel with it. Each move restarts the wait.
+- Tab moves the keyboard between the panel and the tree.
+- Ctrl+R re-reads the tree while it has the keyboard.
+- Under the tree, `TTreeInfoView`'s two rows show the path under the cursor and `N files with S bytes`, which is
+  `MakeDown`'s wording for the files directly in that directory.
+
+`ListViewer`'s scroll bar is now sized by `rows + header` rather than `height - 2`. That is the same for every
+list that was, and it keeps a list that gives up rows of its own (the tree's info band) from running its bar
+through them.
+
+Not yet: the other two places DOS Navigator showed a tree. One is Panel > Change directory (Alt+T), `TTreeDialog`,
+the expanded kind with OK / Drive / Re-read / MkDir buttons. The other is Disk > Directory tree, `TTreeWindow`, a
+tree window on the desktop. Both are the same widget in a different host.
+
 ## What Textual has that the library takes
 
 Textual (`github.com/Textualize/textual`, read at 8.2.8) is the nearest neighbour: a Python TUI framework with a

@@ -39,7 +39,7 @@ ListViewer(Control):
         x: parent.width - 1
         y: 1
         width: 1
-        height: max(0, parent.height - 2)
+        height: max(0, parent.rows + parent.header)
         value: parent.cursor
         maximum: max(0, len(parent.items) - 1)
         page: max(1, parent.rows - 1)

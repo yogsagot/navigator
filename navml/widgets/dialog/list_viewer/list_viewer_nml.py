@@ -80,7 +80,9 @@ class ListViewer(Control, _Component):
         self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # list_viewer.nml:39
         self.bar.y = 1    # list_viewer.nml:40
         self.bar.width = 1    # list_viewer.nml:41
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # list_viewer.nml:42
+        self.bar.height = _bind(    # list_viewer.nml:42
+            lambda _o: max(0, _o.parent.rows + _o.parent.header)
+        )
         self.bar.value = _bind(lambda _o: _o.parent.cursor)    # list_viewer.nml:43
         self.bar.maximum = _bind(lambda _o: max(0, len(_o.parent.items) - 1))    # list_viewer.nml:44
         self.bar.page = _bind(lambda _o: max(1, _o.parent.rows - 1))    # list_viewer.nml:45

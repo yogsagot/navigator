@@ -3,15 +3,20 @@
 
 from typing import Any as _Any
 
+from navkit.events import Event as _Event
+
 from navml.component import Component as _Component
 from navigator.commands import Copy, Delete, Edit, MakeDirectory, RenameMove
-from navigator.commands import Rescan, SwitchPanel, UserMenu, View
+from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
+from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.window import Window
 
+import asyncio
 from pathlib import Path
-from navkit.reactive import computed
+from typing import Any
+from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
 from navigator.widgets.mkdir_dialog import MkdirDialog
 
@@ -20,11 +25,21 @@ class Manager(Window, _Component):
     panels: HorizontalLayout
     left: Panel
     right: Panel
+    tree: DirectoryTree
+    tree_replaces: Any
     framed: _Any
+    LOCATE_DELAY: _Any
     def __init__(self, left: Path, right: Path, **kwargs): ...
+    def mounted(self) -> None: ...
     async def on_switch_panel(self, event: SwitchPanel) -> bool: ...
     async def on_rescan(self, event: Rescan) -> bool: ...
+    async def on_toggle_tree(self, event: ToggleTree) -> bool: ...
+    async def on_tree_chosen(self, event: Any) -> bool: ...
     async def on_make_directory(self, event: MakeDirectory) -> bool: ...
     async def make_directory(self) -> None: ...
     active_panel: Panel
     def switch_panel(self) -> None: ...
+    def toggle_tree(self) -> None: ...
+    def _tree_follows_panel(self) -> None: ...
+    def _panel_follows_tree(self) -> None: ...
+    async def _follow_later(self, path: Path) -> None: ...

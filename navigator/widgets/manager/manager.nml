@@ -1,5 +1,6 @@
 from navigator.commands import Copy, Delete, Edit, MakeDirectory, RenameMove
-from navigator.commands import Rescan, SwitchPanel, UserMenu, View
+from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
+from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.window import Window
@@ -35,6 +36,7 @@ Manager(Window):
         tab: SwitchPanel
         alt+r: Rescan
         ctrl+r: Rescan
+        ctrl+t: ToggleTree
         f2: UserMenu
         f3: View
         f4: Edit
@@ -57,3 +59,9 @@ Manager(Window):
         Panel:
             id: right
             title_margin: 5
+
+        #: The directory tree Ctrl+T puts in the passive panel's place.  Last
+        #: here, and hidden; ``manager.py`` moves it beside the panel it
+        #: replaces, since a row lays its children out in order.
+        DirectoryTree:
+            id: tree

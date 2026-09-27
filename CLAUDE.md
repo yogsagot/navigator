@@ -57,7 +57,12 @@ and `MenuBar`/`SubMenu` share `MenuContainer`'s Python API for plugins: `add_ite
 written** (`[53-56]`): `navml/history.py`'s `HistoryStore`/`HISTORY` (DOS Navigator's `HistList`: per-id lists,
 newest first, 20 each, pinned entries kept) and the `History` button with its `HistoryList` drop-down, which
 `Field(history_id=...)` places after its line; Make directory has `"mkdir"`. *History* in `navml/DESIGN.md` has the
-rest. **The next tier is** Tree `[104-110]`.
+rest. **Trees are written** (`[94-101]`, `[104-110]`): the
+library's `TreeView` (a `ListViewer` of flattened, lazily loaded `TreeNode`s drawn as `TTreeView.Draw` draws them)
+and Navigator's `DirectoryTree`, which Ctrl+T puts in the passive panel's place (`DBLWND.PAS`'s `SwitchView`):
+the tree follows the active panel, and Enter or a resting cursor sends the panel where the tree points. *Trees* in
+`navml/DESIGN.md` has the rest; Change directory (Alt+T) and the Directory tree window are the same widget in other
+hosts, still to do.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

@@ -62,6 +62,19 @@ Panel:focused::title { fg: $active-title-fg; bg: $active-title-bg }
 Panel::row.directory { fg: $directory-fg; bg: $directory-bg; bold: true }
 Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 
+/* The directory tree a panel becomes (Ctrl+T): the File Manager group's own
+   tree slots, [94] to [101].  The lines and the ground are *Normal tree*, the
+   names *Normal nodes*; the cursor is *Selected node* while the tree has the
+   keyboard and *Selected passive* while it has not -- TTreeView.Draw's C3
+   against C6 -- and the two rows under it are *Info box*.  Framed like a
+   panel, since it stands where one stood. */
+DirectoryTree                        { fg: $tree-normal-tree-fg; bg: $tree-normal-tree-bg; border: single }
+DirectoryTree:focused                { border: double }
+DirectoryTree::node                  { fg: $tree-normal-nodes-fg; bg: $tree-normal-nodes-bg }
+DirectoryTree::node:selected         { fg: $tree-selected-passive-fg; bg: $tree-selected-passive-bg }
+DirectoryTree:focused::node:selected { fg: $tree-selected-node-fg; bg: $tree-selected-node-bg }
+DirectoryTree::info                  { fg: $tree-info-box-fg; bg: $tree-info-box-bg }
+
 /* One palette entry, two bars: Turbo Vision gives `TMenuView' and
    `TStatusLine' the same six colours (MENUS.PAS), and DOS Navigator never
    split them. Hence `$bar-' rather than a name that claims otherwise. */
@@ -177,3 +190,8 @@ Modal ScrollBar::thumb   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-b
 Modal ListViewer             { fg: $dialog-list-normal-fg;     bg: $dialog-list-normal-bg }
 Modal ListViewer::row:selected { fg: $dialog-list-focused-fg;  bg: $dialog-list-focused-bg }
 Modal ListViewer::divider    { fg: $dialog-list-divider-fg;    bg: $dialog-list-divider-bg }
+/* A tree in a dialog: the Dialogs group's Tree, [104] to [110]. */
+Modal TreeView                        { fg: $dialog-tree-normal-tree-fg;      bg: $dialog-tree-normal-tree-bg }
+Modal TreeView::node                  { fg: $dialog-tree-normal-nodes-fg;     bg: $dialog-tree-normal-nodes-bg }
+Modal TreeView::node:selected         { fg: $dialog-tree-selected-passive-fg; bg: $dialog-tree-selected-passive-bg }
+Modal TreeView:focused::node:selected { fg: $dialog-tree-selected-node-fg;    bg: $dialog-tree-selected-node-bg }

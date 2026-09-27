@@ -38,6 +38,7 @@ _WIDGETS = {
     "Clock": "clock",
     "Console": "console",
     "DirEntry": "panel",
+    "DirectoryTree": "directory_tree",
     "KeyBar": "keybar",
     "MainMenu": "main_menu",
     "Manager": "manager",
@@ -68,6 +69,7 @@ if TYPE_CHECKING:
     # every widget untyped at every call site.  These are the real types.
     from navigator.widgets.clock import Clock
     from navigator.widgets.console import Console
+    from navigator.widgets.directory_tree import DirectoryTree
     from navigator.widgets.keybar import KeyBar
     from navigator.widgets.manager import Manager
     from navigator.widgets.mkdir_dialog import MkdirDialog

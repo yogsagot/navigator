@@ -10,14 +10,16 @@ base the markup's ``Manager(Window):`` head asks for.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
+from typing import Any
 
-from navkit.reactive import computed
+from navkit.reactive import computed, effect, reactive, untracked
 
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
-from navigator.commands import MakeDirectory, Rescan, SwitchPanel
+from navigator.commands import MakeDirectory, Rescan, SwitchPanel, ToggleTree
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navigator.widgets.panel import Panel
 
@@ -27,6 +29,14 @@ class Manager(Window):
 
     #: The panels' frames are this window's frame.
     framed = False
+
+    #: How long the tree's cursor has to rest before the panel follows it:
+    #: DOS Navigator's thirty ticks of the 18.2 Hz timer (``NeedLocated``).
+    LOCATE_DELAY = 30 / 18.2
+
+    #: The panel the directory tree stands in for, or None while there is no
+    #: tree.  Reactive, so ``active_panel`` and the follow effects move with it.
+    tree_replaces: Any = reactive(None)
 
     def __init__(self, left: Path, right: Path, **kwargs):
         """Build the window, then seed where the panels open.
@@ -45,6 +55,14 @@ class Manager(Window):
         super().__init__(**kwargs)
         self.left.path = left
         self.right.path = right
+        self.tree.visible = False
+        #: The pending "panel, follow the tree" -- cancelled by every move.
+        self._follow: asyncio.Task[Any] | None = None
+
+    def mounted(self) -> None:
+        super().mounted()
+        effect(self, Manager._tree_follows_panel)
+        effect(self, Manager._panel_follows_tree)
 
     # -- commands ------------------------------------------------------------
     #
@@ -57,7 +75,19 @@ class Manager(Window):
         return True
 
     async def on_rescan(self, event: Rescan) -> bool:
-        self.active_panel.reload()
+        if self.tree.focused:
+            self.tree.reload()
+        else:
+            self.active_panel.reload()
+        return True
+
+    async def on_toggle_tree(self, event: ToggleTree) -> bool:
+        self.toggle_tree()
+        return True
+
+    async def on_tree_chosen(self, event: Any) -> bool:
+        """Enter in the tree: the panel goes there now, not after the pause."""
+        self.active_panel.path = event.node.data
         return True
 
     async def on_make_directory(self, event: MakeDirectory) -> bool:
@@ -98,11 +128,82 @@ class Manager(Window):
 
         The right one only when it actually holds the focus, so that a
         desktop with the focus somewhere else entirely -- in the console, in
-        a dialog -- still answers "the left one" rather than guessing.
+        a dialog -- still answers "the left one" rather than guessing.  While
+        the tree stands in for one panel, the other is the active one whether
+        or not it holds the keyboard: it is the one the tree steers.
         """
+        replaced = self.tree_replaces
+        if replaced is not None:
+            return self.right if replaced is self.left else self.left
         return self.right if self.right.focused else self.left
 
     def switch_panel(self) -> None:
-        """Move the keyboard to the other panel."""
+        """Move the keyboard to the other panel, or between panel and tree."""
+        if self.tree_replaces is not None:
+            (self.active_panel if self.tree.focused else self.tree).focus()
+            return
         other = self.right if self.active_panel is self.left else self.left
         other.focus()
+
+    # -- the directory tree ----------------------------------------------------
+
+    def toggle_tree(self) -> None:
+        """Ctrl+T: ``SwitchView(dtTree)``.
+
+        The **passive** panel gives way to the tree, in its place, and the
+        keyboard stays with the active one.  The second Ctrl+T puts the panel
+        back -- and gives it the keyboard if the tree had it, as the original
+        re-selected the panel it restored.
+        """
+        tree, replaced = self.tree, self.tree_replaces
+        if replaced is None:
+            active = self.active_panel
+            passive = self.right if active is self.left else self.left
+            row = self.panels.children
+            row.remove(tree)
+            row.insert(row.index(passive), tree)
+            tree.show(active.path)
+            passive.visible = False
+            tree.visible = True
+            self.tree_replaces = passive
+        else:
+            had_keys = tree.focused
+            tree.visible = False
+            replaced.visible = True
+            self.tree_replaces = None
+            if had_keys:
+                replaced.focus()
+        self.panels.invalidate()
+
+    def _tree_follows_panel(self) -> None:
+        """The tree's cursor goes wherever the active panel goes: ``cmChangeTree``."""
+        if self.tree_replaces is None:
+            return
+        path = self.active_panel.path
+        with untracked():
+            if self.tree.selected_path != Path(path).resolve():
+                self.tree.show(path)
+
+    def _panel_follows_tree(self) -> None:
+        """A cursor at rest in a focused tree takes the panel with it.
+
+        DOS Navigator's ``NeedLocated``: every move restarts the wait, and the
+        panel moves only once the cursor has stayed put for ``LOCATE_DELAY``.
+        """
+        path, focused = self.tree.selected_path, self.tree.focused
+        with untracked():
+            if self._follow is not None:
+                self._follow.cancel()
+                self._follow = None
+            app = self.application
+            if (
+                self.tree_replaces is None or not focused or path is None
+                or app is None or not app.is_running
+            ):
+                return
+            self._follow = self.spawn(self._follow_later(path))
+
+    async def _follow_later(self, path: Path) -> None:
+        await asyncio.sleep(self.LOCATE_DELAY)
+        if self.tree.focused and self.tree.selected_path == path:
+            self.active_panel.path = path

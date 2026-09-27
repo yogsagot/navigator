@@ -661,6 +661,8 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.clock.clock_nml",
         "navigator.widgets.console",
         "navigator.widgets.console.console",
+        "navigator.widgets.directory_tree",   # Ctrl+T, placed by the manager
+        "navigator.widgets.directory_tree.directory_tree",
         "navigator.widgets.keybar",
         "navigator.widgets.keybar.keybar",
         "navigator.widgets.main_menu",
