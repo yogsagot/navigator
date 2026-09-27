@@ -1,4 +1,4 @@
-from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, Quit, RenameMove, Rescan, ToggleConsole, ToggleTree, UserMenu, View
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, OpenTreeWindow, Quit, RenameMove, Rescan, ToggleConsole, ToggleTree, UserMenu, View
 from navml.commands import CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -165,6 +165,7 @@ MainMenu(MenuBar):
             text: 'Disk ~e~ditor'
         MenuItem:
             text: '~D~irectory tree'
+            command: OpenTreeWindow
     SubMenu:
         id: utilities
         text: '~U~tilities'

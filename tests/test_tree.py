@@ -425,3 +425,72 @@ def test_the_menu_entry_is_alt_t_and_is_enabled(places):
 
     run_app(app, [look])
     assert seen == [("Alt-T", True)]
+
+
+# -- the Directory Tree window (Disk > Directory tree) ---------------------------------------
+
+
+def tree_window_run(places, *actions):
+    from test_nav import navigator
+
+    app = navigator(places)
+
+    def open_it(a):
+        from navigator.commands import OpenTreeWindow
+
+        a.spawn(a.run_command(OpenTreeWindow))
+
+    run_app(app, [open_it, lambda a: None, *actions, lambda a: None])
+    return app
+
+
+def test_the_window_opens_on_the_active_panels_directory_with_the_keys(places):
+    from navigator.widgets.tree_window import TreeWindow
+
+    seen = []
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        tree = window.tree
+        seen.append((type(window).__name__, window.title, tree.selected_path,
+                     a.focused is tree,
+                     (tree.framed, tree.x, tree.y, tree.width, tree.height)
+                     == (False, 1, 1, window.width - 1, window.height - 2),
+                     tree.x + tree.bar.x == window.width - 1))
+
+    tree_window_run(places, look)
+    assert seen == [("TreeWindow", "Directory Tree", places.resolve(), True, True, True)]
+
+
+def test_enter_sends_the_file_managers_panel_and_keeps_the_keyboard(places):
+    app = tree_window_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"))
+    assert app.manager.left.path == (places / "alpha").resolve()
+    window = app.shell.desktop.active_window
+    assert type(window).__name__ == "TreeWindow" and app.focused is window.tree
+
+
+def test_escape_closes_the_window(places):
+    app = tree_window_run(places, KeyEvent("escape"))
+    assert app.shell.desktop.active_window is app.manager
+
+
+def test_ctrl_r_rereads_the_windows_tree(places):
+    seen = []
+    tree_window_run(
+        places, KeyEvent("+", "+"), KeyEvent("down"),
+        lambda a: (places / "alpha" / "fresh").mkdir(),
+        KeyEvent("r", ctrl=True), KeyEvent("+", "+"),
+        lambda a: seen.append(
+            [n.name for n in a.shell.desktop.active_window.tree.selected_node.children()]),
+    )
+    assert seen == [["fresh", "inner"]]
+
+
+def test_the_disk_menu_entry_is_enabled(places):
+    from test_nav import navigator, _entry
+
+    app = navigator(places)
+    seen = []
+    run_app(app, [lambda a: seen.append(a.command_enabled(
+        _entry(a.shell.menu, "Disk", "Directory tree").command, a.manager.left))])
+    assert seen == [True]

@@ -850,7 +850,27 @@ never had frames; a dialog's or a window's frame was theirs. A file panel has on
 on and every list that existed is unchanged. Off, the rows begin at the edge (`inset` is 0) and the scroll bar
 takes the last column (`inner_width` is one less than the width), as `TScrollBar` sat beside its view.
 
-Not yet: Disk > Directory tree, `TTreeWindow`, a tree window on the desktop. It is the same widget in another host.
+**Disk > Directory tree is `TTreeWindow`** (`navigator/widgets/tree_window/`), a window on the desktop titled
+*Directory Tree*. DOS Navigator 1.51 **defined this window and never opened it**. Its `cmCreateTree` went to
+`OpenTreeWindow` in `DNUTIL.PAS` instead, which asked for a directory with `ChangeDir` and opened a second file
+manager there with its tree panel showing. Navigator opens the window as designed, a deliberate choice rather than a
+transcription, so two things about it are Navigator's own: its size, which is `Window`'s default because nothing
+ever gave it bounds, and what Enter does.
+
+- **The layout is `TTreeWindow.Init`'s.** The tree fills the inside of the frame less two rows. The two
+  `TTreeInfoView` rows below it show the path and `N files with S bytes`. The scroll bar stands on the frame's right
+  edge. That is `DirectoryTree` without its frame, one column into the window, so its last column is the frame's.
+- **It is coloured with the dialog palette**, because `TTreeWindow.GetPalette` returns `CTreeDialog`: a dialog's
+  frame, the Dialogs group's Tree [104]–[110], and the information pane [61] for the two rows.
+- **Esc closes it**, as `TTreeWindow.HandleEvent` did, through the `CloseWindow` command in its key table. Ctrl+R
+  and Alt+R re-read its tree.
+- **Enter sends the file manager's active panel to the directory, and the keyboard stays in the tree.** The window
+  does not handle the tree's `ChosenEvent`: its generated stub declines, and the event walks up to `Shell`, which is
+  the one thing that knows where the file manager is. The manager's own tree and *Choose Directory* both claim
+  theirs first.
+
+A frameless list fills only its rows' columns. The scroll bar paints its own column, and below the bar's end the
+cells are whatever the list stands on, which is the window's frame here.
 
 ## What Textual has that the library takes
 

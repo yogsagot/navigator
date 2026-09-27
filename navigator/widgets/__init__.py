@@ -46,6 +46,7 @@ _WIDGETS = {
     "MkdirDialog": "mkdir_dialog",
     "Panel": "panel",
     "Shell": "shell",
+    "TreeWindow": "tree_window",
 }
 
 __all__ = sorted(_WIDGETS)
@@ -78,3 +79,4 @@ if TYPE_CHECKING:
     from navigator.widgets.main_menu import MainMenu
     from navigator.widgets.panel import DirEntry, Panel
     from navigator.widgets.shell import Shell
+    from navigator.widgets.tree_window import TreeWindow

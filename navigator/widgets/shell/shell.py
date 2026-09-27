@@ -11,11 +11,14 @@ what a Python-only widget would say too, and it is the base the markup's
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from navkit.events import Event, KeyEvent
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
+
+from navigator.commands import OpenTreeWindow
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
@@ -108,6 +111,31 @@ class Shell(DockLayout):
         user screen would have.
         """
         return await self.menu.open_hotkey(event)
+
+    # -- the directory tree window --------------------------------------------
+
+    async def on_open_tree_window(self, event: OpenTreeWindow) -> bool:
+        """Disk > Directory tree: a tree window, opened on the active panel's directory."""
+        from navigator.widgets.tree_window import TreeWindow
+
+        manager = self.manager
+        start = manager.active_panel.path if manager.parent is not None else None
+        self.desktop.open(TreeWindow(start=start))
+        return True
+
+    async def on_chosen(self, event: Any) -> bool:
+        """Enter in a tree nobody nearer claimed: the file manager's panel goes there.
+
+        The tree window's, in practice -- the manager's own tree and a dialog's
+        both answer their tree themselves -- and this screen is the one thing
+        that knows where the file manager is.  The keyboard stays in the tree,
+        as ``SendLocated`` left it.
+        """
+        manager = self.manager
+        if manager.parent is None or event.node is None:
+            return False
+        manager.active_panel.path = Path(event.node.data)
+        return True
 
     async def on_desktop_emptied(self, event: Event) -> bool:
         """The last window on ``desktop`` closed: the console is all there is.

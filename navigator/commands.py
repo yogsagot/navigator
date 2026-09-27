@@ -88,6 +88,16 @@ class ChangeDirectory(Command):
     title = "ChDir"
 
 
+class OpenTreeWindow(Command):
+    """Disk > Directory tree: a *Directory Tree* window on the desktop.
+
+    DOS Navigator's ``cmCreateTree`` -- here opening the ``TTreeWindow`` that
+    1.51 defined and never used.
+    """
+
+    title = "Tree"
+
+
 class ToggleTree(Command):
     """Ctrl+T: the passive panel becomes a directory tree, or a panel again.
 
@@ -104,6 +114,7 @@ __all__ = [
     "Edit",
     "Help",
     "MakeDirectory",
+    "OpenTreeWindow",
     "Quit",
     "RenameMove",
     "Rescan",

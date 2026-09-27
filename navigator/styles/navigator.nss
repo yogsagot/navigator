@@ -190,6 +190,24 @@ Modal ScrollBar::thumb   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-b
 Modal ListViewer             { fg: $dialog-list-normal-fg;     bg: $dialog-list-normal-bg }
 Modal ListViewer::row:selected { fg: $dialog-list-focused-fg;  bg: $dialog-list-focused-bg }
 Modal ListViewer::divider    { fg: $dialog-list-divider-fg;    bg: $dialog-list-divider-bg }
+/* The Directory Tree window: TTreeWindow takes CTreeDialog, the dialog
+   palette, so its frame is a dialog's and its tree the Dialogs group's Tree,
+   [104] to [110], with the path and file count in the information pane [61].
+   One class more specific than the panel tree's rules above, so it wins. */
+TreeWindow                                     { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+TreeWindow:active                              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+TreeWindow::title,
+TreeWindow:active::title                       { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+TreeWindow::icon                               { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg }
+TreeWindow DirectoryTree                       { fg: $dialog-tree-normal-tree-fg;      bg: $dialog-tree-normal-tree-bg }
+TreeWindow DirectoryTree::node                 { fg: $dialog-tree-normal-nodes-fg;     bg: $dialog-tree-normal-nodes-bg }
+TreeWindow DirectoryTree::node:selected        { fg: $dialog-tree-selected-passive-fg; bg: $dialog-tree-selected-passive-bg }
+TreeWindow DirectoryTree:focused::node:selected { fg: $dialog-tree-selected-node-fg;   bg: $dialog-tree-selected-node-bg }
+TreeWindow DirectoryTree::info                 { fg: $dialog-information-pane-fg;  bg: $dialog-information-pane-bg }
+TreeWindow ScrollBar                           { fg: $dialog-scroll-bar-page-fg;  bg: $dialog-scroll-bar-page-bg }
+TreeWindow ScrollBar::arrow,
+TreeWindow ScrollBar::thumb                    { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg }
+
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information
    pane, [61]. */

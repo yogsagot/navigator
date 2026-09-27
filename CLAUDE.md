@@ -64,7 +64,10 @@ the tree follows the active panel, and Enter or a resting cursor sends the panel
 `navml/DESIGN.md` has the rest. **Alt+T is DOS Navigator's *Choose Directory*** (`TTreeDialog`,
 `navigator/widgets/change_dir_dialog/`): the tree frameless in a dialog (`ListViewer.framed = False`), the path under
 it, and OK / Drive (disabled: one root) / Re-read / MkDir / Cancel down the right; OK sends the active panel there.
-The Directory tree window (Disk > Directory tree) is still to do.
+**Disk > Directory tree opens `TTreeWindow`** (`navigator/widgets/tree_window/`): a *Directory Tree*
+window on the desktop in the dialog palette, Esc closes it, and Enter sends the file manager's active panel there
+(the tree's `ChosenEvent` bubbles to `Shell`). DOS Navigator 1.51 defined that window but never opened it; its menu
+entry opened a second file manager instead -- taking the window was a choice, recorded in *Trees*.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

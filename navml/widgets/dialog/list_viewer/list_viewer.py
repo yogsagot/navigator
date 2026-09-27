@@ -231,7 +231,10 @@ class ListViewer(Control):
             self._render_label(surface, 0, self.title_text(), "title")
             self._render_label(surface, self.height - 1, self.footer_text(), "footer")
         else:
-            surface.fill(0, 0, self.width, self.height, " ", self.style)
+            # The rows' columns only: the scroll bar paints its own, and below
+            # its end the cells are whatever the list stands on -- a window's
+            # frame, when the bar sits on it.
+            surface.fill(0, 0, self.inner_width, self.height, " ", self.style)
         self.render_header(surface)
         if self.error is not None:
             surface.draw_text(

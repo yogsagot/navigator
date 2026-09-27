@@ -122,7 +122,7 @@ class DirectoryTree(TreeView):
     @computed
     def rows(self) -> int:
         """The listing rows, less the two the info band takes."""
-        return max(0, self.height - 2 - self.header - self.INFO_ROWS)
+        return max(0, self.height - 2 * self.inset - self.header - self.INFO_ROWS)
 
     @computed
     def selected_path(self) -> Path | None:
@@ -146,15 +146,17 @@ class DirectoryTree(TreeView):
     def render(self, surface: Surface) -> None:
         super().render(surface)
         path = self.selected_path
-        if path is None or self.height < 2 + self.INFO_ROWS:
+        inset = self.inset
+        if path is None or self.height < 2 * inset + self.INFO_ROWS:
             return
         if path not in self._counts:
             self._counts[path] = count_files(path)
-        style, inner = self.part_style("info"), max(0, self.width - 2)
-        top = self.height - 1 - self.INFO_ROWS
+        style, inner = self.part_style("info"), self.inner_width
+        top = self.height - inset - self.INFO_ROWS
         text = str(path)
         if len(text) > inner - 1:
             text = "..." + text[-(inner - 4):] if inner > 4 else text[:inner]
+        # ``TTreeInfoView.Draw`` starts its text one column in: ``B[1]``.
         for offset, line in enumerate((text, files_line(*self._counts[path]))):
-            surface.fill(1, top + offset, inner, 1, " ", style)
-            surface.draw_text(2, top + offset, line, style, max(0, inner - 1))
+            surface.fill(inset, top + offset, inner, 1, " ", style)
+            surface.draw_text(inset + 1, top + offset, line, style, max(0, inner - 1))
