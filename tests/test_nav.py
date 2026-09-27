@@ -256,10 +256,15 @@ def test_the_desktop_is_built_from_its_document():
 def test_the_geometry_in_the_document_is_what_places_the_children():
     shell = screen(size=(100, 30))
     manager = shell.manager
-    assert is_bound(manager.left, Panel.width)
+    # The row is bound to the window; the panels in it are arranged by it,
+    # so their own geometry is the layout's to write and carries no binding.
+    assert is_bound(manager.panels, Panel.width)
+    assert not is_bound(manager.left, Panel.width)
     assert is_bound(shell.desktop, Panel.visible)
     assert not is_bound(manager, Panel.width)
-    assert (manager.left.width, shell.console.height) == (50, 28)
+    assert (manager.left.width, manager.right.x) == (50, 50)
+    assert (shell.console.y, shell.console.height) == (1, 28)
+    assert (shell.keybar.y, shell.desktop.height) == (29, 28)
 
 
 def test_the_file_manager_opens_zoomed_on_the_desktop():

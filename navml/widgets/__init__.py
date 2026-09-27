@@ -39,16 +39,23 @@ _COMPONENTS = {
     "Control": "control",
     "Desktop": "desktop",
     "Dialog": "dialog",
+    "DockLayout": "layout.dock_layout",
     "Field": "field",
+    "GridLayout": "layout.grid_layout",
+    "HorizontalLayout": "layout.horizontal_layout",
     "InputLine": "input_line",
     "Label": "label",
+    "Layout": "layout.layout",
+    "LinearLayout": "layout.layout",
     "ListViewer": "list_viewer",
     "Modal": "modal",
     "RadioButtons": "radio_buttons",
     "ScrollBar": "scroll_bar",
     "Spacer": "spacer",
+    "StackLayout": "layout.stack_layout",
     "StaticText": "static_text",
     "Timer": "timer",
+    "VerticalLayout": "layout.vertical_layout",
     "Window": "window",
 }
 
@@ -103,14 +110,20 @@ if TYPE_CHECKING:
     from navml.widgets.control import Control
     from navml.widgets.desktop import Desktop
     from navml.widgets.dialog import Dialog
+    from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.field import Field
+    from navml.widgets.layout.grid_layout import GridLayout
+    from navml.widgets.layout.horizontal_layout import HorizontalLayout
     from navml.widgets.input_line import InputLine
     from navml.widgets.label import Label
+    from navml.widgets.layout.layout import Layout, LinearLayout
     from navml.widgets.list_viewer import ListViewer
     from navml.widgets.modal import Modal
     from navml.widgets.radio_buttons import RadioButtons
     from navml.widgets.scroll_bar import ScrollBar
     from navml.widgets.spacer import Spacer
+    from navml.widgets.layout.stack_layout import StackLayout
     from navml.widgets.static_text import StaticText
     from navml.widgets.timer import Timer
+    from navml.widgets.layout.vertical_layout import VerticalLayout
     from navml.widgets.window import Window

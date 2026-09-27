@@ -11,17 +11,17 @@ from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
 from navigator.widgets.menubar import MenuBar
 from navml.widgets.desktop import Desktop
+from navml.widgets.layout.dock_layout import DockLayout
 
 from pathlib import Path
 from navkit.events import Event
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
-from navkit.widget import Widget
 from navigator.scheme import default_scheme
 from navigator.widgets.manager import Manager
 
 
-class Shell(_Component):
+class Shell(DockLayout, _Component):
     console_visible: bool
     menu: MenuBar
     clock: Clock

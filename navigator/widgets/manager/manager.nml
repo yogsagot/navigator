@@ -1,4 +1,5 @@
 from navigator.widgets.panel import Panel
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.window import Window
 
 #: The file manager: two panels, in a window on the desktop.
@@ -8,9 +9,10 @@ from navml.widgets.window import Window
 #: The close and zoom icons go on the panels' top edges and the resize grip on
 #: the right panel's corner, which ``Window.render_after`` paints over them.
 #:
-#: The panels' geometry is bound to the window's, and the window's is not
-#: bound to anything: a drag assigns it, and the panels follow because what
-#: they read is reactive.  The window opens zoomed, filling the desktop, which
+#: The panels share a row that is bound to the window's size, and the
+#: window's is not bound to anything: a drag assigns it, and the row
+#: re-arranges the panels because the size it reads is reactive.  Two panels
+#: that say nothing split it evenly, the odd column going to the right one.  The window opens zoomed, filling the desktop, which
 #: is what the desktop looked like before there was one.
 #:
 #: Where the two panels open is not here: a panel *navigates* its ``path``, and
@@ -22,18 +24,17 @@ Manager(Window):
     min_width: 24
     min_height: 5
 
-    Panel:
-        id: left
+    HorizontalLayout:
+        id: panels
         x: 0
         y: 0
-        width: parent.width // 2
+        width: parent.width
         height: parent.height
-        title_margin: 5
 
-    Panel:
-        id: right
-        x: parent.width // 2
-        y: 0
-        width: parent.width - parent.width // 2
-        height: parent.height
-        title_margin: 5
+        Panel:
+            id: left
+            title_margin: 5
+
+        Panel:
+            id: right
+            title_margin: 5

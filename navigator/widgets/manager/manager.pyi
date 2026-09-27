@@ -5,6 +5,7 @@ from typing import Any as _Any
 
 from navml.component import Component as _Component
 from navigator.widgets.panel import Panel
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.window import Window
 
 from pathlib import Path
@@ -15,6 +16,7 @@ from navigator.widgets.mkdir_dialog import MkdirDialog
 
 
 class Manager(Window, _Component):
+    panels: HorizontalLayout
     left: Panel
     right: Panel
     framed: _Any

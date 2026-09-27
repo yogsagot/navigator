@@ -1,3 +1,4 @@
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.input_line import InputLine
 from navml.widgets.label import Label
 
@@ -12,7 +13,10 @@ from navml.widgets.label import Label
 #: caller reaching through ``field.entry``, and ``link: entry`` is what makes
 #: the caption's ``~N~`` put the keyboard in the line beside it -- which is
 #: the whole of what Turbo Vision's ``TLabel`` is *for*.
-Field:
+#:
+#: And it is a row, so it *is* a ``HorizontalLayout``: the caption asks for
+#: ``label_width`` columns and no more, and the line takes the rest.
+Field(HorizontalLayout):
     #: The caption, with one ``~A~`` run.
     property label_text: ""
 
@@ -26,17 +30,10 @@ Field:
 
     Label:
         id: caption
-        x: 0
-        y: 0
-        width: parent.label_width
-        height: 1
+        inline_style: "basis: %d; grow: 0" % parent.label_width
         text: parent.label_text
         link: entry
         align: "left"
 
     InputLine:
         id: entry
-        x: parent.label_width
-        y: 0
-        width: max(0, parent.width - parent.label_width)
-        height: 1

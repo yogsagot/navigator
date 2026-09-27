@@ -18,8 +18,9 @@ from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
 from navml.widgets.button import Button    # dialog.nml:1
-from navml.widgets.static_text import StaticText    # dialog.nml:2
-from navml.widgets.modal import Modal    # dialog.nml:3
+from navml.widgets.layout.horizontal_layout import HorizontalLayout    # dialog.nml:2
+from navml.widgets.static_text import StaticText    # dialog.nml:3
+from navml.widgets.modal import Modal    # dialog.nml:4
 
 __navml_component__ = "Dialog"
 
@@ -45,24 +46,17 @@ class Dialog(Modal, _Component):
     #: *visibility* question, because markup has no conditional and needs
     #: none: all three are declared and a hidden one is already out of the
     #: tab order, out of the shortcut walk and out of the paint.
-    buttons: str = _reactive('ok-cancel')    # dialog.nml:19
+    buttons: str = _reactive('ok-cancel')    # dialog.nml:20
 
     #: The line of text above the buttons.
-    prompt: str = _reactive('')    # dialog.nml:22
-
-    #: Where the row of buttons starts, so that it stays centred whether two
-    #: of them are showing or three.  A *conditional expression* rather than a
-    #: conditional: markup has no branch and needs none here, because what
-    #: varies is a value and not the shape of the tree.  Each button is 11
-    #: columns -- nine of face, two of bracket, one of shadow -- with two
-    #: between, so three span 37 and two span 24.
-    button_row = _reactive()    # dialog.nml:30
+    prompt: str = _reactive('')    # dialog.nml:23
 
     #: Ids, annotated so the hand-written half completes them.
-    message: StaticText    # dialog.nml:33
-    ok: Button    # dialog.nml:42
-    cancel: Button    # dialog.nml:51
-    info: Button    # dialog.nml:64
+    message: StaticText    # dialog.nml:26
+    row: HorizontalLayout    # dialog.nml:38
+    ok: Button    # dialog.nml:47
+    cancel: Button    # dialog.nml:55
+    info: Button    # dialog.nml:68
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -72,56 +66,51 @@ class Dialog(Modal, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_ok_click(self, event: _Event) -> bool:    # dialog.nml:42
+    async def on_ok_click(self, event: _Event) -> bool:    # dialog.nml:47
         """``ok`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_cancel_click(self, event: _Event) -> bool:    # dialog.nml:51
+    async def on_cancel_click(self, event: _Event) -> bool:    # dialog.nml:55
         """``cancel`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.message = StaticText(parent=self)    # dialog.nml:32
-        self.ok = Button(parent=self)    # dialog.nml:41
-        self.cancel = Button(parent=self)    # dialog.nml:50
-        self.info = Button(parent=self)    # dialog.nml:63
+        self.message = StaticText(parent=self)    # dialog.nml:25
+        self.row = HorizontalLayout(parent=self)    # dialog.nml:37
+        self.ok = Button(parent=self.row)    # dialog.nml:46
+        self.cancel = Button(parent=self.row)    # dialog.nml:54
+        self.info = Button(parent=self.row)    # dialog.nml:67
 
-        self.button_row = _bind(lambda _o: (_o.width - 37) // 2 if _o.buttons == 'ok-cancel-help' else (_o.width - 24) // 2)    # dialog.nml:30
+        self.message.x = 2    # dialog.nml:27
+        self.message.y = 2    # dialog.nml:28
+        self.message.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # dialog.nml:29
+        self.message.height = _bind(lambda _o: max(1, _o.parent.height - 6))    # dialog.nml:30
+        self.message.text = _bind(lambda _o: _o.parent.prompt)    # dialog.nml:31
+        self.message.wrap = True    # dialog.nml:32
 
-        self.message.x = 2    # dialog.nml:34
-        self.message.y = 2    # dialog.nml:35
-        self.message.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # dialog.nml:36
-        self.message.height = _bind(lambda _o: max(1, _o.parent.height - 6))    # dialog.nml:37
-        self.message.text = _bind(lambda _o: _o.parent.prompt)    # dialog.nml:38
-        self.message.wrap = True    # dialog.nml:39
+        self.row.x = 0    # dialog.nml:39
+        self.row.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # dialog.nml:40
+        self.row.width = _bind(lambda _o: _o.parent.width)    # dialog.nml:41
+        self.row.height = 2    # dialog.nml:42
+        self.row.spacing = 2    # dialog.nml:43
+        self.row.justify = 'center'    # dialog.nml:44
 
-        self.ok.text = 'O~K~'    # dialog.nml:43
-        self.ok.default = True    # dialog.nml:44
-        self.ok.x = _bind(lambda _o: max(1, _o.parent.button_row))    # dialog.nml:45
-        self.ok.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # dialog.nml:46
-        self.ok.width = 11    # dialog.nml:47
-        self.ok.height = 2    # dialog.nml:48
-        self.ok.on_click = self.on_ok_click    # dialog.nml:42
+        self.ok.text = 'O~K~'    # dialog.nml:48
+        self.ok.default = True    # dialog.nml:49
+        self.ok.inline_style = 'basis: 11; grow: 0'    # dialog.nml:50
+        self.ok.on_click = self.on_ok_click    # dialog.nml:47
 
-        self.cancel.text = '~C~ancel'    # dialog.nml:52
-        self.cancel.visible = _bind(lambda _o: _o.parent.buttons != 'ok')    # dialog.nml:53
-        self.cancel.x = _bind(lambda _o: max(1, _o.parent.button_row + 13))    # dialog.nml:54
-        self.cancel.width = 11    # dialog.nml:55
-        self.cancel.height = 2    # dialog.nml:56
-        self.cancel.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # dialog.nml:57
-        self.cancel.on_click = self.on_cancel_click    # dialog.nml:51
+        self.cancel.text = '~C~ancel'    # dialog.nml:56
+        self.cancel.visible = _bind(lambda _o: self.buttons != 'ok')    # dialog.nml:57
+        self.cancel.inline_style = 'basis: 11; grow: 0'    # dialog.nml:58
+        self.cancel.on_click = self.on_cancel_click    # dialog.nml:55
 
-        self.info.text = '~H~elp'    # dialog.nml:65
-        self.info.visible = _bind(    # dialog.nml:66
-            lambda _o: _o.parent.buttons == 'ok-cancel-help'
-        )
-        self.info.x = _bind(lambda _o: max(1, _o.parent.button_row + 26))    # dialog.nml:67
-        self.info.width = 11    # dialog.nml:68
-        self.info.height = 2    # dialog.nml:69
-        self.info.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # dialog.nml:70
+        self.info.text = '~H~elp'    # dialog.nml:69
+        self.info.visible = _bind(lambda _o: self.buttons == 'ok-cancel-help')    # dialog.nml:70
+        self.info.inline_style = 'basis: 11; grow: 0'    # dialog.nml:71
 
-        async def _on_click(event):    # dialog.nml:71
+        async def _on_click(event):    # dialog.nml:74
             await self.show_info(event)
             return True
         self.info.on_click = _on_click

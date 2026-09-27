@@ -82,17 +82,16 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     """
     document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [
-        ("Button",), ("StaticText",), ("Modal",),
+        ("Button",), ("HorizontalLayout",), ("StaticText",), ("Modal",),
     ]
-    assert [d.name for d in document.root.declarations] == [
-        "buttons", "prompt", "button_row",
-    ]
-    assert list(document.ids()) == ["message", "ok", "cancel", "info"]
+    assert [d.name for d in document.root.declarations] == ["buttons", "prompt"]
+    assert list(document.ids()) == ["message", "row", "ok", "cancel", "info"]
 
     blocks = {block.id: block for block in document.root.walk() if block.id}
     assert [b.type for b in document.root.children] == [
-        "StaticText", "Button", "Button", "Button",
+        "StaticText", "HorizontalLayout",
     ]
+    assert [b.type for b in blocks["row"].children] == ["Button"] * 3
     assert dict(
         (p.name, p.expression) for p in blocks["message"].properties
     ) == {
@@ -133,6 +132,7 @@ def test_the_generated_half_cites_lines_the_parser_found(component):
         found.update(h.line for h in block.handlers)
         found.update(d.line for d in block.declarations)
         if block.style is not None:
+            found.add(block.style.line)
             found.update(d.line for d in block.style.declarations)
 
     generated = shipped(component, "_nml.py").read_text()
@@ -154,11 +154,13 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
         ("navml.widgets.button",),
+        ("navml.widgets.layout.horizontal_layout",),
         ("navml.widgets.static_text",),
         ("navml.widgets.modal",),
     ]
     assert [line.source for line in lines] == [
         "from navml.widgets.button import Button",
+        "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
         "from navml.widgets.static_text import StaticText",
         "from navml.widgets.modal import Modal",
     ]

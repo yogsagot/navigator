@@ -65,6 +65,18 @@ Four rules from building it, each of which was found by running something rather
 - **Effects belong in `mounted()`, not `__init__`**, for any widget that can be removed and put back — which is
   every widget in a dialog. `remove()` disposes a subtree's effects.
 
+**Layouts are written**, and they replaced the arithmetic every container used to place its children with:
+`HorizontalLayout`, `VerticalLayout`, `GridLayout`, `DockLayout` and `StackLayout`, all on a Python-only `Layout`
+that paints nothing. A child asks for room with **style hints the layout reads off the child** — `basis`, `grow`
+(default 1, so siblings that say nothing share evenly) and `dock` — so a `style:` block or a sheet rule says it. A
+layout re-arranges from an effect on its own size, its children's `visible` and their hints, which makes a child's
+geometry *navigated*: its markup says nothing about it. `Field` is `Field(HorizontalLayout)`, `Shell` is
+`Shell(DockLayout)`, and `Dialog`'s buttons and `Manager`'s panels sit in an id'd `HorizontalLayout`. They are the
+library's first **group**, one component directory each under `navml/widgets/layout/`
+(`from navml.widgets.layout.horizontal_layout import HorizontalLayout`). A group's `__init__.py` is a docstring and
+never re-exports, and `_COMPONENTS` maps a name to its dotted path (`"layout.horizontal_layout"`). All four
+conversions paint `cmp`-identically on a pty. *Layouts* in `navml/DESIGN.md` has the rules.
+
 **The generator is seven modules with one concern each**, in a one-way chain: `expression.py` compiles a property
 expression or a handler body by rewriting free names on the syntax tree; `sibling.py` reads the hand-written `.py`
 **without importing it**; `resolve.py` is the only module that imports what a document names; `checks.py` refuses

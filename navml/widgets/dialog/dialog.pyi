@@ -7,6 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navml.widgets.button import Button
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.static_text import StaticText
 from navml.widgets.modal import Modal
 
@@ -21,8 +22,8 @@ from navkit.widget import Widget
 class Dialog(Modal, _Component):
     buttons: str
     prompt: str
-    button_row: _Any
     message: StaticText
+    row: HorizontalLayout
     ok: Button
     cancel: Button
     info: Button

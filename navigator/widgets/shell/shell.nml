@@ -3,6 +3,7 @@ from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
 from navigator.widgets.menubar import MenuBar
 from navml.widgets.desktop import Desktop
+from navml.widgets.layout.dock_layout import DockLayout
 
 #: The Navigator screen: menu bar and clock, the console, the desktop over it,
 #: key bar.
@@ -15,42 +16,40 @@ from navml.widgets.desktop import Desktop
 #: between them.  Ctrl+O hides the desktop, which is one reactive flag and one
 #: ``visible`` line.  The key bar is last so nothing covers it, and a modal is
 #: overlaid on this root, which puts it above the desktop by construction.
-Shell:
+#:
+#: The bars dock against the top and bottom edges, and the two layers both
+#: *fill*, which a dock layout gives them as one shared rectangle -- it places
+#: every fill after every edge, so the key bar can come last in the child
+#: order, and so last in the paint, and still be carved off first.
+Shell(DockLayout):
     #: Whether Ctrl+O has put the windows away.  One flag that the desktop's
     #: ``visible`` line reads, which is the whole of Ctrl+O.
     property console_visible: False
 
     MenuBar:
         id: menu
-        x: 0
-        y: 0
-        width: parent.width
-        height: 1
+        style:
+            dock: top
+            basis: 1
 
-    #: Over the menu bar's right end, which is why it comes after it.
+    #: Over the menu bar's right end, which is why it comes after it, and
+    #: outside the docking altogether: it floats where its own lines put it.
     Clock:
         id: clock
         x: max(0, parent.width - self.width)
         y: 0
+        style:
+            dock: none
 
     Console:
         id: console
-        x: 0
-        y: 1
-        width: parent.width
-        height: max(1, parent.height - 2)
 
     Desktop:
         id: desktop
-        x: 0
-        y: 1
-        width: parent.width
-        height: max(1, parent.height - 2)
         visible: not parent.console_visible
 
     KeyBar:
         id: keybar
-        x: 0
-        y: max(1, parent.height - 1)
-        width: parent.width
-        height: 1
+        style:
+            dock: bottom
+            basis: 1

@@ -1,4 +1,5 @@
 from navml.widgets.button import Button
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.static_text import StaticText
 from navml.widgets.modal import Modal
 
@@ -21,14 +22,6 @@ Dialog(Modal):
     #: The line of text above the buttons.
     property prompt: ""
 
-    #: Where the row of buttons starts, so that it stays centred whether two
-    #: of them are showing or three.  A *conditional expression* rather than a
-    #: conditional: markup has no branch and needs none here, because what
-    #: varies is a value and not the shape of the tree.  Each button is 11
-    #: columns -- nine of face, two of bracket, one of shadow -- with two
-    #: between, so three span 37 and two span 24.
-    property button_row: (self.width - 37) // 2 if self.buttons == "ok-cancel-help" else (self.width - 24) // 2
-
     StaticText:
         id: message
         x: 2
@@ -38,34 +31,44 @@ Dialog(Modal):
         text: parent.prompt
         wrap: True
 
-    Button:
-        id: ok
-        text: "O~K~"
-        default: True
-        x: max(1, parent.button_row)
+    #: The buttons, centred as a row.  Each is 11 columns -- nine of face, two
+    #: of bracket, one of shadow -- with two between, and a hidden one gives
+    #: up its slot, so two stay centred as well as three do.
+    HorizontalLayout:
+        id: row
+        x: 0
         y: max(0, parent.height - 4)
-        width: 11
+        width: parent.width
         height: 2
+        spacing: 2
+        justify: "center"
 
-    Button:
-        id: cancel
-        text: "~C~ancel"
-        visible: parent.buttons != "ok"
-        x: max(1, parent.button_row + 13)
-        width: 11
-        height: 2
-        y: max(0, parent.height - 4)
+        Button:
+            id: ok
+            text: "O~K~"
+            default: True
+            style:
+                basis: 11
+                grow: 0
 
-    #: Routed by an explicit line, because :meth:`show_info` is named for what
-    #: the dialog *does* rather than for what happened to it -- the escape
-    #: hatch from the ``on_<id>_<event>`` convention, and the third of the
-    #: three ways a child's event reaches this component's Python half.
-    Button:
-        id: info
-        text: "~H~elp"
-        visible: parent.buttons == "ok-cancel-help"
-        x: max(1, parent.button_row + 26)
-        width: 11
-        height: 2
-        y: max(0, parent.height - 4)
-        on_click: await root.show_info(event)
+        Button:
+            id: cancel
+            text: "~C~ancel"
+            visible: root.buttons != "ok"
+            style:
+                basis: 11
+                grow: 0
+
+        #: Routed by an explicit line, because :meth:`show_info` is named for
+        #: what the dialog *does* rather than for what happened to it -- the
+        #: escape hatch from the ``on_<id>_<event>`` convention, and the third
+        #: of the three ways a child's event reaches this component's Python
+        #: half.
+        Button:
+            id: info
+            text: "~H~elp"
+            visible: root.buttons == "ok-cancel-help"
+            style:
+                basis: 11
+                grow: 0
+            on_click: await root.show_info(event)

@@ -152,7 +152,9 @@ def test_a_markup_only_component_is_sourced_from_its_generated_half():
     """
     assert field_module.__file__.endswith("field_nml.py")
     assert Field.__module__ == "navml.widgets.field.field"
-    assert inspect.getsource(Field).startswith("class Field(_Component):")
+    assert inspect.getsource(Field).startswith(
+        "class Field(HorizontalLayout, _Component):"
+    )
 
 
 # -- what the splice produces ------------------------------------------------
@@ -224,9 +226,8 @@ def test_each_half_of_each_level_builds_its_tree_exactly_once():
     right with no mechanism at all.
     """
     dialog = Dialog(prompt="Save?", modal_width=40, modal_height=10)
-    assert len(dialog.children) == 4
-    assert dialog.children[0] is dialog.message   # the derived document's own
-    assert dialog.children[1] is dialog.ok
+    assert dialog.children == [dialog.message, dialog.row]
+    assert dialog.row.children == [dialog.ok, dialog.cancel, dialog.info]
     assert dialog.message.text == "Save?"
 
     # Modal declares no children at all, so this is also the proof that a
@@ -550,6 +551,11 @@ def test_importing_one_component_does_not_load_the_library(package):
         "navml.widgets.label",
         "navml.widgets.label.label",
         "navml.widgets.label.label_nml",
+        "navml.widgets.layout",           # the group, which imports nothing,
+        "navml.widgets.layout.horizontal_layout",  # the base Field derives from
+        "navml.widgets.layout.horizontal_layout.horizontal_layout",
+        "navml.widgets.layout.layout",    # and the base that derives from
+        "navml.widgets.layout.layout.layout",
         "navml.widgets.static_text",      # Label's shortcut painter
         "navml.widgets.static_text.static_text",
         "navml.widgets.static_text.static_text_nml",
@@ -576,8 +582,10 @@ def test_the_lazy_re_exports_are_transparent():
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
         "Button", "CheckBoxes", "Cluster", "Control", "Desktop", "Dialog",
-        "Field", "InputLine", "Label", "ListViewer", "Modal", "RadioButtons",
-        "ScrollBar", "Spacer", "StaticText", "Timer", "Window",
+        "DockLayout", "Field", "GridLayout", "HorizontalLayout", "InputLine",
+        "Label", "Layout", "LinearLayout", "ListViewer", "Modal",
+        "RadioButtons", "ScrollBar", "Spacer", "StackLayout", "StaticText",
+        "Timer", "VerticalLayout", "Window",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
         navml.widgets.Nonexistent
@@ -828,7 +836,7 @@ def test_the_markup_names_every_composed_handler_the_python_half_defines():
     """
     markup = (shipped("dialog", ".nml")).read_text()
     ids = set(re.findall(r"^\s+id: (\w+)$", markup, re.M))
-    assert ids == {"message", "ok", "cancel", "info"}
+    assert ids == {"message", "row", "ok", "cancel", "info"}
 
     source = (shipped("dialog", ".py")).read_text()
     composed = re.findall(r"async def on_(\w+)_click\(", source)

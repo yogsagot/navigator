@@ -16,7 +16,8 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.panel import Panel    # manager.nml:1
-from navml.widgets.window import Window    # manager.nml:2
+from navml.widgets.layout.horizontal_layout import HorizontalLayout    # manager.nml:2
+from navml.widgets.window import Window    # manager.nml:3
 
 __navml_component__ = "Manager"
 
@@ -31,9 +32,10 @@ class Manager(Window, _Component):
     The close and zoom icons go on the panels' top edges and the resize grip on
     the right panel's corner, which ``Window.render_after`` paints over them.
 
-    The panels' geometry is bound to the window's, and the window's is not
-    bound to anything: a drag assigns it, and the panels follow because what
-    they read is reactive.  The window opens zoomed, filling the desktop, which
+    The panels share a row that is bound to the window's size, and the
+    window's is not bound to anything: a drag assigns it, and the row
+    re-arranges the panels because the size it reads is reactive.  Two panels
+    that say nothing split it evenly, the odd column going to the right one.  The window opens zoomed, filling the desktop, which
     is what the desktop looked like before there was one.
 
     Where the two panels open is not here: a panel *navigates* its ``path``, and
@@ -46,28 +48,25 @@ class Manager(Window, _Component):
     __navml_source__ = "manager.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    left: Panel    # manager.nml:26
-    right: Panel    # manager.nml:34
+    panels: HorizontalLayout    # manager.nml:28
+    left: Panel    # manager.nml:35
+    right: Panel    # manager.nml:39
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.left = Panel(parent=self)    # manager.nml:25
-        self.right = Panel(parent=self)    # manager.nml:33
+        self.panels = HorizontalLayout(parent=self)    # manager.nml:27
+        self.left = Panel(parent=self.panels)    # manager.nml:34
+        self.right = Panel(parent=self.panels)    # manager.nml:38
 
-        self.zoomed = True    # manager.nml:21
-        self.min_width = 24    # manager.nml:22
-        self.min_height = 5    # manager.nml:23
+        self.zoomed = True    # manager.nml:23
+        self.min_width = 24    # manager.nml:24
+        self.min_height = 5    # manager.nml:25
 
-        self.left.x = 0    # manager.nml:27
-        self.left.y = 0    # manager.nml:28
-        self.left.width = _bind(lambda _o: _o.parent.width // 2)    # manager.nml:29
-        self.left.height = _bind(lambda _o: _o.parent.height)    # manager.nml:30
-        self.left.title_margin = 5    # manager.nml:31
+        self.panels.x = 0    # manager.nml:29
+        self.panels.y = 0    # manager.nml:30
+        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:31
+        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:32
 
-        self.right.x = _bind(lambda _o: _o.parent.width // 2)    # manager.nml:35
-        self.right.y = 0    # manager.nml:36
-        self.right.width = _bind(    # manager.nml:37
-            lambda _o: _o.parent.width - _o.parent.width // 2
-        )
-        self.right.height = _bind(lambda _o: _o.parent.height)    # manager.nml:38
-        self.right.title_margin = 5    # manager.nml:39
+        self.left.title_margin = 5    # manager.nml:36
+
+        self.right.title_margin = 5    # manager.nml:40

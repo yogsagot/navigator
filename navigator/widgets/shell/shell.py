@@ -3,9 +3,9 @@
 What the document says is the two bars and the two layers between them; what
 is left here is opening the file manager on the desktop, and Ctrl+O.
 
-This file never names the generated class.  ``class Shell(Widget)`` is what a
-Python-only widget would say too, and it is the base the markup's bare
-``Shell:`` head asks for.
+This file never names the generated class.  ``class Shell(DockLayout)`` is
+what a Python-only widget would say too, and it is the base the markup's
+``Shell(DockLayout):`` head names.
 """
 
 from __future__ import annotations
@@ -15,13 +15,13 @@ from pathlib import Path
 from navkit.events import Event
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
-from navkit.widget import Widget
+from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
 from navigator.widgets.manager import Manager
 
 
-class Shell(Widget):
+class Shell(DockLayout):
     """The Navigator screen: menu bar, console, desktop and key bar."""
 
     def __init__(
