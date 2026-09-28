@@ -2,6 +2,43 @@
 
 Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-panel file manager for modern POSIX terminals.
 
+It consists of three parts:
+
+- **navkit** - the application core library.
+    - defines Application class that holds async event-loop and orchestrates widget render on ANSI terminal
+    - handles ANSI terminal - cell render, terminal events, keyboard and mouse events
+    - defines a screen buffer where all the widgets render their contents and which is rendered to terminal on demand
+    - defines Widget abstract class that has its own render() method that renders to screen buffer
+    - defines observable attributes on widgets that when changed trigger update of other widget attributes that
+      reference them
+    - defines css-like style sheet library and style lookup engine (`*.nss` files)
+- **navml** - custom markup language and widget library
+    - defines a custom markup language in *.nml files heavily inspired by QML and Kivy frameworks – QML for the
+      architecture, Kivy for the syntax, so blocks are made by indentation, and lines carry no semicolons
+    - defines an *.nml file parser that translates it into a node graph suitable for python class code-generator
+    - defines a python class code-generator that traverses node graph from parser
+    - lets a component be written as markup, as python, or as both -- a widget class generated from `*.nml` and a
+      hand-written module of event handlers are two halves of one class, and either half may be absent
+    - keeps an event handler written in markup to a single line taking one argument, always named `event`, and always
+      consuming the event it handles -- anything longer, or a handler that lets the event through, is a method in the
+      hand-written half that the markup line calls, so a document stays a description of a tree
+    - extends python's import machinery so that one `import` yields the component whichever way it was written, and
+      the hand-written half never has to name the generated one
+    - defines a widget library modelled on Borland's TurboVision: windows, dialogs, buttons, static text, labels,
+      input lines, check boxes, radio buttons, scroll bars and list viewers. Its widgets, their parts and their
+      states are transcribed from DOS Navigator's own colour table rather than invented, so every one of the eleven
+      themes already knows what colour they are. Menus, history lists and tree views come next
+    - a dialog is opened from a task rather than awaited from a handler -- `self.spawn(...)` and
+      `await dialog.execute(app)` -- because a handler that waits is holding the loop that would paint it
+- **navigator** or nav - two panel file manager application
+    - defines a Manager window that has two panels with file listings
+    - defines View and Edit file windows
+    - performs file operations over the selected files in the manager
+    - uses file system handlers that enable file operations over ssh, smb, in zip files, etc.
+    - defines a flexible plugin system to expand core functionality with third party plugins
+    - carefully recreates the look and feel of classic DOS Navigator by Ritlabs
+    - Falling blocks game from late Soviet Union
+
 ## Installing
 
 Navigator is published on PyPI as **`navigator-fm`** (the names `navigator` and `nav` were taken long ago;
@@ -73,40 +110,3 @@ sudo dnf install navigator-fm
 
 Run `nav --help` for the options; `--theme NAME` picks one of the eleven colour schemes, and `--list-themes`
 names them.
-
-It contains of three parts:
-
-- **navkit** - the application core library.
-    - defines Application class that holds async event-loop and orchestrates widget render on ANSI terminal
-    - handles ANSI terminal - cell render, terminal events, keyboard and mouse events
-    - defines a screen buffer where all the widgets render their contents and which is rendered to terminal on demand
-    - defines Widget abstract class that has its own render() method that renders to screen buffer
-    - defines observable attributes on widgets that when changed trigger update of other widget attributes that
-      reference them
-    - defines css-like style sheet library and style lookup engine (`*.nss` files)
-- **navml** - custom markup language and widget library
-    - defines a custom markup language in *.nml files heavily inspired by QML and Kivy frameworks – QML for the
-      architecture, Kivy for the syntax, so blocks are made by indentation, and lines carry no semicolons
-    - defines an *.nml file parser that translates it into a node graph suitable for python class code-generator
-    - defines a python class code-generator that traverses node graph from parser
-    - lets a component be written as markup, as python, or as both -- a widget class generated from `*.nml` and a
-      hand-written module of event handlers are two halves of one class, and either half may be absent
-    - keeps an event handler written in markup to a single line taking one argument, always named `event`, and always
-      consuming the event it handles -- anything longer, or a handler that lets the event through, is a method in the
-      hand-written half that the markup line calls, so a document stays a description of a tree
-    - extends python's import machinery so that one `import` yields the component whichever way it was written, and
-      the hand-written half never has to name the generated one
-    - defines a widget library modelled on Borland's TurboVision: windows, dialogs, buttons, static text, labels,
-      input lines, check boxes, radio buttons, scroll bars and list viewers. Its widgets, their parts and their
-      states are transcribed from DOS Navigator's own colour table rather than invented, so every one of the eleven
-      themes already knows what colour they are. Menus, history lists and tree views come next
-    - a dialog is opened from a task rather than awaited from a handler -- `self.spawn(...)` and
-      `await dialog.execute(app)` -- because a handler that waits is holding the loop that would paint it
-- **navigator** or nav - two panel file manager application
-    - defines a Manager window that has two panels with file listings
-    - defines View and Edit file windows
-    - performs file operations over the selected files in the manager
-    - uses file system handlers that enable file operations over ssh, smb, in zip files, etc.
-    - defines a flexible plugin system to expand core functionality with third party plugins
-    - carefully recreates the look and feel of classic DOS Navigator by Ritlabs
-    - Falling blocks game from late Soviet Union
