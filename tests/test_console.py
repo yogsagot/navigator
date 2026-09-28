@@ -61,7 +61,8 @@ def test_true_colour_becomes_a_triple():
 def test_sgr_attributes_reach_the_style():
     console = feed(b"\x1b[1;4;7;31;44mx")
     assert console.surface.get(0, 0)[1] == Style(
-        fg=RED, bg=BLUE, bold=True, underline=True, reverse=True
+        fg=RED, bg=BLUE, bold=True, underline=True, reverse=True,
+        terminal_palette=True,
     )
 
 

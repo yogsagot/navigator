@@ -65,6 +65,16 @@ class Style:
     #: closes the link as it passes from one cell to the next, exactly as it
     #: switches SGR, so a link is only as wide as the cells that carry it.
     link: str | None = None
+    #: This cell's palette indices are the *terminal's* colours, never
+    #: resolved through a pinned palette.  Set on what a child program
+    #: painted: a program asking for ``ESC [ 34 m`` means the blue the user's
+    #: own theme paints, which is what it would have got outside Navigator,
+    #: and a DOS register value would make its output a different -- and on
+    #: a dark theme often unreadable -- colour from the same command run in
+    #: the plain terminal.  Like :attr:`link`, per cell and never declared by
+    #: a sheet; :meth:`sgr` ignores it, since an unresolved index is exactly
+    #: what SGR sends anyway.
+    terminal_palette: bool = False
 
     def derive(self, **changes) -> Style:
         """Return a copy of this style with *changes* applied."""

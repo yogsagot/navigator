@@ -363,8 +363,12 @@ class TerminalInfo:
             hyperlinks=hyperlinks,
         )
 
-    def adapt(self, color: Color | None) -> Color | None:
+    def adapt(self, color: Color | None, *, pinned: bool = True) -> Color | None:
         """*color* as the nearest thing this terminal can actually name.
+
+        *pinned* False skips the palette for this colour: an index then means
+        what the terminal's own theme says, whatever :attr:`palette` holds --
+        which is what a child program's output asks for.
 
         With no :attr:`palette` set, an index the terminal can name is returned
         untouched, so a sheet that says ``blue`` keeps whatever blue the user's
@@ -383,7 +387,12 @@ class TerminalInfo:
             return color
         if self.monochrome:
             return None
-        if self.palette and isinstance(color, int) and 0 <= color < len(self.palette):
+        if (
+            pinned
+            and self.palette
+            and isinstance(color, int)
+            and 0 <= color < len(self.palette)
+        ):
             color = self.palette[color]
         if self.colors >= TRUECOLOR:
             return color
@@ -405,7 +414,8 @@ class TerminalInfo:
         A ``dim`` style is dimmed here, by colour, wherever that colour is
         known -- see :func:`_dim`.
         """
-        fg, bg = self.adapt(style.fg), self.adapt(style.bg)
+        pinned = not style.terminal_palette
+        fg, bg = self.adapt(style.fg, pinned=pinned), self.adapt(style.bg, pinned=pinned)
         dim = style.dim
         if dim and self.colors >= TRUECOLOR:
             fg, bg, dim = _dim(fg, bg)

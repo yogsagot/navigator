@@ -118,6 +118,8 @@ def _style(
         italic=italics,
         underline=underscore,
         reverse=reverse,
+        # The program asked for the terminal's colours, not DOS Navigator's.
+        terminal_palette=True,
     )
 
 

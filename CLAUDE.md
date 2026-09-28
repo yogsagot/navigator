@@ -461,7 +461,9 @@ Written, and the pieces fit together like this:
   is passed through untouched **unless a palette is pinned**: with `TerminalInfo.palette` unset — navkit's default —
   `blue` stays whatever the user's terminal theme paints, and with `VGA_PALETTE` set it means the register value the DOS
   original asked for. `navigator` pins by default, because a theme that names a colour is transcribing a `.PAL` that
-  left the VGA registers alone; `--palette terminal` hands the question back. Pinning is a no-op below 256 colours — an
+  left the VGA registers alone; `--palette terminal` hands the question back. **A child program's cells are never pinned**: the
+  console marks them `Style.terminal_palette` (per cell, like `link`, and not a sheet field), and `adapt_style`
+  leaves their indices alone, so `ls --color` in the console matches the plain terminal whatever the theme. Pinning is a no-op below 256 colours — an
   index resolved through the palette quantises straight back to itself — so only a terminal that can do better sees a
   difference, and `--reprogram-palette` (OSC 4, reset with OSC 104) is the opt-in that reaches the ones that cannot.
   Detection is conservative — sixteen colours unless `COLORTERM` says otherwise — and `NAVKIT_COLORS` (`truecolor`,

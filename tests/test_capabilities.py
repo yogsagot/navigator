@@ -113,6 +113,23 @@ def test_a_pinned_index_means_the_colour_the_palette_holds():
     assert info.adapt(WHITE) == (255, 255, 255)
 
 
+def test_a_child_program_s_colours_are_never_pinned():
+    """A program's ``ESC [ 34 m`` means the user's blue, inside Navigator or not.
+
+    The console's cells say so with ``terminal_palette``, and the pinned
+    palette then leaves their indices alone -- so `ls --color` looks the same
+    in the console as in the plain terminal, whatever theme Navigator wears.
+    """
+    from navkit.style import Style
+
+    info = TerminalInfo(colors=TRUECOLOR, palette=VGA_PALETTE)
+    child = Style(fg=BLUE, bg=7, terminal_palette=True)
+    assert info.adapt_style(child) == child
+    assert info.adapt(BLUE, pinned=False) == BLUE
+    # A triple is a triple either way.
+    assert info.adapt((1, 2, 3), pinned=False) == (1, 2, 3)
+
+
 @pytest.mark.parametrize("depth", [ANSI_BRIGHT, ANSI])
 def test_pinning_changes_nothing_a_sixteen_colour_terminal_could_show(depth):
     """The property that makes pinning safe to do by default.
