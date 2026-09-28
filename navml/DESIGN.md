@@ -788,13 +788,16 @@ collapsible kind (`Parital` on), and its `[+]` and `[-]` are the original's.
 - The view scrolls sideways to keep the cursor's name in sight.
 - Tree lines are always single, whatever frame the widget has, because the original's were.
 
-**The keys are `HandleCommand`'s:**
+**The keys are `HandleCommand`'s, but for two:**
 
-- Left and Right move up and down, as they did.
+- Left and Backspace go to the parent node, and Backspace closes it behind them; Right opens the branch under the
+  cursor and goes to its first child, or down a row when there is none. The original moved Left and Right up and
+  down, duplicating the arrows beside them; this is a deliberate departure, taken because moving along the tree's
+  own structure is what those keys are for everywhere else.
 - Space, `+` and `-` open or close the branch under the cursor.
 - `*` opens every branch *already read*. The original opened the whole tree, which lazily means the whole disk.
 - Typing searches forward for a name beginning with what was typed, with the terminal's caret after it. Backspace
-  shortens the search, and any other key ends it. The original matched an 8.3 mask, which a modern name has no
+  shortens the search while one is on, and any other key ends it. The original matched an 8.3 mask, which a modern name has no
   reason to fit.
 - Enter emits `ChosenEvent(node)`.
 - A press on a row's `[+]` opens it.

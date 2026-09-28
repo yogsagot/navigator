@@ -160,14 +160,42 @@ def press(app, tree, *keys):
         settle()
 
 
-def test_left_and_right_move_up_and_down_as_in_the_original():
+def test_right_opens_the_branch_and_moves_to_its_first_child():
     app, tree = mounted_tree()
-    tree.cursor = 2
+    tree.cursor = 3                      # lib, closed
     settle()
     press(app, tree, KeyEvent("right"))
-    assert tree.cursor == 3
-    press(app, tree, KeyEvent("left"), KeyEvent("left"))
-    assert tree.cursor == 1
+    assert tree.root.children()[1].children()[0].expanded is True
+    assert tree.selected_node.name == "x"
+    press(app, tree, KeyEvent("right"))  # x has no children: down a row
+    assert tree.selected_node.name == "share"
+
+
+@pytest.mark.parametrize("key", [KeyEvent("left"), KeyEvent("backspace")])
+def test_left_and_backspace_move_to_the_parent(key):
+    app, tree = mounted_tree()
+    tree.cursor = 4                      # share
+    settle()
+    press(app, tree, key)
+    assert tree.selected_node.name == "usr"
+    press(app, tree, key)
+    assert tree.selected_node.name == "/"
+    press(app, tree, key)                # the root has no parent
+    assert tree.selected_node.name == "/"
+
+
+def test_backspace_closes_the_parent_and_left_does_not():
+    app, tree = mounted_tree()
+    usr = tree.root.children()[1]
+    tree.cursor = 4                      # share
+    settle()
+    press(app, tree, KeyEvent("left"))
+    assert tree.selected_node is usr and usr.expanded is True
+    tree.cursor = 4
+    settle()
+    press(app, tree, KeyEvent("backspace"))
+    assert tree.selected_node is usr and usr.expanded is False
+    assert "share" not in names(tree)
 
 
 @pytest.mark.parametrize("key", [KeyEvent("space", " "), KeyEvent("+", "+"), KeyEvent("-", "-")])

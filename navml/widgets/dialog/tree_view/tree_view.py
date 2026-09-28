@@ -33,11 +33,15 @@ widget's own style (*Normal tree*), and the ``node`` part takes ``:selected``
 for the cursor -- *Selected node* while the tree has the keyboard, *Selected
 passive* while it has not, which a sheet says with the owner's ``:focused``.
 
-**The keys are ``TTreeView.HandleCommand``'s.**  Left and Right move up and
-down, as there; Space, ``+`` and ``-`` open or close the branch under the
-cursor; ``*`` opens every branch already read; typing searches forward for a
-name starting with what was typed; Enter emits :class:`ChosenEvent`.  A click
-on the ``[+]`` of a row opens it.
+**The keys are ``TTreeView.HandleCommand``'s, but for two.**  Left and
+Backspace go to the parent node, and Backspace closes it behind them; Right
+opens the branch under the cursor and goes to its first child, or down a row
+when it has none -- where ``TTreeView`` moved Left and Right up and down,
+which duplicated the arrows beside them.
+Space, ``+`` and ``-`` open or close the branch under the cursor; ``*`` opens
+every branch already read; typing searches forward for a name starting with
+what was typed; Enter emits :class:`ChosenEvent`.  A click on the ``[+]`` of a
+row opens it.
 """
 
 from __future__ import annotations
@@ -248,6 +252,18 @@ class TreeView(ListViewer):
             if not node.children():
                 self.refresh()
 
+    def descend(self, node: TreeNode) -> None:
+        """Open *node* and put the cursor on its first child, or on the next
+        row when it has none."""
+        children = node.children() if node.has_children() else []
+        if children:
+            self.select(children[0])
+        else:
+            # A node assumed to have children may have been read and found
+            # empty, and its ``[+]`` has to go.
+            self.refresh()
+            self.move_cursor(1)
+
     def expand_all(self) -> None:
         """``*``: open every branch that has been read already.
 
@@ -404,10 +420,18 @@ class TreeView(ListViewer):
             self.search = ""
             if event.matches("escape"):
                 return True
-        if event.matches("left"):
-            event = KeyEvent("up")
-        elif event.matches("right"):
-            event = KeyEvent("down")
+        if event.matches("left") or event.matches("backspace"):
+            if node is not None and node.parent is not None:
+                if event.matches("backspace"):
+                    # Closing the branch brings the cursor out onto it.
+                    self.collapse(node.parent)
+                else:
+                    self.select(node.parent)
+            return True
+        if event.matches("right"):
+            if node is not None:
+                self.descend(node)
+            return True
         return await super().on_key(event)
 
     def _search(self, text: str, start: int) -> None:
