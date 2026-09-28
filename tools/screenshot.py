@@ -146,6 +146,13 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
         )
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.15)
+        # Staged for the picture, and untrue on purpose: under a modal the key
+        # bar is empty, since nothing the dialog binds carries a caption, and
+        # most of the file panel's commands are greyed until they exist.  The
+        # line is kept as the file panel shows it, every item enabled.
+        bound = app.bindings()
+        app.bindings = lambda start=None: bound
+        app.command_enabled = lambda command: True
         # Started from here rather than through the command, which would need
         # a key or a menu walk; outside a dispatch, `execute' is content to
         # be awaited, and the task is cancelled with the app.
