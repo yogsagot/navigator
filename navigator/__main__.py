@@ -210,6 +210,11 @@ def main(argv: list[str] | None = None) -> int:
              "palette for as long as Navigator runs -- the only thing that "
              "helps on a terminal that names no other colours",
     )
+    parser.add_argument(
+        "--dim-modal", action=argparse.BooleanOptionalAction, default=True,
+        help="paint what lies behind a dialog faint while the dialog is open "
+             "(default: on; experimental)",
+    )
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     if args.list_themes:
@@ -242,7 +247,7 @@ def main(argv: list[str] | None = None) -> int:
 
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
     right = Path(args.right).expanduser().resolve() if args.right else left
-    Navigator(left, right, scheme, terminal=terminal).run()
+    Navigator(left, right, scheme, terminal=terminal, dim_modal=args.dim_modal).run()
     return 0
 
 

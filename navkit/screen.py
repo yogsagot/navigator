@@ -16,6 +16,7 @@ can scribble on its neighbours.
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from navkit import glyphs
@@ -407,6 +408,20 @@ class ScreenBuffer(Surface):
                 # Its trailing half was clipped off the right edge.
                 span[-1] = (" ", span[-1][1])
             self._rows[y + row][x + left : x + right] = span
+
+    def restyle(self, transform: Callable[[Style], Style]) -> None:
+        """Replace every cell's style with ``transform(style)``, keeping its character.
+
+        *transform* is called once per distinct style rather than once per
+        cell, since a frame holds a few dozen styles over thousands of cells.
+        """
+        seen: dict[Style, Style] = {}
+        for row in self._rows:
+            for x, (char, style) in enumerate(row):
+                new = seen.get(style)
+                if new is None:
+                    new = seen[style] = transform(style)
+                row[x] = (char, new)
 
     def copy_from(self, other: ScreenBuffer) -> None:
         """Make this buffer an independent copy of *other*."""

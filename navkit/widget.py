@@ -576,6 +576,8 @@ class Widget:
         if not self.visible:
             return
         own = surface.view(self.x, self.y, self.width, self.height)
+        if self.modal and (app := self.application) is not None:
+            app._painting_modal(self)
         self.render(own)
         for child in self.children:
             child.render_tree(own)

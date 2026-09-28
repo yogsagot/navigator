@@ -1259,9 +1259,11 @@ hands the focus back. A second name for that would only be a worse place to read
 - **Nothing dims or disables what is behind a modal, by default.** `Application.modal` is a plain property over a
   plain list rather than anything observable, so no widget can currently restyle itself for being blocked. A
   `computed` can be added the day a widget asks; guessing at the shape now would cost a cell on every widget for a look
-  nothing has asked for. **Dimming is planned as an experimental opt-in** — rewriting the cells beneath the top modal
-  after they are painted, which needs no widget's cooperation. See *What Textual has that the library takes* in
-  `navml/DESIGN.md`.
+  nothing has asked for. **Dimming is an experimental opt-in**, `Application(dim_modal=True)`: when the top modal
+  is about to paint, `Widget.render_tree` calls `Application._painting_modal`, which rewrites every cell painted so far
+  faint (SGR 2) with `ScreenBuffer.restyle`. It needs no widget's cooperation, and whatever is painted after the modal
+  — the modal itself, and an overlay one of its controls opened — stays at full strength. A terminal that ignores
+  faint shows nothing. `navigator` turns it on; `--no-dim-modal` turns it off.
 - ~~**The mouse is not *captured*.**~~ It is now — see *Windows: raising, capturing, painting over* below. It was
   left to "a scrollbar's problem", and a window's title bar turned out to be the first thing that needed it.
 - ~~**`navigator`'s console is still the `visible`-binding trick.**~~ Rewritten: the console is the background layer

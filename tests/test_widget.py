@@ -14,7 +14,7 @@ from navkit.style import Style
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 
-from conftest import RecordingWidget, awaited, run_app
+from conftest import FakeTerminal, RecordingWidget, awaited, run_app
 
 
 def test_add_sets_the_parent():
@@ -903,6 +903,42 @@ def test_overlay_refuses_when_there_is_no_root():
     app = Application()
     with pytest.raises(RuntimeError, match="no root"):
         app.overlay(Widget())
+
+
+class Filled(Widget):
+    def render(self, surface) -> None:
+        surface.fill(0, 0, self.width, self.height, "x", Style(fg=2))
+
+
+def dimming_app(dim_modal: bool):
+    root = Filled(width=40, height=10)
+    app = Application(root=root, terminal=FakeTerminal(), dim_modal=dim_modal)
+    dialog = Filled(x=10, y=3, width=20, height=4)
+    dialog.modal = True
+    return app, dialog
+
+
+def test_what_lies_behind_the_top_modal_is_painted_faint():
+    app, dialog = dimming_app(True)
+    drop_down = Filled(x=30, y=8, width=4, height=2)
+    run_app(app, [lambda app: (app.overlay(dialog), app.overlay(drop_down))])
+    assert app._front.get(0, 0)[1].dim
+    assert not app._front.get(12, 4)[1].dim
+    # Painted after the modal, so above what it blocks: an overlay a control
+    # inside the dialog opened stays at full strength outside the dialog.
+    assert not app._front.get(32, 9)[1].dim
+
+
+def test_nothing_is_dimmed_unless_asked_for():
+    app, dialog = dimming_app(False)
+    run_app(app, [lambda app: app.overlay(dialog)])
+    assert not app._front.get(0, 0)[1].dim
+
+
+def test_a_closed_modal_leaves_nothing_dimmed():
+    app, dialog = dimming_app(True)
+    run_app(app, [lambda app: app.overlay(dialog), lambda app: app.root.remove(dialog)])
+    assert not app._front.get(0, 0)[1].dim
 
 
 # -- every handler is async ------------------------------------------------

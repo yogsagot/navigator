@@ -253,6 +253,7 @@ class Application:
         double_click: float = DOUBLE_CLICK_TIMEOUT,
         palette: tuple[tuple[int, int, int], ...] | None = None,
         reprogram_palette: bool = False,
+        dim_modal: bool = False,
     ):
         # `mouse', `palette' and `reprogram_palette' are preferences for the
         # terminal this constructs, and are ignored when one is handed in --
@@ -262,6 +263,9 @@ class Application:
         )
         self.title = title
         self._background = background
+        #: Whether what lies beneath the top modal is painted dimmed.  Off by
+        #: default and experimental -- see :meth:`_painting_modal`.
+        self.dim_modal = dim_modal
         self.result: Any = None
 
         self._root: Widget | None = None
@@ -686,6 +690,24 @@ class Application:
         self._front.copy_from(self._back)
         self._dirty = False
         self._last_frame = self._loop.time() if self._loop is not None else 0.0
+
+    def _painting_modal(self, widget: Widget) -> None:
+        """*widget*, a modal, is about to paint: dim what is already painted.
+
+        Called by :meth:`Widget.render_tree` just before a modal widget paints
+        itself.  Everything in the frame so far is what the modal is blocking,
+        and everything after it -- the modal, its children, and any overlay a
+        control inside it opened, such as a history drop-down -- is painted
+        over the dimmed cells at full strength.  Only the *top* modal dims, so
+        a dialog opened from a dialog dims the first one once, not twice.
+
+        Rewriting cells after they are painted needs no widget's cooperation,
+        which is the reason it is done here rather than by a style state.  It
+        is SGR 2 (faint), so a terminal that ignores faint shows nothing.
+        """
+        if not self.dim_modal or widget is not self.modal:
+            return
+        self._back.restyle(lambda style: style.derive(dim=True))
 
     def _cursor(self) -> tuple[int, int, str] | None:
         """Screen position and shape of the terminal cursor, or None for none.

@@ -942,9 +942,9 @@ only the reference. Paths below are under Textual's `src/textual/`.
   DOS Navigator's modals open by growing, which is the case it exists for. Dialog geometry must stay bound, so the
   animation drives a reactive `opening` factor from 0 to 1 that the binding reads, rather than assigning the size.
   It is switched on by `--animate` or a sheet property.
-- **Dimming behind a modal, experimental** — `ModalScreen`. After everything beneath the top modal is painted, those
-  cells are rewritten dimmed. This reverses *What is deliberately not here* in `navkit/DESIGN.md`, but only as an
-  opt-in.
+- **Dimming behind a modal, experimental** — **written**, and in navkit rather than as a `ModalScreen`: it needs no
+  widget's cooperation. After everything beneath the top modal is painted, those cells are rewritten faint.
+  `Application(dim_modal=True)` opts in; *What is deliberately not here* in `navkit/DESIGN.md` has the rest.
 
 **Small:** `Application.bell()`, since DOS Navigator beeps on errors. A coerce hook on `reactive()`, like Textual's
 `validate_<name>`, so a `cursor` clamps itself. A `--log` sink, because the application owns the tty and `print`
