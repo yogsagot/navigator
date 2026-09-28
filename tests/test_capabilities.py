@@ -466,3 +466,33 @@ def test_a_terminal_without_hyperlinks_is_sent_none():
     buffer.draw_text(0, 0, "link", Style(link="https://example.org"))
     assert "\x1b]8;" in render_diff(None, buffer, TerminalInfo())
     assert "\x1b]8;" not in render_diff(None, buffer, TerminalInfo(hyperlinks=False))
+
+
+def test_faint_is_a_colour_where_the_colour_is_known():
+    """VTE ignores SGR 2 on a direct-RGB foreground, and a pinned palette on a
+    truecolor terminal sends nothing else -- so a dialog's backdrop came out at
+    full strength in xfce4-terminal.  The dimming is computed instead, and the
+    background dims too, which SGR 2 never does anywhere."""
+    info = TerminalInfo(colors=TRUECOLOR, palette=VGA_PALETTE)
+    dimmed = info.adapt_style(Style(fg=WHITE, bg=BLUE, dim=True))
+    assert not dimmed.dim
+    assert dimmed.bg == (0, 0, 128)
+    assert dimmed.fg == (166, 166, 211)
+    assert "\x1b[0;2;" not in info.sgr(Style(fg=WHITE, bg=BLUE, dim=True))
+
+
+def test_faint_on_the_terminals_own_colour_is_left_to_the_terminal():
+    """An unpinned index or the default foreground has a value only the
+    terminal knows, and faint on an index is the case every terminal honours."""
+    info = TerminalInfo(colors=TRUECOLOR)
+    dimmed = info.adapt_style(Style(fg=WHITE, bg=(0, 0, 170), dim=True))
+    assert dimmed.dim and dimmed.fg == WHITE and dimmed.bg == (0, 0, 128)
+    default = info.adapt_style(Style(dim=True))
+    assert default.dim and default.fg is None and default.bg is None
+
+
+def test_faint_stays_sgr_2_below_truecolor():
+    """A computed colour would be quantised coarser than the dimming itself."""
+    for colors in (ANSI_BRIGHT, EXTENDED):
+        info = TerminalInfo(colors=colors, palette=VGA_PALETTE)
+        assert info.adapt_style(Style(fg=WHITE, bg=BLUE, dim=True)).dim

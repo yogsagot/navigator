@@ -703,7 +703,9 @@ class Application:
 
         Rewriting cells after they are painted needs no widget's cooperation,
         which is the reason it is done here rather than by a style state.  It
-        is SGR 2 (faint), so a terminal that ignores faint shows nothing.
+        only marks the cells ``dim``; what faint *looks* like is decided at the
+        edge, in :meth:`TerminalInfo.adapt_style`, because SGR 2 alone is
+        ignored for direct-RGB colours by VTE-based terminals.
         """
         if not self.dim_modal or widget is not self.modal:
             return

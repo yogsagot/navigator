@@ -1262,8 +1262,16 @@ hands the focus back. A second name for that would only be a worse place to read
   nothing has asked for. **Dimming is an experimental opt-in**, `Application(dim_modal=True)`: when the top modal
   is about to paint, `Widget.render_tree` calls `Application._painting_modal`, which rewrites every cell painted so far
   faint (SGR 2) with `ScreenBuffer.restyle`. It needs no widget's cooperation, and whatever is painted after the modal
-  — the modal itself, and an overlay one of its controls opened — stays at full strength. A terminal that ignores
-  faint shows nothing. `navigator` turns it on; `--no-dim-modal` turns it off.
+  — the modal itself, and an overlay one of its controls opened — stays at full strength. `navigator` turns it on;
+  `--no-dim-modal` turns it off.
+  **A `dim` cell is dimmed by colour on a truecolor terminal, not by SGR 2**, because SGR 2 turned out not to be one
+  behaviour: VTE (xfce4-terminal, GNOME Terminal) dims only a foreground named by *index* and draws a direct-RGB one at
+  full strength, while Ghostty and JediTerm dim both — measured with the same `printf`. A pinned palette on a
+  truecolor terminal sends nothing but RGB, so on VTE the dimming vanished entirely. `TerminalInfo.adapt_style` now
+  scales a known background by `DIM_BACKGROUND` and mixes a known foreground `DIM_FOREGROUND` of the way toward it,
+  which also dims backgrounds, something no terminal's faint does. SGR 2 survives only for a foreground whose value
+  the terminal alone knows (its default, an unpinned index below 16), and below truecolor, where a computed colour
+  would be quantised to something coarser than the dimming.
 - ~~**The mouse is not *captured*.**~~ It is now — see *Windows: raising, capturing, painting over* below. It was
   left to "a scrollbar's problem", and a window's title bar turned out to be the first thing that needed it.
 - ~~**`navigator`'s console is still the `visible`-binding trick.**~~ Rewritten: the console is the background layer

@@ -400,16 +400,78 @@ class TerminalInfo:
 
     def adapt_style(self, style: Style) -> Style:
         """*style* with both its colours put through :meth:`adapt`, and its
-        link dropped if this terminal is not to be sent one."""
+        link dropped if this terminal is not to be sent one.
+
+        A ``dim`` style is dimmed here, by colour, wherever that colour is
+        known -- see :func:`_dim`.
+        """
         fg, bg = self.adapt(style.fg), self.adapt(style.bg)
+        dim = style.dim
+        if dim and self.colors >= TRUECOLOR:
+            fg, bg, dim = _dim(fg, bg)
         link = style.link if self.hyperlinks else None
-        if fg == style.fg and bg == style.bg and link == style.link:
+        if fg == style.fg and bg == style.bg and dim == style.dim and link == style.link:
             return style
-        return replace(style, fg=fg, bg=bg, link=link)
+        return replace(style, fg=fg, bg=bg, dim=dim, link=link)
 
     def sgr(self, style: Style) -> str:
         """The escape sequence selecting *style* on this terminal."""
         return _sgr(self, style)
+
+
+#: How far a dimmed foreground is mixed toward its background.  Lighter than
+#: Ghostty's ``faint-opacity`` default of 0.5, because the background dims too.
+DIM_FOREGROUND = 0.35
+#: What a dimmed background is scaled by.  SGR 2 never touches a background.
+DIM_BACKGROUND = 0.75
+
+
+def _known_rgb(color: Color | None) -> tuple[int, int, int] | None:
+    """*color*'s exact value, or ``None`` if only the terminal knows it.
+
+    An index below 16 is the terminal's theme's business -- :meth:`adapt` has
+    already resolved one when a palette is pinned -- and the cube and the grey
+    ramp above it are fixed.
+    """
+    if isinstance(color, tuple):
+        return color
+    if isinstance(color, int) and color >= ANSI_BRIGHT:
+        return rgb_of(color)
+    return None
+
+
+def _dim(
+    fg: Color | None, bg: Color | None,
+) -> tuple[Color | None, Color | None, bool]:
+    """Faint as colours: *fg*, *bg*, and whether SGR 2 is still needed.
+
+    **SGR 2 is not a colour, and terminals disagree about it.** VTE -- and so
+    xfce4-terminal, GNOME Terminal and every other terminal built on it --
+    dims only a foreground named by *index*, and draws a direct-RGB one at
+    full strength.  Ghostty and JediTerm dim both.  A pinned palette on a
+    truecolor terminal sends nothing but direct RGB, so on VTE a faint frame
+    came out exactly as bright as the frame before it.  And none of them dims
+    a background at all.
+
+    So wherever the colour is known it is dimmed here: the background scaled
+    toward black, the foreground mixed toward that dimmed background (or
+    toward black when the background is the terminal's default).  SGR 2 is
+    kept only for a foreground whose value only the terminal knows -- its
+    default, or an unpinned index -- which is the one case every terminal
+    does dim.  Only a truecolor terminal comes here: below it a computed
+    colour would be quantised to something coarser than the dimming itself.
+    """
+    bg_rgb = _known_rgb(bg)
+    if bg_rgb is not None:
+        bg = bg_rgb = tuple(round(c * DIM_BACKGROUND) for c in bg_rgb)
+    fg_rgb = _known_rgb(fg)
+    if fg_rgb is None:
+        return fg, bg, True
+    toward = bg_rgb if bg_rgb is not None else (0, 0, 0)
+    fg = tuple(
+        round(c + (t - c) * DIM_FOREGROUND) for c, t in zip(fg_rgb, toward)
+    )
+    return fg, bg, False
 
 
 @lru_cache(maxsize=2048)
