@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pytest
 
 from navkit.application import Application
-from navkit.commands import Command, KeyTableError, key_table, parse_key
+from navkit.commands import Command, KeyTableError, key_table, layer_key, parse_key
 from navkit.events import KeyEvent
 from navkit.widget import Widget
 
@@ -227,6 +227,12 @@ def test_run_command_is_what_a_key_bar_button_calls():
 
 
 # -- what a key bar reads ---------------------------------------------------------
+
+
+def test_a_layer_key_is_spelled_the_way_a_table_is_keyed():
+    assert layer_key(frozenset(), "f6") == "f6"
+    assert layer_key({"shift", "ctrl"}, "f6") == "ctrl+shift+f6"
+    assert layer_key(["alt"], "B") == "alt+b"
 
 
 def test_bindings_are_the_nearest_tables_with_the_applications_on_top():

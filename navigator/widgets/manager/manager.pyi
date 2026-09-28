@@ -8,6 +8,10 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
+from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
+from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
+from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
+from navigator.commands import ToggleDescriptions, ToggleShowMode
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout

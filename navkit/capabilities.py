@@ -227,6 +227,11 @@ class TerminalInfo:
     #: otherwise, box drawing being safe on any terminal of the last thirty
     #: years that reads UTF-8.
     glyphs: int = GLYPHS_UNICODE
+    #: Whether to push the kitty keyboard protocol, the only way a terminal
+    #: reports a bare modifier and a release -- what lets a key bar follow a
+    #: held Alt.  Pushed without a query, since a terminal that does not know
+    #: it ignores it; ``NAVKIT_KEYBOARD=legacy`` is the way out if one does not.
+    kitty_keyboard: bool = True
 
     @property
     def truecolor(self) -> bool:
@@ -281,6 +286,10 @@ class TerminalInfo:
         Unicode, and anything else gets ASCII -- conservative in the same
         direction as the colour guess, since a missing glyph is a replacement
         box on every line of the frame.
+
+        ``NAVKIT_KEYBOARD`` (``kitty``, or ``legacy``) says whether to push the
+        kitty keyboard protocol, which is otherwise pushed on any interactive
+        terminal.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -313,6 +322,13 @@ class TerminalInfo:
                 glyphs = GLYPHS_ASCII
         glyphs = tier_named(env.get("NAVKIT_GLYPHS", ""), glyphs)
 
+        keyboard = env.get("NAVKIT_KEYBOARD", "").strip().lower()
+        kitty_keyboard = not plain
+        if keyboard in ("legacy", "none", "off"):
+            kitty_keyboard = False
+        elif keyboard == "kitty":
+            kitty_keyboard = True
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -327,6 +343,7 @@ class TerminalInfo:
             mouse=not plain,
             bracketed_paste=not plain,
             title=not plain,
+            kitty_keyboard=kitty_keyboard,
         )
 
     def adapt(self, color: Color | None) -> Color | None:

@@ -282,8 +282,15 @@ def test_the_window_keys(desk):
     app, desktop = desk
     first = desktop.open(window(0, 0, 30, 10))
     second = desktop.open(window(20, 5, 30, 10))
-    handle(app, KeyEvent("f6", ctrl=True))
+    # DOS Navigator's cmNext and cmPrev keys, F9 and Shift+F9.
+    handle(app, KeyEvent("f9"))
     assert desktop.active_window is first
+    handle(app, KeyEvent("f9", shift=True))
+    assert desktop.active_window is second
+    handle(app, KeyEvent("f9", shift=True))
+    assert desktop.active_window is first
+    handle(app, KeyEvent("f6", ctrl=True))
+    assert desktop.active_window is first  # Ctrl+F6 is no window key any more
     handle(app, KeyEvent("z", "z", alt=True))
     assert first.zoomed
     handle(app, KeyEvent("f4", ctrl=True))

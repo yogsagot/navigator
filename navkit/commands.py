@@ -97,6 +97,16 @@ def parse_key(spec: str) -> str:
     return normal
 
 
+def layer_key(modifiers: Iterable[str], key: str) -> str:
+    """*key* with *modifiers* held, in the canonical spelling.
+
+    ``layer_key({"shift", "ctrl"}, "f6")`` is ``"ctrl+shift+f6"`` -- what a
+    key table is keyed by, so a key bar showing the row for the modifiers held
+    looks its keys up with this rather than spelling one by hand.
+    """
+    return parse_key("+".join([*modifiers, key]))
+
+
 def command_of(binding: Binding) -> Command:
     """The command *binding* stands for, as an instance."""
     return binding() if isinstance(binding, type) else binding
@@ -233,14 +243,19 @@ def bindings(app: Application, start: Widget | None = None) -> dict[str, Command
     What a key bar shows.  The tables along :func:`chain` from the outside in,
     so the nearest binding of a key wins -- and the application's own table
     last of all, since it is consulted before any widget's and so wins every
-    tie.  While a modal is up the application's table is not consulted, and
+    tie.  **Ordered nearest first**, each table in its own declaration order
+    and the application's after them all, which is the order a key bar shows
+    a row of letters in -- the focused window's own before the desktop's.
+    While a modal is up the application's table is not consulted, and
     is not shown -- unless *start* names the widget to ask from, which is a
     caller asking about the focus behind the modal rather than inside it.
     """
     tables = [key_table(type(widget)) for widget in chain(app, start)][:-1]
     found: dict[str, Command] = {}
-    for table in reversed(tables):
-        found.update({key: command_of(b) for key, b in table.items()})
+    for table in tables:
+        for key, binding in table.items():
+            if key not in found:
+                found[key] = command_of(binding)
     if app.modal is None or start is not None:
         found.update(
             {key: command_of(b) for key, b in key_table(type(app)).items()}

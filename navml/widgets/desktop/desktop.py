@@ -53,16 +53,18 @@ class Desktop(Widget):
 
     #: The window keys, checked against DOS Navigator's own *Window* menu
     #: (``dlgMainMenu`` in ``DN.DNR``): Size/Move Ctrl-F5, Zoom Alt-Z, Close
-    #: Ctrl-F4.  Its Next and Previous are Alt-Tab and Ctrl-Tab, which a
-    #: terminal cannot deliver -- the window manager takes the one, and the
-    #: other arrives as a plain Tab -- so those two keep Ctrl-F6 and
-    #: Ctrl-Shift-F6.  Consulted after the active window's own children,
-    #: because this desktop is further from the focus than they are.
+    #: Ctrl-F4.  Its menu gives Next and Previous as Alt-Tab and Ctrl-Tab,
+    #: which a terminal cannot deliver -- the window manager takes the one, and
+    #: the other arrives as a plain Tab -- so they take the keys its status
+    #: lines bind ``cmNext`` and ``cmPrev`` to everywhere, F9 and Shift-F9.
+    #: That leaves Ctrl-F6 for DOS Navigator's Calculator.  Consulted after the
+    #: active window's own children, because this desktop is further from the
+    #: focus than they are.
     keys = {
         "ctrl+f5": SizeMoveWindow,
         "alt+z": ZoomWindow,
-        "ctrl+f6": NextWindow,
-        "ctrl+shift+f6": PreviousWindow,
+        "f9": NextWindow,
+        "shift+f9": PreviousWindow,
         "ctrl+f4": CloseWindow,
     }
 

@@ -36,6 +36,7 @@ from navkit.events import (
     DoubleClickEvent,
     Event,
     KeyEvent,
+    ModifiersEvent,
     MouseClickEvent,
     PasteEvent,
     ResizeEvent,
@@ -232,6 +233,12 @@ class Application:
     #: follow it the way ``focused`` follows the keyboard.  Left alone while
     #: the mouse is captured: a drag is not the pointer wandering.
     hovered: Widget | None = reactive(None)
+    #: The modifier keys held down right now -- some of ``ctrl``, ``alt`` and
+    #: ``shift``.  Moved only by a :class:`ModifiersEvent`, which only a
+    #: terminal speaking the kitty keyboard protocol sends, so elsewhere it is
+    #: always empty.  Reactive, so a key bar reading it in ``render()`` swaps
+    #: its row while Alt is held and swaps it back on the release.
+    modifiers: frozenset[str] = reactive(frozenset())
 
     def __init__(
         self,
@@ -759,6 +766,11 @@ class Application:
             return
         if isinstance(event, ResizeEvent):
             self._resize(event.width, event.height)
+        if isinstance(event, ModifiersEvent):
+            # A fact about the keyboard rather than something to act on, kept
+            # the way the pointer's position is: nothing is offered it.
+            self.modifiers = event.modifiers
+            return
         # Saved and restored rather than set and cleared: `_handle' returns
         # early for a claimed event and re-enters itself for a double click,
         # so a plain reset would report "not dispatching" while the outer call

@@ -1562,6 +1562,97 @@ def test_a_click_on_a_greyed_caption_does_nothing_and_goes_nowhere(tree):
     assert cursor == [(True, None)]
 
 
+#: The same line while each modifier is held: the ``-``, ``+`` and ``:`` items
+#: of ``StatusDef hcFilePanel``, the function keys first, then the letters
+#: nearest table first -- the file manager's, the desktop's Zoom and Close,
+#: the application's.  At 80 columns the Ctrl row closes before *Show*: the
+#: desktop's F4 Close takes the room, which DOS Navigator's file panel row
+#: did not caption.
+ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
+              "  Z Zoom  X Exit")
+CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  K Desc  L Info"
+               "  T Tree  Q Preview")
+SHIFT_STATUS = (" F1 Arc  F2 Ext  F3 Phones  F4 Edit...  F5 Split/Combine"
+                "  F6 Reanimate  F8 Del")
+
+
+@pytest.mark.parametrize(
+    ("held", "expected"),
+    [({"alt"}, ALT_STATUS), ({"ctrl"}, CTRL_STATUS), ({"shift"}, SHIFT_STATUS)],
+)
+def test_a_held_modifier_swaps_the_key_bar_for_its_row(tree, held, expected):
+    from navkit.events import ModifiersEvent
+
+    app = navigator(tree)
+    rows = []
+    run_app(app, [
+        ModifiersEvent(frozenset(held)),
+        lambda a: rows.append(row_of(desktop(a), 23).rstrip()),
+        ModifiersEvent(frozenset()),
+        lambda a: rows.append(row_of(desktop(a), 23).rstrip()),
+    ])
+    assert rows[0] == expected
+    assert rows[1] == STATUS
+
+
+def test_the_ctrl_row_greys_what_is_not_written_and_not_what_is(tree):
+    from navkit.events import ModifiersEvent
+
+    app = navigator(tree)
+    enabled = []
+    run_app(app, [
+        ModifiersEvent(frozenset({"ctrl"})),
+        lambda a: enabled.extend(
+            c.title for _, c, _, _ in a.shell.keybar.items() if a.command_enabled(c)
+        ),
+    ])
+    assert "Print" not in enabled
+    assert enabled == ["New Manager", "Close", "Tree"]
+
+
+def test_a_click_on_a_held_row_runs_that_rows_command(tree):
+    from navkit.events import ModifiersEvent
+
+    app = navigator(tree)
+    before = []
+    run_app(app, [
+        lambda a: before.append(len(a.shell.desktop.windows())),
+        ModifiersEvent(frozenset({"ctrl"})),
+        MouseClickEvent(CTRL_STATUS.index("F3"), 23, "left"),
+        lambda a: before.append(len(a.shell.desktop.windows())),
+    ])
+    assert before[1] == before[0] + 1
+
+
+def test_a_window_s_own_function_key_takes_the_bar(tree):
+    from navkit.commands import Command
+    from navml.widgets.window import Window
+
+    class Hex(Command):
+        title = "Hex"
+
+    class Editor(Window):
+        keys = {"f4": Hex}
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.can_focus = True
+
+        async def on_hex(self, event):
+            return True
+
+    app = navigator(tree)
+    rows = []
+
+    def open_editor(a):
+        editor = Editor(width=20, height=5)
+        a.shell.desktop.open(editor)
+        editor.focus()
+
+    run_app(app, [open_editor, lambda a: rows.append(row_of(desktop(a), 23).rstrip())])
+    assert " F4 Hex " in rows[0] and "Edit" not in rows[0]
+
+
 def test_alt_x_is_vetoed_while_the_console_is_over_the_windows(tree, quiet_console):
     from navigator.commands import Quit
 
@@ -1627,7 +1718,7 @@ def test_a_bound_entry_shows_its_live_key_and_an_unbound_one_dos_navigators(tree
             ("File", "Exit"),               # unbound Quit(): the original's
             ("Panel", "Re-read"),           # bound twice: the first binding
             ("Window", "Zoom"),             # the desktop's table
-            ("Utilities", "Calculator"),    # no command at all
+            ("Utilities", "Calculator"),    # bound, but nobody handles it
         )
     )])
     assert captions == ["F7", "Alt-X", "Alt-R", "Alt-Z", "Ctrl-F6"]

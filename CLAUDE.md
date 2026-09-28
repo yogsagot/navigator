@@ -713,7 +713,11 @@ also the widget that showed why a navigated property is seeded rather than bound
   `navml/commands.py`. Alt+X is on the application because a way out cannot live on a window the user can close, and
   it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while Ctrl+O has put windows away, so the child gets
   Meta+X. **The key bar reads its captions off the bindings** (`app.bindings()`) and greys a disabled command in
-  DOS Navigator's `$bar-disabled` slot; a click on a caption runs its command. `Console.on_key` still keeps the
+  DOS Navigator's `$bar-disabled` slot; a click on a caption runs its command. **While Alt, Ctrl or Shift is held the
+  bar is that modifier's row** (`StatusDef hcFilePanel`'s `-`/`+`/`:` items, bound in `manager.nml`), read off
+  the reactive `Application.modifiers`. Only a terminal speaking the kitty keyboard protocol reports a held
+  modifier; `Terminal` pushes it without asking, `NAVKIT_KEYBOARD=legacy` turns that off, and *The held modifier* in
+  `navkit/DESIGN.md` has the rules. `Console.on_key` still keeps the
   scrollback and sends the rest to the child. There is no `console_visible` check in any of the widgets — the
   console holds the focus while it is showing, and the focus path decides. `Navigator.on_mouse_click` returns False
   while `app.modal` is set

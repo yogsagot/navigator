@@ -32,21 +32,21 @@ class ZoomWindow(Command):
 
 
 class SizeMoveWindow(Command):
-    """Move and size the active window from the keyboard."""
+    """Move and size the active window from the keyboard.
 
-    title = "Size/Move"
+    Untitled, like the two below: Turbo Vision's status lines bind
+    ``kbCtrlF5``, ``kbF6`` and ``kbShiftF6`` with an empty caption, and DOS
+    Navigator's ``kbCtrlF5``, ``kbF9`` and ``kbShiftF9`` likewise, so a key
+    bar never shows them.
+    """
 
 
 class NextWindow(Command):
     """Bring the next window forward."""
 
-    title = "Next"
-
 
 class PreviousWindow(Command):
     """Bring the previous window forward."""
-
-    title = "Previous"
 
 
 class Cancel(Command):

@@ -17,7 +17,7 @@ import tty
 from typing import IO
 
 from navkit.capabilities import TerminalInfo
-from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
+from navkit.events import Event, KeyEvent, ModifiersEvent, MouseClickEvent, PasteEvent
 
 ALT_SCREEN_ON = "\x1b[?1049h"
 ALT_SCREEN_OFF = "\x1b[?1049l"
@@ -62,6 +62,16 @@ MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1003h\x1b[?1006h"
 MOUSE_OFF = "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l"
 PASTE_ON = "\x1b[?2004h"
 PASTE_OFF = "\x1b[?2004l"
+# The kitty keyboard protocol, pushed onto the terminal's own stack of flags
+# and popped again: 1 disambiguates, 2 reports releases and repeats, 4 the
+# shifted key, 8 every key -- a bare modifier included -- as an escape, 16 the
+# text a key produces.  2 and 8 are the point: they are the only way a terminal
+# says a modifier is *held*.  A terminal that does not know the sequence
+# ignores it, so it is pushed without asking first.  Focus reporting (1004)
+# comes with it, because a release that happens in another window never
+# arrives, and losing the focus is the cue to forget what was held.
+KEYBOARD_ON = "\x1b[>31u\x1b[?1004h"
+KEYBOARD_OFF = "\x1b[?1004l\x1b[<u"
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
 # OSC 4 rewrites one of the sixteen colour registers, OSC 104 with no argument
 # puts all of them back.  This is the terminal's answer to what a DOS palette
@@ -136,6 +146,59 @@ _LETTER_KEYS = {
     "S": "f4",
 }
 
+#: ``CSI <code> u`` keys that are not text.  The keypad is folded into the
+#: keys it duplicates, as a legacy terminal does before it reaches us.
+_KITTY_KEYS = {
+    9: "tab",
+    13: "enter",
+    27: "escape",
+    127: "backspace",
+    57363: "menu",
+    57414: "enter",
+    57417: "left",
+    57418: "right",
+    57419: "up",
+    57420: "down",
+    57421: "pageup",
+    57422: "pagedown",
+    57423: "home",
+    57424: "end",
+    57425: "insert",
+    57426: "delete",
+    57427: "center",
+}
+
+#: What the keypad's text keys type.
+_KITTY_KEYPAD = {
+    **{57399 + digit: str(digit) for digit in range(10)},
+    57409: ".",
+    57410: "/",
+    57411: "*",
+    57412: "-",
+    57413: "+",
+    57415: "=",
+    57416: ",",
+}
+
+#: The modifier keys themselves, and the modifier each one is -- ``None`` for
+#: Super, Hyper, Meta and the level shifts, which navkit does not name.
+_KITTY_MODIFIER_KEYS = {
+    57441: "shift",
+    57442: "ctrl",
+    57443: "alt",
+    57447: "shift",
+    57448: "ctrl",
+    57449: "alt",
+    **{code: None for code in (57444, 57445, 57446, 57450, 57451, 57452, 57453, 57454)},
+}
+
+#: How many parameter bytes an SS3 key may carry before the parser stops
+#: waiting for its final byte -- ``1;5`` is the longest any terminal sends.
+_SS3_PARAMS_MAX = 4
+
+#: A kitty event type: 1 press, 2 repeat, 3 release.
+_RELEASE = 3
+
 _CTRL_SYMBOLS = {0x1C: "\\", 0x1D: "]", 0x1E: "^", 0x1F: "_"}
 
 _MOUSE_BUTTONS = {0: "left", 1: "middle", 2: "right"}
@@ -156,9 +219,26 @@ def _utf8_length(lead: int) -> int:
 
 
 def _modifiers(param: int) -> tuple[bool, bool, bool]:
-    """Decode an xterm modifier parameter into ``(ctrl, alt, shift)``."""
+    """Decode an xterm modifier parameter into ``(ctrl, alt, shift)``.
+
+    Only the three bits navkit names are read, so the kitty protocol's Super,
+    Hyper, Meta, Caps Lock and Num Lock bits above them are ignored.
+    """
     bits = max(0, param - 1)
     return bool(bits & 4), bool(bits & 2), bool(bits & 1)
+
+
+def _held(param: int) -> frozenset[str]:
+    """An xterm modifier parameter as the set :class:`ModifiersEvent` carries."""
+    ctrl, alt, shift = _modifiers(param)
+    return frozenset(
+        name for name, on in (("ctrl", ctrl), ("alt", alt), ("shift", shift)) if on
+    )
+
+
+def _numbers(field: bytes) -> list[int]:
+    """A ``:``-separated CSI parameter, an empty or non-numeric part as 0."""
+    return [int(part) if part.isdigit() else 0 for part in field.split(b":")]
 
 
 class InputParser:
@@ -168,6 +248,10 @@ class InputParser:
         self._buf = bytearray()
         self._paste: bytearray | None = None
         self._incomplete = False
+        #: The modifiers held down, as far as the kitty keyboard protocol has
+        #: said.  Never touched by legacy input: a legacy Ctrl+F5 is followed
+        #: by no release, so believing it would leave Ctrl held for good.
+        self.modifiers: frozenset[str] = frozenset()
 
     @property
     def pending_escape(self) -> bool:
@@ -207,7 +291,9 @@ class InputParser:
                     self._incomplete = True
                     break
                 del self._buf[:consumed]
-                if event is not None:
+                if isinstance(event, list):
+                    events.extend(event)
+                elif event is not None:
                     events.append(event)
                 continue
             if byte < 0x20 or byte == 0x7F:
@@ -241,7 +327,7 @@ class InputParser:
         self._paste = None
         return True
 
-    def _parse_escape(self) -> tuple[int, Event | None]:
+    def _parse_escape(self) -> tuple[int, Event | list[Event] | None]:
         """Decode the escape sequence at the head of the buffer.
 
         Returns the number of bytes consumed -- zero when the sequence is not
@@ -270,13 +356,23 @@ class InputParser:
             if terminator == "~" and body == b"200":
                 self._paste = bytearray()
                 return final + 1, None
-            return final + 1, _csi_key(body, terminator)
+            return final + 1, self._csi(body, terminator)
 
         if second == 0x4F:  # SS3, e.g. ESC O P for F1
-            if len(buf) < 3:
+            # Some terminals put a modifier between the two, the way CSI
+            # does: ESC O 5 R is Ctrl+F3, and ESC O 1;5 R has been seen too.
+            # Read up to the final byte and decode it as CSI would.
+            final, limit = 2, min(len(buf), 2 + _SS3_PARAMS_MAX)
+            while final < limit and buf[final] in b"0123456789;":
+                final += 1
+            if final >= len(buf):
                 return 0, None
-            name = _LETTER_KEYS.get(chr(buf[2]))
-            return 3, KeyEvent(name) if name else None
+            name = _LETTER_KEYS.get(chr(buf[final]))
+            params = bytes(buf[2:final]).split(b";")
+            if not name or final == 2:
+                return final + 1, KeyEvent(name) if name else None
+            ctrl, alt, shift = _modifiers(_numbers(params[-1])[0] or 1)
+            return final + 1, KeyEvent(name, ctrl=ctrl, alt=alt, shift=shift)
 
         # Anything else is Alt plus whatever follows.
         if second < 0x20 or second == 0x7F:
@@ -288,9 +384,94 @@ class InputParser:
         return 1 + length, KeyEvent(char.lower(), char, alt=True, shift=char.isupper())
 
 
+    def _csi(self, body: bytes, terminator: str) -> list[Event]:
+        """Decode a non-mouse ``CSI`` sequence, legacy or kitty.
+
+        The kitty keyboard protocol is recognised by what legacy input never
+        sends -- a ``u`` terminator, or an event type after a ``:`` -- and only
+        that form may move :attr:`modifiers`.  A kitty press carries the
+        whole held set, so each one also corrects a release that went missing.
+        """
+        fields = body.split(b";")
+        if terminator in "IO" and body == b"":
+            # Focus in, focus out.  Whatever was held when the focus left is
+            # released somewhere this application will never hear about.
+            return self._hold(frozenset()) if terminator == "O" else []
+        key = _numbers(fields[0])
+        mods = _numbers(fields[1]) if len(fields) > 1 else [1]
+        param = mods[0] or 1
+        kind = mods[1] if len(mods) > 1 else 1
+        kitty = terminator == "u" or len(mods) > 1
+        if terminator == "u":
+            text = "".join(chr(c) for c in _numbers(fields[2]) if c) if len(fields) > 2 else ""
+            code = key[0]
+            if code in _KITTY_MODIFIER_KEYS:
+                return self._modifier_key(_KITTY_MODIFIER_KEYS[code], param, kind)
+            event = _kitty_key(code, key[1] if len(key) > 1 else 0, param, text)
+        else:
+            event = _csi_key(body, terminator)
+        if not kitty:
+            return [event] if event is not None else []
+        out = self._hold(_held(param))
+        if event is not None and kind != _RELEASE:
+            out.append(event)
+        return out
+
+    def _modifier_key(self, name: str | None, param: int, kind: int) -> list[Event]:
+        """A bare modifier pressed or released: the held set, and only that.
+
+        The report's own modifier field is taken as the rest of the state, and
+        the key's own modifier is then forced to what the event says, because
+        the protocol leaves open whether a modifier counts itself.
+        """
+        held = set(_held(param))
+        if name is not None:
+            if kind == _RELEASE:
+                held.discard(name)
+            else:
+                held.add(name)
+        return self._hold(frozenset(held))
+
+    def _hold(self, held: frozenset[str]) -> list[Event]:
+        """Make *held* the held set, and say so if that changed it."""
+        if held == self.modifiers:
+            return []
+        self.modifiers = held
+        return [ModifiersEvent(held)]
+
+
+def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | None:
+    """A kitty ``CSI u`` key, as the legacy decoder would have reported it.
+
+    The same key must reach a key table under the same name whichever way the
+    terminal sent it, so this mirrors :func:`_control_key` and the text path
+    of :meth:`InputParser._parse` rather than inventing a spelling: a capital
+    is the lower-case key with ``shift`` and its ``char``, Ctrl+letter has no
+    ``char``, Ctrl+Space is ``space``.
+    """
+    ctrl, alt, shift = _modifiers(param)
+    name = _KITTY_KEYS.get(code)
+    if name is not None:
+        if name == "tab":
+            return KeyEvent("tab", "\t", ctrl=ctrl, alt=alt, shift=shift)
+        if name == "enter":
+            return KeyEvent("enter", "\n", ctrl=ctrl, alt=alt, shift=shift)
+        return KeyEvent(name, ctrl=ctrl, alt=alt, shift=shift)
+    if code in _KITTY_KEYPAD:
+        code = ord(_KITTY_KEYPAD[code])
+    if code < 0x20 or 0xE000 <= code <= 0xF8FF:
+        return None  # F13 and beyond, the locks, media keys: nothing to name
+    if code == 0x20 and ctrl:
+        return KeyEvent("space", " ", ctrl=True, alt=alt, shift=shift)
+    if ctrl:
+        return KeyEvent(chr(code), ctrl=True, alt=alt, shift=shift)
+    char = text or (chr(shifted) if shift and shifted else chr(code))
+    return KeyEvent(char.lower(), char, alt=alt, shift=char.isupper())
+
+
 def _csi_key(body: bytes, terminator: str) -> Event | None:
-    """Decode a non-mouse ``CSI`` sequence."""
-    params = [int(p) if p.isdigit() else 0 for p in body.split(b";")] or [0]
+    """Decode a legacy key ``CSI`` sequence (a kitty event type is tolerated)."""
+    params = [_numbers(p)[0] for p in body.split(b";")] or [0]
     modifier = params[1] if len(params) > 1 else 1
     ctrl, alt, shift = _modifiers(modifier)
 
@@ -495,6 +676,8 @@ class Terminal:
             self.write(MOUSE_ON)
         if self.info.bracketed_paste:
             self.write(PASTE_ON)
+        if self.info.kitty_keyboard:
+            self.write(KEYBOARD_ON)
         if self.reprogram_palette:
             self.write(palette_sgr(self.info.palette))
         self.flush()
@@ -509,6 +692,8 @@ class Terminal:
         # harmless on a real terminal and noise in a pipe.
         if self.reprogram_palette:
             self.write(PALETTE_RESET)
+        if self.info.kitty_keyboard:
+            self.write(KEYBOARD_OFF)
         if self.info.bracketed_paste:
             self.write(PASTE_OFF)
         if self.mouse:

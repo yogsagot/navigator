@@ -78,14 +78,15 @@ class SwitchPanel(Command):
 class Rescan(Command):
     """Ctrl+R: read the active panel's directory again."""
 
+    title = "Re-read"
+
 
 class ChangeDirectory(Command):
     """Alt+T: choose a directory from a tree, and send the active panel there.
 
-    DOS Navigator's ``cmChangeDir``, Panel > Change directory.
+    DOS Navigator's ``cmChangeDir``, Panel > Change directory.  Untitled, as
+    ``StatusDef hcFilePanel`` left Alt-T off its Alt row.
     """
-
-    title = "ChDir"
 
 
 class NewManager(Command):
@@ -94,7 +95,7 @@ class NewManager(Command):
     DOS Navigator's ``cmCreatePanel``, Manager > New.
     """
 
-    title = "New"
+    title = "New Manager"
 
 
 class OpenTreeWindow(Command):
@@ -116,7 +117,147 @@ class ToggleTree(Command):
     title = "Tree"
 
 
+# The file panel's modifier rows: the ``-`` (Alt), ``+`` (Ctrl) and ``:``
+# (Shift) items of ``StatusDef hcFilePanel``, each titled as the original
+# captioned it and none handled yet, so the key bar shows them greyed while the
+# modifier is held.  The DOS Navigator command each stands for is named beside
+# it.
+
+
+class SortBy(Command):
+    """Alt+B, ``cmSortBy``."""
+
+    title = "Sort"
+
+
+class ChangeDrive(Command):
+    """Alt+C, ``cmChangeDrive``."""
+
+    title = "Drive"
+
+
+class PanelSetup(Command):
+    """Alt+S, ``cmPanelSetup``."""
+
+    title = "Setup"
+
+
+class MakeList(Command):
+    """Alt+L, ``cmMakeList``."""
+
+    title = "List"
+
+
+class FastRename(Command):
+    """Alt+F6, ``cmFastRename``."""
+
+    title = "Ren"
+
+
+class FindFile(Command):
+    """Alt+F7, ``cmFindFile``."""
+
+    title = "Find"
+
+
+class Calculator(Command):
+    """Ctrl+F6, ``cmCalculator``."""
+
+    title = "Calc"
+
+
+class PrintFile(Command):
+    """Ctrl+F9, ``cmPrintFile``."""
+
+    title = "Print"
+
+
+class ToggleDescriptions(Command):
+    """Ctrl+K, ``cmToggleDescriptions``."""
+
+    title = "Desc"
+
+
+class DiskInfo(Command):
+    """Ctrl+L, ``cmDiskInfo``."""
+
+    title = "Info"
+
+
+class QuickView(Command):
+    """Ctrl+Q, ``cmQuickView``."""
+
+    title = "Preview"
+
+
+class ToggleShowMode(Command):
+    """Ctrl+Y, ``cmToggleShowMode``."""
+
+    title = "Show"
+
+
+class ArchiveFiles(Command):
+    """Shift+F1, ``cmPanelArcFiles``."""
+
+    title = "Arc"
+
+
+class ExtractArchive(Command):
+    """Shift+F2, ``cmExtractArchive``."""
+
+    title = "Ext"
+
+
+class PhoneBook(Command):
+    """Shift+F3, ``cmPhoneBook``."""
+
+    title = "Phones"
+
+
+class EditNamed(Command):
+    """Shift+F4, ``cmXEditFile``: edit a file whose name is asked for."""
+
+    title = "Edit..."
+
+
+class SplitCombine(Command):
+    """Shift+F5, ``cmPanelLongCopy``."""
+
+    title = "Split/Combine"
+
+
+class Reanimate(Command):
+    """Shift+F6, ``cmReanimator``."""
+
+    title = "Reanimate"
+
+
+class DeleteSingle(Command):
+    """Shift+F8, ``cmSingleDel``: the file under the cursor, not the selection."""
+
+    title = "Del"
+
+
 __all__ = [
+    "ArchiveFiles",
+    "Calculator",
+    "ChangeDrive",
+    "DeleteSingle",
+    "DiskInfo",
+    "EditNamed",
+    "ExtractArchive",
+    "FastRename",
+    "FindFile",
+    "MakeList",
+    "PanelSetup",
+    "PhoneBook",
+    "PrintFile",
+    "QuickView",
+    "Reanimate",
+    "SortBy",
+    "SplitCombine",
+    "ToggleDescriptions",
+    "ToggleShowMode",
     "ChangeDirectory",
     "Copy",
     "Delete",

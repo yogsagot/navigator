@@ -1,5 +1,9 @@
 from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
+from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
+from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
+from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
+from navigator.commands import ToggleDescriptions, ToggleShowMode
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
@@ -31,13 +35,12 @@ Manager(Window):
     #: *within* a panel and are ``ListViewer``'s, reached first along the
     #: focus path.  What is here needs the window -- which panel, and what to
     #: do in it.  F2 to F8 are the key bar's panel half; every one without a
-    #: handler in ``manager.py`` is disabled, and greyed on the bar.
+    #: handler in ``manager.py`` is disabled, and greyed on the bar.  The
+    #: modified keys below them are the bar's Alt, Ctrl and Shift rows, in
+    #: ``StatusDef hcFilePanel``'s order, which is the order the bar shows the
+    #: letters in.
     keys:
         tab: SwitchPanel
-        alt+r: Rescan
-        ctrl+r: Rescan
-        ctrl+t: ToggleTree
-        alt+t: ChangeDirectory
         f2: UserMenu
         f3: View
         f4: Edit
@@ -45,6 +48,29 @@ Manager(Window):
         f6: RenameMove
         f7: MakeDirectory
         f8: Delete
+        alt+b: SortBy
+        alt+c: ChangeDrive
+        alt+s: PanelSetup
+        alt+l: MakeList
+        alt+f6: FastRename
+        alt+f7: FindFile
+        alt+r: Rescan
+        alt+t: ChangeDirectory
+        ctrl+f6: Calculator
+        ctrl+f9: PrintFile
+        ctrl+k: ToggleDescriptions
+        ctrl+l: DiskInfo
+        ctrl+t: ToggleTree
+        ctrl+q: QuickView
+        ctrl+y: ToggleShowMode
+        ctrl+r: Rescan
+        shift+f1: ArchiveFiles
+        shift+f2: ExtractArchive
+        shift+f3: PhoneBook
+        shift+f4: EditNamed
+        shift+f5: SplitCombine
+        shift+f6: Reanimate
+        shift+f8: DeleteSingle
 
     HorizontalLayout:
         id: panels

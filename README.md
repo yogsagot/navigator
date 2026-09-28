@@ -40,7 +40,7 @@ It consists of three parts:
 ## Installing
 
 Navigator is published on PyPI as **`navigator-fm`** (the names `navigator` and `nav` were taken long ago;
-`navfm` is an alias that installs the same thing). It needs Python 3.12 or newer, and pulls in one
+`navfm` is an alias that installs the same thing). It needs Python 3.12 or newer and pulls in one
 dependency, `pyte`.
 
 ```sh

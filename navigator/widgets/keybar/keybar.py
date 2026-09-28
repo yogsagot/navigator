@@ -10,15 +10,21 @@ round it the way the original's did round a key its status definition left
 out.  An item whose command cannot run is greyed whole, key included, in the
 status line's *Disabled* slot.
 
-The original also swapped the whole line while Alt, Ctrl or Shift was held --
-the ``-``, ``+`` and ``:`` items of ``StatusDef hcFilePanel``.  A terminal
-reports no key releases, so a held modifier cannot be seen, and that half is
-not attempted.
+**While Alt, Ctrl or Shift is held the whole line is that modifier's** --
+the ``-``, ``+`` and ``:`` items of ``StatusDef hcFilePanel`` -- read off the
+same bindings: every key bound with exactly the modifiers held, the function
+keys first and in order, then the letters in the order the tables declare
+them.  Each item shows the key alone, ``F6`` or ``B``, as the original did --
+the row is what says which modifier is down.  The held set is
+:attr:`Application.modifiers`, which is reactive, so the row swaps on the
+press and swaps back on the release; only a terminal speaking the kitty
+keyboard protocol reports either, and on any other the plain row is all there
+is.
 """
 
 from __future__ import annotations
 
-from navkit.commands import Command, key_label
+from navkit.commands import Command, key_label, layer_key
 from navkit.events import MouseClickEvent
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -37,25 +43,38 @@ class KeyBar(Widget):
     def items(self) -> list[tuple[str, Command, int, int]]:
         """``(key, command, start, width)`` for each item, left to right.
 
-        *width* counts the space either side, as ``DrawSelect`` advances by
-        it; an item is left out unless its text, without those two spaces,
-        ends before the right edge -- ``I + L < Size.X`` there, which lets the
-        last item's trailing space fall off the end.
+        *key* is the binding's full spec -- ``"alt+f6"`` while Alt is held --
+        and the item shows it without the modifiers.  *width* counts the space
+        either side, as ``DrawSelect`` advances by it; an item is left out
+        unless its text, without those two spaces, ends before the right edge
+        -- ``I + L < Size.X`` there, which lets the last item's trailing space
+        fall off the end.
         """
-        app = self.application
-        bound = app.bindings() if app is not None else {}
         found, column = [], 0
-        for index in range(KEYS):
-            key = f"f{index + 1}"
-            command = bound.get(key)
-            if command is None or not command.title:
-                continue
-            width = len(key_label(key)) + 1 + len(command.title) + 2
+        for key, command in self._row():
+            width = len(_shown(key)) + 1 + len(command.title) + 2
             if column + width - 2 >= self.width:
                 break
             found.append((key, command, column, width))
             column += width
         return found
+
+    def _row(self) -> list[tuple[str, Command]]:
+        """The titled bindings for the modifiers held, in the line's order."""
+        app = self.application
+        if app is None:
+            return []
+        bound = app.bindings()
+        held = app.modifiers
+        keys = [layer_key(held, f"f{index + 1}") for index in range(KEYS)]
+        if held:
+            letters = {layer_key(held, chr(c)) for c in range(ord("a"), ord("z") + 1)}
+            keys += [key for key in bound if key in letters]
+        return [
+            (key, bound[key])
+            for key in keys
+            if key in bound and bound[key].title
+        ]
 
     def render(self, surface: Surface) -> None:
         app = self.application
@@ -63,7 +82,7 @@ class KeyBar(Widget):
         for key, command, start, _width in self.items():
             disabled = app is not None and not app.command_enabled(command)
             label = self.part_style("label", disabled=disabled)
-            name = key_label(key)
+            name = _shown(key)
             surface.draw_text(start, 0, " ", label)
             surface.draw_text(
                 start + 1, 0, name, self.part_style("key", disabled=disabled)
@@ -75,6 +94,8 @@ class KeyBar(Widget):
 
         Claimed wherever it lands, so that a click on a greyed item or on the
         empty end of the line does not fall through to what is behind it.
+        While a modifier is held the row is that modifier's, and so is what a
+        click on it runs.
         """
         if event.action != "press" or event.button != "left":
             return False
@@ -84,3 +105,8 @@ class KeyBar(Widget):
                 await app.run_command(command)
                 break
         return True
+
+
+def _shown(key: str) -> str:
+    """How an item spells its key: ``"alt+f6"`` is ``F6``, as ``~F6~`` was."""
+    return key_label(key.rsplit("+", 1)[-1])

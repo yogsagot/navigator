@@ -227,5 +227,21 @@ class PasteEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
+class ModifiersEvent(Event):
+    """The set of modifier keys held down changed.
+
+    *modifiers* is what is held now -- some of ``ctrl``, ``alt`` and
+    ``shift`` -- not what changed.  Only a terminal speaking the kitty keyboard
+    protocol reports a bare modifier or a release, so on any other this never
+    arrives and :attr:`Application.modifiers` stays empty.  The parser owns
+    the state and raises this only when it moves; the application turns it
+    into that reactive attribute and dispatches it no further.  See *The held
+    modifier: the kitty keyboard protocol* in ``navkit/DESIGN.md``.
+    """
+
+    modifiers: frozenset[str] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
 class WakeEvent(Event):
     """Internal: wakes the event loop so it can repaint or shut down."""

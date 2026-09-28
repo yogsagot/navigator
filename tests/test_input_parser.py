@@ -173,3 +173,103 @@ def test_key_events_carry_their_text(parser):
     assert isinstance(event, KeyEvent)
     assert (event.key, event.char, event.shift) == ("a", "A", True)
     assert event.is_printable
+
+# -- the kitty keyboard protocol ---------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("kitty", "legacy"),
+    [
+        (b"\x1b[97u", b"a"),
+        (b"\x1b[97;;97u", b"a"),
+        (b"\x1b[97:65;2;65u", b"A"),
+        (b"\x1b[49:33;2;33u", b"!"),
+        (b"\x1b[32;;32u", b" "),
+        (b"\x1b[97;5u", b"\x01"),
+        (b"\x1b[113;7u", b"\x1b\x11"),
+        (b"\x1b[120;3u", b"\x1bx"),
+        (b"\x1b[120:88;4u", b"\x1bX"),
+        (b"\x1b[32;5u", b"\x00"),
+        (b"\x1b[13u", b"\r"),
+        (b"\x1b[9u", b"\t"),
+        (b"\x1b[9;2u", b"\x1b[Z"),
+        (b"\x1b[127u", b"\x7f"),
+        (b"\x1b[P", b"\x1bOP"),
+        (b"\x1b[1;5:1P", b"\x1b[1;5P"),
+        (b"\x1b[15;3:2~", b"\x1b[15;3~"),
+        (b"\x1b[24~", b"\x1b[24~"),
+        (b"\x1b[57399u", b"0"),
+        (b"\x1b[57414u", b"\r"),
+    ],
+)
+def test_a_kitty_key_is_the_same_event_as_its_legacy_form(kitty, legacy):
+    legacy_parser = InputParser()
+    want = legacy_parser.feed(legacy) + legacy_parser.flush()
+    # A kitty key also says what is held, which is a ModifiersEvent beside it.
+    got = [e for e in InputParser().feed(kitty) if isinstance(e, KeyEvent)]
+    assert got == want
+
+
+def test_the_kitty_escape_key_needs_no_timeout(parser):
+    assert parser.feed(b"\x1b[27u") == [KeyEvent("escape")]
+    assert not parser.pending_escape
+
+
+def test_a_released_key_is_not_a_key(parser):
+    assert parser.feed(b"\x1b[97;1:3u\x1b[15;1:3~") == []
+
+
+def test_a_bare_modifier_moves_the_held_set_and_nothing_else(parser):
+    from navkit.events import ModifiersEvent
+
+    assert parser.feed(b"\x1b[57443;3u") == [ModifiersEvent(frozenset({"alt"}))]
+    # A repeat of a held key changes nothing, so says nothing.
+    assert parser.feed(b"\x1b[57443;3:2u") == []
+    assert parser.feed(b"\x1b[57442;7u") == [ModifiersEvent(frozenset({"alt", "ctrl"}))]
+    assert parser.feed(b"\x1b[57443;5:3u") == [ModifiersEvent(frozenset({"ctrl"}))]
+    assert parser.feed(b"\x1b[57448;1:3u") == [ModifiersEvent(frozenset())]
+    # Super is reported and ignored.
+    assert parser.feed(b"\x1b[57444;9u") == []
+
+
+def test_a_kitty_key_corrects_a_release_that_went_missing(parser):
+    from navkit.events import ModifiersEvent
+
+    parser.feed(b"\x1b[57441;2u")
+    assert parser.modifiers == {"shift"}
+    assert parser.feed(b"\x1b[97u") == [ModifiersEvent(frozenset()), KeyEvent("a", "a")]
+
+
+def test_losing_the_focus_forgets_what_was_held(parser):
+    from navkit.events import ModifiersEvent
+
+    parser.feed(b"\x1b[57443;3u")
+    assert parser.feed(b"\x1b[I") == []
+    assert parser.feed(b"\x1b[O") == [ModifiersEvent(frozenset())]
+    assert parser.feed(b"\x1b[O") == []
+
+
+def test_legacy_input_never_holds_a_modifier(parser):
+    # A legacy Ctrl+F5 is followed by no release, so believing it would leave
+    # Ctrl held for good.
+    assert names(parser.feed(b"\x1b[15;5~\x1b[1;3P\x1bx")) == ["ctrl+f5", "alt+f1", "alt+x"]
+    assert parser.modifiers == frozenset()
+
+
+@pytest.mark.parametrize(
+    ("data", "expected"),
+    [
+        (b"\x1bO5R", ["ctrl+f3"]),
+        (b"\x1bO5S", ["ctrl+f4"]),
+        (b"\x1bO2P", ["shift+f1"]),
+        (b"\x1bO1;3Q", ["alt+f2"]),
+        (b"\x1bOP", ["f1"]),
+    ],
+)
+def test_ss3_carries_a_modifier_too(parser, data, expected):
+    assert names(parser.feed(data)) == expected
+
+
+def test_a_split_ss3_modifier_waits_for_its_final_byte(parser):
+    assert parser.feed(b"\x1bO5") == []
+    assert names(parser.feed(b"R")) == ["ctrl+f3"]

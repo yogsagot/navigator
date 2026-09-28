@@ -74,7 +74,8 @@ def test_a_terminal_that_is_not_a_tty_gets_nothing():
     """
     info = TerminalInfo.detect({"TERM": "xterm-256color"}, is_tty=False)
     assert info.colors == MONOCHROME
-    assert not any((info.alt_screen, info.mouse, info.bracketed_paste, info.title))
+    assert not any((info.alt_screen, info.mouse, info.bracketed_paste, info.title,
+                    info.kitty_keyboard))
 
 
 def test_a_dumb_terminal_keeps_its_scrollback():
@@ -269,6 +270,34 @@ def test_start_asks_for_everything_when_it_can():
     terminal, out = _terminal()
     terminal.start()
     assert all(code in out.getvalue() for code in ("?1049h", "?1000h", "?2004h"))
+
+
+def test_the_kitty_keyboard_protocol_is_pushed_and_popped():
+    terminal, out = _terminal()
+    terminal.start()
+    written = out.getvalue()
+    assert "\x1b[>31u" in written and "\x1b[?1004h" in written
+    terminal.stop()
+    restored = out.getvalue()[len(written):]
+    assert "\x1b[<u" in restored and "\x1b[?1004l" in restored
+
+    terminal, out = _terminal(kitty_keyboard=False)
+    terminal.start()
+    terminal.stop()
+    assert ">31u" not in out.getvalue() and "<u" not in out.getvalue()
+
+
+@pytest.mark.parametrize(
+    ("env", "expected"),
+    [
+        ({"TERM": "xterm"}, True),
+        ({"TERM": "xterm", "NAVKIT_KEYBOARD": "legacy"}, False),
+        ({"TERM": "dumb"}, False),
+        ({"TERM": "dumb", "NAVKIT_KEYBOARD": "kitty"}, True),
+    ],
+)
+def test_navkit_keyboard_overrides_the_protocol(env, expected):
+    assert TerminalInfo.detect(env, is_tty=True).kitty_keyboard is expected
 
 
 def test_a_caller_may_decline_a_supported_feature():

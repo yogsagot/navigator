@@ -543,10 +543,11 @@ forward. The two differ in **where they live**, and every other difference follo
   line keeps first refusal. They are one table of `navml.commands`, checked against DOS Navigator's own *Window*
   menu: Ctrl+F5 `SizeMoveWindow`, Alt+Z `ZoomWindow`, Ctrl+F4 `CloseWindow`. The original's Next and Previous are
   Alt+Tab and Ctrl+Tab, which a terminal cannot deliver (the window manager takes one, the other arrives as Tab),
-  so `NextWindow` and `PreviousWindow` keep Ctrl+F6 and Ctrl+Shift+F6. `Desktop.enables` vetoes zoom and close for
+  so `NextWindow` and `PreviousWindow` take F9 and Shift+F9, where every one of DOS Navigator's status lines binds
+  `cmNext` and `cmPrev`. `Desktop.enables` vetoes zoom and close for
   a window that refuses them. Turbo Vision's plain F5 and F6 are Copy and RenMov in DOS
-  Navigator's panels, which is why two of these carry a modifier; **they are still to be checked against DOS
-  Navigator's own window menu in `DN.DNR`**, and the table is where that check will land.
+  Navigator's panels, which is why Size/Move carries a modifier; the table has now been checked against both the
+  window menu and the `StatusDef`s in `DN.DNR`.
 - **An emptied desktop says so** with `EmptiedEvent`, whose handler name makes the generator's stub for a child with
   id `desktop` read `on_desktop_emptied` — the name was chosen for that. The event is emitted from a spawned task
   because closing is synchronous and emitting is not, so a key in the same batch as the close still meets the old
@@ -651,8 +652,7 @@ document, `--check` covers it, and giving a feature its entry is one `command:` 
   Edit, Copy, Rename/Move, Delete and User menu, which have classes but no handlers yet. Everything else is greyed.
 - **An entry's key is read off the key tables**, through `navkit.commands.key_for`. `key:` holds the original's
   caption and is shown only while nothing binds the command. So Make directory shows `F7` because F7 asks for it,
-  and Calculator shows the original's `Ctrl-F6` although that key moves between windows here. This mismatch is real,
-  and the entry is honest about it only once it has a command.
+  and Window › Next shows `F9` where the original's menu said `Alt-Tab`, because F9 is what asks for it here.
 
 ### An open menu is a modal layer
 
