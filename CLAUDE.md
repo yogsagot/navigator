@@ -352,6 +352,10 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
+- Regenerate the README screenshot: `./venv/bin/python tools/screenshot.py` paints the desktop headless (pinned
+  directory, clock and console) and writes `docs/screenshot.svg` plus the text copy between the README's
+  `<!-- screenshot:begin/end -->` markers; `--check` exits 1 when either is stale, `--theme`/`--size` pick the scene.
+  The README links the SVG by absolute `raw.githubusercontent.com` URL because PyPI renders the same README
 - Regenerate a component's Python from its markup: **`./venv/bin/python -m navml build navml navigator`** — both
   component packages, and naming them is necessary because the no-argument form builds the installed `navml` package
   alone, which is the edit-in-site-packages workflow rather than this repository's. `--check` reports markup that no
