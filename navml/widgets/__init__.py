@@ -64,6 +64,8 @@ _COMPONENTS = {
     "TreeView": "dialog.tree_view",
     "VerticalLayout": "layout.vertical_layout",
     "Window": "window",
+    "WindowList": "window_list",
+    "WindowManagerDialog": "window_manager",
 }
 
 __all__ = sorted(_COMPONENTS)
@@ -141,3 +143,5 @@ if TYPE_CHECKING:
     from navml.widgets.timer import Timer
     from navml.widgets.layout.vertical_layout import VerticalLayout
     from navml.widgets.window import Window
+    from navml.widgets.window_list import WindowList
+    from navml.widgets.window_manager import WindowManagerDialog

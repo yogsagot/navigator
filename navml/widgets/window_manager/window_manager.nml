@@ -1,0 +1,71 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.window_list import WindowList
+
+#: Window > List (Alt+0): DOS Navigator's *Windows Manager*.
+#:
+#: Every rectangle is ``dlgWindowManager``'s in ``DN.DNR``, a 70 by 14 dialog,
+#: and the three ``WindowManager`` inserts beside it in ``COLORS.PAS``: the
+#: ``~W~indows`` label over the list, the list from column 2 to the scroll bar
+#: at column 57, and the buttons in a column on the right, ten wide.  The list
+#: has no frame of its own and its scroll bar is its last column, which is
+#: where the original's stood.  ``Dialog``'s own row of buttons along the
+#: bottom is not this dialog's, and the hand-written half hides it.
+WindowManagerDialog(Dialog):
+    modal_width: 70
+    modal_height: 14
+    title: "Windows Manager"
+
+    Label:
+        id: caption
+        text: "~W~indows"
+        link: windows
+        x: 2
+        y: 2
+        width: 43
+        height: 1
+
+    WindowList:
+        id: windows
+        framed: False
+        x: 2
+        y: 3
+        width: 56
+        height: 9
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 58
+        y: 3
+        width: 10
+        height: 2
+
+    #: ``cmNo``: the selected window closes and the dialog stays up.
+    Button:
+        id: shut
+        text: "C~l~ose"
+        x: 58
+        y: 5
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 58
+        y: 7
+        width: 10
+        height: 2
+
+    #: Help has no handler anywhere yet, so the button is shown and disabled.
+    Button:
+        id: helper
+        text: "~H~elp"
+        disabled: True
+        x: 58
+        y: 11
+        width: 10
+        height: 2

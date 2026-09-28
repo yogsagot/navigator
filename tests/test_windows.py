@@ -312,6 +312,41 @@ def test_keyboard_move_mode_moves_resizes_and_escape_undoes(desk):
     assert win.x == 9 and app.focused is win.inner
 
 
+def test_a_window_with_nothing_to_focus_holds_the_keyboard_itself(desk):
+    # With no focus at all a key reaches no widget, so the desktop's window
+    # keys would be dead while such a window is on top.
+    app, desktop = desk
+    first = desktop.open(window(0, 0, 30, 10))
+    bare = desktop.open(Window(x=10, y=5, width=30, height=10))
+    assert app.focused is bare
+    handle(app, KeyEvent("f9"))                    # Next window still works from it
+    assert desktop.active_window is first and app.focused is first.inner
+    handle(app, KeyEvent("f9"))
+    assert app.focused is bare                     # and it gets the keyboard back
+    handle(app, KeyEvent("f4", ctrl=True))         # as does Close
+    assert bare.parent is None and app.focused is first.inner
+
+
+def test_a_bare_window_keeps_the_keyboard_through_move_mode(desk):
+    app, desktop = desk
+    bare = desktop.open(Window(x=10, y=5, width=30, height=10))
+    handle(app, KeyEvent("f5", ctrl=True), KeyEvent("right"), KeyEvent("enter"))
+    assert bare.x == 11 and not bare.moving
+    assert app.focused is bare and bare.can_focus
+    handle(app, KeyEvent("f5", ctrl=True), KeyEvent("escape"))
+    assert app.focused is bare
+
+
+def test_a_window_that_gains_a_control_hands_it_the_keyboard(desk):
+    app, desktop = desk
+    first = desktop.open(window(0, 0, 30, 10))
+    bare = desktop.open(Window(x=10, y=5, width=30, height=10))
+    bare.inner = Focusable(parent=bare, x=1, y=1, width=5, height=1)
+    desktop.activate(first)
+    desktop.activate(bare)
+    assert app.focused is bare.inner and not bare.can_focus
+
+
 # -- Modal -------------------------------------------------------------------
 
 

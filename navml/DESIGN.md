@@ -530,6 +530,11 @@ forward. The two differ in **where they live**, and every other difference follo
 - **The focus moves with the activation, in the same call.** Each window remembers what had the keyboard when it went
   to the back, and `Desktop.activate()` gives it back — so Ctrl+O's return and a click on a background window both
   land on exactly the widget that had it. Not from an effect, for `toggle_console`'s reason.
+- **A window with nothing focusable holds the keyboard itself** (`Window.take_keyboard`), as a `TWindow` was the
+  selected view when it had nothing else to select. Leaving the focus at None would mean no widget is offered a
+  key, so the window's own key table and the desktop's window keys would stop working while it was on top. The
+  fallback is decided again on every activation, and a window that has since gained a control hands that control
+  the keyboard. Keyboard move mode keeps the window holding the keyboard when it ends.
 - **The first click on a background window is delivered, not swallowed**, as in Turbo Vision: it activates the
   window and then reaches the child under it, so one click selects the other file manager *and* moves its cursor. The
   exception is the chrome: an inactive window does not paint its icons, so it cannot be closed by a click on where
@@ -557,6 +562,21 @@ forward. The two differ in **where they live**, and every other difference follo
   when a window opens behind it. That used to be a check inside Manager > New alone, so Disk > Directory tree opened a
   window nobody could see until Ctrl+O. **Revealing a window belongs to opening it, not to the command that asked**,
   so a plugin opening one gets the same behaviour for free. Nothing is announced while the tree is being built.
+- **Window › List (Alt+0) is DOS Navigator's *Windows Manager*.** It is `cmWindowManager`, run by `WindowManager` in
+  `COLORS.PAS`, with its dialog `dlgWindowManager` from `DN.DNR`: 70x14, a `~W~indows` label, the list from
+  column 2 to the scroll bar at 57, and OK, Close, Cancel and Help ten wide down the right. Help is disabled
+  because nothing handles it yet. `navml/widgets/window_manager/` is the dialog, and `navml/widgets/window_list/`
+  is `TWindowList`, a `ListViewer` whose items are the windows themselves, top first.
+  - **A row is `Window.list_name()`**, which stands in for `cmGetName`. It defaults to the title, and an empty
+    name keeps a window out of the list, which is what the original did.
+  - `Manager` names itself after its active panel's directory, because the double window forwarded `cmGetName` to
+    its panel. **The names are read when a window enters the list, not while painting**, because while the dialog
+    is up the focus is in the dialog, and "which panel is active" is a question the focus answers. A background
+    manager answers from `_saved_focus`, which is what it will get back.
+  - **Close stays in the dialog.** The original looped: it freed the window, listed the desktop again and ran the
+    dialog again. The last window closing ends it.
+  - **OK activates only once the modal is down**, so the keyboard goes to the chosen window. `Desktop.activate`
+    under a modal raises the window and leaves the focus where it is.
 
 ### Layouts
 

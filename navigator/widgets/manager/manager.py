@@ -163,6 +163,23 @@ class Manager(Window):
             return self.right if replaced is self.left else self.left
         return self.right if self.right.focused else self.left
 
+    def list_name(self) -> str:
+        """The active panel's directory: what the window list shows for this window.
+
+        DOS Navigator's double window passed ``cmGetName`` on to its panel.
+        A window in the background has lost the keyboard, so which panel was
+        active is read off what it will get back, not off the focus.
+        """
+        app = self.application
+        saved = self._saved_focus
+        if (
+            self.tree_replaces is None
+            and not (app is not None and self._holds(app.focused))
+            and saved in (self.left, self.right)
+        ):
+            return str(saved.path)
+        return str(self.active_panel.path)
+
     def switch_panel(self) -> None:
         """Move the keyboard to the other panel, or between panel and tree."""
         if self.tree_replaces is not None:

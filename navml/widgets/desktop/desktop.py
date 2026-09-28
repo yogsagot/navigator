@@ -37,6 +37,7 @@ from navml.commands import (
     NextWindow,
     PreviousWindow,
     SizeMoveWindow,
+    WindowManager,
     ZoomWindow,
 )
 from navml.widgets.window import Window
@@ -66,7 +67,8 @@ class Desktop(Widget):
     #: which a terminal cannot deliver -- the window manager takes the one, and
     #: the other arrives as a plain Tab -- so they take the keys its status
     #: lines bind ``cmNext`` and ``cmPrev`` to everywhere, F9 and Shift-F9.
-    #: That leaves Ctrl-F6 for DOS Navigator's Calculator.  Consulted after the
+    #: That leaves Ctrl-F6 for DOS Navigator's Calculator.  Alt-0 is the same
+    #: menu's *List*, ``cmWindowManager``.  Consulted after the
     #: active window's own children, because this desktop is further from the
     #: focus than they are.
     keys = {
@@ -75,6 +77,7 @@ class Desktop(Widget):
         "f9": NextWindow,
         "shift+f9": PreviousWindow,
         "ctrl+f4": CloseWindow,
+        "alt+0": WindowManager,
     }
 
     #: The top window, which has the keyboard.  None on an empty desktop.
@@ -136,15 +139,14 @@ class Desktop(Widget):
             # A modal is up: the window comes forward, the keyboard stays.
             return
         saved = window._saved_focus
+        if saved is window and window._holds_keyboard:
+            # Held only for want of anything else: ask again, in case there is.
+            saved = None
         if saved is not None and saved.is_mounted and window._holds(saved) and saved.focus():
             return
         if window._holds(app.focused):
             return
-        order = window.focusable()
-        if order:
-            order[0].focus()
-        else:
-            app.focused = None
+        window.take_keyboard()
 
     def close_window(self, window: Window) -> None:
         """Take *window* off, and give the keyboard to the one under it."""
@@ -205,25 +207,28 @@ class Desktop(Widget):
         self.previous_window()
         return True
 
+    async def on_window_manager(self, event: WindowManager) -> bool:
+        # Started, not awaited: a handler that waits for a dialog holds the
+        # loop that would paint it.
+        self.spawn(self.window_manager())
+        return True
+
+    async def window_manager(self) -> None:
+        """Alt+0: *Windows Manager*, and the window chosen in it comes forward.
+
+        Activated only once the dialog is down, so the keyboard goes to the
+        window rather than staying with the modal.  With no window worth
+        listing nothing opens, as in ``COLORS.PAS``.
+        """
+        from navml.widgets.window_manager import WindowManagerDialog
+
+        dialog = WindowManagerDialog(desktop=self)
+        if not dialog.windows.items:
+            return
+        chosen = await dialog.execute(self.application)
+        if chosen is not None and chosen in self.windows():
+            self.activate(chosen)
+
     async def on_close_window(self, event: CloseWindow) -> bool:
         self.active_window.close()
         return True
-        for spec, action in WINDOW_KEYS.items():
-            if not event.matches(spec):
-                continue
-            if action == "move":
-                window.begin_move()
-            elif action == "zoom":
-                if not window.zoomable:
-                    return False
-                window.toggle_zoom()
-            elif action == "next":
-                self.next_window()
-            elif action == "previous":
-                self.previous_window()
-            elif action == "close":
-                if not window.closable:
-                    return False
-                window.close()
-            return True
-        return False

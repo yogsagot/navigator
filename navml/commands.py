@@ -49,6 +49,15 @@ class PreviousWindow(Command):
     """Bring the previous window forward."""
 
 
+class WindowManager(Command):
+    """List the windows on the desktop, to switch to one or close one.
+
+    DOS Navigator's ``cmWindowManager``, Window > List (Alt-0).
+    """
+
+    title = "List"
+
+
 class Cancel(Command):
     """Dismiss a dialog without an answer."""
 
@@ -88,5 +97,6 @@ __all__ = [
     "SelectNext",
     "SelectPrevious",
     "SizeMoveWindow",
+    "WindowManager",
     "ZoomWindow",
 ]

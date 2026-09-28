@@ -72,6 +72,10 @@ stay the first one. **Disk > Directory tree opens `TTreeWindow`** (`navigator/wi
 window on the desktop in the dialog palette, Esc closes it, and Enter sends the file manager's active panel there
 (the tree's `ChosenEvent` bubbles to `Shell`). DOS Navigator 1.51 defined that window but never opened it; its menu
 entry opened a second file manager instead -- taking the window was a choice, recorded in *Trees*.
+**Window > List (Alt+0) is DOS Navigator's *Windows Manager*** (`cmWindowManager`, `dlgWindowManager`;
+`navml/widgets/window_manager/` and `window_list/`): the desktop's windows top first, named by
+`Window.list_name()` (`cmGetName`; a file manager is its active panel's directory), OK switches and Close closes
+while the dialog stays up. *Windows, the desktop and the modal* in `navml/DESIGN.md` has the rest.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

@@ -87,6 +87,9 @@ class Window(Widget):
         #: What had the keyboard when this window last stopped being active.
         #: Kept and restored by the desktop.
         self._saved_focus: Widget | None = None
+        #: Whether ``can_focus`` is on only because nothing inside can take
+        #: the keyboard -- see :meth:`take_keyboard`.
+        self._holds_keyboard = False
 
     # -- where it lives ------------------------------------------------------
 
@@ -100,6 +103,39 @@ class Window(Widget):
     def active(self) -> bool:
         """Whether this is the desktop's top window.  The ``:active`` state."""
         return getattr(self.parent, "active_window", None) is self
+
+    def take_keyboard(self) -> None:
+        """Give the keyboard to the first control inside, or hold it here.
+
+        **A window with nothing focusable holds the keyboard itself**, as a
+        Turbo Vision ``TWindow`` was the selected view when it had nothing
+        else to select.  Left with no focus at all, a key would reach no
+        widget -- not this window's own key table, not the desktop's window
+        keys -- and the only ways out would be the mouse and the application's
+        table.  Decided again on every activation, so a window that has since
+        gained a control hands it the keyboard instead.
+        """
+        app = self.application
+        if app is None:
+            return
+        if self._holds_keyboard:
+            self._holds_keyboard = False
+            self.can_focus = False
+        order = self.focusable()
+        if order:
+            order[0].focus()
+            return
+        self._holds_keyboard = True
+        self.can_focus = True
+        self.focus()
+
+    def list_name(self) -> str:
+        """What the window list calls this window: DOS Navigator's ``cmGetName``.
+
+        The title, unless a window knows better.  An empty name keeps a window
+        out of the list altogether, as it did in the original.
+        """
+        return self.title
 
     def _bounds(self) -> tuple[int, int]:
         parent = self.parent
@@ -363,17 +399,12 @@ class Window(Widget):
         self._key_move = None
         if not keep:
             self.x, self.y, self.width, self.height = rect
-        if previous is not None and previous.is_mounted and self._holds(previous):
+        if previous is not None and previous is not self and previous.is_mounted and self._holds(previous):
             previous.focus()
-        else:
-            order = self.focusable()
-            others = [widget for widget in order if widget is not self]
-            if others:
-                others[0].focus()
-        self.can_focus = False
-        app = self.application
-        if app is not None and app.focused is self:
-            app.focused = None
+            self.can_focus = self._holds_keyboard
+            return
+        self.can_focus = self._holds_keyboard
+        self.take_keyboard()
 
     async def on_key(self, event: KeyEvent) -> bool:
         if self._key_move is None:

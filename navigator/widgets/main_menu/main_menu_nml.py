@@ -14,7 +14,7 @@ from typing import Any as _Any
 
 from navml.component import Component as _Component
 from navigator.commands import Calculator, ChangeDirectory, Copy, Delete, Edit, MakeDirectory, NewManager, OpenTreeWindow, Quit, RenameMove, Rescan, ToggleConsole, ToggleTree, UserMenu, View    # main_menu.nml:1
-from navml.commands import CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, ZoomWindow    # main_menu.nml:2
+from navml.commands import CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, WindowManager, ZoomWindow    # main_menu.nml:2
 from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:3
 from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:4
 from navml.widgets.menu.menu_line import MenuLine    # main_menu.nml:5
@@ -643,4 +643,5 @@ class MainMenu(MenuBar, _Component):
         _w160.key = 'Ctrl-F4'    # main_menu.nml:459
 
         _w162.text = '~L~ist...'    # main_menu.nml:462
-        _w162.key = 'Alt-0'    # main_menu.nml:463
+        _w162.command = WindowManager    # main_menu.nml:463
+        _w162.key = 'Alt-0'    # main_menu.nml:464
