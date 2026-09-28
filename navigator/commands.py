@@ -77,6 +77,25 @@ class ToggleConsole(Command):
     """Ctrl+O: put the windows away to show the console, or bring them back."""
 
 
+class ExecuteCommandLine(Command):
+    """Enter with something on the command line: run it.
+
+    DOS Navigator's ``cmExecCommandLine``, which the panel's own Enter sent
+    first and fell back from when the line was blank (``FLPANELX.PAS``).
+    Here that is a key table's rule rather than the panel's: bound on the
+    application, so it is asked before the panel sees Enter, and disabled
+    while the line is empty, so the key falls through to the panel.
+    """
+
+
+class CommandLineHome(Command):
+    """Home with something on the command line: to its start, not the list's top."""
+
+
+class CommandLineEnd(Command):
+    """End with something on the command line: to its end, not the list's bottom."""
+
+
 class SwitchPanel(Command):
     """Tab: move the keyboard to the other panel."""
 
@@ -251,7 +270,10 @@ __all__ = [
     "ChangeDrive",
     "DeleteSingle",
     "DiskInfo",
+    "CommandLineEnd",
+    "CommandLineHome",
     "EditNamed",
+    "ExecuteCommandLine",
     "ExtractArchive",
     "FastRename",
     "FindFile",

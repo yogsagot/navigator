@@ -38,6 +38,7 @@ _WIDGETS = {
     "AboutDialog": "about_dialog",
     "ChangeDirDialog": "change_dir_dialog",
     "Clock": "clock",
+    "CommandLine": "command_line",
     "Console": "console",
     "DirEntry": "panel",
     "DirectoryTree": "directory_tree",
@@ -73,6 +74,7 @@ if TYPE_CHECKING:
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.change_dir_dialog import ChangeDirDialog
     from navigator.widgets.clock import Clock
+    from navigator.widgets.command_line import CommandLine
     from navigator.widgets.console import Console
     from navigator.widgets.directory_tree import DirectoryTree
     from navigator.widgets.keybar import KeyBar

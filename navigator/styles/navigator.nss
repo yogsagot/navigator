@@ -148,6 +148,15 @@ InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-norma
 InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg }
 InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg }
 InputLine::arrow      { fg: $dialog-input-arrow-fg;      bg: $dialog-input-arrow-bg }
+
+/* The command line is the one rule here with colours in it rather than
+   variables, because DOS Navigator had no slot for it either:
+   `TCommandLine.Draw' writes the prompt in $0F and the text in $07, bright
+   white and light grey on black, whatever the palette (CMDLINE.PAS).  Every
+   theme is a transcription of a `.PAL', and a `.PAL' never carried these. */
+CommandLine            { fg: light_gray; bg: black }
+CommandLine::prompt    { fg: white }
+CommandLine::selection { fg: black; bg: light_gray }
 /* The history button, [53] and [54]; and the list it drops, which Turbo
    Vision's CHistoryWindow draws in the input line's own colours -- frame and
    rows [50], the selected row [51] -- with a scroll bar of its own, [55] and

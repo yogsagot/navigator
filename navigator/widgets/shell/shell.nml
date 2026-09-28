@@ -1,4 +1,5 @@
 from navigator.widgets.clock import Clock
+from navigator.widgets.command_line import CommandLine
 from navigator.widgets.console import Console
 from navigator.widgets.keybar import KeyBar
 from navigator.widgets.main_menu import MainMenu
@@ -6,7 +7,7 @@ from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 
 #: The Navigator screen: menu bar and clock, the console, the desktop over it,
-#: key bar.
+#: the command line, key bar.
 #:
 #: The band between the two bars holds two layers, and the order of the
 #: children is the whole of how they stack.  The console is the bottom one and
@@ -21,6 +22,11 @@ from navml.widgets.layout.dock_layout import DockLayout
 #: *fill*, which a dock layout gives them as one shared rectangle -- it places
 #: every fill after every edge, so the key bar can come last in the child
 #: order, and so last in the paint, and still be carved off first.
+#:
+#: The command line docks after the key bar, which is what puts it on the row
+#: above it: edges are carved in child order, so the key bar takes the last
+#: row and the line the one left at the bottom.  DOS Navigator's
+#: ``InitCommandLine`` put it there, and gave up that row from the desktop.
 Shell(DockLayout):
     #: Whether Ctrl+O has put the windows away.  One flag that the desktop's
     #: ``visible`` line reads, which is the whole of Ctrl+O.
@@ -50,6 +56,15 @@ Shell(DockLayout):
 
     KeyBar:
         id: keybar
+        style:
+            dock: bottom
+            basis: 1
+
+    #: ``TCommandLine``.  Never focused: the keys a window declines walk up
+    #: to this screen, which hands them to it.
+    CommandLine:
+        id: command_line
+        prompt: parent.command_prompt
         style:
             dock: bottom
             basis: 1

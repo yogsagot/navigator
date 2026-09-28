@@ -1,7 +1,8 @@
 """The handlers behind ``shell.nml``.
 
-What the document says is the two bars and the two layers between them; what
-is left here is opening the file manager on the desktop, and Ctrl+O.
+What the document says is the two bars, the command line and the two layers
+between them; what is left here is opening the file manager on the desktop,
+Ctrl+O, and running what is typed on the command line.
 
 This file never names the generated class.  ``class Shell(DockLayout)`` is
 what a Python-only widget would say too, and it is the base the markup's
@@ -13,12 +14,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.commands import Command
 from navkit.events import Event, KeyEvent
+from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
+from navml.history import HISTORY
 
-from navigator.commands import About, NewManager, OpenTreeWindow
+from navigator.commands import About, CommandLineEnd, CommandLineHome
+from navigator.commands import ExecuteCommandLine, NewManager, OpenTreeWindow
+from navigator.subshell import CommandFinished
+from navigator.widgets.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
@@ -47,6 +54,10 @@ class Shell(DockLayout):
         """
         super().__init__(stylesheet=scheme or default_scheme(), **kwargs)
         self.console.cwd = left
+        self.console.subshell.on_finished = self._command_finished
+        #: Whether the console was put up by a command rather than by Ctrl+O,
+        #: and so is to be taken down again when the command is done.
+        self._shown_for_command = False
         #: The file manager window.  Kept after it is closed, for whoever asks
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
@@ -103,14 +114,137 @@ class Shell(DockLayout):
         return True
 
     async def on_key(self, event: KeyEvent) -> bool:
-        """Alt+letter drops the menu whose caption carries that letter.
+        """Alt+letter drops a menu; anything else is typed on the command line.
 
         Reached only by a key that everything nearer the keyboard declined,
-        so a dialog's Alt+letter walk and the console's child both come
-        first: the console sends Meta+F to its program, as DOS Navigator's
-        user screen would have.
+        so a dialog's Alt+letter walk and a running program both come first:
+        the console sends Meta+F to its program, as DOS Navigator's user
+        screen would have.  What is left once the menu has passed is what
+        ``TCommandLine`` got by being ``ofPostProcess`` -- the printable
+        characters and the editing keys a panel has no use for.
         """
-        return await self.menu.open_hotkey(event)
+        if await self.menu.open_hotkey(event):
+            return True
+        return await self.command_line.on_key(event)
+
+    # -- the command line ------------------------------------------------------
+
+    @computed
+    def command_prompt(self) -> str:
+        """``<directory>>``: where the file manager in front is, as ``GetDir`` said.
+
+        DOS Navigator's prompt was the process's current directory, which a
+        focused panel kept equal to its own.  A command runs in the active
+        panel's directory here, so the prompt says that one.  With no file
+        manager open it is where the shell last was.
+        """
+        window = self.desktop.active_window
+        manager = window if isinstance(window, Manager) else self.active_manager
+        if manager is not None:
+            return f"{manager.active_panel.path}>"
+        where = self.console.subshell.cwd or self.console.cwd
+        return f"{where}>" if where is not None else ">"
+
+    def _command_directory(self) -> Path | None:
+        manager = self.active_manager
+        if manager is not None:
+            return manager.active_panel.path
+        return self.console.subshell.cwd or self.console.cwd
+
+    def enables(self, command: Command) -> bool:
+        """Enter, Home and End are the command line's only while it has text.
+
+        And Enter only while no command is running: the program has the keys
+        then, and a second command would be typed at it.
+        """
+        if isinstance(command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd)):
+            if not self.command_line.value.strip():
+                return False
+            if isinstance(command, ExecuteCommandLine):
+                return not self.console.busy
+        return super().enables(command)
+
+    async def on_command_line_home(self, event: CommandLineHome) -> bool:
+        self.command_line.home()
+        return True
+
+    async def on_command_line_end(self, event: CommandLineEnd) -> bool:
+        self.command_line.end()
+        return True
+
+    async def on_execute_command_line(self, event: ExecuteCommandLine) -> bool:
+        """Enter: run the line in the shell, with the console up while it runs.
+
+        The console takes the keyboard for the length of the command, so a
+        program that reads the terminal -- an editor, a pager, a password
+        prompt -- gets what is typed.  The windows come back when the shell
+        reports its prompt, in :meth:`command_finished`.
+        """
+        self.run_command(self.command_line.value)
+        return True
+
+    def run_command(self, command: str) -> None:
+        """Run *command* as though it had been typed on the command line."""
+        if not command.strip():
+            return
+        HISTORY.add(HISTORY_ID, command)
+        self.command_line.clear()
+        cwd = self._command_directory()
+        self._shown_for_command = not self.console_visible
+        if not self.console_visible:
+            self.toggle_console()
+        self.console.focus()
+        self.console.run(command, cwd)
+
+    def _command_finished(self, status: int, cwd: Path | None) -> None:
+        """The shell is back at its prompt: finish in a batch, not in the pty's reader."""
+        app = self.application
+        if app is not None and app.is_running:
+            app.post_event(CommandFinished(status, cwd))
+        else:
+            self.command_finished(status, cwd)
+
+    def command_finished(self, status: int, cwd: Path | None) -> None:
+        """Bring the windows back, and send the panel wherever the shell went.
+
+        DOS Navigator restarted into its panels the moment the command
+        returned and re-read them, and the directory it came back to was the
+        one DOS had kept -- so a ``cd`` on the command line moved the panel.
+        """
+        if self._shown_for_command and self.console_visible:
+            self._shown_for_command = False
+            self.toggle_console()
+        elif self.console_visible:
+            # Still up by Ctrl+O: the keys go back to the command line.
+            self.console.focus()
+        manager = self.active_manager
+        if manager is None:
+            return
+        panel = manager.active_panel
+        if cwd is not None and cwd != panel.path and cwd.is_dir():
+            panel.path = cwd
+        for each in (manager.left, manager.right):
+            each.reload()
+
+    def cursor_position(self) -> tuple[int, int] | None:
+        """The command line's caret, when the keys that fell this far go there.
+
+        Asked because the widget holding the keyboard -- a panel, the idle
+        console -- has no caret of its own, and what it declines is what
+        reaches :meth:`on_key` and so the command line.
+        """
+        line = self.command_line
+        if not line.visible:
+            return None
+        if self.console.busy and self.console.focused:
+            # A program has the keys, and has hidden its cursor or been
+            # scrolled away from: nothing typed now reaches the line.
+            return None
+        position = line.cursor_position()
+        if position is None:
+            return None
+        x, y = position
+        return line.x + x, line.y + y
 
     # -- file managers --------------------------------------------------------
 

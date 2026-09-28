@@ -1113,6 +1113,13 @@ same invisible-ancestor test, and the same answer of "nobody" when nothing holds
 widget that could not receive what is typed into it would be a lie told once per frame, and reusing the walk is what
 makes it impossible rather than merely avoided.
 
+**Then the rest of the focus path, nearest first, and the first answer wins.** This went in with Navigator's command
+line, which is DOS Navigator's `ofPostProcess` `TCommandLine`: it never holds the keyboard, and it gets the printable
+keys because the focused panel declines them and they walk up to the screen that holds the line. Asking only the head
+left the line without a caret while it was being typed into. Walking the path keeps the rule rather than bending it —
+a key the head declines *does* go to the ancestor, so the ancestor's caret is where the keys go — and it costs a widget
+nothing: the default `cursor_position()` is None, so an ancestor with no text field answers exactly as it did.
+
 ### Why it is not called `cursor`
 
 `navigator`'s `Panel` already has one: `cursor: int = reactive(0)`, the row its selection bar is on. A `cursor` on

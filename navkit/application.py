@@ -714,22 +714,27 @@ class Application:
     def _cursor(self) -> tuple[int, int, str] | None:
         """Screen position and shape of the terminal cursor, or None for none.
 
-        **Shown exactly where the keys go.** The widget asked is the one at
-        the head of the focus path -- the same walk :meth:`Widget.dispatch_key`
-        makes, so the same modal, the same visibility test and the same answer
-        of "nobody" when nothing holds the keyboard. A caret on a widget that
+        **Shown exactly where the keys go.** The widgets asked are the ones
+        on the focus path -- the same walk :meth:`Widget.dispatch_key` makes,
+        so the same modal, the same visibility test and the same answer of
+        "nobody" when nothing holds the keyboard. A caret on a widget that
         could not receive what is typed into it would be a lie told once per
         frame.
+
+        **The nearest one with a caret wins**, head first, which is the order
+        a key is offered in. A widget holding the keyboard with no caret of
+        its own -- a list -- declines the printable keys, they walk up, and an
+        ancestor that types them somewhere is where they are really going.
         """
         scope = self.modal or self._root
         if scope is None:
             return None
         path = scope._focus_path()
-        if not path:
-            return None
-        widget = path[0]
-        position = widget.cursor_position()
-        if position is None:
+        for widget in path:
+            position = widget.cursor_position()
+            if position is not None:
+                break
+        else:
             return None
         x, y = position
         if not (0 <= x < widget.width and 0 <= y < widget.height):

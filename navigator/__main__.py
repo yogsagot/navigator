@@ -24,13 +24,15 @@ from pathlib import Path
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.commands import Command
-from navkit.events import MouseClickEvent
+from navkit.events import MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator.commands import CommandLineEnd, CommandLineHome, ExecuteCommandLine
 from navigator.commands import Help, NewManager, Quit, ToggleConsole
+from navigator.subshell import CommandFinished
 from navml.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
@@ -78,6 +80,13 @@ class Navigator(Application):
     #: one, which is what ``Quit(desktop=True)`` and :meth:`enables` say: while
     #: Ctrl+O has put the windows away it is Meta+X for the child.
     #:
+    #: **Enter, Home and End are the command line's while it has text on it**,
+    #: and the panel's otherwise -- ``FLPANELX.PAS`` sent ``cmExecCommandLine``
+    #: from the panel's own Enter and fell back when the line was blank.  They
+    #: are here because this table is asked before the panel is, and the
+    #: command is disabled while the line is empty, which lets the key fall
+    #: through to the list.
+    #:
     #: **Nothing here reaches past a modal**, and nothing here has to say so:
     #: navkit stands the application's table aside while one is up.
     keys = {
@@ -86,6 +95,9 @@ class Navigator(Application):
         "f1": Help,
         "f10": OpenMenu,
         "alt+x": Quit(desktop=True),
+        "enter": ExecuteCommandLine,
+        "home": CommandLineHome,
+        "end": CommandLineEnd,
     }
 
     def enables(self, command: Command) -> bool:
@@ -102,9 +114,35 @@ class Navigator(Application):
         return True
 
     def _console_over_windows(self) -> bool:
-        """Whether Ctrl+O has put windows away to show the console."""
+        """Whether a program on the console has the keys, over the windows.
+
+        Only while a command runs: an idle console is showing output, and
+        what is typed at it goes to the command line, as it would over the
+        panels.
+        """
         shell = self.shell
-        return shell.console_visible and shell.desktop.active_window is not None
+        return (
+            shell.console_visible
+            and shell.console.busy
+            and shell.desktop.active_window is not None
+        )
+
+    async def on_command_finished(self, event: CommandFinished) -> bool:
+        """The command line's command is done: posted from the pty's reader."""
+        self.shell.command_finished(event.status, event.cwd)
+        return True
+
+    async def on_paste(self, event: PasteEvent) -> None:
+        """A paste goes where typing would: the running program, or the command line."""
+        if self.modal is not None:
+            return
+        console = self.shell.console
+        if console.busy:
+            console.subshell.paste(event.text)
+            return
+        text = " ".join(event.text.splitlines())
+        if text:
+            self.shell.command_line.insert(text)
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """The console's scrollback, and nothing else.

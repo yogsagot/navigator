@@ -86,6 +86,23 @@ The home page is an **OSC 8 hyperlink**: `Style.link` is a per-cell URL that `re
 switches cells, exactly as it switches SGR; it is not in `STYLE_FIELDS`, so no sheet can declare one.
 `TerminalInfo.hyperlinks` gates it -- on for any interactive terminal but `TERM=linux`, whose console prints OSC 8's
 tail as text -- and `NAVKIT_HYPERLINKS=on|off` overrides. `StaticText.links` marks the `http(s)://` runs it paints.
+**The command line is DOS Navigator's `TCommandLine`** (`navigator/widgets/command_line/`, a Python-only
+`InputLine`): one row above the key bar, docked after `KeyBar` in `shell.nml`, prompt `<active panel's dir>>`, in the
+hard-coded `$0F`/`$07` the original drew it in (the one literal-colour rule in `navigator.nss`). It **never holds the
+keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which types it there -- DN's
+`ofPostProcess` -- and navkit's `_cursor` now asks the whole focus path, nearest first, so `Shell.cursor_position`
+puts the caret on the line. Enter, Home and End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the
+application's key table, **disabled while the line is empty** so the key falls through to the panel. Esc clears,
+Ctrl+E/Ctrl+X walk `HISTORY["command"]`, a paste lands on it. **Commands run in one persistent `$SHELL`**
+(`navigator/subshell.py`'s `Subshell`, owned by the `Console`): bash and zsh load the user's rc and then a hook,
+anything else runs bash or `sh`. The hook prints private OSC marks (`ESC ] 6973;<nonce>;A|B|D`) that say where the
+prompt is, when a command finished and the shell's `$PWD`. **The shell's own prompt is held back** and painted only
+when a command is sent, so the console log reads `/dir>cmd`, as DN's echo did. The panel's directory reaches the shell
+by a **silent `cd`** (leading space, output swallowed) sent only when the two differ, and a `cd` typed on the line
+moves the active panel when the command finishes (`CommandFinished`, posted from the pty reader to
+`Navigator.on_command_finished`). While a command runs the console is up and holds the keys; afterwards the windows
+come back and both panels re-read, unless Ctrl+O had put the console up, in which case it stays. **An idle console
+takes no keys**: Ctrl+O shows output, and typing still goes to the command line.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 
@@ -355,7 +372,8 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
   what makes Ctrl+O possible at all — install it with `./venv/bin/pip install -r requirements.txt`. Everything else is
   stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
-  arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
+  arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
+  recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw, `--no-dim-modal` stops what is behind a dialog being painted faint
@@ -715,7 +733,9 @@ also the widget that showed why a navigated property is seeded rather than bound
   Ctrl+O rather than Midnight Commander's. `toggle_console` hands the console the keyboard **in the same call that
   flips the flag, never from an effect** — an effect runs after the whole batch is dispatched, so a Ctrl+O and the
   keystroke behind it would be routed by a focus that had not moved yet — and hiding the console again re-activates
-  the top window, which hands the keyboard back to exactly the widget that had it. Closing the last window
+  the top window, which hands the keyboard back to exactly the widget that had it. The console holds the keys only
+  while a command the command line sent is running (`Console.busy`); idle, it declines them and they reach the
+  command line under it. Closing the last window
   (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused, and opening any window (`OpenedEvent`)
   hides the console again so the window is seen -- no command that opens one checks `console_visible` itself. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
   reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
@@ -727,11 +747,11 @@ also the widget that showed why a navigated property is seeded rather than bound
   `on_key`, and the application's table before the tree, never under a modal. **The nearest widget with the
   handler decides whether the command is enabled**, through `enables(command)`, and a command nobody handles is
   disabled. A disabled command's key falls through as if unbound. `Navigator.keys` holds Ctrl+O, F1, F10 (the
-  menu) and Alt+X; `manager.nml` holds Tab, Alt+R/Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
+  menu), Alt+X, and Enter/Home/End for the command line; `manager.nml` holds Tab, Alt+R/Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
   `dialog.nml` holds Esc, Enter and Tab. Navigator's commands are in `navigator/commands.py`, the library's in
   `navml/commands.py`. Alt+X is on the application because a way out cannot live on a window the user can close, and
-  it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while Ctrl+O has put windows away, so the child gets
-  Meta+X. **The key bar reads its captions off the bindings** (`app.bindings()`) and greys a disabled command in
+  it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while a running command's console is over the
+  windows, so the child gets Meta+X. **The key bar reads its captions off the bindings** (`app.bindings()`) and greys a disabled command in
   DOS Navigator's `$bar-disabled` slot; a click on a caption runs its command. **While Alt, Ctrl or Shift is held the
   bar is that modifier's row** (`StatusDef hcFilePanel`'s `-`/`+`/`:` items, bound in `manager.nml`), read off
   the reactive `Application.modifiers`. Only a terminal speaking the kitty keyboard protocol reports a held

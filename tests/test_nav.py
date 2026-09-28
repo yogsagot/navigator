@@ -220,7 +220,8 @@ def test_manager_layout_splits_the_screen():
     assert (manager.right.x, manager.right.width) == (40, 40)
     assert shell.menu.y == 0
     assert shell.keybar.y == 23
-    assert manager.left.height == manager.right.height == 22
+    assert shell.command_line.y == 22
+    assert manager.left.height == manager.right.height == 21
 
 
 def test_manager_layout_survives_an_odd_width():
@@ -237,8 +238,9 @@ def test_the_panels_follow_the_desktop_without_a_layout_method():
     shell.layout(120, 40)
     settle()
     assert (manager.left.width, manager.right.x) == (60, 60)
-    assert manager.left.height == 38
+    assert manager.left.height == 37
     assert shell.keybar.y == 39
+    assert (shell.command_line.y, shell.command_line.width) == (38, 120)
 
 
 # -- the screen is markup ----------------------------------------------------
@@ -264,8 +266,9 @@ def test_the_geometry_in_the_document_is_what_places_the_children():
     assert is_bound(shell.desktop, Panel.visible)
     assert not is_bound(manager, Panel.width)
     assert (manager.left.width, manager.right.x) == (50, 50)
-    assert (shell.console.y, shell.console.height) == (1, 28)
-    assert (shell.keybar.y, shell.desktop.height) == (29, 28)
+    assert (shell.console.y, shell.console.height) == (1, 27)
+    assert (shell.keybar.y, shell.desktop.height) == (29, 27)
+    assert shell.command_line.y == 28
 
 
 def test_the_file_manager_opens_zoomed_on_the_desktop():
@@ -274,7 +277,7 @@ def test_the_file_manager_opens_zoomed_on_the_desktop():
     assert manager.parent is shell.desktop
     assert shell.desktop.active_window is manager
     assert manager.zoomed
-    assert (manager.x, manager.y, manager.width, manager.height) == (0, 0, 80, 22)
+    assert (manager.x, manager.y, manager.width, manager.height) == (0, 0, 80, 21)
 
 
 def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
@@ -659,6 +662,8 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.clock",
         "navigator.widgets.clock.clock",
         "navigator.widgets.clock.clock_nml",
+        "navigator.widgets.command_line",
+        "navigator.widgets.command_line.command_line",
         "navigator.widgets.console",
         "navigator.widgets.console.console",
         "navigator.widgets.directory_tree",   # Ctrl+T, placed by the manager
@@ -691,11 +696,15 @@ def quiet_console(monkeypatch):
 
     Most of what Ctrl+O does has nothing to do with the child: it is which
     widgets paint, and that is worth testing without a process in the way.
-    ``test_the_console_runs_a_real_child`` covers the other half.
+    ``test_the_console_runs_a_real_child`` covers the other half.  A command
+    run with no shell finishes at once, with 127, as a failed start does.
     """
-    monkeypatch.setattr(
-        "navigator.widgets.console.Console.start", lambda self, argv=None: None
-    )
+    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+
+
+def running(app) -> None:
+    """Pretend a command the command line sent is running on the console."""
+    app.shell.console.subshell.busy = True
 
 
 def desktop(app, size=(80, 24)) -> ScreenBuffer:
@@ -747,24 +756,35 @@ def test_the_console_is_the_size_of_the_band_the_panels_shared(tree, quiet_conso
     app = navigator(tree)
     run_app(app, [KeyEvent("o", ctrl=True)])
     console = app.shell.console
-    assert (console.width, console.height) == (80, 22)
+    assert (console.width, console.height) == (80, 21)
     # And the screen behind it was resized to match, without a layout pass.
-    assert (console.screen.columns, console.screen.lines) == (80, 22)
+    assert (console.screen.columns, console.screen.lines) == (80, 21)
 
 
-def test_keys_go_to_the_console_while_it_is_showing(tree, quiet_console):
+def test_keys_go_to_the_program_while_a_command_runs(tree, quiet_console):
     app = navigator(tree)
     typed: list[bytes] = []
     run_app(app, [
         KeyEvent("o", ctrl=True),
+        running,
         lambda a: setattr(a.shell.console, "send",
                           lambda event: typed.append(encode_key(event)) or True),
         KeyEvent("down"),
         KeyEvent("x", "x"),
+        KeyEvent("enter"),
     ])
-    assert typed == [b"\x1b[B", b"x"]
-    # The panel did not also act on them.
+    assert typed == [b"\x1b[B", b"x", b"\r"]
+    # The panel did not also act on them, and nothing reached the line.
     assert app.manager.left.cursor == 0
+    assert app.shell.command_line.value == ""
+
+
+def test_typing_at_the_idle_console_reaches_the_command_line(tree, quiet_console):
+    # Ctrl+O shows output; the prompt the user types at is still the line.
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("l", "l"), KeyEvent("s", "s")])
+    assert app.shell.console_visible is True
+    assert app.shell.command_line.value == "ls"
 
 
 def test_quit_still_works_from_the_console(tree, quiet_console):
@@ -799,20 +819,24 @@ def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
     assert app.manager.left.cursor == 0
 
 
-def test_the_console_runs_a_real_child(tree):
-    """End to end: a program's output really does end up behind the panels."""
+def test_the_console_runs_a_real_child(tree, monkeypatch):
+    """End to end: a command line's output really does end up behind the panels.
+
+    Typed on the line, run by a real shell in the panel's directory, echoed
+    after the prompt the shell printed, and the panels back once it is done.
+    """
+    monkeypatch.setenv("SHELL", "/bin/sh")
     app = navigator(tree)
-
-    def start_child(a):
-        # Started before the toggle, so `toggle_console' finds a child already
-        # running and does not lay a shell over it.
-        a.shell.console.start(["/bin/sh", "-c", "printf 'captured\\r\\n'; sleep 5"])
-        a.shell.console_visible = True
-
+    keys = [KeyEvent(c, c) for c in "echo captured"]
     # A generous settle: the driver's awaits are the only chance the loop gets
     # to read from the pty, so the test has to yield rather than sleep.
-    run_app(app, [start_child, lambda a: None, lambda a: None], settle=0.3)
-    assert "captured" in row_of(desktop(app), 1)
+    run_app(app, [*keys, KeyEvent("enter")] + [lambda a: None] * 6,
+            settle=0.3, timeout=20)
+    screen = "\n".join(app.shell.console.screen.screen.display)
+    assert f"{tree}>echo captured" in screen
+    assert "\ncaptured" in screen
+    assert app.shell.console_visible is False
+    assert app.shell.command_line.value == ""
 
 
 # -- glyphs: what the terminal's font can actually draw ------------------------
@@ -1021,13 +1045,14 @@ def test_the_console_reports_the_childs_cursor(tree, quiet_console):
 
     def show(a):
         a.shell.toggle_console()
+        running(a)
         console._on_output(b"hello: ")
 
-    run_app(app, [show, lambda a: None])
-    # Seven characters in, on the first line of the console's own area.
-    assert console.cursor_position() == (7, 0)
-    # The console starts one row down, under the menu bar.
-    assert app._cursor() == (7, 1, "default")
+    seen = []
+    run_app(app, [show, lambda a: seen.append((console.cursor_position(), a._cursor()))])
+    # Seven characters in, on the first line of the console's own area; and
+    # the console starts one row down, under the menu bar.
+    assert seen == [((7, 0), (7, 1, "default"))]
 
 
 def test_the_terminals_cursor_is_placed_where_the_child_put_it(tree, quiet_console):
@@ -1036,16 +1061,35 @@ def test_the_terminals_cursor_is_placed_where_the_child_put_it(tree, quiet_conso
 
     def show(a):
         a.shell.toggle_console()
+        running(a)
         a.shell.console._on_output(b"hello: ")
 
     run_app(app, [show, lambda a: None])
     assert "\x1b[2;8H" + SHOW_CURSOR in terminal.painted
 
 
-def test_no_cursor_is_shown_while_the_panels_are_up(tree, quiet_console):
+def test_the_caret_is_on_the_command_line_while_the_panels_are_up(tree, quiet_console):
+    # The panel holds the keyboard and has no caret; what it declines is
+    # typed on the line, so that is where the terminal's cursor goes.
     app = navigator(tree)
-    run_app(app)
-    assert SHOW_CURSOR not in app.terminal.painted
+    run_app(app, [KeyEvent("l", "l"), lambda a: None])
+    prompt = len(app.shell.command_line.shown_prompt)
+    # "default": the user's own cursor shape, as at any other shell prompt.
+    assert app._cursor() == (prompt + 1, 22, "default")
+    assert f"\x1b[23;{prompt + 2}H" + SHOW_CURSOR in app.terminal.painted
+
+
+def test_the_idle_console_leaves_the_caret_to_the_command_line(tree, quiet_console):
+    app = navigator(tree)
+    console = app.shell.console
+
+    def show(a):
+        a.shell.toggle_console()
+        console._on_output(b"hello: ")
+
+    run_app(app, [show, lambda a: None])
+    assert console.cursor_position() is None
+    assert app._cursor()[1] == 22
 
 
 def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_console):
@@ -1054,13 +1098,16 @@ def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_con
 
     def show(a):
         a.shell.toggle_console()
+        running(a)
         console._on_output(b"\r\n".join(b"line %d" % n for n in range(60)))
 
-    run_app(app, [show, lambda a: console.scroll_back(), lambda a: None])
+    seen = []
+    run_app(app, [show, lambda a: console.scroll_back(),
+                  lambda a: seen.append((console.cursor_position(), a._cursor()))])
     assert console.screen.scrolled_back is True
-    # The rows on screen are history; the live cursor means nothing among them.
-    assert console.cursor_position() is None
-    assert app._cursor() is None
+    # The rows on screen are history; the live cursor means nothing among
+    # them -- and the program still has the keys, so the line gets no caret.
+    assert seen == [(None, None)]
 
 
 def test_a_hidden_child_cursor_is_not_drawn(tree, quiet_console):
@@ -1069,6 +1116,7 @@ def test_a_hidden_child_cursor_is_not_drawn(tree, quiet_console):
 
     def show(a):
         a.shell.toggle_console()
+        running(a)
         console._on_output(b"\x1b[?25l")  # the child hides its own cursor
 
     run_app(app, [show, lambda a: None])
@@ -1086,6 +1134,7 @@ def test_ctrl_o_and_the_key_behind_it_arrive_in_one_batch(tree, quiet_console):
     typed: list[bytes] = []
 
     def stub(a):
+        running(a)
         a.shell.console.send = lambda e: typed.append(encode_key(e)) or True
 
     def both(a):
@@ -1101,7 +1150,7 @@ def test_the_console_swallows_keys_it_has_no_child_for(tree, quiet_console):
     # Nothing to type at, and the panels are behind it showing nothing -- a
     # key that fell through would move a cursor the user cannot see.
     app = navigator(tree)
-    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("down"), KeyEvent("down")])
+    run_app(app, [KeyEvent("o", ctrl=True), running, KeyEvent("down"), KeyEvent("down")])
     assert app.shell.console.process is None
     assert app.manager.left.cursor == 0
 
@@ -1132,6 +1181,7 @@ def test_alt_x_goes_to_the_child_from_the_console(tree, quiet_console):
     alive: list[bool] = []
     run_app(app, [
         KeyEvent("o", ctrl=True),
+        running,
         lambda a: setattr(a.shell.console, "send",
                           lambda e: typed.append(encode_key(e)) or True),
         KeyEvent("x", "x", alt=True),
@@ -1159,7 +1209,11 @@ def test_the_application_keeps_only_what_is_global():
     from navml.commands import OpenMenu
 
     table = key_table(Navigator)
-    assert set(table) == {"ctrl+o", "ctrl+f3", "f1", "f10", "alt+x"}
+    assert set(table) == {
+        "ctrl+o", "ctrl+f3", "f1", "f10", "alt+x",
+        # The command line's, while it has text; the panel's otherwise.
+        "enter", "home", "end",
+    }
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help
     assert table["f10"] is OpenMenu
@@ -1269,7 +1323,10 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     same ten captions, with every one whose command has no handler yet in the
     status line's *Disabled* colour -- the bottom row's styles, and nothing
     else.  That is also why this runs under ``Navigator`` rather than a bare
-    ``Application``: F1, F9 and F10 are the application's keys.
+    ``Application``: F1, F9 and F10 are the application's keys.  And once
+    more when the command line arrived: the panels gave up their last empty
+    row, and the row above the key bar is ``.>`` in DOS Navigator's
+    hard-coded white on black -- the only two rows that changed.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
@@ -1653,7 +1710,7 @@ def test_a_window_s_own_function_key_takes_the_bar(tree):
     assert " F4 Hex " in rows[0] and "Edit" not in rows[0]
 
 
-def test_alt_x_is_vetoed_while_the_console_is_over_the_windows(tree, quiet_console):
+def test_alt_x_is_vetoed_while_a_program_is_over_the_windows(tree, quiet_console):
     from navigator.commands import Quit
 
     app = navigator(tree)
@@ -1661,10 +1718,13 @@ def test_alt_x_is_vetoed_while_the_console_is_over_the_windows(tree, quiet_conso
     run_app(app, [
         lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
         KeyEvent("o", ctrl=True),
+        # Idle, the console is only showing output: Alt+X still quits.
+        lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
+        running,
         lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
         lambda a: answers.append(a.command_enabled(Quit)),
     ])
-    assert answers == [True, False, True]
+    assert answers == [True, True, False, True]
 
 
 # -- DOS Navigator's main menu ------------------------------------------------------
@@ -1861,3 +1921,145 @@ def test_the_new_entry_is_ctrl_f3_and_is_enabled(tree):
 
     run_app(app, [look])
     assert seen == [("Ctrl-F3", True)]
+
+
+# -- the command line ----------------------------------------------------------
+
+
+def typed(text: str) -> list[KeyEvent]:
+    return [KeyEvent(c, c) for c in text]
+
+
+def test_the_command_line_sits_above_the_key_bar_with_the_panel_s_prompt(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [*typed("ls"), lambda a: None])
+    buffer = desktop(app)
+    assert row_of(buffer, 22).rstrip() == f"{app.shell.command_line.shown_prompt}ls"
+    assert "F1" in row_of(buffer, 23)
+
+
+def test_the_prompt_follows_the_active_panel(tree, quiet_console):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        lambda a: seen.append(a.shell.command_prompt),
+        lambda a: setattr(a.manager.right, "path", tree / "alpha"),
+        KeyEvent("tab"),
+        lambda a: seen.append(a.shell.command_prompt),
+    ])
+    assert seen == [f"{tree}>", f"{tree / 'alpha'}>"]
+
+
+def test_printable_keys_on_a_panel_are_typed_on_the_command_line(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [*typed("lsx"), KeyEvent("backspace"), KeyEvent("left"),
+                  KeyEvent("space", " ")])
+    assert app.shell.command_line.value == "l s"
+    assert app.manager.left.cursor == 0
+
+
+def test_enter_on_an_empty_line_is_still_the_panel_s(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("down"), KeyEvent("enter"), lambda a: None])
+    assert app.manager.left.path == tree / "alpha"
+    assert app.shell.console_visible is False
+
+
+def test_home_and_end_are_the_line_s_only_while_it_has_text(tree, quiet_console):
+    app = navigator(tree)
+    line = app.shell.command_line
+    seen = []
+    run_app(app, [
+        KeyEvent("end"),
+        lambda a: seen.append(a.manager.left.cursor > 0),
+        KeyEvent("home"),
+        *typed("abc"),
+        KeyEvent("home"),
+        lambda a: seen.append((line.cursor, a.manager.left.cursor)),
+        KeyEvent("end"),
+        lambda a: seen.append((line.cursor, a.manager.left.cursor)),
+    ])
+    assert seen == [True, (0, 0), (3, 0)]
+
+
+def test_escape_clears_the_line(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [*typed("rm -rf"), KeyEvent("escape")])
+    assert app.shell.command_line.value == ""
+
+
+def test_enter_runs_the_line_and_the_panels_come_back(tree, quiet_console):
+    app = navigator(tree)
+    ran = []
+    app.shell.console.run = lambda command, cwd: ran.append((command, cwd))
+    seen = []
+    run_app(app, [
+        lambda a: a.manager.right.focus(),
+        *typed("make"),
+        KeyEvent("enter"),
+        lambda a: seen.append((a.shell.console_visible, a.focused is a.shell.console,
+                               a.shell.command_line.value)),
+        lambda a: a.shell.command_finished(0, tree),
+        lambda a: None,
+    ])
+    assert ran == [("make", tree)]
+    assert seen == [(True, True, "")]
+    assert app.shell.console_visible is False
+    assert app.focused is app.manager.right
+
+
+def test_a_cd_in_the_shell_moves_the_active_panel(tree, quiet_console):
+    app = navigator(tree)
+    app.shell.console.run = lambda command, cwd: None
+    run_app(app, [*typed("cd alpha"), KeyEvent("enter"),
+                  lambda a: a.shell.command_finished(0, tree / "alpha"),
+                  lambda a: None])
+    assert app.manager.left.path == tree / "alpha"
+
+
+def test_a_command_run_from_ctrl_o_leaves_the_console_up(tree, quiet_console):
+    app = navigator(tree)
+    app.shell.console.run = lambda command, cwd: None
+    run_app(app, [KeyEvent("o", ctrl=True), *typed("ls"), KeyEvent("enter"),
+                  lambda a: a.shell.command_finished(0, tree), lambda a: None])
+    assert app.shell.console_visible is True
+    assert app.focused is app.shell.console
+
+
+def test_ctrl_e_and_ctrl_x_walk_the_command_history(tree, quiet_console):
+    from navml.history import HISTORY
+
+    HISTORY.clear("command")
+    app = navigator(tree)
+    app.shell.console.run = lambda command, cwd: None
+    line = app.shell.command_line
+    seen = []
+    record = lambda a: seen.append(line.value)
+    run_app(app, [
+        *typed("one"), KeyEvent("enter"), lambda a: a.shell.command_finished(0, tree),
+        *typed("two"), KeyEvent("enter"), lambda a: a.shell.command_finished(0, tree),
+        KeyEvent("e", ctrl=True), record,
+        KeyEvent("e", ctrl=True), record,
+        KeyEvent("e", ctrl=True), record,     # no older one: stays
+        KeyEvent("x", ctrl=True), record,
+        KeyEvent("x", ctrl=True), record,     # past the newest: the empty line
+    ])
+    HISTORY.clear("command")
+    assert seen == ["two", "one", "one", "two", ""]
+
+
+def test_a_paste_lands_on_the_command_line(tree, quiet_console):
+    from navkit.events import PasteEvent
+
+    app = navigator(tree)
+    run_app(app, [PasteEvent("echo a\nb")])
+    assert app.shell.command_line.value == "echo a b"
+
+
+def test_a_real_cd_moves_the_panel(tree, monkeypatch):
+    monkeypatch.setenv("SHELL", "/bin/sh")
+    app = navigator(tree)
+    run_app(app, [*typed("cd alpha"), KeyEvent("enter")] + [lambda a: None] * 6,
+            settle=0.3, timeout=20)
+    assert app.manager.left.path == tree / "alpha"
+    assert app.shell.console_visible is False

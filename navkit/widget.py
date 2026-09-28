@@ -603,8 +603,10 @@ class Widget:
         blinking the way the user configured it, in the shape :attr:`caret`
         asks for.
 
-        Only the widget the keys are going to is asked, so a widget need not
-        check whether it is focused. **Not spelled ``cursor``**, which
+        Only a widget on the focus path is asked, nearest the keyboard first,
+        and the first answer wins -- so a widget need not check whether it is
+        focused, and an ancestor that types what its focused descendant
+        declines may answer for it. **Not spelled ``cursor``**, which
         `navigator`'s ``Panel`` already uses for the row its selection bar is
         on -- an int, and a reactive one. A base-class ``cursor`` would have
         been shadowed by it silently and the application would have been
