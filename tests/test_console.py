@@ -201,3 +201,71 @@ def test_seeding_feeds_what_a_host_did_offer(monkeypatch):
     console = ConsoleScreen(20, 4)
     assert console_module.seed_from_host(console) == "tmux"
     assert text_of(console, 0) == "old output"
+
+
+# -- what a full-screen program needs --------------------------------------------
+
+
+def test_the_alternate_screen_gives_the_output_back():
+    console = feed(b"before\r\n")
+    console.feed(b"\x1b[?1049h\x1b[2J\x1b[HFULLSCREEN")
+    assert console.alternate
+    assert "FULLSCREEN" in console.screen.display[0]
+    console.feed(b"\x1b[?1049l")
+    assert not console.alternate
+    assert console.screen.display[0].rstrip() == "before"
+    assert (console.cursor[0], console.cursor[1]) == (0, 1)
+
+
+def test_the_alternate_screen_keeps_nothing_in_the_scrollback():
+    console = feed(b"")
+    console.feed(b"\x1b[?1049h" + b"\r\n".join(b"row%d" % n for n in range(30)))
+    assert len(console.screen.history.top) == 0
+
+
+def test_a_query_is_answered_down_the_pty():
+    console = feed(b"abc")
+    answers = []
+    console.respond = answers.append
+    console.feed(b"\x1b[6n")
+    assert answers == [b"\x1b[1;4R"]
+
+
+def test_the_modes_a_program_turns_on_are_readable():
+    console = feed(b"\x1b[?1h\x1b[?1002h\x1b[?1006h")
+    assert console.application_cursor
+    assert console.mouse_tracking == 1002
+    assert console.mouse_sgr
+    console.feed(b"\x1b[?1l\x1b[?1002l")
+    assert not console.application_cursor
+    assert console.mouse_tracking == 0
+
+
+@pytest.mark.parametrize("sequence", [
+    b"\x1b[?1;1000r",     # mc's XTRESTORE, which crashed set_margins
+    b"\x1b[?5A",
+    b"\x1b[?2m",
+])
+def test_a_private_form_pyte_does_not_know_is_dropped(sequence):
+    console = feed(b"ab" + sequence + b"cd")
+    assert console.screen.display[0].rstrip() == "abcd"
+
+
+def test_an_xterm_modifier_setting_is_not_a_colour():
+    # vim's `CSI > 4 ; 2 m' used to arrive as underline and bold.
+    console = feed(b"\x1b[>4;2mx")
+    style = console.surface.get(0, 0)[1]
+    assert not style.bold and not style.underline
+
+
+def test_a_sequence_that_breaks_pyte_does_not_break_the_console(monkeypatch):
+    console = feed(b"")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("pyte")
+
+    monkeypatch.setattr(console.screen, "bell", boom)
+    console.feed(b"a\x07b")
+    monkeypatch.undo()
+    console.feed(b"later")
+    assert "later" in console.screen.display[0]

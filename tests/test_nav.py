@@ -1722,9 +1722,10 @@ def test_alt_x_is_vetoed_while_a_program_is_over_the_windows(tree, quiet_console
         lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
         running,
         lambda a: answers.append(a.command_enabled(Quit(desktop=True))),
+        # Every command is the program's while it runs, the menu's Exit too.
         lambda a: answers.append(a.command_enabled(Quit)),
     ])
-    assert answers == [True, True, False, True]
+    assert answers == [True, True, False, False]
 
 
 # -- DOS Navigator's main menu ------------------------------------------------------
@@ -2063,3 +2064,71 @@ def test_a_real_cd_moves_the_panel(tree, monkeypatch):
             settle=0.3, timeout=20)
     assert app.manager.left.path == tree / "alpha"
     assert app.shell.console_visible is False
+
+
+# -- a full-screen program on the console ------------------------------------------
+
+
+@pytest.fixture
+def program(monkeypatch, quiet_console):
+    """A command running on the console, whose input is collected rather than sent."""
+    from navigator.subshell import Subshell
+
+    typed: list[bytes] = []
+    monkeypatch.setattr(Subshell, "is_running", property(lambda self: True))
+    monkeypatch.setattr(Subshell, "write", lambda self, data: typed.append(data))
+
+    def start(app, output: bytes = b""):
+        running(app)
+        app.shell.toggle_console()
+        app.shell.console.screen.feed(output)
+
+    return typed, start
+
+
+def test_f10_and_the_command_line_keys_are_the_program_s_while_it_runs(tree, program):
+    # F10 is how htop and mc are left; Navigator's menu must not take it.
+    typed, start = program
+    app = navigator(tree)
+
+    def begin(a):
+        a.shell.command_line.set_text("half-typed")
+        start(a)
+
+    run_app(app, [begin, KeyEvent("f10"), KeyEvent("enter"), KeyEvent("home"),
+                  KeyEvent("f3", ctrl=True), lambda a: None])
+    assert typed == [b"\x1b[21~", b"\r", b"\x1b[H", b"\x1b[1;5R"]
+    assert app.modal is None                           # no menu dropped
+    assert len(app.shell.desktop.windows()) == 1       # no second manager
+    assert app.shell.command_line.value == "half-typed"
+
+
+def test_arrows_follow_the_program_s_cursor_mode(tree, program):
+    typed, start = program
+    app = navigator(tree)
+    run_app(app, [lambda a: start(a, b"\x1b[?1h"), KeyEvent("up")])
+    assert typed == [b"\x1bOA"]
+
+
+def test_the_mouse_goes_to_a_program_that_asked_for_it(tree, program):
+    typed, start = program
+    app = navigator(tree)
+    run_app(app, [
+        lambda a: start(a, b"\x1b[?1000h\x1b[?1006h"),
+        MouseClickEvent(x=9, y=9, button="left", action="press"),
+        MouseClickEvent(x=9, y=9, button="wheel_up", action="press"),
+    ])
+    # One row down: the console starts under the menu bar.
+    assert typed == [b"\x1b[<0;10;9M", b"\x1b[<64;10;9M"]
+    assert not app.shell.console.screen.scrolled_back
+
+
+def test_ctrl_o_is_the_program_s_too(tree, program):
+    # mc's own panel toggle, nano's Write Out: nothing is kept back.
+    typed, start = program
+    app = navigator(tree)
+    run_app(app, [start, KeyEvent("o", ctrl=True), KeyEvent("x", "x", alt=True),
+                  lambda a: None])
+    assert typed == [b"\x0f", b"\x1bx"]
+    assert app.shell.console_visible is True
+    assert app.focused is app.shell.console

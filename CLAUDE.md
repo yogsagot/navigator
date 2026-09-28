@@ -102,7 +102,15 @@ by a **silent `cd`** (leading space, output swallowed) sent only when the two di
 moves the active panel when the command finishes (`CommandFinished`, posted from the pty reader to
 `Navigator.on_command_finished`). While a command runs the console is up and holds the keys; afterwards the windows
 come back and both panels re-read, unless Ctrl+O had put the console up, in which case it stays. **An idle console
-takes no keys**: Ctrl+O shows output, and typing still goes to the command line.
+takes no keys**: Ctrl+O shows output, and typing still goes to the command line. **While a program runs it gets every key,
+Ctrl+O included** (`Shell.program_has_keys`, which `Shell.enables` and `Navigator.enables` both consult, disables every
+command, so F10 reaches `htop`/`mc` and Ctrl+O is `mc`'s and `nano`'s), arrows follow
+its DECCKM (`encode_key(..., application_cursor=)`, `SS3` vs `CSI`, with xterm's modifier parameter on special keys),
+and its mouse reports go back down the pty (`encode_mouse`, modes 9/1000/1002/1003 and SGR 1006). `navkit/console.py`'s
+`_Screen` adds what pyte lacks: the **alternate screen** (47/1047/1049, so a full-screen program's last frame does not
+bury the log), **answers to queries** (`ConsoleScreen.respond`, cursor position and device attributes), dropping a
+private CSI pyte would crash on (`mc` sends `CSI ? Pm r`) or misread (`CSI > 4;2 m` was bold+underline), and a parser
+rebuilt rather than dead if pyte raises anyway -- its parser is a generator, which one exception closes for good.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

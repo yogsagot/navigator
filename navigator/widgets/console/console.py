@@ -10,10 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from navkit.console import ConsoleScreen, seed_from_host
-from navkit.events import KeyEvent
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import effect, reactive
 from navkit.screen import Surface
-from navkit.terminal import encode_key
+from navkit.terminal import encode_key, encode_mouse
 from navkit.widget import Widget
 
 from navigator.subshell import Subshell
@@ -115,10 +115,32 @@ class Console(Widget):
         """Type *event* at the child; ``False`` if there is nobody to type at."""
         if not self.subshell.is_running:
             return False
-        data = encode_key(event)
+        data = encode_key(event, application_cursor=self.screen.application_cursor)
         if not data:
             return False
         self.subshell.write(data)
+        return True
+
+    @property
+    def tracks_mouse(self) -> bool:
+        """A running program asked for the mouse, so the console passes it on."""
+        return self.busy and bool(self.screen.mouse_tracking)
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """Clicks, drags and the wheel, for a program that turned the mouse on.
+
+        ``mc`` and ``htop`` both do, and a console that kept the mouse for
+        itself left them with a pointer that did nothing.  The position is
+        already the console's own -- ``dispatch_mouse`` shifted it on the way
+        down -- which is the program's screen, cell for cell.
+        """
+        if not self.tracks_mouse or not self.subshell.is_running:
+            return False
+        data = encode_mouse(
+            event, tracking=self.screen.mouse_tracking, sgr=self.screen.mouse_sgr
+        )
+        if data:
+            self.subshell.write(data)
         return True
 
     async def on_key(self, event: KeyEvent) -> bool:

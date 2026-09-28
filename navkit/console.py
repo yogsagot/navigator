@@ -35,9 +35,13 @@ import shutil
 import subprocess
 from functools import lru_cache
 
+import re
+from collections import defaultdict
+from typing import Any, Callable
+
 import pyte
 from pyte import graphics as _graphics
-from pyte.screens import Char
+from pyte.screens import Char, StaticDefaultDict
 
 from navkit.screen import ScreenBuffer, Surface
 from navkit.style import Color, Style
@@ -141,6 +145,125 @@ def style_of(char: Char) -> Style:
     )
 
 
+#: The private modes that switch to the alternate screen: 47 and 1047 swap
+#: the buffer, 1049 saves the cursor as well.  xterm's, and what every
+#: full-screen program's ``smcup`` sends.
+ALT_SCREEN_MODES = frozenset({47, 1047, 1049})
+
+#: The private modes that turn mouse reporting on, least to most: X10 (press
+#: only), normal (press and release), button-event (and drags), any-event.
+MOUSE_MODES = (9, 1000, 1002, 1003)
+
+#: DECCKM, application cursor keys.
+_DECCKM = 1 << 5
+#: SGR mouse encoding, ``CSI < b ; x ; y M``.
+_MOUSE_SGR = 1006 << 5
+
+
+class _Screen(pyte.HistoryScreen):
+    """pyte's screen with the two things a full-screen program needs of it.
+
+    **The alternate screen.**  pyte records mode 1049 and does nothing about
+    it, so ``htop`` drew over the shell's output and its last frame stayed
+    there after it quit.  Here the main buffer is put aside on the way in and
+    brought back on the way out, as xterm does; nothing scrolled off the
+    alternate screen reaches the scrollback, which is the main screen's.
+
+    **Answers.**  A program asking the terminal something -- where the cursor
+    is, what the terminal is -- gets pyte's reply through
+    :meth:`write_process_input`, which pyte leaves a no-op.  *respond* is
+    where it goes, which is the pty; a curses program that asks and never
+    hears back can sit waiting for an answer.
+    """
+
+    def __init__(self, columns: int, lines: int, history: int) -> None:
+        self._main: Any = None
+        self.respond: Callable[[bytes], None] | None = None
+        super().__init__(columns, lines, history=history)
+
+    @property
+    def alternate(self) -> bool:
+        return self._main is not None
+
+    def write_process_input(self, data: str) -> None:
+        if self.respond is not None:
+            self.respond(data.encode())
+
+    def set_mode(self, *modes: int, **kwargs: Any) -> None:
+        if kwargs.get("private") and ALT_SCREEN_MODES.intersection(modes):
+            self._enter_alternate(save_cursor=1049 in modes)
+        super().set_mode(*modes, **kwargs)
+
+    def reset_mode(self, *modes: int, **kwargs: Any) -> None:
+        if kwargs.get("private") and ALT_SCREEN_MODES.intersection(modes):
+            self._leave_alternate(restore_cursor=1049 in modes)
+        super().reset_mode(*modes, **kwargs)
+
+    def _enter_alternate(self, save_cursor: bool) -> None:
+        if self._main is not None:
+            return
+        if save_cursor:
+            self.save_cursor()
+        self._main = self.buffer
+        self.buffer = defaultdict(lambda: StaticDefaultDict(self.default_char))
+        self.dirty.update(range(self.lines))
+
+    def _leave_alternate(self, restore_cursor: bool) -> None:
+        if self._main is None:
+            return
+        self.buffer, self._main = self._main, None
+        if restore_cursor:
+            self.restore_cursor()
+        self.dirty.update(range(self.lines))
+
+    # pyte hands a private CSI (``CSI ? ...``) to the plain handler with
+    # ``private=True``, and most of them take no such keyword: ``mc`` sends
+    # xterm's ``CSI ? Pm r`` (restore private modes) on the way out, and
+    # ``set_margins`` raised.  A private form pyte has no meaning for is
+    # dropped here; ``CSI ? K``, DECSEL, is an erase whatever it protects.
+
+    def erase_in_line(self, how: int = 0, private: bool = False, **_: Any) -> None:
+        super().erase_in_line(how)
+
+    def index(self) -> None:
+        if self._main is not None:
+            # The alternate screen has no history: skip HistoryScreen's.
+            pyte.Screen.index(self)
+        else:
+            super().index()
+
+    def reset(self) -> None:
+        self._main = None
+        super().reset()
+
+
+def _drop_private(name: str) -> Callable[..., None]:
+    base = getattr(pyte.HistoryScreen, name)
+
+    def handler(self: Any, *params: Any, private: bool = False, **_: Any) -> None:
+        if not private:
+            base(self, *params)
+
+    handler.__name__ = name
+    return handler
+
+
+for _name in (
+    "insert_characters", "cursor_up", "cursor_down", "cursor_forward",
+    "cursor_back", "cursor_down1", "cursor_up1", "cursor_to_column",
+    "cursor_position", "insert_lines", "delete_lines", "delete_characters",
+    "erase_characters", "cursor_to_line", "clear_tab_stop",
+    "select_graphic_rendition", "report_device_status", "set_margins",
+):
+    setattr(_Screen, _name, _drop_private(_name))
+del _name
+
+#: ``CSI > Pm m`` and friends: xterm's key-modifier and query forms, which
+#: pyte skips the ``>`` of and then dispatches as the plain sequence -- so
+#: vim's ``CSI > 4 ; 2 m`` arrived as underline and bold.  None of them draw.
+_XTERM_GT = re.compile(rb"\x1b\[[>=][0-9;]*[a-zA-Z]")
+
+
 class ConsoleScreen:
     """A terminal screen Navigator owns, and the cells it currently shows.
 
@@ -157,7 +280,7 @@ class ConsoleScreen:
         history: int = DEFAULT_HISTORY,
     ):
         columns, lines = max(1, columns), max(1, lines)
-        self.screen = pyte.HistoryScreen(columns, lines, history=history)
+        self.screen = _Screen(columns, lines, history)
         self.stream = pyte.ByteStream(self.screen)
         # The mirror.  pyte's buffer is a sparse mapping of rows to sparse
         # mappings of columns, which is the right shape for an emulator and
@@ -196,13 +319,57 @@ class ConsoleScreen:
         :class:`~navkit.terminal.InputParser` gives in the other direction.
         """
         if data:
-            self.stream.feed(data)
+            if b"\x1b[>" in data or b"\x1b[=" in data:
+                data = _XTERM_GT.sub(b"", data)
+            try:
+                self.stream.feed(data)
+            except Exception:
+                # A sequence pyte chokes on must not take the console with it:
+                # its parser is a generator, which an exception closes for
+                # good.  Start a fresh one; the rest of this read is lost,
+                # and whatever the program draws next lands.
+                self.stream = pyte.ByteStream(self.screen)
             self._synced = False
 
     def reset(self) -> None:
         self.screen.reset()
         self.screen.dirty.update(range(self.screen.lines))
         self._synced = False
+
+    # -- what the program asked the terminal for --------------------------------
+
+    @property
+    def respond(self) -> Callable[[bytes], None] | None:
+        """Where the screen's answers to the program's queries are written."""
+        return self.screen.respond
+
+    @respond.setter
+    def respond(self, callback: Callable[[bytes], None] | None) -> None:
+        self.screen.respond = callback
+
+    @property
+    def application_cursor(self) -> bool:
+        """DECCKM: the program wants its arrows as ``SS3``, not ``CSI``."""
+        return _DECCKM in self.screen.mode
+
+    @property
+    def mouse_tracking(self) -> int:
+        """The mouse mode the program turned on (9, 1000, 1002, 1003), or 0."""
+        mode = self.screen.mode
+        for tracking in reversed(MOUSE_MODES):
+            if tracking << 5 in mode:
+                return tracking
+        return 0
+
+    @property
+    def mouse_sgr(self) -> bool:
+        """Mode 1006: mouse reports in SGR's ``CSI < b ; x ; y M/m`` form."""
+        return _MOUSE_SGR in self.screen.mode
+
+    @property
+    def alternate(self) -> bool:
+        """A full-screen program is on the alternate screen."""
+        return self.screen.alternate
 
     # -- scrollback ----------------------------------------------------------
 

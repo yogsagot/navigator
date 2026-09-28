@@ -273,3 +273,63 @@ def test_ss3_carries_a_modifier_too(parser, data, expected):
 def test_a_split_ss3_modifier_waits_for_its_final_byte(parser):
     assert parser.feed(b"\x1bO5") == []
     assert names(parser.feed(b"R")) == ["ctrl+f3"]
+
+
+# -- the other way: keys and the mouse back into bytes for a child -------------
+
+
+from navkit.terminal import encode_key, encode_mouse
+
+
+def test_a_left_press_still_parses_as_left():
+    # The encoder's table once shared the parser's name and replaced it, and
+    # every press came out as button "none".
+    (event,) = InputParser().feed(b"\x1b[<0;10;10M")
+    assert event.button == "left"
+
+
+@pytest.mark.parametrize("key,normal,application", [
+    ("up", b"\x1b[A", b"\x1bOA"),
+    ("left", b"\x1b[D", b"\x1bOD"),
+    ("home", b"\x1b[H", b"\x1bOH"),
+    ("pageup", b"\x1b[5~", b"\x1b[5~"),   # not a cursor key: DECCKM leaves it
+])
+def test_application_cursor_mode_sends_ss3(key, normal, application):
+    assert encode_key(KeyEvent(key)) == normal
+    assert encode_key(KeyEvent(key), application_cursor=True) == application
+
+
+@pytest.mark.parametrize("event,expected", [
+    (KeyEvent("up", ctrl=True), b"\x1b[1;5A"),
+    (KeyEvent("right", shift=True), b"\x1b[1;2C"),
+    (KeyEvent("f5", ctrl=True), b"\x1b[15;5~"),
+    (KeyEvent("f1", shift=True), b"\x1b[1;2P"),
+    (KeyEvent("up", alt=True), b"\x1b[1;3A"),
+    (KeyEvent("tab", shift=True), b"\x1b[Z"),
+    (KeyEvent("x", "x", alt=True), b"\x1bx"),
+    (KeyEvent("c", ctrl=True), b"\x03"),
+])
+def test_a_modified_special_key_keeps_its_modifier(event, expected):
+    assert encode_key(event, application_cursor=True) == expected
+
+
+def click(action="press", button="left", **mods):
+    return MouseClickEvent(x=4, y=2, button=button, action=action, **mods)
+
+
+def test_the_mouse_is_encoded_as_the_program_asked():
+    assert encode_mouse(click(), tracking=1000, sgr=True) == b"\x1b[<0;5;3M"
+    assert encode_mouse(click("release"), tracking=1000, sgr=True) == b"\x1b[<0;5;3m"
+    assert encode_mouse(click(), tracking=1000) == b"\x1b[M %#"
+    assert encode_mouse(click("release"), tracking=1000) == b"\x1b[M#%#"
+    assert encode_mouse(click(button="wheel_down"), tracking=1000, sgr=True) == b"\x1b[<65;5;3M"
+    assert encode_mouse(click(ctrl=True), tracking=1000, sgr=True) == b"\x1b[<16;5;3M"
+
+
+def test_the_mouse_mode_decides_what_is_reported():
+    assert encode_mouse(click(), tracking=0) == b""
+    assert encode_mouse(click("release"), tracking=9) == b""
+    assert encode_mouse(click("move"), tracking=1000, sgr=True) == b""
+    assert encode_mouse(click("move"), tracking=1002, sgr=True) == b"\x1b[<32;5;3M"
+    assert encode_mouse(click("move", "none"), tracking=1002, sgr=True) == b""
+    assert encode_mouse(click("move", "none"), tracking=1003, sgr=True) == b"\x1b[<35;5;3M"

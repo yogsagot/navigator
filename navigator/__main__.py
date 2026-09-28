@@ -65,9 +65,13 @@ class Navigator(Application):
     #: what makes it the right place for exactly these and the wrong place for
     #: anything else: whatever is bound here is kept from the console, from
     #: the panels and from every dialog not yet written.  Ctrl+O is the way in
-    #: and out of the console and F10 is DOS Navigator's ``cmMenu`` -- both of
-    #: which have to work while a child program is eating every other
-    #: keystroke, and F10 is how File > Exit is reached from the console.  F1
+    #: and out of the console, and F10 is DOS Navigator's ``cmMenu``.
+    #: **While a program holds the keyboard every one of them is disabled**
+    #: (``Shell.program_has_keys``), so each falls through to it -- F10 is how
+    #: ``htop`` and ``mc`` are left, and Ctrl+O is ``mc``'s own panel toggle
+    #: and ``nano``'s Write Out.  DOS Navigator was not running at all while a
+    #: program was, so nothing was kept back then either; the way out of a
+    #: program is the program's own, or Ctrl+C.  F1
     #: is here because Help is not a panel's; it has no handler yet, so it is
     #: disabled, and a disabled command's key is left for whoever is next --
     #: the console's child gets F1 while Ctrl+O is showing it.  Ctrl+Q is not
@@ -78,7 +82,7 @@ class Navigator(Application):
     #: **Alt+X is here because a window can be closed.**  It lived on
     #: ``Manager`` once, and closing the file manager took the key with it.  It is still a desktop key rather than a global
     #: one, which is what ``Quit(desktop=True)`` and :meth:`enables` say: while
-    #: Ctrl+O has put the windows away it is Meta+X for the child.
+    #: a running program is over the windows it is Meta+X for the child.
     #:
     #: **Enter, Home and End are the command line's while it has text on it**,
     #: and the panel's otherwise -- ``FLPANELX.PAS`` sent ``cmExecCommandLine``
@@ -101,6 +105,8 @@ class Navigator(Application):
     }
 
     def enables(self, command: Command) -> bool:
+        if self.shell.program_has_keys:
+            return False
         if isinstance(command, Quit) and command.desktop:
             return not self._console_over_windows()
         return True
@@ -162,6 +168,9 @@ class Navigator(Application):
             return False
         console = self.shell.console
         if not self.shell.console_visible or not event.is_wheel:
+            return False
+        if console.tracks_mouse:
+            # The program turned the mouse on: the wheel is its to scroll.
             return False
         if not console.contains(event.x, event.y):
             return False

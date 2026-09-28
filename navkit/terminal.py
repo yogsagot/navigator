@@ -570,18 +570,54 @@ _KEY_SEQUENCES = {
 _SYMBOL_CTRL = {symbol: byte for byte, symbol in _CTRL_SYMBOLS.items()}
 
 
-def encode_key(event: KeyEvent) -> bytes:
+#: The keys DECCKM (application cursor mode) moves from ``CSI`` to ``SS3``.
+_CURSOR_KEYS = frozenset({"up", "down", "right", "left", "home", "end"})
+
+
+def _with_modifiers(sequence: str, modifier: int) -> str:
+    """*sequence* carrying xterm's modifier parameter, ``1 + shift + 2*alt + 4*ctrl``.
+
+    ``CSI A`` becomes ``CSI 1 ; m A``, ``CSI 15 ~`` becomes ``CSI 15 ; m ~``,
+    and ``SS3 P`` -- F1 to F4 -- becomes ``CSI 1 ; m P``, which is what xterm
+    sends and what every curses terminfo entry for it expects.
+    """
+    if sequence.startswith("\x1bO"):
+        return f"\x1b[1;{modifier}{sequence[2:]}"
+    if sequence.endswith("~"):
+        return f"{sequence[:-1]};{modifier}~"
+    return f"\x1b[1;{modifier}{sequence[-1]}"
+
+
+def encode_key(event: KeyEvent, *, application_cursor: bool = False) -> bytes:
     """Turn a key press back into the bytes a terminal would have sent.
 
     The inverse of :class:`InputParser`, and needed for the same reason
     :mod:`navkit.console` exists: a child program on a pty this application
     owns has to be typed at, and what it expects is bytes, not events.
 
-    Alt is the ESC prefix, which is how the parser recognises it coming the
-    other way.  A key with no encoding -- a bare modifier, or one of the
-    parser's ``\\xNN`` placeholders -- produces nothing rather than guessing.
+    *application_cursor* is the child's DECCKM, which a full-screen program
+    turns on with its keypad (``smkx``): the arrows, Home and End then send
+    ``SS3`` rather than ``CSI``, and a curses program recognises only the
+    spelling its terminfo entry names -- so an arrow sent the other way does
+    nothing at all in ``htop`` or ``mc``.
+
+    A special key held with Shift, Alt or Ctrl carries xterm's modifier
+    parameter rather than losing the modifier.  Alt on anything else is the
+    ESC prefix, which is how the parser recognises it coming the other way.
+    A key with no encoding -- a bare modifier, or one of the parser's
+    ``\\xNN`` placeholders -- produces nothing rather than guessing.
     """
     key = event.key
+    if key == "tab" and event.shift and not (event.ctrl or event.alt):
+        return b"\x1b[Z"
+    special = _KEY_SEQUENCES.get(key, "")
+    if special.startswith("\x1b") and len(special) > 1:
+        modifier = 1 + event.shift + 2 * event.alt + 4 * event.ctrl
+        if modifier > 1:
+            return _with_modifiers(special, modifier).encode()
+        if application_cursor and key in _CURSOR_KEYS:
+            return ("\x1bO" + special[-1]).encode()
+        return special.encode()
     if event.ctrl:
         if len(key) == 1 and "a" <= key <= "z":
             text = chr(ord(key) - ord("a") + 1)
@@ -590,9 +626,9 @@ def encode_key(event: KeyEvent) -> bytes:
         elif key in _SYMBOL_CTRL:
             text = chr(_SYMBOL_CTRL[key])
         else:
-            text = _KEY_SEQUENCES.get(key, "")
-    elif key in _KEY_SEQUENCES:
-        text = _KEY_SEQUENCES[key]
+            text = special
+    elif special:
+        text = special
     elif event.char:
         text = event.char
     elif len(key) == 1:
@@ -602,6 +638,56 @@ def encode_key(event: KeyEvent) -> bytes:
     if not text:
         return b""
     return (("\x1b" + text) if event.alt else text).encode("utf-8", "replace")
+
+
+#: The button number a mouse report carries, before modifiers and motion --
+#: :data:`_MOUSE_BUTTONS` the other way round, and with the wheels folded in.
+_MOUSE_CODES = {
+    "left": 0, "middle": 1, "right": 2,
+    "wheel_up": 64, "wheel_down": 65, "wheel_left": 66, "wheel_right": 67,
+}
+
+
+def encode_mouse(
+    event: MouseClickEvent, *, tracking: int, sgr: bool = False
+) -> bytes:
+    """Turn a mouse action back into the report a program on a pty asked for.
+
+    The mouse half of :func:`encode_key`.  *tracking* is the mode the program
+    turned on -- 9 reports presses only, 1000 presses and releases, 1002 a
+    held button's moves as well, 1003 every move -- and an action the mode
+    does not report encodes to nothing.  *sgr* is mode 1006: ``CSI < b;x;y M``
+    for a press and ``m`` for a release, which carries any column; without it
+    the legacy ``CSI M`` form, which cannot name a column past 222.
+    Coordinates are *event*'s, zero-based, in whatever the program's screen
+    is -- the caller shifts them.
+    """
+    if tracking not in (9, 1000, 1002, 1003):
+        return b""
+    button = _MOUSE_CODES.get(event.button)
+    action = event.action
+    if action == "move":
+        if tracking == 1003 or (tracking == 1002 and button is not None):
+            code = (3 if button is None else button) + 32
+        else:
+            return b""
+    elif button is None:
+        return b""
+    elif action == "release":
+        if tracking == 9 or button >= 64:
+            return b""
+        code = button if sgr else 3
+    else:
+        code = button
+    if tracking != 9:
+        code += 4 * event.shift + 8 * event.alt + 16 * event.ctrl
+    x, y = event.x + 1, event.y + 1
+    if sgr:
+        final = "m" if action == "release" else "M"
+        return f"\x1b[<{code};{x};{y}{final}".encode()
+    if x > 223 or y > 223:
+        return b""
+    return b"\x1b[M" + bytes((32 + code, 32 + x, 32 + y))
 
 
 class Terminal:

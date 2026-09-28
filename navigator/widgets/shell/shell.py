@@ -151,12 +151,29 @@ class Shell(DockLayout):
             return manager.active_panel.path
         return self.console.subshell.cwd or self.console.cwd
 
+    @property
+    def program_has_keys(self) -> bool:
+        """A command is running on the console and the console holds the keyboard.
+
+        DOS Navigator was not running at all while a command was: the program
+        had every key.  So every command this screen handles steps aside --
+        F10 is ``htop``'s and ``mc``'s way out, Enter, Home and End are the
+        program's -- and a disabled command's key falls through to the
+        console, which sends it on.  The application asks the same question,
+        so Ctrl+O -- ``mc``'s panel toggle, ``nano``'s Write Out -- goes to the
+        program as well, and the way back to the panels is to leave it.
+        """
+        return self.console.busy and self.console.focused
+
     def enables(self, command: Command) -> bool:
         """Enter, Home and End are the command line's only while it has text.
 
         And Enter only while no command is running: the program has the keys
-        then, and a second command would be typed at it.
+        then, and a second command would be typed at it.  Nothing here runs
+        while a program holds the keyboard (:attr:`program_has_keys`).
         """
+        if self.program_has_keys:
+            return False
         if isinstance(command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd)):
             if not self.command_line.value.strip():
                 return False

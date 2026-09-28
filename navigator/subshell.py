@@ -218,6 +218,9 @@ class Subshell:
         #: What to send once the shell is ready: ``(text, silent)``.
         self._queue: list[tuple[str, bool]] = []
         self._paste = False
+        # What the program asks the terminal -- where the cursor is, what the
+        # terminal is -- is answered by the screen, back down the pty.
+        screen.respond = self.write
 
     @property
     def is_running(self) -> bool:
