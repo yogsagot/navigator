@@ -27,9 +27,7 @@ It consists of three parts:
     - defines a widget library modelled on Borland's TurboVision: windows, dialogs, buttons, static text, labels,
       input lines, check boxes, radio buttons, scroll bars and list viewers. Its widgets, their parts and their
       states are transcribed from DOS Navigator's own colour table rather than invented, so every one of the eleven
-      themes already knows what colour they are. Menus, history lists and tree views come next
-    - a dialog is opened from a task rather than awaited from a handler -- `self.spawn(...)` and
-      `await dialog.execute(app)` -- because a handler that waits is holding the loop that would paint it
+      themes already knows what colour they are.
 - **navigator** or nav - two panel file manager application
     - defines a Manager window that has two panels with file listings
     - defines View and Edit file windows
