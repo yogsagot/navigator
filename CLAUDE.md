@@ -75,7 +75,9 @@ entry opened a second file manager instead -- taking the window was a choice, re
 **Window > List (Alt+0) is DOS Navigator's *Windows Manager*** (`cmWindowManager`, `dlgWindowManager`;
 `navml/widgets/window_manager/` and `window_list/`): the desktop's windows top first, named by
 `Window.list_name()` (`cmGetName`; a file manager is its active panel's directory), OK switches and Close closes
-while the dialog stays up. *Windows, the desktop and the modal* in `navml/DESIGN.md` has the rest.
+while the dialog stays up. **Window > Tile, Cascade and Close all** are DOS Navigator's `TDesktop.Tile`/`Cascade` and
+`cmClearDesktop`, ported from `DNAPP.PAS`; every window is arranged unless it says `tileable: False` -- on by default,
+where DN's `ofTileable` was opt-in and skipped the tree window. *Windows, the desktop and the modal* in `navml/DESIGN.md` has the rest.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

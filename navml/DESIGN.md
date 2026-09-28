@@ -577,6 +577,24 @@ forward. The two differ in **where they live**, and every other difference follo
     dialog again. The last window closing ends it.
   - **OK activates only once the modal is down**, so the keyboard goes to the chosen window. `Desktop.activate`
     under a modal raises the window and leaves the focus where it is.
+- **Window › Tile, Cascade and Close all are `cmTile`, `cmCascade` and `cmClearDesktop`**, with no key, as in
+  `DN.DNR`. The arithmetic is `TDesktop.Tile`/`Cascade` from `DNAPP.PAS`, ported rather than redesigned:
+  - **Every window is arranged unless it opts out** with `tileable: False`. This departs from the original on
+    purpose: Turbo Vision's `ofTileable` was off by default and DOS Navigator set it only on the double window, the
+    viewer, the editor and the calculator — not on `TTreeWindow`. Every `Window` on a desktop is free-floating, so
+    every one takes part, including the ones not written yet; dialogs are `Modal`, not `Window`, and never do.
+  - **Tile favours rows** (`TileColumnsFirst` was never set): two windows lie one above the other, four make a 2x2
+    grid, and the rightmost columns a grid cannot fill evenly take a row more. The bottom window gets the top-left
+    tile and the z-order is not touched. **Cascade** moves each window one cell down and right of the one under it,
+    and — departing from `TDesktop.Cascade` on purpose — **makes them all the same size**, the desktop's less the
+    steps the stack takes, so only the top window reaches the bottom-right corner. The original kept every
+    window's corner on the desktop's, so a lower window was larger and, brought forward, hid every window above
+    it; equal sizes leave their edges showing. Cascade does nothing when that size is below any window's minimum
+    — `TileError` was empty, so a desktop too small for either is simply left alone.
+  - Both place a window through **`Window.locate()`**, Turbo Vision's `Locate`: the size is raised to the minimum
+    and a zoomed window stops being one.
+  - **Close all closes every `closable` window**, front to back, through `Window.close()`: the original broadcast
+    `cmClose`, which a window without a close icon ignored. The last close raises `EmptiedEvent` as any close does.
 
 ### Layouts
 

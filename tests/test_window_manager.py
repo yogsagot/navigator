@@ -136,3 +136,45 @@ def test_the_list_entry_is_alt_0_and_is_enabled(tree):
 def test_alt_0_behind_the_console_is_left_for_the_child(tree, quiet_console):
     app = run(tree, KeyEvent("o", ctrl=True), lambda a: None, ALT_0, lambda a: None)
     assert app.modal is None
+
+
+def test_tile_cascade_and_close_all_are_enabled_with_a_file_manager_open(tree):
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        for caption in ("Tile", "Cascade", "Close all"):
+            item = _entry(a.shell.menu, "Window", caption)
+            seen.append(a.command_enabled(item.command, a.manager.left))
+
+    run_app(app, [look])
+    assert seen == [True, True, True]
+
+
+def test_tile_puts_two_file_managers_one_above_the_other(tree):
+    from navml.commands import TileWindows
+
+    app = run(tree, CTRL_F3, lambda a: None,
+              lambda a: a.manager.left.spawn(a.manager.left.emit(TileWindows())),
+              lambda a: None)
+    desktop = app.shell.desktop
+    first, second = managers(app)
+    assert not first.zoomed and not second.zoomed
+    assert (first.y, first.height + second.height) == (0, desktop.height)
+    assert second.y == first.height and first.width == second.width == desktop.width
+
+
+def test_tile_arranges_the_tree_window_with_the_file_manager(tree):
+    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.tree_window import TreeWindow
+    from navml.commands import TileWindows
+
+    app = run(tree, lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None,
+              lambda a: a.shell.desktop.spawn(a.shell.desktop.active_window.emit(TileWindows())),
+              lambda a: None)
+    desktop = app.shell.desktop
+    manager, tree_window = desktop.windows()
+    assert isinstance(tree_window, TreeWindow)
+    assert (manager.x, manager.y, manager.width) == (0, 0, desktop.width)
+    assert (tree_window.x, tree_window.y) == (0, manager.height)
+    assert manager.height + tree_window.height == desktop.height

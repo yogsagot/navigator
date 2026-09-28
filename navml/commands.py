@@ -58,6 +58,35 @@ class WindowManager(Command):
     title = "List"
 
 
+class TileWindows(Command):
+    """Lay the tileable windows side by side over the whole desktop.
+
+    DOS Navigator's ``cmTile``, Window > Tile.  Like the two below it has no
+    key, because the original bound none.
+    """
+
+    title = "Tile"
+
+
+class CascadeWindows(Command):
+    """Stack the tileable windows, each one cell down and right of the one under it.
+
+    DOS Navigator's ``cmCascade``, Window > Cascade.
+    """
+
+    title = "Cascade"
+
+
+class CloseAllWindows(Command):
+    """Close every window that can be closed.
+
+    DOS Navigator's ``cmClearDesktop``, Window > Close all: a ``cmClose``
+    broadcast, so a window without a close icon stays.
+    """
+
+    title = "Close all"
+
+
 class Cancel(Command):
     """Dismiss a dialog without an answer."""
 
@@ -89,6 +118,8 @@ class SelectPrevious(Command):
 
 __all__ = [
     "Cancel",
+    "CascadeWindows",
+    "CloseAllWindows",
     "CloseWindow",
     "Default",
     "NextWindow",
@@ -97,6 +128,7 @@ __all__ = [
     "SelectNext",
     "SelectPrevious",
     "SizeMoveWindow",
+    "TileWindows",
     "WindowManager",
     "ZoomWindow",
 ]

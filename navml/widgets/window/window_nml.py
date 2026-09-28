@@ -54,14 +54,21 @@ class Window(_Component):
     #: Whether the bottom-right corner is a grip.
     resizable: bool = _reactive(True)    # window.nml:27
 
+    #: Whether Window > Tile and Cascade arrange it.  Turbo Vision's
+    #: ``ofTileable``, but **on by default**, where Turbo Vision had it off and
+    #: DOS Navigator set it on only some of its windows (not the tree window):
+    #: every window on a desktop is free-floating and takes part.  Kept as the
+    #: way out for a window that must stay where it is.
+    tileable: bool = _reactive(True)    # window.nml:34
+
     #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
-    min_width: int = _reactive(16)    # window.nml:30
-    min_height: int = _reactive(6)    # window.nml:31
+    min_width: int = _reactive(16)    # window.nml:37
+    min_height: int = _reactive(6)    # window.nml:38
 
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.
-    zoomed: bool = _reactive(False)    # window.nml:36
+    zoomed: bool = _reactive(False)    # window.nml:43
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

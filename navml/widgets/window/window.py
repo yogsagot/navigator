@@ -184,6 +184,18 @@ class Window(Widget):
         self.width = max(min(self.min_width, dw), min(width, dw - max(0, self.x)))
         self.height = max(min(self.min_height, dh), min(height, dh - self.y))
 
+    def locate(self, x: int, y: int, width: int, height: int) -> None:
+        """Take this rectangle outright, as Tile and Cascade hand it out.
+
+        Turbo Vision's ``Locate``: the size is raised to the minimum and
+        nothing else is checked, and a zoomed window stops being one -- its
+        rectangle is no longer the desktop's.
+        """
+        self.zoomed = False
+        self.x, self.y = x, y
+        self.width = max(self.min_width, width)
+        self.height = max(self.min_height, height)
+
     def toggle_zoom(self) -> None:
         """Fill the desktop, or go back to the rectangle that filling it replaced."""
         width, height = self._bounds()

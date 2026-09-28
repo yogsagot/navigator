@@ -26,6 +26,13 @@ Window:
     #: Whether the bottom-right corner is a grip.
     property resizable: True
 
+    #: Whether Window > Tile and Cascade arrange it.  Turbo Vision's
+    #: ``ofTileable``, but **on by default**, where Turbo Vision had it off and
+    #: DOS Navigator set it on only some of its windows (not the tree window):
+    #: every window on a desktop is free-floating and takes part.  Kept as the
+    #: way out for a window that must stay where it is.
+    property tileable: True
+
     #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
     property min_width: 16
     property min_height: 6

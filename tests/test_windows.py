@@ -379,3 +379,103 @@ def test_a_modal_sits_above_every_window_and_blocks_what_is_outside(desk):
     desktop.activate(back)
     assert app.root.children[-1] is dialog
     assert app.focused is not back.inner
+
+
+# -- Window > Tile, Cascade, Close all ---------------------------------------
+
+
+def rect(win):
+    return win.x, win.y, win.width, win.height
+
+
+@pytest.mark.parametrize("count, expected", [
+    (1, [(0, 0, 80, 22)]),
+    # More rows than columns: TileColumnsFirst was never set.
+    (2, [(0, 0, 80, 11), (0, 11, 80, 11)]),
+    (3, [(0, 0, 80, 7), (0, 7, 80, 7), (0, 14, 80, 8)]),
+    (4, [(0, 0, 40, 11), (0, 11, 40, 11), (40, 0, 40, 11), (40, 11, 40, 11)]),
+    # The column the grid cannot fill evenly takes a row more.
+    (5, [(0, 0, 40, 11), (0, 11, 40, 11),
+         (40, 0, 40, 7), (40, 7, 40, 7), (40, 14, 40, 8)]),
+])
+def test_tile_shares_the_desktop_as_dos_navigator_did(desk, count, expected):
+    app, desktop = desk
+    windows = [desktop.open(window(3 * i, i, 30, 10)) for i in range(count)]
+    top = desktop.active_window
+    desktop.tile()
+    # The bottom window gets the first tile, and the z-order is left alone.
+    assert [rect(w) for w in windows] == expected
+    assert desktop.windows() == windows and desktop.active_window is top
+
+
+def test_every_window_is_tileable_unless_it_says_not():
+    assert Window().tileable
+
+
+def test_tile_leaves_untileable_windows_and_unzooms_the_others(desk):
+    app, desktop = desk
+    zoomed = desktop.open(window(0, 0, 30, 10))
+    zoomed.toggle_zoom()
+    other = desktop.open(window(5, 5, 30, 10, tileable=False))
+    desktop.tile()
+    assert not zoomed.zoomed and rect(zoomed) == (0, 0, 80, 22)
+    assert rect(other) == (5, 5, 30, 10)
+
+
+def test_cascade_steps_equal_windows_so_a_raised_one_hides_none_above_it(desk):
+    app, desktop = desk
+    windows = [desktop.open(window(10, 5, 30, 10)) for _ in range(3)]
+    desktop.cascade()
+    # One size for all; only the top window reaches the desktop's corner.
+    assert [rect(w) for w in windows] == [(0, 0, 78, 20), (1, 1, 78, 20), (2, 2, 78, 20)]
+
+
+def test_cascade_is_refused_when_the_minimum_size_does_not_fit(desk):
+    app, desktop = desk
+    windows = [desktop.open(window(10, 1, 30, 20, min_height=21))
+               for _ in range(3)]
+    before = [rect(w) for w in windows]
+    desktop.cascade()
+    assert [rect(w) for w in windows] == before
+    for w in windows:
+        w.min_height = 20  # exactly the 22 - 2 a three-window cascade leaves
+    desktop.cascade()
+    assert [rect(w) for w in windows] == [(0, 0, 78, 20), (1, 1, 78, 20), (2, 2, 78, 20)]
+
+
+def test_close_all_closes_every_closable_window():
+    root = Widget()
+    desktop = Desktop(parent=root)
+    heard: list[EmptiedEvent] = []
+
+    async def on_emptied(event):
+        heard.append(event)
+        return True
+
+    root.on_emptied = on_emptied
+    app = Application(root, terminal=FakeTerminal(width=80, height=24))
+    stays = desktop.open(window(0, 0, 30, 10, closable=False))
+    desktop.open(window(5, 5, 30, 10))
+    desktop.open(window(10, 8, 30, 10))
+    seen = []
+
+    def look(a):
+        seen.append((desktop.windows(), desktop.active_window, len(heard)))
+        stays.closable = True
+
+    run_app(app, [lambda a: desktop.close_all(), look,
+                  lambda a: desktop.close_all(), lambda a: None])
+    assert seen == [([stays], stays, 0)]
+    assert desktop.windows() == [] and len(heard) == 1
+
+
+def test_tile_cascade_and_close_all_need_a_window_that_consents(desk):
+    from navml.commands import CascadeWindows, CloseAllWindows, TileWindows
+
+    app, desktop = desk
+    commands = (TileWindows(), CascadeWindows(), CloseAllWindows())
+    assert [desktop.enables(c) for c in commands] == [False, False, False]
+    desktop.open(window(0, 0, 30, 10, closable=False, tileable=False))
+    assert [desktop.enables(c) for c in commands] == [False, False, False]
+    desktop.open(window(5, 5, 30, 10))
+    assert [desktop.enables(c) for c in commands] == [True, True, True]

@@ -19,12 +19,19 @@ when it comes forward.  Done here rather than from an effect for the reason
 arriving in the same batch as the click would be routed by a focus that had
 not moved yet.
 
+**Tile and Cascade are DOS Navigator's own arithmetic**, ported from
+``TDesktop.Tile`` and ``TDesktop.Cascade`` in ``DNAPP.PAS`` rather than
+invented: they arrange every ``tileable`` window (all of them unless one
+opts out -- a deliberate departure from ``ofTileable``'s opt-in), count
+the bottom one first, and leave the z-order alone.
+
 A desktop never holds a modal.  A modal is overlaid on the application's
 root, which is a level above this, so no window can be raised past one.
 """
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from navkit.commands import Command
@@ -33,10 +40,13 @@ from navkit.reactive import effect, reactive, untracked
 from navkit.widget import Widget
 
 from navml.commands import (
+    CascadeWindows,
+    CloseAllWindows,
     CloseWindow,
     NextWindow,
     PreviousWindow,
     SizeMoveWindow,
+    TileWindows,
     WindowManager,
     ZoomWindow,
 )
@@ -56,6 +66,20 @@ class EmptiedEvent(Event):
     """The last window on a desktop was closed."""
 
 
+def _most_equal_divisors(n: int, favor_y: bool) -> tuple[int, int]:
+    """Columns and rows for *n* tiles: ``MostEqualDivisors``, favouring rows."""
+    i = math.isqrt(n)
+    if n % i and n % (i + 1) == 0:
+        i += 1
+    i = max(i, n // i)
+    return (n // i, i) if favor_y else (i, n // i)
+
+
+def _divider(lo: int, hi: int, num: int, pos: int) -> int:
+    """Where the *pos*-th of *num* equal parts of *lo*..*hi* starts: ``DividerLoc``."""
+    return (hi - lo) * pos // num + lo
+
+
 class Desktop(Widget):
     """The layer windows live on."""
 
@@ -68,7 +92,8 @@ class Desktop(Widget):
     #: the other arrives as a plain Tab -- so they take the keys its status
     #: lines bind ``cmNext`` and ``cmPrev`` to everywhere, F9 and Shift-F9.
     #: That leaves Ctrl-F6 for DOS Navigator's Calculator.  Alt-0 is the same
-    #: menu's *List*, ``cmWindowManager``.  Consulted after the
+    #: menu's *List*, ``cmWindowManager``.  Tile, Cascade and Close all have no
+    #: key, because the original gave them none.  Consulted after the
     #: active window's own children, because this desktop is further from the
     #: focus than they are.
     keys = {
@@ -178,10 +203,88 @@ class Desktop(Widget):
             self.lower_child(windows[-1])
             self.activate(self.windows()[-1])
 
+    def tileable_windows(self) -> list[Window]:
+        """The windows Tile and Cascade arrange, bottom to top."""
+        return [w for w in self.windows() if w.tileable and w.visible]
+
+    def tile(self) -> None:
+        """Window > Tile: share the desktop out between the tileable windows.
+
+        More rows than columns, as DOS Navigator's ``TileColumnsFirst`` was
+        never set -- two windows lie one above the other -- and the columns a
+        grid cannot fill evenly, the rightmost ones, take a row more.  The
+        bottom window gets the top-left tile.  A desktop too small for the
+        grid is left as it was, which is all ``TileError`` ever did.
+        """
+        windows = self.tileable_windows()
+        count = len(windows)
+        if not count:
+            return
+        width, height = self.width, self.height
+        cols, rows = _most_equal_divisors(count, favor_y=True)
+        if width // cols == 0 or height // rows == 0:
+            return
+        left_over = count % cols
+        even = (cols - left_over) * rows
+        for pos, window in enumerate(windows):
+            if pos < even:
+                col, row, col_rows = pos // rows, pos % rows, rows
+            else:
+                col = (pos - even) // (rows + 1) + cols - left_over
+                row, col_rows = (pos - even) % (rows + 1), rows + 1
+            x = _divider(0, width, cols, col)
+            y = _divider(0, height, col_rows, row)
+            window.locate(
+                x, y,
+                _divider(0, width, cols, col + 1) - x,
+                _divider(0, height, col_rows, row + 1) - y,
+            )
+
+    def cascade(self) -> None:
+        """Window > Cascade: every tileable window a cell down and right of
+        the one under it, **all the same size**.
+
+        A departure from ``TDesktop.Cascade``, which kept every window's
+        bottom-right corner on the desktop's, so each one lower in the stack
+        was larger and, raised, covered every window above it.  Here the size
+        is the desktop's less the steps the stack takes, so only the top
+        window reaches the corner, and a window brought forward still leaves
+        the edges of the ones above it showing.  Left alone when that size
+        is below some window's minimum -- ``TileError`` was empty.
+        """
+        windows = self.tileable_windows()
+        if not windows:
+            return
+        steps = len(windows) - 1
+        width, height = self.width - steps, self.height - steps
+        if any(w.min_width > width or w.min_height > height for w in windows):
+            return
+        for offset, window in enumerate(windows):
+            window.locate(offset, offset, width, height)
+
+    def close_all(self) -> None:
+        """Window > Close all: close every window that has a close icon.
+
+        ``cmClearDesktop`` broadcast ``cmClose``, which a window without one
+        ignores.  Closed front to back, and the last to go raises
+        :class:`EmptiedEvent` as a single close would.
+        """
+        for window in reversed(self.windows()):
+            if window.closable:
+                window.close()
+
     # -- commands ------------------------------------------------------------
 
     def enables(self, command: Command) -> bool:
-        """Every window command needs a window, and two need its consent."""
+        """Every window command needs a window, and two need its consent.
+
+        Tile and Cascade need a window that is tileable, and Close all one that
+        is closable, wherever it is in the stack.
+        """
+        if isinstance(command, (TileWindows, CascadeWindows)):
+            return bool(self.tileable_windows())
+        if isinstance(command, CloseAllWindows):
+            return any(window.closable for window in self.windows())
         window = self.active_window
         if window is None:
             return False
@@ -205,6 +308,18 @@ class Desktop(Widget):
 
     async def on_previous_window(self, event: PreviousWindow) -> bool:
         self.previous_window()
+        return True
+
+    async def on_tile_windows(self, event: TileWindows) -> bool:
+        self.tile()
+        return True
+
+    async def on_cascade_windows(self, event: CascadeWindows) -> bool:
+        self.cascade()
+        return True
+
+    async def on_close_all_windows(self, event: CloseAllWindows) -> bool:
+        self.close_all()
         return True
 
     async def on_window_manager(self, event: WindowManager) -> bool:
