@@ -109,4 +109,4 @@ It contains of three parts:
     - uses file system handlers that enable file operations over ssh, smb, in zip files, etc.
     - defines a flexible plugin system to expand core functionality with third party plugins
     - carefully recreates the look and feel of classic DOS Navigator by Ritlabs
-    - TETRIS
+    - Falling blocks game from late Soviet Union
