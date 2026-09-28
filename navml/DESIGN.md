@@ -357,7 +357,7 @@ project's standing rule says to take them rather than invent six of our own.
 | `Modal` | both | `title`, `icon` | `:focused` | — |
 | `Dialog` | both | inherited | inherited | — |
 | `Window` | both | `title`, `icon` | `:active` | — |
-| `Desktop` | Python | — | — | `EmptiedEvent` |
+| `Desktop` | Python | — | — | `OpenedEvent`, `EmptiedEvent` |
 | `Field` | **markup only** | — | — | — |
 | `Spacer` | Python | — | — | — |
 
@@ -551,7 +551,12 @@ forward. The two differ in **where they live**, and every other difference follo
 - **An emptied desktop says so** with `EmptiedEvent`, whose handler name makes the generator's stub for a child with
   id `desktop` read `on_desktop_emptied` — the name was chosen for that. The event is emitted from a spawned task
   because closing is synchronous and emitting is not, so a key in the same batch as the close still meets the old
-  focus; that is the one place the same-call rule is bent.
+  focus; that is one of the two places the same-call rule is bent.
+- **So does an opening**, with `OpenedEvent` from `Desktop.open()`, emitted the same way and bending the rule the
+  same way. It exists because the desktop can be out of sight: Navigator's `Shell.on_desktop_opened` hides the console
+  when a window opens behind it. That used to be a check inside Manager > New alone, so Disk > Directory tree opened a
+  window nobody could see until Ctrl+O. **Revealing a window belongs to opening it, not to the command that asked**,
+  so a plugin opening one gets the same behaviour for free. Nothing is announced while the tree is being built.
 
 ### Layouts
 

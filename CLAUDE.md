@@ -698,7 +698,8 @@ also the widget that showed why a navigated property is seeded rather than bound
   flips the flag, never from an effect** — an effect runs after the whole batch is dispatched, so a Ctrl+O and the
   keystroke behind it would be routed by a focus that had not moved yet — and hiding the console again re-activates
   the top window, which hands the keyboard back to exactly the widget that had it. Closing the last window
-  (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
+  (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused, and opening any window (`OpenedEvent`)
+  hides the console again so the window is seen -- no command that opens one checks `console_visible` itself. `Console.can_focus` is set in `__init__`, never in the class body, where it would shadow the
   reactive descriptor with a plain attribute. The console reports the child's cursor through `cursor_position()`, so
   the caret is the terminal's own
 - **Keys are commands, bound in key tables** (`navkit/commands.py`; *Commands and key tables* in `navkit/DESIGN.md`).

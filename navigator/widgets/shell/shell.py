@@ -139,8 +139,6 @@ class Shell(DockLayout):
         current = self.active_manager
         start = current.active_panel.path if current is not None else Path.cwd()
         self.desktop.open(Manager(start, start))
-        if self.console_visible:
-            self.toggle_console()
         return True
 
     # -- the directory tree window --------------------------------------------
@@ -166,6 +164,17 @@ class Shell(DockLayout):
         if manager is None or event.node is None:
             return False
         manager.active_panel.path = Path(event.node.data)
+        return True
+
+    async def on_desktop_opened(self, event: Event) -> bool:
+        """A window was opened on ``desktop``: if Ctrl+O had put the windows away, bring them back.
+
+        Here rather than in each command that opens one, which is what used to
+        let Disk > Directory tree open a window nobody could see: opening *is*
+        the request to show it, whatever the window and whoever opened it.
+        """
+        if self.console_visible:
+            self.toggle_console()
         return True
 
     async def on_desktop_emptied(self, event: Event) -> bool:

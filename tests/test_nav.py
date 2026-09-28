@@ -1816,6 +1816,24 @@ def test_ctrl_f3_from_the_console_with_no_file_manager_left(tree, quiet_console)
     assert only._holds(app.focused)
 
 
+def test_a_tree_window_opened_behind_the_console_brings_the_desktop_back(tree, quiet_console):
+    # Opening a window is what shows it: the desktop announces the opening and
+    # the shell hides the console, so no command has to remember to.
+    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.tree_window import TreeWindow
+
+    for hide in (KeyEvent("o", ctrl=True), KeyEvent("f4", ctrl=True)):  # Ctrl+O, or close the last window
+        app = navigator(tree)
+        run_app(app, [
+            hide, lambda a: None,
+            lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None,
+        ])
+        window = app.shell.desktop.active_window
+        assert isinstance(window, TreeWindow)
+        assert app.shell.console_visible is False
+        assert window._holds(app.focused)
+
+
 def test_the_tree_window_steers_the_file_manager_in_front(tree):
     from navigator.commands import OpenTreeWindow
 

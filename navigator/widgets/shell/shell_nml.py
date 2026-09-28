@@ -75,6 +75,10 @@ class Shell(DockLayout, _Component):
         """``desktop`` raised an event whose handler is ``on_emptied``."""
         return False
 
+    async def on_desktop_opened(self, event: _Event) -> bool:    # shell.nml:48
+        """``desktop`` raised an event whose handler is ``on_opened``."""
+        return False
+
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.menu = MainMenu(parent=self)    # shell.nml:29
@@ -91,5 +95,6 @@ class Shell(DockLayout, _Component):
 
         self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:49
         self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:48
+        self.desktop.on_opened = self.on_desktop_opened    # shell.nml:48
 
         self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:53

@@ -42,6 +42,15 @@ from navml.commands import (
 from navml.widgets.window import Window
 
 
+class OpenedEvent(Event):
+    """A window was opened on a desktop.
+
+    Whoever can hide the desktop listens for it, so that a window opened while
+    the desktop is out of sight is brought into view by being opened -- not by
+    every command that opens one remembering to.
+    """
+
+
 class EmptiedEvent(Event):
     """The last window on a desktop was closed."""
 
@@ -49,7 +58,7 @@ class EmptiedEvent(Event):
 class Desktop(Widget):
     """The layer windows live on."""
 
-    emits = (EmptiedEvent,)
+    emits = (OpenedEvent, EmptiedEvent)
 
     #: The window keys, checked against DOS Navigator's own *Window* menu
     #: (``dlgMainMenu`` in ``DN.DNR``): Size/Move Ctrl-F5, Zoom Alt-Z, Close
@@ -94,11 +103,18 @@ class Desktop(Widget):
     # -- opening, raising, closing -------------------------------------------
 
     def open(self, window: Window) -> Window:
-        """Put *window* on top of the others and give it the keyboard."""
+        """Put *window* on top of the others and give it the keyboard.
+
+        Raises :class:`OpenedEvent` once the application is running -- a
+        window opened while the tree is being built has nothing to announce.
+        """
         self.add(window)
         if self.is_mounted:
             window.layout(self.width, self.height)
         self.activate(window)
+        app = self.application
+        if app is not None and app.is_running:
+            self.spawn(self.emit(OpenedEvent()))
         return window
 
     def activate(self, window: Window) -> None:
