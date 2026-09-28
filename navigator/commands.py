@@ -24,6 +24,12 @@ class Help(Command):
     title = "Help"
 
 
+class About(Command):
+    """≡ > About: DOS Navigator's ``cmAbout``, the name, version and author."""
+
+    title = "About"
+
+
 class UserMenu(Command):
     title = "User"
 
@@ -239,6 +245,7 @@ class DeleteSingle(Command):
 
 
 __all__ = [
+    "About",
     "ArchiveFiles",
     "Calculator",
     "ChangeDrive",

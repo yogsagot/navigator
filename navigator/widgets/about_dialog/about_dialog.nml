@@ -1,0 +1,17 @@
+from navml.widgets.dialog.dialog import Dialog
+
+from navigator.about import about_text, project_info
+
+#: ≡ > About: DOS Navigator's ``MessageBoxAbout`` (``DNUTIL.PAS``).
+#:
+#: The original was a message box -- centred static text and an OK -- and so
+#: is this, built out of what ``Dialog`` already is: its ``message`` carries
+#: the text and ``buttons: "ok"`` hides the Cancel.  What the text says is
+#: ``pyproject.toml``'s, through :func:`navigator.about.project_info`, so the
+#: version, the licence and the author are written in one place.
+AboutDialog(Dialog):
+    modal_width: 52
+    modal_height: 17
+    title: "About"
+    buttons: "ok"
+    prompt: about_text(project_info())

@@ -9,29 +9,29 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
 
 ```text
   ≡  File  Disk  Utilities  Panel  Manager  Options  Window                12:34
-╔═[■]═════════════ . ══════════════════╗┌──────────────── src ─────────────[↕]─┐
-║bin                                DIR║│..                             UP--DIR│
-║docs                               DIR║│navigator                          DIR│
-║src                                DIR║│navkit                             DIR│
-║tests                              DIR║│navml                              DIR│
-║.gitignore                         214║│__init__.py                          0│
-║config.nss                          4K║│app.py                             13K│
-║LICENSE                             1K║│console.py                          9K│
-║Makefile                            2K║│screen.py                          18K│
-║navigator.log                     179K║│widgets.py                         22K│
-║pyproject.toml                      2K║│                                      │
-║README.md                           7K║│                                      │
-║setup.cfg                          612║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-║                                      ║│                                      │
-╚════════════════ bin ═════════════════╝└───────────────── .. ─────────────────┘
- F1 Help  F2 User  F3 View  F4 Edit  F5 Copy  F6 Ren  F7 MkDir  F8 Del  F10 Menu
+┌─[■]───────────── . ──────────────────┐┌──────────────── src ─────────────[↕]─┐
+│bin                                DIR││..                             UP--DIR│
+│docs         ╔═════════════════════ About ══════════════════[■]═╗          DIR│
+│src          ║                                                  ║          DIR│
+│tests        ║                    Navigator                     ║          DIR│
+│.gitignore   ║                  Version 0.0.4                   ║            0│
+│config.nss   ║                                                  ║          13K│
+│LICENSE      ║ A recreation of the DOS Navigator two-panel file ║           9K│
+│Makefile     ║           manager for POSIX terminals            ║          18K│
+│navigator.log║                                                  ║          22K│
+│pyproject.tom║   Juris Krumgolds <juris.krumgolds@gmail.com>    ║             │
+│README.md    ║                   License: MIT                   ║             │
+│setup.cfg    ║                                                  ║             │
+│             ║      https://github.com/yogsagot/navigator       ║             │
+│             ║                                                  ║             │
+│             ║                   [   OK   ]                     ║             │
+│             ║                                                  ║             │
+│             ║                                                  ║             │
+│             ╚══════════════════════════════════════════════════╝             │
+│                                      ││                                      │
+│                                      ││                                      │
+└──────────────── bin ─────────────────┘└───────────────── .. ─────────────────┘
+
 ```
 
 </details>

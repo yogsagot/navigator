@@ -462,6 +462,7 @@ def render_diff(
         out.append(RESET_SGR + "\x1b[H\x1b[2J")
 
     style: Style | None = None
+    link: str | None = None
     cursor: tuple[int, int] | None = None
 
     for y in range(current.height):
@@ -487,10 +488,31 @@ def render_diff(
             if cell_style != style:
                 out.append(info.sgr(cell_style) if info else cell_style.sgr())
                 style = cell_style
+                # A link is an attribute the terminal keeps like SGR's, so it
+                # is switched only where it changes; a cursor jump does not
+                # end it, which is why every cell written is compared.
+                target = cell_style.link if info is None or info.hyperlinks else None
+                if target != link:
+                    out.append(hyperlink(target))
+                    link = target
             out.append(char)
             cursor = (x + width, y)
             x += width
 
+    if link is not None:
+        out.append(hyperlink(None))
     if out:
         out.append(RESET_SGR)
     return "".join(out)
+
+
+def hyperlink(url: str | None) -> str:
+    """OSC 8: the cells written next link to *url*, or to nothing.
+
+    The URL is written as given apart from the control characters, which
+    would end the sequence early and leave the rest of it on the screen.
+    """
+    if url is None:
+        return "\x1b]8;;\x1b\\"
+    safe = "".join(c for c in url if c.isprintable())
+    return f"\x1b]8;;{safe}\x1b\\"

@@ -441,3 +441,28 @@ def test_the_convenience_properties_follow_the_tier():
 
 def test_everything_on_includes_the_top_glyph_tier():
     assert FULL.glyphs == GLYPHS_NERD
+
+
+# -- hyperlinks ---------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("env", "is_tty", "expected"),
+    [
+        ({"TERM": "xterm-256color"}, True, True),
+        ({"TERM": "linux"}, True, False),
+        ({"TERM": "dumb"}, True, False),
+        ({"TERM": "xterm"}, False, False),
+        ({"TERM": "linux", "NAVKIT_HYPERLINKS": "on"}, True, True),
+        ({"TERM": "xterm", "NAVKIT_HYPERLINKS": "off"}, True, False),
+    ],
+)
+def test_hyperlinks_are_written_to_any_terminal_but_the_linux_console(env, is_tty, expected):
+    assert TerminalInfo.detect(env, is_tty=is_tty).hyperlinks is expected
+
+
+def test_a_terminal_without_hyperlinks_is_sent_none():
+    buffer = ScreenBuffer(4, 1)
+    buffer.draw_text(0, 0, "link", Style(link="https://example.org"))
+    assert "\x1b]8;" in render_diff(None, buffer, TerminalInfo())
+    assert "\x1b]8;" not in render_diff(None, buffer, TerminalInfo(hyperlinks=False))

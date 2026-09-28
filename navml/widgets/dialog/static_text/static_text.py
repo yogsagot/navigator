@@ -9,7 +9,9 @@ whole library.
 
 from __future__ import annotations
 
-from navkit.screen import Surface
+import re
+
+from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.widget import Widget
 
@@ -45,6 +47,28 @@ def draw_caption(
         x + used, y, caption[start + len(letter) :], style, limit - used
     )
     return used
+
+
+#: What :attr:`StaticText.links` treats as an address: a scheme and
+#: everything up to the next space.
+URL = re.compile(r"https?://\S+")
+
+
+def link_urls(surface: Surface, x: int, y: int, line: str) -> None:
+    """Mark every address in *line*, painted at *x*, *y*, as a link to itself.
+
+    Done over the cells already drawn, so the ``~A~`` run and the colours stay
+    as ``draw_caption`` left them.  An address a wrap has broken is linked a
+    line at a time, each half to what it holds -- which is what the reader of
+    a broken address sees too.
+    """
+    for match in URL.finditer(line):
+        column = x + sum(max(1, char_width(c)) for c in line[: match.start()])
+        for offset in range(len(match.group())):
+            if not 0 <= column + offset < surface.width:
+                continue
+            char, style = surface.get(column + offset, y)
+            surface.set_cell(column + offset, y, char, style.derive(link=match.group()))
 
 
 def wrapped(text: str, width: int) -> list[str]:
@@ -102,3 +126,5 @@ class StaticText(Widget):
             else:
                 x = 0
             draw_caption(surface, x, row, line, style, shortcut, self.width - x)
+            if self.links:
+                link_urls(surface, x, row, plain)

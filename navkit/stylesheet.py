@@ -34,8 +34,10 @@ if TYPE_CHECKING:
 
 #: Every declaration key that ends up inside a :class:`~navkit.style.Style`.
 #: Anything else a sheet declares is a widget property -- see
-#: :func:`register_property`.
-STYLE_FIELDS = frozenset(Style.__dataclass_fields__)
+#: :func:`register_property`.  ``link`` is a ``Style`` field and not a
+#: declaration: where a cell points is content, which a widget knows and a
+#: sheet does not, so it is set while painting and never cascades.
+STYLE_FIELDS = frozenset(Style.__dataclass_fields__) - {"link"}
 
 #: The sixteen colours :mod:`navkit.style` names, as a sheet spells them.
 #: Listed rather than introspected so that a future integer constant in that

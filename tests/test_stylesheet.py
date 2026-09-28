@@ -671,3 +671,10 @@ def test_a_malformed_negation_is_refused(text, message):
 def test_a_comma_outside_not_still_separates_selectors():
     sheet = parse("Panel:not(.a), Label { fg: red }")
     assert len(sheet.rules) == 2
+
+
+def test_a_sheet_cannot_declare_a_link():
+    """Where a cell points is content: a widget sets it while painting."""
+    from navkit.stylesheet import STYLE_FIELDS
+
+    assert "link" not in STYLE_FIELDS

@@ -44,5 +44,10 @@ class StaticText(_Component):
     #: a button wants.
     wrap: bool = _reactive(False)    # static_text.nml:17
 
+    #: Whether an ``http://`` or ``https://`` address in the text is written
+    #: as a hyperlink the terminal can open.  Only the cells change meaning;
+    #: they look the same, and a terminal that shows links shows it on hover.
+    links: bool = _reactive(False)    # static_text.nml:22
+
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

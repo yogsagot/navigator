@@ -18,7 +18,7 @@ from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
 
-from navigator.commands import NewManager, OpenTreeWindow
+from navigator.commands import About, NewManager, OpenTreeWindow
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
@@ -139,6 +139,13 @@ class Shell(DockLayout):
         current = self.active_manager
         start = current.active_panel.path if current is not None else Path.cwd()
         self.desktop.open(Manager(start, start))
+        return True
+
+    async def on_about(self, event: About) -> bool:
+        """≡ > About: started, not awaited -- a handler never waits on a dialog."""
+        from navigator.widgets.about_dialog import AboutDialog
+
+        self.spawn(AboutDialog().execute(self.application))
         return True
 
     # -- the directory tree window --------------------------------------------

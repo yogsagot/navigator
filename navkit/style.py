@@ -58,6 +58,13 @@ class Style:
     italic: bool = False
     underline: bool = False
     reverse: bool = False
+    #: The URL this cell is a hyperlink to (OSC 8), or ``None``.  Not an
+    #: appearance -- :meth:`sgr` ignores it, and no sheet can declare it (see
+    #: ``navkit.stylesheet.STYLE_FIELDS``) -- but it rides here because it is
+    #: per cell, and a cell is a character and a style.  The renderer opens and
+    #: closes the link as it passes from one cell to the next, exactly as it
+    #: switches SGR, so a link is only as wide as the cells that carry it.
+    link: str | None = None
 
     def derive(self, **changes) -> Style:
         """Return a copy of this style with *changes* applied."""

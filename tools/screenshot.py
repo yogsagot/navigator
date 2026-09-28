@@ -24,7 +24,9 @@ constructs it and rendered into a :class:`~navkit.screen.ScreenBuffer`, with
 the three things that would make it differ between runs pinned -- the
 directory it lists (built here, with fixed sizes), the clock, and the shell
 the console would otherwise fork.  This is the golden test's recipe
-(``tests/test_nav.py``), applied to a directory worth looking at.
+(``tests/test_nav.py``), applied to a directory worth looking at, with the
+About box (≡ > About) open over it -- so the picture carries the version, and
+a release makes ``--check`` stale until the screenshot is regenerated.
 
 This is an asset pipeline, like ``palconv.py``: nothing under ``navigator/``
 imports it.
@@ -125,6 +127,7 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty."""
     from navigator.__main__ import Navigator
     from navigator.scheme import load_scheme
+    from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.clock import clock as clock_module
     from navigator.widgets.console import Console
 
@@ -142,6 +145,11 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
             terminal=HeadlessTerminal(width, height, info),
         )
         task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.15)
+        # Started from here rather than through the command, which would need
+        # a key or a menu walk; outside a dispatch, `execute' is content to
+        # be awaited, and the task is cancelled with the app.
+        asyncio.create_task(AboutDialog().execute(app))
         await asyncio.sleep(0.15)
         buffer = ScreenBuffer(width, height)
         app.shell.render_tree(buffer)

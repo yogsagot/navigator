@@ -15,3 +15,8 @@ StaticText:
     #: Off gives one line clipped at the edge, which is what a caption inside
     #: a button wants.
     property wrap: False
+
+    #: Whether an ``http://`` or ``https://`` address in the text is written
+    #: as a hyperlink the terminal can open.  Only the cells change meaning;
+    #: they look the same, and a terminal that shows links shows it on hover.
+    property links: False

@@ -232,6 +232,11 @@ class TerminalInfo:
     #: held Alt.  Pushed without a query, since a terminal that does not know
     #: it ignores it; ``NAVKIT_KEYBOARD=legacy`` is the way out if one does not.
     kitty_keyboard: bool = True
+    #: Whether a cell's :attr:`~navkit.style.Style.link` is written as an
+    #: OSC 8 hyperlink.  A terminal that does not know OSC 8 swallows it as
+    #: an unknown OSC, which is nearly all of them -- the Linux console is
+    #: the exception, and prints the tail of it as text.
+    hyperlinks: bool = True
 
     @property
     def truecolor(self) -> bool:
@@ -290,6 +295,10 @@ class TerminalInfo:
         ``NAVKIT_KEYBOARD`` (``kitty``, or ``legacy``) says whether to push the
         kitty keyboard protocol, which is otherwise pushed on any interactive
         terminal.
+
+        ``NAVKIT_HYPERLINKS`` (``on`` or ``off``) says whether to write OSC 8
+        hyperlinks, which are otherwise written on any interactive terminal
+        but the Linux console.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -329,6 +338,13 @@ class TerminalInfo:
         elif keyboard == "kitty":
             kitty_keyboard = True
 
+        hyperlinks = not plain and env.get("TERM", "") != "linux"
+        choice = env.get("NAVKIT_HYPERLINKS", "").strip().lower()
+        if choice in ("on", "yes", "1"):
+            hyperlinks = True
+        elif choice in ("off", "no", "0", "none"):
+            hyperlinks = False
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -344,6 +360,7 @@ class TerminalInfo:
             bracketed_paste=not plain,
             title=not plain,
             kitty_keyboard=kitty_keyboard,
+            hyperlinks=hyperlinks,
         )
 
     def adapt(self, color: Color | None) -> Color | None:
@@ -382,11 +399,13 @@ class TerminalInfo:
         return nearest if self.colors >= ANSI_BRIGHT else nearest % ANSI
 
     def adapt_style(self, style: Style) -> Style:
-        """*style* with both its colours put through :meth:`adapt`."""
+        """*style* with both its colours put through :meth:`adapt`, and its
+        link dropped if this terminal is not to be sent one."""
         fg, bg = self.adapt(style.fg), self.adapt(style.bg)
-        if fg == style.fg and bg == style.bg:
+        link = style.link if self.hyperlinks else None
+        if fg == style.fg and bg == style.bg and link == style.link:
             return style
-        return replace(style, fg=fg, bg=bg)
+        return replace(style, fg=fg, bg=bg, link=link)
 
     def sgr(self, style: Style) -> str:
         """The escape sequence selecting *style* on this terminal."""

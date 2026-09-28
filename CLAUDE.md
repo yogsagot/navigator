@@ -76,6 +76,14 @@ entry opened a second file manager instead -- taking the window was a choice, re
 `navml/widgets/window_manager/` and `window_list/`): the desktop's windows top first, named by
 `Window.list_name()` (`cmGetName`; a file manager is its active panel's directory), OK switches and Close closes
 while the dialog stays up. *Windows, the desktop and the modal* in `navml/DESIGN.md` has the rest.
+**≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
+and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
+`pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml
+does not reach a wheel). The README screenshot shows it open, so a version bump makes `screenshot.py --check` stale.
+The home page is an **OSC 8 hyperlink**: `Style.link` is a per-cell URL that `render_diff` opens and closes as it
+switches cells, exactly as it switches SGR; it is not in `STYLE_FIELDS`, so no sheet can declare one.
+`TerminalInfo.hyperlinks` gates it -- on for any interactive terminal but `TERM=linux`, whose console prints OSC 8's
+tail as text -- and `NAVKIT_HYPERLINKS=on|off` overrides. `StaticText.links` marks the `http(s)://` runs it paints.
 
 Four rules from building it, each of which was found by running something rather than by reasoning:
 

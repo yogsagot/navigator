@@ -371,3 +371,39 @@ def test_blit_from_a_view_reads_the_right_cells():
     target = ScreenBuffer(3, 1)
     target.blit(source.view(2, 1, 3, 1))
     assert "".join(target.get(x, 0)[0] for x in range(3)) == "cde"
+
+
+# -- hyperlinks ---------------------------------------------------------------
+
+
+def test_a_link_is_opened_before_its_cells_and_closed_after():
+    from navkit.screen import hyperlink
+
+    buffer = ScreenBuffer(6, 1)
+    linked = Style(link="https://example.org")
+    buffer.draw_text(0, 0, "ab", DEFAULT_STYLE)
+    buffer.draw_text(2, 0, "cd", linked)
+    buffer.draw_text(4, 0, "ef", DEFAULT_STYLE)
+    out = render_diff(None, buffer)
+    opened = out.index(hyperlink("https://example.org"))
+    closed = out.index(hyperlink(None))
+    assert out.index("ab") < opened < out.index("cd") < closed < out.index("ef")
+    assert out.count("\x1b]8;") == 2
+
+
+def test_a_link_still_open_at_the_end_of_a_frame_is_closed():
+    from navkit.screen import hyperlink
+
+    buffer = ScreenBuffer(4, 1)
+    buffer.draw_text(0, 0, "link", Style(link="https://example.org"))
+    assert render_diff(None, buffer).endswith(hyperlink(None) + RESET_SGR)
+
+
+def test_a_link_sheds_the_control_characters_that_would_end_it():
+    from navkit.screen import hyperlink
+
+    assert hyperlink("https://x\x1b\\y\x07") == "\x1b]8;;https://x\\y\x1b\\"
+
+
+def test_the_link_is_no_part_of_the_sgr():
+    assert Style(bold=True, link="https://x").sgr() == Style(bold=True).sgr()
