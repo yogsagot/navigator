@@ -25,8 +25,11 @@ if TYPE_CHECKING:
     from navkit.application import Repeat
 
 #: The two markers on the button Enter would press, CP437 16 and 17 in the
-#: original, and what stands in for them where only ASCII can be shown.
-MARKERS = {"dos": "►◄", "ascii": "><"}
+#: original, and what stands in for them where only ASCII can be shown.  Not
+#: ``►◄``, CP437's own shapes: fonts draw those pointers squat, and ``▶◀`` is
+#: the full-size triangle.  Its width is East Asian *ambiguous*, which costs
+#: nothing the box-drawing characters have not already spent.
+MARKERS = {"dos": "▶◀", "ascii": "><"}
 
 #: How long a Space shows the button pressed on a terminal that will not say
 #: when the key was let go.  Long enough to be seen, short enough that the
@@ -64,7 +67,7 @@ class Button(Control):
     **It is drawn as DOS Navigator's ``TButton.DrawState`` draws it.**  The
     face is plain colour, with no brackets.  The button Enter would press --
     the focused one, or else the dialog's default (:attr:`am_default`) --
-    carries ``►`` in its first column and ``◄`` in its last.  The shadow is
+    carries ``▶`` in its first column and ``◀`` in its last.  The shadow is
     two rows of half blocks in the shadow colour: ``▄`` then ``█`` down the
     column to the right, and ``▀`` under the face, one cell in.  So the
     widget is two rows tall and one column wider than its face, and putting
@@ -119,7 +122,7 @@ class Button(Control):
 
     @computed
     def marked(self) -> bool:
-        """Whether ``►`` and ``◄`` are drawn: the button Enter would press."""
+        """Whether ``▶`` and ``◀`` are drawn: the button Enter would press."""
         return not self.inert and (self.focused or self.am_default)
 
     async def press(self) -> bool:

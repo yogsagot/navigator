@@ -365,7 +365,8 @@ project's standing rule says to take them rather than invent six of our own.
 
 The first `Button` drew `[ OK ]` and darkened whatever was to its right and below. DOS Navigator's own
 (`DIALOGS.PAS`, `TButton.DrawState`, the colour path where `ShowMarkers` is off) has no brackets: the face is plain
-colour, and the button Enter would press carries `►` and `◄` (CP437 16 and 17) in its first and last columns. The
+colour, and the button Enter would press carries `►` and `◄` (CP437 16 and 17) in its first and last columns -- drawn here as `▶` and `◀`, because fonts
+draw the `►◄` pointers squat and those are the full-size triangles; their width is ambiguous, as box drawing's is. The
 shadow is drawn, not darkened: `▄` then `█` down the column to the right and `▀` under the face one cell in, in `[46]`
 — black on the dialog's grey, so the half blocks *are* the shadow and nothing behind is read. The rectangle is
 unchanged, one column and one row wider than the face. Under the ASCII tier the half blocks become whole cells.

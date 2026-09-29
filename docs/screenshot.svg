@@ -131,10 +131,10 @@
 <text x="430" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">MIT</text>
 <text x="10" y="275" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#aaaaaa">setup.cfg</text>
 <text x="210" y="295" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#000000">https://github.com/yogsagot/navigator</text>
-<text x="340" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">►</text>
+<text x="340" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">▶</text>
 <text x="380" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">O</text>
 <text x="390" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">K</text>
-<text x="430" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">◄</text>
+<text x="430" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">◀</text>
 <text x="180" y="435" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#aaaaaa">bin</text>
 <text x="590" y="435" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aaaaaa">..</text>
 <text x="0" y="455" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">.&gt;</text>

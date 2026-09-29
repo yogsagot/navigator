@@ -324,11 +324,11 @@ def test_the_button_enter_would_press_is_marked_and_a_pressed_one_moves_right():
     button = Button(text="OK", width=8, height=2, default=True)
     buffer = _Buffer(8, 2)
     button.render(buffer)
-    assert _row(buffer, 0) == "►     ◄▄"
+    assert _row(buffer, 0) == "▶     ◀▄"
     button.down = True
     buffer = _Buffer(8, 2)
     button.render(buffer)
-    assert _row(buffer, 0) == " ►     ◄"
+    assert _row(buffer, 0) == " ▶     ◀"
     assert _row(buffer, 1) == "        "
 
 
