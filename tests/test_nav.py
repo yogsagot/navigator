@@ -1616,8 +1616,8 @@ def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
     run_app(app, [lambda a: enabled.extend(
         (c.title, a.command_enabled(c)) for _, c, _, _ in a.shell.keybar.items()
     )])
-    # View, MkDir and the menu work; the rest are file operations still to come.
-    assert [title for title, on in enabled if on] == ["View", "MkDir", "Menu"]
+    # View, Edit, MkDir and the menu work; the rest are file operations still to come.
+    assert [title for title, on in enabled if on] == ["View", "Edit", "MkDir", "Menu"]
 
 
 def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):

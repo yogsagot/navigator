@@ -95,13 +95,13 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         ("tab", "SelectNext"),
         ("shift+tab", "SelectPrevious"),
     ]
-    assert list(document.ids()) == ["message", "row", "ok", "cancel", "info"]
+    assert list(document.ids()) == ["message", "row", "ok", "no", "cancel", "info"]
 
     blocks = {block.id: block for block in document.root.walk() if block.id}
     assert [b.type for b in document.root.children] == [
         "StaticText", "HorizontalLayout",
     ]
-    assert [b.type for b in blocks["row"].children] == ["Button"] * 3
+    assert [b.type for b in blocks["row"].children] == ["Button"] * 4
     assert dict(
         (p.name, p.expression) for p in blocks["message"].properties
     ) == {
@@ -112,12 +112,12 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         "text": "parent.prompt",
         "wrap": "True",
     }
-    # Only ``info`` carries a handler: the other two reach the hand-written
+    # Only ``info`` carries a handler: the other three reach the hand-written
     # half through the ``on_<id>_<event>`` convention, which is the generator's
     # to emit and says nothing in the markup.
     assert [h.name for h in blocks["info"].handlers] == ["on_click"]
     assert blocks["info"].handlers[0].body == "await root.show_info(event)"
-    assert all(not b.handlers for b in (blocks["ok"], blocks["cancel"]))
+    assert all(not b.handlers for b in (blocks["ok"], blocks["no"], blocks["cancel"]))
 
 
 @pytest.mark.parametrize("component", SHIPPED)

@@ -228,7 +228,7 @@ def test_each_half_of_each_level_builds_its_tree_exactly_once():
     """
     dialog = Dialog(prompt="Save?", modal_width=40, modal_height=10)
     assert dialog.children == [dialog.message, dialog.row]
-    assert dialog.row.children == [dialog.ok, dialog.cancel, dialog.info]
+    assert dialog.row.children == [dialog.ok, dialog.no, dialog.cancel, dialog.info]
     assert dialog.message.text == "Save?"
 
     # Modal declares no children at all, so this is also the proof that a
@@ -868,7 +868,7 @@ def test_the_markup_names_every_composed_handler_the_python_half_defines():
     """
     markup = (shipped("dialog", ".nml")).read_text()
     ids = set(re.findall(r"^\s+id: (\w+)$", markup, re.M))
-    assert ids == {"message", "row", "ok", "cancel", "info"}
+    assert ids == {"message", "row", "ok", "no", "cancel", "info"}
 
     source = (shipped("dialog", ".py")).read_text()
     composed = re.findall(r"async def on_(\w+)_click\(", source)
