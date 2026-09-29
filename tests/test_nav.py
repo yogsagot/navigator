@@ -1951,6 +1951,52 @@ def test_the_prompt_follows_the_active_panel(tree, quiet_console):
     assert seen == [f"{tree}>", f"{tree / 'alpha'}>"]
 
 
+def shell_prompt(app, cwd, data=b"\x1b[32mme\x1b[0m$ "):
+    """Pretend the shell printed *data* as its prompt, in *cwd*."""
+    app.shell.console._prompted(data, cwd)
+    settle()
+
+
+def test_the_shell_s_own_prompt_is_painted_with_its_colours(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [*typed("ls"), lambda a: shell_prompt(a, tree)])
+    buffer = desktop(app)
+    assert row_of(buffer, 22).rstrip() == "me$ ls"
+    assert buffer.get(0, 22)[1].fg == 2
+    # What the shell left uncoloured is the line's own colour, not the terminal's.
+    assert buffer.get(2, 22)[1].fg == app.shell.command_line.style.fg
+    assert app.shell.command_line.cursor_position() == (len("me$ ls"), 0)
+
+
+def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [
+        lambda a: shell_prompt(a, tree),
+        lambda a: setattr(a.manager.right, "path", tree / "alpha"),
+        KeyEvent("tab"),
+    ])
+    # The shell has not caught up with the panel yet: DOS Navigator's prompt
+    # stands in until it does.
+    assert app.shell.command_line.prompt_cells == ()
+    assert app.shell.command_line.prompt == f"{tree / 'alpha'}>"
+    assert row_of(desktop(app), 22).startswith(app.shell.command_line.shown_prompt)
+    shell_prompt(app, tree / "alpha")
+    assert row_of(desktop(app), 22).startswith("me$ ")
+
+
+def test_the_idle_shell_follows_the_active_panel(tree, quiet_console, monkeypatch):
+    asked = []
+    monkeypatch.setattr("navigator.subshell.Subshell.sync",
+                        lambda self, cwd: asked.append(cwd))
+    app = navigator(tree)
+    run_app(app, [
+        lambda a: setattr(a.manager.right, "path", tree / "alpha"),
+        KeyEvent("tab"),
+    ])
+    assert asked[0] == tree
+    assert asked[-1] == tree / "alpha"
+
+
 def test_printable_keys_on_a_panel_are_typed_on_the_command_line(tree, quiet_console):
     app = navigator(tree)
     run_app(app, [*typed("lsx"), KeyEvent("backspace"), KeyEvent("left"),

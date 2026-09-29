@@ -10,9 +10,12 @@ respects, each of which is the original's:
   Here that is ``Shell.on_key``, which is where a key the panel declined walks
   up to -- so the caret is drawn here by ``Shell.cursor_position`` rather than
   by focus, and the line is never in anybody's tab order.
-* **It paints its prompt**, ``<directory>>``, before the text, and scrolls the
-  text in the room that is left.  No ``◄``/``►`` margins: the original scrolled
-  silently.
+* **It paints its prompt** before the text, and scrolls the text in the room
+  that is left.  No ``◄``/``►`` margins: the original scrolled silently.  The
+  prompt is the shell's own, colours and all (``prompt_cells``), and DOS
+  Navigator's ``<directory>>`` (``prompt``) only until the shell has printed
+  one for the directory in front -- the one place this line is not the
+  original's, whose ``SetDirShape`` ignored ``PROMPT``.
 * **Esc clears it and Ctrl+E / Ctrl+X walk the command history**, the keys
   ``CMDLINE.PAS`` answers to while the panel eats Up and Down.
 
@@ -25,7 +28,8 @@ from __future__ import annotations
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import reactive
-from navkit.screen import Surface
+from navkit.screen import Cell, Surface
+from navkit.style import Style
 from navml.history import HISTORY
 from navml.widgets.dialog.input_line import InputLine
 
@@ -43,6 +47,10 @@ class CommandLine(InputLine):
     #: ``>``.  Bound by ``Shell``.
     prompt: str = reactive("")
 
+    #: The shell's prompt as cells, each in the style the shell asked for.
+    #: Painted instead of ``prompt`` whenever it holds any.  Bound by ``Shell``.
+    prompt_cells: tuple = reactive(())
+
     #: ``::prompt`` beside the input line's own parts.
     parts = ("prompt",)
 
@@ -53,18 +61,40 @@ class CommandLine(InputLine):
         self._recalled = -1
 
     @property
+    def _keep(self) -> int:
+        """The most a prompt may take: a third of the row stays for text."""
+        return max(0, self.width - max(1, self.width // 3))
+
+    @property
     def shown_prompt(self) -> str:
         """The prompt, cut from the left so a third of the row stays for text."""
-        prompt = self.prompt
-        keep = max(0, self.width - max(1, self.width // 3))
+        prompt, keep = self.prompt, self._keep
         if len(prompt) > keep:
             prompt = prompt[len(prompt) - keep :]
         return prompt
 
     @property
+    def shown_cells(self) -> tuple[Cell, ...]:
+        """The shell's prompt, cut from the left the same way."""
+        cells, keep = self.prompt_cells, self._keep
+        if len(cells) > keep:
+            cells = cells[len(cells) - keep :]
+            if cells and cells[0][0] == "":
+                # The cut took the left half of a wide character.
+                cells = ((" ", cells[0][1]),) + cells[1:]
+        return cells
+
+    @property
+    def prompt_width(self) -> int:
+        """How many columns the prompt takes, whichever of the two is painted."""
+        if self.prompt_cells:
+            return len(self.shown_cells)
+        return len(self.shown_prompt)
+
+    @property
     def room(self) -> int:
         """The row, less the prompt and the column the caret sits in at the end."""
-        return max(0, self.width - len(self.shown_prompt) - 1)
+        return max(0, self.width - self.prompt_width - 1)
 
     def clear(self) -> None:
         self.value = ""
@@ -119,7 +149,7 @@ class CommandLine(InputLine):
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.action != "press" or event.button != "left":
             return False
-        start = len(self.shown_prompt)
+        start = self.prompt_width
         if event.x >= start:
             self._move(self.first + event.x - start, event.shift)
         return True
@@ -127,16 +157,20 @@ class CommandLine(InputLine):
     # -- painting ------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
-        return len(self.shown_prompt) + self.cursor - self.first, 0
+        return self.prompt_width + self.cursor - self.first, 0
 
     def render(self, surface: Surface) -> None:
         if self.width < 1 or self.height < 1:
             return
         style = self.style
         surface.fill(0, 0, self.width, self.height, " ", style)
-        prompt = self.shown_prompt
-        surface.draw_text(0, 0, prompt, self.part_style("prompt"))
-        start, room = len(prompt), self.room
+        if self.prompt_cells:
+            for x, (char, cell) in enumerate(self.shown_cells):
+                if char:
+                    surface.set_cell(x, 0, char, _over(cell, style))
+        else:
+            surface.draw_text(0, 0, self.shown_prompt, self.part_style("prompt"))
+        start, room = self.prompt_width, self.room
         if room < 1:
             return
         surface.draw_text(start, 0, self.value[self.first : self.first + room], style, room)
@@ -148,3 +182,24 @@ class CommandLine(InputLine):
                     start + max(0, low - self.first), 0, run,
                     self.part_style("selection"), room,
                 )
+
+
+def _over(cell: Style, line: Style) -> Style:
+    """A prompt cell's style, with what the shell left unsaid taken from the line.
+
+    A cell the shell gave no colour is the terminal's default in a plain
+    terminal, and the line's own colour is this one's default -- so it takes
+    that whole, pinned palette included, keeping only the shell's attributes.
+    A cell with a colour of its own keeps it and fills in the other half.
+    """
+    if cell.fg is None and cell.bg is None:
+        return line.derive(
+            bold=line.bold or cell.bold,
+            italic=line.italic or cell.italic,
+            underline=line.underline or cell.underline,
+            reverse=line.reverse or cell.reverse,
+        )
+    return cell.derive(
+        fg=line.fg if cell.fg is None else cell.fg,
+        bg=line.bg if cell.bg is None else cell.bg,
+    )

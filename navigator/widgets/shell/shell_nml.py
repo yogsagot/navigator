@@ -108,4 +108,7 @@ class Shell(DockLayout, _Component):
         self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:59
 
         self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:67
-        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:68
+        self.command_line.prompt_cells = _bind(    # shell.nml:68
+            lambda _o: _o.parent.command_prompt_cells
+        )
+        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:69

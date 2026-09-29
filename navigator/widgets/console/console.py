@@ -12,11 +12,30 @@ from pathlib import Path
 from navkit.console import ConsoleScreen, seed_from_host
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import effect, reactive
-from navkit.screen import Surface
+from navkit.screen import Cell, Surface
 from navkit.terminal import encode_key, encode_mouse
 from navkit.widget import Widget
 
 from navigator.subshell import Subshell
+
+#: Wider than any row a prompt is typed on; a longer one wraps, and the row it
+#: wraps onto is the one the typing happens on.
+PROMPT_COLUMNS = 256
+
+
+def prompt_cells(data: bytes) -> tuple[Cell, ...]:
+    """The row a prompt leaves the cursor on, as cells: what the user types after.
+
+    Decoded by the same emulator the console is, on a screen one row tall, so
+    every line break scrolls the one before it away and a multi-line prompt
+    -- starship's, say -- leaves its last line, with whatever colour the
+    lines above it set still in force.  Cut at the cursor rather than at the
+    last character, which keeps the space most prompts end in.
+    """
+    screen = ConsoleScreen(PROMPT_COLUMNS, 1, history=1)
+    screen.feed(data)
+    surface = screen.surface
+    return tuple(surface.get(x, 0) for x in range(screen.screen.cursor.x))
 
 
 class Console(Widget):
@@ -38,6 +57,11 @@ class Console(Widget):
     #: mutable state that changes together -- so one counter stands for it.
     revision: int = reactive(0)
 
+    #: The shell's last prompt, as :func:`prompt_cells` decodes it, and the
+    #: directory it was printed in.  Empty and None until the shell prints one.
+    prompt: tuple = reactive(())
+    prompt_cwd: Path | None = reactive(None)
+
     def __init__(self, cwd: Path | None = None, **kwargs):
         """*cwd* is optional because a widget markup constructs must be.
 
@@ -54,8 +78,11 @@ class Console(Widget):
         self.can_focus = True
         self.screen = ConsoleScreen(80, 24)
         #: The shell the command line runs its commands in.  Only the output
-        #: callback is set here; what a finished command means is ``Shell``'s.
-        self.subshell = Subshell(self.screen, on_output=self._changed)
+        #: and prompt callbacks are set here; what a finished command means is
+        #: ``Shell``'s.
+        self.subshell = Subshell(
+            self.screen, on_output=self._changed, on_prompt=self._prompted
+        )
         self.seeded = False
         # The pty is told how big it is whenever this widget is, which is the
         # whole of the resize handling: the kernel raises SIGWINCH on the
@@ -108,6 +135,10 @@ class Console(Widget):
 
     def _changed(self) -> None:
         self.revision += 1
+
+    def _prompted(self, data: bytes, cwd: Path | None) -> None:
+        self.prompt = prompt_cells(data)
+        self.prompt_cwd = cwd
 
     # -- input ---------------------------------------------------------------
 

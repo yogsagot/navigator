@@ -87,8 +87,15 @@ switches cells, exactly as it switches SGR; it is not in `STYLE_FIELDS`, so no s
 `TerminalInfo.hyperlinks` gates it -- on for any interactive terminal but `TERM=linux`, whose console prints OSC 8's
 tail as text -- and `NAVKIT_HYPERLINKS=on|off` overrides. `StaticText.links` marks the `http(s)://` runs it paints.
 **The command line is DOS Navigator's `TCommandLine`** (`navigator/widgets/command_line/`, a Python-only
-`InputLine`): one row above the key bar, docked after `KeyBar` in `shell.nml`, prompt `<active panel's dir>>`, in the
-hard-coded `$0F`/`$07` the original drew it in (the one literal-colour rule in `navigator.nss`). It **never holds the
+`InputLine`): one row above the key bar, docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07` the
+original drew it in (the one literal-colour rule in `navigator.nss`). **Its prompt is the user's own shell prompt**,
+colours and all -- a deliberate departure, since `CMDLINE.PAS`'s `SetDirShape` ignored `PROMPT` and drew `<dir>>`,
+which survives as the fallback (`Shell.command_prompt`) for `sh` and for the moment before the shell has printed a
+prompt in the active panel's directory (`Shell.command_prompt_cells` compares `Console.prompt_cwd`). The hook
+*brackets* whatever `PS1` the rc or a prompt command left rather than replacing it, the shell expands it, and
+`console.py`'s `prompt_cells()` decodes the held-back bytes on a one-row `ConsoleScreen`, so a multi-line prompt shows
+its last line. `Subshell.sync` sends the silent `cd` whenever the active panel moves while the shell is idle, and
+`Navigator.on_start` starts the shell at once on a real tty (headless, the first command still does). It **never holds the
 keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which types it there -- DN's
 `ofPostProcess` -- and navkit's `_cursor` now asks the whole focus path, nearest first, so `Shell.cursor_position`
 puts the caret on the line. Enter, Home and End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the
@@ -97,7 +104,7 @@ Ctrl+E/Ctrl+X walk `HISTORY["command"]`, a paste lands on it. **Commands run in 
 (`navigator/subshell.py`'s `Subshell`, owned by the `Console`): bash and zsh load the user's rc and then a hook,
 anything else runs bash or `sh`. The hook prints private OSC marks (`ESC ] 6973;<nonce>;A|B|D`) that say where the
 prompt is, when a command finished and the shell's `$PWD`. **The shell's own prompt is held back** and painted only
-when a command is sent, so the console log reads `/dir>cmd`, as DN's echo did. The panel's directory reaches the shell
+when a command is sent, so the console log reads `prompt$ cmd`, the shape DN's `/dir>cmd` echo had. The panel's directory reaches the shell
 by a **silent `cd`** (leading space, output swallowed) sent only when the two differ, and a `cd` typed on the line
 moves the active panel when the command finishes (`CommandFinished`, posted from the pty reader to
 `Navigator.on_command_finished`). While a command runs the console is up and holds the keys; afterwards the windows

@@ -65,6 +65,7 @@ Shell(DockLayout):
     CommandLine:
         id: command_line
         prompt: parent.command_prompt
+        prompt_cells: parent.command_prompt_cells
         style:
             dock: bottom
             basis: 1

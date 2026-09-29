@@ -55,6 +55,13 @@ class Navigator(Application):
         """The file manager window, whether or not it is still open."""
         return self.shell.manager
 
+    async def on_start(self) -> None:
+        # Started now rather than on the first command, because its prompt
+        # is what the command line shows -- to somebody looking at a terminal.
+        # Headless, nobody is, and the first command starts it as before.
+        if self.terminal.is_tty:
+            self.shell.console.start()
+
     async def on_stop(self) -> None:
         # The shell would otherwise outlive the terminal it was talking to.
         self.shell.console.stop()

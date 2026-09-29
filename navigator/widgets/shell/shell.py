@@ -16,7 +16,7 @@ from typing import Any
 
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
-from navkit.reactive import computed
+from navkit.reactive import computed, effect
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
@@ -129,6 +129,22 @@ class Shell(DockLayout):
 
     # -- the command line ------------------------------------------------------
 
+    def mounted(self) -> None:
+        super().mounted()
+        effect(self, Shell._follow_panel)
+
+    def _front_directory(self) -> Path | None:
+        """The active panel's directory in the file manager in front, if one is open."""
+        window = self.desktop.active_window
+        manager = window if isinstance(window, Manager) else self.active_manager
+        return manager.active_panel.path if manager is not None else None
+
+    def _follow_panel(self) -> None:
+        """Keep the idle shell where the panel is, so its prompt names that directory."""
+        where = self._front_directory()
+        if where is not None:
+            self.console.subshell.sync(where)
+
     @computed
     def command_prompt(self) -> str:
         """``<directory>>``: where the file manager in front is, as ``GetDir`` said.
@@ -136,14 +152,28 @@ class Shell(DockLayout):
         DOS Navigator's prompt was the process's current directory, which a
         focused panel kept equal to its own.  A command runs in the active
         panel's directory here, so the prompt says that one.  With no file
-        manager open it is where the shell last was.
+        manager open it is where the shell last was.  Shown only until the
+        shell's own prompt arrives (:attr:`command_prompt_cells`).
         """
-        window = self.desktop.active_window
-        manager = window if isinstance(window, Manager) else self.active_manager
-        if manager is not None:
-            return f"{manager.active_panel.path}>"
-        where = self.console.subshell.cwd or self.console.cwd
+        where = self._front_directory()
+        if where is None:
+            where = self.console.subshell.cwd or self.console.cwd
         return f"{where}>" if where is not None else ">"
+
+    @computed
+    def command_prompt_cells(self) -> tuple:
+        """The shell's own prompt, if it was printed where the command would run.
+
+        A prompt printed somewhere else names the wrong directory, so it is
+        never shown: ``<dir>>`` stands in while the shell catches up with a
+        panel that moved.  With no file manager open, the shell is where the
+        command would run, and its prompt is always right.
+        """
+        console = self.console
+        where = self._front_directory()
+        if where is not None and console.prompt_cwd != where:
+            return ()
+        return console.prompt
 
     def _command_directory(self) -> Path | None:
         manager = self.active_manager

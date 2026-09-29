@@ -1,4 +1,4 @@
-"""The shell behind the command line: one, long-lived, and never shown its prompt.
+"""The shell behind the command line: one, long-lived, and its prompt held back.
 
 DOS Navigator ran each command line by quitting to its loader, which handed the
 string to ``COMSPEC /C`` and restarted the file manager afterwards
@@ -19,9 +19,18 @@ brackets the prompt itself between two more.  So Navigator learns
 * *which bytes are the prompt*, which are **held back** rather than painted.
   The command line is the prompt the user types at; a second one sitting in the
   console would be a lie about where the keys go.  The held-back prompt is
-  painted only when a command is sent, immediately before the shell echoes
-  it, so the console log reads ``/home/user>ls`` -- which is what DOS
-  Navigator's ``DosWrite(ActiveDir + '>' + S)`` left on the user screen.
+  what the command line shows, and it is painted into the console only when
+  a command is sent, immediately before the shell echoes it, so the console
+  log reads ``user@host:~$ ls`` -- the shape of DOS Navigator's
+  ``DosWrite(ActiveDir + '>' + S)``, with the user's own prompt in it.
+
+**The prompt is the user's**, bracketed rather than replaced: the hook keeps
+whatever ``PS1`` the rc files or a prompt command set, and puts the two marks
+around it, so the shell does every expansion -- ``\\w``, colours, a git
+segment -- exactly as it would in a plain terminal.  DOS Navigator ignored
+``PROMPT`` and drew ``<dir>>``; that is the one departure, taken on purpose,
+and it survives as the fallback for a shell with no prompt of its own and for
+``sh``, which has no hook to bracket one with.
 
 Each mark is ``ESC ] 6973 ; <nonce> ; <kind> [; <data>] BEL``.  The nonce is
 random per shell, so a program that happens to print something mark-shaped --
@@ -33,7 +42,10 @@ screen, where the emulator drops an OSC it does not know.
 every command; Navigator tells the shell where the active panel is before one,
 with a *silent* ``cd``: a leading space keeps it out of the history, and
 everything the shell prints until its next prompt is swallowed.  Only when the
-two differ, so an ordinary command costs no extra round trip.
+two differ, so an ordinary command costs no extra round trip.  The same ``cd``
+is sent whenever the active panel moves while the shell is idle
+(:meth:`Subshell.sync`), which is what keeps the prompt on the command line
+naming the panel's directory.
 """
 
 from __future__ import annotations
@@ -88,7 +100,13 @@ __nav_prompt() {{
     p=${{p//\\$/\\\\\\$}}
     p=${{p//\\`/\\\\\\`}}
     printf '{mark};D;%s;%s\\007' "$__nav_status" "$PWD"
-    PS1="\\[{mark};A\\007\\]$p>\\[{mark};B\\007\\]"
+    # The user's own prompt, bracketed rather than replaced: whatever set it
+    # -- the rc, or a prompt command that rebuilds it every time -- left
+    # something other than what we set last, and that is the one to keep.
+    [[ $PS1 != "$__nav_wrapped" ]] && __nav_ps1=$PS1
+    local own=${{__nav_ps1:-$p>}}
+    __nav_wrapped="\\[{mark};A\\007\\]$own\\[{mark};B\\007\\]"
+    PS1=$__nav_wrapped
     PS2=''
 }}
 if [[ "$(declare -p PROMPT_COMMAND 2>/dev/null)" == "declare -a"* ]]; then
@@ -122,7 +140,9 @@ unset NAV_USER_ZDOTDIR __nav_zdotdir
 __nav_status() {{ __nav_s=$? }}
 __nav_prompt() {{
     printf '{mark};D;%s;%s\\a' "$__nav_s" "$PWD"
-    PS1=$'%{{{mark};A\\a%}}%/>%{{{mark};B\\a%}}'
+    [[ $PS1 != "$__nav_wrapped" ]] && __nav_ps1=$PS1
+    __nav_wrapped=$'%{{{mark};A\\a%}}'"${{__nav_ps1:-%/>}}"$'%{{{mark};B\\a%}}'
+    PS1=$__nav_wrapped
     PS2='' RPS1='' RPROMPT=''
 }}
 precmd_functions=(__nav_status $precmd_functions __nav_prompt)
@@ -178,7 +198,9 @@ class Subshell:
     the screen, which is the console bumping its revision.  *on_finished* is
     called with the status and the shell's directory when a command the
     command line sent is done; *on_exit* when the shell itself goes, after
-    which the next command starts another.
+    which the next command starts another.  *on_prompt* is called with every
+    prompt the shell prints, held back as it is, and the directory it was
+    printed in.
     """
 
     def __init__(
@@ -189,12 +211,14 @@ class Subshell:
         on_output: Callable[[], None] | None = None,
         on_finished: Callable[[int, Path | None], None] | None = None,
         on_exit: Callable[[int], None] | None = None,
+        on_prompt: Callable[[bytes, Path | None], None] | None = None,
     ):
         self.screen = screen
         self.shell = shell or os.environ.get("SHELL") or "/bin/sh"
         self.on_output = on_output
         self.on_finished = on_finished
         self.on_exit = on_exit
+        self.on_prompt = on_prompt
         self.process: PtyProcess | None = None
         #: Where the shell last said it was, or None before its first prompt.
         self.cwd: Path | None = None
@@ -215,9 +239,13 @@ class Subshell:
         self._ready = False
         #: Swallow everything until the next D mark: a silent ``cd`` is running.
         self._silent = False
+        #: Where :meth:`sync` last asked the shell to be, until it is sent.
+        self._wanted: Path | None = None
         #: What to send once the shell is ready: ``(text, silent)``.
         self._queue: list[tuple[str, bool]] = []
         self._paste = False
+        #: The line editor is zsh's, which reads a bracketed paste whenever.
+        self._zle = False
         # What the program asks the terminal -- where the cursor is, what the
         # terminal is -- is answered by the screen, back down the pty.
         screen.respond = self.write
@@ -240,6 +268,7 @@ class Subshell:
         )
         self._directory = tempfile.mkdtemp(prefix="navigator-shell-")
         argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce)
+        self._zle = Path(argv[0]).name == "zsh"
         env = dict(os.environ)
         env.update(extra)
         self._tail, self._prompt = b"", b""
@@ -311,6 +340,28 @@ class Subshell:
         self.busy = True
         self._send_next()
 
+    def sync(self, cwd: Path) -> None:
+        """Send the shell to *cwd* silently, so its next prompt is printed there.
+
+        At once if it is idle, and otherwise at its next prompt: a running
+        command owns the shell, and one that has not started yet has no
+        prompt to print.  The prompt that follows is what reaches
+        *on_prompt*.
+        """
+        self._wanted = cwd
+        self._follow()
+
+    def _follow(self) -> None:
+        wanted = self._wanted
+        if wanted is None or not self.is_running or self.busy or self._queue:
+            return
+        # Asked for once: a directory the cd cannot reach would otherwise be
+        # asked for again at every prompt the failed cd prints.
+        self._wanted = None
+        if wanted != self.cwd:
+            self._queue.append((f" cd -- {shlex.quote(str(wanted))}", True))
+            self._send_next()
+
     def _send_next(self) -> None:
         if not self._ready or not self._queue or self.process is None:
             return
@@ -322,7 +373,13 @@ class Subshell:
             # it is about to echo lands after it, as it would have typed.
             self._feed(self._prompt)
         data = text.encode()
-        if self._paste and not silent:
+        # zsh turns bracketed paste on in a write of its own *after* the
+        # prompt, so at the B mark it has usually not been seen yet -- and a
+        # command sent unbracketed then has its tabs taken for completion.
+        # ZLE binds the paste sequence whether or not it has announced it, so
+        # a line for zsh is always bracketed.  bash announces it before the
+        # prompt, and is taken at its word.
+        if (self._paste or self._zle) and not silent:
             # A tab is a completion request and a newline an Enter to a line
             # editor; pasted, the line is taken as written.
             data = b"\x1b[200~" + data + b"\x1b[201~"
@@ -385,7 +442,10 @@ class Subshell:
         elif kind == b"B":
             self._in_prompt = False
             self._ready = True
+            if self.on_prompt is not None:
+                self.on_prompt(self._prompt, self.cwd)
             self._send_next()
+            self._follow()
 
     def _on_exit(self, status: int) -> None:
         self.process = None
