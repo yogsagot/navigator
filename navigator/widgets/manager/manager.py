@@ -44,6 +44,12 @@ class Manager(Window):
     #: tree.  Reactive, so ``active_panel`` and the follow effects move with it.
     tree_replaces: Any = reactive(None)
 
+    #: The panel that last held the keyboard.  What ``active_panel`` answers
+    #: while neither does -- Ctrl+O has given the keyboard to the console, or
+    #: a dialog has it -- since the panel the user left active is still the
+    #: one a command means.
+    _last_panel: Any = reactive(None)
+
     def __init__(self, left: Path, right: Path, **kwargs):
         """Build the window, then seed where the panels open.
 
@@ -67,6 +73,7 @@ class Manager(Window):
 
     def mounted(self) -> None:
         super().mounted()
+        effect(self, Manager._remember_panel)
         effect(self, Manager._tree_follows_panel)
         effect(self, Manager._panel_follows_tree)
 
@@ -148,20 +155,33 @@ class Manager(Window):
             ).execute(self.application)
         panel.reload()
 
+    def _remember_panel(self) -> None:
+        if self.right.focused:
+            self._last_panel = self.right
+        elif self.left.focused:
+            self._last_panel = self.left
+
     @computed
     def active_panel(self) -> Panel:
-        """Whichever panel currently has the keyboard.
+        """Whichever panel has the keyboard, or had it last.
 
-        The right one only when it actually holds the focus, so that a
-        desktop with the focus somewhere else entirely -- in the console, in
-        a dialog -- still answers "the left one" rather than guessing.  While
-        the tree stands in for one panel, the other is the active one whether
-        or not it holds the keyboard: it is the one the tree steers.
+        **Last, not "the left one"**, while the focus is somewhere else --
+        the console after Ctrl+O, a dialog.  DOS Navigator's active panel
+        stayed active while its user screen was up, and a command typed then
+        ran in *its* directory; answering "left" whenever neither panel held
+        the keyboard sent the shell back to the left panel's directory the
+        moment the console was shown.  While the tree stands in for one
+        panel, the other is the active one whether or not it holds the
+        keyboard: it is the one the tree steers.
         """
         replaced = self.tree_replaces
         if replaced is not None:
             return self.right if replaced is self.left else self.left
-        return self.right if self.right.focused else self.left
+        if self.right.focused:
+            return self.right
+        if self.left.focused:
+            return self.left
+        return self._last_panel or self.left
 
     def list_name(self) -> str:
         """The active panel's directory: what the window list shows for this window.

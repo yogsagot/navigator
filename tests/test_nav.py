@@ -2476,3 +2476,35 @@ def test_what_atuin_chose_goes_on_the_line_or_runs(tree, quiet_console, monkeypa
     app.shell.command_line.clear()
     app.shell.history_chosen("")  # cancelled
     assert app.shell.command_line.value == ""
+
+
+def test_the_console_keeps_the_panel_that_was_active(tree, quiet_console, monkeypatch):
+    # Right panel active, then Ctrl+O: the console has the keyboard now, and
+    # a command still runs where the right panel is -- not back in the left.
+    synced = []
+    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: synced.append(cwd))
+    app = Navigator(tree, tree / "alpha", terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        KeyEvent("tab"),
+        KeyEvent("o", ctrl=True),
+        lambda a: seen.append((a.shell._command_directory(), a.shell.command_prompt,
+                               a.manager.active_panel is a.manager.right)),
+        KeyEvent("o", ctrl=True),
+        lambda a: seen.append(a.manager.right.focused),
+    ])
+    assert seen[0] == (tree / "alpha", f"{tree / 'alpha'}>", True)
+    assert synced[-1] == tree / "alpha"
+    # And Ctrl+O again hands the keyboard back to the right panel.
+    assert seen[1] is True
+
+
+def test_a_dialog_does_not_move_the_active_panel(tree, quiet_console):
+    app = Navigator(tree, tree / "alpha", terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        KeyEvent("tab"),
+        lambda a: a.manager.right.focused and a.shell.console.focus(),  # focus elsewhere
+        lambda a: seen.append(a.manager.active_panel is a.manager.right),
+    ])
+    assert seen == [True]
