@@ -572,6 +572,11 @@ forward. The two differ in **where they live**, and every other difference follo
   table, so the icons drawn and the icons clicked cannot drift apart; a frameless window paints them in
   `render_after`, over the panels. `Panel.title_margin` keeps a long path from running under them.
 - **A drag holds the mouse** through navkit's `capture_mouse`, so the pointer outrunning the window does not end it.
+- **Every window and every modal casts Turbo Vision's shadow** (`shadow = True` on `Window` and `Modal`, and on
+  `MenuBox` and `HistoryList` too): navkit's `Widget.shadow`, painted into the desktop's or the root's surface as part
+  of painting the window, so a window above shades the one below and a zoomed one's falls off the desktop. The shadow
+  is outside the rectangle, so a click on it reaches what is beneath, as `TView` hit-tested. *Shadows* in
+  `navkit/DESIGN.md` has the order against the dim.
 - **The window keys are `Desktop.keys`**, reached after the active window's children, so a panel or an input
   line keeps first refusal. They are one table of `navml.commands`, checked against DOS Navigator's own *Window*
   menu: Ctrl+F5 `SizeMoveWindow`, Alt+Z `ZoomWindow`, Ctrl+F4 `CloseWindow`. The original's Next and Previous are

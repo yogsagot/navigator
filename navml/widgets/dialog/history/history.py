@@ -156,6 +156,9 @@ class HistoryList(ListViewer):
     bar on its right edge.
     """
 
+    #: ``THistoryWindow`` was a window, and cast a window's shadow.
+    shadow: bool = True
+
     def __init__(self, button: History, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: The button that dropped this, and the line it fills.

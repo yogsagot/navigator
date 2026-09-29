@@ -20,6 +20,7 @@ class Modal(_Component):
     modal_width: int
     modal_height: int
     modal: bool
+    shadow: bool
     border: _Any
     parts: _Any
     def __init__(self, **kwargs: _Any) -> None: ...

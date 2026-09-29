@@ -56,6 +56,9 @@ class Modal(Widget):
     #: The title across the top edge, and the close icon beside it.
     parts = ("title", "icon")
 
+    #: Turbo Vision's shadow, laid after the dim so it is at full strength.
+    shadow: bool = True
+
     def controls(self) -> Iterator[Control]:
         """Every :class:`Control` under this modal, in tree order."""
 

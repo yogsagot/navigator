@@ -10,7 +10,7 @@ from navkit.application import Application
 from navkit.events import DoubleClickEvent, Event, KeyEvent, MouseClickEvent
 from navkit.reactive import bind, effect, flush_effects
 from navkit.screen import ScreenBuffer
-from navkit.style import Style
+from navkit.style import SHADOW, Style
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 
@@ -939,6 +939,70 @@ def test_a_closed_modal_leaves_nothing_dimmed():
     app, dialog = dimming_app(True)
     run_app(app, [lambda app: app.overlay(dialog), lambda app: app.root.remove(dialog)])
     assert not app._front.get(0, 0)[1].dim
+
+
+# -- shadows ------------------------------------------------------------------
+
+
+class Shaded(Filled):
+    shadow = True
+
+
+def shaded_cells(x: int, y: int, width: int, height: int) -> set[tuple[int, int]]:
+    right = {(x + width + dx, y + row) for row in range(1, height + 1) for dx in (0, 1)}
+    return right | {(x + col, y + height) for col in range(2, width)}
+
+
+def test_a_shadow_falls_two_columns_right_and_one_row_down():
+    root = Filled(width=12, height=8)
+    root.add(Shaded(x=2, y=1, width=5, height=3))
+    root.children[0].inline_style = "fg: 4"
+    buffer = ScreenBuffer(12, 8)
+    root.render_tree(buffer)
+    expected = shaded_cells(2, 1, 5, 3)
+    for y in range(8):
+        for x in range(12):
+            if 2 <= x < 7 and 1 <= y < 4:
+                continue  # the widget itself
+            char, style = buffer.get(x, y)
+            # The character beneath is kept; only its colours change.
+            assert char == "x"
+            assert (style == SHADOW) == ((x, y) in expected), (x, y)
+
+
+def test_a_shadow_is_clipped_by_the_parent():
+    root = Filled(width=6, height=4)
+    root.add(Shaded(x=3, y=1, width=3, height=3))
+    buffer = ScreenBuffer(8, 6)
+    root.render_tree(buffer)
+    assert buffer.get(6, 2) == (" ", Style())
+    assert buffer.get(4, 4) == (" ", Style())
+
+
+def test_a_later_sibling_shades_an_earlier_one_and_not_the_reverse():
+    root = Filled(width=20, height=10)
+    lower = root.add(Shaded(x=0, y=0, width=6, height=4))
+    upper = root.add(Shaded(x=3, y=2, width=6, height=4))
+    buffer = ScreenBuffer(20, 10)
+    root.render_tree(buffer)
+    assert lower.contains(5, 3) and upper.contains(5, 3)
+    # Lower's shadow would fall on (6, 3), under upper: upper covers it.
+    assert buffer.get(6, 3)[1] != SHADOW
+    # Upper's shadow falls on lower's bottom-right corner region outside upper.
+    assert buffer.get(9, 3) == ("x", SHADOW)
+
+
+def test_a_modal_shadow_is_laid_over_the_dim_at_full_strength():
+    app, dialog = dimming_app(True)
+    dialog.shadow = True
+    # Bound, or overlay() lays the dialog out over the whole screen.
+    dialog.width = bind(lambda o: 20)
+    dialog.height = bind(lambda o: 4)
+    run_app(app, [lambda app: app.overlay(dialog)])
+    for x, y in shaded_cells(10, 3, 20, 4):
+        assert app._front.get(x, y) == ("x", SHADOW), (x, y)
+    assert app._front.get(0, 0)[1].dim
+    assert app._front.get(10, 7)[1].dim  # the bottom row starts two in
 
 
 # -- every handler is async ------------------------------------------------

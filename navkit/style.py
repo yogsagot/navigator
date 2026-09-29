@@ -107,4 +107,10 @@ class Style:
 #: The terminal's own colours -- what an unpainted cell looks like.
 DEFAULT_STYLE = Style()
 
+#: Turbo Vision's ``ShadowAttr``: dark grey on black, over whatever character
+#: was there -- what :attr:`Widget.shadow` paints.  A constant in the original
+#: too, rather than a palette slot, so DOS Navigator's Colors dialog never
+#: offered it.
+SHADOW = Style(fg=DARK_GRAY, bg=BLACK)
+
 RESET_SGR = "\x1b[0m"

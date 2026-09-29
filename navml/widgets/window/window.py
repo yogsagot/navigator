@@ -68,6 +68,10 @@ class Window(Widget):
     #: The title across the top edge, and the icons beside it.
     parts = ("title", "icon")
 
+    #: A window casts Turbo Vision's shadow (``sfShadow``), framed or not.
+    #: Zoomed, it falls outside the desktop and is clipped away.
+    shadow: bool = True
+
     #: Whether this window draws its own frame.  A class-level fact about what
     #: the window *is* rather than a look, so it is not a sheet property: the
     #: file manager is frameless because its panels already are the frame, and

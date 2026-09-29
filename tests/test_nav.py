@@ -1858,6 +1858,26 @@ def test_a_nested_menu_shades_the_box_it_opened_from(tree):
     assert seen == [(True, True)]
 
 
+def test_a_dialog_and_a_window_cast_turbo_visions_shadow(tree, quiet_console):
+    # Two columns down the right, one row along the bottom starting two in --
+    # and the file manager, zoomed, casts one that the desktop clips away.
+    from navkit.style import SHADOW
+
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        buffer = desktop(a)
+        d = a.modal
+        right = [buffer.get(d.x + d.width + dx, d.y + 1)[1] for dx in (0, 1)]
+        bottom = [buffer.get(d.x + x, d.y + d.height)[1] for x in (1, 2)]
+        seen.append((right == [SHADOW, SHADOW], bottom[0] != SHADOW, bottom[1] == SHADOW))
+
+    run_app(app, [KeyEvent("f7"), lambda a: None, look])
+    assert seen == [(True, True, True)]
+    assert app.manager.shadow and app.manager.zoomed
+
+
 def test_every_menu_has_an_id_a_plugin_can_reach_it_by(tree):
     from navml.widgets.menu.sub_menu import SubMenu
 

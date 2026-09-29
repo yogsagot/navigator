@@ -23,6 +23,7 @@ class Window(_Component):
     min_width: int
     min_height: int
     zoomed: bool
+    shadow: bool
     framed: bool
     border: _Any
     parts: _Any

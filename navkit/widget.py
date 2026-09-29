@@ -30,7 +30,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
-from navkit.style import DEFAULT_STYLE, Style
+from navkit.style import DEFAULT_STYLE, SHADOW, Style
 from navkit.stylesheet import Stylesheet
 
 if TYPE_CHECKING:
@@ -132,6 +132,12 @@ class Widget:
     #: the command line's completions -- says False, since what it would dim
     #: is the line being typed on.
     dims_behind = True
+    #: Whether this widget casts Turbo Vision's drop shadow (``sfShadow``):
+    #: two columns down its right and one row along its bottom, offset one row
+    #: and two columns, painted :data:`~navkit.style.SHADOW` over whatever is
+    #: already there.  Painted by :meth:`render_tree` into the *parent's*
+    #: surface, since it lies outside the widget, so the parent clips it.
+    shadow: bool = False
     #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
     #: compile-time label with no run-time existence -- see navml/DESIGN.md.
     name: str = reactive("")
@@ -589,10 +595,28 @@ class Widget:
         own = surface.view(self.x, self.y, self.width, self.height)
         if self.modal and (app := self.application) is not None:
             app._painting_modal(self)
+        if self.shadow:
+            self._paint_shadow(surface)
         self.render(own)
         for child in self.children:
             child.render_tree(own)
         self.render_after(own)
+
+    def _paint_shadow(self, surface: Surface) -> None:
+        """This widget's shadow, into its parent's *surface*, over what is there.
+
+        Part of painting the widget itself, as Turbo Vision drew it: a sibling
+        painted later covers it, one painted earlier is shaded by it.  Laid
+        after a modal's dim, so a dialog's own shadow is at full strength.  A
+        wide character's empty continuation cell is left alone.
+        """
+        x0, y0, width, height = self.x, self.y, self.width, self.height
+        cells = [(x0 + width + dx, y0 + y) for y in range(1, height + 1) for dx in (0, 1)]
+        cells += [(x0 + x, y0 + height) for x in range(2, width)]
+        for x, y in cells:
+            char, _ = surface.get(x, y)
+            if char:
+                surface.set_cell(x, y, char, SHADOW)
 
     def render_after(self, surface: Surface) -> None:
         """Paint over this widget's children, into the same *surface*.

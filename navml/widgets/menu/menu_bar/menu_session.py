@@ -26,7 +26,7 @@ from typing import Any
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import bind
 from navkit.screen import Surface
-from navkit.style import Style
+from navkit.style import SHADOW  # noqa: F401 -- re-exported; tests read it here
 from navkit.widget import Widget
 
 from navml.widgets.dialog.control.control import parse_shortcut
@@ -34,12 +34,6 @@ from navml.widgets.menu.menu_box.menu_box import MenuBox
 from navml.widgets.menu.menu_item.menu_item import MenuItem
 from navml.widgets.menu.menu_line.menu_line import MenuLine
 from navml.widgets.menu.sub_menu.sub_menu import SubMenu
-
-#: Turbo Vision's ``ShadowAttr``: dark grey on black, over whatever character
-#: was there.  A constant in the original too, rather than a palette slot, so
-#: DOS Navigator's Colors dialog never offered it.
-SHADOW = Style(fg=8, bg=0)
-
 
 class MenuSession(Widget):
     """The open menu of one :class:`MenuBar`."""
@@ -251,33 +245,17 @@ class MenuSession(Widget):
     def render_tree(self, surface: Surface) -> None:
         """Each box over its own shadow, the boxes in the order they opened.
 
-        Not :meth:`render` followed by the children, which would lay every
-        shadow down before any box and let a parent box paint over the shadow
-        of the box nested in it.  Turbo Vision drew a view's shadow as part of
-        drawing that view, so a nested box shades its parent; interleaving the
-        two here is the same order.
+        Every :class:`MenuBox` casts a shadow (``Widget.shadow``), painted as
+        part of painting that box, so a nested box shades its parent as Turbo
+        Vision's did.  Overridden only so that the session itself, a modal,
+        paints nothing and dims nothing.
         """
         if not self.visible:
             return
         own = surface.view(self.x, self.y, self.width, self.height)
         for box in self.boxes:
-            self._shadow(own, box)
             box.render_tree(own)
 
-    def _shadow(self, surface: Surface, box: MenuBox) -> None:
-        """*box*'s shadow, over what is already on the screen beneath it.
-
-        Two columns down the right and one row along the bottom, offset by one
-        row and two columns, as Turbo Vision's ``sfShadow`` falls.
-        """
-        cells = [(box.x + box.width + dx, box.y + y)
-                 for y in range(1, box.height + 1) for dx in (0, 1)]
-        cells += [(box.x + x, box.y + box.height) for x in range(2, box.width)]
-        for x, y in cells:
-            if 0 <= x < self.width and 0 <= y < self.height:
-                char, _ = surface.get(x, y)
-                if char:
-                    surface.set_cell(x, y, char, SHADOW)
 
 def _letter(entries: list, char: str) -> int:
     """The entry whose marked letter is *char*, or -1."""

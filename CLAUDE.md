@@ -30,8 +30,10 @@ navml's `Desktop` over it, key bar — and `Manager` is a frameless `Window` on 
 user can drag, resize from its corner, zoom with `[↕]`/`[↑]`, close with `[■]`, and bring forward by clicking it.
 **The console is the background and is always showing**; Ctrl+O hides the desktop, which is one `visible` binding.
 The old framed `Window` is `Modal` — fixed, centred, bound geometry, `modal = True` — and `Dialog` derives from it.
-Three rules from building it: **a window's rectangle is state, never bound** (drag, resize and zoom assign it);
-**raising is `Widget.raise_child`, a reorder** — `add()` would unmount; and **the application's own `on_key` /
+Four rules from building it: **a window's rectangle is state, never bound** (drag, resize and zoom assign it);
+**raising is `Widget.raise_child`, a reorder** — `add()` would unmount; **a shadow is `Widget.shadow`**, painted
+by `render_tree` into the parent's surface before the widget, after a modal's dim (on for `Window`, `Modal`, `MenuBox`,
+`HistoryList`); and **the application's own `on_key` /
 `on_mouse_click` must step aside while `app.modal` is set**, because they run before navkit's modal routing (the
 application's *key table* does this by itself). navkit
 grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget.render_after` for it; *Windows: raising,

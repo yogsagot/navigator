@@ -1324,6 +1324,21 @@ on their top edge. `Widget.render_after(surface)` is an empty hook called after 
 alternative — asking the panels to leave gaps for icons they know nothing about — would have put a window's chrome
 into a list widget.
 
+### Shadows: painted from the parent's surface
+
+Turbo Vision's `sfShadow` — two columns down a view's right and one row along its bottom, offset one row and two
+columns, the character beneath kept and recoloured to `ShadowAttr` (dark grey on black) — lies *outside* the widget
+casting it, and a widget can only paint through a view of itself. So it is `render_tree`'s, which still holds the
+parent's surface: `Widget.shadow` (a class attribute, like `dims_behind`) makes it paint the shadow there **just
+before `render`**. That is Turbo Vision's own order, a view drawing its shadow as part of drawing itself, so three
+things come for free: a sibling painted later covers the shadow of one painted earlier and is shaded by nothing
+beneath it; a nested menu box shades its parent box; and the parent's clip cuts the shadow off, so a zoomed window's
+falls entirely outside the desktop. **It is laid after a modal's dim**, and replaces the cell's style whole
+(`style.SHADOW`), so a dialog's own shadow is at full strength over what it blocks and a console cell under a shadow
+loses its unpinned palette like any other. It is a constant, not a sheet property, because it was a constant in the
+original and no palette slot names it. A wide character's empty continuation cell is left alone. `navml` turns it on
+for `Window`, `Modal`, `MenuBox` and `HistoryList`.
+
 ## Mounting: joining a live tree, and leaving one
 
 **Written**, and the third item of *What the widget library needs first* below. `Widget.mounted`, `on_mount`,

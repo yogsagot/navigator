@@ -44,6 +44,9 @@ class MenuBox(Widget):
     #: *Menus* group has a slot for.
     parts = ("item", "hotkey")
 
+    #: A dropped box casts Turbo Vision's shadow, as every menu box did.
+    shadow: bool = True
+
     #: Which entry is selected, as an index into :meth:`entries`; -1 for none.
     current: int = reactive(-1)
 
