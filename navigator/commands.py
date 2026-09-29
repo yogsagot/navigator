@@ -98,6 +98,24 @@ class CompleteCommandLine(Command):
     """
 
 
+class InsertName(Command):
+    """Ctrl+Enter: the name under the panel's cursor, typed onto the command line.
+
+    DOS Navigator's ``_CtrlEnter`` (``FLPANELX.PAS``) sending ``cmInsertName``.
+    On ``..`` it is the panel's own directory, whole.  Alt+Enter is bound to
+    it as well, Midnight Commander's key for the same thing, because a
+    terminal that does not speak the kitty keyboard protocol sends Ctrl+Enter
+    as a plain Enter.
+    """
+
+
+class InsertPath(Command):
+    """Ctrl+Shift+Enter: as :class:`InsertName`, but the whole path.
+
+    ``_CtrlEnter`` with Shift held, which prefixed the panel's directory.
+    """
+
+
 class CommandLineHome(Command):
     """Home with something on the command line: to its start, not the list's top."""
 

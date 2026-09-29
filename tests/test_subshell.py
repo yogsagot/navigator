@@ -256,11 +256,13 @@ async def completion(shell: str, line: str, point: int, cwd: Path):
     try:
         subshell.start(cwd)
         await asyncio.wait_for(ready.wait(), 10)
+        # Cleared before asking: the prompt after the answer can arrive in
+        # the same read as the answer itself.
+        ready.clear()
         assert subshell.complete(line, point, cwd,
                                  lambda start, found: (answer.append((start, found)), got.set()))
         await asyncio.wait_for(got.wait(), 10)
         # And the shell is back at its prompt, ready for a command.
-        ready.clear()
         await asyncio.wait_for(ready.wait(), 10)
     finally:
         subshell.stop()

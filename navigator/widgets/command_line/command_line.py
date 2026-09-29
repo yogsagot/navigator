@@ -36,6 +36,9 @@ from navml.widgets.dialog.input_line import InputLine
 #: The history list the command line keeps, in :data:`~navml.history.HISTORY`.
 HISTORY_ID = "command"
 
+#: What ends a word for ``cmInsertName``: ``CMDLINE.PAS``'s ``Separators``.
+_SEPARATORS = set(":.,/\\[]+><|; ")
+
 
 class CommandLine(InputLine):
     """A prompt and one line of input, above the key bar."""
@@ -106,6 +109,22 @@ class CommandLine(InputLine):
         self.value = text
         self.anchor = None
         self.cursor = len(text)
+
+    def insert_name(self, name: str) -> None:
+        """Type *name* at the caret as ``cmInsertName`` did (``CMDLINE.PAS``).
+
+        A space goes after it, so the next name or argument can follow -- but
+        not after a directory ending in ``/``, which the next name continues.
+        And a space goes before it if the caret sits right after a word, so a
+        name is never glued onto one.
+        """
+        text = name if name.endswith("/") else name + " "
+        before = self.value[: self.cursor]
+        if before and before[-1] not in _SEPARATORS:
+            text = " " + text
+        self.anchor = None
+        self._replace_selection(text)
+        self._recalled = -1
 
     def home(self) -> None:
         self._move(0, False)

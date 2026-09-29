@@ -115,7 +115,14 @@ and where the user's rc binds Up or Ctrl+R to atuin (detected once at startup by
 run `atuin search -i` on the console exactly as atuin's own binding does -- descriptors swapped, the choice back in an
 `R` mark, `__atuin_accept__:` running it at once. Such a line is sent in the queue's **`"reveal"` mode**: hidden until
 its `O` mark, shown after, holding the keys (`busy`) while it runs, and finishing no command. With the panels up, Up
-is the panel's and Ctrl+R re-reads, as in DOS Navigator. **The clipboard** is navkit's (`navkit/clipboard.py`, *Clipboard* in `navkit/DESIGN.md`): OSC 52 plus
+is the panel's and Ctrl+R re-reads, as in DOS Navigator. **Enter on an executable runs it** (`Panel.choose` emits
+`ExecuteFile`, `Shell.on_execute_file` runs `./name` as if typed; a plain file is left alone), and **Ctrl+Enter puts
+the entry's name on the command line** (`InsertName`, DN's `_CtrlEnter`/`cmInsertName`: a space after, one before if
+the caret follows a word, `..` giving the directory itself; Ctrl+Shift+Enter the whole path, Ctrl+double-click the
+same). Alt+Enter is bound beside it -- mc's key -- because a terminal without the kitty protocol sends Ctrl+Enter as
+Enter, and Ghostty, which has the protocol, keeps Ctrl+Enter (fullscreen) and Ctrl+Shift+Enter for itself unless
+unbound (`keybind = ctrl+enter=unbind`) -- both found with `keyprobe`; for the same reason `ListViewer` claims only a *bare* Enter. **A re-read keeps the cursor on its entry**, as
+DN's `RereadDir` did (`Panel.reload`), and only a change of directory starts at the top. **The clipboard** is navkit's (`navkit/clipboard.py`, *Clipboard* in `navkit/DESIGN.md`): OSC 52 plus
 `wl-copy`/`xclip`/`xsel`, a requested paste arriving as a `PasteEvent`. Every `InputLine` selects with a drag or a
 double click (a finished one is the primary selection), and takes Ctrl+Ins (copy, the whole line with no selection,
 as DN's did), Shift+Del, Shift+Ins, Ctrl+C (only with a selection) and Ctrl+V; a middle click pastes the primary
@@ -418,7 +425,7 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
-  `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice quits -- the way to find out whether a key
+  `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
 - Regenerate the README screenshot: `./venv/bin/python tools/screenshot.py` paints the desktop headless (pinned
   directory, clock and console) and writes `docs/screenshot.svg` plus the text copy between the README's

@@ -15,9 +15,11 @@ the name, and the size column the original draws on the right.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from navkit.events import Event, MouseClickEvent
 from navkit.glyphs import GLYPHS_NERD
 from navkit.reactive import computed, effect, reactive
 from navkit.screen import Surface
@@ -30,6 +32,19 @@ from navml.widgets.dialog.list_viewer import ListViewer
 # property: inside a method the global still wins, but two ``icons`` a few
 # lines apart meaning a module and a keyword is a trap rather than a saving.
 from navigator import icons as icon_glyphs
+
+
+@dataclass(frozen=True, slots=True)
+class ExecuteFile(Event):
+    """Enter on an executable: run it.
+
+    Raised by the panel, which knows the file and not the shell, and taken by
+    whoever runs commands -- ``Shell``, in Navigator.  DOS Navigator ran an
+    ``.EXE``, ``.COM`` or ``.BAT`` the same way, through ``cmExecString``;
+    here "executable" is what the file system says.
+    """
+
+    path: Path
 
 
 class DirEntry:
@@ -73,6 +88,9 @@ class Panel(ListViewer):
     it.
     """
 
+    #: Enter on an executable, going up to whoever runs commands.
+    emits = (ExecuteFile,)
+
     #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
     #: means "whenever the terminal can draw one" and ``none`` refuses even
     #: then, which is what a sheet aiming at strict DOS fidelity sets.  The
@@ -100,6 +118,10 @@ class Panel(ListViewer):
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
         #: cursor can land on the directory we just climbed out of.
         self._return_to: str | None = None
+        #: Set by :meth:`reload`: the directory, the entry under the cursor,
+        #: the cursor and the scroll, for a re-read of *that* directory to put
+        #: back.  Ignored if the panel has gone somewhere else meanwhile.
+        self._keep: tuple[Path, str, int, int] | None = None
         if path is not None:
             self.path = path
 
@@ -135,13 +157,30 @@ class Panel(ListViewer):
         self.items = entries
         self.error = error
         target, self._return_to = self._return_to, None
+        keep, self._keep = self._keep, None
+        if keep is not None and keep[0] == path and target is None:
+            # A re-read of the same directory: the cursor stays on its entry,
+            # or where the entry was if it went, and the view does not jump.
+            _, name, cursor, scroll = keep
+            found = next((i for i, item in enumerate(entries) if item.name == name), None)
+            self.cursor = found if found is not None else min(cursor, max(0, len(entries) - 1))
+            self.scroll = scroll
+            return
         self.cursor = next(
             (index for index, item in enumerate(entries) if item.name == target), 0
         )
         self.scroll = 0
 
     def reload(self) -> None:
-        """Re-read the directory this panel shows."""
+        """Re-read the directory this panel shows, keeping the cursor on its entry.
+
+        DOS Navigator's re-read after a command left the cursor where it was;
+        this one used to send it back to the top, so the file just run, or
+        just renamed by a command, was lost.
+        """
+        entry = self.selected
+        if entry is not None:
+            self._keep = (self.path, entry.name, self.cursor, self.scroll)
         self.reload_token += 1
 
     def enter(self) -> None:
@@ -155,9 +194,29 @@ class Panel(ListViewer):
         self.path = (self.path / entry.name).resolve()
 
     async def choose(self) -> bool:
-        """What Enter and a double click mean here: descend."""
+        """What Enter and a double click mean here: descend, or run.
+
+        A directory is descended into.  A file the user may execute is run --
+        :class:`ExecuteFile`, emitted up to whoever runs commands.  Anything
+        else is left alone.
+        """
+        entry = self.selected
+        if entry is not None and not entry.is_dir:
+            path = self.path / entry.name
+            if path.is_file() and os.access(path, os.X_OK):
+                await self.emit(ExecuteFile(path))
+            return True
         self.enter()
         return True
+
+    async def on_double_click(self, event: MouseClickEvent) -> bool:
+        """Ctrl+double click is Ctrl+Enter, as in DOS Navigator; a plain one opens."""
+        if event.ctrl and event.button == "left" and self.row_at(event.y) is not None:
+            from navigator.commands import InsertName, InsertPath
+
+            await self.emit(InsertPath() if event.shift else InsertName())
+            return True
+        return await super().on_double_click(event)
 
     # -- painting ------------------------------------------------------------
 

@@ -137,11 +137,33 @@ def test_the_cursor_is_clamped_however_it_was_moved(panel):
     assert panel.cursor == len(panel.items) - 1
 
 
-def test_a_rescan_puts_the_cursor_back_at_the_top(panel, tree):
+def test_a_rescan_keeps_the_cursor_on_its_entry(panel, tree):
+    # DOS Navigator's RereadDir found the current file again by name, so a
+    # re-read after a command left the cursor where the user had it.
     panel.move_cursor(4)
     settle()
-    (tree / "gamma").mkdir()
+    name = panel.selected.name
+    (tree / "aaa").mkdir()          # sorts in above it, moving it down a row
     panel.reload()
+    settle()
+    assert panel.selected.name == name
+
+
+def test_a_rescan_stays_in_place_when_the_entry_went(panel, tree):
+    panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == "one.txt")
+    settle()
+    where = panel.cursor
+    (tree / "one.txt").unlink()
+    panel.reload()
+    settle()
+    assert panel.cursor == min(where, len(panel.items) - 1)
+
+
+def test_a_rescan_after_a_change_of_directory_starts_at_the_top(panel, tree):
+    panel.move_cursor(2)
+    settle()
+    panel.reload()
+    panel.path = tree / "alpha"
     settle()
     assert panel.cursor == 0
 
@@ -2508,3 +2530,78 @@ def test_a_dialog_does_not_move_the_active_panel(tree, quiet_console):
         lambda a: seen.append(a.manager.active_panel is a.manager.right),
     ])
     assert seen == [True]
+
+
+# -- running a file, and putting its name on the command line --------------------
+
+
+def on_entry(app, name):
+    panel = app.manager.left
+    panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == name)
+
+
+@pytest.fixture
+def runnable(tree):
+    script = tree / "run me.sh"
+    script.write_text("#!/bin/sh\necho ran\n")
+    script.chmod(0o755)
+    return tree
+
+
+def test_enter_on_an_executable_runs_it(runnable, quiet_console, monkeypatch):
+    app = navigator(runnable)
+    ran = []
+    monkeypatch.setattr(app.shell, "run_command", ran.append)
+    run_app(app, [lambda a: on_entry(a, "run me.sh"), KeyEvent("enter")])
+    assert ran == ["./run\\ me.sh"]
+
+
+def test_enter_on_a_plain_file_runs_nothing(tree, quiet_console, monkeypatch):
+    app = navigator(tree)
+    ran = []
+    monkeypatch.setattr(app.shell, "run_command", ran.append)
+    run_app(app, [lambda a: on_entry(a, "one.txt"), KeyEvent("enter")])
+    assert ran == [] and app.manager.left.path == tree
+
+
+@pytest.mark.parametrize("key", [KeyEvent("enter", ctrl=True), KeyEvent("enter", alt=True)])
+def test_ctrl_enter_puts_the_name_on_the_command_line(runnable, quiet_console, key):
+    app = navigator(runnable)
+    run_app(app, [
+        *typed("cat"), lambda a: on_entry(a, "one.txt"), key,
+        lambda a: on_entry(a, "run me.sh"), key,
+    ])
+    # A space before the first, because the caret was after a word; one after
+    # each, so the next can follow; and the blank in a name escaped.
+    assert app.shell.command_line.value == "cat one.txt run\\ me.sh "
+
+
+def test_ctrl_enter_on_dot_dot_is_the_directory_itself(tree, quiet_console):
+    app = navigator(tree / "alpha")
+    run_app(app, [lambda a: on_entry(a, ".."), KeyEvent("enter", ctrl=True)])
+    assert app.shell.command_line.value == f"{tree / 'alpha'}/"
+
+
+def test_ctrl_shift_enter_puts_the_whole_path(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [lambda a: on_entry(a, "one.txt"), KeyEvent("enter", ctrl=True, shift=True)])
+    assert app.shell.command_line.value == f"{tree / 'one.txt'} "
+
+
+def test_a_ctrl_double_click_is_ctrl_enter(tree, quiet_console):
+    app = navigator(tree)
+    app.shell.layout(80, 24)
+    settle()
+    panel = app.manager.left
+    row = next(i for i, e in enumerate(panel.items) if e.name == "one.txt")
+    run_app(app, [
+        lambda a: setattr(panel, "cursor", row),
+        lambda a: awaited_inline(a, panel, row),
+    ])
+    assert app.shell.command_line.value == "one.txt "
+
+
+def awaited_inline(app, panel, row):
+    y = row - panel.scroll + panel.inset
+    app.post_event(DoubleClickEvent.of(MouseClickEvent(
+        panel.offset()[0] + panel.x + 2, panel.offset()[1] + panel.y + y, "left", "press", ctrl=True)))

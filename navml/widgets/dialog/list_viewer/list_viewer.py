@@ -166,7 +166,10 @@ class ListViewer(Control):
             self.move_cursor(-len(self.items))
         elif event.key == "end":
             self.move_cursor(len(self.items))
-        elif event.key == "enter":
+        elif event.matches("enter"):
+            # A bare Enter only: Ctrl+Enter and Alt+Enter are other commands,
+            # and a list that took them as Enter would hide them from every
+            # key table behind it.
             return await self.choose()
         else:
             return False

@@ -946,8 +946,9 @@ only the reference. Paths below are under Textual's `src/textual/`.
 - **A public test pilot** — `pilot.py`, `run_test()`, the snapshot plugin. It offers `press`, `click(widget or
   selector)`, `resize` and golden-frame comparison, generalising `tests/conftest.py`'s `run_app` and `desktop_dump`.
 - **`Widget.query(selector)`** — `css/query.py`, reusing the selector matcher. The walk is the only new part.
-- **Paste reaches the focused widget** — `events.Paste`. Today it stops at `Application.on_paste`, so `InputLine`
-  cannot be pasted into. Copying out through OSC 52 comes after.
+- ~~**Paste reaches the focused widget**~~ — done: `Widget.dispatch_paste` walks the focus path when
+  `Application.on_paste` declines, `InputLine.on_paste` takes it, and copying out is OSC 52 (*Clipboard* in
+  `navkit/DESIGN.md`).
 - **Input validators** — `validation.py`; Turbo Vision `TValidator`, `TPXPictureValidator`, `TRangeValidator`,
   `TFilterValidator`, `TStringLookupValidator`. Turbo Vision's names and taxonomy, with Textual's result object and
   an `:invalid` state.

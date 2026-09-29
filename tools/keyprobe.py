@@ -5,7 +5,7 @@
 Raw mode, SGR mouse tracking, bracketed paste and the kitty keyboard flags
 Navigator pushes -- the same escapes :class:`navkit.terminal.Terminal` writes --
 and then every read is printed as bytes and as what ``InputParser`` makes of
-it.  Press ``q`` twice in a row to quit.
+it.  Press ``q`` twice in a row, or Ctrl+C, to quit.
 
 It exists for the questions only a real terminal can answer: whether a key the
 terminal binds for itself (Ctrl+Shift+V, Shift+Insert) reaches the application
@@ -25,6 +25,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from navkit.events import KeyEvent  # noqa: E402
 from navkit.terminal import (  # noqa: E402
     InputParser,
     KEYBOARD_OFF,
@@ -51,14 +52,20 @@ def main() -> int:
     try:
         tty.setraw(fd)
         os.write(1, on.encode())
-        os.write(1, b"Navigator's modes are on.  Press keys, paste, click; q twice quits.\r\n")
+        os.write(1, b"Navigator's modes are on.  Press keys, paste, click; q twice or Ctrl+C quits.\r\n")
         while True:
             select.select([fd], [], [])
             data = os.read(fd, 4096)
             events = decoder.feed(data)
             names = ", ".join(repr(e) for e in events) or "(nothing yet)"
             os.write(1, f"{data!r}\r\n    -> {names}\r\n".encode())
-            quits = quits + 1 if data == b"q" else 0
+            # Judged on the decoded keys, not the bytes: with the kitty flags
+            # pushed a q arrives as an escape sequence, with a release after it.
+            keys = [e for e in events if isinstance(e, KeyEvent)]
+            if any(k.matches("ctrl+c") for k in keys):
+                break
+            for key in keys:
+                quits = quits + 1 if key.matches("q") else 0
             if quits >= 2:
                 break
     finally:

@@ -24,6 +24,7 @@ from navml.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import About, CommandLineEnd, CommandLineHome, CompleteCommandLine
+from navigator.commands import InsertName, InsertPath
 from navigator.commands import ExecuteCommandLine, NewManager, OpenTreeWindow
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.command_line.command_line import HISTORY_ID
@@ -312,6 +313,8 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return False
+        if isinstance(command, (InsertName, InsertPath)):
+            return self._panel_entry() is not None
         if isinstance(
             command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine)
         ):
@@ -480,6 +483,56 @@ class Shell(DockLayout):
         self._completing = CompletionsReady(line.value, line.cursor, state.start, tuple(narrowed))
         self._show_completions(state.start, narrowed)
         self._ask_completions()
+
+    # -- the panel and the command line ----------------------------------------
+
+    def _panel_entry(self) -> tuple[Path, Any] | None:
+        """The active panel's directory and the entry under its cursor, if any."""
+        manager = self.active_manager
+        if manager is None:
+            return None
+        panel = manager.active_panel
+        entry = panel.selected
+        return (panel.path, entry) if entry is not None else None
+
+    def _insert_entry(self, *, whole: bool) -> None:
+        """``_CtrlEnter``: the entry's name -- or path -- onto the command line.
+
+        On ``..`` it is the directory the panel shows, whole and ending in
+        ``/``, as DOS Navigator's ended in a backslash.
+        """
+        found = self._panel_entry()
+        if found is None:
+            return
+        directory, entry = found
+        if entry.name == "..":
+            text = _escape(str(directory).rstrip("/")) + "/"
+        elif whole:
+            text = _escape(str(directory / entry.name))
+        else:
+            text = _escape(entry.name)
+        self.command_line.insert_name(text)
+
+    async def on_insert_name(self, event: InsertName) -> bool:
+        self._insert_entry(whole=False)
+        return True
+
+    async def on_insert_path(self, event: InsertPath) -> bool:
+        self._insert_entry(whole=True)
+        return True
+
+    async def on_execute_file(self, event: Any) -> bool:
+        """Enter on an executable in a panel: run it, as though typed.
+
+        ``./name`` in the panel's directory, which is where a command runs --
+        so the console log shows ``prompt$ ./name``, what a user would have
+        typed, and the history gets it too.  Not while a program is running:
+        the panels are not showing then, and nothing typed would reach them.
+        """
+        if self.console.busy:
+            return True
+        self.run_command("./" + _escape(event.path.name))
+        return True
 
     async def on_execute_command_line(self, event: ExecuteCommandLine) -> bool:
         """Enter: run the line in the shell, with the console up while it runs.
