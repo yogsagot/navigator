@@ -50,6 +50,8 @@ naming the panel's directory.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import os
 import re
 import secrets
@@ -85,6 +87,174 @@ class CommandFinished(Event):
     cwd: Path | None
 
 
+@dataclass(frozen=True, slots=True)
+class HistoryReady(Event):
+    """The shell's history, newest first, for Up on the idle console."""
+
+    entries: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class HistoryChosen(Event):
+    """What atuin's search handed back: empty if it was cancelled."""
+
+    text: str
+
+
+@dataclass(frozen=True, slots=True)
+class CompletionsReady(Event):
+    """The shell answered Tab: *candidates* for ``line[start:point]``.
+
+    Posted, like :class:`CommandFinished`, so it is applied in a batch.  It
+    carries the line and caret it was asked about, and is dropped if the
+    command line has moved on since.
+    """
+
+    line: str
+    point: int
+    start: int
+    candidates: tuple[str, ...]
+
+
+#: Tab on the command line, answered by bash: the candidates for the word at the
+#: caret, as readline would find them.  ``$1`` is the line in base64 and ``$2``
+#: the caret; the answer is a ``C`` mark carrying where the word starts and the
+#: candidates, NUL-separated and in base64, so nothing in them can end the mark.
+#: Words are split on blanks, which is readline's split for everything but
+#: quoted text.  The first word is a command -- ``compgen -c`` knows aliases,
+#: functions and builtins as well as ``PATH`` -- and every later one goes to the
+#: command's own completion: the ``complete`` spec, loaded on demand when
+#: bash-completion is installed, and a ``-F`` function called the way readline
+#: calls it.  Files are the fallback, as they are for readline.
+_BASH_COMPLETE = r"""
+__nav_complete() {
+    local line point left cur cmd spec func
+    line=$(printf '%s' "$1" | base64 -d 2>/dev/null) point=$2
+    left=${line:0:point}
+    local -a words reply=()
+    read -ra words <<< "$left"
+    [[ -z $left || $left =~ [[:space:]]$ ]] && words+=("")
+    local cword=$(( ${#words[@]} - 1 ))
+    cur=${words[cword]}
+    if (( cword == 0 )) && [[ $cur != */* ]]; then
+        mapfile -t reply < <(compgen -c -- "$cur" 2>/dev/null | sort -u)
+    else
+        cmd=${words[0]}
+        spec=$(complete -p -- "$cmd" 2>/dev/null)
+        if [[ -z $spec ]]; then
+            if declare -F _comp_load >/dev/null; then
+                _comp_load -- "$cmd" >/dev/null 2>&1
+            elif declare -F _completion_loader >/dev/null; then
+                _completion_loader "$cmd" >/dev/null 2>&1
+            fi
+            spec=$(complete -p -- "$cmd" 2>/dev/null)
+        fi
+        if [[ $spec =~ \ -F\ ([^ ]+) ]]; then
+            func=${BASH_REMATCH[1]}
+            local COMP_LINE=$left COMP_POINT=${#left} COMP_CWORD=$cword
+            local COMP_KEY=9 COMP_TYPE=9
+            local -a COMP_WORDS=("${words[@]}") COMPREPLY=()
+            "$func" "$cmd" "$cur" "${words[cword-1]}" >/dev/null 2>&1
+            reply=("${COMPREPLY[@]}")
+        elif [[ -n $spec ]]; then
+            spec=${spec#complete }
+            spec=${spec% *}
+            mapfile -t reply < <(eval "compgen $spec -- \"\$cur\"" 2>/dev/null)
+        fi
+        if (( ${#reply[@]} == 0 )) && [[ -z $spec || $spec == *default* ]]; then
+            mapfile -t reply < <(compgen -f -- "$cur" 2>/dev/null)
+        fi
+    fi
+    printf '@MARK@;C;%s;%s\007' "$(( ${#left} - ${#cur} ))" \
+        "$( (( ${#reply[@]} )) && printf '%s\0' "${reply[@]}" | base64 -w0)"
+}
+"""
+
+#: The same for zsh, which cannot be asked what its own completion system
+#: would offer -- compsys runs only inside the line editor, on a line it is
+#: editing -- so this is the two things the shell *can* be asked: which
+#: commands it knows, and which files a word names.
+_ZSH_COMPLETE = r"""
+__nav_complete() {
+    local line=$(print -rn -- $1 | base64 -d 2>/dev/null) point=$2
+    local left=${line[1,point]}
+    local -a words reply
+    words=(${=left})
+    [[ -z $left || $left == *[[:space:]] ]] && words+=('')
+    local cur=${words[-1]}
+    local pat=${(b)cur}
+    if (( ${#words} == 1 )) && [[ $cur != */* ]]; then
+        reply=(${(M)${(k)aliases}:#${~pat}*} ${(M)${(k)functions}:#${~pat}*}
+               ${(M)${(k)builtins}:#${~pat}*} ${(M)${(k)commands}:#${~pat}*})
+        reply=(${(u)reply})
+    else
+        [[ $cur == '~'* ]] && pat="~${(b)cur[2,-1]}"
+        reply=(${~pat}*(N))
+    fi
+    printf '@MARK@;C;%s;%s\a' "$(( ${#left} - ${#cur} ))" \
+        "$( (( ${#reply} )) && print -rn -- ${(pj:\0:)reply} | base64 -w0)"
+}
+"""
+
+#: Up on the idle console, answered by bash.  ``__nav_history`` is the shell's
+#: own history, newest first, as an ``H`` mark -- what readline's Up walks.
+#: ``__nav_atuin`` is what atuin's Up and Ctrl+R bindings run, run the same
+#: way: its interface on the terminal, the chosen command on the swapped
+#: descriptor, handed back as an ``R`` mark.  The ``O`` mark before it is where
+#: the console starts showing, so the line that ran it is never seen.
+#: ``__nav_keys`` says, once, which of the two the user's Up and Ctrl+R are.
+_BASH_HISTORY = r"""
+__nav_history() {
+    local -a entries
+    mapfile -t entries < <(HISTTIMEFORMAT= fc -lnr -1000 2>/dev/null | sed 's/^[[:space:]]*//')
+    printf '@MARK@;H;%s\007' \
+        "$( (( ${#entries[@]} )) && printf '%s\0' "${entries[@]}" | base64 -w0)"
+}
+__nav_atuin() {
+    local line out
+    line=$(printf '%s' "$1" | base64 -d 2>/dev/null)
+    shift
+    printf '@MARK@;O\007'
+    out=$(ATUIN_SHELL_BASH=t ATUIN_LOG=error ATUIN_QUERY="$line" atuin search "$@" -i 3>&1 1>&2 2>&3)
+    printf '@MARK@;R;%s\007' "$(printf '%s' "$out" | base64 -w0)"
+}
+__nav_keys() {
+    local keys up= search=
+    keys=$(bind -X 2>/dev/null)
+    [[ $keys == *'"\e[A": "__atuin_history'* ]] && up=atuin
+    [[ $keys == *'"\C-r": "__atuin_history'* ]] && search=atuin
+    printf '@MARK@;U;%s;%s\007' "$up" "$search"
+}
+__nav_keys
+"""
+
+#: The same three for zsh, whose history is ``fc`` too and whose atuin
+#: bindings are ZLE widgets -- so they are recognised by name and atuin is run
+#: directly, the way its own widget runs it.
+_ZSH_HISTORY = r"""
+__nav_history() {
+    local -a entries
+    entries=("${(@f)$(fc -lnr -1000 2>/dev/null)}")
+    printf '@MARK@;H;%s\a' \
+        "$( (( ${#entries} )) && print -rn -- ${(pj:\0:)entries} | base64 -w0)"
+}
+__nav_atuin() {
+    local line=$(print -rn -- $1 | base64 -d 2>/dev/null) out
+    shift
+    printf '@MARK@;O\a'
+    out=$(ATUIN_SHELL_ZSH=t ATUIN_LOG=error ATUIN_QUERY=$line atuin search "$@" -i 3>&1 1>&2 2>&3)
+    printf '@MARK@;R;%s\a' "$(print -rn -- $out | base64 -w0)"
+}
+__nav_keys() {
+    local up= search=
+    [[ $(bindkey '^[[A') == *atuin* || $(bindkey '^[OA') == *atuin* ]] && up=atuin
+    [[ $(bindkey '^R') == *atuin* ]] && search=atuin
+    printf '@MARK@;U;%s;%s\a' "$up" "$search"
+}
+__nav_keys
+"""
+
+
 def _bash_rc(nonce: str) -> str:
     # $? is caught first and the mark printed last, so a prompt command the
     # user's rc installed -- starship, a git prompt -- neither clobbers the
@@ -115,7 +285,7 @@ else
     PROMPT_COMMAND="__nav_status=\\$?;${{PROMPT_COMMAND:+$PROMPT_COMMAND;}}__nav_prompt"
 fi
 HISTCONTROL="ignorespace${{HISTCONTROL:+:$HISTCONTROL}}"
-"""
+""" + (_BASH_COMPLETE + _BASH_HISTORY).replace("@MARK@", mark)
 
 
 def _zsh_env() -> str:
@@ -147,7 +317,7 @@ __nav_prompt() {{
 }}
 precmd_functions=(__nav_status $precmd_functions __nav_prompt)
 setopt HIST_IGNORE_SPACE
-"""
+""" + (_ZSH_COMPLETE + _ZSH_HISTORY).replace("@MARK@", mark)
 
 
 def _sh_rc(nonce: str) -> str:
@@ -241,11 +411,32 @@ class Subshell:
         self._silent = False
         #: Where :meth:`sync` last asked the shell to be, until it is sent.
         self._wanted: Path | None = None
-        #: What to send once the shell is ready: ``(text, silent)``.
-        self._queue: list[tuple[str, bool]] = []
+        #: What to send once the shell is ready: ``(text, mode)``, the mode one
+        #: of ``"command"`` (echoed after the held-back prompt, as typed),
+        #: ``"silent"`` (nothing shown until the prompt) and ``"reveal"``
+        #: (nothing shown until the ``O`` mark -- the line that ran it stays
+        #: hidden, what it draws does not).
+        self._queue: list[tuple[str, str]] = []
+        #: A ``"reveal"`` line is running: hidden until the O mark, and its
+        #: end is no command finishing.
+        self._revealing = False
+        #: Whoever waits for the shell's history, oldest first, and for what
+        #: atuin chose.
+        self._histories: list[Callable[[list[str]], None]] = []
+        self._chosen: Callable[[str], None] | None = None
+        #: What the user's Up and Ctrl+R run in their own terminal: ``"atuin"``,
+        #: or None for readline's history walk and reverse search.
+        self.up_binding: str | None = None
+        self.search_binding: str | None = None
         self._paste = False
         #: The line editor is zsh's, which reads a bracketed paste whenever.
         self._zle = False
+        #: Whether the running shell can answer :meth:`complete`.
+        self.can_complete = False
+        #: Who is waiting for an answer to :meth:`complete`, oldest first: the
+        #: shell answers queries in the order they were sent, and typing can
+        #: send the next before the last is answered.
+        self._completions: list[Callable[[int, list[str]], None]] = []
         # What the program asks the terminal -- where the cursor is, what the
         # terminal is -- is answered by the screen, back down the pty.
         screen.respond = self.write
@@ -263,12 +454,14 @@ class Subshell:
         self._cleanup()
         self._nonce = secrets.token_hex(8)
         self._marks = re.compile(
-            rb"\x1b\]%d;%s;([ABD])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
+            rb"\x1b\]%d;%s;([ABCDHORU])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
             % (MARK, self._nonce.encode())
         )
         self._directory = tempfile.mkdtemp(prefix="navigator-shell-")
         argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce)
         self._zle = Path(argv[0]).name == "zsh"
+        #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.
+        self.can_complete = Path(argv[0]).name in ("bash", "zsh")
         env = dict(os.environ)
         env.update(extra)
         self._tail, self._prompt = b"", b""
@@ -294,6 +487,10 @@ class Subshell:
             self.process.close()
             self.process = None
         self._queue.clear()
+        self._completions.clear()
+        self._histories.clear()
+        self._chosen = None
+        self._revealing = False
         self.busy = False
         self._cleanup()
 
@@ -335,10 +532,66 @@ class Subshell:
                     self.on_finished(127, self.cwd)
                 return
         elif cwd is not None and cwd != self.cwd:
-            self._queue.append((f" cd -- {shlex.quote(str(cwd))}", True))
-        self._queue.append((command, False))
+            self._queue.append((f" cd -- {shlex.quote(str(cwd))}", "silent"))
+        self._queue.append((command, "command"))
         self.busy = True
         self._send_next()
+
+    def complete(
+        self,
+        line: str,
+        point: int,
+        cwd: Path | None,
+        callback: Callable[[int, list[str]], None],
+    ) -> bool:
+        """Ask the shell what the word at *point* in *line* could become.
+
+        Asked silently, like the ``cd``: the query never reaches the history
+        or the screen.  *callback* is called with where the word starts and
+        the candidates, once, when the shell answers -- in *cwd*, where the
+        command would run.  False, and no callback, if the shell cannot be
+        asked: not running, running a command, or a shell with no hook.
+        """
+        if not self.is_running or self.busy or not self.can_complete:
+            return False
+        if cwd is not None and cwd != self.cwd:
+            self._queue.append((f" cd -- {shlex.quote(str(cwd))}", "silent"))
+        encoded = base64.b64encode(line.encode()).decode("ascii")
+        self._queue.append((f" __nav_complete {encoded} {point}", "silent"))
+        self._completions.append(callback)
+        self._send_next()
+        return True
+
+    def history(self, callback: Callable[[list[str]], None]) -> bool:
+        """Ask for the shell's history, newest first -- what readline's Up walks.
+
+        Silent, like :meth:`complete`.  False if the shell cannot be asked.
+        """
+        if not self.is_running or self.busy or not self.can_complete:
+            return False
+        self._queue.append((" __nav_history", "silent"))
+        self._histories.append(callback)
+        self._send_next()
+        return True
+
+    def search_history(self, line: str, args: list[str], callback: Callable[[str], None]) -> bool:
+        """Run atuin's search on the console, as the user's Up or Ctrl+R would.
+
+        Its interface is drawn on the console and gets every key while it runs
+        -- :attr:`busy` is set, as for a command -- but the line that started
+        it is never shown and its end finishes no command.  *callback* gets
+        what was chosen: empty if the search was cancelled, and prefixed
+        ``__atuin_accept__:`` if the user asked for it to run at once.
+        """
+        if not self.is_running or self.busy or not self.can_complete:
+            return False
+        encoded = base64.b64encode(line.encode()).decode("ascii")
+        words = " ".join(shlex.quote(arg) for arg in args)
+        self._queue.append((f" __nav_atuin {encoded} {words}", "reveal"))
+        self._chosen = callback
+        self.busy = True
+        self._send_next()
+        return True
 
     def sync(self, cwd: Path) -> None:
         """Send the shell to *cwd* silently, so its next prompt is printed there.
@@ -359,15 +612,17 @@ class Subshell:
         # asked for again at every prompt the failed cd prints.
         self._wanted = None
         if wanted != self.cwd:
-            self._queue.append((f" cd -- {shlex.quote(str(wanted))}", True))
+            self._queue.append((f" cd -- {shlex.quote(str(wanted))}", "silent"))
             self._send_next()
 
     def _send_next(self) -> None:
         if not self._ready or not self._queue or self.process is None:
             return
-        text, silent = self._queue.pop(0)
+        text, mode = self._queue.pop(0)
         self._ready = False
+        silent = mode != "command"
         self._silent = silent
+        self._revealing = mode == "reveal"
         if not silent:
             # The prompt the shell printed and we kept back, so the command
             # it is about to echo lands after it, as it would have typed.
@@ -421,6 +676,39 @@ class Subshell:
                 self.on_output()
 
     def _mark(self, kind: bytes, data: bytes | None) -> None:
+        if kind == b"U":
+            up, _, search = (data or b"").partition(b";")
+            self.up_binding = up.decode() or None
+            self.search_binding = search.decode() or None
+            return
+        if kind == b"H":
+            entries = _decode_list(data)
+            if self._histories and entries is not None:
+                self._histories.pop(0)(entries)
+            return
+        if kind == b"O":
+            # What the revealed line draws from here on is the console's.
+            self._silent = False
+            return
+        if kind == b"R":
+            chosen, self._chosen = self._chosen, None
+            try:
+                text = base64.b64decode(data or b"").decode("utf-8", "replace")
+            except (ValueError, binascii.Error):
+                text = ""
+            if chosen is not None:
+                chosen(text)
+            return
+        if kind == b"C":
+            start, _, encoded = (data or b"").partition(b";")
+            try:
+                candidates = base64.b64decode(encoded).decode("utf-8", "replace")
+                where = int(start)
+            except (ValueError, binascii.Error):
+                return
+            if self._completions:
+                self._completions.pop(0)(where, [c for c in candidates.split("\0") if c])
+            return
         if kind == b"D":
             status, _, cwd = (data or b"").partition(b";")
             try:
@@ -430,7 +718,12 @@ class Subshell:
             path = Path(os.fsdecode(cwd)) if cwd else None
             if path is not None and path.is_absolute():
                 self.cwd = path
-            if self._silent:
+            if self._revealing:
+                # The history search is over, and it was no command: the
+                # keys go back, and nothing is re-read.
+                self._revealing = self._silent = False
+                self.busy = False
+            elif self._silent:
                 self._silent = False
             elif self.busy and not self._queue:
                 self.busy = False
@@ -449,6 +742,10 @@ class Subshell:
 
     def _on_exit(self, status: int) -> None:
         self.process = None
+        self._completions.clear()
+        self._histories.clear()
+        self._chosen = None
+        self._revealing = False
         self._ready = False
         self._queue.clear()
         self._cleanup()
@@ -457,3 +754,12 @@ class Subshell:
             self.on_exit(status)
         if was_busy and self.on_finished is not None:
             self.on_finished(status, self.cwd)
+
+
+def _decode_list(data: bytes | None) -> list[str] | None:
+    """A mark's base64 of NUL-separated strings, or None if it is not one."""
+    try:
+        text = base64.b64decode(data or b"").decode("utf-8", "replace")
+    except (ValueError, binascii.Error):
+        return None
+    return [entry for entry in text.split("\0") if entry]

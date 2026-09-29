@@ -9,6 +9,7 @@ one that is not is skipped rather than faked.
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 import shutil
 from pathlib import Path
@@ -243,3 +244,201 @@ def test_sync_moves_an_idle_shell_and_reprompts_there(shell, tmp_path):
 
 def subshell_cd_left_no_trace(screen: ConsoleScreen) -> bool:
     return not any("cd --" in line for line in text(screen))
+
+
+async def completion(shell: str, line: str, point: int, cwd: Path):
+    """Start *shell* in *cwd*, ask it to complete, and return the answer and the screen."""
+    screen = ConsoleScreen(80, 24)
+    answer: list[tuple[int, list[str]]] = []
+    ready, got = asyncio.Event(), asyncio.Event()
+    subshell = Subshell(screen, shell=shutil.which(shell),
+                        on_prompt=lambda data, where: ready.set())
+    try:
+        subshell.start(cwd)
+        await asyncio.wait_for(ready.wait(), 10)
+        assert subshell.complete(line, point, cwd,
+                                 lambda start, found: (answer.append((start, found)), got.set()))
+        await asyncio.wait_for(got.wait(), 10)
+        # And the shell is back at its prompt, ready for a command.
+        ready.clear()
+        await asyncio.wait_for(ready.wait(), 10)
+    finally:
+        subshell.stop()
+    return answer[0], screen
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_the_first_word_completes_to_a_command(shell, tmp_path):
+    (start, found), _ = run(completion(shell, "ech", 3, tmp_path))
+    assert start == 0 and "echo" in found
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_a_later_word_completes_to_a_file_where_the_command_would_run(shell, tmp_path):
+    (tmp_path / "subdir").mkdir()
+    (tmp_path / "subway.txt").write_text("")
+    (start, found), screen = run(completion(shell, "ls sub", 6, tmp_path))
+    assert start == 3
+    assert sorted(found) == ["subdir", "subway.txt"]
+    # Asked silently: nothing of the query reached the console.
+    assert not any("__nav_complete" in line for line in text(screen))
+
+
+def test_a_complete_function_is_asked_for_its_command(home, tmp_path):
+    if shutil.which("bash") is None:
+        pytest.skip("bash is not installed")
+    rc(home, bash="PS1='$ '\n_greet() { COMPREPLY=($(compgen -W 'hello help' -- \"$2\")); }\n"
+                  "complete -F _greet greet", zsh="")
+    (start, found), _ = run(completion("bash", "greet he", 8, tmp_path))
+    assert start == 6 and sorted(found) == ["hello", "help"]
+
+
+def test_the_query_stays_out_of_the_history(home, tmp_path):
+    if shutil.which("bash") is None:
+        pytest.skip("bash is not installed")
+    run(completion("bash", "ech", 3, tmp_path))
+    history = home / ".bash_history"
+    assert not history.exists() or "__nav_complete" not in history.read_text()
+
+
+def test_sh_cannot_complete(tmp_path):
+    async def go():
+        subshell = Subshell(ConsoleScreen(80, 24), shell=shutil.which("sh"))
+        try:
+            subshell.start(tmp_path)
+            return subshell.can_complete, subshell.complete("ech", 3, tmp_path, lambda *a: None)
+        finally:
+            subshell.stop()
+
+    assert run(go()) == (False, False)
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_two_queries_in_a_row_are_each_answered_their_own(shell, tmp_path):
+    # Typing sends the next query before the last is answered; each answer
+    # has to reach the one that asked it, not the latest.
+    (tmp_path / "navml").mkdir()
+    (tmp_path / "navml" / "widgets").mkdir()
+
+    async def go():
+        screen = ConsoleScreen(80, 24)
+        ready, answers = asyncio.Event(), {}
+        subshell = Subshell(screen, shell=shutil.which(shell),
+                            on_prompt=lambda data, where: ready.set())
+        try:
+            subshell.start(tmp_path)
+            await asyncio.wait_for(ready.wait(), 10)
+            both = asyncio.Event()
+
+            def answer(name):
+                def got(start, found):
+                    answers[name] = found
+                    if len(answers) == 2:
+                        both.set()
+                return got
+
+            subshell.complete("ls navm", 7, tmp_path, answer("first"))
+            subshell.complete("ls navml/", 9, tmp_path, answer("second"))
+            await asyncio.wait_for(both.wait(), 10)
+        finally:
+            subshell.stop()
+        return answers
+
+    answers = run(go())
+    assert answers == {"first": ["navml"], "second": ["navml/widgets"]}
+
+
+async def started(shell: str, cwd: Path, **callbacks):
+    """A subshell at its first prompt, and the event its prompts set."""
+    ready = asyncio.Event()
+    on_prompt = callbacks.pop("on_prompt", None)
+
+    def prompted(data, where):
+        ready.set()
+        if on_prompt is not None:
+            on_prompt(data, where)
+
+    subshell = Subshell(ConsoleScreen(80, 24), shell=shutil.which(shell),
+                        on_prompt=prompted, **callbacks)
+    subshell.start(cwd)
+    await asyncio.wait_for(ready.wait(), 10)
+    return subshell, ready
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_the_history_is_the_shell_s_own_newest_first(shell, home, tmp_path):
+    histfile = home / ("hist." + shell)
+    histfile.write_text("echo first\necho second\n")
+    rc(home, bash=f"PS1='$ '; HISTFILE={histfile}; history -r",
+       zsh=f"PS1='$ '; HISTFILE={histfile}; fc -R")
+
+    async def go():
+        subshell, _ = await started(shell, tmp_path)
+        got = asyncio.Event()
+        entries = []
+        try:
+            assert subshell.history(lambda found: (entries.extend(found), got.set()))
+            await asyncio.wait_for(got.wait(), 10)
+        finally:
+            subshell.stop()
+        return entries
+
+    entries = run(go())
+    assert entries[:2] == ["echo second", "echo first"]
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_no_atuin_binding_means_readline_s_keys(shell, tmp_path):
+    async def go():
+        subshell, _ = await started(shell, tmp_path)
+        subshell.stop()
+        return subshell.up_binding, subshell.search_binding
+
+    assert run(go()) == (None, None)
+
+
+def fake_atuin(home: Path) -> Path:
+    """An ``atuin`` that draws on the terminal and chooses ``chosen command``.
+
+    atuin's own shell integration swaps descriptors, so what it chooses is
+    written to its standard error and what it draws to its standard output.
+    """
+    bin_dir = home / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    atuin = bin_dir / "atuin"
+    atuin.write_text('#!/bin/sh\necho "FAKE ATUIN $ATUIN_QUERY"\necho "chosen command" >&2\n')
+    atuin.chmod(0o755)
+    return bin_dir
+
+
+def test_an_atuin_up_binding_is_recognised_and_run(home, tmp_path, monkeypatch):
+    if shutil.which("bash") is None:
+        pytest.skip("bash is not installed")
+    bin_dir = fake_atuin(home)
+    monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
+    rc(home, bash="PS1='$ '\n__atuin_history() { :; }\n"
+                  "bind -x '\"\\e[A\": __atuin_history --shell-up-key-binding'\n"
+                  "bind -x '\"\\C-r\": __atuin_history'", zsh="")
+    finished = []
+
+    async def go():
+        subshell, ready = await started("bash", tmp_path,
+                                        on_finished=lambda *a: finished.append(a))
+        chosen = []
+        try:
+            bindings = subshell.up_binding, subshell.search_binding
+            ready.clear()
+            assert subshell.search_history("ls", ["--shell-up-key-binding"], chosen.append)
+            assert subshell.busy  # the search has the keys while it runs
+            await asyncio.wait_for(ready.wait(), 10)
+        finally:
+            subshell.stop()
+        return bindings, chosen, subshell
+
+    bindings, chosen, subshell = run(go())
+    assert bindings == ("atuin", "atuin")
+    assert chosen == ["chosen command"]
+    assert not subshell.busy and finished == []  # no command finished
+    shown = text(subshell.screen)
+    assert "FAKE ATUIN ls" in shown
+    assert not any("__nav_atuin" in line for line in shown)

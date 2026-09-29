@@ -389,6 +389,27 @@ class ConsoleScreen:
         history = self.screen.history
         return history.position < history.size
 
+    # -- selection -----------------------------------------------------------
+
+    def text(self, start: tuple[int, int], end: tuple[int, int]) -> str:
+        """The text shown from cell *start* through cell *end*, both ``(x, y)``.
+
+        Read as a terminal reads a selection: row by row from *start* to
+        *end*, inclusive, each row with its trailing blanks dropped and the
+        rows joined by line breaks.  The trailing half of a wide character is
+        no character at all and is skipped.  What is shown means what is on
+        screen now -- history, when the view is scrolled back.
+        """
+        (sx, sy), (ex, ey) = sorted((start, end), key=lambda cell: (cell[1], cell[0]))
+        surface = self.surface
+        rows = []
+        for y in range(max(0, sy), min(self.lines - 1, ey) + 1):
+            left = sx if y == sy else 0
+            right = ex + 1 if y == ey else self.columns
+            chars = (surface.get(x, y)[0] for x in range(max(0, left), min(self.columns, right)))
+            rows.append("".join(chars).rstrip())
+        return "\n".join(rows)
+
     # -- output --------------------------------------------------------------
 
     @property

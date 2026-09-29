@@ -100,7 +100,29 @@ keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which 
 `ofPostProcess` -- and navkit's `_cursor` now asks the whole focus path, nearest first, so `Shell.cursor_position`
 puts the caret on the line. Enter, Home and End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the
 application's key table, **disabled while the line is empty** so the key falls through to the panel. Esc clears,
-Ctrl+E/Ctrl+X walk `HISTORY["command"]`, a paste lands on it. **Commands run in one persistent `$SHELL`**
+Ctrl+E/Ctrl+X walk `HISTORY["command"]`, a paste lands on it. **Tab completes by the same rule**
+(`CompleteCommandLine`): with text on the line the shell is asked silently -- ` __nav_complete <base64> <point>`,
+answered by a `C` mark -- bash through `compgen` and the command's own `complete` spec (bash-completion's functions
+included), zsh through its command tables and globbing only, since compsys cannot be asked from outside ZLE; `sh`
+cannot, and Tab stays the panel key. One candidate ends the word (`/` for a directory, a space otherwise, shell
+specials backslashed), several that agree extend it, and the rest drop a `CompletionList` (a `HistoryList`) over
+the line. **Typing with the list open goes on into the line**: the list narrows at once and is refilled by a fresh
+query (so `/` descends), a blank or Backspace past the word closes it, and it dims nothing
+(`Widget.dims_behind = False`). Queries are answered in order -- `Subshell._completions` is a queue, because two keys
+in one read send two queries before the first answer. **With the console up and idle it stands for the terminal**
+(`Shell._console_is_the_terminal`): Up/Down walk the *shell's* history (` __nav_history`, an `H` mark, `fc -lnr`),
+and where the user's rc binds Up or Ctrl+R to atuin (detected once at startup by `__nav_keys`, a `U` mark) those keys
+run `atuin search -i` on the console exactly as atuin's own binding does -- descriptors swapped, the choice back in an
+`R` mark, `__atuin_accept__:` running it at once. Such a line is sent in the queue's **`"reveal"` mode**: hidden until
+its `O` mark, shown after, holding the keys (`busy`) while it runs, and finishing no command. With the panels up, Up
+is the panel's and Ctrl+R re-reads, as in DOS Navigator. **The clipboard** is navkit's (`navkit/clipboard.py`, *Clipboard* in `navkit/DESIGN.md`): OSC 52 plus
+`wl-copy`/`xclip`/`xsel`, a requested paste arriving as a `PasteEvent`. Every `InputLine` selects with a drag or a
+double click (a finished one is the primary selection), and takes Ctrl+Ins (copy, the whole line with no selection,
+as DN's did), Shift+Del, Shift+Ins, Ctrl+C (only with a selection) and Ctrl+V; a middle click pastes the primary
+selection. The console selects its output with a drag or a double click unless a program tracks the mouse, reversed
+on screen and cleared by new output or a scroll, and Ctrl+Ins copies it -- `Shell.on_key` asks the console before
+the command line. A paste now walks the focus path when `Application.on_paste` declines it, so a dialog's line takes
+one. **Commands run in one persistent `$SHELL`**
 (`navigator/subshell.py`'s `Subshell`, owned by the `Console`): bash and zsh load the user's rc and then a hook,
 anything else runs bash or `sh`. The hook prints private OSC marks (`ESC ] 6973;<nonce>;A|B|D`) that say where the
 prompt is, when a command finished and the shell's `$PWD`. **The shell's own prompt is held back** and painted only
@@ -395,6 +417,9 @@ The 84 entries `DN.DNR` does not name are ones DOS Navigator never let the user 
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
+- See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
+  `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice quits -- the way to find out whether a key
+  the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
 - Regenerate the README screenshot: `./venv/bin/python tools/screenshot.py` paints the desktop headless (pinned
   directory, clock and console) and writes `docs/screenshot.svg` plus the text copy between the README's
   `<!-- screenshot:begin/end -->` markers; `--check` exits 1 when either is stale, `--theme`/`--size` pick the scene.

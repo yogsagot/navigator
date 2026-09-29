@@ -16,7 +16,7 @@ import pytest
 
 from navkit.capabilities import FULL
 from navkit.commands import key_table
-from navkit.events import KeyEvent, MouseClickEvent
+from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.reactive import is_bound
 from navkit.stylesheet import StylesheetError
@@ -1212,7 +1212,7 @@ def test_the_application_keeps_only_what_is_global():
     assert set(table) == {
         "ctrl+o", "ctrl+f3", "f1", "f10", "alt+x",
         # The command line's, while it has text; the panel's otherwise.
-        "enter", "home", "end",
+        "enter", "home", "end", "tab",
     }
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help
@@ -2178,3 +2178,301 @@ def test_ctrl_o_is_the_program_s_too(tree, program):
     assert typed == [b"\x0f", b"\x1bx"]
     assert app.shell.console_visible is True
     assert app.focused is app.shell.console
+
+
+# -- the console's selection ---------------------------------------------------
+
+
+def console_with(app, text: bytes):
+    console = app.shell.console
+    app.shell.layout(80, 24)
+    settle()  # the console's size first: pyte drops rows when it shrinks
+    console.screen.feed(text)
+    console._changed()
+    settle()
+    return console
+
+
+def drag(console, start, end):
+    (sx, sy), (ex, ey) = start, end
+    awaited(console.on_mouse_click(MouseClickEvent(sx, sy, "left", "press")))
+    awaited(console.on_mouse_click(MouseClickEvent(ex, ey, "left", "move")))
+    awaited(console.on_mouse_click(MouseClickEvent(ex, ey, "left", "release")))
+
+
+def test_a_drag_over_the_console_selects_and_copies_its_text(tree, quiet_console):
+    app = navigator(tree)
+    console = console_with(app, b"first line\r\nsecond line")
+    drag(console, (6, 0), (5, 1))
+    assert console.selected_text == "line\nsecond"
+    assert app.terminal.clipboard == [("line\nsecond", True)]
+    # Shown reversed, as a terminal shows its own.
+    buffer = ScreenBuffer(80, 24)
+    console.render(buffer)
+    assert buffer.get(6, 0)[1].reverse and not buffer.get(5, 0)[1].reverse
+
+
+def test_ctrl_insert_copies_the_console_s_selection_before_the_command_line(tree, quiet_console):
+    app = navigator(tree)
+    console = console_with(app, b"some output")
+    drag(console, (0, 0), (3, 0))
+    app.terminal.clipboard.clear()
+    awaited(app.shell.on_key(KeyEvent("insert", ctrl=True)))
+    assert app.terminal.clipboard == [("some", False)]
+
+
+def test_a_double_click_selects_a_word_of_output(tree, quiet_console):
+    app = navigator(tree)
+    console = console_with(app, b"ls -la /etc/hosts done")
+    awaited(console.on_double_click(DoubleClickEvent.of(MouseClickEvent(9, 0, "left", "press"))))
+    assert console.selected_text == "/etc/hosts"
+
+
+def test_new_output_clears_the_selection(tree, quiet_console):
+    app = navigator(tree)
+    console = console_with(app, b"old")
+    drag(console, (0, 0), (2, 0))
+    console._on_output(b" new")
+    assert console.selection is None
+
+
+def test_a_program_that_tracks_the_mouse_keeps_it(tree, quiet_console, monkeypatch):
+    app = navigator(tree)
+    console = console_with(app, b"text")
+    monkeypatch.setattr(type(console), "tracks_mouse", property(lambda self: True))
+    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.subshell.Subshell.write", lambda self, data: None)
+    drag(console, (0, 0), (3, 0))
+    assert console.selection is None
+
+
+# -- Tab completion ------------------------------------------------------------
+
+
+@pytest.fixture
+def completing(monkeypatch):
+    """A shell that is running, can complete, and answers with *answer*."""
+    asked = []
+
+    class Answer:
+        start = 0
+        candidates: list[str] = []
+
+    def complete(self, line, point, cwd, callback):
+        asked.append((line, point, cwd))
+        word = line[Answer.start : point]
+        callback(Answer.start, [c for c in Answer.candidates if c.startswith(word)])
+        return True
+
+    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.subshell.Subshell.complete", complete)
+    real_init = Subshell.__init__
+
+    def init(self, *args, **kwargs):
+        real_init(self, *args, **kwargs)
+        self.can_complete = True
+
+    monkeypatch.setattr(Subshell, "__init__", init)
+    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: None)
+    Answer.asked = asked
+    return Answer
+
+
+from navigator.subshell import Subshell  # noqa: E402
+
+
+def test_tab_on_an_empty_line_still_switches_panels(tree, quiet_console, completing):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("tab")])
+    assert app.manager.active_panel is app.manager.right
+    assert completing.asked == []
+
+
+def test_tab_completes_the_only_candidate_and_ends_the_word(tree, quiet_console, completing):
+    completing.start, completing.candidates = 0, ["echo"]
+    app = navigator(tree)
+    run_app(app, [*typed("ech"), KeyEvent("tab")])
+    assert completing.asked == [("ech", 3, tree)]
+    assert app.shell.command_line.value == "echo "
+    assert app.manager.active_panel is app.manager.left
+
+
+def test_a_directory_ends_in_a_slash(tree, quiet_console, completing):
+    completing.start, completing.candidates = 3, ["alpha"]
+    app = navigator(tree)
+    run_app(app, [*typed("ls al"), KeyEvent("tab")])
+    assert app.shell.command_line.value == "ls alpha/"
+
+
+def test_a_name_the_shell_would_split_is_escaped(tree, quiet_console, completing):
+    (tree / "my file").write_text("")
+    completing.start, completing.candidates = 3, ["my file"]
+    app = navigator(tree)
+    run_app(app, [*typed("ls my"), KeyEvent("tab")])
+    assert app.shell.command_line.value == "ls my\\ file "
+
+
+def test_candidates_that_agree_extend_the_word(tree, quiet_console, completing):
+    completing.start, completing.candidates = 4, ["checkout ", "cherry ", "cherry-pick "]
+    app = navigator(tree)
+    run_app(app, [*typed("git ch"), KeyEvent("tab")])
+    assert app.shell.command_line.value == "git che"
+
+
+def test_candidates_that_do_not_agree_are_listed(tree, quiet_console, completing):
+    from navigator.widgets.completion_list import CompletionList
+
+    completing.start, completing.candidates = 3, ["alpha", "beta"]
+    app = navigator(tree)
+    lists = []
+    run_app(app, [
+        *typed("ls "), KeyEvent("tab"),
+        lambda a: lists.append(a.modal),
+        KeyEvent("down"), KeyEvent("enter"),
+    ])
+    assert isinstance(lists[0], CompletionList)
+    assert app.shell.command_line.value == "ls beta/"
+    assert app.modal is None
+
+
+def test_an_answer_to_a_line_that_moved_on_is_dropped(tree, quiet_console):
+    from navigator.subshell import CompletionsReady
+
+    app = navigator(tree)
+    run_app(app, [*typed("ls x")])
+    app.shell.completions_ready(CompletionsReady("ls ", 3, 3, ("alpha",)))
+    assert app.shell.command_line.value == "ls x"
+
+
+def test_typing_with_the_list_open_narrows_it_and_edits_the_line(tree, quiet_console, completing):
+    completing.start, completing.candidates = 3, ["alpha", "apple", "beta"]
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        *typed("ls "), KeyEvent("tab"),
+        *typed("a"), lambda a: seen.append((a.shell.command_line.value, list(a.modal.items))),
+        *typed("l"), lambda a: seen.append((a.shell.command_line.value, list(a.modal.items))),
+        KeyEvent("backspace"), lambda a: seen.append(list(a.modal.items)),
+        KeyEvent("enter"),
+    ])
+    assert seen == [
+        ("ls a", ["alpha", "apple"]),
+        ("ls al", ["alpha"]),        # one left, and still a list: typing is not choosing
+        ["alpha", "apple"],
+    ]
+    assert app.shell.command_line.value == "ls alpha/"
+    assert app.modal is None
+
+
+def test_a_blank_or_backspacing_past_the_word_closes_the_list(tree, quiet_console, completing):
+    completing.start, completing.candidates = 3, ["alpha", "beta"]
+    app = navigator(tree)
+    modals = []
+    run_app(app, [
+        *typed("ls "), KeyEvent("tab"), *typed(" "),
+        lambda a: modals.append(a.modal),
+    ])
+    assert modals == [None]
+    assert app.shell.command_line.value == "ls  "
+
+
+def test_typing_what_nothing_starts_with_closes_the_list(tree, quiet_console, completing):
+    completing.start, completing.candidates = 3, ["alpha", "beta"]
+    app = navigator(tree)
+    modals = []
+    run_app(app, [*typed("ls "), KeyEvent("tab"), *typed("z"), lambda a: modals.append(a.modal)])
+    assert modals == [None]
+    assert app.shell.command_line.value == "ls z"
+
+
+def test_the_completion_list_does_not_dim_the_line_being_typed(tree, quiet_console, completing):
+    from navigator.widgets.completion_list import CompletionList
+
+    assert CompletionList.dims_behind is False
+
+
+# -- Up, Down and Ctrl+R on the console ------------------------------------------
+
+
+@pytest.fixture
+def shell_history(monkeypatch):
+    """A running shell whose history is *entries* and whose searches are recorded."""
+
+    class State:
+        entries = ["echo second", "echo first"]
+        searches: list[tuple[str, list[str]]] = []
+        up_binding = None
+        search_binding = None
+
+    def history(self, callback):
+        callback(list(State.entries))
+        return True
+
+    def search_history(self, line, args, callback):
+        State.searches.append((line, args))
+        return True
+
+    real_init = Subshell.__init__
+
+    def init(self, *args, **kwargs):
+        real_init(self, *args, **kwargs)
+        self.can_complete = True
+        self.up_binding, self.search_binding = State.up_binding, State.search_binding
+
+    monkeypatch.setattr(Subshell, "__init__", init)
+    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.subshell.Subshell.history", history)
+    monkeypatch.setattr("navigator.subshell.Subshell.search_history", search_history)
+    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: None)
+    State.searches = []
+    return State
+
+
+def test_up_and_down_on_the_console_walk_the_shell_s_history(tree, quiet_console, shell_history):
+    app = navigator(tree)
+    seen = []
+    note = lambda a: seen.append(a.shell.command_line.value)
+    run_app(app, [
+        KeyEvent("o", ctrl=True), *typed("ec"),
+        KeyEvent("up"), note, KeyEvent("up"), note, KeyEvent("up"), note,
+        KeyEvent("down"), note, KeyEvent("down"), note,
+    ])
+    assert seen == ["echo second", "echo first", "echo first", "echo second", "ec"]
+
+
+def test_up_with_the_panels_up_is_still_the_panel_s(tree, quiet_console, shell_history):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("down"), KeyEvent("up")])
+    assert app.manager.left.cursor == 0
+    assert app.shell.command_line.value == ""
+
+
+def test_up_runs_atuin_where_the_user_s_up_does(tree, quiet_console, shell_history):
+    shell_history.up_binding = shell_history.search_binding = "atuin"
+    app = navigator(tree)
+    run_app(app, [
+        KeyEvent("o", ctrl=True), *typed("gi"), KeyEvent("up"), KeyEvent("r", ctrl=True),
+    ])
+    assert shell_history.searches == [
+        ("gi", ["--shell-up-key-binding", "--keymap-mode=emacs"]),
+        ("gi", ["--keymap-mode=emacs"]),
+    ]
+
+
+def test_ctrl_r_on_the_console_is_nothing_without_atuin(tree, quiet_console, shell_history):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("r", ctrl=True)])
+    assert shell_history.searches == []
+
+
+def test_what_atuin_chose_goes_on_the_line_or_runs(tree, quiet_console, monkeypatch):
+    app = navigator(tree)
+    ran = []
+    monkeypatch.setattr(app.shell, "run_command", ran.append)
+    app.shell.history_chosen("git status")
+    assert app.shell.command_line.value == "git status"
+    app.shell.history_chosen("__atuin_accept__:make test")
+    assert ran == ["make test"]
+    app.shell.command_line.clear()
+    app.shell.history_chosen("")  # cancelled
+    assert app.shell.command_line.value == ""

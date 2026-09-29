@@ -11,25 +11,33 @@ what a Python-only widget would say too, and it is the base the markup's
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
-from navkit.reactive import computed, effect
+from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
 from navml.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import About, CommandLineEnd, CommandLineHome
+from navigator.commands import About, CommandLineEnd, CommandLineHome, CompleteCommandLine
 from navigator.commands import ExecuteCommandLine, NewManager, OpenTreeWindow
-from navigator.subshell import CommandFinished
+from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
 from navigator.widgets.manager import Manager
+
+#: The most candidates a Tab puts in its list; ``compgen -c`` on one letter
+#: can be thousands.
+MAX_COMPLETIONS = 500
+
+#: What a file name has to have escaped to reach a command as one word.
+_SHELL_SPECIAL = set(" \t'\"\\$&;|<>()*?[]!#{}`")
 
 
 class Shell(DockLayout):
@@ -55,6 +63,14 @@ class Shell(DockLayout):
         super().__init__(stylesheet=scheme or default_scheme(), **kwargs)
         self.console.cwd = left
         self.console.subshell.on_finished = self._command_finished
+        #: Up and Down through the shell's history: the entries, where the walk
+        #: is, what was typed before it began, and what it last put on the line.
+        self._walk: tuple[list[str], int, str, str] | None = None
+        #: The completions drop-down, the answer it is showing, and the
+        #: candidates that answer held before typing narrowed them.
+        self._completion_list: Any = None
+        self._completing: CompletionsReady | None = None
+        self._candidates: list[str] = []
         #: Whether the console was put up by a command rather than by Ctrl+O,
         #: and so is to be taken down again when the command is done.
         self._shown_for_command = False
@@ -125,7 +141,99 @@ class Shell(DockLayout):
         """
         if await self.menu.open_hotkey(event):
             return True
+        # Ctrl+Ins over a selection in the console copies that, not the line.
+        if self.console.copy_key(event):
+            return True
+        if self._console_is_the_terminal() and await self._terminal_key(event):
+            return True
         return await self.command_line.on_key(event)
+
+    # -- the console's history keys --------------------------------------------
+
+    def _console_is_the_terminal(self) -> bool:
+        """The console is up, idle and holding the keyboard: it stands for the terminal.
+
+        Then Up, Down and Ctrl+R mean what they mean at a shell prompt.  With
+        the panels up Up is the panel's, and Ctrl+R re-reads it, as in DOS
+        Navigator.
+        """
+        console = self.console
+        return self.console_visible and console.focused and not console.busy
+
+    async def _terminal_key(self, event: KeyEvent) -> bool:
+        subshell = self.console.subshell
+        if event.matches("up"):
+            if subshell.up_binding == "atuin":
+                return self._search_history(["--shell-up-key-binding", "--keymap-mode=emacs"])
+            self._walk_history(+1)
+            return True
+        if event.matches("down"):
+            self._walk_history(-1)
+            return True
+        if event.matches("ctrl+r") and subshell.search_binding == "atuin":
+            return self._search_history(["--keymap-mode=emacs"])
+        return False
+
+    def _search_history(self, args: list[str]) -> bool:
+        """Run atuin on the console, as the user's own Up or Ctrl+R would."""
+        app = self.application
+
+        def chosen(text: str) -> None:
+            if app is not None and app.is_running:
+                app.post_event(HistoryChosen(text))
+            else:
+                self.history_chosen(text)
+
+        self._walk = None
+        return self.console.subshell.search_history(self.command_line.value, args, chosen)
+
+    def history_chosen(self, text: str) -> None:
+        """atuin's answer: onto the line, or run at once if it said so (Tab vs Enter)."""
+        accept = "__atuin_accept__:"
+        if text.startswith(accept):
+            self.run_command(text[len(accept) :])
+        elif text:
+            self.command_line.set_text(text)
+
+    def _walk_history(self, step: int) -> None:
+        """Up and Down through the shell's history, as readline walks it.
+
+        The history is the shell's, so it holds what was typed in the user's
+        other terminals as well; it is asked for afresh at the first Up of a
+        walk, and a walk ends when the line is edited.  A shell that cannot be
+        asked -- ``sh``, or none running -- walks the command line's own.
+        """
+        line = self.command_line
+        if self._walk is not None and line.value != self._walk[3]:
+            self._walk = None
+        if self._walk is not None:
+            self._step_history(step)
+            return
+        if step < 0:
+            return
+        app = self.application
+
+        def ready(entries: list[str]) -> None:
+            if app is not None and app.is_running:
+                app.post_event(HistoryReady(tuple(entries)))
+            else:
+                self.history_ready(tuple(entries))
+
+        if not self.console.subshell.history(ready):
+            self.history_ready(tuple(HISTORY.entries(HISTORY_ID)))
+
+    def history_ready(self, entries: tuple[str, ...]) -> None:
+        """The history arrived: the walk starts, one step back."""
+        line = self.command_line
+        self._walk = (list(entries), -1, line.value, line.value)
+        self._step_history(+1)
+
+    def _step_history(self, step: int) -> None:
+        entries, index, typed, _ = self._walk
+        index = min(max(index + step, -1), len(entries) - 1)
+        value = entries[index] if index >= 0 else typed
+        self.command_line.set_text(value)
+        self._walk = (entries, index, typed, value)
 
     # -- the command line ------------------------------------------------------
 
@@ -204,11 +312,16 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return False
-        if isinstance(command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd)):
+        if isinstance(
+            command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine)
+        ):
             if not self.command_line.value.strip():
                 return False
             if isinstance(command, ExecuteCommandLine):
                 return not self.console.busy
+            if isinstance(command, CompleteCommandLine):
+                subshell = self.console.subshell
+                return subshell.is_running and subshell.can_complete and not self.console.busy
         return super().enables(command)
 
     async def on_command_line_home(self, event: CommandLineHome) -> bool:
@@ -218,6 +331,155 @@ class Shell(DockLayout):
     async def on_command_line_end(self, event: CommandLineEnd) -> bool:
         self.command_line.end()
         return True
+
+    # -- completion ------------------------------------------------------------
+
+    async def on_complete_command_line(self, event: CompleteCommandLine) -> bool:
+        """Tab: ask the shell what the word at the caret could become.
+
+        The answer comes back later, posted from the pty's reader, and is
+        applied by :meth:`completions_ready` -- only if the line is still what
+        it was asked about.
+        """
+        self._ask_completions()
+        return True
+
+    def _ask_completions(self) -> None:
+        """Ask the shell about the word at the caret; the answer is posted back."""
+        line = self.command_line
+        value, point = line.value, line.cursor
+        app = self.application
+
+        def answered(start: int, candidates: list[str]) -> None:
+            ready = CompletionsReady(value, point, start, tuple(candidates))
+            if app is not None and app.is_running:
+                app.post_event(ready)
+            else:
+                self.completions_ready(ready)
+
+        self.console.subshell.complete(value, point, self._command_directory(), answered)
+
+    @property
+    def completion_list(self) -> Any:
+        """The completions drop-down, while it is open."""
+        window = self._completion_list
+        return window if window is not None and window.parent is not None else None
+
+    def completions_ready(self, event: CompletionsReady) -> None:
+        """Apply the shell's answer as readline would: complete, extend, or list.
+
+        One candidate replaces the word and ends it -- with ``/`` for a
+        directory and a space for anything else.  Several that agree on more
+        than the word already says extend it that far.  Otherwise the choice
+        is the user's, in a drop-down over the line.
+
+        **While that drop-down is open the answer only refills it**: it is an
+        answer to typing, and completing or extending the word under the
+        user's fingers would fight them.  An empty one closes it.
+        """
+        line = self.command_line
+        if line.value != event.line or line.cursor != event.point:
+            return
+        word = event.line[event.start : event.point]
+        candidates = list(dict.fromkeys(event.candidates))[:MAX_COMPLETIONS]
+        if self.completion_list is not None:
+            if candidates:
+                self._completing, self._candidates = event, candidates
+                self._show_completions(event.start, candidates)
+            else:
+                self._close_completions()
+            return
+        if not candidates:
+            return
+        if len(candidates) == 1:
+            self._complete_word(event, candidates[0], final=True)
+            return
+        prefix = os.path.commonprefix(candidates)
+        if len(prefix) > len(word):
+            self._complete_word(event, prefix, final=False)
+            return
+        self._open_completions(event, candidates)
+
+    def _complete_word(self, event: CompletionsReady, text: str, *, final: bool) -> None:
+        line = self.command_line
+        suffix = ""
+        if final and not text.endswith(("/", " ", "=")):
+            suffix = "/" if self._is_directory(text) else " "
+        if not text.endswith(" "):
+            text = _escape(text)
+        value = event.line[: event.start] + text + suffix + event.line[event.point :]
+        line.value = value
+        line.anchor = None
+        line.cursor = event.start + len(text) + len(suffix)
+
+    def _is_directory(self, text: str) -> bool:
+        path = Path(os.path.expanduser(text))
+        if not path.is_absolute():
+            base = self._command_directory()
+            if base is None:
+                return False
+            path = base / path
+        try:
+            return path.is_dir()
+        except OSError:
+            return False
+
+    def _open_completions(self, event: CompletionsReady, candidates: list[str]) -> None:
+        """The list over the command line, its left edge under the word."""
+        from navigator.widgets.completion_list import CompletionList
+
+        app = self.application
+        if app is None:
+            return
+        self._completing, self._candidates = event, candidates
+        window = CompletionList(
+            lambda text: self._complete_word(self._completing, text, final=True),
+            self._type_in_completions,
+        )
+        self._completion_list = window
+        self._show_completions(event.start, candidates)
+        app.overlay(window)
+
+    def _show_completions(self, start: int, candidates: list[str]) -> None:
+        """Fill the list with *candidates* and fit it to them, above the line."""
+        window, line = self._completion_list, self.command_line
+        shown = candidates or [""]
+        width = min(self.width, max(len(c) for c in shown) + 4)
+        height = min(len(shown) + 2, max(3, line.y - 1))
+        column = line.x + line.text_origin + start - line.first - 1
+        x = max(0, min(column, self.width - width))
+        y = max(0, line.y - height)
+        window.items = candidates
+        window.cursor = 0
+        window.x = bind(lambda o, v=x: v)
+        window.y = bind(lambda o, v=y: v)
+        window.width = bind(lambda o, v=width: v)
+        window.height = bind(lambda o, v=height: v)
+
+    def _close_completions(self) -> None:
+        window = self.completion_list
+        if window is not None:
+            window.close()
+
+    async def _type_in_completions(self, event: KeyEvent) -> None:
+        """A key typed with the list open: onto the line, and the list follows.
+
+        Narrowed at once to what still starts with the word, so the list
+        keeps up with the keyboard, and then refilled by the shell's own
+        answer -- which is what makes a ``/`` descend into the directory.  A
+        blank ends the word and Backspace past its start leaves it; either
+        closes the list.
+        """
+        line, state = self.command_line, self._completing
+        await line.on_key(event)
+        if state is None or line.cursor < state.start or (event.char or "x").isspace():
+            self._close_completions()
+            return
+        word = line.value[state.start : line.cursor]
+        narrowed = [c for c in self._candidates if c.startswith(word)]
+        self._completing = CompletionsReady(line.value, line.cursor, state.start, tuple(narrowed))
+        self._show_completions(state.start, narrowed)
+        self._ask_completions()
 
     async def on_execute_command_line(self, event: ExecuteCommandLine) -> bool:
         """Enter: run the line in the shell, with the console up while it runs.
@@ -236,6 +498,7 @@ class Shell(DockLayout):
             return
         HISTORY.add(HISTORY_ID, command)
         self.command_line.clear()
+        self._walk = None
         cwd = self._command_directory()
         self._shown_for_command = not self.console_visible
         if not self.console_visible:
@@ -376,3 +639,8 @@ class Shell(DockLayout):
 
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)
+
+
+def _escape(text: str) -> str:
+    """*text* with every character a shell would split or expand backslashed."""
+    return "".join("\\" + char if char in _SHELL_SPECIAL else char for char in text)

@@ -26,7 +26,7 @@ from navkit import commands
 from navkit import glyphs as glyphs_module
 from navkit import stylesheet
 from navkit import terminal as terminal_module
-from navkit.events import Event, KeyEvent, MouseClickEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
@@ -121,6 +121,11 @@ class Widget:
     #: when the application is told -- a dialog declares it in its class body
     #: and is opened, which is the shape it is for.
     modal: bool = reactive(False)
+    #: Whether this modal, while on top, has what it blocks painted faint
+    #: (``Application.dim_modal``).  A drop-down the user keeps typing past --
+    #: the command line's completions -- says False, since what it would dim
+    #: is the line being typed on.
+    dims_behind = True
     #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
     #: compile-time label with no run-time existence -- see navml/DESIGN.md.
     name: str = reactive("")
@@ -877,6 +882,19 @@ class Widget:
             if await widget._run_key(event):
                 return True
             if await widget.on_key(event):
+                return True
+        return False
+
+    async def dispatch_paste(self, event: PasteEvent) -> bool:
+        """Offer a paste to the focused widget in this subtree, then up to here.
+
+        :meth:`dispatch_key`'s walk, for text rather than a key: what is
+        pasted goes where typing would.  A widget takes it with an
+        ``on_paste`` returning True; one without the handler is passed by.
+        """
+        for widget in self._focus_path() or (self,):
+            handler = getattr(widget, "on_paste", None)
+            if handler is not None and await _call(widget, event, handler):
                 return True
         return False
 

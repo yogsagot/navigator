@@ -237,6 +237,12 @@ class TerminalInfo:
     #: an unknown OSC, which is nearly all of them -- the Linux console is
     #: the exception, and prints the tail of it as text.
     hyperlinks: bool = True
+    #: Whether a copy is written to the terminal's clipboard as OSC 52.  Off
+    #: only where the sequence would be printed rather than swallowed; a
+    #: terminal that knows it but refuses it -- VTE, most of all -- costs a
+    #: few bytes, which is why :mod:`navkit.clipboard` offers the copy to the
+    #: desktop's own tools as well.
+    clipboard: bool = True
 
     @property
     def truecolor(self) -> bool:
@@ -298,7 +304,7 @@ class TerminalInfo:
 
         ``NAVKIT_HYPERLINKS`` (``on`` or ``off``) says whether to write OSC 8
         hyperlinks, which are otherwise written on any interactive terminal
-        but the Linux console.
+        but the Linux console.  ``NAVKIT_CLIPBOARD`` does the same for OSC 52.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -345,6 +351,13 @@ class TerminalInfo:
         elif choice in ("off", "no", "0", "none"):
             hyperlinks = False
 
+        clipboard = not plain and env.get("TERM", "") != "linux"
+        choice = env.get("NAVKIT_CLIPBOARD", "").strip().lower()
+        if choice in ("on", "yes", "1"):
+            clipboard = True
+        elif choice in ("off", "no", "0", "none"):
+            clipboard = False
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -361,6 +374,7 @@ class TerminalInfo:
             title=not plain,
             kitty_keyboard=kitty_keyboard,
             hyperlinks=hyperlinks,
+            clipboard=clipboard,
         )
 
     def adapt(self, color: Color | None, *, pinned: bool = True) -> Color | None:

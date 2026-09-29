@@ -88,6 +88,16 @@ class ExecuteCommandLine(Command):
     """
 
 
+class CompleteCommandLine(Command):
+    """Tab with something on the command line: complete the word at the caret.
+
+    Not DOS Navigator's -- ``TCommandLine`` completed nothing, and Tab only
+    ever switched panels.  Bound the way Enter is, so the rule is Enter's:
+    with the line empty the command is disabled and Tab falls through to the
+    panels, and with text on it the shell is asked what the word could be.
+    """
+
+
 class CommandLineHome(Command):
     """Home with something on the command line: to its start, not the list's top."""
 

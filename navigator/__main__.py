@@ -30,9 +30,10 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator.commands import CommandLineEnd, CommandLineHome, ExecuteCommandLine
+from navigator.commands import CommandLineEnd, CommandLineHome, CompleteCommandLine
+from navigator.commands import ExecuteCommandLine
 from navigator.commands import Help, NewManager, Quit, ToggleConsole
-from navigator.subshell import CommandFinished
+from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager import Manager
@@ -98,6 +99,9 @@ class Navigator(Application):
     #: command is disabled while the line is empty, which lets the key fall
     #: through to the list.
     #:
+    #: **Tab completes while the command line has text**, by the same rule,
+    #: and switches panels otherwise -- which is all it did in DOS Navigator.
+    #:
     #: **Nothing here reaches past a modal**, and nothing here has to say so:
     #: navkit stands the application's table aside while one is up.
     keys = {
@@ -109,6 +113,7 @@ class Navigator(Application):
         "enter": ExecuteCommandLine,
         "home": CommandLineHome,
         "end": CommandLineEnd,
+        "tab": CompleteCommandLine,
     }
 
     def enables(self, command: Command) -> bool:
@@ -140,22 +145,41 @@ class Navigator(Application):
             and shell.desktop.active_window is not None
         )
 
+    async def on_completions_ready(self, event: CompletionsReady) -> bool:
+        """The shell's answer to Tab: posted from the pty's reader."""
+        self.shell.completions_ready(event)
+        return True
+
+    async def on_history_ready(self, event: HistoryReady) -> bool:
+        """The shell's history, for Up on the console: posted from the pty's reader."""
+        self.shell.history_ready(event.entries)
+        return True
+
+    async def on_history_chosen(self, event: HistoryChosen) -> bool:
+        """What atuin's search chose: posted from the pty's reader."""
+        self.shell.history_chosen(event.text)
+        return True
+
     async def on_command_finished(self, event: CommandFinished) -> bool:
         """The command line's command is done: posted from the pty's reader."""
         self.shell.command_finished(event.status, event.cwd)
         return True
 
-    async def on_paste(self, event: PasteEvent) -> None:
-        """A paste goes where typing would: the running program, or the command line."""
+    async def on_paste(self, event: PasteEvent) -> bool:
+        """A paste goes where typing would: the running program, or the command line.
+
+        Under a dialog it is the dialog's, and goes to its focused line.
+        """
         if self.modal is not None:
-            return
+            return False
         console = self.shell.console
         if console.busy:
             console.subshell.paste(event.text)
-            return
+            return True
         text = " ".join(event.text.splitlines())
         if text:
             self.shell.command_line.insert(text)
+        return True
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """The console's scrollback, and nothing else.

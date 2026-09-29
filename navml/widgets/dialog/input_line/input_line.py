@@ -18,13 +18,23 @@ same shape ``Panel._follow_cursor`` has, and for the same reason.
 **Selection is an anchor and a cursor**, not a pair of ordered bounds.  The
 anchor is where the selection started and may be to the right of the cursor,
 which is what makes shift-left and shift-right symmetrical without a branch.
+A mouse drag sets both the same way, holding the mouse while it lasts, and a
+double click selects the word under it.
+
+**The clipboard is Turbo Vision's keys and the terminal's.**  Ctrl+Ins copies
+the selection -- or the whole line, which is what DOS Navigator's command line
+copied, having no selection -- Shift+Del cuts and Shift+Ins pastes; Ctrl+C
+copies while something is selected, and Ctrl+V pastes.  A paste the line asks
+for arrives later as a :class:`~navkit.events.PasteEvent`, as one the terminal
+makes itself does, and both land in :meth:`on_paste`.  A finished drag is also
+the primary selection, and a middle click pastes it, as in a terminal.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import KeyEvent, MouseClickEvent
+from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import DEFAULT_SCROLLBAR, SCROLLBARS, scrollbar
 from navkit.reactive import effect, peek, reactive
 from navkit.screen import Surface
@@ -65,6 +75,9 @@ class InputLine(Control):
     #: ``[52] Input arrow`` and the selected run.
     parts = ("arrow", "selection")
 
+    #: A left button is down and dragging out a selection.
+    _dragging = False
+
     def mounted(self) -> None:
         super().mounted()
         effect(self, InputLine._follow_cursor)
@@ -86,6 +99,20 @@ class InputLine(Control):
             self.first = cursor - room + 1
         elif first and cursor <= first:
             self.first = max(0, cursor)
+
+    @property
+    def text_origin(self) -> int:
+        """The column ``value[first]`` is painted in: past the left arrow."""
+        return 1
+
+    def _index_at(self, x: int) -> int:
+        """The index in ``value`` a click at column *x* lands on."""
+        return min(max(self.first + x - self.text_origin, 0), len(self.value))
+
+    @property
+    def selected_text(self) -> str:
+        start, stop = self.selection
+        return self.value[start:stop]
 
     @property
     def selection(self) -> tuple[int, int]:
@@ -136,7 +163,20 @@ class InputLine(Control):
         if self.inert:
             return False
         shift = event.shift
-        if event.is_printable and event.char:
+        if event.matches("ctrl+insert"):
+            self.copy(self.selected_text or self.value)
+        elif event.matches("ctrl+c"):
+            if not self.selected_text:
+                return False
+            self.copy(self.selected_text)
+        elif event.matches("shift+delete"):
+            if not self.selected_text:
+                return False
+            self.copy(self.selected_text)
+            self._replace_selection("")
+        elif event.matches("shift+insert", "ctrl+v"):
+            self.request_paste()
+        elif event.is_printable and event.char:
             self._replace_selection(event.char)
         elif event.matches("backspace"):
             start, stop = self.selection
@@ -171,9 +211,81 @@ class InputLine(Control):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         await super().on_mouse_click(event)
-        if event.action != "press" or event.button != "left" or self.inert:
+        return self.pointer(event)
+
+    def pointer(self, event: MouseClickEvent) -> bool:
+        """A press, a drag or a release on the text: the caret and the selection.
+
+        Public so that a line which paints something before its text -- the
+        command line's prompt -- and handles its own presses can hand the
+        rest here, having said where its text starts in :attr:`text_origin`.
+        """
+        if self.inert:
             return False
-        self._move(self.first + max(0, event.x - 1), event.shift)
+        if event.button == "middle" and event.action == "press":
+            self.request_paste(primary=True)
+            return True
+        if event.button != "left":
+            return False
+        app = self.application
+        if event.action == "press":
+            self._move(self._index_at(event.x), event.shift)
+            if self.anchor is None:
+                self.anchor = self.cursor
+            self._dragging = True
+            if app is not None:
+                app.capture_mouse(self)
+        elif event.action == "move" and self._dragging:
+            self.cursor = self._index_at(event.x)
+        elif event.action == "release" and self._dragging:
+            self._dragging = False
+            if self.selected_text and app is not None:
+                app.copy_to_clipboard(self.selected_text, primary=True)
+        else:
+            return False
+        return True
+
+    async def on_double_click(self, event: DoubleClickEvent) -> bool:
+        """The word under the pointer, selected -- and so the primary selection."""
+        if self.inert or event.button != "left":
+            return False
+        index = self._index_at(event.x)
+        value = self.value
+        if index < len(value) and value[index].isspace():
+            return True
+        start = index
+        while start and not value[start - 1].isspace():
+            start -= 1
+        stop = index
+        while stop < len(value) and not value[stop].isspace():
+            stop += 1
+        self.anchor, self.cursor = start, stop
+        self._dragging = False
+        app = self.application
+        if self.selected_text and app is not None:
+            app.copy_to_clipboard(self.selected_text, primary=True)
+        return True
+
+    # -- the clipboard -------------------------------------------------------
+
+    def copy(self, text: str) -> None:
+        app = self.application
+        if text and app is not None:
+            app.copy_to_clipboard(text)
+
+    def request_paste(self, *, primary: bool = False) -> None:
+        """Ask for the clipboard; it comes back through :meth:`on_paste`."""
+        app = self.application
+        if app is not None:
+            app.request_clipboard(primary=primary)
+
+    async def on_paste(self, event: PasteEvent) -> bool:
+        """Pasted text, typed at the caret: one line, so line breaks become spaces."""
+        if self.inert:
+            return False
+        text = " ".join(event.text.splitlines())
+        if text:
+            self._replace_selection(text)
         return True
 
     async def activate(self, letter: str = "") -> bool:
@@ -185,7 +297,7 @@ class InputLine(Control):
 
     def cursor_position(self) -> tuple[int, int] | None:
         """Where the terminal's own cursor belongs, in this widget."""
-        return 1 + self.cursor - self.first, 0
+        return self.text_origin + self.cursor - self.first, 0
 
     # -- painting ------------------------------------------------------------
 

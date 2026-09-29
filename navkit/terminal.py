@@ -10,6 +10,8 @@ sequence split across two reads is decoded correctly once the rest arrives.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import os
 import sys
 import termios
@@ -82,6 +84,24 @@ PALETTE_RESET = "\x1b]104\x1b\\"
 
 PASTE_START = b"\x1b[200~"
 PASTE_END = b"\x1b[201~"
+# The head of a terminal's answer to an OSC 52 clipboard query.  Only this
+# OSC is decoded: ``ESC ]`` alone is also Alt+], and waiting for a terminator
+# after every Alt+] would swallow what is typed next.
+_CLIPBOARD_REPLY = b"\x1b]52;"
+# An answer larger than this is not waited for any further: its bytes are
+# dropped rather than held while the terminal keeps sending.
+_CLIPBOARD_REPLY_MAX = 16 * 1024 * 1024
+
+
+def clipboard_osc(text: str, *, primary: bool = False) -> str:
+    """OSC 52: set the clipboard (``c``) or the primary selection (``p``)."""
+    data = base64.b64encode(text.encode("utf-8")).decode("ascii")
+    return f"\x1b]52;{'p' if primary else 'c'};{data}\x07"
+
+
+def clipboard_query(*, primary: bool = False) -> str:
+    """OSC 52 with ``?``: the terminal answers with the text, or not at all."""
+    return f"\x1b]52;{'p' if primary else 'c'};?\x07"
 
 
 def is_a_tty(*streams: IO[str]) -> bool:
@@ -261,6 +281,10 @@ class InputParser:
         sequence, so the caller resolves the ambiguity with a short timeout and
         then calls :meth:`flush`.
         """
+        if self._buf.startswith(_CLIPBOARD_REPLY):
+            # A clipboard answer still arriving: a slow terminal, or a big
+            # clipboard, is not a lone ESC and must not be flushed as one.
+            return False
         return self._incomplete and bool(self._buf) and self._buf[0] == 0x1B
 
     def feed(self, data: bytes) -> list[Event]:
@@ -272,8 +296,13 @@ class InputParser:
         """Resolve a pending lone ``ESC`` into an escape key press."""
         if not self.pending_escape:
             return []
-        del self._buf[:1]
         self._incomplete = False
+        if len(self._buf) >= 2 and self._buf[1] == 0x5D:
+            # The start of a clipboard answer that never came: Alt+], and
+            # whatever followed it typed as it was.
+            del self._buf[:2]
+            return [KeyEvent("]", "]", alt=True), *self._parse()]
+        del self._buf[:1]
         return [KeyEvent("escape"), *self._parse()]
 
     def _parse(self) -> list[Event]:
@@ -358,6 +387,13 @@ class InputParser:
                 return final + 1, None
             return final + 1, self._csi(body, terminator)
 
+        if second == 0x5D:  # OSC -- only a clipboard reply is one
+            head = bytes(buf[: len(_CLIPBOARD_REPLY)])
+            if _CLIPBOARD_REPLY.startswith(head) and len(head) < len(_CLIPBOARD_REPLY):
+                return 0, None
+            if head == _CLIPBOARD_REPLY:
+                return self._clipboard_reply()
+
         if second == 0x4F:  # SS3, e.g. ESC O P for F1
             # Some terminals put a modifier between the two, the way CSI
             # does: ESC O 5 R is Ctrl+F3, and ESC O 1;5 R has been seen too.
@@ -383,6 +419,29 @@ class InputParser:
         char = bytes(buf[1 : 1 + length]).decode("utf-8", "replace")
         return 1 + length, KeyEvent(char.lower(), char, alt=True, shift=char.isupper())
 
+
+    def _clipboard_reply(self) -> tuple[int, Event | None]:
+        """``ESC ] 52 ; <selection> ; <base64> BEL`` -- the clipboard, as a paste.
+
+        The text a terminal hands back for :func:`clipboard_query` arrives as a
+        :class:`~navkit.events.PasteEvent`, so a paste asked for and a paste
+        the terminal made on its own go the one way.  An empty answer -- the
+        terminal declined, or the clipboard is empty -- is no event at all.
+        """
+        buf = bytes(self._buf)
+        bel, st = buf.find(b"\x07"), buf.find(b"\x1b\\")
+        ends = [(i, 1) for i in (bel,) if i >= 0] + [(i, 2) for i in (st,) if i >= 0]
+        if not ends:
+            if len(buf) > _CLIPBOARD_REPLY_MAX:
+                return len(buf), None
+            return 0, None
+        end, size = min(ends)
+        _, _, data = buf[len(_CLIPBOARD_REPLY) : end].partition(b";")
+        try:
+            text = base64.b64decode(data, validate=False).decode("utf-8", "replace")
+        except (ValueError, binascii.Error):
+            text = ""
+        return end + size, PasteEvent(text) if text else None
 
     def _csi(self, body: bytes, terminator: str) -> list[Event]:
         """Decode a non-mouse ``CSI`` sequence, legacy or kitty.
@@ -794,6 +853,18 @@ class Terminal:
         if self._saved_attrs is not None:
             termios.tcsetattr(self.input_fd, termios.TCSADRAIN, self._saved_attrs)
             self._saved_attrs = None
+
+    def set_clipboard(self, text: str, *, primary: bool = False) -> None:
+        """Put *text* on the terminal's clipboard, or its primary selection."""
+        if self.info.clipboard:
+            self.write(clipboard_osc(text, primary=primary))
+            self.flush()
+
+    def query_clipboard(self, *, primary: bool = False) -> None:
+        """Ask for the clipboard; the answer arrives as a paste, if at all."""
+        if self.info.clipboard:
+            self.write(clipboard_query(primary=primary))
+            self.flush()
 
     def set_title(self, title: str) -> None:
         if self.info.title:

@@ -146,13 +146,13 @@ class CommandLine(InputLine):
         self.set_text(entries[index] if index >= 0 else "")
         return True
 
+    @property
+    def text_origin(self) -> int:
+        return self.prompt_width
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        if event.action != "press" or event.button != "left":
-            return False
-        start = self.prompt_width
-        if event.x >= start:
-            self._move(self.first + event.x - start, event.shift)
-        return True
+        """The input line's caret and selection, without its taking the focus."""
+        return self.pointer(event)
 
     # -- painting ------------------------------------------------------------
 

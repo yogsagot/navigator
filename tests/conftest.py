@@ -44,6 +44,9 @@ class FakeTerminal:
         self.started = False
         self.stopped = False
         self.title: str | None = None
+        #: What was copied, as ``(text, primary)``, and which reads were asked for.
+        self.clipboard: list[tuple[str, bool]] = []
+        self.clipboard_queries: list[bool] = []
         self._pending: list[str] = []
 
     def start(self) -> None:
@@ -54,6 +57,12 @@ class FakeTerminal:
 
     def set_title(self, title: str) -> None:
         self.title = title
+
+    def set_clipboard(self, text: str, *, primary: bool = False) -> None:
+        self.clipboard.append((text, primary))
+
+    def query_clipboard(self, *, primary: bool = False) -> None:
+        self.clipboard_queries.append(primary)
 
     def read(self, size: int = 0) -> bytes:
         return b""

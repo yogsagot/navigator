@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import functools
 import inspect
 import math
 import signal
@@ -47,7 +48,7 @@ from navkit.screen import ScreenBuffer, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
-from navkit import commands
+from navkit import clipboard, commands
 from navkit.widget import Widget, _call, check_handlers
 
 #: How long to wait before deciding a lone ``ESC`` really was the escape key
@@ -438,6 +439,48 @@ class Application:
         task.add_done_callback(self._finished)
         return task
 
+    # -- the clipboard -------------------------------------------------------
+
+    def copy_to_clipboard(self, text: str, *, primary: bool = False) -> None:
+        """Put *text* on the clipboard, or on the primary selection.
+
+        Both ways at once (:mod:`navkit.clipboard`): OSC 52 to the terminal,
+        which reaches a clipboard over ssh, and the desktop's own tool beside
+        it, which reaches one whatever the terminal thinks of OSC 52.  The
+        tool runs in an executor and is not waited for.
+        """
+        if not text:
+            return
+        self.terminal.set_clipboard(text, primary=primary)
+        if self._loop is not None and self.terminal.is_tty:
+            self._loop.run_in_executor(
+                None, functools.partial(clipboard.copy, text, primary=primary)
+            )
+
+    def request_clipboard(self, *, primary: bool = False) -> None:
+        """Ask for the clipboard; what it holds arrives as a :class:`PasteEvent`.
+
+        So a paste the user asked Navigator for -- Ctrl+V, a middle click --
+        and one the terminal made on its own take the one path.  The desktop's
+        tool is asked first, since it answers without a prompt; the terminal
+        only if there is none, and a terminal that refuses sends nothing.
+        """
+        if self._loop is None:
+            return
+        self.spawn(self._read_clipboard(primary))
+
+    async def _read_clipboard(self, primary: bool) -> None:
+        text = None
+        if self.terminal.is_tty:
+            assert self._loop is not None
+            text = await self._loop.run_in_executor(
+                None, functools.partial(clipboard.paste, primary=primary)
+            )
+        if text is None:
+            self.terminal.query_clipboard(primary=primary)
+        elif text:
+            self.post_event(PasteEvent(text))
+
     def call_every(
         self, seconds: float, callback: Callable[[], Awaitable[Any]]
     ) -> Repeat:
@@ -707,7 +750,7 @@ class Application:
         edge, in :meth:`TerminalInfo.adapt_style`, because SGR 2 alone is
         ignored for direct-RGB colours by VTE-based terminals.
         """
-        if not self.dim_modal or widget is not self.modal:
+        if not self.dim_modal or widget is not self.modal or not widget.dims_behind:
             return
         self._back.restyle(lambda style: style.derive(dim=True))
 
@@ -853,7 +896,12 @@ class Application:
             elif isinstance(event, ResizeEvent):
                 await self.on_resize(event)
             elif isinstance(event, PasteEvent):
-                await self.on_paste(event)
+                # The application first, as with a key, and then where the
+                # keyboard is -- the modal's focused line, under a dialog.
+                if not await self.on_paste(event):
+                    target = self.modal or self._root
+                    if target is not None:
+                        await target.dispatch_paste(event)
             else:
                 # Anything posted that the four branches above do not know.
                 # It has no sender in the widget tree -- nobody emitted it --
@@ -1015,8 +1063,9 @@ class Application:
     async def on_resize(self, event: ResizeEvent) -> None:
         pass
 
-    async def on_paste(self, event: PasteEvent) -> None:
-        pass
+    async def on_paste(self, event: PasteEvent) -> bool:
+        """A paste, before the focused widget is offered it; True keeps it."""
+        return False
 
     # -- input plumbing -----------------------------------------------------
 
