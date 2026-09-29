@@ -22,9 +22,13 @@ from navml.widgets.window import Window
 from navigator.commands import (
     ChangeDirectory,
     MakeDirectory,
+    QuickView,
     Rescan,
     SwitchPanel,
     ToggleTree,
+    View,
+    ViewAsHex,
+    ViewAsText,
 )
 from navigator.widgets.mkdir_dialog import MkdirDialog
 from navigator.widgets.panel import Panel
@@ -40,9 +44,13 @@ class Manager(Window):
     #: DOS Navigator's thirty ticks of the 18.2 Hz timer (``NeedLocated``).
     LOCATE_DELAY = 30 / 18.2
 
-    #: The panel the directory tree stands in for, or None while there is no
-    #: tree.  Reactive, so ``active_panel`` and the follow effects move with it.
-    tree_replaces: Any = reactive(None)
+    #: The panel something else stands in for -- the directory tree (Ctrl+T)
+    #: or the quick view (Ctrl+Q) -- and that something, or None for both
+    #: while the two panels are showing.  DOS Navigator's ``LType``/``RType``:
+    #: one side at a time is ever not a panel.  Reactive, so ``active_panel``
+    #: and the follow effects move with them.
+    replaced: Any = reactive(None)
+    replacement: Any = reactive(None)
 
     #: The panel that last held the keyboard.  What ``active_panel`` answers
     #: while neither does -- Ctrl+O has given the keyboard to the console, or
@@ -68,6 +76,7 @@ class Manager(Window):
         self.left.path = left
         self.right.path = right
         self.tree.visible = False
+        self.quick.visible = False
         #: The pending "panel, follow the tree" -- cancelled by every move.
         self._follow: asyncio.Task[Any] | None = None
 
@@ -76,6 +85,7 @@ class Manager(Window):
         effect(self, Manager._remember_panel)
         effect(self, Manager._tree_follows_panel)
         effect(self, Manager._panel_follows_tree)
+        effect(self, Manager._quick_view_follows_panel)
 
     # -- commands ------------------------------------------------------------
     #
@@ -118,6 +128,10 @@ class Manager(Window):
         self.toggle_tree()
         return True
 
+    async def on_quick_view(self, event: QuickView) -> bool:
+        self.toggle_quick_view()
+        return True
+
     async def on_tree_chosen(self, event: Any) -> bool:
         """Enter in the tree: the panel goes there now, not after the pause."""
         self.active_panel.path = event.node.data
@@ -155,6 +169,45 @@ class Manager(Window):
             ).execute(self.application)
         panel.reload()
 
+    async def on_view(self, event: View) -> bool:
+        """F3: ``cmFileView``, the selected file in a viewer window."""
+        self.spawn(self.view("text"))
+        return True
+
+    async def on_view_as_text(self, event: ViewAsText) -> bool:
+        self.spawn(self.view("text"))
+        return True
+
+    async def on_view_as_hex(self, event: ViewAsHex) -> bool:
+        self.spawn(self.view("hex"))
+        return True
+
+    async def view(self, mode: str) -> None:
+        """Open the selected file in a viewer on this window's desktop.
+
+        A directory is passed over: DN counted its size (``CountLen``), which
+        is not written yet, and ``..`` has nothing to show.  A file that will
+        not open is said so, as a directory that will not be made is.
+        """
+        from navigator.widgets.file_window import FileWindow
+
+        panel = self.active_panel
+        entry = panel.selected
+        desktop = self.desktop
+        if entry is None or entry.is_dir or desktop is None:
+            return
+        path = panel.path / entry.name
+        try:
+            window = FileWindow(path, mode=mode)
+        except OSError as error:
+            await Dialog(
+                title="Cannot view file",
+                prompt=f"{entry.name}: {error.strerror or error}",
+                buttons="ok",
+            ).execute(self.application)
+            return
+        desktop.open(window)
+
     def _remember_panel(self) -> None:
         if self.right.focused:
             self._last_panel = self.right
@@ -174,7 +227,7 @@ class Manager(Window):
         panel, the other is the active one whether or not it holds the
         keyboard: it is the one the tree steers.
         """
-        replaced = self.tree_replaces
+        replaced = self.replaced
         if replaced is not None:
             return self.right if replaced is self.left else self.left
         if self.right.focused:
@@ -193,7 +246,7 @@ class Manager(Window):
         app = self.application
         saved = self._saved_focus
         if (
-            self.tree_replaces is None
+            self.replaced is None
             and not (app is not None and self._holds(app.focused))
             and saved in (self.left, self.right)
         ):
@@ -202,41 +255,85 @@ class Manager(Window):
 
     def switch_panel(self) -> None:
         """Move the keyboard to the other panel, or between panel and tree."""
-        if self.tree_replaces is not None:
-            (self.active_panel if self.tree.focused else self.tree).focus()
+        replacement = self.replacement
+        if replacement is not None:
+            if replacement.focus_within:
+                self.active_panel.focus()
+            else:
+                self._focus_replacement()
             return
         other = self.right if self.active_panel is self.left else self.left
         other.focus()
 
     # -- the directory tree ----------------------------------------------------
 
-    def toggle_tree(self) -> None:
-        """Ctrl+T: ``SwitchView(dtTree)``.
+    @computed
+    def tree_replaces(self) -> Any:
+        """The panel the directory tree stands in for, or None while there is none."""
+        return self.replaced if self.replacement is self.tree else None
 
-        The **passive** panel gives way to the tree, in its place, and the
-        keyboard stays with the active one.  The second Ctrl+T puts the panel
-        back -- and gives it the keyboard if the tree had it, as the original
-        re-selected the panel it restored.
+    def toggle_tree(self) -> None:
+        """Ctrl+T: ``SwitchView(dtTree)``."""
+        self.switch_view(self.tree)
+
+    def toggle_quick_view(self) -> None:
+        """Ctrl+Q: ``SwitchView(dtView)``, and the view loads the file under the cursor."""
+        self.switch_view(self.quick)
+
+    def switch_view(self, view: Any) -> None:
+        """DOS Navigator's ``SwitchView``: *view* in the passive panel's place, or out of it.
+
+        The **passive** panel gives way to *view*, in its place, and the
+        keyboard stays with the active one.  Asking again for the view that is
+        showing puts the panel back -- and gives it the keyboard if the view
+        had it, as the original re-selected the panel it restored.  Asking for
+        the *other* view swaps it in where the first one stood, and the
+        keyboard goes back to the active panel, as ``SwitchView`` selected it.
         """
-        tree, replaced = self.tree, self.tree_replaces
-        if replaced is None:
-            active = self.active_panel
-            passive = self.right if active is self.left else self.left
-            row = self.panels.children
-            row.remove(tree)
-            row.insert(row.index(passive), tree)
-            tree.show(active.path)
-            passive.visible = False
-            tree.visible = True
-            self.tree_replaces = passive
-        else:
-            had_keys = tree.focused
-            tree.visible = False
+        current, replaced = self.replacement, self.replaced
+        if current is view:
+            had_keys = view.focus_within
+            view.visible = False
             replaced.visible = True
-            self.tree_replaces = None
+            self.replacement = self.replaced = None
             if had_keys:
                 replaced.focus()
+            self.panels.invalidate()
+            return
+        active = self.active_panel
+        had_keys = False
+        if current is not None:
+            had_keys = current.focus_within
+            current.visible = False
+            passive = replaced
+        else:
+            passive = self.right if active is self.left else self.left
+        row = self.panels.children
+        row.remove(view)
+        row.insert(row.index(passive), view)
+        if view is self.tree:
+            view.show(active.path)
+        passive.visible = False
+        view.visible = True
+        self.replaced, self.replacement = passive, view
+        if had_keys:
+            active.focus()
+        if view is self.quick:
+            self._quick_view_follows_panel()
         self.panels.invalidate()
+
+    def _focus_replacement(self) -> None:
+        (self.quick.viewer if self.replacement is self.quick else self.tree).focus()
+
+    def _quick_view_follows_panel(self) -> None:
+        """The quick view shows whatever the active panel's cursor is on: ``SendLocated``."""
+        if self.replacement is not self.quick:
+            return
+        panel = self.active_panel
+        entry, directory = panel.selected, panel.path
+        path = None if entry is None or entry.is_dir else directory / entry.name
+        with untracked():
+            self.quick.show(path)
 
     def _tree_follows_panel(self) -> None:
         """The tree's cursor goes wherever the active panel goes: ``cmChangeTree``."""

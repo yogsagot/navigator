@@ -1,0 +1,33 @@
+from navigator.widgets.file_viewer import FileViewer
+from navml.widgets.dialog.scroll_bar import ScrollBar
+
+#: Ctrl+Q: the file under the active panel's cursor, shown in the passive
+#: panel's place -- DOS Navigator's ``THFileViewer``, which ``SwitchView(dtView)``
+#: put where the other panel stood.
+#:
+#: The viewer is the F3 window's, framed the way a panel is framed because it
+#: stands where one stood.  ``ViewInsert`` gave it a ``TViewScroll`` on the
+#: frame's right column, shown only while the viewer is selected
+#: (``TFileViewer.SetState``); the bar here does the same.
+QuickViewer:
+    #: Columns left clear at each end of the top frame for the window's icons,
+    #: as a panel leaves them.
+    property title_margin: 0
+
+    FileViewer:
+        id: viewer
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: max(0, parent.height - 2)
+
+    ScrollBar:
+        id: bar
+        x: parent.width - 1
+        y: 1
+        width: 1
+        height: max(0, parent.height - 2)
+        value: viewer.top
+        maximum: viewer.size
+        page: max(1, viewer.width * viewer.height)
+        visible: viewer.focused

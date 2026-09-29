@@ -228,7 +228,7 @@ $viewer-scroll-bar-page-fg: white;    /*  [115] Scroll bar page */
 $viewer-scroll-bar-page-bg: dark_gray;
 $viewer-scroll-bar-icons-fg: black;   /*  [116] Scroll bar icons */
 $viewer-scroll-bar-icons-bg: white;
-$viewer-normal-text-fg: light_gray;   /*  [117] Normal text */
+$viewer-normal-text-fg: #d8d8d8;      /*  [117] Normal text -- Navigator: lighter text, for contrast; the .PAL has light_gray on dark_gray */
 $viewer-normal-text-bg: dark_gray;
 $viewer-selected-text-fg: black;      /*  [118] Selected text */
 $viewer-selected-text-bg: light_gray;

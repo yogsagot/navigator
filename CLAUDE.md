@@ -78,6 +78,19 @@ entry opened a second file manager instead -- taking the window was a choice, re
 while the dialog stays up. **Window > Tile, Cascade and Close all** are DOS Navigator's `TDesktop.Tile`/`Cascade` and
 `cmClearDesktop`, ported from `DNAPP.PAS`; every window is arranged unless it says `tileable: False` -- on by default,
 where DN's `ofTileable` was opt-in and skipped the tree window. *Windows, the desktop and the modal* in `navml/DESIGN.md` has the rest.
+**F3 is DOS Navigator's internal viewer** (`FVIEWER.PAS`): `navigator/viewer.py` is the model (`ViewSource`: `pread`
+into cached chunks, never `mmap`, so a truncated log cannot `SIGBUS` Navigator), and `FileViewer` inside `FileWindow` is
+`TFileViewer` inside `TFileWindow`. It opens zoomed on the desktop, with the scroll bar on the frame and `TViewInfo`
+over the bottom edge. Positions are byte offsets and nothing counts lines, so a gigabyte opens at once. Text is UTF-8,
+and an undecodable byte or a control is its CP437 glyph. F4 cycles text/hex/dump, F2 wraps, F6 filters,
+F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), and F5 goes to a hex address. Esc closes it, and so does F3,
+uncaptioned (Midnight Commander's key, a departure). File > View > As Text / As Hex open it in either mode. It is
+read-only for now. A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge,
+percentage, Stop), fed through a `SearchJob` the thread writes and the loop reads. **Ctrl+Q is DN's quick view**
+(`QuickViewer`, a framed `FileViewer`). It stands in the passive panel's place through `Manager.switch_view`, the
+`SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the
+active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
+what is deferred.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml
@@ -395,7 +408,9 @@ and defines no variable, so it does not parse alone; `navigator/styles/themes/*.
 and one is always loaded after it (`load_scheme("norton")`, `python -m navigator --theme norton`). The themes are
 generated: each is a DOS Navigator `COLORS/*.PAL` palette decoded by `tools/palconv.py`, which documents the file format
 in full and — the part that took the work — which of the 228 attribute bytes means what. Re-derive rather than hand-edit
-a theme.
+a theme. **A deliberate departure from a palette goes in `palconv.py`'s `DEPARTURES`** (theme -> slot -> colours and
+why), which applies it on generation and marks it in the theme's comment. There is one: `default` [117], the viewer's
+*Normal text*, is #D8D8D8 rather than DEFAULT.PAL's light grey on dark grey (2.6:1 contrast), at the user's request.
 
 The slot table comes from `RESOURCE/ENGLISH/DN.DNR` in the DOS Navigator source — the script the resource compiler turns
 into the `dlgColors` resource — which names all 144 entries the Colors dialog exposes, in 20 nested groups, as

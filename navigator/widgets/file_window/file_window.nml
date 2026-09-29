@@ -1,0 +1,68 @@
+from navigator.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode
+from navigator.commands import ReverseSearch, SearchAgain, SearchFor, Unwrap
+from navigator.widgets.file_viewer import FileViewer
+from navml.commands import CloseWindow
+from navml.widgets.dialog.scroll_bar import ScrollBar
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.window import Window
+
+#: F3: DOS Navigator's ``TFileWindow`` (``FVIEWER.PAS``).
+#:
+#: A standard window titled with the file's path, the viewer filling the
+#: inside of its frame, ``TViewScroll`` on the right frame column and
+#: ``TViewInfo`` over the bottom one -- the three views ``TFileWindow.Init``
+#: inserts, in the places it puts them.
+#:
+#: **It opens zoomed**, where DN reused the last viewer's rectangle
+#: (``LastViewerBounds``) and filled the desktop only the first time.  Taken
+#: to match the file manager, which opens zoomed too; the zoom icon gives the
+#: window its own rectangle back.
+FileWindow(Window):
+    zoomed: True
+
+    #: ``StatusDef hcView``, in its order: the plain row, then Ctrl's and
+    #: Shift's.  What DN bound there and Navigator cannot do yet -- Shift+F2
+    #: Store, Shift+F5 Save as, Shift+F6 XLat -- is left out, so the bar closes
+    #: up round it.  Ctrl+L continues a search with no caption, as it did.
+    #: F3 closes the viewer, as Midnight Commander's does -- not DN's, which
+    #: bound nothing there -- and has no caption either, so the line is DN's.
+    keys:
+        escape: CloseWindow
+        f3: CloseViewer
+        f2: Unwrap
+        f4: HexMode
+        f5: GotoAddress
+        f6: AddFilter
+        f7: SearchFor
+        ctrl+f7: ReverseSearch
+        shift+f7: ContinueSearch
+        ctrl+l: SearchAgain
+
+    FileViewer:
+        id: viewer
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: max(0, parent.height - 2)
+
+    #: On the frame's right column, a row in from each corner.  Its value is
+    #: the byte offset on top -- ``TViewScroll`` counted bytes, not lines, which
+    #: is what lets a gigabyte have a thumb without being counted first.
+    ScrollBar:
+        id: bar
+        x: parent.width - 1
+        y: 1
+        width: 1
+        height: max(0, parent.height - 2)
+        value: viewer.top
+        maximum: viewer.size
+        page: max(1, viewer.width * viewer.height)
+
+    #: ``TViewInfo``: over the bottom frame, a column in, as wide as it says.
+    StaticText:
+        id: info
+        x: 1
+        y: max(0, parent.height - 1)
+        width: min(len(viewer.info_text), max(0, parent.width - 3))
+        height: 1
+        text: viewer.info_text

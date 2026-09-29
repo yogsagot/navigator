@@ -1,0 +1,41 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+
+#: A search that is taking a while: DOS Navigator's ``TWhileView``, the box
+#: ``SearchFileStr`` put up once its timer ran out.
+#:
+#: ``TWhileView`` is a double frame with the title on the top edge, centred
+#: lines, and one *Stop* button (``dlStop``) that Esc and Enter press too.
+#: The first line is ``StrGrd``'s thirty-column gauge, ``█`` done and ``▒`` to
+#: go; the second is the percentage.  DN opened it 29 wide and let the gauge
+#: widen it to 34, which is where this one starts.
+SearchProgress(Dialog):
+    modal_width: 34
+    modal_height: 8
+    title: "Search Progress"
+    buttons: "ok"
+    #: ``TWhileView`` drew its own frame, with no close icon in it.
+    closable: False
+
+    #: Where the search has got to, and how far it can go.  The position is
+    #: the offset being read, backwards or forwards, as ``StrGrd(L, I)`` was.
+    property position: 0
+    property total: 0
+
+    StaticText:
+        id: gauge_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.gauge_text()
+
+    StaticText:
+        id: percent_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "%d%%" % root.percent()

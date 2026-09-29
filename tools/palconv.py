@@ -235,6 +235,21 @@ HAND_NAMED = {
 #: a marker in the generated comments; everything else is carried inert.
 LIVE = frozenset({1, 2, 4, 85, 88, 90, 91, 172})
 
+#: Where Navigator deliberately draws a slot other than as the palette says:
+#: theme name -> slot index -> ``(fg, bg, why)``, each colour a DOS colour
+#: index, a ``#rrggbb`` a VGA never had, or ``None`` to keep the palette's.  Applied when the theme is
+#: written, and marked in its comment, so a regeneration keeps the departure
+#: and a reader of the theme sees it was one.
+#:
+#: * ``default`` [117], the viewer's *Normal text*: ``$87`` in DEFAULT.PAL,
+#:   light grey on dark grey -- #AAAAAA on #555555, a contrast of 2.6:1 that
+#:   is barely legible on a modern screen.  #D8D8D8 is between light grey
+#:   and white, keeps the ground DN chose, and is the dimmest grey that a
+#:   sixteen-colour terminal rounds to white rather than back to light grey.
+DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]] = {
+    "default": {117: ("#d8d8d8", None, "lighter text, for contrast")},
+}
+
 #: The palette-string compositions, for the entries where one was worked out.
 #:
 #: ``CColor`` (DNAPP.PAS:74) is the application palette, and a view inserted
@@ -613,11 +628,20 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
     """
     custom = palette.custom_dac
 
+    departures = DEPARTURES.get(name, {})
+
+    def spell(value: int | str) -> str:
+        if isinstance(value, str):
+            return value
+        return f"$dn-{DOS_COLORS[value]}" if custom else DOS_COLORS[value]
+
     def color(index: int) -> tuple[str, str]:
         fg, bg = palette.split(index)
-        if custom:
-            return f"$dn-{DOS_COLORS[fg]}", f"$dn-{DOS_COLORS[bg]}"
-        return DOS_COLORS[fg], DOS_COLORS[bg]
+        if index in departures:
+            new_fg, new_bg, _why = departures[index]
+            fg = fg if new_fg is None else new_fg
+            bg = bg if new_bg is None else new_bg
+        return spell(fg), spell(bg)
 
     out = [
         "/*",
@@ -663,7 +687,12 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
             group = slot.group
             out += ["", f"/* -- {group} " + "-" * max(3, 68 - len(group)) + " */"]
         fg, bg = color(slot.index)
-        out.append(f"${slot.name}-fg: {fg};".ljust(38) + f"/*{slot.comment} */")
+        comment = slot.comment
+        if slot.index in departures:
+            was_fg, was_bg = palette.split(slot.index)
+            was = DOS_COLORS[was_fg] + " on " + DOS_COLORS[was_bg]
+            comment += f" -- Navigator: {departures[slot.index][2]}; the .PAL has {was}"
+        out.append(f"${slot.name}-fg: {fg};".ljust(38) + f"/*{comment} */")
         out.append(f"${slot.name}-bg: {bg};")
 
     if palette.cursor is not None:

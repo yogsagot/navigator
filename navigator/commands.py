@@ -38,6 +38,75 @@ class View(Command):
     title = "View"
 
 
+class ViewAsText(Command):
+    """File > View > As Text: ``cmViewText``, the viewer opened in text mode."""
+
+
+class ViewAsHex(Command):
+    """File > View > As Hex: ``cmViewHex``, the viewer opened in hex mode."""
+
+
+# -- the file viewer ---------------------------------------------------------
+#
+# ``StatusDef hcView``: bound in ``file_window.nml``, captioned as DN captioned
+# them there, so the key bar is the viewer's while a viewer has the keyboard.
+
+
+class Unwrap(Command):
+    """F2, ``cmUnWrap``: wrap long lines, or stop."""
+
+    title = "(Un)Wrap"
+
+
+class HexMode(Command):
+    """F4, ``cmHexMode``: text, hex, dump, and round again."""
+
+    title = "Hex/ASCII/Dump"
+
+
+class GotoAddress(Command):
+    """F5, ``cmGotoCell``: go to a hex address.  Hex and dump only, as in DN."""
+
+    title = "Goto"
+
+
+class AddFilter(Command):
+    """F6, ``cmAddFilter``: no filter, ``{ASCII}``, ``{32-255}``."""
+
+    title = "Filter"
+
+
+class SearchFor(Command):
+    """F7, ``cmSearchFor``: the *Find* dialog."""
+
+    title = "Search"
+
+
+class ReverseSearch(Command):
+    """Ctrl+F7, ``cmReverseSearch``: the last search again, the other way."""
+
+    title = "Reverse Search"
+
+
+class ContinueSearch(Command):
+    """Shift+F7, ``cmContinueSearch``: the last search again."""
+
+    title = "Continue Search"
+
+
+class SearchAgain(Command):
+    """Ctrl+L: ``cmContinueSearch`` again, bound with no caption as DN bound it."""
+
+
+class CloseViewer(Command):
+    """F3 in a viewer: close it, as Midnight Commander's F3 does.
+
+    Not DOS Navigator's -- its ``hcView`` bound nothing to F3 -- and so bound
+    with no caption: the key that opened the viewer closes it again, and the
+    status line stays DN's.
+    """
+
+
 class Edit(Command):
     title = "Edit"
 
@@ -331,4 +400,15 @@ __all__ = [
     "ToggleTree",
     "UserMenu",
     "View",
+    "ViewAsHex",
+    "ViewAsText",
+    "AddFilter",
+    "CloseViewer",
+    "ContinueSearch",
+    "GotoAddress",
+    "HexMode",
+    "ReverseSearch",
+    "SearchAgain",
+    "SearchFor",
+    "Unwrap",
 ]

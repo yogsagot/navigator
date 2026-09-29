@@ -1,0 +1,21 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: F5 in a hex viewer: DOS Navigator's ``dlgGotoAddress``, *Goto Address*.
+#:
+#: One line, read as hex, as ``Val('$' + S)`` read it.  A row taller than DN's
+#: 34 by 7, for the blank row ``MkdirDialog`` keeps between line and buttons.
+GotoDialog(Dialog):
+    modal_width: 34
+    modal_height: 8
+    title: "Goto Address"
+
+    Field:
+        id: address
+        x: 3
+        y: 2
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "~A~ddress"
+        label_width: 9
+        history_id: "goto_address"

@@ -43,13 +43,19 @@ _WIDGETS = {
     "Console": "console",
     "DirEntry": "panel",
     "DirectoryTree": "directory_tree",
+    "FileViewer": "file_viewer",
+    "FileWindow": "file_window",
+    "GotoDialog": "goto_dialog",
     "KeyBar": "keybar",
     "MainMenu": "main_menu",
     "Manager": "manager",
     "MkdirDialog": "mkdir_dialog",
     "Panel": "panel",
+    "QuickViewer": "quick_viewer",
+    "SearchProgress": "search_progress",
     "Shell": "shell",
     "TreeWindow": "tree_window",
+    "ViewerFindDialog": "viewer_find_dialog",
 }
 
 __all__ = sorted(_WIDGETS)
@@ -79,10 +85,16 @@ if TYPE_CHECKING:
     from navigator.widgets.completion_list import CompletionList
     from navigator.widgets.console import Console
     from navigator.widgets.directory_tree import DirectoryTree
+    from navigator.widgets.file_viewer import FileViewer
+    from navigator.widgets.file_window import FileWindow
+    from navigator.widgets.goto_dialog import GotoDialog
     from navigator.widgets.keybar import KeyBar
     from navigator.widgets.manager import Manager
     from navigator.widgets.mkdir_dialog import MkdirDialog
     from navigator.widgets.main_menu import MainMenu
     from navigator.widgets.panel import DirEntry, Panel
+    from navigator.widgets.quick_viewer import QuickViewer
+    from navigator.widgets.search_progress import SearchProgress
     from navigator.widgets.shell import Shell
     from navigator.widgets.tree_window import TreeWindow
+    from navigator.widgets.viewer_find_dialog import ViewerFindDialog

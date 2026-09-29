@@ -1,0 +1,70 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: F7 in a viewer: DOS Navigator's ``dlgViewerFind``.
+#:
+#: Laid out where ``DN.DNR`` puts it -- the line under its caption, *Options*
+#: and *Direction* side by side under that -- in the same 50 by 14.  DN's
+#: Help button goes, as every dialog's does until there is help to show.
+ViewerFindDialog(Dialog):
+    modal_width: 50
+    modal_height: 14
+    title: "Find"
+
+    Label:
+        id: what_caption
+        x: 2
+        y: 2
+        width: 14
+        height: 1
+        text: "~S~earch for"
+        link: what.entry
+
+    #: DN's ``hsViewFind``.  The caption is the one above, so the field's own
+    #: is empty and takes no columns.
+    Field:
+        id: what
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "view_find"
+
+    Label:
+        id: options_caption
+        x: 2
+        y: 7
+        width: 10
+        height: 1
+        text: "Options"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 8
+        width: 22
+        height: 2
+        items: ["~C~ase sensitive", "~W~hole words"]
+
+    Label:
+        id: direction_caption
+        x: 26
+        y: 7
+        width: 12
+        height: 1
+        text: "Direction"
+        link: direction
+
+    RadioButtons:
+        id: direction
+        x: 26
+        y: 8
+        width: 18
+        height: 2
+        items: ["~F~orward", "~B~ackward"]

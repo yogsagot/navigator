@@ -75,6 +75,17 @@ DirectoryTree::node:selected         { fg: $tree-selected-passive-fg; bg: $tree-
 DirectoryTree:focused::node:selected { fg: $tree-selected-node-fg; bg: $tree-selected-node-bg }
 DirectoryTree::info                  { fg: $tree-info-box-fg; bg: $tree-info-box-bg }
 
+/* The quick view a panel becomes (Ctrl+Q): THFileViewer takes CHViewer,
+   which is CDoubleWindow's 13 and 14 -- the File Manager group's *Quick View*
+   text, [92] and [93].  Framed and titled like a panel, since it stands where
+   one stood; its scroll bar is the panel's. */
+QuickViewer                          { fg: $panel-fg; bg: $panel-bg; border: single }
+QuickViewer:focus_within             { border: double }
+QuickViewer::title                   { fg: $title-fg; bg: $title-bg }
+QuickViewer:focus_within::title      { fg: $active-title-fg; bg: $active-title-bg }
+QuickViewer FileViewer               { fg: $quick-view-normal-text-fg; bg: $quick-view-normal-text-bg }
+QuickViewer FileViewer::selected     { fg: $quick-view-selected-text-fg; bg: $quick-view-selected-text-bg }
+
 /* One palette entry, two bars: Turbo Vision gives `TMenuView' and
    `TStatusLine' the same six colours (MENUS.PAS), and DOS Navigator never
    split them. Hence `$bar-' rather than a name that claims otherwise. */
@@ -216,6 +227,22 @@ TreeWindow DirectoryTree::info                 { fg: $dialog-information-pane-fg
 TreeWindow ScrollBar                           { fg: $dialog-scroll-bar-page-fg;  bg: $dialog-scroll-bar-page-bg }
 TreeWindow ScrollBar::arrow,
 TreeWindow ScrollBar::thumb                    { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg }
+
+/* The file viewer: TFileWindow takes CViewWindow, the File Viewer group
+   [112] to [118] -- its frame, its scroll bar (TViewScroll, through
+   CScrollBar), the text and a search hit.  TViewInfo draws over the bottom
+   frame in GetColor(2), the active frame's colour. */
+FileWindow                                     { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg }
+FileWindow:active                              { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg }
+FileWindow::title                              { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg }
+FileWindow:active::title                       { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg }
+FileWindow::icon                               { fg: $viewer-frame-icons-fg;   bg: $viewer-frame-icons-bg }
+FileWindow StaticText#info                     { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg }
+FileWindow ScrollBar                           { fg: $viewer-scroll-bar-page-fg;  bg: $viewer-scroll-bar-page-bg }
+FileWindow ScrollBar::arrow,
+FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg }
+FileViewer                                     { fg: $viewer-normal-text-fg;   bg: $viewer-normal-text-bg }
+FileViewer::selected                           { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg }
 
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information

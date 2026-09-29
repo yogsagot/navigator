@@ -688,8 +688,10 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.command_line.command_line",
         "navigator.widgets.console",
         "navigator.widgets.console.console",
-        "navigator.widgets.directory_tree",   # Ctrl+T, placed by the manager
+        "navigator.widgets.directory_tree",   # Ctrl+T, placed by the manager",
         "navigator.widgets.directory_tree.directory_tree",
+        "navigator.widgets.file_viewer",
+        "navigator.widgets.file_viewer.file_viewer",
         "navigator.widgets.keybar",
         "navigator.widgets.keybar.keybar",
         "navigator.widgets.main_menu",
@@ -698,11 +700,14 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.manager",
         "navigator.widgets.manager.manager",
         "navigator.widgets.manager.manager_nml",
-        "navigator.widgets.mkdir_dialog",          # F7, imported by the desktop
+        "navigator.widgets.mkdir_dialog",          # F7, imported by the desktop",
         "navigator.widgets.mkdir_dialog.mkdir_dialog",
         "navigator.widgets.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.panel",
         "navigator.widgets.panel.panel",
+        "navigator.widgets.quick_viewer",
+        "navigator.widgets.quick_viewer.quick_viewer",
+        "navigator.widgets.quick_viewer.quick_viewer_nml",
         "navigator.widgets.shell",
         "navigator.widgets.shell.shell",
         "navigator.widgets.shell.shell_nml",
@@ -1348,7 +1353,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     ``Application``: F1, F9 and F10 are the application's keys.  And once
     more when the command line arrived: the panels gave up their last empty
     row, and the row above the key bar is ``.>`` in DOS Navigator's
-    hard-coded white on black -- the only two rows that changed.
+    hard-coded white on black -- the only two rows that changed.  And once
+    more when F3 got its viewer: *View* left the *Disabled* colour, and the
+    key bar's styles are the only thing that moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
@@ -1608,8 +1615,8 @@ def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
     run_app(app, [lambda a: enabled.extend(
         (c.title, a.command_enabled(c)) for _, c, _, _ in a.shell.keybar.items()
     )])
-    # MkDir and the menu work; the rest are file operations still to come.
-    assert [title for title, on in enabled if on] == ["MkDir", "Menu"]
+    # View, MkDir and the menu work; the rest are file operations still to come.
+    assert [title for title, on in enabled if on] == ["View", "MkDir", "Menu"]
 
 
 def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):
@@ -1686,7 +1693,7 @@ def test_the_ctrl_row_greys_what_is_not_written_and_not_what_is(tree):
         ),
     ])
     assert "Print" not in enabled
-    assert enabled == ["New Manager", "Close", "Tree"]
+    assert enabled == ["New Manager", "Close", "Tree", "Preview"]
 
 
 def test_a_click_on_a_held_row_runs_that_rows_command(tree):
