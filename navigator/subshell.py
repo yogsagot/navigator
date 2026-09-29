@@ -411,9 +411,15 @@ class Subshell:
         self._silent = False
         #: Where :meth:`sync` last asked the shell to be, until it is sent.
         self._wanted: Path | None = None
+        #: Where the silent ``cd`` :meth:`sync` sent is taking the shell,
+        #: until the prompt it prints; and whether that ``cd`` is the line
+        #: the shell is running now.
+        self._following: Path | None = None
+        self._following_sent = False
         #: What to send once the shell is ready: ``(text, mode)``, the mode one
         #: of ``"command"`` (echoed after the held-back prompt, as typed),
-        #: ``"silent"`` (nothing shown until the prompt) and ``"reveal"``
+        #: ``"silent"`` (nothing shown until the prompt), ``"follow"`` (a
+        #: silent ``cd`` from :meth:`sync`) and ``"reveal"``
         #: (nothing shown until the ``O`` mark -- the line that ran it stays
         #: hidden, what it draws does not).
         self._queue: list[tuple[str, str]] = []
@@ -444,6 +450,11 @@ class Subshell:
     @property
     def is_running(self) -> bool:
         return self.process is not None and self.process.is_running
+
+    @property
+    def catching_up(self) -> bool:
+        """A :meth:`sync` is on its way: the next prompt is printed where it asked."""
+        return self.is_running and (self._wanted is not None or self._following is not None)
 
     # -- the process ---------------------------------------------------------
 
@@ -612,7 +623,8 @@ class Subshell:
         # asked for again at every prompt the failed cd prints.
         self._wanted = None
         if wanted != self.cwd:
-            self._queue.append((f" cd -- {shlex.quote(str(wanted))}", "silent"))
+            self._following = wanted
+            self._queue.append((f" cd -- {shlex.quote(str(wanted))}", "follow"))
             self._send_next()
 
     def _send_next(self) -> None:
@@ -623,6 +635,7 @@ class Subshell:
         silent = mode != "command"
         self._silent = silent
         self._revealing = mode == "reveal"
+        self._following_sent = mode == "follow"
         if not silent:
             # The prompt the shell printed and we kept back, so the command
             # it is about to echo lands after it, as it would have typed.
@@ -735,6 +748,8 @@ class Subshell:
         elif kind == b"B":
             self._in_prompt = False
             self._ready = True
+            if self._following_sent:
+                self._following, self._following_sent = None, False
             if self.on_prompt is not None:
                 self.on_prompt(self._prompt, self.cwd)
             self._send_next()
@@ -747,6 +762,7 @@ class Subshell:
         self._chosen = None
         self._revealing = False
         self._ready = False
+        self._following, self._following_sent = None, False
         self._queue.clear()
         self._cleanup()
         was_busy, self.busy = self.busy, False

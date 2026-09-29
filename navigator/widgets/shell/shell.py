@@ -277,13 +277,20 @@ class Shell(DockLayout):
         """The shell's own prompt, if it was printed where the command would run.
 
         A prompt printed somewhere else names the wrong directory, so it is
-        never shown: ``<dir>>`` stands in while the shell catches up with a
-        panel that moved.  With no file manager open, the shell is where the
-        command would run, and its prompt is always right.
+        never shown for long: while the silent ``cd`` that follows a panel is
+        on its way the last prompt stays, as a terminal's would, rather than
+        ``<dir>>`` flashing up for the frame before the new one arrives.  If
+        the shell cannot get there, ``<dir>>`` stands in.  With no file
+        manager open, the shell is where the command would run, and its
+        prompt is always right.
         """
         console = self.console
         where = self._front_directory()
         if where is not None and console.prompt_cwd != where:
+            # Read so the next prompt re-decides, whatever it says.
+            console.prompts
+            if console.subshell.catching_up:
+                return console.prompt
             return ()
         return console.prompt
 

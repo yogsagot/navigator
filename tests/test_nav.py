@@ -2014,6 +2014,28 @@ def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console)
     assert row_of(desktop(app), 22).startswith("me$ ")
 
 
+def test_the_last_prompt_stays_while_the_shell_follows_the_panel(tree, quiet_console, monkeypatch):
+    from navigator.subshell import Subshell
+    catching_up = [True]
+    monkeypatch.setattr(Subshell, "catching_up", property(lambda self: catching_up[0]))
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        lambda a: shell_prompt(a, tree, b"old$ "),
+        lambda a: setattr(a.manager.right, "path", tree / "alpha"),
+        KeyEvent("tab"),
+        # The silent cd is on its way: no <dir>> flashes up before its prompt.
+        lambda a: seen.append(row_of(desktop(a), 22).rstrip()),
+        lambda a: (catching_up.__setitem__(0, False), shell_prompt(a, tree / "alpha", b"new$ ")),
+        lambda a: seen.append(row_of(desktop(a), 22).rstrip()),
+        # A cd that failed prints its prompt where the shell already was.
+        lambda a: setattr(a.manager.right, "path", tree),
+        lambda a: shell_prompt(a, tree / "alpha", b"new$ "),
+        lambda a: seen.append(a.shell.command_line.prompt_cells),
+    ])
+    assert seen == ["old$", "new$", ()]
+
+
 def test_the_idle_shell_follows_the_active_panel(tree, quiet_console, monkeypatch):
     asked = []
     monkeypatch.setattr("navigator.subshell.Subshell.sync",

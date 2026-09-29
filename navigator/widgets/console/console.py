@@ -62,6 +62,9 @@ class Console(Widget):
     #: directory it was printed in.  Empty and None until the shell prints one.
     prompt: tuple = reactive(())
     prompt_cwd: Path | None = reactive(None)
+    #: Bumped at every prompt, even one identical to the last: a ``cd`` that
+    #: failed prints the same prompt in the same place, and is still news.
+    prompts: int = reactive(0)
 
     #: What the mouse has selected: the cell it started on and the cell it
     #: is on now, both ``(x, y)`` in the view, or None.  Cleared whenever the
@@ -149,6 +152,7 @@ class Console(Widget):
     def _prompted(self, data: bytes, cwd: Path | None) -> None:
         self.prompt = prompt_cells(data)
         self.prompt_cwd = cwd
+        self.prompts += 1
 
     # -- input ---------------------------------------------------------------
 
