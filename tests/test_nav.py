@@ -1355,7 +1355,8 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     row, and the row above the key bar is ``.>`` in DOS Navigator's
     hard-coded white on black -- the only two rows that changed.  And once
     more when F3 got its viewer: *View* left the *Disabled* colour, and the
-    key bar's styles are the only thing that moved.
+    key bar's styles are the only thing that moved.  And once more, the same
+    way, when F4 got its editor.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()

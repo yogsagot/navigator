@@ -128,8 +128,28 @@ class Navigator(Application):
         return True
 
     async def on_quit(self, event: Quit) -> bool:
+        """Leave -- once every editor with a changed text has been asked.
+
+        ``cmQuit`` went through every window's ``Valid`` as ``cmClose`` did, so
+        one Cancel keeps Navigator running.  Asked from a task, for the reason
+        every dialog is.
+        """
+        desktop = self.shell.desktop
+        if any(window.must_ask() for window in desktop.windows()):
+            self.spawn(self._quit_asking())
+            return True
         self.exit()
         return True
+
+    async def _quit_asking(self) -> None:
+        desktop = self.shell.desktop
+        for window in reversed(desktop.windows()):
+            if window.parent is not desktop or not window.must_ask():
+                continue
+            desktop.activate(window)
+            if not await window.ask_to_close():
+                return
+        self.exit()
 
     def _console_over_windows(self) -> bool:
         """Whether a program on the console has the keys, over the windows.
@@ -168,7 +188,8 @@ class Navigator(Application):
     async def on_paste(self, event: PasteEvent) -> bool:
         """A paste goes where typing would: the running program, or the command line.
 
-        Under a dialog it is the dialog's, and goes to its focused line.
+        Under a dialog it is the dialog's, and goes to its focused line; with
+        an editor holding the keyboard it is the editor's.
         """
         if self.modal is not None:
             return False
@@ -176,6 +197,8 @@ class Navigator(Application):
         if console.busy:
             console.subshell.paste(event.text)
             return True
+        if self.shell._editor_has_keys():
+            return False  # an editor takes it, line breaks and all
         text = " ".join(event.text.splitlines())
         if text:
             self.shell.command_line.insert(text)

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
@@ -32,6 +32,9 @@ from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
 from navigator.widgets.manager import Manager
+
+if TYPE_CHECKING:
+    from navigator.widgets.edit_window import FileSaved
 
 #: The most candidates a Tab puts in its list; ``compgen -c`` on one letter
 #: can be thousands.
@@ -313,6 +316,12 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return False
+        if isinstance(
+            command,
+            (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine,
+             InsertName, InsertPath),
+        ) and self._editor_has_keys():
+            return False
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
         if isinstance(
@@ -326,6 +335,34 @@ class Shell(DockLayout):
                 subshell = self.console.subshell
                 return subshell.is_running and subshell.can_complete and not self.console.busy
         return super().enables(command)
+
+    def _editor_has_keys(self) -> bool:
+        """Whether the keyboard is with a widget that edits text of its own.
+
+        An editor wants Enter, Home, End and Tab for itself, and would lose
+        them to a command line with text on it -- the application's table is
+        asked before the tree.  DN's command line lived in the file panel's
+        window and never met the editor's keys.
+        """
+        app = self.application
+        if app is None or app.focused is None:
+            return False
+        widget = app.focused
+        while widget is not None:
+            if widget.edits_text:
+                return True
+            widget = widget.parent
+        return False
+
+    async def on_file_saved(self, event: FileSaved) -> bool:
+        """``FileChanged``: every panel showing the saved file's directory re-reads."""
+        directory = event.path.parent
+        for window in self.desktop.windows():
+            if isinstance(window, Manager):
+                for panel in (window.left, window.right):
+                    if panel.path == directory:
+                        panel.reload()
+        return True
 
     async def on_command_line_home(self, event: CommandLineHome) -> bool:
         self.command_line.home()

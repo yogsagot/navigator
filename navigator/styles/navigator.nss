@@ -244,6 +244,24 @@ FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg
 FileViewer                                     { fg: $viewer-normal-text-fg;   bg: $viewer-normal-text-bg }
 FileViewer::selected                           { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg }
 
+/* The editor: TEditWindow takes CUniWindow, the Editor/Spreadsheet group
+   [70] to [77] -- TEditFrame's frame, icons and title, TEditScrollBar's page
+   and icons, the text and a block.  TInfoLine draws over the bottom frame in
+   GetColor(8), the active frame's colour.  The caret is DN's NormalCursor
+   while inserting and its BlockCursor while overwriting. */
+EditWindow                                     { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg }
+EditWindow:active                              { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg }
+EditWindow::title                              { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg }
+EditWindow:active::title                       { fg: $editor-frame-title-fg;   bg: $editor-frame-title-bg }
+EditWindow::icon                               { fg: $editor-frame-icons-fg;   bg: $editor-frame-icons-bg }
+EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg }
+EditWindow ScrollBar                           { fg: $editor-scroll-bar-page-fg;  bg: $editor-scroll-bar-page-bg }
+EditWindow ScrollBar::arrow,
+EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg; bg: $editor-scroll-bar-icons-bg }
+FileEditor                                     { fg: $editor-normal-text-fg;   bg: $editor-normal-text-bg; caret: underline }
+FileEditor:overwrite                           { caret: block }
+FileEditor::selected                           { fg: $editor-selected-text-fg; bg: $editor-selected-text-bg }
+
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information
    pane, [61]. */

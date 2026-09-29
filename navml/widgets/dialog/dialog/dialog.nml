@@ -14,9 +14,10 @@ from navml.widgets.dialog.modal import Modal
 #: Its size and its place are :class:`~navml.widgets.dialog.modal.Modal`'s: a derived
 #: document says ``modal_width: 44``, and the centring is the base's binding.
 Dialog(Modal):
-    #: ``ok``, ``ok-cancel`` or ``ok-cancel-help``.  Which buttons is a
+    #: ``ok``, ``ok-cancel``, ``ok-cancel-help`` or ``yes-no-cancel``
+    #: (``mfYesNoCancel``, OK captioned *Yes*).  Which buttons is a
     #: *visibility* question, because markup has no conditional and needs
-    #: none: all three are declared and a hidden one is already out of the
+    #: none: all four are declared and a hidden one is already out of the
     #: tab order, out of the shortcut walk and out of the paint.
     property buttons: "ok-cancel"
 
@@ -55,8 +56,17 @@ Dialog(Modal):
 
         Button:
             id: ok
-            text: "O~K~"
+            text: "~Y~es" if root.buttons == "yes-no-cancel" else "O~K~"
             default: True
+            style:
+                basis: 11
+                grow: 0
+
+        #: *No* answers False, where Cancel answers None.
+        Button:
+            id: no
+            text: "~N~o"
+            visible: root.buttons == "yes-no-cancel"
             style:
                 basis: 11
                 grow: 0

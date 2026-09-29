@@ -284,6 +284,43 @@ class Window(Widget):
                 self.width - 2, self.height - 1, GRIP if unicode else ASCII_GRIP, style
             )
 
+    # -- closing -------------------------------------------------------------
+
+    def must_ask(self) -> bool:
+        """Whether closing this window needs its say first: ``Valid(cmClose)``.
+
+        False unless a window has something to lose -- an editor with a text
+        that has changed.  Asked synchronously so that closing a window with
+        nothing to lose stays one call, with no task started for it.
+        """
+        return False
+
+    async def ask_to_close(self) -> bool:
+        """Say whether the window may close; asked only when :meth:`must_ask`.
+
+        A dialog may be shown from here, since the callers start this as a
+        task rather than awaiting it inside a handler.
+        """
+        return True
+
+    def request_close(self) -> None:
+        """Close as the user asked to: at once, or after :meth:`ask_to_close`.
+
+        What the close icon, Esc and Ctrl+F4 do.  :meth:`close` is the
+        unconditional one, for a window that has already been asked.
+        """
+        if not self.must_ask():
+            self.close()
+            return
+        self.spawn(self.close_asking())
+
+    async def close_asking(self) -> bool:
+        """Ask if need be, close if allowed, and say whether it closed."""
+        if self.must_ask() and not await self.ask_to_close():
+            return False
+        self.close()
+        return True
+
     def close(self) -> None:
         """Take this window off its desktop, which activates the next one."""
         desktop = self.desktop
@@ -323,7 +360,7 @@ class Window(Widget):
     def _press_chrome(self, local: MouseClickEvent) -> bool:
         hit = self.chrome_hit(local.x, local.y)
         if hit == "close":
-            self.close()
+            self.request_close()
         elif hit == "zoom":
             self.toggle_zoom()
         elif hit in ("move", "resize"):

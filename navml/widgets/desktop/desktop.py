@@ -269,9 +269,27 @@ class Desktop(Widget):
         ignores.  Closed front to back, and the last to go raises
         :class:`EmptiedEvent` as a single close would.
         """
-        for window in reversed(self.windows()):
-            if window.closable:
-                window.close()
+        windows = [w for w in reversed(self.windows()) if w.closable]
+        if any(window.must_ask() for window in windows):
+            self.spawn(self.close_all_asking())
+            return
+        for window in windows:
+            window.close()
+
+    async def close_all_asking(self) -> bool:
+        """Close every closable window, asking those that must, front to back.
+
+        A window that says no stops the rest, as a *Cancel* did in DN: the
+        answer is about the whole command, not about that one window.  True
+        when every one closed.
+        """
+        for window in [w for w in reversed(self.windows()) if w.closable]:
+            if window.parent is not self:
+                continue
+            self.activate(window)
+            if not await window.close_asking():
+                return False
+        return True
 
     # -- commands ------------------------------------------------------------
 
@@ -345,5 +363,5 @@ class Desktop(Widget):
             self.activate(chosen)
 
     async def on_close_window(self, event: CloseWindow) -> bool:
-        self.active_window.close()
+        self.active_window.request_close()
         return True

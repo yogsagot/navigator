@@ -92,6 +92,12 @@ class Widget:
     #: down the MRO with a subclass's binding winning.  Consulted when a key
     #: reaches this widget on the focus path, before :meth:`on_key`.
     keys: Mapping[str, commands.Binding] = {}
+    #: Whether this widget takes typed text as a whole -- a multi-line editor
+    #: -- so that keys an application binds for *another* text field (a
+    #: command line's Enter, Home, End) should step aside while it holds the
+    #: keyboard.  A fact about the widget, read by whoever binds such keys;
+    #: navkit itself only carries it.
+    edits_text: bool = False
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)

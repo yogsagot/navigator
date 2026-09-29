@@ -21,6 +21,7 @@ from navml.widgets.window import Window
 
 from navigator.commands import (
     ChangeDirectory,
+    Edit,
     MakeDirectory,
     QuickView,
     Rescan,
@@ -202,6 +203,36 @@ class Manager(Window):
         except OSError as error:
             await Dialog(
                 title="Cannot view file",
+                prompt=f"{entry.name}: {error.strerror or error}",
+                buttons="ok",
+            ).execute(self.application)
+            return
+        desktop.open(window)
+
+    async def on_edit(self, event: Edit) -> bool:
+        """F4: ``cmEditFile``, the selected file in an editor window."""
+        self.spawn(self.edit())
+        return True
+
+    async def edit(self) -> None:
+        """Open the selected file in an editor on this window's desktop.
+
+        A directory and ``..`` are passed over, as DN's ``cmEditFile`` passed
+        them; a file that will not open is said so.
+        """
+        from navigator.widgets.edit_window import EditWindow
+
+        panel = self.active_panel
+        entry = panel.selected
+        desktop = self.desktop
+        if entry is None or entry.is_dir or desktop is None:
+            return
+        path = panel.path / entry.name
+        try:
+            window = EditWindow(path)
+        except OSError as error:
+            await Dialog(
+                title="Cannot edit file",
                 prompt=f"{entry.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)

@@ -62,7 +62,17 @@ class WindowManagerDialog(Dialog):
         window = self.accept()
         if window is None or not window.closable:
             return
+        if window.must_ask():
+            self.spawn(self._close_asking(window))
+            return
         window.close()
+        self._closed()
+
+    async def _close_asking(self, window: Any) -> None:
+        if await window.close_asking():
+            self._closed()
+
+    def _closed(self) -> None:
         self.refresh()
         if not self.windows.items:
             self.close(None)

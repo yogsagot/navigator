@@ -127,7 +127,7 @@ class Dialog(Modal):
         Named rather than listed inline so that a derived dialog adding a
         fourth button can say so in one place.
         """
-        return (self.ok, self.cancel, self.info)
+        return (self.ok, self.no, self.cancel, self.info)
 
     @property
     def default_button(self) -> Widget | None:
@@ -177,6 +177,11 @@ class Dialog(Modal):
         """``ok`` was clicked, and the generated half said so by name."""
         self.record_history()
         self.close(self.accept())
+        return True
+
+    async def on_no_click(self, event: Event) -> bool:
+        """``yes-no-cancel``'s *No*: an answer, and a different one from Cancel's."""
+        self.close(False)
         return True
 
     def record_history(self) -> None:

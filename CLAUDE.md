@@ -91,6 +91,14 @@ percentage, Stop), fed through a `SearchJob` the thread writes and the loop read
 `SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the
 active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
 what is deferred.
+**F4 is DOS Navigator's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had:
+`navigator/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`), `FileEditor` is `TFileEditor`
+and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame. **A file round-trips
+byte for byte** -- tabs, each line's own terminator, bytes that are not UTF-8 (`surrogateescape`) -- which departs from
+DN's rewriting. Every key is a command named after DN's `cm*` in `FileEditor.keys`; `Widget.edits_text` makes the
+command line's Enter/Home/End/Tab and pastes step aside. **Closing asks** through `Window.must_ask`/`ask_to_close`
+(`Valid(cmClose)`), which `request_close`, Close all and Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
+Saving renames a new file over the old one. *The editor* in `navml/DESIGN.md` has the rest and the phases left.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

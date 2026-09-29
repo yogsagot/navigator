@@ -43,6 +43,8 @@ _WIDGETS = {
     "Console": "console",
     "DirEntry": "panel",
     "DirectoryTree": "directory_tree",
+    "EditWindow": "edit_window",
+    "FileEditor": "file_editor",
     "FileViewer": "file_viewer",
     "FileWindow": "file_window",
     "GotoDialog": "goto_dialog",
@@ -85,6 +87,8 @@ if TYPE_CHECKING:
     from navigator.widgets.completion_list import CompletionList
     from navigator.widgets.console import Console
     from navigator.widgets.directory_tree import DirectoryTree
+    from navigator.widgets.edit_window import EditWindow
+    from navigator.widgets.file_editor import FileEditor
     from navigator.widgets.file_viewer import FileViewer
     from navigator.widgets.file_window import FileWindow
     from navigator.widgets.goto_dialog import GotoDialog
