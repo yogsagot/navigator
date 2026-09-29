@@ -24,8 +24,8 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
 │setup.cfg    ║                                                  ║             │
 │             ║      https://github.com/yogsagot/navigator       ║             │
 │             ║                                                  ║             │
-│             ║                   [   OK   ]                     ║             │
-│             ║                                                  ║             │
+│             ║                   ►   OK   ◄▄                    ║             │
+│             ║                    ▀▀▀▀▀▀▀▀▀▀                    ║             │
 │             ║                                                  ║             │
 │             ╚══════════════════════════════════════════════════╝             │
 │                                      ││                                      │

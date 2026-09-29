@@ -348,7 +348,7 @@ project's standing rule says to take them rather than invent six of our own.
 | `Cluster` | Python | `item`, `mark`, `shortcut` | `:inert`, `:focused` | — |
 | `StaticText` | both | `shortcut` | — | — |
 | `Label` | both | `shortcut` | `:selected` | — |
-| `Button` | both | `shadow` | `:default`, `:inert`, `:focused` | `ClickEvent` |
+| `Button` | both | `shadow` | `:am_default`, `:down`, `:inert`, `:focused` | `ClickEvent` |
 | `InputLine` | both | `arrow`, `selection` | `:inert`, `:focused` | — |
 | `CheckBoxes` | Python | inherited | inherited | — |
 | `RadioButtons` | Python | inherited | inherited | — |
@@ -360,6 +360,33 @@ project's standing rule says to take them rather than invent six of our own.
 | `Desktop` | Python | — | — | `OpenedEvent`, `EmptiedEvent` |
 | `Field` | **markup only** | — | — | — |
 | `Spacer` | Python | — | — | — |
+
+### A button is drawn as `TButton.DrawState` draws it, and clicks on the release
+
+The first `Button` drew `[ OK ]` and darkened whatever was to its right and below. DOS Navigator's own
+(`DIALOGS.PAS`, `TButton.DrawState`, the colour path where `ShowMarkers` is off) has no brackets: the face is plain
+colour, and the button Enter would press carries `►` and `◄` (CP437 16 and 17) in its first and last columns. The
+shadow is drawn, not darkened: `▄` then `█` down the column to the right and `▀` under the face one cell in, in `[46]`
+— black on the dialog's grey, so the half blocks *are* the shadow and nothing behind is read. The rectangle is
+unchanged, one column and one row wider than the face. Under the ASCII tier the half blocks become whole cells.
+
+- **Pressed moves right, into the shadow.** `DrawState(Down)` starts the face at column 2 rather than 1 and blanks
+  the bottom row, so the button sinks into where its shadow was. `Button.down` is a markup property the caption's
+  `x` reads.
+- **The click fires on the release, and only over the button.** `HandleEvent` loops on mouse moves after the press,
+  toggling `Down` as the pointer leaves and re-enters the face-plus-shadow-column rectangle, and calls `Press` on
+  release if it is still down. That is `Application.capture_mouse` plus the same test. A press on the shadow is not
+  a press, as `ClickRect` excluded it.
+- **Space goes down and clicks on its release — a departure.** DN pressed on the Space key at once, with no pressed
+  look. Taken because it is what the mouse does and the user asked for it. Where the terminal reports releases
+  (`KeyEvent.releases`, kitty protocol) the click waits for `KeyReleaseEvent`. Elsewhere the button shows pressed for
+  `FLASH` (0.1 s) through a one-shot `call_every`, so the up frame and the click land in one batch. A repeat while
+  down is swallowed. A key-held button whose focus leaves pops up without clicking. Enter and the `Alt` shortcut
+  still press at once, as in DN.
+- **`:am_default` is DN's `AmDefault`, not the `default` flag.** A focused `TButton` broadcast `cmGrabDefault`, and
+  the `bfDefault` button stopped looking default until `cmReleaseDefault`. `Button.am_default` is that as a computed:
+  `default`, unless another `Button` under the same nearest modal ancestor holds `Application.focused`. So the
+  markers, and the default colours, are on exactly one button: the one Enter presses.
 
 ### `disabled`, never `enabled` — and `inert` to ask
 

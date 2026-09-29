@@ -16,10 +16,18 @@ import os
 import sys
 import termios
 import tty
+from dataclasses import replace
 from typing import IO
 
 from navkit.capabilities import TerminalInfo
-from navkit.events import Event, KeyEvent, ModifiersEvent, MouseClickEvent, PasteEvent
+from navkit.events import (
+    Event,
+    KeyEvent,
+    KeyReleaseEvent,
+    ModifiersEvent,
+    MouseClickEvent,
+    PasteEvent,
+)
 
 ALT_SCREEN_ON = "\x1b[?1049h"
 ALT_SCREEN_OFF = "\x1b[?1049l"
@@ -472,8 +480,15 @@ class InputParser:
         if not kitty:
             return [event] if event is not None else []
         out = self._hold(_held(param))
-        if event is not None and kind != _RELEASE:
-            out.append(event)
+        if isinstance(event, KeyEvent):
+            if kind == _RELEASE:
+                out.append(
+                    KeyReleaseEvent(
+                        event.key, event.char, ctrl=event.ctrl, alt=event.alt, shift=event.shift
+                    )
+                )
+            else:
+                out.append(replace(event, releases=True))
         return out
 
     def _modifier_key(self, name: str | None, param: int, kind: int) -> list[Event]:

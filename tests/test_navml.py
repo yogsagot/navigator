@@ -34,13 +34,14 @@ import pytest
 import navml
 import navml.widgets
 from navml import Component
-from navkit.events import KeyEvent, MouseClickEvent, emitted
+from navkit.application import Application
+from navkit.events import KeyEvent, KeyReleaseEvent, MouseClickEvent, emitted
 from navkit.reactive import declarations
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 from navml._merge import ComponentError, ComponentFinder
 from navml.parser import imports_of
-from conftest import awaited
+from conftest import FakeTerminal, awaited
 from navml.widgets import (
     Button, Dialog, Field, Label, Modal, Spacer, StaticText, Window,
 )
@@ -674,9 +675,17 @@ def test_a_button_declares_the_event_it_emits():
     assert ClickEvent.handler == "on_click"
 
 
-@pytest.mark.parametrize("key", ["enter", "space"])
-def test_both_keys_reach_the_same_handler(key):
-    """Two routes, one thing they mean: a listener never learns which fired."""
+@pytest.mark.parametrize(
+    "keys",
+    [
+        [KeyEvent("enter")],
+        [KeyEvent(" ", " ", releases=True), KeyReleaseEvent(" ", " ")],
+    ],
+    ids=["enter", "space"],
+)
+def test_both_keys_reach_the_same_handler(keys):
+    """Two routes, one thing they mean: a listener never learns which fired.
+    Space clicks on its release, as the mouse does."""
     root = Widget()
     button = root.add(Button("OK"))
     seen = []
@@ -686,13 +695,18 @@ def test_both_keys_reach_the_same_handler(key):
         return True
 
     button.on_click = on_click
-    assert awaited(button.on_key(KeyEvent(key))) is True
+    for key in keys:
+        handler = button.on_key_release if isinstance(key, KeyReleaseEvent) else button.on_key
+        assert awaited(handler(key)) is True
     assert len(seen) == 1
 
 
 def test_a_mouse_press_reaches_the_same_handler_as_the_keys():
+    """On the release, over the button: DOS Navigator's ``TButton`` clicked
+    when the mouse was let go, not when it went down."""
     root = Widget()
-    button = root.add(Button("OK"))
+    button = root.add(Button("OK", width=8, height=2))
+    Application(root=root, terminal=FakeTerminal())
     seen = []
 
     async def on_click(event):
@@ -701,6 +715,8 @@ def test_a_mouse_press_reaches_the_same_handler_as_the_keys():
 
     button.on_click = on_click
     assert awaited(button.on_mouse_click(MouseClickEvent(0, 0, "left", "press"))) is True
+    assert seen == [] and button.down
+    assert awaited(button.on_mouse_click(MouseClickEvent(0, 0, "left", "release"))) is True
     assert len(seen) == 1
 
 

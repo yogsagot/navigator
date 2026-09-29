@@ -20,7 +20,7 @@ nothing below sets ``handler`` by hand.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import ClassVar
 
 #: Splits a CamelCase name before each capital that is not the first.
@@ -105,6 +105,12 @@ class KeyEvent(Event):
     ctrl: bool = False
     alt: bool = False
     shift: bool = False
+    #: Whether a :class:`KeyReleaseEvent` will follow this press.  True only
+    #: for a key the terminal sent in the kitty keyboard protocol's form, the
+    #: one route that reports a release; a widget that acts on the release
+    #: reads this to know whether it may wait for one.  Not compared, because
+    #: it says how the key travelled rather than which key it was.
+    releases: bool = field(default=False, compare=False)
 
     @property
     def name(self) -> str:
@@ -126,6 +132,35 @@ class KeyEvent(Event):
     def is_printable(self) -> bool:
         """True if this key produced text that a text widget should insert."""
         return bool(self.char) and not self.ctrl and not self.alt and self.char >= " "
+
+
+@dataclass(frozen=True, slots=True)
+class KeyReleaseEvent(Event):
+    """A key let go, named exactly as its :class:`KeyEvent` was.
+
+    A class of its own rather than a flag on :class:`KeyEvent`, so no key
+    table, ``on_key`` or child program ever sees a release it was not written
+    for.  Only a terminal speaking the kitty keyboard protocol sends one --
+    :attr:`KeyEvent.releases` says whether to expect it -- and it is offered
+    to the focused widget alone, because a release means something only to
+    whoever took the press.
+    """
+
+    key: str
+    char: str | None = None
+    ctrl: bool = False
+    alt: bool = False
+    shift: bool = False
+
+    @property
+    def name(self) -> str:
+        """The full key name including modifiers, as :attr:`KeyEvent.name`."""
+        mods = [m for m, held in (("ctrl", self.ctrl), ("alt", self.alt), ("shift", self.shift)) if held]
+        return "+".join([*mods, self.key])
+
+    def matches(self, *specs: str) -> bool:
+        """True if this release is of any of *specs*, as :meth:`KeyEvent.matches`."""
+        return any(self.name == _normalize(spec) for spec in specs)
 
 
 @dataclass(frozen=True, slots=True)

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.reactive import unbind
+
+from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
 #: ``StrGrd``'s width: thirty columns of gauge.
@@ -15,7 +18,10 @@ class SearchProgress(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        # DN's ``dlStop``: the dialog's own button, renamed.
+        # DN's ``dlStop``: the dialog's own button, renamed.  Unbound first,
+        # because `Dialog' binds the OK caption to its `buttons' (*Yes* for
+        # yes-no-cancel) and a value cannot be assigned over a binding.
+        unbind(self.ok, Button.text)
         self.ok.text = "~S~top"
 
     def percent(self) -> int:

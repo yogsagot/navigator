@@ -144,15 +144,22 @@ Label:selected        { fg: $dialog-label-selected-fg;   bg: $dialog-label-selec
 Label::shortcut       { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-shortcut-bg }
 
 Button                { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg }
-Button:default        { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg }
+Button:am_default     { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg }
 Button:focused        { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg }
 Button:inert          { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg }
 Button::shadow        { fg: $dialog-button-shadow-fg;    bg: $dialog-button-shadow-bg }
-/* The caption inherits the button, so only its marked letter needs a rule --
- * and it takes its background from whichever button rule won, which is the
- * per-property cascade doing exactly what it is for. */
+/* The caption is a StaticText, and the StaticText rule above would give it
+ * the dialog's static-text colours over the button's own, so it repeats the
+ * button's four rules -- one more type in each selector, so these win. */
+Button StaticText            { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg }
+Button:am_default StaticText { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg }
+Button:focused StaticText    { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg }
+Button:inert StaticText      { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg }
+/* The marked letter needs only its foreground: it takes its background from
+ * whichever caption rule above won, which is the per-property cascade doing
+ * exactly what it is for. */
 Button StaticText::shortcut         { fg: $dialog-button-shortcut-fg }
-Button:default StaticText::shortcut { fg: $dialog-shortcut-default-fg }
+Button:am_default StaticText::shortcut { fg: $dialog-shortcut-default-fg }
 Button:focused StaticText::shortcut { fg: $dialog-shortcut-selected-fg }
 
 InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-normal-bg }

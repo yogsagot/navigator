@@ -37,6 +37,7 @@ from navkit.events import (
     DoubleClickEvent,
     Event,
     KeyEvent,
+    KeyReleaseEvent,
     ModifiersEvent,
     MouseClickEvent,
     PasteEvent,
@@ -893,6 +894,16 @@ class Application:
                     # it in between.  Through `_handle' so `on_event' sees it,
                     # as it sees the escape key navkit manufactures.
                     await self._handle(DoubleClickEvent.of(event))
+            elif isinstance(event, KeyReleaseEvent):
+                # The focused widget alone, and no key table or walk up: a
+                # release means something only to whoever took the press.
+                # Inside the modal, as a key would be, so a dialog that opened
+                # between press and release does not hand it to what is under.
+                focused = self.focused
+                if focused is not None and (self.modal is None or self.modal._holds(focused)):
+                    handler = getattr(focused, event.handler, None)
+                    if handler is not None:
+                        await _call(focused, event, handler)
             elif isinstance(event, ResizeEvent):
                 await self.on_resize(event)
             elif isinstance(event, PasteEvent):

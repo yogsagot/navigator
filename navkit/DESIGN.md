@@ -1987,6 +1987,16 @@ rejected, because it is a modern invention that shows a row nobody is holding.
   `hovered`. It is reactive, so a key bar that reads it in `render()` repaints on the press and on the release.
   `commands.layer_key(held, "f6")` spells the key to look up.
 
+**A key release is a `KeyReleaseEvent`, and it goes to the focused widget alone.** The parser used to drop every
+kitty release; a button that clicks when Space is *let go*, as its mouse click does, needed one. It is a class of its
+own rather than a flag on `KeyEvent`, so no key table, `on_key`, `encode_key` or child program ever meets a release it
+was not written for. `Application._handle` offers it to `on_event` and then to `focused.on_key_release` (inside the
+modal, as a key would be), and nowhere else: no key table and no walk up, because a release means something only to
+whoever took the press. **A widget waiting for one has to know whether it will come**, and a legacy terminal never
+sends it, so the press says: `KeyEvent.releases` is True for a key that arrived in kitty form. It is
+`compare=False`, because it says how a key travelled rather than which key it was, and every test comparing a kitty
+key with its legacy twin keeps passing. `Button` is the one reader; with no release promised it flashes instead.
+
 The key bar's rows come from the same bindings as its plain row. When a modifier is held, a row shows every titled
 binding whose modifiers are exactly the ones held: function keys first, in order, then letters in `bindings()` order.
 `bindings()` is therefore **nearest table first**, and the application's table still wins every tie. Each item shows

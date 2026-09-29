@@ -28,32 +28,39 @@ class Button(Control, _Component):
     """A pressable box with a centred caption.
 
     DOS Navigator's ``[41-46] Button normal / default / selected / disabled /
-    shortcut / shadow``, and Turbo Vision's ``TButton``.  Two rows and one
-    column wider than its face: the shadow is inside the button's own rectangle
-    rather than painted over its neighbour, which is what keeps it a widget
-    that can be placed anywhere.
+    shortcut / shadow``, and Turbo Vision's ``TButton`` as DOS Navigator's
+    ``DIALOGS.PAS`` draws it: a plain coloured face with no brackets, ``►``
+    and ``◄`` inside it on the button Enter would press, and a half-block
+    shadow.  Two rows and one column wider than its face: the shadow is inside
+    the button's own rectangle rather than painted over its neighbour, which
+    is what keeps it a widget that can be placed anywhere -- and pressed, the
+    face moves one cell right into the shadow's column, still inside it.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "button.nml"
 
     #: The caption, with one ``~A~`` run marking the letter that presses it.
-    text: str = _reactive('')    # button.nml:13
+    text: str = _reactive('')    # button.nml:16
 
     #: Whether Enter presses this button from anywhere in the dialog.  One
     #: per dialog, and the dialog is what enforces that rather than this.
-    default: bool = _reactive(False)    # button.nml:17
+    default: bool = _reactive(False)    # button.nml:20
+
+    #: Whether the button is drawn pressed: held under the mouse, or under a
+    #: Space that has not been let go.  The click comes when it is released.
+    down: bool = _reactive(False)    # button.nml:24
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: StaticText    # button.nml:20
+    caption: StaticText    # button.nml:27
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = StaticText(parent=self)    # button.nml:19
+        self.caption = StaticText(parent=self)    # button.nml:26
 
-        self.caption.x = 1    # button.nml:21
-        self.caption.y = 0    # button.nml:22
-        self.caption.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # button.nml:24
-        self.caption.height = 1    # button.nml:25
-        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:26
-        self.caption.align = 'center'    # button.nml:27
+        self.caption.x = _bind(lambda _o: 2 if _o.parent.down else 1)    # button.nml:30
+        self.caption.y = 0    # button.nml:31
+        self.caption.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # button.nml:33
+        self.caption.height = 1    # button.nml:34
+        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:35
+        self.caption.align = 'center'    # button.nml:36

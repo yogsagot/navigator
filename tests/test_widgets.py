@@ -299,3 +299,168 @@ def test_a_control_in_a_disabled_container_is_out_of_reach():
     assert asyncio.run(button.press()) is False
     box.disabled = False
     assert button.can_focus is True
+
+
+# -- the button: DOS Navigator's face, markers, shadow and press -------------
+
+
+from navkit.events import KeyReleaseEvent, MouseClickEvent  # noqa: E402
+from navkit.screen import ScreenBuffer as _Buffer          # noqa: E402
+
+
+def _row(buffer, y):
+    return "".join(buffer.get(x, y)[0] or " " for x in range(buffer.width))
+
+
+def test_a_button_is_a_plain_face_with_a_half_block_shadow():
+    button = Button(text="OK", width=8, height=2)
+    buffer = _Buffer(8, 2)
+    button.render(buffer)
+    assert _row(buffer, 0) == "       ▄"
+    assert _row(buffer, 1) == " ▀▀▀▀▀▀▀"
+
+
+def test_the_button_enter_would_press_is_marked_and_a_pressed_one_moves_right():
+    button = Button(text="OK", width=8, height=2, default=True)
+    buffer = _Buffer(8, 2)
+    button.render(buffer)
+    assert _row(buffer, 0) == "►     ◄▄"
+    button.down = True
+    buffer = _Buffer(8, 2)
+    button.render(buffer)
+    assert _row(buffer, 0) == " ►     ◄"
+    assert _row(buffer, 1) == "        "
+
+
+def test_a_taller_button_runs_its_shadow_down_in_full_blocks():
+    button = Button(width=6, height=3)
+    buffer = _Buffer(6, 3)
+    button.render(buffer)
+    assert [buffer.get(5, y)[0] for y in range(3)] == ["▄", "█", "▀"]
+
+
+class _Placed(Widget):
+    """A root that keeps its children where the test put them."""
+
+    def layout(self, width, height):
+        self.width, self.height = width, height
+
+
+def _two_buttons():
+    """A root holding a default OK and a Cancel, and the clicks each gives."""
+    clicks: list[str] = []
+    root = _Placed(width=40, height=10)
+    ok = Button(parent=root, text="O~K~", x=2, y=2, width=10, height=2, default=True)
+    cancel = Button(parent=root, text="~C~ancel", x=14, y=2, width=10, height=2)
+
+    for name, button in (("ok", ok), ("cancel", cancel)):
+        async def on_click(event, name=name):
+            clicks.append(name)
+            return True
+        button.on_click = on_click
+    app = Application(root, terminal=FakeTerminal(width=40, height=10))
+    return app, ok, cancel, clicks
+
+
+def test_the_default_gives_its_look_to_a_focused_button_and_takes_it_back():
+    app, ok, cancel, _ = _two_buttons()
+    ok.focus()
+    assert ok.marked and ok.am_default
+    cancel.focus()
+    assert cancel.marked and not ok.am_default and not ok.marked
+    app.focused = None
+    assert ok.am_default and ok.marked and not cancel.marked
+
+
+def _press(x, y, action="press"):
+    return MouseClickEvent(x, y, "left", action)
+
+
+def test_a_mouse_click_fires_on_the_release_not_the_press():
+    app, ok, _, clicks = _two_buttons()
+    seen = []
+    run_app(app, [
+        _press(3, 2),
+        lambda app: seen.append((ok.down, list(clicks))),
+        _press(3, 2, "release"),
+        lambda app: seen.append((ok.down, list(clicks))),
+    ])
+    assert seen == [(True, []), (False, ["ok"])]
+
+
+def test_dragging_off_a_held_button_pops_it_up_and_releasing_there_cancels():
+    app, ok, _, clicks = _two_buttons()
+    seen = []
+    run_app(app, [
+        _press(3, 2),
+        _press(30, 8, "move"),
+        lambda app: seen.append(ok.down),
+        _press(30, 8, "release"),
+    ])
+    assert seen == [False]
+    assert clicks == []
+
+
+def test_coming_back_onto_a_held_button_presses_it_again():
+    app, ok, _, clicks = _two_buttons()
+    run_app(app, [
+        _press(3, 2),
+        _press(30, 8, "move"),
+        _press(11, 2, "move"),     # the shadow's column counts: the face moves there
+        _press(11, 2, "release"),
+    ])
+    assert clicks == ["ok"]
+
+
+def test_a_press_on_the_shadow_is_not_a_press():
+    app, ok, _, clicks = _two_buttons()
+    run_app(app, [_press(11, 2), _press(11, 2, "release"), _press(5, 3), _press(5, 3, "release")])
+    assert clicks == []
+    assert not ok.down
+
+
+def test_space_holds_the_button_down_until_it_is_released():
+    app, ok, _, clicks = _two_buttons()
+    seen = []
+    run_app(app, [
+        lambda app: ok.focus(),
+        KeyEvent(" ", " ", releases=True),
+        KeyEvent(" ", " ", releases=True),     # the key repeating
+        lambda app: seen.append((ok.down, list(clicks))),
+        KeyReleaseEvent(" ", " "),
+    ])
+    assert seen == [(True, [])]
+    assert clicks == ["ok"]
+    assert not ok.down
+
+
+def test_space_flashes_where_no_release_will_come():
+    app, ok, _, clicks = _two_buttons()
+    seen = []
+    run_app(app, [
+        lambda app: ok.focus(),
+        KeyEvent(" ", " "),
+        lambda app: seen.append((ok.down, list(clicks))),
+        *[lambda app: None] * 6,               # time for the flash to end
+    ], settle=0.03)
+    assert seen == [(True, [])]
+    assert clicks == ["ok"]
+    assert not ok.down
+
+
+def test_enter_presses_at_once():
+    app, ok, _, clicks = _two_buttons()
+    run_app(app, [lambda app: ok.focus(), KeyEvent("enter", "\n")])
+    assert clicks == ["ok"]
+
+
+def test_a_space_held_while_the_focus_leaves_pops_up_without_a_click():
+    app, ok, cancel, clicks = _two_buttons()
+    run_app(app, [
+        lambda app: ok.focus(),
+        KeyEvent(" ", " ", releases=True),
+        lambda app: cancel.focus(),
+        KeyReleaseEvent(" ", " "),
+    ])
+    assert clicks == []
+    assert not ok.down

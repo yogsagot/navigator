@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from navkit.events import KeyEvent, MouseClickEvent, PasteEvent
+from navkit.events import KeyEvent, KeyReleaseEvent, MouseClickEvent, PasteEvent
 from navkit.terminal import InputParser
 
 
@@ -216,7 +216,22 @@ def test_the_kitty_escape_key_needs_no_timeout(parser):
 
 
 def test_a_released_key_is_not_a_key(parser):
-    assert parser.feed(b"\x1b[97;1:3u\x1b[15;1:3~") == []
+    events = parser.feed(b"\x1b[97;1:3u\x1b[15;1:3~")
+    assert not any(isinstance(e, KeyEvent) for e in events)
+    assert events == [KeyReleaseEvent("a", "a"), KeyReleaseEvent("f5")]
+
+
+def test_a_kitty_press_says_its_release_will_follow(parser):
+    (press,) = parser.feed(b"\x1b[32u")
+    assert press == KeyEvent(" ", " ")
+    assert press.releases is True
+    (release,) = parser.feed(b"\x1b[32;1:3u")
+    assert release == KeyReleaseEvent(" ", " ")
+
+
+def test_a_legacy_press_promises_no_release(parser):
+    (press,) = parser.feed(b" ")
+    assert press.releases is False
 
 
 def test_a_bare_modifier_moves_the_held_set_and_nothing_else(parser):

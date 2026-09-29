@@ -8,6 +8,8 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
+from navkit.reactive import unbind
+from navml.widgets.dialog.button import Button
 
 
 class SearchProgress(Dialog, _Component):
