@@ -128,7 +128,7 @@ $scrollbar-arrow-fg: black;           /*  [ 84] Scroll bar icons -- CDoubleWindo
 $scrollbar-arrow-bg: white;
 
 /* -- File Panel ---------------------------------------------------------- */
-$panel-fg: light_gray;                /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] */
+$panel-fg: #d8d8d8;                   /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
 $panel-bg: dark_gray;
 $marked-fg: yellow;                   /*  [ 87] Selected text -- CDoubleWindow[8] -> CPanel[3] */
 $marked-bg: dark_gray;
@@ -136,13 +136,13 @@ $cursor-fg: black;                    /*> [ 88] Normal cursor -- CDoubleWindow[9
 $cursor-bg: cyan;
 $marked-cursor-fg: yellow;            /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
 $marked-cursor-bg: cyan;
-$divider-fg: white;                   /*  [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
+$divider-fg: white;                   /*> [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
 $divider-bg: dark_gray;
 $active-title-fg: white;              /*> [ 90] Directory active -- CDoubleWindow[11] -> CTopView[1] */
 $active-title-bg: cyan;
 $title-fg: white;                     /*> [ 91] Directory passive -- CDoubleWindow[12] -> CTopView[2] */
 $title-bg: dark_gray;
-$column-title-fg: yellow;             /*  [165] Column title -- CDoubleWindow[32] -> CPanel[6] */
+$column-title-fg: yellow;             /*> [165] Column title -- CDoubleWindow[32] -> CPanel[6] */
 $column-title-bg: dark_gray;
 
 /* -- Highlight ----------------------------------------------------------- */
@@ -246,7 +246,7 @@ $editor-scroll-bar-page-fg: white;    /*  [ 74] Scroll bar page */
 $editor-scroll-bar-page-bg: dark_gray;
 $editor-scroll-bar-icons-fg: black;   /*  [ 75] Scroll bar icons */
 $editor-scroll-bar-icons-bg: white;
-$editor-normal-text-fg: light_gray;   /*  [ 76] Normal text */
+$editor-normal-text-fg: #d8d8d8;      /*  [ 76] Normal text -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
 $editor-normal-text-bg: dark_gray;
 $editor-selected-text-fg: white;      /*  [ 77] Selected text */
 $editor-selected-text-bg: light_gray;

@@ -672,11 +672,12 @@ def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     theme that redefines one variable should reach the frame colour without
     touching a single rule.
     """
-    from navkit.style import LIGHT_GRAY, RED
+    from navkit.style import RED
 
     # $panel-fg, out of themes/default.nss: entry 85 of DEFAULT.PAL is $87,
-    # light gray on dark gray.
-    assert panel.style.fg == LIGHT_GRAY
+    # light gray on dark gray, lifted to the viewer's #D8D8D8 by palconv's
+    # DEPARTURES.
+    assert panel.style.fg == (0xD8, 0xD8, 0xD8)
     # A theme is a further sheet loaded after the others, redefining a variable
     # the rules already use -- no rule here is repeated or overridden.
     panel.stylesheet = load_scheme("default", ("theme.nss", "$panel-fg: red;"))

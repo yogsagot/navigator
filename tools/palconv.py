@@ -246,8 +246,17 @@ LIVE = frozenset({1, 2, 4, 85, 86, 88, 90, 91, 165, 172})
 #:   is barely legible on a modern screen.  #D8D8D8 is between light grey
 #:   and white, keeps the ground DN chose, and is the dimmest grey that a
 #:   sixteen-colour terminal rounds to white rather than back to light grey.
+#: * ``default`` [85], the file panel's *Normal text*: the same light grey on
+#:   dark grey in DEFAULT.PAL, lifted to the viewer's #D8D8D8 so a file
+#:   listing reads as the viewer does.
+#: * ``default`` [76], the editor's *Normal text*: likewise, so an edit
+#:   window reads as the viewer does.
 DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]] = {
-    "default": {117: ("#d8d8d8", None, "lighter text, for contrast")},
+    "default": {
+        76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
+        85: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
+        117: ("#d8d8d8", None, "lighter text, for contrast"),
+    },
 }
 
 #: The palette-string compositions, for the entries where one was worked out.
