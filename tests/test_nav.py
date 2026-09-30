@@ -2634,7 +2634,7 @@ ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
               "  Z Zoom  X Exit")
 CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  K Desc  L Info"
                "  T Tree  Q Preview")
-SHIFT_STATUS = (" F1 Arc  F2 Ext  F3 Phones  F4 Edit...  F5 Split/Combine"
+SHIFT_STATUS = (" F1 Arc  F2 Ext  F3 Phones  F4 Edit...  F5 SymLnk"
                 "  F6 Reanimate  F8 Del")
 
 

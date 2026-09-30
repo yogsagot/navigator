@@ -16,11 +16,11 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove    # manager.nml:1
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove    # manager.nml:1
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View    # manager.nml:2
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed    # manager.nml:3
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup    # manager.nml:4
-from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine    # manager.nml:5
+from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy    # manager.nml:5
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode    # manager.nml:6
 from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace    # manager.nml:7
 from navigator.widgets.directory_tree import DirectoryTree    # manager.nml:8
@@ -102,7 +102,7 @@ class Manager(Window, _Component):
         'shift+f2': ExtractArchive,    # manager.nml:78
         'shift+f3': PhoneBook,    # manager.nml:79
         'shift+f4': EditNamed,    # manager.nml:80
-        'shift+f5': SplitCombine,    # manager.nml:81
+        'shift+f5': MakeLink,    # manager.nml:81
         'shift+f6': Reanimate,    # manager.nml:82
         'shift+f8': DeleteSingle,    # manager.nml:83
     }

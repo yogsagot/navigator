@@ -134,19 +134,23 @@ class CopyDialog(Dialog):
         return True
 
     async def choose_target(self) -> None:
-        """``ExecTree``: *Choose Directory*, and the line becomes where it points.
+        await choose_target_line(self, self._here, self._hidden)
 
-        The tree opens on the directory the line names, if there is one, and
-        on the panel's otherwise.
-        """
-        from navigator.widgets.change_dir_dialog import ChangeDirDialog
 
-        typed = Path(self.target.value.strip() or ".").expanduser()
-        start = typed if typed.is_absolute() else self._here / typed
-        while not start.is_dir() and start != start.parent:
-            start = start.parent
-        chosen = await ChangeDirDialog(start=start, hidden=self._hidden).execute(self.application)
-        if chosen is not None:
-            self.target.value = str(chosen).rstrip("/") + "/"
-            self.target.entry.select_all()
-        self.target.entry.focus()
+async def choose_target_line(dialog: Any, here: Path, hidden: bool) -> None:
+    """``ExecTree``: *Choose Directory*, and *dialog*'s ``target`` line becomes where it points.
+
+    The tree opens on the directory the line names, if there is one, and on
+    *here* otherwise.  Shared with Create symlink, whose line means the same.
+    """
+    from navigator.widgets.change_dir_dialog import ChangeDirDialog
+
+    typed = Path(dialog.target.value.strip() or ".").expanduser()
+    start = typed if typed.is_absolute() else here / typed
+    while not start.is_dir() and start != start.parent:
+        start = start.parent
+    chosen = await ChangeDirDialog(start=start, hidden=hidden).execute(dialog.application)
+    if chosen is not None:
+        dialog.target.value = str(chosen).rstrip("/") + "/"
+        dialog.target.entry.select_all()
+    dialog.target.entry.focus()

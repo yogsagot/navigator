@@ -119,6 +119,17 @@ class RenameMove(Command):
     title = "Ren"
 
 
+class MakeLink(Command):
+    """Shift+F5: a symbolic link to each selected entry.  A departure.
+
+    DOS Navigator had no such command -- DOS had no links -- and the key was
+    ``cmPanelLongCopy``'s, *Split/combine*, which spread a file too big for
+    one floppy across several and is not ported.
+    """
+
+    title = "SymLnk"
+
+
 class MakeDirectory(Command):
     title = "MkDir"
 
@@ -467,12 +478,6 @@ class EditNamed(Command):
     title = "Edit..."
 
 
-class SplitCombine(Command):
-    """Shift+F5, ``cmPanelLongCopy``."""
-
-    title = "Split/Combine"
-
-
 class Reanimate(Command):
     """Shift+F6, ``cmReanimator``."""
 
@@ -651,7 +656,6 @@ __all__ = [
     "QuickView",
     "Reanimate",
     "SortBy",
-    "SplitCombine",
     "ToggleDescriptions",
     "InvertSelection",
     "SelectGroup",
@@ -666,6 +670,7 @@ __all__ = [
     "Edit",
     "Help",
     "MakeDirectory",
+    "MakeLink",
     "NewManager",
     "OpenTreeWindow",
     "Quit",

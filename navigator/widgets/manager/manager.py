@@ -25,6 +25,7 @@ from navigator.commands import (
     Edit,
     GoParent,
     MakeDirectory,
+    MakeLink,
     QuickSearch,
     QuickView,
     RenameMove,
@@ -188,7 +189,7 @@ class Manager(Window):
                 # Disabled, so Backspace falls through and edits the line.
                 return False
             return not (self.tree.focused or self.quick.focused)
-        if isinstance(command, (Copy, RenameMove)):
+        if isinstance(command, (Copy, RenameMove, MakeLink)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
             return not (self.tree.focused or self.quick.focused) and bool(
@@ -454,9 +455,6 @@ class Manager(Window):
 
     async def _answer_copy_question(self, question: Any) -> Any:
         """Put one of the worker's questions to the user, and answer as it expects."""
-        from navkit.reactive import unbind
-
-        from navml.widgets.dialog.button import Button
         from navml.widgets.dialog.control import escape_caption
 
         from navigator import filecopy
@@ -478,11 +476,78 @@ class Manager(Window):
                 title="Warning",
             ) is True
         if isinstance(question, filecopy.Failure):
-            box = Dialog(title="Error", prompt=escape_caption(question.message), buttons="ok-cancel")
-            unbind(box.ok, Button.text)
-            box.ok.text = "~S~kip"
-            return await box.execute(app) is True
+            return await self._ask_skip(question.message)
         return None
+
+    async def _ask_skip(self, message: str) -> bool:
+        """An error with *Skip* and *Cancel*: True to go on without this file."""
+        from navkit.reactive import unbind
+
+        from navml.widgets.dialog.button import Button
+        from navml.widgets.dialog.control import escape_caption
+
+        box = Dialog(title="Error", prompt=escape_caption(message), buttons="ok-cancel")
+        unbind(box.ok, Button.text)
+        box.ok.text = "~S~kip"
+        return await box.execute(self.application) is True
+
+    # -- symbolic links ----------------------------------------------------------
+
+    async def on_make_link(self, event: MakeLink) -> bool:
+        """Shift+F5: a symbolic link to each selected entry."""
+        self.spawn(self.make_links())
+        return True
+
+    async def make_links(self) -> None:
+        """Ask where, link each entry there, and let both panels look again.
+
+        ``copy_files``'s shape without the worker: the target is read as
+        Copy's is, a directory that is not there yet is offered as Copy
+        offers it, and a link that cannot be made puts Copy's *Skip* /
+        *Cancel*.  What was linked is untagged.
+        """
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator import filecopy, filelink
+        from navigator.widgets.link_dialog import LinkDialog
+
+        app = self.application
+        panel, other = self.active_panel, self.passive_panel
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        here = Path(panel.path)
+        request = await LinkDialog(
+            entries=entries, here=here, other=Path(other.path), hidden=panel.show_hidden,
+        ).execute(app)
+        if request is None:
+            return
+        destination = filecopy.resolve_target(request.target, request.sources, here)
+        linked: set[str] = set()
+        try:
+            if destination.create:
+                if await self._ask_yes_no(
+                    f"Would you like to create directory {escape_caption(str(destination.directory))}?"
+                ) is not True:
+                    return
+                try:
+                    destination.directory.mkdir(parents=True)
+                except OSError as error:
+                    await self._ask_skip(filecopy.error_message(error))
+                    return
+            for source in request.sources:
+                try:
+                    filelink.make_link(source, destination.path_for(source), request.relative)
+                except OSError as error:
+                    if not await self._ask_skip(filecopy.error_message(error)):
+                        break
+                    continue
+                linked.add(source.name)
+        finally:
+            if linked:
+                panel.marked = panel.marked - linked
+            panel.reload()
+            other.reload()
 
     async def on_view(self, event: View) -> bool:
         """F3: ``cmFileView``, the selected file in a viewer window."""

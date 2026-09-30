@@ -166,6 +166,11 @@ columns as `TCluster` did, which is how the four check boxes fit two rows, and *
 `ProgressBar`** (`navml/widgets/progress_bar/`, `value`/`total`/`percent`, as wide as it is placed, `█▒` from
 navkit's `GAUGES`), which `SearchProgress` uses too. *Copying files* in `navml/DESIGN.md` has
 the rest.
+**Shift+F5 is *Create symlink*** (*File > Create symlink…*), a departure: DN had no links, and the key was
+Split/combine's (`cmPanelLongCopy`, floppy-spanning `LongCopy`), which is dropped. `navigator/filelink.py` is the
+model, and it reads the target with `filecopy.resolve_target`. `LinkDialog` is Copy's dialog cut down, with one
+session-remembered *Relative link* box. `Manager.make_links` makes the links with no worker thread and shares Copy's
+*Skip* box. *Symbolic links* in `navml/DESIGN.md` has the rest.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

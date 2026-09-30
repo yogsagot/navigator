@@ -6,11 +6,11 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, RenameMove
+from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
-from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
+from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
 from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
 from navigator.widgets.directory_tree import DirectoryTree
@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
-from navigator.commands import ChangeDirectory, Copy, Edit, GoParent, MakeDirectory, QuickSearch, QuickView, RenameMove, Rescan, ScrollNames, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
+from navigator.commands import ChangeDirectory, Copy, Edit, GoParent, MakeDirectory, MakeLink, QuickSearch, QuickView, RenameMove, Rescan, ScrollNames, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.widgets.mkdir_dialog import MkdirDialog
 
 
@@ -73,6 +73,9 @@ class Manager(Window, _Component):
     async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None: ...
     async def _ask_yes_no(self, prompt: str, title: str = ...) -> Any: ...
     async def _answer_copy_question(self, question: Any) -> Any: ...
+    async def _ask_skip(self, message: str) -> bool: ...
+    async def on_make_link(self, event: MakeLink) -> bool: ...
+    async def make_links(self) -> None: ...
     async def on_view(self, event: View) -> bool: ...
     async def on_view_as_text(self, event: ViewAsText) -> bool: ...
     async def on_view_as_hex(self, event: ViewAsHex) -> bool: ...

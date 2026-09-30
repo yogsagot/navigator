@@ -344,7 +344,7 @@ class _Copier:
                 try:
                     destination.directory.mkdir(parents=True, exist_ok=True)
                 except OSError as error:
-                    self._fail(destination.directory, _message(error))
+                    self._fail(destination.directory, error_message(error))
                     return done
             job.total_bytes = sum(self._measure(source) for source in request.sources)
             job.measuring = False
@@ -391,7 +391,7 @@ class _Copier:
         try:
             st = os.stat(source) if self.follow else os.lstat(source)
         except OSError as error:
-            return self._fail(source, _message(error))
+            return self._fail(source, error_message(error))
         if stat.S_ISDIR(st.st_mode):
             return self._directory(source, dest, st)
         if stat.S_ISLNK(st.st_mode):
@@ -426,7 +426,7 @@ class _Copier:
                 return True
             except OSError as error:
                 if error.errno != errno.EXDEV:
-                    return self._fail(source, _message(error))
+                    return self._fail(source, error_message(error))
                 # Every directory under this one is across the same line.
                 self._cross_device = True
         self._walking.add(key)
@@ -439,12 +439,12 @@ class _Copier:
                     os.mkdir(dest, (st.st_mode & 0o7777) | 0o700)
                     made = True
             except OSError as error:
-                return self._fail(dest, _message(error))
+                return self._fail(dest, error_message(error))
             try:
                 with os.scandir(source) as it:
                     children = sorted(entry.name for entry in it)
             except OSError as error:
-                return self._fail(source, _message(error))
+                return self._fail(source, error_message(error))
             complete = True
             for name in children:
                 if not self._transfer(source / name, dest / name):
@@ -462,7 +462,7 @@ class _Copier:
                 try:
                     os.rmdir(source)
                 except OSError as error:
-                    return self._fail(source, _message(error))
+                    return self._fail(source, error_message(error))
             return complete
         finally:
             self._walking.discard(key)
@@ -487,14 +487,14 @@ class _Copier:
                 return True
             except OSError as error:
                 if error.errno != errno.EXDEV:
-                    return self._fail(source, _message(error))
+                    return self._fail(source, error_message(error))
         try:
             target = os.readlink(source)
             if os.path.lexists(dest):
                 os.unlink(dest)
             os.symlink(target, dest)
         except OSError as error:
-            return self._fail(source, _message(error))
+            return self._fail(source, error_message(error))
         if self.preserve:
             try:
                 os.utime(dest, ns=(st.st_atime_ns, st.st_mtime_ns), follow_symlinks=False)
@@ -509,7 +509,7 @@ class _Copier:
             try:
                 os.unlink(source)
             except OSError as error:
-                return self._fail(source, _message(error))
+                return self._fail(source, error_message(error))
         return True
 
     def _same_link(self, source: Path, dest: Path) -> bool:
@@ -534,7 +534,7 @@ class _Copier:
             except FileNotFoundError:
                 return "new", dest
             except OSError as error:
-                self._fail(dest, _message(error))
+                self._fail(dest, error_message(error))
                 return "skip", dest
             if stat.S_ISDIR(existing.st_mode):
                 self._fail(dest, f"Can not overwrite directory {dest.name}")
@@ -586,7 +586,7 @@ class _Copier:
             except OSError as error:
                 if error.errno != errno.EXDEV:
                     job.done_bytes += st.st_size
-                    return self._fail(source, _message(error))
+                    return self._fail(source, error_message(error))
         if not self._copy_bytes(source, dest, st, append=action == "append"):
             return False
         if self.preserve:
@@ -595,7 +595,7 @@ class _Copier:
             try:
                 os.unlink(source)
             except OSError as error:
-                return self._fail(source, _message(error))
+                return self._fail(source, error_message(error))
         return True
 
     def _copy_bytes(self, source: Path, dest: Path, st: os.stat_result, *, append: bool) -> bool:
@@ -629,7 +629,7 @@ class _Copier:
             if created:
                 _remove_quietly(dest)
             job.done_bytes = start_done + st.st_size
-            return self._fail(source, _message(error))
+            return self._fail(source, error_message(error))
 
     def _attributes(self, source: Path, dest: Path, st: os.stat_result) -> None:
         """*Preserve attributes*: mode, times and, as root, the owner."""
@@ -644,7 +644,8 @@ class _Copier:
                 pass
 
 
-def _message(error: OSError) -> str:
+def error_message(error: OSError) -> str:
+    """``name: reason``, as an error box shows an ``OSError``."""
     name = Path(error.filename).name if error.filename else ""
     reason = error.strerror or str(error)
     return f"{name}: {reason}" if name else reason

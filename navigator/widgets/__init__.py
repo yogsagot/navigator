@@ -51,6 +51,7 @@ _WIDGETS = {
     "FileWindow": "file_window",
     "GotoDialog": "goto_dialog",
     "KeyBar": "keybar",
+    "LinkDialog": "link_dialog",
     "MainMenu": "main_menu",
     "Manager": "manager",
     "MkdirDialog": "mkdir_dialog",
@@ -99,6 +100,7 @@ if TYPE_CHECKING:
     from navigator.widgets.file_window import FileWindow
     from navigator.widgets.goto_dialog import GotoDialog
     from navigator.widgets.keybar import KeyBar
+    from navigator.widgets.link_dialog import LinkDialog
     from navigator.widgets.manager import Manager
     from navigator.widgets.mkdir_dialog import MkdirDialog
     from navigator.widgets.overwrite_query import OverwriteQuery

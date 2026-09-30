@@ -1,0 +1,82 @@
+from navigator.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Shift+F5: where symbolic links to the selected entries are made.
+#:
+#: A departure with no resource behind it, so it is the Copy dialog cut down:
+#: the prompt and the line in the same rows, one check box where the copy
+#: modes stood, and the same OK / Cancel / Tree / Help along the bottom.
+LinkDialog(Dialog):
+    modal_width: 61
+    modal_height: 10
+    title: "Create symlink"
+
+    #: F10 opens the tree, as it does in the Copy dialog.
+    keys:
+        f10: ChooseTarget
+
+    #: ``Create symlink to file NAME in``: the hand-written half's, as Copy's is.
+    Label:
+        id: prompt_caption
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        link: target.entry
+
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "link"
+
+    #: Bit 1: point at the source relative to the link's directory.
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 4
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["~R~elative link"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: help
+        text: "Help"
+        disabled: True
+        x: 44
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
