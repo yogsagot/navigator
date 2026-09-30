@@ -116,7 +116,9 @@ left of the caption, so a tick costs no width. **Insert tags** (`ToggleMark`, DN
 char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
 selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line
 is empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, bound in `manager.nml` and handled and gated by `Shell`,
-which owns the line). **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`,
+which owns the line). **Backspace goes to the parent directory** (`GoParent(by_key=True)`, DN's `kbBack` under
+`fmoBackGoesBack`, `Panel.go_up`, the cursor on the directory left) while the line is empty, and Ctrl+PgUp (`_CtrlPgUp`,
+which `ListViewer` leaves alone) and Shift+Backspace whatever it holds; otherwise Backspace edits the line. **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`,
 also on Panel's menu): `SelectDialog` asks for a mask -- `;`-separated shell patterns, case folded, `x.*` also
 matching a name with no dot as DOS's did -- seeded selected from `HISTORY["select"]` or `*.*`, with *Except mask*
 ticked by Shift. Selecting passes directories over, unselecting does not (`Panel.select_group`). **Gray `*` is *Invert selection*** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their tag, and Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too. **With text on the command line the Gray keys type instead** (a departure: DN's panel always took them): they are bound in `manager.py` as `by_key=True` instances, and `Manager.enables` disables those while the line has text, so the key falls through to `Shell`; the menu's instances are unaffected. **The plain `+`, `-` and `*` are bound the same way** (Midnight Commander's rule), because xfce4-terminal (VTE) and PyCharm send Gray `+` as a bare `+` even in application keypad mode -- only Ghostty, of those tried, told them apart. navkit names the bare `+` `plus` for it, a spec having no other way to spell it. navkit names the

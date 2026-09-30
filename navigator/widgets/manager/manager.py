@@ -22,6 +22,7 @@ from navml.widgets.window import Window
 from navigator.commands import (
     ChangeDirectory,
     Edit,
+    GoParent,
     MakeDirectory,
     QuickView,
     Rescan,
@@ -71,6 +72,11 @@ class Manager(Window):
         "shift+kp_plus": SelectGroup(invert=True, by_key=True),
         "shift+kp_minus": UnselectGroup(invert=True, by_key=True),
         "ctrl+kp_multiply": InvertSelection(directories=True, by_key=True),
+        #: DN's ``fmoBackGoesBack``: Backspace goes up while the command line
+        #: is empty, and Shift+Backspace and Ctrl+PgUp whatever it holds.
+        "backspace": GoParent(by_key=True),
+        "shift+backspace": GoParent(),
+        "ctrl+pageup": GoParent(),
     }
 
     #: How long the tree's cursor has to rest before the panel follows it:
@@ -166,6 +172,11 @@ class Manager(Window):
                 # Disabled, so the key falls through and types its character.
                 return False
             return not (self.tree.focused or self.quick.focused)
+        if isinstance(command, GoParent):
+            if command.by_key and self._command_line_has_text():
+                # Disabled, so Backspace falls through and edits the line.
+                return False
+            return not (self.tree.focused or self.quick.focused)
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
@@ -184,6 +195,10 @@ class Manager(Window):
                 return bool(line.value)
             widget = widget.parent
         return False
+
+    async def on_go_parent(self, event: GoParent) -> bool:
+        self.active_panel.go_up()
+        return True
 
     async def on_toggle_mark(self, event: ToggleMark) -> bool:
         """Insert: tag the active panel's entry and step down."""

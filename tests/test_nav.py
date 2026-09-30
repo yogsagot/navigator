@@ -1274,6 +1274,67 @@ def test_space_types_once_the_command_line_has_text(tree):
     assert app.manager.left.marked == frozenset()
 
 
+def test_go_up_lands_on_the_directory_it_left(panel, tree):
+    panel.path = tree / "alpha"
+    settle()
+    panel.go_up()
+    settle()
+    assert panel.path == tree
+    assert panel.selected.name == "alpha"
+
+
+def test_go_up_at_the_root_stays(panel):
+    panel.path = pathlib.Path("/")
+    settle()
+    panel.go_up()
+    settle()
+    assert panel.path == pathlib.Path("/")
+
+
+def test_backspace_goes_up_while_the_command_line_is_empty(tree):
+    """DN's ``fmoBackGoesBack``."""
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
+        lambda a: a.post_event(KeyEvent("backspace")),
+    ])
+    assert app.manager.left.path == tree
+    assert app.manager.left.selected.name == "alpha"
+
+
+def test_backspace_edits_the_command_line_once_it_has_text(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"],
+        lambda a: a.post_event(KeyEvent("backspace")),
+    ])
+    assert app.shell.command_line.value == "l"
+    assert app.manager.left.path == tree
+
+
+def test_shift_backspace_goes_up_whatever_the_command_line_holds(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"],
+        lambda a: a.post_event(KeyEvent("backspace", shift=True)),
+    ])
+    assert app.shell.command_line.value == "ls"
+    assert app.manager.left.path == tree.parent
+
+
+@pytest.mark.parametrize("line", ["", "ls"])
+def test_ctrl_pageup_goes_up_whatever_the_command_line_holds(tree, line):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
+        lambda a: [a.post_event(KeyEvent(c, c)) for c in line],
+        lambda a: a.post_event(KeyEvent("pageup", ctrl=True)),
+    ])
+    assert app.shell.command_line.value == line
+    assert app.manager.left.path == tree
+    assert app.manager.left.selected.name == "alpha"
+
+
 @pytest.fixture
 def mixed(tmp_path):
     for name in ("a.txt", "B.TXT", "c.py", "Makefile", "notes.md"):

@@ -332,6 +332,22 @@ class ToggleMarkBySpace(Command):
 
 
 @dataclass(frozen=True, slots=True)
+class GoParent(Command):
+    """Ctrl+PgUp, ``_CtrlPgUp``: the parent directory, the cursor on the one
+    just left.
+
+    Backspace too, DN's ``kbBack`` under ``fmoBackGoesBack``, which ran
+    ``_CtrlPgUp`` when ``CmdLine.Str`` was empty or Shift was held
+    (``ShiftState and 3 <> 0``) and otherwise left the key to the command
+    line.  *by_key* is that Backspace, as it is for :class:`SelectGroup`:
+    with text on the line it steps aside.  Ctrl+PgUp and Shift+Backspace never
+    do.
+    """
+
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
 class SelectGroup(Command):
     """Gray ``+``, ``cmPanelSelect``: tag every file a mask matches.
 

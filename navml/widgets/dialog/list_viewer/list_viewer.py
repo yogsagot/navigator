@@ -165,7 +165,9 @@ class ListViewer(Control):
             self.move_cursor(-1)
         elif event.key == "down":
             self.move_cursor(1)
-        elif event.key == "pageup":
+        elif event.key == "pageup" and not event.ctrl:
+            # Not Ctrl+PgUp: a file panel's "parent directory", which a list
+            # taking it as PgUp would hide from every key table behind it.
             self.move_cursor(-self.page())
         elif event.key == "pagedown":
             self.move_cursor(self.page())

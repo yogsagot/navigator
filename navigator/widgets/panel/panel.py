@@ -317,6 +317,18 @@ class Panel(ListViewer):
         self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
 
+    def go_up(self) -> None:
+        """Go to the parent directory, the cursor on the one just left.
+
+        DN's ``_CtrlPgUp``: what choosing ``..`` does, from anywhere in the
+        listing.  At the root there is nowhere to go and nothing happens.
+        """
+        parent = (self.path / "..").resolve()
+        if parent == self.path:
+            return
+        self._return_to = self.path.name
+        self.path = parent
+
     # -- tagging -------------------------------------------------------------
 
     def is_marked(self, item: DirEntry) -> bool:
