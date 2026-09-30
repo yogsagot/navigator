@@ -36,8 +36,8 @@ from navigator.commands import Help, NewManager, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
-from navigator.widgets.manager import Manager
-from navigator.widgets.shell import Shell
+from navigator.widgets.manager.manager import Manager
+from navigator.widgets.shell.shell import Shell
 
 
 class Navigator(Application):

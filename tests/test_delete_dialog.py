@@ -17,13 +17,13 @@ from navkit.screen import ScreenBuffer
 from navigator import fileerase
 from navigator.commands import Delete, DeleteSingle
 from navigator.fileerase import EraseRequest, NotEmpty, ReadOnly
-from navigator.widgets.delete_dialog import DeleteDialog
-from navigator.widgets.delete_dialog import delete_dialog as delete_dialog_module
-from navigator.widgets.delete_dialog.delete_dialog import RECURSIVE, cut, prompt_for
-from navigator.widgets.delete_progress import DeleteProgress
-from navigator.widgets.erase_query import EraseQuery
-from navigator.widgets.panel import DirEntry
-from navigator.widgets.shell import Shell
+from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+from navigator.widgets.file_ops.delete_dialog import delete_dialog as delete_dialog_module
+from navigator.widgets.file_ops.delete_dialog.delete_dialog import RECURSIVE, cut, prompt_for
+from navigator.widgets.file_ops.delete_progress import DeleteProgress
+from navigator.widgets.file_ops.erase_query import EraseQuery
+from navigator.widgets.manager.panel import DirEntry
+from navigator.widgets.shell.shell import Shell
 
 
 @pytest.fixture(autouse=True)

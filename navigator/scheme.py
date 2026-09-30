@@ -61,7 +61,7 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     function has a body rather than being a constant.**  A sheet is checked
     against the properties widgets declare, and a widget declares them by its
     class body running -- so ``navigator.nss``'s ``icons: auto`` is an unknown
-    property until :class:`~navigator.widgets.panel.Panel` has been imported.
+    property until :class:`~navigator.widgets.manager.panel.Panel` has been imported.
     While every screen lived in one module that was a rule about where to put
     the parse; now it is a rule about what to import before it, so the import
     is here instead of being left to whoever calls.  Ordering is the price of
@@ -69,7 +69,7 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     """
     import navml.widgets
 
-    import navigator.widgets.panel  # noqa: F401 -- declares `icons'
+    import navigator.widgets.manager.panel  # noqa: F401 -- declares `icons'
 
     # And every library widget, because the sheet below styles them and a
     # `StyleProperty' is registered by its class body running.  One call

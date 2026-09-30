@@ -111,6 +111,13 @@ There are two groups:
   `cluster/`, `static_text/`, `label/`, `button/`, `input_line/`, `check_boxes/`, `radio_buttons/`, `scroll_bar/`,
   `list_viewer/`, `modal/`, `dialog/` and `field/`.
 
+**The application's widgets follow the same rule.** `navigator/widgets/` groups its screens by what the user is
+doing: `shell/` (the root `Shell`, `Console`, `KeyBar`, `MainMenu`, `Clock`, `CommandLine`, `CompletionList`),
+`manager/` (`Manager`, `Panel`, `SelectDialog`), `file_ops/` (copy, move, link, mkdir and erase: dialogs, progress
+boxes and queries), `tree/`, `viewer/` and `editor/`, with `about_dialog/` alone at the top. `shell` and `manager`
+have a central component of the group's name; the other four, like `menu/`, do not. The group names do not collide
+with the model packages `navigator.viewer` and `navigator.editor`, because every import is absolute.
+
 `Window`, `Desktop`, `Timer` and `Spacer` belong to neither group and stay at the top. The import names one level deeper —
 `from navml.widgets.layout.horizontal_layout import HorizontalLayout` — while `from navml.widgets import
 HorizontalLayout` is unchanged, because `_COMPONENTS` maps a name to a dotted path under the library
@@ -481,7 +488,7 @@ because of it.
 
 ### What the library took from `Panel`, and what it left
 
-`ListViewer` is `navigator/widgets/panel/panel.py`'s generic half, extracted: the reactive `items`/`cursor`/`scroll`,
+`ListViewer` is `navigator/widgets/manager/panel/panel.py`'s generic half, extracted: the reactive `items`/`cursor`/`scroll`,
 the `rows` computed, the two invariants that keep them honest, the framed container with its centred title and
 footer, the row painting, the row hit-test, and the list keys that used to sit in `Manager.on_key`. What stayed is
 everything about *files*.
@@ -715,7 +722,7 @@ from DOS Navigator 1.51's source rather than remembered:
 The six colours are the Colors dialog's *Menus* group, slots [2] to [7], shared with the status line exactly as the
 original shares them.
 
-**Navigator's menu is DOS Navigator 1.51's own.** `navigator/widgets/main_menu/main_menu.nml` transcribes
+**Navigator's menu is DOS Navigator 1.51's own.** `navigator/widgets/shell/main_menu/main_menu.nml` transcribes
 `dlgMainMenu` from `DN.DNR`: `≡ File Disk Utilities Panel Manager Options Window`, with all 140 entries in the
 original's order. It replaced a `Left Files Commands Options Right` bar with F9 PullDn and F10 Quit, which is
 Norton Commander's and not DOS Navigator's. In the original, F10 is `cmMenu` and Exit is Alt+X, and the key bar
@@ -847,7 +854,7 @@ Make directory got DOS Navigator's `hsMakeDir`.
 ## Trees
 
 `navml/widgets/dialog/tree_view/` is DOS Navigator's `TTreeView` (`TREE.PAS`), and Navigator's
-`navigator/widgets/directory_tree/` is its `THTreeView`, the tree a panel becomes.
+`navigator/widgets/tree/directory_tree/` is its `THTreeView`, the tree a panel becomes.
 
 **The rows are a flat list**, as DOS Navigator's `DC` collection is: the visible nodes, depth first, each knowing its
 level. So `TreeView` is a `ListViewer` whose items are those rows, re-flattened whenever a branch opens or closes,
@@ -913,7 +920,7 @@ list that was, and it keeps a list that gives up rows of its own (the tree's inf
 through them.
 
 **Panel > Change directory (Alt+T) is `TTreeDialog`**, which `ChangeDir` opened as *Choose Directory*:
-`navigator/widgets/change_dir_dialog/`. Every rectangle is `TTreeDialog.Init`'s, in a 49 by 17 dialog:
+`navigator/widgets/tree/change_dir_dialog/`. Every rectangle is `TTreeDialog.Init`'s, in a 49 by 17 dialog:
 
 - The tree fills the left, 34 by 14.
 - The path under the cursor is the one row below it: `TDTreeInfoView`, one row tall, so only its first line shows.
@@ -937,7 +944,7 @@ never had frames; a dialog's or a window's frame was theirs. A file panel has on
 on and every list that existed is unchanged. Off, the rows begin at the edge (`inset` is 0) and the scroll bar
 takes the last column (`inner_width` is one less than the width), as `TScrollBar` sat beside its view.
 
-**Disk > Directory tree is `TTreeWindow`** (`navigator/widgets/tree_window/`), a window on the desktop titled
+**Disk > Directory tree is `TTreeWindow`** (`navigator/widgets/tree/tree_window/`), a window on the desktop titled
 *Directory Tree*. DOS Navigator 1.51 **defined this window and never opened it**. Its `cmCreateTree` went to
 `OpenTreeWindow` in `DNUTIL.PAS` instead, which asked for a directory with `ChangeDir` and opened a second file
 manager there with its tree panel showing. Navigator opens the window as designed, a deliberate choice rather than a
@@ -965,8 +972,8 @@ F3 is DOS Navigator 1.51's internal viewer, `FVIEWER.PAS`, in three places:
 
 - `navigator/viewer.py` is the model: `Seek`, `MakeLines`, `CountUp`, `CountDown` and `SearchFileStr`, with no
   widget in it.
-- `navigator/widgets/file_viewer/` is `TFileViewer`, Python-only because everything it shows is painted.
-- `navigator/widgets/file_window/` is `TFileWindow`. It is markup: the viewer inside the frame, `TViewScroll` as
+- `navigator/widgets/viewer/file_viewer/` is `TFileViewer`, Python-only because everything it shows is painted.
+- `navigator/widgets/viewer/file_window/` is `TFileWindow`. It is markup: the viewer inside the frame, `TViewScroll` as
   navml's `ScrollBar` on the right frame column, and `TViewInfo` as a `StaticText` over the bottom frame row.
 
 It is the application's, not the library's, because `TFileViewer` was DN's and never Turbo Vision's.
@@ -1014,7 +1021,7 @@ It is the application's, not the library's, because `TFileViewer` was DN's and n
 - **It opens zoomed**, like the file manager. DN reused the last viewer's rectangle (`LastViewerBounds`) and filled
   the desktop only the first time. That was the user's choice, and it is a departure.
 
-**A search that outlives two timer ticks shows DOS Navigator's `TWhileView`** (`navigator/widgets/search_progress/`).
+**A search that outlives two timer ticks shows DOS Navigator's `TWhileView`** (`navigator/widgets/viewer/search_progress/`).
 That is `NewTimer(Tmr, 2)` at 18.2 Hz, `PROGRESS_DELAY`.
 
 - **The box:** *Search Progress* on a double frame with no close icon. Inside are `StrGrd`'s gauge (`█` done, `▒`
@@ -1027,7 +1034,7 @@ That is `NewTimer(Tmr, 2)` at 18.2 Hz, `PROGRESS_DELAY`.
   not how much work is done.
 - **Stopping:** a stopped search is DN's `-2`, so nothing is said about finding nothing.
 
-**Ctrl+Q is `SwitchView(dtView)`** (`navigator/widgets/quick_viewer/`). The viewer is the F3 window's `FileViewer`,
+**Ctrl+Q is `SwitchView(dtView)`** (`navigator/widgets/viewer/quick_viewer/`). The viewer is the F3 window's `FileViewer`,
 in the passive panel's place, and it works exactly as Ctrl+T does, because both now go through one
 `Manager.switch_view`:
 
@@ -1171,7 +1178,7 @@ at the indent, not blanks, when nothing follows. A Tab inserts blanks to the nex
 F5 and F6 are DOS Navigator's copy (`FILECOPY.PAS`). There are three layers, the viewer's and the editor's again:
 
 - **`navigator/filecopy.py`** is the model. It imports no widget, and `run(request, job, cwd)` is the worker.
-- **`CopyDialog`** (`navigator/widgets/copy_dialog/`) is `dlgCopyDialog` and `dlgRenameDialog` in one document,
+- **`CopyDialog`** (`navigator/widgets/file_ops/copy_dialog/`) is `dlgCopyDialog` and `dlgRenameDialog` in one document,
   titled by `move`, as `SelectDialog` is two resources in one.
 - **`Manager.copy_files`** asks, runs the worker through `asyncio.to_thread`, and puts up `CopyProgress` (DN's
   `TWhileView`) and `OverwriteQuery` (`dlgOverwriteQuery`) as they are needed.
@@ -1275,7 +1282,7 @@ It borrows everything it can from Copy.
 - **`navigator/filelink.py`** is the model: `LinkRequest`, `link_path` and `make_link`. The target line is read by
   `filecopy.resolve_target`, so a directory, a name ending in `/`, a `MkName` mask and a single new name mean what
   they mean to F5. A link is one system call, so there is no thread, no job and no progress box.
-- **`LinkDialog`** (`navigator/widgets/link_dialog/`) is the Copy dialog cut down. It has the same prompt shape
+- **`LinkDialog`** (`navigator/widgets/file_ops/link_dialog/`) is the Copy dialog cut down. It has the same prompt shape
   (`Create symlink to file NAME in`), a line seeded from the passive panel with its own `"link"` history, and one
   *Relative link* check box. Tree and F10 go through `copy_dialog.choose_target_line`, the Tree logic both dialogs
   share.
@@ -2635,10 +2642,10 @@ The markup for the desktop `navigator/__main__.py` builds by hand today, matchin
 `Manager._place()` as it now stands:
 
 ```
-from navigator.widgets.console import Console
-from navigator.widgets.keybar import KeyBar
+from navigator.widgets.shell.console import Console
+from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.menubar import MenuBar
-from navigator.widgets.panel import Panel
+from navigator.widgets.manager.panel import Panel
 
 Manager:
     property console_visible: False
@@ -2683,7 +2690,7 @@ The four import lines name a package that **now exists**: `navigator/widgets/`, 
 `navigator/__main__.py`, and while `from navigator.__main__ import Panel` would have resolved, it would have resolved
 to a *second* copy of the module `python -m navigator` is already running as `__main__` — so moving them out was the
 prerequisite for any of this compiling, and it is done. The move also turned one implicit rule into a stated one:
-`load_scheme()` imports `navigator.widgets.panel` before it parses, because `navigator.nss` names the `icons` property
+`load_scheme()` imports `navigator.widgets.manager.panel` before it parses, because `navigator.nss` names the `icons` property
 that class declares. That is a consequence of the import spelling rather than a cost of it: the
 document says where its children come from, and saying it makes the problem visible at the top of the file instead of
 at run time.
@@ -3096,8 +3103,8 @@ Three small things for `alias`, and **all three are now there**:
 
 ### What converting `Manager` needed, and what it turned up
 
-**The conversion is done, and the frames match.** `navigator/widgets/manager/manager.nml` is the desktop and
-`navigator/widgets/manager/manager.py` is the handlers. The proof is the one this section always asked for and is worth
+**The conversion is done, and the frames match.** `navigator/widgets/manager/manager/manager.nml` is the desktop and
+`navigator/widgets/manager/manager/manager.py` is the handlers. The proof is the one this section always asked for and is worth
 keeping the shape of: run both trees — the commit before the conversion and the one after — on a pty at 80x24 against
 the same two absolute paths, read the escape stream each writes up to its first complete frame, and compare. It is
 3725 bytes either way and `cmp` reports no difference, so the desktop is not merely equivalent but identical down to

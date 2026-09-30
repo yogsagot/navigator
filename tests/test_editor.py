@@ -180,7 +180,7 @@ def row_of(buffer: ScreenBuffer, y: int) -> str:
 
 
 def editor_window(app):
-    from navigator.widgets.edit_window import EditWindow
+    from navigator.widgets.editor.edit_window import EditWindow
 
     window = app.shell.desktop.active_window
     return window if isinstance(window, EditWindow) else None

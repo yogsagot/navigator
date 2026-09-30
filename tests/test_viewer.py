@@ -208,7 +208,7 @@ def row_of(buffer: ScreenBuffer, y: int) -> str:
 
 
 def opened(app):
-    from navigator.widgets.file_window import FileWindow
+    from navigator.widgets.viewer.file_window import FileWindow
 
     window = app.shell.desktop.active_window
     return window if isinstance(window, FileWindow) else None
@@ -315,7 +315,7 @@ def test_a_search_again_finds_the_next_hit_and_marks_it(files, monkeypatch):
 
 
 def test_f7_asks_and_finds(files, monkeypatch):
-    from navigator.widgets.viewer_find_dialog import ViewerFindDialog
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
 
     monkeypatch.setattr(viewer_model, "last_search", None)
     app = navigator(files)
@@ -373,7 +373,7 @@ def painted_row(widget) -> str:
 
 
 def test_a_long_search_shows_its_progress_and_finds(files, slow_search):
-    from navigator.widgets.search_progress import SearchProgress
+    from navigator.widgets.viewer.search_progress import SearchProgress
 
     app = navigator(files)
     seen = []

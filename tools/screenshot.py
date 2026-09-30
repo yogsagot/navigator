@@ -132,8 +132,8 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     from navigator.__main__ import Navigator
     from navigator.scheme import load_scheme
     from navigator.widgets.about_dialog import AboutDialog
-    from navigator.widgets.clock import clock as clock_module
-    from navigator.widgets.console import Console
+    from navigator.widgets.shell.clock import clock as clock_module
+    from navigator.widgets.shell.console import Console
 
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
     Console.start = lambda self, argv=None: None

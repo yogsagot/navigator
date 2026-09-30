@@ -20,12 +20,12 @@ are now answered (`Application.background`, and where the console's key routing 
 widget library by their own argument: which parts and properties the library widgets declare, which glyphs beyond a
 box frame they need, and what a full-screen child does.
 
-**The toolchain is proved end to end: `navigator/widgets/manager/manager.nml` is the desktop.** The conversion `navml`
+**The toolchain is proved end to end: `navigator/widgets/manager/manager/manager.nml` is the desktop.** The conversion `navml`
 existed to make possible is done, and it is a byte-for-byte proof rather than a plausible one — the commit before it
 and the commit after paint the same 3725 bytes on a pty at 80x24, `cmp`-identical. `manager.py` keeps the handlers and
 the three seeded values; the tree, the geometry and the `visible` flags are markup.
 
-**The screen is now a desktop of overlapping windows.** The root is `navigator/widgets/shell/` — menu bar, `Console`,
+**The screen is now a desktop of overlapping windows.** The root is `navigator/widgets/shell/shell/` — menu bar, `Console`,
 navml's `Desktop` over it, key bar — and `Manager` is a frameless `Window` on that desktop, opened zoomed, which the
 user can drag, resize from its corner, zoom with `[↕]`/`[↑]`, close with `[■]`, and bring forward by clicking it.
 **The console is the background and is always showing**; Ctrl+O hides the desktop, which is one `visible` binding.
@@ -45,13 +45,13 @@ widgets and their states, `tools/palconv.py` had already transcribed all 144 slo
 *Dialogs* group is the specification. Thirteen components — `Control`, `Cluster`, `StaticText`, `Label`, `Button`,
 `InputLine`, `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Modal`, `Dialog`, `Field` — plus `Spacer`, and
 since then `Window` and `Desktop`, which are Turbo Vision's rather than the Colors dialog's, and `Timer`, which paints
-nothing and emits `TimerEvent` every `interval` ms — Navigator's `Clock` (`navigator/widgets/clock/`, top-right of the
+nothing and emits `TimerEvent` every `interval` ms — Navigator's `Clock` (`navigator/widgets/shell/clock/`, top-right of the
 menu bar, `HH:MM` with a blinking colon, coloured by the Colors dialog's *Timer* slot `[1]`) is built on it.
 `navigator/styles/navigator.nss` binds them to the `$dialog-*` variables the eleven themes had been carrying inert,
 and **F7 Mkdir is the first dialog wired into the application**, proved on a pty. *The widget library* in
 `navml/DESIGN.md` records what each decision cost. **Menus are written** (`navml/widgets/menu/`, slots `[2-7]`):
 `MenuBar`, `MenuBox`, and `SubMenu`/`MenuItem`/`MenuLine` blocks that are invisible data widgets. Navigator's menu
-is DOS Navigator 1.51's own `dlgMainMenu`, transcribed into `navigator/widgets/main_menu/main_menu.nml`, with every
+is DOS Navigator 1.51's own `dlgMainMenu`, transcribed into `navigator/widgets/shell/main_menu/main_menu.nml`, with every
 entry whose feature does not exist greyed. **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`),
 and `MenuBar`/`SubMenu` share `MenuContainer`'s Python API for plugins: `add_item`/`add_submenu`/`add_line` with
 `before=`/`after=` anchors (an entry, a caption, or a command), `remove_entry`, `move_entry`, `entry`,
@@ -64,13 +64,13 @@ library's `TreeView` (a `ListViewer` of flattened, lazily loaded `TreeNode`s dra
 and Navigator's `DirectoryTree`, which Ctrl+T puts in the passive panel's place (`DBLWND.PAS`'s `SwitchView`):
 the tree follows the active panel, and Enter or a resting cursor sends the panel where the tree points. *Trees* in
 `navml/DESIGN.md` has the rest. **Alt+T is DOS Navigator's *Choose Directory*** (`TTreeDialog`,
-`navigator/widgets/change_dir_dialog/`): the tree frameless in a dialog (`ListViewer.framed = False`), the path under
+`navigator/widgets/tree/change_dir_dialog/`): the tree frameless in a dialog (`ListViewer.framed = False`), the path under
 it, and OK / Drive (disabled: one root) / Re-read / MkDir / Cancel down the right; OK sends the active panel there.
 **Manager > New (Ctrl+F3) is `cmCreatePanel`**: another `Manager` window, zoomed to the desktop, both panels on
 the active panel's directory (DOS Navigator asked for a drive first; one root has none to ask for). Ctrl+F3 is on the
 application's key table so it works with no file manager open. With several open, **`Shell.active_manager`** -- the
 file manager nearest the top of the desktop -- is what "the file manager" means; `shell.manager` / `app.manager`
-stay the first one. **Disk > Directory tree opens `TTreeWindow`** (`navigator/widgets/tree_window/`): a *Directory Tree*
+stay the first one. **Disk > Directory tree opens `TTreeWindow`** (`navigator/widgets/tree/tree_window/`): a *Directory Tree*
 window on the desktop in the dialog palette, Esc closes it, and Enter sends the file manager's active panel there
 (the tree's `ChosenEvent` bubbles to `Shell`). DOS Navigator 1.51 defined that window but never opened it; its menu
 entry opened a second file manager instead -- taking the window was a choice, recorded in *Trees*.
@@ -187,7 +187,7 @@ The home page is an **OSC 8 hyperlink**: `Style.link` is a per-cell URL that `re
 switches cells, exactly as it switches SGR; it is not in `STYLE_FIELDS`, so no sheet can declare one.
 `TerminalInfo.hyperlinks` gates it -- on for any interactive terminal but `TERM=linux`, whose console prints OSC 8's
 tail as text -- and `NAVKIT_HYPERLINKS=on|off` overrides. `StaticText.links` marks the `http(s)://` runs it paints.
-**The command line is DOS Navigator's `TCommandLine`** (`navigator/widgets/command_line/`, a Python-only
+**The command line is DOS Navigator's `TCommandLine`** (`navigator/widgets/shell/command_line/`, a Python-only
 `InputLine`): one row above the key bar, docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07` the
 original drew it in (the one literal-colour rule in `navigator.nss`). **Its prompt is the user's own shell prompt**,
 colours and all -- a deliberate departure, since `CMDLINE.PAS`'s `SetDirShape` ignored `PROMPT` and drew `<dir>>`,
@@ -855,10 +855,14 @@ than re-deciding.
 
 ### `navigator` / `nav` — the file manager application
 
-The application is three parts. **`navigator/widgets/` holds the screens**, one directory each — `shell/` (the root:
-the bars, the console and the desktop), `manager/` (the file manager window), `panel/` (whose `panel.py` carries
-`DirEntry` beside `Panel`, and whose `__init__.py` re-exports both), `menubar/`, `keybar/` and `console/` — and it is
-a registered navml component package with lazy re-exports.
+The application is three parts. **`navigator/widgets/` holds the screens**, one directory each, **grouped by purpose
+exactly as `navml/widgets/` is** (*Components come in groups* in `navml/DESIGN.md`): `shell/` (the root `shell/`,
+`console/`, `keybar/`, `main_menu/`, `clock/`, `command_line/`, `completion_list/`), `manager/` (the `manager/`
+window, `panel/` -- whose `panel.py` carries `DirEntry` beside `Panel` and whose `__init__.py` re-exports both --
+and `select_dialog/`), `file_ops/` (copy, move, link, mkdir and erase dialogs, progress boxes and queries), `tree/`,
+`viewer/` and `editor/`; `about_dialog/` belongs to none and stays at the top. A group's `__init__.py` is a docstring,
+`_WIDGETS` maps a name to its dotted path (`"Panel": "manager.panel"`), and `from navigator.widgets import Panel` is
+unchanged. It is a registered navml component package with lazy re-exports.
 **`navigator/scheme.py` holds the sheet**: `load_scheme`, `default_scheme`, `theme_names` and where the `.nss` files
 are. **`navigator/__main__.py` holds the command line**, the terminal it hands to navkit, and the `Navigator`
 application subclass.
@@ -868,7 +872,7 @@ application subclass.
 `Panel` class and two of everything the two copies then disagree about. A widget a document names has to be importable
 by its own name.
 
-**`load_scheme()` imports `navigator.widgets.panel` before it parses**, and that import is the whole reason it has a
+**`load_scheme()` imports `navigator.widgets.manager.panel` before it parses**, and that import is the whole reason it has a
 body. A sheet is checked against the properties widgets declare and a widget declares them by its class body running,
 so `navigator.nss`'s `icons: auto` is an unknown property until `Panel` has been imported. While every screen lived in
 one module this was a rule about where to put the parse; now it is a rule about what to import before it, so the import

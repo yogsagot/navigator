@@ -11,7 +11,7 @@ CTRL_F3 = KeyEvent("f3", ctrl=True)
 
 
 def managers(app):
-    from navigator.widgets.manager import Manager
+    from navigator.widgets.manager.manager import Manager
 
     return [w for w in app.shell.desktop.windows() if isinstance(w, Manager)]
 
@@ -166,7 +166,7 @@ def test_tile_puts_two_file_managers_one_above_the_other(tree):
 
 def test_tile_arranges_the_tree_window_with_the_file_manager(tree):
     from navigator.commands import OpenTreeWindow
-    from navigator.widgets.tree_window import TreeWindow
+    from navigator.widgets.tree.tree_window import TreeWindow
     from navml.commands import TileWindows
 
     app = run(tree, lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None,

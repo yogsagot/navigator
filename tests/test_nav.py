@@ -29,13 +29,13 @@ from navigator import icons
 from navigator import __version__
 from navkit.application import Application
 from navigator.__main__ import Navigator, main, version_banner
-from navigator.widgets.manager import Manager
-from navigator.widgets.mkdir_dialog import MkdirDialog
+from navigator.widgets.manager.manager import Manager
+from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
 from navigator.widgets import Clock, DirEntry, Manager, Panel, Shell
-from navigator.widgets.panel.panel import fit_text, skip_cells, window_text
-from navigator.widgets.clock import clock as clock_module
+from navigator.widgets.manager.panel.panel import fit_text, skip_cells, window_text
+from navigator.widgets.shell.clock import clock as clock_module
 from navml.widgets import Window
 
 
@@ -1139,52 +1139,63 @@ def test_one_widget_does_not_import_the_others():
     """
     loaded = _in_a_fresh_process(
         "import importlib, sys\n"
-        "importlib.import_module('navigator.widgets.keybar')\n"
+        "importlib.import_module('navigator.widgets.shell.keybar')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navigator.widgets.'))))\n"
     )
-    assert loaded == ["navigator.widgets.keybar", "navigator.widgets.keybar.keybar"]
+    # The group's own package comes in too; it is a docstring and imports
+    # none of its members, so `shell.shell' and the console stay out.
+    assert loaded == [
+        "navigator.widgets.shell",
+        "navigator.widgets.shell.keybar",
+        "navigator.widgets.shell.keybar.keybar",
+    ]
 
 
 def test_the_desktop_still_pulls_in_the_screens_it_places():
     """And its own generated half, which is what places them."""
     loaded = _in_a_fresh_process(
         "import importlib, sys\n"
-        "importlib.import_module('navigator.widgets.shell')\n"
+        "importlib.import_module('navigator.widgets.shell.shell')\n"
         "print(' '.join(sorted(m for m in sys.modules "
         "if m.startswith('navigator.widgets.'))))\n"
     )
     assert loaded == [
-        "navigator.widgets.clock",
-        "navigator.widgets.clock.clock",
-        "navigator.widgets.clock.clock_nml",
-        "navigator.widgets.command_line",
-        "navigator.widgets.command_line.command_line",
-        "navigator.widgets.console",
-        "navigator.widgets.console.console",
-        "navigator.widgets.directory_tree",   # Ctrl+T, placed by the manager",
-        "navigator.widgets.directory_tree.directory_tree",
-        "navigator.widgets.file_viewer",
-        "navigator.widgets.file_viewer.file_viewer",
-        "navigator.widgets.keybar",
-        "navigator.widgets.keybar.keybar",
-        "navigator.widgets.main_menu",
-        "navigator.widgets.main_menu.main_menu",
-        "navigator.widgets.main_menu.main_menu_nml",
+        "navigator.widgets.file_ops",
+        "navigator.widgets.file_ops.mkdir_dialog",          # F7, imported by the desktop",
+        "navigator.widgets.file_ops.mkdir_dialog.mkdir_dialog",
+        "navigator.widgets.file_ops.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.manager",
         "navigator.widgets.manager.manager",
-        "navigator.widgets.manager.manager_nml",
-        "navigator.widgets.mkdir_dialog",          # F7, imported by the desktop",
-        "navigator.widgets.mkdir_dialog.mkdir_dialog",
-        "navigator.widgets.mkdir_dialog.mkdir_dialog_nml",
-        "navigator.widgets.panel",
-        "navigator.widgets.panel.panel",
-        "navigator.widgets.quick_viewer",
-        "navigator.widgets.quick_viewer.quick_viewer",
-        "navigator.widgets.quick_viewer.quick_viewer_nml",
+        "navigator.widgets.manager.manager.manager",
+        "navigator.widgets.manager.manager.manager_nml",
+        "navigator.widgets.manager.panel",
+        "navigator.widgets.manager.panel.panel",
         "navigator.widgets.shell",
+        "navigator.widgets.shell.clock",
+        "navigator.widgets.shell.clock.clock",
+        "navigator.widgets.shell.clock.clock_nml",
+        "navigator.widgets.shell.command_line",
+        "navigator.widgets.shell.command_line.command_line",
+        "navigator.widgets.shell.console",
+        "navigator.widgets.shell.console.console",
+        "navigator.widgets.shell.keybar",
+        "navigator.widgets.shell.keybar.keybar",
+        "navigator.widgets.shell.main_menu",
+        "navigator.widgets.shell.main_menu.main_menu",
+        "navigator.widgets.shell.main_menu.main_menu_nml",
         "navigator.widgets.shell.shell",
-        "navigator.widgets.shell.shell_nml",
+        "navigator.widgets.shell.shell.shell",
+        "navigator.widgets.shell.shell.shell_nml",
+        "navigator.widgets.tree",
+        "navigator.widgets.tree.directory_tree",   # Ctrl+T, placed by the manager",
+        "navigator.widgets.tree.directory_tree.directory_tree",
+        "navigator.widgets.viewer",
+        "navigator.widgets.viewer.file_viewer",
+        "navigator.widgets.viewer.file_viewer.file_viewer",
+        "navigator.widgets.viewer.quick_viewer",
+        "navigator.widgets.viewer.quick_viewer.quick_viewer",
+        "navigator.widgets.viewer.quick_viewer.quick_viewer_nml",
     ]
 
 
@@ -1697,7 +1708,7 @@ def test_a_gray_key_types_once_the_command_line_has_text(tree, key, char):
 @pytest.mark.parametrize("char", ["+", "-", "*"])
 def test_the_plain_characters_act_as_the_gray_keys_on_an_empty_line(tree, char):
     """Midnight Commander's rule, for terminals that send Gray + as a plain +."""
-    from navigator.widgets.select_dialog import SelectDialog
+    from navigator.widgets.manager.select_dialog import SelectDialog
 
     app = navigator_with(tree, GLYPHS_UNICODE)
     seen = []
@@ -1731,7 +1742,7 @@ def test_the_menu_entries_work_whatever_the_command_line_holds(tree):
 
 def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
     """End to end: Gray +, the dialog painted, a mask typed, Enter."""
-    from navigator.widgets.select_dialog import SelectDialog
+    from navigator.widgets.manager.select_dialog import SelectDialog
 
     root = mixed.path
 
@@ -1767,7 +1778,7 @@ def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
 def test_the_select_dialog_opens_on_the_last_mask():
     """DN's ``HistoryStr(hsSelectBox, 0)``: the newest mask, shared by both."""
     from navml.history import HISTORY
-    from navigator.widgets.select_dialog import SelectDialog
+    from navigator.widgets.manager.select_dialog import SelectDialog
 
     HISTORY.add("select", "*.py")
     dialog = SelectDialog(select=False)
@@ -1776,7 +1787,7 @@ def test_the_select_dialog_opens_on_the_last_mask():
 
 
 def test_shift_gray_minus_opens_unselect_with_except_ticked(mixed):
-    from navigator.widgets.select_dialog import SelectDialog
+    from navigator.widgets.manager.select_dialog import SelectDialog
 
     root = mixed.path
 
@@ -2920,7 +2931,7 @@ def test_a_tree_window_opened_behind_the_console_brings_the_desktop_back(tree, q
     # Opening a window is what shows it: the desktop announces the opening and
     # the shell hides the console, so no command has to remember to.
     from navigator.commands import OpenTreeWindow
-    from navigator.widgets.tree_window import TreeWindow
+    from navigator.widgets.tree.tree_window import TreeWindow
 
     for hide in (KeyEvent("o", ctrl=True), KeyEvent("f4", ctrl=True)):  # Ctrl+O, or close the last window
         app = navigator(tree)
@@ -3381,7 +3392,7 @@ def test_candidates_that_agree_extend_the_word(tree, quiet_console, completing):
 
 
 def test_candidates_that_do_not_agree_are_listed(tree, quiet_console, completing):
-    from navigator.widgets.completion_list import CompletionList
+    from navigator.widgets.shell.completion_list import CompletionList
 
     completing.start, completing.candidates = 3, ["alpha", "beta"]
     app = navigator(tree)
@@ -3447,7 +3458,7 @@ def test_typing_what_nothing_starts_with_closes_the_list(tree, quiet_console, co
 
 
 def test_the_completion_list_does_not_dim_the_line_being_typed(tree, quiet_console, completing):
-    from navigator.widgets.completion_list import CompletionList
+    from navigator.widgets.shell.completion_list import CompletionList
 
     assert CompletionList.dims_behind is False
 

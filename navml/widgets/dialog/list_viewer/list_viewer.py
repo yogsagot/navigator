@@ -1,6 +1,6 @@
 """The model and the painting behind ``list_viewer.nml``.
 
-Lifted out of ``navigator/widgets/panel/panel.py``, which had all of it and
+Lifted out of ``navigator/widgets/manager/panel/panel.py``, which had all of it and
 was the only widget in the repository that did.  What stayed behind there is
 everything about *files*; what came here is everything about *a list*.
 

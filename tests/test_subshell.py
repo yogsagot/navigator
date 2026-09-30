@@ -18,7 +18,7 @@ import pytest
 
 from navkit.console import ConsoleScreen
 from navigator.subshell import MARK, Subshell
-from navigator.widgets.console.console import prompt_cells
+from navigator.widgets.shell.console.console import prompt_cells
 
 SHELLS = [
     pytest.param(name, marks=pytest.mark.skipif(

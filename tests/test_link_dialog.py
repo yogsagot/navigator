@@ -18,11 +18,11 @@ from navml.history import HISTORY
 from navigator import filelink
 from navigator.commands import MakeLink
 from navigator.filelink import LinkRequest, link_path, make_link
-from navigator.widgets.link_dialog import LinkDialog
-from navigator.widgets.link_dialog import link_dialog as link_dialog_module
-from navigator.widgets.link_dialog.link_dialog import RELATIVE, prompt_for
-from navigator.widgets.panel import DirEntry
-from navigator.widgets.shell import Shell
+from navigator.widgets.file_ops.link_dialog import LinkDialog
+from navigator.widgets.file_ops.link_dialog import link_dialog as link_dialog_module
+from navigator.widgets.file_ops.link_dialog.link_dialog import RELATIVE, prompt_for
+from navigator.widgets.manager.panel import DirEntry
+from navigator.widgets.shell.shell import Shell
 
 
 @pytest.fixture(autouse=True)

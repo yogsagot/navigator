@@ -72,7 +72,7 @@ def test_the_text_leaves_out_what_is_missing():
 
 
 def test_the_about_entry_opens_the_dialog_and_enter_closes_it(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.widgets.console.Console.start", lambda self, argv=None: None)
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     seen = []
     run_app(app, [
@@ -95,7 +95,7 @@ def test_the_about_entry_opens_the_dialog_and_enter_closes_it(tmp_path, monkeypa
 def test_the_home_page_is_a_link(tmp_path, monkeypatch):
     from navkit.screen import ScreenBuffer
 
-    monkeypatch.setattr("navigator.widgets.console.Console.start", lambda self, argv=None: None)
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     homepage = project_info().homepage
     links = []

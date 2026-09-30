@@ -16,6 +16,15 @@ finder looks for a `*_nml.py` beside a module and declines when there is none
 -- and it means the first document dropped in here works without anybody
 remembering this line.
 
+The screens come in groups, by the rule *Components come in groups* in
+`navml/DESIGN.md` sets for the library: `shell/` (the root and what stands
+around the windows), `manager/` (the file manager and its panels),
+`file_ops/` (copy, move, link, mkdir and erase), `tree/`, `viewer/` and
+`editor/`, each a directory of components whose `__init__.py` is a docstring
+and imports nothing.  `about_dialog/` belongs to none and stays at the top.
+`_WIDGETS` maps a name to its dotted path, so `from navigator.widgets import
+Panel` does not care which group `Panel` is in.
+
 The re-exports are lazy for the reason `navml/widgets/__init__.py` explains at
 length: generating a component imports the classes its document names, so a
 package that re-exported eagerly would make importing any one widget import
@@ -36,36 +45,36 @@ navml.register(__name__)
 #: map to `panel': its module carries `DirEntry' beside `Panel'.
 _WIDGETS = {
     "AboutDialog": "about_dialog",
-    "ChangeDirDialog": "change_dir_dialog",
-    "Clock": "clock",
-    "CopyDialog": "copy_dialog",
-    "CopyProgress": "copy_progress",
-    "CommandLine": "command_line",
-    "DeleteDialog": "delete_dialog",
-    "DeleteProgress": "delete_progress",
-    "CompletionList": "completion_list",
-    "Console": "console",
-    "DirEntry": "panel",
-    "DirectoryTree": "directory_tree",
-    "EditWindow": "edit_window",
-    "EraseQuery": "erase_query",
-    "FileEditor": "file_editor",
-    "FileViewer": "file_viewer",
-    "FileWindow": "file_window",
-    "GotoDialog": "goto_dialog",
-    "KeyBar": "keybar",
-    "LinkDialog": "link_dialog",
-    "MainMenu": "main_menu",
-    "Manager": "manager",
-    "MkdirDialog": "mkdir_dialog",
-    "OverwriteQuery": "overwrite_query",
-    "Panel": "panel",
-    "QuickViewer": "quick_viewer",
-    "SearchProgress": "search_progress",
-    "SelectDialog": "select_dialog",
-    "Shell": "shell",
-    "TreeWindow": "tree_window",
-    "ViewerFindDialog": "viewer_find_dialog",
+    "ChangeDirDialog": "tree.change_dir_dialog",
+    "Clock": "shell.clock",
+    "CopyDialog": "file_ops.copy_dialog",
+    "CopyProgress": "file_ops.copy_progress",
+    "CommandLine": "shell.command_line",
+    "DeleteDialog": "file_ops.delete_dialog",
+    "DeleteProgress": "file_ops.delete_progress",
+    "CompletionList": "shell.completion_list",
+    "Console": "shell.console",
+    "DirEntry": "manager.panel",
+    "DirectoryTree": "tree.directory_tree",
+    "EditWindow": "editor.edit_window",
+    "EraseQuery": "file_ops.erase_query",
+    "FileEditor": "editor.file_editor",
+    "FileViewer": "viewer.file_viewer",
+    "FileWindow": "viewer.file_window",
+    "GotoDialog": "viewer.goto_dialog",
+    "KeyBar": "shell.keybar",
+    "LinkDialog": "file_ops.link_dialog",
+    "MainMenu": "shell.main_menu",
+    "Manager": "manager.manager",
+    "MkdirDialog": "file_ops.mkdir_dialog",
+    "OverwriteQuery": "file_ops.overwrite_query",
+    "Panel": "manager.panel",
+    "QuickViewer": "viewer.quick_viewer",
+    "SearchProgress": "viewer.search_progress",
+    "SelectDialog": "manager.select_dialog",
+    "Shell": "shell.shell",
+    "TreeWindow": "tree.tree_window",
+    "ViewerFindDialog": "viewer.viewer_find_dialog",
 }
 
 __all__ = sorted(_WIDGETS)
@@ -89,32 +98,32 @@ if TYPE_CHECKING:
     # A module `__getattr__' answers `Any' to a type checker, which would make
     # every widget untyped at every call site.  These are the real types.
     from navigator.widgets.about_dialog import AboutDialog
-    from navigator.widgets.change_dir_dialog import ChangeDirDialog
-    from navigator.widgets.clock import Clock
-    from navigator.widgets.copy_dialog import CopyDialog
-    from navigator.widgets.copy_progress import CopyProgress
-    from navigator.widgets.command_line import CommandLine
-    from navigator.widgets.completion_list import CompletionList
-    from navigator.widgets.console import Console
-    from navigator.widgets.delete_dialog import DeleteDialog
-    from navigator.widgets.delete_progress import DeleteProgress
-    from navigator.widgets.directory_tree import DirectoryTree
-    from navigator.widgets.edit_window import EditWindow
-    from navigator.widgets.erase_query import EraseQuery
-    from navigator.widgets.file_editor import FileEditor
-    from navigator.widgets.file_viewer import FileViewer
-    from navigator.widgets.file_window import FileWindow
-    from navigator.widgets.goto_dialog import GotoDialog
-    from navigator.widgets.keybar import KeyBar
-    from navigator.widgets.link_dialog import LinkDialog
-    from navigator.widgets.manager import Manager
-    from navigator.widgets.mkdir_dialog import MkdirDialog
-    from navigator.widgets.overwrite_query import OverwriteQuery
-    from navigator.widgets.main_menu import MainMenu
-    from navigator.widgets.panel import DirEntry, Panel
-    from navigator.widgets.quick_viewer import QuickViewer
-    from navigator.widgets.search_progress import SearchProgress
-    from navigator.widgets.select_dialog import SelectDialog
-    from navigator.widgets.shell import Shell
-    from navigator.widgets.tree_window import TreeWindow
-    from navigator.widgets.viewer_find_dialog import ViewerFindDialog
+    from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
+    from navigator.widgets.shell.clock import Clock
+    from navigator.widgets.file_ops.copy_dialog import CopyDialog
+    from navigator.widgets.file_ops.copy_progress import CopyProgress
+    from navigator.widgets.shell.command_line import CommandLine
+    from navigator.widgets.shell.completion_list import CompletionList
+    from navigator.widgets.shell.console import Console
+    from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+    from navigator.widgets.file_ops.delete_progress import DeleteProgress
+    from navigator.widgets.tree.directory_tree import DirectoryTree
+    from navigator.widgets.editor.edit_window import EditWindow
+    from navigator.widgets.file_ops.erase_query import EraseQuery
+    from navigator.widgets.editor.file_editor import FileEditor
+    from navigator.widgets.viewer.file_viewer import FileViewer
+    from navigator.widgets.viewer.file_window import FileWindow
+    from navigator.widgets.viewer.goto_dialog import GotoDialog
+    from navigator.widgets.shell.keybar import KeyBar
+    from navigator.widgets.file_ops.link_dialog import LinkDialog
+    from navigator.widgets.manager.manager import Manager
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+    from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
+    from navigator.widgets.shell.main_menu import MainMenu
+    from navigator.widgets.manager.panel import DirEntry, Panel
+    from navigator.widgets.viewer.quick_viewer import QuickViewer
+    from navigator.widgets.viewer.search_progress import SearchProgress
+    from navigator.widgets.manager.select_dialog import SelectDialog
+    from navigator.widgets.shell.shell import Shell
+    from navigator.widgets.tree.tree_window import TreeWindow
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog

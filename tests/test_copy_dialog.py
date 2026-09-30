@@ -18,11 +18,11 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from navigator import filecopy
 from navigator.filecopy import ASK, CHECK_FREE, MOVE, OVERWRITE, PRESERVE, CopyRequest
-from navigator.widgets.copy_dialog import CopyDialog
-from navigator.widgets.copy_dialog import copy_dialog as copy_dialog_module
-from navigator.widgets.copy_dialog.copy_dialog import prompt_for, target_for
-from navigator.widgets.panel import DirEntry
-from navigator.widgets.shell import Shell
+from navigator.widgets.file_ops.copy_dialog import CopyDialog
+from navigator.widgets.file_ops.copy_dialog import copy_dialog as copy_dialog_module
+from navigator.widgets.file_ops.copy_dialog.copy_dialog import prompt_for, target_for
+from navigator.widgets.manager.panel import DirEntry
+from navigator.widgets.shell.shell import Shell
 
 
 @pytest.fixture(autouse=True)
@@ -216,7 +216,7 @@ def test_f5_copies_what_is_tagged_to_the_other_panel(two):
 
 
 def test_f5_asks_before_overwriting(two):
-    from navigator.widgets.overwrite_query import OverwriteQuery
+    from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
 
     a, b = two
     (b / "one.txt").write_text("old")
@@ -302,7 +302,7 @@ def test_a_progress_bar_fills_its_width():
 
 
 def test_the_copy_gauges_follow_the_box():
-    from navigator.widgets.copy_progress import CopyProgress
+    from navigator.widgets.file_ops.copy_progress import CopyProgress
 
     box = CopyProgress(total=100, done=50)
     box.modal_width = 60
@@ -320,7 +320,7 @@ def test_the_gauge_is_drawn_in_label_normal():
     from navml.widgets.dialog.label import Label
 
     from navigator.scheme import load_scheme
-    from navigator.widgets.copy_progress import CopyProgress
+    from navigator.widgets.file_ops.copy_progress import CopyProgress
 
     box = CopyProgress(total=100, done=50)
     box.stylesheet = load_scheme("default")

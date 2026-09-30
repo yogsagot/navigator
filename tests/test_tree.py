@@ -261,7 +261,7 @@ def places(tmp_path):
 
 
 def test_the_info_band_counts_the_files_with_their_bytes(places):
-    from navigator.widgets.directory_tree.directory_tree import count_files, files_line
+    from navigator.widgets.tree.directory_tree.directory_tree import count_files, files_line
 
     assert count_files(places / "alpha") == (1, 5)
     assert files_line(1, 5) == "1 file with 5 bytes"
@@ -323,7 +323,7 @@ def test_enter_in_the_tree_sends_the_panel_there_now(places):
 
 def test_a_cursor_at_rest_in_the_tree_takes_the_panel_with_it(places, monkeypatch):
     from test_nav import navigator
-    from navigator.widgets.manager import Manager
+    from navigator.widgets.manager.manager import Manager
 
     monkeypatch.setattr(Manager, "LOCATE_DELAY", 0.01)
     app = navigator(places)
@@ -363,7 +363,7 @@ def test_a_list_without_its_frame_gives_the_frame_cells_to_its_rows():
 
 
 def test_the_dialog_is_laid_out_as_ttreedialog_lays_it_out(places):
-    from navigator.widgets.change_dir_dialog import ChangeDirDialog
+    from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
     from navml.widgets.dialog.control.control import parse_shortcut
 
     dialog = ChangeDirDialog(start=places)
@@ -473,7 +473,7 @@ def tree_window_run(places, *actions):
 
 
 def test_the_window_opens_on_the_active_panels_directory_with_the_keys(places):
-    from navigator.widgets.tree_window import TreeWindow
+    from navigator.widgets.tree.tree_window import TreeWindow
 
     seen = []
 
@@ -534,7 +534,7 @@ def _children_of(tree, path):
 
 
 def test_a_directory_node_hides_dot_directories_when_asked(places):
-    from navigator.widgets.directory_tree.directory_tree import directory_node
+    from navigator.widgets.tree.directory_tree.directory_tree import directory_node
 
     (places / ".secret").mkdir()
     assert ".secret" in [n.name for n in directory_node(places).children()]
@@ -544,7 +544,7 @@ def test_a_directory_node_hides_dot_directories_when_asked(places):
 
 
 def test_show_path_grafts_the_dot_directory_it_goes_through(places):
-    from navigator.widgets.directory_tree.directory_tree import directory_root, show_path
+    from navigator.widgets.tree.directory_tree.directory_tree import directory_root, show_path
 
     (places / ".config" / "app").mkdir(parents=True)
     (places / ".other").mkdir()
