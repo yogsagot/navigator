@@ -1444,6 +1444,59 @@ def test_the_icon_table_reads_a_name(name, is_dir, expected):
     assert icons.icon_for(name, is_dir) == expected
 
 
+@pytest.mark.parametrize(
+    "name, is_dir, mark, expected",
+    [
+        *[("thing", False, mark, glyph) for mark, glyph in icons.BY_TYPE.items()],
+        ("build.sh", False, "*", icons.BY_TYPE["*"]),  # the type beats the extension
+        ("lib", True, "~", icons.BY_TYPE["~"]),  # a link to a directory is a link
+        ("src", True, "/", icons.FOLDER),
+        ("..", True, "/", icons.PARENT),
+        ("main.py", False, " ", icons.BY_EXTENSION["py"]),
+    ],
+)
+def test_the_type_mark_picks_the_icon(name, is_dir, mark, expected):
+    assert icons.icon_for(name, is_dir, mark) == expected
+
+
+def test_the_nerd_gutter_shows_each_type_as_a_glyph(tmp_path):
+    import os
+
+    (tmp_path / "plain.txt").write_text("x")
+    (tmp_path / "run.sh").write_text("x")
+    (tmp_path / "run.sh").chmod(0o755)
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "to_file").symlink_to("plain.txt")
+    (tmp_path / "to_dir").symlink_to("dir")
+    (tmp_path / "stale").symlink_to("nowhere")
+    os.mkfifo(tmp_path / "fifo")
+    app = navigator_with(tmp_path, GLYPHS_NERD)
+    run_app(app, [])
+    buffer = desktop(app)
+    entries = app.manager.left.items
+    drawn = {e.name: buffer.get(1, 2 + row)[0] for row, e in enumerate(entries)}
+    for name, mark in [("run.sh", "*"), ("to_file", "@"), ("to_dir", "~"), ("stale", "!"), ("fifo", "|")]:
+        assert drawn[name] == icons.BY_TYPE[mark], name
+    assert drawn["dir"] == icons.FOLDER
+    assert drawn["plain.txt"] == icons.BY_EXTENSION["txt"]
+
+    # A tag still takes the gutter over the type's glyph.
+    panel = app.manager.left
+    panel.marked = frozenset({"to_file"})
+    settle()
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    assert buffer.get(1, 1 + [e.name for e in entries].index("to_file"))[0] == "√"
+
+
+def test_no_icon_comes_from_the_range_nerd_fonts_3_removed():
+    """``nf-mdi`` (U+F500 to U+FD46) was dropped in Nerd Fonts 3 and moved
+    to the supplementary planes, so a glyph from it is a box on a current font."""
+    every = [icons.FOLDER, icons.PARENT, icons.FILE, *icons.BY_EXTENSION.values(),
+             *icons.BY_TYPE.values()]
+    assert not [hex(ord(glyph)) for glyph in every if 0xF500 <= ord(glyph) <= 0xFD46]
+
+
 def test_every_icon_is_a_single_cell():
     """The gutter is two columns wide and the second is a space by design.
 
@@ -1451,7 +1504,8 @@ def test_every_icon_is_a_single_cell():
     agrees, the Private Use Area measuring as ambiguous.  If one of these ever
     measured two, the name would be shoved along on the Mono build too.
     """
-    every = [icons.FOLDER, icons.PARENT, icons.FILE, *icons.BY_EXTENSION.values()]
+    every = [icons.FOLDER, icons.PARENT, icons.FILE, *icons.BY_EXTENSION.values(),
+             *icons.BY_TYPE.values()]
     assert {char_width(glyph) for glyph in every} == {1}
 
 

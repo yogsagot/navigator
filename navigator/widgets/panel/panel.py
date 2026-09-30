@@ -630,7 +630,7 @@ class Panel(ListViewer):
             if self.is_marked(item):
                 mark = self.tag_char
             elif self.show_icons:
-                mark = icon_glyphs.icon_for(item.name, item.is_dir)
+                mark = icon_glyphs.icon_for(item.name, item.is_dir, item.type_mark)
             else:
                 mark = item.type_mark
             surface.draw_text(x, y, mark, style, gutter)

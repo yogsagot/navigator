@@ -99,7 +99,8 @@ as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Da
 under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
 Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple modes have a heading row in *Column title*
 `[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
-Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). **Insert tags** (`ToggleMark`, DN's
+Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`); in the Nerd tier that mark picks the icon
+instead (`icons.BY_TYPE`, beating the extension's). **Insert tags** (`ToggleMark`, DN's
 `kbIns`): the entry joins `Panel.marked` (names, never `..`), the cursor steps down, and the gutter shows DN's tag
 char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
 selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line

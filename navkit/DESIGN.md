@@ -914,7 +914,9 @@ double-width covers the space instead of shoving the name along.
 socket, `-` character device, `+` block device, `|` FIFO, a blank for a plain file) -- a second and smaller departure,
 since DN had none, taken at the user's request and pure ASCII so it holds in every tier. It is read off the mode bits,
 never `os.access`, so painting a row costs no system call, and `mode` is the target's except for a stale link, whose
-own `S_IFLNK` mode is what says it is stale. The column is reserved even where every mark is a blank because a
+own `S_IFLNK` mode is what says it is stale. In the Nerd tier the same mark picks the icon (`icons.BY_TYPE`, which
+beats the directory and the extension icons), so the two tiers say the same thing, one in glyphs and one in MC's
+characters. The column is reserved even where every mark is a blank because a
 tagged entry's marker is drawn in it: Insert (`ToggleMark`, DN's `kbIns`) tags the entry and steps down, and a tagged
 entry shows DN's default `TagChar`, `√` (`+` in the ASCII tier), in place of its mark *or its icon* -- the colour,
 `[87]`/`[89]`, says it too, but not on a monochrome terminal. DN drew its tag after the 8.3 name; a POSIX name has no

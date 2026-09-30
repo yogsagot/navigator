@@ -53,9 +53,9 @@ BY_EXTENSION = {
     "toml": "",
     "yaml": "",
     "yml": "",
-    "xml": "",
+    "xml": "",  # nf-fa-code
     "nss": "",
-    "nml": "",
+    "nml": "",  # nf-fa-code
     # archives
     "zip": "",
     "gz": "",
@@ -90,16 +90,36 @@ BY_EXTENSION = {
     "pal": "",
 }
 
+#: A file's *type* -> glyph, keyed by Midnight Commander's one-character mark
+#: (``DirEntry.type_mark``), so the Nerd tier says with a glyph what the
+#: others say with ``@`` or ``*``.  The type wins over the extension: an
+#: executable ``build.sh`` is shown as something to run, and a link to a
+#: directory as a link.  Drawn only from Font Awesome and Octicons, which
+#: Nerd Fonts 2 and 3 both carry at these codepoints.
+BY_TYPE = {
+    "~": "",  # nf-oct-file_symlink_directory
+    "@": "",  # nf-oct-file_symlink_file
+    "!": "",  # nf-fa-chain_broken
+    "*": "",  # nf-oct-terminal
+    "=": "",  # nf-fa-plug
+    "-": "",  # nf-fa-keyboard_o
+    "+": "",  # nf-fa-hdd_o
+    "|": "",  # nf-fa-exchange
+}
 
-def icon_for(name: str, is_dir: bool) -> str:
-    """The glyph standing for an entry called *name*.
 
-    Takes the two fields it needs rather than a ``DirEntry`` so that it stays
-    testable on its own and imposes nothing on the entry type -- which is
-    slotted, and gains no field for this.
+def icon_for(name: str, is_dir: bool, mark: str = " ") -> str:
+    """The glyph standing for an entry called *name*, of type *mark*.
+
+    Takes the fields it needs rather than a ``DirEntry`` so that it stays
+    testable on its own and imposes nothing on the entry type.  *mark* is
+    ``DirEntry.type_mark``; one in :data:`BY_TYPE` beats the directory and the
+    extension.
     """
     if name == "..":
         return PARENT
+    if mark in BY_TYPE:
+        return BY_TYPE[mark]
     if is_dir:
         return FOLDER
     _, dot, extension = name.rpartition(".")
