@@ -266,6 +266,17 @@ def test_an_unchanged_text_closes_at_once(files):
     assert editor_window(app) is None
 
 
+
+def test_closing_it_gives_the_keyboard_back_to_the_right_panel(files):
+    # The window used to take the keyboard as it was mounted, before the
+    # desktop had saved which panel the file manager had, so closing it
+    # handed the keyboard to the left one.
+    app = navigator(files)
+    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("escape"), lambda a: None])
+    assert editor_window(app) is None
+    assert app.focused is app.manager.right
+
 def test_undo_takes_back_a_word_typed(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("abc"),

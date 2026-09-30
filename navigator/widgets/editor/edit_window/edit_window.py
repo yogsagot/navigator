@@ -51,8 +51,10 @@ class EditWindow(Window):
         # `dlEditTitle': ``Edit - `` and the whole name.
         self.title = f"Edit - {self.editor.path}"
 
-    def mounted(self) -> None:
-        super().mounted()
+    def take_keyboard(self) -> None:
+        # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
+        # before ``activate`` has saved which panel the window below had, so
+        # closing this one would hand the keyboard to the left panel.
         self.editor.focus()
 
     def list_name(self) -> str:

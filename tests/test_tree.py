@@ -502,6 +502,17 @@ def test_escape_closes_the_window(places):
     assert app.shell.desktop.active_window is app.manager
 
 
+
+def test_closing_the_window_gives_the_keyboard_back_to_the_right_panel(places):
+    from test_nav import navigator
+    from navigator.commands import OpenTreeWindow
+
+    app = navigator(places)
+    run_app(app, [KeyEvent("tab"), lambda a: a.spawn(a.run_command(OpenTreeWindow)),
+                  lambda a: None, KeyEvent("escape"), lambda a: None])
+    assert app.shell.desktop.active_window is app.manager
+    assert app.focused is app.manager.right
+
 def test_ctrl_r_rereads_the_windows_tree(places):
     seen = []
     tree_window_run(

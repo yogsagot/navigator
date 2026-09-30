@@ -58,8 +58,10 @@ class FileWindow(Window):
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.
         self.title = str(self.viewer.path)
 
-    def mounted(self) -> None:
-        super().mounted()
+    def take_keyboard(self) -> None:
+        # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
+        # before ``activate`` has saved which panel the window below had, so
+        # closing this one would hand the keyboard to the left panel.
         self.viewer.focus()
 
     def list_name(self) -> str:

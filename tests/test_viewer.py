@@ -289,6 +289,17 @@ def test_escape_closes_it_and_the_panel_has_the_keyboard_again(files):
     assert app.focused is app.manager.active_panel
 
 
+
+def test_closing_it_gives_the_keyboard_back_to_the_right_panel(files):
+    # The window used to take the keyboard as it was mounted, before the
+    # desktop had saved which panel the file manager had, so closing it
+    # handed the keyboard to the left one.
+    app = navigator(files)
+    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+                  KeyEvent("escape"), lambda a: None])
+    assert opened(app) is None
+    assert app.focused is app.manager.right
+
 def test_f3_closes_it_again_as_midnight_commander_does(files):
     app = navigator(files)
     shown = []
