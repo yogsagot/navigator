@@ -1526,6 +1526,19 @@ def test_the_footer_sums_the_tagged_files(panel):
     assert panel.footer_text() == " 2,058 bytes in 2 selected files "
 
 
+def test_the_footer_names_a_symlinks_target(panel, tree):
+    (tree / "link").symlink_to("one.txt")
+    (tree / "stale").symlink_to("/nowhere/at/all")
+    panel.reload()
+    settle()
+    panel.cursor = names(panel).index("link")
+    assert panel.footer_text() == " link -> one.txt "
+    panel.cursor = names(panel).index("stale")
+    assert panel.footer_text() == " stale -> /nowhere/at/all "
+    panel.cursor = names(panel).index("one.txt")
+    assert panel.footer_text() == " one.txt "
+
+
 def test_space_tags_while_the_command_line_is_empty(tree):
     """DN's ``fmoSpaceToggle``: Space is Insert until something is typed."""
     app = navigator_with(tree, GLYPHS_UNICODE)

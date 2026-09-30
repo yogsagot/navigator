@@ -59,18 +59,21 @@ class DirEntry:
 
     ``mode`` is the link's *target*'s, except for a link pointing nowhere,
     where there is no target to describe and it is the link's own.
+    ``link_target`` is what a link says it points at, as ``readlink`` gives
+    it, read with the directory so that painting it costs no system call.
     """
 
-    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link")
+    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
-                 is_link: bool = False):
+                 is_link: bool = False, link_target: str | None = None):
         self.name = name
         self.is_dir = is_dir
         self.size = size
         self.mode = mode
         self.mtime = mtime
         self.is_link = is_link
+        self.link_target = link_target
 
     @property
     def sort_key(self) -> tuple:
@@ -318,12 +321,19 @@ class Panel(ListViewer):
                         is_link = item.is_symlink()
                     except OSError:
                         is_link = False
+                    target = None
+                    if is_link:
+                        try:
+                            target = os.readlink(item.path)
+                        except OSError:
+                            pass
                     if info is None:
-                        entries.append(DirEntry(item.name, False, 0, is_link=is_link))
+                        entries.append(DirEntry(item.name, False, 0, is_link=is_link, link_target=target))
                         continue
                     is_dir = stat.S_ISDIR(info.st_mode)
                     size = 0 if is_dir else info.st_size
-                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link))
+                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
+                                            target))
         except OSError as exc:
             error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
@@ -798,7 +808,8 @@ class Panel(ListViewer):
     def footer_text(self) -> str:
         """The selected name, or an item count when there is nothing to name.
 
-        While searching, what the search has typed instead.
+        A symlink is named ``name -> target``, as ``ls -l`` shows it. While
+        searching, what the search has typed instead.
         """
         if self.quick_search is not None:
             return f"{self.SEARCH_LABEL}{self.quick_search} "
@@ -809,7 +820,12 @@ class Panel(ListViewer):
             summary = f" {size:,} bytes in {len(marked)} selected files "
         else:
             entry = self.selected
-            summary = f" {entry.name} " if entry else f" {len(self.items)} items "
+            if entry is None:
+                summary = f" {len(self.items)} items "
+            elif entry.link_target is not None:
+                summary = f" {entry.name} -> {entry.link_target} "
+            else:
+                summary = f" {entry.name} "
         room = max(1, self.width - 4)
         return summary[: room - 1] + " " if len(summary) > room else summary
 
