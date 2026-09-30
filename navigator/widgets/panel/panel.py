@@ -917,6 +917,9 @@ class Panel(ListViewer):
 
         Drawn before the rows, so the cursor bar covers a divider it crosses
         -- DN's did.  Nothing in the simple mode, and nothing over an error.
+        A divider meets the frame in a tee at each end, ``┬``/``┴`` or
+        ``╤``/``╧`` as the frame is single or double, except where the title
+        or the footer already stands on that cell.
         """
         if self.view_mode == "simple" or self.error is not None:
             return
@@ -926,6 +929,8 @@ class Panel(ListViewer):
         glyph = self.divider_glyph
         heading = self.part_style("heading")
         divider = self.part_style("divider")
+        horizontal = self.box_charset()[4]
+        top_tee, bottom_tee = self.box_joins()[2:4]
         spans = self._column_spans()
         for index, (text, x, width) in enumerate(spans):
             shown = min(width, right - x)
@@ -938,3 +943,8 @@ class Panel(ListViewer):
             if index < len(spans) - 1 and edge < right:
                 for y in range(top, bottom):
                     surface.draw_text(edge, y, glyph, divider, 1)
+                if self.framed:
+                    for y, tee in ((0, top_tee), (self.height - 1, bottom_tee)):
+                        char, style = surface.get(edge, y)
+                        if char == horizontal:
+                            surface.set_cell(edge, y, tee, style)

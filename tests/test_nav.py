@@ -681,6 +681,78 @@ def test_a_click_in_the_list_mode_picks_the_column(tmp_path):
     assert panel.index_at(x - 1, panel.inset + panel.header) is None  # the divider
 
 
+def painted_panel(panel) -> ScreenBuffer:
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    return buffer
+
+
+def divider_columns(panel) -> list[int]:
+    spans = panel._column_spans()
+    return [x + width for _, x, width in spans[:-1]]
+
+
+def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
+    app = navigator(tree, size=(200, 24))  # wide enough that the path leaves a divider clear
+    run_app(app, [])
+    for panel in (app.manager.left, app.manager.right):
+        panel.cycle_view_mode()
+    settle()
+    # The active panel's frame is double, the other's single.
+    for panel, tees in ((app.manager.left, "╤╧"), (app.manager.right, "┬┴")):
+        buffer = painted_panel(panel)
+        columns = divider_columns(panel)
+        assert columns
+        for x in columns:
+            # The top edge carries the path, which may stand on the cell.
+            assert buffer.get(x, 0)[0] in (tees[0], *panel.title_text())
+            assert buffer.get(x, panel.height - 1)[0] == tees[1]
+        assert any(buffer.get(x, 0)[0] == tees[0] for x in columns)
+
+
+def test_the_list_mode_has_no_tee_after_its_last_column(tmp_path):
+    many_files(tmp_path, 10)
+    panel = Panel(tmp_path, width=60, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(60, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    buffer = painted_panel(panel)
+    columns = panel.list_columns
+    between = columns[0][1] + columns[0][2]
+    after = columns[-1][1] + columns[-1][2]
+    assert buffer.get(between, panel.height - 1)[0] == "┴"
+    assert buffer.get(after, panel.height - 1)[0] == "─"
+
+
+def test_a_tee_leaves_the_footer_standing_on_its_cell(tmp_path):
+    name = "a_long_name_crossing_the_divider"
+    (tmp_path / name).write_text("")
+    panel = Panel(tmp_path, width=40, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(40, 10))
+    panel.cycle_view_mode()
+    settle()
+    panel.cursor = 1
+    settle()
+    buffer = painted_panel(panel)
+    footer = row_of(buffer, panel.height - 1)
+    assert name in footer
+    assert "┴" not in footer and "╧" not in footer
+
+
+def test_an_ascii_terminal_joins_the_divider_with_a_plus(tree):
+    app = navigator_with(tree, GLYPHS_ASCII)
+    run_app(app, [])
+    panel = app.manager.right
+    panel.cycle_view_mode()
+    settle()
+    buffer = painted_panel(panel)
+    x = divider_columns(panel)[0]
+    assert buffer.get(x, panel.height - 1)[0] == "+"
+
+
 def test_fit_text_ends_a_name_cut_short_in_an_ellipsis():
     assert fit_text("short", 10) == "short"
     assert fit_text("exactly10!", 10) == "exactly10!"
