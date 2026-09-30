@@ -216,6 +216,17 @@ def enabled(
     return target(app, command_of(binding), start) is not None
 
 
+def checked(
+    app: Application, binding: Binding, start: Widget | None = None
+) -> bool | None:
+    """Whether *binding*'s command is a toggle that is on now, off now, or
+    neither (None) -- asked of the object that would run it, through its
+    ``checks``.  A disabled command is neither."""
+    command = command_of(binding)
+    runner = target(app, command, start)
+    return None if runner is None else runner.checks(command)
+
+
 async def run(
     app: Application, binding: Binding, start: Widget | None = None
 ) -> bool:

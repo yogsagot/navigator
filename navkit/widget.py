@@ -954,6 +954,15 @@ class Widget:
         """
         return True
 
+    def checks(self, command: commands.Command) -> bool | None:
+        """Whether *command* is a toggle that is on (True) or off (False) here,
+        or None for a command that toggles nothing.  Asked of the same widget
+        :meth:`enables` is -- see :func:`navkit.commands.checked` -- and a menu
+        ticks the entry that is on.  Read it from reactive state, as
+        :meth:`enables` is read.
+        """
+        return None
+
     async def dispatch_mouse(self, event: MouseClickEvent) -> bool:
         """Offer a mouse action to the child under the pointer, then to self.
 

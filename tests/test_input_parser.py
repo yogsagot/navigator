@@ -398,3 +398,22 @@ def test_a_bare_plus_is_named_plus_because_a_spec_cannot_spell_it(parser):
     [event] = parser.feed(b"+")
     assert event.key == "+" and event.char == "+"
     assert event.name == "plus" and event.matches("plus")
+
+
+def test_0x08_is_ctrl_h_once_backspace_is_known_to_be_0x7f(parser):
+    parser.ctrl_h = True
+    assert names(parser.feed(b"\x08\x7f\x1b\x08")) == ["ctrl+h", "backspace", "ctrl+alt+h"]
+
+
+def test_the_application_asks_the_terminal_what_backspace_is():
+    from navkit.application import Application
+    from navkit.widget import Widget
+
+    from conftest import FakeTerminal, run_app
+
+    for erase, expected in ((0x7F, True), (0x08, False), (None, False)):
+        terminal = FakeTerminal()
+        terminal.erase = erase
+        app = Application(Widget(), terminal=terminal)
+        run_app(app, [])
+        assert app._parser.ctrl_h is expected

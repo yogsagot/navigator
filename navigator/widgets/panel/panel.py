@@ -184,6 +184,9 @@ class Panel(ListViewer):
     #: (``cmToggleShowMode``) steps through them.  Per panel, as DN's
     #: ``ShowFlags`` were.
     view_mode: str = reactive("simple")
+    #: Whether names starting with ``.`` are listed.  Ctrl+H flips it, per
+    #: panel like ``view_mode``; ``..`` is always listed.
+    show_hidden: bool = reactive(True)
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -230,6 +233,7 @@ class Panel(ListViewer):
         """Re-read the directory, whenever the path or the token changes."""
         _ = self.reload_token  # read for the dependency; this is what Ctrl+R moves
         path = self.path
+        show_hidden = self.show_hidden
         entries: list[DirEntry] = []
         error: str | None = None
         if path != path.parent:
@@ -241,6 +245,8 @@ class Panel(ListViewer):
         try:
             with os.scandir(path) as scan:
                 for item in scan:
+                    if not show_hidden and item.name.startswith("."):
+                        continue
                     try:
                         info = item.stat()
                     except OSError:
@@ -410,6 +416,18 @@ class Panel(ListViewer):
         mode = modes[(modes.index(self.view_mode) + 1) % len(modes)]
         self.view_mode = mode
         self.header = 0 if mode == "simple" else 1
+
+    def toggle_hidden(self) -> None:
+        """Ctrl+H: hide the dot-files, or show them again.
+
+        A re-read like :meth:`reload`'s, so the cursor stays on its entry, or
+        where it was if that entry is the one just hidden.  A tag on a name
+        that goes is dropped with it, so nothing unseen stays selected.
+        """
+        entry = self.selected
+        if entry is not None:
+            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+        self.show_hidden = not self.show_hidden
 
     async def on_key(self, event: KeyEvent) -> bool:
         """In the list mode Left and Right move a column, as DN's did.

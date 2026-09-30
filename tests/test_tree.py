@@ -522,3 +522,68 @@ def test_the_disk_menu_entry_is_enabled(places):
     run_app(app, [lambda a: seen.append(a.command_enabled(
         _entry(a.shell.menu, "Disk", "Directory tree").command, a.manager.left))])
     assert seen == [True]
+
+
+# -- dot-directories --------------------------------------------------------------
+
+
+def _children_of(tree, path):
+    node = tree.selected_node
+    assert node.data == path.resolve()
+    return [child.name for child in node.children()]
+
+
+def test_a_directory_node_hides_dot_directories_when_asked(places):
+    from navigator.widgets.directory_tree.directory_tree import directory_node
+
+    (places / ".secret").mkdir()
+    assert ".secret" in [n.name for n in directory_node(places).children()]
+    assert ".secret" not in [n.name for n in directory_node(places, hidden=False).children()]
+    (places / "gamma" / ".only").mkdir()
+    assert not directory_node(places / "gamma", hidden=False).has_children()
+
+
+def test_show_path_grafts_the_dot_directory_it_goes_through(places):
+    from navigator.widgets.directory_tree.directory_tree import directory_root, show_path
+
+    (places / ".config" / "app").mkdir(parents=True)
+    (places / ".other").mkdir()
+    _, tree = mounted_tree(directory_root(hidden=False))
+    show_path(tree, places / ".config" / "app")
+    assert tree.selected_node.data == (places / ".config" / "app").resolve()
+    siblings = [n.name for n in tree.selected_node.parent.parent.children()]
+    assert ".config" in siblings and ".other" not in siblings
+
+
+def test_ctrl_h_hides_dot_directories_in_the_ctrl_t_tree(places):
+    from test_nav import navigator
+
+    (places / ".secret").mkdir()
+    app = navigator(places)
+    seen = []
+    run_app(app, [
+        KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("+", "+"),
+        lambda a: seen.append(_children_of(a.manager.tree, places)),
+        KeyEvent("h", ctrl=True), KeyEvent("+", "+"),
+        lambda a: seen.append(_children_of(a.manager.tree, places)),
+    ])
+    assert ".secret" in seen[0]
+    assert ".secret" not in seen[1] and "alpha" in seen[1]
+
+
+def test_alt_t_and_the_tree_window_take_the_panels_setting(places):
+    from test_nav import navigator
+    from navigator.commands import OpenTreeWindow
+
+    (places / ".secret").mkdir()
+    app = navigator(places)
+    seen = []
+    run_app(app, [
+        KeyEvent("h", ctrl=True),
+        KeyEvent("t", "t", alt=True), lambda a: None, KeyEvent("+", "+"),
+        lambda a: seen.append(_children_of(a.modal.tree, places)),
+        KeyEvent("escape"),
+        lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None, KeyEvent("+", "+"),
+        lambda a: seen.append(_children_of(a.shell.desktop.active_window.tree, places)),
+    ])
+    assert seen == [["alpha", "beta", "gamma"]] * 2

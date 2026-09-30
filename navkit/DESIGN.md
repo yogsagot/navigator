@@ -2005,6 +2005,12 @@ which reads `Application.focused`, and asks `enables`, which reads what it likes
 `computed`, the answer is tracked, so a key bar greys and un-greys itself with no one telling it. Whether a handler
 *exists* is not reactive, and does not need to be, since classes do not grow handlers at run time.
 
+**Whether a command is *on* is asked the same way.** `checks(command)` returns True, False, or None for a command that
+toggles nothing, and it is asked of the very object `enables` is (`commands.checked`,
+`Application.command_checked`), so a toggle's state lives where the state does -- Navigator's Ctrl+H asks the active
+panel's `show_hidden` -- and a menu ticks the entry without holding a copy that could disagree. A disabled command is
+neither on nor off.
+
 ### What is not here
 
 - **No global command set.** Turbo Vision's `disableCommands` is state somebody has to keep in step with the views.

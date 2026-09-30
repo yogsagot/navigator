@@ -281,3 +281,26 @@ def test_enablement_is_reactive_through_what_enables_reads():
     assert root.can_save is True
     toggle.allowed = False
     assert root.can_save is False
+
+
+def test_whether_a_command_is_on_is_asked_of_the_widget_that_would_run_it():
+    from navkit.reactive import reactive
+
+    class Toggle(Recorder):
+        on: bool = reactive(True)
+
+        def checks(self, command):
+            return self.on if isinstance(command, Save) else None
+
+    root = Widget()
+    toggle = root.add(Toggle())
+    app = Application(root=root)
+    toggle.can_focus = True
+    toggle.focus()
+    assert app.command_checked(Save) is True
+    toggle.on = False
+    assert app.command_checked(Save) is False
+    assert app.command_checked(Close) is None        # handled, but toggles nothing
+    assert app.command_checked(Jump) is None         # handled by nobody: disabled
+    toggle.allow = False
+    assert app.command_checked(Save) is None         # disabled is neither on nor off

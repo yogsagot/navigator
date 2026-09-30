@@ -665,6 +665,72 @@ def test_ctrl_y_changes_only_the_active_panel(tree):
     assert app.manager.right.view_mode == "simple"
 
 
+def test_ctrl_h_hides_and_shows_the_dot_files(tree):
+    (tree / ".hidden").write_text("h")
+    (tree / ".config").mkdir()
+    panel = mounted(Panel(tree, width=40, height=20), size=(40, 20))
+    panel.stylesheet = default_scheme()
+    assert {".hidden", ".config"} <= set(names(panel))
+    panel.toggle_hidden()
+    settle()
+    assert not panel.show_hidden
+    assert names(panel)[0] == ".."
+    assert not any(name.startswith(".") and name != ".." for name in names(panel))
+    panel.toggle_hidden()
+    settle()
+    assert {".hidden", ".config"} <= set(names(panel))
+
+
+def test_ctrl_h_keeps_the_cursor_and_drops_hidden_tags(tree):
+    (tree / ".hidden").write_text("h")
+    panel = mounted(Panel(tree, width=40, height=20), size=(40, 20))
+    panel.stylesheet = default_scheme()
+    panel.cursor = names(panel).index(".hidden")
+    panel.toggle_mark()
+    panel.cursor = names(panel).index("two.txt")
+    settle()
+    assert panel.marked == {".hidden"}
+    panel.toggle_hidden()
+    settle()
+    assert panel.selected.name == "two.txt"
+    assert panel.marked == frozenset()
+
+
+def test_ctrl_h_changes_only_the_active_panel(tree):
+    (tree / ".hidden").write_text("h")
+    app = navigator(tree)
+    run_app(app, [KeyEvent("h", ctrl=True)])
+    assert ".hidden" not in names(app.manager.left)
+    assert ".hidden" in names(app.manager.right)
+
+
+def test_the_panel_menu_carries_ctrl_h(tree):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        item = _entry(a.shell.menu, "Panel", "Show/hide hidden files")
+        seen.append((key_caption(item, a, a.manager.left),
+                     a.command_enabled(item.command, a.manager.left)))
+
+    run_app(app, [look])
+    assert seen == [("Ctrl-H", True)]
+
+
+def test_the_menu_ticks_ctrl_h_while_the_active_panel_shows_dot_files(tree):
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        item = _entry(a.shell.menu, "Panel", "Show/hide hidden files")
+        seen.append(a.command_checked(item.command, a.manager.left))
+
+    run_app(app, [look, KeyEvent("h", ctrl=True), look, KeyEvent("tab"), look])
+    assert seen == [True, False, True]
+
+
 def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     """Swapping the sheet must change what the panel paints.
 
@@ -1255,14 +1321,14 @@ def test_gray_star_inverts_the_files_and_leaves_directories_alone(mixed):
     assert mixed.marked == {"B.TXT", "c.py", "Makefile", "notes.md", "docs.txt"}
 
 
-def test_ctrl_gray_star_inverts_the_directories_too(mixed):
+def test_ctrl_hray_star_inverts_the_directories_too(mixed):
     mixed.marked = frozenset({"a.txt", "docs.txt"})
     mixed.invert_marks(directories=True)
     assert mixed.marked == {"B.TXT", "c.py", "Makefile", "notes.md"}
     assert ".." not in mixed.marked
 
 
-def test_gray_star_and_ctrl_gray_star_reach_the_panel(tree):
+def test_gray_star_and_ctrl_hray_star_reach_the_panel(tree):
     app = navigator_with(tree, GLYPHS_UNICODE)
     run_app(app, [lambda a: a.post_event(KeyEvent("kp_multiply", "*"))])
     assert app.manager.left.marked == {"one.txt", "two.txt"}
@@ -1435,7 +1501,9 @@ def test_a_directory_and_a_file_get_different_icons(tree):
         ("main.py", False, icons.BY_EXTENSION["py"]),
         ("MAIN.PY", False, icons.BY_EXTENSION["py"]),  # extensions fold case
         ("README", False, icons.FILE),
-        (".gitignore", False, icons.FILE),  # a leading dot is not an extension
+        (".gitignore", False, icons.HIDDEN_FILE),  # a leading dot is not an extension
+        (".config", True, icons.HIDDEN_FOLDER),
+        (".config.json", False, icons.BY_EXTENSION["json"]),  # a known extension wins
         ("archive.tar.gz", False, icons.BY_EXTENSION["gz"]),
         ("thing.unheardof", False, icons.FILE),
     ],
@@ -1453,6 +1521,9 @@ def test_the_icon_table_reads_a_name(name, is_dir, expected):
         ("src", True, "/", icons.FOLDER),
         ("..", True, "/", icons.PARENT),
         ("main.py", False, " ", icons.BY_EXTENSION["py"]),
+        (".local", True, "~", icons.BY_TYPE["~"]),  # a hidden link is a link
+        (".run", False, "*", icons.BY_TYPE["*"]),  # a hidden executable runs
+        (".cache", True, "/", icons.HIDDEN_FOLDER),
     ],
 )
 def test_the_type_mark_picks_the_icon(name, is_dir, mark, expected):

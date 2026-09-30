@@ -28,6 +28,7 @@ from navigator.commands import (
     InvertSelection,
     SelectGroup,
     SwitchPanel,
+    ToggleHidden,
     ToggleMark,
     ToggleShowMode,
     ToggleTree,
@@ -151,7 +152,7 @@ class Manager(Window):
         from navigator.widgets.change_dir_dialog import ChangeDirDialog
 
         panel = self.active_panel
-        chosen = await ChangeDirDialog(start=panel.path).execute(self.application)
+        chosen = await ChangeDirDialog(start=panel.path, hidden=panel.show_hidden).execute(self.application)
         if chosen is not None:
             panel.path = Path(chosen)
             panel.focus()
@@ -166,6 +167,12 @@ class Manager(Window):
                 return False
             return not (self.tree.focused or self.quick.focused)
         return super().enables(command)
+
+    def checks(self, command: Any) -> bool | None:
+        """Ctrl+H is ticked in the menu while the active panel shows its dot-files."""
+        if isinstance(command, ToggleHidden):
+            return self.active_panel.show_hidden
+        return super().checks(command)
 
     def _command_line_has_text(self) -> bool:
         """Whether the command line of the screen this window is on holds
@@ -213,6 +220,11 @@ class Manager(Window):
     async def on_toggle_show_mode(self, event: ToggleShowMode) -> bool:
         """Ctrl+Y: the active panel's next show mode -- simple, detailed, list."""
         self.active_panel.cycle_view_mode()
+        return True
+
+    async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
+        """Ctrl+H: the active panel's dot-files, hidden or shown."""
+        self.active_panel.toggle_hidden()
         return True
 
     async def on_toggle_tree(self, event: ToggleTree) -> bool:
@@ -433,6 +445,7 @@ class Manager(Window):
         row.remove(view)
         row.insert(row.index(passive), view)
         if view is self.tree:
+            view.set_show_hidden(active.show_hidden)
             view.show(active.path)
         passive.visible = False
         view.visible = True
@@ -460,8 +473,9 @@ class Manager(Window):
         """The tree's cursor goes wherever the active panel goes: ``cmChangeTree``."""
         if self.tree_replaces is None:
             return
-        path = self.active_panel.path
+        path, hidden = self.active_panel.path, self.active_panel.show_hidden
         with untracked():
+            self.tree.set_show_hidden(hidden)
             if self.tree.selected_path != Path(path).resolve():
                 self.tree.show(path)
 

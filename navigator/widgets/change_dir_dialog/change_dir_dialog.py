@@ -21,12 +21,14 @@ from navigator.widgets.directory_tree.directory_tree import directory_root, show
 class ChangeDirDialog(Dialog):
     """*Choose Directory*: a tree of the filesystem, opened on *start*."""
 
-    def __init__(self, start: Path | None = None, **kwargs: Any) -> None:
+    def __init__(self, start: Path | None = None, hidden: bool = True, **kwargs: Any) -> None:
+        """*hidden* is the panel's ``show_hidden``: whether dot-directories are listed."""
         super().__init__(**kwargs)
+        self._hidden = hidden
         # Dialog's bottom row and message are not in this layout.
         self.row.visible = False
         self.message.visible = False
-        self.tree.root = directory_root()
+        self.tree.root = directory_root(self._hidden)
         show_path(self.tree, start if start is not None else Path.cwd())
 
     @property
@@ -53,7 +55,7 @@ class ChangeDirDialog(Dialog):
     async def on_reread_click(self, event: Event) -> bool:
         """Read the tree again, keeping the cursor where it was: ``Reread``."""
         here = self.accept()
-        self.tree.root = directory_root()
+        self.tree.root = directory_root(self._hidden)
         if here is not None:
             show_path(self.tree, here)
         self.tree.focus()
@@ -86,6 +88,6 @@ class ChangeDirDialog(Dialog):
                 buttons="ok",
             ).execute(self.application)
             return
-        self.tree.root = directory_root()
+        self.tree.root = directory_root(self._hidden)
         show_path(self.tree, base / name)
         self.tree.focus()

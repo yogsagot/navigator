@@ -376,6 +376,21 @@ class ToggleShowMode(Command):
     title = "Show"
 
 
+class ToggleHidden(Command):
+    """Ctrl+H: show or hide the active panel's dot-files.
+
+    DOS Navigator's nearest is ``ossShowHidden``, a system option for every
+    panel; this is per panel, as Ctrl+Y's show mode is, and the key is ours.
+    It was DN's *Directory Branch*, which does not exist yet and so gave it
+    up.  A legacy terminal sends Ctrl+H as the byte 0x08, which reaches this
+    only where the tty says Backspace is 0x7F -- xfce4-terminal, GNOME
+    Terminal, xterm -- and is Backspace anywhere else, where the menu is the
+    way in.
+    """
+
+    title = "Hidden"
+
+
 class ArchiveFiles(Command):
     """Shift+F1, ``cmPanelArcFiles``."""
 

@@ -9,6 +9,10 @@ Every measurement here is ``MENUS.PAS``'s:
   selection bar runs from frame to frame; its caption starts at column 3, and
   its key is right-aligned three columns in from the far edge.  A submenu gets
   ``►`` where the key would go.
+* **A toggle that is on is ticked** in the column between the frame and the
+  caption -- ``√``, or ``+`` with no Unicode -- which Turbo Vision left blank,
+  so a tick costs no width.  Whether it is on is the command's to say, through
+  :meth:`navkit.widget.Widget.checks`.
 * **Width is the widest entry plus six**, plus the key and two spaces, or plus
   three for a submenu's arrow; never under ten.  Height is one row per entry
   and two for the frame.
@@ -22,7 +26,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from navkit import commands
-from navkit.glyphs import GLYPHS_UNICODE, SCROLLBARS
+from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE, SCROLLBARS
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -46,6 +50,11 @@ class MenuBox(Widget):
 
     #: A dropped box casts Turbo Vision's shadow, as every menu box did.
     shadow: bool = True
+
+    #: What ticks a toggle that is on, and its ASCII stand-in -- the same two
+    #: characters Navigator's panel tags a file with.
+    CHECK = "√"
+    CHECK_ASCII = "+"
 
     #: Which entry is selected, as an index into :meth:`entries`; -1 for none.
     current: int = reactive(-1)
@@ -106,6 +115,13 @@ class MenuBox(Widget):
         app = self.application
         return app is not None and app.command_enabled(entry.command, self.behind)
 
+    def checked(self, entry: MenuNode) -> bool:
+        """Whether *entry* is a toggle that is on now."""
+        if not isinstance(entry, MenuItem) or entry.command is None:
+            return False
+        app = self.application
+        return app is not None and app.command_checked(entry.command, self.behind) is True
+
     def selectable(self, index: int) -> bool:
         """Every entry but a line can hold the selection, a disabled one too."""
         entries = self.entries()
@@ -135,6 +151,7 @@ class MenuBox(Widget):
         tl, tr, bl, br, horizontal, vertical = self.box_charset()
         left_tee, right_tee = self.box_joins()[:2]
         arrow = SCROLLBARS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"][3]
+        check = self.CHECK if self.glyphs > GLYPHS_ASCII else self.CHECK_ASCII
 
         def frame_line(y: int, ends: tuple[str, str], middle: str, style) -> None:
             surface.draw_text(0, y, " " + ends[0], normal)
@@ -151,6 +168,8 @@ class MenuBox(Widget):
                       "disabled": not self.enabled(entry)}
             row = self.part_style("item", **states)
             frame_line(y, (vertical, vertical), " ", row)
+            if self.checked(entry):
+                surface.draw_text(2, y, check, row)
             caption, start, _ = parse_shortcut(entry.text)
             surface.draw_text(3, y, caption, row, max(0, width - 6))
             if 0 <= start < len(caption):

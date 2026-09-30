@@ -378,6 +378,8 @@ class Application:
         self._loop = asyncio.get_running_loop()
         self._running = True
         self.terminal.start()
+        # A Backspace that is 0x7F leaves 0x08 to mean Ctrl+H.
+        self._parser.ctrl_h = getattr(self.terminal, "erase", None) == 0x7F
         if self.title:
             self.terminal.set_title(self.title)
         try:
@@ -1050,6 +1052,13 @@ class Application:
         """
         return commands.enabled(self, binding, start)
 
+    def command_checked(
+        self, binding: commands.Binding, start: Widget | None = None
+    ) -> bool | None:
+        """Whether *binding*'s command is a toggle that is on now -- see
+        :func:`navkit.commands.checked`."""
+        return commands.checked(self, binding, start)
+
     def bindings(self, start: Widget | None = None) -> dict[str, commands.Command]:
         """Every key that asks for a command right now -- what a key bar shows."""
         return commands.bindings(self, start)
@@ -1058,6 +1067,11 @@ class Application:
         """Whether the application will run *command* now.  See
         :meth:`Widget.enables`."""
         return True
+
+    def checks(self, command: commands.Command) -> bool | None:
+        """Whether *command* is a toggle that is on now.  See
+        :meth:`Widget.checks`."""
+        return None
 
     # Hooks -- an application subclass sees every event before the widgets do.
 

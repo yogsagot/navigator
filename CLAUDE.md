@@ -100,7 +100,18 @@ under 12 cells) and *list* (names alone in columns, each as wide as its longest 
 Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple modes have a heading row in *Column title*
 `[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
 Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`); in the Nerd tier that mark picks the icon
-instead (`icons.BY_TYPE`, beating the extension's). **Insert tags** (`ToggleMark`, DN's
+instead (`icons.BY_TYPE`, beating the extension's), and a dot-name that neither a mark nor an extension
+claims gets the outline `icons.HIDDEN_FILE`/`HIDDEN_FOLDER` rather than the solid ones. **Ctrl+H hides the dot-files** -- a legacy terminal sends it as 0x08, which navkit reads as Ctrl+H only once the
+tty's erase character (`Terminal.erase`, termios `VERASE`, read before raw mode) says Backspace is 0x7F, and as
+Backspace otherwise (`InputParser.ctrl_h`); it took DN's *Directory Branch* key, whose menu caption was dropped (`ToggleHidden`,
+`Panel.show_hidden`, `toggle_hidden`), per panel like Ctrl+Y and shown by default -- our key, where DN's
+`ossShowHidden` was a system option; the re-read keeps the cursor, and a tag on a name it hides is dropped.
+Every directory tree follows it: Ctrl+T's tracks the active panel's (`DirectoryTree.set_show_hidden`), and Alt+T
+and the tree window take it when opened (`hidden=`); nodes carry it as `TreeNode.show_hidden`, and `show_path` grafts
+in a dot-directory the path goes through, so a panel inside `~/.config` still has a tree that finds it. It is *Panel > Show/hide hidden files*, **ticked** while
+the active panel shows them: a menu tick is navkit's `Widget.checks(command)` (True/False/None), asked of the same
+widget `enables` is (`Application.command_checked`), and `MenuBox` paints `√` (`+` in ASCII) in the blank column
+left of the caption, so a tick costs no width. **Insert tags** (`ToggleMark`, DN's
 `kbIns`): the entry joins `Panel.marked` (names, never `..`), the cursor steps down, and the gutter shows DN's tag
 char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
 selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line

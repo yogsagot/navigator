@@ -109,6 +109,23 @@ def test_a_box_paints_frame_captions_keys_and_the_submenu_arrow(terminal):
     assert rows[5] == " └" + "─" * (box.width - 4) + "┘ "
 
 
+def test_a_toggle_that_is_on_is_ticked_left_of_its_caption(terminal):
+    app, bar, editor = build()
+    editor.checks = lambda command: True if isinstance(command, Save) else None
+    bar.open(0, drop=True)
+    (box,) = boxes(app)
+    buffer = ScreenBuffer(box.width, box.height)
+    box.render_tree(buffer.view(-box.x, -box.y, box.width + box.x, box.height + box.y))
+    rows = ["".join(buffer.get(x, y)[0] or " " for x in range(box.width))
+            for y in range(box.height)]
+    assert rows[1].startswith(" │√Save")
+    assert rows[3].startswith(" │ Burn")          # disabled: neither on nor off
+    assert MenuBox.measure(bar.entries()[0], app, editor)[0] == box.width
+    editor.checks = lambda command: False if isinstance(command, Save) else None
+    box.render_tree(buffer.view(-box.x, -box.y, box.width + box.x, box.height + box.y))
+    assert "".join(buffer.get(x, 1)[0] or " " for x in range(6)) == " │ Sav"
+
+
 def test_the_box_drops_one_column_left_of_its_caption_at_its_own_size():
     app, bar, editor = build()
     bar.open(1, drop=True)

@@ -710,8 +710,11 @@ class Shell(DockLayout):
         from navigator.widgets.tree_window import TreeWindow
 
         manager = self.active_manager
-        start = manager.active_panel.path if manager is not None else None
-        self.desktop.open(TreeWindow(start=start))
+        panel = manager.active_panel if manager is not None else None
+        if panel is None:
+            self.desktop.open(TreeWindow())
+        else:
+            self.desktop.open(TreeWindow(start=panel.path, hidden=panel.show_hidden))
         return True
 
     async def on_chosen(self, event: Any) -> bool:

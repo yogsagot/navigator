@@ -24,6 +24,14 @@ FOLDER = ""       # nf-custom-folder
 PARENT = ""       # nf-fa-arrow_up
 FILE = ""         # nf-fa-file
 
+#: A dot-file or dot-directory with nothing more specific to say: the outline
+#: of :data:`FILE` and a folder, faint beside the solid ones as a hidden
+#: entry is.  Only the plain cases -- a type mark or a known extension still
+#: wins, so ``.config.json`` is JSON and a dot-link a link.  Font Awesome 4,
+#: at the same codepoints in Nerd Fonts 2 and 3.
+HIDDEN_FILE = ""    # nf-fa-file_o
+HIDDEN_FOLDER = ""  # nf-fa-folder_o
+
 #: Extension -> glyph.  Deliberately short: an icon set that guesses at a
 #: hundred extensions is mostly wrong in ways nobody notices, and the ones
 #: below are the kinds a file manager is actually pointed at.  Keys are
@@ -120,12 +128,14 @@ def icon_for(name: str, is_dir: bool, mark: str = " ") -> str:
         return PARENT
     if mark in BY_TYPE:
         return BY_TYPE[mark]
+    hidden = name.startswith(".")
     if is_dir:
-        return FOLDER
+        return HIDDEN_FOLDER if hidden else FOLDER
+    plain = HIDDEN_FILE if hidden else FILE
     _, dot, extension = name.rpartition(".")
     # ``rpartition`` gives an empty separator when there is no dot at all, and
     # a leading-dot name like ``.gitignore`` has no extension either -- its
     # stem is empty, so the whole name is the "extension" and must not match.
     if not dot or not _:
-        return FILE
-    return BY_EXTENSION.get(extension.lower(), FILE)
+        return plain
+    return BY_EXTENSION.get(extension.lower(), plain)

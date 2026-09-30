@@ -19,8 +19,10 @@ from navigator.commands import Rescan
 class TreeWindow(Window):
     """A directory tree in a window of its own, opened on *start*."""
 
-    def __init__(self, start: Path | None = None, **kwargs: Any) -> None:
+    def __init__(self, start: Path | None = None, hidden: bool = True, **kwargs: Any) -> None:
+        """*hidden* is the panel's ``show_hidden``: whether dot-directories are listed."""
         super().__init__(**kwargs)
+        self.tree.set_show_hidden(hidden)
         self.tree.show(start if start is not None else Path.cwd())
 
     def mounted(self) -> None:

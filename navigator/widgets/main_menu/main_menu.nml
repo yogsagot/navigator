@@ -1,4 +1,4 @@
-from navigator.commands import About, Calculator, ChangeDirectory, Copy, Delete, Edit, InvertSelection, MakeDirectory, NewManager, OpenTreeWindow, Quit, RenameMove, Rescan, SelectGroup, ToggleConsole, ToggleTree, UnselectGroup, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.commands import About, Calculator, ChangeDirectory, Copy, Delete, Edit, InvertSelection, MakeDirectory, NewManager, OpenTreeWindow, Quit, RenameMove, Rescan, SelectGroup, ToggleConsole, ToggleHidden, ToggleTree, UnselectGroup, UserMenu, View, ViewAsHex, ViewAsText
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -240,7 +240,6 @@ MainMenu(MenuBar):
             key: 'Alt-G'
         MenuItem:
             text: 'Directory Branc~h~'
-            key: 'Ctrl-H'
         MenuLine:
         MenuItem:
             text: 'Setup c~o~lumns'
@@ -251,6 +250,10 @@ MainMenu(MenuBar):
         MenuItem:
             text: 'Sort ~b~y...'
             key: 'Alt-B'
+        MenuItem:
+            text: 'Show/hide h~i~dden files'
+            command: ToggleHidden
+            key: 'Ctrl-H'
         MenuLine:
         MenuItem:
             text: 'Select grou~p~...'

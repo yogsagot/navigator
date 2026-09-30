@@ -313,6 +313,13 @@ class InputParser:
         #: said.  Never touched by legacy input: a legacy Ctrl+F5 is followed
         #: by no release, so believing it would leave Ctrl held for good.
         self.modifiers: frozenset[str] = frozenset()
+        #: Whether 0x08 is Ctrl+H rather than Backspace.  A legacy terminal
+        #: sends one byte for Backspace and 0x08 for Ctrl+H, and which byte
+        #: Backspace is depends on the terminal: 0x7F almost everywhere now
+        #: (VTE, xterm, konsole), 0x08 on some.  Unknown, 0x08 stays
+        #: Backspace, as it always was; the application sets this from
+        #: :attr:`Terminal.erase` once the tty has said.
+        self.ctrl_h = False
 
     @property
     def pending_escape(self) -> bool:
@@ -368,7 +375,7 @@ class InputParser:
                 continue
             if byte < 0x20 or byte == 0x7F:
                 del self._buf[:1]
-                events.append(_control_key(byte))
+                events.append(_control_key(byte, ctrl_h=self.ctrl_h))
                 continue
             length = _utf8_length(byte)
             if len(self._buf) < length:
@@ -460,7 +467,7 @@ class InputParser:
 
         # Anything else is Alt plus whatever follows.
         if second < 0x20 or second == 0x7F:
-            return 2, _control_key(second, alt=True)
+            return 2, _control_key(second, alt=True, ctrl_h=self.ctrl_h)
         length = _utf8_length(second)
         if len(buf) < 1 + length:
             return 0, None
@@ -630,14 +637,20 @@ def _mouse_event(body: bytes, terminator: str) -> Event | None:
     )
 
 
-def _control_key(byte: int, *, alt: bool = False) -> KeyEvent:
-    """Decode a C0 control byte into a key press."""
+def _control_key(byte: int, *, alt: bool = False, ctrl_h: bool = False) -> KeyEvent:
+    """Decode a C0 control byte into a key press.
+
+    0x08 is Backspace unless *ctrl_h* says the terminal's Backspace is 0x7F,
+    in which case 0x08 can only be Ctrl+H -- see :attr:`InputParser.ctrl_h`.
+    """
     match byte:
         case 0x09:
             return KeyEvent("tab", "\t", alt=alt)
         case 0x0D | 0x0A:
             return KeyEvent("enter", "\n", alt=alt)
-        case 0x08 | 0x7F:
+        case 0x7F:
+            return KeyEvent("backspace", alt=alt)
+        case 0x08 if not ctrl_h:
             return KeyEvent("backspace", alt=alt)
         case 0x1B:
             return KeyEvent("escape", alt=alt)
@@ -845,6 +858,12 @@ class Terminal:
             reprogram_palette and self.info.palette is not None and self.info.alt_screen
         )
         self._saved_attrs: list | None = None
+        #: The byte the tty's line discipline erases with -- ``stty erase``,
+        #: termios ``VERASE`` -- read by :meth:`start` before raw mode, or None
+        #: before then or without a tty.  It is what the terminal sends for
+        #: Backspace, because a terminal and its tty are set up to agree on
+        #: it, and it is the only place that answer is written down.
+        self.erase: int | None = None
         self._started = False
         self._pending: list[str] = []
 
@@ -871,6 +890,8 @@ class Terminal:
         self._started = True
         if self.is_tty:
             self._saved_attrs = termios.tcgetattr(self.input_fd)
+            erase = self._saved_attrs[6][termios.VERASE]
+            self.erase = erase[0] if isinstance(erase, bytes) else erase
             tty.setraw(self.input_fd)
         if self.info.alt_screen:
             self.write(ALT_SCREEN_ON)
