@@ -610,6 +610,27 @@ def test_the_list_mode_lays_names_out_in_columns(tmp_path):
     assert "Name" in text_at(buffer, 1)
 
 
+def test_the_list_mode_draws_no_divider_after_the_last_column(tmp_path):
+    many_files(tmp_path, 10)
+    panel = Panel(tmp_path, width=60, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(60, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    columns = panel.list_columns
+    assert len(columns) == 2
+    buffer = ScreenBuffer(60, 10)
+    panel.render(buffer)
+    glyph = panel.divider_glyph
+    between = columns[0][1] + columns[0][2]
+    after = columns[-1][1] + columns[-1][2]
+    assert after < panel.inset + panel.inner_width
+    for y in range(panel.inset, panel.inset + panel.header + panel.rows):
+        assert text_at(buffer, y)[between] == glyph
+        assert text_at(buffer, y)[after] != glyph
+
+
 def test_left_and_right_move_a_column_in_the_list_mode(tmp_path):
     many_files(tmp_path, 30)
     panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))

@@ -817,13 +817,15 @@ class Panel(ListViewer):
         glyph = self.divider_glyph
         heading = self.part_style("heading")
         divider = self.part_style("divider")
-        for index, (text, x, width) in enumerate(self._column_spans()):
+        spans = self._column_spans()
+        for index, (text, x, width) in enumerate(spans):
             shown = min(width, right - x)
             if shown <= 0:
                 break
             text = text[:shown]
             surface.draw_text(x + (shown - len(text)) // 2, top, text, heading, shown)
+            # Dividers go between columns: none after the last one.
             edge = x + width
-            if edge < right:
+            if index < len(spans) - 1 and edge < right:
                 for y in range(top, bottom):
                     surface.draw_text(edge, y, glyph, divider, 1)
