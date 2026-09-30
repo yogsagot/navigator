@@ -171,6 +171,14 @@ Split/combine's (`cmPanelLongCopy`, floppy-spanning `LongCopy`), which is droppe
 model, and it reads the target with `filecopy.resolve_target`. `LinkDialog` is Copy's dialog cut down, with one
 session-remembered *Relative link* box. `Manager.make_links` makes the links with no worker thread and shares Copy's
 *Skip* box. *Symbolic links* in `navml/DESIGN.md` has the rest.
+**F8 and Del are DOS Navigator's erase** (`ERASER.PAS`): `navigator/fileerase.py` is the model (`EraseRequest`,
+`EraseJob`, `run` on a thread, depth first, never through a link), on `navigator/job.py`'s `Job`, which is the worker
+contract `CopyJob` now shares. `DeleteDialog` asks DN's `Do you wish to delete` with a **Recursive delete** box, a
+departure that is off by default and remembered for the session. `EraseQuery` puts DN's *not empty* (No/Yes/All/Cancel)
+and *read-only*, meaning not writable (Yes/No/All), questions. `DeleteProgress` is the *Erase* `TWhileView`, with a gauge and
+*Cancel*, which asks *Abort operation?*. `Manager._watch_job` is the loop both operations share. Del and Shift+Del are `by_key`,
+stepping aside while the command line has text, and Shift+F8/Shift+Del (`DeleteSingle`) takes the cursor's entry
+whatever is tagged. *Deleting files* in `navml/DESIGN.md` has the rest.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

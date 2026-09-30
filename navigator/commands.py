@@ -134,8 +134,18 @@ class MakeDirectory(Command):
     title = "MkDir"
 
 
+@dataclass(frozen=True, slots=True)
 class Delete(Command):
+    """F8, ``cmPanelErase``: the selection, after the Delete dialog asks.
+
+    Del too, DN's ``fmoDelErase``, on by default, which erased only while
+    ``CmdLine.Str`` was empty.  *by_key* is that Del, as it is for
+    :class:`GoParent`'s Backspace: with text on the line it steps aside and
+    the key deletes a character there.
+    """
+
     title = "Del"
+    by_key: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -484,10 +494,16 @@ class Reanimate(Command):
     title = "Reanimate"
 
 
+@dataclass(frozen=True, slots=True)
 class DeleteSingle(Command):
-    """Shift+F8, ``cmSingleDel``: the file under the cursor, not the selection."""
+    """Shift+F8, ``cmSingleDel``: the file under the cursor, not the selection.
+
+    Shift+Del too, the File menu's key for it.  *by_key* is that Shift+Del,
+    which steps aside while the command line has text, where it cuts.
+    """
 
     title = "Del"
+    by_key: bool = False
 
 
 # -- the editor ------------------------------------------------------------------

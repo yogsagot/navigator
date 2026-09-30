@@ -11,6 +11,19 @@ from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 
+def fit_path(label: str, path: str, width: int) -> str:
+    """*label* and then *path*, the path cut from the left to fit *width* cells.
+
+    From the left because the end of a path is what tells one file from
+    the next; the box widening to fit, as ``TWhileView`` did, would make
+    it jump about with every name.
+    """
+    room = max(4, width - len(label))
+    if len(path) > room:
+        path = "..." + path[len(path) - room + 3 :]
+    return escape_caption(label + path)
+
+
 class CopyProgress(Dialog):
     """*Copy* or *Rename/move*: two gauges and *Stop*.
 
@@ -25,16 +38,8 @@ class CopyProgress(Dialog):
         self.ok.text = "~S~top"
 
     def fit(self, label: str, path: str) -> str:
-        """*label* and then *path*, the path cut from the left to fit the row.
-
-        From the left because the end of a path is what tells one file from
-        the next; the box widening to fit, as ``TWhileView`` did, would make
-        it jump about with every name.
-        """
-        room = max(4, self.width - 4 - len(label))
-        if len(path) > room:
-            path = "..." + path[len(path) - room + 3 :]
-        return escape_caption(label + path)
+        """*label* and then *path*, cut to the row: :func:`fit_path`."""
+        return fit_path(label, path, self.width - 4)
 
     def count(self, done: int, percent: int) -> str:
         """``N bytes (P%)``, the line under each gauge; *percent* is the bar's own."""

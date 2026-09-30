@@ -1,0 +1,61 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+
+#: What a delete asks on the way, as ``ERASER.PAS``'s message boxes asked it.
+#:
+#: ``not-empty`` is ``dlEraseDirNotEmpty``: *No*, *Yes*, *All*, *Cancel* in
+#: that order and the focus on *No*, so Enter on it deletes nothing.
+#: ``read-only`` is ``dlEraseRO``: *Yes*, *No*, *All*, and Esc for Cancel.
+#: The buttons are placed by :meth:`slot`, because which comes first is the
+#: kind's.
+EraseQuery(Dialog):
+    modal_width: 54
+    modal_height: 10
+    title: "Confirm"
+
+    #: ``not-empty`` or ``read-only``.
+    property kind: "not-empty"
+
+    StaticText:
+        id: details
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: 3
+        align: "center"
+
+    Button:
+        id: refuse
+        text: "~N~o"
+        default: root.kind == "not-empty"
+        x: root.slot(0 if root.kind == "not-empty" else 1)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: agree
+        text: "~Y~es"
+        default: root.kind != "not-empty"
+        x: root.slot(1 if root.kind == "not-empty" else 0)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: every
+        text: "~A~ll"
+        x: root.slot(2)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        visible: root.kind == "not-empty"
+        x: root.slot(3)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from navkit.reactive import computed, effect, reactive, untracked
 
@@ -22,6 +22,8 @@ from navml.widgets.window import Window
 from navigator.commands import (
     ChangeDirectory,
     Copy,
+    Delete,
+    DeleteSingle,
     Edit,
     GoParent,
     MakeDirectory,
@@ -82,6 +84,10 @@ class Manager(Window):
         "backspace": GoParent(by_key=True),
         "shift+backspace": GoParent(),
         "ctrl+pageup": GoParent(),
+        #: DN's ``fmoDelErase``: Del deletes while the command line is empty,
+        #: and edits the line otherwise; Shift+Del is the menu's single delete.
+        "delete": Delete(by_key=True),
+        "shift+delete": DeleteSingle(by_key=True),
         #: Scrolling a name too long for its column; the list mode's panel
         #: takes these first and moves a column instead.
         "left": ScrollNames(-1),
@@ -189,7 +195,16 @@ class Manager(Window):
                 # Disabled, so Backspace falls through and edits the line.
                 return False
             return not (self.tree.focused or self.quick.focused)
-        if isinstance(command, (Copy, RenameMove, MakeLink)):
+        if isinstance(command, (Delete, DeleteSingle)) and command.by_key:
+            if self._command_line_has_text():
+                # Disabled, so Del deletes a character and Shift+Del cuts.
+                return False
+        if isinstance(command, DeleteSingle):
+            entry = self.active_panel.selected
+            return not (self.tree.focused or self.quick.focused) and (
+                entry is not None and entry.name != ".."
+            )
+        if isinstance(command, (Copy, RenameMove, MakeLink, Delete)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
             return not (self.tree.focused or self.quick.focused) and bool(
@@ -389,8 +404,34 @@ class Manager(Window):
         other.reload()
 
     async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
-        """The progress box, *Stop*, and the worker's questions, until *work* ends."""
+        """The copy's progress box, *Stop*, and the worker's questions, until *work* ends."""
         from navigator.widgets.copy_progress import CopyProgress
+
+        def refresh(box: Any) -> None:
+            box.source, box.dest = job.source, job.dest
+            box.file_done, box.file_bytes = job.file_done, job.file_bytes
+            box.done, box.total = job.done_bytes, job.total_bytes
+
+        await self._watch_job(
+            work, job, lambda: CopyProgress(move=move), refresh, self._answer_copy_question
+        )
+
+    async def _watch_job(
+        self,
+        work: asyncio.Future[Any],
+        job: Any,
+        make_box: Callable[[], Any],
+        refresh: Callable[[Any], None],
+        answer: Callable[[Any], Awaitable[Any]],
+    ) -> None:
+        """A worker's progress box, its one button, and its questions, until *work* ends.
+
+        The box is *make_box*'s, put up once the work has taken
+        ``PROGRESS_DELAY``, and *refresh* copies *job*'s fields into it every
+        tick.  Each question the worker puts goes to *answer*, one at a time.
+        The box closing -- its button, or Esc -- holds the worker and asks
+        ``dlQueryAbort`` before anything stops.
+        """
         from navigator.widgets.file_window.file_window import PROGRESS_DELAY, PROGRESS_TICK
 
         app = self.application
@@ -399,15 +440,10 @@ class Manager(Window):
         box: Any = None
         shown: asyncio.Future[Any] | None = None
 
-        def refresh() -> None:
-            if box is not None:
-                box.source, box.dest = job.source, job.dest
-                box.file_done, box.file_bytes = job.file_done, job.file_bytes
-                box.done, box.total = job.done_bytes, job.total_bytes
-
         async def tick() -> None:
             # Through the queue, so each update is painted with its batch.
-            refresh()
+            if box is not None:
+                refresh(box)
 
         repeat = app.call_every(PROGRESS_TICK, tick)
         try:
@@ -417,11 +453,11 @@ class Manager(Window):
                 pending = job.take_question()
                 if pending is not None:
                     question, future = pending
-                    answer = None
+                    result = None
                     try:
-                        answer = await self._answer_copy_question(question)
+                        result = await answer(question)
                     finally:
-                        future.set_result(answer)
+                        future.set_result(result)
                     continue
                 if shown is not None and shown.done():
                     # *Stop*, or Esc: ``dlQueryAbort`` before anything stops.
@@ -436,8 +472,8 @@ class Manager(Window):
                 if work.done():
                     break
                 if shown is None and not job.stopped and loop.time() - started >= PROGRESS_DELAY:
-                    box = CopyProgress(move=move)
-                    refresh()
+                    box = make_box()
+                    refresh(box)
                     shown = asyncio.ensure_future(box.execute(app))
         finally:
             repeat.cancel()
@@ -490,6 +526,73 @@ class Manager(Window):
         unbind(box.ok, Button.text)
         box.ok.text = "~S~kip"
         return await box.execute(self.application) is True
+
+    # -- deleting ----------------------------------------------------------------
+
+    async def on_delete(self, event: Delete) -> bool:
+        """F8 and Del: ``cmPanelErase``."""
+        self.spawn(self.delete_files(single=False))
+        return True
+
+    async def on_delete_single(self, event: DeleteSingle) -> bool:
+        """Shift+F8 and Shift+Del: ``cmSingleDel``, the cursor's entry whatever is tagged."""
+        self.spawn(self.delete_files(single=True))
+        return True
+
+    async def delete_files(self, *, single: bool) -> None:
+        """Ask, delete on a thread, and let both panels look again.
+
+        ``copy_files``'s shape: the Delete dialog, then ``fileerase.run``
+        through ``asyncio.to_thread`` with :meth:`_watch_job` between the two
+        -- the *Erase* box, and the worker's *not empty*, *read-only* and
+        failure questions.  What went is untagged; what was kept keeps its tag.
+        """
+        from navigator import fileerase
+        from navigator.widgets.delete_dialog import DeleteDialog
+        from navigator.widgets.delete_progress import DeleteProgress
+
+        app = self.application
+        panel, other = self.active_panel, self.passive_panel
+        if single:
+            entry = panel.selected
+            entries = [] if entry is None or entry.name == ".." else [entry]
+        else:
+            entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
+        if request is None:
+            return
+        job = fileerase.EraseJob()
+        work = asyncio.ensure_future(asyncio.to_thread(fileerase.run, request, job))
+
+        def refresh(box: Any) -> None:
+            box.action, box.path = job.action, job.path
+            box.done, box.total = job.done, job.total
+
+        done: list[Path] = []
+        try:
+            await self._watch_job(work, job, DeleteProgress, refresh, self._answer_erase_question)
+            done = await work
+        finally:
+            if not work.done():
+                job.stop()
+            names = {path.name for path in done}
+            if names:
+                panel.marked = panel.marked - names
+            panel.reload()
+            other.reload()
+
+    async def _answer_erase_question(self, question: Any) -> Any:
+        """Put one of the eraser's questions to the user, and answer as it expects."""
+        from navigator import fileerase, filecopy
+        from navigator.widgets.erase_query import EraseQuery
+
+        if isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
+            return await EraseQuery(question=question).execute(self.application)
+        if isinstance(question, filecopy.Failure):
+            return await self._ask_skip(question.message)
+        return None
 
     # -- symbolic links ----------------------------------------------------------
 

@@ -1,0 +1,58 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.progress_bar import ProgressBar
+
+#: A delete under way: the ``TWhileView`` ``ERASER.PAS`` opened, titled *Erase*.
+#:
+#: DN's two lines -- ``Erasing the file`` or ``Erasing the directory``, and
+#: the name -- and then what DN did not have, a gauge over the entries
+#: counted before the first went, with its count.  One *Cancel* where DN's
+#: said *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
+DeleteProgress(Dialog):
+    modal_width: 50
+    modal_height: 10
+    title: "Erase"
+    buttons: "ok"
+    closable: False
+
+    property action: ""
+    property path: ""
+    property done: 0
+    property total: 0
+
+    StaticText:
+        id: action_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.action
+
+    StaticText:
+        id: path_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.fit(root.path)
+
+    ProgressBar:
+        id: bar
+        x: 4
+        y: 4
+        width: max(0, parent.width - 8)
+        height: 1
+        value: root.done
+        #: Empty rather than full while the entries are still being counted.
+        total: max(1, root.total)
+
+    StaticText:
+        id: count_row
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.count(root.done, root.total, bar.percent)

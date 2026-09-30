@@ -1,0 +1,45 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: F8: DOS Navigator's ``ValidErase``, as one dialog.
+#:
+#: DN asked through message boxes: ``Do you wish to delete file NAME ?`` for
+#: one, ``these files?`` and then ``OK to delete N files ?`` for several.
+#: This is those words in one box -- a departure -- because it carries what
+#: a message box could not: *Recursive delete*, which answers *All* to every
+#: ``Directory ... is not empty`` before it is asked.  *Yes* and *No* are the
+#: base's OK and Cancel, relabelled.
+DeleteDialog(Dialog):
+    modal_width: 50
+    modal_height: 10
+    title: "Delete"
+    buttons: "ok-cancel"
+
+    #: ``dlEraseConfirm1``'s first line.
+    Label:
+        id: prompt_head
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Do you wish to delete"
+
+    #: ``file NAME?``, ``directory NAME?`` or ``3 files?``: the hand-written half's.
+    Label:
+        id: prompt_caption
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+
+    #: Bit 1: a non-empty directory goes without being asked about.
+    CheckBoxes:
+        id: options
+        x: max(0, (parent.width - 24) // 2)
+        y: 4
+        width: 24
+        height: 1
+        items: ["~R~ecursive delete"]

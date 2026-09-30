@@ -41,11 +41,14 @@ _WIDGETS = {
     "CopyDialog": "copy_dialog",
     "CopyProgress": "copy_progress",
     "CommandLine": "command_line",
+    "DeleteDialog": "delete_dialog",
+    "DeleteProgress": "delete_progress",
     "CompletionList": "completion_list",
     "Console": "console",
     "DirEntry": "panel",
     "DirectoryTree": "directory_tree",
     "EditWindow": "edit_window",
+    "EraseQuery": "erase_query",
     "FileEditor": "file_editor",
     "FileViewer": "file_viewer",
     "FileWindow": "file_window",
@@ -93,8 +96,11 @@ if TYPE_CHECKING:
     from navigator.widgets.command_line import CommandLine
     from navigator.widgets.completion_list import CompletionList
     from navigator.widgets.console import Console
+    from navigator.widgets.delete_dialog import DeleteDialog
+    from navigator.widgets.delete_progress import DeleteProgress
     from navigator.widgets.directory_tree import DirectoryTree
     from navigator.widgets.edit_window import EditWindow
+    from navigator.widgets.erase_query import EraseQuery
     from navigator.widgets.file_editor import FileEditor
     from navigator.widgets.file_viewer import FileViewer
     from navigator.widgets.file_window import FileWindow
