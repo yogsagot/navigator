@@ -34,6 +34,7 @@ from navigator.widgets.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
 from navigator.widgets import Clock, DirEntry, Manager, Panel, Shell
+from navigator.widgets.panel.panel import fit_text, skip_cells, window_text
 from navigator.widgets.clock import clock as clock_module
 from navml.widgets import Window
 
@@ -678,6 +679,88 @@ def test_a_click_in_the_list_mode_picks_the_column(tmp_path):
     first, x, _ = panel.list_columns[1]
     assert panel.index_at(x, panel.inset + panel.header + 2) == first + 2
     assert panel.index_at(x - 1, panel.inset + panel.header) is None  # the divider
+
+
+def test_fit_text_ends_a_name_cut_short_in_an_ellipsis():
+    assert fit_text("short", 10) == "short"
+    assert fit_text("exactly10!", 10) == "exactly10!"
+    assert fit_text("a_rather_long_name.txt", 10) == "a_rathe..."
+    assert fit_text("abcdef", 3) == "abc"  # no room for the marker and a letter
+    # Measured in cells: a wide character that would straddle the cut goes.
+    assert fit_text("日本語のファイル", 8) == "日本..."
+
+
+def test_skip_cells_drops_the_start_of_a_name():
+    assert skip_cells("abcdef", 0) == "abcdef"
+    assert skip_cells("abcdef", 2) == "cdef"
+    assert skip_cells("日本語", 2) == "本語"
+    assert skip_cells("日本語", 1) == " 本語"  # half a wide character is a blank
+    assert skip_cells("ab", 5) == ""
+
+
+def test_window_text_marks_both_ends_of_a_scrolled_name():
+    assert window_text("abcdefghijkl", 0, 8) == "abcde..."
+    assert window_text("abcdefghijkl", 2, 8) == "...fg..."
+    # Scrolled to its end, only the leading marker: cells 4 to 12.
+    assert window_text("abcdefghijkl", 4, 8) == "...hijkl"
+    # A short name scrolled out of the window still shows it is there.
+    assert window_text("ab", 4, 8) == "..."
+    assert window_text("abcdef", 1, 3) == "bcd"  # too narrow for a marker
+
+
+LONG_NAME = "a_file_whose_name_is_much_too_long_for_its_column.txt"
+
+
+@pytest.mark.parametrize("modes", [0, 1, 2])
+def test_a_name_too_long_for_its_column_ends_in_an_ellipsis(tmp_path, modes):
+    (tmp_path / LONG_NAME).write_text("")
+    panel = Panel(tmp_path, width=40, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(40, 10))
+    for _ in range(modes):
+        panel.cycle_view_mode()
+    settle()
+    buffer = ScreenBuffer(40, 10)
+    panel.render(buffer)
+    row = next(text_at(buffer, y) for y in range(10) if "a_file" in text_at(buffer, y))
+    assert "..." in row
+    assert ".txt" not in row
+
+
+def test_left_and_right_scroll_the_names_and_stop_at_the_ends(tmp_path, quiet_console):
+    (tmp_path / LONG_NAME).write_text("")
+    app = navigator(tmp_path, size=(80, 24))
+    run_app(app, [KeyEvent("right")] * 200)
+    panel = app.manager.left
+    assert panel.max_name_scroll > 0
+    assert panel.name_offset == panel.max_name_scroll
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    # Scrolled to the end, the longest name's tail shows after a marker.
+    row = next(text_at(buffer, y) for y in range(panel.height) if "column.txt" in text_at(buffer, y))
+    assert row.count("...") == 1
+    assert row.index("...") < row.index("column.txt")
+    app = navigator(tmp_path)
+    run_app(app, [KeyEvent("right")] * 3 + [KeyEvent("left")])
+    assert app.manager.left.name_offset == 2
+
+
+def test_left_and_right_move_the_caret_while_the_line_has_text(tmp_path, quiet_console):
+    (tmp_path / LONG_NAME).write_text("")
+    app = navigator(tmp_path)
+    run_app(app, [*keys("ls"), KeyEvent("left")])
+    assert app.manager.left.name_offset == 0
+    assert app.shell.command_line.cursor == 1
+
+
+def test_the_name_scroll_resets_on_a_change_of_mode(tmp_path):
+    (tmp_path / LONG_NAME).write_text("")
+    panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
+    settle()
+    panel.scroll_names(5)
+    assert panel.name_offset == 5
+    panel.cycle_view_mode()
+    assert panel.name_offset == 0
 
 
 def test_ctrl_y_changes_only_the_active_panel(tree):

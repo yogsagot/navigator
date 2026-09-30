@@ -97,7 +97,10 @@ what is deferred.
 panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Date, the **modification** time
 as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Date are dropped when the name would fall
 under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
-Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple modes have a heading row in *Column title*
+Left/Right moving a column as DN's `kbLeft`/`kbRight` did). A name too long for its column ends in `...` (`fit_text`, in cells), and starts with one while scrolled
+(`window_text`), and in the simple and
+detailed modes Left/Right scroll every name a cell along (`ScrollNames`, `Panel.name_scroll`, clamped to the longest
+name and reset by a change of directory or mode) -- disabled, so the caret moves, while the command line has text. Both non-simple modes have a heading row in *Column title*
 `[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
 Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`); in the Nerd tier that mark picks the icon
 instead (`icons.BY_TYPE`, beating the extension's), and a dot-name that neither a mark nor an extension

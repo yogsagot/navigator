@@ -348,6 +348,20 @@ class GoParent(Command):
 
 
 @dataclass(frozen=True, slots=True)
+class ScrollNames(Command):
+    """Left and Right in the simple and the detailed modes: scroll every name
+    in the active panel a cell along, so a name cut short can be read to its
+    end.  Not DN's -- its names were 8.3 and always fitted.
+
+    *step* is -1 for Left and 1 for Right.  Like Backspace's
+    :class:`GoParent`, the key steps aside while the command line has text,
+    and it does when there is nothing to scroll that way, so the caret moves.
+    """
+
+    step: int = 1
+
+
+@dataclass(frozen=True, slots=True)
 class SelectGroup(Command):
     """Gray ``+``, ``cmPanelSelect``: tag every file a mask matches.
 

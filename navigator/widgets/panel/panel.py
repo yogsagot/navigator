@@ -27,7 +27,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.reactive import computed, effect, peek, reactive
-from navkit.screen import Surface
+from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
 
@@ -139,6 +139,64 @@ class DirEntry:
         return time.strftime("%d-%m-%y %H:%M", time.localtime(self.mtime))
 
 
+#: What ends a name cut short to fit its column.
+ELLIPSIS = "..."
+
+
+def text_width(text: str) -> int:
+    """The cells *text* takes on the terminal."""
+    return sum(char_width(char) for char in text)
+
+
+def skip_cells(text: str, cells: int) -> str:
+    """*text* less its first *cells* cells; half a wide character is a blank."""
+    if cells <= 0:
+        return text
+    skipped = 0
+    for index, char in enumerate(text):
+        if skipped >= cells:
+            return text[index:]
+        skipped += char_width(char)
+        if skipped > cells:
+            return " " + text[index + 1 :]
+    return ""
+
+
+def fit_text(text: str, room: int) -> str:
+    """*text* in *room* cells, ending in :data:`ELLIPSIS` if it had to be cut.
+
+    With no room for the marker and a character beside it, just cut.
+    """
+    if text_width(text) <= room:
+        return text
+    keep = room - len(ELLIPSIS) if room > len(ELLIPSIS) else room
+    used = 0
+    for index, char in enumerate(text):
+        used += char_width(char)
+        if used > keep:
+            head = text[:index]
+            break
+    else:
+        head = text
+    return head + ELLIPSIS if room > len(ELLIPSIS) else head
+
+
+def window_text(text: str, offset: int, room: int) -> str:
+    """Cells *offset* to *offset* + *room* of *text*, marked where it is cut.
+
+    Scrolled at all, the first cells of the window are :data:`ELLIPSIS`
+    rather than a marker pushed in front, so the window does not move -- a
+    name shows its end exactly when it would have without the marker.  A
+    name scrolled wholly out of the window leaves the marker alone, saying
+    there is a name there.  With no room for the marker and a character
+    beside it, the text is just cut.
+    """
+    marker = len(ELLIPSIS)
+    if offset <= 0 or room <= marker:
+        return fit_text(skip_cells(text, offset), room)
+    return ELLIPSIS + fit_text(skip_cells(text, offset + marker), room - marker)
+
+
 class Panel(ListViewer):
     """One side of the desktop: a directory, listed.
 
@@ -186,6 +244,12 @@ class Panel(ListViewer):
     #: character kept names at least one entry: one that would name none is
     #: refused, as Midnight Commander refuses it.
     quick_search: str | None = reactive(None)
+    #: How many cells every name is scrolled left by, in the simple and the
+    #: detailed modes: Left and Right move it, so the end of a name too long
+    #: for its column can be read.  What is shown is :attr:`name_offset`,
+    #: this clamped to what the longest name needs.  Back to 0 on a change of
+    #: directory or of mode.
+    name_scroll: int = reactive(0)
 
     #: ``simple``: name and size.  ``detailed``: name, size, permissions and
     #: date in columns.  ``list``: names alone, in as many columns as fit.
@@ -272,6 +336,7 @@ class Panel(ListViewer):
         if path != self._listed:
             marked = frozenset()
             self.quick_search = None
+            self.name_scroll = 0
         elif marked:
             marked &= {entry.name for entry in entries}
         self.marked = marked
@@ -424,6 +489,7 @@ class Panel(ListViewer):
         mode = modes[(modes.index(self.view_mode) + 1) % len(modes)]
         self.view_mode = mode
         self.header = 0 if mode == "simple" else 1
+        self.name_scroll = 0
 
     def toggle_hidden(self) -> None:
         """Ctrl+H: hide the dot-files, or show them again.
@@ -520,7 +586,8 @@ class Panel(ListViewer):
         """The quick search's keys while it is on, then the listing's.
 
         In the list mode Left and Right move a column, as DN's did.
-        Otherwise they are declined, and reach the command line.
+        Otherwise they are declined, and reach the manager's key table, which
+        scrolls the names with them (:meth:`scroll_names`).
         """
         if self.quick_search is not None and not self.inert and self._search_key(event):
             return True
@@ -654,6 +721,42 @@ class Panel(ListViewer):
                 return index if index < len(self.items) else None
         return None
 
+    # -- scrolling the names ---------------------------------------------------
+
+    @computed
+    def name_room(self) -> int:
+        """The cells a name has in the simple and the detailed modes, less the gutter."""
+        if self.view_mode == "detailed":
+            columns = self.detail_columns
+            width = columns[0][2] if columns else 0
+        else:
+            width = max(1, self.name_width)
+        return max(0, width - self.gutter)
+
+    @computed
+    def max_name_scroll(self) -> int:
+        """How far the names can scroll: until the longest one ends in view.
+
+        None at all in the list mode, whose columns are laid out to the names.
+        """
+        if self.view_mode == "list" or not self.items:
+            return 0
+        longest = max(text_width(item.name) for item in self.items)
+        return max(0, longest - self.name_room)
+
+    @computed
+    def name_offset(self) -> int:
+        """:attr:`name_scroll`, as far as there is anything to scroll."""
+        return max(0, min(self.name_scroll, self.max_name_scroll))
+
+    def can_scroll_names(self, step: int) -> bool:
+        offset = self.name_offset
+        return offset > 0 if step < 0 else offset < self.max_name_scroll
+
+    def scroll_names(self, step: int) -> None:
+        """Left and Right in the simple and detailed modes: every name a cell along."""
+        self.name_scroll = max(0, min(self.name_offset + step, self.max_name_scroll))
+
     # -- painting ------------------------------------------------------------
 
     @property
@@ -735,7 +838,7 @@ class Panel(ListViewer):
         return self.TAG_CHAR if self.glyphs > glyphs_module.GLYPHS_ASCII else self.TAG_CHAR_ASCII
 
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
-                   item: DirEntry, style: Style) -> None:
+                   item: DirEntry, style: Style, offset: int = 0) -> None:
         """The tag, the icon or the type mark, and the name, in *width* cells.
 
         A tag takes the gutter over whichever of the other two it would hold:
@@ -751,7 +854,9 @@ class Panel(ListViewer):
                 mark = item.type_mark
             surface.draw_text(x, y, mark, style, gutter)
         if width > gutter:
-            surface.draw_text(x + gutter, y, item.name, style, width - gutter)
+            room = width - gutter
+            name = window_text(item.name, offset, room)
+            surface.draw_text(x + gutter, y, name, style, room)
 
     def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
         style = self.row_style(index, item)
@@ -759,7 +864,7 @@ class Panel(ListViewer):
             selected = self.row_selected(index)
             for key, x, width in self.detail_columns:
                 if key == "name":
-                    self._draw_name(surface, x, y, width, item, style)
+                    self._draw_name(surface, x, y, width, item, style, self.name_offset)
                     continue
                 if selected:
                     # The cursor bar covers the dividers; draw them back in it.
@@ -769,7 +874,7 @@ class Panel(ListViewer):
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
-        self._draw_name(surface, 1, y, max(1, self.name_width), item, style)
+        self._draw_name(surface, 1, y, max(1, self.name_width), item, style, self.name_offset)
         surface.draw_text(self.width - 9, y, item.display_size, style, 8)
 
     def render_items(self, surface: Surface) -> None:
@@ -777,8 +882,12 @@ class Panel(ListViewer):
             super().render_items(surface)
             return
         top = self.inset + self.header
+        right = self.inset + self.inner_width
         items = self.items
         for first, x, width in self.list_columns:
+            # The last column may run past the edge: end its names at the edge,
+            # so the marker is shown rather than clipped.
+            width = min(width, right - x)
             for row in range(self.rows):
                 index = first + row
                 if index >= len(items):

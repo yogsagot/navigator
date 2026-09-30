@@ -27,6 +27,7 @@ from navigator.commands import (
     QuickSearch,
     QuickView,
     Rescan,
+    ScrollNames,
     InvertSelection,
     SelectGroup,
     SwitchPanel,
@@ -78,6 +79,10 @@ class Manager(Window):
         "backspace": GoParent(by_key=True),
         "shift+backspace": GoParent(),
         "ctrl+pageup": GoParent(),
+        #: Scrolling a name too long for its column; the list mode's panel
+        #: takes these first and moves a column instead.
+        "left": ScrollNames(-1),
+        "right": ScrollNames(1),
     }
 
     #: How long the tree's cursor has to rest before the panel follows it:
@@ -181,6 +186,13 @@ class Manager(Window):
                 # Disabled, so Backspace falls through and edits the line.
                 return False
             return not (self.tree.focused or self.quick.focused)
+        if isinstance(command, ScrollNames):
+            panel = self.active_panel
+            return (
+                not (self.tree.focused or self.quick.focused)
+                and not self._command_line_has_text()
+                and panel.can_scroll_names(command.step)
+            )
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
@@ -199,6 +211,10 @@ class Manager(Window):
                 return bool(line.value)
             widget = widget.parent
         return False
+
+    async def on_scroll_names(self, event: ScrollNames) -> bool:
+        self.active_panel.scroll_names(event.step)
+        return True
 
     async def on_go_parent(self, event: GoParent) -> bool:
         self.active_panel.go_up()
