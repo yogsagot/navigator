@@ -155,7 +155,10 @@
 <text x="430" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">◀</text>
 <text x="180" y="435" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">bin</text>
 <text x="590" y="435" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">..</text>
-<text x="0" y="455" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">.&gt;</text>
+<text x="0" y="455" textLength="150" lengthAdjust="spacingAndGlyphs" fill="#55ff55" font-weight="bold">juris@juris-dev</text>
+<text x="150" y="455" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">:</text>
+<text x="160" y="455" textLength="230" lengthAdjust="spacingAndGlyphs" fill="#5555ff" font-weight="bold">~/development/navigator</text>
+<text x="390" y="455" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">$</text>
 <text x="10" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F1</text>
 <text x="40" y="475" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">Help</text>
 <text x="100" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F2</text>

@@ -86,6 +86,10 @@ SUBTREE: dict[str, int | None] = {
     "widgets.py": 22_596,
 }
 PINNED_TIME = datetime(1999, 12, 31, 23, 59).timestamp()
+PROMPT = (
+    b"\x1b[01;38;2;85;255;85mjuris@juris-dev\x1b[00;38;2;255;255;255m:"
+    b"\x1b[01;38;2;85;85;255m~/development/navigator\x1b[00;38;2;255;255;255m$ "
+)
 
 
 class HeadlessTerminal:
@@ -152,6 +156,11 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
         # line is kept as the file panel shows it, every item enabled.
         bound = app.bindings()
         app.bindings = lambda start=None: bound
+        # The shell's own prompt, as if it had printed one where the panel
+        # is: Debian's default bash PS1, in xfce4-terminal's default colours
+        # (its VGA palette, bold shown bright, a white foreground), spelled as RGB so the theme's
+        # palette cannot repaint it.
+        app.shell.console._prompted(PROMPT, app.shell._front_directory())
         app.command_enabled = lambda command: True
         # Started from here rather than through the command, which would need
         # a key or a menu walk; outside a dispatch, `execute' is content to

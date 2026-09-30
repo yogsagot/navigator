@@ -30,7 +30,7 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
 │             ╚══════════════════════════════════════════════════╝             │
 │                                      ││                                      │
 └──────────────── bin ─────────────────┘└───────────────── .. ─────────────────┘
-.>
+juris@juris-dev:~/development/navigator$
  F1 Help  F2 User  F3 View  F4 Edit  F5 Copy  F6 Ren  F7 MkDir  F8 Del  F10 Menu
 ```
 
