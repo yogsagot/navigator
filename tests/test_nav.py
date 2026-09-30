@@ -527,6 +527,144 @@ def test_the_wheel_scrolls_the_panel_under_the_pointer(tmp_path):
     run_app(app, [MouseClickEvent(x=5, y=5, button="wheel_down", action="press")])
     assert app.manager.left.cursor == 3
 
+# -- show modes (Ctrl+Y) -------------------------------------------------------
+
+
+def text_at(buffer: ScreenBuffer, y: int) -> str:
+    return "".join(buffer.get(x, y)[0] for x in range(buffer.width))
+
+
+def many_files(path: Path, count: int, width: int = 6) -> Path:
+    for index in range(count):
+        (path / f"f{index:0{width - 1}d}").write_text("")
+    return path
+
+
+def test_ctrl_y_cycles_the_show_modes(panel):
+    assert panel.view_mode == "simple" and panel.header == 0
+    panel.cycle_view_mode()
+    assert panel.view_mode == "detailed" and panel.header == 1
+    panel.cycle_view_mode()
+    assert panel.view_mode == "list" and panel.header == 1
+    panel.cycle_view_mode()
+    assert panel.view_mode == "simple" and panel.header == 0
+
+
+def test_a_dir_entry_carries_permissions_and_a_date(panel, tree):
+    (tree / "one.txt").chmod(0o640)
+    stamp = datetime(2021, 3, 4, 5, 6).timestamp()
+    import os
+    os.utime(tree / "one.txt", (stamp, stamp))
+    panel.reload()
+    settle()
+    entry = next(e for e in panel.items if e.name == "one.txt")
+    assert entry.display_attributes == "rw-r-----"
+    assert entry.display_date == "04-03-21 05:06"
+
+
+def test_the_detailed_mode_draws_its_columns(tree):
+    panel = Panel(tree, width=60, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(60, 10))
+    panel.cycle_view_mode()
+    settle()
+    assert [key for key, _, _ in panel.detail_columns] == ["name", "size", "attributes", "date"]
+    buffer = ScreenBuffer(60, 10)
+    panel.render(buffer)
+    heading = text_at(buffer, 1)
+    for title in ("Name", "Size", "Attr", "Date"):
+        assert title in heading
+    row = next(text_at(buffer, y) for y in range(2, 9) if "two.txt" in text_at(buffer, y))
+    assert "2K" in row and "rw" in row and row[1:-1].count("│") == 3
+    # The name column takes what the others leave.
+    _, x, width = panel.detail_columns[0]
+    assert (x, width) == (1, 58 - (8 + 9 + 14 + 3))
+
+
+def test_a_narrow_detailed_panel_gives_up_attributes_first(panel):
+    panel.cycle_view_mode()
+    settle()
+    # 40 wide is half an 80-column screen: name, size and date still fit.
+    assert [key for key, _, _ in panel.detail_columns] == ["name", "size", "date"]
+    assert panel.detail_columns[0][2] >= Panel.MIN_NAME_WIDTH
+
+
+def test_the_list_mode_lays_names_out_in_columns(tmp_path):
+    many_files(tmp_path, 30)
+    panel = Panel(tmp_path, width=40, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(40, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    rows = panel.rows
+    assert rows == 7  # 10, less the frame and the heading
+    columns = panel.list_columns
+    # ".." and 30 names, seven to a column; each as wide as its longest name.
+    assert [first for first, _, _ in columns][:3] == [0, 7, 14]
+    assert columns[1][2] == panel.gutter + 6
+    buffer = ScreenBuffer(40, 10)
+    panel.render(buffer)
+    assert "f00006" in text_at(buffer, 2)  # the second column's first row
+    assert "Name" in text_at(buffer, 1)
+
+
+def test_left_and_right_move_a_column_in_the_list_mode(tmp_path):
+    many_files(tmp_path, 30)
+    panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    panel.focus()
+    assert awaited(panel.on_key(KeyEvent("right")))
+    settle()
+    assert panel.cursor == panel.rows
+    assert awaited(panel.on_key(KeyEvent("left")))
+    settle()
+    assert panel.cursor == 0
+    # Outside the list mode they are declined, and reach the command line.
+    panel.cycle_view_mode()
+    assert not awaited(panel.on_key(KeyEvent("right")))
+
+
+def test_the_list_mode_scrolls_a_whole_column(tmp_path):
+    many_files(tmp_path, 100)
+    panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    panel.cursor = 80
+    settle()
+    rows = panel.rows
+    assert panel.scroll % rows == 0
+    right = panel.inset + panel.inner_width
+    assert any(
+        first <= 80 < first + rows and x + width <= right
+        for first, x, width in panel.list_columns
+    )
+    panel.cursor = 3
+    settle()
+    assert panel.scroll == 0
+
+
+def test_a_click_in_the_list_mode_picks_the_column(tmp_path):
+    many_files(tmp_path, 30)
+    panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
+    panel.cycle_view_mode()
+    panel.cycle_view_mode()
+    settle()
+    first, x, _ = panel.list_columns[1]
+    assert panel.index_at(x, panel.inset + panel.header + 2) == first + 2
+    assert panel.index_at(x - 1, panel.inset + panel.header) is None  # the divider
+
+
+def test_ctrl_y_changes_only_the_active_panel(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("y", ctrl=True)])
+    assert app.manager.left.view_mode == "detailed"
+    assert app.manager.right.view_mode == "simple"
+
+
 def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     """Swapping the sheet must change what the panel paints.
 

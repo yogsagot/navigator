@@ -93,6 +93,13 @@ percentage, Stop), fed through a `SearchJob` the thread writes and the loop read
 `SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the
 active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
 what is deferred.
+**Ctrl+Y is DN's `cmToggleShowMode`**, per panel (`Panel.view_mode`, `cycle_view_mode`): *simple* (name and size, the
+panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Date, the **modification** time
+as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Date are dropped when the name would fall
+under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
+Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple modes have a heading row in *Column title*
+`[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). `ListViewer` grew the
+hooks for it -- `capacity`, `index_at`, `render_items` and an overridable `_follow_cursor`.
 **F4 is DOS Navigator's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had:
 `navigator/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`), `FileEditor` is `TFileEditor`
 and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame. **A file round-trips

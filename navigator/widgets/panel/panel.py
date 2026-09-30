@@ -15,13 +15,16 @@ the name, and the size column the original draws on the right.
 from __future__ import annotations
 
 import os
+import stat
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from navkit.events import Event, MouseClickEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent
+from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
-from navkit.reactive import computed, effect, reactive
+from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -48,14 +51,17 @@ class ExecuteFile(Event):
 
 
 class DirEntry:
-    """One line in a panel: a name, whether it is a directory, and its size."""
+    """One line in a panel: a name, whether it is a directory, its size, its
+    permission bits and when it was last modified."""
 
-    __slots__ = ("name", "is_dir", "size")
+    __slots__ = ("name", "is_dir", "size", "mode", "mtime")
 
-    def __init__(self, name: str, is_dir: bool, size: int):
+    def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0):
         self.name = name
         self.is_dir = is_dir
         self.size = size
+        self.mode = mode
+        self.mtime = mtime
 
     @property
     def sort_key(self) -> tuple:
@@ -74,6 +80,24 @@ class DirEntry:
                 return f"{self.size:>8}" if not unit else f"{size:>7.0f}{unit}"
             size /= 1024
         return f"{self.size:>8}"
+
+    @property
+    def display_attributes(self) -> str:
+        """``rwxr-xr-x``: ``ls -l``'s permission string, less the type letter.
+
+        DOS Navigator showed the four DOS attributes here; a POSIX file has
+        permissions instead, and the type is already the size column's.
+        """
+        return stat.filemode(self.mode)[1:]
+
+    @property
+    def display_date(self) -> str:
+        """The modification time, ``DD-MM-YY hh:mm`` as DN's default country drew it.
+
+        Modification, not creation: a DOS directory entry held one date, and
+        Linux cannot report a creation time portably.
+        """
+        return time.strftime("%d-%m-%y %H:%M", time.localtime(self.mtime))
 
 
 class Panel(ListViewer):
@@ -106,6 +130,17 @@ class Panel(ListViewer):
     #: icons sit on its panels' frames.  Kept at both ends because the title
     #: is centred.
     title_margin: int = reactive(0)
+    #: How the listing is laid out -- one of :data:`VIEW_MODES`, and Ctrl+Y
+    #: (``cmToggleShowMode``) steps through them.  Per panel, as DN's
+    #: ``ShowFlags`` were.
+    view_mode: str = reactive("simple")
+
+    #: ``simple``: name and size.  ``detailed``: name, size, permissions and
+    #: date in columns.  ``list``: names alone, in as many columns as fit.
+    VIEW_MODES = ("simple", "detailed", "list")
+
+    #: ``heading`` is the column-titles row the detailed and list modes draw.
+    parts = ListViewer.parts + ("heading",)
 
     def __init__(self, path: Path | None = None, **kwargs: Any):
         """*path* is optional because a widget markup constructs must be.
@@ -140,16 +175,28 @@ class Panel(ListViewer):
         entries: list[DirEntry] = []
         error: str | None = None
         if path != path.parent:
-            entries.append(DirEntry("..", True, 0))
+            try:
+                info = path.parent.stat()
+                entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime))
+            except OSError:
+                entries.append(DirEntry("..", True, 0))
         try:
             with os.scandir(path) as scan:
                 for item in scan:
                     try:
-                        is_dir = item.is_dir()
-                        size = 0 if is_dir else item.stat().st_size
+                        info = item.stat()
                     except OSError:
-                        is_dir, size = False, 0
-                    entries.append(DirEntry(item.name, is_dir, size))
+                        # A dangling link: describe the link itself.
+                        try:
+                            info = item.stat(follow_symlinks=False)
+                        except OSError:
+                            info = None
+                    if info is None:
+                        entries.append(DirEntry(item.name, False, 0))
+                        continue
+                    is_dir = stat.S_ISDIR(info.st_mode)
+                    size = 0 if is_dir else info.st_size
+                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime))
         except OSError as exc:
             error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
@@ -211,12 +258,160 @@ class Panel(ListViewer):
 
     async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Ctrl+double click is Ctrl+Enter, as in DOS Navigator; a plain one opens."""
-        if event.ctrl and event.button == "left" and self.row_at(event.y) is not None:
+        if event.ctrl and event.button == "left" and self.index_at(event.x, event.y) is not None:
             from navigator.commands import InsertName, InsertPath
 
             await self.emit(InsertPath() if event.shift else InsertName())
             return True
         return await super().on_double_click(event)
+
+    # -- show modes ----------------------------------------------------------
+
+    def cycle_view_mode(self) -> None:
+        """Ctrl+Y: the next of :data:`VIEW_MODES`, the last wrapping to the first.
+
+        The heading row comes and goes with it: the simple mode is the panel
+        as it always was, and the other two title their columns.
+        """
+        modes = self.VIEW_MODES
+        mode = modes[(modes.index(self.view_mode) + 1) % len(modes)]
+        self.view_mode = mode
+        self.header = 0 if mode == "simple" else 1
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        """In the list mode Left and Right move a column, as DN's did.
+
+        Otherwise they are declined, and reach the command line.
+        """
+        if self.view_mode == "list" and not self.inert and self.rows:
+            if event.key == "left":
+                self.move_cursor(-min(self.rows, self.cursor))
+                return True
+            if event.key == "right":
+                self.move_cursor(min(self.rows, len(self.items) - 1 - self.cursor))
+                return True
+        return await super().on_key(event)
+
+    #: The detailed mode's columns after the name: heading, width, and the
+    #: ``DirEntry`` property that fills it.  Dropped from the end of
+    #: :data:`DROP_ORDER` first when the name would get too narrow.
+    DETAIL_COLUMNS = {
+        "size": ("Size", 8, "display_size"),
+        "attributes": ("Attr", 9, "display_attributes"),
+        "date": ("Date", 14, "display_date"),
+    }
+    DETAIL_ORDER = ("size", "attributes", "date")
+    DROP_ORDER = ("attributes", "date")
+    #: The narrowest the detailed mode lets the name column get before it
+    #: gives up a column to widen it.
+    MIN_NAME_WIDTH = 12
+
+    @computed
+    def detail_columns(self) -> tuple[tuple[str, int, int], ...]:
+        """``(key, x, width)`` for every detailed-mode column, the name's first.
+
+        Each column after the name has a divider in the cell before it.  The
+        name takes whatever is left; when that is under
+        :data:`MIN_NAME_WIDTH`, the attributes go, and then the date.
+        """
+        inset, inner = self.inset, self.inner_width
+        shown = list(self.DETAIL_ORDER)
+
+        def rest() -> int:
+            return inner - sum(self.DETAIL_COLUMNS[key][1] + 1 for key in shown)
+
+        for key in self.DROP_ORDER:
+            if rest() >= self.MIN_NAME_WIDTH:
+                break
+            shown.remove(key)
+        name_width = max(1, rest())
+        columns = [("name", inset, name_width)]
+        x = inset + name_width + 1
+        for key in shown:
+            width = self.DETAIL_COLUMNS[key][1]
+            columns.append((key, x, width))
+            x += width + 1
+        return tuple(columns)
+
+    @computed
+    def list_columns(self) -> tuple[tuple[int, int, int], ...]:
+        """``(first index, x, width)`` for every list-mode column on show.
+
+        Columns hold ``rows`` items each, from ``scroll``; each is as wide as
+        its longest name (and the icon gutter), capped at half the panel so
+        that a long name cannot push the second column off it.  The last may
+        run past the right edge and be clipped.
+        """
+        rows, inner, inset = self.rows, self.inner_width, self.inset
+        items, gutter = self.items, self.gutter
+        if not rows or inner <= 0:
+            return ()
+        cap = inner if len(items) - self.scroll <= rows else max(1, (inner - 1) // 2)
+        columns = []
+        first, x = self.scroll, inset
+        while first < len(items) and x < inset + inner:
+            longest = max(len(item.name) for item in items[first : first + rows])
+            width = min(cap, gutter + max(1, longest))
+            columns.append((first, x, width))
+            first += rows
+            x += width + 1
+        return tuple(columns)
+
+    @computed
+    def capacity(self) -> int:
+        """In the list mode, the items in every column shown whole."""
+        if self.view_mode != "list":
+            return self.rows
+        right = self.inset + self.inner_width
+        whole = [c for c in self.list_columns if c[1] + c[2] <= right]
+        return self.rows * max(1, len(whole))
+
+    def _follow_cursor(self) -> None:
+        """In the list mode, scroll a whole column at a time.
+
+        ``scroll`` stays a multiple of ``rows``, so a column's contents -- and
+        so its width -- do not change as the cursor moves through it.
+        """
+        if self.view_mode != "list":
+            super()._follow_cursor()
+            return
+        rows = self.rows
+        if not rows:
+            return
+        cursor = self.cursor
+        scroll = peek(self, ListViewer.scroll)
+        scroll -= scroll % rows
+        if cursor < scroll:
+            scroll = cursor - cursor % rows
+        # Advance a column at a time until the cursor's is shown whole.  The
+        # columns depend on the scroll, so each step lays them out again.
+        while True:
+            self.scroll = scroll
+            columns = self.list_columns
+            right = self.inset + self.inner_width
+            if not columns or any(
+                first <= cursor < first + rows and x + width <= right
+                for first, x, width in columns
+            ) or (columns and columns[0][0] <= cursor < columns[0][0] + rows):
+                break
+            scroll += rows
+
+    def page(self) -> int:
+        if self.view_mode == "list":
+            return max(1, self.capacity)
+        return super().page()
+
+    def index_at(self, x: int, y: int) -> int | None:
+        if self.view_mode != "list":
+            return super().index_at(x, y)
+        row = y - self.inset - self.header
+        if not 0 <= row < self.rows:
+            return None
+        for first, left, width in self.list_columns:
+            if left <= x < left + width:
+                index = first + row
+                return index if index < len(self.items) else None
+        return None
 
     # -- painting ------------------------------------------------------------
 
@@ -267,14 +462,92 @@ class Panel(ListViewer):
             selected=self.row_selected(index),
         )
 
-    def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
-        style = self.row_style(index, item)
-        gutter = self.gutter
-        # Still an explicit limit: the name stops where the size column
-        # begins, which is nearer than the edge the surface would clip at.
-        name_width = max(1, self.name_width - gutter)
+    @property
+    def divider_glyph(self) -> str:
+        """``│`` between columns -- always single, whatever the frame, as DN's were."""
+        return glyphs_module.charset("single", self.glyphs)[5]
+
+    def _draw_name(self, surface: Surface, x: int, y: int, width: int,
+                   item: DirEntry, style: Style) -> None:
+        """The icon, if the gutter is kept, and the name, in *width* cells."""
+        gutter = min(self.gutter, width)
         if gutter:
             icon = icon_glyphs.icon_for(item.name, item.is_dir)
-            surface.draw_text(1, y, icon, style, gutter)
-        surface.draw_text(1 + gutter, y, item.name, style, name_width)
+            surface.draw_text(x, y, icon, style, gutter)
+        if width > gutter:
+            surface.draw_text(x + gutter, y, item.name, style, width - gutter)
+
+    def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
+        style = self.row_style(index, item)
+        if self.view_mode == "detailed":
+            selected = self.row_selected(index)
+            for key, x, width in self.detail_columns:
+                if key == "name":
+                    self._draw_name(surface, x, y, width, item, style)
+                    continue
+                if selected:
+                    # The cursor bar covers the dividers; draw them back in it.
+                    surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
+                text = getattr(item, self.DETAIL_COLUMNS[key][2])
+                surface.draw_text(x, y, text[:width], style, width)
+            return
+        # Still an explicit limit: the name stops where the size column
+        # begins, which is nearer than the edge the surface would clip at.
+        self._draw_name(surface, 1, y, max(1, self.name_width), item, style)
         surface.draw_text(self.width - 9, y, item.display_size, style, 8)
+
+    def render_items(self, surface: Surface) -> None:
+        if self.view_mode != "list":
+            super().render_items(surface)
+            return
+        top = self.inset + self.header
+        items = self.items
+        for first, x, width in self.list_columns:
+            for row in range(self.rows):
+                index = first + row
+                if index >= len(items):
+                    break
+                item = items[index]
+                style = self.row_style(index, item)
+                if self.row_selected(index):
+                    surface.fill(x, top + row, width, 1, " ", style)
+                self._draw_name(surface, x, top + row, width, item, style)
+
+    def _column_spans(self) -> list[tuple[str, int, int]]:
+        """``(heading, x, width)`` for the columns of the current mode."""
+        if self.view_mode == "detailed":
+            return [
+                ("Name" if key == "name" else self.DETAIL_COLUMNS[key][0], x, width)
+                for key, x, width in self.detail_columns
+            ]
+        if self.view_mode == "list":
+            columns = self.list_columns
+            if not columns:
+                return [("Name", self.inset, self.inner_width)]
+            return [("Name", x, width) for _, x, width in columns]
+        return []
+
+    def render_header(self, surface: Surface) -> None:
+        """The column titles, and the dividers from them down to the last row.
+
+        Drawn before the rows, so the cursor bar covers a divider it crosses
+        -- DN's did.  Nothing in the simple mode, and nothing over an error.
+        """
+        if self.view_mode == "simple" or self.error is not None:
+            return
+        top = self.inset
+        bottom = top + self.header + self.rows
+        right = self.inset + self.inner_width
+        glyph = self.divider_glyph
+        heading = self.part_style("heading")
+        divider = self.part_style("divider")
+        for index, (text, x, width) in enumerate(self._column_spans()):
+            shown = min(width, right - x)
+            if shown <= 0:
+                break
+            text = text[:shown]
+            surface.draw_text(x + (shown - len(text)) // 2, top, text, heading, shown)
+            edge = x + width
+            if edge < right:
+                for y in range(top, bottom):
+                    surface.draw_text(edge, y, glyph, divider, 1)

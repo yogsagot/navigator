@@ -26,6 +26,7 @@ from navigator.commands import (
     QuickView,
     Rescan,
     SwitchPanel,
+    ToggleShowMode,
     ToggleTree,
     View,
     ViewAsHex,
@@ -124,6 +125,11 @@ class Manager(Window):
         if chosen is not None:
             panel.path = Path(chosen)
             panel.focus()
+
+    async def on_toggle_show_mode(self, event: ToggleShowMode) -> bool:
+        """Ctrl+Y: the active panel's next show mode -- simple, detailed, list."""
+        self.active_panel.cycle_view_mode()
+        return True
 
     async def on_toggle_tree(self, event: ToggleTree) -> bool:
         self.toggle_tree()

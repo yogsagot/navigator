@@ -87,6 +87,6 @@ class ListViewer(Control, _Component):
         self.bar.maximum = _bind(lambda _o: max(0, len(_o.parent.items) - 1))    # list_viewer.nml:44
         self.bar.page = _bind(lambda _o: max(1, _o.parent.rows - 1))    # list_viewer.nml:45
         self.bar.visible = _bind(    # list_viewer.nml:46
-            lambda _o: _o.parent.error is None and len(_o.parent.items) > _o.parent.rows
+            lambda _o: _o.parent.error is None and len(_o.parent.items) > _o.parent.capacity
         )
         self.bar.on_scroll = self.on_bar_scroll    # list_viewer.nml:38

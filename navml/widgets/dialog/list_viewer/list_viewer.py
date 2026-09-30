@@ -67,7 +67,9 @@ class ListViewer(Control):
         # Declaration order is flush order: put the cursor on a row that
         # exists, then scroll to it.
         effect(self, ListViewer._clamp_cursor)
-        effect(self, ListViewer._follow_cursor)
+        # Looked up on the class, so a subclass that lays its items out other
+        # than one per row can say how the scroll follows.
+        effect(self, type(self)._follow_cursor)
 
     # -- the model -----------------------------------------------------------
 
@@ -75,6 +77,11 @@ class ListViewer(Control):
     def rows(self) -> int:
         """How many listing lines fit between the frames and the header."""
         return max(0, self.height - 2 * self.inset - self.header)
+
+    @computed
+    def capacity(self) -> int:
+        """How many items are on show at once: one per row, unless a subclass says."""
+        return self.rows
 
     @computed
     def selected(self) -> Any:
@@ -113,7 +120,7 @@ class ListViewer(Control):
 
     def page(self) -> int:
         """How far PageUp and PageDown move."""
-        return max(1, self.rows - 1)
+        return max(1, self.capacity - 1)
 
     async def choose(self) -> bool:
         """What Enter or a double click means.  Nothing, until a subclass."""
@@ -184,6 +191,10 @@ class ListViewer(Control):
                 return index
         return None
 
+    def index_at(self, x: int, y: int) -> int | None:
+        """Which item is painted at *x*, *y*.  The row's, unless a subclass says."""
+        return self.row_at(y)
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         await super().on_mouse_click(event)
         if self.inert:
@@ -194,7 +205,7 @@ class ListViewer(Control):
             return True
         if event.action != "press" or event.button != "left":
             return False
-        index = self.row_at(event.y)
+        index = self.index_at(event.x, event.y)
         if index is not None:
             self.cursor = index
             return True
@@ -207,7 +218,7 @@ class ListViewer(Control):
         double click *as well*, and that press has already moved the cursor
         onto this row -- which is what the additive delivery is for.
         """
-        if event.button != "left" or self.row_at(event.y) is None:
+        if event.button != "left" or self.index_at(event.x, event.y) is None:
             return False
         return await self.choose()
 
@@ -245,6 +256,11 @@ class ListViewer(Control):
                 self.part_style("error"), max(0, self.width - 4),
             )
             return
+        self.render_items(surface)
+
+    def render_items(self, surface: Surface) -> None:
+        """Paint the items on show, one per row."""
+        inset = self.inset
         for row in range(self.rows):
             index = self.scroll + row
             if index >= len(self.items):

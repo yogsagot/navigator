@@ -504,6 +504,14 @@ because that is what `TListViewer` gives its bar. Working the bar raises a `Scro
 writer on the value `_follow_cursor` owns, and the two would fight. Binding `value` is legal because `ScrollBar`
 never assigns its own value: it emits and lets the owner decide.
 
+**A list that lays its items out other than one per row says so through four hooks**, which `Panel`'s list mode
+(Ctrl+Y) is the reason for: `capacity` (a computed, `rows` by default -- how many items are on show, which the
+bar's `visible` and `page()` read), `index_at(x, y)` (the hit-test, `row_at(y)` by default), `render_items(surface)`
+(the row loop, lifted out of `render()`), and `_follow_cursor`, which `mounted()` now registers as
+`type(self)._follow_cursor` so a subclass's override is the effect that runs. A multi-column list keeps `scroll` a
+multiple of `rows`, so a column's contents -- and a column as wide as its longest name -- do not change as the cursor
+moves through it.
+
 ### Where the colours live
 
 In `navigator/styles/navigator.nss`, not with the library. `$dialog-*` is *the file manager's* theme vocabulary,

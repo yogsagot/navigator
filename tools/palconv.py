@@ -233,7 +233,7 @@ HAND_NAMED = {
 
 #: The indices ``navigator/styles/navigator.nss`` actually reads today.  Only
 #: a marker in the generated comments; everything else is carried inert.
-LIVE = frozenset({1, 2, 4, 85, 88, 90, 91, 172})
+LIVE = frozenset({1, 2, 4, 85, 86, 88, 90, 91, 165, 172})
 
 #: Where Navigator deliberately draws a slot other than as the palette says:
 #: theme name -> slot index -> ``(fg, bg, why)``, each colour a DOS colour

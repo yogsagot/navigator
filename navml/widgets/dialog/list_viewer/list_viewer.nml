@@ -43,4 +43,4 @@ ListViewer(Control):
         value: parent.cursor
         maximum: max(0, len(parent.items) - 1)
         page: max(1, parent.rows - 1)
-        visible: parent.error is None and len(parent.items) > parent.rows
+        visible: parent.error is None and len(parent.items) > parent.capacity
