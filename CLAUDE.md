@@ -101,7 +101,7 @@ Left/Right moving a column as DN's `kbLeft`/`kbRight` did). A name too long for 
 (`window_text`), and in the simple and
 detailed modes Left/Right scroll every name a cell along (`ScrollNames`, `Panel.name_scroll`, clamped to the longest
 name and reset by a change of directory or mode) -- disabled, so the caret moves, while the command line has text. Both non-simple modes have a heading row in *Column title*
-`[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`), meeting the frame in the tee `Widget.box_joins()`
+`[165]` (`Panel::heading`) and single `│` rules in the frame's own colours (`Panel::divider` on `$panel-fg`/`$panel-bg`, a departure from DN's *List divider* `[86]`, now inert), meeting the frame in the tee `Widget.box_joins()`
 matches to it (`┬┴` single, `╤╧` double) wherever the title or footer does not already stand on that cell. Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
 Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`); in the Nerd tier that mark picks the icon
 instead (`icons.BY_TYPE`, beating the extension's), and a dot-name that neither a mark nor an extension

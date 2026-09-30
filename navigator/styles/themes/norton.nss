@@ -136,7 +136,7 @@ $cursor-fg: black;                    /*> [ 88] Normal cursor -- CDoubleWindow[9
 $cursor-bg: cyan;
 $marked-cursor-fg: yellow;            /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
 $marked-cursor-bg: cyan;
-$divider-fg: light_cyan;              /*> [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
+$divider-fg: light_cyan;              /*  [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
 $divider-bg: blue;
 $active-title-fg: black;              /*> [ 90] Directory active -- CDoubleWindow[11] -> CTopView[1] */
 $active-title-bg: cyan;

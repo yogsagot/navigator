@@ -153,7 +153,7 @@ $cursor-fg: $dn-black;                /*> [ 88] Normal cursor -- CDoubleWindow[9
 $cursor-bg: $dn-light_gray;
 $marked-cursor-fg: $dn-black;         /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
 $marked-cursor-bg: $dn-light_gray;
-$divider-fg: $dn-white;               /*> [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
+$divider-fg: $dn-white;               /*  [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
 $divider-bg: $dn-black;
 $active-title-fg: $dn-black;          /*> [ 90] Directory active -- CDoubleWindow[11] -> CTopView[1] */
 $active-title-bg: $dn-light_gray;

@@ -92,9 +92,11 @@ Panel::row.marked          { fg: $marked-fg; bg: $marked-bg; bold: false }
 Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold: false }
 
 /* The detailed and list modes (Ctrl+Y): the column titles over them, `[165]
-   Column title', and the rules between their columns, `[86] List divider'. */
+   Column title', and the rules between their columns in the frame's own
+   colours, so a rule and the tees joining it to the frame read as one line.
+   A departure: DN drew them in `[86] List divider', which is left inert. */
 Panel::heading       { fg: $column-title-fg; bg: $column-title-bg }
-Panel::divider       { fg: $divider-fg; bg: $divider-bg }
+Panel::divider       { fg: $panel-fg; bg: $panel-bg }
 
 /* The directory tree a panel becomes (Ctrl+T): the File Manager group's own
    tree slots, [94] to [101].  The lines and the ground are *Normal tree*, the
