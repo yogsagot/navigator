@@ -124,7 +124,14 @@ left of the caption, so a tick costs no width. **Insert tags** (`ToggleMark`, DN
 char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
 selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line
 is empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, bound in `manager.nml` and handled and gated by `Shell`,
-which owns the line). **Backspace goes to the parent directory** (`GoParent(by_key=True)`, DN's `kbBack` under
+which owns the line). **Ctrl+S is Midnight Commander's quick search** (`QuickSearch`, `Panel.quick_search`; DN had
+one on Alt+letter, but its handler is not in the 1.51 source and those Alt+letters are panel commands here): typing
+moves the cursor to the first name from it that begins so -- case folded, `*`/`?` wildcards, `..` never found -- a
+character that would name nothing is refused, Backspace drops one, Ctrl+S again finds the next, wrapping. It shows
+as ` Search: … ` on the footer with the caret after it. Enter and Esc end it where it stands; any other key ends it
+and then does its job (Down moves, Tab switches), as do a click, a change of directory and losing the keyboard.
+While it runs the panel's `edits_text` is True, which is what makes the command line's Enter/Home/End/Tab step aside.
+**Backspace goes to the parent directory** (`GoParent(by_key=True)`, DN's `kbBack` under
 `fmoBackGoesBack`, `Panel.go_up`, the cursor on the directory left) while the line is empty, and Ctrl+PgUp (`_CtrlPgUp`,
 which `ListViewer` leaves alone) and Shift+Backspace whatever it holds; otherwise Backspace edits the line. **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`,
 also on Panel's menu): `SelectDialog` asks for a mask -- `;`-separated shell patterns, case folded, `x.*` also

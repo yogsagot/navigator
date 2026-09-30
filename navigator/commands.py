@@ -407,6 +407,18 @@ class ToggleHidden(Command):
     title = "Hidden"
 
 
+class QuickSearch(Command):
+    """Ctrl+S: type the start of a name and the active panel's cursor jumps to it.
+
+    Midnight Commander's key and its rules, since DOS Navigator 1.51's panel
+    quick search -- the *Quick search* choice in ``dlgPanelSetup``, started by
+    an Alt+letter -- has no handler in the published source to follow.  DN's
+    Alt+letters stay the panel commands they are bound to.
+    """
+
+    title = "Search"
+
+
 class ArchiveFiles(Command):
     """Shift+F1, ``cmPanelArcFiles``."""
 

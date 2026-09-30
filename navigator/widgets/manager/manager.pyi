@@ -12,7 +12,7 @@ from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSing
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
-from navigator.commands import ToggleHidden, ToggleMarkBySpace
+from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.quick_viewer import QuickViewer
 from navigator.widgets.panel import Panel
@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
-from navigator.commands import ChangeDirectory, Edit, GoParent, MakeDirectory, QuickView, Rescan, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
+from navigator.commands import ChangeDirectory, Edit, GoParent, MakeDirectory, QuickSearch, QuickView, Rescan, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.widgets.mkdir_dialog import MkdirDialog
 
 
@@ -59,6 +59,7 @@ class Manager(Window, _Component):
     async def select_group(self, *, select: bool, invert: bool) -> None: ...
     async def on_toggle_show_mode(self, event: ToggleShowMode) -> bool: ...
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool: ...
+    async def on_quick_search(self, event: QuickSearch) -> bool: ...
     async def on_toggle_tree(self, event: ToggleTree) -> bool: ...
     async def on_quick_view(self, event: QuickView) -> bool: ...
     async def on_tree_chosen(self, event: Any) -> bool: ...

@@ -16,6 +16,7 @@ original draws on the right.
 from __future__ import annotations
 
 import os
+import re
 import stat
 import time
 from dataclasses import dataclass
@@ -180,6 +181,11 @@ class Panel(ListViewer):
     #: across a re-read of the same directory, less the names that went, and
     #: cleared by a change of directory.
     marked: frozenset[str] = reactive(frozenset())
+    #: What Ctrl+S's quick search has typed so far, or None when the panel is
+    #: not searching -- ``""`` is searching with nothing typed yet.  Every
+    #: character kept names at least one entry: one that would name none is
+    #: refused, as Midnight Commander refuses it.
+    quick_search: str | None = reactive(None)
 
     #: ``simple``: name and size.  ``detailed``: name, size, permissions and
     #: date in columns.  ``list``: names alone, in as many columns as fit.
@@ -214,6 +220,7 @@ class Panel(ListViewer):
         # they are about to clamp a cursor onto.
         effect(self, Panel._rescan)
         super().mounted()
+        effect(self, Panel._end_search_unfocused)
 
     # -- the listing ---------------------------------------------------------
 
@@ -264,6 +271,7 @@ class Panel(ListViewer):
         marked = peek(self, Panel.marked)
         if path != self._listed:
             marked = frozenset()
+            self.quick_search = None
         elif marked:
             marked &= {entry.name for entry in entries}
         self.marked = marked
@@ -429,11 +437,93 @@ class Panel(ListViewer):
             self._keep = (self.path, entry.name, self.cursor, self.scroll)
         self.show_hidden = not self.show_hidden
 
-    async def on_key(self, event: KeyEvent) -> bool:
-        """In the list mode Left and Right move a column, as DN's did.
+    # -- quick search --------------------------------------------------------
 
+    @property
+    def edits_text(self) -> bool:
+        """True while searching, so the command line's Enter, Home, End and
+        Tab step aside -- Enter ends the search rather than running the line."""
+        return self.quick_search is not None
+
+    def start_quick_search(self) -> None:
+        """Ctrl+S: start searching, with nothing typed yet."""
+        if self.quick_search is None:
+            self.quick_search = ""
+
+    def _find(self, text: str, start: int) -> int | None:
+        """The first entry from *start* on, wrapping, whose name *text* begins.
+
+        Case folded, and ``*`` and ``?`` are wildcards, as they are in
+        Midnight Commander's; everything else is literal.  ``..`` is never
+        found: it is not a name anybody searches for.
+        """
+        pattern = re.compile(
+            "".join(".*" if c == "*" else "." if c == "?" else re.escape(c) for c in text),
+            re.IGNORECASE | re.DOTALL,
+        )
+        items = self.items
+        for step in range(len(items)):
+            index = (start + step) % len(items)
+            name = items[index].name
+            if name != ".." and pattern.match(name):
+                return index
+        return None
+
+    def _search_key(self, event: KeyEvent) -> bool:
+        """A key while searching: True if the search took it.
+
+        Enter and Esc end the search where it stands.  Any other key that is
+        not the search's ends it too and is declined, so it goes on to do
+        what it always does -- Down moves, F3 views.
+        """
+        text = self.quick_search or ""
+        if event.is_printable:
+            found = self._find(text + event.char, self.cursor)
+            if found is not None:
+                self.cursor = found
+                self.quick_search = text + event.char
+            return True
+        if event.matches("backspace"):
+            self.quick_search = text[:-1]
+            return True
+        if event.matches("ctrl+s"):
+            if text:
+                found = self._find(text, self.cursor + 1)
+                if found is not None:
+                    self.cursor = found
+            return True
+        self.quick_search = None
+        return event.matches("enter", "escape")
+
+    def _end_search_unfocused(self) -> None:
+        """The search ends when the keyboard leaves the panel."""
+        if not self.focus_within and peek(self, Panel.quick_search) is not None:
+            self.quick_search = None
+
+    SEARCH_LABEL = " Search: "
+
+    def cursor_position(self) -> tuple[int, int] | None:
+        """While searching, the caret after what has been typed, on the footer."""
+        text = self.quick_search
+        if text is None or not self.framed:
+            return None
+        footer = self.footer_text()
+        x = self.label_x(footer) + len(self.SEARCH_LABEL) + len(text)
+        return min(x, self.width - 2), self.height - 1
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.action == "press" and not event.is_wheel:
+            self.quick_search = None
+        return await super().on_mouse_click(event)
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        """The quick search's keys while it is on, then the listing's.
+
+        In the list mode Left and Right move a column, as DN's did.
         Otherwise they are declined, and reach the command line.
         """
+        if self.quick_search is not None and not self.inert and self._search_key(event):
+            return True
         if self.view_mode == "list" and not self.inert and self.rows:
             if event.key == "left":
                 self.move_cursor(-min(self.rows, self.cursor))
@@ -603,7 +693,12 @@ class Panel(ListViewer):
         return f" {title} "
 
     def footer_text(self) -> str:
-        """The selected name, or an item count when there is nothing to name."""
+        """The selected name, or an item count when there is nothing to name.
+
+        While searching, what the search has typed instead.
+        """
+        if self.quick_search is not None:
+            return f"{self.SEARCH_LABEL}{self.quick_search} "
         marked = self.marked_entries
         if marked:
             # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.

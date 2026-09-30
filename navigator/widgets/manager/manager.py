@@ -24,6 +24,7 @@ from navigator.commands import (
     Edit,
     GoParent,
     MakeDirectory,
+    QuickSearch,
     QuickView,
     Rescan,
     InvertSelection,
@@ -164,10 +165,13 @@ class Manager(Window):
             panel.focus()
 
     def enables(self, command: Any) -> bool:
-        """Tagging is the active panel's, and not while the tree or the quick
-        view standing beside it has the keyboard -- those are not a listing.
-        Asked of a menu too, where neither has it and the panel is meant."""
-        if isinstance(command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection)):
+        """Tagging and the quick search are the active panel's, and not while
+        the tree or the quick view standing beside it has the keyboard -- those
+        are not a listing.  Asked of a menu too, where neither has it and the
+        panel is meant."""
+        if isinstance(
+            command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, QuickSearch)
+        ):
             if getattr(command, "by_key", False) and self._command_line_has_text():
                 # Disabled, so the key falls through and types its character.
                 return False
@@ -240,6 +244,11 @@ class Manager(Window):
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
         self.active_panel.toggle_hidden()
+        return True
+
+    async def on_quick_search(self, event: QuickSearch) -> bool:
+        """Ctrl+S: the active panel starts its quick search."""
+        self.active_panel.start_quick_search()
         return True
 
     async def on_toggle_tree(self, event: ToggleTree) -> bool:

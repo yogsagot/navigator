@@ -4,7 +4,7 @@ from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSing
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
-from navigator.commands import ToggleHidden, ToggleMarkBySpace
+from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.quick_viewer import QuickViewer
 from navigator.widgets.panel import Panel
@@ -73,6 +73,7 @@ Manager(Window):
         ctrl+y: ToggleShowMode
         ctrl+h: ToggleHidden
         ctrl+r: Rescan
+        ctrl+s: QuickSearch
         shift+f1: ArchiveFiles
         shift+f2: ExtractArchive
         shift+f3: PhoneBook

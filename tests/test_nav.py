@@ -705,6 +705,98 @@ def test_ctrl_h_changes_only_the_active_panel(tree):
     assert ".hidden" in names(app.manager.right)
 
 
+def keys(text: str) -> list[KeyEvent]:
+    return [KeyEvent(c.lower(), c, shift=c.isupper()) for c in text]
+
+
+def test_ctrl_s_jumps_to_the_first_name_the_typing_begins(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("T")])
+    panel = app.manager.left
+    assert panel.selected.name == "two.txt"
+    assert panel.quick_search == "T"
+    # Typed into the search, not onto the command line.
+    assert app.shell.command_line.value == ""
+
+
+def test_a_character_that_names_nothing_is_refused(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("bx")])
+    panel = app.manager.left
+    assert panel.quick_search == "b"
+    assert panel.selected.name == "beta"
+
+
+def test_the_search_takes_wildcards_and_backspace(tree):
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        KeyEvent("s", ctrl=True), *keys("*.t"),
+        lambda a: seen.append(a.manager.left.selected.name),
+        KeyEvent("backspace"), KeyEvent("backspace"),
+        lambda a: seen.append(a.manager.left.quick_search),
+        *keys("?w"),
+    ])
+    assert seen == ["one.txt", "*"]
+    assert app.manager.left.selected.name == "two.txt"
+
+
+def test_ctrl_s_again_finds_the_next_match_and_wraps(tree):
+    app = navigator(tree)
+    seen = []
+    step = lambda a: seen.append(a.manager.left.selected.name)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("*txt"), step,
+                  KeyEvent("s", ctrl=True), step, KeyEvent("s", ctrl=True), step])
+    assert seen == ["one.txt", "two.txt", "one.txt"]
+
+
+def test_the_search_never_finds_the_parent_entry(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys(".")])
+    assert app.manager.left.quick_search == ""
+    assert app.manager.left.cursor == 0
+
+
+def test_enter_ends_the_search_and_stays_without_running_the_line(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [*keys("ls"), KeyEvent("s", ctrl=True), *keys("be"), KeyEvent("enter")])
+    panel = app.manager.left
+    assert panel.quick_search is None
+    assert panel.selected.name == "beta"
+    assert panel.path == tree
+    assert app.shell.command_line.value == "ls"
+
+
+def test_another_key_ends_the_search_and_does_its_job(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("a"), KeyEvent("down")])
+    panel = app.manager.left
+    assert panel.quick_search is None
+    assert panel.selected.name == "beta"
+
+
+def test_tab_ends_the_search_and_switches_panel(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("o"), KeyEvent("tab")])
+    assert app.manager.left.quick_search is None
+    assert app.manager.active_panel is app.manager.right
+
+
+def test_the_search_shows_on_the_footer_with_the_caret_after_it(tree):
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        panel = a.manager.left
+        footer = panel.footer_text()
+        seen.append((footer, panel.cursor_position(), panel.label_x(footer)))
+
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("tw"), look])
+    footer, caret, x = seen[0]
+    assert footer == " Search: tw "
+    assert caret == (x + len(" Search: tw"), app.manager.left.height - 1)
+
+
 def test_the_panel_menu_carries_ctrl_h(tree):
     from navml.widgets.menu.menu_box.menu_box import key_caption
 

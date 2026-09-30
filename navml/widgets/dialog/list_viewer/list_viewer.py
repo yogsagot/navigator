@@ -284,9 +284,11 @@ class ListViewer(Control):
     def render_header(self, surface: Surface) -> None:
         """The band between the top frame and the rows.  Empty by default."""
 
+    def label_x(self, text: str) -> int:
+        """Where a title or footer of *text* starts: centred on the frame."""
+        return max(1, (self.width - len(text)) // 2)
+
     def _render_label(self, surface: Surface, y: int, text: str, part: str) -> None:
         if not text:
             return
-        surface.draw_text(
-            max(1, (self.width - len(text)) // 2), y, text, self.part_style(part)
-        )
+        surface.draw_text(self.label_x(text), y, text, self.part_style(part))
