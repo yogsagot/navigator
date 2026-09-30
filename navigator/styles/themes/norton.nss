@@ -14,7 +14,7 @@
  */
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
-   its order. `>' marks the eight navigator.nss reads today; the rest are one
+   its order. `>' marks the ones navigator.nss reads today; the rest are one
    rule away from being live, and are carried rather than dropped. */
 
 /* -- Timer --------------------------------------------------------------- */
@@ -136,31 +136,31 @@ $cursor-fg: black;                    /*> [ 88] Normal cursor -- CDoubleWindow[9
 $cursor-bg: cyan;
 $marked-cursor-fg: yellow;            /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
 $marked-cursor-bg: cyan;
-$divider-fg: light_cyan;              /*  [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
+$divider-fg: light_cyan;              /*> [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
 $divider-bg: blue;
 $active-title-fg: black;              /*> [ 90] Directory active -- CDoubleWindow[11] -> CTopView[1] */
 $active-title-bg: cyan;
 $title-fg: light_cyan;                /*> [ 91] Directory passive -- CDoubleWindow[12] -> CTopView[2] */
 $title-bg: blue;
-$column-title-fg: yellow;             /*  [165] Column title -- CDoubleWindow[32] -> CPanel[6] */
+$column-title-fg: yellow;             /*> [165] Column title -- CDoubleWindow[32] -> CPanel[6] */
 $column-title-bg: blue;
 
 /* -- Highlight ----------------------------------------------------------- */
 $directory-fg: white;                 /*> [172] Directories -- CDoubleWindow[33] -> CPanel[7], ttDirectory */
 $directory-bg: blue;
-$executable-fg: light_green;          /*  [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec */
+$executable-fg: light_green;          /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec */
 $executable-bg: blue;
-$archive-fg: light_red;               /*  [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
+$archive-fg: light_red;               /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: blue;
-$highlight-custom-1-fg: light_green;  /*  [175] Custom 1 */
+$highlight-custom-1-fg: light_green;  /*> [175] Custom 1 */
 $highlight-custom-1-bg: blue;
-$highlight-custom-2-fg: light_red;    /*  [176] Custom 2 */
+$highlight-custom-2-fg: light_red;    /*> [176] Custom 2 */
 $highlight-custom-2-bg: blue;
-$highlight-custom-3-fg: light_gray;   /*  [177] Custom 3 */
+$highlight-custom-3-fg: light_gray;   /*> [177] Custom 3 */
 $highlight-custom-3-bg: blue;
-$highlight-custom-4-fg: light_magenta;/*  [180] Custom 4 */
+$highlight-custom-4-fg: light_magenta;/*> [180] Custom 4 */
 $highlight-custom-4-bg: blue;
-$highlight-custom-5-fg: white;        /*  [181] Custom 5 */
+$highlight-custom-5-fg: white;        /*> [181] Custom 5 */
 $highlight-custom-5-bg: blue;
 
 /* -- Drive Line ---------------------------------------------------------- */
@@ -344,6 +344,27 @@ $dbase-normal-text-fg: light_cyan;    /*  [170] Normal text */
 $dbase-normal-text-bg: blue;
 $dbase-cursor-fg: white;              /*  [171] Cursor */
 $dbase-cursor-bg: black;
+
+/* -- Navigator's own: no DN slot ---------------------------------------- */
+/* Each is an alias of the slot it names, so this palette colours it too. */
+$image-fg: $highlight-custom-1-fg;    /*  images -- DN's Custom 1 [175] */
+$image-bg: $highlight-custom-1-bg;
+$media-fg: $highlight-custom-2-fg;    /*  audio and video -- DN's Custom 2 [176] */
+$media-bg: $highlight-custom-2-bg;
+$document-fg: $highlight-custom-3-fg; /*  documents -- DN's Custom 3 [177] */
+$document-bg: $highlight-custom-3-bg;
+$stale-link-fg: $highlight-custom-4-fg;/*  a symlink pointing nowhere -- DN's Custom 4 [180] */
+$stale-link-bg: $highlight-custom-4-bg;
+$source-fg: $highlight-custom-5-fg;   /*  source code -- DN's Custom 5 [181] */
+$source-bg: $highlight-custom-5-bg;
+$symlink-fg: $highlight-custom-1-fg;  /*  a symlink -- Midnight Commander's class, on Custom 1 [175] */
+$symlink-bg: $highlight-custom-1-bg;
+$device-fg: $highlight-custom-3-fg;   /*  a character or block device -- MC's class, on Custom 3 [177] */
+$device-bg: $highlight-custom-3-bg;
+$special-fg: $highlight-custom-3-fg;  /*  a socket or a FIFO -- MC's class, on Custom 3 [177] */
+$special-bg: $highlight-custom-3-bg;
+$temp-fg: $panel-fg;                  /*  backups and temporaries -- MC's class, on Normal text [85] */
+$temp-bg: $panel-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

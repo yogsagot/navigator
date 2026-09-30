@@ -101,7 +101,15 @@ Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple mode
 `[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
 Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`); in the Nerd tier that mark picks the icon
 instead (`icons.BY_TYPE`, beating the extension's), and a dot-name that neither a mark nor an extension
-claims gets the outline `icons.HIDDEN_FILE`/`HIDDEN_FOLDER` rather than the solid ones. **Ctrl+H hides the dot-files** -- a legacy terminal sends it as 0x08, which navkit reads as Ctrl+H only once the
+claims gets the outline `icons.HIDDEN_FILE`/`HIDDEN_FOLDER` rather than the solid ones. **A row is coloured by its file type**
+(`navigator/filetypes.py`, `category_of`): Midnight Commander's type classes off the type mark (`executable`,
+`symlink`, `stale-link`, `device`, `special`) or else DN's categories by mask (`archive`, then `image`, `media`,
+`document`, `source`, `temp`), one class on `Panel::row` beside `.directory`, **the type winning** as it does for the
+icon, and a directory taking no category. The rules sit between `.directory` and the cursor/tag rules in
+`navigator.nss`, so the cursor and a tag still win. Executables [173] and Archives [174] are DN's slots; the rest
+are palconv's **`DERIVED` variables**, written into every theme as aliases of DN's Custom 1-5 [175-181] (the
+slots DN left to user masks), with `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink`
+and `temp`). `filetypes.matches` is also what *Select group* reads its masks with. **Ctrl+H hides the dot-files** -- a legacy terminal sends it as 0x08, which navkit reads as Ctrl+H only once the
 tty's erase character (`Terminal.erase`, termios `VERASE`, read before raw mode) says Backspace is 0x7F, and as
 Backspace otherwise (`InputParser.ctrl_h`); it took DN's *Directory Branch* key, whose menu caption was dropped (`ToggleHidden`,
 `Panel.show_hidden`, `toggle_hidden`), per panel like Ctrl+Y and shown by default -- our key, where DN's
@@ -459,7 +467,8 @@ why), which applies it on generation and marks it in the theme's comment. There 
 The slot table comes from `RESOURCE/ENGLISH/DN.DNR` in the DOS Navigator source — the script the resource compiler turns
 into the `dlgColors` resource — which names all 144 entries the Colors dialog exposes, in 20 nested groups, as
 `COLORITEM <name>, <index>` lines. Every theme carries all 144, so a `.nss` is a full transcription of its `.PAL`;
-`navigator.nss` reads eight of them today and the rest are marked `>`-less and inert.
+`navigator.nss` reads some of them (`LIVE` marks which with `>`) and the rest are inert. Variables Navigator needs
+and DN had no slot for are palconv's `DERIVED` table, each an alias of a slot.
 `palconv.py --names path/to/DN.DNR` regenerates the table. Twenty-three entries also carry the Turbo Vision
 palette-string chain that independently arrives at the same index; the two routes were worked out separately and agree
 everywhere, which is what makes the other 121 trustworthy. Group names repeat across the tree (two `Tree`s, two

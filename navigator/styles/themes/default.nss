@@ -14,7 +14,7 @@
  */
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
-   its order. `>' marks the eight navigator.nss reads today; the rest are one
+   its order. `>' marks the ones navigator.nss reads today; the rest are one
    rule away from being live, and are carried rather than dropped. */
 
 /* -- Timer --------------------------------------------------------------- */
@@ -148,19 +148,19 @@ $column-title-bg: dark_gray;
 /* -- Highlight ----------------------------------------------------------- */
 $directory-fg: white;                 /*> [172] Directories -- CDoubleWindow[33] -> CPanel[7], ttDirectory */
 $directory-bg: dark_gray;
-$executable-fg: light_cyan;           /*  [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec */
+$executable-fg: light_cyan;           /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec */
 $executable-bg: dark_gray;
-$archive-fg: light_green;             /*  [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
+$archive-fg: light_green;             /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: dark_gray;
-$highlight-custom-1-fg: cyan;         /*  [175] Custom 1 */
+$highlight-custom-1-fg: cyan;         /*> [175] Custom 1 */
 $highlight-custom-1-bg: dark_gray;
-$highlight-custom-2-fg: green;        /*  [176] Custom 2 */
+$highlight-custom-2-fg: green;        /*> [176] Custom 2 */
 $highlight-custom-2-bg: dark_gray;
-$highlight-custom-3-fg: light_magenta;/*  [177] Custom 3 */
+$highlight-custom-3-fg: light_magenta;/*> [177] Custom 3 */
 $highlight-custom-3-bg: dark_gray;
-$highlight-custom-4-fg: light_red;    /*  [180] Custom 4 */
+$highlight-custom-4-fg: light_red;    /*> [180] Custom 4 */
 $highlight-custom-4-bg: dark_gray;
-$highlight-custom-5-fg: light_blue;   /*  [181] Custom 5 */
+$highlight-custom-5-fg: light_blue;   /*> [181] Custom 5 */
 $highlight-custom-5-bg: dark_gray;
 
 /* -- Drive Line ---------------------------------------------------------- */
@@ -344,6 +344,27 @@ $dbase-normal-text-fg: white;         /*  [170] Normal text */
 $dbase-normal-text-bg: cyan;
 $dbase-cursor-fg: black;              /*  [171] Cursor */
 $dbase-cursor-bg: light_gray;
+
+/* -- Navigator's own: no DN slot ---------------------------------------- */
+/* Each is an alias of the slot it names, so this palette colours it too. */
+$image-fg: #40c8c8;                   /*  images -- DN's Custom 1 [175] -- Navigator: brighter than cyan, short of light cyan */
+$image-bg: $highlight-custom-1-bg;
+$media-fg: $highlight-custom-2-fg;    /*  audio and video -- DN's Custom 2 [176] */
+$media-bg: $highlight-custom-2-bg;
+$document-fg: #e5b567;                /*  documents -- DN's Custom 3 [177] -- Navigator: amber rather than magenta */
+$document-bg: $highlight-custom-3-bg;
+$stale-link-fg: $highlight-custom-4-fg;/*  a symlink pointing nowhere -- DN's Custom 4 [180] */
+$stale-link-bg: $highlight-custom-4-bg;
+$source-fg: #87afff;                  /*  source code -- DN's Custom 5 [181] -- Navigator: lighter than light blue, which is barely visible */
+$source-bg: $highlight-custom-5-bg;
+$symlink-fg: light_gray;              /*  a symlink -- Midnight Commander's class, on Custom 1 [175] -- Navigator: MC's link colour; the alias would match images */
+$symlink-bg: $highlight-custom-1-bg;
+$device-fg: #e5b567;                  /*  a character or block device -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
+$device-bg: $highlight-custom-3-bg;
+$special-fg: #e5b567;                 /*  a socket or a FIFO -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
+$special-bg: $highlight-custom-3-bg;
+$temp-fg: black;                      /*  backups and temporaries -- MC's class, on Normal text [85] -- Navigator: faint, as MC draws temporaries */
+$temp-bg: $panel-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

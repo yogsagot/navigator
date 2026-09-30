@@ -15,7 +15,6 @@ original draws on the right.
 
 from __future__ import annotations
 
-import fnmatch
 import os
 import stat
 import time
@@ -36,6 +35,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few
 # lines apart meaning a module and a keyword is a trap rather than a saving.
+from navigator import filetypes
 from navigator import icons as icon_glyphs
 
 
@@ -136,18 +136,6 @@ class DirEntry:
         Linux cannot report a creation time portably.
         """
         return time.strftime("%d-%m-%y %H:%M", time.localtime(self.mtime))
-
-
-def _matches(name: str, patterns: list[str]) -> bool:
-    """Whether *name* matches any of *patterns*, as :meth:`Panel.select_group` reads them."""
-    name = name.lower()
-    for pattern in patterns:
-        pattern = pattern.lower()
-        if fnmatch.fnmatchcase(name, pattern):
-            return True
-        if pattern.endswith(".*") and "." not in name and fnmatch.fnmatchcase(name, pattern[:-2]):
-            return True
-    return False
 
 
 class Panel(ListViewer):
@@ -359,7 +347,7 @@ class Panel(ListViewer):
         DN's ``InMask`` matched upper-cased names, and a pattern ending ``.*``
         also matches a name with no dot at all, as DOS's ``*.*`` did.
         """
-        patterns = [pattern.strip() for pattern in mask.split(";") if pattern.strip()]
+        patterns = filetypes.patterns(mask)
         if not patterns:
             return
         matched = {
@@ -367,7 +355,7 @@ class Panel(ListViewer):
             for item in self.items
             if item.name != ".."
             and (select is False or not item.is_dir)
-            and _matches(item.name, patterns) != invert
+            and filetypes.matches(item.name, patterns) != invert
         }
         self.marked = (self.marked | matched) if select else (self.marked - matched)
 
@@ -629,6 +617,9 @@ class Panel(ListViewer):
 
     def row_style(self, index: int, item: DirEntry) -> Style:
         classes = ("directory",) if item.is_dir else ()
+        category = filetypes.category_of(item.name, item.is_dir, item.type_mark)
+        if category:
+            classes += (category,)
         if self.is_marked(item):
             classes += ("marked",)
         return self.part_style("row", classes=classes, selected=self.row_selected(index))

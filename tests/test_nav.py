@@ -24,6 +24,7 @@ from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
 from conftest import FakeTerminal, awaited, mounted, run_app, settle
+from navigator import filetypes
 from navigator import icons
 from navigator import __version__
 from navkit.application import Application
@@ -1621,6 +1622,63 @@ def test_the_nerd_gutter_shows_each_type_as_a_glyph(tmp_path):
     assert buffer.get(1, 1 + [e.name for e in entries].index("to_file"))[0] == "√"
 
 
+@pytest.mark.parametrize(
+    "name, is_dir, mark, expected",
+    [
+        *[("thing", False, mark, cls) for mark, cls in filetypes.BY_TYPE.items()],
+        ("src", True, "/", None),  # a plain directory is `.directory' alone
+        ("backup.zip", True, "/", None),  # and never an archive
+        ("..", True, "/", None),
+        ("README", False, " ", None),
+        (".bashrc", False, " ", None),  # a leading dot is not an extension
+        ("archive.tar.gz", False, " ", "archive"),
+        ("PHOTO.JPG", False, " ", "image"),  # masks fold case, as DN's did
+        ("song.flac", False, " ", "media"),
+        ("report.pdf", False, " ", "document"),
+        ("main.py", False, " ", "source"),
+        ("notes~", False, " ", "temp"),
+        ("#draft#", False, " ", "temp"),
+        (".main.py.swp", False, " ", "temp"),
+        ("build.sh", False, "*", "executable"),  # the type beats the extension
+        ("photos.zip", False, "@", "symlink"),
+        ("lib", True, "~", "symlink"),
+        ("thing.unheardof", False, " ", None),
+    ],
+)
+def test_the_file_type_picks_the_row_class(name, is_dir, mark, expected):
+    assert filetypes.category_of(name, is_dir, mark) == expected
+
+
+def test_a_row_is_coloured_by_its_file_type(tmp_path):
+    for name in ("plain", "pack.zip", "shot.png", "old.bak"):
+        (tmp_path / name).write_text("x")
+    (tmp_path / "run").write_text("x")
+    (tmp_path / "run").chmod(0o755)
+    (tmp_path / "link").symlink_to("plain")
+    (tmp_path / "stale").symlink_to("nowhere")
+    panel = Panel(tmp_path, width=40, height=20)
+    panel.stylesheet = default_scheme()
+    mounted(panel, size=(40, 20))
+    rows = {item.name: (index, item) for index, item in enumerate(panel.items)}
+    plain = panel.part_style("row")
+    styles = {name: panel.row_style(*rows[name]) for name in rows if name != ".."}
+    for name, cls in [("pack.zip", "archive"), ("shot.png", "image"), ("old.bak", "temp"),
+                      ("run", "executable"), ("link", "symlink"), ("stale", "stale-link")]:
+        assert styles[name] == panel.part_style("row", classes=(cls,)), name
+        assert styles[name].fg != plain.fg, name
+    assert styles["plain"] == plain
+
+    # The cursor and a tag both win over the file type.
+    index, item = rows["pack.zip"]
+    panel.focus()
+    panel.cursor = index
+    settle()
+    assert panel.row_style(index, item) == panel.part_style("row", selected=True)
+    panel.marked = frozenset({"pack.zip"})
+    settle()
+    assert panel.row_style(index, item) == panel.part_style("row", classes=("marked",), selected=True)
+
+
 def test_no_icon_comes_from_the_range_nerd_fonts_3_removed():
     """``nf-mdi`` (U+F500 to U+FD46) was dropped in Nerd Fonts 3 and moved
     to the supplementary planes, so a glyph from it is a box on a current font."""
@@ -2001,7 +2059,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     hard-coded white on black -- the only two rows that changed.  And once
     more when F3 got its viewer: *View* left the *Disabled* colour, and the
     key bar's styles are the only thing that moved.  And once more, the same
-    way, when F4 got its editor.
+    way, when F4 got its editor.  And once more when rows took their file
+    type's colour: ``one.txt`` and ``two.txt`` are documents, and their two
+    rows' styles are all that moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()

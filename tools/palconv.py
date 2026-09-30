@@ -233,7 +233,7 @@ HAND_NAMED = {
 
 #: The indices ``navigator/styles/navigator.nss`` actually reads today.  Only
 #: a marker in the generated comments; everything else is carried inert.
-LIVE = frozenset({1, 2, 4, 85, 86, 88, 90, 91, 165, 172})
+LIVE = frozenset({1, 2, 4, 85, 86, 88, 90, 91, 165, 172, 173, 174, 175, 176, 177, 180, 181})
 
 #: Where Navigator deliberately draws a slot other than as the palette says:
 #: theme name -> slot index -> ``(fg, bg, why)``, each colour a DOS colour
@@ -256,6 +256,56 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
         76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
         85: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
         117: ("#d8d8d8", None, "lighter text, for contrast"),
+    },
+}
+
+#: Variables Navigator needs and DOS Navigator had no slot for: name ->
+#: ``(slot, why)``.  Each is written into every theme as an *alias* of the
+#: slot's own variables -- ``$image-fg: $highlight-custom-1-fg;`` -- so every
+#: palette gives it a colour it already draws, and changing the slot changes
+#: it.  A theme that wants something else says so in
+#: :data:`DERIVED_DEPARTURES`.
+#:
+#: They are the file-type classes of ``navigator/filetypes.py``.  DN coloured
+#: rows by category and left Custom 1-5 [175-181] to masks the user typed
+#: (*Highlight groups*), so the categories Navigator fills in take those five;
+#: Midnight Commander's type classes, which DOS had no files for, share them.
+DERIVED: dict[str, tuple[int, str]] = {
+    "image": (175, "images -- DN's Custom 1"),
+    "media": (176, "audio and video -- DN's Custom 2"),
+    "document": (177, "documents -- DN's Custom 3"),
+    "stale-link": (180, "a symlink pointing nowhere -- DN's Custom 4"),
+    "source": (181, "source code -- DN's Custom 5"),
+    "symlink": (175, "a symlink -- Midnight Commander's class, on Custom 1"),
+    "device": (177, "a character or block device -- MC's class, on Custom 3"),
+    "special": (177, "a socket or a FIFO -- MC's class, on Custom 3"),
+    "temp": (85, "backups and temporaries -- MC's class, on Normal text"),
+}
+
+#: Where a theme draws a :data:`DERIVED` variable other than as its alias:
+#: theme name -> name -> ``(fg, bg, why)``, as :data:`DEPARTURES`.
+#:
+#: * ``default`` ``symlink``: light grey, Midnight Commander's own colour for
+#:   a link, a step down from the #D8D8D8 of an ordinary row -- the alias
+#:   would make every link look like an image.
+#: * ``default`` ``temp``: black on the dark grey ground, faint, as MC's
+#:   temporaries are: a file to overlook.
+#: * ``default`` ``source``: #87AFFF rather than Custom 5's light blue, which
+#:   is #5555FF on #555555 -- barely there at all.
+#: * ``default`` ``image``: #40C8C8, a step up from Custom 1's cyan (#00AAAA)
+#:   and still short of the executables' light cyan (#55FFFF).
+#: * ``default`` ``document``, ``device``, ``special``: amber #E5B567 rather
+#:   than Custom 3's light magenta, at the user's request.  Devices and
+#:   sockets share it as they share the slot; they are rare outside ``/dev``.
+DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None, str]]] = {
+    "default": {
+        "symlink": (7, None, "MC's link colour; the alias would match images"),
+        "temp": (0, None, "faint, as MC draws temporaries"),
+        "source": ("#87afff", None, "lighter than light blue, which is barely visible"),
+        "image": ("#40c8c8", None, "brighter than cyan, short of light cyan"),
+        "document": ("#e5b567", None, "amber rather than magenta"),
+        "device": ("#e5b567", None, "amber rather than magenta, as documents"),
+        "special": ("#e5b567", None, "amber rather than magenta, as documents"),
     },
 }
 
@@ -687,7 +737,7 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
 
     out += [
         "/* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and",
-        "   its order. `>' marks the eight navigator.nss reads today; the rest are one",
+        "   its order. `>' marks the ones navigator.nss reads today; the rest are one",
         "   rule away from being live, and are carried rather than dropped. */",
     ]
     group = None
@@ -703,6 +753,25 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
             comment += f" -- Navigator: {departures[slot.index][2]}; the .PAL has {was}"
         out.append(f"${slot.name}-fg: {fg};".ljust(38) + f"/*{comment} */")
         out.append(f"${slot.name}-bg: {bg};")
+
+    slots = {slot.index: slot for slot in SLOTS}
+    derived_departures = DERIVED_DEPARTURES.get(name, {})
+    out += [
+        "",
+        "/* -- Navigator's own: no DN slot ---------------------------------------- */",
+        "/* Each is an alias of the slot it names, so this palette colours it too. */",
+    ]
+    for variable, (index, why) in DERIVED.items():
+        stem = slots[index].name
+        fg, bg = f"${stem}-fg", f"${stem}-bg"
+        comment = f"  {why} [{index}]"
+        if variable in derived_departures:
+            new_fg, new_bg, reason = derived_departures[variable]
+            fg = fg if new_fg is None else spell(new_fg)
+            bg = bg if new_bg is None else spell(new_bg)
+            comment += f" -- Navigator: {reason}"
+        out.append(f"${variable}-fg: {fg};".ljust(38) + f"/*{comment} */")
+        out.append(f"${variable}-bg: {bg};")
 
     if palette.cursor is not None:
         out += [

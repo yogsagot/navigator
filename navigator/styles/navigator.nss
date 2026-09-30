@@ -60,6 +60,27 @@ Panel:focused::title { fg: $active-title-fg; bg: $active-title-bg }
    either to mention a property the other left out, the per-property cascade
    would carry that one property across from the loser. */
 Panel::row.directory { fg: $directory-fg; bg: $directory-bg; bold: true }
+
+/* What kind of file a row is (`navigator/filetypes.py'): DOS Navigator's
+   categories by mask and Midnight Commander's classes by type, a row taking
+   at most one and the type winning.  All tie with `.directory' and the two
+   rules after them, so they sit between: a link to a directory is coloured a
+   link (keeping `.directory''s bold), and the cursor and a tag still win.
+   Executables [173] and Archives [174] are DN's own slots; the rest are
+   Navigator's variables, each an alias of one of DN's Custom 1-5
+   [175-181] -- see `DERIVED' in `tools/palconv.py'. */
+Panel::row.executable { fg: $executable-fg; bg: $executable-bg }
+Panel::row.archive    { fg: $archive-fg;    bg: $archive-bg }
+Panel::row.image      { fg: $image-fg;      bg: $image-bg }
+Panel::row.media      { fg: $media-fg;      bg: $media-bg }
+Panel::row.document   { fg: $document-fg;   bg: $document-bg }
+Panel::row.source     { fg: $source-fg;     bg: $source-bg }
+Panel::row.temp       { fg: $temp-fg;       bg: $temp-bg }
+Panel::row.symlink    { fg: $symlink-fg;    bg: $symlink-bg }
+Panel::row.stale-link { fg: $stale-link-fg; bg: $stale-link-bg }
+Panel::row.device     { fg: $device-fg;     bg: $device-bg }
+Panel::row.special    { fg: $special-fg;    bg: $special-bg }
+
 Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 
 /* A tagged entry (Insert): `[87] Selected text', and under the cursor `[89]
