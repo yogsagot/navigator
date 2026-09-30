@@ -1,0 +1,75 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+
+#: A file the copy is about to land on: DOS Navigator's ``dlgOverwriteQuery``.
+#:
+#: The text is ``Overwrite``'s in ``FILECOPY.PAS`` -- the name, then
+#: ``dlFCOver``'s three centred lines -- and the buttons are the resource's
+#: five in its order, *Overwrite* two columns wider than the rest as it was
+#: there.  Six columns wider than DN's 60, because this library's buttons are
+#: eleven wide with their markers and five of them do not fit in 60.
+OverwriteQuery(Dialog):
+    modal_width: 66
+    modal_height: 13
+    title: "Confirm"
+
+    StaticText:
+        id: details
+        x: 1
+        y: 2
+        width: max(0, parent.width - 2)
+        height: 5
+        align: "center"
+
+    #: Makes Overwrite, Append or Skip the answer for every file after this
+    #: one.  Not Rename: a new name is only ever this file's.
+    CheckBoxes:
+        id: for_all
+        x: 4
+        y: 8
+        width: max(0, parent.width - 8)
+        height: 1
+        items: ["Accept choice for ~a~ll files"]
+
+    Button:
+        id: overwrite
+        text: "~O~verwrite"
+        default: True
+        x: 2
+        y: max(0, parent.height - 4)
+        width: 13
+        height: 2
+
+    Button:
+        id: append
+        text: "A~p~pend"
+        x: 16
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: rename
+        text: "~R~ename"
+        x: 28
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: skip
+        text: "~S~kip"
+        x: 40
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 52
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

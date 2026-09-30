@@ -364,6 +364,14 @@ def slow_search(monkeypatch):
     return release
 
 
+def painted_row(widget) -> str:
+    from navkit.screen import ScreenBuffer
+
+    buffer = ScreenBuffer(widget.width, 1)
+    widget.render(buffer)
+    return "".join(buffer.get(x, 0)[0] for x in range(widget.width))
+
+
 def test_a_long_search_shows_its_progress_and_finds(files, slow_search):
     from navigator.widgets.search_progress import SearchProgress
 
@@ -372,7 +380,7 @@ def test_a_long_search_shows_its_progress_and_finds(files, slow_search):
 
     def look(a):
         box = a.modal
-        seen.append((type(box).__name__, box.percent(), box.gauge_text().count("█")))
+        seen.append((type(box).__name__, box.bar.percent, painted_row(box.bar).count("█")))
         slow_search.set()
 
     run_app(app, [

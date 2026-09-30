@@ -120,6 +120,15 @@ ASCII_SCROLLBAR = "^v<>:#"
 SCROLLBARS = {"dos": DOS_SCROLLBAR, "ascii": ASCII_SCROLLBAR}
 DEFAULT_SCROLLBAR = "dos"
 
+#: A gauge's two characters, done and to go: ``StrGrd``'s CP437 219 and 177,
+#: the full block and the shade the scroll bar's track is drawn in too.
+DOS_GAUGE = "█▒"
+ASCII_GAUGE = "#."
+
+#: The sets a ``chars`` declaration may name on a progress bar.
+GAUGES = {"dos": DOS_GAUGE, "ascii": ASCII_GAUGE}
+DEFAULT_GAUGE = "dos"
+
 #: Four marks: check box off, check box on, radio off, radio on.  The brackets
 #: around them are *not* here.  ``[ ]`` and ``( )`` are ASCII in the original
 #: too and are fixed in the widget, which is how Turbo Vision spells them --
@@ -162,6 +171,12 @@ def scrollbar(name: str, tier: int = GLYPHS_UNICODE) -> str:
     """The named scrollbar characters, degraded to what *tier* can render."""
     chars = SCROLLBARS.get(name, SCROLLBARS[DEFAULT_SCROLLBAR])
     return ASCII_SCROLLBAR if tier < GLYPHS_UNICODE else chars
+
+
+def gauge(name: str, tier: int = GLYPHS_UNICODE) -> str:
+    """The named gauge characters, degraded to what *tier* can render."""
+    chars = GAUGES.get(name, GAUGES[DEFAULT_GAUGE])
+    return ASCII_GAUGE if tier < GLYPHS_UNICODE else chars
 
 
 def marks(name: str, tier: int = GLYPHS_UNICODE) -> str:

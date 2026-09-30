@@ -154,6 +154,18 @@ DN's rewriting. Every key is a command named after DN's `cm*` in `FileEditor.key
 command line's Enter/Home/End/Tab and pastes step aside. **Closing asks** through `Window.must_ask`/`ask_to_close`
 (`Valid(cmClose)`), which `request_close`, Close all and Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 Saving renames a new file over the old one. *The editor* in `navml/DESIGN.md` has the rest and the phases left.
+**F5 and F6 are DOS Navigator's copy and Rename/move** (`FILECOPY.PAS`): `navigator/filecopy.py` is the model
+(`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy modes, `MkName` masks, rename-first moves with an `EXDEV`
+fallback), `CopyDialog` is `dlgCopyDialog`/`dlgRenameDialog` in one document (seeded with the passive panel's
+directory, F10/*Tree* picking it from a tree, mode and options remembered for the session), and `Manager.copy_files`
+puts up `CopyProgress` (`TWhileView`, *Stop* asking *Abort operation?* with the copy paused) and `OverwriteQuery`
+(`dlgOverwriteQuery`) as the worker asks. Copied entries are untagged and both panels re-read. **The check boxes are
+a departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy
+descriptions* stood, in the same bits. `Manager.passive_panel` names the other panel, `Cluster` lays out in
+columns as `TCluster` did, which is how the four check boxes fit two rows, and **the gauges are the library's
+`ProgressBar`** (`navml/widgets/progress_bar/`, `value`/`total`/`percent`, as wide as it is placed, `█▒` from
+navkit's `GAUGES`), which `SearchProgress` uses too. *Copying files* in `navml/DESIGN.md` has
+the rest.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

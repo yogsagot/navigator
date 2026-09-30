@@ -1,0 +1,78 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.progress_bar import ProgressBar
+
+#: A copy under way: the ``TWhileView`` ``FILECOPY.PAS`` opened 40 by 13.
+#:
+#: DN's rows were the file being read and its gauge, then the file being
+#: written and its; a copy here reads and writes in one pass, so the rows are
+#: the file and where it goes, the file's gauge, and the whole copy's gauge
+#: with its count -- DN's ``Total N bytes``, which it wrote on the frame.
+#: One *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
+CopyProgress(Dialog):
+    modal_width: 60
+    modal_height: 13
+    title: "Rename/move" if root.move else "Copy"
+    buttons: "ok"
+    closable: False
+
+    property move: False
+    property source: ""
+    property dest: ""
+    property file_done: 0
+    property file_bytes: 0
+    property done: 0
+    property total: 0
+
+    StaticText:
+        id: source_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.fit(" Moving " if root.move else " Copying ", root.source)
+
+    StaticText:
+        id: dest_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.fit(" to ", root.dest)
+
+    #: Both gauges are as wide as the box less four columns a side.
+    ProgressBar:
+        id: file_bar
+        x: 4
+        y: 4
+        width: max(0, parent.width - 8)
+        height: 1
+        value: root.file_done
+        total: root.file_bytes
+
+    StaticText:
+        id: file_count
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.count(root.file_done, file_bar.percent)
+
+    ProgressBar:
+        id: total_bar
+        x: 4
+        y: 6
+        width: max(0, parent.width - 8)
+        height: 1
+        value: root.done
+        total: root.total
+
+    StaticText:
+        id: total_count
+        x: 2
+        y: 7
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Total " + root.count(root.done, total_bar.percent)

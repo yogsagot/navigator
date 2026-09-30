@@ -1,0 +1,107 @@
+from navigator.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: F5 and F6: DOS Navigator's ``dlgCopyDialog`` and ``dlgRenameDialog``.
+#:
+#: One document for the two, which ``DN.DNR`` spelled out twice and which
+#: differ only in their title -- the prompt above the line is built when the
+#: dialog opens, as ``CopyDialog`` built it.  Laid out where the resource puts
+#: things: the line on the second row, the five copy modes under it, the four
+#: options in two columns under those, and OK / Cancel / Tree / Help along
+#: the bottom.  Two columns wider and a row taller than DN's 59 by 16, because
+#: this library's buttons are eleven wide and sit ``height - 4`` from the top.
+CopyDialog(Dialog):
+    #: Which of the two: *Copy* (F5) or *Rename/move* (F6).
+    property move: False
+
+    modal_width: 61
+    modal_height: 17
+    title: "Rename/move" if root.move else "Copy"
+
+    #: ``StatusDef hcCopyDialog``'s ``F10 Tree``.
+    keys:
+        f10: ChooseTarget
+
+    #: ``Copy file NAME to``: the text is the hand-written half's, because it
+    #: depends on what was selected and a document cannot see that.
+    Label:
+        id: prompt_caption
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        link: target.entry
+
+    #: DN's ``hsFileCopyName``, one history for Copy and Rename/move as it was.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "copy"
+
+    #: ``cpmOverwrite`` .. ``cpmRefresh``, so the value is the copy mode.
+    RadioButtons:
+        id: mode
+        x: 3
+        y: 4
+        width: max(0, parent.width - 6)
+        height: 5
+        items: ["~O~verwrite all existing files", "A~p~pend to all existing files", "~A~sk for overwrite", "~S~kip all existing files", "Refresh o~l~d files"]
+
+    #: DN's four ``cpo`` bits in DN's places.  *Preserve attributes* and
+    #: *Follow symlinks* stand where *Verify disk writes* and *Copy
+    #: descriptions* stood -- a departure, recorded in ``navml/DESIGN.md``.
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 10
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["Check ~f~ree disk space", "Pr~e~serve attributes", "Follow symli~n~ks", "Remove so~u~rce files"]
+
+    #: DN's own row rather than ``Dialog``'s, which has no Tree in it.  Cancel
+    #: carries no letter, as the resource's did: ``~C~`` is the prompt's.
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    #: There is no help to show yet.  Shown, as the original's was, and
+    #: disabled, as Choose Directory's *Drive* is.
+    Button:
+        id: help
+        text: "Help"
+        disabled: True
+        x: 44
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

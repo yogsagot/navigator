@@ -9,7 +9,7 @@ import re
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.widget import Widget
-from navml.widgets.dialog.control import parse_shortcut
+from navml.widgets.dialog.control import caption_runs, parse_shortcut
 
 
 class StaticText(_Component):

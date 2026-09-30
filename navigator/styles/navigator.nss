@@ -170,6 +170,13 @@ Modal::icon           { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons
 
 StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text-bg }
 
+/* A gauge in `TWhileView''s colour, which is its lines' colour: `GetColor(7)'
+ * of `CDialog', and `CGrayDialog' maps entry 7 to [38] *Label normal*, not to
+ * [37].  `█' is the foreground and `▒' the foreground's shade over the
+ * background -- black and, to the eye, dark grey in DEFAULT.PAL.  Without a
+ * rule the bar inherited the dialog frame's white. */
+ProgressBar           { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg }
+
 Label                 { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg }
 Label:selected        { fg: $dialog-label-selected-fg;   bg: $dialog-label-selected-bg }
 /* `bg' as well as `fg' on the two shortcut rules below, because `mono' gives

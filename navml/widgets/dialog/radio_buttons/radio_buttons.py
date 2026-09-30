@@ -46,6 +46,6 @@ class RadioButtons(Cluster):
 
     async def on_key(self, event: KeyEvent) -> bool:
         taken = await super().on_key(event)
-        if taken and event.key in ("up", "down"):
+        if taken and event.key in ("up", "down", "left", "right"):
             self.value = self.sel
         return taken

@@ -31,6 +31,51 @@ from navkit.widget import Widget
 from navml.component import take_declared
 
 
+def caption_runs(text: str) -> list[tuple[str, bool]]:
+    """*text* as runs of plain and marked characters, in order.
+
+    What Turbo Vision's ``MoveCStr`` drew: every ``~`` toggles the highlight,
+    so a caption may mark more than one run -- DOS Navigator's Copy prompt
+    marks the file name as well as its letter.  ``~~`` is one literal tilde,
+    inside a marked run as well as outside one, which is what lets a file
+    name be put in a caption; a ``~`` left over with nothing to pair with is
+    drawn as one too -- a caption is text first and a declaration second.
+    """
+    toggles: list[int] = []
+    index = 0
+    while index < len(text):
+        if text[index] == "~":
+            if text[index + 1 : index + 2] == "~":
+                index += 2
+                continue
+            toggles.append(index)
+        index += 1
+    if len(toggles) % 2:
+        toggles.pop()                # unpaired: drawn, not obeyed
+    toggle_at = set(toggles)
+    runs: list[tuple[str, bool]] = []
+    current: list[str] = []
+    marked = False
+    index = 0
+    while index < len(text):
+        if index in toggle_at:
+            if current:
+                runs.append(("".join(current), marked))
+                current = []
+            marked = not marked
+            index += 1
+            continue
+        if text[index : index + 2] == "~~":
+            current.append("~")      # `~~' is one literal tilde
+            index += 2
+            continue
+        current.append(text[index])
+        index += 1
+    if current:
+        runs.append(("".join(current), marked))
+    return runs
+
+
 def parse_shortcut(text: str) -> tuple[str, int, str]:
     """Split ``"~O~K"`` into the caption, where the marked letter is, and it.
 
@@ -42,35 +87,22 @@ def parse_shortcut(text: str) -> tuple[str, int, str]:
     Turbo Vision's own spelling, and worth keeping rather than inventing a
     property: the mark travels with the caption, so a translated caption
     carries its own accelerator and nothing has to be kept in step with it.
-    ``~~`` is a literal tilde, and an unpaired ``~`` is drawn as one -- a
-    caption is text first and a declaration second.
+    Only the first marked run is the shortcut; :func:`caption_runs` has the
+    rules for the rest, ``~~`` and an unpaired ``~`` among them.
     """
     out: list[str] = []
     start, letter = -1, ""
-    index = 0
-    while index < len(text):
-        char = text[index]
-        if char != "~":
-            out.append(char)
-            index += 1
-            continue
-        if text[index + 1 : index + 2] == "~":
-            out.append("~")          # `~~' is one literal tilde
-            index += 2
-            continue
-        closing = text.find("~", index + 1)
-        if closing == -1:
-            out.append("~")          # unpaired: drawn, not obeyed
-            index += 1
-            continue
-        if start == -1:
-            start = len(out)
-            marked = text[index + 1 : closing]
-            letter = marked[:1].lower()
-        out.append(text[index + 1 : closing])
-        index = closing + 1
-    caption = "".join(out)
-    return caption, start, letter
+    for run, marked in caption_runs(text):
+        if marked and start == -1:
+            start = len("".join(out))
+            letter = run[:1].lower()
+        out.append(run)
+    return "".join(out), start, letter
+
+
+def escape_caption(text: str) -> str:
+    """*text* with every ``~`` doubled, so a file name is drawn as it is."""
+    return text.replace("~", "~~")
 
 
 class Control(Widget):

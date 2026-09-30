@@ -38,6 +38,8 @@ _WIDGETS = {
     "AboutDialog": "about_dialog",
     "ChangeDirDialog": "change_dir_dialog",
     "Clock": "clock",
+    "CopyDialog": "copy_dialog",
+    "CopyProgress": "copy_progress",
     "CommandLine": "command_line",
     "CompletionList": "completion_list",
     "Console": "console",
@@ -52,6 +54,7 @@ _WIDGETS = {
     "MainMenu": "main_menu",
     "Manager": "manager",
     "MkdirDialog": "mkdir_dialog",
+    "OverwriteQuery": "overwrite_query",
     "Panel": "panel",
     "QuickViewer": "quick_viewer",
     "SearchProgress": "search_progress",
@@ -84,6 +87,8 @@ if TYPE_CHECKING:
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.change_dir_dialog import ChangeDirDialog
     from navigator.widgets.clock import Clock
+    from navigator.widgets.copy_dialog import CopyDialog
+    from navigator.widgets.copy_progress import CopyProgress
     from navigator.widgets.command_line import CommandLine
     from navigator.widgets.completion_list import CompletionList
     from navigator.widgets.console import Console
@@ -96,6 +101,7 @@ if TYPE_CHECKING:
     from navigator.widgets.keybar import KeyBar
     from navigator.widgets.manager import Manager
     from navigator.widgets.mkdir_dialog import MkdirDialog
+    from navigator.widgets.overwrite_query import OverwriteQuery
     from navigator.widgets.main_menu import MainMenu
     from navigator.widgets.panel import DirEntry, Panel
     from navigator.widgets.quick_viewer import QuickViewer

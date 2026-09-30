@@ -2329,7 +2329,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     key bar's styles are the only thing that moved.  And once more, the same
     way, when F4 got its editor.  And once more when rows took their file
     type's colour: ``one.txt`` and ``two.txt`` are documents, and their two
-    rows' styles are all that moved.
+    rows' styles are all that moved.  And once more when F5 and F6 got the
+    copy: *Copy* and *Ren* left the *Disabled* colour, the key bar's styles
+    again the only thing that moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()

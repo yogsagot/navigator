@@ -15,7 +15,7 @@ from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.widget import Widget
 
-from navml.widgets.dialog.control import parse_shortcut
+from navml.widgets.dialog.control import caption_runs, parse_shortcut
 
 
 def draw_caption(
@@ -27,25 +27,23 @@ def draw_caption(
     shortcut_style: Style,
     max_width: int | None = None,
 ) -> int:
-    """Paint *text* with its ``~A~`` letter in *shortcut_style*.
+    """Paint *text* with its ``~A~`` runs in *shortcut_style*.
 
     Returns the cells used, as :meth:`Surface.draw_text` does, so a caller
-    laying out a row of these can keep counting.  Three calls rather than one
-    because a style is per cell and the marked run is a different one; the
-    widths come back from ``draw_text`` so a wide character inside the caption
-    cannot put the third call in the wrong column.
+    laying out a row of these can keep counting.  One call per run because a
+    style is per cell and a marked run is a different one; the widths come
+    back from ``draw_text`` so a wide character inside the caption cannot put
+    the next run in the wrong column.  Every marked run is highlighted, as
+    Turbo Vision's ``MoveCStr`` highlighted them; the first is the shortcut.
     """
-    caption, start, letter = parse_shortcut(text)
-    if start < 0 or not letter:
-        return surface.draw_text(x, y, caption, style, max_width)
     limit = surface.width - x if max_width is None else max_width
-    used = surface.draw_text(x, y, caption[:start], style, limit)
-    used += surface.draw_text(
-        x + used, y, caption[start : start + len(letter)], shortcut_style, limit - used
-    )
-    used += surface.draw_text(
-        x + used, y, caption[start + len(letter) :], style, limit - used
-    )
+    used = 0
+    for run, marked in caption_runs(text):
+        if used >= limit:
+            break
+        used += surface.draw_text(
+            x + used, y, run, shortcut_style if marked else style, limit - used
+        )
     return used
 
 

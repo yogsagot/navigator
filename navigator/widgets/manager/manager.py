@@ -21,11 +21,13 @@ from navml.widgets.window import Window
 
 from navigator.commands import (
     ChangeDirectory,
+    Copy,
     Edit,
     GoParent,
     MakeDirectory,
     QuickSearch,
     QuickView,
+    RenameMove,
     Rescan,
     ScrollNames,
     InvertSelection,
@@ -186,6 +188,12 @@ class Manager(Window):
                 # Disabled, so Backspace falls through and edits the line.
                 return False
             return not (self.tree.focused or self.quick.focused)
+        if isinstance(command, (Copy, RenameMove)):
+            # DN's ``GetSelection`` answering nil: nothing tagged and the
+            # cursor on ``..``, or a listing that is not a panel's.
+            return not (self.tree.focused or self.quick.focused) and bool(
+                self.selection(self.active_panel)
+            )
         if isinstance(command, ScrollNames):
             panel = self.active_panel
             return (
@@ -312,6 +320,170 @@ class Manager(Window):
             ).execute(self.application)
         panel.reload()
 
+    # -- copying and moving ------------------------------------------------------
+
+    def selection(self, panel: Panel) -> list[Any]:
+        """DN's ``GetSelection``: the tagged entries, or else the one under the cursor.
+
+        Empty when nothing is tagged and the cursor is on ``..``, which is
+        never a thing to copy.
+        """
+        marked = panel.marked_entries
+        if marked:
+            return marked
+        entry = panel.selected
+        if entry is None or entry.name == "..":
+            return []
+        return [entry]
+
+    async def on_copy(self, event: Copy) -> bool:
+        """F5: ``cmCopyFiles``."""
+        self.spawn(self.copy_files(move=False))
+        return True
+
+    async def on_rename_move(self, event: RenameMove) -> bool:
+        """F6: ``cmMoveFiles``, the same dialog with *Remove source* ticked."""
+        self.spawn(self.copy_files(move=True))
+        return True
+
+    async def copy_files(self, *, move: bool) -> None:
+        """Ask where, copy on a thread, and let both panels look again.
+
+        ``make_directory``'s shape with a worker in the middle: the copy runs
+        through ``asyncio.to_thread`` so the loop keeps painting, and
+        :meth:`_watch_copy` stands between the two -- the progress box once
+        the copy has taken a moment, and every question the worker puts, one
+        at a time.  What was copied in full is untagged, as DN deselected each
+        file as it went; what was skipped keeps its tag.
+        """
+        from navigator import filecopy
+        from navigator.widgets.copy_dialog import CopyDialog
+
+        app = self.application
+        panel, other = self.active_panel, self.passive_panel
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        here = Path(panel.path)
+        request = await CopyDialog(
+            entries=entries, here=here, other=Path(other.path),
+            hidden=panel.show_hidden, move=move,
+        ).execute(app)
+        if request is None:
+            return
+        job = filecopy.CopyJob()
+        work = asyncio.ensure_future(asyncio.to_thread(filecopy.run, request, job, here))
+        try:
+            await self._watch_copy(work, job, move)
+            done = await work
+        finally:
+            if not work.done():
+                # Cancelled -- Navigator is going -- so the thread is told to
+                # stop rather than left copying, or asking, behind it.
+                job.stop()
+        names = {path.name for path in done}
+        if names:
+            panel.marked = panel.marked - names
+        panel.reload()
+        other.reload()
+
+    async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
+        """The progress box, *Stop*, and the worker's questions, until *work* ends."""
+        from navigator.widgets.copy_progress import CopyProgress
+        from navigator.widgets.file_window.file_window import PROGRESS_DELAY, PROGRESS_TICK
+
+        app = self.application
+        loop = asyncio.get_running_loop()
+        started = loop.time()
+        box: Any = None
+        shown: asyncio.Future[Any] | None = None
+
+        def refresh() -> None:
+            if box is not None:
+                box.source, box.dest = job.source, job.dest
+                box.file_done, box.file_bytes = job.file_done, job.file_bytes
+                box.done, box.total = job.done_bytes, job.total_bytes
+
+        async def tick() -> None:
+            # Through the queue, so each update is painted with its batch.
+            refresh()
+
+        repeat = app.call_every(PROGRESS_TICK, tick)
+        try:
+            while not work.done():
+                waiting = {work} if shown is None else {work, shown}
+                await asyncio.wait(waiting, timeout=PROGRESS_TICK, return_when=asyncio.FIRST_COMPLETED)
+                pending = job.take_question()
+                if pending is not None:
+                    question, future = pending
+                    answer = None
+                    try:
+                        answer = await self._answer_copy_question(question)
+                    finally:
+                        future.set_result(answer)
+                    continue
+                if shown is not None and shown.done():
+                    # *Stop*, or Esc: ``dlQueryAbort`` before anything stops.
+                    box, shown = None, None
+                    job.pause()
+                    try:
+                        if await self._ask_yes_no("Abort operation?") is True:
+                            job.stop()
+                    finally:
+                        job.resume()
+                    continue
+                if work.done():
+                    break
+                if shown is None and not job.stopped and loop.time() - started >= PROGRESS_DELAY:
+                    box = CopyProgress(move=move)
+                    refresh()
+                    shown = asyncio.ensure_future(box.execute(app))
+        finally:
+            repeat.cancel()
+            if shown is not None and not shown.done():
+                # Cancelled rather than closed: a box whose ``execute`` has
+                # not started yet has nothing to close, and would mount and
+                # wait for ever the moment it did.  ``execute``'s own
+                # ``finally`` takes it down.  Waited for, not awaited, so a
+                # cancellation of this task is not swallowed with its own.
+                shown.cancel()
+                await asyncio.wait({shown})
+
+    async def _ask_yes_no(self, prompt: str, title: str = "Confirm") -> Any:
+        return await Dialog(title=title, prompt=prompt, buttons="yes-no-cancel").execute(self.application)
+
+    async def _answer_copy_question(self, question: Any) -> Any:
+        """Put one of the worker's questions to the user, and answer as it expects."""
+        from navkit.reactive import unbind
+
+        from navml.widgets.dialog.button import Button
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator import filecopy
+        from navigator.widgets.overwrite_query import OverwriteQuery
+
+        app = self.application
+        if isinstance(question, filecopy.Overwrite):
+            return await OverwriteQuery(question=question).execute(app)
+        if isinstance(question, filecopy.CreateDirectory):
+            # DN's ``dlQueryCreateDir``.
+            return await self._ask_yes_no(
+                f"Would you like to create directory {escape_caption(str(question.path))}?"
+            ) is True
+        if isinstance(question, filecopy.NoRoom):
+            # DN's ``erNotDiskSpace1``: Yes goes on without this file.
+            return await self._ask_yes_no(
+                f"There is not enough room to copy file "
+                f"{escape_caption(question.dest.name)}. Copy other files?",
+                title="Warning",
+            ) is True
+        if isinstance(question, filecopy.Failure):
+            box = Dialog(title="Error", prompt=escape_caption(question.message), buttons="ok-cancel")
+            unbind(box.ok, Button.text)
+            box.ok.text = "~S~kip"
+            return await box.execute(app) is True
+        return None
+
     async def on_view(self, event: View) -> bool:
         """F3: ``cmFileView``, the selected file in a viewer window."""
         self.spawn(self.view("text"))
@@ -409,6 +581,16 @@ class Manager(Window):
             return self.left
         return self._last_panel or self.left
 
+    @computed
+    def passive_panel(self) -> Panel:
+        """The panel that is not the active one, showing or not.
+
+        While the tree or the quick view stands in for it, it is the panel
+        they stand in for: its directory is still where DN's ``cmPushFirstName``
+        would have pointed a copy.
+        """
+        return self.right if self.active_panel is self.left else self.left
+
     def list_name(self) -> str:
         """The active panel's directory: what the window list shows for this window.
 
@@ -435,8 +617,7 @@ class Manager(Window):
             else:
                 self._focus_replacement()
             return
-        other = self.right if self.active_panel is self.left else self.left
-        other.focus()
+        self.passive_panel.focus()
 
     # -- the directory tree ----------------------------------------------------
 
@@ -480,7 +661,7 @@ class Manager(Window):
             current.visible = False
             passive = replaced
         else:
-            passive = self.right if active is self.left else self.left
+            passive = self.passive_panel
         row = self.panels.children
         row.remove(view)
         row.insert(row.index(passive), view)

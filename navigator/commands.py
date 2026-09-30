@@ -211,6 +211,16 @@ class ChangeDirectory(Command):
     """
 
 
+class ChooseTarget(Command):
+    """F10 in the Copy dialog: pick where the files go from a tree.
+
+    DOS Navigator's ``cmTree``, which ``StatusDef hcCopyDialog`` put on F10
+    and the dialog's *Tree* button sent too.
+    """
+
+    title = "Tree"
+
+
 class NewManager(Command):
     """Ctrl+F3: another file manager window, the size of the desktop.
 
@@ -650,6 +660,7 @@ __all__ = [
     "UnselectGroup",
     "ToggleShowMode",
     "ChangeDirectory",
+    "ChooseTarget",
     "Copy",
     "Delete",
     "Edit",

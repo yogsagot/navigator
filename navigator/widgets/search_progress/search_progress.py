@@ -1,4 +1,4 @@
-"""What the progress box computes, and what its one button means."""
+"""What the progress box's one button means; the gauge is a ``ProgressBar``."""
 
 from __future__ import annotations
 
@@ -9,12 +9,13 @@ from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
-#: ``StrGrd``'s width: thirty columns of gauge.
-GAUGE = 30
-
 
 class SearchProgress(Dialog):
-    """*Search Progress*: a gauge, a percentage, and *Stop*."""
+    """*Search Progress*: a gauge, a percentage, and *Stop*.
+
+    The gauge is ``bar``, a :class:`~navml.widgets.progress_bar.ProgressBar`,
+    and the percentage is what it says.
+    """
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -23,17 +24,6 @@ class SearchProgress(Dialog):
         # yes-no-cancel) and a value cannot be assigned over a binding.
         unbind(self.ok, Button.text)
         self.ok.text = "~S~top"
-
-    def percent(self) -> int:
-        """DN's ``Percent(L, I)``."""
-        if self.total <= 0:
-            return 100
-        return min(100, max(0, self.position * 100 // self.total))
-
-    def gauge_text(self) -> str:
-        """``StrGrd(L, I, 30)``: ``█`` for the part done, ``▒`` for the rest."""
-        done = GAUGE if self.total <= 0 else min(GAUGE, max(0, self.position * GAUGE // self.total))
-        return "█" * done + "▒" * (GAUGE - done)
 
     def accept(self) -> Any:
         """*Stop* answers what Esc does: nothing, which is a stopped search."""

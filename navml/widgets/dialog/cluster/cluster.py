@@ -66,6 +66,42 @@ class Cluster(Control):
     def toggle(self, index: int) -> None:
         """Turn item *index* on, or over."""
 
+    # -- columns -------------------------------------------------------------
+    #
+    # Turbo Vision's ``TCluster.Column``/``Row``: items run down a column as
+    # tall as the cluster and on into the next, so four items in two rows are
+    # two columns -- which is how DOS Navigator's Copy dialog put its check
+    # boxes.  A column is as wide as its longest caption, and the next one
+    # starts two cells after it: ``Column`` stepped by the width plus six,
+    # which is the four of ``[x]`` and its blank and the two between.  A
+    # cluster at least as tall as its items is one column and paints exactly
+    # as it did before columns existed.
+
+    def _rows(self) -> int:
+        return max(1, self.height)
+
+    def _column_x(self, column: int) -> int:
+        rows = self._rows()
+        x = 0
+        for first in range(0, column * rows, rows):
+            widest = max(
+                (len(parse_shortcut(item)[0]) for item in self.items[first : first + rows]),
+                default=0,
+            )
+            x += widest + 6
+        return x
+
+    def item_at(self, x: int, y: int) -> int:
+        """The item painted at *x*, *y*, or -1."""
+        rows = self._rows()
+        if not 0 <= y < rows or x < 0:
+            return -1
+        column = 0
+        while (column + 1) * rows < len(self.items) and x >= self._column_x(column + 1):
+            column += 1
+        index = column * rows + y
+        return index if index < len(self.items) else -1
+
     # -- input ---------------------------------------------------------------
 
     def _move(self, delta: int) -> None:
@@ -79,6 +115,12 @@ class Cluster(Control):
             self._move(-1)
         elif event.key == "down":
             self._move(1)
+        elif event.key in ("left", "right") and len(self.items) > self._rows():
+            # A column along, as ``TCluster.HandleEvent`` stepped by
+            # ``Size.Y``; nowhere to go is a key taken all the same.
+            step = self._rows() * (1 if event.key == "right" else -1)
+            if 0 <= self.sel + step < len(self.items):
+                self.sel += step
         elif event.matches("space"):
             self.toggle(self.sel)
         else:
@@ -89,9 +131,10 @@ class Cluster(Control):
         await super().on_mouse_click(event)
         if event.action != "press" or event.button != "left" or self.inert:
             return False
-        if 0 <= event.y < len(self.items):
-            self.sel = event.y
-            self.toggle(event.y)
+        index = self.item_at(event.x, event.y)
+        if index >= 0:
+            self.sel = index
+            self.toggle(index)
             return True
         return False
 
@@ -122,16 +165,22 @@ class Cluster(Control):
         glyphs = marks(self.look, self.glyphs)
         off, on = glyphs[self.mark_offset], glyphs[self.mark_offset + 1]
         opening, closing = self.brackets
-        for index, item in enumerate(self.items[: self.height]):
+        rows = self._rows()
+        for index, item in enumerate(self.items):
+            column, y = divmod(index, rows)
+            x = self._column_x(column)
+            if x >= self.width:
+                break
             style = self.part_style("item", selected=index == self.sel and self.focused)
             mark = self.part_style(
                 "mark", checked=self.chosen(index), selected=index == self.sel
             )
-            surface.fill(0, index, self.width, 1, " ", style)
-            surface.draw_text(0, index, opening, mark)
-            surface.draw_text(1, index, on if self.chosen(index) else off, mark)
-            surface.draw_text(2, index, closing, mark)
+            if len(self.items) <= rows:
+                surface.fill(0, y, self.width, 1, " ", style)
+            surface.draw_text(x, y, opening, mark)
+            surface.draw_text(x + 1, y, on if self.chosen(index) else off, mark)
+            surface.draw_text(x + 2, y, closing, mark)
             draw_caption(
-                surface, 4, index, item, style,
-                self.part_style("shortcut"), max(0, self.width - 4),
+                surface, x + 4, y, item, style,
+                self.part_style("shortcut"), max(0, self.width - x - 4),
             )
