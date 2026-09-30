@@ -31,7 +31,7 @@ def names(events) -> list[str]:
         (b"\x7f", ["backspace"]),
         (b"\x08", ["backspace"]),
         (b"\x00", ["ctrl+space"]),
-        (b" ", [" "]),
+        (b" ", ["space"]),  # the key is " "; its name is bindable
     ],
 )
 def test_plain_and_control_keys(parser, data, expected):
@@ -348,3 +348,53 @@ def test_the_mouse_mode_decides_what_is_reported():
     assert encode_mouse(click("move"), tracking=1002, sgr=True) == b"\x1b[<32;5;3M"
     assert encode_mouse(click("move", "none"), tracking=1002, sgr=True) == b""
     assert encode_mouse(click("move", "none"), tracking=1003, sgr=True) == b"\x1b[<35;5;3M"
+
+
+@pytest.mark.parametrize(
+    ("data", "name", "char"),
+    [
+        # The kitty protocol reports the keypad by its own codes.
+        (b"\x1b[57413u", "kp_plus", "+"),
+        (b"\x1b[57412u", "kp_minus", "-"),
+        (b"\x1b[57411u", "kp_multiply", "*"),
+        (b"\x1b[57410u", "kp_divide", "/"),
+        (b"\x1b[57413;2u", "shift+kp_plus", "+"),
+        # A legacy terminal in application keypad mode sends SS3.
+        (b"\x1bOk", "kp_plus", "+"),
+        (b"\x1bOm", "kp_minus", "-"),
+        (b"\x1bOj", "kp_multiply", "*"),
+        (b"\x1bOo", "kp_divide", "/"),
+        (b"\x1bO2k", "shift+kp_plus", "+"),
+        # The rest of the keypad is folded into the keys it duplicates.
+        (b"\x1bOM", "enter", "\n"),
+        (b"\x1bOp", "0", "0"),
+        (b"\x1bOy", "9", "9"),
+        (b"\x1bOn", ".", "."),
+    ],
+)
+def test_the_keypad_operators_are_keys_of_their_own(parser, data, name, char):
+    """Gray + is not the + above the letters -- but it still types one."""
+    [event] = [e for e in parser.feed(data) if isinstance(e, KeyEvent)]
+    assert (event.name, event.char) == (name, char)
+    if name.endswith(("kp_plus", "kp_minus", "kp_multiply", "kp_divide")):
+        assert event.is_printable  # unbound, it types into a line
+
+
+def test_a_bare_space_is_named_space_so_a_key_table_can_bind_it(parser):
+    [event] = parser.feed(b" ")
+    assert event.key == " " and event.char == " "  # it still types a blank
+    assert event.name == "space"
+    assert event.matches("space")
+
+
+def test_a_keypad_operator_reaches_a_child_as_its_character():
+    from navkit.terminal import encode_key
+
+    assert encode_key(KeyEvent("kp_plus", "+")) == b"+"
+    assert encode_key(KeyEvent("kp_minus", "-", shift=True)) == b"-"
+
+
+def test_a_bare_plus_is_named_plus_because_a_spec_cannot_spell_it(parser):
+    [event] = parser.feed(b"+")
+    assert event.key == "+" and event.char == "+"
+    assert event.name == "plus" and event.matches("plus")

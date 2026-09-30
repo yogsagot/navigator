@@ -25,9 +25,13 @@ from navigator.commands import (
     MakeDirectory,
     QuickView,
     Rescan,
+    InvertSelection,
+    SelectGroup,
     SwitchPanel,
+    ToggleMark,
     ToggleShowMode,
     ToggleTree,
+    UnselectGroup,
     View,
     ViewAsHex,
     ViewAsText,
@@ -41,6 +45,32 @@ class Manager(Window):
 
     #: The panels' frames are this window's frame.
     framed = False
+
+    #: The Gray keys, merged with the markup's ``keys:`` block, which names a
+    #: command and cannot construct one.  Each says ``by_key``, so it steps
+    #: aside while the command line has text; Shift+Gray ``+``/``-`` open the
+    #: dialog with *Except mask* ticked, as DN's ``ShiftState and 3 <> 0``
+    #: did, and Ctrl+Gray ``*`` inverts the directories too (``kbCtrlGAst``).
+    #:
+    #: **And the plain ``+``, ``-`` and ``*``**, Midnight Commander's rule.
+    #: Only a terminal that reports the keypad on its own -- the kitty
+    #: protocol, or application keypad mode honoured -- can tell Gray ``+``
+    #: from the other one, and VTE (xfce4-terminal, GNOME Terminal) and
+    #: PyCharm's JediTerm send a bare ``+`` for both.  Binding the character
+    #: too makes the keys work everywhere; what it costs is starting a command
+    #: with one of the three from the panel, and after any other character
+    #: they type as usual.
+    keys = {
+        "plus": SelectGroup(by_key=True),
+        "-": UnselectGroup(by_key=True),
+        "*": InvertSelection(by_key=True),
+        "kp_plus": SelectGroup(by_key=True),
+        "kp_minus": UnselectGroup(by_key=True),
+        "kp_multiply": InvertSelection(by_key=True),
+        "shift+kp_plus": SelectGroup(invert=True, by_key=True),
+        "shift+kp_minus": UnselectGroup(invert=True, by_key=True),
+        "ctrl+kp_multiply": InvertSelection(directories=True, by_key=True),
+    }
 
     #: How long the tree's cursor has to rest before the panel follows it:
     #: DOS Navigator's thirty ticks of the 18.2 Hz timer (``NeedLocated``).
@@ -125,6 +155,60 @@ class Manager(Window):
         if chosen is not None:
             panel.path = Path(chosen)
             panel.focus()
+
+    def enables(self, command: Any) -> bool:
+        """Tagging is the active panel's, and not while the tree or the quick
+        view standing beside it has the keyboard -- those are not a listing.
+        Asked of a menu too, where neither has it and the panel is meant."""
+        if isinstance(command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection)):
+            if getattr(command, "by_key", False) and self._command_line_has_text():
+                # Disabled, so the key falls through and types its character.
+                return False
+            return not (self.tree.focused or self.quick.focused)
+        return super().enables(command)
+
+    def _command_line_has_text(self) -> bool:
+        """Whether the command line of the screen this window is on holds
+        anything -- a blank included, as for Space.  ``False`` with none."""
+        widget = self.parent
+        while widget is not None:
+            line = getattr(widget, "command_line", None)
+            if line is not None:
+                return bool(line.value)
+            widget = widget.parent
+        return False
+
+    async def on_toggle_mark(self, event: ToggleMark) -> bool:
+        """Insert: tag the active panel's entry and step down."""
+        self.active_panel.toggle_mark()
+        return True
+
+    async def on_invert_selection(self, event: InvertSelection) -> bool:
+        self.active_panel.invert_marks(directories=event.directories)
+        return True
+
+    async def on_select_group(self, event: SelectGroup) -> bool:
+        # Started, not awaited, for the reason ``on_make_directory`` gives.
+        self.spawn(self.select_group(select=True, invert=event.invert))
+        return True
+
+    async def on_unselect_group(self, event: UnselectGroup) -> bool:
+        self.spawn(self.select_group(select=False, invert=event.invert))
+        return True
+
+    async def select_group(self, *, select: bool, invert: bool) -> None:
+        """Gray ``+``/``-``: ask for a mask, then tag or untag what it matches.
+
+        The panel is taken before the dialog is, for the reason
+        :meth:`change_directory` gives.
+        """
+        from navigator.widgets.select_dialog import SelectDialog
+
+        panel = self.active_panel
+        answer = await SelectDialog(select=select, invert=invert).execute(self.application)
+        if answer is not None:
+            mask, except_mask = answer
+            panel.select_group(mask, select=select, invert=except_mask)
 
     async def on_toggle_show_mode(self, event: ToggleShowMode) -> bool:
         """Ctrl+Y: the active panel's next show mode -- simple, detailed, list."""

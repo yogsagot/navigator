@@ -21,12 +21,13 @@ from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View  
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed    # manager.nml:3
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup    # manager.nml:4
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine    # manager.nml:5
-from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleShowMode    # manager.nml:6
-from navigator.widgets.directory_tree import DirectoryTree    # manager.nml:7
-from navigator.widgets.quick_viewer import QuickViewer    # manager.nml:8
-from navigator.widgets.panel import Panel    # manager.nml:9
-from navml.widgets.layout.horizontal_layout import HorizontalLayout    # manager.nml:10
-from navml.widgets.window import Window    # manager.nml:11
+from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode    # manager.nml:6
+from navigator.commands import ToggleMarkBySpace    # manager.nml:7
+from navigator.widgets.directory_tree import DirectoryTree    # manager.nml:8
+from navigator.widgets.quick_viewer import QuickViewer    # manager.nml:9
+from navigator.widgets.panel import Panel    # manager.nml:10
+from navml.widgets.layout.horizontal_layout import HorizontalLayout    # manager.nml:11
+from navml.widgets.window import Window    # manager.nml:12
 
 __navml_component__ = "Manager"
 
@@ -64,50 +65,52 @@ class Manager(Window, _Component):
     #: modified keys below them are the bar's Alt, Ctrl and Shift rows, in
     #: ``StatusDef hcFilePanel``'s order, which is the order the bar shows the
     #: letters in.
-    keys = {    # manager.nml:43
-        'tab': SwitchPanel,    # manager.nml:44
-        'ctrl+enter': InsertName,    # manager.nml:45
-        'alt+enter': InsertName,    # manager.nml:46
-        'ctrl+shift+enter': InsertPath,    # manager.nml:47
-        'alt+shift+enter': InsertPath,    # manager.nml:48
-        'f2': UserMenu,    # manager.nml:49
-        'f3': View,# manager.nml:50
-        'f4': Edit,# manager.nml:51
-        'f5': Copy,# manager.nml:52
-        'f6': RenameMove,    # manager.nml:53
-        'f7': MakeDirectory,    # manager.nml:54
-        'f8': Delete,    # manager.nml:55
-        'alt+b': SortBy,    # manager.nml:56
-        'alt+c': ChangeDrive,    # manager.nml:57
-        'alt+s': PanelSetup,    # manager.nml:58
-        'alt+l': MakeList,    # manager.nml:59
-        'alt+f6': FastRename,    # manager.nml:60
-        'alt+f7': FindFile,    # manager.nml:61
-        'alt+r': Rescan,    # manager.nml:62
-        'alt+t': ChangeDirectory,    # manager.nml:63
-        'ctrl+f6': Calculator,    # manager.nml:64
-        'ctrl+f9': PrintFile,    # manager.nml:65
-        'ctrl+k': ToggleDescriptions,    # manager.nml:66
-        'ctrl+l': DiskInfo,    # manager.nml:67
-        'ctrl+t': ToggleTree,    # manager.nml:68
-        'ctrl+q': QuickView,    # manager.nml:69
-        'ctrl+y': ToggleShowMode,    # manager.nml:70
-        'ctrl+r': Rescan,    # manager.nml:71
-        'shift+f1': ArchiveFiles,    # manager.nml:72
-        'shift+f2': ExtractArchive,    # manager.nml:73
-        'shift+f3': PhoneBook,    # manager.nml:74
-        'shift+f4': EditNamed,    # manager.nml:75
-        'shift+f5': SplitCombine,    # manager.nml:76
-        'shift+f6': Reanimate,    # manager.nml:77
-        'shift+f8': DeleteSingle,    # manager.nml:78
+    keys = {    # manager.nml:44
+        'tab': SwitchPanel,    # manager.nml:45
+        'insert': ToggleMark,    # manager.nml:46
+        'space': ToggleMarkBySpace,    # manager.nml:47
+        'ctrl+enter': InsertName,    # manager.nml:48
+        'alt+enter': InsertName,    # manager.nml:49
+        'ctrl+shift+enter': InsertPath,    # manager.nml:50
+        'alt+shift+enter': InsertPath,    # manager.nml:51
+        'f2': UserMenu,    # manager.nml:52
+        'f3': View,# manager.nml:53
+        'f4': Edit,# manager.nml:54
+        'f5': Copy,# manager.nml:55
+        'f6': RenameMove,    # manager.nml:56
+        'f7': MakeDirectory,    # manager.nml:57
+        'f8': Delete,    # manager.nml:58
+        'alt+b': SortBy,    # manager.nml:59
+        'alt+c': ChangeDrive,    # manager.nml:60
+        'alt+s': PanelSetup,    # manager.nml:61
+        'alt+l': MakeList,    # manager.nml:62
+        'alt+f6': FastRename,    # manager.nml:63
+        'alt+f7': FindFile,    # manager.nml:64
+        'alt+r': Rescan,    # manager.nml:65
+        'alt+t': ChangeDirectory,    # manager.nml:66
+        'ctrl+f6': Calculator,    # manager.nml:67
+        'ctrl+f9': PrintFile,    # manager.nml:68
+        'ctrl+k': ToggleDescriptions,    # manager.nml:69
+        'ctrl+l': DiskInfo,    # manager.nml:70
+        'ctrl+t': ToggleTree,    # manager.nml:71
+        'ctrl+q': QuickView,    # manager.nml:72
+        'ctrl+y': ToggleShowMode,    # manager.nml:73
+        'ctrl+r': Rescan,    # manager.nml:74
+        'shift+f1': ArchiveFiles,    # manager.nml:75
+        'shift+f2': ExtractArchive,    # manager.nml:76
+        'shift+f3': PhoneBook,    # manager.nml:77
+        'shift+f4': EditNamed,    # manager.nml:78
+        'shift+f5': SplitCombine,    # manager.nml:79
+        'shift+f6': Reanimate,    # manager.nml:80
+        'shift+f8': DeleteSingle,    # manager.nml:81
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    panels: HorizontalLayout    # manager.nml:81
-    left: Panel    # manager.nml:88
-    right: Panel    # manager.nml:92
-    tree: DirectoryTree    # manager.nml:99
-    quick: QuickViewer    # manager.nml:104
+    panels: HorizontalLayout    # manager.nml:84
+    left: Panel    # manager.nml:91
+    right: Panel    # manager.nml:95
+    tree: DirectoryTree    # manager.nml:102
+    quick: QuickViewer    # manager.nml:107
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -117,41 +120,41 @@ class Manager(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_left_execute_file(self, event: _Event) -> bool:    # manager.nml:88
+    async def on_left_execute_file(self, event: _Event) -> bool:    # manager.nml:91
         """``left`` raised an event whose handler is ``on_execute_file``."""
         return False
 
-    async def on_right_execute_file(self, event: _Event) -> bool:    # manager.nml:92
+    async def on_right_execute_file(self, event: _Event) -> bool:    # manager.nml:95
         """``right`` raised an event whose handler is ``on_execute_file``."""
         return False
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:99
+    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:102
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.panels = HorizontalLayout(parent=self)    # manager.nml:80
-        self.left = Panel(parent=self.panels)    # manager.nml:87
-        self.right = Panel(parent=self.panels)    # manager.nml:91
-        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:98
-        self.quick = QuickViewer(parent=self.panels)    # manager.nml:103
+        self.panels = HorizontalLayout(parent=self)    # manager.nml:83
+        self.left = Panel(parent=self.panels)    # manager.nml:90
+        self.right = Panel(parent=self.panels)    # manager.nml:94
+        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:101
+        self.quick = QuickViewer(parent=self.panels)    # manager.nml:106
 
-        self.zoomed = True    # manager.nml:31
-        self.min_width = 24    # manager.nml:32
-        self.min_height = 5    # manager.nml:33
+        self.zoomed = True    # manager.nml:32
+        self.min_width = 24    # manager.nml:33
+        self.min_height = 5    # manager.nml:34
 
-        self.panels.x = 0    # manager.nml:82
-        self.panels.y = 0    # manager.nml:83
-        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:84
-        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:85
+        self.panels.x = 0    # manager.nml:85
+        self.panels.y = 0    # manager.nml:86
+        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:87
+        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:88
 
-        self.left.title_margin = 5    # manager.nml:89
-        self.left.on_execute_file = self.on_left_execute_file    # manager.nml:88
+        self.left.title_margin = 5    # manager.nml:92
+        self.left.on_execute_file = self.on_left_execute_file    # manager.nml:91
 
-        self.right.title_margin = 5    # manager.nml:93
-        self.right.on_execute_file = self.on_right_execute_file    # manager.nml:92
+        self.right.title_margin = 5    # manager.nml:96
+        self.right.on_execute_file = self.on_right_execute_file    # manager.nml:95
 
-        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:99
+        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:102
 
-        self.quick.title_margin = 5    # manager.nml:105
+        self.quick.title_margin = 5    # manager.nml:108

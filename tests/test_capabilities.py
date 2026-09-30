@@ -75,7 +75,7 @@ def test_a_terminal_that_is_not_a_tty_gets_nothing():
     info = TerminalInfo.detect({"TERM": "xterm-256color"}, is_tty=False)
     assert info.colors == MONOCHROME
     assert not any((info.alt_screen, info.mouse, info.bracketed_paste, info.title,
-                    info.kitty_keyboard))
+                    info.kitty_keyboard, info.keypad))
 
 
 def test_a_dumb_terminal_keeps_its_scrollback():
@@ -302,6 +302,21 @@ def test_the_kitty_keyboard_protocol_is_pushed_and_popped():
     terminal.start()
     terminal.stop()
     assert ">31u" not in out.getvalue() and "<u" not in out.getvalue()
+
+
+def test_the_keypad_goes_into_application_mode_and_back():
+    """DECKPAM is what makes a legacy terminal's Gray + a key of its own."""
+    terminal, out = _terminal()
+    terminal.start()
+    written = out.getvalue()
+    assert "\x1b=" in written
+    terminal.stop()
+    assert "\x1b>" in out.getvalue()[len(written):]
+
+    terminal, out = _terminal(keypad=False)
+    terminal.start()
+    terminal.stop()
+    assert "\x1b=" not in out.getvalue() and "\x1b>" not in out.getvalue()
 
 
 @pytest.mark.parametrize(

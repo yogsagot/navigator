@@ -3,7 +3,8 @@ from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy, SplitCombine
-from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleShowMode
+from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
+from navigator.commands import ToggleMarkBySpace
 from navigator.widgets.directory_tree import DirectoryTree
 from navigator.widgets.quick_viewer import QuickViewer
 from navigator.widgets.panel import Panel
@@ -42,6 +43,8 @@ Manager(Window):
     #: letters in.
     keys:
         tab: SwitchPanel
+        insert: ToggleMark
+        space: ToggleMarkBySpace
         ctrl+enter: InsertName
         alt+enter: InsertName
         ctrl+shift+enter: InsertPath

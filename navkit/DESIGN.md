@@ -909,6 +909,18 @@ agrees with it, the Private Use Area measuring as ambiguous — but the plain bu
 no table records which of the two is installed. Spending the second cell on a space means a glyph that comes out
 double-width covers the space instead of shoving the name along.
 
+**Without the icon the gutter is one cell, and it is always kept.** It holds Midnight Commander's file-type mark
+(`DirEntry.type_mark`: `/` directory, `*` executable, `@` symlink, `~` symlink to a directory, `!` stale symlink, `=`
+socket, `-` character device, `+` block device, `|` FIFO, a blank for a plain file) -- a second and smaller departure,
+since DN had none, taken at the user's request and pure ASCII so it holds in every tier. It is read off the mode bits,
+never `os.access`, so painting a row costs no system call, and `mode` is the target's except for a stale link, whose
+own `S_IFLNK` mode is what says it is stale. The column is reserved even where every mark is a blank because a
+tagged entry's marker is drawn in it: Insert (`ToggleMark`, DN's `kbIns`) tags the entry and steps down, and a tagged
+entry shows DN's default `TagChar`, `√` (`+` in the ASCII tier), in place of its mark *or its icon* -- the colour,
+`[87]`/`[89]`, says it too, but not on a monochrome terminal. DN drew its tag after the 8.3 name; a POSIX name has no
+fixed width to draw after. The tags are `Panel.marked`, a set of *names*, because a rescan builds new entries; a
+re-read of the same directory keeps them less the names that went (as DN's `RereadDir` did) and a move drops them.
+
 ## The console: the screen is owned, never read back
 
 Ctrl+O in DOS Navigator hid the panels and showed the last program's output *as the desktop background*, with the menu
@@ -1948,6 +1960,32 @@ arguments, or an instance.
 - **`Application.keys` runs where `Application.on_key` runs**, before the tree, and is stood aside from while a modal
   is up. That rule used to be written by hand at the top of every application `on_key`, and forgetting it let F10
   quit out of a dialog.
+
+### Two keys a table could not name, until it could
+
+**A bare Space is named `space`, and a bare `+` is named `plus`.** Their `key` is still `" "` and `"+"` and their
+`char` what they type, so everything that types reads them as before; only `KeyEvent.name` changed, and
+`events._KEY_NAMES` is the whole list. `space` is the spelling Ctrl+Space already had. A spec may not contain a
+blank, and `+` is the separator -- `"ctrl++"` parses as nothing -- so before this no table could bind either key.
+DOS Navigator's Space tags a file whenever the command line is empty, and the plain `+` stands in for Gray `+` on
+terminals that cannot tell them apart (below).
+
+**The keypad's four operators are keys of their own**: `kp_plus`, `kp_minus`, `kp_multiply`, `kp_divide`, each keeping
+its `char`, so a key nobody binds still types `+`. Every other keypad key is folded into the key it duplicates, as
+before. DOS Navigator's Gray `+`, `-` and `*` are the reason, and a key that only differs from the `+` above the
+letters by where it sits needs the terminal's help to be told apart:
+
+- The kitty protocol already reports the keypad by its own codes (57410--57413), which used to be folded away.
+- A legacy terminal sends a plain `+` -- **unless the keypad is in application mode** (DECKPAM, `ESC =`), when xterm,
+  VTE and the Linux console send `SS3 k`/`m`/`j`/`o` instead. So `Terminal` now sets it (`TerminalInfo.keypad`, off
+  only for a plain terminal) and resets it (DECKPNM, `ESC >`). In that mode the digits, `.`, `,`, `=` and keypad
+  Enter arrive as `SS3` too, and are decoded back to what they type -- which is what makes turning it on safe.
+- A child program is sent the operator's character, never the `SS3` form: its own keypad mode is its emulated
+  terminal's business, and a character is right in either.
+- **Not every terminal honours the mode, and this was found by running them.** Ghostty (kitty protocol) reports the
+  keypad; xfce4-terminal (VTE) and PyCharm's JediTerm sent Gray `+` as a bare `+` with DECKPAM set. So an application
+  wanting the Gray keys everywhere has to bind the plain characters as well, as Navigator's `Manager` does.
+  `tools/keyprobe.py` sets the keypad mode too, so it shows what a given terminal really sends.
 
 ### Enabled is decided by the nearest handler
 

@@ -24,7 +24,7 @@ from navml.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import About, CommandLineEnd, CommandLineHome, CompleteCommandLine
-from navigator.commands import InsertName, InsertPath
+from navigator.commands import InsertName, InsertPath, ToggleMark, ToggleMarkBySpace
 from navigator.commands import ExecuteCommandLine, NewManager, OpenTreeWindow
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.command_line.command_line import HISTORY_ID
@@ -331,6 +331,16 @@ class Shell(DockLayout):
             return False
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
+        if isinstance(command, ToggleMarkBySpace):
+            # ``CmdLine.Str <> ''``: once anything is on the line -- a blank
+            # included -- Space types.  Otherwise it is Insert, wherever the
+            # file manager would take Insert.
+            manager = self.active_manager
+            return (
+                not self.command_line.value
+                and manager is not None
+                and manager.enables(ToggleMark())
+            )
         if isinstance(
             command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine)
         ):
@@ -556,6 +566,10 @@ class Shell(DockLayout):
         else:
             text = _escape(entry.name)
         self.command_line.insert_name(text)
+
+    async def on_toggle_mark_by_space(self, event: ToggleMarkBySpace) -> bool:
+        self.active_manager.active_panel.toggle_mark()
+        return True
 
     async def on_insert_name(self, event: InsertName) -> bool:
         self._insert_entry(whole=False)

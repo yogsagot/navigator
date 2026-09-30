@@ -79,6 +79,13 @@ class Event:
             cls.handler = handler_name(cls.__name__)
 
 
+#: Keys whose ``key`` a spec cannot spell, and the name they go by instead.
+#: A spec may hold no blank, and ``+`` is what joins a modifier to its key,
+#: so ``"ctrl++"`` would parse as nothing.  The ``key`` itself is unchanged
+#: -- it is what types -- and only :attr:`KeyEvent.name` reads this.
+_KEY_NAMES = {" ": "space", "+": "plus"}
+
+
 def _normalize(spec: str) -> str:
     """Canonicalise a key spec such as ``"Ctrl+F10"`` into ``"ctrl+f10"``."""
     parts = [p.strip().lower() for p in spec.split("+") if p.strip()]
@@ -122,7 +129,7 @@ class KeyEvent(Event):
             mods.append("alt")
         if self.shift:
             mods.append("shift")
-        return "+".join([*mods, self.key])
+        return "+".join([*mods, _KEY_NAMES.get(self.key, self.key)])
 
     def matches(self, *specs: str) -> bool:
         """True if this key press is any of *specs* (``"ctrl+q"``, ``"f10"``)."""
@@ -156,7 +163,7 @@ class KeyReleaseEvent(Event):
     def name(self) -> str:
         """The full key name including modifiers, as :attr:`KeyEvent.name`."""
         mods = [m for m, held in (("ctrl", self.ctrl), ("alt", self.alt), ("shift", self.shift)) if held]
-        return "+".join([*mods, self.key])
+        return "+".join([*mods, _KEY_NAMES.get(self.key, self.key)])
 
     def matches(self, *specs: str) -> bool:
         """True if this release is of any of *specs*, as :meth:`KeyEvent.matches`."""

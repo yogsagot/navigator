@@ -62,6 +62,14 @@ Panel:focused::title { fg: $active-title-fg; bg: $active-title-bg }
 Panel::row.directory { fg: $directory-fg; bg: $directory-bg; bold: true }
 Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg }
 
+/* A tagged entry (Insert): `[87] Selected text', and under the cursor `[89]
+   Selected cursor' -- the C3 and C5 of `TFilePanel.Draw', which overrode the
+   directory highlight as these override `.directory'. `bold: false' because
+   `.directory' names it and the per-property cascade would otherwise carry
+   it across. The cursor one wins on specificity, a class and a state. */
+Panel::row.marked          { fg: $marked-fg; bg: $marked-bg; bold: false }
+Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold: false }
+
 /* The detailed and list modes (Ctrl+Y): the column titles over them, `[165]
    Column title', and the rules between their columns, `[86] List divider'. */
 Panel::heading       { fg: $column-title-fg; bg: $column-title-bg }

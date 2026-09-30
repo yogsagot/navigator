@@ -98,7 +98,20 @@ panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwx
 as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Date are dropped when the name would fall
 under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
 Left/Right moving a column as DN's `kbLeft`/`kbRight` did). Both non-simple modes have a heading row in *Column title*
-`[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). `ListViewer` grew the
+`[165]` (`Panel::heading`) and single `│` rules in *List divider* `[86]` (`Panel::divider`). Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or else one cell of
+Midnight Commander's type mark (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). **Insert tags** (`ToggleMark`, DN's
+`kbIns`): the entry joins `Panel.marked` (names, never `..`), the cursor steps down, and the gutter shows DN's tag
+char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
+selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line
+is empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, bound in `manager.nml` and handled and gated by `Shell`,
+which owns the line). **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`,
+also on Panel's menu): `SelectDialog` asks for a mask -- `;`-separated shell patterns, case folded, `x.*` also
+matching a name with no dot as DOS's did -- seeded selected from `HISTORY["select"]` or `*.*`, with *Except mask*
+ticked by Shift. Selecting passes directories over, unselecting does not (`Panel.select_group`). **Gray `*` is *Invert selection*** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their tag, and Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too. **With text on the command line the Gray keys type instead** (a departure: DN's panel always took them): they are bound in `manager.py` as `by_key=True` instances, and `Manager.enables` disables those while the line has text, so the key falls through to `Shell`; the menu's instances are unaffected. **The plain `+`, `-` and `*` are bound the same way** (Midnight Commander's rule), because xfce4-terminal (VTE) and PyCharm send Gray `+` as a bare `+` even in application keypad mode -- only Ghostty, of those tried, told them apart. navkit names the bare `+` `plus` for it, a spec having no other way to spell it. navkit names the
+keypad operators for it (`kp_plus`/`kp_minus`/`kp_multiply`/`kp_divide`, `char` kept), from the kitty codes or from
+`SS3` under application keypad mode, which `Terminal` now sets (`TerminalInfo.keypad`); and a bare Space is *named*
+`space` (its `key` is still `" "`), so a table can bind it.
+`ListViewer` grew the
 hooks for it -- `capacity`, `index_at`, `render_items` and an overridable `_follow_cursor`.
 **F4 is DOS Navigator's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had:
 `navigator/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`), `FileEditor` is `TFileEditor`

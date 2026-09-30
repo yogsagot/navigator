@@ -232,6 +232,10 @@ class TerminalInfo:
     #: held Alt.  Pushed without a query, since a terminal that does not know
     #: it ignores it; ``NAVKIT_KEYBOARD=legacy`` is the way out if one does not.
     kitty_keyboard: bool = True
+    #: Whether to put the keypad in application mode (DECKPAM), so a legacy
+    #: terminal reports its ``+`` and ``-`` as keys of their own.  Off only
+    #: where nothing interactive is on the other end.
+    keypad: bool = True
     #: Whether a cell's :attr:`~navkit.style.Style.link` is written as an
     #: OSC 8 hyperlink.  A terminal that does not know OSC 8 swallows it as
     #: an unknown OSC, which is nearly all of them -- the Linux console is
@@ -373,6 +377,7 @@ class TerminalInfo:
             bracketed_paste=not plain,
             title=not plain,
             kitty_keyboard=kitty_keyboard,
+            keypad=not plain,
             hyperlinks=hyperlinks,
             clipboard=clipboard,
         )

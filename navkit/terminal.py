@@ -82,6 +82,12 @@ PASTE_OFF = "\x1b[?2004l"
 # arrives, and losing the focus is the cue to forget what was held.
 KEYBOARD_ON = "\x1b[>31u\x1b[?1004h"
 KEYBOARD_OFF = "\x1b[?1004l\x1b[<u"
+# Application keypad mode (DECKPAM) and back (DECKPNM).  The only way a
+# terminal without the kitty protocol tells the keypad's ``+`` from the other
+# one: it sends ``SS3 k`` instead of the character.  A kitty-protocol terminal
+# reports the keypad by its own codes and ignores this.
+KEYPAD_ON = "\x1b="
+KEYPAD_OFF = "\x1b>"
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
 # OSC 4 rewrites one of the sixteen colour registers, OSC 104 with no argument
 # puts all of them back.  This is the terminal's answer to what a DOS palette
@@ -194,6 +200,33 @@ _KITTY_KEYS = {
     57425: "insert",
     57426: "delete",
     57427: "center",
+}
+
+#: The keypad's four operators, which are *not* folded: DOS Navigator's Gray
+#: ``+``, ``-`` and ``*`` are keys of their own, and a program binding one must
+#: be able to tell it from the ``+`` above the letters.  Each keeps its
+#: ``char``, so wherever nothing binds it the key still types.
+_KEYPAD_OPERATORS = {
+    57410: ("kp_divide", "/"),
+    57411: ("kp_multiply", "*"),
+    57412: ("kp_minus", "-"),
+    57413: ("kp_plus", "+"),
+}
+
+#: What the keypad sends in application keypad mode (DECKPAM, ``ESC =``) on a
+#: terminal without the kitty protocol: ``SS3`` and a letter.  The operators
+#: are named as above; everything else is folded into the key it duplicates,
+#: as the kitty path folds it.
+_SS3_KEYPAD = {
+    "j": ("kp_multiply", "*"),
+    "k": ("kp_plus", "+"),
+    "m": ("kp_minus", "-"),
+    "o": ("kp_divide", "/"),
+    "l": (",", ","),
+    "n": (".", "."),
+    "X": ("=", "="),
+    "M": ("enter", "\n"),
+    **{chr(ord("p") + digit): (str(digit), str(digit)) for digit in range(10)},
 }
 
 #: What the keypad's text keys type.
@@ -411,6 +444,13 @@ class InputParser:
                 final += 1
             if final >= len(buf):
                 return 0, None
+            keypad = _SS3_KEYPAD.get(chr(buf[final]))
+            if keypad is not None:
+                params = bytes(buf[2:final]).split(b";")
+                mods = _numbers(params[-1])[0] or 1 if final > 2 else 1
+                ctrl, alt, shift = _modifiers(mods)
+                name, char = keypad
+                return final + 1, KeyEvent(name, char, ctrl=ctrl, alt=alt, shift=shift)
             name = _LETTER_KEYS.get(chr(buf[final]))
             params = bytes(buf[2:final]).split(b";")
             if not name or final == 2:
@@ -531,6 +571,9 @@ def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | Non
         if name == "enter":
             return KeyEvent("enter", "\n", ctrl=ctrl, alt=alt, shift=shift)
         return KeyEvent(name, ctrl=ctrl, alt=alt, shift=shift)
+    if code in _KEYPAD_OPERATORS:
+        name, char = _KEYPAD_OPERATORS[code]
+        return KeyEvent(name, char, ctrl=ctrl, alt=alt, shift=shift)
     if code in _KITTY_KEYPAD:
         code = ord(_KITTY_KEYPAD[code])
     if code < 0x20 or 0xE000 <= code <= 0xF8FF:
@@ -838,6 +881,8 @@ class Terminal:
             self.write(PASTE_ON)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_ON)
+        if self.info.keypad:
+            self.write(KEYPAD_ON)
         if self.reprogram_palette:
             self.write(palette_sgr(self.info.palette))
         self.flush()
@@ -852,6 +897,8 @@ class Terminal:
         # harmless on a real terminal and noise in a pipe.
         if self.reprogram_palette:
             self.write(PALETTE_RESET)
+        if self.info.keypad:
+            self.write(KEYPAD_OFF)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_OFF)
         if self.info.bracketed_paste:

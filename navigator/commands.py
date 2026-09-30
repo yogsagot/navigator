@@ -312,6 +312,64 @@ class QuickView(Command):
     title = "Preview"
 
 
+class ToggleMark(Command):
+    """Insert: tag the file under the cursor, or untag it, and step down.
+
+    DN handled ``kbIns`` in ``TFilePanel.HandleEvent`` rather than through a
+    command; it is one here so the key lives in a key table like the rest.
+    """
+
+
+class ToggleMarkBySpace(Command):
+    """Space with the command line empty: :class:`ToggleMark`.
+
+    DN's ``fmoSpaceToggle``, on by default: ``kbSpace`` shared ``kbIns``'s
+    branch but gave up whenever ``CmdLine.Str`` was not empty, so that a blank
+    typed into a command still reached it.  A command of its own because that
+    condition is the command line's, and ``Shell`` -- which owns the line --
+    is what handles it.
+    """
+
+
+@dataclass(frozen=True, slots=True)
+class SelectGroup(Command):
+    """Gray ``+``, ``cmPanelSelect``: tag every file a mask matches.
+
+    *invert* is Shift held, which opened DN's dialog with *Except mask*
+    already ticked (``SelectFiles``'s ``XORs``).  *by_key* says the Gray key
+    sent it rather than the menu: the key is also a character, and with text
+    on the command line it types there instead (a departure -- DN's panel
+    always took it).
+    """
+
+    invert: bool = False
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class UnselectGroup(Command):
+    """Gray ``-``, ``cmPanelUnselect``: untag everything a mask matches.
+
+    The fields are :class:`SelectGroup`'s.
+    """
+
+    invert: bool = False
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class InvertSelection(Command):
+    """Gray ``*``, ``cmPanelInvertSel``: tag what is untagged, and untag the rest.
+
+    *directories* is Ctrl held (``kbCtrlGAst``), which took directories in
+    too; the plain key and the menu leave them as they are.  *by_key* is
+    :class:`SelectGroup`'s.
+    """
+
+    directories: bool = False
+    by_key: bool = False
+
+
 class ToggleShowMode(Command):
     """Ctrl+Y, ``cmToggleShowMode``."""
 
@@ -528,6 +586,11 @@ __all__ = [
     "SortBy",
     "SplitCombine",
     "ToggleDescriptions",
+    "InvertSelection",
+    "SelectGroup",
+    "ToggleMark",
+    "ToggleMarkBySpace",
+    "UnselectGroup",
     "ToggleShowMode",
     "ChangeDirectory",
     "Copy",

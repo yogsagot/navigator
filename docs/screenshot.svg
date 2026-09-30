@@ -103,26 +103,26 @@
 <text x="190" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">.</text>
 <text x="580" y="35" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">src</text>
 <text x="750" y="35" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#55ffff">[↕]</text>
-<text x="10" y="55" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">bin</text>
+<text x="10" y="55" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/bin</text>
 <text x="360" y="55" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>
-<text x="410" y="55" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">..</text>
+<text x="410" y="55" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/..</text>
 <text x="720" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">UP--DIR</text>
-<text x="10" y="75" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">docs</text>
+<text x="10" y="75" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/docs</text>
 <text x="370" y="75" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff">About</text>
 <text x="610" y="75" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#55ff55">[■]</text>
 <text x="760" y="75" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>
-<text x="10" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">src</text>
+<text x="10" y="95" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/src</text>
 <text x="760" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>
-<text x="10" y="115" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">tests</text>
+<text x="10" y="115" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/tests</text>
 <text x="350" y="115" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#000000">Navigator</text>
 <text x="760" y="115" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>
-<text x="10" y="135" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">.gitignore</text>
+<text x="20" y="135" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">.gitignore</text>
 <text x="330" y="135" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">Version</text>
 <text x="410" y="135" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">0.0.4</text>
 <text x="780" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">0</text>
-<text x="10" y="155" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">config.nss</text>
+<text x="20" y="155" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">config.nss</text>
 <text x="760" y="155" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">13K</text>
-<text x="10" y="175" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">LICENSE</text>
+<text x="20" y="175" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">LICENSE</text>
 <text x="160" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">A</text>
 <text x="180" y="175" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#000000">recreation</text>
 <text x="290" y="175" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">of</text>
@@ -132,22 +132,22 @@
 <text x="500" y="175" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#000000">two-panel</text>
 <text x="600" y="175" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">file</text>
 <text x="770" y="175" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">9K</text>
-<text x="10" y="195" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">Makefile</text>
+<text x="20" y="195" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">Makefile</text>
 <text x="260" y="195" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">manager</text>
 <text x="340" y="195" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">for</text>
 <text x="380" y="195" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">POSIX</text>
 <text x="440" y="195" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#000000">terminals</text>
 <text x="760" y="195" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">18K</text>
-<text x="10" y="215" textLength="130" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">navigator.log</text>
+<text x="20" y="215" textLength="120" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">navigator.lo</text>
 <text x="760" y="215" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">22K</text>
-<text x="10" y="235" textLength="130" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">pyproject.tom</text>
+<text x="20" y="235" textLength="120" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">pyproject.to</text>
 <text x="180" y="235" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Juris</text>
 <text x="240" y="235" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#000000">Krumgolds</text>
 <text x="340" y="235" textLength="270" lengthAdjust="spacingAndGlyphs" fill="#000000">&lt;juris.krumgolds@gmail.com&gt;</text>
-<text x="10" y="255" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">README.md</text>
+<text x="20" y="255" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">README.md</text>
 <text x="340" y="255" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#000000">License:</text>
 <text x="430" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">MIT</text>
-<text x="10" y="275" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">setup.cfg</text>
+<text x="20" y="275" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">setup.cfg</text>
 <text x="210" y="295" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#000000">https://github.com/yogsagot/navigator</text>
 <text x="340" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">▶</text>
 <text x="380" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">O</text>

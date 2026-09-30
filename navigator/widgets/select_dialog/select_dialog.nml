@@ -1,0 +1,47 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Gray ``+`` and ``-``: DOS Navigator's ``dlgSelect`` and ``dlgUnselect``.
+#:
+#: One document for the two, which ``DN.DNR`` spelled out twice and which
+#: differ only in their title.  Laid out where the resource puts them -- the
+#: caption on the first row, the mask under it, *Except mask* two rows down
+#: -- three columns wider and a row taller, because this library's buttons
+#: are eleven wide and sit ``height - 4`` from the top.
+SelectDialog(Dialog):
+    #: Which of the two: *Select* (Gray ``+``) or *Unselect* (Gray ``-``).
+    property select: True
+
+    modal_width: 30
+    modal_height: 10
+    title: "Select" if root.select else "Unselect"
+
+    Label:
+        id: mask_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~F~ile mask"
+        link: mask.entry
+
+    #: DN's ``hsSelectBox``, shared by both dialogs as it was.
+    Field:
+        id: mask
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "select"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["~E~xcept mask"]

@@ -10,18 +10,18 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
 ```text
   ≡  File  Disk  Utilities  Panel  Manager  Options  Window                12:34
 ┌─[■]───────────── . ──────────────────┐┌──────────────── src ─────────────[↕]─┐
-│bin                                DIR││..                             UP--DIR│
-│docs         ╔═════════════════════ About ══════════════════[■]═╗          DIR│
-│src          ║                                                  ║          DIR│
-│tests        ║                    Navigator                     ║          DIR│
-│.gitignore   ║                  Version 0.0.4                   ║            0│
-│config.nss   ║                                                  ║          13K│
-│LICENSE      ║ A recreation of the DOS Navigator two-panel file ║           9K│
-│Makefile     ║           manager for POSIX terminals            ║          18K│
-│navigator.log║                                                  ║          22K│
-│pyproject.tom║   Juris Krumgolds <juris.krumgolds@gmail.com>    ║             │
-│README.md    ║                   License: MIT                   ║             │
-│setup.cfg    ║                                                  ║             │
+│/bin                               DIR││/..                            UP--DIR│
+│/docs        ╔═════════════════════ About ══════════════════[■]═╗          DIR│
+│/src         ║                                                  ║          DIR│
+│/tests       ║                    Navigator                     ║          DIR│
+│ .gitignore  ║                  Version 0.0.4                   ║            0│
+│ config.nss  ║                                                  ║          13K│
+│ LICENSE     ║ A recreation of the DOS Navigator two-panel file ║           9K│
+│ Makefile    ║           manager for POSIX terminals            ║          18K│
+│ navigator.lo║                                                  ║          22K│
+│ pyproject.to║   Juris Krumgolds <juris.krumgolds@gmail.com>    ║             │
+│ README.md   ║                   License: MIT                   ║             │
+│ setup.cfg   ║                                                  ║             │
 │             ║      https://github.com/yogsagot/navigator       ║             │
 │             ║                                                  ║             │
 │             ║                   ▶   OK   ◀▄                    ║             │

@@ -55,6 +55,7 @@ _WIDGETS = {
     "Panel": "panel",
     "QuickViewer": "quick_viewer",
     "SearchProgress": "search_progress",
+    "SelectDialog": "select_dialog",
     "Shell": "shell",
     "TreeWindow": "tree_window",
     "ViewerFindDialog": "viewer_find_dialog",
@@ -99,6 +100,7 @@ if TYPE_CHECKING:
     from navigator.widgets.panel import DirEntry, Panel
     from navigator.widgets.quick_viewer import QuickViewer
     from navigator.widgets.search_progress import SearchProgress
+    from navigator.widgets.select_dialog import SelectDialog
     from navigator.widgets.shell import Shell
     from navigator.widgets.tree_window import TreeWindow
     from navigator.widgets.viewer_find_dialog import ViewerFindDialog

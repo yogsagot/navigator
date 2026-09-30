@@ -8,12 +8,14 @@ this file because this file was the only place in the repository that had it.
 
 What is left is the four things a file manager adds to a list: where it is
 (``path``), how it reads a directory (``_rescan``), what it does when you
-press Enter on one (``enter``), and how a row of it looks -- the icon gutter,
-the name, and the size column the original draws on the right.
+press Enter on one (``enter``), and how a row of it looks -- the gutter (an
+icon, or Midnight Commander's type mark), the name, and the size column the
+original draws on the right.
 """
 
 from __future__ import annotations
 
+import fnmatch
 import os
 import stat
 import time
@@ -52,16 +54,22 @@ class ExecuteFile(Event):
 
 class DirEntry:
     """One line in a panel: a name, whether it is a directory, its size, its
-    permission bits and when it was last modified."""
+    permission bits, when it was last modified and whether it is a symlink.
 
-    __slots__ = ("name", "is_dir", "size", "mode", "mtime")
+    ``mode`` is the link's *target*'s, except for a link pointing nowhere,
+    where there is no target to describe and it is the link's own.
+    """
 
-    def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0):
+    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link")
+
+    def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
+                 is_link: bool = False):
         self.name = name
         self.is_dir = is_dir
         self.size = size
         self.mode = mode
         self.mtime = mtime
+        self.is_link = is_link
 
     @property
     def sort_key(self) -> tuple:
@@ -91,6 +99,36 @@ class DirEntry:
         return stat.filemode(self.mode)[1:]
 
     @property
+    def type_mark(self) -> str:
+        """Midnight Commander's one-character file type, for the gutter
+        without an icon: ``/`` directory, ``*`` executable, ``@`` symlink,
+        ``~`` symlink to a directory, ``!`` stale symlink, ``=`` socket, ``-``
+        character device, ``+`` block device, ``|`` FIFO, and a blank for a
+        plain file.
+
+        Read off the mode bits rather than ``os.access``, so painting a row
+        costs no system call.
+        """
+        mode = self.mode
+        if self.is_link:
+            if stat.S_ISLNK(mode):
+                return "!"
+            return "~" if self.is_dir else "@"
+        if self.is_dir:
+            return "/"
+        if stat.S_ISSOCK(mode):
+            return "="
+        if stat.S_ISCHR(mode):
+            return "-"
+        if stat.S_ISBLK(mode):
+            return "+"
+        if stat.S_ISFIFO(mode):
+            return "|"
+        if stat.S_ISREG(mode) and mode & 0o111:
+            return "*"
+        return " "
+
+    @property
     def display_date(self) -> str:
         """The modification time, ``DD-MM-YY hh:mm`` as DN's default country drew it.
 
@@ -98,6 +136,18 @@ class DirEntry:
         Linux cannot report a creation time portably.
         """
         return time.strftime("%d-%m-%y %H:%M", time.localtime(self.mtime))
+
+
+def _matches(name: str, patterns: list[str]) -> bool:
+    """Whether *name* matches any of *patterns*, as :meth:`Panel.select_group` reads them."""
+    name = name.lower()
+    for pattern in patterns:
+        pattern = pattern.lower()
+        if fnmatch.fnmatchcase(name, pattern):
+            return True
+        if pattern.endswith(".*") and "." not in name and fnmatch.fnmatchcase(name, pattern[:-2]):
+            return True
+    return False
 
 
 class Panel(ListViewer):
@@ -134,6 +184,11 @@ class Panel(ListViewer):
     #: (``cmToggleShowMode``) steps through them.  Per panel, as DN's
     #: ``ShowFlags`` were.
     view_mode: str = reactive("simple")
+    #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
+    #: rather than on the entry because a rescan builds new entries.  Kept
+    #: across a re-read of the same directory, less the names that went, and
+    #: cleared by a change of directory.
+    marked: frozenset[str] = reactive(frozenset())
 
     #: ``simple``: name and size.  ``detailed``: name, size, permissions and
     #: date in columns.  ``list``: names alone, in as many columns as fit.
@@ -157,6 +212,9 @@ class Panel(ListViewer):
         #: the cursor and the scroll, for a re-read of *that* directory to put
         #: back.  Ignored if the panel has gone somewhere else meanwhile.
         self._keep: tuple[Path, str, int, int] | None = None
+        #: The directory the last rescan read, which tells a re-read (keep
+        #: the tags) from a move (drop them).
+        self._listed: Path | None = None
         if path is not None:
             self.path = path
 
@@ -191,18 +249,31 @@ class Panel(ListViewer):
                             info = item.stat(follow_symlinks=False)
                         except OSError:
                             info = None
+                    try:
+                        is_link = item.is_symlink()
+                    except OSError:
+                        is_link = False
                     if info is None:
-                        entries.append(DirEntry(item.name, False, 0))
+                        entries.append(DirEntry(item.name, False, 0, is_link=is_link))
                         continue
                     is_dir = stat.S_ISDIR(info.st_mode)
                     size = 0 if is_dir else info.st_size
-                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime))
+                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link))
         except OSError as exc:
             error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
 
         self.items = entries
         self.error = error
+        # Peeked, not read: the rescan must not depend on the tags, or every
+        # Insert would re-read the directory.
+        marked = peek(self, Panel.marked)
+        if path != self._listed:
+            marked = frozenset()
+        elif marked:
+            marked &= {entry.name for entry in entries}
+        self.marked = marked
+        self._listed = path
         target, self._return_to = self._return_to, None
         keep, self._keep = self._keep, None
         if keep is not None and keep[0] == path and target is None:
@@ -239,6 +310,68 @@ class Panel(ListViewer):
         # left behind as a note rather than applied on the next line.
         self._return_to = self.path.name if entry.name == ".." else None
         self.path = (self.path / entry.name).resolve()
+
+    # -- tagging -------------------------------------------------------------
+
+    def is_marked(self, item: DirEntry) -> bool:
+        return item.name in self.marked
+
+    def toggle_mark(self) -> None:
+        """Insert: tag or untag the entry under the cursor, and step down.
+
+        DN's ``kbIns`` in ``TFilePanel.HandleEvent``: ``..`` is never tagged
+        -- DN refused any name starting with a dot, which in DOS meant only
+        ``.`` and ``..`` -- and the cursor moves down one either way, so
+        holding Insert tags a run.
+        """
+        entry = self.selected
+        if entry is None:
+            return
+        if entry.name != "..":
+            self.marked = self.marked ^ {entry.name}
+        self.move_cursor(1)
+
+    def select_group(self, mask: str, *, select: bool = True, invert: bool = False) -> None:
+        """Gray ``+`` and ``-``: tag, or untag, every entry *mask* matches.
+
+        DN's ``SelectFiles``: selecting passes directories over and
+        unselecting does not, *invert* is *Except mask* (the entries the mask
+        does **not** match), and ``..`` is never tagged.  *mask* is one or
+        more shell patterns joined by ``;``, matched without regard to case as
+        DN's ``InMask`` matched upper-cased names, and a pattern ending ``.*``
+        also matches a name with no dot at all, as DOS's ``*.*`` did.
+        """
+        patterns = [pattern.strip() for pattern in mask.split(";") if pattern.strip()]
+        if not patterns:
+            return
+        matched = {
+            item.name
+            for item in self.items
+            if item.name != ".."
+            and (select is False or not item.is_dir)
+            and _matches(item.name, patterns) != invert
+        }
+        self.marked = (self.marked | matched) if select else (self.marked - matched)
+
+    def invert_marks(self, *, directories: bool = False) -> None:
+        """Gray ``*``: DN's ``InvertSelection``.
+
+        Every file's tag flips; a directory's flips only with *directories*
+        (Ctrl+Gray ``*``) and otherwise keeps whatever it had.  ``..`` is
+        never tagged.
+        """
+        flipped = {
+            item.name
+            for item in self.items
+            if item.name != ".." and (directories or not item.is_dir)
+        }
+        self.marked = self.marked ^ flipped
+
+    @property
+    def marked_entries(self) -> list[DirEntry]:
+        """The tagged entries, in listing order."""
+        marked = self.marked
+        return [item for item in self.items if item.name in marked]
 
     async def choose(self) -> bool:
         """What Enter and a double click mean here: descend, or run.
@@ -427,13 +560,16 @@ class Panel(ListViewer):
 
     @property
     def gutter(self) -> int:
-        """Columns held back at the left of a row for the icon.
+        """Columns held back at the left of a row, for the icon or the type mark.
 
-        Two, not one.  A Nerd Font *Mono* build patches its icons to a single
-        cell but the plain build does not, and the difference is invisible
-        until a name starts one column late on somebody else's terminal.
+        Two with an icon, not one.  A Nerd Font *Mono* build patches its icons
+        to a single cell but the plain build does not, and the difference is
+        invisible until a name starts one column late on somebody else's
+        terminal.  Without one it is a single cell holding
+        :attr:`DirEntry.type_mark` -- and always kept, because a tagged
+        entry's :attr:`tag_char` is drawn there too.
         """
-        return 2 if self.show_icons else 0
+        return 2 if self.show_icons else 1
 
     @computed
     def name_width(self) -> int:
@@ -450,30 +586,54 @@ class Panel(ListViewer):
 
     def footer_text(self) -> str:
         """The selected name, or an item count when there is nothing to name."""
-        entry = self.selected
-        summary = f" {entry.name} " if entry else f" {len(self.items)} items "
+        marked = self.marked_entries
+        if marked:
+            # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.
+            size = sum(item.size for item in marked)
+            summary = f" {size:,} bytes in {len(marked)} selected files "
+        else:
+            entry = self.selected
+            summary = f" {entry.name} " if entry else f" {len(self.items)} items "
         room = max(1, self.width - 4)
         return summary[: room - 1] + " " if len(summary) > room else summary
 
     def row_style(self, index: int, item: DirEntry) -> Style:
-        return self.part_style(
-            "row",
-            classes=("directory",) if item.is_dir else (),
-            selected=self.row_selected(index),
-        )
+        classes = ("directory",) if item.is_dir else ()
+        if self.is_marked(item):
+            classes += ("marked",)
+        return self.part_style("row", classes=classes, selected=self.row_selected(index))
 
     @property
     def divider_glyph(self) -> str:
         """``│`` between columns -- always single, whatever the frame, as DN's were."""
         return glyphs_module.charset("single", self.glyphs)[5]
 
+    #: What stands in the gutter of a tagged entry: DN's default
+    #: ``FMSetup.TagChar``, CP437's ``$FB``, and a plain ``+`` where the
+    #: terminal draws ASCII only.
+    TAG_CHAR = "√"
+    TAG_CHAR_ASCII = "+"
+
+    @property
+    def tag_char(self) -> str:
+        return self.TAG_CHAR if self.glyphs > glyphs_module.GLYPHS_ASCII else self.TAG_CHAR_ASCII
+
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
                    item: DirEntry, style: Style) -> None:
-        """The icon, if the gutter is kept, and the name, in *width* cells."""
+        """The tag, the icon or the type mark, and the name, in *width* cells.
+
+        A tag takes the gutter over whichever of the other two it would hold:
+        the colour says *tagged* too, but not on a monochrome terminal.
+        """
         gutter = min(self.gutter, width)
         if gutter:
-            icon = icon_glyphs.icon_for(item.name, item.is_dir)
-            surface.draw_text(x, y, icon, style, gutter)
+            if self.is_marked(item):
+                mark = self.tag_char
+            elif self.show_icons:
+                mark = icon_glyphs.icon_for(item.name, item.is_dir)
+            else:
+                mark = item.type_mark
+            surface.draw_text(x, y, mark, style, gutter)
         if width > gutter:
             surface.draw_text(x + gutter, y, item.name, style, width - gutter)
 

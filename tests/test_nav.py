@@ -1045,7 +1045,7 @@ def test_icons_appear_only_when_the_font_can_draw_them(tree):
     plain = navigator_with(tree, GLYPHS_UNICODE)
     run_app(plain, [])
     assert not plain.manager.left.show_icons
-    assert plain.manager.left.gutter == 0
+    assert plain.manager.left.gutter == 1
 
     fancy = navigator_with(tree, GLYPHS_NERD)
     run_app(fancy, [])
@@ -1054,7 +1054,8 @@ def test_icons_appear_only_when_the_font_can_draw_them(tree):
 
 
 def test_the_icon_gutter_shifts_the_name_without_touching_the_size_column(tree):
-    """Two cells go to the icon; the size column is where it always was."""
+    """Two cells go to the icon and one to the type mark without it; the size
+    column is where it always was."""
     plain = navigator_with(tree, GLYPHS_UNICODE)
     run_app(plain, [])
     without = row_of(desktop(plain), 2)
@@ -1063,12 +1064,331 @@ def test_the_icon_gutter_shifts_the_name_without_touching_the_size_column(tree):
     run_app(fancy, [])
     with_icons = row_of(desktop(fancy), 2)
 
-    # ".." is the first entry either way, and moves right by exactly the gutter.
-    assert without.index("..") + 2 == with_icons.index("..")
+    # ".." is the first entry either way, and moves right by the difference.
+    assert without.index("..") + 1 == with_icons.index("..")
     # The size column is drawn from the right edge and does not move.
     assert without[-12:] == with_icons[-12:]
     # A name has that much less room, so the two agree on the total width.
     assert fancy.manager.left.name_width == plain.manager.left.name_width
+
+
+def test_every_kind_of_entry_gets_midnight_commanders_type_mark(tmp_path):
+    """Read through the panel's own rescan, so the link wiring is covered too."""
+    import os
+    import socket
+
+    (tmp_path / "plain").write_text("x")
+    (tmp_path / "run").write_text("x")
+    (tmp_path / "run").chmod(0o755)
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "to_file").symlink_to("plain")
+    (tmp_path / "to_dir").symlink_to("dir")
+    (tmp_path / "stale").symlink_to("nowhere")
+    (tmp_path / "chr").symlink_to("/dev/null")
+    os.mkfifo(tmp_path / "fifo")
+    sock = socket.socket(socket.AF_UNIX)
+    try:
+        sock.bind(str(tmp_path / "sock"))
+        panel = Panel(tmp_path, width=40, height=20)
+        panel.stylesheet = default_scheme()
+        panel = mounted(panel, size=(40, 20))
+        marks = {entry.name: entry.type_mark for entry in panel.items}
+    finally:
+        sock.close()
+    assert marks == {
+        "..": "/", "dir": "/", "plain": " ", "run": "*", "to_file": "@", "to_dir": "~",
+        "stale": "!", "chr": "@", "fifo": "|", "sock": "=",
+    }
+
+
+@pytest.mark.parametrize(
+    "mode, expected",
+    [(0o020666, "-"), (0o060660, "+"), (0o010644, "|"), (0o140755, "="), (0o100644, " "),
+     (0o100744, "*"), (0o100601, "*"), (0, " ")],
+)
+def test_the_type_mark_reads_the_mode(mode, expected):
+    assert DirEntry("x", False, 0, mode).type_mark == expected
+
+
+def test_without_icons_the_gutter_holds_the_type_mark(tree):
+    (tree / "run.sh").write_text("#!/bin/sh")
+    (tree / "run.sh").chmod(0o755)
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [])
+    buffer = desktop(app)
+    entries = app.manager.left.items
+    marks = [buffer.get(1, 2 + row)[0] for row in range(len(entries))]
+    assert marks == [entry.type_mark for entry in entries]
+    assert marks[0] == "/"  # ".."
+    assert marks[[e.name for e in entries].index("run.sh")] == "*"
+    assert row_of(buffer, 2).index("..") == 2
+
+
+def test_insert_tags_the_entry_and_steps_down(tree):
+    """DN's ``kbIns``: ``..`` is never tagged, the cursor moves down either way."""
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(key="insert")) for _ in range(3)]])
+    panel = app.manager.left
+    names = [entry.name for entry in panel.items]
+    assert names[:3] == ["..", "alpha", "beta"]
+    assert panel.marked == {"alpha", "beta"}
+    assert panel.cursor == 3
+
+
+def test_insert_again_untags(panel):
+    panel.cursor = 1
+    panel.toggle_mark()
+    panel.cursor = 1
+    panel.toggle_mark()
+    assert panel.marked == frozenset()
+    assert panel.cursor == 2
+
+
+def test_a_tagged_row_shows_the_tag_char_and_its_own_colours(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: a.post_event(KeyEvent(key="insert")),
+                  lambda a: a.post_event(KeyEvent(key="insert"))])
+    buffer = desktop(app)
+    panel = app.manager.left
+    assert panel.marked == {"alpha"}
+    char, style = buffer.get(1, 3)  # "alpha", the second row
+    assert char == "√"
+    assert style == panel.part_style("row", classes=("directory", "marked"))
+    assert style.fg != panel.part_style("row", classes=("directory",)).fg
+    assert buffer.get(1, 4)[0] == "/"  # "beta", untagged, keeps its type mark
+    # Under the cursor a tagged row is [89], not the plain cursor.
+    panel.cursor = 1
+    settle()
+    assert panel.row_style(1, panel.items[1]) != panel.part_style("row", selected=True)
+
+
+def test_the_ascii_tier_tags_with_a_plus(tree):
+    app = navigator_with(tree, GLYPHS_ASCII)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(key="insert")) for _ in range(2)]])
+    assert desktop(app).get(1, 3)[0] == "+"
+
+
+def test_the_icon_gives_way_to_the_tag(tree):
+    app = navigator_with(tree, GLYPHS_NERD)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(key="insert")) for _ in range(2)]])
+    assert desktop(app).get(1, 3)[0] == "√"
+
+
+def test_tags_survive_a_reread_but_not_a_move(panel, tree):
+    panel.marked = frozenset({"one.txt", "two.txt"})
+    (tree / "two.txt").unlink()
+    panel.reload()
+    settle()
+    assert panel.marked == {"one.txt"}
+    panel.cursor = [e.name for e in panel.items].index("alpha")
+    panel.enter()
+    settle()
+    assert panel.marked == frozenset()
+
+
+def test_the_footer_sums_the_tagged_files(panel):
+    panel.marked = frozenset({"one.txt", "two.txt"})
+    assert panel.footer_text() == " 2,058 bytes in 2 selected files "
+
+
+def test_space_tags_while_the_command_line_is_empty(tree):
+    """DN's ``fmoSpaceToggle``: Space is Insert until something is typed."""
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(" ", " ")) for _ in range(2)]])
+    panel = app.manager.left
+    assert panel.marked == {"alpha"}
+    assert panel.cursor == 2
+    assert app.shell.command_line.value == ""
+
+
+def test_space_types_once_the_command_line_has_text(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls -l"]])
+    assert app.shell.command_line.value == "ls -l"
+    assert app.manager.left.marked == frozenset()
+
+
+@pytest.fixture
+def mixed(tmp_path):
+    for name in ("a.txt", "B.TXT", "c.py", "Makefile", "notes.md"):
+        (tmp_path / name).write_text("x")
+    (tmp_path / "docs.txt").mkdir()
+    panel = Panel(tmp_path, width=40, height=20)
+    panel.stylesheet = default_scheme()
+    return mounted(panel, size=(40, 20))
+
+
+def test_select_group_tags_the_files_a_mask_matches(mixed):
+    mixed.select_group("*.txt")
+    # Case folded as DN's InMask folded it; a directory is passed over.
+    assert mixed.marked == {"a.txt", "B.TXT"}
+
+
+def test_star_dot_star_matches_a_name_without_a_dot_too(mixed):
+    mixed.select_group("*.*")
+    assert mixed.marked == {"a.txt", "B.TXT", "c.py", "Makefile", "notes.md"}
+    mixed.marked = frozenset()
+    mixed.select_group("makefile.*")
+    assert mixed.marked == {"Makefile"}
+
+
+def test_select_group_takes_several_masks_and_an_except(mixed):
+    mixed.select_group("*.py; *.md")
+    assert mixed.marked == {"c.py", "notes.md"}
+    mixed.marked = frozenset()
+    mixed.select_group("*.txt", invert=True)
+    assert mixed.marked == {"c.py", "Makefile", "notes.md"}
+
+
+def test_unselect_group_reaches_directories_and_never_tags(mixed):
+    mixed.marked = frozenset({"a.txt", "c.py", "docs.txt"})
+    mixed.select_group("*.txt", select=False)
+    assert mixed.marked == {"c.py"}
+    mixed.select_group("*", select=False, invert=True)
+    assert mixed.marked == {"c.py"}
+
+
+def test_gray_star_inverts_the_files_and_leaves_directories_alone(mixed):
+    mixed.marked = frozenset({"a.txt", "docs.txt"})
+    mixed.invert_marks()
+    # docs.txt is a directory: it keeps its tag.
+    assert mixed.marked == {"B.TXT", "c.py", "Makefile", "notes.md", "docs.txt"}
+
+
+def test_ctrl_gray_star_inverts_the_directories_too(mixed):
+    mixed.marked = frozenset({"a.txt", "docs.txt"})
+    mixed.invert_marks(directories=True)
+    assert mixed.marked == {"B.TXT", "c.py", "Makefile", "notes.md"}
+    assert ".." not in mixed.marked
+
+
+def test_gray_star_and_ctrl_gray_star_reach_the_panel(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: a.post_event(KeyEvent("kp_multiply", "*"))])
+    assert app.manager.left.marked == {"one.txt", "two.txt"}
+
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: a.post_event(KeyEvent("kp_multiply", "*", ctrl=True))])
+    assert app.manager.left.marked == {"alpha", "beta", "one.txt", "two.txt"}
+
+
+@pytest.mark.parametrize("key, char", [("kp_plus", "+"), ("kp_minus", "-"), ("kp_multiply", "*")])
+def test_a_gray_key_types_once_the_command_line_has_text(tree, key, char):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"],
+        lambda a: a.post_event(KeyEvent(key, char)),
+        lambda a: a.post_event(KeyEvent(key, char, shift=True)),
+    ])
+    assert app.shell.command_line.value == "ls" + char + char
+    assert app.modal is None
+    assert app.manager.left.marked == frozenset()
+
+
+@pytest.mark.parametrize("char", ["+", "-", "*"])
+def test_the_plain_characters_act_as_the_gray_keys_on_an_empty_line(tree, char):
+    """Midnight Commander's rule, for terminals that send Gray + as a plain +."""
+    from navigator.widgets.select_dialog import SelectDialog
+
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    seen = []
+    run_app(app, [lambda a: a.post_event(KeyEvent(char, char)),
+                  lambda a: seen.append((a.modal, a.shell.command_line.value))])
+    modal, line = seen[0]
+    assert line == ""
+    if char == "*":
+        assert modal is None and app.manager.left.marked == {"one.txt", "two.txt"}
+    else:
+        assert isinstance(modal, SelectDialog) and modal.select == (char == "+")
+
+
+def test_the_plain_characters_type_after_anything_else(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(c, c)) for c in "a+b-c*d"]])
+    assert app.shell.command_line.value == "a+b-c*d"
+    assert app.modal is None
+
+
+def test_the_menu_entries_work_whatever_the_command_line_holds(tree):
+    """Only the keys step aside: they are characters, a menu entry is not."""
+    from navigator.commands import InvertSelection
+
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"]])
+    manager = app.manager
+    assert manager.enables(InvertSelection())
+    assert not manager.enables(InvertSelection(by_key=True))
+
+
+def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
+    """End to end: Gray +, the dialog painted, a mask typed, Enter."""
+    from navigator.widgets.select_dialog import SelectDialog
+
+    root = mixed.path
+
+    async def main():
+        shell = Shell(root, root)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+        app.post_event(KeyEvent("kp_plus", "+"))
+        await asyncio.sleep(0.06)
+        assert isinstance(app.modal, SelectDialog)
+        assert " Select " in app.terminal.frames[-1]
+        assert app.modal.mask.value == "*.*"
+        assert app.modal.options.value == 0
+        # The default is selected, so the first key replaces it.
+        assert app.modal.mask.entry.selected_text == "*.*"
+        for char in "*.md":
+            app.post_event(KeyEvent(char, char))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.12)
+        marked = shell.manager.left.marked
+        modal = app.modal
+        app.exit()
+        await task
+        return marked, modal
+
+    marked, modal = asyncio.run(main())
+    assert modal is None
+    assert marked == {"notes.md"}
+
+
+def test_the_select_dialog_opens_on_the_last_mask():
+    """DN's ``HistoryStr(hsSelectBox, 0)``: the newest mask, shared by both."""
+    from navml.history import HISTORY
+    from navigator.widgets.select_dialog import SelectDialog
+
+    HISTORY.add("select", "*.py")
+    dialog = SelectDialog(select=False)
+    assert dialog.mask.value == "*.py"
+    assert dialog.title == "Unselect"
+
+
+def test_shift_gray_minus_opens_unselect_with_except_ticked(mixed):
+    from navigator.widgets.select_dialog import SelectDialog
+
+    root = mixed.path
+
+    async def main():
+        shell = Shell(root, root)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+        app.post_event(KeyEvent("kp_minus", "-", shift=True))
+        await asyncio.sleep(0.06)
+        modal = app.modal
+        title, invert = modal.title, modal.options.value
+        app.post_event(KeyEvent("escape"))
+        await asyncio.sleep(0.06)
+        app.exit()
+        await task
+        return modal, title, invert
+
+    modal, title, invert = asyncio.run(main())
+    assert isinstance(modal, SelectDialog)
+    assert (title, invert) == ("Unselect", 1)
 
 
 def test_a_sheet_may_refuse_icons_on_a_terminal_that_could_draw_them(tree):
@@ -1081,7 +1401,7 @@ def test_a_sheet_may_refuse_icons_on_a_terminal_that_could_draw_them(tree):
     settle()
     assert panel.icons == "none"
     assert not panel.show_icons
-    assert panel.gutter == 0
+    assert panel.gutter == 1
 
 
 def test_a_misspelled_icons_value_fails_at_the_sheet_and_not_silently():
