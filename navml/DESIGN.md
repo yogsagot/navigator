@@ -833,6 +833,13 @@ single menu row and keeps F10 meaning one thing.
   window, so the window's own key table names the keys and its `enables`/`checks` grey and tick the entries.
   `SetViewMode(mode)` and `SetViewFilter(filter)` exist so the modes and filters F4/F6 cycle can each be one ticked
   entry.
+- **Panel is the file manager's own menu.** Every entry in it acts on a file manager's panels, and from a viewer or
+  an editor every one was greyed. So the block moved from `main_menu.nml` to `manager.nml` with `after:
+  'Utilities'`, which is where DN had it. Each file manager carries its own copy, and `context` shows the active
+  one's. A plugin reaches it as `manager.panel_menu`. *Manager* stays on the main bar because *New* (Ctrl+F3) has to
+  be reachable with no file manager open. Its *Directory tree*, *Info* and *Quick view* moved to Panel, a departure
+  from `dlgMainMenu`: each puts something in the passive panel's place, which is a panel's business. They have new
+  letters (y, n, k) because d, i and q were taken in that box.
 - **The editor's menu is one entry with DN's bar nested in it.** `dlgEditorMenu` is seven menus (File, Edit,
   Search, Paragraph, Block, Misc, Options), and DN gave it a row of its own inside the window. Beside the main
   bar's eight they would not fit in 80 columns, and *File*, *Options* and the letters F, P, M and O are the main

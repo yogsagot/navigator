@@ -52,7 +52,7 @@ and **F7 Mkdir is the first dialog wired into the application**, proved on a pty
 `navml/DESIGN.md` records what each decision cost. **Menus are written** (`navml/widgets/menu/`, slots `[2-7]`):
 `MenuBar`, `MenuBox`, and `SubMenu`/`MenuItem`/`MenuLine` blocks that are invisible data widgets. Navigator's menu
 is DOS Navigator 1.51's own `dlgMainMenu`, transcribed into `navigator/widgets/shell/main_menu/main_menu.nml`, with every
-entry whose feature does not exist greyed. **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`),
+entry whose feature does not exist greyed. **Panel is the file manager's own menu** (`manager.nml`, `manager.panel_menu`, on the bar after *Utilities* only while a file manager is the active window), and *Directory tree*, *Info* and *Quick view* moved into it from *Manager* -- a departure; *Manager* stays global for *New*. **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`),
 and `MenuBar`/`SubMenu` share `MenuContainer`'s Python API for plugins: `add_item`/`add_submenu`/`add_line` with
 `before=`/`after=` anchors (an entry, a caption, or a command), `remove_entry`, `move_entry`, `entry`,
 `item_for(command)`, plus reactive `hidden`/`disabled` on every entry. *Menus* in `navml/DESIGN.md` has the geometry and the rules. **History is

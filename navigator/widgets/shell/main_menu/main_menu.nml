@@ -1,4 +1,4 @@
-from navigator.commands import About, Calculator, ChangeAttributes, ChangeDirectory, Copy, Delete, DeleteSingle, Edit, InvertSelection, MakeDirectory, MakeLink, NewManager, OpenTreeWindow, QuickSearch, QuickView, Quit, RenameMove, Rescan, SelectGroup, ToggleConsole, ToggleHidden, ToggleShowMode, ToggleTree, UnselectGroup, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.commands import About, Calculator, ChangeAttributes, Copy, Delete, DeleteSingle, Edit, MakeDirectory, MakeLink, NewManager, OpenTreeWindow, Quit, RenameMove, ToggleConsole, UserMenu, View, ViewAsHex, ViewAsText
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -21,6 +21,13 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: for the entry's key, shown while no key table binds the command; a bound
 #: key is read off the binding instead.  Giving a feature its entry is one
 #: ``command:`` line here.
+#:
+#: **Panel is not here**: it acts on a file manager's panels and nothing else,
+#: so it is the file manager's own menu (``manager.nml``), on the bar only
+#: while one is the active window.  Manager stays, because *New* has to be
+#: reachable with no file manager open.  Its *Directory tree*, *Info* and
+#: *Quick view* went with Panel -- a departure from ``dlgMainMenu``: they put
+#: something in the passive panel's place, which is a panel's business.
 MainMenu(MenuBar):
     SubMenu:
         id: system
@@ -227,97 +234,12 @@ MainMenu(MenuBar):
             text: 'File ~V~iew History'
             key: 'Alt-PgDn'
     SubMenu:
-        id: panel
-        text: '~P~anel'
-        MenuItem:
-            text: '~M~ake list file...'
-            key: 'Alt-L'
-        MenuItem:
-            text: 'Read file ~l~ist'
-            key: 'Alt-V'
-        MenuItem:
-            text: '~C~ompare directories'
-            key: 'Ctrl-C'
-        MenuItem:
-            text: 'Count directory len~g~th'
-            key: 'Alt-G'
-        MenuItem:
-            text: 'Directory Branc~h~'
-        MenuLine:
-        MenuItem:
-            text: 'Setup c~o~lumns'
-            key: 'Alt-K'
-        MenuItem:
-            text: '~S~etup Panel'
-            key: 'Alt-S'
-        MenuItem:
-            text: 'Sort ~b~y...'
-            key: 'Alt-B'
-        MenuItem:
-            text: 'Vie~w~ mode'
-            command: ToggleShowMode
-            key: 'Ctrl-Y'
-        MenuItem:
-            text: 'Show/hide h~i~dden files'
-            command: ToggleHidden
-            key: 'Ctrl-H'
-        MenuLine:
-        MenuItem:
-            text: 'Select grou~p~...'
-            command: SelectGroup
-            key: 'Gray "+"'
-        MenuItem:
-            text: '~U~nselect group...'
-            command: UnselectGroup
-            key: 'Gray "-"'
-        MenuItem:
-            text: 'In~v~ert selection'
-            command: InvertSelection
-            key: 'Gray "*"'
-        MenuItem:
-            text: 'Advanced filter...'
-            key: 'Alt-Del'
-        MenuLine:
-        MenuItem:
-            text: 'Change ~d~rive'
-            key: 'Alt-C'
-        MenuItem:
-            text: 'Change direc~t~ory'
-            command: ChangeDirectory
-            key: 'Alt-T'
-        MenuItem:
-            text: 'Quick s~e~arch'
-            command: QuickSearch
-            key: 'Ctrl-S'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Alt-R'
-        MenuItem:
-            text: '~Q~uick dirs...'
-            key: 'Alt-Shift-0'
-        MenuItem:
-            text: 'History of directories...'
-            key: 'Alt-BkSp'
-    SubMenu:
         id: manager
         text: '~M~anager'
         MenuItem:
             text: '~N~ew'
             command: NewManager
             key: 'Ctrl-F3'
-        MenuItem:
-            text: '~D~irectory tree'
-            command: ToggleTree
-            key: 'Ctrl-T'
-        MenuItem:
-            text: '~I~nfo'
-            key: 'Ctrl-L'
-        MenuItem:
-            text: '~Q~uick view'
-            command: QuickView
-            key: 'Ctrl-Q'
-        MenuLine:
         MenuItem:
             text: '~S~wap panels'
             key: 'Ctrl-U'

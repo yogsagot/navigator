@@ -13,10 +13,14 @@ from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, P
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
 from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
+from navigator.commands import InvertSelection, SelectGroup, UnselectGroup
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 import asyncio
@@ -34,6 +38,7 @@ class Manager(Window, _Component):
     right: Panel
     tree: DirectoryTree
     quick: QuickViewer
+    panel_menu: SubMenu
     replaced: Any
     replacement: Any
     _last_panel: Any

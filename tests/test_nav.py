@@ -2939,9 +2939,12 @@ def test_every_menu_has_an_id_a_plugin_can_reach_it_by(tree):
 
     menu = navigator(tree).shell.menu
     ids = ["system", "file", "file_view", "file_edit", "disk", "utilities",
-           "panel", "manager", "options", "options_configuration",
+           "manager", "options", "options_configuration",
            "options_file_manager", "options_archives", "window"]
     assert all(isinstance(getattr(menu, name), SubMenu) for name in ids)
+    # Panel is the file manager's own, reached through the window.
+    assert not hasattr(menu, "panel")
+    assert isinstance(menu.parent.manager.panel_menu, SubMenu)
     assert menu.file_view.parent is menu.file
     # And the one-line way in for a plugin.
     menu.file.add_item("~Z~ip...", key="Alt-Z", after="Make directory")
@@ -3738,3 +3741,56 @@ def test_an_ordinary_user_s_titles_are_the_theme_s(tree, monkeypatch):
     app = navigator(tree)
     assert "root" not in app.shell.classes
     assert app.shell.manager.part_style("title").bg != 1
+
+
+# -- Panel is the file manager's own menu ---------------------------------------------------
+
+
+def test_panel_is_on_the_bar_only_while_a_file_manager_is_active(tree):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navigator.commands import NewManager
+
+    (tree / "note.txt").write_text("hello\n")
+    app = navigator(tree)
+    seen = []
+
+    def bar(a):
+        seen.append([parse_shortcut(e.text)[0] for e in a.shell.menu.entries()])
+
+    def new_enabled(a):
+        seen.append(a.command_enabled(NewManager, a.focused))
+
+    run_app(app, [
+        bar,
+        KeyEvent("end"), KeyEvent("f3"), lambda a: None, bar,     # a viewer
+        KeyEvent("escape"), lambda a: None,
+        lambda a: a.shell.desktop.close_window(a.manager), lambda a: None,
+        bar, new_enabled,                                          # an empty desktop
+    ])
+    assert seen[0] == ["≡", "File", "Disk", "Utilities", "Panel", "Manager",
+                       "Options", "Window"]
+    assert seen[1] == ["≡", "File", "View", "Disk", "Utilities", "Manager",
+                       "Options", "Window"]
+    assert seen[2] == ["≡", "File", "Disk", "Utilities", "Manager", "Options", "Window"]
+    assert seen[3] is True
+
+
+def test_the_panel_menu_holds_the_tree_info_and_quick_view_and_manager_does_not(tree):
+    app = navigator(tree)
+    seen = {}
+
+    def look(a):
+        from navml.widgets.dialog.control.control import parse_shortcut
+
+        names = lambda m: [parse_shortcut(getattr(e, "text", ""))[0]    # noqa: E731
+                           for e in _entry(a.shell.menu, m).entries()]
+        seen["panel"], seen["manager"] = names("Panel"), names("Manager")
+
+    run_app(app, [look,
+                  KeyEvent("p", "p", alt=True), KeyEvent("y", "y"), lambda a: None,
+                  lambda a: seen.update(tree=a.manager.tree.visible)])
+    for caption in ("Directory tree", "Info", "Quick view"):
+        assert caption in seen["panel"] and caption not in seen["manager"]
+    assert seen["manager"][0] == "New"
+    # Alt+P, then the entry's letter: the menu runs Ctrl+T's command.
+    assert seen["tree"] is True

@@ -5,10 +5,14 @@ from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, P
 from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy
 from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
 from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
+from navigator.commands import InvertSelection, SelectGroup, UnselectGroup
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: The file manager: two panels, in a window on the desktop.
@@ -112,3 +116,97 @@ Manager(Window):
         QuickViewer:
             id: quick
             title_margin: 5
+
+    #: DOS Navigator's *Panel* menu (``dlgMainMenu``), the file manager's own:
+    #: on the main bar after *Utilities*, where DN had it, but only while this
+    #: window is the active one -- every entry acts on its panels, and from a
+    #: viewer or an editor every one was greyed.  *Directory tree*, *Info* and
+    #: *Quick view* are here rather than in *Manager*, a departure: each puts
+    #: something in the passive panel's place.  Their letters are new, since
+    #: d, i and q were taken in this box.
+    SubMenu:
+        id: panel_menu
+        text: '~P~anel'
+        after: 'Utilities'
+        MenuItem:
+            text: '~M~ake list file...'
+            key: 'Alt-L'
+        MenuItem:
+            text: 'Read file ~l~ist'
+            key: 'Alt-V'
+        MenuItem:
+            text: '~C~ompare directories'
+            key: 'Ctrl-C'
+        MenuItem:
+            text: 'Count directory len~g~th'
+            key: 'Alt-G'
+        MenuItem:
+            text: 'Directory Branc~h~'
+        MenuLine:
+        MenuItem:
+            text: 'Setup c~o~lumns'
+            key: 'Alt-K'
+        MenuItem:
+            text: '~S~etup Panel'
+            key: 'Alt-S'
+        MenuItem:
+            text: 'Sort ~b~y...'
+            key: 'Alt-B'
+        MenuItem:
+            text: 'Vie~w~ mode'
+            command: ToggleShowMode
+            key: 'Ctrl-Y'
+        MenuItem:
+            text: 'Show/hide h~i~dden files'
+            command: ToggleHidden
+            key: 'Ctrl-H'
+        MenuLine:
+        MenuItem:
+            text: 'Director~y~ tree'
+            command: ToggleTree
+            key: 'Ctrl-T'
+        MenuItem:
+            text: 'I~n~fo'
+            key: 'Ctrl-L'
+        MenuItem:
+            text: 'Quic~k~ view'
+            command: QuickView
+            key: 'Ctrl-Q'
+        MenuLine:
+        MenuItem:
+            text: 'Select grou~p~...'
+            command: SelectGroup
+            key: 'Gray "+"'
+        MenuItem:
+            text: '~U~nselect group...'
+            command: UnselectGroup
+            key: 'Gray "-"'
+        MenuItem:
+            text: 'In~v~ert selection'
+            command: InvertSelection
+            key: 'Gray "*"'
+        MenuItem:
+            text: 'Advanced filter...'
+            key: 'Alt-Del'
+        MenuLine:
+        MenuItem:
+            text: 'Change ~d~rive'
+            key: 'Alt-C'
+        MenuItem:
+            text: 'Change direc~t~ory'
+            command: ChangeDirectory
+            key: 'Alt-T'
+        MenuItem:
+            text: 'Quick s~e~arch'
+            command: QuickSearch
+            key: 'Ctrl-S'
+        MenuItem:
+            text: '~R~e-read'
+            command: Rescan
+            key: 'Alt-R'
+        MenuItem:
+            text: '~Q~uick dirs...'
+            key: 'Alt-Shift-0'
+        MenuItem:
+            text: 'History of directories...'
+            key: 'Alt-BkSp'

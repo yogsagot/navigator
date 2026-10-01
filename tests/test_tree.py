@@ -493,7 +493,7 @@ def test_the_menu_entry_is_ctrl_t_and_is_enabled(places):
     seen = []
 
     def look(a):
-        item = _entry(a.shell.menu, "Manager", "Directory tree")
+        item = _entry(a.shell.menu, "Panel", "Directory tree")
         seen.append((key_caption(item, a, a.manager.left),
                      a.command_enabled(item.command, a.manager.left)))
 
