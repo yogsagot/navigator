@@ -94,9 +94,13 @@ class Modal(Widget):
         if not self.closable or event.action != "press" or event.button != "left":
             return False
         if event.y == 0 and self.width - 5 <= event.x < self.width - 2:
-            self.close()
+            self.request_close()
             return True
         return False
+
+    def request_close(self) -> None:
+        """Close as the user asked to.  A dialog overrides it to ask first."""
+        self.close()
 
     def close(self) -> None:
         """Take this modal out of the tree.  A dialog overrides it to answer."""

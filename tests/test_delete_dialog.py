@@ -303,6 +303,7 @@ def test_cancel_on_the_progress_box_asks_before_it_stops(two, monkeypatch):
     assert isinstance(box, DeleteProgress)
     assert "Erasing the file" in painted and "Cancel" in painted
     assert abort is not None and "Abort operation?" == abort.prompt
+    assert [b.text for b in abort.buttons_row if b.visible] == ["~Y~es", "~N~o"]
     assert after is None and seen == {"stopped": True}
     assert (a / "one.txt").exists()
 

@@ -488,7 +488,7 @@ class Manager(Window):
                 await asyncio.wait({shown})
 
     async def _ask_yes_no(self, prompt: str, title: str = "Confirm") -> Any:
-        return await Dialog(title=title, prompt=prompt, buttons="yes-no-cancel").execute(self.application)
+        return await Dialog(title=title, prompt=prompt, buttons="yes-no").execute(self.application)
 
     async def _answer_copy_question(self, question: Any) -> Any:
         """Put one of the worker's questions to the user, and answer as it expects."""

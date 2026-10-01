@@ -102,6 +102,42 @@ class Dialog(Modal):
         """
         return True
 
+    # -- dismissing -----------------------------------------------------------
+
+    def must_ask(self) -> bool:
+        """Whether dismissing needs the dialog's say first: ``Valid(cmCancel)``.
+
+        :meth:`navml.widgets.window.Window.must_ask` for a dialog: False
+        unless what the user typed would be lost.  Asked synchronously, so a
+        dialog with nothing to lose still comes down in one call.
+        """
+        return False
+
+    async def ask_to_close(self) -> bool:
+        """Say whether the dialog may be dismissed; asked only when :meth:`must_ask`.
+
+        A dialog may be shown from here: :meth:`request_close` starts this as
+        a task rather than awaiting it inside a handler.
+        """
+        return True
+
+    def request_close(self) -> None:
+        """Dismiss as the user asked to -- Esc, the close icon, a click outside.
+
+        At once, or after :meth:`ask_to_close`.  :meth:`close` stays the
+        unconditional one.  Neither OK nor the Cancel button comes here: a
+        press on Cancel is the answer itself, and asking whether it was meant
+        would be asking twice.
+        """
+        if not self.must_ask():
+            self.close(None)
+            return
+        self.spawn(self._close_asking())
+
+    async def _close_asking(self) -> None:
+        if await self.ask_to_close() and self.parent is not None:
+            self.close(None)
+
     def unmounting(self) -> None:
         """Answer anyway, if something else took the dialog out of the tree.
 
@@ -160,7 +196,7 @@ class Dialog(Modal):
         return super().enables(command)
 
     async def on_cancel(self, event: Cancel) -> bool:
-        self.close(None)
+        self.request_close()
         return True
 
     async def on_click_outside(self, event: ClickOutsideEvent) -> bool:
@@ -204,7 +240,7 @@ class Dialog(Modal):
         return True
 
     async def on_no_click(self, event: Event) -> bool:
-        """``yes-no-cancel``'s *No*: an answer, and a different one from Cancel's."""
+        """*No* of ``yes-no-cancel`` and ``yes-no``: an answer, and a different one from Cancel's."""
         self.close(False)
         return True
 
@@ -234,6 +270,9 @@ class Dialog(Modal):
         A stub nobody overrides costs exactly nothing, which is what makes it
         safe for the generator to write one for every child without being
         told to.
+
+        It closes without :meth:`must_ask`: pressing Cancel already says the
+        changes are to go, where Esc and the close icon may be a slip.
         """
         self.close(None)
         return True

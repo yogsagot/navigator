@@ -229,6 +229,16 @@ def test_a_hidden_button_is_out_of_the_tab_order_and_the_shortcut_walk():
     assert dialog.cancel not in list(dialog.controls())
 
 
+
+def test_yes_no_is_yes_and_no_with_no_cancel():
+    """``mfYesButton + mfNoButton``: a question with two answers."""
+    dialog = Dialog(buttons="yes-no")
+    shown = [b for b in dialog.buttons_row if b.visible]
+    assert shown == [dialog.ok, dialog.no]
+    assert (dialog.ok.text, dialog.no.text) == ("~Y~es", "~N~o")
+    assert dialog.focusable()[-2:] == [dialog.ok, dialog.no]
+
+
 # -- Timer --------------------------------------------------------------------
 
 

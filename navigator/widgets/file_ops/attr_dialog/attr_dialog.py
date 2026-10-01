@@ -32,6 +32,12 @@ Exec of whichever of owner, group and others the cursor is in, and the cursor
 goes to it -- as ``r``/``w``/``x`` did in Midnight Commander's *Advanced
 chown*.  In the special column, which has none of the three, they do nothing.
 
+**Dismissing it with something changed asks first** -- Esc or the close icon --
+*Changes will be lost. Are you sure?*, and only *Yes* lets it go.  The Cancel
+button does not ask: pressing it is already the answer.
+Changed means differing from what it opened on, so a box pressed and pressed
+back, or a line typed into and restored, asks nothing.
+
 **Up and Down move between the lines** -- Octal, User, Group, Date, Time, in
 that order, passing over one that is disabled -- since the grid and the
 radio buttons each keep their arrows for themselves and the lines had no
@@ -159,6 +165,9 @@ class AttrDialog(Dialog):
         self.recurse.disabled = not survey.dirs
         self.recurse_caption.disabled = not survey.dirs
 
+        #: What the dialog opened on, which dismissing it compares against.
+        self._opened_on = self._state()
+
         self.symbolic.on_mouse_click = self._on_symbolic_click
 
         # In front of the grid's own keys, which still has the arrows and Space.
@@ -256,6 +265,33 @@ class AttrDialog(Dialog):
                 # Mixed first, so a box leaving ``[?]`` is never painted off.
                 self.bits.mixed = mixed
                 self.bits.value = value
+
+    # -- what dismissing it loses -----------------------------------------------
+
+    def _state(self) -> tuple[Any, ...]:
+        """Every value the user can change, to compare with what it opened on."""
+        return (
+            self.bits.value,
+            self.bits.mixed,
+            self.octal.value,
+            self.user.value,
+            self.group.value,
+            self.date.value,
+            self.clock.value,
+            self.recurse.value,
+        )
+
+    def must_ask(self) -> bool:
+        """Changed from what it opened on -- a box pressed back is no change."""
+        return self._state() != self._opened_on
+
+    async def ask_to_close(self) -> bool:
+        answer = await Dialog(
+            title="Warning",
+            prompt="Changes will be lost. Are you sure?",
+            buttons="yes-no",
+        ).execute(self.application)
+        return answer is True
 
     # -- what OK means -----------------------------------------------------------
 

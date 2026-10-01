@@ -12,7 +12,7 @@ import pytest
 from conftest import FakeTerminal, settle
 
 from navkit.application import Application
-from navkit.events import KeyEvent
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit.screen import ScreenBuffer
 
 from navml.history import HISTORY
@@ -285,6 +285,76 @@ def test_alt_e_changes_the_tagged_files_and_untags_them(two):
     assert asked == "AttrDialog" and modal is None
     assert (mode_of(a / "one.txt"), mode_of(a / "two.txt")) == (0o664, 0o775)
     assert marked == frozenset()
+
+
+def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
+    a, b = two
+
+    async def steps(app, shell):
+        put_cursor(shell.manager.left, "one.txt")
+        seen = {}
+
+        # Unchanged -- and a box pressed back is no change: Esc closes it.
+        app.post_event(KeyEvent("e", alt=True))
+        await asyncio.sleep(0.06)
+        for key in (KeyEvent(" ", " "), KeyEvent(" ", " "), KeyEvent("escape")):
+            app.post_event(key)
+        await asyncio.sleep(0.06)
+        seen["unchanged"] = app.modal
+
+        # Changed: Esc asks, and No keeps the dialog up as it was.
+        app.post_event(KeyEvent("e", alt=True))
+        await asyncio.sleep(0.06)
+        dialog = app.modal
+        app.post_event(KeyEvent(" ", " "))
+        app.post_event(KeyEvent("escape"))
+        await asyncio.sleep(0.06)
+        question = app.modal
+        seen["asked"] = (
+            type(question).__name__,
+            question.prompt,
+            [b.text for b in question.buttons_row if b.visible],
+        )
+        app.post_event(KeyEvent("n", alt=True))
+        await asyncio.sleep(0.06)
+        seen["no"] = app.modal is dialog
+
+        # Esc on the question is no answer either: the dialog stays.
+        app.post_event(KeyEvent("escape"))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent("escape"))
+        await asyncio.sleep(0.06)
+        seen["esc"] = app.modal is dialog
+
+        # The close icon asks as Esc does, and Yes lets it go.
+        app.post_event(MouseClickEvent(dialog.x + dialog.width - 4, dialog.y, "left", "press"))
+        await asyncio.sleep(0.06)
+        seen["icon"] = type(app.modal).__name__
+        app.post_event(KeyEvent("y", alt=True))
+        await asyncio.sleep(0.06)
+        seen["yes"] = app.modal
+
+        # The Cancel button is the answer: changed, it closes without asking.
+        app.post_event(KeyEvent("e", alt=True))
+        await asyncio.sleep(0.06)
+        dialog = app.modal
+        app.post_event(KeyEvent(" ", " "))
+        await asyncio.sleep(0.06)
+        seen["changed"] = dialog.must_ask()
+        await dialog.cancel.press()
+        await asyncio.sleep(0.06)
+        seen["cancel"] = app.modal
+        return seen
+
+    seen = run_shell(a, b, steps)
+    assert seen["unchanged"] is None
+    assert seen["asked"] == ("Dialog", "Changes will be lost. Are you sure?", ["~Y~es", "~N~o"])
+    assert seen["no"] is True
+    assert seen["esc"] is True
+    assert seen["icon"] == "Dialog"
+    assert seen["yes"] is None
+    assert seen["changed"] is True and seen["cancel"] is None
+    assert mode_of(a / "one.txt") == 0o644
 
 
 def test_the_group_drop_down_offers_the_groups_on_the_current_one(two):

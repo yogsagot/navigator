@@ -1522,6 +1522,15 @@ dump, so what DN's loop did is read off its two dialogs and their help.
   (`bits.on_key`), so the arrows and Space are unchanged.
 - **`Dialog.valid()`** is Turbo Vision's `Valid(cmOK)`. It was new here, and `on_ok_click` asks it before closing.
   An unknown user, a bad mode or a date that is not one shows an error and leaves the dialog up with the text in it.
+- **Dismissing a changed dialog asks** *Changes will be lost. Are you sure?*, and only *Yes* lets it go. This is a
+  departure, since DN dropped the dialog without asking. `Dialog` now has `Window`'s three halves:
+  `must_ask()`, `ask_to_close()` and `request_close()`. Esc, the close icon (which goes through
+  `Modal.request_close`) and a click outside go through `request_close()`. OK and the Cancel button never do:
+  pressing Cancel already answers the question, so asking it again would be asking twice, and it closes at once.
+  `AttrDialog.must_ask` compares every value against a snapshot taken when the dialog opened. So a box pressed
+  and pressed back counts as no change, unlike `touched`, which counts it.
+- **The question is the first `Dialog.buttons: "yes-no"`** (`mfYesButton + mfNoButton`): *Yes* and *No* with no
+  Cancel. *Yes* answers True and *No* False, and Esc still answers `None`.
 - **The rules:**
   - The owner goes first, because `chown` clears set-user-ID and set-group-ID, and the mode written after it puts
     back what was asked for.

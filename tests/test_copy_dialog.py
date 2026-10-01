@@ -250,6 +250,39 @@ def test_f5_asks_before_overwriting(two):
     assert (b / "one.txt").read_text() == "old"
 
 
+def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
+    a, b = two
+
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+        manager = shell.manager
+        manager.left.cursor = next(
+            i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
+        )
+        app.post_event(KeyEvent("f5"))
+        await asyncio.sleep(0.06)
+        app.modal.target.value = str(b / "new") + "/"
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.4)
+        asked = app.modal
+        buttons = [w.text for w in asked.buttons_row if w.visible]
+        app.post_event(KeyEvent("y", "y", alt=True))
+        await asyncio.sleep(0.3)
+        after = app.modal
+        app.exit()
+        await task
+        return asked.prompt, buttons, after
+
+    prompt, buttons, after = asyncio.run(main())
+    assert prompt.startswith("Would you like to create directory")
+    assert buttons == ["~Y~es", "~N~o"]
+    assert after is None
+    assert (b / "new" / "one.txt").read_text() == "one"
+
+
 def test_f5_is_disabled_on_dot_dot(two):
     a, b = two
 
