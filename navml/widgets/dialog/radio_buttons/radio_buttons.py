@@ -10,7 +10,8 @@ What differs is the mark, the arithmetic, and one behaviour.
 Moving the cursor *chooses* here, which it does not in a check box column:
 Turbo Vision's ``TRadioButtons`` moves the value with ``Sel``, because a set
 of radio buttons always has exactly one answer and an arrow key that changed
-nothing would be a key that did nothing.
+nothing would be a key that did nothing.  Home and End, which go to the
+first and the last, choose as well.
 """
 
 from __future__ import annotations
@@ -46,6 +47,6 @@ class RadioButtons(Cluster):
 
     async def on_key(self, event: KeyEvent) -> bool:
         taken = await super().on_key(event)
-        if taken and event.key in ("up", "down", "left", "right"):
+        if taken and event.key in ("up", "down", "left", "right", "home", "end"):
             self.value = self.sel
         return taken

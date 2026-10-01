@@ -66,6 +66,18 @@ class Cluster(Control):
     def toggle(self, index: int) -> None:
         """Turn item *index* on, or over."""
 
+    def mark_char(self, index: int, off: str, on: str) -> str:
+        """The character between item *index*'s brackets.
+
+        *off* or *on* from the glyph set, by :meth:`chosen`.  A subclass with
+        a third state answers that state's character itself.
+        """
+        return on if self.chosen(index) else off
+
+    def mark_states(self, index: int) -> dict[str, bool]:
+        """The states the ``mark`` part is styled by, beyond ``selected``."""
+        return {"checked": self.chosen(index)}
+
     # -- columns -------------------------------------------------------------
     #
     # Turbo Vision's ``TCluster.Column``/``Row``: items run down a column as
@@ -121,6 +133,9 @@ class Cluster(Control):
             step = self._rows() * (1 if event.key == "right" else -1)
             if 0 <= self.sel + step < len(self.items):
                 self.sel += step
+        elif event.key in ("home", "end"):
+            # The first item and the last, wherever the columns put them.
+            self.sel = 0 if event.key == "home" else len(self.items) - 1
         elif event.matches("space"):
             self.toggle(self.sel)
         else:
@@ -173,12 +188,12 @@ class Cluster(Control):
                 break
             style = self.part_style("item", selected=index == self.sel and self.focused)
             mark = self.part_style(
-                "mark", checked=self.chosen(index), selected=index == self.sel
+                "mark", selected=index == self.sel, **self.mark_states(index)
             )
             if len(self.items) <= rows:
                 surface.fill(0, y, self.width, 1, " ", style)
             surface.draw_text(x, y, opening, mark)
-            surface.draw_text(x + 1, y, on if self.chosen(index) else off, mark)
+            surface.draw_text(x + 1, y, self.mark_char(index, off, on), mark)
             surface.draw_text(x + 2, y, closing, mark)
             draw_caption(
                 surface, x + 4, y, item, style,

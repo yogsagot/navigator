@@ -1,4 +1,4 @@
-from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
+from navigator.commands import ChangeAttributes, ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
@@ -64,6 +64,7 @@ Manager(Window):
         alt+f7: FindFile
         alt+r: Rescan
         alt+t: ChangeDirectory
+        alt+e: ChangeAttributes
         ctrl+f6: Calculator
         ctrl+f9: PrintFile
         ctrl+k: ToggleDescriptions

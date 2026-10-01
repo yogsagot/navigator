@@ -366,6 +366,14 @@ project's standing rule says to take them rather than invent six of our own.
 | `Window` | both | `title`, `icon` | `:active` | — |
 | `Desktop` | Python | — | — | `OpenedEvent`, `EmptiedEvent` |
 | `Field` | **markup only** | — | — | — |
+| `ChoiceField` | **markup only** | — | — | — |
+| `ChoiceLine` | Python | inherited | inherited | — |
+| `DateField`, `TimeField` | **markup only** | — | — | — |
+| `MaskedLine` | Python | inherited | inherited | — |
+| `MaskedField` | **markup only** | — | — | — |
+| `DateButton`, `TimeButton` | Python | `arrow` | — | — |
+| `Calendar` | Python | `title`, `arrow`, `weekday`, `day` | `title`: `:selected`; `day`: `:selected`, `:today` | — |
+| `TimePicker` | Python | `value`, `separator`, `arrow` | `value`: `:selected` | — |
 | `Spacer` | Python | — | — | — |
 
 ### A button is drawn as `TButton.DrawState` draws it, and clicks on the release
@@ -851,6 +859,97 @@ broadcast did: `Dialog.on_ok_click` walks the dialog for `History` buttons befor
 nothing. `Field` takes a `history_id` and puts the button after its line when one is given, which is how
 Make directory got DOS Navigator's `hsMakeDir`.
 
+**A button given `choices` drops those instead** (`History.choices`, aliased as `Field.choices`). Turbo Vision's
+did not have this. It is for a fixed list the program hands in, such as the users and groups File Attributes offers.
+It records nothing, because a list of choices is not a history. It opens on the entry the line already names,
+rather than on the second one. Either `history_id` or `choices` shows the button. A history would not do: it is
+capped at twenty, shared by id, and saved, and none of that suits a list read from `/etc/group`.
+
+**Typing in a list of choices searches it** (`HistoryList.type_to_search`, set when the button has `choices`). It
+uses the panel's quick-search rule (`navml/quick_search.py`): the row beginning with what was typed, case folded,
+with `*` and `?` as wildcards. A new search looks from the top and a longer one from where it stands. A character
+that would name nothing is refused, and Backspace takes one back. ` Search: … ` shows on the list's bottom edge with
+the caret after it. Any other key ends the search and does its job. A history list does not search, as Turbo
+Vision's did not.
+
+**`ChoiceField` is the line that is chosen into and never typed into.** It is `Field`'s shape with a
+**`ChoiceLine`** where the `InputLine` was: markup alone, a caption, the line and an always-shown `▐↓▌`, with
+`choices` aliased onto the button. `ChoiceLine` is an `InputLine` underneath, so it looks, focuses and links like
+one, but:
+
+- every key it is offered drops the list, Enter included;
+- the dialog keeps Tab, Shift+Tab, Esc, Alt+letter, and Up and Down, for a dialog that steps between its lines
+  with them;
+- a printable key also starts the list's search with itself;
+- a click drops the list, a paste is refused, and there is no caret and no selection.
+
+It is not Turbo Vision's, whose dialogs had only the input line and its history. It is the third shape a dialog
+needs once a value must be one of a fixed list: a typo cannot happen, rather than being reported on OK.
+
+**`DateField` and `TimeField` are lines with a picker behind the `▐↓▌`.** Both are markup alone, `Field`'s shape
+with a `DateButton` or a `TimeButton` (each a `History`) where the history was. The line is a **`MaskedLine`**:
+digits in fixed places, typed over. The button reads the line by its `date_format`/`time_format` (`strftime`'s spelling, `%d-%m-%Y` and `%H:%M:%S` unless
+told), opens on that value or on now, and writes the choice back in the same spelling.
+
+- **A click or Alt+Down drops the picker.** Down does not, because in a `MaskedLine` Up and Down step a digit.
+  `InputLine` drops any button's list on Alt+Down as well as Down, Alt+Down being the drop-down key most toolkits
+  since have used.
+- **`MaskedLine` is an `InputLine` whose `mask` fixes its shape.** In the mask, `9` is a place for a digit and
+  anything else is a literal. `mask_for` derives the mask from a `strftime` format of numbers, so `%d-%m-%Y` gives
+  `99-99-9999`.
+  - **`base` says which digits a place takes**: ten by default, eight for a file mode. The line then refuses `8`
+    and `9`, and its plain stepping carries in that base.
+  - A place may hold something else the program put there, such as `?` for *not known*. It is typed over like a
+    blank and reads as 0 when stepped.
+  - **`MaskedField`** is a caption and a `MaskedLine`: `Field`'s shape without the history button, markup alone.
+  - A digit overwrites the place under the caret, and the caret moves to the next place, staying on the last.
+  - Left and Right move between the places, and Home and End jump to the first and the last.
+  - **Up and Down step the whole number** by the value of the place under the caret: one on the units, ten on
+    the tens. **PgUp and PgDn step by ten times that.** The caret stays put, and the line's button decides what
+    the step means.
+    - **`DateButton.step` carries as a calendar does**: a day, a month (the day clamped to the month's last) or a
+      year, or ten or more of them. `31-10` plus a day is `01-11`, `31-01` plus a month is `28-02`, and a step
+      past year 9999 is refused.
+    - **`TimeButton.step` carries as a clock does**, wrapping round the day: `23:59:30` plus a minute is
+      `00:00:30`.
+    - A line that does not read as a date or a time yet starts from today or now.
+    - A `MaskedLine` without such a button treats the run of digits as a plain number, carrying within it and
+      wrapping: `99` steps to `00`.
+    - The line finds the button through `InputLine.history`, as Down finds a history. `masked_line.spans` says
+      which directive covers a place.
+  - Backspace and Delete blank the place under the caret. Delete leaves the caret there, and Backspace then steps
+    it back a place, so held down it clears the line backwards. Blanking the last digit empties the line
+    again, which is how *leave it* is said once something has been typed.
+  - **Every other key is refused**, letters and pastes included.
+  - The exceptions are the dialog's keys (Tab, Shift+Tab, Esc, Enter, Alt+letter), and Alt+Down, which drops the
+    picker.
+  - An empty line stays empty, showing only its separators, so *leave it* can still be said. The first digit
+    fills the rest with blanks, and a reader of `value` refuses those as incomplete.
+  - A click puts the caret on the nearest place, and there is no selection.
+  - It is not Turbo Vision's: its input line took any text, and a validator judged it on OK.
+- **`History.popup_origin`** places a fixed-size popup under the line, or over it when the screen has no room
+  below, and pushes it in from the screen's edges. It is not clipped to the dialog as the history list is, because
+  a calendar cut short would lose its weeks.
+- **`Calendar`** is TVDEMO's `TCalendarView`, with a cursor added because the demo's only looked:
+  - the layout: the month and year between `◄`/`►`, the weekday names, and six weeks;
+  - keys: the arrows move a day or a week, PgUp/PgDn a month and Ctrl+PgUp/PgDn a year, Home/End go to the month's
+    ends and `T` to today;
+  - the mouse: a click on a day chooses it, and the arrows or the wheel turn the month;
+  - **the month and the year are picked too**, which TVDEMO's could not do. A click on either name in the top row,
+    or `M`/`Y`, drops a list over it: the twelve months, or two hundred years around the one shown. It is a
+    `HistoryList` with `type_to_search`, so `19` finds the 1900s. Tab and Shift+Tab move the keys between the
+    days, the month and the year. On the month or the year, Left and Right step it, Enter or Down drops its
+    list, and Home and End go to January and December (on the year, to its first and last day). A pick puts the keys back on the days, so the next Enter chooses the day;
+  - weeks start on Monday (`first_weekday`), where TVDEMO's started on Sunday.
+- **`TimePicker`** is its companion and has no ancestor:
+  - hours, minutes and seconds, with `▲▲`/`▼▼` over and under the number picked;
+  - keys: Left/Right/Tab pick a number, Up/Down step it by one and PgUp/PgDn by ten, wrapping. Two digits set it and
+    move on, and `N` is now;
+  - the mouse: a click picks a number or steps it by its arrow, and the wheel steps the number under it;
+  - a format without `%S` drops the seconds.
+- Both are coloured as the history list is: [50] for the frame and values, [51] for the cursor, and [52] *Input
+  arrow* for the month, the arrows, the weekdays and today.
+
 ## Trees
 
 `navml/widgets/dialog/tree_view/` is DOS Navigator's `TTreeView` (`TREE.PAS`), and Navigator's
@@ -1251,6 +1350,8 @@ one column and on into the next. That is how DN's four check boxes sat in two ro
 
 - A column is as wide as its longest caption, and the next starts two cells after it.
 - Left and Right move a column. Radio buttons choose as they move, as Up and Down already did.
+- Home and End go to the first item and the last, and radio buttons choose there too. Turbo Vision's `TCluster`
+  had neither key; a dialog's other controls all take them.
 - A cluster as tall as its items paints exactly as before.
 
 **The worker and the loop share a `CopyJob` and nothing else:**
@@ -1366,6 +1467,80 @@ Departures:
   where DN's said *Stop*. It still asks *Abort operation?* before anything stops.
 - **Not ported:** the direct FAT path, `.DIZ` descriptions, *Flush disk buffers*, and the `Confirms` word itself.
   Every confirmation is always on, which was DN's default.
+
+### File attributes
+
+Alt+E, *File > File Attributes…*, is DOS Navigator's `cmSetFAttr`, and **a departure in what it edits**. DN's
+`dlgFileAttr`/`dlgFilesAttr` set the four DOS bits (Archive, Hidden, Read-Only, System) and a date and time. None of
+the four bits means anything on Linux. Here it edits the twelve mode bits, the owner and the group (in the spirit of
+Midnight Commander's *Advanced chown*), and DN's own modification time. `CM_SetAttributes` itself is not in the 1.51
+dump, so what DN's loop did is read off its two dialogs and their help.
+
+- **`navigator/fileattr.py`** is the model:
+  - `survey(paths)` works out what a selection has in common: the bits every file has, the bits they disagree on
+    (`mixed`), and the owner, group and mtime where they agree.
+  - `AttrRequest` holds `set_bits`/`clear_bits`, where a bit in neither is left alone. The owner, group and mtime
+    are `None` to leave them, and `recurse` is `none`/`files`/`dirs`/`all`.
+  - `AttrJob` and `run` work on a thread through `Manager._watch_job`. Failures go to Copy's *Skip*/*Cancel*, and
+    the progress box is `DeleteProgress` retitled *Attributes*, which shows only for a long recursion.
+- **One dialog over every tagged file**, as `dlgFilesAttr` was. DN gave each bit a *Set* column and a *Clear*
+  column, and left a bit ticked in neither alone. Here that is one box with a third state: **`CheckBoxes.mixed`**
+  draws `[?]`, and a bit in `tristate` cycles `?` → `X` → blank → `?`. This is Turbo Vision's `TMultiCheckBoxes`
+  idea, and it lives in the library: `Cluster` asks `mark_char`/`mark_states`, so the `?` and a `:mixed` mark state
+  are `CheckBoxes`' alone.
+- **`AttrDialog`** (`navigator/widgets/file_ops/attr_dialog/`) lays out as follows:
+  - the name and info rows;
+  - one twelve-item `CheckBoxes`, three tall, which `Cluster` lays out as four columns (owner, group, others,
+    special);
+  - an *Octal* line with the `ls -l` spelling beside it;
+  - *User* and *Group* as `ChoiceField`s the dialog's full width, chosen from the passwd and group
+    databases and never typed into: any key drops the list, and typing searches it;
+  - DN's *Date* and *Time*, as a `DateField` and a `TimeField`: typed, or picked from a calendar and a clock face
+    (click the `▐↓▌`, or Alt+Down in the line), with Up and Down stepping the date or time with carry;
+  - *Recurse*, disabled unless a directory is tagged.
+- **Only what the user pressed is applied.** A bit counts once pressed, even when pressed back. An octal digit that
+  changes anything claims all three of its bits, so `0644` typed means 644 on every file it reaches. Without this,
+  a directory's `755` shown in the grid would give every file under a recursion an execute bit.
+- **The octal line is a `MaskedField`**: a `MaskedLine` of four places in base 8, so it takes 0 to 7 and nothing
+  else, and Up/Down/PgUp/PgDn step the mode as an octal number, carrying in eights.
+  - **It reaches the grid a digit at a time.** A digit sets the three boxes it stands for and clears their `[?]`.
+    A `?` or a blank place leaves them as they are.
+  - Pressing a box rewrites the line, unless the line has the keyboard. In that case it is tidied when the keyboard
+    leaves, so a place just blanked is not filled back in mid-edit.
+- **Up and Down move between the lines**: Octal, User, Group, Date and Time, in that order. A disabled line is
+  passed over, and at either end the key stays put. Octal, Date and Time keep the keys for themselves, so they move
+  only from User and Group: on those three they step the mode, the date or the time, with carry. The grid and *Recurse* keep their own arrows. For this,
+  `InputLine` now claims Down only when its button actually drops a list. A `Field` with no `history_id` still
+  links its hidden button, and that had swallowed Down.
+- **A click on a letter of the `rwxr-xr-x` beside the octal line presses its box.** Its nine letters are the
+  grid's first nine items in the same order, so a click does what Space on that box would, `?` cycling included.
+  The special bits show in the execute letters (`s`, `t`) but are pressed in the grid, and a click there presses
+  the execute bit.
+- **R, W and X press a box in the cursor's column**: that column's Read, Write or Exec, with the cursor moving to
+  it, as `r`/`w`/`x` did in MC's *Advanced chown*. Shift does not matter, Alt stays the dialog's shortcuts, and
+  in the special column the three do nothing. `AttrDialog` puts the handler in front of the grid's own
+  (`bits.on_key`), so the arrows and Space are unchanged.
+- **`Dialog.valid()`** is Turbo Vision's `Valid(cmOK)`. It was new here, and `on_ok_click` asks it before closing.
+  An unknown user, a bad mode or a date that is not one shows an error and leaves the dialog up with the text in it.
+- **The rules:**
+  - The owner goes first, because `chown` clears set-user-ID and set-group-ID, and the mode written after it puts
+    back what was asked for.
+  - A tagged link is followed, as the panel shows its target's mode.
+  - Under a recursed directory a link is never followed and never changed.
+  - A directory is changed after its contents, unless it cannot be read into now. Then it is changed first, because
+    the change is presumably what lets it be read.
+  - Untouched values mean *leave it*. A time equal to the one shown also means *leave it*, so OK on an untouched
+    dialog does not round a nanosecond stamp to the second.
+- **Only root may give a file to another user**, so *User* is disabled for anyone else, and greyed. DN's palette has
+  no disabled slot for a label, a line or a cluster, so `navigator.nss` greys every disabled one in [44] *Button
+  disabled*, the dialog's grey with dark text. *Group* offers all groups to
+  root and the user's own groups to everyone else, which is all the kernel allows.
+- **On the key bar as *Attr***, a departure: `StatusDef hcFilePanel`'s Alt row never carried Alt+E. At 80 columns
+  the row now closes before *Exit*, as the Ctrl row closes before *Show*. Alt+X still quits; it is only uncaptioned
+  there.
+
+Not ported: `cmSingleAttr` (no key reached it in 1.51), F4 on a directory opening the dialog, and DN's single-file
+`dlgFileAttr` as a separate shape. With one entry, the same dialog simply has nothing mixed in it.
 
 ## What Textual has that the library takes
 

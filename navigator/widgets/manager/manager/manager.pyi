@@ -6,7 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.commands import ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
+from navigator.commands import ChangeAttributes, ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
 from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
 from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
 from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
-from navigator.commands import ChangeDirectory, Copy, Delete, DeleteSingle, Edit, GoParent, MakeDirectory, MakeLink, QuickSearch, QuickView, RenameMove, Rescan, ScrollNames, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
+from navigator.commands import ChangeAttributes, ChangeDirectory, Copy, Delete, DeleteSingle, Edit, GoParent, MakeDirectory, MakeLink, QuickSearch, QuickView, RenameMove, Rescan, ScrollNames, InvertSelection, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 
 
@@ -81,6 +81,8 @@ class Manager(Window, _Component):
     async def _answer_erase_question(self, question: Any) -> Any: ...
     async def on_make_link(self, event: MakeLink) -> bool: ...
     async def make_links(self) -> None: ...
+    async def on_change_attributes(self, event: ChangeAttributes) -> bool: ...
+    async def change_attributes(self) -> None: ...
     async def on_view(self, event: View) -> bool: ...
     async def on_view_as_text(self, event: ViewAsText) -> bool: ...
     async def on_view_as_hex(self, event: ViewAsHex) -> bool: ...

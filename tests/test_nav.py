@@ -2687,9 +2687,10 @@ def test_a_click_on_a_greyed_caption_does_nothing_and_goes_nowhere(tree):
 #: nearest table first -- the file manager's, the desktop's Zoom and Close,
 #: the application's.  At 80 columns the Ctrl row closes before *Show*: the
 #: desktop's F4 Close takes the room, which DOS Navigator's file panel row
-#: did not caption.
+#: did not caption.  The Alt row closes before *Exit* the same way: E Attr,
+#: which DN's row did not carry either, takes its room.
 ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
-              "  Z Zoom  X Exit")
+              "  E Attr  Z Zoom")
 CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  K Desc  L Info"
                "  T Tree  Q Preview")
 SHIFT_STATUS = (" F1 Arc  F2 Ext  F3 Phones  F4 Edit...  F5 SymLnk"

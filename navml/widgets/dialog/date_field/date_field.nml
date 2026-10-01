@@ -1,0 +1,44 @@
+from navml.widgets.dialog.date_button import DateButton
+from navml.widgets.dialog.masked_line import MaskedLine, mask_for
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.label import Label
+
+#: A caption, a line holding a date, and the ``▐↓▌`` that drops a
+#: calendar to pick one from.
+#:
+#: :class:`Field`'s shape with a :class:`DateButton` where the history was:
+#: markup alone.  The line is a :class:`MaskedLine`, digits in the places
+#: ``date_format`` gives them; the button reads it and writes it in the same
+#: format, and Alt+Down in the line drops it; Up and Down step a digit.
+DateField(HorizontalLayout):
+    #: The caption, with one ``~A~`` run.
+    property label_text: ""
+
+    #: How many columns the caption takes before the line begins.
+    property label_width: 12
+
+    #: How the line spells a date, in ``strftime``'s directives.
+    property date_format: "%d-%m-%Y"
+
+    #: The text in the line.
+    alias value: entry.value
+
+    Label:
+        id: caption
+        inline_style: "basis: %d; grow: 0" % parent.label_width
+        text: parent.label_text
+        link: entry
+        align: "left"
+
+    #: Digits in the places the format gives them, typed over.
+    MaskedLine:
+        id: entry
+        mask: mask_for(parent.date_format)
+
+    DateButton:
+        id: picker
+        link: entry
+        date_format: parent.date_format
+        style:
+            basis: 3
+            grow: 0

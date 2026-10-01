@@ -45,6 +45,7 @@ navml.register(__name__)
 #: map to `panel': its module carries `DirEntry' beside `Panel'.
 _WIDGETS = {
     "AboutDialog": "about_dialog",
+    "AttrDialog": "file_ops.attr_dialog",
     "ChangeDirDialog": "tree.change_dir_dialog",
     "Clock": "shell.clock",
     "CopyDialog": "file_ops.copy_dialog",
@@ -98,6 +99,7 @@ if TYPE_CHECKING:
     # A module `__getattr__' answers `Any' to a type checker, which would make
     # every widget untyped at every call site.  These are the real types.
     from navigator.widgets.about_dialog import AboutDialog
+    from navigator.widgets.file_ops.attr_dialog import AttrDialog
     from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
     from navigator.widgets.shell.clock import Clock
     from navigator.widgets.file_ops.copy_dialog import CopyDialog

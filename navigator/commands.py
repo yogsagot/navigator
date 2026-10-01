@@ -134,6 +134,18 @@ class MakeLink(Command):
     title = "SymLnk"
 
 
+class ChangeAttributes(Command):
+    """Alt+E: *File Attributes*, DN's ``cmSetFAttr``, read for Linux.
+
+    The mode bits, owner, group and modification time of the selection -- a
+    departure in what it edits, since DN's were the four DOS attributes.
+    On the key bar's Alt row, which ``StatusDef hcFilePanel``'s never was --
+    and which, at 80 columns, now closes before *Exit*.
+    """
+
+    title = "Attr"
+
+
 class MakeDirectory(Command):
     title = "MkDir"
 

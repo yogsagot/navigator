@@ -157,3 +157,16 @@ def test_a_line_without_a_history_leaves_down_to_the_dialog():
     line = InputLine()
     assert line.history is None
     assert asyncio.run(line.on_key(KeyEvent("down"))) is False
+
+
+def test_a_history_list_does_not_search(tmp_path):
+    HISTORY.add("mkdir", "older")
+    HISTORY.add("mkdir", "newer")
+    app = navigator(tmp_path)
+    seen = []
+    run_app(app, [
+        KeyEvent("f7"), lambda a: None, KeyEvent("down"),
+        KeyEvent("o", "o"),
+        lambda a: seen.append((type(a.modal).__name__, a.modal.search, a.modal.cursor)),
+    ])
+    assert seen == [("HistoryList", None, 1)]

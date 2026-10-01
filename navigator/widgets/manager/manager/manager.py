@@ -20,6 +20,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
 from navigator.commands import (
+    ChangeAttributes,
     ChangeDirectory,
     Copy,
     Delete,
@@ -204,7 +205,7 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and (
                 entry is not None and entry.name != ".."
             )
-        if isinstance(command, (Copy, RenameMove, MakeLink, Delete)):
+        if isinstance(command, (Copy, RenameMove, MakeLink, Delete, ChangeAttributes)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
             return not (self.tree.focused or self.quick.focused) and bool(
@@ -649,6 +650,61 @@ class Manager(Window):
         finally:
             if linked:
                 panel.marked = panel.marked - linked
+            panel.reload()
+            other.reload()
+
+    # -- attributes --------------------------------------------------------------
+
+    async def on_change_attributes(self, event: ChangeAttributes) -> bool:
+        """Alt+E: ``cmSetFAttr``, the File Attributes dialog over the selection."""
+        self.spawn(self.change_attributes())
+        return True
+
+    async def change_attributes(self) -> None:
+        """Ask what to change, change it on a thread, and let both panels look again.
+
+        ``delete_files``'s shape: the dialog, then ``fileattr.run`` through
+        ``asyncio.to_thread`` with :meth:`_watch_job` between the two -- the
+        progress box, titled *Attributes*, shows only for a long recursion --
+        and each failure put as Copy's *Skip* / *Cancel*.  What was changed
+        without a failure is untagged.
+        """
+        from navigator import fileattr
+        from navigator.widgets.file_ops.attr_dialog import AttrDialog
+        from navigator.widgets.file_ops.delete_progress import DeleteProgress
+
+        app = self.application
+        panel, other = self.active_panel, self.passive_panel
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        request = await AttrDialog(entries=entries, here=Path(panel.path)).execute(app)
+        if request is None:
+            return
+        job = fileattr.AttrJob()
+        work = asyncio.ensure_future(asyncio.to_thread(fileattr.run, request, job))
+
+        def make_box() -> Any:
+            # The *Erase* box's lines and gauge fit as they are; only the
+            # title is the document's, and so is assigned after it.
+            box = DeleteProgress()
+            box.title = "Attributes"
+            return box
+
+        def refresh(box: Any) -> None:
+            box.action, box.path = job.action, job.path
+            box.done, box.total = job.done, job.total
+
+        done: list[Path] = []
+        try:
+            await self._watch_job(work, job, make_box, refresh, self._answer_erase_question)
+            done = await work
+        finally:
+            if not work.done():
+                job.stop()
+            names = {path.name for path in done}
+            if names:
+                panel.marked = panel.marked - names
             panel.reload()
             other.reload()
 

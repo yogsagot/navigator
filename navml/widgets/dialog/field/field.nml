@@ -28,6 +28,10 @@ Field(HorizontalLayout):
     #: puts the ``▐↓▌`` button after the line, which gives up three columns.
     property history_id: ""
 
+    #: A fixed list the ``▐↓▌`` button drops instead of a history -- user
+    #: names, say.  Either this or ``history_id`` shows the button.
+    alias choices: history.choices
+
     #: The text in the line.  An alias, so a read and a write both reach the
     #: ``InputLine``'s own reactive one property deep, and a binding assigned
     #: through it is re-owned by whoever wrote it.
@@ -47,7 +51,7 @@ Field(HorizontalLayout):
         id: history
         link: entry
         history_id: parent.history_id
-        visible: parent.history_id != ""
+        visible: parent.history_id != "" or bool(self.choices)
         style:
             basis: 3
             grow: 0

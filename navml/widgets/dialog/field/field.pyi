@@ -14,6 +14,7 @@ class Field(HorizontalLayout, _Component):
     label_text: str
     label_width: int
     history_id: str
+    choices: _Any
     value: str
     caption: Label
     entry: InputLine

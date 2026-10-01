@@ -1,0 +1,40 @@
+from navml.widgets.dialog.choice_line import ChoiceLine
+from navml.widgets.dialog.history import History
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.label import Label
+
+#: A caption, a line chosen into, and the ``▐↓▌`` that drops the choices.
+#:
+#: :class:`Field`'s shape with a :class:`ChoiceLine` where the input line
+#: was: markup alone, because it paints nothing itself.  The button is always
+#: shown -- it is the one way in that a mouse has -- and ``choices`` is what
+#: it drops; there is no history.
+ChoiceField(HorizontalLayout):
+    #: The caption, with one ``~A~`` run.
+    property label_text: ""
+
+    #: How many columns the caption takes before the line begins.
+    property label_width: 12
+
+    #: The text in the line: one of ``choices``, or what it was seeded with.
+    alias value: entry.value
+
+    #: What the button drops.
+    alias choices: history.choices
+
+    Label:
+        id: caption
+        inline_style: "basis: %d; grow: 0" % parent.label_width
+        text: parent.label_text
+        link: entry
+        align: "left"
+
+    ChoiceLine:
+        id: entry
+
+    History:
+        id: history
+        link: entry
+        style:
+            basis: 3
+            grow: 0

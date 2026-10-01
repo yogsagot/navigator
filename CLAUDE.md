@@ -182,6 +182,20 @@ and *read-only*, meaning not writable (Yes/No/All), questions. `DeleteProgress` 
 *Cancel*, which asks *Abort operation?*. `Manager._watch_job` is the loop both operations share. Del and Shift+Del are `by_key`,
 stepping aside while the command line has text, and Shift+F8/Shift+Del (`DeleteSingle`) takes the cursor's entry
 whatever is tagged. *Deleting files* in `navml/DESIGN.md` has the rest.
+**Alt+E is *File Attributes***, DN's `cmSetFAttr` read for Linux: a departure, since DN's dialog edited the four
+DOS bits. `navigator/fileattr.py` is the model (`survey`, `AttrRequest`, `AttrJob`/`run` on a thread, never through
+a link under a recursion), and `AttrDialog` is one dialog over every tagged file, as `dlgFilesAttr` was. It has a
+twelve-bit grid with an octal line (a `MaskedField` in base 8: digits 0-7 only, each setting its three boxes), *User*/*Group* drop-downs, DN's *Date*/*Time* (the library's **`DateField`/`TimeField`**: typed as digits in the fixed places of a **`MaskedLine`** -- only
+digits, Left/Right, Home/End, and Backspace/Delete blanking a digit -- or picked from a `Calendar` -- TVDEMO's
+`TCalendarView` with a cursor, and its month and year picked from lists (click, `M`/`Y`, or Tab to them) -- or a `TimePicker` dropped by their `▐↓▌` or Alt+Down; Up/Down step the date or time by the place under the caret and PgUp/PgDn by ten times that, carrying as a calendar and a clock do) and
+*Recurse*. DN's Set/Clear
+columns became the library's **tri-state `CheckBoxes`** (`mixed` draws `[?]`, `tristate` lets a bit cycle back to
+it). *User* and *Group* are the library's **`ChoiceField`** (a `ChoiceLine`, an `InputLine` that is never typed
+into: every key but Tab/Shift+Tab/Esc/Alt+letter/Up/Down drops its list, Enter included; Up and Down step between the
+dialog's lines) over **`History.choices`**, a
+fixed list that records nothing and that typing quick-searches by the panel's rule. Only bits the
+user pressed are applied. **`Dialog.valid()`** (`Valid(cmOK)`) keeps a dialog up over a value it cannot read.
+*File attributes* in `navml/DESIGN.md` has the rest.
 **≡ > About is DOS Navigator's `MessageBoxAbout`** (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"`
 and its `message` centred. Its facts are never written twice: `navigator/about.py`'s `project_info()` reads
 `pyproject.toml`'s `[project]` table in a checkout and the installed distribution's `METADATA` otherwise (the toml

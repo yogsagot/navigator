@@ -1,0 +1,33 @@
+from navml.widgets.dialog.masked_line import MaskedLine
+from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.label import Label
+
+#: A caption and a :class:`MaskedLine`: digits in fixed places, and nothing
+#: else.  :class:`Field`'s shape without the history button, markup alone.
+MaskedField(HorizontalLayout):
+    #: The caption, with one ``~A~`` run.
+    property label_text: ""
+
+    #: How many columns the caption takes before the line begins.
+    property label_width: 12
+
+    #: The shape: ``9`` a digit's place, anything else a literal.
+    property mask: ""
+
+    #: Which digits a place takes, ``0`` to ``base - 1``.
+    property base: 10
+
+    #: The text in the line.
+    alias value: entry.value
+
+    Label:
+        id: caption
+        inline_style: "basis: %d; grow: 0" % parent.label_width
+        text: parent.label_text
+        link: entry
+        align: "left"
+
+    MaskedLine:
+        id: entry
+        mask: parent.mask
+        base: parent.base

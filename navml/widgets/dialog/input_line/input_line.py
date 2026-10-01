@@ -199,9 +199,15 @@ class InputLine(Control):
             self._move(0, shift)
         elif event.key == "end":
             self._move(len(self.value), shift)
-        elif event.matches("down") and self.history is not None:
-            # Turbo Vision's THistory took Down from its focused line.
-            self.history.open()
+        elif (
+            event.matches("down", "alt+down") and self.history is not None
+            and self.history.open() is not None
+        ):
+            # Turbo Vision's THistory took Down from its focused line -- when
+            # it had a list to drop.  A ``Field`` with no ``history_id`` still
+            # links its (hidden) button, and Down there is the dialog's.
+            # Alt+Down too, the drop-down key most toolkits since have used.
+            pass
         else:
             # Enter and Escape are *not* claimed: they belong to the dialog,
             # and a field that swallowed them would make every dialog holding

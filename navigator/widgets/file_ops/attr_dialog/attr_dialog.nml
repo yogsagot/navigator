@@ -1,0 +1,138 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.date_field import DateField
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.dialog.time_field import TimeField
+
+#: Alt+E: *File Attributes*, DOS Navigator's ``dlgFilesAttr`` read for Linux.
+#:
+#: A departure in what it edits -- DN's four DOS bits are the twelve mode bits,
+#: and the owner and group stand beside DN's date and time -- and DN's in its
+#: shape: one dialog over every tagged file, where a bit the files disagree on
+#: is ``[?]`` and left alone unless moved.  The grid is one ``CheckBoxes`` of
+#: twelve, three tall, which ``Cluster`` lays out in four columns of three:
+#: owner, group, others and the special bits, each read/write/execute down.
+AttrDialog(Dialog):
+    modal_width: 60
+    modal_height: 20
+    title: "File Attributes"
+    buttons: "ok-cancel"
+
+    #: The entry's kind and name, or how many of each were tagged.
+    StaticText:
+        id: name_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+
+    #: A lone entry's size and where a link points.
+    StaticText:
+        id: info_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+
+    #: Over the grid's four columns, which are eleven apart: a mark, its
+    #: blank, the widest caption, and two between.
+    Label:
+        id: heading
+        x: 3
+        y: 4
+        width: max(0, parent.width - 6)
+        height: 1
+        text: "O~w~ner      Group      Others     Special"
+        link: bits
+
+    CheckBoxes:
+        id: bits
+        x: 3
+        y: 5
+        width: max(0, parent.width - 6)
+        height: 3
+        items: ["Read", "Write", "Exec", "Read", "Write", "Exec", "Read", "Write", "Exec", "Set UID", "Set GID", "Sticky"]
+
+    #: The mode as ``chmod`` takes it: four octal digits, each setting the
+    #: three boxes it stands for.
+    MaskedField:
+        id: octal
+        x: 2
+        y: 9
+        width: 16
+        height: 1
+        label_text: "~O~ctal"
+        label_width: 10
+        mask: "9999"
+        base: 8
+
+    #: The mode as ``ls -l`` shows it.
+    StaticText:
+        id: symbolic
+        x: 20
+        y: 9
+        width: 12
+        height: 1
+
+    #: Chosen from the passwd and group databases, never typed: any key on
+    #: either drops its list, and typing there searches it.
+    ChoiceField:
+        id: user
+        x: 2
+        y: 10
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~U~ser"
+        label_width: 10
+
+    ChoiceField:
+        id: group
+        x: 2
+        y: 11
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~G~roup"
+        label_width: 10
+
+    #: DN's ``Date (D-M-Y)`` and ``Time (H:M:S)``: the modification time.
+    #: Typed, or picked from the calendar and the clock face their ``▐↓▌``
+    #: drops (Alt+Down).
+    DateField:
+        id: date
+        x: 2
+        y: 12
+        width: 26
+        height: 1
+        label_text: "~D~ate"
+        label_width: 10
+
+    TimeField:
+        id: clock
+        x: 30
+        y: 12
+        width: 20
+        height: 1
+        label_text: "~T~ime"
+        label_width: 6
+
+    #: What to change under a tagged directory; inert with none tagged.
+    Label:
+        id: recurse_caption
+        x: 2
+        y: 14
+        width: 10
+        height: 1
+        text: "~R~ecurse"
+        link: recurse
+
+    RadioButtons:
+        id: recurse
+        x: 12
+        y: 14
+        width: max(0, parent.width - 14)
+        height: 1
+        items: ["No", "Files", "Dirs", "All"]

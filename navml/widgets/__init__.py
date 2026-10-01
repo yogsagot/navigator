@@ -34,9 +34,14 @@ navml.register(__name__)
 #: read from a zip or a wheel.
 _COMPONENTS = {
     "Button": "dialog.button",
+    "Calendar": "dialog.date_button",
     "CheckBoxes": "dialog.check_boxes",
+    "ChoiceField": "dialog.choice_field",
+    "ChoiceLine": "dialog.choice_line",
     "Cluster": "dialog.cluster",
     "Control": "dialog.control",
+    "DateButton": "dialog.date_button",
+    "DateField": "dialog.date_field",
     "Desktop": "desktop",
     "Dialog": "dialog.dialog",
     "DockLayout": "layout.dock_layout",
@@ -49,6 +54,8 @@ _COMPONENTS = {
     "Layout": "layout.layout",
     "LinearLayout": "layout.layout",
     "ListViewer": "dialog.list_viewer",
+    "MaskedField": "dialog.masked_field",
+    "MaskedLine": "dialog.masked_line",
     "MenuBar": "menu.menu_bar",
     "MenuBox": "menu.menu_box",
     "MenuItem": "menu.menu_item",
@@ -61,6 +68,9 @@ _COMPONENTS = {
     "StackLayout": "layout.stack_layout",
     "StaticText": "dialog.static_text",
     "SubMenu": "menu.sub_menu",
+    "TimeButton": "dialog.time_button",
+    "TimeField": "dialog.time_field",
+    "TimePicker": "dialog.time_button",
     "Timer": "timer",
     "TreeView": "dialog.tree_view",
     "VerticalLayout": "layout.vertical_layout",
@@ -122,6 +132,14 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.dialog import Dialog
     from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.dialog.field import Field
+    from navml.widgets.dialog.choice_field import ChoiceField
+    from navml.widgets.dialog.choice_line import ChoiceLine
+    from navml.widgets.dialog.date_button import Calendar, DateButton
+    from navml.widgets.dialog.date_field import DateField
+    from navml.widgets.dialog.time_button import TimeButton, TimePicker
+    from navml.widgets.dialog.time_field import TimeField
+    from navml.widgets.dialog.masked_field import MaskedField
+    from navml.widgets.dialog.masked_line import MaskedLine
     from navml.widgets.layout.grid_layout import GridLayout
     from navml.widgets.dialog.history import History
     from navml.widgets.layout.horizontal_layout import HorizontalLayout

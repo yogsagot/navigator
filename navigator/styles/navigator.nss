@@ -210,6 +210,19 @@ InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selec
 InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg }
 InputLine::arrow      { fg: $dialog-input-arrow-fg;      bg: $dialog-input-arrow-bg }
 
+/* A disabled control is greyed whole -- caption, marked letter, line, its
+ * button and a cluster's items alike.  DOS Navigator's palette has no
+ * disabled slot for any of them, only [44] Button disabled, so they all take
+ * that one: in DN's own dialogs it is the dialog's grey with dark text, which
+ * is what greyed out looks like on it.  A departure, since DN never disabled
+ * a line; File Attributes' *User* is the one that needs it, for anyone but
+ * root. */
+Label:inert, Label:inert::shortcut,
+InputLine:inert, InputLine:inert::arrow,
+History:inert, History:inert::arrow,
+Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
+                      { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg }
+
 /* The command line is the one rule here with colours in it rather than
    variables, because DOS Navigator had no slot for it either:
    `TCommandLine.Draw' writes the prompt in $0F and the text in $07, bright
@@ -227,6 +240,19 @@ History::arrow                   { fg: $dialog-history-button-fg;    bg: $dialog
 HistoryList                      { fg: $dialog-input-normal-fg;      bg: $dialog-input-normal-bg }
 HistoryList::row:selected        { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg }
 HistoryList ScrollBar            { fg: $dialog-history-bar-page-fg;  bg: $dialog-history-bar-page-bg }
+/* The calendar and the clock face a date or time line's button drops are its
+   history list's kin, and take its colours: the line's own [50] for the frame
+   and the days, [51] for the one under the cursor, and [52] Input arrow for
+   what is not a value -- the month, its arrows, the weekdays, today.  No DN
+   slot names them; neither existed. */
+Calendar, TimePicker             { fg: $dialog-input-normal-fg;      bg: $dialog-input-normal-bg }
+Calendar::title, Calendar::arrow,
+Calendar::weekday, TimePicker::arrow,
+TimePicker::separator            { fg: $dialog-input-arrow-fg;       bg: $dialog-input-arrow-bg }
+Calendar::day:today              { fg: $dialog-input-arrow-fg;       bg: $dialog-input-arrow-bg }
+Calendar::day:selected,
+Calendar::title:selected,
+TimePicker::value:selected       { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg }
 HistoryList ScrollBar::arrow,
 HistoryList ScrollBar::thumb     { fg: $dialog-history-bar-icons-fg; bg: $dialog-history-bar-icons-bg }
 

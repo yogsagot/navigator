@@ -93,6 +93,15 @@ class Dialog(Modal):
         """What OK means.  ``True`` unless a derived dialog says otherwise."""
         return True
 
+    def valid(self) -> bool:
+        """Whether OK may close the dialog: Turbo Vision's ``Valid(cmOK)``.
+
+        True unless a derived dialog finds something it cannot accept -- a
+        date that is not one, say -- in which case it says so itself and the
+        dialog stays up with what the user typed still in it.
+        """
+        return True
+
     def unmounting(self) -> None:
         """Answer anyway, if something else took the dialog out of the tree.
 
@@ -175,6 +184,8 @@ class Dialog(Modal):
 
     async def on_ok_click(self, event: Event) -> bool:
         """``ok`` was clicked, and the generated half said so by name."""
+        if not self.valid():
+            return True
         self.record_history()
         self.close(self.accept())
         return True

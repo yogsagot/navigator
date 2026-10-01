@@ -596,12 +596,14 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "CheckBoxes", "Cluster", "Control", "Desktop", "Dialog",
+        "Button", "Calendar", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "Control",
+        "DateButton", "DateField", "Desktop", "Dialog",
         "DockLayout", "Field", "GridLayout", "History", "HorizontalLayout",
         "InputLine",
-        "Label", "Layout", "LinearLayout", "ListViewer", "MenuBar", "MenuBox",
+        "Label", "Layout", "LinearLayout", "ListViewer", "MaskedField", "MaskedLine", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "ProgressBar", "RadioButtons", "ScrollBar",
-        "Spacer", "StackLayout", "StaticText", "SubMenu", "Timer",
+        "Spacer", "StackLayout", "StaticText", "SubMenu", "TimeButton", "TimeField",
+        "TimePicker", "Timer",
         "TreeView", "VerticalLayout", "Window", "WindowList", "WindowManagerDialog",
     ]
     with pytest.raises(AttributeError, match="Nonexistent"):
