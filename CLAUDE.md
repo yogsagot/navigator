@@ -96,7 +96,7 @@ percentage, Stop), fed through a `SearchJob` the thread writes and the loop read
 `SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the
 active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
 what is deferred.
-**Ctrl+Y is DN's `cmToggleShowMode`**, per panel (`Panel.view_mode`, `cycle_view_mode`): *simple* (name and size, the
+**Ctrl+Y is DN's `cmToggleShowMode`**, per panel (`Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode*, a menu entry DN never had -- it showed Ctrl+Y only on the status line): *simple* (name and size, the
 panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Date, the **modification** time
 as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Date are dropped when the name would fall
 under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
@@ -131,7 +131,7 @@ left of the caption, so a tick costs no width. **Insert tags** (`ToggleMark`, DN
 char `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the footer reads DN's `N bytes in M
 selected files`. A re-read keeps the tags, a change of directory drops them. **Space tags too while the command line
 is empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, bound in `manager.nml` and handled and gated by `Shell`,
-which owns the line). **Ctrl+S is Midnight Commander's quick search** (`QuickSearch`, `Panel.quick_search`; DN had
+which owns the line). **Ctrl+S is Midnight Commander's quick search** (`QuickSearch`, `Panel.quick_search`; also *Panel > Quick search*, an entry DN's menu did not have; DN had
 one on Alt+letter, but its handler is not in the 1.51 source and those Alt+letters are panel commands here): typing
 moves the cursor to the first name from it that begins so -- case folded, `*`/`?` wildcards, `..` never found -- a
 character that would name nothing is refused, Backspace drops one, Ctrl+S again finds the next, wrapping. It shows

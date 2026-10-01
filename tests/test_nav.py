@@ -1000,6 +1000,39 @@ def test_the_menu_ticks_ctrl_h_while_the_active_panel_shows_dot_files(tree):
     assert seen == [True, False, True]
 
 
+def test_the_panel_menu_carries_ctrl_y_and_ctrl_s(tree):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        for caption in ("View mode", "Quick search"):
+            item = _entry(a.shell.menu, "Panel", caption)
+            seen.append((key_caption(item, a, a.manager.left),
+                         a.command_enabled(item.command, a.manager.left)))
+
+    run_app(app, [look])
+    assert seen == [("Ctrl-Y", True), ("Ctrl-S", True)]
+
+
+def test_panel_view_mode_from_the_menu_cycles_the_active_panel(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f10"), *keys("pw")])
+    assert app.manager.left.view_mode == "detailed"
+    assert app.manager.right.view_mode == "simple"
+
+
+def test_panel_quick_search_from_the_menu_keeps_the_keys_after_it(tree):
+    """The bar closes before the command runs, so the panel has the keyboard
+    back when its search starts, and the search survives to take what follows."""
+    app = navigator(tree)
+    seen = []
+    run_app(app, [KeyEvent("f10"), *keys("pe"), *keys("tw"),
+                  lambda a: seen.append(a.manager.left.quick_search)])
+    assert seen == ["tw"]
+
+
 def test_the_scheme_drives_the_panel_rather_than_decorating_it(panel):
     """Swapping the sheet must change what the panel paints.
 

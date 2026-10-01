@@ -1,4 +1,4 @@
-from navigator.commands import About, Calculator, ChangeDirectory, Copy, Delete, DeleteSingle, Edit, InvertSelection, MakeDirectory, MakeLink, NewManager, OpenTreeWindow, Quit, RenameMove, Rescan, SelectGroup, ToggleConsole, ToggleHidden, ToggleTree, UnselectGroup, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.commands import About, Calculator, ChangeDirectory, Copy, Delete, DeleteSingle, Edit, InvertSelection, MakeDirectory, MakeLink, NewManager, OpenTreeWindow, QuickSearch, QuickView, Quit, RenameMove, Rescan, SelectGroup, ToggleConsole, ToggleHidden, ToggleShowMode, ToggleTree, UnselectGroup, UserMenu, View, ViewAsHex, ViewAsText
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -253,6 +253,10 @@ MainMenu(MenuBar):
             text: 'Sort ~b~y...'
             key: 'Alt-B'
         MenuItem:
+            text: 'Vie~w~ mode'
+            command: ToggleShowMode
+            key: 'Ctrl-Y'
+        MenuItem:
             text: 'Show/hide h~i~dden files'
             command: ToggleHidden
             key: 'Ctrl-H'
@@ -281,6 +285,10 @@ MainMenu(MenuBar):
             command: ChangeDirectory
             key: 'Alt-T'
         MenuItem:
+            text: 'Quick s~e~arch'
+            command: QuickSearch
+            key: 'Ctrl-S'
+        MenuItem:
             text: '~R~e-read'
             command: Rescan
             key: 'Alt-R'
@@ -306,6 +314,7 @@ MainMenu(MenuBar):
             key: 'Ctrl-L'
         MenuItem:
             text: '~Q~uick view'
+            command: QuickView
             key: 'Ctrl-Q'
         MenuLine:
         MenuItem:
