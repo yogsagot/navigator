@@ -564,7 +564,10 @@ def test_a_dir_entry_carries_permissions_and_a_date(panel, tree):
     assert entry.display_date == "04-03-21 05:06"
 
 
-def test_the_detailed_mode_draws_its_columns(tree):
+def test_the_detailed_mode_draws_its_columns(tree, monkeypatch):
+    # The owner column is as wide as the longest owner, so whoever runs the
+    # suite would decide whether it fits (``runner:docker`` does not, at 60).
+    monkeypatch.setattr(DirEntry, "display_owner", property(lambda self: "user:group"))
     panel = Panel(tree, width=60, height=10)
     panel.stylesheet = default_scheme()
     panel = mounted(panel, size=(60, 10))
@@ -728,7 +731,8 @@ def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
         for x in columns:
             # The top edge carries the path, which may stand on the cell.
             assert buffer.get(x, 0)[0] in (tees[0], *panel.title_text())
-            assert buffer.get(x, panel.height - 1)[0] == tees[1]
+            # And the bottom the footer, likewise.
+            assert buffer.get(x, panel.height - 1)[0] in (tees[1], *panel.footer_text())
         assert any(buffer.get(x, 0)[0] == tees[0] for x in columns)
 
 
