@@ -97,9 +97,10 @@ percentage, Stop), fed through a `SearchJob` the thread writes and the loop read
 active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
 what is deferred.
 **Ctrl+Y is DN's `cmToggleShowMode`**, per panel (`Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode*, a menu entry DN never had -- it showed Ctrl+Y only on the status line): *simple* (name and size, the
-panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Date, the **modification** time
-as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Attr and then Date are dropped when the name would fall
-under 12 cells) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
+panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date, the **modification** time
+as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Owner -- a departure, DOS had none -- is as wide as the
+longest owner listed, 5 to 17 cells (`DirEntry.display_owner`, uid/gid names cached, a number where there is no name);
+Owner, then Attr, then Date are dropped when the name would fall under 12 cells, so a half-screen panel keeps only Size and Date) and *list* (names alone in columns, each as wide as its longest name and capped at half the panel,
 Left/Right moving a column as DN's `kbLeft`/`kbRight` did). A name too long for its column ends in `...` (`fit_text`, in cells), and starts with one while scrolled
 (`window_text`), and in the simple and
 detailed modes Left/Right scroll every name a cell along (`ScrollNames`, `Panel.name_scroll`, clamped to the longest

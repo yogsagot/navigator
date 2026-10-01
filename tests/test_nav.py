@@ -570,20 +570,42 @@ def test_the_detailed_mode_draws_its_columns(tree):
     panel = mounted(panel, size=(60, 10))
     panel.cycle_view_mode()
     settle()
-    assert [key for key, _, _ in panel.detail_columns] == ["name", "size", "attributes", "date"]
+    assert [key for key, _, _ in panel.detail_columns] == ["name", "size", "attributes", "owner", "date"]
     buffer = ScreenBuffer(60, 10)
     panel.render(buffer)
     heading = text_at(buffer, 1)
-    for title in ("Name", "Size", "Attr", "Date"):
+    for title in ("Name", "Size", "Attr", "Owner", "Date"):
         assert title in heading
+    owner = next(e for e in panel.items if e.name == "two.txt").display_owner
     row = next(text_at(buffer, y) for y in range(2, 9) if "two.txt" in text_at(buffer, y))
-    assert "2K" in row and "rw" in row and row[1:-1].count("│") == 3
+    assert "2K" in row and "rw" in row and owner[:5] in row and row[1:-1].count("│") == 4
     # The name column takes what the others leave.
+    owner_width = panel.detail_columns[3][2]
     _, x, width = panel.detail_columns[0]
-    assert (x, width) == (1, 58 - (8 + 9 + 14 + 3))
+    assert (x, width) == (1, 58 - (8 + 9 + owner_width + 14 + 4))
 
 
-def test_a_narrow_detailed_panel_gives_up_attributes_first(panel):
+def test_the_owner_column_is_user_colon_group(panel, tree):
+    import grp, os, pwd
+    entry = next(e for e in panel.items if e.name == "one.txt")
+    user = pwd.getpwuid(os.getuid()).pw_name
+    group = grp.getgrgid(os.getgid()).gr_name
+    assert entry.display_owner == f"{user}:{group}"
+    # An id with no name is shown as its number; an unread entry as nothing.
+    assert DirEntry("x", False, 0, uid=2_000_000_001, gid=2_000_000_002).display_owner == "2000000001:2000000002"
+    assert DirEntry("x", False, 0).display_owner == ""
+
+
+def test_the_owner_column_is_as_wide_as_the_longest_owner(tree):
+    panel = mounted(Panel(tree, width=80, height=10), size=(80, 10))
+    panel.cycle_view_mode()
+    settle()
+    longest = max(len(e.display_owner) for e in panel.items)
+    width = dict((key, w) for key, _, w in panel.detail_columns)["owner"]
+    assert width == max(len("Owner"), min(longest, Panel.MAX_OWNER_WIDTH))
+
+
+def test_a_narrow_detailed_panel_gives_up_owner_and_attributes_first(panel):
     panel.cycle_view_mode()
     settle()
     # 40 wide is half an 80-column screen: name, size and date still fit.

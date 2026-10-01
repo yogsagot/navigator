@@ -19,6 +19,7 @@ import os
 import stat
 import time
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,12 @@ from navml.widgets.dialog.list_viewer import ListViewer
 # lines apart meaning a module and a keyword is a trap rather than a saving.
 from navigator import filetypes
 from navigator import icons as icon_glyphs
+from navigator.fileattr import group_name, user_name
+
+# Asked once per id rather than once per row painted: the password and group
+# databases do not change under a running listing often enough to matter.
+_user_name = lru_cache(maxsize=None)(user_name)
+_group_name = lru_cache(maxsize=None)(group_name)
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +62,8 @@ class ExecuteFile(Event):
 
 class DirEntry:
     """One line in a panel: a name, whether it is a directory, its size, its
-    permission bits, when it was last modified and whether it is a symlink.
+    permission bits, when it was last modified, who owns it and whether it
+    is a symlink.
 
     ``mode`` is the link's *target*'s, except for a link pointing nowhere,
     where there is no target to describe and it is the link's own.
@@ -63,10 +71,11 @@ class DirEntry:
     it, read with the directory so that painting it costs no system call.
     """
 
-    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target")
+    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
-                 is_link: bool = False, link_target: str | None = None):
+                 is_link: bool = False, link_target: str | None = None,
+                 uid: int | None = None, gid: int | None = None):
         self.name = name
         self.is_dir = is_dir
         self.size = size
@@ -74,6 +83,8 @@ class DirEntry:
         self.mtime = mtime
         self.is_link = is_link
         self.link_target = link_target
+        self.uid = uid
+        self.gid = gid
 
     @property
     def sort_key(self) -> tuple:
@@ -101,6 +112,18 @@ class DirEntry:
         permissions instead, and the type is already the size column's.
         """
         return stat.filemode(self.mode)[1:]
+
+    @property
+    def display_owner(self) -> str:
+        """``user:group``, as ``ls -l`` names them, a number where no name is
+        known, and blank for an entry that could not be read.
+
+        DOS had no owners, so DN had no such column; this is the detailed
+        mode's one addition beyond reading DN's columns for POSIX.
+        """
+        if self.uid is None or self.gid is None:
+            return ""
+        return f"{_user_name(self.uid)}:{_group_name(self.gid)}"
 
     @property
     def type_mark(self) -> str:
@@ -301,7 +324,8 @@ class Panel(ListViewer):
         if path != path.parent:
             try:
                 info = path.parent.stat()
-                entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime))
+                entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime,
+                                       uid=info.st_uid, gid=info.st_gid))
             except OSError:
                 entries.append(DirEntry("..", True, 0))
         try:
@@ -333,7 +357,7 @@ class Panel(ListViewer):
                     is_dir = stat.S_ISDIR(info.st_mode)
                     size = 0 if is_dir else info.st_size
                     entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
-                                            target))
+                                            target, info.st_uid, info.st_gid))
         except OSError as exc:
             error = exc.strerror or str(exc)
         entries.sort(key=lambda entry: entry.sort_key)
@@ -608,15 +632,20 @@ class Panel(ListViewer):
         return await super().on_key(event)
 
     #: The detailed mode's columns after the name: heading, width, and the
-    #: ``DirEntry`` property that fills it.  Dropped from the end of
-    #: :data:`DROP_ORDER` first when the name would get too narrow.
+    #: ``DirEntry`` property that fills it.  Dropped in :data:`DROP_ORDER`
+    #: when the name would get too narrow.  A width of ``None`` is measured
+    #: off the listing (:meth:`_owner_width`).
     DETAIL_COLUMNS = {
         "size": ("Size", 8, "display_size"),
         "attributes": ("Attr", 9, "display_attributes"),
+        "owner": ("Owner", None, "display_owner"),
         "date": ("Date", 14, "display_date"),
     }
-    DETAIL_ORDER = ("size", "attributes", "date")
-    DROP_ORDER = ("attributes", "date")
+    DETAIL_ORDER = ("size", "attributes", "owner", "date")
+    DROP_ORDER = ("owner", "attributes", "date")
+    #: The widest the owner column grows; a longer ``user:group`` ends in
+    #: ``...``.
+    MAX_OWNER_WIDTH = 17
     #: The narrowest the detailed mode lets the name column get before it
     #: gives up a column to widen it.
     MIN_NAME_WIDTH = 12
@@ -627,13 +656,16 @@ class Panel(ListViewer):
 
         Each column after the name has a divider in the cell before it.  The
         name takes whatever is left; when that is under
-        :data:`MIN_NAME_WIDTH`, the attributes go, and then the date.
+        :data:`MIN_NAME_WIDTH`, the owner goes, then the attributes, and then
+        the date.  The owner column is as wide as the longest owner listed.
         """
         inset, inner = self.inset, self.inner_width
         shown = list(self.DETAIL_ORDER)
+        widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
+        widths["owner"] = self._owner_width()
 
         def rest() -> int:
-            return inner - sum(self.DETAIL_COLUMNS[key][1] + 1 for key in shown)
+            return inner - sum(widths[key] + 1 for key in shown)
 
         for key in self.DROP_ORDER:
             if rest() >= self.MIN_NAME_WIDTH:
@@ -643,10 +675,16 @@ class Panel(ListViewer):
         columns = [("name", inset, name_width)]
         x = inset + name_width + 1
         for key in shown:
-            width = self.DETAIL_COLUMNS[key][1]
+            width = widths[key]
             columns.append((key, x, width))
             x += width + 1
         return tuple(columns)
+
+    def _owner_width(self) -> int:
+        """The owner column's width: its longest ``user:group``, never
+        narrower than its heading nor wider than :data:`MAX_OWNER_WIDTH`."""
+        longest = max((text_width(item.display_owner) for item in self.items), default=0)
+        return max(len(self.DETAIL_COLUMNS["owner"][0]), min(longest, self.MAX_OWNER_WIDTH))
 
     @computed
     def list_columns(self) -> tuple[tuple[int, int, int], ...]:
@@ -883,7 +921,7 @@ class Panel(ListViewer):
                     # The cursor bar covers the dividers; draw them back in it.
                     surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
                 text = getattr(item, self.DETAIL_COLUMNS[key][2])
-                surface.draw_text(x, y, text[:width], style, width)
+                surface.draw_text(x, y, fit_text(text, width), style, width)
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
