@@ -32,8 +32,12 @@ Shell(DockLayout):
     #: ``visible`` line reads, which is the whole of Ctrl+O.
     property console_visible: False
 
+    #: ``context`` is whose menus join the bar: the active window's, while
+    #: the windows are showing -- so F9, a click, closing it and Ctrl+O all
+    #: take a window's menu off the bar by changing one of the two.
     MainMenu:
         id: menu
+        context: None if parent.console_visible else desktop.active_window
         style:
             dock: top
             basis: 1

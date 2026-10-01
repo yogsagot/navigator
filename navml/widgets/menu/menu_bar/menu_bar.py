@@ -12,6 +12,14 @@ screen, which paints the open boxes and their shadows and takes every key and
 every click until it closes.  **Choosing an entry closes the menu first and
 asks for the command second**, so the command starts from the widget that had
 the keyboard before the menu took it -- exactly where its key would have.
+
+**A window can put menus of its own on the bar** while it is the one in use:
+:attr:`MenuBar.context` holds a widget, and every :class:`SubMenu` among its
+children joins the bar at the place its ``before``/``after`` names.  Whoever
+owns the bar binds ``context`` -- Navigator's shell binds it to the desktop's
+active window -- so the entries come and go with the activation.  They are
+shown and chosen like the bar's own, and their commands start from the focus
+as every menu command does, which is inside that window.
 """
 
 from __future__ import annotations
@@ -25,7 +33,8 @@ from navkit.widget import Widget
 
 from navml.component import take_declared
 from navml.widgets.dialog.control.control import parse_shortcut
-from navml.widgets.menu.sub_menu.sub_menu import MenuContainer
+from navml.widgets.menu.menu_item.menu_item import MenuNode
+from navml.widgets.menu.sub_menu.sub_menu import MenuContainer, SubMenu
 
 
 class MenuBar(MenuContainer, Widget):
@@ -44,11 +53,42 @@ class MenuBar(MenuContainer, Widget):
     #: the menu is closed.
     current: int = reactive(-1)
 
+    #: The widget whose own :class:`SubMenu` children join the bar, or None.
+    context: Any = reactive(None)
+
     def __init__(self, **kwargs: Any) -> None:
         take_declared(self, kwargs)
         super().__init__(**kwargs)
         #: The open menu, or None.
         self.session: Any = None
+
+    def entries(self) -> list[MenuNode]:
+        """The entries the bar shows: its own, with the context's spliced in.
+
+        Only this list carries the contributed ones.  ``all_entries()`` and
+        everything that changes the bar stay the bar's own, so a plugin can
+        neither anchor on a window's menu nor remove it by accident.  An
+        anchor naming no entry of the bar raises, as an ``add_*`` anchor does.
+        """
+        own = super().entries()
+        context = self.context
+        if context is None:
+            return own
+        for menu in context.children:
+            if not isinstance(menu, SubMenu) or menu.hidden:
+                continue
+            if menu.before and menu.after:
+                raise ValueError(
+                    f"{menu.text!r} goes before one entry or after one, not both"
+                )
+            anchor = menu.before or menu.after
+            if not anchor:
+                own.append(menu)
+                continue
+            target = self._find(anchor)
+            index = own.index(target) if target in own else len(own)
+            own.insert(index + (1 if menu.after and target in own else 0), menu)
+        return own
 
     def layout(self, width: int, height: int) -> None:
         """Take the size offered and hand none of it on: the entries are data."""

@@ -809,6 +809,31 @@ menu.item_for(MakeDirectory).disabled = True
   loaded, not while one is open, so this costs nothing yet.
 - **`item_for(command)` searches every submenu**, which is how a plugin finds an entry it did not put there.
 
+### A window's own menu joins the bar while it is in use
+
+A window can declare menus of its own as `SubMenu` children in its document. Navigator's viewer does this in
+`file_window.nml`. While that window is the one in use, its menus appear on the main bar beside the bar's own entries.
+DOS Navigator had nothing like it for its viewer. Its editor did something nearby: `TEditWindow.Init` put a whole
+`dlgEditorMenu` bar *inside* its window, on the row under the frame. Merging into the one bar keeps the screen's
+single menu row and keeps F10 meaning one thing.
+
+- **`MenuBar.context` is a widget, and its `SubMenu` children are the contributed menus.** The bar's owner binds it.
+  `shell.nml` has `context: None if parent.console_visible else desktop.active_window`, so F9, a click, a close and
+  Ctrl+O all take a window's menu off the bar by changing one of those two inputs, and no command has to remember
+  to. `context` is reactive, so the bar repaints when it changes.
+- **Each contributed submenu places itself**, with `before:` or `after:` naming a caption on the bar
+  (`after: 'File'`), or at the end with neither. There is no fixed slot. An anchor that names nothing raises, as an
+  `add_*` anchor does.
+- **Only `entries()` carries the contributed menus.** `all_entries()`, `entry()` and every `add_*`/`remove_*` call
+  stay the bar's own, so a plugin can neither anchor on a window's menu nor remove it by accident. Painting,
+  Alt+letter, the mouse and a `MenuSession` all read `entries()` already, so they needed nothing.
+- **A `SubMenu` as a window's child is safe** because a `MenuNode` is invisible and lays out nowhere. Painting,
+  hit-testing and focus all skip it.
+- **The commands route as every menu command does**, from the focus the menu was opened over. That is inside the
+  window, so the window's own key table names the keys and its `enables`/`checks` grey and tick the entries.
+  `SetViewMode(mode)` and `SetViewFilter(filter)` exist so the modes and filters F4/F6 cycle can each be one ticked
+  entry.
+
 What is not here yet: the status line has nothing to show while a menu is open, where the original showed the
 menu's help-context hints. The menu's own key shortcuts are not bound either: `TMenuBar` answered every item's key
 itself, whereas here a key is a key table's, and the menu only reads it.

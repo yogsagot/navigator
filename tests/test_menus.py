@@ -368,3 +368,61 @@ def test_a_disabled_menu_on_the_bar_does_not_drop():
     seen = []
     run_app(app, [lambda a: bar.open(1, drop=True), lambda a: seen.append(len(boxes(a)))])
     assert seen == [0]
+
+
+# -- a context's menus, contributed to the bar -------------------------------------
+
+
+def test_a_contexts_submenus_join_the_bar_where_their_anchors_say():
+    app, bar, editor = build()
+    tools = SubMenu(parent=editor, text="~T~ools", after="file")
+    MenuItem(parent=tools, text="~S~ave", command=Save)
+    SubMenu(parent=editor, text="~H~elp")                 # no anchor: the end
+    SubMenu(parent=editor, text="~Z~ero", before="~F~ile")
+    assert captions(bar) == ["File", "Edit"]
+    bar.context = editor
+    assert captions(bar) == ["Zero", "File", "Tools", "Edit", "Help"]
+    # Only the shown list carries them: the bar's own stay its own.
+    assert [e.text for e in bar.all_entries()] == ["~F~ile", "~E~dit"]
+    assert bar.entry("Tools") is None
+    bar.context = None
+    assert captions(bar) == ["File", "Edit"]
+
+
+def test_a_contributed_menu_drops_by_its_letter_and_runs_from_the_focus():
+    app, bar, editor = build()
+    tools = SubMenu(parent=editor, text="~T~ools", after="File")
+    MenuItem(parent=tools, text="~S~ave", command=Save)
+    bar.context = editor
+    assert bar.item_span(1) == (7, 7)
+    run_app(app, [lambda a: bar.open(0), KeyEvent("t", "t", alt=True),
+                  KeyEvent("enter")])
+    assert editor.saved == 1
+
+
+def test_a_hidden_contributed_menu_is_left_out_and_a_bad_anchor_raises():
+    app, bar, editor = build()
+    tools = SubMenu(parent=editor, text="~T~ools", after="File")
+    bar.context = editor
+    tools.hidden = True
+    assert captions(bar) == ["File", "Edit"]
+    tools.hidden = False
+    tools.after = "Nope"
+    with pytest.raises(LookupError, match="no entry 'Nope'"):
+        bar.entries()
+    tools.before = "Edit"
+    with pytest.raises(ValueError, match="not both"):
+        bar.entries()
+
+
+def test_the_bar_repaints_when_its_context_changes():
+    app, bar, editor = build()
+    SubMenu(parent=editor, text="~T~ools", after="File")
+    painted = []
+    run_app(app, [
+        lambda a: painted.append(len(a.terminal.frames)),
+        lambda a: setattr(bar, "context", editor),
+        lambda a: painted.append("".join(a.terminal.frames[painted[0]:])),
+    ])
+    # The frame after the assignment is the loop's own, not a forced one.
+    assert "Tools" in painted[1]

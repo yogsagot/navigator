@@ -148,6 +148,13 @@ class SubMenu(MenuContainer, MenuNode):
 
     #: The caption, with its hotkey marked: ``~F~ile``.
     text: str = reactive("")
+    #: Where this submenu goes when it is *contributed* to a bar -- a child of
+    #: the widget a :class:`~navml.widgets.menu.menu_bar.MenuBar` holds as its
+    #: ``context`` -- rather than being one of the bar's own: before or after
+    #: the bar entry with this caption (tildes and case ignored), or at the
+    #: end with neither.  Read nowhere else.
+    before: str = reactive("")
+    after: str = reactive("")
 
 
 def _names(anchor: Anchor, entry: MenuNode) -> bool:

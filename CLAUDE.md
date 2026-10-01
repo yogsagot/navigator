@@ -90,7 +90,10 @@ over the bottom edge. Positions are byte offsets and nothing counts lines, so a 
 and an undecodable byte or a control is its CP437 glyph. F4 cycles text/hex/dump, F2 wraps, F6 filters,
 F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), and F5 goes to a hex address. Esc closes it, and so does F3,
 uncaptioned (Midnight Commander's key, a departure). File > View > As Text / As Hex open it in either mode. It is
-read-only for now. A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge,
+read-only for now. **While a viewer window is active the main bar has a *View* menu after *File*** (modes, filters and wrap
+ticked, search, go to, close): `SubMenu` children of a window join the bar through `MenuBar.context`, which
+`shell.nml` binds to the desktop's active window, and each places itself with `before:`/`after:` (*A window's own
+menu joins the bar while it is in use* in `navml/DESIGN.md`). A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge,
 percentage, Stop), fed through a `SearchJob` the thread writes and the loop reads. **Ctrl+Q is DN's quick view**
 (`QuickViewer`, a framed `FileViewer`). It stands in the passive panel's place through `Manager.switch_view`, the
 `SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the

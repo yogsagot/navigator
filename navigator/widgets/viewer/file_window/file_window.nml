@@ -1,9 +1,12 @@
 from navigator.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode
-from navigator.commands import ReverseSearch, SearchAgain, SearchFor, Unwrap
+from navigator.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: F3: DOS Navigator's ``TFileWindow`` (``FVIEWER.PAS``).
@@ -66,3 +69,63 @@ FileWindow(Window):
         width: min(len(viewer.info_text), max(0, parent.width - 3))
         height: 1
         text: viewer.info_text
+
+    #: The viewer's own menu, on the main menu bar after *File* while this
+    #: window is the active one: a ``SubMenu`` among a window's children is
+    #: one the shell's ``MenuBar.context`` binding puts there.  DOS Navigator's
+    #: viewer had none -- everything here is on the viewer's keys, gathered in
+    #: one place.  The three ``StatusDef hcView`` keys Navigator cannot do yet
+    #: are shown greyed, as the main menu shows every feature still to come.
+    SubMenu:
+        id: view_menu
+        text: '~V~iew'
+        after: 'File'
+        MenuItem:
+            text: '~T~ext'
+            command: SetViewMode('text')
+        MenuItem:
+            text: '~H~ex'
+            command: SetViewMode('hex')
+        MenuItem:
+            text: '~D~ump'
+            command: SetViewMode('dump')
+        MenuLine:
+        MenuItem:
+            text: '~W~rap lines'
+            command: Unwrap
+        MenuItem:
+            text: '~N~o filter'
+            command: SetViewFilter(0)
+        MenuItem:
+            text: '~A~SCII filter'
+            command: SetViewFilter(1)
+        MenuItem:
+            text: '~3~2-255 filter'
+            command: SetViewFilter(2)
+        MenuLine:
+        MenuItem:
+            text: '~S~earch...'
+            command: SearchFor
+        MenuItem:
+            text: 'Search a~g~ain'
+            command: ContinueSearch
+        MenuItem:
+            text: 'Re~v~erse search'
+            command: ReverseSearch
+        MenuItem:
+            text: 'Go to add~r~ess...'
+            command: GotoAddress
+        MenuLine:
+        MenuItem:
+            text: 'St~o~re'
+            key: 'Shift-F2'
+        MenuItem:
+            text: 'Sav~e~ as...'
+            key: 'Shift-F5'
+        MenuItem:
+            text: '~X~Lat'
+            key: 'Shift-F6'
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

@@ -29,6 +29,8 @@ from navigator.commands import (
     ReverseSearch,
     SearchAgain,
     SearchFor,
+    SetViewFilter,
+    SetViewMode,
     Unwrap,
 )
 from navigator.viewer import SearchJob, ViewSearch
@@ -86,6 +88,24 @@ class FileWindow(Window):
     async def on_add_filter(self, event: AddFilter) -> bool:
         self.viewer.cycle_filter()
         return True
+
+    async def on_set_view_mode(self, event: SetViewMode) -> bool:
+        self.viewer.set_mode(event.mode)
+        return True
+
+    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
+        self.viewer.set_filter(event.filter)
+        return True
+
+    def checks(self, command: Command) -> bool | None:
+        """The *View* menu ticks the mode, the filter and wrapping in force."""
+        if isinstance(command, SetViewMode):
+            return self.viewer.mode == command.mode
+        if isinstance(command, SetViewFilter):
+            return self.viewer.filter == command.filter
+        if isinstance(command, Unwrap):
+            return self.viewer.wrap
+        return super().checks(command)
 
     def enables(self, command: Command) -> bool:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them."""

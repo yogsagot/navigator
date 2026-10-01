@@ -275,8 +275,15 @@ class FileViewer(Widget):
         self.top = max(0, top)
 
     def cycle_mode(self) -> None:
-        """F4: text, hex, dump.  The offset shown on top stays on top."""
-        mode = MODES[(MODES.index(self.mode) + 1) % len(MODES)]
+        """F4: text, hex, dump."""
+        self.set_mode(MODES[(MODES.index(self.mode) + 1) % len(MODES)])
+
+    def set_mode(self, mode: str) -> None:
+        """Show the file in *mode*.  The offset shown on top stays on top."""
+        if mode not in MODES:
+            raise ValueError(f"{mode!r} is not a viewer mode; they are {', '.join(MODES)}")
+        if mode == self.mode:
+            return
         offset = self.top
         self.mode = mode
         if mode == "hex":
@@ -294,7 +301,13 @@ class FileViewer(Widget):
             self.top = self.source.line_start(self.top, self.wrap_width)
 
     def cycle_filter(self) -> None:
-        self.filter = (self.filter + 1) % len(FILTER_TAGS)
+        """F6: no filter, ``{ASCII}``, ``{32-255}``."""
+        self.set_filter((self.filter + 1) % len(FILTER_TAGS))
+
+    def set_filter(self, filter: int) -> None:
+        if not 0 <= filter < len(FILTER_TAGS):
+            raise ValueError(f"{filter} is not a viewer filter; there are {len(FILTER_TAGS)}")
+        self.filter = filter
 
     def show_hit(self, offset: int, length: int) -> None:
         """Put a search hit on screen and mark it.

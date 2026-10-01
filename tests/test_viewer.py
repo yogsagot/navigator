@@ -498,3 +498,72 @@ def test_as_root_the_quick_view_title_is_dark_red_while_it_has_the_keyboard(file
     ])
     assert seen[0][1] != 1
     assert seen[1] == (15, 1)
+
+
+# -- the View menu -----------------------------------------------------------
+
+
+def bar_captions(app) -> list[str]:
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    return [parse_shortcut(e.text)[0] for e in app.shell.menu.entries()]
+
+
+def test_the_view_menu_is_on_the_bar_after_file_only_while_the_viewer_is_active(files):
+    app = navigator(files)
+    seen = []
+    look = lambda a: seen.append("View" in bar_captions(a))   # noqa: E731
+    run_app(app, [
+        look,
+        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        lambda a: seen.append(bar_captions(a)[:4]),
+        KeyEvent("f9"), look,                   # the file manager comes forward
+        KeyEvent("f9"), look,                   # and the viewer again
+        KeyEvent("o", "o", ctrl=True), look,    # the windows put away
+        KeyEvent("o", "o", ctrl=True), look,
+        KeyEvent("escape"), look,               # closed
+    ])
+    assert seen == [False, ["≡", "File", "View", "Disk"], False, True, False, True, False]
+
+
+def test_the_view_menu_switches_the_mode_and_ticks_the_one_in_force(files):
+    from navigator.commands import SetViewFilter, SetViewMode, Unwrap
+
+    app = navigator(files)
+    seen = {}
+
+    def ask(a):
+        seen["mode"] = opened(a).viewer.mode
+        seen["ticks"] = [a.command_checked(SetViewMode(m), a.focused)
+                         for m in ("text", "hex", "dump")]
+        seen["filter"] = a.command_checked(SetViewFilter(0), a.focused)
+        seen["wrap"] = a.command_enabled(Unwrap, a.focused)
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("v", "v", alt=True), lambda a: seen.update(open=a.shell.menu.is_open),
+        KeyEvent("h", "h"), lambda a: None, ask,
+    ])
+    assert seen["open"] is True
+    assert seen["mode"] == "hex"
+    assert seen["ticks"] == [False, True, False]
+    assert seen["filter"] is True
+    # F2 wraps text only, so its entry is greyed in hex as its key is.
+    assert seen["wrap"] is False
+    assert not app.shell.menu.is_open
+
+
+def test_set_mode_keeps_the_offset_on_top_and_refuses_a_mode_it_lacks(files):
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    window = FileWindow(files / "text.txt")
+    viewer = window.viewer
+    viewer.top = 90
+    viewer.set_mode("hex")
+    assert (viewer.mode, viewer.cursor) == ("hex", 90)
+    viewer.set_filter(2)
+    assert viewer.filter == 2
+    with pytest.raises(ValueError):
+        viewer.set_mode("braille")
+    with pytest.raises(ValueError):
+        viewer.set_filter(3)

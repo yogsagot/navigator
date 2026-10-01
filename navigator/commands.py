@@ -68,6 +68,14 @@ class HexMode(Command):
     title = "Hex/ASCII/Dump"
 
 
+@dataclass(frozen=True, slots=True)
+class SetViewMode(Command):
+    """View > Text, Hex or Dump: one of the modes F4 cycles through, by name.
+    A menu entry each, ticked while it is the viewer's mode."""
+
+    mode: str = "text"
+
+
 class GotoAddress(Command):
     """F5, ``cmGotoCell``: go to a hex address.  Hex and dump only, as in DN."""
 
@@ -78,6 +86,14 @@ class AddFilter(Command):
     """F6, ``cmAddFilter``: no filter, ``{ASCII}``, ``{32-255}``."""
 
     title = "Filter"
+
+
+@dataclass(frozen=True, slots=True)
+class SetViewFilter(Command):
+    """View > No filter, ASCII or 32-255: one of the filters F6 cycles
+    through, by its index in ``FILTER_TAGS``."""
+
+    filter: int = 0
 
 
 class SearchFor(Command):
