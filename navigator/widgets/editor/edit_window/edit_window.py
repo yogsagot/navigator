@@ -22,7 +22,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
-from navigator.commands import SaveText
+from navigator.widgets.editor.commands import SaveText
 
 
 @dataclass(frozen=True, slots=True)

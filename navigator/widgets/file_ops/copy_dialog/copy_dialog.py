@@ -20,7 +20,7 @@ from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.commands import ChooseTarget
+from navigator.widgets.file_ops.commands import ChooseTarget
 from navigator.filecopy import ASK, MOVE, PRESERVE, CopyRequest
 
 #: ``ccCopyMode`` and ``ccCopyOpt``: what the last accepted dialog said.  DN

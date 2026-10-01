@@ -16,8 +16,8 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode    # file_window.nml:1
-from navigator.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap    # file_window.nml:2
+from navigator.widgets.viewer.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode    # file_window.nml:1
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap    # file_window.nml:2
 from navigator.widgets.viewer.file_viewer import FileViewer    # file_window.nml:3
 from navml.commands import CloseWindow    # file_window.nml:4
 from navml.widgets.dialog.scroll_bar import ScrollBar    # file_window.nml:5

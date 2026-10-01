@@ -30,13 +30,18 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator.commands import CommandLineEnd, CommandLineHome, CompleteCommandLine
-from navigator.commands import ExecuteCommandLine
-from navigator.commands import Help, NewManager, Quit, ToggleConsole
+from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
-from navml.commands import OpenMenu
+from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.widgets.manager.manager import Manager
+from navigator.widgets.shell.commands import (
+    CommandLineEnd,
+    CommandLineHome,
+    CompleteCommandLine,
+    ExecuteCommandLine,
+    NewManager,
+)
 from navigator.widgets.shell.shell import Shell
 
 

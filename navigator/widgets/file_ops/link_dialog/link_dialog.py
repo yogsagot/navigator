@@ -17,7 +17,7 @@ from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.commands import ChooseTarget
+from navigator.widgets.file_ops.commands import ChooseTarget
 from navigator.filelink import LinkRequest
 from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line, target_for
 

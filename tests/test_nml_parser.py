@@ -166,14 +166,14 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     """
     lines = imports_of(shipped("dialog", ".nml"))
     assert [line.modules for line in lines] == [
-        ("navml.commands",),
+        ("navml.widgets.dialog.commands",),
         ("navml.widgets.dialog.button",),
         ("navml.widgets.layout.horizontal_layout",),
         ("navml.widgets.dialog.static_text",),
         ("navml.widgets.dialog.modal",),
     ]
     assert [line.source for line in lines] == [
-        "from navml.commands import Cancel, Default, SelectNext, SelectPrevious",
+        "from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious",
         "from navml.widgets.dialog.button import Button",
         "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
         "from navml.widgets.dialog.static_text import StaticText",

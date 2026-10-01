@@ -21,7 +21,7 @@ respects, each of which is the original's:
 
 Enter is not here.  It runs the line only while there is something on it and
 belongs to the panel otherwise, which is a question about the line asked by a
-key table -- ``ExecuteCommandLine`` in ``navigator/commands.py``.
+key table -- ``ExecuteCommandLine`` in ``navigator/widgets/shell/commands.py``.
 """
 
 from __future__ import annotations

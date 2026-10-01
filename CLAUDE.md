@@ -926,8 +926,14 @@ also the widget that showed why a navigated property is seeded rather than bound
   handler decides whether the command is enabled**, through `enables(command)`, and a command nobody handles is
   disabled. A disabled command's key falls through as if unbound. `Navigator.keys` holds Ctrl+O, F1, F10 (the
   menu), Alt+X, and Enter/Home/End for the command line; `manager.nml` holds Tab, Alt+R/Ctrl+R and F2–F8; `Desktop.keys` holds the window keys;
-  `dialog.nml` holds Esc, Enter and Tab. Navigator's commands are in `navigator/commands.py`, the library's in
-  `navml/commands.py`. Alt+X is on the application because a way out cannot live on a window the user can close, and
+  `dialog.nml` holds Esc, Enter and Tab. Navigator's commands live **with the group that handles them**, one `commands.py` per group of
+  `navigator/widgets/` (`shell`, `manager`, `viewer`, `editor`, `file_ops`; a command nothing handles yet goes where
+  its key table binds it), and `navigator/commands.py` keeps only the application's own (Help, Quit, ToggleConsole);
+  per group rather than per component because a component's `__init__.py` imports its widget, so a `commands.py`
+  inside one would load it -- `Panel` emits `Shell`'s and `Manager`'s commands, and both import `Panel`. The
+  library follows the same rule: `navml/commands.py` keeps the window set `Desktop` runs (its top-level components'),
+  and `navml/widgets/dialog/commands.py` (Cancel, Default, Tab/Shift+Tab, QuickSearch) and
+  `navml/widgets/menu/commands.py` (OpenMenu) hold their groups'. Alt+X is on the application because a way out cannot live on a window the user can close, and
   it is `Quit(desktop=True)`, which `Navigator.enables` vetoes while a running command's console is over the
   windows, so the child gets Meta+X. **The key bar reads its captions off the bindings** (`app.bindings()`) and greys a disabled command in
   DOS Navigator's `$bar-disabled` slot; a click on a caption runs its command. **While Alt, Ctrl or Shift is held the

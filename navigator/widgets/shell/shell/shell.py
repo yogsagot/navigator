@@ -20,13 +20,23 @@ from navkit.events import Event, KeyEvent
 from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
-from navml.commands import OpenMenu
+from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import About, CommandLineEnd, CommandLineHome, CompleteCommandLine
-from navigator.commands import InsertName, InsertPath, ToggleMark, ToggleMarkBySpace
-from navigator.commands import ExecuteCommandLine, NewManager, OpenTreeWindow
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.widgets.manager.commands import ToggleMark
+from navigator.widgets.shell.commands import (
+    About,
+    CommandLineEnd,
+    CommandLineHome,
+    CompleteCommandLine,
+    ExecuteCommandLine,
+    InsertName,
+    InsertPath,
+    NewManager,
+    OpenTreeWindow,
+    ToggleMarkBySpace,
+)
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 

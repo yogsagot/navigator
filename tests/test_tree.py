@@ -646,7 +646,7 @@ def tree_window_run(places, *actions):
     app = navigator(places)
 
     def open_it(a):
-        from navigator.commands import OpenTreeWindow
+        from navigator.widgets.shell.commands import OpenTreeWindow
 
         a.spawn(a.run_command(OpenTreeWindow))
 
@@ -687,7 +687,7 @@ def test_escape_closes_the_window(places):
 
 def test_closing_the_window_gives_the_keyboard_back_to_the_right_panel(places):
     from test_nav import navigator
-    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.shell.commands import OpenTreeWindow
 
     app = navigator(places)
     run_app(app, [KeyEvent("tab"), lambda a: a.spawn(a.run_command(OpenTreeWindow)),
@@ -766,7 +766,7 @@ def test_ctrl_h_hides_dot_directories_in_the_ctrl_t_tree(places):
 
 def test_alt_t_and_the_tree_window_take_the_panels_setting(places):
     from test_nav import navigator
-    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.shell.commands import OpenTreeWindow
 
     (places / ".secret").mkdir()
     app = navigator(places)

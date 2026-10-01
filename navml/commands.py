@@ -1,17 +1,20 @@
-"""The commands the widget library runs: Turbo Vision's window and dialog set.
+"""The library's top-level commands: Turbo Vision's window set, which ``Desktop`` runs.
 
-Named after ``cmClose``, ``cmZoom``, ``cmResize``, ``cmNext``, ``cmPrev``,
-``cmCancel``, ``cmDefault`` and ``cmMenu``, with ``Window`` spelled out where
-the bare word would be a handler name somebody else already means -- ``Resize`` would
-be delivered to ``on_resize``, which is :class:`~navkit.events.ResizeEvent`'s.
-Tab and Shift+Tab are commands here too, where Turbo Vision had ``TGroup``
-select the next view directly: as commands they are rebindable, and a dialog
-that wants Tab for itself can take the key without overriding a method.
+Named after ``cmClose``, ``cmZoom``, ``cmResize``, ``cmNext`` and ``cmPrev``,
+with ``Window`` spelled out where the bare word would be a handler name
+somebody else already means -- ``Resize`` would be delivered to ``on_resize``,
+which is :class:`~navkit.events.ResizeEvent`'s.
 
 A module rather than a component directory, because a command paints nothing
 and is no component; it sits beside :mod:`navml.component` as the library's
-other piece of support.  The application's own commands -- Copy, Mkdir, Quit
--- are the application's, and live with it.
+other piece of support.  It holds the commands of the components that sit at
+the top of ``navml/widgets/`` -- ``Window`` and ``Desktop`` -- and every other
+command lives with the group whose widget handles it, in that group's
+``commands.py``: ``navml.widgets.dialog.commands``,
+``navml.widgets.menu.commands``.  Per group rather than per component,
+because a component's ``__init__`` imports its widget and a group's imports
+nothing.  The application's own commands -- Copy, Mkdir, Quit -- are the
+application's, and live with it.
 """
 
 from __future__ import annotations
@@ -87,61 +90,14 @@ class CloseAllWindows(Command):
     title = "Close all"
 
 
-class Cancel(Command):
-    """Dismiss a dialog without an answer."""
-
-    title = "Cancel"
-
-
-class Default(Command):
-    """Press a dialog's default button, wherever the focus is."""
-
-    title = "OK"
-
-
-class OpenMenu(Command):
-    """Highlight the menu bar's first entry and give it the keyboard: ``cmMenu``.
-
-    Handled by whoever holds the bar, since a bar is nowhere near the focus.
-    """
-
-    title = "Menu"
-
-
-class SelectNext(Command):
-    """Move the keyboard to the next control."""
-
-
-class SelectPrevious(Command):
-    """Move the keyboard to the previous control."""
-
-
 __all__ = [
-    "Cancel",
     "CascadeWindows",
     "CloseAllWindows",
     "CloseWindow",
-    "Default",
     "NextWindow",
-    "OpenMenu",
     "PreviousWindow",
-    "SelectNext",
-    "SelectPrevious",
     "SizeMoveWindow",
     "TileWindows",
     "WindowManager",
     "ZoomWindow",
 ]
-
-
-class QuickSearch(Command):
-    """Ctrl+S: type the start of a name and the cursor jumps to it.
-
-    Midnight Commander's key and its rules -- a file panel's and a tree's
-    alike, which is why it is the library's.  DOS Navigator 1.51's panel quick
-    search -- the *Quick search* choice in ``dlgPanelSetup``, started by an
-    Alt+letter -- has no handler in the published source to follow; its tree's
-    does (``TREE.PAS``), and the tree follows it.
-    """
-
-    title = "Search"

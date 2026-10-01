@@ -6,7 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.commands import Rescan
+from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navml.commands import CloseWindow
 from navml.widgets.window import Window

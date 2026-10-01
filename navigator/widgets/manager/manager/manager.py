@@ -19,7 +19,7 @@ from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
-from navigator.commands import (
+from navigator.widgets.manager.commands import (
     ChangeAttributes,
     ChangeDirectory,
     Copy,
@@ -27,14 +27,13 @@ from navigator.commands import (
     DeleteSingle,
     Edit,
     GoParent,
+    InvertSelection,
     MakeDirectory,
     MakeLink,
-    QuickSearch,
     QuickView,
     RenameMove,
     Rescan,
     ScrollNames,
-    InvertSelection,
     SelectGroup,
     SwitchPanel,
     ToggleHidden,
@@ -46,6 +45,7 @@ from navigator.commands import (
     ViewAsHex,
     ViewAsText,
 )
+from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
 

@@ -6,7 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.commands import ChooseTarget
+from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog

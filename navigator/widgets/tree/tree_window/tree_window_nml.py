@@ -16,7 +16,7 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.commands import Rescan    # tree_window.nml:1
+from navigator.widgets.manager.commands import Rescan    # tree_window.nml:1
 from navigator.widgets.tree.directory_tree import DirectoryTree    # tree_window.nml:2
 from navml.commands import CloseWindow    # tree_window.nml:3
 from navml.widgets.window import Window    # tree_window.nml:4

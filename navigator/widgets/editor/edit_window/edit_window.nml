@@ -1,4 +1,4 @@
-from navigator.commands import SaveText, Undo
+from navigator.widgets.editor.commands import SaveText, Undo
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar

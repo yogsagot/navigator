@@ -69,7 +69,7 @@ from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 
-from navml.commands import QuickSearch
+from navml.widgets.dialog.commands import QuickSearch
 from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
 

@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navigator.commands import ChooseTarget    # copy_dialog.nml:1
+from navigator.widgets.file_ops.commands import ChooseTarget    # copy_dialog.nml:1
 from navml.widgets.dialog.button import Button    # copy_dialog.nml:2
 from navml.widgets.dialog.check_boxes import CheckBoxes    # copy_dialog.nml:3
 from navml.widgets.dialog.dialog import Dialog    # copy_dialog.nml:4

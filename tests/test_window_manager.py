@@ -165,7 +165,7 @@ def test_tile_puts_two_file_managers_one_above_the_other(tree):
 
 
 def test_tile_arranges_the_tree_window_with_the_file_manager(tree):
-    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.shell.commands import OpenTreeWindow
     from navigator.widgets.tree.tree_window import TreeWindow
     from navml.commands import TileWindows
 

@@ -13,12 +13,14 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navigator.commands import About, Calculator, ChangeAttributes, Copy, Delete, DeleteSingle, Edit, MakeDirectory, MakeLink, NewManager, OpenTreeWindow, Quit, RenameMove, ToggleConsole, UserMenu, View, ViewAsHex, ViewAsText    # main_menu.nml:1
-from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow    # main_menu.nml:2
-from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:3
-from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:4
-from navml.widgets.menu.menu_line import MenuLine    # main_menu.nml:5
-from navml.widgets.menu.sub_menu import SubMenu    # main_menu.nml:6
+from navigator.commands import Quit, ToggleConsole    # main_menu.nml:1
+from navigator.widgets.manager.commands import Calculator, ChangeAttributes, Copy, Delete, DeleteSingle, Edit, MakeDirectory, MakeLink, RenameMove, UserMenu, View, ViewAsHex, ViewAsText    # main_menu.nml:2
+from navigator.widgets.shell.commands import About, NewManager, OpenTreeWindow    # main_menu.nml:3
+from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow    # main_menu.nml:4
+from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:5
+from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:6
+from navml.widgets.menu.menu_line import MenuLine    # main_menu.nml:7
+from navml.widgets.menu.sub_menu import SubMenu    # main_menu.nml:8
 
 __navml_component__ = "MainMenu"
 
@@ -56,517 +58,517 @@ class MainMenu(MenuBar, _Component):
     __navml_source__ = "main_menu.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    system: SubMenu    # main_menu.nml:33
-    file: SubMenu    # main_menu.nml:73
-    file_view: SubMenu    # main_menu.nml:76
-    file_edit: SubMenu    # main_menu.nml:97
-    disk: SubMenu    # main_menu.nml:167
-    utilities: SubMenu    # main_menu.nml:183
-    manager: SubMenu    # main_menu.nml:237
-    options: SubMenu    # main_menu.nml:263
-    options_configuration: SubMenu    # main_menu.nml:266
-    options_file_manager: SubMenu    # main_menu.nml:293
-    options_archives: SubMenu    # main_menu.nml:306
-    window: SubMenu    # main_menu.nml:374
+    system: SubMenu    # main_menu.nml:35
+    file: SubMenu    # main_menu.nml:75
+    file_view: SubMenu    # main_menu.nml:78
+    file_edit: SubMenu    # main_menu.nml:99
+    disk: SubMenu    # main_menu.nml:169
+    utilities: SubMenu    # main_menu.nml:185
+    manager: SubMenu    # main_menu.nml:239
+    options: SubMenu    # main_menu.nml:265
+    options_configuration: SubMenu    # main_menu.nml:268
+    options_file_manager: SubMenu    # main_menu.nml:295
+    options_archives: SubMenu    # main_menu.nml:308
+    window: SubMenu    # main_menu.nml:376
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.system = SubMenu(parent=self)    # main_menu.nml:32
-        _w1 = MenuItem(parent=self.system)    # main_menu.nml:35
-        _w2 = MenuItem(parent=self.system)    # main_menu.nml:38
-        _w3 = MenuItem(parent=self.system)    # main_menu.nml:40
-        _w4 = MenuLine(parent=self.system)    # main_menu.nml:42
-        _w5 = MenuItem(parent=self.system)    # main_menu.nml:43
-        _w6 = MenuItem(parent=self.system)    # main_menu.nml:46
-        _w7 = MenuItem(parent=self.system)    # main_menu.nml:49
-        _w8 = MenuItem(parent=self.system)    # main_menu.nml:53
-        _w9 = MenuItem(parent=self.system)    # main_menu.nml:56
-        _w10 = MenuLine(parent=self.system)    # main_menu.nml:58
-        _w11 = MenuItem(parent=self.system)    # main_menu.nml:59
-        _w12 = MenuItem(parent=self.system)    # main_menu.nml:62
-        _w13 = MenuItem(parent=self.system)    # main_menu.nml:65
-        _w14 = MenuLine(parent=self.system)    # main_menu.nml:68
-        _w15 = MenuItem(parent=self.system)    # main_menu.nml:69
-        self.file = SubMenu(parent=self)    # main_menu.nml:72
-        self.file_view = SubMenu(parent=self.file)    # main_menu.nml:75
-        _w16 = MenuItem(parent=self.file_view)    # main_menu.nml:78
-        _w17 = MenuItem(parent=self.file_view)    # main_menu.nml:82
-        _w18 = MenuItem(parent=self.file_view)    # main_menu.nml:85
-        _w19 = MenuItem(parent=self.file_view)    # main_menu.nml:88
-        _w20 = MenuItem(parent=self.file_view)    # main_menu.nml:90
-        _w21 = MenuLine(parent=self.file_view)    # main_menu.nml:92
-        _w22 = MenuItem(parent=self.file_view)    # main_menu.nml:93
-        self.file_edit = SubMenu(parent=self.file)    # main_menu.nml:96
-        _w23 = MenuItem(parent=self.file_edit)    # main_menu.nml:99
-        _w24 = MenuItem(parent=self.file_edit)    # main_menu.nml:103
-        _w25 = MenuLine(parent=self.file_edit)    # main_menu.nml:106
-        _w26 = MenuItem(parent=self.file_edit)    # main_menu.nml:107
-        _w27 = MenuItem(parent=self.file)    # main_menu.nml:110
-        _w28 = MenuItem(parent=self.file)    # main_menu.nml:113
-        _w29 = MenuItem(parent=self.file)    # main_menu.nml:117
-        _w30 = MenuItem(parent=self.file)    # main_menu.nml:121
-        _w31 = MenuItem(parent=self.file)    # main_menu.nml:124
-        _w32 = MenuItem(parent=self.file)    # main_menu.nml:127
-        _w33 = MenuItem(parent=self.file)    # main_menu.nml:131
-        _w34 = MenuItem(parent=self.file)    # main_menu.nml:134
-        _w35 = MenuItem(parent=self.file)    # main_menu.nml:138
-        _w36 = MenuItem(parent=self.file)    # main_menu.nml:142
-        _w37 = MenuItem(parent=self.file)    # main_menu.nml:146
-        _w38 = MenuItem(parent=self.file)    # main_menu.nml:149
-        _w39 = MenuItem(parent=self.file)    # main_menu.nml:152
-        _w40 = MenuItem(parent=self.file)    # main_menu.nml:155
-        _w41 = MenuLine(parent=self.file)    # main_menu.nml:159
-        _w42 = MenuItem(parent=self.file)    # main_menu.nml:160
-        _w43 = MenuItem(parent=self.file)    # main_menu.nml:162
-        self.disk = SubMenu(parent=self)    # main_menu.nml:166
-        _w44 = MenuItem(parent=self.disk)    # main_menu.nml:169
-        _w45 = MenuItem(parent=self.disk)    # main_menu.nml:172
-        _w46 = MenuItem(parent=self.disk)    # main_menu.nml:174
-        _w47 = MenuItem(parent=self.disk)    # main_menu.nml:177
-        _w48 = MenuItem(parent=self.disk)    # main_menu.nml:179
-        self.utilities = SubMenu(parent=self)    # main_menu.nml:182
-        _w49 = MenuItem(parent=self.utilities)    # main_menu.nml:185
-        _w50 = MenuItem(parent=self.utilities)    # main_menu.nml:188
-        _w51 = MenuLine(parent=self.utilities)    # main_menu.nml:190
-        _w52 = MenuItem(parent=self.utilities)    # main_menu.nml:191
-        _w53 = MenuItem(parent=self.utilities)    # main_menu.nml:195
-        _w54 = MenuItem(parent=self.utilities)    # main_menu.nml:198
-        _w55 = MenuItem(parent=self.utilities)    # main_menu.nml:201
-        _w56 = MenuItem(parent=self.utilities)    # main_menu.nml:204
-        _w57 = MenuLine(parent=self.utilities)    # main_menu.nml:207
-        _w58 = MenuItem(parent=self.utilities)    # main_menu.nml:208
-        _w59 = MenuItem(parent=self.utilities)    # main_menu.nml:211
-        _w60 = MenuItem(parent=self.utilities)    # main_menu.nml:214
-        _w61 = MenuItem(parent=self.utilities)    # main_menu.nml:217
-        _w62 = MenuLine(parent=self.utilities)    # main_menu.nml:220
-        _w63 = MenuItem(parent=self.utilities)    # main_menu.nml:221
-        _w64 = MenuItem(parent=self.utilities)    # main_menu.nml:223
-        _w65 = MenuItem(parent=self.utilities)    # main_menu.nml:227
-        _w66 = MenuItem(parent=self.utilities)    # main_menu.nml:230
-        _w67 = MenuItem(parent=self.utilities)    # main_menu.nml:233
-        self.manager = SubMenu(parent=self)    # main_menu.nml:236
-        _w68 = MenuItem(parent=self.manager)    # main_menu.nml:239
-        _w69 = MenuItem(parent=self.manager)    # main_menu.nml:243
-        _w70 = MenuItem(parent=self.manager)    # main_menu.nml:246
-        _w71 = MenuItem(parent=self.manager)    # main_menu.nml:249
-        _w72 = MenuItem(parent=self.manager)    # main_menu.nml:252
-        _w73 = MenuLine(parent=self.manager)    # main_menu.nml:255
-        _w74 = MenuItem(parent=self.manager)    # main_menu.nml:256
-        _w75 = MenuItem(parent=self.manager)    # main_menu.nml:259
-        self.options = SubMenu(parent=self)    # main_menu.nml:262
-        self.options_configuration = SubMenu(parent=self.options)    # main_menu.nml:265
-        _w76 = MenuItem(parent=self.options_configuration)    # main_menu.nml:268
-        _w77 = MenuItem(parent=self.options_configuration)    # main_menu.nml:270
-        _w78 = MenuItem(parent=self.options_configuration)    # main_menu.nml:272
-        _w79 = MenuItem(parent=self.options_configuration)    # main_menu.nml:274
-        _w80 = MenuLine(parent=self.options_configuration)    # main_menu.nml:276
-        _w81 = MenuItem(parent=self.options_configuration)    # main_menu.nml:277
-        _w82 = MenuItem(parent=self.options_configuration)    # main_menu.nml:279
-        _w83 = MenuItem(parent=self.options_configuration)    # main_menu.nml:281
-        _w84 = MenuItem(parent=self.options_configuration)    # main_menu.nml:283
-        _w85 = MenuItem(parent=self.options_configuration)    # main_menu.nml:285
-        _w86 = MenuLine(parent=self.options_configuration)    # main_menu.nml:287
-        _w87 = MenuItem(parent=self.options_configuration)    # main_menu.nml:288
-        _w88 = MenuItem(parent=self.options_configuration)    # main_menu.nml:290
-        self.options_file_manager = SubMenu(parent=self.options)    # main_menu.nml:292
-        _w89 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:295
-        _w90 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:297
-        _w91 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:299
-        _w92 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:301
-        _w93 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:303
-        self.options_archives = SubMenu(parent=self.options)    # main_menu.nml:305
-        _w94 = MenuItem(parent=self.options_archives)    # main_menu.nml:308
-        _w95 = MenuItem(parent=self.options_archives)    # main_menu.nml:310
-        _w96 = MenuItem(parent=self.options_archives)    # main_menu.nml:312
-        _w97 = MenuItem(parent=self.options_archives)    # main_menu.nml:314
-        _w98 = MenuItem(parent=self.options_archives)    # main_menu.nml:316
-        _w99 = MenuItem(parent=self.options_archives)    # main_menu.nml:318
-        _w100 = MenuItem(parent=self.options_archives)    # main_menu.nml:320
-        _w101 = MenuItem(parent=self.options_archives)    # main_menu.nml:322
-        _w102 = MenuItem(parent=self.options_archives)    # main_menu.nml:324
-        _w103 = MenuItem(parent=self.options_archives)    # main_menu.nml:326
-        _w104 = MenuItem(parent=self.options_archives)    # main_menu.nml:328
-        _w105 = MenuItem(parent=self.options_archives)    # main_menu.nml:330
-        _w106 = MenuItem(parent=self.options_archives)    # main_menu.nml:332
-        _w107 = MenuItem(parent=self.options_archives)    # main_menu.nml:334
-        _w108 = MenuItem(parent=self.options_archives)    # main_menu.nml:336
-        _w109 = MenuItem(parent=self.options_archives)    # main_menu.nml:338
-        _w110 = MenuItem(parent=self.options_archives)    # main_menu.nml:340
-        _w111 = MenuLine(parent=self.options_archives)    # main_menu.nml:342
-        _w112 = MenuItem(parent=self.options_archives)    # main_menu.nml:343
-        _w113 = MenuLine(parent=self.options)    # main_menu.nml:346
-        _w114 = MenuItem(parent=self.options)    # main_menu.nml:347
-        _w115 = MenuItem(parent=self.options)    # main_menu.nml:349
-        _w116 = MenuItem(parent=self.options)    # main_menu.nml:351
-        _w117 = MenuItem(parent=self.options)    # main_menu.nml:353
-        _w118 = MenuItem(parent=self.options)    # main_menu.nml:355
-        _w119 = MenuItem(parent=self.options)    # main_menu.nml:357
-        _w120 = MenuItem(parent=self.options)    # main_menu.nml:359
-        _w121 = MenuLine(parent=self.options)    # main_menu.nml:361
-        _w122 = MenuItem(parent=self.options)    # main_menu.nml:362
-        _w123 = MenuItem(parent=self.options)    # main_menu.nml:364
-        _w124 = MenuLine(parent=self.options)    # main_menu.nml:366
-        _w125 = MenuItem(parent=self.options)    # main_menu.nml:367
-        _w126 = MenuItem(parent=self.options)    # main_menu.nml:369
-        _w127 = MenuItem(parent=self.options)    # main_menu.nml:371
-        self.window = SubMenu(parent=self)    # main_menu.nml:373
-        _w128 = MenuItem(parent=self.window)    # main_menu.nml:376
-        _w129 = MenuItem(parent=self.window)    # main_menu.nml:379
-        _w130 = MenuItem(parent=self.window)    # main_menu.nml:382
-        _w131 = MenuLine(parent=self.window)    # main_menu.nml:385
-        _w132 = MenuItem(parent=self.window)    # main_menu.nml:386
-        _w133 = MenuItem(parent=self.window)    # main_menu.nml:390
-        _w134 = MenuItem(parent=self.window)    # main_menu.nml:394
-        _w135 = MenuItem(parent=self.window)    # main_menu.nml:398
-        _w136 = MenuItem(parent=self.window)    # main_menu.nml:402
-        _w137 = MenuLine(parent=self.window)    # main_menu.nml:406
-        _w138 = MenuItem(parent=self.window)    # main_menu.nml:407
-
-        self.system.text = '~≡~'    # main_menu.nml:34
-
-        _w1.text = '~A~bout...'    # main_menu.nml:36
-        _w1.command = About    # main_menu.nml:37
-
-        _w2.text = '~R~efresh display'    # main_menu.nml:39
-
-        _w3.text = '~S~creen rest'    # main_menu.nml:41
-
-        _w5.text = 'Screen gra~b~ber'    # main_menu.nml:44
-        _w5.key = 'Shift-Alt-Ins'    # main_menu.nml:45
-
-        _w6.text = '~U~ser screen'    # main_menu.nml:47
-        _w6.key = 'Alt-F5'    # main_menu.nml:48
-
-        _w7.text = '~O~utput window'    # main_menu.nml:50
-        _w7.command = ToggleConsole    # main_menu.nml:51
-        _w7.key = 'Ctrl-O'    # main_menu.nml:52
-
-        _w8.text = 'S~m~artPad (TM)'    # main_menu.nml:54
-        _w8.key = 'Alt-Q'    # main_menu.nml:55
-
-        _w9.text = '~T~rashcan on/off'    # main_menu.nml:57
-
-        _w11.text = '~E~GA/VGA lines'    # main_menu.nml:60
-        _w11.key = 'Shift-F10'    # main_menu.nml:61
-
-        _w12.text = 'Custom video mode ~1~'    # main_menu.nml:63
-        _w12.key = 'Alt-F10'    # main_menu.nml:64
-
-        _w13.text = 'Custom video mode ~2~'    # main_menu.nml:66
-        _w13.key = 'Ctrl-F10'    # main_menu.nml:67
-
-        _w15.text = '~G~ame'    # main_menu.nml:70
-        _w15.key = 'Alt-F9'    # main_menu.nml:71
-
-        self.file.text = '~F~ile'    # main_menu.nml:74
+        self.system = SubMenu(parent=self)    # main_menu.nml:34
+        _w1 = MenuItem(parent=self.system)    # main_menu.nml:37
+        _w2 = MenuItem(parent=self.system)    # main_menu.nml:40
+        _w3 = MenuItem(parent=self.system)    # main_menu.nml:42
+        _w4 = MenuLine(parent=self.system)    # main_menu.nml:44
+        _w5 = MenuItem(parent=self.system)    # main_menu.nml:45
+        _w6 = MenuItem(parent=self.system)    # main_menu.nml:48
+        _w7 = MenuItem(parent=self.system)    # main_menu.nml:51
+        _w8 = MenuItem(parent=self.system)    # main_menu.nml:55
+        _w9 = MenuItem(parent=self.system)    # main_menu.nml:58
+        _w10 = MenuLine(parent=self.system)    # main_menu.nml:60
+        _w11 = MenuItem(parent=self.system)    # main_menu.nml:61
+        _w12 = MenuItem(parent=self.system)    # main_menu.nml:64
+        _w13 = MenuItem(parent=self.system)    # main_menu.nml:67
+        _w14 = MenuLine(parent=self.system)    # main_menu.nml:70
+        _w15 = MenuItem(parent=self.system)    # main_menu.nml:71
+        self.file = SubMenu(parent=self)    # main_menu.nml:74
+        self.file_view = SubMenu(parent=self.file)    # main_menu.nml:77
+        _w16 = MenuItem(parent=self.file_view)    # main_menu.nml:80
+        _w17 = MenuItem(parent=self.file_view)    # main_menu.nml:84
+        _w18 = MenuItem(parent=self.file_view)    # main_menu.nml:87
+        _w19 = MenuItem(parent=self.file_view)    # main_menu.nml:90
+        _w20 = MenuItem(parent=self.file_view)    # main_menu.nml:92
+        _w21 = MenuLine(parent=self.file_view)    # main_menu.nml:94
+        _w22 = MenuItem(parent=self.file_view)    # main_menu.nml:95
+        self.file_edit = SubMenu(parent=self.file)    # main_menu.nml:98
+        _w23 = MenuItem(parent=self.file_edit)    # main_menu.nml:101
+        _w24 = MenuItem(parent=self.file_edit)    # main_menu.nml:105
+        _w25 = MenuLine(parent=self.file_edit)    # main_menu.nml:108
+        _w26 = MenuItem(parent=self.file_edit)    # main_menu.nml:109
+        _w27 = MenuItem(parent=self.file)    # main_menu.nml:112
+        _w28 = MenuItem(parent=self.file)    # main_menu.nml:115
+        _w29 = MenuItem(parent=self.file)    # main_menu.nml:119
+        _w30 = MenuItem(parent=self.file)    # main_menu.nml:123
+        _w31 = MenuItem(parent=self.file)    # main_menu.nml:126
+        _w32 = MenuItem(parent=self.file)    # main_menu.nml:129
+        _w33 = MenuItem(parent=self.file)    # main_menu.nml:133
+        _w34 = MenuItem(parent=self.file)    # main_menu.nml:136
+        _w35 = MenuItem(parent=self.file)    # main_menu.nml:140
+        _w36 = MenuItem(parent=self.file)    # main_menu.nml:144
+        _w37 = MenuItem(parent=self.file)    # main_menu.nml:148
+        _w38 = MenuItem(parent=self.file)    # main_menu.nml:151
+        _w39 = MenuItem(parent=self.file)    # main_menu.nml:154
+        _w40 = MenuItem(parent=self.file)    # main_menu.nml:157
+        _w41 = MenuLine(parent=self.file)    # main_menu.nml:161
+        _w42 = MenuItem(parent=self.file)    # main_menu.nml:162
+        _w43 = MenuItem(parent=self.file)    # main_menu.nml:164
+        self.disk = SubMenu(parent=self)    # main_menu.nml:168
+        _w44 = MenuItem(parent=self.disk)    # main_menu.nml:171
+        _w45 = MenuItem(parent=self.disk)    # main_menu.nml:174
+        _w46 = MenuItem(parent=self.disk)    # main_menu.nml:176
+        _w47 = MenuItem(parent=self.disk)    # main_menu.nml:179
+        _w48 = MenuItem(parent=self.disk)    # main_menu.nml:181
+        self.utilities = SubMenu(parent=self)    # main_menu.nml:184
+        _w49 = MenuItem(parent=self.utilities)    # main_menu.nml:187
+        _w50 = MenuItem(parent=self.utilities)    # main_menu.nml:190
+        _w51 = MenuLine(parent=self.utilities)    # main_menu.nml:192
+        _w52 = MenuItem(parent=self.utilities)    # main_menu.nml:193
+        _w53 = MenuItem(parent=self.utilities)    # main_menu.nml:197
+        _w54 = MenuItem(parent=self.utilities)    # main_menu.nml:200
+        _w55 = MenuItem(parent=self.utilities)    # main_menu.nml:203
+        _w56 = MenuItem(parent=self.utilities)    # main_menu.nml:206
+        _w57 = MenuLine(parent=self.utilities)    # main_menu.nml:209
+        _w58 = MenuItem(parent=self.utilities)    # main_menu.nml:210
+        _w59 = MenuItem(parent=self.utilities)    # main_menu.nml:213
+        _w60 = MenuItem(parent=self.utilities)    # main_menu.nml:216
+        _w61 = MenuItem(parent=self.utilities)    # main_menu.nml:219
+        _w62 = MenuLine(parent=self.utilities)    # main_menu.nml:222
+        _w63 = MenuItem(parent=self.utilities)    # main_menu.nml:223
+        _w64 = MenuItem(parent=self.utilities)    # main_menu.nml:225
+        _w65 = MenuItem(parent=self.utilities)    # main_menu.nml:229
+        _w66 = MenuItem(parent=self.utilities)    # main_menu.nml:232
+        _w67 = MenuItem(parent=self.utilities)    # main_menu.nml:235
+        self.manager = SubMenu(parent=self)    # main_menu.nml:238
+        _w68 = MenuItem(parent=self.manager)    # main_menu.nml:241
+        _w69 = MenuItem(parent=self.manager)    # main_menu.nml:245
+        _w70 = MenuItem(parent=self.manager)    # main_menu.nml:248
+        _w71 = MenuItem(parent=self.manager)    # main_menu.nml:251
+        _w72 = MenuItem(parent=self.manager)    # main_menu.nml:254
+        _w73 = MenuLine(parent=self.manager)    # main_menu.nml:257
+        _w74 = MenuItem(parent=self.manager)    # main_menu.nml:258
+        _w75 = MenuItem(parent=self.manager)    # main_menu.nml:261
+        self.options = SubMenu(parent=self)    # main_menu.nml:264
+        self.options_configuration = SubMenu(parent=self.options)    # main_menu.nml:267
+        _w76 = MenuItem(parent=self.options_configuration)    # main_menu.nml:270
+        _w77 = MenuItem(parent=self.options_configuration)    # main_menu.nml:272
+        _w78 = MenuItem(parent=self.options_configuration)    # main_menu.nml:274
+        _w79 = MenuItem(parent=self.options_configuration)    # main_menu.nml:276
+        _w80 = MenuLine(parent=self.options_configuration)    # main_menu.nml:278
+        _w81 = MenuItem(parent=self.options_configuration)    # main_menu.nml:279
+        _w82 = MenuItem(parent=self.options_configuration)    # main_menu.nml:281
+        _w83 = MenuItem(parent=self.options_configuration)    # main_menu.nml:283
+        _w84 = MenuItem(parent=self.options_configuration)    # main_menu.nml:285
+        _w85 = MenuItem(parent=self.options_configuration)    # main_menu.nml:287
+        _w86 = MenuLine(parent=self.options_configuration)    # main_menu.nml:289
+        _w87 = MenuItem(parent=self.options_configuration)    # main_menu.nml:290
+        _w88 = MenuItem(parent=self.options_configuration)    # main_menu.nml:292
+        self.options_file_manager = SubMenu(parent=self.options)    # main_menu.nml:294
+        _w89 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:297
+        _w90 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:299
+        _w91 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:301
+        _w92 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:303
+        _w93 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:305
+        self.options_archives = SubMenu(parent=self.options)    # main_menu.nml:307
+        _w94 = MenuItem(parent=self.options_archives)    # main_menu.nml:310
+        _w95 = MenuItem(parent=self.options_archives)    # main_menu.nml:312
+        _w96 = MenuItem(parent=self.options_archives)    # main_menu.nml:314
+        _w97 = MenuItem(parent=self.options_archives)    # main_menu.nml:316
+        _w98 = MenuItem(parent=self.options_archives)    # main_menu.nml:318
+        _w99 = MenuItem(parent=self.options_archives)    # main_menu.nml:320
+        _w100 = MenuItem(parent=self.options_archives)    # main_menu.nml:322
+        _w101 = MenuItem(parent=self.options_archives)    # main_menu.nml:324
+        _w102 = MenuItem(parent=self.options_archives)    # main_menu.nml:326
+        _w103 = MenuItem(parent=self.options_archives)    # main_menu.nml:328
+        _w104 = MenuItem(parent=self.options_archives)    # main_menu.nml:330
+        _w105 = MenuItem(parent=self.options_archives)    # main_menu.nml:332
+        _w106 = MenuItem(parent=self.options_archives)    # main_menu.nml:334
+        _w107 = MenuItem(parent=self.options_archives)    # main_menu.nml:336
+        _w108 = MenuItem(parent=self.options_archives)    # main_menu.nml:338
+        _w109 = MenuItem(parent=self.options_archives)    # main_menu.nml:340
+        _w110 = MenuItem(parent=self.options_archives)    # main_menu.nml:342
+        _w111 = MenuLine(parent=self.options_archives)    # main_menu.nml:344
+        _w112 = MenuItem(parent=self.options_archives)    # main_menu.nml:345
+        _w113 = MenuLine(parent=self.options)    # main_menu.nml:348
+        _w114 = MenuItem(parent=self.options)    # main_menu.nml:349
+        _w115 = MenuItem(parent=self.options)    # main_menu.nml:351
+        _w116 = MenuItem(parent=self.options)    # main_menu.nml:353
+        _w117 = MenuItem(parent=self.options)    # main_menu.nml:355
+        _w118 = MenuItem(parent=self.options)    # main_menu.nml:357
+        _w119 = MenuItem(parent=self.options)    # main_menu.nml:359
+        _w120 = MenuItem(parent=self.options)    # main_menu.nml:361
+        _w121 = MenuLine(parent=self.options)    # main_menu.nml:363
+        _w122 = MenuItem(parent=self.options)    # main_menu.nml:364
+        _w123 = MenuItem(parent=self.options)    # main_menu.nml:366
+        _w124 = MenuLine(parent=self.options)    # main_menu.nml:368
+        _w125 = MenuItem(parent=self.options)    # main_menu.nml:369
+        _w126 = MenuItem(parent=self.options)    # main_menu.nml:371
+        _w127 = MenuItem(parent=self.options)    # main_menu.nml:373
+        self.window = SubMenu(parent=self)    # main_menu.nml:375
+        _w128 = MenuItem(parent=self.window)    # main_menu.nml:378
+        _w129 = MenuItem(parent=self.window)    # main_menu.nml:381
+        _w130 = MenuItem(parent=self.window)    # main_menu.nml:384
+        _w131 = MenuLine(parent=self.window)    # main_menu.nml:387
+        _w132 = MenuItem(parent=self.window)    # main_menu.nml:388
+        _w133 = MenuItem(parent=self.window)    # main_menu.nml:392
+        _w134 = MenuItem(parent=self.window)    # main_menu.nml:396
+        _w135 = MenuItem(parent=self.window)    # main_menu.nml:400
+        _w136 = MenuItem(parent=self.window)    # main_menu.nml:404
+        _w137 = MenuLine(parent=self.window)    # main_menu.nml:408
+        _w138 = MenuItem(parent=self.window)    # main_menu.nml:409
+
+        self.system.text = '~≡~'    # main_menu.nml:36
+
+        _w1.text = '~A~bout...'    # main_menu.nml:38
+        _w1.command = About    # main_menu.nml:39
+
+        _w2.text = '~R~efresh display'    # main_menu.nml:41
+
+        _w3.text = '~S~creen rest'    # main_menu.nml:43
+
+        _w5.text = 'Screen gra~b~ber'    # main_menu.nml:46
+        _w5.key = 'Shift-Alt-Ins'    # main_menu.nml:47
+
+        _w6.text = '~U~ser screen'    # main_menu.nml:49
+        _w6.key = 'Alt-F5'    # main_menu.nml:50
+
+        _w7.text = '~O~utput window'    # main_menu.nml:52
+        _w7.command = ToggleConsole    # main_menu.nml:53
+        _w7.key = 'Ctrl-O'    # main_menu.nml:54
+
+        _w8.text = 'S~m~artPad (TM)'    # main_menu.nml:56
+        _w8.key = 'Alt-Q'    # main_menu.nml:57
+
+        _w9.text = '~T~rashcan on/off'    # main_menu.nml:59
+
+        _w11.text = '~E~GA/VGA lines'    # main_menu.nml:62
+        _w11.key = 'Shift-F10'    # main_menu.nml:63
+
+        _w12.text = 'Custom video mode ~1~'    # main_menu.nml:65
+        _w12.key = 'Alt-F10'    # main_menu.nml:66
+
+        _w13.text = 'Custom video mode ~2~'    # main_menu.nml:68
+        _w13.key = 'Ctrl-F10'    # main_menu.nml:69
+
+        _w15.text = '~G~ame'    # main_menu.nml:72
+        _w15.key = 'Alt-F9'    # main_menu.nml:73
+
+        self.file.text = '~F~ile'    # main_menu.nml:76
 
-        self.file_view.text = '~V~iew'    # main_menu.nml:77
+        self.file_view.text = '~V~iew'    # main_menu.nml:79
 
-        _w16.text = '~A~s is'    # main_menu.nml:79
-        _w16.command = View    # main_menu.nml:80
-        _w16.key = 'F3'    # main_menu.nml:81
+        _w16.text = '~A~s is'    # main_menu.nml:81
+        _w16.command = View    # main_menu.nml:82
+        _w16.key = 'F3'    # main_menu.nml:83
 
-        _w17.text = 'As ~T~ext'    # main_menu.nml:83
-        _w17.command = ViewAsText    # main_menu.nml:84
+        _w17.text = 'As ~T~ext'    # main_menu.nml:85
+        _w17.command = ViewAsText    # main_menu.nml:86
 
-        _w18.text = 'As He~x~'    # main_menu.nml:86
-        _w18.command = ViewAsHex    # main_menu.nml:87
+        _w18.text = 'As He~x~'    # main_menu.nml:88
+        _w18.command = ViewAsHex    # main_menu.nml:89
 
-        _w19.text = 'As ~D~ataBase'    # main_menu.nml:89
+        _w19.text = 'As ~D~ataBase'    # main_menu.nml:91
 
-        _w20.text = 'As ~S~preadsheet'    # main_menu.nml:91
+        _w20.text = 'As ~S~preadsheet'    # main_menu.nml:93
 
-        _w22.text = 'Alternate vie~w~'    # main_menu.nml:94
-        _w22.key = 'Alt-F3'    # main_menu.nml:95
+        _w22.text = 'Alternate vie~w~'    # main_menu.nml:96
+        _w22.key = 'Alt-F3'    # main_menu.nml:97
 
-        self.file_edit.text = '~E~dit'    # main_menu.nml:98
+        self.file_edit.text = '~E~dit'    # main_menu.nml:100
 
-        _w23.text = '~E~dit'    # main_menu.nml:100
-        _w23.command = Edit    # main_menu.nml:101
-        _w23.key = 'F4'    # main_menu.nml:102
+        _w23.text = '~E~dit'    # main_menu.nml:102
+        _w23.command = Edit    # main_menu.nml:103
+        _w23.key = 'F4'    # main_menu.nml:104
 
-        _w24.text = '~A~lternate edit'    # main_menu.nml:104
-        _w24.key = 'Alt-F4'    # main_menu.nml:105
+        _w24.text = '~A~lternate edit'    # main_menu.nml:106
+        _w24.key = 'Alt-F4'    # main_menu.nml:107
 
-        _w26.text = 'Edit ~n~ew file...'    # main_menu.nml:108
-        _w26.key = 'Shift-F4'    # main_menu.nml:109
+        _w26.text = 'Edit ~n~ew file...'    # main_menu.nml:110
+        _w26.key = 'Shift-F4'    # main_menu.nml:111
 
-        _w27.text = '~F~ind...'    # main_menu.nml:111
-        _w27.key = 'Alt-F7'    # main_menu.nml:112
+        _w27.text = '~F~ind...'    # main_menu.nml:113
+        _w27.key = 'Alt-F7'    # main_menu.nml:114
 
-        _w28.text = '~C~opy...'    # main_menu.nml:114
-        _w28.command = Copy    # main_menu.nml:115
-        _w28.key = 'F5'    # main_menu.nml:116
+        _w28.text = '~C~opy...'    # main_menu.nml:116
+        _w28.command = Copy    # main_menu.nml:117
+        _w28.key = 'F5'    # main_menu.nml:118
 
-        _w29.text = '~R~ename/Move...'    # main_menu.nml:118
-        _w29.command = RenameMove    # main_menu.nml:119
-        _w29.key = 'F6'    # main_menu.nml:120
+        _w29.text = '~R~ename/Move...'    # main_menu.nml:120
+        _w29.command = RenameMove    # main_menu.nml:121
+        _w29.key = 'F6'    # main_menu.nml:122
 
-        _w30.text = 'Cop~y~ to archive...'    # main_menu.nml:122
-        _w30.key = 'Shift-F1'    # main_menu.nml:123
+        _w30.text = 'Cop~y~ to archive...'    # main_menu.nml:124
+        _w30.key = 'Shift-F1'    # main_menu.nml:125
 
-        _w31.text = 'Ex~t~ract archive...'    # main_menu.nml:125
-        _w31.key = 'Shift-F2'    # main_menu.nml:126
+        _w31.text = 'Ex~t~ract archive...'    # main_menu.nml:127
+        _w31.key = 'Shift-F2'    # main_menu.nml:128
 
-        _w32.text = 'Create ~s~ymlink...'    # main_menu.nml:128
-        _w32.command = MakeLink    # main_menu.nml:129
-        _w32.key = 'Shift-F5'    # main_menu.nml:130
+        _w32.text = 'Create ~s~ymlink...'    # main_menu.nml:130
+        _w32.command = MakeLink    # main_menu.nml:131
+        _w32.key = 'Shift-F5'    # main_menu.nml:132
 
-        _w33.text = '~P~rint'    # main_menu.nml:132
-        _w33.key = 'Ctrl-F9'    # main_menu.nml:133
+        _w33.text = '~P~rint'    # main_menu.nml:134
+        _w33.key = 'Ctrl-F9'    # main_menu.nml:135
 
-        _w34.text = '~M~ake directory'    # main_menu.nml:135
-        _w34.command = MakeDirectory    # main_menu.nml:136
-        _w34.key = 'F7'    # main_menu.nml:137
+        _w34.text = '~M~ake directory'    # main_menu.nml:137
+        _w34.command = MakeDirectory    # main_menu.nml:138
+        _w34.key = 'F7'    # main_menu.nml:139
 
-        _w35.text = '~D~elete'    # main_menu.nml:139
-        _w35.command = Delete    # main_menu.nml:140
-        _w35.key = 'F8'    # main_menu.nml:141
+        _w35.text = '~D~elete'    # main_menu.nml:141
+        _w35.command = Delete    # main_menu.nml:142
+        _w35.key = 'F8'    # main_menu.nml:143
 
-        _w36.text = 'File ~A~ttributes...'    # main_menu.nml:143
-        _w36.command = ChangeAttributes    # main_menu.nml:144
-        _w36.key = 'Alt-E'    # main_menu.nml:145
+        _w36.text = 'File ~A~ttributes...'    # main_menu.nml:145
+        _w36.command = ChangeAttributes    # main_menu.nml:146
+        _w36.key = 'Alt-E'    # main_menu.nml:147
 
-        _w37.text = 'UU E~n~code...'    # main_menu.nml:147
-        _w37.key = 'Ctrl-F7'    # main_menu.nml:148
+        _w37.text = 'UU E~n~code...'    # main_menu.nml:149
+        _w37.key = 'Ctrl-F7'    # main_menu.nml:150
 
-        _w38.text = '~U~U Decode...'    # main_menu.nml:150
-        _w38.key = 'Ctrl-F8'    # main_menu.nml:151
+        _w38.text = '~U~U Decode...'    # main_menu.nml:152
+        _w38.key = 'Ctrl-F8'    # main_menu.nml:153
 
-        _w39.text = 'Unpack diskette images'    # main_menu.nml:153
-        _w39.key = 'Ctrl-I'    # main_menu.nml:154
+        _w39.text = 'Unpack diskette images'    # main_menu.nml:155
+        _w39.key = 'Ctrl-I'    # main_menu.nml:156
 
-        _w40.text = 'Delete single file'    # main_menu.nml:156
-        _w40.command = DeleteSingle    # main_menu.nml:157
-        _w40.key = 'Shift-Del'    # main_menu.nml:158
+        _w40.text = 'Delete single file'    # main_menu.nml:158
+        _w40.command = DeleteSingle    # main_menu.nml:159
+        _w40.key = 'Shift-Del'    # main_menu.nml:160
 
-        _w42.text = 'Execute ~O~S command'    # main_menu.nml:161
+        _w42.text = 'Execute ~O~S command'    # main_menu.nml:163
 
-        _w43.text = 'E~x~it'    # main_menu.nml:163
-        _w43.command = Quit    # main_menu.nml:164
-        _w43.key = 'Alt-X'    # main_menu.nml:165
+        _w43.text = 'E~x~it'    # main_menu.nml:165
+        _w43.command = Quit    # main_menu.nml:166
+        _w43.key = 'Alt-X'    # main_menu.nml:167
 
-        self.disk.text = '~D~isk'    # main_menu.nml:168
+        self.disk.text = '~D~isk'    # main_menu.nml:170
 
-        _w44.text = '~F~ormat disk...'    # main_menu.nml:170
-        _w44.key = 'Shift-F7'    # main_menu.nml:171
+        _w44.text = '~F~ormat disk...'    # main_menu.nml:172
+        _w44.key = 'Shift-F7'    # main_menu.nml:173
 
-        _w45.text = '~V~olume label...'    # main_menu.nml:173
+        _w45.text = '~V~olume label...'    # main_menu.nml:175
 
-        _w46.text = '~R~eanimator...'    # main_menu.nml:175
-        _w46.key = 'Shift-F6'    # main_menu.nml:176
+        _w46.text = '~R~eanimator...'    # main_menu.nml:177
+        _w46.key = 'Shift-F6'    # main_menu.nml:178
 
-        _w47.text = 'Disk ~e~ditor'    # main_menu.nml:178
+        _w47.text = 'Disk ~e~ditor'    # main_menu.nml:180
 
-        _w48.text = '~D~irectory tree'    # main_menu.nml:180
-        _w48.command = OpenTreeWindow    # main_menu.nml:181
+        _w48.text = '~D~irectory tree'    # main_menu.nml:182
+        _w48.command = OpenTreeWindow    # main_menu.nml:183
 
-        self.utilities.text = '~U~tilities'    # main_menu.nml:184
+        self.utilities.text = '~U~tilities'    # main_menu.nml:186
 
-        _w49.text = '~M~emory Information'    # main_menu.nml:186
-        _w49.key = 'Alt-Y'    # main_menu.nml:187
+        _w49.text = '~M~emory Information'    # main_menu.nml:188
+        _w49.key = 'Alt-Y'    # main_menu.nml:189
 
-        _w50.text = 'S~y~stem Information'    # main_menu.nml:189
+        _w50.text = 'S~y~stem Information'    # main_menu.nml:191
 
-        _w52.text = '~C~alculator'    # main_menu.nml:192
-        _w52.command = Calculator    # main_menu.nml:193
-        _w52.key = 'Ctrl-F6'    # main_menu.nml:194
+        _w52.text = '~C~alculator'    # main_menu.nml:194
+        _w52.command = Calculator    # main_menu.nml:195
+        _w52.key = 'Ctrl-F6'    # main_menu.nml:196
 
-        _w53.text = 'ASCII Ta~b~le'    # main_menu.nml:196
-        _w53.key = 'Ctrl-B'    # main_menu.nml:197
+        _w53.text = 'ASCII Ta~b~le'    # main_menu.nml:198
+        _w53.key = 'Ctrl-B'    # main_menu.nml:199
 
-        _w54.text = '~P~hone Book'    # main_menu.nml:199
-        _w54.key = 'Shift-F3'    # main_menu.nml:200
+        _w54.text = '~P~hone Book'    # main_menu.nml:201
+        _w54.key = 'Shift-F3'    # main_menu.nml:202
 
-        _w55.text = '~O~pen spreadsheet'    # main_menu.nml:202
-        _w55.key = 'Shift-F11'    # main_menu.nml:203
+        _w55.text = '~O~pen spreadsheet'    # main_menu.nml:204
+        _w55.key = 'Shift-F11'    # main_menu.nml:205
 
-        _w56.text = 'C~D~ Player'    # main_menu.nml:205
-        _w56.key = 'Ctrl-F11'    # main_menu.nml:206
+        _w56.text = 'C~D~ Player'    # main_menu.nml:207
+        _w56.key = 'Ctrl-F11'    # main_menu.nml:208
 
-        _w58.text = 'Te~r~minal'    # main_menu.nml:209
-        _w58.key = 'Alt-J'    # main_menu.nml:210
+        _w58.text = 'Te~r~minal'    # main_menu.nml:211
+        _w58.key = 'Alt-J'    # main_menu.nml:212
 
-        _w59.text = 'Navigator ~L~ink'    # main_menu.nml:212
-        _w59.key = 'Alt-F11'    # main_menu.nml:213
+        _w59.text = 'Navigator ~L~ink'    # main_menu.nml:214
+        _w59.key = 'Alt-F11'    # main_menu.nml:215
 
-        _w60.text = 'Manual di~a~l...'    # main_menu.nml:215
-        _w60.key = 'Alt-A'    # main_menu.nml:216
+        _w60.text = 'Manual di~a~l...'    # main_menu.nml:217
+        _w60.key = 'Alt-A'    # main_menu.nml:218
 
-        _w61.text = 'Di~s~connect'    # main_menu.nml:218
-        _w61.key = 'Alt-H'    # main_menu.nml:219
+        _w61.text = 'Di~s~connect'    # main_menu.nml:220
+        _w61.key = 'Alt-H'    # main_menu.nml:221
 
-        _w63.text = 'Edi~t~ DOS Environment'    # main_menu.nml:222
+        _w63.text = 'Edi~t~ DOS Environment'    # main_menu.nml:224
 
-        _w64.text = '~U~ser menu'    # main_menu.nml:224
-        _w64.command = UserMenu    # main_menu.nml:225
-        _w64.key = 'F2'    # main_menu.nml:226
+        _w64.text = '~U~ser menu'    # main_menu.nml:226
+        _w64.command = UserMenu    # main_menu.nml:227
+        _w64.key = 'F2'    # main_menu.nml:228
 
-        _w65.text = 'Commands ~H~istory'    # main_menu.nml:228
-        _w65.key = 'Alt-F8'    # main_menu.nml:229
+        _w65.text = 'Commands ~H~istory'    # main_menu.nml:230
+        _w65.key = 'Alt-F8'    # main_menu.nml:231
 
-        _w66.text = 'File ~E~dit History'    # main_menu.nml:231
-        _w66.key = 'Alt-PgUp'    # main_menu.nml:232
+        _w66.text = 'File ~E~dit History'    # main_menu.nml:233
+        _w66.key = 'Alt-PgUp'    # main_menu.nml:234
 
-        _w67.text = 'File ~V~iew History'    # main_menu.nml:234
-        _w67.key = 'Alt-PgDn'    # main_menu.nml:235
+        _w67.text = 'File ~V~iew History'    # main_menu.nml:236
+        _w67.key = 'Alt-PgDn'    # main_menu.nml:237
 
-        self.manager.text = '~M~anager'    # main_menu.nml:238
+        self.manager.text = '~M~anager'    # main_menu.nml:240
 
-        _w68.text = '~N~ew'    # main_menu.nml:240
-        _w68.command = NewManager    # main_menu.nml:241
-        _w68.key = 'Ctrl-F3'    # main_menu.nml:242
+        _w68.text = '~N~ew'    # main_menu.nml:242
+        _w68.command = NewManager    # main_menu.nml:243
+        _w68.key = 'Ctrl-F3'    # main_menu.nml:244
 
-        _w69.text = '~S~wap panels'    # main_menu.nml:244
-        _w69.key = 'Ctrl-U'    # main_menu.nml:245
+        _w69.text = '~S~wap panels'    # main_menu.nml:246
+        _w69.key = 'Ctrl-U'    # main_menu.nml:247
 
-        _w70.text = 'Show/hide ~l~eft panel'    # main_menu.nml:247
-        _w70.key = 'Ctrl-F1'    # main_menu.nml:248
+        _w70.text = 'Show/hide ~l~eft panel'    # main_menu.nml:249
+        _w70.key = 'Ctrl-F1'    # main_menu.nml:250
 
-        _w71.text = 'Show/hide ~r~ight panel'    # main_menu.nml:250
-        _w71.key = 'Ctrl-F2'    # main_menu.nml:251
+        _w71.text = 'Show/hide ~r~ight panel'    # main_menu.nml:252
+        _w71.key = 'Ctrl-F2'    # main_menu.nml:253
 
-        _w72.text = 'Show/hide inactive ~p~anel'    # main_menu.nml:253
-        _w72.key = 'Ctrl-P'    # main_menu.nml:254
+        _w72.text = 'Show/hide inactive ~p~anel'    # main_menu.nml:255
+        _w72.key = 'Ctrl-P'    # main_menu.nml:256
 
-        _w74.text = 'Change drive le~f~t'    # main_menu.nml:257
-        _w74.key = 'Alt-F1'    # main_menu.nml:258
+        _w74.text = 'Change drive le~f~t'    # main_menu.nml:259
+        _w74.key = 'Alt-F1'    # main_menu.nml:260
 
-        _w75.text = 'Change drive rig~h~t'    # main_menu.nml:260
-        _w75.key = 'Alt-F2'    # main_menu.nml:261
+        _w75.text = 'Change drive rig~h~t'    # main_menu.nml:262
+        _w75.key = 'Alt-F2'    # main_menu.nml:263
 
-        self.options.text = '~O~ptions'    # main_menu.nml:264
+        self.options.text = '~O~ptions'    # main_menu.nml:266
 
-        self.options_configuration.text = '~C~onfiguration'    # main_menu.nml:267
+        self.options_configuration.text = '~C~onfiguration'    # main_menu.nml:269
 
-        _w76.text = 'S~y~stem Setup...'    # main_menu.nml:269
+        _w76.text = 'S~y~stem Setup...'    # main_menu.nml:271
 
-        _w77.text = '~S~tartup...'    # main_menu.nml:271
+        _w77.text = '~S~tartup...'    # main_menu.nml:273
 
-        _w78.text = '~I~nterface...'    # main_menu.nml:273
+        _w78.text = '~I~nterface...'    # main_menu.nml:275
 
-        _w79.text = '~C~onfirmations...'    # main_menu.nml:275
+        _w79.text = '~C~onfirmations...'    # main_menu.nml:277
 
-        _w81.text = 'Screen sa~v~ers...'    # main_menu.nml:278
+        _w81.text = 'Screen sa~v~ers...'    # main_menu.nml:280
 
-        _w82.text = 'P~r~inter setup...'    # main_menu.nml:280
+        _w82.text = 'P~r~inter setup...'    # main_menu.nml:282
 
-        _w83.text = 'C~o~untry support...'    # main_menu.nml:282
+        _w83.text = 'C~o~untry support...'    # main_menu.nml:284
 
-        _w84.text = '~M~ouse...'    # main_menu.nml:284
+        _w84.text = '~M~ouse...'    # main_menu.nml:286
 
-        _w85.text = 'Comm~u~nications...'    # main_menu.nml:286
+        _w85.text = 'Comm~u~nications...'    # main_menu.nml:288
 
-        _w87.text = '~E~ditor/Viewer...'    # main_menu.nml:289
+        _w87.text = '~E~ditor/Viewer...'    # main_menu.nml:291
 
-        _w88.text = '~T~erminal...'    # main_menu.nml:291
+        _w88.text = '~T~erminal...'    # main_menu.nml:293
 
-        self.options_file_manager.text = '~F~ile Manager'    # main_menu.nml:294
+        self.options_file_manager.text = '~F~ile Manager'    # main_menu.nml:296
 
-        _w89.text = '~S~etup...'    # main_menu.nml:296
+        _w89.text = '~S~etup...'    # main_menu.nml:298
 
-        _w90.text = '~I~nformation panel...'    # main_menu.nml:298
+        _w90.text = '~I~nformation panel...'    # main_menu.nml:300
 
-        _w91.text = 'New Manager ~d~efaults...'    # main_menu.nml:300
+        _w91.text = 'New Manager ~d~efaults...'    # main_menu.nml:302
 
-        _w92.text = '~C~olumn defaults...'    # main_menu.nml:302
+        _w92.text = '~C~olumn defaults...'    # main_menu.nml:304
 
-        _w93.text = '~H~ighlight groups...'    # main_menu.nml:304
+        _w93.text = '~H~ighlight groups...'    # main_menu.nml:306
 
-        self.options_archives.text = 'A~r~chives'    # main_menu.nml:307
+        self.options_archives.text = 'A~r~chives'    # main_menu.nml:309
 
-        _w94.text = '~A~RC - Arc (C) NoGate Consulting'    # main_menu.nml:309
+        _w94.text = '~A~RC - Arc (C) NoGate Consulting'    # main_menu.nml:311
 
-        _w95.text = 'AR~J~ - ARJ (C) Robert K. Jung'    # main_menu.nml:311
+        _w95.text = 'AR~J~ - ARJ (C) Robert K. Jung'    # main_menu.nml:313
 
-        _w96.text = '~B~SA - BSArc v1.xx (C) PhysTechSoft'    # main_menu.nml:313
+        _w96.text = '~B~SA - BSArc v1.xx (C) PhysTechSoft'    # main_menu.nml:315
 
-        _w97.text = 'BS~2~ - BSArc v2.xx (C) PhysTechSoft'    # main_menu.nml:315
+        _w97.text = 'BS~2~ - BSArc v2.xx (C) PhysTechSoft'    # main_menu.nml:317
 
-        _w98.text = '~C~HZ - ChArc (C) Dialogue'    # main_menu.nml:317
+        _w98.text = '~C~HZ - ChArc (C) Dialogue'    # main_menu.nml:319
 
-        _w99.text = '~H~A  - HA (C) Harry Hirvola'    # main_menu.nml:319
+        _w99.text = '~H~A  - HA (C) Harry Hirvola'    # main_menu.nml:321
 
-        _w100.text = 'HAP - HAP (C) Hamarsoft'    # main_menu.nml:321
+        _w100.text = 'HAP - HAP (C) Hamarsoft'    # main_menu.nml:323
 
-        _w101.text = 'H~P~K - HPack (C) Peter Gutmann'    # main_menu.nml:323
+        _w101.text = 'H~P~K - HPack (C) Peter Gutmann'    # main_menu.nml:325
 
-        _w102.text = 'H~Y~P - Hyper (C) P.Sawatzki & K.P.Nicshke'    # main_menu.nml:325
+        _w102.text = 'H~Y~P - Hyper (C) P.Sawatzki & K.P.Nicshke'    # main_menu.nml:327
 
-        _w103.text = '~L~HA - LHArc (C) Haruyasu Yoshizaki'    # main_menu.nml:327
+        _w103.text = '~L~HA - LHArc (C) Haruyasu Yoshizaki'    # main_menu.nml:329
 
-        _w104.text = 'L~I~M - Limit (C) J Y Lim'    # main_menu.nml:329
+        _w104.text = 'L~I~M - Limit (C) J Y Lim'    # main_menu.nml:331
 
-        _w105.text = '~R~AR - RAR (C) E. Roshal'    # main_menu.nml:331
+        _w105.text = '~R~AR - RAR (C) E. Roshal'    # main_menu.nml:333
 
-        _w106.text = '~S~QZ - SQZ (C) J.I.Hammarberg'    # main_menu.nml:333
+        _w106.text = '~S~QZ - SQZ (C) J.I.Hammarberg'    # main_menu.nml:335
 
-        _w107.text = '~T~AR - Tape ARchiver for *NIX'    # main_menu.nml:335
+        _w107.text = '~T~AR - Tape ARchiver for *NIX'    # main_menu.nml:337
 
-        _w108.text = '~U~C2 - Ultra Compressor II (C) Ad Infinitum Programs'    # main_menu.nml:337
+        _w108.text = '~U~C2 - Ultra Compressor II (C) Ad Infinitum Programs'    # main_menu.nml:339
 
-        _w109.text = '~Z~IP - PKZIP (C) PKWARE Inc.'    # main_menu.nml:339
+        _w109.text = '~Z~IP - PKZIP (C) PKWARE Inc.'    # main_menu.nml:341
 
-        _w110.text = 'ZO~O~ - Zoo (C) Rahul Dhesi'    # main_menu.nml:341
+        _w110.text = 'ZO~O~ - Zoo (C) Rahul Dhesi'    # main_menu.nml:343
 
-        _w112.text = 'Current archiver...'    # main_menu.nml:344
-        _w112.key = 'Alt-N'    # main_menu.nml:345
+        _w112.text = 'Current archiver...'    # main_menu.nml:346
+        _w112.key = 'Alt-N'    # main_menu.nml:347
 
-        _w114.text = '~Q~uick run file edit...'    # main_menu.nml:348
+        _w114.text = '~Q~uick run file edit...'    # main_menu.nml:350
 
-        _w115.text = 'E~x~tension file edit...'    # main_menu.nml:350
+        _w115.text = 'E~x~tension file edit...'    # main_menu.nml:352
 
-        _w116.text = '~H~ighlight file edit...'    # main_menu.nml:352
+        _w116.text = '~H~ighlight file edit...'    # main_menu.nml:354
 
-        _w117.text = '~G~lobal menu definition...'    # main_menu.nml:354
+        _w117.text = '~G~lobal menu definition...'    # main_menu.nml:356
 
-        _w118.text = 'Local ~m~enu definition...'    # main_menu.nml:356
+        _w118.text = 'Local ~m~enu definition...'    # main_menu.nml:358
 
-        _w119.text = '~V~iewers...'    # main_menu.nml:358
+        _w119.text = '~V~iewers...'    # main_menu.nml:360
 
-        _w120.text = '~E~ditors...'    # main_menu.nml:360
+        _w120.text = '~E~ditors...'    # main_menu.nml:362
 
-        _w122.text = '~S~ave desktop'    # main_menu.nml:363
+        _w122.text = '~S~ave desktop'    # main_menu.nml:365
 
-        _w123.text = '~L~oad desktop'    # main_menu.nml:365
+        _w123.text = '~L~oad desktop'    # main_menu.nml:367
 
-        _w125.text = 'C~o~lors...'    # main_menu.nml:368
+        _w125.text = 'C~o~lors...'    # main_menu.nml:370
 
-        _w126.text = 'S~t~ore palette'    # main_menu.nml:370
+        _w126.text = 'S~t~ore palette'    # main_menu.nml:372
 
-        _w127.text = 'Lo~a~d palette'    # main_menu.nml:372
+        _w127.text = 'Lo~a~d palette'    # main_menu.nml:374
 
-        self.window.text = '~W~indow'    # main_menu.nml:375
+        self.window.text = '~W~indow'    # main_menu.nml:377
 
-        _w128.text = '~T~ile'    # main_menu.nml:377
-        _w128.command = TileWindows    # main_menu.nml:378
+        _w128.text = '~T~ile'    # main_menu.nml:379
+        _w128.command = TileWindows    # main_menu.nml:380
 
-        _w129.text = 'C~a~scade'    # main_menu.nml:380
-        _w129.command = CascadeWindows    # main_menu.nml:381
+        _w129.text = 'C~a~scade'    # main_menu.nml:382
+        _w129.command = CascadeWindows    # main_menu.nml:383
 
-        _w130.text = 'Cl~o~se all'    # main_menu.nml:383
-        _w130.command = CloseAllWindows    # main_menu.nml:384
+        _w130.text = 'Cl~o~se all'    # main_menu.nml:385
+        _w130.command = CloseAllWindows    # main_menu.nml:386
 
-        _w132.text = '~S~ize/Move'    # main_menu.nml:387
-        _w132.command = SizeMoveWindow    # main_menu.nml:388
-        _w132.key = 'Ctrl-F5'    # main_menu.nml:389
+        _w132.text = '~S~ize/Move'    # main_menu.nml:389
+        _w132.command = SizeMoveWindow    # main_menu.nml:390
+        _w132.key = 'Ctrl-F5'    # main_menu.nml:391
 
-        _w133.text = '~Z~oom'    # main_menu.nml:391
-        _w133.command = ZoomWindow    # main_menu.nml:392
-        _w133.key = 'Alt-Z'    # main_menu.nml:393
+        _w133.text = '~Z~oom'    # main_menu.nml:393
+        _w133.command = ZoomWindow    # main_menu.nml:394
+        _w133.key = 'Alt-Z'    # main_menu.nml:395
 
-        _w134.text = '~N~ext'    # main_menu.nml:395
-        _w134.command = NextWindow    # main_menu.nml:396
-        _w134.key = 'Alt-Tab'    # main_menu.nml:397
+        _w134.text = '~N~ext'    # main_menu.nml:397
+        _w134.command = NextWindow    # main_menu.nml:398
+        _w134.key = 'Alt-Tab'    # main_menu.nml:399
 
-        _w135.text = '~P~revious'    # main_menu.nml:399
-        _w135.command = PreviousWindow    # main_menu.nml:400
-        _w135.key = 'Ctrl-Tab'    # main_menu.nml:401
+        _w135.text = '~P~revious'    # main_menu.nml:401
+        _w135.command = PreviousWindow    # main_menu.nml:402
+        _w135.key = 'Ctrl-Tab'    # main_menu.nml:403
 
-        _w136.text = '~C~lose'    # main_menu.nml:403
-        _w136.command = CloseWindow    # main_menu.nml:404
-        _w136.key = 'Ctrl-F4'    # main_menu.nml:405
+        _w136.text = '~C~lose'    # main_menu.nml:405
+        _w136.command = CloseWindow    # main_menu.nml:406
+        _w136.key = 'Ctrl-F4'    # main_menu.nml:407
 
-        _w138.text = '~L~ist...'    # main_menu.nml:408
-        _w138.command = WindowManager    # main_menu.nml:409
-        _w138.key = 'Alt-0'    # main_menu.nml:410
+        _w138.text = '~L~ist...'    # main_menu.nml:410
+        _w138.command = WindowManager    # main_menu.nml:411
+        _w138.key = 'Alt-0'    # main_menu.nml:412

@@ -20,7 +20,7 @@ from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
 import navigator.viewer as viewer_model
-from navigator.commands import (
+from navigator.widgets.viewer.commands import (
     AddFilter,
     CloseViewer,
     ContinueSearch,

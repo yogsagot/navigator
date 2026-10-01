@@ -30,7 +30,7 @@ from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
-from navigator.commands import (
+from navigator.widgets.editor.commands import (
     DeleteBack,
     DeleteChar,
     DeleteLine,

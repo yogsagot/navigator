@@ -31,7 +31,7 @@ from navkit.events import ClickOutsideEvent, Event
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
-from navml.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.modal import Modal
 

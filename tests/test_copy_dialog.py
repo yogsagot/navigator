@@ -304,7 +304,7 @@ def test_f5_is_disabled_on_dot_dot(two):
 
 
 def filecopy_command():
-    from navigator.commands import Copy
+    from navigator.widgets.manager.commands import Copy
 
     return Copy()
 

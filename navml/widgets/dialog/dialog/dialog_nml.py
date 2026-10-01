@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.commands import Cancel, Default, SelectNext, SelectPrevious    # dialog.nml:1
+from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious    # dialog.nml:1
 from navml.widgets.dialog.button import Button    # dialog.nml:2
 from navml.widgets.layout.horizontal_layout import HorizontalLayout    # dialog.nml:3
 from navml.widgets.dialog.static_text import StaticText    # dialog.nml:4

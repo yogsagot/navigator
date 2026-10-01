@@ -6,8 +6,8 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode
-from navigator.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
+from navigator.widgets.viewer.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar

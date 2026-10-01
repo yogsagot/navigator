@@ -1,11 +1,13 @@
-from navigator.commands import ChangeAttributes, ChangeDirectory, Copy, Delete, Edit, MakeDirectory, MakeLink, RenameMove
-from navigator.commands import Rescan, SwitchPanel, ToggleTree, UserMenu, View
-from navigator.commands import ArchiveFiles, Calculator, ChangeDrive, DeleteSingle, DiskInfo, EditNamed
-from navigator.commands import ExtractArchive, FastRename, FindFile, MakeList, PanelSetup
-from navigator.commands import PhoneBook, PrintFile, QuickView, Reanimate, SortBy
-from navigator.commands import InsertName, InsertPath, ToggleDescriptions, ToggleMark, ToggleShowMode
-from navigator.commands import QuickSearch, ToggleHidden, ToggleMarkBySpace
-from navigator.commands import InvertSelection, SelectGroup, UnselectGroup
+from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory
+from navigator.widgets.manager.commands import ChangeDrive, Copy, Delete, DeleteSingle, DiskInfo, Edit
+from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile
+from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
+from navigator.widgets.manager.commands import PhoneBook, PrintFile, QuickView, Reanimate, RenameMove, Rescan
+from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel, ToggleDescriptions
+from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
+from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
+from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
+from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.panel import Panel

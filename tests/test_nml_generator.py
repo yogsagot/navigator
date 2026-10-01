@@ -305,10 +305,10 @@ def test_the_generator_s_machinery_is_underscored(stem):
 
 def test_a_keys_block_becomes_the_class_key_table(generated):
     from navkit.commands import key_table
-    from navml.commands import Cancel, Default
+    from navml.widgets.dialog.commands import Cancel, Default
 
     source, namespace = generated(
-        "from navml.commands import Cancel, Default\n\n"
+        "from navml.widgets.dialog.commands import Cancel, Default\n\n"
         "Box:\n"
         "    #: What the box binds.\n"
         "    keys:\n"

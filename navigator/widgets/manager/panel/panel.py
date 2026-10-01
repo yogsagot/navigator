@@ -505,7 +505,7 @@ class Panel(ListViewer):
     async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Ctrl+double click is Ctrl+Enter, as in DOS Navigator; a plain one opens."""
         if event.ctrl and event.button == "left" and self.index_at(event.x, event.y) is not None:
-            from navigator.commands import InsertName, InsertPath
+            from navigator.widgets.shell.commands import InsertName, InsertPath
 
             await self.emit(InsertPath() if event.shift else InsertName())
             return True

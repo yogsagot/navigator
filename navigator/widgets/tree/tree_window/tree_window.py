@@ -17,7 +17,7 @@ from navkit.screen import Surface
 
 from navml.widgets.window import Window
 
-from navigator.commands import Rescan
+from navigator.widgets.manager.commands import Rescan
 
 
 class TreeWindow(Window):

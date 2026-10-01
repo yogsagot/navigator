@@ -1221,6 +1221,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.file_ops.mkdir_dialog.mkdir_dialog",
         "navigator.widgets.file_ops.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.manager",
+        "navigator.widgets.manager.commands",               # names only, no widget
         "navigator.widgets.manager.manager",
         "navigator.widgets.manager.manager.manager",
         "navigator.widgets.manager.manager.manager_nml",
@@ -1232,6 +1233,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.shell.clock.clock_nml",
         "navigator.widgets.shell.command_line",
         "navigator.widgets.shell.command_line.command_line",
+        "navigator.widgets.shell.commands",
         "navigator.widgets.shell.console",
         "navigator.widgets.shell.console.console",
         "navigator.widgets.shell.keybar",
@@ -1786,7 +1788,7 @@ def test_the_plain_characters_type_after_anything_else(tree):
 
 def test_the_menu_entries_work_whatever_the_command_line_holds(tree):
     """Only the keys step aside: they are characters, a menu entry is not."""
-    from navigator.commands import InvertSelection
+    from navigator.widgets.manager.commands import InvertSelection
 
     app = navigator_with(tree, GLYPHS_UNICODE)
     run_app(app, [lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"]])
@@ -2283,7 +2285,7 @@ def test_the_application_keeps_only_what_is_global():
     # binds is kept from the whole tree -- the ways in and out of the console
     # and of Navigator, and the two commands that are nobody's panel's.
     from navigator.commands import Help, Quit, ToggleConsole
-    from navml.commands import OpenMenu
+    from navml.widgets.menu.commands import OpenMenu
 
     table = key_table(Navigator)
     assert set(table) == {
@@ -2989,7 +2991,7 @@ def test_ctrl_f3_from_the_console_with_no_file_manager_left(tree, quiet_console)
 def test_a_tree_window_opened_behind_the_console_brings_the_desktop_back(tree, quiet_console):
     # Opening a window is what shows it: the desktop announces the opening and
     # the shell hides the console, so no command has to remember to.
-    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.shell.commands import OpenTreeWindow
     from navigator.widgets.tree.tree_window import TreeWindow
 
     for hide in (KeyEvent("o", ctrl=True), KeyEvent("f4", ctrl=True)):  # Ctrl+O, or close the last window
@@ -3005,7 +3007,7 @@ def test_a_tree_window_opened_behind_the_console_brings_the_desktop_back(tree, q
 
 
 def test_the_tree_window_steers_the_file_manager_in_front(tree):
-    from navigator.commands import OpenTreeWindow
+    from navigator.widgets.shell.commands import OpenTreeWindow
 
     app = navigator(tree)
     run_app(app, [
@@ -3748,7 +3750,7 @@ def test_an_ordinary_user_s_titles_are_the_theme_s(tree, monkeypatch):
 
 def test_panel_is_on_the_bar_only_while_a_file_manager_is_active(tree):
     from navml.widgets.dialog.control.control import parse_shortcut
-    from navigator.commands import NewManager
+    from navigator.widgets.shell.commands import NewManager
 
     (tree / "note.txt").write_text("hello\n")
     app = navigator(tree)

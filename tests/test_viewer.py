@@ -527,7 +527,7 @@ def test_the_view_menu_is_on_the_bar_after_file_only_while_the_viewer_is_active(
 
 
 def test_the_view_menu_switches_the_mode_and_ticks_the_one_in_force(files):
-    from navigator.commands import SetViewFilter, SetViewMode, Unwrap
+    from navigator.widgets.viewer.commands import SetViewFilter, SetViewMode, Unwrap
 
     app = navigator(files)
     seen = {}
