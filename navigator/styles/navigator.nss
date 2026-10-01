@@ -320,3 +320,16 @@ Modal TreeView                        { fg: $dialog-tree-normal-tree-fg;      bg
 Modal TreeView::node                  { fg: $dialog-tree-normal-nodes-fg;     bg: $dialog-tree-normal-nodes-bg }
 Modal TreeView::node:selected         { fg: $dialog-tree-selected-passive-fg; bg: $dialog-tree-selected-passive-bg }
 Modal TreeView:focused::node:selected { fg: $dialog-tree-selected-node-fg;    bg: $dialog-tree-selected-node-bg }
+
+/* Running as root: `Shell' carries `.root', and every window and dialog title
+   under it goes white on dark red, so a root session cannot be mistaken for
+   another.  DOS had no root and DN no slot for it, so `$root-title' is one of
+   palconv's DERIVED variables carrying a colour of its own.
+   Last in the sheet on purpose: `.root Window::title' ties `FileWindow:active
+   ::title' and its kin on specificity, and source order breaks the tie.  The
+   active panel's title goes the same way, and so does Quick View's while it
+   holds the keyboard; a passive one keeps the theme's. */
+.root Window::title,
+.root Modal::title,
+.root Panel:focused::title,
+.root QuickViewer:focus_within::title          { fg: $root-title-fg; bg: $root-title-bg }

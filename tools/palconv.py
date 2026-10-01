@@ -270,7 +270,12 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
 #: rows by category and left Custom 1-5 [175-181] to masks the user typed
 #: (*Highlight groups*), so the categories Navigator fills in take those five;
 #: Midnight Commander's type classes, which DOS had no files for, share them.
-DERIVED: dict[str, tuple[int, str]] = {
+#:
+#: Where no slot fits, the entry carries a DOS colour pair ``(fg, bg)`` instead
+#: of a slot, written as colours rather than as an alias.  ``root-title`` is
+#: one: the titles of a session running as root, white on dark red, which no
+#: DN palette draws anywhere because DOS had no root to warn about.
+DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "image": (175, "images -- DN's Custom 1"),
     "media": (176, "audio and video -- DN's Custom 2"),
     "document": (177, "documents -- DN's Custom 3"),
@@ -280,6 +285,7 @@ DERIVED: dict[str, tuple[int, str]] = {
     "device": (177, "a character or block device -- MC's class, on Custom 3"),
     "special": (177, "a socket or a FIFO -- MC's class, on Custom 3"),
     "temp": (85, "backups and temporaries -- MC's class, on Normal text"),
+    "root-title": ((15, 4), "a title while running as root -- no slot"),
 }
 
 #: Where a theme draws a :data:`DERIVED` variable other than as its alias:
@@ -762,9 +768,13 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
         "/* Each is an alias of the slot it names, so this palette colours it too. */",
     ]
     for variable, (index, why) in DERIVED.items():
-        stem = slots[index].name
-        fg, bg = f"${stem}-fg", f"${stem}-bg"
-        comment = f"  {why} [{index}]"
+        if isinstance(index, tuple):
+            fg, bg = spell(index[0]), spell(index[1])
+            comment = f"  {why}"
+        else:
+            stem = slots[index].name
+            fg, bg = f"${stem}-fg", f"${stem}-bg"
+            comment = f"  {why} [{index}]"
         if variable in derived_departures:
             new_fg, new_bg, reason = derived_departures[variable]
             fg = fg if new_fg is None else spell(new_fg)

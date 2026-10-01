@@ -65,6 +65,10 @@ class Shell(DockLayout):
         reason ``Panel.path`` is: the shell inside it navigates it.
         """
         super().__init__(stylesheet=scheme or default_scheme(), **kwargs)
+        #: ``.root`` on the whole screen while Navigator runs as root, so a
+        #: sheet can mark every window and dialog under it.
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.add_class("root")
         self.console.cwd = left
         self.console.subshell.on_finished = self._command_finished
         #: Up and Down through the shell's history: the entries, where the walk

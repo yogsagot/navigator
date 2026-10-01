@@ -382,6 +382,8 @@ $special-fg: $highlight-custom-3-fg;  /*  a socket or a FIFO -- MC's class, on C
 $special-bg: $highlight-custom-3-bg;
 $temp-fg: $panel-fg;                  /*  backups and temporaries -- MC's class, on Normal text [85] */
 $temp-bg: $panel-bg;
+$root-title-fg: $dn-white;            /*  a title while running as root -- no slot */
+$root-title-bg: $dn-red;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

@@ -3655,3 +3655,30 @@ def awaited_inline(app, panel, row):
     y = row - panel.scroll + panel.inset
     app.post_event(DoubleClickEvent.of(MouseClickEvent(
         panel.offset()[0] + panel.x + 2, panel.offset()[1] + panel.y + y, "left", "press", ctrl=True)))
+
+
+def test_running_as_root_marks_every_title_dark_red(tree, monkeypatch):
+    monkeypatch.setattr("os.geteuid", lambda: 0)
+    app = navigator(tree)
+    shell = app.shell
+    assert "root" in shell.classes
+    title = shell.manager.part_style("title")
+    assert (title.fg, title.bg) == (15, 1)
+    manager = shell.manager
+    active = manager.active_panel
+    passive = manager.right if active is manager.left else manager.left
+    assert active.focused
+    title = active.part_style("title")
+    assert (title.fg, title.bg) == (15, 1)
+    assert passive.part_style("title").bg != 1
+    dialog = MkdirDialog()
+    app.overlay(dialog)
+    title = dialog.part_style("title")
+    assert (title.fg, title.bg) == (15, 1)
+
+
+def test_an_ordinary_user_s_titles_are_the_theme_s(tree, monkeypatch):
+    monkeypatch.setattr("os.geteuid", lambda: 1000)
+    app = navigator(tree)
+    assert "root" not in app.shell.classes
+    assert app.shell.manager.part_style("title").bg != 1

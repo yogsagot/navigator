@@ -481,3 +481,20 @@ def test_a_stopped_job_ends_the_search(make):
     job.stop()
     pattern, span = compile_search("a")
     assert make(b"aaa").find(pattern, 0, span=span, job=job) is None
+
+
+def test_as_root_the_quick_view_title_is_dark_red_while_it_has_the_keyboard(files, monkeypatch):
+    monkeypatch.setattr("os.geteuid", lambda: 0)
+    app = navigator(files)
+    seen = []
+
+    def look(a):
+        title = a.manager.quick.part_style("title")
+        seen.append((title.fg, title.bg))
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("q", ctrl=True), lambda a: None, look,
+        KeyEvent("tab"), lambda a: None, look,
+    ])
+    assert seen[0][1] != 1
+    assert seen[1] == (15, 1)
