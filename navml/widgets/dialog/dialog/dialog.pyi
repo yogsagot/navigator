@@ -16,7 +16,7 @@ import asyncio
 from typing import Any
 from navkit.application import Application
 from navkit.commands import Command
-from navkit.events import Event
+from navkit.events import ClickOutsideEvent, Event
 from navkit.reactive import reactive
 from navkit.widget import Widget
 from navml.widgets.dialog.history import History
@@ -25,6 +25,7 @@ from navml.widgets.dialog.history import History
 class Dialog(Modal, _Component):
     buttons: str
     prompt: str
+    close_on_outside_click: bool
     message: StaticText
     row: HorizontalLayout
     ok: Button
@@ -44,6 +45,7 @@ class Dialog(Modal, _Component):
     default_button: Widget | None
     def enables(self, command: Command) -> bool: ...
     async def on_cancel(self, event: Cancel) -> bool: ...
+    async def on_click_outside(self, event: ClickOutsideEvent) -> bool: ...
     async def on_default(self, event: Default) -> bool: ...
     async def on_select_next(self, event: SelectNext) -> bool: ...
     async def on_select_previous(self, event: SelectPrevious) -> bool: ...

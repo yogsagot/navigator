@@ -29,9 +29,9 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
-from navkit.widget import Widget
 
 from navml.component import take_declared
+from navml.widgets.dialog.drop_down import DropDown
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.masked_line.masked_line import spans
 
@@ -42,15 +42,13 @@ ARROWS = {"dos": "▲▼", "ascii": "^v"}
 LIMITS = (24, 60, 60)
 
 
-class TimePicker(Widget):
+class TimePicker(DropDown):
     """Hours, minutes and perhaps seconds, framed and modal, one of them picked."""
 
     #: The frame and three rows: the up arrow, the numbers, the down arrow.
     HEIGHT = 5
 
     parts = ("value", "separator", "arrow")
-
-    shadow: bool = True
 
     #: The hours, minutes and seconds.
     values: tuple = reactive((0, 0, 0))
@@ -63,7 +61,6 @@ class TimePicker(Widget):
                  seconds: bool = True, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.button = button
-        self.modal = True
         self.seconds = seconds
         when = when or datetime.datetime.now().time()
         self.values = (when.hour, when.minute, when.second if seconds else 0)
@@ -119,10 +116,6 @@ class TimePicker(Widget):
         self.close()
         if self.button is not None:
             self.button.pick(self.time)
-
-    def close(self) -> None:
-        if self.parent is not None:
-            self.parent.remove(self)
 
     # -- input ---------------------------------------------------------------
 

@@ -27,7 +27,7 @@ from typing import Any
 
 from navkit.application import Application
 from navkit.commands import Command
-from navkit.events import Event
+from navkit.events import ClickOutsideEvent, Event
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
@@ -161,6 +161,19 @@ class Dialog(Modal):
 
     async def on_cancel(self, event: Cancel) -> bool:
         self.close(None)
+        return True
+
+    async def on_click_outside(self, event: ClickOutsideEvent) -> bool:
+        """A click past the dialog is its Esc, where the dialog says so.
+
+        Asked as the Cancel command from where the keyboard is, exactly as the
+        key asks it, so a dialog that answers Cancel its own way -- or refuses
+        it -- does the same for the click.
+        """
+        app = self.application
+        if app is None or not self.close_on_outside_click:
+            return False
+        await app.run_command(Cancel)
         return True
 
     async def on_default(self, event: Default) -> bool:

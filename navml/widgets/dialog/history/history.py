@@ -49,6 +49,7 @@ from navkit.widget import Widget
 from navml.component import take_declared
 from navml.history import HISTORY, HistoryStore
 from navml.quick_search import name_pattern
+from navml.widgets.dialog.drop_down import DropDown
 from navml.widgets.dialog.list_viewer import ListViewer
 
 #: ``#222 #25 #221`` in code page 437, and what an ASCII terminal gets instead.
@@ -198,16 +199,13 @@ class History(Widget):
         return True
 
 
-class HistoryList(ListViewer):
+class HistoryList(ListViewer, DropDown):
     """The dropped list: a framed, modal :class:`ListViewer` of one history.
 
     Turbo Vision built it from a window, a viewer and a scroll bar; a
     ``ListViewer`` is all three already -- its frame, its rows and a scroll
     bar on its right edge.
     """
-
-    #: ``THistoryWindow`` was a window, and cast a window's shadow.
-    shadow: bool = True
 
     #: Whether a printable key searches the list: on for a button's
     #: ``choices``, off for a history.
@@ -221,7 +219,6 @@ class HistoryList(ListViewer):
         super().__init__(**kwargs)
         #: The button that dropped this, and the line it fills.
         self.button = button
-        self.modal = True
 
     # -- the quick search ----------------------------------------------------------
 
@@ -272,10 +269,6 @@ class HistoryList(ListViewer):
         if text is not None:
             self.button.choose(text)
         return True
-
-    def close(self) -> None:
-        if self.parent is not None:
-            self.parent.remove(self)
 
     async def on_key(self, event: KeyEvent) -> bool:
         if event.matches("escape"):

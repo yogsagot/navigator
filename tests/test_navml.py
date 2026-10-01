@@ -549,6 +549,8 @@ def test_importing_one_component_does_not_load_the_library(package):
         "navml.widgets.dialog",           # the group, which imports nothing
         "navml.widgets.dialog.control",   # the base both of Field's children
         "navml.widgets.dialog.control.control",  # derive from
+        "navml.widgets.dialog.drop_down",  # the base of the list the
+        "navml.widgets.dialog.drop_down.drop_down",  # history drops
         "navml.widgets.dialog.field",
         "navml.widgets.dialog.field.field",
         "navml.widgets.dialog.field.field_nml",
@@ -598,7 +600,7 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.__all__ == [
         "Button", "Calendar", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "Control",
         "DateButton", "DateField", "Desktop", "Dialog",
-        "DockLayout", "Field", "GridLayout", "History", "HorizontalLayout",
+        "DockLayout", "DropDown", "Field", "GridLayout", "History", "HorizontalLayout",
         "InputLine",
         "Label", "Layout", "LinearLayout", "ListViewer", "MaskedField", "MaskedLine", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "ProgressBar", "RadioButtons", "ScrollBar",

@@ -254,6 +254,32 @@ class DoubleClickEvent(MouseClickEvent):
 
 
 @dataclass(frozen=True, slots=True)
+class ClickOutsideEvent(MouseClickEvent):
+    """A press that landed outside the modal holding the input.
+
+    Such a press reaches nothing in the tree -- the widgets under it are out
+    of reach -- so navkit offers it to the modal itself, in the modal's own
+    coordinates (which put it beyond its edges), under ``on_click_outside``.
+    Delivered for a button press only, never a wheel, a move, a release or a
+    double-click.  What it *means* is the modal's: navkit dismisses nothing,
+    and a modal with no ``on_click_outside`` ignores it as it always did.
+    """
+
+    @classmethod
+    def of(cls, press: MouseClickEvent) -> ClickOutsideEvent:
+        """The same press, re-raised as one that missed the modal."""
+        return cls(
+            x=press.x,
+            y=press.y,
+            button=press.button,
+            action=press.action,
+            ctrl=press.ctrl,
+            alt=press.alt,
+            shift=press.shift,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class ResizeEvent(Event):
     """The terminal window changed size."""
 

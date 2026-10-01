@@ -24,6 +24,12 @@ Dialog(Modal):
     #: The line of text above the buttons.
     property prompt: ""
 
+    #: Whether a click outside the dialog cancels it, as Esc does.  Off,
+    #: because a dialog usually holds the user's work and a stray click must
+    #: not cost it; a small one that is opened from another dialog -- and is
+    #: cheap to open again -- says yes in its own document.
+    property close_on_outside_click: False
+
     #: Turbo Vision's dialog keys.  Reached only once a key has passed the
     #: control that has the keyboard, so an input line that wants Enter or Tab
     #: for itself takes it first.

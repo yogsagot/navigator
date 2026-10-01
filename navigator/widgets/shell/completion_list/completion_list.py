@@ -36,6 +36,9 @@ class CompletionList(HistoryList):
         super().__init__(None, **kwargs)
         self._on_choose = on_choose
         self._on_type = on_type
+        # Over the command line, not a dialog: a click past it is left alone,
+        # as it was before drop-downs closed on one.
+        self.close_on_outside_click = False
 
     async def on_key(self, event: KeyEvent) -> bool:
         typed = (event.is_printable and event.char) or event.matches("backspace")

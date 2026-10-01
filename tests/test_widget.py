@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pytest
 
 from navkit.application import Application
-from navkit.events import DoubleClickEvent, Event, KeyEvent, MouseClickEvent
+from navkit.events import ClickOutsideEvent, DoubleClickEvent, Event, KeyEvent, MouseClickEvent
 from navkit.reactive import bind, effect, flush_effects
 from navkit.screen import ScreenBuffer
 from navkit.style import SHADOW, Style
@@ -802,6 +802,27 @@ def test_a_click_outside_a_modal_reaches_nothing():
     assert behind.mice == []
     assert root.mice == []
     assert dialog.mice == []
+
+
+def test_a_press_outside_a_modal_is_offered_to_the_modal_itself():
+    app, root, behind, dialog = modal_app()
+    outside = []
+
+    async def on_click_outside(event):
+        outside.append((type(event), event.x, event.y))
+        return True
+
+    dialog.on_click_outside = on_click_outside
+    app.overlay(dialog)
+    # In the modal's own coordinates, which put it beyond its edges; only a
+    # press, never a wheel, a move, a release or a double-click.
+    awaited(app._handle(MouseClickEvent(2, 8, "left")))
+    awaited(app._handle(MouseClickEvent(2, 8, "wheel_up")))
+    awaited(app._handle(MouseClickEvent(2, 8, "left", "release")))
+    awaited(app._handle(MouseClickEvent(2, 8, "none", "move")))
+    awaited(app._handle(DoubleClickEvent(2, 8, "left")))
+    assert outside == [(ClickOutsideEvent, -8, 5)]
+    assert behind.mice == [] and dialog.mice == []
 
 
 def test_a_click_inside_a_modal_arrives_in_its_own_coordinates():

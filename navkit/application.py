@@ -34,6 +34,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from navkit.events import (
+    ClickOutsideEvent,
     DoubleClickEvent,
     Event,
     KeyEvent,
@@ -999,8 +1000,9 @@ class Application:
         underneath, and not the modal either, whose coordinates it is not in.
 
         Dismissing on an outside click is a *policy*, and belongs to whatever
-        widget wants it: it can watch the application's own ``on_mouse_click``,
-        which still sees every action before any of this.
+        widget wants it: a press that misses the modal is offered to the modal
+        itself as a :class:`ClickOutsideEvent`, and what it does then is its
+        own business.
         """
         capture = self._capture
         if capture is not None:
@@ -1023,6 +1025,15 @@ class Application:
         local = event.translated(-dx, -dy)
         if modal.contains(local.x, local.y):
             await modal.dispatch_mouse(local)
+        elif (
+            event.action == "press"
+            and not event.is_wheel
+            and not isinstance(event, DoubleClickEvent)
+        ):
+            outside = ClickOutsideEvent.of(local).translated(-modal.x, -modal.y)
+            handler = getattr(modal, outside.handler, None)
+            if handler is not None:
+                await _call(modal, outside, handler)
 
     # -- commands ------------------------------------------------------------
 

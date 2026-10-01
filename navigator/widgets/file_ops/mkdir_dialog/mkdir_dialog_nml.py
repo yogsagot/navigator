@@ -40,20 +40,21 @@ class MkdirDialog(Dialog, _Component):
     __navml_source__ = "mkdir_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    entry: Field    # mkdir_dialog.nml:22
+    entry: Field    # mkdir_dialog.nml:25
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.entry = Field(parent=self)    # mkdir_dialog.nml:19
+        self.entry = Field(parent=self)    # mkdir_dialog.nml:22
 
         self.modal_width = 48    # mkdir_dialog.nml:15
         self.modal_height = 8    # mkdir_dialog.nml:16
         self.title = 'Make directory'    # mkdir_dialog.nml:17
+        self.close_on_outside_click = True    # mkdir_dialog.nml:20
 
-        self.entry.x = 2    # mkdir_dialog.nml:23
-        self.entry.y = 2    # mkdir_dialog.nml:24
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:25
-        self.entry.height = 1    # mkdir_dialog.nml:26
-        self.entry.label_text = '~N~ame'    # mkdir_dialog.nml:27
-        self.entry.label_width = 7    # mkdir_dialog.nml:28
-        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:30
+        self.entry.x = 2    # mkdir_dialog.nml:26
+        self.entry.y = 2    # mkdir_dialog.nml:27
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:28
+        self.entry.height = 1    # mkdir_dialog.nml:29
+        self.entry.label_text = '~N~ame'    # mkdir_dialog.nml:30
+        self.entry.label_width = 7    # mkdir_dialog.nml:31
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:33

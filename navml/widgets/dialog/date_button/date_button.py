@@ -43,9 +43,9 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
-from navkit.widget import Widget
 
 from navml.component import take_declared
+from navml.widgets.dialog.drop_down import DropDown
 from navml.widgets.dialog.history import History, HistoryList
 from navml.widgets.dialog.masked_line.masked_line import spans
 
@@ -77,7 +77,7 @@ def add_months(day: datetime.date, months: int) -> datetime.date:
     return day.replace(year=year, month=month, day=min(day.day, last))
 
 
-class Calendar(Widget):
+class Calendar(DropDown):
     """A month of days, framed and modal, with a cursor on one of them."""
 
     #: Three columns a day, seven days, a blank either side and the frame.
@@ -86,9 +86,6 @@ class Calendar(Widget):
     HEIGHT = 10
 
     parts = ("title", "arrow", "weekday", "day")
-
-    #: A window, as the history list is, and casts a window's shadow.
-    shadow: bool = True
 
     #: The day the cursor is on; the month shown is its month.
     day: datetime.date = reactive(datetime.date(2000, 1, 1))
@@ -102,7 +99,6 @@ class Calendar(Widget):
         super().__init__(**kwargs)
         #: The button that dropped this, and the line it fills.
         self.button = button
-        self.modal = True
         self.day = day or datetime.date.today()
 
     def layout(self, width: int, height: int) -> None:
@@ -193,10 +189,6 @@ class Calendar(Widget):
         self.close()
         if self.button is not None:
             self.button.pick(self.day)
-
-    def close(self) -> None:
-        if self.parent is not None:
-            self.parent.remove(self)
 
     # -- input ---------------------------------------------------------------
 

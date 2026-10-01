@@ -15,6 +15,9 @@ MkdirDialog(Dialog):
     modal_width: 48
     modal_height: 8
     title: "Make directory"
+    #: Also opened from another dialog (Alt+T's MkDir, Copy's Tree), and holds
+    #: nothing a click could lose.
+    close_on_outside_click: True
 
     Field:
         #: Not ``name``: ``Widget.name`` is what a ``#name`` selector

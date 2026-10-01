@@ -88,7 +88,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         ("Cancel", "Default", "SelectNext", "SelectPrevious"),
         ("Button",), ("HorizontalLayout",), ("StaticText",), ("Modal",),
     ]
-    assert [d.name for d in document.root.declarations] == ["buttons", "prompt"]
+    assert [d.name for d in document.root.declarations] == ["buttons", "prompt", "close_on_outside_click"]
     assert [(b.key, b.command) for b in document.root.keys.bindings] == [
         ("escape", "Cancel"),
         ("enter", "Default"),

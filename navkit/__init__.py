@@ -7,6 +7,7 @@ language in :mod:`navml` or about the file manager built on top of both.
 
 from navkit.application import Application
 from navkit.events import (
+    ClickOutsideEvent,
     DoubleClickEvent,
     Event,
     KeyEvent,
@@ -40,6 +41,7 @@ from navkit.widget import Widget
 __all__ = [
     "Application",
     "Binding",
+    "ClickOutsideEvent",
     "CycleError",
     "DEFAULT_STYLE",
     "Declaration",

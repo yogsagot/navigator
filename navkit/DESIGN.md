@@ -1239,9 +1239,18 @@ ancestors' positions, the root sitting at the origin — and offers it there, be
 the widget's parent's coordinates and shifts it inward itself. **An action landing outside the modal reaches nothing at
 all**: not the widgets underneath, which is the point, and not the modal either, whose coordinate system it is not in.
 
-**Dismissing on an outside click is a policy and is deliberately absent.** A widget that wants it watches the
-application's own `on_mouse_click`, which still sees every action before any of this and is where a policy about input
-belongs. Baking it in would make the other choice unexpressible.
+**Dismissing on an outside click is a policy and is still not navkit's -- but the click is now the modal's to
+decide.** An outside *press* (not a wheel, a move, a release or a double-click) goes to the modal itself as a
+`ClickOutsideEvent`, in the modal's own coordinates, under `on_click_outside`; a modal with no such handler ignores it,
+as every modal did before. The first version left it to a widget watching the application's `on_mouse_click`, which
+put the policy on an object that does not know which modal is up. Whether to close is the library's, and it is one
+property: `Dialog.close_on_outside_click`, declared in `dialog.nml` and off, so a dialog holding the user's work never
+loses it to a stray click, and set in the document of a small dialog that is also opened from another one (`MkDir`,
+*Choose Directory*); the drop-downs (`HistoryList`, `Calendar`, `TimePicker`) are not dialogs and get it from their own shared base,
+navml's Python-only `DropDown`, under the same name and on by default.
+A rule read off the modal stack -- close whatever is not the outermost -- was tried first and dropped: the same
+dialog is primary from one key and secondary from another, and a property says what the dialog is, not where it
+happened to open.
 
 ### Focus is confined, and handed back
 

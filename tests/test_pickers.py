@@ -589,3 +589,88 @@ def test_home_and_end_in_the_month_list_go_to_january_and_december():
     first, last, day = run_calendar(steps)
     assert (first, last) == ("January", "December")
     assert day == datetime.date(2026, 1, 15)
+
+
+# -- a click outside -----------------------------------------------------------------
+
+
+def press(x, y, button="left"):
+    return MouseClickEvent(x, y, button, "press")
+
+
+def test_a_click_outside_the_calendar_closes_it_and_leaves_the_dialog():
+    async def steps(app, calendar, date):
+        dialog = _dialog_of(date)
+        app.post_event(KeyEvent("pagedown"))
+        # Inside the dialog, past the calendar.
+        x, y = dialog.x + dialog.width - 3, dialog.y + 1
+        app.post_event(press(x, y))
+        await asyncio.sleep(0.03)
+        first = app.modal is dialog, date.value
+        # Outside everything: the dialog is the outermost and stays.
+        app.post_event(press(0, 0))
+        await asyncio.sleep(0.03)
+        return first, app.modal is dialog
+
+    assert run_calendar(steps) == ((True, "15-10-2026"), True)
+
+
+def test_a_click_outside_a_list_over_the_calendar_closes_only_the_list():
+    async def steps(app, calendar, date):
+        app.post_event(KeyEvent("m", "m"))
+        await asyncio.sleep(0.03)
+        months = app.modal
+        app.post_event(press(0, 0))
+        await asyncio.sleep(0.03)
+        return type(months).__name__, app.modal is calendar
+
+    assert run_calendar(steps) == ("HistoryList", True)
+
+
+def test_the_wheel_and_a_release_outside_dismiss_nothing():
+    async def steps(app, calendar, date):
+        app.post_event(MouseClickEvent(0, 0, "wheel_up", "press"))
+        app.post_event(MouseClickEvent(0, 0, "left", "release"))
+        await asyncio.sleep(0.03)
+        return app.modal is calendar
+
+    assert run_calendar(steps) is True
+
+
+def _dialog_of(widget):
+    while not isinstance(widget, Dialog):
+        widget = widget.parent
+    return widget
+
+
+def test_a_dialog_cancels_on_a_click_outside_only_where_it_says_so():
+    async def main():
+        from navkit.widget import Widget
+
+        outer = Dialog(modal_width=50, modal_height=14)
+        inner = Dialog(modal_width=20, modal_height=6, close_on_outside_click=True)
+        app = Application(Widget(), terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.05)
+        try:
+            app.overlay(outer)
+            app.overlay(inner)
+            await asyncio.sleep(0.03)
+            app.post_event(press(0, 0))
+            await asyncio.sleep(0.03)
+            first = app.modal is outer, inner.result, inner.is_mounted
+            app.post_event(press(0, 0))
+            await asyncio.sleep(0.03)
+            return first, app.modal is outer
+        finally:
+            app.exit()
+            await task
+
+    assert asyncio.run(main()) == ((True, None, False), True)
+
+
+def test_the_small_dialogs_say_so_in_their_markup():
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+
+    assert MkdirDialog().close_on_outside_click is True
+    assert Dialog().close_on_outside_click is False

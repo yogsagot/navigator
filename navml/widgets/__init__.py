@@ -44,6 +44,7 @@ _COMPONENTS = {
     "DateField": "dialog.date_field",
     "Desktop": "desktop",
     "Dialog": "dialog.dialog",
+    "DropDown": "dialog.drop_down",
     "DockLayout": "layout.dock_layout",
     "Field": "dialog.field",
     "GridLayout": "layout.grid_layout",
@@ -130,6 +131,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.control import Control
     from navml.widgets.desktop import Desktop
     from navml.widgets.dialog.dialog import Dialog
+    from navml.widgets.dialog.drop_down import DropDown
     from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.dialog.field import Field
     from navml.widgets.dialog.choice_field import ChoiceField
