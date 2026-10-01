@@ -415,8 +415,15 @@ class InputParser:
             return 0, None
         second = buf[1]
 
-        if second == 0x1B:  # ESC ESC -- report the first, re-parse the rest
-            return 1, KeyEvent("escape")
+        if second == 0x1B:
+            # ESC ESC is one Escape key, not two.  Some terminals send the
+            # pair for a single press, and mc's habit of double-tapping Esc
+            # lands both inside the timeout: two keys would close a drop-down
+            # and then the dialog under it.  Only an ESC that starts a
+            # sequence of its own (ESC ESC [ A) is reported apart from it.
+            if len(buf) > 2 and buf[2] in (0x5B, 0x4F):
+                return 1, KeyEvent("escape")
+            return 2, KeyEvent("escape")
 
         if second == 0x5B:  # CSI
             final = -1

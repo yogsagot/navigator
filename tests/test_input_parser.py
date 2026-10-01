@@ -107,6 +107,17 @@ def test_escape_followed_by_escape(parser):
     assert names(parser.feed(b"\x1b\x1b[A")) == ["escape", "up"]
 
 
+def test_a_doubled_escape_is_one_escape_key(parser):
+    # One press some terminals send as two bytes, or a double tap inside the
+    # timeout: either way one key, or Esc on a drop-down closes its dialog too.
+    assert names(parser.feed(b"\x1b\x1b")) == ["escape"]
+    assert parser.pending_escape is False
+    assert names(parser.feed(b"\x1b\x1ba")) == ["escape", "a"]
+    # Split across reads, the second byte arrives while the first is pending.
+    assert parser.feed(b"\x1b") == []
+    assert names(parser.feed(b"\x1b")) == ["escape"]
+
+
 def test_unknown_sequence_is_dropped_not_replayed(parser):
     # Consumed, but reported as nothing rather than as garbage keystrokes.
     assert parser.feed(b"\x1b[99~") == []
