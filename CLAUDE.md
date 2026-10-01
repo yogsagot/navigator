@@ -160,7 +160,7 @@ byte for byte** -- tabs, each line's own terminator, bytes that are not UTF-8 (`
 DN's rewriting. Every key is a command named after DN's `cm*` in `FileEditor.keys`; `Widget.edits_text` makes the
 command line's Enter/Home/End/Tab and pastes step aside. **Closing asks** through `Window.must_ask`/`ask_to_close`
 (`Valid(cmClose)`), which `request_close`, Close all and Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
-Saving renames a new file over the old one. *The editor* in `navml/DESIGN.md` has the rest and the phases left.
+Saving renames a new file over the old one. **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus nested as submenus, greyed where the feature is still to come. *The editor* in `navml/DESIGN.md` has the rest and the phases left.
 **F5 and F6 are DOS Navigator's copy and Rename/move** (`FILECOPY.PAS`): `navigator/filecopy.py` is the model
 (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy modes, `MkName` masks, rename-first moves with an `EXDEV`
 fallback), `CopyDialog` is `dlgCopyDialog`/`dlgRenameDialog` in one document (seeded with the passive panel's

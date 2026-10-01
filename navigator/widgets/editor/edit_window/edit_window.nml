@@ -1,8 +1,11 @@
-from navigator.commands import SaveText
+from navigator.commands import SaveText, Undo
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: F4: DOS Navigator's ``TEditWindow`` (``MICROED.PAS``).
@@ -68,3 +71,219 @@ EditWindow(Window):
         width: min(len(editor.info_text), max(0, parent.width - 4))
         height: 1
         text: editor.info_text
+
+    #: DOS Navigator's ``dlgEditorMenu`` (``DN.DNR``), every entry in the
+    #: original's order with the original's captions and keys -- but as one
+    #: *Editor* entry on the main bar, after *File*, while this window is the
+    #: active one, rather than as a bar of its own inside the window
+    #: (``TEditWindow.Init``).  Its seven menus would not fit beside the main
+    #: bar's, and *File*, *Options* and four of its letters are the main bar's
+    #: already, so they are submenus here.  *Main menu* (F10) is left out: the
+    #: menu it would open is the one it is in.
+    #:
+    #: An entry names a command once the editor can do it and is greyed until
+    #: then, as in ``main_menu.nml``.  DN showed each option's ``Off``/``On``
+    #: in the key column; a ticked entry will say it once the option exists.
+    SubMenu:
+        id: edit_menu
+        text: '~E~ditor'
+        after: 'File'
+        SubMenu:
+            id: edit_menu_file
+            text: '~F~ile'
+            MenuItem:
+                text: '~O~pen...'
+                key: 'F3'
+            MenuItem:
+                text: '~S~ave'
+                command: SaveText
+                key: 'F2'
+            MenuItem:
+                text: 'Save ~a~s...'
+                key: 'Shift-F2'
+            MenuItem:
+                text: 'Save a~l~l...'
+                key: 'Ctrl-F2'
+            MenuLine:
+            MenuItem:
+                text: '~P~rint'
+                key: 'F8'
+            MenuItem:
+                text: 'Print ~b~lock'
+                key: 'Shift-F8'
+            MenuLine:
+            MenuItem:
+                text: 'E~x~it'
+                command: CloseWindow
+                key: 'Ctrl-F4'
+        SubMenu:
+            id: edit_menu_edit
+            text: '~E~dit'
+            MenuItem:
+                text: '~U~ndo'
+                command: Undo
+                key: 'Alt-BkSp'
+            MenuLine:
+            MenuItem:
+                text: 'Cu~t~'
+                key: 'Shift-Del'
+            MenuItem:
+                text: '~C~opy'
+                key: 'Ctrl-Ins'
+            MenuItem:
+                text: '~P~aste'
+                key: 'Shift-Ins'
+            MenuItem:
+                text: 'C~o~py to...'
+            MenuItem:
+                text: 'P~a~ste from...'
+            MenuLine:
+            MenuItem:
+                text: 'C~l~ear'
+                key: 'Ctrl-Del'
+        SubMenu:
+            id: edit_menu_search
+            text: '~S~earch'
+            MenuItem:
+                text: '~F~ind...'
+                key: 'F7'
+            MenuItem:
+                text: '~R~eplace...'
+                key: 'Ctrl-F7'
+            MenuItem:
+                text: '~S~earch again'
+                key: 'Shift-F7'
+            MenuItem:
+                text: 'Re~v~ersed search'
+                key: 'Alt-F7'
+            MenuItem:
+                text: '~G~o to line number...'
+                key: 'Alt-G'
+        SubMenu:
+            id: edit_menu_paragraph
+            text: '~P~aragraph'
+            MenuItem:
+                text: '~J~ustify'
+                key: 'Alt-J'
+            MenuItem:
+                text: '~R~ight'
+                key: 'Alt-R'
+            MenuItem:
+                text: '~L~eft'
+                key: 'Alt-L'
+            MenuItem:
+                text: '~C~enter'
+                key: 'Alt-C'
+            MenuLine:
+            MenuItem:
+                text: '~M~argins...'
+        SubMenu:
+            id: edit_menu_block
+            text: '~B~lock'
+            MenuItem:
+                text: '~M~ove'
+                key: 'Ctrl K V'
+            MenuItem:
+                text: '~C~opy'
+                key: 'Ctrl K C'
+            MenuItem:
+                text: '~I~ndent'
+                key: 'Ctrl K I'
+            MenuItem:
+                text: '~U~nindent'
+                key: 'Ctrl K U'
+            MenuLine:
+            MenuItem:
+                text: 'U~p~percase'
+                key: 'Ctrl K ['
+            MenuItem:
+                text: '~L~owercase'
+                key: 'Ctrl K ]'
+            MenuItem:
+                text: 'Capi~t~alize'
+                key: 'Ctrl K \\'
+            MenuLine:
+            MenuItem:
+                text: '~S~ort'
+                key: 'Alt-T'
+            MenuItem:
+                text: 'Calc~u~late sum'
+                key: 'Alt-Ins'
+        SubMenu:
+            id: edit_menu_misc
+            text: '~M~isc'
+            MenuItem:
+                text: 'Insert ~d~ate'
+                key: 'Ctrl Q D'
+            MenuItem:
+                text: 'Insert ~t~ime'
+                key: 'Ctrl Q T'
+            MenuItem:
+                text: 'Du~p~licate line'
+                key: 'F6'
+            MenuItem:
+                text: 'ASCII Ta~b~le'
+                key: 'Ctrl P'
+            MenuItem:
+                text: 'Line Dra~w~ing'
+                key: 'F4'
+            MenuLine:
+            SubMenu:
+                id: edit_menu_misc_uppercase
+                text: '~U~ppercase'
+                MenuItem:
+                    text: '~W~ord'
+                    key: 'Ctrl ['
+                MenuItem:
+                    text: '~L~ine'
+                    key: 'Ctrl+Shift ['
+                MenuItem:
+                    text: '~B~lock'
+                    key: 'Ctrl K ['
+            SubMenu:
+                id: edit_menu_misc_lowercase
+                text: '~L~owercase'
+                MenuItem:
+                    text: '~W~ord'
+                    key: 'Ctrl ]'
+                MenuItem:
+                    text: '~L~ine'
+                    key: 'Ctrl+Shift ]'
+                MenuItem:
+                    text: '~B~lock'
+                    key: 'Ctrl K ]'
+            SubMenu:
+                id: edit_menu_misc_capitalize
+                text: '~C~apitalize'
+                MenuItem:
+                    text: '~W~ord'
+                    key: 'Ctrl \\'
+                MenuItem:
+                    text: '~L~ine'
+                    key: 'Ctrl+Shift \\'
+                MenuItem:
+                    text: '~B~lock'
+                    key: 'Ctrl K \\'
+        SubMenu:
+            id: edit_menu_options
+            text: '~O~ptions'
+            MenuItem:
+                text: '~B~ackspace indents'
+            MenuItem:
+                text: 'AutoB~r~ackets'
+            MenuItem:
+                text: 'Auto~i~ndent'
+            MenuItem:
+                text: '~A~uto wrap'
+            MenuItem:
+                text: '~J~ustify on wrap'
+            MenuItem:
+                text: '~V~ertical blocks'
+            MenuItem:
+                text: 'Opti~m~al fill'
+            MenuItem:
+                text: 'Current ~l~ine highlight'
+            MenuItem:
+                text: 'Current ~c~olumn highlight'
+            MenuItem:
+                text: 'Syntax ~h~ighlight'

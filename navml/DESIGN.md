@@ -833,6 +833,13 @@ single menu row and keeps F10 meaning one thing.
   window, so the window's own key table names the keys and its `enables`/`checks` grey and tick the entries.
   `SetViewMode(mode)` and `SetViewFilter(filter)` exist so the modes and filters F4/F6 cycle can each be one ticked
   entry.
+- **The editor's menu is one entry with DN's bar nested in it.** `dlgEditorMenu` is seven menus (File, Edit,
+  Search, Paragraph, Block, Misc, Options), and DN gave it a row of its own inside the window. Beside the main
+  bar's eight they would not fit in 80 columns, and *File*, *Options* and the letters F, P, M and O are the main
+  bar's already. So `edit_window.nml` has one *Editor* entry after *File*, and the seven are submenus in it, each
+  with the original's entries, captions and keys. *Main menu* (F10) is left out, because the menu it would open is
+  the one it sits in. An entry names a command once the editor can do it and is greyed until then. DN showed each
+  option's `Off`/`On` in the key column, and a tick will say that here once the option exists.
 
 What is not here yet: the status line has nothing to show while a menu is open, where the original showed the
 menu's help-context hints. The menu's own key shortcuts are not bound either: `TMenuBar` answered every item's key
@@ -1316,7 +1323,8 @@ Left for later, by phase:
 1. Key chords (navkit and markup), and the WordStar `^K`/`^Q` half of `EDITOR COMMANDS`.
 2. Blocks, stream and column, with the clipboard.
 3. Find, Replace, Goto line.
-4. The editor's own menu bar, F10 routed to it, `FileDialog`, Save as, SmartPad, the ASCII table.
+4. `FileDialog`, Save as, SmartPad, the ASCII table. The menu is written (*A window's own menu joins the bar
+   while it is in use*); most of its entries wait on the phases here.
 5. Autoindent's remaining rules, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
 6. Highlighting and macros from `DN.HGL`.
 7. Editor defaults, persisted, edit history, backups, file locking and printing.

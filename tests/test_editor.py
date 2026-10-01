@@ -319,3 +319,60 @@ def test_the_cursor_steps_over_a_tab_whole(files):
                   *[KeyEvent("right")] * 7])
     editor = editor_window(app).editor
     assert editor.col == 8  # six letters of "second", then the tab to its stop
+
+
+# -- the Editor menu ---------------------------------------------------------
+
+
+def bar_captions(app) -> list[str]:
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    return [parse_shortcut(e.text)[0] for e in app.shell.menu.entries()]
+
+
+def test_the_editor_menu_is_on_the_bar_after_file_only_while_the_editor_is_active(files):
+    app = navigator(files)
+    seen = []
+    look = lambda a: seen.append("Editor" in bar_captions(a))   # noqa: E731
+    run_app(app, [
+        look,
+        KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+        lambda a: seen.append(bar_captions(a)[:4]),
+        KeyEvent("f9"), look,
+        KeyEvent("f9"), look,
+        KeyEvent("escape"), look,
+    ])
+    assert seen == [False, ["≡", "File", "Editor", "Disk"], False, True, False]
+
+
+def test_editor_file_save_writes_and_edit_undo_undoes(files):
+    app = navigator(files)
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("!"), lambda a: None,
+        KeyEvent("e", "e", alt=True), KeyEvent("f", "f"), KeyEvent("s", "s"), lambda a: None,
+        *typed("?"), lambda a: None,
+        KeyEvent("e", "e", alt=True), KeyEvent("e", "e"), KeyEvent("u", "u"), lambda a: None,
+    ])
+    assert (files / "text.txt").read_bytes() == b"!first line\r\nsecond\tline\r\n"
+    # Undo took the "?" back off, which returns the text to its save point.
+    assert not editor_window(app).editor.modified
+    assert not app.shell.menu.is_open
+
+
+def test_an_editor_feature_still_to_come_is_greyed(files):
+    from navml.widgets.menu.menu_box import MenuBox
+
+    app = navigator(files)
+    seen = {}
+
+    def ask(a):
+        menu = editor_window(a).edit_menu
+        probe = MenuBox(None)
+        probe.behind = a.focused
+        a.root.add(probe)
+        seen["justify"] = probe.enabled(menu.entry("Paragraph").entry("Justify"))
+        seen["save"] = probe.enabled(menu.entry("File").entry("Save"))
+        a.root.remove(probe)
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, ask])
+    assert seen == {"justify": False, "save": True}
