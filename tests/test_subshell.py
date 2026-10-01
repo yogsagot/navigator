@@ -128,6 +128,16 @@ def test_a_line_with_a_tab_in_it_is_not_completed(shell, tmp_path):
     assert "a|b|" in text(screen)[-1]
 
 
+@pytest.mark.parametrize("shell", SHELLS)
+def test_a_line_editor_s_variables_are_not_inherited(shell, tmp_path, monkeypatch):
+    # `nav` run from atuin's search with enter_accept inherits these from the
+    # bind -x binding, and bash-preexec would then never fire preexec.
+    monkeypatch.setenv("READLINE_POINT", "0")
+    monkeypatch.setenv("COMP_POINT", "0")
+    run(session(shell, [('echo "${READLINE_POINT-unset} ${COMP_POINT-unset}" >out', tmp_path)]))
+    assert (tmp_path / "out").read_text() == "unset unset\n"
+
+
 def test_a_shell_that_exits_finishes_the_command(tmp_path):
     # No prompt comes back, so the command is finished by the exit instead,
     # with the wait status -- and the next command starts another shell.
@@ -203,6 +213,24 @@ def test_a_prompt_a_prompt_command_rebuilds_is_followed(home, tmp_path):
     # session stops: a command finishes at the D mark, before the prompt.
     assert shown[:2] == ["p1> ", "p2> "]
     assert text(screen) == ["p1> true", "p2> true"]
+
+
+def test_bash_preexec_s_installer_stays_the_last_prompt_command(home, tmp_path):
+    # bash-preexec installs itself from the first prompt; anything run after
+    # its installer there switches preexec off for the first command, which
+    # atuin then never records.  This stands in for it: the installer notes
+    # whether our prompt command has already run.
+    if shutil.which("bash") is None:
+        pytest.skip("bash is not installed")
+    rc(home, bash=(
+        "__bp_install_string=$'__bp_trap_string=x\\n__fake_install'\n"
+        "__fake_install() { echo ${__nav_wrapped:+after} >~/installed; "
+        "PROMPT_COMMAND=${PROMPT_COMMAND//$__bp_install_string/:}; }\n"
+        "PROMPT_COMMAND=$'true\\n'\"$__bp_install_string\""
+    ), zsh="")
+    _, finished, _ = run(session("bash", [("false", tmp_path)]))
+    assert (home / "installed").read_text() == "after\n"
+    assert finished == [(1, tmp_path)]
 
 
 def test_the_last_line_of_a_multi_line_prompt_is_the_one_typed_on():
@@ -387,6 +415,31 @@ def test_the_history_is_the_shell_s_own_newest_first(shell, home, tmp_path):
 
     entries = run(go())
     assert entries[:2] == ["echo second", "echo first"]
+
+
+def test_silent_lines_stay_out_of_the_history_without_ignorespace(home, tmp_path):
+    # bash-preexec strips ignorespace from HISTCONTROL at its first prompt, so
+    # the silent cd and the history query itself would otherwise be listed.
+    if shutil.which("bash") is None:
+        pytest.skip("bash is not installed")
+    rc(home, bash="PS1='$ '; PROMPT_COMMAND='HISTCONTROL=${HISTCONTROL//ignorespace}'", zsh="")
+    (tmp_path / "sub").mkdir()
+
+    async def go():
+        done = asyncio.Event()
+        subshell, _ = await started("bash", tmp_path, on_finished=lambda *_: done.set())
+        got = asyncio.Event()
+        entries = []
+        try:
+            subshell.run("echo typed", tmp_path / "sub")   # a silent cd first
+            await asyncio.wait_for(done.wait(), 10)
+            assert subshell.history(lambda found: (entries.extend(found), got.set()))
+            await asyncio.wait_for(got.wait(), 10)
+        finally:
+            subshell.stop()
+        return entries
+
+    assert run(go()) == ["echo typed"]
 
 
 @pytest.mark.parametrize("shell", HOOKED)

@@ -73,6 +73,16 @@ MARK = 6973
 _PASTE_ON = b"\x1b[?2004h"
 _PASTE_OFF = b"\x1b[?2004l"
 
+#: What bash sets only while a ``bind -x`` binding or a completion function
+#: runs -- and exports to whatever is started from there, which is ``nav``
+#: itself when atuin's search runs it with ``enter_accept``.  Inherited by the
+#: shell, they tell bash-preexec that every command is a keybinding, so its
+#: ``preexec`` never fires and atuin records nothing.
+_LINE_EDITOR_VARIABLES = (
+    "READLINE_LINE", "READLINE_POINT", "READLINE_MARK",
+    "COMP_LINE", "COMP_POINT", "COMP_WORDS", "COMP_CWORD", "COMP_KEY", "COMP_TYPE",
+)
+
 
 @dataclass(frozen=True, slots=True)
 class CommandFinished(Event):
@@ -203,8 +213,21 @@ __nav_complete() {
 #: descriptor, handed back as an ``R`` mark.  The ``O`` mark before it is where
 #: the console starts showing, so the line that ran it is never seen.
 #: ``__nav_keys`` says, once, which of the two the user's Up and Ctrl+R are.
+#: ``__nav_forget`` drops the line just run if it began with a space, which
+#: ``ignorespace`` would have kept out -- but bash-preexec strips that from
+#: ``HISTCONTROL``, because it reads the command from ``history 1``, so every
+#: silent line would be in the history.  Dropped at the next prompt, first,
+#: it is gone before a prompt command's ``history -a`` writes it out and after
+#: preexec has read it.
 _BASH_HISTORY = r"""
+__nav_forget() {
+    local re='^ *([0-9]+)[ *]  ' last
+    last=$(HISTTIMEFORMAT= builtin history 1)
+    [[ $last =~ $re ]] && builtin history -d "${BASH_REMATCH[1]}"
+    return "${__nav_status:-0}"
+}
 __nav_history() {
+    __nav_forget
     local -a entries
     mapfile -t entries < <(HISTTIMEFORMAT= fc -lnr -1000 2>/dev/null | sed 's/^[[:space:]]*//')
     printf '@MARK@;H;%s\007' \
@@ -280,9 +303,19 @@ __nav_prompt() {{
     PS2=''
 }}
 if [[ "$(declare -p PROMPT_COMMAND 2>/dev/null)" == "declare -a"* ]]; then
-    PROMPT_COMMAND=('__nav_status=$?' "${{PROMPT_COMMAND[@]}}" __nav_prompt)
+    PROMPT_COMMAND=('__nav_status=$?;__nav_forget' "${{PROMPT_COMMAND[@]}}" __nav_prompt)
 else
-    PROMPT_COMMAND="__nav_status=\\$?;${{PROMPT_COMMAND:+$PROMPT_COMMAND;}}__nav_prompt"
+    # bash-preexec installs itself from the first prompt, and anything run
+    # after its installer in that prompt takes preexec's place, so the first
+    # command would never reach preexec -- or atuin.  It is kept last.
+    __nav_bp=
+    if [[ -n ${{__bp_install_string-}} && $PROMPT_COMMAND == *"$__bp_install_string"* ]]; then
+        __nav_bp=$__bp_install_string
+        PROMPT_COMMAND=${{PROMPT_COMMAND//"$__bp_install_string"/}}
+        PROMPT_COMMAND=${{PROMPT_COMMAND%$'\\n'}}
+    fi
+    PROMPT_COMMAND="__nav_status=\\$?;__nav_forget;${{PROMPT_COMMAND:+$PROMPT_COMMAND;}}__nav_prompt${{__nav_bp:+$'\\n'$__nav_bp}}"
+    unset __nav_bp
 fi
 HISTCONTROL="ignorespace${{HISTCONTROL:+:$HISTCONTROL}}"
 """ + (_BASH_COMPLETE + _BASH_HISTORY).replace("@MARK@", mark)
@@ -474,6 +507,8 @@ class Subshell:
         #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.
         self.can_complete = Path(argv[0]).name in ("bash", "zsh")
         env = dict(os.environ)
+        for name in _LINE_EDITOR_VARIABLES:
+            env.pop(name, None)
         env.update(extra)
         self._tail, self._prompt = b"", b""
         self._in_prompt = self._ready = self._silent = self.busy = self._paste = False
