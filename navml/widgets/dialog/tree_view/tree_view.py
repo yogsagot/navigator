@@ -39,9 +39,23 @@ opens the branch under the cursor and goes to its first child, or down a row
 when it has none -- where ``TTreeView`` moved Left and Right up and down,
 which duplicated the arrows beside them.
 Space, ``+`` and ``-`` open or close the branch under the cursor; ``*`` opens
-every branch already read; typing searches forward for a name starting with
-what was typed; Enter emits :class:`ChosenEvent`.  A click on the ``[+]`` of a
-row opens it.
+every branch already read; Enter emits :class:`ChosenEvent`.  A click on the
+``[+]`` of a row opens it.
+
+**The quick search is a path, not a scan** -- ``TTreeView``'s own
+(``SearchForMask``).  Ctrl+S, or typing where ``type_to_search`` is on,
+starts it; what is typed moves the cursor to the next row from it whose name
+begins so (the panel's rule: case folded, ``*`` and ``?`` wildcards, a
+character that would name nothing refused), and Ctrl+S again finds the next.
+**``/`` descends**, as DN's ``\\`` did: the branch matched opens, the cursor
+goes to its first child, and what is typed next is matched among that
+branch's children alone -- so ``us/lo/bi`` walks to ``/usr/local/bin``,
+reading the three directories it names and no other.  That is the answer to
+the tree being lazy: the search never needs a branch nobody has opened,
+because it opens the one it goes into.  ``/`` before anything is typed
+searches from the root, Backspace past a ``/`` climbs back out, Esc ends it
+where it stands, and any other key ends it and does its job -- Enter chooses,
+as it did in DN's.
 """
 
 from __future__ import annotations
@@ -51,10 +65,12 @@ from typing import Any, Callable, Iterable
 
 from navkit import glyphs as glyphs_module
 from navkit.events import Event, KeyEvent, MouseClickEvent
-from navkit.reactive import computed, effect, reactive
+from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 
+from navml.commands import QuickSearch
+from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
 
 #: Produces a node's children, the first time they are asked for.
@@ -177,14 +193,35 @@ class TreeView(ListViewer):
     #: Bumped whenever a branch opens, closes or is re-read: the node model is
     #: not reactive, and this one counter stands for all of it.
     revision: int = reactive(0)
-    #: What has been typed of a name being searched for, or "" while not.
-    search: str = reactive("")
+    keys = {"ctrl+s": QuickSearch}
+
+    #: What has been typed of the name being searched for since the last
+    #: ``/``, or None while the quick search is off.
+    search: str | None = reactive(None)
+    #: The node whose children the search is confined to, after a ``/``;
+    #: None searches every row.
+    search_scope: Any = reactive(None)
+    #: One ``(scope, typed, node)`` per ``/``: the scope before it, what had
+    #: been typed, and the node it went into -- what Backspace climbs back to.
+    search_trail: tuple = reactive(())
+    #: Whether a printable key starts a search, as in DOS Navigator's tree.
+    #: Off where typing belongs to a command line, and Ctrl+S starts it there.
+    type_to_search: bool = reactive(True)
+
+    #: Whether a frameless tree puts the search's caret on the cursor's name.
+    #: An owner that shows :meth:`search_label` on a frame of its own turns it
+    #: off and places the caret there itself.
+    caret_on_name = True
+
+    SEARCH_LABEL = " Search: "
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
         # be clamped onto them.
         effect(self, TreeView._flatten)
         super().mounted()
+        effect(self, TreeView._end_search_unfocused)
+        effect(self, TreeView._end_search_on_new_root)
 
     # -- the rows ------------------------------------------------------------------
 
@@ -389,37 +426,166 @@ class TreeView(ListViewer):
         else:
             put(name_at, item.node.name, self.part_style("node"))
 
+    def search_label(self) -> str:
+        """`` Search: us/lo/b `` while searching, else "": what a frame shows.
+
+        The tree's own footer when it is framed; a frameless tree's owner may
+        put it on a frame of its own, as the tree window does.
+        """
+        if self.search is None:
+            return ""
+        return f"{self.SEARCH_LABEL}{self.search_path} "
+
+    def footer_text(self) -> str:
+        """While searching, the path typed so far; otherwise the list's own."""
+        return self.search_label() or super().footer_text()
+
     def cursor_position(self) -> tuple[int, int] | None:
-        """The caret sits after what has been typed, while a search is on."""
+        """While searching, the caret after what has been typed: on the footer
+        when there is a frame to carry one, else on the cursor's name, as
+        ``TTreeView.Draw`` put it."""
+        text = self.search
+        if text is None:
+            return None
+        if self.framed:
+            footer = self.footer_text()
+            x = self.label_x(footer) + len(self.SEARCH_LABEL) + len(self.search_path)
+            return min(x, self.width - 2), self.height - 1
         row = self.selected
-        if not self.search or row is None:
+        if row is None or not self.caret_on_name:
             return None
         row_y = self.inset + self.header + self.cursor - self.scroll
-        return self.inset + self.name_column(row) - self.shift + len(self.search), row_y
+        return self.inset + self.name_column(row) - self.shift + len(text), row_y
+
+    # -- the quick search -------------------------------------------------------------------
+
+    @property
+    def edits_text(self) -> bool:
+        """True while searching, so a command line's Enter, Home, End and Tab
+        step aside and reach the search, which ends on them."""
+        return self.search is not None
+
+    @computed
+    def search_path(self) -> str:
+        """Everything typed: each segment a ``/`` went through, then the current one."""
+        return "".join(typed + "/" for _, typed, _ in self.search_trail) + (self.search or "")
+
+    def start_search(self) -> None:
+        """Ctrl+S: start searching, with nothing typed yet."""
+        if self.search is None:
+            self.search = ""
+
+    def end_search(self) -> None:
+        self.search = None
+        self.search_scope = None
+        self.search_trail = ()
+
+    def _end_search_unfocused(self) -> None:
+        """The search ends when the keyboard leaves the tree."""
+        if not self.focus_within and peek(self, TreeView.search) is not None:
+            self.end_search()
+
+    def _end_search_on_new_root(self) -> None:
+        """And when the tree is read again from a new root: its nodes are gone."""
+        _ = self.root
+        if peek(self, TreeView.search) is not None:
+            self.end_search()
+
+    def _find(self, text: str, start: int) -> int | None:
+        """The first row from *start* on, wrapping, inside the search's scope,
+        whose name *text* begins."""
+        pattern = name_pattern(text)
+        scope, rows = self.search_scope, self.items
+        for step in range(len(rows)):
+            index = (start + step) % len(rows)
+            node = rows[index].node
+            if (scope is None or node.parent is scope) and pattern.match(node.name):
+                return index
+        return None
+
+    def _descend_search(self) -> None:
+        """``/``: confine the search to the branch it matched, opened."""
+        text = self.search or ""
+        if text:
+            node = self.selected_node
+        elif not self.search_trail and self.search_scope is None:
+            # ``/`` first: from the root, as DN's leading ``\`` was.
+            node = self.root
+        else:
+            return
+        if node is None or not node.has_children() or not node.children():
+            return
+        self.search_trail = self.search_trail + ((self.search_scope, text, node),)
+        self.search_scope = node
+        self.search = ""
+        # Selecting a child opens its branch, and re-flattens at once.
+        self.select(node.children()[0])
+
+    def _search_key(self, event: KeyEvent) -> bool:
+        """A key while searching: True if the search took it.
+
+        Esc ends the search where it stands.  Any other key that is not the
+        search's ends it too and is declined, so it goes on to do what it
+        always does -- Down moves, Enter chooses.
+        """
+        text = self.search or ""
+        if event.char == "/":
+            self._descend_search()
+            return True
+        if event.is_printable and event.char:
+            found = self._find(text + event.char, self.cursor)
+            if found is not None:
+                self.cursor = found
+                self.search = text + event.char
+            return True
+        if event.matches("backspace"):
+            if text:
+                self.search = text[:-1]
+            elif self.search_trail:
+                scope, typed, node = self.search_trail[-1]
+                self.search_trail = self.search_trail[:-1]
+                self.search_scope = scope
+                self.search = typed
+                self.select(node)
+            return True
+        self.end_search()
+        return event.matches("escape")
+
+    async def on_quick_search(self, event: QuickSearch) -> bool:
+        """Ctrl+S starts the search, and while one is on finds the next match."""
+        if self.search is None:
+            self.start_search()
+        elif self.search:
+            found = self._find(self.search, self.cursor + 1)
+            if found is not None:
+                self.cursor = found
+        return True
+
+    def enables(self, command: Any) -> bool:
+        if isinstance(command, QuickSearch):
+            return not self.inert
+        return super().enables(command)
 
     # -- keys and the mouse ---------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
         if self.inert:
             return False
+        if self.search is not None and self._search_key(event):
+            return True
         node = self.selected_node
-        if event.char and event.is_printable and event.char in "+- " and not self.search:
+        if self.search is None and event.char and event.is_printable and event.char in "+- ":
             if node is not None:
                 self.toggle(node)
             return True
-        if event.char == "*" and not self.search:
+        if event.char == "*" and event.is_printable:
             self.expand_all()
             return True
-        if event.is_printable and event.char and event.char != " ":
-            self._search(self.search + event.char, start=self.cursor)
-            return True
-        if event.matches("backspace") and self.search:
-            self.search = self.search[:-1]
-            return True
-        if self.search:
-            self.search = ""
-            if event.matches("escape"):
-                return True
+        if event.is_printable and event.char:
+            if not self.type_to_search:
+                return False
+            self.start_search()
+            return self._search_key(event)
         if event.matches("left") or event.matches("backspace"):
             if node is not None and node.parent is not None:
                 if event.matches("backspace"):
@@ -434,19 +600,10 @@ class TreeView(ListViewer):
             return True
         return await super().on_key(event)
 
-    def _search(self, text: str, start: int) -> None:
-        """Move to the next row, from *start* on and round, whose name begins with *text*."""
-        rows = self.items
-        wanted = text.casefold()
-        for step in range(len(rows)):
-            index = (start + step) % len(rows)
-            if rows[index].node.name.casefold().startswith(wanted):
-                self.search = text
-                self.cursor = index
-                return
-
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A press on a row's ``[+]`` opens it; anywhere else, as a list."""
+        if event.action == "press" and not event.is_wheel and self.search is not None:
+            self.end_search()
         if (
             event.action == "press" and event.button == "left" and not self.inert
             and self.collapsible

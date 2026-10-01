@@ -100,8 +100,11 @@ Manager(Window):
         #: The directory tree Ctrl+T puts in the passive panel's place.  Last
         #: here, and hidden; ``manager.py`` moves it beside the panel it
         #: replaces, since a row lays its children out in order.
+        #: Typing goes to the command line, as it does from a panel; Ctrl+S
+        #: searches it.
         DirectoryTree:
             id: tree
+            type_to_search: False
 
         #: The quick view Ctrl+Q puts there instead, placed the same way.
         #: Its title keeps clear of the window icons, as a panel's does.

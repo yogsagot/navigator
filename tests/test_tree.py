@@ -223,7 +223,129 @@ def test_typing_searches_forward_and_backspace_and_escape_end_it():
     press(app, tree, KeyEvent("backspace"))
     assert tree.search == ""
     press(app, tree, KeyEvent("u", "u"), KeyEvent("escape"))
-    assert tree.selected_node.name == "usr" and tree.search == ""
+    assert tree.selected_node.name == "usr" and tree.search is None
+
+
+# -- the quick search: a path, typed through the branches it opens -----------------------------
+
+
+def counted():
+    """``/`` with ``usr/local/bin``, ``usr/lib`` and ``var``, nothing read, and
+    the paths whose children have been read, in order."""
+    read = []
+
+    def leaf(name):
+        return TreeNode(name, loader=load, data=children.get(name, []))
+
+    def load(parent):
+        read.append(parent.name)
+        return [leaf(name) for name in parent.data]
+
+    children = {"usr": ["lib", "local"], "local": ["bin", "share"], "/": ["usr", "var"]}
+    root = TreeNode("/", loader=load, data=children["/"], expanded=True)
+    return root, read
+
+
+def test_ctrl_s_starts_the_search_and_again_finds_the_next():
+    app, tree = mounted_tree()
+    press(app, tree, KeyEvent("s", ctrl=True))
+    assert tree.search == "" and tree.selected_node.name == "/"
+    press(app, tree, KeyEvent("*", "*"), KeyEvent("r", "r"))   # a wildcard, then r
+    assert tree.selected_node.name == "usr" and tree.search == "*r"
+    press(app, tree, KeyEvent("s", ctrl=True))                  # sha-r-e
+    assert tree.selected_node.name == "share"
+    press(app, tree, KeyEvent("s", ctrl=True))
+    assert tree.selected_node.name == "var"
+    press(app, tree, KeyEvent("s", ctrl=True))                  # wrapping round
+    assert tree.selected_node.name == "usr"
+
+
+def test_a_slash_opens_the_match_and_confines_the_search_to_its_children():
+    root, read = counted()
+    app, tree = mounted_tree(root)
+    for char in "us/l":
+        press(app, tree, KeyEvent(char, char))
+    assert tree.selected_node.name == "lib" and tree.search_path == "us/l"
+    press(app, tree, KeyEvent("o", "o"), KeyEvent("/", "/"), KeyEvent("b", "b"))
+    assert tree.selected_node.names() == ["/", "usr", "local", "bin"]
+    assert tree.search_path == "us/lo/b"
+    # Only the branches the path went through were read.
+    assert read == ["/", "usr", "local"]
+    # "v" names var, but var is not inside local: refused.
+    press(app, tree, KeyEvent("v", "v"))
+    assert tree.selected_node.name == "bin" and tree.search == "b"
+
+
+def test_backspace_climbs_back_out_through_a_slash():
+    root, _ = counted()
+    app, tree = mounted_tree(root)
+    for char in "us/lo/":
+        press(app, tree, KeyEvent(char, char))
+    assert tree.selected_node.name == "bin"
+    press(app, tree, KeyEvent("backspace"))
+    assert tree.selected_node.name == "local" and tree.search_path == "us/lo"
+    # "us/l", then "us/", then the slash itself: back out of usr, onto it.
+    press(app, tree, KeyEvent("backspace"), KeyEvent("backspace"), KeyEvent("backspace"))
+    assert tree.search_path == "us" and tree.search_scope is None
+    assert tree.selected_node.name == "usr"
+    press(app, tree, KeyEvent("backspace"), KeyEvent("backspace"), KeyEvent("v", "v"))
+    assert tree.selected_node.name == "var"         # every row is in scope again
+
+
+def test_a_slash_first_searches_from_the_root_and_a_leaf_takes_none():
+    root, _ = counted()
+    app, tree = mounted_tree(root)
+    press(app, tree, KeyEvent("s", ctrl=True), KeyEvent("/", "/"))
+    assert tree.search_scope is root and tree.selected_node.name == "usr"
+    press(app, tree, KeyEvent("v", "v"), KeyEvent("/", "/"))    # var is empty
+    assert tree.search_path == "/v" and tree.selected_node.name == "var"
+
+
+def test_any_other_key_ends_the_search_and_does_its_job():
+    app, tree = mounted_tree()
+    press(app, tree, KeyEvent("b", "b"), KeyEvent("down"))
+    assert tree.search is None and tree.selected_node.name == "usr"
+
+
+def test_enter_ends_the_search_and_chooses_as_dns_did():
+    seen = []
+
+    class Chooser(TreeView):
+        async def on_chosen(self, event):
+            seen.append(event.node.name)
+            return True
+
+    app, tree = mounted_tree(cls=Chooser)
+    press(app, tree, KeyEvent("v", "v"), KeyEvent("enter"))
+    assert tree.search is None and seen == ["var"]
+
+
+def test_without_type_to_search_typing_is_declined_and_ctrl_s_searches():
+    app, tree = mounted_tree()
+    tree.type_to_search = False
+    assert asyncio.run(tree.dispatch_key(KeyEvent("v", "v"))) is False
+    assert tree.search is None
+    press(app, tree, KeyEvent("s", ctrl=True), KeyEvent("v", "v"))
+    assert tree.selected_node.name == "var" and tree.edits_text
+
+
+def test_the_footer_shows_the_path_typed_and_the_caret_follows_it():
+    root, _ = counted()
+    app, tree = mounted_tree(root)
+    for char in "us/l":
+        press(app, tree, KeyEvent(char, char))
+    footer = rows(tree)[-1]
+    assert " Search: us/l " in footer
+    x, y = tree.cursor_position()
+    assert y == tree.height - 1 and footer[x - len("us/l"):x] == "us/l"
+
+
+def test_a_new_root_ends_the_search():
+    app, tree = mounted_tree()
+    press(app, tree, KeyEvent("v", "v"))
+    tree.root = sample()
+    settle()
+    assert tree.search is None
 
 
 def test_enter_emits_chosen_with_the_node():
@@ -321,6 +443,35 @@ def test_enter_in_the_tree_sends_the_panel_there_now(places):
     assert app.manager.left.path == (places / "alpha").resolve()
 
 
+def test_typing_in_the_ctrl_t_tree_goes_to_the_command_line(places):
+    from test_nav import navigator
+
+    app = navigator(places)
+    run_app(app, [KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("g", "g")])
+    assert app.shell.command_line.value == "g"
+    assert app.manager.tree.search is None
+
+
+def test_ctrl_s_in_the_ctrl_t_tree_walks_a_path_and_enter_sends_the_panel(places):
+    from test_nav import navigator
+
+    app = navigator(places)
+    # From the root, every directory down to alpha typed whole, "/" between.
+    typed = "/" + "/".join(places.resolve().parts[1:]) + "/alpha"
+    seen = []
+    run_app(app, [
+        KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("s", ctrl=True),
+        *[KeyEvent(char, char) for char in typed],
+        lambda a: seen.append((a.manager.tree.search_path, a.manager.tree.edits_text)),
+        KeyEvent("enter"),
+    ])
+    assert seen == [(typed, True)]
+    # Enter ended the search and chose, as DN's did; the command line kept out.
+    assert app.manager.left.path == (places / "alpha").resolve()
+    assert app.shell.command_line.value == ""
+    assert app.manager.tree.search is None
+
+
 def test_a_cursor_at_rest_in_the_tree_takes_the_panel_with_it(places, monkeypatch):
     from test_nav import navigator
     from navigator.widgets.manager.manager import Manager
@@ -377,6 +528,37 @@ def test_the_dialog_is_laid_out_as_ttreedialog_lays_it_out(places):
     assert dialog.pick.default and dialog.drive.disabled
     assert dialog.row.visible is False     # Dialog's own bottom row is not this one's
     assert dialog.accept() == places.resolve()
+
+
+@pytest.mark.parametrize("size, expected", [
+    # The original's 49 by 17 is the floor ...
+    ((80, 24), (60, 19, 3)),
+    # ... and the dialog grows with the screen, and its controls with it.
+    ((120, 40), (90, 32, 6)),
+])
+def test_the_dialog_takes_its_size_from_the_screen(places, size, expected):
+    from test_nav import navigator
+
+    width, height, step = expected
+    seen = []
+    app = navigator(places, size=size)
+
+    def look(a):
+        d = a.modal
+        seen.append((
+            (d.width, d.height),
+            (d.tree.x, d.tree.y, d.tree.width, d.tree.height),
+            (d.where.y, d.where.width),
+            [(b.x, b.y, b.width) for b in d.buttons_row],
+        ))
+
+    run_app(app, [KeyEvent("t", "t", alt=True), lambda a: None, look])
+    assert seen == [(
+        (width, height),
+        (1, 1, width - 15, height - 3),
+        (height - 2, width - 16),
+        [(width - 13, 2 + i * step, 11) for i in range(5)],
+    )]
 
 
 def chdir_run(places, *actions):
@@ -598,3 +780,54 @@ def test_alt_t_and_the_tree_window_take_the_panels_setting(places):
         lambda a: seen.append(_children_of(a.shell.desktop.active_window.tree, places)),
     ])
     assert seen == [["alpha", "beta", "gamma"]] * 2
+
+
+# -- the quick search in the dialog and the window ------------------------------------------
+
+
+def _walk_to_alpha(places):
+    return [KeyEvent(char, char) for char in "/" + "/".join(places.resolve().parts[1:]) + "/alpha"]
+
+
+@pytest.mark.parametrize("start", [[], [KeyEvent("s", ctrl=True)]])
+def test_the_alt_t_tree_searches_by_typing_or_ctrl_s(places, start):
+    seen = []
+    chdir_run(places, *start, *_walk_to_alpha(places),
+              lambda a: seen.append((a.modal.accept(), a.modal.tree.search is not None)),
+              KeyEvent("escape"),
+              lambda a: seen.append((a.modal is not None, a.modal.tree.search)))
+    # Esc ended the search and left the dialog up.
+    assert seen == [((places / "alpha").resolve(), True), (True, None)]
+
+
+def test_the_tree_window_searches_and_enter_sends_the_panel(places):
+    app = tree_window_run(places, *_walk_to_alpha(places), KeyEvent("enter"))
+    assert app.manager.left.path == (places / "alpha").resolve()
+
+
+def test_the_tree_window_shows_the_search_on_its_bottom_frame(places):
+    seen = []
+
+    def bottom(a):
+        from navigator.widgets.tree.tree_window import TreeWindow
+
+        window = a.focused
+        while not isinstance(window, TreeWindow):
+            window = window.parent
+        # render_tree paints a widget where it stands in its parent.
+        buffer = ScreenBuffer(window.x + window.width, window.y + window.height)
+        window.render_tree(buffer)
+        seen.append(("".join(buffer.get(window.x + x, window.y + window.height - 1)[0] or " "
+                             for x in range(window.width)),
+                     window.tree.cursor_position(), window.cursor_position(), window.height))
+
+    tree_window_run(places, KeyEvent("s", ctrl=True), KeyEvent("/", "/"), bottom,
+                    KeyEvent("escape"), bottom)
+    row, tree_caret, window_caret, height = seen[0]
+    assert " Search: / " in row
+    # The caret is the window's, on the frame right after what was typed.
+    assert tree_caret is None
+    x, y = window_caret
+    assert y == height - 1 and row[x - len(" Search: /"):x] == " Search: /"
+    row, _, window_caret, _ = seen[1]
+    assert "Search" not in row and window_caret is None   # Esc ended it

@@ -16,7 +16,6 @@ original draws on the right.
 from __future__ import annotations
 
 import os
-import re
 import stat
 import time
 from dataclasses import dataclass
@@ -31,6 +30,7 @@ from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
 
+from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
 
 # Imported under another name because ``Panel`` declares an ``icons`` style
@@ -533,10 +533,7 @@ class Panel(ListViewer):
         Midnight Commander's; everything else is literal.  ``..`` is never
         found: it is not a name anybody searches for.
         """
-        pattern = re.compile(
-            "".join(".*" if c == "*" else "." if c == "?" else re.escape(c) for c in text),
-            re.IGNORECASE | re.DOTALL,
-        )
+        pattern = name_pattern(text)
         items = self.items
         for step in range(len(items)):
             index = (start + step) % len(items)

@@ -111,8 +111,8 @@ class Manager(Window, _Component):
     panels: HorizontalLayout    # manager.nml:86
     left: Panel    # manager.nml:93
     right: Panel    # manager.nml:97
-    tree: DirectoryTree    # manager.nml:104
-    quick: QuickViewer    # manager.nml:109
+    tree: DirectoryTree    # manager.nml:106
+    quick: QuickViewer    # manager.nml:112
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -130,7 +130,7 @@ class Manager(Window, _Component):
         """``right`` raised an event whose handler is ``on_execute_file``."""
         return False
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:104
+    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:106
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
@@ -139,8 +139,8 @@ class Manager(Window, _Component):
         self.panels = HorizontalLayout(parent=self)    # manager.nml:85
         self.left = Panel(parent=self.panels)    # manager.nml:92
         self.right = Panel(parent=self.panels)    # manager.nml:96
-        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:103
-        self.quick = QuickViewer(parent=self.panels)    # manager.nml:108
+        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:105
+        self.quick = QuickViewer(parent=self.panels)    # manager.nml:111
 
         self.zoomed = True    # manager.nml:32
         self.min_width = 24    # manager.nml:33
@@ -157,6 +157,7 @@ class Manager(Window, _Component):
         self.right.title_margin = 5    # manager.nml:98
         self.right.on_execute_file = self.on_right_execute_file    # manager.nml:97
 
-        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:104
+        self.tree.type_to_search = False    # manager.nml:107
+        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:106
 
-        self.quick.title_margin = 5    # manager.nml:110
+        self.quick.title_margin = 5    # manager.nml:113

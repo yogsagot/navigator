@@ -6,15 +6,22 @@ from navml.widgets.dialog.tree_view import TreeView
 #: Panel > Change directory (Alt+T): DOS Navigator's ``TTreeDialog``, which
 #: ``ChangeDir`` opens as *Choose Directory*.
 #:
-#: Every rectangle is ``TTreeDialog.Init``'s, in a 49 by 17 dialog: the tree
-#: fills the left of it with no frame of its own -- the dialog's is its frame,
-#: and its scroll bar is its last column -- the path under the cursor is the
-#: one row beneath it, and the buttons stand in a column on the right, eleven
-#: wide, three rows apart.  ``Dialog``'s own row of buttons along the bottom is
-#: not this dialog's, and the hand-written half hides it.
+#: The layout is ``TTreeDialog.Init``'s: the tree fills the left of it with no
+#: frame of its own -- the dialog's is its frame, and its scroll bar is its last
+#: column -- the path under the cursor is the one row beneath it, and the
+#: buttons stand in a column on the right, eleven wide.  ``Dialog``'s own row of
+#: buttons along the bottom is not this dialog's, and the hand-written half
+#: hides it.
+#:
+#: **The size is the screen's, not the original's.**  DOS Navigator's was a
+#: fixed 49 by 17, which on a modern terminal shows a sliver of a deep tree;
+#: this one takes three quarters of the width and four fifths of the height,
+#: never less than the original's, and every control inside is placed against
+#: the dialog's edges, so they grow with it.  The buttons spread down the
+#: column, three rows apart at the original size and wider apart as it grows.
 ChangeDirDialog(Dialog):
-    modal_width: 49
-    modal_height: 17
+    modal_width: max(49, min(parent.width - 4, parent.width * 3 // 4)) if parent is not None else 49
+    modal_height: max(17, min(parent.height - 2, parent.height * 4 // 5)) if parent is not None else 17
     title: "Choose Directory"
 
     TreeView:
@@ -22,8 +29,8 @@ ChangeDirDialog(Dialog):
         framed: False
         x: 1
         y: 1
-        width: 34
-        height: 14
+        width: max(0, parent.width - 15)
+        height: max(0, parent.height - 3)
 
     #: ``TDTreeInfoView``: one row of it, which shows its first line -- the
     #: path.  Named, so a sheet can give it the information pane's colours.
@@ -31,8 +38,8 @@ ChangeDirDialog(Dialog):
         id: where
         name: "info"
         x: 1
-        y: 15
-        width: 33
+        y: max(0, parent.height - 2)
+        width: max(0, parent.width - 16)
         height: 1
         text: " " + str(tree.selected_node.data) if tree.selected_node is not None else ""
 
@@ -40,7 +47,7 @@ ChangeDirDialog(Dialog):
         id: pick
         text: "O~K~"
         default: True
-        x: 36
+        x: max(0, parent.width - 13)
         y: 2
         width: 11
         height: 2
@@ -51,31 +58,31 @@ ChangeDirDialog(Dialog):
         id: drive
         text: "~D~rive..."
         disabled: True
-        x: 36
-        y: 5
+        x: max(0, parent.width - 13)
+        y: 2 + max(3, (parent.height - 2) // 5)
         width: 11
         height: 2
 
     Button:
         id: reread
         text: "~R~e-read"
-        x: 36
-        y: 8
+        x: max(0, parent.width - 13)
+        y: 2 + 2 * max(3, (parent.height - 2) // 5)
         width: 11
         height: 2
 
     Button:
         id: mkdir
         text: "~M~kDir"
-        x: 36
-        y: 11
+        x: max(0, parent.width - 13)
+        y: 2 + 3 * max(3, (parent.height - 2) // 5)
         width: 11
         height: 2
 
     Button:
         id: abandon
         text: "Cancel"
-        x: 36
-        y: 14
+        x: max(0, parent.width - 13)
+        y: 2 + 4 * max(3, (parent.height - 2) // 5)
         width: 11
         height: 2

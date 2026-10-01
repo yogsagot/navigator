@@ -132,3 +132,16 @@ __all__ = [
     "WindowManager",
     "ZoomWindow",
 ]
+
+
+class QuickSearch(Command):
+    """Ctrl+S: type the start of a name and the cursor jumps to it.
+
+    Midnight Commander's key and its rules -- a file panel's and a tree's
+    alike, which is why it is the library's.  DOS Navigator 1.51's panel quick
+    search -- the *Quick search* choice in ``dlgPanelSetup``, started by an
+    Alt+letter -- has no handler in the published source to follow; its tree's
+    does (``TREE.PAS``), and the tree follows it.
+    """
+
+    title = "Search"

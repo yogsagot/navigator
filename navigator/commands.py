@@ -19,6 +19,10 @@ from dataclasses import dataclass
 
 from navkit.commands import Command
 
+# The panel's quick search and the tree's are one command, so it is the
+# library's: re-exported here, where the panel's key tables name it.
+from navml.commands import QuickSearch
+
 
 class Help(Command):
     title = "Help"
@@ -452,18 +456,6 @@ class ToggleHidden(Command):
     title = "Hidden"
 
 
-class QuickSearch(Command):
-    """Ctrl+S: type the start of a name and the active panel's cursor jumps to it.
-
-    Midnight Commander's key and its rules, since DOS Navigator 1.51's panel
-    quick search -- the *Quick search* choice in ``dlgPanelSetup``, started by
-    an Alt+letter -- has no handler in the published source to follow.  DN's
-    Alt+letters stay the panel commands they are bound to.
-    """
-
-    title = "Search"
-
-
 class ArchiveFiles(Command):
     """Shift+F1, ``cmPanelArcFiles``."""
 
@@ -669,6 +661,7 @@ __all__ = [
     "PanelSetup",
     "PhoneBook",
     "PrintFile",
+    "QuickSearch",
     "QuickView",
     "Reanimate",
     "SortBy",

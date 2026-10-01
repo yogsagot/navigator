@@ -887,11 +887,33 @@ collapsible kind (`Parital` on), and its `[+]` and `[-]` are the original's.
   own structure is what those keys are for everywhere else.
 - Space, `+` and `-` open or close the branch under the cursor.
 - `*` opens every branch *already read*. The original opened the whole tree, which lazily means the whole disk.
-- Typing searches forward for a name beginning with what was typed, with the terminal's caret after it. Backspace
-  shortens the search while one is on, and any other key ends it. The original matched an 8.3 mask, which a modern name has no
-  reason to fit.
+- Ctrl+S searches (`QuickSearch`, now the library's command, shared with the file panel), and so does plain typing
+  where `type_to_search` is on -- the dialog and the tree window, as in the original. Ctrl+T's tree turns it off,
+  because typing there belongs to the command line, as it does from a panel. The rules are the panel's: forward from
+  the cursor, wrapping, case folded, `*`/`?` wildcards (`navml/quick_search.py`'s `name_pattern`, which `Panel` uses
+  too), a character that would name nothing refused, Ctrl+S again for the next. The original matched an 8.3 mask,
+  which a modern name has no reason to fit.
+- Esc ends the search where it stands; any other key ends it and does its job, **Enter included -- it chooses**, as
+  DN's did (`CancelSearch` did not clear the event). The panel's Enter only ends its search; the panel follows
+  Midnight Commander there, the tree follows DN. `edits_text` is True while it runs, so the command line's
+  Enter/Home/End/Tab step aside for Ctrl+T's tree.
 - Enter emits `ChosenEvent(node)`.
 - A press on a row's `[+]` opens it.
+
+**The quick search is a path, because the tree is lazy.** Searching the rows can only find what has been read, and a
+search that cannot find an unopened directory is no search. Two answers were rejected: reading the whole tree in the
+background (at `/` that is the disk, network mounts included, stale once finished, and a modern flourish -- DN's way
+to find a directory anywhere was *Find file*, an explicit job), and reading unopened branches as the search passes
+them (unbounded work per keystroke on the loop, and "not found" costs reading everything). The answer taken is DN's
+own (`TREE.PAS`, `SearchForMask`): **`/` descends** -- DN's `\` -- opening the branch matched, putting the cursor
+on its first child and confining what is typed next to that branch's children. So `us/lo/bi` reaches
+`/usr/local/bin` having read exactly the three directories it names. `/` before anything is typed searches from the
+root (DN's leading `\`); Backspace past a `/` climbs back out onto the node it went into (`search_trail`), and the
+footer of a framed tree shows the whole path typed (` Search: us/lo/bi `), and the *Directory Tree* window, whose
+tree has no frame, puts the same `search_label()` on its own bottom frame. **Confining to the children is a
+departure**: DN kept searching forward through every visible row, so a miss among the children could jump anywhere
+in the tree; with a refused character it means *you are typing a path*. A new root (Re-read, Ctrl+H) or the
+keyboard leaving ends the search.
 
 **Colours** come from two groups. A tree in a dialog takes the Dialogs group's Tree, [104] to [110]. The tree panel
 takes the File Manager group's own, [94] to [101], which DOS Navigator gave `CDoubleWindow`. In both, the lines
@@ -920,13 +942,18 @@ list that was, and it keeps a list that gives up rows of its own (the tree's inf
 through them.
 
 **Panel > Change directory (Alt+T) is `TTreeDialog`**, which `ChangeDir` opened as *Choose Directory*:
-`navigator/widgets/tree/change_dir_dialog/`. Every rectangle is `TTreeDialog.Init`'s, in a 49 by 17 dialog:
+`navigator/widgets/tree/change_dir_dialog/`. The layout is `TTreeDialog.Init`'s; **the size is not**:
 
-- The tree fills the left, 34 by 14.
+- DN's dialog was a fixed 49 by 17, a sliver of a deep tree on a modern terminal. This one is three quarters of the
+  screen's width and four fifths of its height (`modal_width`/`modal_height` bound to the parent, never closer than two columns and one
+  row to its edges), and 49 by 17 is the floor -- a departure, at the user's request.
+- Every control is placed against the dialog's edges, so at 49 by 17 each rectangle is the original's again: the tree
+  fills the left (width - 15 by height - 3, so 34 by 14).
 - The path under the cursor is the one row below it: `TDTreeInfoView`, one row tall, so only its first line shows.
   It uses the information pane's colours, [61].
-- The buttons stand in a column on the right, 11 wide at rows 2, 5, 8, 11 and 14: `O~K~`, `~D~rive...`,
-  `~R~e-read`, `~M~kDir` and `Cancel`.
+- The buttons stand in a column on the right, 11 wide, 13 cells in from the right edge: `O~K~`, `~D~rive...`,
+  `~R~e-read`, `~M~kDir` and `Cancel`. They start at row 2 and are spread down the column, `max(3, (height - 2) // 5)`
+  rows apart -- the original's rows 2, 5, 8, 11 and 14 at its own size.
 - `Dialog`'s own bottom row of buttons is hidden, since this layout is not that one.
 
 Behaviour:

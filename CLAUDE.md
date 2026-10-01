@@ -62,7 +62,10 @@ newest first, 20 each, pinned entries kept) and the `History` button with its `H
 rest. **Trees are written** (`[94-101]`, `[104-110]`): the
 library's `TreeView` (a `ListViewer` of flattened, lazily loaded `TreeNode`s drawn as `TTreeView.Draw` draws them)
 and Navigator's `DirectoryTree`, which Ctrl+T puts in the passive panel's place (`DBLWND.PAS`'s `SwitchView`):
-the tree follows the active panel, and Enter or a resting cursor sends the panel where the tree points. *Trees* in
+the tree follows the active panel, and Enter or a resting cursor sends the panel where the tree points. **Every tree
+has Ctrl+S quick search, and it is a path** (DN's `SearchForMask`): the panel's matching rules (`navml/quick_search.py`),
+and `/` opens the branch matched and confines the search to its children, so a lazy tree never needs a branch nobody
+opened; typing searches too except in Ctrl+T's tree (`type_to_search: False`), where it belongs to the command line. *Trees* in
 `navml/DESIGN.md` has the rest. **Alt+T is DOS Navigator's *Choose Directory*** (`TTreeDialog`,
 `navigator/widgets/tree/change_dir_dialog/`): the tree frameless in a dialog (`ListViewer.framed = False`), the path under
 it, and OK / Drive (disabled: one root) / Re-read / MkDir / Cancel down the right; OK sends the active panel there.
