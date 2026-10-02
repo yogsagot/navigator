@@ -44,6 +44,9 @@ editor's phases, DN's TETRIS easter egg.
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw, `--no-dim-modal` stops what is behind a dialog being painted faint
+- Histories (and later bookmarks, positions) live in one SQLite database,
+  `$XDG_STATE_HOME/navigator/navigator.db` (else `~/.local/state/navigator/navigator.db`); `--database PATH` uses
+  another file for the session. Tables are declared as model documents in `.nml` (`navkit-database` skill)
 - Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
   defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
   flag wins over the file for that session and is never written back
@@ -108,6 +111,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
   changed. **A computed may not write.** A widget's `style` is computed -- author `inline_style`/`merge_style()`.
 - **The application's own `on_key`/`on_mouse_click` step aside while `app.modal` is set.**
 - **Focus moves in the same call that changes what is shown, never from an effect** (an effect runs after the batch).
+- **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
+  tests get a fresh `:memory:` one each.
 - **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.
 - **A sheet cannot be parsed before the widgets it styles are imported** (`load_scheme()` imports `Panel` first).
 - **Assets go through `importlib.resources`**, and a new asset directory needs a `[tool.setuptools.package-data]` entry.
@@ -133,6 +138,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navml-components` | two halves, component directories and groups, the merge/finder, parser and generator internals |
 | `navml-library` | dialogs and controls, layouts, history, the four dialog rules, About |
 | `navml-windows-menus` | desktop, windows, modal stacking, window list/tile/cascade, menus and their API |
+| `navkit-database` | the SQLite database, `Model`/`Query`, model documents in `.nml`, schema fingerprints and migration, `--database` |
 | `navkit-reactive` | `reactive`/`computed`/`effect`/`bind`, type checks, binding rules |
 | `navkit-stylesheet` | `.nss` language, cascade, parts, `StyleProperty` |
 | `navkit-widgets-input` | loop and frame order, render tree, focus, emit, lifecycle, modal, cursor, mouse, timers, commands and key tables, key bar |

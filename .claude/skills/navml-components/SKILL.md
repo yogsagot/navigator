@@ -71,6 +71,10 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   never string assembly or whole-module `ast.unparse` -- `ast` carries no comments and the source map *is* comments
   (`# button.nml:12`).
 - The generated file never reads the sibling `.py` to decide what to emit, so there is no `--check` drift.
+- **A model document takes a separate path**: `build.compile_document` asks `navml.model.is_model` (any `field` line)
+  and hands it to `navml/model.py`. That module reuses `resolve._namespace`, `Sibling`, `Coder` and the merge, but not
+  the widget resolver, checks or generator. Models live in their own library, `navml/models/`, registered like
+  `navml.widgets`.
 - navkit grew for navml: a public `Declaration`, `Binding.owned_by(owner)`,
   `stylesheet.check_declarations(text, *, line, filename)`.
 

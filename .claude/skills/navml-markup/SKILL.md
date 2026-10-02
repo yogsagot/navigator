@@ -71,6 +71,13 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
   run time.
 - `keys:` -- the component's key table (root block only), as a class attribute `keys = {...}` would be.
 
+## Model documents
+
+A root extending `navkit.database.Model` with `field name: type [= literal]`, `index name: a, b` and
+`unique name: a, b` lines (root only) declares a table, not a widget: `navml/model.py` builds it, and refuses
+children, handlers, `style:`/`keys:` and the widget directives. The `navkit-database` skill has the grammar and the
+rules.
+
 ## Read when
 
 | Reference | Read when |
