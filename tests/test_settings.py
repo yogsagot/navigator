@@ -501,3 +501,30 @@ def test_without_a_real_terminal_ctrl_o_falls_back_to_the_console(tmp_path, quie
         lambda a: seen.append((a.released, a.shell.console_visible)),
     ])
     assert seen == [(False, True)]
+
+
+@pytest.mark.parametrize("tick, answer, asks_again, quits", [
+    (True, "y", False, True),    # Don't ask again, Yes: saved, and gone
+    (True, "n", True, False),    # ... with No: nothing changes
+    (False, "y", True, True),    # Yes alone: asked next time too
+])
+def test_dont_ask_again_on_exit(tmp_path, quiet_console, tick, answer, asks_again, quits):
+    SETTINGS.confirmations.exit = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def tick_box(a):
+        seen.append(type(a.modal).__name__)
+        if tick:
+            a.modal.options.value = 1
+
+    actions = [KeyEvent("x", "x", alt=True), lambda a: None, tick_box, KeyEvent(answer, answer, alt=True), lambda a: None]
+    if not quits:
+        actions.append(lambda a: seen.append(a.is_running))
+    run_app(app, actions)
+    assert seen[0] == "ExitDialog"
+    if not quits:
+        assert seen[1] is True
+    assert SETTINGS.confirmations.exit is asks_again
+    saved = config_path().exists() and "exit = no" in config_path().read_text(encoding="utf-8")
+    assert saved is (not asks_again)

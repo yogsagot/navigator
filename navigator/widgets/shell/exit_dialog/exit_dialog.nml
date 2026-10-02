@@ -1,0 +1,42 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Alt+X: DOS Navigator's ``dlQueryExit``, ``Do you wish to quit`` /
+#: ``DOS Navigator?`` with *Yes* and *No* (``mfYesNoConfirm``).
+#:
+#: A message box in DN; a dialog here -- a departure -- because it carries
+#: *Don't ask again*, which unticks Confirmations' *Exit confirmation* when
+#: the answer is *Yes*, the way a modern program offers it.
+ExitDialog(Dialog):
+    modal_width: 40
+    modal_height: 10
+    title: "Exit"
+    buttons: "yes-no"
+
+    Label:
+        id: prompt_head
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Do you wish to quit"
+
+    Label:
+        id: prompt_tail
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Navigator?"
+
+    #: Bit 1: stop asking -- saved, so it lasts.
+    CheckBoxes:
+        id: options
+        x: max(0, (parent.width - 22) // 2)
+        y: 4
+        width: 22
+        height: 1
+        items: ["~D~on't ask again"]

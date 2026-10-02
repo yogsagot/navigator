@@ -61,6 +61,7 @@ _WIDGETS = {
     "EditorDefaultsDialog": "setup.editor_defaults_dialog",
     "EditWindow": "editor.edit_window",
     "EraseQuery": "file_ops.erase_query",
+    "ExitDialog": "shell.exit_dialog",
     "FileEditor": "editor.file_editor",
     "FileViewer": "viewer.file_viewer",
     "FileWindow": "viewer.file_window",
@@ -143,3 +144,4 @@ if TYPE_CHECKING:
     from navigator.widgets.setup.interface_dialog import InterfaceDialog
     from navigator.widgets.setup.startup_dialog import StartupDialog
     from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    from navigator.widgets.shell.exit_dialog import ExitDialog

@@ -16,6 +16,7 @@ importable by its own name, which is what ``manager.nml`` will need.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import configparser
 import sys
 from dataclasses import replace
@@ -33,7 +34,6 @@ from navkit.terminal import Terminal, is_a_tty
 from navigator import __version__
 from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
-from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
 from navigator.settings import SETTINGS, config_path
@@ -158,11 +158,18 @@ class Navigator(Application):
 
     async def _quit_asking(self) -> None:
         if SETTINGS.confirmations.exit:
-            answer = await Dialog(
-                title="Exit", prompt="Do you wish to quit Navigator?", buttons="yes-no",
-            ).execute(self)
-            if answer is not True:
+            from navigator.widgets.shell.exit_dialog import ExitDialog
+
+            answer = await ExitDialog().execute(self)
+            if not answer:
                 return
+            if not answer["ask_again"]:
+                # *Don't ask again*: Confirmations' *Exit confirmation* off,
+                # and saved -- a file that cannot be written only means the
+                # question comes back next time.
+                SETTINGS.confirmations.exit = False
+                with contextlib.suppress(OSError):
+                    SETTINGS.save(section="confirmations")
         desktop = self.shell.desktop
         for window in reversed(desktop.windows()):
             if window.parent is not desktop or not window.must_ask():
