@@ -12,10 +12,11 @@ What is DN's and what is not:
   it?`` -- No, Yes, All, Cancel -- unless the request is *recursive*, which is
   the Delete dialog's own check box and a departure: it answers All before
   anything is asked.
-* **A file the user cannot write asks** ``File X is marked as Read-Only. OK to
+* **A file the user cannot write asks** ``File X is write-protected. OK to
   delete it?`` (``cfEraseReadonly``) -- Yes, No, All.  Linux has no read-only
   attribute, so *cannot write* is the reading of it, which is also what makes
-  ``rm`` ask about a *write-protected* file.  DN asked it only of the files it
+  ``rm`` ask about a *write-protected* file, and its word replaces DN's
+  *marked as Read-Only*.  DN asked it only of the files it
   was given; this asks it inside a directory too, since a tree is where such a
   file hides.
 * **All is one flag**, as DN's ``DeleteAllFiles`` was: once given to either

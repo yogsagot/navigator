@@ -11,13 +11,14 @@ from navml.widgets.dialog.dialog import Dialog
 class SelectDialog(Dialog):
     """Gray ``+`` / ``-``: which files to tag, or to untag."""
 
-    #: What the line holds with no history yet: DN's ``x_x``.
-    DEFAULT_MASK = "*.*"
+    #: What the line holds with no history yet.  DN's ``x_x`` was ``*.*``, which
+    #: on DOS meant every file; on POSIX that is ``*``.
+    DEFAULT_MASK = "*"
 
     def __init__(self, invert: bool = False, **kwargs: Any) -> None:
         """*invert* ticks *Except mask* before the dialog opens -- Shift held."""
         super().__init__(**kwargs)
-        # DN opened on the newest mask in ``hsSelectBox``, or ``*.*`` --
+        # DN opened on the newest mask in ``hsSelectBox``, or its default --
         # selected, as ``TInputLine.SetData`` left it, so typing replaces it.
         entries = HISTORY.entries("select")
         self.mask.value = entries[0] if entries else self.DEFAULT_MASK

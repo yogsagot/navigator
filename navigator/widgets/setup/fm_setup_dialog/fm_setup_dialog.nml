@@ -2,17 +2,20 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
-from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: Options > File Manager > Setup: DOS Navigator's ``dlgFMSetup``.
 #:
-#: The resource whole and where it put it: *Behavior* down the left,
-#: *Display*, *Quick search* and the tag sign down the right, and the
-#: description files across the bottom.  Three columns wider than DN's 57;
-#: Help is left out, having nothing to show yet.
+#: The resource's *Behavior* down the left and *Display* and the tag sign down
+#: the right, less what only meant something on DOS: *Alt difference* and
+#: *Ctrl difference*, the *Quick search* key (Single Alt, Single Ctrl,
+#: Caps+Char -- a terminal reports none of them alone, and Ctrl+S is the key),
+#: the *Drive line*, and ``descript.ion`` descriptions (*Do not kill
+#: descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
+#: had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
+#: than DN's 57; Help is left out, having nothing to show yet.
 FMSetupDialog(Dialog):
     modal_width: 60
-    modal_height: 21
+    modal_height: 15
     title: "File Manager Setup"
 
     Label:
@@ -29,8 +32,8 @@ FMSetupDialog(Dialog):
         x: 2
         y: 2
         width: 33
-        height: 11
-        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ~/~→ keys", "~A~lt difference", "~C~trl difference", "BS - go to ~u~pper directory", "Do not kill descriptions"]
+        height: 8
+        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory"]
 
     Label:
         id: display_caption
@@ -46,49 +49,14 @@ FMSetupDialog(Dialog):
         x: 37
         y: 2
         width: max(0, parent.width - 39)
-        height: 4
-        items: ["Colu~m~n titles", "Drive ~l~ine", "~I~nfo divider", "~T~ag character"]
-
-    Label:
-        id: quick_caption
-        x: 37
-        y: 7
-        width: 14
-        height: 1
-        text: "Quick search"
-        link: quick_search
-
-    RadioButtons:
-        id: quick_search
-        x: 37
-        y: 8
-        width: max(0, parent.width - 39)
         height: 3
-        items: ["Si~n~gle Alt", "Single Ct~r~l", "Caps~+~Char"]
+        items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character"]
 
     Field:
         id: tag_sign
         x: 37
-        y: 12
+        y: 6
         width: 16
         height: 1
         label_text: "Ta~g~ sign:"
         label_width: 12
-
-    Label:
-        id: description_caption
-        x: 2
-        y: 14
-        width: 28
-        height: 1
-        text: "Files ~w~ith descriptions"
-        link: description_files.entry
-
-    Field:
-        id: description_files
-        x: 2
-        y: 15
-        width: max(0, parent.width - 4)
-        height: 1
-        label_text: ""
-        label_width: 0

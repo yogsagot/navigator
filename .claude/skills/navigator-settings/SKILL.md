@@ -78,6 +78,12 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 - Int28
 - the CD player
 - the per-drive list
+- *"Fast" command execution* and *Advanced copy*
+- *Enable blinking* and the *Timeslicing* group
+- the *Drive line*, *Alt/Ctrl difference*, the *Quick search* key, and `descript.ion` descriptions
+
+The keys an older `navigator.ini` may still hold are listed in `settings.OBSOLETE`. `Settings.load()` drops them
+without a warning, so the next save leaves them out of the file. Unknown keys, by contrast, are kept as extras.
 - *Restore screen mode*
 - the VGA palette boxes
 - *OS-dependent disk access*

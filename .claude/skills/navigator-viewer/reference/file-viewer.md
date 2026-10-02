@@ -25,8 +25,8 @@ It is the application's, not the library's, because `TFileViewer` was DN's and n
   font: a binary looks as it did in DN, and a UTF-8 file looks as it does in a terminal. A wide character takes two
   columns. A combining mark is dropped, because navkit paints one character per cell. Hex and dump are byte-exact,
   one CP437 cell per byte, as `DumpStr` and `XDumpStr` drew them, down to `.` for a zero byte in hex.
-- **F6's three filters are DN's**: none, `{ASCII}` (below 32 and non-ASCII become `·`) and `{32-255}` (only below
-  32 does). In text mode "non-ASCII" means a whole UTF-8 character, which becomes one `·`.
+- **F6's three filters are DN's**: none, `{ASCII}` (below 32 and non-ASCII become `·`) and `{Printable}` (only below
+  32 does; DN's `{32-255}`, renamed because UTF-8 has no one-byte code page to count to 255 in). In text mode "non-ASCII" means a whole UTF-8 character, which becomes one `·`.
 - **`LINE_LIMIT` is DN's 255-byte `Len` cut made modern** (64 KiB). An unwrapped line longer than that is cut into
   pieces, so a minified megabyte on one line is never scanned whole for every row painted. Going up re-aligns to the
   pieces coming down for lines up to 1 MiB (`BACK_LIMIT`); past that, the two may disagree.
@@ -85,7 +85,7 @@ in the passive panel's place, and it works exactly as Ctrl+T does, because both 
 Left for later, in the order DN's status line lists them:
 
 - hex editing, with Tab between the columns, Shift+F2 *Store* and Shift+F5 *Save as*
-- Shift+F6 *XLat* tables
+- Shift+F6 *XLat* tables, as an encoding chooser (*View > Encoding...*)
 - the *Find* dialog's linked `He~x~` line
 - view history (Alt+PgDn, and reopening at the last position)
 - external viewers (`dn.vwr`)

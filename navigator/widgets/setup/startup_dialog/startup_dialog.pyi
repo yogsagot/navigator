@@ -17,7 +17,5 @@ class StartupDialog(Dialog, _Component):
     startup: CheckBoxes
     shutdown_caption: Label
     shutdown: CheckBoxes
-    timeslicing_caption: Label
-    timeslicing: CheckBoxes
     def __init__(self, section: StartupData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...

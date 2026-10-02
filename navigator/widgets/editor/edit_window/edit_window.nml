@@ -84,6 +84,8 @@ EditWindow(Window):
     #: An entry names a command once the editor can do it and is greyed until
     #: then, as in ``main_menu.nml``.  DN showed each option's ``Off``/``On``
     #: in the key column; a ticked entry will say it once the option exists.
+    #: *ASCII Table* is *Character table*, a departure: DN's was CP437's 256
+    #: bytes, and the text here is Unicode.
     SubMenu:
         id: edit_menu
         text: '~E~ditor'
@@ -222,7 +224,7 @@ EditWindow(Window):
                 text: 'Du~p~licate line'
                 key: 'F6'
             MenuItem:
-                text: 'ASCII Ta~b~le'
+                text: 'Character ta~b~le'
                 key: 'Ctrl P'
             MenuItem:
                 text: 'Line Dra~w~ing'

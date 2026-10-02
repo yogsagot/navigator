@@ -107,6 +107,17 @@ def test_unknown_keys_and_sections_survive_a_save(tmp_path):
     assert "clock = no" in text
 
 
+def test_a_dropped_dos_option_is_read_quietly_and_not_written_back(tmp_path):
+    path = tmp_path / "n.ini"
+    path.write_text("[system]\nfast_execution = yes\nfuture = 1\n"
+                    "[file_manager]\ndescription_files = descript.ion\n", encoding="utf-8")
+    assert SETTINGS.load(path) == []
+    SETTINGS.save(path)
+    text = path.read_text(encoding="utf-8")
+    assert "fast_execution" not in text and "description_files" not in text
+    assert "future = 1" in text
+
+
 def test_saving_one_section_keeps_an_edit_made_to_another(tmp_path):
     path = tmp_path / "n.ini"
     SETTINGS.save(path)

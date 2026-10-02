@@ -301,7 +301,7 @@ class FileViewer(Widget):
             self.top = self.source.line_start(self.top, self.wrap_width)
 
     def cycle_filter(self) -> None:
-        """F6: no filter, ``{ASCII}``, ``{32-255}``."""
+        """F6: no filter, ``{ASCII}``, ``{Printable}``."""
         self.set_filter((self.filter + 1) % len(FILTER_TAGS))
 
     def set_filter(self, filter: int) -> None:

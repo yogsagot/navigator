@@ -190,12 +190,6 @@ class PrintFile(Command):
     title = "Print"
 
 
-class ToggleDescriptions(Command):
-    """Ctrl+K, ``cmToggleDescriptions``."""
-
-    title = "Desc"
-
-
 class DiskInfo(Command):
     """Ctrl+L, ``cmDiskInfo``."""
 
@@ -318,22 +312,10 @@ class ExtractArchive(Command):
     title = "Ext"
 
 
-class PhoneBook(Command):
-    """Shift+F3, ``cmPhoneBook``."""
-
-    title = "Phones"
-
-
 class EditNamed(Command):
     """Shift+F4, ``cmXEditFile``: edit a file whose name is asked for."""
 
     title = "Edit..."
-
-
-class Reanimate(Command):
-    """Shift+F6, ``cmReanimator``."""
-
-    title = "Reanimate"
 
 
 @dataclass(frozen=True, slots=True)
@@ -372,7 +354,6 @@ __all__ = [
     "FindFile",
     "Calculator",
     "PrintFile",
-    "ToggleDescriptions",
     "DiskInfo",
     "QuickView",
     "ToggleMark",
@@ -385,8 +366,6 @@ __all__ = [
     "ToggleHidden",
     "ArchiveFiles",
     "ExtractArchive",
-    "PhoneBook",
     "EditNamed",
-    "Reanimate",
     "DeleteSingle",
 ]

@@ -19,7 +19,6 @@ from navml.widgets.dialog.check_boxes import CheckBoxes    # fm_setup_dialog.nml
 from navml.widgets.dialog.dialog import Dialog    # fm_setup_dialog.nml:2
 from navml.widgets.dialog.field import Field    # fm_setup_dialog.nml:3
 from navml.widgets.dialog.label import Label    # fm_setup_dialog.nml:4
-from navml.widgets.dialog.radio_buttons import RadioButtons    # fm_setup_dialog.nml:5
 
 __navml_component__ = "FMSetupDialog"
 
@@ -29,104 +28,67 @@ __all__ = ["FMSetupDialog"]
 class FMSetupDialog(Dialog, _Component):
     """Options > File Manager > Setup: DOS Navigator's ``dlgFMSetup``.
 
-    The resource whole and where it put it: *Behavior* down the left,
-    *Display*, *Quick search* and the tag sign down the right, and the
-    description files across the bottom.  Three columns wider than DN's 57;
-    Help is left out, having nothing to show yet.
+    The resource's *Behavior* down the left and *Display* and the tag sign down
+    the right, less what only meant something on DOS: *Alt difference* and
+    *Ctrl difference*, the *Quick search* key (Single Alt, Single Ctrl,
+    Caps+Char -- a terminal reports none of them alone, and Ctrl+S is the key),
+    the *Drive line*, and ``descript.ion`` descriptions (*Do not kill
+    descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
+    had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
+    than DN's 57; Help is left out, having nothing to show yet.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "fm_setup_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    behavior_caption: Label    # fm_setup_dialog.nml:19
-    behavior: CheckBoxes    # fm_setup_dialog.nml:28
-    display_caption: Label    # fm_setup_dialog.nml:36
-    display: CheckBoxes    # fm_setup_dialog.nml:45
-    quick_caption: Label    # fm_setup_dialog.nml:53
-    quick_search: RadioButtons    # fm_setup_dialog.nml:62
-    tag_sign: Field    # fm_setup_dialog.nml:70
-    description_caption: Label    # fm_setup_dialog.nml:79
-    description_files: Field    # fm_setup_dialog.nml:88
+    behavior_caption: Label    # fm_setup_dialog.nml:22
+    behavior: CheckBoxes    # fm_setup_dialog.nml:31
+    display_caption: Label    # fm_setup_dialog.nml:39
+    display: CheckBoxes    # fm_setup_dialog.nml:48
+    tag_sign: Field    # fm_setup_dialog.nml:56
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.behavior_caption = Label(parent=self)    # fm_setup_dialog.nml:18
-        self.behavior = CheckBoxes(parent=self)    # fm_setup_dialog.nml:27
-        self.display_caption = Label(parent=self)    # fm_setup_dialog.nml:35
-        self.display = CheckBoxes(parent=self)    # fm_setup_dialog.nml:44
-        self.quick_caption = Label(parent=self)    # fm_setup_dialog.nml:52
-        self.quick_search = RadioButtons(parent=self)    # fm_setup_dialog.nml:61
-        self.tag_sign = Field(parent=self)    # fm_setup_dialog.nml:69
-        self.description_caption = Label(parent=self)    # fm_setup_dialog.nml:78
-        self.description_files = Field(parent=self)    # fm_setup_dialog.nml:87
+        self.behavior_caption = Label(parent=self)    # fm_setup_dialog.nml:21
+        self.behavior = CheckBoxes(parent=self)    # fm_setup_dialog.nml:30
+        self.display_caption = Label(parent=self)    # fm_setup_dialog.nml:38
+        self.display = CheckBoxes(parent=self)    # fm_setup_dialog.nml:47
+        self.tag_sign = Field(parent=self)    # fm_setup_dialog.nml:55
 
-        self.modal_width = 60    # fm_setup_dialog.nml:14
-        self.modal_height = 21    # fm_setup_dialog.nml:15
-        self.title = 'File Manager Setup'    # fm_setup_dialog.nml:16
+        self.modal_width = 60    # fm_setup_dialog.nml:17
+        self.modal_height = 15    # fm_setup_dialog.nml:18
+        self.title = 'File Manager Setup'    # fm_setup_dialog.nml:19
 
-        self.behavior_caption.x = 2    # fm_setup_dialog.nml:20
-        self.behavior_caption.y = 1    # fm_setup_dialog.nml:21
-        self.behavior_caption.width = 12    # fm_setup_dialog.nml:22
-        self.behavior_caption.height = 1    # fm_setup_dialog.nml:23
-        self.behavior_caption.text = 'Behavior'    # fm_setup_dialog.nml:24
-        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_dialog.nml:25
+        self.behavior_caption.x = 2    # fm_setup_dialog.nml:23
+        self.behavior_caption.y = 1    # fm_setup_dialog.nml:24
+        self.behavior_caption.width = 12    # fm_setup_dialog.nml:25
+        self.behavior_caption.height = 1    # fm_setup_dialog.nml:26
+        self.behavior_caption.text = 'Behavior'    # fm_setup_dialog.nml:27
+        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_dialog.nml:28
 
-        self.behavior.x = 2    # fm_setup_dialog.nml:29
-        self.behavior.y = 2    # fm_setup_dialog.nml:30
-        self.behavior.width = 33    # fm_setup_dialog.nml:31
-        self.behavior.height = 11    # fm_setup_dialog.nml:32
-        self.behavior.items = ['Auto c~h~ange directory', 'Drag~-~and~-~drop from columns', '~B~eep after copy', '~E~NTER opens archive', '~S~PACE toggles selection', '~D~EL erases file(s)', 'Use ~/~→ keys', '~A~lt difference', '~C~trl difference', 'BS - go to ~u~pper directory', 'Do not kill descriptions']    # fm_setup_dialog.nml:33
+        self.behavior.x = 2    # fm_setup_dialog.nml:32
+        self.behavior.y = 2    # fm_setup_dialog.nml:33
+        self.behavior.width = 33    # fm_setup_dialog.nml:34
+        self.behavior.height = 8    # fm_setup_dialog.nml:35
+        self.behavior.items = ['Auto c~h~ange directory', 'Drag~-~and~-~drop from columns', '~B~eep after copy', '~E~NTER opens archive', '~S~PACE toggles selection', '~D~EL erases file(s)', 'Use ←/→ ~k~eys', 'BS - go to ~u~pper directory']    # fm_setup_dialog.nml:36
 
-        self.display_caption.x = 37    # fm_setup_dialog.nml:37
-        self.display_caption.y = 1    # fm_setup_dialog.nml:38
-        self.display_caption.width = 12    # fm_setup_dialog.nml:39
-        self.display_caption.height = 1    # fm_setup_dialog.nml:40
-        self.display_caption.text = 'Display'    # fm_setup_dialog.nml:41
-        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_dialog.nml:42
+        self.display_caption.x = 37    # fm_setup_dialog.nml:40
+        self.display_caption.y = 1    # fm_setup_dialog.nml:41
+        self.display_caption.width = 12    # fm_setup_dialog.nml:42
+        self.display_caption.height = 1    # fm_setup_dialog.nml:43
+        self.display_caption.text = 'Display'    # fm_setup_dialog.nml:44
+        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_dialog.nml:45
 
-        self.display.x = 37    # fm_setup_dialog.nml:46
-        self.display.y = 2    # fm_setup_dialog.nml:47
-        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_dialog.nml:48
-        self.display.height = 4    # fm_setup_dialog.nml:49
-        self.display.items = ['Colu~m~n titles', 'Drive ~l~ine', '~I~nfo divider', '~T~ag character']    # fm_setup_dialog.nml:50
+        self.display.x = 37    # fm_setup_dialog.nml:49
+        self.display.y = 2    # fm_setup_dialog.nml:50
+        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_dialog.nml:51
+        self.display.height = 3    # fm_setup_dialog.nml:52
+        self.display.items = ['Colu~m~n titles', '~I~nfo divider', '~T~ag character']    # fm_setup_dialog.nml:53
 
-        self.quick_caption.x = 37    # fm_setup_dialog.nml:54
-        self.quick_caption.y = 7    # fm_setup_dialog.nml:55
-        self.quick_caption.width = 14    # fm_setup_dialog.nml:56
-        self.quick_caption.height = 1    # fm_setup_dialog.nml:57
-        self.quick_caption.text = 'Quick search'    # fm_setup_dialog.nml:58
-        self.quick_caption.link = _bind(lambda _o: self.quick_search)    # fm_setup_dialog.nml:59
-
-        self.quick_search.x = 37    # fm_setup_dialog.nml:63
-        self.quick_search.y = 8    # fm_setup_dialog.nml:64
-        self.quick_search.width = _bind(    # fm_setup_dialog.nml:65
-            lambda _o: max(0, _o.parent.width - 39)
-        )
-        self.quick_search.height = 3    # fm_setup_dialog.nml:66
-        self.quick_search.items = ['Si~n~gle Alt', 'Single Ct~r~l', 'Caps~+~Char']    # fm_setup_dialog.nml:67
-
-        self.tag_sign.x = 37    # fm_setup_dialog.nml:71
-        self.tag_sign.y = 12    # fm_setup_dialog.nml:72
-        self.tag_sign.width = 16    # fm_setup_dialog.nml:73
-        self.tag_sign.height = 1    # fm_setup_dialog.nml:74
-        self.tag_sign.label_text = 'Ta~g~ sign:'    # fm_setup_dialog.nml:75
-        self.tag_sign.label_width = 12    # fm_setup_dialog.nml:76
-
-        self.description_caption.x = 2    # fm_setup_dialog.nml:80
-        self.description_caption.y = 14    # fm_setup_dialog.nml:81
-        self.description_caption.width = 28    # fm_setup_dialog.nml:82
-        self.description_caption.height = 1    # fm_setup_dialog.nml:83
-        self.description_caption.text = 'Files ~w~ith descriptions'    # fm_setup_dialog.nml:84
-        self.description_caption.link = _bind(    # fm_setup_dialog.nml:85
-            lambda _o: self.description_files.entry
-        )
-
-        self.description_files.x = 2    # fm_setup_dialog.nml:89
-        self.description_files.y = 15    # fm_setup_dialog.nml:90
-        self.description_files.width = _bind(    # fm_setup_dialog.nml:91
-            lambda _o: max(0, _o.parent.width - 4)
-        )
-        self.description_files.height = 1    # fm_setup_dialog.nml:92
-        self.description_files.label_text = ''    # fm_setup_dialog.nml:93
-        self.description_files.label_width = 0    # fm_setup_dialog.nml:94
+        self.tag_sign.x = 37    # fm_setup_dialog.nml:57
+        self.tag_sign.y = 6    # fm_setup_dialog.nml:58
+        self.tag_sign.width = 16    # fm_setup_dialog.nml:59
+        self.tag_sign.height = 1    # fm_setup_dialog.nml:60
+        self.tag_sign.label_text = 'Ta~g~ sign:'    # fm_setup_dialog.nml:61
+        self.tag_sign.label_width = 12    # fm_setup_dialog.nml:62

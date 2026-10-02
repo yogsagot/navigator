@@ -241,11 +241,11 @@ def test_the_key_bar_is_the_viewers_while_it_has_the_keyboard(files):
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
                   lambda a: shown.extend((c.title, a.command_enabled(c))
                                          for _, c, _, _ in a.shell.keybar.items())])
-    # ``StatusDef hcView`` is 81 columns wide, and ``DrawSelect`` drops an item
-    # that does not end before the edge: at 80 columns F10 Menu falls off the
-    # end, as it did in DOS Navigator.
+    # ``StatusDef hcView`` was 81 columns wide, so at 80 F10 Menu fell off the
+    # end in DOS Navigator; *Hex/Text/Dump* is one column shorter than its
+    # *Hex/ASCII/Dump*, so it fits here.
     assert [t for t, _ in shown] == [
-        "Help", "(Un)Wrap", "Hex/ASCII/Dump", "Goto", "Filter", "Search",
+        "Help", "(Un)Wrap", "Hex/Text/Dump", "Goto", "Filter", "Search", "Menu",
     ]
     # Goto is hex and dump only, as DN disabled cmGotoCell in text.
     assert dict(shown)["Goto"] is False

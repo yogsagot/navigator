@@ -28,7 +28,7 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
 Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu entry DN never had).
 - *simple*: name and size.
 - *detailed*: Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date (**modification** time,
-  `DD-MM-YY hh:mm`, since Linux has no portable creation time). Owner is a departure, 5-17 cells as the longest listed
+  `DD-MM-YYYY hh:mm`, since Linux has no portable creation time; the four-digit year is a departure). Owner is a departure, 5-17 cells as the longest listed
   (`DirEntry.display_owner`, names cached, a number where there is none). Owner, then Attr, then Date drop when the name
   would fall under 12 cells.
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
@@ -55,8 +55,8 @@ directory tree follows it (see `navigator-trees`). Ctrl+H decoding: `navkit-term
   selected files`. A re-read keeps tags; a change of directory drops them. **Space tags too while the command line is
   empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, gated by `Shell`, which owns the line).
 - **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`, on Panel's menu):
-  `SelectDialog` asks for a mask -- `;`-separated shell patterns, case folded, `x.*` matching a dotless name as DOS did --
-  seeded from `HISTORY["select"]` or `*.*`, *Except mask* ticked by Shift. Selecting passes directories over,
+  `SelectDialog` asks for a mask -- `;`-separated shell patterns matched as a POSIX glob (`filetypes.matches`: case
+  counts and `*.*` needs a dot, a departure from DN's `InMask`) -- seeded from `HISTORY["select"]` or `*`, *Except mask* ticked by Shift. Selecting passes directories over,
   unselecting does not (`Panel.select_group`).
 - **Gray `*` inverts** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their
   tag; Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too.

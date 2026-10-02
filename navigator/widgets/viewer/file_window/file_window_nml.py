@@ -72,7 +72,7 @@ class FileWindow(Window, _Component):
     viewer: FileViewer    # file_window.nml:45
     bar: ScrollBar    # file_window.nml:55
     info: StaticText    # file_window.nml:66
-    view_menu: SubMenu    # file_window.nml:80
+    view_menu: SubMenu    # file_window.nml:83
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -91,26 +91,26 @@ class FileWindow(Window, _Component):
         self.viewer = FileViewer(parent=self)    # file_window.nml:44
         self.bar = ScrollBar(parent=self)    # file_window.nml:54
         self.info = StaticText(parent=self)    # file_window.nml:65
-        self.view_menu = SubMenu(parent=self)    # file_window.nml:79
-        _w1 = MenuItem(parent=self.view_menu)    # file_window.nml:83
-        _w2 = MenuItem(parent=self.view_menu)    # file_window.nml:86
-        _w3 = MenuItem(parent=self.view_menu)    # file_window.nml:89
-        _w4 = MenuLine(parent=self.view_menu)    # file_window.nml:92
-        _w5 = MenuItem(parent=self.view_menu)    # file_window.nml:93
-        _w6 = MenuItem(parent=self.view_menu)    # file_window.nml:96
-        _w7 = MenuItem(parent=self.view_menu)    # file_window.nml:99
-        _w8 = MenuItem(parent=self.view_menu)    # file_window.nml:102
-        _w9 = MenuLine(parent=self.view_menu)    # file_window.nml:105
-        _w10 = MenuItem(parent=self.view_menu)    # file_window.nml:106
-        _w11 = MenuItem(parent=self.view_menu)    # file_window.nml:109
-        _w12 = MenuItem(parent=self.view_menu)    # file_window.nml:112
-        _w13 = MenuItem(parent=self.view_menu)    # file_window.nml:115
-        _w14 = MenuLine(parent=self.view_menu)    # file_window.nml:118
-        _w15 = MenuItem(parent=self.view_menu)    # file_window.nml:119
-        _w16 = MenuItem(parent=self.view_menu)    # file_window.nml:122
-        _w17 = MenuItem(parent=self.view_menu)    # file_window.nml:125
-        _w18 = MenuLine(parent=self.view_menu)    # file_window.nml:128
-        _w19 = MenuItem(parent=self.view_menu)    # file_window.nml:129
+        self.view_menu = SubMenu(parent=self)    # file_window.nml:82
+        _w1 = MenuItem(parent=self.view_menu)    # file_window.nml:86
+        _w2 = MenuItem(parent=self.view_menu)    # file_window.nml:89
+        _w3 = MenuItem(parent=self.view_menu)    # file_window.nml:92
+        _w4 = MenuLine(parent=self.view_menu)    # file_window.nml:95
+        _w5 = MenuItem(parent=self.view_menu)    # file_window.nml:96
+        _w6 = MenuItem(parent=self.view_menu)    # file_window.nml:99
+        _w7 = MenuItem(parent=self.view_menu)    # file_window.nml:102
+        _w8 = MenuItem(parent=self.view_menu)    # file_window.nml:105
+        _w9 = MenuLine(parent=self.view_menu)    # file_window.nml:108
+        _w10 = MenuItem(parent=self.view_menu)    # file_window.nml:109
+        _w11 = MenuItem(parent=self.view_menu)    # file_window.nml:112
+        _w12 = MenuItem(parent=self.view_menu)    # file_window.nml:115
+        _w13 = MenuItem(parent=self.view_menu)    # file_window.nml:118
+        _w14 = MenuLine(parent=self.view_menu)    # file_window.nml:121
+        _w15 = MenuItem(parent=self.view_menu)    # file_window.nml:122
+        _w16 = MenuItem(parent=self.view_menu)    # file_window.nml:125
+        _w17 = MenuItem(parent=self.view_menu)    # file_window.nml:128
+        _w18 = MenuLine(parent=self.view_menu)    # file_window.nml:131
+        _w19 = MenuItem(parent=self.view_menu)    # file_window.nml:132
 
         self.zoomed = True    # file_window.nml:24
 
@@ -138,50 +138,50 @@ class FileWindow(Window, _Component):
         self.info.height = 1    # file_window.nml:70
         self.info.text = _bind(lambda _o: self.viewer.info_text)    # file_window.nml:71
 
-        self.view_menu.text = '~V~iew'    # file_window.nml:81
-        self.view_menu.after = 'File'    # file_window.nml:82
+        self.view_menu.text = '~V~iew'    # file_window.nml:84
+        self.view_menu.after = 'File'    # file_window.nml:85
 
-        _w1.text = '~T~ext'    # file_window.nml:84
-        _w1.command = SetViewMode('text')    # file_window.nml:85
+        _w1.text = '~T~ext'    # file_window.nml:87
+        _w1.command = SetViewMode('text')    # file_window.nml:88
 
-        _w2.text = '~H~ex'    # file_window.nml:87
-        _w2.command = SetViewMode('hex')    # file_window.nml:88
+        _w2.text = '~H~ex'    # file_window.nml:90
+        _w2.command = SetViewMode('hex')    # file_window.nml:91
 
-        _w3.text = '~D~ump'    # file_window.nml:90
-        _w3.command = SetViewMode('dump')    # file_window.nml:91
+        _w3.text = '~D~ump'    # file_window.nml:93
+        _w3.command = SetViewMode('dump')    # file_window.nml:94
 
-        _w5.text = '~W~rap lines'    # file_window.nml:94
-        _w5.command = Unwrap    # file_window.nml:95
+        _w5.text = '~W~rap lines'    # file_window.nml:97
+        _w5.command = Unwrap    # file_window.nml:98
 
-        _w6.text = '~N~o filter'    # file_window.nml:97
-        _w6.command = SetViewFilter(0)    # file_window.nml:98
+        _w6.text = '~N~o filter'    # file_window.nml:100
+        _w6.command = SetViewFilter(0)    # file_window.nml:101
 
-        _w7.text = '~A~SCII filter'    # file_window.nml:100
-        _w7.command = SetViewFilter(1)    # file_window.nml:101
+        _w7.text = '~A~SCII filter'    # file_window.nml:103
+        _w7.command = SetViewFilter(1)    # file_window.nml:104
 
-        _w8.text = '~3~2-255 filter'    # file_window.nml:103
-        _w8.command = SetViewFilter(2)    # file_window.nml:104
+        _w8.text = '~P~rintable filter'    # file_window.nml:106
+        _w8.command = SetViewFilter(2)    # file_window.nml:107
 
-        _w10.text = '~S~earch...'    # file_window.nml:107
-        _w10.command = SearchFor    # file_window.nml:108
+        _w10.text = '~S~earch...'    # file_window.nml:110
+        _w10.command = SearchFor    # file_window.nml:111
 
-        _w11.text = 'Search a~g~ain'    # file_window.nml:110
-        _w11.command = ContinueSearch    # file_window.nml:111
+        _w11.text = 'Search a~g~ain'    # file_window.nml:113
+        _w11.command = ContinueSearch    # file_window.nml:114
 
-        _w12.text = 'Re~v~erse search'    # file_window.nml:113
-        _w12.command = ReverseSearch    # file_window.nml:114
+        _w12.text = 'Re~v~erse search'    # file_window.nml:116
+        _w12.command = ReverseSearch    # file_window.nml:117
 
-        _w13.text = 'Go to add~r~ess...'    # file_window.nml:116
-        _w13.command = GotoAddress    # file_window.nml:117
+        _w13.text = 'Go to add~r~ess...'    # file_window.nml:119
+        _w13.command = GotoAddress    # file_window.nml:120
 
-        _w15.text = 'St~o~re'    # file_window.nml:120
-        _w15.key = 'Shift-F2'    # file_window.nml:121
+        _w15.text = 'St~o~re'    # file_window.nml:123
+        _w15.key = 'Shift-F2'    # file_window.nml:124
 
-        _w16.text = 'Sav~e~ as...'    # file_window.nml:123
-        _w16.key = 'Shift-F5'    # file_window.nml:124
+        _w16.text = 'Sav~e~ as...'    # file_window.nml:126
+        _w16.key = 'Shift-F5'    # file_window.nml:127
 
-        _w17.text = '~X~Lat'    # file_window.nml:126
-        _w17.key = 'Shift-F6'    # file_window.nml:127
+        _w17.text = 'Encod~i~ng...'    # file_window.nml:129
+        _w17.key = 'Shift-F6'    # file_window.nml:130
 
-        _w19.text = '~C~lose'    # file_window.nml:130
-        _w19.command = CloseWindow    # file_window.nml:131
+        _w19.text = '~C~lose'    # file_window.nml:133
+        _w19.command = CloseWindow    # file_window.nml:134

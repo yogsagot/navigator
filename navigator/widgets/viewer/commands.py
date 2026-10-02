@@ -22,7 +22,8 @@ class Unwrap(Command):
 class HexMode(Command):
     """F4, ``cmHexMode``: text, hex, dump, and round again."""
 
-    title = "Hex/ASCII/Dump"
+    #: DN's ``Hex/ASCII/Dump``: its text mode is UTF-8 here, not ASCII.
+    title = "Hex/Text/Dump"
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,14 +41,14 @@ class GotoAddress(Command):
 
 
 class AddFilter(Command):
-    """F6, ``cmAddFilter``: no filter, ``{ASCII}``, ``{32-255}``."""
+    """F6, ``cmAddFilter``: no filter, ``{ASCII}``, ``{Printable}``."""
 
     title = "Filter"
 
 
 @dataclass(frozen=True, slots=True)
 class SetViewFilter(Command):
-    """View > No filter, ASCII or 32-255: one of the filters F6 cycles
+    """View > No filter, ASCII or Printable: one of the filters F6 cycles
     through, by its index in ``FILTER_TAGS``."""
 
     filter: int = 0

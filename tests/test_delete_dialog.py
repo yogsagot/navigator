@@ -81,7 +81,7 @@ def test_the_query_orders_its_buttons_by_kind(tmp_path):
     assert readonly.buttons_row == (readonly.agree, readonly.refuse, readonly.every)
     assert readonly.default_button is readonly.agree
     assert not readonly.abandon.visible
-    assert "is marked as Read-Only." in readonly.details.text
+    assert "is write-protected." in readonly.details.text
 
 
 def test_the_progress_box_counts_and_cancels():

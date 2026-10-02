@@ -158,12 +158,15 @@ class DirEntry:
 
     @property
     def display_date(self) -> str:
-        """The modification time, ``DD-MM-YY hh:mm`` as DN's default country drew it.
+        """The modification time, ``DD-MM-YYYY hh:mm``.
 
-        Modification, not creation: a DOS directory entry held one date, and
-        Linux cannot report a creation time portably.
+        DN's default country order, with a four-digit year -- a departure from
+        its ``YY``, which on DOS could not reach past 2107 anyway and here
+        would make 1999 and 2099 one.  Modification, not creation: a DOS
+        directory entry held one date, and Linux cannot report a creation time
+        portably.
         """
-        return time.strftime("%d-%m-%y %H:%M", time.localtime(self.mtime))
+        return time.strftime("%d-%m-%Y %H:%M", time.localtime(self.mtime))
 
 
 #: What ends a name cut short to fit its column.
@@ -453,9 +456,8 @@ class Panel(ListViewer):
         DN's ``SelectFiles``: selecting passes directories over and
         unselecting does not, *invert* is *Except mask* (the entries the mask
         does **not** match), and ``..`` is never tagged.  *mask* is one or
-        more shell patterns joined by ``;``, matched without regard to case as
-        DN's ``InMask`` matched upper-cased names, and a pattern ending ``.*``
-        also matches a name with no dot at all, as DOS's ``*.*`` did.
+        more shell patterns joined by ``;``, matched as a POSIX glob -- case
+        counting, and ``*.*`` needing a dot (:func:`filetypes.matches`).
         """
         patterns = filetypes.patterns(mask)
         if not patterns:
@@ -642,7 +644,7 @@ class Panel(ListViewer):
         "size": ("Size", 8, "display_size"),
         "attributes": ("Attr", 9, "display_attributes"),
         "owner": ("Owner", None, "display_owner"),
-        "date": ("Date", 14, "display_date"),
+        "date": ("Date", 16, "display_date"),
     }
     DETAIL_ORDER = ("size", "attributes", "owner", "date")
     DROP_ORDER = ("owner", "attributes", "date")

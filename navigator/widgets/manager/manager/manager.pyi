@@ -10,8 +10,8 @@ from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeA
 from navigator.widgets.manager.commands import ChangeDrive, Copy, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import PhoneBook, PrintFile, QuickView, Reanimate, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel, ToggleDescriptions
+from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
+from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace

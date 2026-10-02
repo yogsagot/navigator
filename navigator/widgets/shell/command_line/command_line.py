@@ -36,8 +36,9 @@ from navml.widgets.dialog.input_line import InputLine
 #: The history list the command line keeps, in :data:`~navml.history.HISTORY`.
 HISTORY_ID = "command"
 
-#: What ends a word for ``cmInsertName``: ``CMDLINE.PAS``'s ``Separators``.
-_SEPARATORS = set(":.,/\\[]+><|; ")
+#: What ends a word for ``cmInsertName``: ``CMDLINE.PAS``'s ``Separators``,
+#: less ``\\``, DOS's path separator and a POSIX shell's escape.
+_SEPARATORS = set(":.,/[]+><|; ")
 
 
 class CommandLine(InputLine):

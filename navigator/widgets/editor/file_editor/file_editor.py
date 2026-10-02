@@ -66,8 +66,8 @@ from navigator.editor.save import write_file
 from navigator.settings import SETTINGS
 
 #: DN's ``BreakChars`` (``ADVANCE.PAS``): what ends a word for Ctrl+Left,
-#: Ctrl+Right and the word deletes.
-BREAK_CHARS = frozenset(", []{}():;.^&*!#$/\\'\"%><-+=|?\r\n\t\x1a\x0c")
+#: Ctrl+Right and the word deletes, less DOS's end-of-file mark ``^Z``.
+BREAK_CHARS = frozenset(", []{}():;.^&*!#$/\\'\"%><-+=|?\r\n\t\x0c")
 
 #: How many lines one wheel notch moves the view.
 WHEEL_ROWS = 3

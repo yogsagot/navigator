@@ -4,12 +4,14 @@ from navml.widgets.dialog.label import Label
 
 #: Options > Configuration > Startup: DOS Navigator's ``dlgStartupSetup``.
 #:
-#: The resource's three groups, less what only meant something on DOS --
+#: The resource's groups, less what only meant something on DOS --
 #: *Restore screen mode*, the two overlay boxes, *Force* and *Restore VGA
-#: palette*, *DOS Idle (Int28)* and the overlay buffer's size.
+#: palette*, *Enable blinking* (VGA attribute bit 7), and the whole
+#: *Timeslicing* group (*Sleep when inactive*, *DOS Idle (Int28)*): an event
+#: loop already sleeps while nothing happens.
 StartupDialog(Dialog):
     modal_width: 60
-    modal_height: 15
+    modal_height: 12
     title: "Startup"
 
     Label:
@@ -44,21 +46,4 @@ StartupDialog(Dialog):
         y: 5
         width: max(0, parent.width - 4)
         height: 2
-        items: ["~I~nactivity hour exit", "Autosave ~D~esktop", "Enable ~b~linking", "~P~reserve directory"]
-
-    Label:
-        id: timeslicing_caption
-        x: 2
-        y: 8
-        width: 20
-        height: 1
-        text: "Timeslicing options"
-        link: timeslicing
-
-    CheckBoxes:
-        id: timeslicing
-        x: 2
-        y: 9
-        width: max(0, parent.width - 4)
-        height: 1
-        items: ["~S~leep when inactive"]
+        items: ["~I~nactivity hour exit", "Autosave ~D~esktop", "~P~reserve directory"]

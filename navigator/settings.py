@@ -11,7 +11,10 @@ per *Options > Configuration* dialog, and their fields are those dialogs'
 check boxes and lines **in the dialog's order**, so a dialog maps item *i* of
 its ``CheckBoxes`` to field *i* (:meth:`Section.to_bits`).  The items that
 only meant something on DOS -- XMS/EMS, video modes, overlays, Int28, the CD
-player, the per-drive list -- are left out of both.
+player, the per-drive list, "fast" execution, advanced copy, blinking,
+timeslicing, the drive line, ``descript.ion`` descriptions, the quick search
+key and Alt/Ctrl difference -- are left out of both; :data:`OBSOLETE` names
+the ones an older ``navigator.ini`` may still hold.
 
 How it works:
 
@@ -206,7 +209,7 @@ class SystemData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "internal_editor", "internal_viewer", "system_clipboard", "show_hidden",
-        "fast_execution", "advanced_copy", "flush_buffers", "internal_terminal",
+        "flush_buffers", "internal_terminal",
     )
 
     internal_editor: bool = Setting(True, doc="F4 opens the internal editor; off runs $EDITOR")
@@ -214,9 +217,8 @@ class SystemData(Section):
     system_clipboard: bool = Setting(False, doc="Use the system clipboard", honoured=False)
     #: DN's default was off; Navigator's panels have always shown them.
     show_hidden: bool = Setting(True, doc="A new panel shows hidden files (Ctrl+H toggles one)")
-    fast_execution: bool = Setting(False, doc='"Fast" command execution', honoured=False)
-    advanced_copy: bool = Setting(True, doc="Advanced copy", honoured=False)
-    flush_buffers: bool = Setting(True, doc="Flush disk buffers after writing", honoured=False)
+    #: DN flushed DOS's disk caches; on POSIX that is an fsync of what was written.
+    flush_buffers: bool = Setting(True, doc="Sync files to disk after copying", honoured=False)
     #: Not DN's: Midnight Commander's Ctrl+O, for whoever prefers it.
     internal_terminal: bool = Setting(
         True, doc="Ctrl+O shows the console inside Navigator; off hands the real terminal to the shell, as mc does",
@@ -225,26 +227,23 @@ class SystemData(Section):
 
 
 class StartupData(Section):
-    """``dlgStartupSetup`` / ``TStartupData``: its Load, Unload and Slice words."""
+    """``dlgStartupSetup`` / ``TStartupData``: its Load and Unload words."""
 
     name = "startup"
     title = "Options > Configuration > Startup (DN's dlgStartupSetup)"
 
     STARTUP: ClassVar[tuple[str, ...]] = ("auto_user_menu", "clear_history")
     SHUTDOWN: ClassVar[tuple[str, ...]] = (
-        "inactivity_exit", "autosave_desktop", "enable_blinking", "preserve_directory",
+        "inactivity_exit", "autosave_desktop", "preserve_directory",
     )
-    TIMESLICING: ClassVar[tuple[str, ...]] = ("sleep_when_inactive",)
 
     auto_user_menu: bool = Setting(False, doc="Auto run the User Menu", honoured=False)
     clear_history: bool = Setting(False, doc="Clear history on startup", honoured=False)
     inactivity_exit: bool = Setting(False, doc="Exit after an hour of inactivity", honoured=False)
     autosave_desktop: bool = Setting(False, doc="Save the desktop on exit", honoured=False)
-    enable_blinking: bool = Setting(False, doc="Enable blinking", honoured=False)
     preserve_directory: bool = Setting(
         False, doc="Leave the shell in the active panel's directory", honoured=False,
     )
-    sleep_when_inactive: bool = Setting(False, doc="Sleep when inactive", honoured=False)
 
 
 class InterfaceData(Section):
@@ -307,7 +306,8 @@ class EditorDefaultsData(Section):
         "highlight_line", "highlight_column", "persistent_blocks",
         "overwrite_blocks", "lock_file",
     )
-    LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("crlf", "cr", "lf")
+    #: DN's order was CR+LF, CR, LF; POSIX's own ending comes first here.
+    LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
 
     create_backup: bool = Setting(False, doc="Create backup files", honoured=False)
     backspace_unindents: bool = Setting(True, doc="Backspace unindents", honoured=False)
@@ -352,35 +352,23 @@ class FMSetupData(Section):
 
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
-        "space_toggles_selection", "del_erases", "use_arrows", "alt_difference",
-        "ctrl_difference", "bs_upper_dir", "keep_descriptions",
+        "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir",
     )
-    DISPLAY: ClassVar[tuple[str, ...]] = (
-        "column_titles", "drive_line", "info_divider", "tag_character",
-    )
-    QUICK_SEARCH: ClassVar[tuple[str, ...]] = ("alt", "ctrl", "caps")
+    DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character")
 
     auto_change_dir: bool = Setting(True, doc="Auto change directory", honoured=False)
     drag_drop_columns: bool = Setting(False, doc="Drag-and-drop from columns", honoured=False)
-    beep_after_copy: bool = Setting(False, doc="Beep after copy", honoured=False)
+    beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy", honoured=False)
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
     space_toggles_selection: bool = Setting(True, doc="Space toggles selection", honoured=False)
     del_erases: bool = Setting(True, doc="Del erases files", honoured=False)
     use_arrows: bool = Setting(True, doc="Use the arrow keys", honoured=False)
-    alt_difference: bool = Setting(False, doc="Alt difference", honoured=False)
-    ctrl_difference: bool = Setting(False, doc="Ctrl difference", honoured=False)
     #: DN's default was off; Navigator's Backspace has always gone up.
     bs_upper_dir: bool = Setting(True, doc="Backspace goes to the parent directory", honoured=False)
-    keep_descriptions: bool = Setting(False, doc="Do not kill descriptions", honoured=False)
     column_titles: bool = Setting(True, doc="Column titles", honoured=False)
-    drive_line: bool = Setting(True, doc="Drive line", honoured=False)
     info_divider: bool = Setting(True, doc="Info divider", honoured=False)
     tag_character: bool = Setting(True, doc="Tag character", honoured=False)
-    quick_search: str = Setting("alt", choices=QUICK_SEARCH, doc="Quick search key", honoured=False)
     tag_sign: str = Setting("√", doc="Tag sign", honoured=False)
-    description_files: str = Setting(
-        "descript.ion;files.bbs", doc="Files with descriptions", honoured=False,
-    )
 
 
 class PanelDefaultsData(Section):
@@ -389,12 +377,15 @@ class PanelDefaultsData(Section):
     name = "panel_defaults"
     title = "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)"
 
-    SORT_BY: ClassVar[tuple[str, ...]] = ("name", "extension", "size", "time", "group", "unsorted")
+    #: DN's *Group* was the file-type group; "type" says so, where "group"
+    #: would read as the file's Unix group.
+    SORT_BY: ClassVar[tuple[str, ...]] = ("name", "extension", "size", "time", "type", "unsorted")
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "directory_length", "current_file", "selected_files", "totals",
         "free_space", "files_highlight", "executables_first", "archives_first",
     )
-    LEFT_PANEL: ClassVar[tuple[str, ...]] = ("drive", "info", "tree", "absent")
+    #: DN's first choice was *Drive*, a panel of files; there are no drives here.
+    LEFT_PANEL: ClassVar[tuple[str, ...]] = ("files", "info", "tree", "absent")
 
     #: DN's default was the extension; Navigator's panels sort by name.
     sort_by: str = Setting("name", choices=SORT_BY, doc="Sort by", honoured=False)
@@ -407,7 +398,7 @@ class PanelDefaultsData(Section):
     executables_first: bool = Setting(True, doc="Executables first", honoured=False)
     archives_first: bool = Setting(True, doc="Archives first", honoured=False)
     left_panel: str = Setting(
-        "drive", choices=LEFT_PANEL, doc="Left panel in a new Manager", honoured=False,
+        "files", choices=LEFT_PANEL, doc="Left panel in a new Manager", honoured=False,
     )
 
 
@@ -418,6 +409,18 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
 )
+
+#: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
+#: only meant something on DOS.  :meth:`Settings.load` drops them rather than
+#: keeping them as extras, so the next save leaves them out of the file.
+OBSOLETE: dict[str, frozenset[str]] = {
+    "system": frozenset({"fast_execution", "advanced_copy"}),
+    "startup": frozenset({"enable_blinking", "sleep_when_inactive"}),
+    "file_manager": frozenset({
+        "alt_difference", "ctrl_difference", "keep_descriptions", "drive_line",
+        "quick_search", "description_files",
+    }),
+}
 
 
 class Settings:
@@ -482,6 +485,8 @@ class Settings:
                 continue
             section = self.section(name)
             for key, text in parser.items(name):
+                if key in OBSOLETE.get(name, ()):
+                    continue
                 field = cls.field(key)
                 if field is None:
                     extras.setdefault(name, {})[key] = text

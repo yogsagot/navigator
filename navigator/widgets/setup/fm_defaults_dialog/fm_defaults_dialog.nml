@@ -8,6 +8,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: The resource whole: *Sort by* in three columns of two, *Display* in two
 #: of four, and what the left panel of a new file manager is.  Four columns
 #: wider than DN's 48; Help is left out, having nothing to show yet.
+#: Two captions depart from DN's: *Group* is *Type*, since on POSIX a group
+#: is the file's owner group, and the left panel's *Drive* is *Files*.
 FMDefaultsDialog(Dialog):
     modal_width: 52
     modal_height: 18
@@ -28,7 +30,7 @@ FMDefaultsDialog(Dialog):
         y: 2
         width: max(0, parent.width - 4)
         height: 2
-        items: ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "~G~roup", "~U~nsorted"]
+        items: ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "T~y~pe", "~U~nsorted"]
 
     Label:
         id: display_caption
@@ -62,4 +64,4 @@ FMDefaultsDialog(Dialog):
         y: 12
         width: max(0, parent.width - 4)
         height: 1
-        items: ["~D~rive", "~I~nfo", "T~r~ee", "A~b~sent"]
+        items: ["Files", "~I~nfo", "T~r~ee", "A~b~sent"]

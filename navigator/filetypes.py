@@ -67,19 +67,15 @@ def patterns(mask: str) -> list[str]:
 
 
 def matches(name: str, patterns: list[str]) -> bool:
-    """Whether *name* matches any of *patterns*, as DN's ``InMask`` did.
+    """Whether *name* matches any of *patterns*, as a POSIX shell's glob would.
 
-    Without regard to case, and a pattern ending ``.*`` also matches a name
-    with no dot at all, as DOS's ``*.*`` did.
+    A departure from DN's ``InMask``, which folded case and let ``*.*`` match a
+    name with no dot, as DOS did: here case counts and ``*.*`` needs a dot,
+    since ``README`` and ``readme`` are two files.  Colouring by type still
+    ignores the extension's case (:func:`category_of`), which is a matter of
+    display, not of which files an operation takes.
     """
-    name = name.lower()
-    for pattern in patterns:
-        pattern = pattern.lower()
-        if fnmatch.fnmatchcase(name, pattern):
-            return True
-        if pattern.endswith(".*") and "." not in name and fnmatch.fnmatchcase(name, pattern[:-2]):
-            return True
-    return False
+    return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
 
 
 def _index(categories: dict[str, str]) -> tuple[dict[str, str], list[tuple[str, list[str]]]]:

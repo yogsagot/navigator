@@ -62,8 +62,10 @@ TAB = 8
 #: What DN's filter puts in place of a byte it hides.
 FILTERED = "·"
 
-#: The three filters F6 cycles, by the tag the info line gives each.
-FILTER_TAGS = ("", "{ASCII}", "{32-255}")
+#: The three filters F6 cycles, by the tag the info line gives each.  DN's
+#: third was ``{32-255}``, every byte of a one-byte code page but the
+#: controls; in UTF-8 that is every printable character, and says so.
+FILTER_TAGS = ("", "{ASCII}", "{Printable}")
 
 #: The glyphs code page 437 puts at 0x00 to 0x1F, which Python's ``cp437``
 #: codec decodes as control characters instead.  0x00 is a blank on a VGA.

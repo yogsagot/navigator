@@ -76,6 +76,9 @@ FileWindow(Window):
     #: viewer had none -- everything here is on the viewer's keys, gathered in
     #: one place.  The three ``StatusDef hcView`` keys Navigator cannot do yet
     #: are shown greyed, as the main menu shows every feature still to come.
+    #: Two captions depart from DN's: *32-255 filter* is *Printable filter*,
+    #: since a UTF-8 text has no one-byte code page to count to 255 in, and
+    #: *XLat*'s code-page tables are *Encoding...*, a choice of encoding.
     SubMenu:
         id: view_menu
         text: '~V~iew'
@@ -100,7 +103,7 @@ FileWindow(Window):
             text: '~A~SCII filter'
             command: SetViewFilter(1)
         MenuItem:
-            text: '~3~2-255 filter'
+            text: '~P~rintable filter'
             command: SetViewFilter(2)
         MenuLine:
         MenuItem:
@@ -123,7 +126,7 @@ FileWindow(Window):
             text: 'Sav~e~ as...'
             key: 'Shift-F5'
         MenuItem:
-            text: '~X~Lat'
+            text: 'Encod~i~ng...'
             key: 'Shift-F6'
         MenuLine:
         MenuItem:

@@ -24,7 +24,7 @@ def describe(question: NotEmpty | ReadOnly) -> str:
     """``dlEraseDirNotEmpty`` or ``dlEraseRO``, after the name."""
     name = escape_caption(cut(question.path.name))
     if isinstance(question, ReadOnly):
-        return f"File {name}\nis marked as Read-Only.\nOK to delete it?"
+        return f"File {name}\nis write-protected.\nOK to delete it?"
     return f"Directory {name}\nis not empty.\nDo you wish to delete it?"
 
 

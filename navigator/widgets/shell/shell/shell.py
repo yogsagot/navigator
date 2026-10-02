@@ -387,18 +387,19 @@ class Shell(DockLayout):
 
     @computed
     def command_prompt(self) -> str:
-        """``<directory>>``: where the file manager in front is, as ``GetDir`` said.
+        """``<directory>$``: where the file manager in front is, as ``GetDir`` said.
 
         DOS Navigator's prompt was the process's current directory, which a
         focused panel kept equal to its own.  A command runs in the active
         panel's directory here, so the prompt says that one.  With no file
         manager open it is where the shell last was.  Shown only until the
-        shell's own prompt arrives (:attr:`command_prompt_cells`).
+        shell's own prompt arrives (:attr:`command_prompt_cells`).  It ends in
+        a POSIX shell's ``$``, not DOS's ``PROMPT $P$G`` ``>``.
         """
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
-        return f"{where}>" if where is not None else ">"
+        return f"{where}$" if where is not None else "$"
 
     @computed
     def command_prompt_cells(self) -> tuple:

@@ -2,8 +2,8 @@ from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeA
 from navigator.widgets.manager.commands import ChangeDrive, Copy, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import PhoneBook, PrintFile, QuickView, Reanimate, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel, ToggleDescriptions
+from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
+from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -46,7 +46,9 @@ Manager(Window):
     #: handler in ``manager.py`` is disabled, and greyed on the bar.  The
     #: modified keys below them are the bar's Alt, Ctrl and Shift rows, in
     #: ``StatusDef hcFilePanel``'s order, which is the order the bar shows the
-    #: letters in.
+    #: letters in.  Three of DN's are not here, a departure: Ctrl+K's ``descript.ion``
+    #: descriptions, Shift+F3's modem phone book and Shift+F6's FAT undelete
+    #: (*Reanimator*) can never mean anything on POSIX.
     keys:
         tab: SwitchPanel
         insert: ToggleMark
@@ -73,7 +75,6 @@ Manager(Window):
         alt+e: ChangeAttributes
         ctrl+f6: Calculator
         ctrl+f9: PrintFile
-        ctrl+k: ToggleDescriptions
         ctrl+l: DiskInfo
         ctrl+p: HideInactive
         ctrl+t: ToggleTree
@@ -84,10 +85,8 @@ Manager(Window):
         ctrl+s: QuickSearch
         shift+f1: ArchiveFiles
         shift+f2: ExtractArchive
-        shift+f3: PhoneBook
         shift+f4: EditNamed
         shift+f5: MakeLink
-        shift+f6: Reanimate
         shift+f8: DeleteSingle
 
     HorizontalLayout:

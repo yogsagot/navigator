@@ -700,20 +700,20 @@ def test_a_dir_entry_carries_permissions_and_a_date(panel, tree):
     settle()
     entry = next(e for e in panel.items if e.name == "one.txt")
     assert entry.display_attributes == "rw-r-----"
-    assert entry.display_date == "04-03-21 05:06"
+    assert entry.display_date == "04-03-2021 05:06"
 
 
 def test_the_detailed_mode_draws_its_columns(tree, monkeypatch):
     # The owner column is as wide as the longest owner, so whoever runs the
-    # suite would decide whether it fits (``runner:docker`` does not, at 60).
+    # suite would decide whether it fits (``runner:docker`` does not, at 62).
     monkeypatch.setattr(DirEntry, "display_owner", property(lambda self: "user:group"))
-    panel = Panel(tree, width=60, height=10)
+    panel = Panel(tree, width=62, height=10)
     panel.stylesheet = default_scheme()
-    panel = mounted(panel, size=(60, 10))
+    panel = mounted(panel, size=(62, 10))
     panel.cycle_view_mode()
     settle()
     assert [key for key, _, _ in panel.detail_columns] == ["name", "size", "attributes", "owner", "date"]
-    buffer = ScreenBuffer(60, 10)
+    buffer = ScreenBuffer(62, 10)
     panel.render(buffer)
     heading = text_at(buffer, 1)
     for title in ("Name", "Size", "Attr", "Owner", "Date"):
@@ -724,7 +724,7 @@ def test_the_detailed_mode_draws_its_columns(tree, monkeypatch):
     # The name column takes what the others leave.
     owner_width = panel.detail_columns[3][2]
     _, x, width = panel.detail_columns[0]
-    assert (x, width) == (1, 58 - (8 + 9 + owner_width + 14 + 4))
+    assert (x, width) == (1, 60 - (8 + 9 + owner_width + 16 + 4))
 
 
 def test_the_owner_column_is_user_colon_group(panel, tree):
@@ -1840,16 +1840,19 @@ def mixed(tmp_path):
 
 def test_select_group_tags_the_files_a_mask_matches(mixed):
     mixed.select_group("*.txt")
-    # Case folded as DN's InMask folded it; a directory is passed over.
-    assert mixed.marked == {"a.txt", "B.TXT"}
-
-
-def test_star_dot_star_matches_a_name_without_a_dot_too(mixed):
-    mixed.select_group("*.*")
-    assert mixed.marked == {"a.txt", "B.TXT", "c.py", "Makefile", "notes.md"}
+    # Case counts, as in a POSIX glob; a directory is passed over.
+    assert mixed.marked == {"a.txt"}
     mixed.marked = frozenset()
-    mixed.select_group("makefile.*")
-    assert mixed.marked == {"Makefile"}
+    mixed.select_group("*.TXT")
+    assert mixed.marked == {"B.TXT"}
+
+
+def test_star_dot_star_needs_a_dot(mixed):
+    mixed.select_group("*.*")
+    assert mixed.marked == {"a.txt", "B.TXT", "c.py", "notes.md"}
+    mixed.marked = frozenset()
+    mixed.select_group("*")
+    assert mixed.marked == {"a.txt", "B.TXT", "c.py", "Makefile", "notes.md"}
 
 
 def test_select_group_takes_several_masks_and_an_except(mixed):
@@ -1857,7 +1860,7 @@ def test_select_group_takes_several_masks_and_an_except(mixed):
     assert mixed.marked == {"c.py", "notes.md"}
     mixed.marked = frozenset()
     mixed.select_group("*.txt", invert=True)
-    assert mixed.marked == {"c.py", "Makefile", "notes.md"}
+    assert mixed.marked == {"B.TXT", "c.py", "Makefile", "notes.md"}
 
 
 def test_unselect_group_reaches_directories_and_never_tags(mixed):
@@ -1955,10 +1958,10 @@ def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
         await asyncio.sleep(0.06)
         assert isinstance(app.modal, SelectDialog)
         assert " Select " in app.terminal.frames[-1]
-        assert app.modal.mask.value == "*.*"
+        assert app.modal.mask.value == "*"
         assert app.modal.options.value == 0
         # The default is selected, so the first key replaces it.
-        assert app.modal.mask.entry.selected_text == "*.*"
+        assert app.modal.mask.entry.selected_text == "*"
         for char in "*.md":
             app.post_event(KeyEvent(char, char))
         await asyncio.sleep(0.06)
@@ -2558,7 +2561,8 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     rows' styles are all that moved.  And once more when F5 and F6 got the
     copy: *Copy* and *Ren* left the *Disabled* colour, the key bar's styles
     again the only thing that moved.  And once more, the same way, when F8
-    got the delete.
+    got the delete.  And once more when the prompt dropped DOS's ``>`` for a
+    POSIX shell's ``$``: ``.>`` became ``.$``, and nothing else moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
@@ -2854,16 +2858,15 @@ def test_a_click_on_a_greyed_caption_does_nothing_and_goes_nowhere(tree):
 #: The same line while each modifier is held: the ``-``, ``+`` and ``:`` items
 #: of ``StatusDef hcFilePanel``, the function keys first, then the letters
 #: nearest table first -- the file manager's, the desktop's Zoom and Close,
-#: the application's.  At 80 columns the Ctrl row closes before *Show*: the
-#: desktop's F4 Close takes the room, which DOS Navigator's file panel row
-#: did not caption.  The Alt row closes before *Exit* the same way: E Attr,
+#: the application's.  The Ctrl row has room for *Show* since Ctrl+K's
+#: ``descript.ion`` *Desc* went; the Shift row lost *Phones* and *Reanimate*
+#: the same way.  The Alt row closes before *Exit* the same way: E Attr,
 #: which DN's row did not carry either, takes its room.
 ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
               "  E Attr  Z Zoom")
-CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  K Desc  L Info"
-               "  T Tree  Q Preview")
-SHIFT_STATUS = (" F1 Arc  F2 Ext  F3 Phones  F4 Edit...  F5 SymLnk"
-                "  F6 Reanimate  F8 Del")
+CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  L Info"
+               "  T Tree  Q Preview  Y Show")
+SHIFT_STATUS = " F1 Arc  F2 Ext  F4 Edit...  F5 SymLnk  F8 Del"
 
 
 @pytest.mark.parametrize(
@@ -2897,7 +2900,7 @@ def test_the_ctrl_row_greys_what_is_not_written_and_not_what_is(tree):
         ),
     ])
     assert "Print" not in enabled
-    assert enabled == ["New Manager", "Close", "Tree", "Preview"]
+    assert enabled == ["New Manager", "Close", "Tree", "Preview", "Show"]
 
 
 def test_a_click_on_a_held_row_runs_that_rows_command(tree):
@@ -3204,7 +3207,7 @@ def test_the_prompt_follows_the_active_panel(tree, quiet_console):
         KeyEvent("tab"),
         lambda a: seen.append(a.shell.command_prompt),
     ])
-    assert seen == [f"{tree}>", f"{tree / 'alpha'}>"]
+    assert seen == [f"{tree}$", f"{tree / 'alpha'}$"]
 
 
 def shell_prompt(app, cwd, data=b"\x1b[32mme\x1b[0m$ "):
@@ -3234,7 +3237,7 @@ def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console)
     # The shell has not caught up with the panel yet: DOS Navigator's prompt
     # stands in until it does.
     assert app.shell.command_line.prompt_cells == ()
-    assert app.shell.command_line.prompt == f"{tree / 'alpha'}>"
+    assert app.shell.command_line.prompt == f"{tree / 'alpha'}$"
     assert row_of(desktop(app), 22).startswith(app.shell.command_line.shown_prompt)
     shell_prompt(app, tree / "alpha")
     assert row_of(desktop(app), 22).startswith("me$ ")
@@ -3771,7 +3774,7 @@ def test_the_console_keeps_the_panel_that_was_active(tree, quiet_console, monkey
         KeyEvent("o", ctrl=True),
         lambda a: seen.append(a.manager.right.focused),
     ])
-    assert seen[0] == (tree / "alpha", f"{tree / 'alpha'}>", True)
+    assert seen[0] == (tree / "alpha", f"{tree / 'alpha'}$", True)
     assert synced[-1] == tree / "alpha"
     # And Ctrl+O again hands the keyboard back to the right panel.
     assert seen[1] is True

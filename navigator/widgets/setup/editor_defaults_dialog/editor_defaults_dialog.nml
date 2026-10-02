@@ -10,6 +10,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: EMS memory* and *Use XMS memory*.  The numbers are three-digit masked lines
 #: rather than DN's free input lines, so nothing but a number goes in.  Four
 #: columns wider than DN's 52; Help is left out, having nothing to show yet.
+#: The line divisor lists LF first, a departure from DN's CR+LF, CR, LF:
+#: POSIX's own ending leads.
 EditorDefaultsDialog(Dialog):
     modal_width: 56
     modal_height: 21
@@ -104,4 +106,4 @@ EditorDefaultsDialog(Dialog):
         y: 15
         width: 26
         height: 1
-        items: ["CR+LF", "CR", "LF"]
+        items: ["LF", "CR+LF", "CR"]
