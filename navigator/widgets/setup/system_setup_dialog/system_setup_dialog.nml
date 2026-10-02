@@ -9,6 +9,8 @@ from navml.widgets.dialog.label import Label
 #: something on DOS -- *Disable XMS/EMS usage*, *OS-dependent Disk Access*,
 #: *Clear read-only from CD*, the two video modes and the per-drive list --
 #: so it is eight rows shorter.  Help is left out, having nothing to show yet.
+#: *Use internal terminal* is not DN's but a departure: whether Ctrl+O shows
+#: the console in Navigator, or hands the real terminal over as mc does.
 SystemSetupDialog(Dialog):
     modal_width: 60
     modal_height: 14
@@ -29,7 +31,7 @@ SystemSetupDialog(Dialog):
         y: 2
         width: max(0, parent.width - 6)
         height: 4
-        items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", '"~F~ast" command execution', "Advanced copy", "Flush disk buffers"]
+        items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", '"~F~ast" command execution', "Advanced copy", "Flush disk buffers", "Use internal te~r~minal"]
 
     Label:
         id: temp_caption

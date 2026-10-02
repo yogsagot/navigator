@@ -382,3 +382,122 @@ def test_block_insert_cursor_makes_the_command_lines_caret_a_block(tmp_path, qui
         look,
     ])
     assert seen == ["default", "block"]
+
+
+# -- Use internal terminal: Midnight Commander's Ctrl+O -----------------------------------
+
+
+class _Pty:
+    """What a Subshell writes to, kept."""
+
+    def __init__(self):
+        self.written = []
+
+    def write(self, data):
+        self.written.append(data)
+
+
+def _relayable_subshell():
+    from navkit.console import ConsoleScreen
+    from navigator.subshell import Subshell
+
+    shell = Subshell(ConsoleScreen(80, 24))
+    shell.process = _Pty()
+    shell._ready = True
+    shell._prompt = b"$ "
+    return shell
+
+
+def test_the_relay_shows_the_held_back_prompt_once():
+    shell, out = _relayable_subshell(), []
+    shell.start_relay(out.append)
+    shell.stop_relay()
+    shell.start_relay(out.append)
+    assert out == [b"$ "]
+
+
+def test_a_line_typed_and_abandoned_is_cleared_and_the_prompt_shown_anew():
+    shell, out = _relayable_subshell(), []
+    shell.start_relay(out.append)
+    shell.relay_input(b"ls")
+    shell.stop_relay()
+    # Ctrl+E, Ctrl+U: the shell's editor forgets it ...
+    assert shell.process.written == [b"ls", b"\x05\x15"]
+    # ... and the next time the prompt starts a line of its own.
+    shell.start_relay(out.append)
+    assert out == [b"$ ", b"\r\n", b"$ "]
+
+
+def test_a_line_entered_at_the_relayed_shell_waits_for_its_next_prompt():
+    shell, out = _relayable_subshell(), []
+    shell.start_relay(out.append)
+    shell.relay_input(b"vim\r")
+    shell.stop_relay()
+    assert shell.process.written == [b"vim\r"]
+    # Not ready: a command the command line sends now waits for the prompt.
+    assert shell._ready is False
+
+
+def test_the_relayed_shell_does_not_answer_queries_the_real_terminal_answers():
+    shell = _relayable_subshell()
+    shell.start_relay(lambda data: None)
+    shell.screen.respond(b"\x1b[1;1R")
+    shell.stop_relay()
+    shell.screen.respond(b"\x1b[1;1R")
+    assert shell.process.written == [b"\x1b[1;1R"]
+
+
+def _relaying_app(tmp_path):
+    SETTINGS.system.internal_terminal = False
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    return app
+
+
+def test_without_the_internal_terminal_ctrl_o_lends_the_real_one(tmp_path, quiet_console):
+    app = _relaying_app(tmp_path)
+    seen = []
+
+    def tty(a):
+        a.terminal.is_tty = True
+
+    def look(a):
+        seen.append((a.released, a.terminal.suspended, a.shell.console_visible, a.shell.console.relayed))
+
+    def type_and_return(a):
+        seen.append(a.shell._relayed_input(b"ls\x0fX"))
+
+    run_app(app, [tty, KeyEvent("o", ctrl=True), lambda a: None, look, type_and_return, look])
+    assert seen == [(True, True, False, True), b"X", (False, False, False, False)]
+
+
+def test_a_command_from_the_line_runs_on_the_real_terminal_and_comes_back(tmp_path, quiet_console, monkeypatch):
+    app = _relaying_app(tmp_path)
+    ran = []
+    monkeypatch.setattr(
+        "navigator.widgets.shell.console.Console.run",
+        lambda self, command, cwd=None: ran.append(command),
+    )
+    seen = []
+
+    def tty(a):
+        a.terminal.is_tty = True
+
+    run_app(app, [
+        tty,
+        lambda a: a.shell.run_command("make"),
+        lambda a: seen.append(a.released),
+        lambda a: a.shell.command_finished(0, tmp_path),
+        lambda a: seen.append(a.released),
+    ])
+    assert ran == ["make"] and seen == [True, False]
+
+
+def test_without_a_real_terminal_ctrl_o_falls_back_to_the_console(tmp_path, quiet_console):
+    app = _relaying_app(tmp_path)
+    seen = []
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: None,
+        lambda a: seen.append((a.released, a.shell.console_visible)),
+    ])
+    assert seen == [(False, True)]

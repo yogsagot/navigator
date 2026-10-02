@@ -297,6 +297,8 @@ class Application:
         self._dispatching = False
         self._signals: list[int] = []
         self._reader_fd: int | None = None
+        #: Who the terminal is lent to by :meth:`release_terminal`, or None.
+        self._released: Callable[[bytes], bytes] | None = None
         # An observable, so its write asks for a frame -- which needs the
         # loop state above to exist already.
         self.stylesheet = stylesheet
@@ -705,8 +707,45 @@ class Application:
         if self._loop is not None and not self._events.full():
             self._events.put_nowait(_WAKE)
 
+    # -- lending the terminal ---------------------------------------------------
+
+    @property
+    def released(self) -> bool:
+        """Whether the terminal is lent out by :meth:`release_terminal`."""
+        return self._released is not None
+
+    def release_terminal(self, on_input: Callable[[bytes], bytes]) -> None:
+        """Lend the real terminal out, as Midnight Commander's Ctrl+O does.
+
+        The screen and its modes are given back (:meth:`Terminal.suspend`),
+        nothing is painted, and every byte read goes raw to *on_input*, which
+        returns whatever of it is still the application's -- the bytes after
+        the key that ended the loan, once it has called
+        :meth:`reclaim_terminal`.  The loop goes on running, so timers, pty
+        output and resizes are still handled.
+        """
+        self._released = on_input
+        for event in self._parser.flush():
+            self.post_event(event)
+        self.terminal.suspend()
+        self._cursor_shown = None
+
+    def reclaim_terminal(self) -> None:
+        """End a :meth:`release_terminal` loan: the screen back, repainted whole."""
+        if self._released is None:
+            return
+        self._released = None
+        self.terminal.resume()
+        self._front = None
+        self._cursor_shown = None
+        self._dirty = False
+        self.invalidate()
+
     async def _render(self) -> None:
         """Compose a frame and flush the difference to the terminal."""
+        if self._released is not None:
+            # Lent out: the frame waits for reclaim_terminal, which repaints.
+            return
         if self._min_frame_interval and self._loop is not None:
             overdue = self._min_frame_interval - (self._loop.time() - self._last_frame)
             if overdue > 0:
@@ -1136,6 +1175,12 @@ class Application:
             # End of input: the tty went away, so there is nothing left to do.
             self.exit()
             return
+        if self._released is not None:
+            # Raw, to whoever the terminal was released to; what it hands
+            # back -- whatever followed the key that reclaimed it -- is ours.
+            data = self._released(data)
+            if not data:
+                return
         for event in self._parser.feed(data):
             self.post_event(event)
         self._schedule_escape_flush()

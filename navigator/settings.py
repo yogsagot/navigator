@@ -206,7 +206,7 @@ class SystemData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "internal_editor", "internal_viewer", "system_clipboard", "show_hidden",
-        "fast_execution", "advanced_copy", "flush_buffers",
+        "fast_execution", "advanced_copy", "flush_buffers", "internal_terminal",
     )
 
     internal_editor: bool = Setting(True, doc="F4 opens the internal editor; off runs $EDITOR")
@@ -217,6 +217,10 @@ class SystemData(Section):
     fast_execution: bool = Setting(False, doc='"Fast" command execution', honoured=False)
     advanced_copy: bool = Setting(True, doc="Advanced copy", honoured=False)
     flush_buffers: bool = Setting(True, doc="Flush disk buffers after writing", honoured=False)
+    #: Not DN's: Midnight Commander's Ctrl+O, for whoever prefers it.
+    internal_terminal: bool = Setting(
+        True, doc="Ctrl+O shows the console inside Navigator; off hands the real terminal to the shell, as mc does",
+    )
     temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR", honoured=False)
 
 

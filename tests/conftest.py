@@ -47,6 +47,9 @@ class FakeTerminal:
         #: What was copied, as ``(text, primary)``, and which reads were asked for.
         self.clipboard: list[tuple[str, bool]] = []
         self.clipboard_queries: list[bool] = []
+        #: Between suspend() and resume(), and what was written raw meanwhile.
+        self.suspended = False
+        self.relayed: list[bytes] = []
         self._pending: list[str] = []
 
     def start(self) -> None:
@@ -54,6 +57,15 @@ class FakeTerminal:
 
     def stop(self) -> None:
         self.stopped = True
+
+    def suspend(self) -> None:
+        self.suspended = True
+
+    def resume(self) -> None:
+        self.suspended = False
+
+    def write_bytes(self, data: bytes) -> None:
+        self.relayed.append(data)
 
     def set_title(self, title: str) -> None:
         self.title = title

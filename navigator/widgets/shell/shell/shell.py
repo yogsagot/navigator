@@ -89,6 +89,9 @@ class Shell(DockLayout):
             self.add_class("root")
         self.console.cwd = left
         self.console.subshell.on_finished = self._command_finished
+        # A shell that exits while it has the real terminal -- ``exit`` typed
+        # at it -- can no longer hand it back, so Navigator takes it.
+        self.console.subshell.on_exit = lambda status: self.end_relay()
         # Options > Configuration > Interface: ``ouiClock``, ``ouiHideStatus``,
         # ``ouiHideMenu`` and ``ouiHideCmdline``.  Bound here rather than in
         # the markup, which evaluates a line that reads nothing of its widget
@@ -121,6 +124,9 @@ class Shell(DockLayout):
         #: Whether the console was put up by a command rather than by Ctrl+O,
         #: and so is to be taken down again when the command is done.
         self._shown_for_command = False
+        #: Whether the real terminal was handed to the shell for a command
+        #: rather than by Ctrl+O, and so is to be taken back when it is done.
+        self._relayed_for_command = False
         #: The file manager window.  Kept after it is closed, for whoever asks
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
@@ -143,6 +149,8 @@ class Shell(DockLayout):
         """
         desktop = self.desktop
         showing = not self.console_visible
+        if showing and not SETTINGS.system.internal_terminal and self.relay_terminal():
+            return
         if not showing and desktop.active_window is None:
             return
         if showing:
@@ -156,6 +164,70 @@ class Shell(DockLayout):
             self.console.focus()
         else:
             desktop.activate(desktop.active_window)
+
+    # -- the real terminal, Midnight Commander's way ---------------------------------
+
+    def relay_terminal(self) -> bool:
+        """Hand the real terminal to the shell: System Setup's *Use internal terminal* off.
+
+        Midnight Commander's Ctrl+O, a departure from DN's for whoever wants
+        it.  Navigator leaves full-screen mode, so the terminal shows what it
+        showed before Navigator started and everything the shell printed on
+        it since; the shell's output goes straight there and every key
+        straight to the shell, until Ctrl+O comes back
+        (:meth:`_relayed_input`).  False, and nothing done, without a real
+        terminal to hand over.
+        """
+        app = self.application
+        if app is None or app.released or not app.terminal.is_tty:
+            return False
+        console = self.console
+        console.relayed = True
+        # Now rather than at the next flush: the shell is about to draw its
+        # prompt, and should draw it at the terminal's width.
+        console._follow_size()
+        console.start()
+        app.release_terminal(self._relayed_input)
+        console.subshell.start_relay(app.terminal.write_bytes)
+        return True
+
+    def _relayed_input(self, data: bytes) -> bytes:
+        """What is typed while the shell has the real terminal.
+
+        Ctrl+O takes it back -- as the plain control byte, or as the kitty
+        protocol spells it if a program turned that on -- unless a command
+        the command line sent is running: that has every key, Ctrl+O
+        included, as it does on the console.  What follows Ctrl+O is
+        Navigator's again.
+        """
+        subshell = self.console.subshell
+        if not subshell.busy:
+            for key in (b"\x0f", b"\x1b[111;5u"):
+                cut = data.find(key)
+                if cut != -1:
+                    if cut:
+                        subshell.relay_input(data[:cut])
+                    self.end_relay()
+                    return data[cut + len(key):]
+        subshell.relay_input(data)
+        return b""
+
+    def end_relay(self, *, follow: bool = True) -> None:
+        """Take the real terminal back, and repaint; *follow* moves the panel after the shell.
+
+        A ``cd`` typed at the shell moves the active panel, and both re-read
+        whatever the shell did to them -- what a finished command does.
+        """
+        app = self.application
+        if app is None or not app.released:
+            return
+        console = self.console
+        console.subshell.stop_relay()
+        console.relayed = False
+        console._follow_size()
+        app.reclaim_terminal()
+        if follow:
+            self._follow_shell(console.subshell.cwd)
 
     def show_console(self) -> None:
         """Show the console if it is not showing already."""
@@ -674,6 +746,13 @@ class Shell(DockLayout):
         self.command_line.clear()
         self._walk = None
         cwd = self._command_directory()
+        if not self.console_visible and not SETTINGS.system.internal_terminal:
+            # mc's way: the command runs on the real terminal, and Navigator
+            # comes back when it is done.
+            self._relayed_for_command = self.relay_terminal()
+            if self._relayed_for_command:
+                self.console.run(command, cwd)
+                return
         self._shown_for_command = not self.console_visible
         if not self.console_visible:
             self.toggle_console()
@@ -695,12 +774,19 @@ class Shell(DockLayout):
         returned and re-read them, and the directory it came back to was the
         one DOS had kept -- so a ``cd`` on the command line moved the panel.
         """
-        if self._shown_for_command and self.console_visible:
+        if self._relayed_for_command:
+            self._relayed_for_command = False
+            self.end_relay(follow=False)
+        elif self._shown_for_command and self.console_visible:
             self._shown_for_command = False
             self.toggle_console()
         elif self.console_visible:
             # Still up by Ctrl+O: the keys go back to the command line.
             self.console.focus()
+        self._follow_shell(cwd)
+
+    def _follow_shell(self, cwd: Path | None) -> None:
+        """Send the active panel wherever the shell went, and re-read both."""
         manager = self.active_manager
         if manager is None:
             return

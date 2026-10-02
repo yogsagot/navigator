@@ -872,6 +872,9 @@ class Terminal:
         #: it, and it is the only place that answer is written down.
         self.erase: int | None = None
         self._started = False
+        #: Between :meth:`suspend` and :meth:`resume`: raw, but the screen
+        #: and its modes given back.
+        self.suspended = False
         self._pending: list[str] = []
 
     @property
@@ -900,6 +903,40 @@ class Terminal:
             erase = self._saved_attrs[6][termios.VERASE]
             self.erase = erase[0] if isinstance(erase, bytes) else erase
             tty.setraw(self.input_fd)
+        self._enter_modes()
+
+    def stop(self) -> None:
+        if not self._started:
+            return
+        self._started = False
+        if not self.suspended:
+            self._leave_modes()
+        self.suspended = False
+        if self._saved_attrs is not None:
+            termios.tcsetattr(self.input_fd, termios.TCSADRAIN, self._saved_attrs)
+            self._saved_attrs = None
+
+    def suspend(self) -> None:
+        """Give the screen back -- the normal screen, the modes off -- but stay raw.
+
+        For an application that relays another program on the real terminal,
+        as Midnight Commander does its subshell: every byte typed still comes
+        here unchanged, to be passed on or kept, and the tty's line discipline
+        must neither echo nor cook it.  :meth:`resume` takes the screen again.
+        """
+        if not self._started or self.suspended:
+            return
+        self.suspended = True
+        self._leave_modes()
+
+    def resume(self) -> None:
+        """Take the screen back after :meth:`suspend`, blank: repaint all of it."""
+        if not self._started or not self.suspended:
+            return
+        self.suspended = False
+        self._enter_modes()
+
+    def _enter_modes(self) -> None:
         if self.info.alt_screen:
             self.write(ALT_SCREEN_ON)
         self.write(AUTOWRAP_OFF + HIDE_CURSOR + CLEAR_SCREEN)
@@ -915,10 +952,7 @@ class Terminal:
             self.write(palette_sgr(self.info.palette))
         self.flush()
 
-    def stop(self) -> None:
-        if not self._started:
-            return
-        self._started = False
+    def _leave_modes(self) -> None:
         # Everything start() turned on, turned off in the reverse order.  Each
         # is guarded by the same flag, so a feature that was never asked for is
         # never cancelled either -- sending the reset regardless would be
@@ -940,9 +974,6 @@ class Terminal:
         if self.info.alt_screen:
             self.write(ALT_SCREEN_OFF)
         self.flush()
-        if self._saved_attrs is not None:
-            termios.tcsetattr(self.input_fd, termios.TCSADRAIN, self._saved_attrs)
-            self._saved_attrs = None
 
     def set_clipboard(self, text: str, *, primary: bool = False) -> None:
         """Put *text* on the terminal's clipboard, or its primary selection."""
@@ -971,6 +1002,24 @@ class Terminal:
         """Queue *text* for output; nothing reaches the tty until :meth:`flush`."""
         if text:
             self._pending.append(text)
+
+    def write_bytes(self, data: bytes) -> None:
+        """Write *data* as it is, now: a relayed program's own output.
+
+        Bytes rather than text, because what a program prints need not be
+        valid UTF-8 and is not this terminal's to re-encode.
+        """
+        self.flush()
+        buffer = getattr(self._out, "buffer", None)
+        try:
+            if buffer is not None:
+                buffer.write(data)
+                buffer.flush()
+            else:
+                self._out.write(data.decode("utf-8", "replace"))
+                self._out.flush()
+        except (BrokenPipeError, ValueError):
+            pass
 
     def flush(self) -> None:
         if not self._pending:

@@ -72,6 +72,10 @@ class Console(Widget):
     #: named are then somewhere else.
     selection: Any = reactive(None)
 
+    #: The shell has the real terminal (``Shell.relay_terminal``): its pty is
+    #: then the whole terminal's size, not this widget's.
+    relayed: bool = reactive(False)
+
     def __init__(self, cwd: Path | None = None, **kwargs):
         """*cwd* is optional because a widget markup constructs must be.
 
@@ -102,9 +106,14 @@ class Console(Widget):
         effect(self, Console._follow_size)
 
     def _follow_size(self) -> None:
-        columns, lines = max(1, self.width), max(1, self.height)
+        columns, lines = self._size()
         self.screen.resize(columns, lines)
         self.subshell.set_size(columns, lines)
+
+    def _size(self) -> tuple[int, int]:
+        """What the pty is: this widget, or the whole screen while relayed."""
+        source = self.parent if self.relayed and self.parent is not None else self
+        return max(1, source.width), max(1, source.height)
 
     # -- the child -----------------------------------------------------------
 
@@ -128,7 +137,7 @@ class Console(Widget):
             # rc files print anything on top of it.
             self.seeded = True
             seed_from_host(self.screen)
-        self.subshell.start(self.cwd, max(1, self.width), max(1, self.height))
+        self.subshell.start(self.cwd, *self._size())
 
     def run(self, command: str, cwd: Path | None = None) -> None:
         """Run *command* in the shell, in *cwd*."""

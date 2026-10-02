@@ -126,6 +126,7 @@ note:
 |---|---|
 | `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console |
 | `system.show_hidden` | A new panel's `show_hidden` |
+| `system.internal_terminal` | Off: Ctrl+O hands the real terminal to the shell, as Midnight Commander does, and commands from the line run there (a departure: not DN's; `console-command-line` has the mechanism). Also a System Setup box, *Use internal terminal* |
 | `interface.clock`, `interface.hide_status_line` | Clock and key bar visibility |
 | `interface.hide_menu_bar` | The desktop takes the top row; the bar floats over it only while a menu is open |
 | `interface.hide_command_line` | The desktop takes its row; it takes no keys, and its commands (Enter, Home, End, Tab, Ctrl+Enter) are disabled so those keys go to the panel |

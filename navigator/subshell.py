@@ -476,6 +476,13 @@ class Subshell:
         #: shell answers queries in the order they were sent, and typing can
         #: send the next before the last is answered.
         self._completions: list[Callable[[int, list[str]], None]] = []
+        #: Where everything the console is shown also goes, while the real
+        #: terminal is lent to the shell (:meth:`start_relay`), or None.
+        self.relay: Callable[[bytes], None] | None = None
+        #: What the real terminal shows last, as far as the relay knows:
+        #: ``"prompt"`` (the shell's prompt, nothing after it), ``"typed"``
+        #: (keys typed at that prompt) or ``"other"``.
+        self._relayed = "other"
         # What the program asks the terminal -- where the cursor is, what the
         # terminal is -- is answered by the screen, back down the pty.
         screen.respond = self.write
@@ -674,7 +681,8 @@ class Subshell:
         if not silent:
             # The prompt the shell printed and we kept back, so the command
             # it is about to echo lands after it, as it would have typed.
-            self._feed(self._prompt)
+            self._feed(self._prompt, relay=False)
+            self._relay_prompt()
         data = text.encode()
         # zsh turns bracketed paste on in a write of its own *after* the
         # prompt, so at the B mark it has usually not been seen yet -- and a
@@ -714,14 +722,76 @@ class Subshell:
             return
         if self._in_prompt:
             self._prompt += data
+            if self.relay is not None:
+                # Typed at directly, the shell shows its own prompt.
+                self.relay(data)
+                self._relayed = "prompt"
         elif not self._silent:
             self._feed(data)
 
-    def _feed(self, data: bytes) -> None:
+    def _feed(self, data: bytes, *, relay: bool = True) -> None:
         if data:
             self.screen.feed(data)
             if self.on_output is not None:
                 self.on_output()
+            if relay and self.relay is not None:
+                self.relay(data)
+                if self._relayed != "typed":
+                    self._relayed = "other"
+
+    # -- the real terminal ------------------------------------------------------
+
+    def start_relay(self, relay: Callable[[bytes], None]) -> None:
+        """Lend the shell the real terminal: Midnight Commander's subshell.
+
+        From now on whatever the console would show -- the prompt included,
+        which is no longer held back -- also goes to *relay*, and the keys
+        come from :meth:`relay_input`.  The real terminal answers the
+        program's queries itself, so the screen stops answering them.  An idle
+        shell's prompt is shown at once, unless it is the last thing the
+        terminal already shows.
+        """
+        self.relay = relay
+        self.screen.respond = lambda data: None
+        if self._ready and not self.busy:
+            self._relay_prompt()
+
+    def _relay_prompt(self) -> None:
+        """Show the held-back prompt on the real terminal, once."""
+        if self.relay is None or self._relayed == "prompt":
+            return
+        if self._relayed == "typed":
+            # What was typed at the last one was abandoned with it: a new line.
+            self.relay(b"\r\n")
+        self.relay(self._prompt)
+        self._relayed = "prompt"
+
+    def stop_relay(self) -> None:
+        """Take the real terminal back from the shell.
+
+        A line typed at the prompt and not entered is cleared from the
+        shell's editor (Ctrl+E, Ctrl+U -- end of line, then kill it back to
+        the start, in both bash and zsh), so the next command the command
+        line sends is not appended to it.
+        """
+        self.relay = None
+        self.screen.respond = self.write
+        if self._ready and not self.busy and self._relayed == "typed":
+            self.write(b"\x05\x15")
+
+    def relay_input(self, data: bytes) -> None:
+        """Keys typed at the real terminal while the shell has it.
+
+        A line entered at the prompt starts something this side did not send,
+        so the shell is not taken to be ready again until its next prompt.
+        """
+        self.write(data)
+        if self._ready and not self.busy:
+            if b"\r" in data or b"\n" in data:
+                self._ready = False
+                self._relayed = "other"
+            else:
+                self._relayed = "typed"
 
     def _mark(self, kind: bytes, data: bytes | None) -> None:
         if kind == b"U":

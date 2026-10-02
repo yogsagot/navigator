@@ -12,6 +12,14 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
   `title`, `keypad`, `hyperlinks`, `glyphs`, `palette`). Detection is conservative -- sixteen colours unless `COLORTERM`
   says otherwise; `NAVKIT_COLORS` (`truecolor`, `256`, `16`, `8`, `mono`, a number) overrides and outranks `NO_COLOR`.
   Colour/palette/glyph decisions are the `colours-themes-glyphs` skill.
+- **Lending the terminal out.** `Terminal.suspend()`/`resume()` drop and restore the screen modes (alternate screen,
+  mouse, paste, kitty flags, keypad, autowrap) but **keep raw mode**. `stop()` after a suspend restores termios only.
+  `Terminal.write_bytes()` writes a relayed program's bytes unchanged.
+  - `Application.release_terminal(on_input)` suspends, stops painting (`_render` returns early) and hands every raw
+    byte read to `on_input`. Whatever `on_input` returns goes to the parser, as the bytes after the reclaiming key.
+  - `reclaim_terminal()` resumes and forces a full repaint (`_front = None`).
+  - The loop keeps running meanwhile: timers, pty output, resizes.
+  - Navigator uses this for mc's Ctrl+O (`console-command-line`).
 
 ## Keys
 

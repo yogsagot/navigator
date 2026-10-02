@@ -32,51 +32,53 @@ class SystemSetupDialog(Dialog, _Component):
     something on DOS -- *Disable XMS/EMS usage*, *OS-dependent Disk Access*,
     *Clear read-only from CD*, the two video modes and the per-drive list --
     so it is eight rows shorter.  Help is left out, having nothing to show yet.
+    *Use internal terminal* is not DN's but a departure: whether Ctrl+O shows
+    the console in Navigator, or hands the real terminal over as mc does.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "system_setup_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    options_caption: Label    # system_setup_dialog.nml:18
-    options: CheckBoxes    # system_setup_dialog.nml:27
-    temp_caption: Label    # system_setup_dialog.nml:35
-    temp_dir: Field    # system_setup_dialog.nml:44
+    options_caption: Label    # system_setup_dialog.nml:20
+    options: CheckBoxes    # system_setup_dialog.nml:29
+    temp_caption: Label    # system_setup_dialog.nml:37
+    temp_dir: Field    # system_setup_dialog.nml:46
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.options_caption = Label(parent=self)    # system_setup_dialog.nml:17
-        self.options = CheckBoxes(parent=self)    # system_setup_dialog.nml:26
-        self.temp_caption = Label(parent=self)    # system_setup_dialog.nml:34
-        self.temp_dir = Field(parent=self)    # system_setup_dialog.nml:43
+        self.options_caption = Label(parent=self)    # system_setup_dialog.nml:19
+        self.options = CheckBoxes(parent=self)    # system_setup_dialog.nml:28
+        self.temp_caption = Label(parent=self)    # system_setup_dialog.nml:36
+        self.temp_dir = Field(parent=self)    # system_setup_dialog.nml:45
 
-        self.modal_width = 60    # system_setup_dialog.nml:13
-        self.modal_height = 14    # system_setup_dialog.nml:14
-        self.title = 'System Setup'    # system_setup_dialog.nml:15
+        self.modal_width = 60    # system_setup_dialog.nml:15
+        self.modal_height = 14    # system_setup_dialog.nml:16
+        self.title = 'System Setup'    # system_setup_dialog.nml:17
 
-        self.options_caption.x = 3    # system_setup_dialog.nml:19
-        self.options_caption.y = 1    # system_setup_dialog.nml:20
-        self.options_caption.width = 12    # system_setup_dialog.nml:21
-        self.options_caption.height = 1    # system_setup_dialog.nml:22
-        self.options_caption.text = '~O~ptions'    # system_setup_dialog.nml:23
-        self.options_caption.link = _bind(lambda _o: self.options)    # system_setup_dialog.nml:24
+        self.options_caption.x = 3    # system_setup_dialog.nml:21
+        self.options_caption.y = 1    # system_setup_dialog.nml:22
+        self.options_caption.width = 12    # system_setup_dialog.nml:23
+        self.options_caption.height = 1    # system_setup_dialog.nml:24
+        self.options_caption.text = '~O~ptions'    # system_setup_dialog.nml:25
+        self.options_caption.link = _bind(lambda _o: self.options)    # system_setup_dialog.nml:26
 
-        self.options.x = 3    # system_setup_dialog.nml:28
-        self.options.y = 2    # system_setup_dialog.nml:29
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # system_setup_dialog.nml:30
-        self.options.height = 4    # system_setup_dialog.nml:31
-        self.options.items = ['Internal ~e~ditor', 'Internal ~v~iewer', '~U~se system clipboard', '~S~how hidden files', '"~F~ast" command execution', 'Advanced copy', 'Flush disk buffers']    # system_setup_dialog.nml:32
+        self.options.x = 3    # system_setup_dialog.nml:30
+        self.options.y = 2    # system_setup_dialog.nml:31
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # system_setup_dialog.nml:32
+        self.options.height = 4    # system_setup_dialog.nml:33
+        self.options.items = ['Internal ~e~ditor', 'Internal ~v~iewer', '~U~se system clipboard', '~S~how hidden files', '"~F~ast" command execution', 'Advanced copy', 'Flush disk buffers', 'Use internal te~r~minal']    # system_setup_dialog.nml:34
 
-        self.temp_caption.x = 3    # system_setup_dialog.nml:36
-        self.temp_caption.y = 7    # system_setup_dialog.nml:37
-        self.temp_caption.width = 24    # system_setup_dialog.nml:38
-        self.temp_caption.height = 1    # system_setup_dialog.nml:39
-        self.temp_caption.text = '~T~emporary directory'    # system_setup_dialog.nml:40
-        self.temp_caption.link = _bind(lambda _o: self.temp_dir.entry)    # system_setup_dialog.nml:41
+        self.temp_caption.x = 3    # system_setup_dialog.nml:38
+        self.temp_caption.y = 7    # system_setup_dialog.nml:39
+        self.temp_caption.width = 24    # system_setup_dialog.nml:40
+        self.temp_caption.height = 1    # system_setup_dialog.nml:41
+        self.temp_caption.text = '~T~emporary directory'    # system_setup_dialog.nml:42
+        self.temp_caption.link = _bind(lambda _o: self.temp_dir.entry)    # system_setup_dialog.nml:43
 
-        self.temp_dir.x = 3    # system_setup_dialog.nml:45
-        self.temp_dir.y = 8    # system_setup_dialog.nml:46
-        self.temp_dir.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # system_setup_dialog.nml:47
-        self.temp_dir.height = 1    # system_setup_dialog.nml:48
-        self.temp_dir.label_text = ''    # system_setup_dialog.nml:49
-        self.temp_dir.label_width = 0    # system_setup_dialog.nml:50
+        self.temp_dir.x = 3    # system_setup_dialog.nml:47
+        self.temp_dir.y = 8    # system_setup_dialog.nml:48
+        self.temp_dir.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # system_setup_dialog.nml:49
+        self.temp_dir.height = 1    # system_setup_dialog.nml:50
+        self.temp_dir.label_text = ''    # system_setup_dialog.nml:51
+        self.temp_dir.label_width = 0    # system_setup_dialog.nml:52

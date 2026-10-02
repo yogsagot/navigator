@@ -40,6 +40,26 @@ the next key would be routed by a stale focus); hiding it re-activates the top w
 - The console selects output with a drag or double click unless a program tracks the mouse (reversed, cleared by new
   output or a scroll); Ctrl+Ins copies it -- `Shell.on_key` asks the console before the command line.
 
+### Without the internal terminal (mc's Ctrl+O)
+
+System Setup's *Use internal terminal* (`SETTINGS.system.internal_terminal`, a departure from DN) is on by default.
+With it off, Ctrl+O and *ESC for user screen* call `Shell.relay_terminal()` instead of showing the console:
+
+- **What relaying does.** `Application.release_terminal` takes Navigator out of full-screen mode, and
+  `Subshell.start_relay(terminal.write_bytes)` sends everything the console would show to the real terminal. That
+  includes the prompt, shown once (`_relayed`: `prompt`/`typed`/`other`). The screen stops answering queries,
+  because the real terminal does.
+- **Keys and the pty.** Keys go raw through `Shell._relayed_input` to `Subshell.relay_input`. `Console.relayed` sizes
+  the pty to the whole screen.
+- **Ctrl+O takes the terminal back** (`0x0f`, or kitty's `CSI 111;5u`), unless a command the line sent is running:
+  that command gets every key. `end_relay()` then clears an abandoned typed line with Ctrl+E Ctrl+U, and the panel
+  follows a `cd`.
+- **A line entered at the relayed shell** clears `_ready` until its next prompt, so nothing is typed into a program
+  the user started there.
+- **A command from the line runs relayed** and comes back when it finishes (`_relayed_for_command`).
+- **The shell exiting ends the relay** (`Subshell.on_exit`).
+- **No real tty** (headless, tests): it falls back to the console.
+
 ## The subshell
 
 **Commands run in one persistent `$SHELL`** (`Subshell`, owned by the `Console`): bash and zsh load the user's rc then a
