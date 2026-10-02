@@ -118,6 +118,16 @@ def test_a_dropped_dos_option_is_read_quietly_and_not_written_back(tmp_path):
     assert "future = 1" in text
 
 
+def test_a_renamed_choice_is_read_quietly_and_written_new(tmp_path):
+    path = tmp_path / "n.ini"
+    path.write_text("[panel_defaults]\nsort_by = group\nleft_panel = Drive\n", encoding="utf-8")
+    assert SETTINGS.load(path) == []
+    assert (SETTINGS.panel_defaults.sort_by, SETTINGS.panel_defaults.left_panel) == ("type", "files")
+    SETTINGS.save(path)
+    text = path.read_text(encoding="utf-8")
+    assert "sort_by = type" in text and "left_panel = files" in text
+
+
 def test_saving_one_section_keeps_an_edit_made_to_another(tmp_path):
     path = tmp_path / "n.ini"
     SETTINGS.save(path)

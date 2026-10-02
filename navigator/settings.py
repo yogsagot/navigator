@@ -80,8 +80,10 @@ class Setting(Reactive):
     """One key of ``navigator.ini``: a reactive attribute that knows how to be written.
 
     *doc* is the comment above the key.  *choices* limits a string to a set of
-    words.  *honoured* false says nothing reads the setting yet, which the
-    comment then tells whoever edits the file.
+    words, and *aliases* maps a word an older file may hold to the choice
+    that replaced it, so it is read without a warning and written back new.
+    *honoured* false says nothing reads the setting yet, which the comment
+    then tells whoever edits the file.
     """
 
     def __init__(
@@ -90,11 +92,13 @@ class Setting(Reactive):
         *,
         doc: str,
         choices: tuple[str, ...] | None = None,
+        aliases: Mapping[str, str] | None = None,
         honoured: bool = True,
     ) -> None:
         super().__init__(default)
         self.doc = doc
         self.choices = choices
+        self.aliases = dict(aliases or {})
         self.honoured = honoured
 
     def parse(self, text: str) -> bool | int | str:
@@ -109,6 +113,7 @@ class Setting(Reactive):
             return int(text)
         if self.choices is not None:
             word = text.lower()
+            word = self.aliases.get(word, word)
             if word not in self.choices:
                 raise ValueError(f"expected one of {', '.join(self.choices)}, not {text!r}")
             return word
@@ -388,7 +393,9 @@ class PanelDefaultsData(Section):
     LEFT_PANEL: ClassVar[tuple[str, ...]] = ("files", "info", "tree", "absent")
 
     #: DN's default was the extension; Navigator's panels sort by name.
-    sort_by: str = Setting("name", choices=SORT_BY, doc="Sort by", honoured=False)
+    sort_by: str = Setting(
+        "name", choices=SORT_BY, aliases={"group": "type"}, doc="Sort by", honoured=False,
+    )
     directory_length: bool = Setting(False, doc="Directory length", honoured=False)
     current_file: bool = Setting(True, doc="Current file", honoured=False)
     selected_files: bool = Setting(True, doc="Selected files", honoured=False)
@@ -398,7 +405,8 @@ class PanelDefaultsData(Section):
     executables_first: bool = Setting(True, doc="Executables first", honoured=False)
     archives_first: bool = Setting(True, doc="Archives first", honoured=False)
     left_panel: str = Setting(
-        "files", choices=LEFT_PANEL, doc="Left panel in a new Manager", honoured=False,
+        "files", choices=LEFT_PANEL, aliases={"drive": "files"},
+        doc="Left panel in a new Manager", honoured=False,
     )
 
 
