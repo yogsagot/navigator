@@ -221,6 +221,18 @@ def _default_settings(monkeypatch, tmp_path):
 
 
 @pytest.fixture(autouse=True)
+def _outside_navigator(monkeypatch):
+    """Run as if from a plain terminal, even when pytest is started in nav's console.
+
+    Navigator marks every child it starts, and ``main()`` refuses to run under
+    that mark.
+    """
+    from navkit.process import MARKER
+
+    monkeypatch.delenv(MARKER, raising=False)
+
+
+@pytest.fixture(autouse=True)
 def _repository_root(monkeypatch):
     """Run every test from the repository root, whatever pytest was started in.
 

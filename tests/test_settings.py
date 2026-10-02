@@ -188,6 +188,17 @@ def test_a_flag_wins_over_the_file_and_is_not_written_back(monkeypatch, tmp_path
     assert "dim_modal = no" in path.read_text(encoding="utf-8")
 
 
+def test_nav_refuses_to_start_inside_navigator(monkeypatch, tmp_path, capsys):
+    def refuse(*args, **kwargs):
+        raise AssertionError("Navigator was built")
+
+    monkeypatch.setattr(entry, "Navigator", refuse)
+    monkeypatch.setenv("NAVIGATOR", "1")
+    assert entry.main([str(tmp_path)]) == 1
+    assert "already running" in capsys.readouterr().err
+    assert entry.main(["--list-themes"]) == 0
+
+
 # -- the dialogs ----------------------------------------------------------------------------
 
 

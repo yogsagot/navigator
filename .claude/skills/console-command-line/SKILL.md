@@ -74,6 +74,9 @@ choice), `O` (reveal output).
 - While a command runs the console is up and holds the keys; afterwards the windows return and both panels re-read --
   unless Ctrl+O had put the console up.
 - `Navigator.on_start` starts the shell at once on a real tty (headless, the first command does).
+- **Every child carries `NAVIGATOR=1`** (`navkit.process.MARKER`, set by `PtyProcess.environment()`), and `main()`
+  refuses to start under it -- so `nav` typed inside Navigator says so and exits 1, while another terminal is
+  unaffected (no lock file). `--help`, `--version` and `--list-themes` still work; `NAVIGATOR= nav` forces a nested copy.
 - Queries are answered in order -- `Subshell._completions` is a queue (two keys in one read send two queries).
 
 ## The command line

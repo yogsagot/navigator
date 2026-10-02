@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import configparser
+import os
 import sys
 from dataclasses import replace
 from importlib import metadata
@@ -28,6 +29,7 @@ from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.commands import Command
 from navkit.events import MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
+from navkit.process import MARKER
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
@@ -374,6 +376,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.list_themes:
         print("\n".join(theme_names()))
         return 0
+    # Every program the console starts carries MARKER, so finding it means this
+    # is a command typed inside a running Navigator; another terminal never has
+    # it, which keeps this per session rather than a lock.  A departure: DN's
+    # loader numbered nested copies (DNNumber) and let them run, but here one
+    # would only draw itself inside the other's console.  `NAVIGATOR= nav'
+    # still forces it.
+    if os.environ.get(MARKER):
+        print(
+            "nav: Navigator is already running in this terminal; "
+            "press Ctrl+O to return to it",
+            file=sys.stderr,
+        )
+        return 1
     load_settings(args.config)
     # A flag is this session's alone: it wins over the settings file and is
     # never written back to it.
