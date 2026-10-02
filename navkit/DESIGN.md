@@ -122,3 +122,8 @@ its heading is added here.
 - Clipboard: OSC 52 and the tools beside it -- [`navkit-terminal/clipboard.md`](../.claude/skills/navkit-terminal/reference/clipboard.md)
 - Still open -- [`navkit-widgets-input/still-open.md`](../.claude/skills/navkit-widgets-input/reference/still-open.md)
   - What the widget library needs first -- [`navkit-widgets-input/still-open.md`](../.claude/skills/navkit-widgets-input/reference/still-open.md)
+- Why the database is built this way -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
+  - Our own layer, not an ORM -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
+  - Per-model fingerprints, not `PRAGMA user_version` -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
+  - Diff against the live table, not the old fingerprint -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
+  - The downgrade rule: defaults everywhere, columns never inferred away -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
