@@ -16,6 +16,11 @@ class InterfaceDialog(Dialog):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.interface
         self.options.value = self.section.to_bits(InterfaceData.OPTIONS)
+        self.history_size.value = f"{self.section.history_size:03d}"
 
     def accept(self) -> dict[str, Any]:
-        return InterfaceData.from_bits(InterfaceData.OPTIONS, self.options.value)
+        values = InterfaceData.from_bits(InterfaceData.OPTIONS, self.options.value)
+        # A blank place counts as nought; a list kept to nothing keeps one.
+        text = self.history_size.value.replace(" ", "0")
+        values["history_size"] = max(1, int(text)) if text.isdigit() else self.section.history_size
+        return values

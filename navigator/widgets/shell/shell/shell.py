@@ -374,6 +374,15 @@ class Shell(DockLayout):
     def mounted(self) -> None:
         super().mounted()
         effect(self, Shell._follow_panel)
+        effect(self, Shell._size_histories)
+
+    def _size_histories(self) -> None:
+        """Interface's *History size* is how long every input-line list grows.
+
+        navml's store keeps DN's 20 unless told otherwise, and knows nothing of
+        Navigator's settings, so it is told from here.
+        """
+        HISTORY.limit = max(1, SETTINGS.interface.history_size)
 
     def _front_directory(self) -> Path | None:
         """The active panel's directory in the file manager in front, if one is open."""

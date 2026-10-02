@@ -304,6 +304,12 @@ class InterfaceData(Section):
     track_editing: bool = Setting(True, doc="Track editing history: Alt+PgUp, positions restored")
     track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, positions restored")
     track_directories: bool = Setting(False, doc="Track directories", honoured=False)
+    #: A departure: DN fixed these at 20 (``MaxHistorySize``,
+    #: ``MaxEditHistorySize``), when every list sat in 64K of DOS memory.
+    #: One size for every history; pinned entries are never counted out.
+    history_size: int = Setting(
+        50, doc="Entries kept per history list: input lines, viewed and edited files",
+    )
 
 
 class ConfirmsData(Section):

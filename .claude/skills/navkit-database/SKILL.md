@@ -14,7 +14,7 @@ stdlib only and knows nothing of navml or widgets. `DATABASE` is the one instanc
 A model is a `.nml` document whose root extends `Model`, in a component directory under a registered library
 (`navml/models/`, `navigator/models/`). A root may also extend a plain-Python `Model` subclass that declares no
 fields but carries shared behaviour: `ViewRecord` and `EditRecord` extend `navigator/models/file_record.py`'s
-`FileRecord`, which provides DN's 20-record eviction, pinning and reordering. It follows the usual two-halves rules (`navml-components`): the
+`FileRecord`, which provides DN's eviction (at `interface.history_size` records rather than DN's 20), pinning and reordering. It follows the usual two-halves rules (`navml-components`): the
 hand-written `.py` adds methods, and its class says `class HistoryEntry(Model)`.
 
 ```

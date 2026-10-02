@@ -202,10 +202,14 @@ def _fresh_database():
     test off the disk -- ``main()`` is the only thing that opens a file.
     """
     from navkit.database import DATABASE
+    from navml.history import HISTORY, MAX_ENTRIES
 
     DATABASE.open()
+    # Navigator sizes the shared store from its settings; put it back.
+    HISTORY.limit = MAX_ENTRIES
     yield
     DATABASE.close()
+    HISTORY.limit = MAX_ENTRIES
 
 
 @pytest.fixture(autouse=True)

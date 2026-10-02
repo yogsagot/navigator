@@ -4,7 +4,8 @@ DOS Navigator kept the two as ``TViewHistoryCol`` and ``TEditHistoryCol``
 (``HISTRIES.PAS``): one record per file, newest first, the name's first
 character a flag -- ``'+'`` pinned, ``' '`` not -- and at most
 ``MaxEditHistorySize`` (20) of them, the oldest unpinned going first
-(``FreeLastUnmarked``).  This is that collection as a table: ``path`` is the
+(``FreeLastUnmarked``).  How many is Interface's *History size* here, 50 by
+default.  This is that collection as a table: ``path`` is the
 name without its flag, ``pinned`` the flag, and ``seq`` the order, larger
 first.  The two models extend this class and declare the columns each record
 had beside the name; the window rectangle every record carries is declared in
@@ -21,8 +22,7 @@ from typing import Any, TypeVar
 
 from navkit.database import DATABASE, Model
 
-#: ``MaxEditHistorySize``, which both collections were held to.
-MAX_RECORDS = 20
+from navigator.settings import SETTINGS
 
 R = TypeVar("R", bound="FileRecord")
 
@@ -54,13 +54,14 @@ class FileRecord(Model):
 
         ``StoreViewInfo``/``StoreEditInfo``: the old record goes, the new one
         is inserted first carrying the old one's flag, and past the limit the
-        last unpinned record is freed.
+        last unpinned records are freed.
         """
+        limit = max(1, SETTINGS.interface.history_size)
         with DATABASE.transaction():
             newest = cls.query().order("-seq").first()
             seq = 1 if newest is None else newest.seq + 1
             cls.upsert(path=key_of(path), seq=seq, **values)
-            cls.where(pinned=False).order("-seq").offset(MAX_RECORDS).delete()
+            cls.where(pinned=False).order("-seq").offset(limit).delete()
 
     @classmethod
     def toggle_pin(cls, path: str) -> None:

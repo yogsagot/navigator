@@ -1,13 +1,15 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.masked_field import MaskedField
 
 #: Options > Configuration > Interface: DOS Navigator's ``dlgInterfaceSetup``.
 #:
 #: The resource's twelve boxes in its two columns of six, at its width; Help
-#: is left out, having nothing to show yet.
+#: is left out, having nothing to show yet.  *History size* below them is a
+#: departure: DN's lists were a fixed 20 long.
 InterfaceDialog(Dialog):
     modal_width: 60
-    modal_height: 12
+    modal_height: 14
     title: "Interface Setup"
 
     CheckBoxes:
@@ -17,3 +19,13 @@ InterfaceDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 6
         items: ["~C~lock", "Hide ~m~enu bar", "Hide ~s~tatus line", "ESC for ~u~ser screen", "Hide Command ~L~ine", "~A~uto hide Command Line", "~B~lock Insert Cursor", "Store edi~t~or position", "Store vie~w~er position", "Track ~e~diting history", "Track ~v~iewing history", "Track ~d~irectories"]
+
+    MaskedField:
+        id: history_size
+        x: 2
+        y: 8
+        width: 20
+        height: 1
+        label_text: "~H~istory size"
+        label_width: 15
+        mask: "999"

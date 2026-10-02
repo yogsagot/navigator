@@ -17,7 +17,6 @@ from navkit.events import KeyEvent
 from navigator.__main__ import Navigator
 from navigator.file_history import scaled
 from navigator.models.edit_record import EditRecord
-from navigator.models.file_record import MAX_RECORDS
 from navigator.models.view_record import ViewRecord
 from navigator.settings import SETTINGS
 
@@ -141,14 +140,16 @@ def test_a_record_stored_again_moves_to_the_front_and_keeps_its_pin(tmp_path):
     assert records[0].pinned and records[0].top == 5
 
 
-def test_past_twenty_the_oldest_unpinned_records_go(tmp_path):
+def test_past_the_history_size_the_oldest_unpinned_records_go(tmp_path):
+    assert SETTINGS.interface.history_size == 50
+    SETTINGS.interface.history_size = 5
     ViewRecord.store(tmp_path / "keep")
     ViewRecord.toggle_pin(str(tmp_path / "keep"))
-    for n in range(MAX_RECORDS + 3):
+    for n in range(8):
         ViewRecord.store(tmp_path / f"f{n}")
     paths = [r.path for r in ViewRecord.ordered()]
-    assert str(tmp_path / "keep") in paths and str(tmp_path / "f0") not in paths
-    assert len(paths) == MAX_RECORDS + 1
+    assert str(tmp_path / "keep") in paths and str(tmp_path / "f2") not in paths
+    assert len(paths) == 5 + 1
 
 
 def test_a_pinned_record_cannot_be_deleted(tmp_path):

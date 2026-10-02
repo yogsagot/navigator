@@ -226,6 +226,30 @@ def test_interface_ok_applies_and_saves(tmp_path, quiet_console):
     assert "clock = no" in config_path().read_text(encoding="utf-8")
 
 
+def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_path, quiet_console):
+    from navml.history import HISTORY
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def type_size(a):
+        seen.append(a.modal.history_size.value)
+        a.modal.history_size.value = "007"
+
+    run_app(app, [
+        lambda a: seen.append(HISTORY.limit),
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        type_size,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append(HISTORY.limit),
+    ])
+    assert seen == [50, "050", 7]
+    assert SETTINGS.interface.history_size == 7
+    assert "history_size = 7" in config_path().read_text(encoding="utf-8")
+
+
 def test_cancel_changes_nothing(tmp_path, quiet_console):
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
 
