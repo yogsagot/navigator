@@ -34,6 +34,7 @@ from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
+from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
     CommandLineEnd,
@@ -90,7 +91,10 @@ class Navigator(Application):
     #: the console's child gets F1 while Ctrl+O is showing it.  Ctrl+Q is not
     #: here: it is DOS Navigator's Quick view, and quitting is Alt+X.  Ctrl+F3
     #: (Manager > New) is, because it has to work with no file manager open --
-    #: from the console, after the last one was closed.
+    #: from the console, after the last one was closed.  Ctrl+F1 and Ctrl+F2
+    #: (show/hide a side) are, because DOS Navigator's user screen took them
+    #: too: from the console they bring the file manager back with that side
+    #: alone.  ``Manager`` handles them first while it holds the keyboard.
     #:
     #: **Alt+X is here because a window can be closed.**  It lived on
     #: ``Manager`` once, and closing the file manager took the key with it.  It is still a desktop key rather than a global
@@ -112,6 +116,8 @@ class Navigator(Application):
     keys = {
         "ctrl+o": ToggleConsole,
         "ctrl+f3": NewManager,
+        "ctrl+f1": HideLeft,
+        "ctrl+f2": HideRight,
         "f1": Help,
         "f10": OpenMenu,
         "alt+x": Quit(desktop=True),

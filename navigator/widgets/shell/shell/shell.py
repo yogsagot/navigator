@@ -24,7 +24,7 @@ from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
-from navigator.widgets.manager.commands import ToggleMark
+from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark
 from navigator.widgets.shell.commands import (
     About,
     CommandLineEnd,
@@ -345,6 +345,10 @@ class Shell(DockLayout):
             return False
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
+        if isinstance(command, (HideLeft, HideRight)):
+            # Reached here only from outside a file manager: from the
+            # console, DN's user screen, and not from a viewer or an editor.
+            return self.console_visible and self.active_manager is not None
         if isinstance(command, ToggleMarkBySpace):
             # ``CmdLine.Str <> ''``: once anything is on the line -- a blank
             # included -- Space types.  Otherwise it is Insert, wherever the
@@ -709,6 +713,28 @@ class Shell(DockLayout):
         start = current.active_panel.path if current is not None else Path.cwd()
         self.desktop.open(Manager(start, start))
         return True
+
+    async def on_hide_left(self, event: HideLeft) -> bool:
+        self.show_manager_side("left")
+        return True
+
+    async def on_hide_right(self, event: HideRight) -> bool:
+        self.show_manager_side("right")
+        return True
+
+    def show_manager_side(self, side: str) -> None:
+        """Ctrl+F1 / Ctrl+F2 from the console: the file manager back, *side* alone.
+
+        DOS Navigator's user screen turned ``cmHideLeft`` into
+        ``cmPostHideLeft`` and closed: the double window then showed the left
+        side and hid the right.  So Ctrl+F1 from a left-only file manager shows
+        the console, and Ctrl+F1 again brings the left side back as it was.
+        """
+        manager = self.active_manager
+        manager.show_only(side)
+        if self.console_visible:
+            self.toggle_console()
+        self.desktop.activate(manager)
 
     async def on_about(self, event: About) -> bool:
         """≡ > About: started, not awaited -- a handler never waits on a dialog."""

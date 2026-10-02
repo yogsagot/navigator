@@ -27,6 +27,9 @@ from navigator.widgets.manager.commands import (
     DeleteSingle,
     Edit,
     GoParent,
+    HideInactive,
+    HideLeft,
+    HideRight,
     InvertSelection,
     MakeDirectory,
     MakeLink,
@@ -46,6 +49,7 @@ from navigator.widgets.manager.commands import (
     ViewAsText,
 )
 from navml.widgets.dialog.commands import QuickSearch
+from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
 
@@ -113,6 +117,11 @@ class Manager(Window):
     #: one a command means.
     _last_panel: Any = reactive(None)
 
+    #: The side Ctrl+F1 or Ctrl+F2 has hidden -- ``"left"``, ``"right"`` --
+    #: or None while both are showing.  DOS Navigator's ``LVisible`` and
+    #: ``RVisible``, of which at most one was ever false.
+    hidden_side: Any = reactive(None)
+
     def __init__(self, left: Path, right: Path, **kwargs):
         """Build the window, then seed where the panels open.
 
@@ -134,6 +143,9 @@ class Manager(Window):
         self.quick.visible = False
         #: The pending "panel, follow the tree" -- cancelled by every move.
         self._follow: asyncio.Task[Any] | None = None
+        #: What hiding a side set aside: the rectangle and ``zoomed`` before,
+        #: the rectangle after, and the two sides' widths, for growing back.
+        self._collapse: dict[str, Any] | None = None
 
     def mounted(self) -> None:
         super().mounted()
@@ -150,6 +162,18 @@ class Manager(Window):
 
     async def on_switch_panel(self, event: SwitchPanel) -> bool:
         self.switch_panel()
+        return True
+
+    async def on_hide_left(self, event: HideLeft) -> bool:
+        await self.toggle_side("left")
+        return True
+
+    async def on_hide_right(self, event: HideRight) -> bool:
+        await self.toggle_side("right")
+        return True
+
+    async def on_hide_inactive(self, event: HideInactive) -> bool:
+        self.toggle_inactive_side()
         return True
 
     async def on_rescan(self, event: Rescan) -> bool:
@@ -211,6 +235,9 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and bool(
                 self.selection(self.active_panel)
             )
+        if isinstance(command, SwitchPanel):
+            # With one side hidden there is no other one for Tab to go to.
+            return self.hidden_side is None
         if isinstance(command, ScrollNames):
             panel = self.active_panel
             return (
@@ -843,6 +870,124 @@ class Manager(Window):
             return
         self.passive_panel.focus()
 
+    # -- hiding a side ---------------------------------------------------------
+
+    def side_view(self, side: str) -> Any:
+        """What stands on *side*: its panel, or the tree or quick view in its place.
+
+        DOS Navigator's ``LeftView``/``RightView``.
+        """
+        panel = self.left if side == "left" else self.right
+        return self.replacement if self.replaced is panel else panel
+
+    async def toggle_side(self, side: str) -> None:
+        """Ctrl+F1 / Ctrl+F2: ``cmHideLeft`` / ``cmHideRight``.
+
+        A hidden side is shown again.  Hiding the one side still showing would
+        leave nothing, so it shows the console instead, as DN's
+        ``cmShowOutput`` did -- and the same key from there brings this side
+        back alone (``Shell.on_hide_left``).
+        """
+        if self.hidden_side == side:
+            self.show_side(side)
+        elif self.hidden_side is not None:
+            await self.emit(ToggleConsole())
+        else:
+            self.hide_side(side)
+
+    def toggle_inactive_side(self) -> None:
+        """Ctrl+P: ``cmSwitchOther``, the side without the keyboard hidden or shown.
+
+        ``if LSelected then SwitchRight else SwitchLeft``: with one side
+        hidden, the one showing is the selected one, so this shows the other.
+        Unlike Ctrl+F1/Ctrl+F2 it never falls back to the console.
+        """
+        if self.side_view("right").focus_within:
+            selected = "right"
+        elif self.side_view("left").focus_within:
+            selected = "left"
+        else:
+            selected = "left" if self.active_panel is self.left else "right"
+        other = "right" if selected == "left" else "left"
+        if self.hidden_side == other:
+            self.show_side(other)
+        elif self.hidden_side is None:
+            self.hide_side(other)
+
+    def show_only(self, side: str) -> None:
+        """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``."""
+        other = "right" if side == "left" else "left"
+        if self.hidden_side == side:
+            self.show_side(side)
+        if self.hidden_side is None:
+            self.hide_side(other)
+
+    def hide_side(self, side: str) -> None:
+        """Hide *side*, and shrink the window to what is left: ``SwitchLeft``.
+
+        **The window shrinks; the other side does not stretch.**  The window
+        takes the rectangle the other side had, so the console shows through
+        where the hidden side stood, as DN's user screen did.  The other side
+        takes the keyboard if the hidden one had it.
+        """
+        other = "right" if side == "left" else "left"
+        hidden, kept = self.side_view(side), self.side_view(other)
+        self._collapse = {
+            "before": (self.x, self.y, self.width, self.height),
+            "zoomed": self.zoomed,
+            "hidden_width": hidden.width,
+            "kept_width": kept.width,
+        }
+        if hidden.focus_within:
+            if kept is self.replacement:
+                self._focus_replacement()
+            else:
+                kept.focus()
+        x, width = self.x + kept.x, kept.width
+        self.zoomed = False
+        self.x, self.width = x, width
+        hidden.visible = False
+        self.hidden_side = side
+        self._collapse["after"] = (self.x, self.y, self.width, self.height)
+        self.panels.invalidate()
+
+    def show_side(self, side: str) -> None:
+        """Show the hidden *side* again, and grow the window back to hold it.
+
+        Untouched since it was hidden, the window gets back exactly the
+        rectangle it had, zoomed if it was.  Moved or resized in between, it
+        grows by the share the hidden side had, as DN's ``SwitchRight`` grew
+        by ``OldX``/``OldW``, and is clamped to the desktop.
+        """
+        if self.hidden_side != side:
+            return
+        state = self._collapse or {}
+        self.side_view(side).visible = True
+        self.hidden_side = None
+        self._collapse = None
+        rect = (self.x, self.y, self.width, self.height)
+        if state and rect == state["after"]:
+            if state["zoomed"]:
+                self.zoomed = True
+                self.layout(*self._bounds())
+            else:
+                self.x, self.y, self.width, self.height = state["before"]
+                self._clamp(*self._bounds())
+        else:
+            kept = state.get("kept_width") or 1
+            grow = self.width * state.get("hidden_width", self.width) // kept
+            width, _ = self._bounds()
+            if side == "left":
+                # The right edge stays where it is; the left one stops at
+                # the desktop's.
+                right = self.x + self.width
+                self.x = max(0, self.x - grow)
+                self.width = right - self.x
+            else:
+                self.width = min(self.width + grow, max(self.width, width - self.x))
+            self._clamp(*self._bounds())
+        self.panels.invalidate()
+
     # -- the directory tree ----------------------------------------------------
 
     @computed
@@ -868,6 +1013,10 @@ class Manager(Window):
         the *other* view swaps it in where the first one stood, and the
         keyboard goes back to the active panel, as ``SwitchView`` selected it.
         """
+        if self.hidden_side is not None:
+            # The view takes the passive side's place, which may be the
+            # hidden one: both sides come back first.
+            self.show_side(self.hidden_side)
         current, replaced = self.replacement, self.replaced
         if current is view:
             had_keys = view.focus_within

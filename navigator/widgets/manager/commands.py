@@ -104,6 +104,28 @@ class ChangeDirectory(Command):
     """
 
 
+class HideLeft(Command):
+    """Ctrl+F1: hide the left side of the file manager, or show it again.
+
+    DOS Navigator's ``cmHideLeft``, Manager > Show/hide left panel.  Untitled,
+    as ``StatusDef hcFilePanel`` left Ctrl-F1 off its Ctrl row.
+    """
+
+
+class HideRight(Command):
+    """Ctrl+F2: hide the right side of the file manager, or show it again.
+
+    DOS Navigator's ``cmHideRight``, Manager > Show/hide right panel.
+    """
+
+
+class HideInactive(Command):
+    """Ctrl+P: hide the side without the keyboard, or show it again.
+
+    DOS Navigator's ``cmSwitchOther``, Manager > Show/hide inactive panel.
+    """
+
+
 class ToggleTree(Command):
     """Ctrl+T: the passive panel becomes a directory tree, or a panel again.
 

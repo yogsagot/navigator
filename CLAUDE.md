@@ -99,6 +99,16 @@ percentage, Stop), fed through a `SearchJob` the thread writes and the loop read
 `SwitchView` that Ctrl+T now shares (`replaced`/`replacement`; `tree_replaces` is a computed over them). It follows the
 active panel's cursor, and Tab moves the keyboard in and out. *The file viewer* in `navml/DESIGN.md` has the rest and
 what is deferred.
+**Ctrl+F1/Ctrl+F2 are DN's `cmHideLeft`/`cmHideRight`** (*Manager > Show/hide left/right panel*;
+`Manager.toggle_side`, `hidden_side`): a side -- the panel, or the tree or quick view in its place (`side_view`) -- is
+hidden and **the window shrinks** to the other side's rectangle, so the console shows through where it stood
+(`SwitchLeft`'s `Locate`), rather than the other side stretching. Again shows it: the window gets its old rectangle
+back, zoomed if it was, or grows by the share it lost if moved meanwhile. Hiding the only side left shows the
+console (`cmShowOutput`), and the key from the console brings the file manager back with that side alone
+(`cmPostHideLeft`, `Shell.show_manager_side`) -- which is why both keys are on the application's table. Tab is
+disabled while a side is hidden, and Ctrl+T/Ctrl+Q show it first. **Ctrl+P is `cmSwitchOther`** (*Show/hide
+inactive panel*, `toggle_inactive_side`, on `manager.nml`'s table): the side without the keyboard, by the same
+machinery -- it shows a hidden side back and never falls back to the console, as the user screen never took it.
 **Ctrl+Y is DN's `cmToggleShowMode`**, per panel (`Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode*, a menu entry DN never had -- it showed Ctrl+Y only on the status line): *simple* (name and size, the
 panel as it always was), *detailed* (Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date, the **modification** time
 as `DD-MM-YY hh:mm`, since Linux has no portable creation time; Owner -- a departure, DOS had none -- is as wide as the

@@ -392,6 +392,145 @@ def test_tab_repaints_on_its_own(tree):
     assert painted[1] == painted[0] + 1
 
 
+def test_ctrl_f1_hides_the_left_side_and_shrinks_the_window_to_the_right(tree):
+    app = navigator(tree)
+    before = {}
+
+    def remember(a):
+        m = a.manager
+        before.update(window=(m.x, m.y, m.width, m.height), right=(m.right.x, m.right.width))
+
+    run_app(app, [remember, KeyEvent("f1", ctrl=True)])
+    manager = app.manager
+    assert manager.left.visible is False
+    assert manager.hidden_side == "left"
+    # The window takes the right side's rectangle; the console shows where the
+    # left side stood.
+    assert manager.zoomed is False
+    assert (manager.x, manager.width) == (before["window"][0] + before["right"][0], before["right"][1])
+    assert (manager.right.x, manager.right.width) == (0, before["right"][1])
+    assert app.focused is manager.right
+    assert manager.active_panel is manager.right
+
+
+def test_ctrl_f1_again_gives_the_window_back_as_it_was(tree):
+    app = navigator(tree)
+    before = []
+    run_app(app, [
+        lambda a: before.append((a.manager.x, a.manager.width, a.manager.left.width)),
+        KeyEvent("f1", ctrl=True),
+        KeyEvent("f1", ctrl=True),
+    ])
+    manager = app.manager
+    assert manager.left.visible is True and manager.right.visible is True
+    assert manager.hidden_side is None
+    assert manager.zoomed is True
+    assert (manager.x, manager.width, manager.left.width) == before[0]
+
+
+def test_ctrl_f2_hides_the_right_side_and_keeps_the_left_in_place(tree):
+    app = navigator(tree)
+    before = []
+    run_app(app, [lambda a: before.append(a.manager.left.width), KeyEvent("f2", ctrl=True)])
+    manager = app.manager
+    assert manager.right.visible is False
+    assert (manager.x, manager.width) == (0, before[0])
+    assert app.focused is manager.left
+
+
+def test_a_moved_window_grows_back_by_the_share_it_lost(tree):
+    app = navigator(tree)
+
+    def unzoom(a):
+        a.manager.locate(10, 2, 60, 12)
+
+    run_app(app, [unzoom, KeyEvent("f2", ctrl=True), lambda a: a.manager.move_to(5, 2),
+                  KeyEvent("f2", ctrl=True)])
+    manager = app.manager
+    assert manager.hidden_side is None
+    assert (manager.x, manager.width) == (5, 60)
+
+
+def test_tab_has_nowhere_to_go_while_a_side_is_hidden(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f1", ctrl=True), KeyEvent("tab")])
+    assert app.focused is app.manager.right
+
+
+def test_hiding_the_only_side_left_shows_the_console(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f1", ctrl=True), KeyEvent("f2", ctrl=True)])
+    assert app.shell.console_visible is True
+    assert app.manager.hidden_side == "left"
+
+
+def test_the_key_from_the_console_brings_that_side_back_alone(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("o", ctrl=True), KeyEvent("f1", ctrl=True)])
+    manager = app.manager
+    assert app.shell.console_visible is False
+    assert manager.left.visible is True and manager.right.visible is False
+    assert manager.hidden_side == "right"
+    assert app.focused is manager.left
+
+
+def test_ctrl_t_brings_a_hidden_side_back_first(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f2", ctrl=True), KeyEvent("t", ctrl=True)])
+    manager = app.manager
+    assert manager.hidden_side is None
+    assert manager.tree.visible is True and manager.right.visible is False
+    assert manager.zoomed is True
+
+
+def test_ctrl_p_hides_the_side_without_the_keyboard_and_shows_it_again(tree):
+    app = navigator(tree)
+    states = []
+    run_app(app, [
+        KeyEvent("p", ctrl=True),
+        lambda a: states.append((a.manager.hidden_side, a.focused is a.manager.left)),
+        KeyEvent("p", ctrl=True),
+    ])
+    assert states == [("right", True)]
+    assert app.manager.hidden_side is None
+    assert app.manager.zoomed is True
+
+
+def test_ctrl_p_from_the_right_panel_hides_the_left(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("tab"), KeyEvent("p", ctrl=True)])
+    assert app.manager.hidden_side == "left"
+    assert app.focused is app.manager.right
+
+
+def test_ctrl_p_shows_a_side_ctrl_f1_hid_and_never_the_console(tree, quiet_console):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f1", ctrl=True), KeyEvent("p", ctrl=True)])
+    assert app.manager.hidden_side is None
+    assert app.shell.console_visible is False
+
+
+def test_ctrl_p_hides_the_tree_standing_in_the_passive_place(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("t", ctrl=True), KeyEvent("p", ctrl=True)])
+    manager = app.manager
+    assert manager.hidden_side == "right"
+    assert manager.tree.visible is False and manager.left.visible is True
+
+
+def test_the_manager_menu_shows_and_hides_the_sides(tree):
+    from navigator.widgets.manager.commands import HideInactive, HideLeft, HideRight
+
+    app = navigator(tree)
+    menu = app.shell.menu.manager
+    enabled = []
+    run_app(app, [lambda a: enabled.extend(
+        a.command_enabled(menu.item_for(command).command)
+        for command in (HideLeft, HideRight, HideInactive)
+    )])
+    assert enabled == [True, True, True]
+
+
 def test_enter_descends_in_the_active_panel(tree):
     app = navigator(tree)
     run_app(app, [KeyEvent("down"), KeyEvent("enter")])
@@ -2294,6 +2433,8 @@ def test_the_application_keeps_only_what_is_global():
     table = key_table(Navigator)
     assert set(table) == {
         "ctrl+o", "ctrl+f3", "f1", "f10", "alt+x",
+        # Show/hide a side: the console's too, as DN's user screen took them.
+        "ctrl+f1", "ctrl+f2",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
     }
