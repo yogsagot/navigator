@@ -73,6 +73,21 @@ class NewManager(Command):
     title = "New Manager"
 
 
+class ViewHistory(Command):
+    """Alt+PgDn: *File View History*, DOS Navigator's ``cmViewHistory``.
+
+    The files viewed, newest first; *Open* views one again as it was left.
+    """
+
+    title = "View History"
+
+
+class EditHistory(Command):
+    """Alt+PgUp: *File Edit History*, DOS Navigator's ``cmEditHistory``."""
+
+    title = "Edit History"
+
+
 class OpenTreeWindow(Command):
     """Disk > Directory tree: a *Directory Tree* window on the desktop.
 

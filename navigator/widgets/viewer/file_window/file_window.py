@@ -33,8 +33,11 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     Unwrap,
 )
+from navigator.file_history import place_window, window_values
+from navigator.models.view_record import ViewRecord
 from navigator.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
+from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
 #: How long a search runs before it shows its progress: DN's two timer ticks
 #: (``NewTimer(Tmr, 2)``) at 18.2 Hz.
@@ -51,9 +54,12 @@ class FileWindow(Window):
     caller can say so before a window that shows nothing is opened.
     """
 
-    def __init__(self, path: Path | str, *, mode: str = "text", **kwargs: Any) -> None:
+    def __init__(self, path: Path | str, *, mode: str | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        # Seeded, never bound: the viewer navigates both.
+        # Seeded, never bound: the viewer navigates both.  No mode asked for
+        # is the Editor/Viewer setup's *Hex mode*.
+        if mode is None:
+            mode = "hex" if SETTINGS.viewer.hex_mode else "text"
         self.viewer.open(path)
         self.viewer.mode = mode
         self.viewer.wrap = SETTINGS.viewer.wrap_lines
@@ -71,6 +77,57 @@ class FileWindow(Window):
     def list_name(self) -> str:
         """Window > List's line: DN's ``dlViewFile``, ``View - `` and the name."""
         return f"View - {self.viewer.path}"
+
+    # -- the File View History -------------------------------------------------
+
+    def remember_history(self) -> None:
+        """``StoreViewInfo``: this file's record, as the viewer is now."""
+        viewer = self.viewer
+        if not SETTINGS.interface.track_viewing or viewer.path is None:
+            return
+        ViewRecord.store(
+            viewer.path,
+            **window_values(self),
+            mode=viewer.mode,
+            wrap=viewer.wrap,
+            filter=viewer.filter,
+            top=viewer.top,
+            x_delta=viewer.x_delta,
+            cursor=viewer.cursor,
+        )
+
+    def recall_history(self, *, keep_mode: bool = False) -> None:
+        """``ViewFile``: put the window and the viewer back as the record says.
+
+        Called once the window is on its desktop, whose size the rectangle is
+        scaled to.  A file with no record gets one now.  A position past the
+        end of a file that has since shrunk starts it from the top, as DN's
+        ``fPos+fBufPos > FileSize`` did.  With *keep_mode* -- As Text / As Hex
+        asked for one -- the record's mode gives way.
+        """
+        viewer = self.viewer
+        if not SETTINGS.interface.track_viewing or viewer.path is None:
+            return
+        record = ViewRecord.find(viewer.path)
+        if record is None:
+            self.remember_history()
+            return
+        place_window(self, record)
+        if not keep_mode and record.mode in MODES:
+            viewer.mode = record.mode
+        viewer.wrap = record.wrap
+        if 0 <= record.filter < len(FILTER_TAGS):
+            viewer.filter = record.filter
+        fits = record.top <= viewer.size
+        viewer.x_delta = record.x_delta if fits and viewer.mode == "text" else 0
+        viewer.cursor = min(record.cursor, max(0, viewer.size - 1)) if fits else 0
+        viewer.seek(record.top if fits else 0)
+
+    def close(self) -> None:
+        # ``TFileViewer.Valid(cmClose)``: the record is written on the way out.
+        if self.parent is not None:
+            self.remember_history()
+        super().close()
 
     async def on_close_viewer(self, event: CloseViewer) -> bool:
         """F3 again: Midnight Commander's way out, beside DN's Esc."""

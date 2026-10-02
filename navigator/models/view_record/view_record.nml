@@ -1,0 +1,33 @@
+from navigator.models.file_record import FileRecord
+
+#: A file once viewed, and how its viewer was left: DN's ``TViewRecord``.
+#:
+#: ``StoreViewInfo`` (``HISTRIES.PAS``) wrote one when a viewer closed and
+#: ``ViewFile`` read it back when the file was viewed again.  Its ``fPos`` and
+#: ``fBufPos`` are ``top``, its ``XDelta`` ``x_delta`` and its ``HexPos``/``Cur``
+#: the hex ``cursor``; ``XlateTable`` has nothing to stand for yet.
+ViewRecord(FileRecord):
+    table: "view_history"
+    #: The absolute path: the record's ``fName`` without its flag.
+    field path: str
+    #: The flag: a pinned record is never evicted or deleted.
+    field pinned: bool = False
+    field seq: int
+    #: The window, ``fOrigin``/``fSize``, on a desktop ``fDeskSize`` big.
+    field zoomed: bool = True
+    field x: int
+    field y: int
+    field width: int
+    field height: int
+    field desk_width: int
+    field desk_height: int
+    #: ``fViewMode``: text, hex or dump.
+    field mode: str = "text"
+    field wrap: bool = False
+    field filter: int
+    #: The byte offset on top.
+    field top: int
+    field x_delta: int
+    field cursor: int
+    unique by_path: path
+    index by_seq: seq

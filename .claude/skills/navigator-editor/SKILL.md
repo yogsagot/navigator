@@ -14,6 +14,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
+- **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
+  (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
+  viewer's is (see `navigator-viewer`). **Open editors through `navigator.file_history.open_editor`.** DN's marks,
+  block, highlighting, auto-indent and margins get columns when the editor has them: add the `field` lines to
+  `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
   nested as submenus, greyed where the feature is still to come.
 

@@ -30,6 +30,7 @@ from navigator.widgets.shell.commands import (
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
+    EditHistory,
     EditorDefaults,
     ExecuteCommandLine,
     FileManagerDefaults,
@@ -43,6 +44,7 @@ from navigator.widgets.shell.commands import (
     StartupSetup,
     SystemSetup,
     ToggleMarkBySpace,
+    ViewHistory,
 )
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
@@ -962,6 +964,59 @@ class Shell(DockLayout):
             ).execute(self.application)
 
     # -- the directory tree window --------------------------------------------
+
+    # -- File View History, File Edit History ---------------------------------
+
+    async def on_view_history(self, event: ViewHistory) -> bool:
+        self.spawn(self.file_history("view"))
+        return True
+
+    async def on_edit_history(self, event: EditHistory) -> bool:
+        self.spawn(self.file_history("edit"))
+        return True
+
+    async def file_history(self, kind: str) -> None:
+        """``ViewHistoryMenu``/``EditHistoryMenu``: pick a file, open it as it was left.
+
+        With the Interface option off the list is not shown, and DN's
+        ``dlSetViewHistory``/``dlSetEditHistory`` says why; an empty history
+        shows nothing at all, as ``Count = 0`` did.
+        """
+        from navml.widgets.dialog.dialog import Dialog
+
+        from navigator.file_history import open_editor, open_viewer
+        from navigator.models.edit_record import EditRecord
+        from navigator.models.view_record import ViewRecord
+        from navigator.widgets.shell.file_history_dialog import FileHistoryDialog
+
+        viewing = kind == "view"
+        tracking = SETTINGS.interface.track_viewing if viewing else SETTINGS.interface.track_editing
+        if not tracking:
+            option = "Track viewing history" if viewing else "Track editing history"
+            await Dialog(
+                title="Error",
+                prompt=f'Set the interface option\n"{option}" ON first',
+                buttons="ok",
+            ).execute(self.application)
+            return
+        model = ViewRecord if viewing else EditRecord
+        if not model.count():
+            return
+        title = "File View History" if viewing else "File Edit History"
+        path = await FileHistoryDialog(model, title=title).execute(self.application)
+        if path is None:
+            return
+        try:
+            if viewing:
+                open_viewer(self.desktop, path)
+            else:
+                open_editor(self.desktop, path)
+        except OSError as error:
+            await Dialog(
+                title="Cannot view file" if viewing else "Cannot edit file",
+                prompt=f"{path}: {error.strerror or error}",
+                buttons="ok",
+            ).execute(self.application)
 
     async def on_open_tree_window(self, event: OpenTreeWindow) -> bool:
         """Disk > Directory tree: a tree window, opened on the active panel's directory."""

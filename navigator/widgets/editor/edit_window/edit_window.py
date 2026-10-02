@@ -22,6 +22,9 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
+from navigator.file_history import place_window, window_values
+from navigator.models.edit_record import EditRecord
+from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import SaveText
 
 
@@ -60,6 +63,53 @@ class EditWindow(Window):
     def list_name(self) -> str:
         """Window > List's line: the title, which already says ``Edit - ``."""
         return f"Edit - {self.editor.path}"
+
+    # -- the File Edit History -------------------------------------------------
+
+    def remember_history(self) -> None:
+        """``StoreEditInfo``: this file's record, as the editor is now."""
+        editor = self.editor
+        if not SETTINGS.interface.track_editing or editor.path is None:
+            return
+        EditRecord.store(
+            editor.path,
+            **window_values(self),
+            line=editor.line,
+            col=editor.col,
+            top=editor.top,
+            left=editor.left,
+            overwrite=editor.overwrite,
+            vertical_blocks=editor.vertical_blocks,
+        )
+
+    def recall_history(self) -> None:
+        """``EditFile``: put the window and the editor back as the record says.
+
+        Called once the window is on its desktop.  A file with no record gets
+        one now.  A cursor past the end of a text that has since got shorter
+        lands on its last line, which ``ScrollTo`` and ``Pos`` clamped too.
+        """
+        editor = self.editor
+        if not SETTINGS.interface.track_editing or editor.path is None:
+            return
+        record = EditRecord.find(editor.path)
+        if record is None:
+            self.remember_history()
+            return
+        place_window(self, record)
+        editor.overwrite = record.overwrite
+        editor.vertical_blocks = record.vertical_blocks
+        last = max(0, editor.line_count - 1)
+        editor.top = min(max(0, record.top), last)
+        editor.left = max(0, record.left)
+        editor._go_column(record.line, record.col)
+
+    def close(self) -> None:
+        # ``TFileEditor.Valid(cmClose)``: the record is written once closing
+        # has been agreed to, which is when this is called.
+        if self.parent is not None:
+            self.remember_history()
+        super().close()
 
     # -- saving ------------------------------------------------------------------
 

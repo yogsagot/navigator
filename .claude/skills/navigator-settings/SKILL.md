@@ -141,6 +141,7 @@ note:
 | `interface.auto_hide_command_line` | The line shows only while it holds text; typing still goes to it and brings it back (DN 1.51 never read this bit -- transcribed from `CheckSize`/`ToggleCmdLine`) |
 | `interface.esc_user_screen` | Esc with an empty command line toggles the console (Ctrl+O), DN's `cmShowUserScreen`; Esc on a line with text clears it, and does nothing with the line hidden |
 | `interface.block_insert_cursor` | The command line's caret is a block (`Shell:block_insert { caret: block }` in `navigator.nss`; on `Shell` because it answers `cursor_position` for the line). Unticked, the terminal's own shape |
+| `interface.track_viewing` / `track_editing` | On (a departure: on by default): viewers/editors are recorded and restored, and Alt+PgDn / Alt+PgUp list them; off, the lists say DN's `dlSetViewHistory`/`dlSetEditHistory` (`navigator-viewer`, `navigator-editor`) |
 | `confirmations.erase_single` / `erase_multiple` | Off: no Delete dialog, and so no *Recursive delete* |
 | `confirmations.erase_non_empty_dir` / `erase_read_only` | Off: the eraser's question is answered Yes |
 | `confirmations.create_dir` | Off: copy and link create a missing target directory without asking |

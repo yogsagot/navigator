@@ -298,8 +298,11 @@ class InterfaceData(Section):
     block_insert_cursor: bool = Setting(False, doc="Block cursor on the command line")
     store_editor_position: bool = Setting(False, doc="Store the editor's position", honoured=False)
     store_viewer_position: bool = Setting(False, doc="Store the viewer's position", honoured=False)
-    track_editing: bool = Setting(False, doc="Track editing history", honoured=False)
-    track_viewing: bool = Setting(False, doc="Track viewing history", honoured=False)
+    #: On by default, a departure from the option's place in the setup
+    #: dialog's original record: a history nobody turned on is one nobody
+    #: knows exists.
+    track_editing: bool = Setting(True, doc="Track editing history: Alt+PgUp, positions restored")
+    track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, positions restored")
     track_directories: bool = Setting(False, doc="Track directories", honoured=False)
 
 

@@ -54,6 +54,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
+from navigator.file_history import open_editor, open_viewer
 from navigator.settings import SETTINGS
 
 
@@ -768,7 +769,7 @@ class Manager(Window):
         if not SETTINGS.system.internal_viewer:
             self.run_external("PAGER", "less")
             return True
-        self.spawn(self.view("hex" if SETTINGS.viewer.hex_mode else "text"))
+        self.spawn(self.view())
         return True
 
     async def on_view_as_text(self, event: ViewAsText) -> bool:
@@ -779,15 +780,13 @@ class Manager(Window):
         self.spawn(self.view("hex"))
         return True
 
-    async def view(self, mode: str) -> None:
+    async def view(self, mode: str | None = None) -> None:
         """Open the selected file in a viewer on this window's desktop.
 
         A directory is passed over: DN counted its size (``CountLen``), which
         is not written yet, and ``..`` has nothing to show.  A file that will
         not open is said so, as a directory that will not be made is.
         """
-        from navigator.widgets.viewer.file_window import FileWindow
-
         panel = self.active_panel
         entry = panel.selected
         desktop = self.desktop
@@ -795,15 +794,13 @@ class Manager(Window):
             return
         path = panel.path / entry.name
         try:
-            window = FileWindow(path, mode=mode)
+            open_viewer(desktop, path, mode)
         except OSError as error:
             await Dialog(
                 title="Cannot view file",
                 prompt=f"{entry.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
-            return
-        desktop.open(window)
 
     async def on_edit(self, event: Edit) -> bool:
         """F4: ``cmEditFile``, the selected file in an editor window.
@@ -837,8 +834,6 @@ class Manager(Window):
         A directory and ``..`` are passed over, as DN's ``cmEditFile`` passed
         them; a file that will not open is said so.
         """
-        from navigator.widgets.editor.edit_window import EditWindow
-
         panel = self.active_panel
         entry = panel.selected
         desktop = self.desktop
@@ -846,15 +841,13 @@ class Manager(Window):
             return
         path = panel.path / entry.name
         try:
-            window = EditWindow(path)
+            open_editor(desktop, path)
         except OSError as error:
             await Dialog(
                 title="Cannot edit file",
                 prompt=f"{entry.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
-            return
-        desktop.open(window)
 
     def _remember_panel(self) -> None:
         if self.right.focused:

@@ -1,0 +1,33 @@
+from navigator.models.file_record import FileRecord
+
+#: A file once edited, and how its editor was left: DN's ``TEditRecord``.
+#:
+#: ``StoreEditInfo`` (``HISTRIES.PAS``) wrote one when an editor closed and
+#: ``EditFile`` read it back.  ``fPos`` is the cursor (``line``, ``col``),
+#: ``fDelta`` the scroll (``top``, ``left``), ``InsMode`` the opposite of
+#: ``overwrite`` and ``VertBlock`` ``vertical_blocks``.  The marks, the block,
+#: highlighting, auto-indent and the margins have no editor feature to stand
+#: for yet, and get their columns when they do.
+EditRecord(FileRecord):
+    table: "edit_history"
+    #: The absolute path: the record's ``fName`` without its flag.
+    field path: str
+    #: The flag: a pinned record is never evicted or deleted.
+    field pinned: bool = False
+    field seq: int
+    #: The window, ``fOrigin``/``fSize``, on a desktop ``fDeskSize`` big.
+    field zoomed: bool = True
+    field x: int
+    field y: int
+    field width: int
+    field height: int
+    field desk_width: int
+    field desk_height: int
+    field line: int
+    field col: int
+    field top: int
+    field left: int
+    field overwrite: bool = False
+    field vertical_blocks: bool = False
+    unique by_path: path
+    index by_seq: seq

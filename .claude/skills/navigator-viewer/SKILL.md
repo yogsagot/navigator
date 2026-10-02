@@ -20,6 +20,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   through a `SearchJob` the thread writes and the loop reads. It uses the library's `ProgressBar`.
 - **Ctrl+Q is DN's quick view** (`QuickViewer`, a framed `FileViewer`), standing in the passive panel's place through
   `Manager.switch_view`; it follows the active panel's cursor, and Tab moves the keyboard in and out.
+- **File View History (Alt+PgDn)**: DN's `TViewRecord`. Each file's window rectangle (scaled to the desktop, as
+  `AdjustToDesktopSize` did), mode, wrap, filter, `top`, `x_delta` and hex `cursor` are written to the `ViewRecord`
+  model. That happens when a viewer opens on a file with no record, and when it closes by any route, Alt+X included
+  (`Navigator.on_stop`). The record is restored by `FileWindow.recall_history()` once the window is on its desktop.
+  **Open viewers through `navigator.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
+  restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*.
+  The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The Ctrl+Q quick viewer records nothing.
 - Commands: `navigator/widgets/viewer/commands.py`.
 
 ## Read when

@@ -2438,6 +2438,8 @@ def test_the_application_keeps_only_what_is_global():
         "ctrl+o", "ctrl+f3", "f1", "f10", "alt+x",
         # Show/hide a side: the console's too, as DN's user screen took them.
         "ctrl+f1", "ctrl+f2",
+        # File Edit History and File View History: Utilities, nobody's panel's.
+        "alt+pageup", "alt+pagedown",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
     }

@@ -40,6 +40,7 @@ from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
+from navigator.file_history import remember_windows
 from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
@@ -47,8 +48,10 @@ from navigator.widgets.shell.commands import (
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
+    EditHistory,
     ExecuteCommandLine,
     NewManager,
+    ViewHistory,
 )
 from navigator.widgets.shell.shell import Shell
 
@@ -77,6 +80,9 @@ class Navigator(Application):
             self.shell.console.start()
 
     async def on_stop(self) -> None:
+        # Every viewer and editor still open is recorded, as ``cmQuit`` went
+        # through each window's ``Valid`` -- whatever way Navigator is left.
+        remember_windows(self.shell.desktop)
         # The shell would otherwise outlive the terminal it was talking to.
         self.shell.console.stop()
 
@@ -123,6 +129,8 @@ class Navigator(Application):
     keys = {
         "ctrl+o": ToggleConsole,
         "ctrl+f3": NewManager,
+        "alt+pageup": EditHistory,
+        "alt+pagedown": ViewHistory,
         "ctrl+f1": HideLeft,
         "ctrl+f2": HideRight,
         "f1": Help,
