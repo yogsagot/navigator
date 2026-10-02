@@ -1,0 +1,17 @@
+from navkit.database import Model
+
+#: One remembered input-line string: an entry of a ``HistList``.
+#:
+#: Every list -- ``"mkdir"``, ``"copy"``, ``"command"`` -- shares the one
+#: table, told apart by ``list_id``; ``seq`` orders a list newest first.
+HistoryEntry(Model):
+    table: "history"
+    #: The history id the input lines sharing this list name.
+    field list_id: str
+    field text: str
+    #: DOS Navigator's flag byte: a pinned entry is never evicted.
+    field pinned: bool = False
+    #: Larger is newer; only the order means anything.
+    field seq: int
+    unique entry: list_id, text
+    index by_list: list_id, seq

@@ -195,13 +195,17 @@ def _quiet_scheduler():
 
 
 @pytest.fixture(autouse=True)
-def _forget_history():
-    """Keep one test's input history out of the next one: the store is shared."""
-    from navml.history import HISTORY
+def _fresh_database():
+    """Every test gets an empty ``:memory:`` database: the one every model uses.
 
-    HISTORY.clear()
+    That is what keeps one test's input history out of the next one, and every
+    test off the disk -- ``main()`` is the only thing that opens a file.
+    """
+    from navkit.database import DATABASE
+
+    DATABASE.open()
     yield
-    HISTORY.clear()
+    DATABASE.close()
 
 
 @pytest.fixture(autouse=True)

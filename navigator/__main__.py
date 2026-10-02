@@ -19,6 +19,7 @@ import argparse
 import contextlib
 import configparser
 import os
+import sqlite3
 import sys
 from dataclasses import replace
 from importlib import metadata
@@ -27,6 +28,7 @@ from pathlib import Path
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.commands import Command
+from navkit.database import DATABASE
 from navkit.events import MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
 from navkit.process import MARKER
@@ -38,7 +40,7 @@ from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
-from navigator.settings import SETTINGS, config_path
+from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
@@ -328,6 +330,21 @@ def load_settings(path: Path | None = None) -> None:
         SETTINGS.path = path
 
 
+def open_database(path: Path | None = None) -> None:
+    """Open the database every model uses, or carry on in memory.
+
+    Beside :func:`load_settings` and for its reason: an application a test
+    builds never opens a file.  A file that cannot be opened -- unwritable,
+    locked, not a database -- costs this session its histories, not its start.
+    """
+    path = path if path is not None else database_path()
+    try:
+        DATABASE.open(path)
+    except (OSError, sqlite3.Error) as error:
+        print(f"nav: {path}: {error}; remembering nothing this session", file=sys.stderr)
+        DATABASE.open()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="nav", description=__doc__)
     parser.add_argument("left", nargs="?", help="the directory the left panel opens")
@@ -371,6 +388,10 @@ def main(argv: list[str] | None = None) -> int:
         "--config", metavar="PATH", type=Path, default=None,
         help=f"the settings file to read and save (default: {config_path()})",
     )
+    parser.add_argument(
+        "--database", metavar="PATH", type=Path, default=None,
+        help=f"the database histories are kept in (default: {database_path()})",
+    )
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     if args.list_themes:
@@ -390,6 +411,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     load_settings(args.config)
+    open_database(args.database)
     # A flag is this session's alone: it wins over the settings file and is
     # never written back to it.
     appearance = SETTINGS.appearance

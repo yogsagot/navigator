@@ -33,6 +33,7 @@ from pathlib import Path
 from navml.checks import check
 from navml.errors import MarkupError
 from navml.generator import MARKER, generate
+from navml.model import generate_model, is_model, resolve_model, stub_model
 from navml.parser import imports_of, parse_file
 from navml.resolve import resolve
 from navml.sibling import Sibling
@@ -86,6 +87,12 @@ def compile_document(path: Path) -> list[Artefact]:
     stem = path.stem
     document = parse_file(path)
     sibling = Sibling.read(path.with_suffix(".py"))
+    if is_model(document):
+        model = resolve_model(document, package=package_of(path), sibling=sibling)
+        return [
+            _artefact(path.with_name(f"{stem}_nml.py"), generate_model(model)),
+            _artefact(path.with_name(f"{stem}.pyi"), stub_model(model)),
+        ]
     resolved = resolve(document, package=package_of(path), sibling=sibling)
     check(resolved)
     return [

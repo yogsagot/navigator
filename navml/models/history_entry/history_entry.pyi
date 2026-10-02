@@ -1,0 +1,36 @@
+# navml: generated
+"""The merged surface of ``navml.models.history_entry.history_entry``."""
+
+from typing import Any as _Any
+
+from navkit.database import Query as _Query
+from navkit.database import Model
+
+
+class HistoryEntry(Model):
+    id: int | None
+    list_id: str
+    text: str
+    pinned: bool
+    seq: int
+    def __init__(self, *, id: int | None = ..., list_id: str = ..., text: str = ..., pinned: bool = ..., seq: int = ...) -> None: ...
+    @classmethod
+    def where(cls, **conditions: _Any) -> _Query[HistoryEntry]: ...
+    @classmethod
+    def query(cls) -> _Query[HistoryEntry]: ...
+    @classmethod
+    def all(cls) -> list[HistoryEntry]: ...
+    @classmethod
+    def get(cls, **conditions: _Any) -> HistoryEntry | None: ...
+    @classmethod
+    def count(cls, **conditions: _Any) -> int: ...
+    @classmethod
+    def delete_where(cls, **conditions: _Any) -> int: ...
+    @classmethod
+    def create(cls, *, list_id: str = ..., text: str = ..., pinned: bool = ..., seq: int = ...) -> HistoryEntry: ...
+    @classmethod
+    def upsert(cls, *, list_id: str = ..., text: str = ..., pinned: bool = ..., seq: int = ...) -> HistoryEntry: ...
+    @classmethod
+    def remember(cls, list_id: str, text: str, limit: int) -> None: ...
+    @classmethod
+    def texts(cls, list_id: str) -> list[str]: ...

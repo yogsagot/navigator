@@ -62,6 +62,13 @@ RESERVED = frozenset({"self", "root", "parent", "event"})
 #: language that carries no colon at all.
 DIRECTIVES = frozenset({"property", "style_property", "alias"})
 
+#: The directives of a *model* document, whose root extends
+#: :class:`navkit.database.Model` and declares a table rather than a widget:
+#: ``field text: str = ""``, ``index by_list: list_id, seq`` and
+#: ``unique entry: list_id, text``.  Which kind of document it is, is the
+#: build's to decide against the live base; the parser only reads the lines.
+MODEL_DIRECTIVES = frozenset({"field", "index", "unique"})
+
 #: The one block in a document that is not a widget.  Its body is a stylesheet
 #: fragment rather than Python, so it is read by different rules.
 STYLE = "style"
@@ -163,12 +170,42 @@ class EventDecl:
     doc: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class FieldDecl:
+    """``field pinned: bool = False`` -- one column of a model's table.
+
+    ``type`` is the name the annotation gives, ``null`` whether it said
+    ``| None``, and ``default`` the literal after ``=`` as source, or ``None``
+    when there was none and the type's own empty value is meant.
+    """
+
+    name: str
+    type: str
+    null: bool
+    default: str | None
+    line: int
+    doc: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class IndexDecl:
+    """``index by_list: list_id, seq`` or ``unique entry: list_id, text``."""
+
+    name: str
+    columns: tuple[str, ...]
+    unique: bool
+    line: int
+    doc: tuple[str, ...] = ()
+
+
 #: Everything a root block may declare about the component itself.  Named for
 #: what the language calls these lines -- and named apart from
 #: :class:`navkit.reactive.Declaration`, which the code generator holds in the
 #: same breath and which is a different thing entirely: a descriptor on a
 #: class, rather than a line in a document.
-Directive = PropertyDecl | StylePropertyDecl | AliasDecl | EventDecl
+Directive = (
+    PropertyDecl | StylePropertyDecl | AliasDecl | EventDecl | FieldDecl | IndexDecl
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -621,6 +658,21 @@ def _leaf(
             filename,
         )
 
+    if len(words) == 2 and words[0] in MODEL_DIRECTIVES:
+        keyword_, name = words
+        if not root:
+            raise _root_only(keyword_, line, filename)
+        _declared(name, f"a {keyword_}", line.line, filename)
+        if not rest:
+            raise MarkupError(
+                f"a value is required: '{keyword_} {name}: <value>'",
+                line.line,
+                filename,
+            )
+        if keyword_ == "field":
+            return "declaration", _field(name, rest, line, filename)
+        return "declaration", _index(name, rest, keyword_ == "unique", line, filename)
+
     if len(words) == 2 and words[0] in DIRECTIVES:
         keyword_, name = words
         if not root:
@@ -696,6 +748,71 @@ def _leaf(
         return "handler", Handler(name, rest, line.line, line.doc)
     _expression(rest, f"the value of {name!r}", line.line, filename)
     return "property", Property(name, rest, line.line, line.doc)
+
+
+def _field(name: str, source: str, line: _Line, filename: str) -> FieldDecl:
+    """``TYPE [= DEFAULT]``, read as the annotated assignment it looks like.
+
+    ``TYPE`` is a name, or a name ``| None`` for a column that may be empty;
+    ``DEFAULT`` is a literal, because it becomes the column's SQL ``DEFAULT``
+    as well as the instance's, and the build has to be able to write both.
+    """
+    try:
+        tree = ast.parse(f"_: {source}")
+    except SyntaxError:
+        tree = None
+    node = tree.body[0] if tree is not None and len(tree.body) == 1 else None
+    if not isinstance(node, ast.AnnAssign):
+        raise MarkupError(
+            f"cannot read {source!r} as a field: 'field {name}: type' or "
+            f"'field {name}: type = default'",
+            line.line,
+            filename,
+        )
+    annotation = node.annotation
+    null = False
+    if (
+        isinstance(annotation, ast.BinOp)
+        and isinstance(annotation.op, ast.BitOr)
+        and isinstance(annotation.right, ast.Constant)
+        and annotation.right.value is None
+    ):
+        null = True
+        annotation = annotation.left
+    if not isinstance(annotation, ast.Name):
+        raise MarkupError(
+            f"a field's type is one imported or builtin name, optionally "
+            f"'| None': not {ast.unparse(node.annotation)!r}",
+            line.line,
+            filename,
+        )
+    default: str | None = None
+    if node.value is not None:
+        default = ast.unparse(node.value)
+        try:
+            ast.literal_eval(node.value)
+        except ValueError:
+            raise MarkupError(
+                f"a field's default is a literal, not {default!r}: it becomes "
+                f"the column's SQL DEFAULT too",
+                line.line,
+                filename,
+            ) from None
+    return FieldDecl(name, annotation.id, null, default, line.line, line.doc)
+
+
+def _index(
+    name: str, source: str, unique: bool, line: _Line, filename: str
+) -> IndexDecl:
+    """``column, column`` -- the fields an index covers, in order."""
+    columns = tuple(part.strip() for part in source.split(","))
+    for column in columns:
+        _identifier(column, "an indexed field", line.line, filename)
+    if len(set(columns)) != len(columns):
+        raise MarkupError(
+            f"{source!r} names one field twice", line.line, filename
+        )
+    return IndexDecl(name, columns, unique, line.line, line.doc)
 
 
 def _root_only(directive: str, line: _Line, filename: str) -> MarkupError:
@@ -921,8 +1038,20 @@ def _check_document(document: Document) -> None:
             )
         taken[name] = line
 
+    indexes: dict[str, int] = {}
     for declaration in root.declarations:
         if isinstance(declaration, EventDecl):
+            continue
+        if isinstance(declaration, IndexDecl):
+            # An index is named in the database, never on the class.
+            if declaration.name in indexes:
+                raise MarkupError(
+                    f"index {declaration.name!r} is already declared on line "
+                    f"{indexes[declaration.name]}",
+                    declaration.line,
+                    filename,
+                )
+            indexes[declaration.name] = declaration.line
             continue
         claim(declaration.name, declaration.line, "a declaration")
     for block in root.walk():

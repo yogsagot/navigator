@@ -6,6 +6,7 @@ import pathlib
 
 import pytest
 
+from navkit.database import DATABASE
 from navkit.events import KeyEvent, MouseClickEvent
 from navml.history import HISTORY, HistoryStore
 from navml.widgets.dialog.history import History, HistoryList
@@ -51,19 +52,20 @@ def test_a_pinned_entry_is_never_evicted_and_keeps_its_pin_when_added_again():
     assert store.entries("x")[0] == "keep" and store.is_pinned("x", "keep")
 
 
-def test_remove_clear_and_a_round_trip_through_plain_data():
+def test_remove_clear_and_the_lists_survive_reopening_the_database(tmp_path):
+    DATABASE.open(tmp_path / "navigator.db")
     store = HistoryStore()
     for text in ("a", "b", "c"):
         store.add("x", text)
+    store.add("y", "other")
     store.pin("x", "a")
     store.remove("x", "b")
-    copy = HistoryStore()
-    copy.load_data(store.to_data())
-    assert copy.entries("x") == ["c", "a"] and copy.is_pinned("x", "a")
-    copy.load_data({"y": ["plain", {"text": "flagged", "pinned": True}]})
-    assert copy.entries("y") == ["plain", "flagged"] and copy.is_pinned("y", "flagged")
-    copy.clear()
-    assert copy.entries("y") == []
+    DATABASE.open(tmp_path / "navigator.db")
+    assert store.entries("x") == ["c", "a"] and store.is_pinned("x", "a")
+    store.clear("x")
+    assert (store.entries("x"), store.entries("y")) == ([], ["other"])
+    store.clear()
+    assert store.entries("y") == []
 
 
 # -- in the Make directory dialog --------------------------------------------------------

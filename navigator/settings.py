@@ -60,6 +60,10 @@ COMMENT_COLUMN = 44
 INLINE_COMMENT_PREFIXES = ("#", ";")
 
 
+#: The database's file name, in :func:`state_dir`.
+DATABASE_NAME = "navigator.db"
+
+
 def config_dir() -> Path:
     """``$XDG_CONFIG_HOME/navigator``, or ``~/.config/navigator`` without one.
 
@@ -74,6 +78,26 @@ def config_dir() -> Path:
 def config_path() -> Path:
     """Where ``navigator.ini`` lives unless ``--config`` says otherwise."""
     return config_dir() / FILE_NAME
+
+
+def state_dir() -> Path:
+    """``$XDG_STATE_HOME/navigator``, or ``~/.local/state/navigator`` without one.
+
+    Where XDG puts what a program remembers rather than what it is told --
+    histories, recently used -- which is what the database holds.  The same
+    rule as :func:`config_dir` for an unset or relative variable.
+    """
+    base = os.environ.get("XDG_STATE_HOME", "")
+    root = (
+        Path(base) if base and os.path.isabs(base)
+        else Path.home() / ".local" / "state"
+    )
+    return root / "navigator"
+
+
+def database_path() -> Path:
+    """Where the database lives unless ``--database`` says otherwise."""
+    return state_dir() / DATABASE_NAME
 
 
 class Setting(Reactive):
