@@ -26,6 +26,10 @@ It is a container of sections, `SETTINGS.interface.clock`, `SETTINGS.confirmatio
   survives a dialog's OK.
 - **What survives a save, and what doesn't.** Unknown keys and sections are kept verbatim (`Settings.extras`). Comments
   written by hand are not: the generated ones replace them.
+- **Layout.** A section's comment goes on the line right under its `[section]` header. An option's comment goes on the
+  option's own line, starting at `COMMENT_COLUMN` (44), or two spaces after a longer `key = value`.
+- **No ` #` or ` ;` inside a value.** The parser is built with `inline_comment_prefixes=("#", ";")` so that those
+  comments are stripped when reading. That also means everything from ` #` or ` ;` on is read as comment.
 
 ## Precedence
 

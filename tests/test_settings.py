@@ -52,7 +52,9 @@ def test_a_missing_file_is_written_with_every_default():
         assert f"[{section.name}]" in text
         for field in section.fields():
             assert f"\n{field.name} = " in text
-    assert "# Show the clock at the menu bar's right end\nclock = yes" in text
+    # The option's comment on its line at a fixed column; the section's under its header.
+    assert "\nclock = yes" + " " * 33 + "# Show the clock at the menu bar's right end\n" in text
+    assert "[interface]\n# Options > Configuration > Interface" in text
     assert SETTINGS.path == path
 
 
@@ -70,7 +72,9 @@ def test_what_is_written_reads_back_the_same(tmp_path):
 
 def test_a_value_edited_by_hand_is_read(tmp_path):
     path = tmp_path / "n.ini"
-    path.write_text("[interface]\nclock = off\n[editor]\ntab_size = 2\n", encoding="utf-8")
+    path.write_text(
+        "[interface]\nclock = off   # mine\n[editor]\ntab_size = 2 ; also mine\n", encoding="utf-8"
+    )
     assert SETTINGS.load(path) == []
     assert SETTINGS.interface.clock is False
     assert SETTINGS.editor.tab_size == 2

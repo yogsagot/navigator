@@ -28,7 +28,8 @@ How it works:
   file first and replaces only that section, so an edit made by hand while
   Navigator runs survives a dialog's OK.  Keys and sections it does not know
   are carried over, but comments written by hand are not: the generated ones
-  replace them.
+  replace them.  Each option's comment sits on its line at
+  :data:`COMMENT_COLUMN`, and each section's right under its header.
 """
 
 from __future__ import annotations
@@ -46,6 +47,14 @@ from navml.coder import Coder
 
 #: The file's name, in the directory :func:`config_dir` names.
 FILE_NAME = "navigator.ini"
+
+#: The column every option's comment starts at, after ``key = value``.  A
+#: longer line pushes its comment along, two spaces after the value.
+COMMENT_COLUMN = 44
+
+#: What starts a comment after a value -- so a value cannot contain `` #`` or
+#: `` ;``, since everything from there on is read as the comment.
+INLINE_COMMENT_PREFIXES = ("#", ";")
 
 
 def config_dir() -> Path:
@@ -456,7 +465,9 @@ class Settings:
         it too -- a typo in the file must not stop Navigator starting.  A file
         that is not an ini file at all raises ``configparser.Error``.
         """
-        parser = configparser.ConfigParser(interpolation=None)
+        parser = configparser.ConfigParser(
+            interpolation=None, inline_comment_prefixes=INLINE_COMMENT_PREFIXES
+        )
         with open(path, encoding="utf-8") as file:
             parser.read_file(file)
         warnings: list[str] = []
@@ -491,11 +502,12 @@ class Settings:
         coder.comment(0, "freely: values and unknown keys are kept, but these comments are regenerated.")
         for section in self.sections():
             coder.new_line()
-            coder.comment(0, section.title)
             coder.add(0, f"[{section.name}]")
+            coder.comment(0, section.title)
             for field in section.fields():
-                coder.comment(0, field.comment())
-                coder.add(0, f"{field.name} = {field.format(getattr(section, field.name))}")
+                option = f"{field.name} = {field.format(getattr(section, field.name))}"
+                padding = max(COMMENT_COLUMN - len(option), 2)
+                coder.add(0, f"{option}{' ' * padding}# {field.comment()}")
             for key, text in self.extras.get(section.name, {}).items():
                 coder.add(0, f"{key} = {text}")
         for name, values in self.extras.items():

@@ -18,6 +18,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from navigator import filecopy
 from navigator.filecopy import ASK, CHECK_FREE, MOVE, OVERWRITE, PRESERVE, CopyRequest
+from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.copy_dialog import CopyDialog
 from navigator.widgets.file_ops.copy_dialog import copy_dialog as copy_dialog_module
 from navigator.widgets.file_ops.copy_dialog.copy_dialog import prompt_for, target_for
@@ -251,7 +252,9 @@ def test_f5_asks_before_overwriting(two):
 
 
 def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
+    """With *Create non-existing dir* ticked in Confirmations -- not DN's default."""
     a, b = two
+    SETTINGS.confirmations.create_dir = True
 
     async def main():
         shell = Shell(a, b)
@@ -280,6 +283,33 @@ def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
     assert prompt.startswith("Would you like to create directory")
     assert buttons == ["~Y~es", "~N~o"]
     assert after is None
+    assert (b / "new" / "one.txt").read_text() == "one"
+
+
+def test_f5_to_a_missing_directory_creates_it_unasked_by_default(two):
+    """DN's default ``Confirms`` leaves ``cfCreateSubdir`` out."""
+    a, b = two
+
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await asyncio.sleep(0.1)
+        manager = shell.manager
+        manager.left.cursor = next(
+            i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
+        )
+        app.post_event(KeyEvent("f5"))
+        await asyncio.sleep(0.06)
+        app.modal.target.value = str(b / "new") + "/"
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.4)
+        after = app.modal
+        app.exit()
+        await task
+        return after
+
+    assert asyncio.run(main()) is None
     assert (b / "new" / "one.txt").read_text() == "one"
 
 
