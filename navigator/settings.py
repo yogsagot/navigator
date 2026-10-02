@@ -1,0 +1,541 @@
+"""Navigator's settings: ``navigator.ini``, and the one object that holds them.
+
+DOS Navigator kept its setup in ``DN.CFG``, a binary file of tagged records
+(``DNUTIL.PAS``'s ``WriteConfig``, the records in ``STARTUP.PAS``).  **Storing
+them as an ini file is a departure**: a text file under ``~/.config`` is what a
+POSIX user expects to read, edit and keep in a dotfiles repository, and a
+record layout copied byte for byte from Turbo Pascal would be none of those.
+
+What is DN's is everything else.  The sections are DN's setup records, one
+per *Options > Configuration* dialog, and their fields are those dialogs'
+check boxes and lines **in the dialog's order**, so a dialog maps item *i* of
+its ``CheckBoxes`` to field *i* (:meth:`Section.to_bits`).  The items that
+only meant something on DOS -- XMS/EMS, video modes, overlays, Int28, the CD
+player, the per-drive list -- are left out of both.
+
+How it works:
+
+* :data:`SETTINGS` is the one instance, the way :data:`navml.history.HISTORY`
+  is.  ``main()`` loads it before anything is built; tests reset it.
+* Every field is a navkit reactive attribute, so markup can bind to one
+  (``visible: SETTINGS.interface.clock``) and follows a dialog's OK at once.
+  That replaces DN's ``cmUpdateConfig`` broadcast.
+* The schema is the class body: the attribute's name is the ini key, the
+  default's type is how the value is read, and :class:`Setting`'s *doc* is the
+  comment written above it.
+* :meth:`Settings.save` writes through :class:`navml.coder.Coder`, to a
+  temporary file renamed over the old one.  Saving one section re-reads the
+  file first and replaces only that section, so an edit made by hand while
+  Navigator runs survives a dialog's OK.  Keys and sections it does not know
+  are carried over, but comments written by hand are not: the generated ones
+  replace them.
+"""
+
+from __future__ import annotations
+
+import configparser
+import contextlib
+import os
+import tempfile
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+from typing import Any, ClassVar
+
+from navkit.reactive import Reactive
+from navml.coder import Coder
+
+#: The file's name, in the directory :func:`config_dir` names.
+FILE_NAME = "navigator.ini"
+
+
+def config_dir() -> Path:
+    """``$XDG_CONFIG_HOME/navigator``, or ``~/.config/navigator`` without one.
+
+    The XDG Base Directory rule, which macOS terminal tools follow as well;
+    an unset or relative ``XDG_CONFIG_HOME`` is ignored, as the spec says.
+    """
+    base = os.environ.get("XDG_CONFIG_HOME", "")
+    root = Path(base) if base and os.path.isabs(base) else Path.home() / ".config"
+    return root / "navigator"
+
+
+def config_path() -> Path:
+    """Where ``navigator.ini`` lives unless ``--config`` says otherwise."""
+    return config_dir() / FILE_NAME
+
+
+class Setting(Reactive):
+    """One key of ``navigator.ini``: a reactive attribute that knows how to be written.
+
+    *doc* is the comment above the key.  *choices* limits a string to a set of
+    words.  *honoured* false says nothing reads the setting yet, which the
+    comment then tells whoever edits the file.
+    """
+
+    def __init__(
+        self,
+        default: bool | int | str,
+        *,
+        doc: str,
+        choices: tuple[str, ...] | None = None,
+        honoured: bool = True,
+    ) -> None:
+        super().__init__(default)
+        self.doc = doc
+        self.choices = choices
+        self.honoured = honoured
+
+    def parse(self, text: str) -> bool | int | str:
+        """*text* as this key's type; ``ValueError`` if it is not one."""
+        text = text.strip()
+        if isinstance(self.default, bool):
+            value = configparser.ConfigParser.BOOLEAN_STATES.get(text.lower())
+            if value is None:
+                raise ValueError(f"expected yes or no, not {text!r}")
+            return value
+        if isinstance(self.default, int):
+            return int(text)
+        if self.choices is not None:
+            word = text.lower()
+            if word not in self.choices:
+                raise ValueError(f"expected one of {', '.join(self.choices)}, not {text!r}")
+            return word
+        return text
+
+    def format(self, value: Any) -> str:
+        """*value* as the ini file spells it."""
+        if isinstance(value, bool):
+            return "yes" if value else "no"
+        return str(value)
+
+    def comment(self) -> str:
+        text = self.doc
+        if self.choices is not None:
+            text += f" ({' / '.join(self.choices)})"
+        if not self.honoured:
+            text += " -- stored, not yet honoured"
+        return text
+
+
+class Section:
+    """One ``[section]`` of the file, and one DN setup record."""
+
+    #: The ``[name]`` in the file and the attribute on :class:`Settings`.
+    name: ClassVar[str] = ""
+    #: The comment above the section header: what DN called the dialog.
+    title: ClassVar[str] = ""
+
+    @classmethod
+    def fields(cls) -> list[Setting]:
+        """Every :class:`Setting` of this section, in declaration order."""
+        found: dict[str, Setting] = {}
+        for klass in reversed(cls.__mro__):
+            for key, value in vars(klass).items():
+                if isinstance(value, Setting):
+                    found[key] = value
+        return list(found.values())
+
+    @classmethod
+    def field(cls, key: str) -> Setting | None:
+        value = getattr(cls, key, None)
+        return value if isinstance(value, Setting) else None
+
+    def values(self) -> dict[str, Any]:
+        return {field.name: getattr(self, field.name) for field in self.fields()}
+
+    def update(self, values: Mapping[str, Any]) -> None:
+        """Assign *values* by key; each a reactive write, so bindings follow."""
+        for key, value in values.items():
+            if self.field(key) is None:
+                raise KeyError(f"[{self.name}] has no setting {key!r}")
+            setattr(self, key, value)
+
+    def reset(self) -> None:
+        for field in self.fields():
+            setattr(self, field.name, field.default)
+
+    def to_bits(self, names: Iterable[str]) -> int:
+        """The boolean fields *names* as a ``CheckBoxes.value``: bit *i* is name *i*."""
+        return sum(1 << i for i, name in enumerate(names) if getattr(self, name))
+
+    @staticmethod
+    def from_bits(names: Iterable[str], bits: int) -> dict[str, bool]:
+        """A ``CheckBoxes.value`` back into ``{name: ticked}``."""
+        return {name: bool(bits >> i & 1) for i, name in enumerate(names)}
+
+
+# -- the sections ---------------------------------------------------------------
+
+
+class AppearanceData(Section):
+    """What the command line's flags set, which DN kept under *Colors*.
+
+    A flag still wins for the session it is given in, and is never written
+    back here.
+    """
+
+    name = "appearance"
+    title = "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags"
+
+    theme: str = Setting("default", doc="Colour scheme, one of `nav --list-themes`")
+    palette: str = Setting(
+        "dos", choices=("dos", "terminal"),
+        doc="What a colour name means: DN's VGA value, or the terminal's own scheme",
+    )
+    glyphs: str = Setting(
+        "auto", choices=("auto", "ascii", "unicode", "nerd"),
+        doc="Which characters the terminal's font draws",
+    )
+    dim_modal: bool = Setting(True, doc="Paint what lies behind a dialog faint")
+
+
+class SystemData(Section):
+    """``dlgSystemSetup`` / ``TSystemData``."""
+
+    name = "system"
+    title = "Options > Configuration > System Setup (DN's dlgSystemSetup)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = (
+        "internal_editor", "internal_viewer", "system_clipboard", "show_hidden",
+        "fast_execution", "advanced_copy", "flush_buffers",
+    )
+
+    internal_editor: bool = Setting(True, doc="F4 opens the internal editor; off runs $EDITOR")
+    internal_viewer: bool = Setting(True, doc="F3 opens the internal viewer; off runs $PAGER")
+    system_clipboard: bool = Setting(False, doc="Use the system clipboard", honoured=False)
+    #: DN's default was off; Navigator's panels have always shown them.
+    show_hidden: bool = Setting(True, doc="A new panel shows hidden files (Ctrl+H toggles one)")
+    fast_execution: bool = Setting(False, doc='"Fast" command execution', honoured=False)
+    advanced_copy: bool = Setting(True, doc="Advanced copy", honoured=False)
+    flush_buffers: bool = Setting(True, doc="Flush disk buffers after writing", honoured=False)
+    temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR", honoured=False)
+
+
+class StartupData(Section):
+    """``dlgStartupSetup`` / ``TStartupData``: its Load, Unload and Slice words."""
+
+    name = "startup"
+    title = "Options > Configuration > Startup (DN's dlgStartupSetup)"
+
+    STARTUP: ClassVar[tuple[str, ...]] = ("auto_user_menu", "clear_history")
+    SHUTDOWN: ClassVar[tuple[str, ...]] = (
+        "inactivity_exit", "autosave_desktop", "enable_blinking", "preserve_directory",
+    )
+    TIMESLICING: ClassVar[tuple[str, ...]] = ("sleep_when_inactive",)
+
+    auto_user_menu: bool = Setting(False, doc="Auto run the User Menu", honoured=False)
+    clear_history: bool = Setting(False, doc="Clear history on startup", honoured=False)
+    inactivity_exit: bool = Setting(False, doc="Exit after an hour of inactivity", honoured=False)
+    autosave_desktop: bool = Setting(False, doc="Save the desktop on exit", honoured=False)
+    enable_blinking: bool = Setting(False, doc="Enable blinking", honoured=False)
+    preserve_directory: bool = Setting(
+        False, doc="Leave the shell in the active panel's directory", honoured=False,
+    )
+    sleep_when_inactive: bool = Setting(False, doc="Sleep when inactive", honoured=False)
+
+
+class InterfaceData(Section):
+    """``dlgInterfaceSetup`` / ``TInterfaceData.Options``."""
+
+    name = "interface"
+    title = "Options > Configuration > Interface (DN's dlgInterfaceSetup)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = (
+        "clock", "hide_menu_bar", "hide_status_line", "esc_user_screen",
+        "hide_command_line", "auto_hide_command_line", "block_insert_cursor",
+        "store_editor_position", "store_viewer_position", "track_editing",
+        "track_viewing", "track_directories",
+    )
+
+    clock: bool = Setting(True, doc="Show the clock at the menu bar's right end")
+    #: DN's default hid it; Navigator has always shown it.
+    hide_menu_bar: bool = Setting(False, doc="Hide the menu bar until F10", honoured=False)
+    hide_status_line: bool = Setting(False, doc="Hide the key bar")
+    esc_user_screen: bool = Setting(False, doc="Esc shows the console", honoured=False)
+    hide_command_line: bool = Setting(False, doc="Hide the command line", honoured=False)
+    auto_hide_command_line: bool = Setting(
+        False, doc="Hide the command line while it is empty", honoured=False,
+    )
+    block_insert_cursor: bool = Setting(False, doc="Block cursor for insert mode", honoured=False)
+    store_editor_position: bool = Setting(False, doc="Store the editor's position", honoured=False)
+    store_viewer_position: bool = Setting(False, doc="Store the viewer's position", honoured=False)
+    track_editing: bool = Setting(False, doc="Track editing history", honoured=False)
+    track_viewing: bool = Setting(False, doc="Track viewing history", honoured=False)
+    track_directories: bool = Setting(False, doc="Track directories", honoured=False)
+
+
+class ConfirmsData(Section):
+    """``dlgConfirmations`` / the ``Confirms`` word."""
+
+    name = "confirmations"
+    title = "Options > Configuration > Confirmations (DN's dlgConfirmations)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = (
+        "erase_single", "erase_multiple", "erase_non_empty_dir", "erase_read_only",
+        "create_dir", "drag_and_drop", "exit",
+    )
+
+    erase_single: bool = Setting(True, doc="Ask before erasing a single file")
+    erase_multiple: bool = Setting(True, doc="Ask before erasing several files")
+    erase_non_empty_dir: bool = Setting(True, doc="Ask before erasing a non-empty directory")
+    erase_read_only: bool = Setting(True, doc="Ask before erasing a read-only file")
+    create_dir: bool = Setting(False, doc="Ask before creating a missing target directory")
+    drag_and_drop: bool = Setting(False, doc="Ask before drag-and-drop operations", honoured=False)
+    exit: bool = Setting(True, doc="Ask before quitting Navigator")
+
+
+class EditorDefaultsData(Section):
+    """``dlgEditorDefaults``' editor half / ``TEditorDefaultsData``."""
+
+    name = "editor"
+    title = "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = (
+        "create_backup", "backspace_unindents", "auto_brackets", "auto_indent",
+        "autowrap", "justify_on_wrap", "vertical_blocks", "optimal_fill",
+        "highlight_line", "highlight_column", "persistent_blocks",
+        "overwrite_blocks", "lock_file",
+    )
+    LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("crlf", "cr", "lf")
+
+    create_backup: bool = Setting(False, doc="Create backup files", honoured=False)
+    backspace_unindents: bool = Setting(True, doc="Backspace unindents", honoured=False)
+    auto_brackets: bool = Setting(False, doc="Close brackets as they are typed", honoured=False)
+    auto_indent: bool = Setting(True, doc="Auto indent", honoured=False)
+    autowrap: bool = Setting(False, doc="Wrap at the right margin", honoured=False)
+    justify_on_wrap: bool = Setting(False, doc="Justify on wrap", honoured=False)
+    vertical_blocks: bool = Setting(False, doc="Column blocks rather than stream ones")
+    optimal_fill: bool = Setting(False, doc="Optimal fill with tabs", honoured=False)
+    highlight_line: bool = Setting(False, doc="Highlight the cursor's line", honoured=False)
+    highlight_column: bool = Setting(False, doc="Highlight the cursor's column", honoured=False)
+    persistent_blocks: bool = Setting(True, doc="Persistent blocks", honoured=False)
+    overwrite_blocks: bool = Setting(False, doc="Typing overwrites a block", honoured=False)
+    lock_file: bool = Setting(False, doc="Lock the file being edited", honoured=False)
+    left_margin: int = Setting(0, doc="Left margin", honoured=False)
+    right_margin: int = Setting(78, doc="Right margin", honoured=False)
+    paragraph: int = Setting(5, doc="Paragraph indent", honoured=False)
+    #: DN's default was CR+LF; on POSIX a new line is LF.
+    line_divisor: str = Setting(
+        "lf", choices=LINE_DIVISORS, doc="Line ending of a new file", honoured=False,
+    )
+    tab_size: int = Setting(8, doc="Tab size")
+
+
+class ViewerDefaultsData(Section):
+    """``dlgEditorDefaults``' viewer half / ``ViOpt``."""
+
+    name = "viewer"
+    title = "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = ("hex_mode", "wrap_lines")
+
+    hex_mode: bool = Setting(False, doc="F3 opens in hex mode")
+    wrap_lines: bool = Setting(False, doc="Wrap long lines")
+
+
+class FMSetupData(Section):
+    """``dlgFMSetup`` / ``TFMSetup``."""
+
+    name = "file_manager"
+    title = "Options > File Manager > Setup (DN's dlgFMSetup)"
+
+    BEHAVIOR: ClassVar[tuple[str, ...]] = (
+        "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
+        "space_toggles_selection", "del_erases", "use_arrows", "alt_difference",
+        "ctrl_difference", "bs_upper_dir", "keep_descriptions",
+    )
+    DISPLAY: ClassVar[tuple[str, ...]] = (
+        "column_titles", "drive_line", "info_divider", "tag_character",
+    )
+    QUICK_SEARCH: ClassVar[tuple[str, ...]] = ("alt", "ctrl", "caps")
+
+    auto_change_dir: bool = Setting(True, doc="Auto change directory", honoured=False)
+    drag_drop_columns: bool = Setting(False, doc="Drag-and-drop from columns", honoured=False)
+    beep_after_copy: bool = Setting(False, doc="Beep after copy", honoured=False)
+    enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
+    space_toggles_selection: bool = Setting(True, doc="Space toggles selection", honoured=False)
+    del_erases: bool = Setting(True, doc="Del erases files", honoured=False)
+    use_arrows: bool = Setting(True, doc="Use the arrow keys", honoured=False)
+    alt_difference: bool = Setting(False, doc="Alt difference", honoured=False)
+    ctrl_difference: bool = Setting(False, doc="Ctrl difference", honoured=False)
+    #: DN's default was off; Navigator's Backspace has always gone up.
+    bs_upper_dir: bool = Setting(True, doc="Backspace goes to the parent directory", honoured=False)
+    keep_descriptions: bool = Setting(False, doc="Do not kill descriptions", honoured=False)
+    column_titles: bool = Setting(True, doc="Column titles", honoured=False)
+    drive_line: bool = Setting(True, doc="Drive line", honoured=False)
+    info_divider: bool = Setting(True, doc="Info divider", honoured=False)
+    tag_character: bool = Setting(True, doc="Tag character", honoured=False)
+    quick_search: str = Setting("alt", choices=QUICK_SEARCH, doc="Quick search key", honoured=False)
+    tag_sign: str = Setting("√", doc="Tag sign", honoured=False)
+    description_files: str = Setting(
+        "descript.ion;files.bbs", doc="Files with descriptions", honoured=False,
+    )
+
+
+class PanelDefaultsData(Section):
+    """``dlgFMDefaults`` / ``TPanelDefaultsData``: *New Manager defaults*."""
+
+    name = "panel_defaults"
+    title = "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)"
+
+    SORT_BY: ClassVar[tuple[str, ...]] = ("name", "extension", "size", "time", "group", "unsorted")
+    DISPLAY: ClassVar[tuple[str, ...]] = (
+        "directory_length", "current_file", "selected_files", "totals",
+        "free_space", "files_highlight", "executables_first", "archives_first",
+    )
+    LEFT_PANEL: ClassVar[tuple[str, ...]] = ("drive", "info", "tree", "absent")
+
+    #: DN's default was the extension; Navigator's panels sort by name.
+    sort_by: str = Setting("name", choices=SORT_BY, doc="Sort by", honoured=False)
+    directory_length: bool = Setting(False, doc="Directory length", honoured=False)
+    current_file: bool = Setting(True, doc="Current file", honoured=False)
+    selected_files: bool = Setting(True, doc="Selected files", honoured=False)
+    totals: bool = Setting(False, doc="Totals", honoured=False)
+    free_space: bool = Setting(True, doc="Free space", honoured=False)
+    files_highlight: bool = Setting(True, doc="Files highlight", honoured=False)
+    executables_first: bool = Setting(True, doc="Executables first", honoured=False)
+    archives_first: bool = Setting(True, doc="Archives first", honoured=False)
+    left_panel: str = Setting(
+        "drive", choices=LEFT_PANEL, doc="Left panel in a new Manager", honoured=False,
+    )
+
+
+# -- the whole file ---------------------------------------------------------------
+
+#: Every section, in the order the file lists them.
+SECTIONS: tuple[type[Section], ...] = (
+    AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
+    EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
+)
+
+
+class Settings:
+    """Every section, plus what the file held that no section claims."""
+
+    appearance: AppearanceData
+    system: SystemData
+    startup: StartupData
+    interface: InterfaceData
+    confirmations: ConfirmsData
+    editor: EditorDefaultsData
+    viewer: ViewerDefaultsData
+    file_manager: FMSetupData
+    panel_defaults: PanelDefaultsData
+
+    def __init__(self) -> None:
+        for cls in SECTIONS:
+            setattr(self, cls.name, cls())
+        #: ``{section: {key: text}}`` the file held and no :class:`Setting` claims,
+        #: kept verbatim so a save does not lose them.
+        self.extras: dict[str, dict[str, str]] = {}
+        #: The file this was last loaded from or saved to.
+        self.path: Path | None = None
+
+    def sections(self) -> list[Section]:
+        return [getattr(self, cls.name) for cls in SECTIONS]
+
+    def section(self, name: str) -> Section:
+        for section in self.sections():
+            if section.name == name:
+                return section
+        raise KeyError(name)
+
+    def reset(self) -> None:
+        """Every setting back to its default, and nothing remembered of a file."""
+        for section in self.sections():
+            section.reset()
+        self.extras = {}
+        self.path = None
+
+    # -- reading -------------------------------------------------------------------
+
+    def load(self, path: Path) -> list[str]:
+        """Read *path* over the current values; one warning per line that will not do.
+
+        A missing key keeps what it had, and a value that does not parse keeps
+        it too -- a typo in the file must not stop Navigator starting.  A file
+        that is not an ini file at all raises ``configparser.Error``.
+        """
+        parser = configparser.ConfigParser(interpolation=None)
+        with open(path, encoding="utf-8") as file:
+            parser.read_file(file)
+        warnings: list[str] = []
+        extras: dict[str, dict[str, str]] = {}
+        known = {cls.name: cls for cls in SECTIONS}
+        for name in parser.sections():
+            cls = known.get(name)
+            if cls is None:
+                extras[name] = dict(parser.items(name))
+                continue
+            section = self.section(name)
+            for key, text in parser.items(name):
+                field = cls.field(key)
+                if field is None:
+                    extras.setdefault(name, {})[key] = text
+                    continue
+                try:
+                    setattr(section, key, field.parse(text))
+                except ValueError as error:
+                    warnings.append(f"{path}: [{name}] {key}: {error}; using {field.format(field.default)}")
+        self.extras = extras
+        self.path = Path(path)
+        return warnings
+
+    # -- writing -------------------------------------------------------------------
+
+    def render(self) -> str:
+        """The whole file, comments and all."""
+        coder = Coder("ini")
+        coder.comment(0, "Navigator settings.")
+        coder.comment(0, "Read when nav starts, and rewritten by the dialogs under Options. Edit it")
+        coder.comment(0, "freely: values and unknown keys are kept, but these comments are regenerated.")
+        for section in self.sections():
+            coder.new_line()
+            coder.comment(0, section.title)
+            coder.add(0, f"[{section.name}]")
+            for field in section.fields():
+                coder.comment(0, field.comment())
+                coder.add(0, f"{field.name} = {field.format(getattr(section, field.name))}")
+            for key, text in self.extras.get(section.name, {}).items():
+                coder.add(0, f"{key} = {text}")
+        for name, values in self.extras.items():
+            if any(cls.name == name for cls in SECTIONS):
+                continue
+            coder.new_line()
+            coder.add(0, f"[{name}]")
+            for key, text in values.items():
+                coder.add(0, f"{key} = {text}")
+        return coder.render()
+
+    def save(self, path: Path | None = None, section: str | None = None) -> Path:
+        """Write the file; with *section*, only that section's values replace the file's.
+
+        The file on disk is read first in that case, so whatever was edited in
+        it by hand since Navigator started is what the other sections keep.
+        Written to a temporary file in the same directory and renamed over the
+        old one, so a crash mid-write leaves the old file whole.
+        """
+        target = Path(path) if path is not None else self.path or config_path()
+        content = self
+        if section is not None and target.exists():
+            content = Settings()
+            content.load(target)
+            content.section(section).update(self.section(section).values())
+        target.parent.mkdir(parents=True, exist_ok=True)
+        descriptor, temporary = tempfile.mkstemp(
+            dir=target.parent, prefix=f".{target.name}.", suffix=".tmp"
+        )
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as file:
+                file.write(content.render())
+            os.replace(temporary, target)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                os.unlink(temporary)
+            raise
+        self.path = target
+        return target
+
+
+#: The settings, shared by everything that reads one.
+SETTINGS = Settings()

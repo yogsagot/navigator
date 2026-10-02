@@ -63,6 +63,7 @@ from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
 from navigator.editor.document import BREAK, Document, Pos
 from navigator.editor.save import write_file
+from navigator.settings import SETTINGS
 
 #: DN's ``BreakChars`` (``ADVANCE.PAS``): what ends a word for Ctrl+Left,
 #: Ctrl+Right and the word deletes.
@@ -177,7 +178,8 @@ class FileEditor(Widget):
         super().__init__(**kwargs)
         self.buffer = EditBuffer()
         #: Where a Tab stops, and how far a tab character reaches.
-        self.tab_size = columns.TAB
+        self.tab_size = SETTINGS.editor.tab_size
+        self.vertical_blocks = SETTINGS.editor.vertical_blocks
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True

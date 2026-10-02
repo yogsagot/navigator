@@ -1,0 +1,94 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Options > File Manager > Setup: DOS Navigator's ``dlgFMSetup``.
+#:
+#: The resource whole and where it put it: *Behavior* down the left,
+#: *Display*, *Quick search* and the tag sign down the right, and the
+#: description files across the bottom.  Three columns wider than DN's 57;
+#: Help is left out, having nothing to show yet.
+FMSetupDialog(Dialog):
+    modal_width: 60
+    modal_height: 21
+    title: "File Manager Setup"
+
+    Label:
+        id: behavior_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "Behavior"
+        link: behavior
+
+    CheckBoxes:
+        id: behavior
+        x: 2
+        y: 2
+        width: 33
+        height: 11
+        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ~/~→ keys", "~A~lt difference", "~C~trl difference", "BS - go to ~u~pper directory", "Do not kill descriptions"]
+
+    Label:
+        id: display_caption
+        x: 37
+        y: 1
+        width: 12
+        height: 1
+        text: "Display"
+        link: display
+
+    CheckBoxes:
+        id: display
+        x: 37
+        y: 2
+        width: max(0, parent.width - 39)
+        height: 4
+        items: ["Colu~m~n titles", "Drive ~l~ine", "~I~nfo divider", "~T~ag character"]
+
+    Label:
+        id: quick_caption
+        x: 37
+        y: 7
+        width: 14
+        height: 1
+        text: "Quick search"
+        link: quick_search
+
+    RadioButtons:
+        id: quick_search
+        x: 37
+        y: 8
+        width: max(0, parent.width - 39)
+        height: 3
+        items: ["Si~n~gle Alt", "Single Ct~r~l", "Caps~+~Char"]
+
+    Field:
+        id: tag_sign
+        x: 37
+        y: 12
+        width: 16
+        height: 1
+        label_text: "Ta~g~ sign:"
+        label_width: 12
+
+    Label:
+        id: description_caption
+        x: 2
+        y: 14
+        width: 28
+        height: 1
+        text: "Files ~w~ith descriptions"
+        link: description_files.entry
+
+    Field:
+        id: description_files
+        x: 2
+        y: 15
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0

@@ -1,0 +1,50 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Options > Configuration > System Setup: DOS Navigator's ``dlgSystemSetup``.
+#:
+#: The resource's *Options* and *Temporary directory*, less what only meant
+#: something on DOS -- *Disable XMS/EMS usage*, *OS-dependent Disk Access*,
+#: *Clear read-only from CD*, the two video modes and the per-drive list --
+#: so it is eight rows shorter.  Help is left out, having nothing to show yet.
+SystemSetupDialog(Dialog):
+    modal_width: 60
+    modal_height: 14
+    title: "System Setup"
+
+    Label:
+        id: options_caption
+        x: 3
+        y: 1
+        width: 12
+        height: 1
+        text: "~O~ptions"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 2
+        width: max(0, parent.width - 6)
+        height: 4
+        items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", '"~F~ast" command execution', "Advanced copy", "Flush disk buffers"]
+
+    Label:
+        id: temp_caption
+        x: 3
+        y: 7
+        width: 24
+        height: 1
+        text: "~T~emporary directory"
+        link: temp_dir.entry
+
+    Field:
+        id: temp_dir
+        x: 3
+        y: 8
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: ""
+        label_width: 0

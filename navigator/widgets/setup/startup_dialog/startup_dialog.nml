@@ -1,0 +1,64 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Options > Configuration > Startup: DOS Navigator's ``dlgStartupSetup``.
+#:
+#: The resource's three groups, less what only meant something on DOS --
+#: *Restore screen mode*, the two overlay boxes, *Force* and *Restore VGA
+#: palette*, *DOS Idle (Int28)* and the overlay buffer's size.
+StartupDialog(Dialog):
+    modal_width: 60
+    modal_height: 15
+    title: "Startup"
+
+    Label:
+        id: startup_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "Startup options"
+        link: startup
+
+    CheckBoxes:
+        id: startup
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["Auto run ~U~ser Menu", "Clear ~H~istory"]
+
+    Label:
+        id: shutdown_caption
+        x: 2
+        y: 4
+        width: 20
+        height: 1
+        text: "Shutdown options"
+        link: shutdown
+
+    CheckBoxes:
+        id: shutdown
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 2
+        items: ["~I~nactivity hour exit", "Autosave ~D~esktop", "Enable ~b~linking", "~P~reserve directory"]
+
+    Label:
+        id: timeslicing_caption
+        x: 2
+        y: 8
+        width: 20
+        height: 1
+        text: "Timeslicing options"
+        link: timeslicing
+
+    CheckBoxes:
+        id: timeslicing
+        x: 2
+        y: 9
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["~S~leep when inactive"]

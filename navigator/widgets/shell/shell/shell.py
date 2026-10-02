@@ -30,17 +30,25 @@ from navigator.widgets.shell.commands import (
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
+    EditorDefaults,
     ExecuteCommandLine,
+    FileManagerDefaults,
+    FileManagerSetup,
     InsertName,
     InsertPath,
+    InterfaceSetup,
     NewManager,
     OpenTreeWindow,
+    SetupConfirmation,
+    StartupSetup,
+    SystemSetup,
     ToggleMarkBySpace,
 )
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.scheme import default_scheme
+from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
 
 if TYPE_CHECKING:
@@ -81,6 +89,11 @@ class Shell(DockLayout):
             self.add_class("root")
         self.console.cwd = left
         self.console.subshell.on_finished = self._command_finished
+        # Options > Configuration > Interface: ``ouiClock`` and ``ouiHideStatus``.
+        # Bound here rather than in the markup, which evaluates a line that
+        # reads nothing of its widget once -- and these read only SETTINGS.
+        self.clock.visible = bind(lambda w: SETTINGS.interface.clock)
+        self.keybar.visible = bind(lambda w: not SETTINGS.interface.hide_status_line)
         #: Up and Down through the shell's history: the entries, where the walk
         #: is, what was typed before it began, and what it last put on the line.
         self._walk: tuple[list[str], int, str, str] | None = None
@@ -742,6 +755,79 @@ class Shell(DockLayout):
 
         self.spawn(AboutDialog().execute(self.application))
         return True
+
+    # -- Options: the setup dialogs ------------------------------------------------
+
+    async def on_system_setup(self, event: SystemSetup) -> bool:
+        from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+
+        self.spawn(self.setup(SystemSetupDialog(), "system"))
+        return True
+
+    async def on_startup_setup(self, event: StartupSetup) -> bool:
+        from navigator.widgets.setup.startup_dialog import StartupDialog
+
+        self.spawn(self.setup(StartupDialog(), "startup"))
+        return True
+
+    async def on_interface_setup(self, event: InterfaceSetup) -> bool:
+        from navigator.widgets.setup.interface_dialog import InterfaceDialog
+
+        self.spawn(self.setup(InterfaceDialog(), "interface"))
+        return True
+
+    async def on_setup_confirmation(self, event: SetupConfirmation) -> bool:
+        from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog
+
+        self.spawn(self.setup(ConfirmationsDialog(), "confirmations"))
+        return True
+
+    async def on_editor_defaults(self, event: EditorDefaults) -> bool:
+        from navigator.widgets.setup.editor_defaults_dialog import EditorDefaultsDialog
+
+        self.spawn(self.setup(EditorDefaultsDialog(), "editor", "viewer"))
+        return True
+
+    async def on_file_manager_setup(self, event: FileManagerSetup) -> bool:
+        from navigator.widgets.setup.fm_setup_dialog import FMSetupDialog
+
+        self.spawn(self.setup(FMSetupDialog(), "file_manager"))
+        return True
+
+    async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:
+        from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+
+        self.spawn(self.setup(FMDefaultsDialog(), "panel_defaults"))
+        return True
+
+    async def setup(self, dialog: Any, *sections: str) -> None:
+        """Run a setup *dialog*, then apply what it accepted and save it.
+
+        DN's ``ExecResource`` and ``cmUpdateConfig`` in one: the values are
+        assigned to :data:`SETTINGS`, whose bindings repaint whatever shows
+        them, and each section is written back to ``navigator.ini`` -- that
+        section alone, over whatever the file holds now.  A dialog over one
+        section answers that section's values; over several, a dict of them
+        by section name.  A file that cannot be written is said so, and the
+        values stay applied for this session.
+        """
+        answer = await dialog.execute(self.application)
+        if answer is None:
+            return
+        changes = answer if len(sections) > 1 else {sections[0]: answer}
+        for name in sections:
+            SETTINGS.section(name).update(changes[name])
+        try:
+            for name in sections:
+                SETTINGS.save(section=name)
+        except OSError as error:
+            from navml.widgets.dialog.dialog import Dialog
+
+            await Dialog(
+                title="Error",
+                prompt=f"Cannot save the settings: {error.strerror or error}",
+                buttons="ok",
+            ).execute(self.application)
 
     # -- the directory tree window --------------------------------------------
 

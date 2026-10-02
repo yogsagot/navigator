@@ -26,6 +26,8 @@ from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 import asyncio
+import os
+import shlex
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 from navkit.reactive import computed, effect, reactive, untracked
@@ -33,6 +35,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, Copy, Delete, DeleteSingle, Edit, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+from navigator.settings import SETTINGS
 
 
 class Manager(Window, _Component):
@@ -100,6 +103,7 @@ class Manager(Window, _Component):
     async def on_view_as_hex(self, event: ViewAsHex) -> bool: ...
     async def view(self, mode: str) -> None: ...
     async def on_edit(self, event: Edit) -> bool: ...
+    def run_external(self, variable: str, fallback: str) -> None: ...
     async def edit(self) -> None: ...
     def _remember_panel(self) -> None: ...
     active_panel: Panel

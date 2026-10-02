@@ -34,6 +34,7 @@ from navigator.widgets.viewer.commands import (
     Unwrap,
 )
 from navigator.viewer import SearchJob, ViewSearch
+from navigator.settings import SETTINGS
 
 #: How long a search runs before it shows its progress: DN's two timer ticks
 #: (``NewTimer(Tmr, 2)``) at 18.2 Hz.
@@ -55,6 +56,7 @@ class FileWindow(Window):
         # Seeded, never bound: the viewer navigates both.
         self.viewer.open(path)
         self.viewer.mode = mode
+        self.viewer.wrap = SETTINGS.viewer.wrap_lines
         if mode == "hex":
             self.viewer.cursor = 0
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.

@@ -193,6 +193,22 @@ def _forget_history():
 
 
 @pytest.fixture(autouse=True)
+def _default_settings(monkeypatch, tmp_path):
+    """Every test starts from the default settings, and none can touch ``~/.config``.
+
+    ``SETTINGS`` is shared like ``HISTORY``, and a setup dialog's OK saves to
+    ``config_path()`` -- which ``XDG_CONFIG_HOME`` here points into the test's
+    own temporary directory.
+    """
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    SETTINGS.reset()
+    yield
+    SETTINGS.reset()
+
+
+@pytest.fixture(autouse=True)
 def _repository_root(monkeypatch):
     """Run every test from the repository root, whatever pytest was started in.
 

@@ -44,6 +44,7 @@ Shell(DockLayout):
 
     #: Over the menu bar's right end, which is why it comes after it, and
     #: outside the docking altogether: it floats where its own lines put it.
+    #: Shown while Interface's *Clock* is ticked: bound in ``__init__``.
     Clock:
         id: clock
         x: max(0, parent.width - self.width)
@@ -58,6 +59,8 @@ Shell(DockLayout):
         id: desktop
         visible: not parent.console_visible
 
+    #: DN's status line, which Interface's *Hide status line* takes away
+    #: (bound in ``__init__``), and the dock then gives its row to the layers.
     KeyBar:
         id: keybar
         style:

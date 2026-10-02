@@ -1,0 +1,65 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Options > File Manager > New Manager defaults: DOS Navigator's ``dlgFMDefaults``.
+#:
+#: The resource whole: *Sort by* in three columns of two, *Display* in two
+#: of four, and what the left panel of a new file manager is.  Four columns
+#: wider than DN's 48; Help is left out, having nothing to show yet.
+FMDefaultsDialog(Dialog):
+    modal_width: 52
+    modal_height: 18
+    title: "Panel Defaults"
+
+    Label:
+        id: sort_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "Sort by"
+        link: sort_by
+
+    RadioButtons:
+        id: sort_by
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 2
+        items: ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "~G~roup", "~U~nsorted"]
+
+    Label:
+        id: display_caption
+        x: 2
+        y: 5
+        width: 12
+        height: 1
+        text: "Display"
+        link: display
+
+    CheckBoxes:
+        id: display
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 4
+        items: ["Director~y~ length", "~C~urrent file", "Se~l~ected files", "T~o~tals", "~F~ree space", "Files ~h~ighlight", "E~x~ecutable first", "~A~rchives first"]
+
+    Label:
+        id: left_caption
+        x: 2
+        y: 11
+        width: 40
+        height: 1
+        text: "Left panel in new Manager will be..."
+        link: left_panel
+
+    RadioButtons:
+        id: left_panel
+        x: 2
+        y: 12
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["~D~rive", "~I~nfo", "T~r~ee", "A~b~sent"]

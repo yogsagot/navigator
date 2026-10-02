@@ -16,6 +16,7 @@ importable by its own name, which is what ``manager.nml`` will need.
 from __future__ import annotations
 
 import argparse
+import configparser
 import sys
 from dataclasses import replace
 from importlib import metadata
@@ -32,8 +33,10 @@ from navkit.terminal import Terminal, is_a_tty
 from navigator import __version__
 from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
+from navigator.settings import SETTINGS, config_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
@@ -139,20 +142,27 @@ class Navigator(Application):
         return True
 
     async def on_quit(self, event: Quit) -> bool:
-        """Leave -- once every editor with a changed text has been asked.
+        """Leave -- once asked, and once every editor with a changed text has been.
 
-        ``cmQuit`` went through every window's ``Valid`` as ``cmClose`` did, so
-        one Cancel keeps Navigator running.  Asked from a task, for the reason
-        every dialog is.
+        ``cmQuit`` asked ``dlQueryExit`` first while *Exit confirmation* was
+        ticked in Confirmations (``cfExitConfirm``), then went through every
+        window's ``Valid`` as ``cmClose`` did, so one No or Cancel keeps
+        Navigator running.  Asked from a task, for the reason every dialog is.
         """
         desktop = self.shell.desktop
-        if any(window.must_ask() for window in desktop.windows()):
+        if SETTINGS.confirmations.exit or any(window.must_ask() for window in desktop.windows()):
             self.spawn(self._quit_asking())
             return True
         self.exit()
         return True
 
     async def _quit_asking(self) -> None:
+        if SETTINGS.confirmations.exit:
+            answer = await Dialog(
+                title="Exit", prompt="Do you wish to quit Navigator?", buttons="yes-no",
+            ).execute(self)
+            if answer is not True:
+                return
         desktop = self.shell.desktop
         for window in reversed(desktop.windows()):
             if window.parent is not desktop or not window.must_ask():
@@ -289,6 +299,26 @@ def version_banner() -> str:
     return f"nav {version} from {here} (python {python})"
 
 
+def load_settings(path: Path | None = None) -> None:
+    """Read the settings file into :data:`SETTINGS`, writing the defaults first if it is missing.
+
+    Here rather than in :class:`Navigator`, so an application built by a test
+    never touches the disk.  Every complaint goes to stderr before the screen
+    is taken, and none of them stops Navigator starting: a setting it cannot
+    read keeps its default, and a file it cannot write is simply not written.
+    """
+    path = path if path is not None else config_path()
+    try:
+        if not path.exists():
+            SETTINGS.save(path)
+        for warning in SETTINGS.load(path):
+            print(f"nav: {warning}", file=sys.stderr)
+    except (OSError, configparser.Error) as error:
+        print(f"nav: {path}: {error}; using the default settings", file=sys.stderr)
+        SETTINGS.reset()
+        SETTINGS.path = path
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="nav", description=__doc__)
     parser.add_argument("left", nargs="?", help="the directory the left panel opens")
@@ -298,8 +328,9 @@ def main(argv: list[str] | None = None) -> int:
         help="print the version, and which copy of Navigator is running",
     )
     parser.add_argument(
-        "--theme", default=DEFAULT_THEME, metavar="NAME",
-        help="a colour scheme from navigator/styles/themes (default: %(default)s)",
+        "--theme", default=None, metavar="NAME",
+        help="a colour scheme from navigator/styles/themes (default: the "
+             f"settings file's, else {DEFAULT_THEME})",
     )
     parser.add_argument(
         "--list-themes", action="store_true", help="print the theme names and exit",
@@ -308,13 +339,13 @@ def main(argv: list[str] | None = None) -> int:
         "--palette", choices=("dos", "terminal"), default=None,
         help="what a colour name in a theme means: the VGA register value DOS "
              "Navigator asked for (default), or whatever the terminal's own "
-             "scheme paints for it",
+             "scheme paints for it (default: the settings file's)",
     )
     parser.add_argument(
-        "--glyphs", choices=("auto", "ascii", "unicode", "nerd"), default="auto",
+        "--glyphs", choices=("auto", "ascii", "unicode", "nerd"), default=None,
         help="which characters the terminal's font can draw: `ascii' for plain "
              "+-| frames, `unicode' for box drawing, `nerd' to add a Nerd Font "
-             "icon beside each name (default: detect)",
+             "icon beside each name (default: the settings file's, else detect)",
     )
     parser.add_argument(
         "--reprogram-palette", action="store_true",
@@ -323,28 +354,46 @@ def main(argv: list[str] | None = None) -> int:
              "helps on a terminal that names no other colours",
     )
     parser.add_argument(
-        "--dim-modal", action=argparse.BooleanOptionalAction, default=True,
+        "--dim-modal", action=argparse.BooleanOptionalAction, default=None,
         help="paint what lies behind a dialog faint while the dialog is open "
-             "(default: on; experimental)",
+             "(default: the settings file's, else on; experimental)",
+    )
+    parser.add_argument(
+        "--config", metavar="PATH", type=Path, default=None,
+        help=f"the settings file to read and save (default: {config_path()})",
     )
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     if args.list_themes:
         print("\n".join(theme_names()))
         return 0
-    try:
-        scheme = load_scheme(args.theme)
-    except LookupError as exc:
-        parser.error(str(exc))
+    load_settings(args.config)
+    # A flag is this session's alone: it wins over the settings file and is
+    # never written back to it.
+    appearance = SETTINGS.appearance
+    if args.theme is not None:
+        try:
+            scheme = load_scheme(args.theme)
+        except LookupError as exc:
+            parser.error(str(exc))
+    else:
+        try:
+            scheme = load_scheme(appearance.theme)
+        except LookupError as exc:
+            print(f"nav: {SETTINGS.path}: {exc}; using {DEFAULT_THEME}", file=sys.stderr)
+            scheme = load_scheme(DEFAULT_THEME)
 
     # A theme that names its colours is transcribing a palette that left the
     # VGA registers alone, so `blue' means the value that adapter held and not
     # whatever this terminal calls blue -- which is why Navigator pins by
     # default where navkit, knowing nothing of DOS, does not.  Precedence runs
-    # flag, then NAVKIT_PALETTE, then that default; `detect' handles the last
-    # two, and an explicit flag is applied over its answer.
+    # flag, then NAVKIT_PALETTE, then the settings file, then that default;
+    # `detect' weighs the environment against the file's answer, and an
+    # explicit flag is applied over what it decides.
     info = TerminalInfo.detect(
-        is_tty=is_a_tty(sys.stdin, sys.stdout), palette=VGA_PALETTE
+        is_tty=is_a_tty(sys.stdin, sys.stdout),
+        palette=VGA_PALETTE if appearance.palette == "dos" else None,
+        glyphs=tier_named(appearance.glyphs),
     )
     if args.palette is not None:
         info = replace(
@@ -353,13 +402,14 @@ def main(argv: list[str] | None = None) -> int:
     # Same three-step precedence for the character repertoire, and the same
     # reason for spelling it out: `detect' has already weighed NAVKIT_GLYPHS
     # against what it found, so the flag is applied over that answer.
-    if args.glyphs != "auto":
+    if args.glyphs is not None and args.glyphs != "auto":
         info = replace(info, glyphs=tier_named(args.glyphs, info.glyphs))
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
     right = Path(args.right).expanduser().resolve() if args.right else left
-    Navigator(left, right, scheme, terminal=terminal, dim_modal=args.dim_modal).run()
+    dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
+    Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal).run()
     return 0
 
 

@@ -11,6 +11,8 @@ base the markup's ``Manager(Window):`` head asks for.
 from __future__ import annotations
 
 import asyncio
+import os
+import shlex
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -52,6 +54,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
+from navigator.settings import SETTINGS
 
 
 class Manager(Window):
@@ -528,7 +531,10 @@ class Manager(Window):
         if isinstance(question, filecopy.Overwrite):
             return await OverwriteQuery(question=question).execute(app)
         if isinstance(question, filecopy.CreateDirectory):
-            # DN's ``dlQueryCreateDir``.
+            # DN's ``dlQueryCreateDir``, asked only with *Create non-existing
+            # dir* ticked in Confirmations (``cfCreateSubdir``).
+            if not SETTINGS.confirmations.create_dir:
+                return True
             return await self._ask_yes_no(
                 f"Would you like to create directory {escape_caption(str(question.path))}?"
             ) is True
@@ -588,7 +594,17 @@ class Manager(Window):
             entries = self.selection(panel)
         if app is None or not entries:
             return
-        request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
+        # *Erase single file* and *Erase multiple files* in Confirmations
+        # (``cfSingleErase``, ``cfMultiErase``): unticked, there is no dialog,
+        # and so no *Recursive delete* either -- a non-empty directory is
+        # then asked about below, if that is ticked.
+        confirms = SETTINGS.confirmations
+        if confirms.erase_single if len(entries) == 1 else confirms.erase_multiple:
+            request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
+        else:
+            request = fileerase.EraseRequest(
+                sources=[Path(panel.path) / entry.name for entry in entries]
+            )
         if request is None:
             return
         job = fileerase.EraseJob()
@@ -616,6 +632,14 @@ class Manager(Window):
         from navigator import fileerase, filecopy
         from navigator.widgets.file_ops.erase_query import EraseQuery
 
+        # *Erase non-empty sub-dir* and *Erase read-only files* in
+        # Confirmations (``cfEraseSubdir``, ``cfEraseReadonly``): unticked,
+        # the answer is Yes without asking.
+        confirms = SETTINGS.confirmations
+        if isinstance(question, fileerase.NotEmpty) and not confirms.erase_non_empty_dir:
+            return fileerase.YES
+        if isinstance(question, fileerase.ReadOnly) and not confirms.erase_read_only:
+            return fileerase.YES
         if isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
             return await EraseQuery(question=question).execute(self.application)
         if isinstance(question, filecopy.Failure):
@@ -657,7 +681,7 @@ class Manager(Window):
         linked: set[str] = set()
         try:
             if destination.create:
-                if await self._ask_yes_no(
+                if SETTINGS.confirmations.create_dir and await self._ask_yes_no(
                     f"Would you like to create directory {escape_caption(str(destination.directory))}?"
                 ) is not True:
                     return
@@ -736,8 +760,15 @@ class Manager(Window):
             other.reload()
 
     async def on_view(self, event: View) -> bool:
-        """F3: ``cmFileView``, the selected file in a viewer window."""
-        self.spawn(self.view("text"))
+        """F3: ``cmFileView``, the selected file in a viewer window.
+
+        Or in ``$PAGER`` on the console, with *Internal viewer* off in System
+        Setup; and in hex from the start with the viewer's *Hex mode* on.
+        """
+        if not SETTINGS.system.internal_viewer:
+            self.run_external("PAGER", "less")
+            return True
+        self.spawn(self.view("hex" if SETTINGS.viewer.hex_mode else "text"))
         return True
 
     async def on_view_as_text(self, event: ViewAsText) -> bool:
@@ -775,9 +806,30 @@ class Manager(Window):
         desktop.open(window)
 
     async def on_edit(self, event: Edit) -> bool:
-        """F4: ``cmEditFile``, the selected file in an editor window."""
+        """F4: ``cmEditFile``, the selected file in an editor window.
+
+        Or in ``$EDITOR`` on the console, with *Internal editor* off in System
+        Setup -- where DN ran the editor its Options > Editors named.
+        """
+        if not SETTINGS.system.internal_editor:
+            self.run_external("EDITOR", "vi")
+            return True
         self.spawn(self.edit())
         return True
+
+    def run_external(self, variable: str, fallback: str) -> None:
+        """Run the program ``$variable`` names (or *fallback*) on the selected file.
+
+        As though it had been typed on the command line, so it runs on the
+        console with the keyboard, and the panels look again when it is done.
+        """
+        panel = self.active_panel
+        entry = panel.selected
+        shell = getattr(self.application, "shell", None)
+        if entry is None or entry.is_dir or shell is None:
+            return
+        program = os.environ.get(variable, "").strip() or fallback
+        shell.run_command(f"{program} {shlex.quote(str(panel.path / entry.name))}")
 
     async def edit(self) -> None:
         """Open the selected file in an editor on this window's desktop.

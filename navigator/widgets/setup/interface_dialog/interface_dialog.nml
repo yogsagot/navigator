@@ -1,0 +1,19 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+
+#: Options > Configuration > Interface: DOS Navigator's ``dlgInterfaceSetup``.
+#:
+#: The resource's twelve boxes in its two columns of six, at its width; Help
+#: is left out, having nothing to show yet.
+InterfaceDialog(Dialog):
+    modal_width: 60
+    modal_height: 12
+    title: "Interface Setup"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 6
+        items: ["~C~lock", "Hide ~m~enu bar", "Hide ~s~tatus line", "ESC for ~u~ser screen", "Hide Command ~L~ine", "~A~uto hide Command Line", "~B~lock Insert Cursor", "Store edi~t~or position", "Store vie~w~er position", "Track ~e~diting history", "Track ~v~iewing history", "Track ~d~irectories"]

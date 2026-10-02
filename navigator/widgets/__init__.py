@@ -19,8 +19,8 @@ remembering this line.
 The screens come in groups, by the rule *Components come in groups* in
 `navml/DESIGN.md` sets for the library: `shell/` (the root and what stands
 around the windows), `manager/` (the file manager and its panels),
-`file_ops/` (copy, move, link, mkdir and erase), `tree/`, `viewer/` and
-`editor/`, each a directory of components whose `__init__.py` is a docstring
+`file_ops/` (copy, move, link, mkdir and erase), `tree/`, `viewer/`,
+`editor/` and `setup/` (the Options dialogs), each a directory of components whose `__init__.py` is a docstring
 and imports nothing.  `about_dialog/` belongs to none and stays at the top.
 `_WIDGETS` maps a name to its dotted path, so `from navigator.widgets import
 Panel` does not care which group `Panel` is in.
@@ -48,6 +48,7 @@ _WIDGETS = {
     "AttrDialog": "file_ops.attr_dialog",
     "ChangeDirDialog": "tree.change_dir_dialog",
     "Clock": "shell.clock",
+    "ConfirmationsDialog": "setup.confirmations_dialog",
     "CopyDialog": "file_ops.copy_dialog",
     "CopyProgress": "file_ops.copy_progress",
     "CommandLine": "shell.command_line",
@@ -57,12 +58,16 @@ _WIDGETS = {
     "Console": "shell.console",
     "DirEntry": "manager.panel",
     "DirectoryTree": "tree.directory_tree",
+    "EditorDefaultsDialog": "setup.editor_defaults_dialog",
     "EditWindow": "editor.edit_window",
     "EraseQuery": "file_ops.erase_query",
     "FileEditor": "editor.file_editor",
     "FileViewer": "viewer.file_viewer",
     "FileWindow": "viewer.file_window",
+    "FMDefaultsDialog": "setup.fm_defaults_dialog",
+    "FMSetupDialog": "setup.fm_setup_dialog",
     "GotoDialog": "viewer.goto_dialog",
+    "InterfaceDialog": "setup.interface_dialog",
     "KeyBar": "shell.keybar",
     "LinkDialog": "file_ops.link_dialog",
     "MainMenu": "shell.main_menu",
@@ -74,6 +79,8 @@ _WIDGETS = {
     "SearchProgress": "viewer.search_progress",
     "SelectDialog": "manager.select_dialog",
     "Shell": "shell.shell",
+    "StartupDialog": "setup.startup_dialog",
+    "SystemSetupDialog": "setup.system_setup_dialog",
     "TreeWindow": "tree.tree_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
 }
@@ -129,3 +136,10 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.shell import Shell
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+    from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog
+    from navigator.widgets.setup.editor_defaults_dialog import EditorDefaultsDialog
+    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+    from navigator.widgets.setup.fm_setup_dialog import FMSetupDialog
+    from navigator.widgets.setup.interface_dialog import InterfaceDialog
+    from navigator.widgets.setup.startup_dialog import StartupDialog
+    from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog

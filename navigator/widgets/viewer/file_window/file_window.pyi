@@ -26,6 +26,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 import navigator.viewer as viewer_model
 from navigator.viewer import SearchJob, ViewSearch
+from navigator.settings import SETTINGS
 
 
 class FileWindow(Window, _Component):

@@ -1,0 +1,20 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+
+#: Options > Configuration > Confirmations: DOS Navigator's ``dlgConfirmations``.
+#:
+#: The resource's one column of boxes, less *Close CD player*, which has no
+#: drive to close here.  Four columns wider than DN's 36, for this library's
+#: eleven-column buttons; Help is left out, having nothing to show yet.
+ConfirmationsDialog(Dialog):
+    modal_width: 40
+    modal_height: 13
+    title: "Confirmations"
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 1
+        width: max(0, parent.width - 6)
+        height: 7
+        items: ["Erase ~s~ingle file", "Erase ~m~ultiple files", "Erase ~n~on-empty sub-dir", "Erase ~r~ead-only files", "~C~reate non-existing dir", "Drag~-~and~-~drop operations", "E~x~it confirmation"]

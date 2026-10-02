@@ -23,7 +23,7 @@ layered in three parts, each depending only on the one below:
   application; `navigator/widgets/` the screens, grouped by purpose (`shell/`, `manager/`, `file_ops/`, `tree/`,
   `viewer/`, `editor/`, `about_dialog/`); `navigator/scheme.py` the stylesheet loader; `navigator/styles/` the `.nss`
   assets. Models sit beside them (`viewer.py`, `editor/`, `filecopy.py`, `fileerase.py`, `fileattr.py`, `filelink.py`,
-  `job.py`, `subshell.py`, `filetypes.py`, `about.py`).
+  `job.py`, `subshell.py`, `filetypes.py`, `about.py`, `settings.py`).
 
 **The widgets are not in `__main__.py`** because that module is already in `sys.modules` as `__main__`, and
 `from navigator.__main__ import Panel` would import a second copy with a second `Panel` class. A widget a document
@@ -44,6 +44,9 @@ editor's phases, DN's TETRIS easter egg.
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw, `--no-dim-modal` stops what is behind a dialog being painted faint
+- Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
+  defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
+  flag wins over the file for that session and is never written back
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
@@ -140,6 +143,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |
+| `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |
 | `navigator-file-ops` | copy, move, symlink, erase, attributes, mkdir, jobs |
 | `release-packaging` | PyPI, version, `.deb`/`.rpm`, repositories, GPG, release workflow |
 | `dn-porting` | finding DN's source, naming after it, recording departures |

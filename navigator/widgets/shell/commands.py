@@ -106,3 +106,57 @@ __all__ = [
     "OpenTreeWindow",
     "ToggleMarkBySpace",
 ]
+
+
+# -- Options > Configuration and Options > File Manager ---------------------------
+#
+# Each opens one setup dialog over a section of ``navigator.ini``
+# (:mod:`navigator.settings`) and saves that section when it is accepted.
+
+
+class SystemSetup(Command):
+    """Options > Configuration > System Setup: DOS Navigator's ``cmSystemSetup``."""
+
+    title = "System Setup"
+
+
+class StartupSetup(Command):
+    """Options > Configuration > Startup: DOS Navigator's ``cmStartup``."""
+
+    title = "Startup"
+
+
+class InterfaceSetup(Command):
+    """Options > Configuration > Interface: DOS Navigator's ``cmInterfaceSetup``."""
+
+    title = "Interface"
+
+
+class SetupConfirmation(Command):
+    """Options > Configuration > Confirmations: DOS Navigator's ``cmSetupConfirmation``."""
+
+    title = "Confirmations"
+
+
+class EditorDefaults(Command):
+    """Options > Configuration > Editor/Viewer: DOS Navigator's ``cmEditorDefaults``."""
+
+    title = "Editor/Viewer"
+
+
+class FileManagerSetup(Command):
+    """Options > File Manager > Setup: DOS Navigator's ``cmFMSetup``.
+
+    Spelled out because ``FMSetup`` would be handled by ``on_f_m_setup``.
+    """
+
+    title = "File Manager Setup"
+
+
+class FileManagerDefaults(Command):
+    """Options > File Manager > New Manager defaults: DOS Navigator's ``cmFMDefaults``.
+
+    Spelled out for the reason :class:`FileManagerSetup` is.
+    """
+
+    title = "Panel Defaults"

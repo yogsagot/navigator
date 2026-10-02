@@ -1,0 +1,107 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Options > Configuration > Editor/Viewer: DOS Navigator's ``dlgEditorDefaults``.
+#:
+#: The resource's two clusters, four numbers and the line divisor, less *Use
+#: EMS memory* and *Use XMS memory*.  The numbers are three-digit masked lines
+#: rather than DN's free input lines, so nothing but a number goes in.  Four
+#: columns wider than DN's 52; Help is left out, having nothing to show yet.
+EditorDefaultsDialog(Dialog):
+    modal_width: 56
+    modal_height: 21
+    title: "Editor/Viewer Defaults"
+
+    Label:
+        id: editor_caption
+        x: 2
+        y: 1
+        width: 16
+        height: 1
+        text: "Editor options"
+        link: editor
+
+    CheckBoxes:
+        id: editor
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 7
+        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile"]
+
+    Label:
+        id: viewer_caption
+        x: 2
+        y: 10
+        width: 16
+        height: 1
+        text: "Viewer options"
+        link: viewer
+
+    CheckBoxes:
+        id: viewer
+        x: 2
+        y: 11
+        width: 20
+        height: 2
+        items: ["He~x~ mode", "~W~rap lines"]
+
+    MaskedField:
+        id: left_margin
+        x: 30
+        y: 10
+        width: 20
+        height: 1
+        label_text: "~L~eft margin"
+        label_width: 15
+        mask: "999"
+
+    MaskedField:
+        id: right_margin
+        x: 30
+        y: 11
+        width: 20
+        height: 1
+        label_text: "~R~ight margin"
+        label_width: 15
+        mask: "999"
+
+    MaskedField:
+        id: paragraph
+        x: 30
+        y: 12
+        width: 20
+        height: 1
+        label_text: "Para~g~raph"
+        label_width: 15
+        mask: "999"
+
+    MaskedField:
+        id: tab_size
+        x: 30
+        y: 14
+        width: 20
+        height: 1
+        label_text: "Tab si~z~e"
+        label_width: 15
+        mask: "999"
+
+    Label:
+        id: divisor_caption
+        x: 2
+        y: 14
+        width: 24
+        height: 1
+        text: "Line ~d~ivisor (editor)"
+        link: line_divisor
+
+    RadioButtons:
+        id: line_divisor
+        x: 2
+        y: 15
+        width: 26
+        height: 1
+        items: ["CR+LF", "CR", "LF"]

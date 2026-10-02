@@ -1,6 +1,6 @@
 from navigator.commands import Quit, ToggleConsole
 from navigator.widgets.manager.commands import Calculator, ChangeAttributes, Copy, Delete, DeleteSingle, Edit, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, UserMenu, View, ViewAsHex, ViewAsText
-from navigator.widgets.shell.commands import About, NewManager, OpenTreeWindow
+from navigator.widgets.shell.commands import About, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -272,12 +272,16 @@ MainMenu(MenuBar):
             text: '~C~onfiguration'
             MenuItem:
                 text: 'S~y~stem Setup...'
+                command: SystemSetup
             MenuItem:
                 text: '~S~tartup...'
+                command: StartupSetup
             MenuItem:
                 text: '~I~nterface...'
+                command: InterfaceSetup
             MenuItem:
                 text: '~C~onfirmations...'
+                command: SetupConfirmation
             MenuLine:
             MenuItem:
                 text: 'Screen sa~v~ers...'
@@ -292,6 +296,7 @@ MainMenu(MenuBar):
             MenuLine:
             MenuItem:
                 text: '~E~ditor/Viewer...'
+                command: EditorDefaults
             MenuItem:
                 text: '~T~erminal...'
         SubMenu:
@@ -299,10 +304,12 @@ MainMenu(MenuBar):
             text: '~F~ile Manager'
             MenuItem:
                 text: '~S~etup...'
+                command: FileManagerSetup
             MenuItem:
                 text: '~I~nformation panel...'
             MenuItem:
                 text: 'New Manager ~d~efaults...'
+                command: FileManagerDefaults
             MenuItem:
                 text: '~C~olumn defaults...'
             MenuItem:

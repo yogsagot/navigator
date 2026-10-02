@@ -40,6 +40,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navigator import filetypes
 from navigator import icons as icon_glyphs
 from navigator.fileattr import group_name, user_name
+from navigator.settings import SETTINGS
 
 # Asked once per id rather than once per row painted: the password and group
 # databases do not change under a running listing often enough to matter.
@@ -302,6 +303,8 @@ class Panel(ListViewer):
         #: The directory the last rescan read, which tells a re-read (keep
         #: the tags) from a move (drop them).
         self._listed: Path | None = None
+        # Seeded, not bound: Ctrl+H toggles it per panel.
+        self.show_hidden = SETTINGS.system.show_hidden
         if path is not None:
             self.path = path
 
