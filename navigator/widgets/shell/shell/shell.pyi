@@ -35,10 +35,10 @@ from navigator.widgets.manager.manager import Manager
 
 class Shell(DockLayout, _Component):
     console_visible: bool
-    menu: MainMenu
-    clock: Clock
     console: Console
     desktop: Desktop
+    menu: MainMenu
+    clock: Clock
     keybar: KeyBar
     command_line: CommandLine
     def __init__(self, left: Path, right: Path, scheme: Stylesheet | None = ..., **kwargs): ...
@@ -85,6 +85,7 @@ class Shell(DockLayout, _Component):
     def run_command(self, command: str) -> None: ...
     def _command_finished(self, status: int, cwd: Path | None) -> None: ...
     def command_finished(self, status: int, cwd: Path | None) -> None: ...
+    block_insert: bool
     def cursor_position(self) -> tuple[int, int] | None: ...
     active_manager: Manager | None
     async def on_new_manager(self, event: NewManager) -> bool: ...

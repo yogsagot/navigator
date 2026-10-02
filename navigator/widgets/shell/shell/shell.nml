@@ -6,8 +6,8 @@ from navigator.widgets.shell.main_menu import MainMenu
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 
-#: The Navigator screen: menu bar and clock, the console, the desktop over it,
-#: the command line, key bar.
+#: The Navigator screen: the console, the desktop over it, the menu bar and
+#: clock over that, the command line, key bar.
 #:
 #: The band between the two bars holds two layers, and the order of the
 #: children is the whole of how they stack.  The console is the bottom one and
@@ -32,15 +32,27 @@ Shell(DockLayout):
     #: ``visible`` line reads, which is the whole of Ctrl+O.
     property console_visible: False
 
+    Console:
+        id: console
+
+    Desktop:
+        id: desktop
+        visible: not parent.console_visible
+
     #: ``context`` is whose menus join the bar: the active window's, while
     #: the windows are showing -- so F9, a click, closing it and Ctrl+O all
     #: take a window's menu off the bar by changing one of the two.
+    #:
+    #: After the desktop, so it paints over it: Interface's *Hide menu bar*
+    #: (``ouiHideMenu``) gives the desktop the top row and shows the bar
+    #: there, floating, only while a menu is open.  Its dock and visibility
+    #: are bound in ``__init__``; its geometry is its own, so floating or
+    #: docked it is the top row.
     MainMenu:
         id: menu
         context: None if parent.console_visible else desktop.active_window
-        style:
-            dock: top
-            basis: 1
+        width: parent.width
+        height: 1
 
     #: Over the menu bar's right end, which is why it comes after it, and
     #: outside the docking altogether: it floats where its own lines put it.
@@ -52,13 +64,6 @@ Shell(DockLayout):
         style:
             dock: none
 
-    Console:
-        id: console
-
-    Desktop:
-        id: desktop
-        visible: not parent.console_visible
-
     #: DN's status line, which Interface's *Hide status line* takes away
     #: (bound in ``__init__``), and the dock then gives its row to the layers.
     KeyBar:
@@ -68,7 +73,9 @@ Shell(DockLayout):
             basis: 1
 
     #: ``TCommandLine``.  Never focused: the keys a window declines walk up
-    #: to this screen, which hands them to it.
+    #: to this screen, which hands them to it.  Interface's *Hide Command
+    #: Line* (``ouiHideCmdline``) takes it away, row and keys: bound in
+    #: ``__init__``.
     CommandLine:
         id: command_line
         prompt: parent.command_prompt

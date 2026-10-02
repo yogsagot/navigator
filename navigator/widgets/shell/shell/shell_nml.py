@@ -31,9 +31,9 @@ __all__ = ["Shell"]
 
 
 class Shell(DockLayout, _Component):
-    """The Navigator screen: menu bar and clock, the console, the desktop over it,
+    """The Navigator screen: the console, the desktop over it, the menu bar and
 
-    the command line, key bar.
+    clock over that, the command line, key bar.
 
     The band between the two bars holds two layers, and the order of the
     children is the whole of how they stack.  The console is the bottom one and
@@ -63,12 +63,12 @@ class Shell(DockLayout, _Component):
     console_visible: bool = _reactive(False)    # shell.nml:33
 
     #: Ids, annotated so the hand-written half completes them.
-    menu: MainMenu    # shell.nml:39
-    clock: Clock    # shell.nml:49
-    console: Console    # shell.nml:56
-    desktop: Desktop    # shell.nml:59
-    keybar: KeyBar    # shell.nml:65
-    command_line: CommandLine    # shell.nml:73
+    console: Console    # shell.nml:36
+    desktop: Desktop    # shell.nml:39
+    menu: MainMenu    # shell.nml:52
+    clock: Clock    # shell.nml:61
+    keybar: KeyBar    # shell.nml:70
+    command_line: CommandLine    # shell.nml:80
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -78,40 +78,41 @@ class Shell(DockLayout, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_desktop_emptied(self, event: _Event) -> bool:    # shell.nml:59
+    async def on_desktop_emptied(self, event: _Event) -> bool:    # shell.nml:39
         """``desktop`` raised an event whose handler is ``on_emptied``."""
         return False
 
-    async def on_desktop_opened(self, event: _Event) -> bool:    # shell.nml:59
+    async def on_desktop_opened(self, event: _Event) -> bool:    # shell.nml:39
         """``desktop`` raised an event whose handler is ``on_opened``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.menu = MainMenu(parent=self)    # shell.nml:38
-        self.clock = Clock(parent=self)    # shell.nml:48
-        self.console = Console(parent=self)    # shell.nml:55
-        self.desktop = Desktop(parent=self)    # shell.nml:58
-        self.keybar = KeyBar(parent=self)    # shell.nml:64
-        self.command_line = CommandLine(parent=self)    # shell.nml:72
+        self.console = Console(parent=self)    # shell.nml:35
+        self.desktop = Desktop(parent=self)    # shell.nml:38
+        self.menu = MainMenu(parent=self)    # shell.nml:51
+        self.clock = Clock(parent=self)    # shell.nml:60
+        self.keybar = KeyBar(parent=self)    # shell.nml:69
+        self.command_line = CommandLine(parent=self)    # shell.nml:79
 
-        self.menu.context = _bind(    # shell.nml:40
+        self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:40
+        self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:39
+        self.desktop.on_opened = self.on_desktop_opened    # shell.nml:39
+
+        self.menu.context = _bind(    # shell.nml:53
             lambda _o: None if _o.parent.console_visible else self.desktop.active_window
         )
-        self.menu.inline_style = 'dock: top; basis: 1'    # shell.nml:41
+        self.menu.width = _bind(lambda _o: _o.parent.width)    # shell.nml:54
+        self.menu.height = 1    # shell.nml:55
 
-        self.clock.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # shell.nml:50
-        self.clock.y = 0    # shell.nml:51
-        self.clock.inline_style = 'dock: none'    # shell.nml:52
+        self.clock.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # shell.nml:62
+        self.clock.y = 0    # shell.nml:63
+        self.clock.inline_style = 'dock: none'    # shell.nml:64
 
-        self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:60
-        self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:59
-        self.desktop.on_opened = self.on_desktop_opened    # shell.nml:59
+        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:71
 
-        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:66
-
-        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:74
-        self.command_line.prompt_cells = _bind(    # shell.nml:75
+        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:81
+        self.command_line.prompt_cells = _bind(    # shell.nml:82
             lambda _o: _o.parent.command_prompt_cells
         )
-        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:76
+        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:83

@@ -231,6 +231,9 @@ Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
 CommandLine            { fg: light_gray; bg: black }
 CommandLine::prompt    { fg: white }
 CommandLine::selection { fg: black; bg: light_gray }
+/* Interface's `Block Insert Cursor' (`ouiBlockInsertCursor'): on `Shell',
+   which answers for the command line's caret.  Unticked, the terminal's own. */
+Shell:block_insert { caret: block }
 /* The history button, [53] and [54]; and the list it drops, which Turbo
    Vision's CHistoryWindow draws in the input line's own colours -- frame and
    rows [50], the selected row [51] -- with a scroll bar of its own, [55] and

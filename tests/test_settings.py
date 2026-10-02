@@ -275,3 +275,110 @@ def test_without_erase_confirmation_f8_deletes_without_asking(tmp_path, quiet_co
     run_app(app, [delete, lambda a: seen.append(a.modal), lambda a: None], settle=0.2)
     assert seen == [None]
     assert not (tmp_path / "one.txt").exists()
+
+
+def test_a_hidden_menu_bar_gives_its_row_and_shows_only_while_open(tmp_path, quiet_console):
+    SETTINGS.interface.hide_menu_bar = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append((a.shell.menu.visible, a.shell.desktop.y))
+
+    run_app(app, [look, KeyEvent("f10"), lambda a: None, look, KeyEvent("escape"), lambda a: None, look])
+    # The desktop keeps the top row throughout: the open bar floats over it.
+    assert seen == [(False, 0), (True, 0), (False, 0)]
+
+
+def test_a_shown_menu_bar_is_docked_above_the_desktop(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [lambda a: seen.append((a.shell.menu.visible, a.shell.menu.y, a.shell.desktop.y))])
+    assert seen == [(True, 0, 1)]
+
+
+def test_a_hidden_command_line_gives_its_row_and_takes_no_keys(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append((a.shell.command_line.visible, a.shell.desktop.height, a.shell.command_line.value))
+
+    run_app(app, [
+        look,
+        lambda a: setattr(SETTINGS.interface, "hide_command_line", True),
+        lambda a: None,
+        KeyEvent("x", "x"),
+        lambda a: None,
+        look,
+    ])
+    (shown, height, _), (hidden_visible, hidden_height, typed) = seen
+    assert shown is True and hidden_visible is False
+    assert hidden_height == height + 1
+    assert typed == ""
+
+
+def test_an_auto_hidden_command_line_shows_only_while_it_has_text(tmp_path, quiet_console):
+    SETTINGS.interface.auto_hide_command_line = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append((a.shell.command_line.visible, a.shell.desktop.height))
+
+    run_app(app, [
+        look,
+        KeyEvent("x", "x"),
+        lambda a: None,
+        look,
+        KeyEvent("escape"),
+        lambda a: None,
+        look,
+    ])
+    (empty, height), (typed, typed_height), (cleared, cleared_height) = seen
+    assert (empty, typed, cleared) == (False, True, False)
+    assert typed_height == height - 1 and cleared_height == height
+
+
+@pytest.mark.parametrize("ticked", [True, False])
+def test_esc_on_an_empty_line_shows_the_user_screen_only_when_ticked(tmp_path, quiet_console, ticked):
+    SETTINGS.interface.esc_user_screen = ticked
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append(a.shell.console_visible)
+
+    run_app(app, [KeyEvent("escape"), lambda a: None, look, KeyEvent("escape"), lambda a: None, look])
+    assert seen == ([True, False] if ticked else [False, False])
+
+
+def test_esc_on_a_line_with_text_clears_it_instead(tmp_path, quiet_console):
+    SETTINGS.interface.esc_user_screen = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        KeyEvent("x", "x"),
+        KeyEvent("escape"),
+        lambda a: None,
+        lambda a: seen.append((a.shell.command_line.value, a.shell.console_visible)),
+    ])
+    assert seen == [("", False)]
+
+
+def test_block_insert_cursor_makes_the_command_lines_caret_a_block(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append(a._cursor()[2])
+
+    run_app(app, [
+        KeyEvent("x", "x"),
+        lambda a: None,
+        look,
+        lambda a: setattr(SETTINGS.interface, "block_insert_cursor", True),
+        lambda a: None,
+        look,
+    ])
+    assert seen == ["default", "block"]

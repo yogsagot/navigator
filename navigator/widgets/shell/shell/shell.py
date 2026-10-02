@@ -89,11 +89,27 @@ class Shell(DockLayout):
             self.add_class("root")
         self.console.cwd = left
         self.console.subshell.on_finished = self._command_finished
-        # Options > Configuration > Interface: ``ouiClock`` and ``ouiHideStatus``.
-        # Bound here rather than in the markup, which evaluates a line that
-        # reads nothing of its widget once -- and these read only SETTINGS.
-        self.clock.visible = bind(lambda w: SETTINGS.interface.clock)
-        self.keybar.visible = bind(lambda w: not SETTINGS.interface.hide_status_line)
+        # Options > Configuration > Interface: ``ouiClock``, ``ouiHideStatus``,
+        # ``ouiHideMenu`` and ``ouiHideCmdline``.  Bound here rather than in
+        # the markup, which evaluates a line that reads nothing of its widget
+        # once -- and these read only SETTINGS.
+        interface = SETTINGS.interface
+        self.clock.visible = bind(lambda w: interface.clock)
+        self.keybar.visible = bind(lambda w: not interface.hide_status_line)
+        # *Auto hide Command Line*: DN 1.51 declared the box and never read
+        # it, so this is the behaviour its ``CheckSize`` and ``ToggleCmdLine``
+        # gave a hidden line -- shown once it holds text, its row back to the
+        # desktop once it is empty again.
+        self.command_line.visible = bind(
+            lambda w: not interface.hide_command_line
+            and (not interface.auto_hide_command_line or w.value != "")
+        )
+        # A hidden bar gives the desktop its row and floats over it while a
+        # menu is open -- ``current`` is -1 only while none is.
+        self.menu.inline_style = bind(
+            lambda w: "dock: none" if interface.hide_menu_bar else "dock: top; basis: 1"
+        )
+        self.menu.visible = bind(lambda w: not interface.hide_menu_bar or w.current >= 0)
         #: Up and Down through the shell's history: the entries, where the walk
         #: is, what was typed before it began, and what it last put on the line.
         self._walk: tuple[list[str], int, str, str] | None = None
@@ -175,9 +191,22 @@ class Shell(DockLayout):
         # Ctrl+Ins over a selection in the console copies that, not the line.
         if self.console.copy_key(event):
             return True
+        # ``ouiHideCmdline``: a hidden line takes no keys at all, as
+        # ``TCommandLine.HandleEvent`` took none.
+        if SETTINGS.interface.hide_command_line:
+            return False
         if self._console_is_the_terminal() and await self._terminal_key(event):
             return True
-        return await self.command_line.on_key(event)
+        if await self.command_line.on_key(event):
+            return True
+        # *ESC for user screen* (``ouiEsc``): Esc with nothing on the line
+        # sends ``cmShowUserScreen`` -- here Ctrl+O's console, which Esc
+        # puts away again as any key closed DN's user screen.  A line with
+        # text was cleared by the Esc above instead.
+        if event.matches("escape") and SETTINGS.interface.esc_user_screen:
+            self.toggle_console()
+            return True
+        return False
 
     # -- the console's history keys --------------------------------------------
 
@@ -354,7 +383,10 @@ class Shell(DockLayout):
             command,
             (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine,
              InsertName, InsertPath),
-        ) and self._editor_has_keys():
+        ) and (self._editor_has_keys() or SETTINGS.interface.hide_command_line):
+            # A hidden command line runs and takes nothing: DN's
+            # ``cmExecCommandLine`` and ``cmInsertName`` did nothing under
+            # ``ouiHideCmdline``, and the keys fall through to the panel.
             return False
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
@@ -677,6 +709,19 @@ class Shell(DockLayout):
             panel.path = cwd
         for each in (manager.left, manager.right):
             each.reload()
+
+    @computed
+    def block_insert(self) -> bool:
+        """The ``:block_insert`` state: Interface's *Block Insert Cursor*.
+
+        ``ouiBlockInsertCursor`` swapped ``TCommandLine``'s two cursors, so
+        inserting showed DN's block.  The line only inserts -- it has no
+        overwrite mode for the other half of the swap -- so the state is the
+        setting.  It is this screen's rather than the line's because the caret
+        is answered from here (:meth:`cursor_position`), and the application
+        takes its shape from whoever answers.
+        """
+        return SETTINGS.interface.block_insert_cursor
 
     def cursor_position(self) -> tuple[int, int] | None:
         """The command line's caret, when the keys that fell this far go there.

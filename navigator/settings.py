@@ -258,14 +258,12 @@ class InterfaceData(Section):
 
     clock: bool = Setting(True, doc="Show the clock at the menu bar's right end")
     #: DN's default hid it; Navigator has always shown it.
-    hide_menu_bar: bool = Setting(False, doc="Hide the menu bar until F10", honoured=False)
+    hide_menu_bar: bool = Setting(False, doc="Hide the menu bar until F10")
     hide_status_line: bool = Setting(False, doc="Hide the key bar")
-    esc_user_screen: bool = Setting(False, doc="Esc shows the console", honoured=False)
-    hide_command_line: bool = Setting(False, doc="Hide the command line", honoured=False)
-    auto_hide_command_line: bool = Setting(
-        False, doc="Hide the command line while it is empty", honoured=False,
-    )
-    block_insert_cursor: bool = Setting(False, doc="Block cursor for insert mode", honoured=False)
+    esc_user_screen: bool = Setting(False, doc="Esc on an empty command line toggles the console")
+    hide_command_line: bool = Setting(False, doc="Hide the command line, and type nothing on it")
+    auto_hide_command_line: bool = Setting(False, doc="Hide the command line while it is empty")
+    block_insert_cursor: bool = Setting(False, doc="Block cursor on the command line")
     store_editor_position: bool = Setting(False, doc="Store the editor's position", honoured=False)
     store_viewer_position: bool = Setting(False, doc="Store the viewer's position", honoured=False)
     track_editing: bool = Setting(False, doc="Track editing history", honoured=False)

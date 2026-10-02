@@ -110,7 +110,11 @@ note:
 
 - **Markup cannot bind to `SETTINGS`.** navml evaluates a property line once if it reads nothing of its widget, so
   `visible: SETTINGS.interface.clock` would be read at construction and never again. Bind in Python instead:
-  `self.clock.visible = bind(lambda w: SETTINGS.interface.clock)`, as `Shell.__init__` does for the clock and key bar.
+  `self.clock.visible = bind(lambda w: SETTINGS.interface.clock)`, as `Shell.__init__` does for the clock, the key bar,
+  the command line and the menu bar.
+- **The menu bar comes after the desktop in `shell.nml`** so a floating bar paints over it. Its `width`/`height` are
+  bound to the top row, which docked or floating it keeps; `Shell.__init__` binds its `inline_style` (`dock: top` or
+  `dock: none`) and its `visible` (`not hide_menu_bar or current >= 0`).
 - **A per-widget value is seeded, not bound**, for example `Panel.show_hidden` (Ctrl+H toggles it) and
   `FileEditor.tab_size`. Read it in `__init__` after `super().__init__()`.
 - **An operation reads the setting when it runs.** For example, `Manager.delete_files` reads `confirmations.erase_*`,
@@ -123,6 +127,11 @@ note:
 | `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console |
 | `system.show_hidden` | A new panel's `show_hidden` |
 | `interface.clock`, `interface.hide_status_line` | Clock and key bar visibility |
+| `interface.hide_menu_bar` | The desktop takes the top row; the bar floats over it only while a menu is open |
+| `interface.hide_command_line` | The desktop takes its row; it takes no keys, and its commands (Enter, Home, End, Tab, Ctrl+Enter) are disabled so those keys go to the panel |
+| `interface.auto_hide_command_line` | The line shows only while it holds text; typing still goes to it and brings it back (DN 1.51 never read this bit -- transcribed from `CheckSize`/`ToggleCmdLine`) |
+| `interface.esc_user_screen` | Esc with an empty command line toggles the console (Ctrl+O), DN's `cmShowUserScreen`; Esc on a line with text clears it, and does nothing with the line hidden |
+| `interface.block_insert_cursor` | The command line's caret is a block (`Shell:block_insert { caret: block }` in `navigator.nss`; on `Shell` because it answers `cursor_position` for the line). Unticked, the terminal's own shape |
 | `confirmations.erase_single` / `erase_multiple` | Off: no Delete dialog, and so no *Recursive delete* |
 | `confirmations.erase_non_empty_dir` / `erase_read_only` | Off: the eraser's question is answered Yes |
 | `confirmations.create_dir` | Off: copy and link create a missing target directory without asking |
