@@ -36,6 +36,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator.bookmarks import seed_bookmarks
 from navigator.commands import Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
@@ -420,6 +421,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     load_settings(args.config)
     open_database(args.database)
+    try:
+        seed_bookmarks()
+    except sqlite3.Error as error:
+        print(f"nav: bookmarks: {error}", file=sys.stderr)
     # A flag is this session's alone: it wins over the settings file and is
     # never written back to it.
     appearance = SETTINGS.appearance

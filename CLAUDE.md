@@ -44,7 +44,7 @@ editor's phases, DN's TETRIS easter egg.
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw, `--no-dim-modal` stops what is behind a dialog being painted faint
-- Histories (and later bookmarks, positions) live in one SQLite database,
+- Histories and bookmarks (and later positions) live in one SQLite database,
   `$XDG_STATE_HOME/navigator/navigator.db` (else `~/.local/state/navigator/navigator.db`); `--database PATH` uses
   another file for the session. Tables are declared as model documents in `.nml` (`navkit-database` skill)
 - Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
@@ -147,6 +147,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `console-command-line` | console/pyte/pty, subshell, Ctrl+O, the command line, completion, history, atuin |
 | `navigator-panels` | Manager and Panel: view modes, tagging, quick search, hidden files, hiding sides |
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window |
+| `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |

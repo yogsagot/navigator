@@ -1,5 +1,5 @@
 from navigator.commands import Quit, ToggleConsole
-from navigator.widgets.manager.commands import Calculator, ChangeAttributes, Copy, Delete, DeleteSingle, Edit, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, UserMenu, View, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import About, EditHistory, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -43,8 +43,9 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: Configuration; and the seventeen DOS archivers under Archives, which a list
 #: of POSIX ones replaces once archives can be opened.  Two captions say what
 #: they mean here: *ASCII Table* is *Character table*, and *Edit DOS
-#: Environment* is *Edit environment*.  *Change drive left/right* stay, to
-#: become bookmarks.
+#: Environment* is *Edit environment*.  *Change drive left/right* are
+#: *Bookmarks left/right*: the box they open lists bookmarked directories
+#: where DN's listed drive letters (``navigator/bookmarks.py``).
 MainMenu(MenuBar):
     SubMenu:
         id: system
@@ -226,10 +227,12 @@ MainMenu(MenuBar):
             key: 'Ctrl-P'
         MenuLine:
         MenuItem:
-            text: 'Change drive le~f~t'
+            text: 'Bookmarks le~f~t'
+            command: ChangeLeft
             key: 'Alt-F1'
         MenuItem:
-            text: 'Change drive rig~h~t'
+            text: 'Bookmarks rig~h~t'
+            command: ChangeRight
             key: 'Alt-F2'
     SubMenu:
         id: options

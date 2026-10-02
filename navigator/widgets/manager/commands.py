@@ -149,9 +149,24 @@ class SortBy(Command):
 
 
 class ChangeDrive(Command):
-    """Alt+C, ``cmChangeDrive``."""
+    """Alt+C, ``cmChangeDrive``: the bookmarks, for the active panel.
+
+    DOS Navigator's drive letters; ``navigator/bookmarks.py`` has the
+    departure.
+    """
 
     title = "Drive"
+
+
+class ChangeLeft(Command):
+    """Alt+F1, ``cmChangeLeft``: the bookmarks, for the left panel.
+
+    Untitled, as ``StatusDef hcFilePanel`` left Alt-F1 off its Alt row.
+    """
+
+
+class ChangeRight(Command):
+    """Alt+F2, ``cmChangeRight``: the bookmarks, for the right panel."""
 
 
 class PanelSetup(Command):
@@ -348,6 +363,8 @@ __all__ = [
     "ToggleTree",
     "SortBy",
     "ChangeDrive",
+    "ChangeLeft",
+    "ChangeRight",
     "PanelSetup",
     "MakeList",
     "FastRename",

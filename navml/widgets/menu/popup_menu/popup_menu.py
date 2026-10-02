@@ -1,0 +1,198 @@
+"""A menu box opened on its own, anywhere, answering with the entry chosen.
+
+Turbo Vision's ``TMenuPopup``: what DOS Navigator's ``SelectDrive`` ran to
+offer the drive letters over a panel.  It is one :class:`MenuBox`, without the
+bar, on a modal layer that covers the screen and takes every key and click,
+and it is run the way a dialog is -- :meth:`PopupMenu.execute` returns once it
+closes, with the :class:`MenuItem` chosen or None -- so the same rule holds:
+**start it with ``spawn``, never await it inside a handler.**
+
+The keys are ``TMenuView.Execute``'s for a box: Up and Down move, skipping
+lines and wrapping round, Home and End go to the ends, Enter or the marked
+letter chooses, Esc closes.  A click chooses what it is released on, and a
+press outside the box closes it.
+
+**An entry need not ask for a command.**  A bar's item without one is greyed
+until its feature exists; a popup's entries are usually choices its caller
+reads off the answer, so here an item is enabled unless it is ``disabled``,
+and only one that does name a command is asked whether it would run.
+"""
+
+from __future__ import annotations
+
+import asyncio
+from typing import TYPE_CHECKING, Any
+
+from navkit.events import KeyEvent, MouseClickEvent
+from navkit.reactive import bind
+from navkit.screen import Surface
+from navkit.widget import Widget
+
+from navml.widgets.dialog.control.control import parse_shortcut
+from navml.widgets.menu.menu_box.menu_box import MenuBox
+from navml.widgets.menu.menu_item.menu_item import MenuItem, MenuNode
+from navml.widgets.menu.menu_line.menu_line import MenuLine
+from navml.widgets.menu.sub_menu.sub_menu import SubMenu
+
+if TYPE_CHECKING:
+    from navkit.application import Application
+
+
+class PopupBox(MenuBox):
+    """A :class:`MenuBox` whose command-less items are choices, not stubs."""
+
+    def enabled(self, entry: MenuNode) -> bool:
+        if isinstance(entry, MenuItem) and entry.command is None:
+            return not entry.disabled
+        return super().enabled(entry)
+
+
+class PopupMenu(Widget):
+    """*menu*'s entries in a box at *x*, *y*, the entry *current* selected."""
+
+    def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
+                 current: int = -1, behind: Widget | None = None, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.menu = menu if menu is not None else SubMenu()
+        #: Where the box's top left corner goes, in screen coordinates; it is
+        #: moved back onto the screen if it would not fit.
+        self.at = (x, y)
+        #: The entry selected when the box opens; -1 for the first one.
+        self.start = current
+        #: The widget whose point of view decides whether an entry that names
+        #: a command is enabled.
+        self.behind = behind
+        self.box: PopupBox | None = None
+        self._pending: asyncio.Future[Any] | None = None
+        self.modal = True
+        self.can_focus = True
+        # The layer covers its parent, all four sides bound, as a menu's does.
+        self.x = bind(lambda o: 0)
+        self.y = bind(lambda o: 0)
+        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
+        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+
+    def layout(self, width: int, height: int) -> None:
+        """The box is placed by :meth:`_open`, never by a cascade."""
+
+    @staticmethod
+    def measure(menu: SubMenu, app: Application | None = None,
+                behind: Widget | None = None) -> tuple[int, int]:
+        """The ``(width, height)`` the box for *menu* takes."""
+        return MenuBox.measure(menu, app, behind)
+
+    # -- running ----------------------------------------------------------------------
+
+    async def execute(self, app: Application) -> MenuItem | None:
+        """Show the box and answer with the item chosen, or None for Esc."""
+        if getattr(app, "_dispatching", False):
+            raise RuntimeError(
+                "PopupMenu.execute() cannot be awaited from an event handler; "
+                "start it with self.spawn(...) and let the handler return."
+            )
+        if self._pending is not None:
+            raise RuntimeError("this popup is already showing")
+        self._pending = asyncio.get_running_loop().create_future()
+        app.overlay(self)
+        self._open()
+        try:
+            return await self._pending
+        finally:
+            self._pending = None
+            if self.parent is not None:
+                self.parent.remove(self)
+
+    def close(self, result: MenuItem | None = None) -> None:
+        """Come down, answering *result*."""
+        if self._pending is not None and not self._pending.done():
+            self._pending.set_result(result)
+        elif self._pending is None and self.parent is not None:
+            self.parent.remove(self)
+
+    def _open(self) -> None:
+        width, height = self.measure(self.menu, self.application, self.behind)
+        width = min(width, max(10, self.width))
+        x = max(0, min(self.at[0], self.width - width))
+        y = max(0, min(self.at[1], self.height - height))
+        box = PopupBox(self.menu, x=x, y=y, width=width, height=height)
+        box.behind = self.behind
+        self.box = box
+        self.add(box)
+        if box.selectable(self.start):
+            box.current = self.start
+        else:
+            box.current = -1
+            box.step(1)
+
+    def choose(self, index: int) -> None:
+        """Enter on entry *index*: close with it, if it can be chosen."""
+        box = self.box
+        entries = box.entries() if box is not None else []
+        if not 0 <= index < len(entries):
+            return
+        entry = entries[index]
+        box.current = index
+        if isinstance(entry, MenuItem) and box.enabled(entry):
+            self.close(entry)
+
+    # -- input --------------------------------------------------------------------------
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        box = self.box
+        if box is None:
+            return True
+        if event.matches("escape"):
+            self.close(None)
+        elif event.matches("up"):
+            box.step(-1)
+        elif event.matches("down"):
+            box.step(1)
+        elif event.matches("home"):
+            box.current = -1
+            box.step(1)
+        elif event.matches("end"):
+            box.current = len(box.entries())
+            box.step(-1)
+        elif event.matches("enter"):
+            self.choose(box.current)
+        elif event.char and not event.ctrl:
+            index = letter_of(box.entries(), event.char)
+            if index >= 0:
+                self.choose(index)
+        return True
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        box = self.box
+        if box is None or event.button != "left" or event.is_wheel:
+            return True
+        if box.contains(event.x, event.y):
+            row = box.entry_at(event.y - box.y)
+            inside = box.x + 2 <= event.x < box.x + box.width - 2
+            if row >= 0 and inside and box.selectable(row):
+                if event.action == "release":
+                    self.choose(row)
+                else:
+                    box.current = row
+            return True
+        if event.action == "press":
+            self.close(None)
+        return True
+
+    # -- painting -------------------------------------------------------------------------
+
+    def render_tree(self, surface: Surface) -> None:
+        """The box over its shadow; the layer itself paints and dims nothing."""
+        if not self.visible or self.box is None:
+            return
+        self.box.render_tree(surface.view(self.x, self.y, self.width, self.height))
+
+
+def letter_of(entries: list[Any], char: str) -> int:
+    """The entry whose marked letter is *char*, or -1."""
+    char = char.lower()
+    for index, entry in enumerate(entries):
+        if isinstance(entry, MenuLine):
+            continue
+        if parse_shortcut(entry.text)[2] == char:
+            return index
+    return -1

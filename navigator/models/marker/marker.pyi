@@ -1,0 +1,29 @@
+# navml: generated
+"""The merged surface of ``navigator.models.marker.marker``."""
+
+from typing import Any as _Any
+
+from navkit.database import Query as _Query
+from navkit.database import Model
+
+
+class Marker(Model):
+    id: int | None
+    name: str
+    def __init__(self, *, id: int | None = ..., name: str = ...) -> None: ...
+    @classmethod
+    def where(cls, **conditions: _Any) -> _Query[Marker]: ...
+    @classmethod
+    def query(cls) -> _Query[Marker]: ...
+    @classmethod
+    def all(cls) -> list[Marker]: ...
+    @classmethod
+    def get(cls, **conditions: _Any) -> Marker | None: ...
+    @classmethod
+    def count(cls, **conditions: _Any) -> int: ...
+    @classmethod
+    def delete_where(cls, **conditions: _Any) -> int: ...
+    @classmethod
+    def create(cls, *, name: str = ...) -> Marker: ...
+    @classmethod
+    def upsert(cls, *, name: str = ...) -> Marker: ...

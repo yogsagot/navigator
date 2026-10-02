@@ -1,5 +1,5 @@
 from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory
-from navigator.widgets.manager.commands import ChangeDrive, Copy, Delete, DeleteSingle, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
@@ -66,6 +66,8 @@ Manager(Window):
         f8: Delete
         alt+b: SortBy
         alt+c: ChangeDrive
+        alt+f1: ChangeLeft
+        alt+f2: ChangeRight
         alt+s: PanelSetup
         alt+l: MakeList
         alt+f6: FastRename

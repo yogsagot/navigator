@@ -1,0 +1,11 @@
+from navkit.database import Model
+
+#: Something Navigator has done once in this database and must not do again.
+#:
+#: A row's presence is the whole of what it says.  ``"bookmarks seeded"`` is
+#: why an empty bookmark list stays empty: the first set is written once, not
+#: whenever the user has removed every bookmark.
+Marker(Model):
+    table: "markers"
+    field name: str
+    unique by_name: name

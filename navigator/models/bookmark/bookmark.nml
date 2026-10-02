@@ -1,0 +1,14 @@
+from navkit.database import Model
+
+#: A directory the panels can be sent to from Alt+F1, Alt+F2 or Alt+C.
+#:
+#: What stands where DOS Navigator's ``SelectDrive`` listed the drive
+#: letters; ``navigator/bookmarks.py`` has why, and the first set.
+Bookmark(Model):
+    table: "bookmarks"
+    #: The absolute path, case and all.
+    field path: str
+    #: Smaller first; a bookmark added goes after every other.
+    field seq: int
+    unique by_path: path
+    index by_seq: seq

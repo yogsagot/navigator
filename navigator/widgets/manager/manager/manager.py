@@ -24,6 +24,9 @@ from navml.widgets.window import Window
 from navigator.widgets.manager.commands import (
     ChangeAttributes,
     ChangeDirectory,
+    ChangeDrive,
+    ChangeLeft,
+    ChangeRight,
     Copy,
     Delete,
     DeleteSingle,
@@ -191,6 +194,77 @@ class Manager(Window):
         # Started, not awaited, for the reason ``on_make_directory`` gives.
         self.spawn(self.change_directory())
         return True
+
+    async def on_change_left(self, event: ChangeLeft) -> bool:
+        self.spawn(self.choose_bookmark(self.bring_side("left")))
+        return True
+
+    async def on_change_right(self, event: ChangeRight) -> bool:
+        self.spawn(self.choose_bookmark(self.bring_side("right")))
+        return True
+
+    async def on_change_drive(self, event: ChangeDrive) -> bool:
+        self.spawn(self.choose_bookmark(self.active_panel))
+        return True
+
+    def bring_side(self, side: str) -> Panel:
+        """*side*'s panel, showing: Alt+F1 and Alt+F2 change a panel, so one
+        hidden by Ctrl+F1/F2 comes back, and the tree or quick view standing in
+        its place gives way, as DN's ``_ChangeDrive`` replaced a drive that
+        was not a disk."""
+        panel = self.left if side == "left" else self.right
+        if self.hidden_side == side:
+            self.show_side(side)
+        if self.replaced is panel:
+            self.switch_view(self.replacement)
+        return panel
+
+    async def choose_bookmark(self, panel: Panel) -> None:
+        """The bookmarks in a box over *panel*, and *panel* goes where it says.
+
+        DOS Navigator's ``SelectDrive``, placed as ``_ChangeDrive`` placed it:
+        centred on the panel, one row under its top edge, with the panel's own
+        entry selected.  The last entry adds the panel's directory, or removes
+        it if it is bookmarked already; removing one opens the box again,
+        without it, so several can go in a row.  A bookmark whose directory is
+        gone -- a drive no longer mounted -- is greyed.
+        """
+        from navml.widgets.menu.popup_menu import PopupMenu
+
+        from navigator.bookmarks import add_bookmark, bookmarks, find_bookmark, remove_bookmark
+
+        app = self.application
+        if app is None:
+            return
+        keep: int | None = None
+        while True:
+            rows = bookmarks()
+            here = find_bookmark(panel.path)
+            menu, toggle = bookmark_menu(rows, here is not None)
+            current = keep if keep is not None else next(
+                (index for index, row in enumerate(rows) if here is not None and row.path == here.path),
+                0,
+            )
+            # The layout settles in this batch's effects; a side just brought
+            # back has to be where it will be before the box is placed by it.
+            self.panels.arrange()
+            width, _ = PopupMenu.measure(menu, app, self)
+            ox, oy = panel.offset()
+            x = ox + panel.x + (panel.width - width) // 2
+            y = oy + panel.y + 1
+            chosen = await PopupMenu(menu, x, y, current=current, behind=self).execute(app)
+            if chosen is None:
+                return
+            if chosen is toggle:
+                if here is None:
+                    add_bookmark(panel.path)
+                    return
+                remove_bookmark(panel.path)
+                keep = min(current, max(0, len(rows) - 2))
+                continue
+            panel.path = Path(rows[menu.entries().index(chosen)].path)
+            panel.focus()
+            return
 
     async def change_directory(self) -> None:
         """Alt+T: *Choose Directory*, and the active panel goes where it says.
@@ -1141,3 +1215,36 @@ class Manager(Window):
         await asyncio.sleep(self.LOCATE_DELAY)
         if self.tree.focused and self.tree.selected_path == path:
             self.active_panel.path = path
+
+
+#: The marked keys the bookmarks are chosen by, in order: the digits as DN's
+#: box had its drive letters, then the letters *Add* and *Remove* leave free.
+BOOKMARK_KEYS = "1234567890bcdefghijklmnopqstuvwxyz"
+
+
+def bookmark_menu(rows: list[Any], bookmarked: bool) -> tuple[Any, Any]:
+    """The box's entries for *rows*, and the item that adds or removes.
+
+    The home directory is spelled ``~``, as a shell would; a file name's
+    tildes are doubled so the caption shows them rather than marking a key.
+    """
+    from navml.widgets.dialog.control.control import escape_caption
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    menu = SubMenu()
+    home = str(Path.home())
+    for index, row in enumerate(rows):
+        shown = row.path
+        if shown == home or shown.startswith(home.rstrip("/") + "/"):
+            shown = "~" + shown[len(home.rstrip("/")):]
+        caption = escape_caption(shown)
+        if index < len(BOOKMARK_KEYS):
+            caption = f"~{BOOKMARK_KEYS[index]}~ {caption}"
+        else:
+            caption = f"  {caption}"
+        item = menu.add_item(caption)
+        item.disabled = not Path(row.path).is_dir()
+    if rows:
+        menu.add_line()
+    toggle = menu.add_item("~R~emove this folder" if bookmarked else "~A~dd this folder")
+    return menu, toggle

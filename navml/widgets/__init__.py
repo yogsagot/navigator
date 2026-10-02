@@ -62,6 +62,7 @@ _COMPONENTS = {
     "MenuItem": "menu.menu_item",
     "MenuLine": "menu.menu_line",
     "Modal": "dialog.modal",
+    "PopupMenu": "menu.popup_menu",
     "ProgressBar": "progress_bar",
     "RadioButtons": "dialog.radio_buttons",
     "ScrollBar": "dialog.scroll_bar",
@@ -156,6 +157,7 @@ if TYPE_CHECKING:
     from navml.widgets.menu.menu_line import MenuLine
     from navml.widgets.menu.sub_menu import SubMenu
     from navml.widgets.dialog.modal import Modal
+    from navml.widgets.menu.popup_menu import PopupMenu
     from navml.widgets.dialog.radio_buttons import RadioButtons
     from navml.widgets.dialog.scroll_bar import ScrollBar
     from navml.widgets.progress_bar import ProgressBar

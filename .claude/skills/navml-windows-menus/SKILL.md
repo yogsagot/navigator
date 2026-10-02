@@ -58,6 +58,9 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **Panel is the file manager's own menu** (`manager.nml`, `manager.panel_menu`, after *Utilities* only while a file
   manager is active); *Directory tree*, *Info* and *Quick view* moved into it from *Manager* -- a departure; *Manager*
   stays global for *New*.
+- **A popup menu** is `PopupMenu` (`TMenuPopup`): one `MenuBox` anywhere, run like a dialog -- spawn
+  `execute(app)`, which answers the `MenuItem` chosen or None; a command-less item is a choice, not greyed. The
+  bookmarks box is its first user (`navigator-bookmarks`).
 
 ## Read when
 
