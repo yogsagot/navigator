@@ -21,7 +21,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
-  to come: column blocks (`vertical_blocks`), the `^K` block commands, unmarking (`^K H`), mouse marking.
+  to come: column blocks (`vertical_blocks`), the `^K` block commands, unmarking (`^K H`).
+- **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured) marks from the press,
+  scrolling a line at a time past the top or bottom row; Shift+click extends the block as Shift+movement does; a
+  double-click marks the word between `BREAK_CHARS`. A block marked by the mouse becomes the primary selection on
+  release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and
+  the input lines do. Ctrl+Ins still copies the block to the clipboard. Checked on a pty with SGR mouse bytes and
+  `xclip -o`, not only with posted events.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a

@@ -603,3 +603,53 @@ def test_cut_copy_and_clear_wait_for_a_block(files):
     _, editor = marked(files)
     assert not any(editor.enables(c()) for c in (ClipboardCut, ClipboardCopy, ClearBlock))
     assert editor.enables(ClipboardPaste())
+
+
+# -- marking with the mouse -------------------------------------------------------------------
+
+
+def mouse(files, *events):
+    """text.txt in an editor, then each *event* handed to it in turn: (x, y, action, **kw)."""
+    from navkit.events import DoubleClickEvent, MouseClickEvent
+
+    app = navigator(files)
+
+    def deliver(spec):
+        x, y, action, kw = spec
+        kind = DoubleClickEvent if action == "double" else MouseClickEvent
+        kw.setdefault("button", "left")
+        if kind is MouseClickEvent:
+            kw["action"] = action
+        return lambda a: a.spawn(editor_window(a).editor.on_mouse_click(kind(x=x, y=y, **kw))
+                                 if kind is MouseClickEvent
+                                 else editor_window(a).editor.on_double_click(kind(x=x, y=y, **kw)))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *[deliver(e) for e in events], lambda a: None])
+    return app, editor_window(app).editor
+
+
+def test_a_drag_marks_and_the_release_makes_it_the_primary_selection(files):
+    app, editor = mouse(files, (2, 0, "press", {}), (3, 1, "move", {}), (3, 1, "release", {}))
+    assert editor.block == (Pos(0, 2), Pos(1, 3))
+    assert app.terminal.clipboard == [("rst line\nsec", True)]
+
+
+def test_a_click_unmarks_and_a_shift_click_extends(files):
+    _, editor = mouse(files, (0, 0, "press", {}), (4, 0, "move", {}), (4, 0, "release", {}),
+                      (8, 0, "press", {"shift": True}), (8, 0, "release", {}))
+    assert editor.block == (Pos(0, 0), Pos(0, 8))
+    _, editor = mouse(files, (0, 0, "press", {}), (4, 0, "move", {}), (4, 0, "release", {}),
+                      (6, 1, "press", {}), (6, 1, "release", {}))
+    assert editor.block is None and (editor.line, editor.col) == (1, 6)
+
+
+def test_a_double_click_marks_the_word(files):
+    app, editor = mouse(files, (8, 0, "double", {}))
+    assert editor.block_text == "line"
+    assert app.terminal.clipboard == [("line", True)]
+
+
+def test_a_middle_click_asks_for_the_primary_selection(files):
+    app, _ = mouse(files, (0, 0, "press", {"button": "middle"}))
+    assert app.terminal.clipboard_queries == [True]

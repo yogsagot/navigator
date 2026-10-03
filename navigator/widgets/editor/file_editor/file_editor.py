@@ -221,6 +221,8 @@ class FileEditor(Widget):
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
+        #: The block's fixed end while the left button drags, else None.
+        self._drag_from: Pos | None = None
 
     # -- the file ----------------------------------------------------------------
 
@@ -831,15 +833,79 @@ class FileEditor(Widget):
                 self.top = max(0, min(self.top + step, last))
                 return True
             return False
-        if event.action != "press" or event.button != "left":
+        app = self.application
+        if event.button == "middle" and event.action == "press":
+            # The primary selection, as the console and the input lines paste it.
+            if app is not None:
+                app.request_clipboard(primary=True)
+            return True
+        if event.button != "left":
             return False
-        self.focus()
-        self._moved()
-        self._go_column(self.top + event.y, self.left + event.x)
+        if event.action == "press":
+            self.focus()
+            self._moved()
+            before = self._mark_pos()
+            self._point(event)
+            here = self._mark_pos()
+            if event.shift:
+                # Shift+click: the block's far end stays, as Shift+movement keeps it.
+                self._extend_block(before)
+                block = self.block
+                self._drag_from = here if block is None else (block[0] if here == block[1] else block[1])
+            else:
+                self.block = None
+                self._drag_from = here
+            if app is not None:
+                app.capture_mouse(self)
+        elif event.action == "move" and self._drag_from is not None:
+            # Past the top or bottom row the text scrolls a line at a time.
+            if event.y < 0 and self.top > 0:
+                self.top -= 1
+            elif event.y >= self.height and self.top < len(self.document) - 1:
+                self.top += 1
+            self._point(event)
+            self._mark_to(self._drag_from)
+        elif event.action == "release" and self._drag_from is not None:
+            self._drag_from = None
+            self._copy_primary()
+        else:
+            return False
         return True
 
+    def _point(self, event: MouseClickEvent) -> None:
+        """The cursor to the cell under *event*, held inside the text's rows."""
+        y = min(max(event.y, 0), max(0, self.height - 1))
+        self._go_column(self.top + y, self.left + max(0, event.x))
+
+    def _mark_to(self, anchor: Pos) -> None:
+        here = self._mark_pos()
+        self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+
+    def _copy_primary(self) -> None:
+        """A block marked by the mouse is the primary selection, as a drag elsewhere is."""
+        app = self.application
+        if self.block is not None and app is not None:
+            app.copy_to_clipboard(self.block_text, primary=True)
+
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
-        return False
+        """The word under the pointer, marked: the run between two ``BREAK_CHARS``."""
+        if event.button != "left":
+            return False
+        self._drag_from = None
+        self._point(event)
+        at = self._mark_pos()
+        text = self._text()
+        if at.index >= len(text) or text[at.index] in BREAK_CHARS:
+            return True
+        start, stop = at.index, at.index
+        while start and text[start - 1] not in BREAK_CHARS:
+            start -= 1
+        while stop < len(text) and text[stop] not in BREAK_CHARS:
+            stop += 1
+        self.block = (Pos(self.line, start), Pos(self.line, stop))
+        self._go(Pos(self.line, stop))
+        self._copy_primary()
+        return True
 
     # -- the info line -------------------------------------------------------------
 
