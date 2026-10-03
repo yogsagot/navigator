@@ -2087,6 +2087,66 @@ def test_the_type_mark_picks_the_icon(name, is_dir, mark, expected):
     assert icons.icon_for(name, is_dir, mark) == expected
 
 
+@pytest.mark.parametrize(
+    "name, is_dir, mark, expected",
+    [
+        ("src", True, "/", icons.BOOKMARKED_FOLDER),
+        (".cache", True, "/", icons.BOOKMARKED_FOLDER),
+        ("lib", True, "~", icons.BOOKMARKED_FOLDER),     # the place named, wherever it leads
+        ("..", True, "/", icons.PARENT),
+        ("main.py", False, " ", icons.BY_EXTENSION["py"]),
+    ],
+)
+def test_a_bookmark_beats_the_type_and_the_hidden_folder(name, is_dir, mark, expected):
+    assert icons.icon_for(name, is_dir, mark, bookmarked=True) == expected
+
+
+@pytest.mark.parametrize(
+    "tier, bookmarked, plain",
+    [
+        (GLYPHS_NERD, icons.BOOKMARKED_FOLDER, icons.FOLDER),
+        (GLYPHS_UNICODE, "\u2666", "/"),
+        (GLYPHS_ASCII, None, "/"),                  # None: every type mark as it was
+    ],
+)
+def test_a_bookmarked_directory_has_a_gutter_glyph_of_its_own(tmp_path, tier, bookmarked, plain):
+    from navigator.bookmarks import add_bookmark
+
+    for name in ("marked", "plain", ".hidden"):
+        (tmp_path / name).mkdir()
+    (tmp_path / "to_marked").symlink_to("marked")
+    (tmp_path / "file").write_text("x")
+    add_bookmark(tmp_path / "marked")
+    add_bookmark(tmp_path / ".hidden")
+    add_bookmark(tmp_path / "to_marked")
+    add_bookmark(tmp_path / "file")                 # not a directory: no mark
+    add_bookmark(tmp_path)                          # the panel's own: no row stands for it
+    app = navigator_with(tmp_path, tier)
+    run_app(app, [])
+    buffer = desktop(app)
+    entries = app.manager.left.items
+    drawn = {e.name: buffer.get(1, 2 + row)[0] for row, e in enumerate(entries)}
+    if bookmarked is None:
+        assert (drawn["marked"], drawn[".hidden"], drawn["to_marked"]) == ("/", "/", "~")
+    else:
+        assert drawn["marked"] == drawn[".hidden"] == drawn["to_marked"] == bookmarked
+        assert drawn["file"] != bookmarked and drawn[".."] != bookmarked
+    assert drawn["plain"] == plain
+
+
+def test_a_tag_still_wins_over_the_bookmark_glyph(tmp_path):
+    from navigator.bookmarks import add_bookmark
+
+    (tmp_path / "marked").mkdir()
+    add_bookmark(tmp_path / "marked")
+    app = navigator_with(tmp_path, GLYPHS_NERD)
+    run_app(app, [KeyEvent("down"), KeyEvent("insert")])
+    panel = app.manager.left
+    assert panel.marked == frozenset({"marked"})
+    row = [e.name for e in panel.items].index("marked")
+    assert desktop(app).get(1, 2 + row)[0] == panel.TAG_CHAR
+
+
 def test_the_nerd_gutter_shows_each_type_as_a_glyph(tmp_path):
     import os
 

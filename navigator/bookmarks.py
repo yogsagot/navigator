@@ -199,12 +199,45 @@ def seed_bookmarks(paths: list[Path] | None = None) -> bool:
         for path in default_bookmarks() if paths is None else paths:
             add_bookmark(path)
         Marker.create(name=SEEDED)
+    _forget()
     return True
 
 
 def bookmarks() -> list[Bookmark]:
-    """Every bookmark, in the order the box lists them."""
-    return Bookmark.where().order("seq").all()
+    """Every bookmark, in the order the box lists them.
+
+    Reading them all refreshes :func:`bookmarked_paths` too, so a bookmark
+    another Navigator added shows in the panels once this one's box opens.
+    """
+    rows = Bookmark.where().order("seq").all()
+    global _known
+    _known = (DATABASE.connection, frozenset(row.path for row in rows))
+    return rows
+
+
+#: The connection :func:`bookmarked_paths` was read from, and what it said.
+#: Held with the connection, not beside it, so a database opened since -- a
+#: test's fresh one, ``--database`` -- is never answered from another's.
+_known: tuple[object, frozenset[str]] | None = None
+
+
+def bookmarked_paths() -> frozenset[str]:
+    """Every bookmarked path, as :func:`key_of` spells it.
+
+    What a panel asks of every directory row it paints, so it is read once
+    and kept until this process changes the bookmarks: a query per frame
+    would be cheap, a query per row would not.
+    """
+    connection = DATABASE.connection
+    if _known is None or _known[0] is not connection:
+        bookmarks()
+    assert _known is not None
+    return _known[1]
+
+
+def _forget() -> None:
+    global _known
+    _known = None
 
 
 def find_bookmark(path: Path | str) -> Bookmark | None:
@@ -218,12 +251,16 @@ def add_bookmark(path: Path | str) -> Bookmark:
     if existing is not None:
         return existing
     last = Bookmark.where().order("-seq").first()
-    return Bookmark.create(path=key, seq=(last.seq + 1) if last is not None else 1)
+    created = Bookmark.create(path=key, seq=(last.seq + 1) if last is not None else 1)
+    _forget()
+    return created
 
 
 def remove_bookmark(path: Path | str) -> bool:
     """*path* no longer bookmarked; False if it was not."""
-    return Bookmark.where(path=key_of(path)).delete() > 0
+    removed = Bookmark.where(path=key_of(path)).delete() > 0
+    _forget()
+    return removed
 
 
 def label_bookmark(path: Path | str, label: str) -> bool:

@@ -32,6 +32,11 @@ FILE = ""         # nf-fa-file
 HIDDEN_FILE = ""    # nf-fa-file_o
 HIDDEN_FOLDER = ""  # nf-fa-folder_o
 
+#: A directory on the Alt+F1/Alt+F2 list.  Font Awesome 4's bookmark, at the
+#: same codepoint in Nerd Fonts 2 and 3 -- Material Design's ``folder_star``
+#: would say "folder" too, but it moved between the two.
+BOOKMARKED_FOLDER = ""  # nf-fa-bookmark
+
 #: Extension -> glyph.  Deliberately short: an icon set that guesses at a
 #: hundred extensions is mostly wrong in ways nobody notices, and the ones
 #: below are the kinds a file manager is actually pointed at.  Keys are
@@ -116,16 +121,19 @@ BY_TYPE = {
 }
 
 
-def icon_for(name: str, is_dir: bool, mark: str = " ") -> str:
+def icon_for(name: str, is_dir: bool, mark: str = " ", bookmarked: bool = False) -> str:
     """The glyph standing for an entry called *name*, of type *mark*.
 
     Takes the fields it needs rather than a ``DirEntry`` so that it stays
     testable on its own and imposes nothing on the entry type.  *mark* is
     ``DirEntry.type_mark``; one in :data:`BY_TYPE` beats the directory and the
-    extension.
+    extension.  A *bookmarked* directory beats both, a link to one included:
+    it is the place the user named, wherever it leads.
     """
     if name == "..":
         return PARENT
+    if bookmarked and is_dir:
+        return BOOKMARKED_FOLDER
     if mark in BY_TYPE:
         return BY_TYPE[mark]
     hidden = name.startswith(".")

@@ -16,6 +16,7 @@ from navkit.events import KeyEvent
 from navigator.__main__ import Navigator
 from navigator.bookmarks import (
     add_bookmark,
+    bookmarked_paths,
     bookmarks,
     default_bookmarks,
     find_bookmark,
@@ -482,3 +483,46 @@ def lines(app) -> list[int]:
     from navml.widgets.menu.menu_line import MenuLine
 
     return [i for i, entry in enumerate(popup(app).box.entries()) if isinstance(entry, MenuLine)]
+
+
+def test_bookmarked_paths_follows_every_change_and_never_another_database(tmp_path):
+    from navkit.database import DATABASE
+
+    add_bookmark(tmp_path / "one")
+    assert bookmarked_paths() == {str(tmp_path / "one")}
+    add_bookmark(tmp_path / "two")
+    remove_bookmark(tmp_path / "one")
+    assert bookmarked_paths() == {str(tmp_path / "two")}
+    move_bookmark(tmp_path / "two", 1)
+    assert bookmarked_paths() == {str(tmp_path / "two")}
+    DATABASE.open()                             # what the next test gets
+    assert bookmarked_paths() == frozenset()
+    seed_bookmarks([tmp_path / "three"])
+    assert bookmarked_paths() == {str(tmp_path / "three")}
+
+
+def test_adding_from_the_box_marks_the_row_in_the_other_panel_at_once(places):
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+    from navkit.glyphs import GLYPHS_UNICODE
+    from navkit.screen import ScreenBuffer
+
+    app = Navigator(places, places, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=GLYPHS_UNICODE)))
+    left = app.manager.left
+    seen = {}
+
+    def gutter(a):
+        buffer = ScreenBuffer(80, 24)
+        a.shell.render_tree(buffer)
+        row = [e.name for e in left.items].index("first")
+        return buffer.get(1, 2 + row)[0]
+
+    run_app(app, [
+        lambda a: setattr(a.manager.right, "path", places / "first"), lambda a: None,
+        lambda a: seen.update(before=gutter(a)),
+        KeyEvent("f2", alt=True), lambda a: None,
+        KeyEvent("a", char="a"), lambda a: None,
+        lambda a: seen.update(after=gutter(a)),
+    ])
+    assert (seen["before"], seen["after"]) == ("/", left.BOOKMARK_MARK)

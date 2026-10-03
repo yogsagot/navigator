@@ -49,6 +49,11 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   pass them by (they act only on `selected < len(rows)`), and *Add this folder* from one bookmarks it.
   `choose_bookmark` maps an entry to its path through `places`, parallel to the entries. **App tests must pin
   `navigator.bookmarks.mounted_places`** (the `places` fixture does), or the machine's own drives join the box.
+- **The panels mark bookmarked directories** in the gutter (`Panel.is_bookmarked`, glyphs in
+  `colours-themes-glyphs`), asking `bookmarked_paths()` for every directory row it paints. That set is cached with the
+  connection it was read from (so a test's fresh database never sees another's), cleared by add/remove/seed and
+  refreshed by `bookmarks()`, which the box calls -- another Navigator's change shows once this one's box opens. Panel
+  paths are resolved, so a bookmark through a symlinked path (`$HOME` via a link) is not marked.
 - **Del** (`DELETE_BOOKMARK_KEY`) removes the selected bookmark, unasked as *Remove this folder* is, and the box opens
   again on the entry that took its place (the one before, for the last). On *Add*/*Remove* it does nothing.
 

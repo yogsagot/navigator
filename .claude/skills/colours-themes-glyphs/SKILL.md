@@ -60,7 +60,10 @@ tier. `Widget.box_joins()` matches tees (`┬┴` single, `╤╧` double).
 **The Nerd Font icon gutter in `Panel` is the project's one standing modern exception**, taken deliberately, on only
 where the font is known to exist, reversible with `icons: none` or `--glyphs unicode`. Don't re-litigate it and don't
 read it as licence for the next flourish. Icons: `icons.BY_TYPE` beats the extension's;
-`icons.HIDDEN_FILE`/`HIDDEN_FOLDER` for unclaimed dot-names.
+`icons.HIDDEN_FILE`/`HIDDEN_FOLDER` for unclaimed dot-names; `icons.BOOKMARKED_FOLDER` (nf-fa-bookmark) beats
+both for a directory on the bookmarks list, a link to one included. Icons stay Font Awesome 4/Octicons -- Material
+Design codepoints moved between Nerd Fonts 2 and 3. Without icons a bookmarked directory's type mark is
+`Panel.BOOKMARK_MARK` (`♦`, CP437 `$04`) instead of `/`; the ASCII tier keeps `/`.
 
 ## Read when
 

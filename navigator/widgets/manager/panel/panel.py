@@ -39,6 +39,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 # lines apart meaning a module and a keyword is a trap rather than a saving.
 from navigator import filetypes
 from navigator import icons as icon_glyphs
+from navigator.bookmarks import bookmarked_paths
 from navigator.fileattr import group_name, user_name
 from navigator.settings import SETTINGS
 
@@ -893,6 +894,16 @@ class Panel(ListViewer):
     def tag_char(self) -> str:
         return self.TAG_CHAR if self.glyphs > glyphs_module.GLYPHS_ASCII else self.TAG_CHAR_ASCII
 
+    #: The type mark of a bookmarked directory, in place of ``/``: CP437's
+    #: ``$04``, a character DN could have drawn.  The ASCII tier keeps ``/``.
+    BOOKMARK_MARK = "♦"
+
+    def is_bookmarked(self, item: DirEntry) -> bool:
+        """Whether *item* is a directory on the Alt+F1/Alt+F2 list."""
+        if not item.is_dir or item.name == "..":
+            return False
+        return os.path.join(str(self.path), item.name) in bookmarked_paths()
+
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
                    item: DirEntry, style: Style, offset: int = 0) -> None:
         """The tag, the icon or the type mark, and the name, in *width* cells.
@@ -905,7 +916,10 @@ class Panel(ListViewer):
             if self.is_marked(item):
                 mark = self.tag_char
             elif self.show_icons:
-                mark = icon_glyphs.icon_for(item.name, item.is_dir, item.type_mark)
+                mark = icon_glyphs.icon_for(item.name, item.is_dir, item.type_mark,
+                                            self.is_bookmarked(item))
+            elif self.glyphs > glyphs_module.GLYPHS_ASCII and self.is_bookmarked(item):
+                mark = self.BOOKMARK_MARK
             else:
                 mark = item.type_mark
             surface.draw_text(x, y, mark, style, gutter)
