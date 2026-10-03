@@ -1010,3 +1010,49 @@ def test_ctrl_k_r_says_a_name_in_no_directory_is_invalid(files):
                            lambda a: said.append(a.modal.prompt if a.modal else None))
     assert said == ["Invalid file name."]
     assert editor.document.encode() == b"ab\n"
+
+
+# -- ^K1-9 and ^Q1-9: markers --------------------------------------------------------------------
+
+
+def lines(count: int) -> bytes:
+    return b"".join(b"line %03d\n" % n for n in range(count))
+
+
+def test_ctrl_k_digit_places_a_marker_and_ctrl_q_digit_returns_to_it(files):
+    _, editor = text_editor(files, lines(10), KeyEvent("down"), KeyEvent("down"),
+                            KeyEvent("right"), *chord("3"), ctrl("pagedown"),
+                            ctrl("q"), KeyEvent("3", "3"))
+    assert (editor.line, editor.col) == (2, 1)
+
+
+def test_going_to_a_marker_centres_it(files):
+    _, editor = text_editor(files, lines(200), *[KeyEvent("pagedown")] * 4, *chord("1"),
+                            ctrl("pageup"), ctrl("q"), KeyEvent("1", "1"))
+    assert editor.top == max(0, editor.line - editor.height // 2)
+    assert editor.top > 0
+
+
+def test_an_unset_marker_goes_nowhere(files):
+    _, editor = text_editor(files, lines(10), KeyEvent("down"), ctrl("q"), KeyEvent("7", "7"))
+    assert (editor.line, editor.col) == (1, 0)
+
+
+def test_a_markers_digit_never_types(files):
+    _, editor = text_editor(files, b"abc\n", *chord("5"), ctrl("q"), KeyEvent("5", "5"))
+    assert editor.document.encode() == b"abc\n"
+
+
+def test_markers_come_back_with_the_edit_history(files):
+    (files / "text.txt").write_bytes(lines(10))
+    SETTINGS.interface.store_editor_position = False  # the markers come back regardless
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *[KeyEvent("down")] * 4, *chord("9"), KeyEvent("escape"), lambda a: None,
+                  KeyEvent("f4"), lambda a: None, ctrl("q"), KeyEvent("9", "9"),
+                  lambda a: seen.update(at=(editor_window(a).editor.line, editor_window(a).editor.col))])
+    assert seen["at"] == (4, 0)
+    from navigator.models.edit_record import EditRecord
+
+    assert EditRecord.find(files / "text.txt").marks == ",,,,,,,,4:0"

@@ -25,7 +25,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
   and not yet here: `cmHideBlock`'s second key Alt+H, `cmSwitchBlock` (^B^V, column blocks on and off),
-  `cmPlaceMarker`/`cmGotoMarker` (^K1-9/^Q1-9), `cmSortBlock`, `cmCalcBlock`, `cmPrintBlock`, `cmBracketPair`.
+  `cmSortBlock`, `cmCalcBlock`, `cmPrintBlock`, `cmBracketPair`.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H unmarks, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
@@ -41,6 +41,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `yes-no-cancel` with `no` relabelled), a read-only one asks *Modify it anyway?* and gets its mode back afterwards;
   the write emits `FileSaved` (`cmRereadDir`). Reading turns column blocks off (`VertBlock := Off`) and marks what it
   put in.
+- **Markers, ^K1-9 / ^Q1-9** (`PlaceMarker(n)`/`GotoMarker(n)`, DN's `cmPlaceMarker`/`cmGotoMarker` over `MarkPos`):
+  `FileEditor.markers`, nine fixed `(line, col)` -- not moved by edits, as DN's were not. Going to one centres it
+  (`Pos := Delta - Size div 2`) and, being a movement, unmarks under *Persistent blocks* off; an unset one does
+  nothing. Kept in the edit history as `EditRecord.marks` (`fMarks`), `line:col` nine times comma-separated, and
+  brought back whatever *Store editor position* says. The digit is bound alone, as the table has it.
 - **^Q D/T** insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the attributes
   dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take all the ^K commands.
   A pending chord shows as `^K` at the info line's end (a departure).

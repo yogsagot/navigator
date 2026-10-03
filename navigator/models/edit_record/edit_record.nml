@@ -5,9 +5,8 @@ from navigator.models.file_record import FileRecord
 #: ``StoreEditInfo`` (``HISTRIES.PAS``) wrote one when an editor closed and
 #: ``EditFile`` read it back.  ``fPos`` is the cursor (``line``, ``col``),
 #: ``fDelta`` the scroll (``top``, ``left``), ``InsMode`` the opposite of
-#: ``overwrite`` and ``VertBlock`` ``vertical_blocks``.  The marks, the block,
-#: highlighting, auto-indent and the margins have no editor feature to stand
-#: for yet, and get their columns when they do.
+#: ``overwrite``, ``VertBlock`` ``vertical_blocks`` and ``fMarks`` ``marks``.
+#: The block, highlighting, auto-indent and the margins have no column yet.
 EditRecord(FileRecord):
     table: "edit_history"
     #: The absolute path: the record's ``fName`` without its flag.
@@ -29,5 +28,7 @@ EditRecord(FileRecord):
     field left: int
     field overwrite: bool = False
     field vertical_blocks: bool = False
+    #: ``fMarks``: markers 1 to 9 as ``line:col``, comma-separated, empty where unset.
+    field marks: str = ""
     unique by_path: path
     index by_seq: seq

@@ -84,6 +84,7 @@ class EditWindow(Window):
             left=editor.left,
             overwrite=editor.overwrite,
             vertical_blocks=editor.vertical_blocks,
+            marks=editor.markers_text(),
         )
 
     def recall_history(self) -> None:
@@ -104,6 +105,9 @@ class EditWindow(Window):
             return
         editor.overwrite = record.overwrite
         editor.vertical_blocks = record.vertical_blocks
+        # The markers are the text's, not the window's place: back whatever
+        # *Store editor position* says, as ``fMarks`` came back.
+        editor.restore_markers(record.marks)
         # *Store editor position*: without it the cursor starts at the top, in
         # the window it was given.
         if not SETTINGS.interface.store_editor_position:

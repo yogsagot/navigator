@@ -34,6 +34,8 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    GotoMarker,
+    PlaceMarker,
     BlockRead,
     BlockWrite,
     InsertDate,
@@ -245,6 +247,8 @@ class FileEditor(Widget):
             "l": MarkLine,
             "r": BlockRead,
             "w": BlockWrite,
+            # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
+            **{str(n): PlaceMarker(n) for n in range(1, 10)},
         }),
         **_wordstar("ctrl+q", {
             "b": MoveBlockStart,
@@ -253,6 +257,7 @@ class FileEditor(Widget):
             "l": Undo,
             "d": InsertDate,
             "t": InsertTime,
+            **{str(n): GotoMarker(n) for n in range(1, 10)},
         }),
     }
 
@@ -306,6 +311,9 @@ class FileEditor(Widget):
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
+        #: DN's ``MarkPos``: markers 1 to 9, each a ``(line, col)`` or None.
+        #: Fixed places, as DN's were -- an edit above one does not move it.
+        self.markers: list[tuple[int, int] | None] = [None] * 9
         #: ^K B or ^K K pressed with no block marked: the end it set, and
         #: whether it was the start, waiting for the other.  Any edit drops it.
         self._half_mark: tuple[Any, bool] | None = None
@@ -331,6 +339,7 @@ class FileEditor(Widget):
             document.newline = NEWLINES[SETTINGS.editor.line_divisor]
         self._use(EditBuffer(document))
         self._unmark()
+        self.markers = [None] * 9
         self.path = path
         self.line = self.col = self.top = self.left = 0
         self.revision += 1
@@ -926,6 +935,42 @@ class FileEditor(Widget):
     async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
         self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
         return True
+
+    # -- ^K1-9 and ^Q1-9 -----------------------------------------------------------
+
+    async def on_place_marker(self, event: PlaceMarker) -> bool:
+        """``cmPlaceMarker``: the cursor's place, kept."""
+        self.markers[event.marker - 1] = (self.line, self.col)
+        return True
+
+    @_marking
+    async def on_goto_marker(self, event: GotoMarker) -> bool:
+        """``cmGotoMarker``: the cursor to a marker that is set, in the middle of the
+        window (``Pos := Delta - Size div 2``, then ``CenterScreen``).  A marker
+        past a text that has since got shorter lands on its last line."""
+        place = self.markers[event.marker - 1]
+        if place is None:
+            return True
+        self._moved()
+        line, col = place
+        self._go_column(line, col)
+        rows, cols = max(1, self.height), max(1, self.width)
+        self.top = max(0, min(self.line - rows // 2, len(self.document) - 1))
+        self.left = max(0, self.col - cols // 2)
+        return True
+
+    def markers_text(self) -> str:
+        """The markers as the edit history keeps them: ``line:col`` nine times, empty where unset."""
+        return ",".join("" if m is None else f"{m[0]}:{m[1]}" for m in self.markers)
+
+    def restore_markers(self, text: str) -> None:
+        """:meth:`markers_text`'s form read back; anything unreadable is unset."""
+        markers: list[tuple[int, int] | None] = [None] * 9
+        for index, part in enumerate(text.split(",")[:9]):
+            line, _, col = part.partition(":")
+            if line.isdigit() and col.isdigit():
+                markers[index] = (int(line), int(col))
+        self.markers = markers
 
     # -- ^K R and ^K W: the window asks for the file; these are the text ------
 

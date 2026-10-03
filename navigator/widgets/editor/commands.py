@@ -259,6 +259,24 @@ class MoveBlockEnd(Command):
     title = "Block end"
 
 
+@dataclass(frozen=True, slots=True)
+class PlaceMarker(Command):
+    """``cmPlaceMarker``: ^K1 to ^K9 -- the cursor's place kept as marker *marker*."""
+
+    title = "Place marker"
+
+    marker: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class GotoMarker(Command):
+    """``cmGotoMarker``: ^Q1 to ^Q9 -- the cursor to marker *marker*, centred."""
+
+    title = "Go to marker"
+
+    marker: int = 1
+
+
 class BlockRead(Command):
     """``cmBlockRead``: ^K^R -- Editor > Edit > *Paste from...*: a file's text at the cursor, marked."""
 
@@ -307,6 +325,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "GotoMarker",
+    "PlaceMarker",
     "InsertDate",
     "BlockRead",
     "BlockWrite",
