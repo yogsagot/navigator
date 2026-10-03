@@ -105,6 +105,20 @@ def test_with_tracking_off_nothing_is_recorded_or_restored(files):
     assert ViewRecord.find(files / "text.txt").wrap is False
 
 
+def test_without_store_viewer_position_only_the_mode_comes_back(files):
+    SETTINGS.interface.store_viewer_position = False
+    ViewRecord.store(files / "text.txt", x=3, y=2, width=50, height=15,
+                     desk_width=80, desk_height=22, mode="hex", top=512, cursor=600)
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+                  lambda a: seen.update(window=active(a))])
+    window = seen["window"]
+    assert window.viewer.mode == "hex"
+    assert (window.viewer.top, window.viewer.cursor) == (0, 0)
+    assert (window.x, window.y, window.width, window.height) != (3, 2, 50, 15)
+
+
 # -- the editor -------------------------------------------------------------------
 
 
@@ -125,6 +139,18 @@ def test_an_editor_opens_again_with_its_cursor_and_insert_mode(files):
     assert (editor.line, editor.col, editor.top) == seen["at"]
     assert editor.overwrite is True
     assert EditRecord.find(files / "text.txt").overwrite is True
+
+
+def test_without_store_editor_position_the_cursor_starts_at_the_top(files):
+    SETTINGS.interface.store_editor_position = False
+    EditRecord.store(files / "text.txt", line=120, col=3, top=110, overwrite=True)
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  lambda a: seen.update(editor=active(a).editor)])
+    editor = seen["editor"]
+    assert (editor.line, editor.col, editor.top) == (0, 0, 0)
+    assert editor.overwrite is True
 
 
 # -- the records -------------------------------------------------------------------

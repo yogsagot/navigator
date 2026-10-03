@@ -100,9 +100,10 @@ class FileWindow(Window):
         """``ViewFile``: put the window and the viewer back as the record says.
 
         Called once the window is on its desktop, whose size the rectangle is
-        scaled to.  A file with no record gets one now.  A position past the
-        end of a file that has since shrunk starts it from the top, as DN's
-        ``fPos+fBufPos > FileSize`` did.  With *keep_mode* -- As Text / As Hex
+        scaled to.  A file with no record gets one now.  The rectangle, scroll
+        and cursor come back only under *Store viewer position*.  A position
+        past the end of a file that has since shrunk starts it from the top, as
+        DN's ``fPos+fBufPos > FileSize`` did.  With *keep_mode* -- As Text / As Hex
         asked for one -- the record's mode gives way.
         """
         viewer = self.viewer
@@ -112,12 +113,16 @@ class FileWindow(Window):
         if record is None:
             self.remember_history()
             return
-        place_window(self, record)
         if not keep_mode and record.mode in MODES:
             viewer.mode = record.mode
         viewer.wrap = record.wrap
         if 0 <= record.filter < len(FILTER_TAGS):
             viewer.filter = record.filter
+        # *Store viewer position*: without it the file opens from the top, in
+        # the window it was given.
+        if not SETTINGS.interface.store_viewer_position:
+            return
+        place_window(self, record)
         fits = record.top <= viewer.size
         viewer.x_delta = record.x_delta if fits and viewer.mode == "text" else 0
         viewer.cursor = min(record.cursor, max(0, viewer.size - 1)) if fits else 0

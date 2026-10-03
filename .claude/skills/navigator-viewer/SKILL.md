@@ -25,7 +25,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   model. That happens when a viewer opens on a file with no record, and when it closes by any route, Alt+X included
   (`Navigator.on_stop`). The record is restored by `FileWindow.recall_history()` once the window is on its desktop.
   **Open viewers through `navigator.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
-  restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*.
+  restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*; the rectangle, `top`, `x_delta` and `cursor` come
+  back only under *Store viewer position* as well.
   The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The Ctrl+Q quick viewer records nothing.
 - Commands: `navigator/widgets/viewer/commands.py`.
 

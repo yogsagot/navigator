@@ -296,13 +296,20 @@ class InterfaceData(Section):
     hide_command_line: bool = Setting(False, doc="Hide the command line, and type nothing on it")
     auto_hide_command_line: bool = Setting(False, doc="Hide the command line while it is empty")
     block_insert_cursor: bool = Setting(False, doc="Block cursor on the command line")
-    store_editor_position: bool = Setting(False, doc="Store the editor's position", honoured=False)
-    store_viewer_position: bool = Setting(False, doc="Store the viewer's position", honoured=False)
+    #: Track records a file and lists it; these put a tracked file's window,
+    #: scroll and cursor back when it opens again.  On by default, as the
+    #: Track pair is, for the same reason.
+    store_editor_position: bool = Setting(
+        True, doc="Reopen a tracked file in the editor at its window, scroll and cursor",
+    )
+    store_viewer_position: bool = Setting(
+        True, doc="Reopen a tracked file in the viewer at its window, scroll and cursor",
+    )
     #: On by default, a departure from the option's place in the setup
     #: dialog's original record: a history nobody turned on is one nobody
     #: knows exists.
-    track_editing: bool = Setting(True, doc="Track editing history: Alt+PgUp, positions restored")
-    track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, positions restored")
+    track_editing: bool = Setting(True, doc="Track editing history: Alt+PgUp, modes restored")
+    track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, modes restored")
     track_directories: bool = Setting(False, doc="Track directories", honoured=False)
     #: A departure: DN fixed these at 20 (``MaxHistorySize``,
     #: ``MaxEditHistorySize``), when every list sat in 64K of DOS memory.

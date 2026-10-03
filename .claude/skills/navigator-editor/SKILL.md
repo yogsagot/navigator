@@ -16,7 +16,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`). **Open editors through `navigator.file_history.open_editor`.** DN's marks,
+  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`.** DN's marks,
   block, highlighting, auto-indent and margins get columns when the editor has them: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus

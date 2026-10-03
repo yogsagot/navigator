@@ -157,10 +157,10 @@ def test_an_unreadable_file_leaves_the_defaults(tmp_path, capsys):
 def test_check_boxes_map_to_fields_in_the_dialogs_order():
     section = InterfaceData()
     section.reset()
-    # Clock (bit 0) and the two histories (bits 9, 10) on by default, Hide
-    # status line (bit 2) set here.
+    # Clock (bit 0), the two stored positions (bits 7, 8) and the two
+    # histories (bits 9, 10) on by default, Hide status line (bit 2) set here.
     section.hide_status_line = True
-    assert section.to_bits(InterfaceData.OPTIONS) == 0b110_0000_0101
+    assert section.to_bits(InterfaceData.OPTIONS) == 0b111_1000_0101
     values = InterfaceData.from_bits(InterfaceData.OPTIONS, 0b10)
     assert values["clock"] is False and values["hide_menu_bar"] is True
     assert set(values) == set(InterfaceData.OPTIONS)

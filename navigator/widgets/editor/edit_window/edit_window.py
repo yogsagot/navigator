@@ -86,8 +86,10 @@ class EditWindow(Window):
         """``EditFile``: put the window and the editor back as the record says.
 
         Called once the window is on its desktop.  A file with no record gets
-        one now.  A cursor past the end of a text that has since got shorter
-        lands on its last line, which ``ScrollTo`` and ``Pos`` clamped too.
+        one now.  The rectangle, scroll and cursor come back only under
+        *Store editor position*.  A cursor past the end of a text that has
+        since got shorter lands on its last line, which ``ScrollTo`` and
+        ``Pos`` clamped too.
         """
         editor = self.editor
         if not SETTINGS.interface.track_editing or editor.path is None:
@@ -96,9 +98,13 @@ class EditWindow(Window):
         if record is None:
             self.remember_history()
             return
-        place_window(self, record)
         editor.overwrite = record.overwrite
         editor.vertical_blocks = record.vertical_blocks
+        # *Store editor position*: without it the cursor starts at the top, in
+        # the window it was given.
+        if not SETTINGS.interface.store_editor_position:
+            return
+        place_window(self, record)
         last = max(0, editor.line_count - 1)
         editor.top = min(max(0, record.top), last)
         editor.left = max(0, record.left)
