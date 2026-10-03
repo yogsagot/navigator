@@ -269,6 +269,14 @@ class Application:
         #: Whether what lies beneath the top modal is painted dimmed.  Off by
         #: default and experimental -- see :meth:`_painting_modal`.
         self.dim_modal = dim_modal
+        #: Whether a copy reaches the desktop's clipboard and a paste reads it
+        #: (:meth:`copy_to_clipboard`).  Off, the clipboard is a private one
+        #: inside the application, as Turbo Vision's was.
+        self.system_clipboard = True
+        #: The private clipboard and primary selection, by *primary*.  Kept
+        #: whichever way :attr:`system_clipboard` is, so turning it off still
+        #: has the last copy to paste.
+        self._private_clipboard: dict[bool, str] = {False: "", True: ""}
         self.result: Any = None
 
         self._root: Widget | None = None
@@ -457,6 +465,9 @@ class Application:
         """
         if not text:
             return
+        self._private_clipboard[primary] = text
+        if not self.system_clipboard:
+            return
         self.terminal.set_clipboard(text, primary=primary)
         if self._loop is not None and self.terminal.is_tty:
             self._loop.run_in_executor(
@@ -472,6 +483,13 @@ class Application:
         only if there is none, and a terminal that refuses sends nothing.
         """
         if self._loop is None:
+            return
+        if not self.system_clipboard:
+            # A paste the terminal makes itself (its own Ctrl+Shift+V) is
+            # still the desktop's: that never asks the application.
+            text = self._private_clipboard[primary]
+            if text:
+                self.post_event(PasteEvent(text))
             return
         self.spawn(self._read_clipboard(primary))
 

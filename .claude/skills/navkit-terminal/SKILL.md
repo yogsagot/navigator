@@ -46,7 +46,10 @@ them with Ctrl+Shift+click.
 ## Clipboard
 
 `navkit/clipboard.py`: OSC 52 plus `wl-copy`/`xclip`/`xsel`; a requested paste arrives as a `PasteEvent`. A paste
-walks the focus path when `Application.on_paste` declines it.
+walks the focus path when `Application.on_paste` declines it. `Application.system_clipboard` false makes the clipboard
+(and primary selection) private to the application: `copy_to_clipboard` keeps the text and sends nothing out,
+`request_clipboard` posts it back as a `PasteEvent`. The private copy is kept either way, so switching off still has
+the last copy. A paste the terminal makes on its own is the desktop's regardless.
 
 ## Manual checks
 

@@ -375,6 +375,7 @@ class Shell(DockLayout):
         super().mounted()
         effect(self, Shell._follow_panel)
         effect(self, Shell._size_histories)
+        effect(self, Shell._choose_clipboard)
 
     def _size_histories(self) -> None:
         """Interface's *History size* is how long every input-line list grows.
@@ -383,6 +384,15 @@ class Shell(DockLayout):
         Navigator's settings, so it is told from here.
         """
         HISTORY.limit = max(1, SETTINGS.interface.history_size)
+
+    def _choose_clipboard(self) -> None:
+        """System Setup's *Use system clipboard*: the desktop's, or Navigator's own.
+
+        navkit's application knows nothing of Navigator's settings either.
+        """
+        app = self.application
+        if app is not None:
+            app.system_clipboard = SETTINGS.system.system_clipboard
 
     def _front_directory(self) -> Path | None:
         """The active panel's directory in the file manager in front, if one is open."""

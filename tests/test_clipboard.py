@@ -99,6 +99,41 @@ def test_a_paste_asked_for_without_a_tool_asks_the_terminal():
     assert app.terminal.clipboard_queries == [True]
 
 
+def test_a_private_clipboard_keeps_a_copy_from_the_terminal_and_pastes_it_back():
+    root = Widget()
+    field = InputLine(parent=root)
+    app = Application(root, terminal=FakeTerminal())
+    app.system_clipboard = False
+    field.focus()
+    run_app(app, [lambda a: a.copy_to_clipboard("kept"), lambda a: a.request_clipboard()])
+    assert app.terminal.clipboard == [] and app.terminal.clipboard_queries == []
+    assert field.value == "kept"
+
+
+def test_the_private_primary_selection_is_its_own():
+    root = Widget()
+    field = InputLine(parent=root)
+    app = Application(root, terminal=FakeTerminal())
+    app.system_clipboard = False
+    field.focus()
+    run_app(app, [lambda a: a.copy_to_clipboard("clip"),
+                  lambda a: a.copy_to_clipboard("sel", primary=True),
+                  lambda a: a.request_clipboard(primary=True)])
+    assert field.value == "sel"
+
+
+def test_a_copy_made_with_the_system_clipboard_is_there_once_it_is_off():
+    root = Widget()
+    field = InputLine(parent=root)
+    app = Application(root, terminal=FakeTerminal())
+    field.focus()
+    run_app(app, [lambda a: a.copy_to_clipboard("before"),
+                  lambda a: setattr(a, "system_clipboard", False),
+                  lambda a: a.request_clipboard()])
+    assert app.terminal.clipboard == [("before", False)]
+    assert field.value == "before"
+
+
 # -- the input line --------------------------------------------------------------
 
 

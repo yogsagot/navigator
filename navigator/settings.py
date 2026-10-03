@@ -243,7 +243,11 @@ class SystemData(Section):
 
     internal_editor: bool = Setting(True, doc="F4 opens the internal editor; off runs $EDITOR")
     internal_viewer: bool = Setting(True, doc="F3 opens the internal viewer; off runs $PAGER")
-    system_clipboard: bool = Setting(False, doc="Use the system clipboard", honoured=False)
+    #: DN's default was off, its own clipboard; Navigator has always used the
+    #: desktop's, so on.
+    system_clipboard: bool = Setting(
+        True, doc="Copy to and paste from the desktop's clipboard; off, Navigator's own",
+    )
     #: DN's default was off; Navigator's panels have always shown them.
     show_hidden: bool = Setting(True, doc="A new panel shows hidden files (Ctrl+H toggles one)")
     #: DN flushed DOS's disk caches; on POSIX that is an fsync of what was written.

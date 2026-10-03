@@ -707,3 +707,15 @@ def test_without_auto_indent_enter_starts_the_new_line_at_the_margin(listing):
                   KeyEvent("x", "x"),
                   lambda a: seen.update(text=a.shell.desktop.active_window.editor.document.encode())])
     assert seen["text"] == b"    indented\nx\n"
+
+
+def test_use_system_clipboard_switches_the_applications(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        lambda a: seen.append(a.system_clipboard),
+        lambda a: setattr(SETTINGS.system, "system_clipboard", False),
+        lambda a: None,
+        lambda a: seen.append(a.system_clipboard),
+    ])
+    assert seen == [True, False]
