@@ -917,3 +917,23 @@ def test_column_blocks_take_the_k_commands_too(files):
     # "b"/"f" out of columns 1-2, in again at the end of line 1: its column 4, less the
     # one column the block took out of it.  The text has no line 2, so one is added.
     assert editor.document.encode() == b"acd\neghb\n   f"
+
+
+def test_ctrl_q_d_and_t_insert_the_date_and_the_time(files, monkeypatch):
+    import time as time_module
+
+    fixed = time_module.strptime("2026-10-04 09:05:07", "%Y-%m-%d %H:%M:%S")
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    _, editor = text_editor(files, b"ab\n", KeyEvent("right"), ctrl("q"), KeyEvent("d", "d"),
+                            KeyEvent(" ", " "), ctrl("q"), ctrl("t"))
+    assert editor.document.encode() == b"a04-10-2026 09:05:07b\n"
+    assert editor.col == 20
+
+
+def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
+    import time as time_module
+
+    fixed = time_module.strptime("2026-10-04", "%Y-%m-%d")
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    _, editor = text_editor(files, b"ab\n", KeyEvent("insert"), ctrl("q"), KeyEvent("d", "d"))
+    assert editor.document.encode() == b"04-10-2026ab\n"

@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks
+from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -227,9 +227,11 @@ EditWindow(Window):
             text: '~M~isc'
             MenuItem:
                 text: 'Insert ~d~ate'
+                command: InsertDate
                 key: 'Ctrl Q D'
             MenuItem:
                 text: 'Insert ~t~ime'
+                command: InsertTime
                 key: 'Ctrl Q T'
             MenuItem:
                 text: 'Du~p~licate line'

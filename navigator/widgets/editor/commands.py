@@ -259,6 +259,18 @@ class GoBlockEnd(Command):
     title = "Block end"
 
 
+class InsertDate(Command):
+    """^Q D, Editor > Misc > *Insert date*: today's date at the cursor."""
+
+    title = "Insert date"
+
+
+class InsertTime(Command):
+    """^Q T, Editor > Misc > *Insert time*: the time now at the cursor."""
+
+    title = "Insert time"
+
+
 class VerticalBlocks(Command):
     """Editor > Options > *Vertical blocks*: column blocks, or stream ones (DN's ``VertBlock``)."""
 
@@ -283,6 +295,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "InsertDate",
+    "InsertTime",
     "MarkBlockStart",
     "MarkBlockEnd",
     "HideBlock",

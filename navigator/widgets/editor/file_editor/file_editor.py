@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import functools
 import re
+import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -33,6 +34,8 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    InsertDate,
+    InsertTime,
     CapitalizeBlock,
     CopyBlock,
     GoBlockEnd,
@@ -84,6 +87,7 @@ from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
 from navigator.editor.document import BREAK, NEWLINES, Document, Pos, shifted
 from navigator.editor.save import write_file
+from navigator.fileattr import DATE_FORMAT, TIME_FORMAT
 from navigator.settings import SETTINGS
 
 #: DN's ``BreakChars`` (``ADVANCE.PAS``): what ends a word for Ctrl+Left,
@@ -107,6 +111,11 @@ def _wordstar(prefix: str, letters: dict[str, Any]) -> dict[str, Any]:
         if len(key) == 1 and key.isalpha():
             table[f"{prefix} ctrl+{key}"] = command
     return table
+
+
+def _now() -> time.struct_time:
+    """The time ^Q D and ^Q T write; a function so a test can fix it."""
+    return time.localtime()
 
 
 #: A word, for Capitalize: letters and digits, not the underscore.
@@ -238,6 +247,8 @@ class FileEditor(Widget):
             "k": GoBlockEnd,
             "y": DeleteToEnd,
             "l": Undo,
+            "d": InsertDate,
+            "t": InsertTime,
         }),
     }
 
@@ -910,6 +921,26 @@ class FileEditor(Widget):
 
     async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
         self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
+        return True
+
+    # -- ^Q D and ^Q T -------------------------------------------------------------
+
+    def _insert_now(self, format: str) -> None:
+        """The date or time in DN's ``Date (D-M-Y)``/``Time (H:M:S)`` form -- the
+        attributes dialog's -- inserted at the cursor, never typed over what is
+        there even in overwrite; with *Persistent blocks* off it replaces the block."""
+        self._moved()
+        self._begin_replacing()
+        end = self.buffer.insert(self._pad(), time.strftime(format, _now()))
+        self._go(end)
+        self._end()
+
+    async def on_insert_date(self, event: InsertDate) -> bool:
+        self._insert_now(DATE_FORMAT)
+        return True
+
+    async def on_insert_time(self, event: InsertTime) -> bool:
+        self._insert_now(TIME_FORMAT)
         return True
 
     async def on_vertical_blocks(self, event: VerticalBlocks) -> bool:
