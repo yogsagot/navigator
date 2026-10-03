@@ -585,3 +585,125 @@ def test_dont_ask_again_on_exit(tmp_path, quiet_console, tick, answer, asks_agai
     assert SETTINGS.confirmations.exit is asks_again
     saved = config_path().exists() and "exit = no" in config_path().read_text(encoding="utf-8")
     assert saved is (not asks_again)
+
+
+# -- File Manager Setup, New Manager defaults, the editor's Auto indent ------------------
+
+
+@pytest.fixture
+def listing(tmp_path, quiet_console):
+    (tmp_path / "alpha").mkdir()
+    (tmp_path / "pack.zip").write_text("x")
+    (tmp_path / "plain").write_text("    indented\n")
+    return tmp_path
+
+
+def _left(app):
+    return app.manager.left
+
+
+def test_without_space_toggles_space_types(listing):
+    SETTINGS.file_manager.space_toggles_selection = False
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    run_app(app, [KeyEvent("down"), KeyEvent(" ", " ")])
+    assert _left(app).marked == frozenset()
+    assert app.shell.command_line.value == " "
+
+
+def test_without_bs_upper_dir_backspace_stays(listing):
+    SETTINGS.file_manager.bs_upper_dir = False
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    run_app(app, [lambda a: setattr(_left(a), "path", listing / "alpha"),
+                  lambda a: a.post_event(KeyEvent("backspace"))])
+    assert _left(app).path == listing / "alpha"
+
+
+def test_without_del_erases_del_is_disabled_and_f8_is_not(listing):
+    from navigator.widgets.manager.commands import Delete
+
+    SETTINGS.file_manager.del_erases = False
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        _left(a).cursor = 2
+        seen.append((a.manager.enables(Delete(by_key=True)), a.manager.enables(Delete())))
+
+    run_app(app, [lambda a: None, look])
+    assert seen == [(False, True)]
+
+
+def test_column_titles_come_and_go_with_the_setting(listing):
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        lambda a: _left(a).cycle_view_mode(),
+        lambda a: seen.append(_left(a).header),
+        lambda a: setattr(SETTINGS.file_manager, "column_titles", False),
+        lambda a: None,
+        lambda a: seen.append(_left(a).header),
+    ])
+    assert seen == [1, 0]
+
+
+def test_the_tag_sign_is_the_settings_and_can_be_switched_off(listing):
+    SETTINGS.file_manager.tag_sign = "*"
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        lambda a: seen.append(_left(a).tag_char),
+        lambda a: setattr(SETTINGS.file_manager, "tag_character", False),
+        lambda a: seen.append(_left(a).tag_char),
+    ])
+    assert seen == ["*", ""]
+
+
+def test_without_files_highlight_every_file_is_plain(listing):
+    SETTINGS.panel_defaults.files_highlight = False
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        panel = _left(a)
+        index = next(i for i, e in enumerate(panel.items) if e.name == "pack.zip")
+        seen.append(panel.row_style(index, panel.items[index]) == panel.part_style("row"))
+
+    run_app(app, [lambda a: None, look])
+    assert seen == [True]
+
+
+def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append(_left(a).footer_text())
+
+    def tag(a):
+        panel = _left(a)
+        panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == "plain")
+        panel.marked = frozenset({"pack.zip"})
+
+    run_app(app, [
+        tag, lambda a: None, look,
+        lambda a: setattr(SETTINGS.panel_defaults, "selected_files", False), look,
+        lambda a: setattr(SETTINGS.panel_defaults, "current_file", False), look,
+    ])
+    assert "selected files" in seen[0]
+    assert seen[1:] == [" plain ", ""]
+
+
+def test_without_auto_indent_enter_starts_the_new_line_at_the_margin(listing):
+    SETTINGS.editor.auto_indent = False
+    app = Navigator(listing, listing, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def open_plain(a):
+        panel = _left(a)
+        panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == "plain")
+        a.post_event(KeyEvent("f4"))
+
+    run_app(app, [open_plain, lambda a: None, KeyEvent("end"), KeyEvent("enter"),
+                  KeyEvent("x", "x"),
+                  lambda a: seen.update(text=a.shell.desktop.active_window.editor.document.encode())])
+    assert seen["text"] == b"    indented\nx\n"

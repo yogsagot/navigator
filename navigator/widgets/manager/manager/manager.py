@@ -341,10 +341,17 @@ class Manager(Window):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so Backspace falls through and edits the line.
                 return False
+            if command.by_key and not SETTINGS.file_manager.bs_upper_dir:
+                # File Manager Setup's *BS upper dir* off: Shift+Backspace
+                # and Ctrl+PgUp still go up.
+                return False
             return not (self.tree.focused or self.quick.focused)
         if isinstance(command, (Delete, DeleteSingle)) and command.by_key:
             if self._command_line_has_text():
                 # Disabled, so Del deletes a character and Shift+Del cuts.
+                return False
+            if isinstance(command, Delete) and not SETTINGS.file_manager.del_erases:
+                # File Manager Setup's *Del erases* off: F8 still does.
                 return False
         if isinstance(command, DeleteSingle):
             entry = self.active_panel.selected

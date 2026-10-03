@@ -482,9 +482,11 @@ class Shell(DockLayout):
             # ``CmdLine.Str <> ''``: once anything is on the line -- a blank
             # included -- Space types.  Otherwise it is Insert, wherever the
             # file manager would take Insert.
+            # File Manager Setup's *Space toggles* off, it always types.
             manager = self.active_manager
             return (
-                not self.command_line.value
+                SETTINGS.file_manager.space_toggles_selection
+                and not self.command_line.value
                 and manager is not None
                 and manager.enables(ToggleMark())
             )

@@ -357,7 +357,7 @@ class EditorDefaultsData(Section):
     create_backup: bool = Setting(False, doc="Create backup files", honoured=False)
     backspace_unindents: bool = Setting(True, doc="Backspace unindents", honoured=False)
     auto_brackets: bool = Setting(False, doc="Close brackets as they are typed", honoured=False)
-    auto_indent: bool = Setting(True, doc="Auto indent", honoured=False)
+    auto_indent: bool = Setting(True, doc="Enter indents the new line as the one above")
     autowrap: bool = Setting(False, doc="Wrap at the right margin", honoured=False)
     justify_on_wrap: bool = Setting(False, doc="Justify on wrap", honoured=False)
     vertical_blocks: bool = Setting(False, doc="Column blocks rather than stream ones")
@@ -405,15 +405,19 @@ class FMSetupData(Section):
     drag_drop_columns: bool = Setting(False, doc="Drag-and-drop from columns", honoured=False)
     beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy", honoured=False)
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
-    space_toggles_selection: bool = Setting(True, doc="Space toggles selection", honoured=False)
-    del_erases: bool = Setting(True, doc="Del erases files", honoured=False)
+    space_toggles_selection: bool = Setting(
+        True, doc="Space tags the cursor's file while the command line is empty",
+    )
+    del_erases: bool = Setting(True, doc="Del erases files while the command line is empty")
     use_arrows: bool = Setting(True, doc="Use the arrow keys", honoured=False)
     #: DN's default was off; Navigator's Backspace has always gone up.
-    bs_upper_dir: bool = Setting(True, doc="Backspace goes to the parent directory", honoured=False)
-    column_titles: bool = Setting(True, doc="Column titles", honoured=False)
+    bs_upper_dir: bool = Setting(
+        True, doc="Backspace goes to the parent directory while the command line is empty",
+    )
+    column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="Info divider", honoured=False)
-    tag_character: bool = Setting(True, doc="Tag character", honoured=False)
-    tag_sign: str = Setting("√", doc="Tag sign", honoured=False)
+    tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")
+    tag_sign: str = Setting("√", doc="Tag sign; empty means √")
 
 
 class PanelDefaultsData(Section):
@@ -437,11 +441,11 @@ class PanelDefaultsData(Section):
         "name", choices=SORT_BY, aliases={"group": "type"}, doc="Sort by", honoured=False,
     )
     directory_length: bool = Setting(False, doc="Directory length", honoured=False)
-    current_file: bool = Setting(True, doc="Current file", honoured=False)
-    selected_files: bool = Setting(True, doc="Selected files", honoured=False)
+    current_file: bool = Setting(True, doc="The info line names the current file")
+    selected_files: bool = Setting(True, doc="The info line totals the selected files")
     totals: bool = Setting(False, doc="Totals", honoured=False)
     free_space: bool = Setting(True, doc="Free space", honoured=False)
-    files_highlight: bool = Setting(True, doc="Files highlight", honoured=False)
+    files_highlight: bool = Setting(True, doc="Colour files by type")
     executables_first: bool = Setting(True, doc="Executables first", honoured=False)
     archives_first: bool = Setting(True, doc="Archives first", honoured=False)
     left_panel: str = Setting(

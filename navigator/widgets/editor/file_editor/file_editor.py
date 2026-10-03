@@ -466,14 +466,17 @@ class FileEditor(Widget):
         self._end()
 
     async def on_new_line(self, event: NewLine) -> bool:
-        """``MakeEnter``: split the line, and indent the new one as this one is."""
+        """``MakeEnter``: split the line, and indent the new one as this one is.
+
+        The indent only under the Editor setup's *Auto indent*.
+        """
         self._begin()
         index, _ = self._index()
         text = self._text()
         at = Pos(self.line, min(index, len(text)))
         indent = text[:len(text) - len(text.lstrip(" \t"))]
         tail = text[at.index:]
-        if at.index <= len(indent):
+        if at.index <= len(indent) or not SETTINGS.editor.auto_indent:
             indent = ""
         end = self.buffer.insert(at, self.document.newline + (indent if tail.strip() else ""))
         self._go(end)

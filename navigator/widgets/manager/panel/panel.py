@@ -318,6 +318,7 @@ class Panel(ListViewer):
         effect(self, Panel._rescan)
         super().mounted()
         effect(self, Panel._end_search_unfocused)
+        effect(self, Panel._follow_column_titles)
 
     # -- the listing ---------------------------------------------------------
 
@@ -528,8 +529,15 @@ class Panel(ListViewer):
         modes = self.VIEW_MODES
         mode = modes[(modes.index(self.view_mode) + 1) % len(modes)]
         self.view_mode = mode
-        self.header = 0 if mode == "simple" else 1
+        self._follow_column_titles()
         self.name_scroll = 0
+
+    def _follow_column_titles(self) -> None:
+        """The heading row: the detailed and list modes', under File Manager
+        Setup's *Column titles*; also an effect, so unticking it takes the
+        row away at once.  The dividers stay either way."""
+        titled = self.view_mode != "simple" and SETTINGS.file_manager.column_titles
+        self.header = 1 if titled else 0
 
     def toggle_hidden(self) -> None:
         """Ctrl+H: hide the dot-files, or show them again.
@@ -854,11 +862,18 @@ class Panel(ListViewer):
         """
         if self.quick_search is not None:
             return f"{self.SEARCH_LABEL}{self.quick_search} "
-        marked = self.marked_entries
+        # New Manager defaults' *Selected files* and *Current file* say which
+        # of the two the line may show; with neither it is empty.  Read live
+        # rather than copied into each new manager as DN's were, so the boxes
+        # apply to the panels already open.
+        shown = SETTINGS.panel_defaults
+        marked = self.marked_entries if shown.selected_files else []
         if marked:
             # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.
             size = sum(item.size for item in marked)
             summary = f" {size:,} bytes in {len(marked)} selected files "
+        elif not shown.current_file:
+            return ""
         else:
             entry = self.selected
             if entry is None:
@@ -872,7 +887,12 @@ class Panel(ListViewer):
 
     def row_style(self, index: int, item: DirEntry) -> Style:
         classes = ("directory",) if item.is_dir else ()
-        category = filetypes.category_of(item.name, item.is_dir, item.type_mark)
+        # New Manager defaults' *Files highlight*: off, every file is coloured
+        # alike (read live, as the info line's boxes are).
+        category = (
+            filetypes.category_of(item.name, item.is_dir, item.type_mark)
+            if SETTINGS.panel_defaults.files_highlight else None
+        )
         if category:
             classes += (category,)
         if self.is_marked(item):
@@ -884,15 +904,23 @@ class Panel(ListViewer):
         """``│`` between columns -- always single, whatever the frame, as DN's were."""
         return glyphs_module.charset("single", self.glyphs)[5]
 
-    #: What stands in the gutter of a tagged entry: DN's default
-    #: ``FMSetup.TagChar``, CP437's ``$FB``, and a plain ``+`` where the
-    #: terminal draws ASCII only.
+    #: What stands in the gutter of a tagged entry where File Manager Setup's
+    #: *Tag sign* is empty: DN's default ``FMSetup.TagChar``, CP437's
+    #: ``$FB``.  A plain ``+`` where the terminal draws ASCII only and the
+    #: sign is not ASCII.
     TAG_CHAR = "√"
     TAG_CHAR_ASCII = "+"
 
     @property
     def tag_char(self) -> str:
-        return self.TAG_CHAR if self.glyphs > glyphs_module.GLYPHS_ASCII else self.TAG_CHAR_ASCII
+        """The tag sign, or ``""`` with *Tag character* off: the colour alone."""
+        setup = SETTINGS.file_manager
+        if not setup.tag_character:
+            return ""
+        sign = setup.tag_sign[:1] or self.TAG_CHAR
+        if self.glyphs <= glyphs_module.GLYPHS_ASCII and not sign.isascii():
+            return self.TAG_CHAR_ASCII
+        return sign
 
     #: The type mark of a bookmarked directory, in place of ``/``: CP437's
     #: ``$04``, a character DN could have drawn.  The ASCII tier keeps ``/``.
@@ -913,7 +941,7 @@ class Panel(ListViewer):
         """
         gutter = min(self.gutter, width)
         if gutter:
-            if self.is_marked(item):
+            if self.is_marked(item) and self.tag_char:
                 mark = self.tag_char
             elif self.show_icons:
                 mark = icon_glyphs.icon_for(item.name, item.is_dir, item.type_mark,
@@ -986,7 +1014,8 @@ class Panel(ListViewer):
         """The column titles, and the dividers from them down to the last row.
 
         Drawn before the rows, so the cursor bar covers a divider it crosses
-        -- DN's did.  Nothing in the simple mode, and nothing over an error.
+        -- DN's did.  Nothing in the simple mode, and nothing over an error;
+        the dividers alone with *Column titles* off.
         A divider meets the frame in a tee at each end, ``┬``/``┴`` or
         ``╤``/``╧`` as the frame is single or double, except where the title
         or the footer already stands on that cell.
@@ -1006,8 +1035,9 @@ class Panel(ListViewer):
             shown = min(width, right - x)
             if shown <= 0:
                 break
-            text = text[:shown]
-            surface.draw_text(x + (shown - len(text)) // 2, top, text, heading, shown)
+            if self.header:
+                text = text[:shown]
+                surface.draw_text(x + (shown - len(text)) // 2, top, text, heading, shown)
             # Dividers go between columns: none after the last one.
             edge = x + width
             if index < len(spans) - 1 and edge < right:
