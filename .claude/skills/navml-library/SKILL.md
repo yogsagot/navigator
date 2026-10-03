@@ -37,6 +37,17 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   Ctrl+Ins (copy; the whole line with no selection), Shift+Del, Shift+Ins, Ctrl+C (only with a selection), Ctrl+V;
   middle click pastes the primary selection. A paste walks the focus path when `Application.on_paste` declines it.
 
+- **`FileDialog`** (`navml/widgets/dialog/file_dialog/`, DN's `TFileDialog` from `DNSTDDLG.PAS`, every rectangle
+  `TFileDialog.Init`'s): `FileDialog(title=, label=, history_id=, directory=, wildcard="*", hidden=)`, `execute()`
+  answering a full path or None. OK is `Valid(cmFileOpen)` (`valid()`): a wildcard or a directory re-lists and stays
+  up, a name in an existing directory closes, anything else says *Invalid drive or directory.*/*Invalid file name.*
+  An effect stands for `cmFileFocused`: the focused list fills the name line (a directory as `dir/` + wildcard) and
+  `FileInfoPane`. Left/Right move between controls outside the name line; Tab skips an empty *Files* list; Enter or a
+  double click in a list is OK; the history records the full path. `FileList` (`dialog/file_list/`, `TFileList` and
+  `TDirectoryList` in one) types to search as `TSortedListBox` did; `scan()` is navml's own directory reader (navml
+  may not import Navigator's). Departures: no drives, no 8.3 completion, `*` for `*.*`. Styled `FileInfoPane` in
+  `navigator.nss` (the Information pane, [61]).
+
 ## History
 
 `navml/history.py`'s `HistoryStore`/`HISTORY` is DOS Navigator's `HistList`: per-id lists, newest first, `limit` each (DN's 20; Navigator sets it from `interface.history_size`, default 50),

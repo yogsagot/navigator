@@ -19,22 +19,31 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`_begin_replacing`), and Backspace/Del delete the block alone (`_deleting_block`). Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
-  (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
+  (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
-  F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
-  to come: nothing of ^K/^Q but DN's file dialog for ^K R/W (below).
+  F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
+  The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
+  `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
+  and not yet here: `cmHideBlock`'s second key Alt+H, `cmSwitchBlock` (^B^V, column blocks on and off),
+  `cmPlaceMarker`/`cmGotoMarker` (^K1-9/^Q1-9), `cmSortBlock`, `cmCalcBlock`, `cmPrintBlock`, `cmBracketPair`.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H unmarks, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
   `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
-  end, ^Q L undoes, ^K R/W read a file in at the cursor (marked) and write the block out -- also Editor > Edit's
-  *Paste from...*/*Copy to...* -- handled by `EditWindow` (dialogs and I/O; the editor's `block_file_text`/`read_block`
-  are the text). The name is asked in Shift+F4's `EditFileDialog` retitled, history `blockfile`, relative to the edited
-  file's directory, until DN's file dialog exists; replacing a file asks first; a write emits `FileSaved` so panels
-  re-read. A stream block keeps its own line ends; a column block's lines lose their padding. ^Q D/T insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the
-  attributes dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take them all. DN's `cm*` names for these were not to hand, so the commands are named
-  for what they do. A pending chord shows as `^K` at the info line's end (a departure).
+  end, ^Q L undoes.
+- **^K R / ^K W are DN's `BlockRead`/`BlockWrite`** (`MICROED.PAS`), also Editor > Edit's *Paste from...*/*Copy
+  to...*, handled by `EditWindow` (dialogs and I/O; `FileEditor.block_file_text`/`read_block` are the text). The name
+  comes from navml's `FileDialog` (`GetFileNameDialog`: titles *Copy block to*/*Paste from File*, labels *File
+  ~N~ame*/*~P~aste from*, the shared `hsEditPasteFrom` history `edit_paste_from`), listing the active panel's
+  directory. Writing joins lines with the Editor setup's *Line divisor* and ends without one; a column block, or a
+  one-line block, writes its columns unpadded. An existing file is `CheckForOver`'s Yes/A~p~pend/Cancel (`Dialog`
+  `yes-no-cancel` with `no` relabelled), a read-only one asks *Modify it anyway?* and gets its mode back afterwards;
+  the write emits `FileSaved` (`cmRereadDir`). Reading turns column blocks off (`VertBlock := Off`) and marks what it
+  put in.
+- **^Q D/T** insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the attributes
+  dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take all the ^K commands.
+  A pending chord shows as `^K` at the info line's end (a departure).
 - **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit
   history; Editor > Options > *Vertical blocks* switches it, ticked through `FileEditor.checks`, and unmarks).
   `FileEditor.column_block` is two corner *cells* `(line, col)` -- columns, not indices, since a rectangle runs past

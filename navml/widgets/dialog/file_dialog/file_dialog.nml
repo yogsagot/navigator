@@ -1,0 +1,109 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.file_list import FileInfoPane, FileList
+from navml.widgets.dialog.label import Label
+
+#: DOS Navigator's ``TFileDialog`` (``DNSTDDLG.PAS``), as ``GetFileNameDialog``
+#: built it with OK and Help.
+#:
+#: Every rectangle is ``TFileDialog.Init``'s, a 47 by 19 dialog: the name line
+#: from column 3 with its label over it and the history button after it, the
+#: *Files* and *Directories* lists side by side from row 6, nine rows deep,
+#: each with its scroll bar as its last column, the buttons down the right ten
+#: wide and three rows apart, and the info pane over rows 16 and 17.
+#: ``Dialog``'s own row of buttons and its message are not this layout, and
+#: the hand-written half hides them.
+FileDialog(Dialog):
+    modal_width: 47
+    modal_height: 19
+    title: "Open file"
+
+    #: ``InputName``: what the caller calls the name -- *File Name*, *Paste from*.
+    Label:
+        id: caption
+        text: "~N~ame"
+        link: target.entry
+        x: 2
+        y: 2
+        width: 29
+        height: 1
+
+    Field:
+        id: target
+        x: 3
+        y: 3
+        width: 31
+        height: 1
+        label_text: ""
+        label_width: 0
+
+    Label:
+        id: files_caption
+        text: "~F~iles"
+        link: files
+        x: 2
+        y: 5
+        width: 15
+        height: 1
+
+    FileList:
+        id: files
+        framed: False
+        x: 3
+        y: 6
+        width: 15
+        height: 9
+
+    Label:
+        id: dirs_caption
+        text: "~D~irectories"
+        link: dirs
+        x: 19
+        y: 5
+        width: 15
+        height: 1
+
+    FileList:
+        id: dirs
+        framed: False
+        x: 20
+        y: 6
+        width: 15
+        height: 9
+
+    #: ``cmFileOpen``, the default: whatever the name line says, a directory or a
+    #: wildcard changing what is listed and a file name closing the dialog.
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 35
+        y: 3
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 35
+        y: 6
+        width: 10
+        height: 2
+
+    #: No help is written yet, so the button is shown and disabled.
+    Button:
+        id: helper
+        text: "~H~elp"
+        disabled: True
+        x: 35
+        y: 9
+        width: 10
+        height: 2
+
+    FileInfoPane:
+        id: info
+        x: 1
+        y: 16
+        width: 45
+        height: 2

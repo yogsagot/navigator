@@ -34,25 +34,25 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
-    ReadBlock,
-    WriteBlock,
+    BlockRead,
+    BlockWrite,
     InsertDate,
     InsertTime,
     CapitalizeBlock,
     CopyBlock,
-    GoBlockEnd,
-    GoBlockStart,
+    MoveBlockEnd,
+    MoveBlockStart,
     HideBlock,
     IndentBlock,
-    LowercaseBlock,
-    MarkBlockEnd,
-    MarkBlockStart,
+    LowcaseBlock,
+    BlockEnd,
+    BlockStart,
     MarkLine,
     MarkWord,
     MoveBlock,
     UnindentBlock,
-    UppercaseBlock,
-    ClearBlock,
+    UpcaseBlock,
+    Clear,
     ClipboardCopy,
     ClipboardCut,
     ClipboardPaste,
@@ -227,28 +227,28 @@ class FileEditor(Widget):
         "shift+delete": ClipboardCut,
         "ctrl+insert": ClipboardCopy,
         "shift+insert": ClipboardPaste,
-        "ctrl+delete": ClearBlock,
+        "ctrl+delete": Clear,
         # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
         **_wordstar("ctrl+k", {
-            "b": MarkBlockStart,
-            "k": MarkBlockEnd,
+            "b": BlockStart,
+            "k": BlockEnd,
             "h": HideBlock,
             "c": CopyBlock,
             "v": MoveBlock,
-            "y": ClearBlock,
+            "y": Clear,
             "i": IndentBlock,
             "u": UnindentBlock,
-            "[": UppercaseBlock,
-            "]": LowercaseBlock,
+            "[": UpcaseBlock,
+            "]": LowcaseBlock,
             "\\": CapitalizeBlock,
             "t": MarkWord,
             "l": MarkLine,
-            "r": ReadBlock,
-            "w": WriteBlock,
+            "r": BlockRead,
+            "w": BlockWrite,
         }),
         **_wordstar("ctrl+q", {
-            "b": GoBlockStart,
-            "k": GoBlockEnd,
+            "b": MoveBlockStart,
+            "k": MoveBlockEnd,
             "y": DeleteToEnd,
             "l": Undo,
             "d": InsertDate,
@@ -743,11 +743,11 @@ class FileEditor(Widget):
         start, end = ends
         self._set_ordered(*((here, end) if first else (start, here)))
 
-    async def on_mark_block_start(self, event: MarkBlockStart) -> bool:
+    async def on_block_start(self, event: BlockStart) -> bool:
         self._mark_end(first=True)
         return True
 
-    async def on_mark_block_end(self, event: MarkBlockEnd) -> bool:
+    async def on_block_end(self, event: BlockEnd) -> bool:
         self._mark_end(first=False)
         return True
 
@@ -774,13 +774,13 @@ class FileEditor(Widget):
             self.block = (Pos(line, 0), Pos(line, len(text)))
         return True
 
-    async def on_go_block_start(self, event: GoBlockStart) -> bool:
+    async def on_move_block_start(self, event: MoveBlockStart) -> bool:
         self._moved()
         start, _ = self._ordered_ends()
         self._go_column(*start) if self.vertical_blocks else self._go(start)
         return True
 
-    async def on_go_block_end(self, event: GoBlockEnd) -> bool:
+    async def on_move_block_end(self, event: MoveBlockEnd) -> bool:
         self._moved()
         _, end = self._ordered_ends()
         self._go_column(*end) if self.vertical_blocks else self._go(end)
@@ -915,11 +915,11 @@ class FileEditor(Widget):
                 self.block = (start, end)
         self._end()
 
-    async def on_uppercase_block(self, event: UppercaseBlock) -> bool:
+    async def on_upcase_block(self, event: UpcaseBlock) -> bool:
         self._recase(str.upper)
         return True
 
-    async def on_lowercase_block(self, event: LowercaseBlock) -> bool:
+    async def on_lowcase_block(self, event: LowcaseBlock) -> bool:
         self._recase(str.lower)
         return True
 
@@ -930,24 +930,40 @@ class FileEditor(Widget):
     # -- ^K R and ^K W: the window asks for the file; these are the text ------
 
     def block_file_text(self) -> str:
-        """The block as ^K W writes it: a stream block with its own line ends, a
-        column block's lines without their padding, joined by the file's break."""
+        """The block as ^K W writes it: DN's ``BlockWrite``.
+
+        Lines joined by the Editor setup's *Line divisor*, the file's own breaks
+        notwithstanding, and none after the last.  A column block -- or a stream
+        block on one line, which is the same thing -- gives each line's columns
+        as they stand, cut short where a line is, never padded.
+        """
+        divisor = NEWLINES[SETTINGS.editor.line_divisor]
         if self.column_block is not None:
-            return self.document.newline.join(piece.rstrip(" ") for piece in self._column_pieces())
+            top, left, bottom, right = self.rectangle
+            lines = []
+            for number in range(top, bottom + 1):
+                text = self.document.lines[number] if number < len(self.document) else ""
+                i, j = columns.span(text, left, right, self.tab_size)
+                lines.append(text[i:j])
+            return divisor.join(lines)
         if self.block is None:
             return ""
-        return self.document.text(*self.block)
+        return BREAK.sub(divisor, self.document.text(*self.block))
 
     def read_block(self, text: str) -> None:
-        """^K R's text at the cursor in the file's own line breaks, marked as a
-        stream block (unmarked under column blocks), the cursor at its start."""
+        """^K R's text at the cursor: DN's ``BlockRead``, which turned column blocks
+        off (``VertBlock := Off``) and marked what it put in (``InsertBlock``).
+
+        In the file's own line breaks; the cursor stays at the start.
+        """
         text = BREAK.sub(self.document.newline, text)
         self._moved()
         self._begin_replacing()
+        self.column_block = None
+        self.vertical_blocks = False
         at = self._pad()
         end = self.buffer.insert(at, text)
-        if not self.vertical_blocks and at < end:
-            self.block = (at, end)
+        self.block = (at, end) if at < end else None
         self._go(at)
         self._end()
 
@@ -986,7 +1002,7 @@ class FileEditor(Widget):
         self._delete_block()
         return True
 
-    async def on_clear_block(self, event: ClearBlock) -> bool:
+    async def on_clear(self, event: Clear) -> bool:
         self._delete_block()
         return True
 
@@ -1314,9 +1330,9 @@ class FileEditor(Widget):
             self.revision
             return self.buffer.can_undo
         if isinstance(command, (
-            ClipboardCut, ClipboardCopy, ClearBlock, HideBlock, CopyBlock, MoveBlock,
-            IndentBlock, UnindentBlock, UppercaseBlock, LowercaseBlock, CapitalizeBlock,
-            GoBlockStart, GoBlockEnd,
+            ClipboardCut, ClipboardCopy, Clear, HideBlock, CopyBlock, MoveBlock,
+            IndentBlock, UnindentBlock, UpcaseBlock, LowcaseBlock, CapitalizeBlock,
+            MoveBlockStart, MoveBlockEnd,
         )):
             return self.has_block
         return super().enables(command)

@@ -16,7 +16,7 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, ReadBlock, WriteBlock, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks    # edit_window.nml:1
+from navigator.widgets.editor.commands import CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UpcaseBlock, VerticalBlocks    # edit_window.nml:1
 from navigator.widgets.editor.file_editor import FileEditor    # edit_window.nml:2
 from navml.commands import CloseWindow    # edit_window.nml:3
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:4
@@ -258,13 +258,13 @@ class EditWindow(Window, _Component):
         _w14.key = 'Shift-Ins'    # edit_window.nml:140
 
         _w15.text = 'C~o~py to...'    # edit_window.nml:142
-        _w15.command = WriteBlock    # edit_window.nml:143
+        _w15.command = BlockWrite    # edit_window.nml:143
 
         _w16.text = 'P~a~ste from...'    # edit_window.nml:145
-        _w16.command = ReadBlock    # edit_window.nml:146
+        _w16.command = BlockRead    # edit_window.nml:146
 
         _w18.text = 'C~l~ear'    # edit_window.nml:149
-        _w18.command = ClearBlock    # edit_window.nml:150
+        _w18.command = Clear    # edit_window.nml:150
         _w18.key = 'Ctrl-Del'    # edit_window.nml:151
 
         self.edit_menu_search.text = '~S~earch'    # edit_window.nml:154
@@ -319,11 +319,11 @@ class EditWindow(Window, _Component):
         _w33.key = 'Ctrl K U'    # edit_window.nml:206
 
         _w35.text = 'U~p~percase'    # edit_window.nml:209
-        _w35.command = UppercaseBlock    # edit_window.nml:210
+        _w35.command = UpcaseBlock    # edit_window.nml:210
         _w35.key = 'Ctrl K ['    # edit_window.nml:211
 
         _w36.text = '~L~owercase'    # edit_window.nml:213
-        _w36.command = LowercaseBlock    # edit_window.nml:214
+        _w36.command = LowcaseBlock    # edit_window.nml:214
         _w36.key = 'Ctrl K ]'    # edit_window.nml:215
 
         _w37.text = 'Capi~t~alize'    # edit_window.nml:217
@@ -364,7 +364,7 @@ class EditWindow(Window, _Component):
         _w48.key = 'Ctrl+Shift ['    # edit_window.nml:256
 
         _w49.text = '~B~lock'    # edit_window.nml:258
-        _w49.command = UppercaseBlock    # edit_window.nml:259
+        _w49.command = UpcaseBlock    # edit_window.nml:259
         _w49.key = 'Ctrl K ['    # edit_window.nml:260
 
         self.edit_menu_misc_lowercase.text = '~L~owercase'    # edit_window.nml:263
@@ -376,7 +376,7 @@ class EditWindow(Window, _Component):
         _w51.key = 'Ctrl+Shift ]'    # edit_window.nml:269
 
         _w52.text = '~B~lock'    # edit_window.nml:271
-        _w52.command = LowercaseBlock    # edit_window.nml:272
+        _w52.command = LowcaseBlock    # edit_window.nml:272
         _w52.key = 'Ctrl K ]'    # edit_window.nml:273
 
         self.edit_menu_misc_capitalize.text = '~C~apitalize'    # edit_window.nml:276

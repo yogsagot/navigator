@@ -600,7 +600,7 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.__all__ == [
         "Button", "Calendar", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "Control",
         "DateButton", "DateField", "Desktop", "Dialog",
-        "DockLayout", "DropDown", "Field", "GridLayout", "History", "HorizontalLayout",
+        "DockLayout", "DropDown", "Field", "FileDialog", "FileInfoPane", "FileList", "GridLayout", "History", "HorizontalLayout",
         "InputLine",
         "Label", "Layout", "LinearLayout", "ListViewer", "MaskedField", "MaskedLine", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "PopupMenu", "ProgressBar", "RadioButtons", "ScrollBar",

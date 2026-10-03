@@ -13,6 +13,8 @@ Alt+X all ask it the same way.
 
 from __future__ import annotations
 
+import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -27,7 +29,7 @@ from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import ReadBlock, SaveText, WriteBlock
+from navigator.widgets.editor.commands import BlockRead, SaveText, BlockWrite
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,64 +145,98 @@ class EditWindow(Window):
     # -- ^K R and ^K W -------------------------------------------------------------
 
     def enables(self, command: Any) -> bool:
-        if isinstance(command, WriteBlock):
+        if isinstance(command, BlockWrite):
             return self.editor.has_block
         return super().enables(command)
 
-    async def _block_file(self, title: str) -> Path | None:
-        """Ask for a file's name, as Shift+F4 does; relative to the edited file's directory.
+    async def _block_file(self, title: str, label: str) -> Path | None:
+        """``GetFileNameDialog``: DN's file dialog, with OK and Help.
 
-        Shift+F4's dialog with its own title and history, where DN had its file
-        dialog (still to come).
+        The history is the one DN's ^K R and ^K W shared, ``hsEditPasteFrom``.
+        It lists the active panel's directory first, which was DN's current
+        one; without a file manager, the edited file's.
         """
-        from navigator.widgets.editor.edit_file_dialog import EditFileDialog
+        from navml.widgets.dialog.file_dialog import FileDialog
 
-        dialog = EditFileDialog()
-        dialog.title = title
-        dialog.entry.history_id = "blockfile"
+        directory = self.editor.path.parent if self.editor.path is not None else None
+        shell = getattr(self.application, "shell", None)
+        manager = getattr(shell, "active_manager", None)
+        if manager is not None:
+            directory = manager.active_panel.path
+        dialog = FileDialog(
+            title=title, label=label, history_id="edit_paste_from",
+            directory=directory, hidden=SETTINGS.system.show_hidden,
+        )
         name = await dialog.execute(self.application)
-        if not name:
-            return None
-        here = self.editor.path.parent if self.editor.path is not None else Path.cwd()
-        return here / Path(name).expanduser()
+        return Path(name) if name else None
 
     async def _say(self, message: str) -> None:
         await Dialog(title="Error", prompt=message, buttons="ok").execute(self.application)
 
-    async def on_write_block(self, event: WriteBlock) -> bool:
+    async def on_block_write(self, event: BlockWrite) -> bool:
         self.spawn(self.write_block())
         return True
 
     async def write_block(self) -> None:
-        """^K W: the block to a file, asking before one is replaced."""
+        """^K W, ``BlockWrite``: the block to a file.
+
+        An existing file is ``CheckForOver``'s question -- *Yes* replaces it,
+        *Append* adds to its end, *Cancel* writes nothing -- and a read-only
+        one is asked about again before it is changed.  The directory written
+        to is re-read in every panel showing it (``cmRereadDir``).
+        """
         data = encode(self.editor.block_file_text())
-        path = await self._block_file("Write block to file")
+        path = await self._block_file("Copy block to", "File ~N~ame")
         if path is None:
             return
-        if path.is_dir():
-            await self._say(f"{path} is a directory")
-            return
+        append = False
+        #: A read-only file's mode, put back once written, as ``SetFileAttr`` did.
+        restore: int | None = None
         if path.exists():
-            replace = await Dialog(
-                title="Warning", prompt=f"File {path.name} already exists. Overwrite?",
-                buttons="yes-no",
-            ).execute(self.application)
-            if replace is not True:
+            query = Dialog(
+                title="Warning",
+                prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
+                buttons="yes-no-cancel",
+            )
+            query.no.text = "A~p~pend"
+            answer = await query.execute(self.application)
+            if answer is None:
                 return
+            append = answer is False
+            if not os.access(path, os.W_OK):
+                modify = await Dialog(
+                    title="Warning",
+                    prompt=f"File {path.name}\nis marked as Read-Only.\nModify it anyway?",
+                    buttons="ok-cancel",
+                ).execute(self.application)
+                if modify is not True:
+                    return
+                try:
+                    restore = path.stat().st_mode
+                    path.chmod(restore | stat.S_IWUSR)
+                except OSError as error:
+                    await self._say(f"Cannot write {path}: {error.strerror or error}")
+                    return
         try:
-            write_file(path, data)
+            if append:
+                with open(path, "ab") as file:
+                    file.write(data)
+            else:
+                write_file(path, data)
+            if restore is not None:
+                path.chmod(stat.S_IMODE(restore))
         except OSError as error:
             await self._say(f"Cannot write {path}: {error.strerror or error}")
             return
         await self.emit(FileSaved(path))
 
-    async def on_read_block(self, event: ReadBlock) -> bool:
+    async def on_block_read(self, event: BlockRead) -> bool:
         self.spawn(self.read_block())
         return True
 
     async def read_block(self) -> None:
-        """^K R: a file's text at the cursor, which the editor marks."""
-        path = await self._block_file("Read block from file")
+        """^K R, ``BlockRead``: a file's text at the cursor, which the editor marks."""
+        path = await self._block_file("Paste from File", "~P~aste from")
         if path is None:
             return
         try:

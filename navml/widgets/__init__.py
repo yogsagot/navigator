@@ -47,6 +47,9 @@ _COMPONENTS = {
     "DropDown": "dialog.drop_down",
     "DockLayout": "layout.dock_layout",
     "Field": "dialog.field",
+    "FileDialog": "dialog.file_dialog",
+    "FileInfoPane": "dialog.file_list",
+    "FileList": "dialog.file_list",
     "GridLayout": "layout.grid_layout",
     "History": "dialog.history",
     "HorizontalLayout": "layout.horizontal_layout",
@@ -135,6 +138,8 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.drop_down import DropDown
     from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.dialog.field import Field
+    from navml.widgets.dialog.file_dialog import FileDialog
+    from navml.widgets.dialog.file_list import FileInfoPane, FileList
     from navml.widgets.dialog.choice_field import ChoiceField
     from navml.widgets.dialog.choice_line import ChoiceLine
     from navml.widgets.dialog.date_button import Calendar, DateButton

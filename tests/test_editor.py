@@ -598,10 +598,10 @@ def test_the_block_is_painted_in_its_own_colour(files):
 
 
 def test_cut_copy_and_clear_wait_for_a_block(files):
-    from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste
+    from navigator.widgets.editor.commands import Clear, ClipboardCopy, ClipboardCut, ClipboardPaste
 
     _, editor = marked(files)
-    assert not any(editor.enables(c()) for c in (ClipboardCut, ClipboardCopy, ClearBlock))
+    assert not any(editor.enables(c()) for c in (ClipboardCut, ClipboardCopy, Clear))
     assert editor.enables(ClipboardPaste())
 
 
@@ -939,57 +939,74 @@ def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
     assert editor.document.encode() == b"04-10-2026ab\n"
 
 
-# -- ^K R and ^K W ------------------------------------------------------------------------------
+# -- ^K R and ^K W, through DN's file dialog ------------------------------------------------
 
 
-def test_ctrl_k_w_writes_the_block_to_a_file_beside_the_edited_one(files):
-    app, editor = text_editor(files, b"one\r\ntwo\r\nthree\r\n", KeyEvent("down", shift=True),
-                              KeyEvent("down", shift=True), *chord("w"), lambda a: None,
-                              *typed("part.txt"), KeyEvent("enter"), lambda a: None)
-    assert (files / "part.txt").read_bytes() == b"one\r\ntwo\r\n"  # the file's own breaks
+def block_file(files, text: bytes, *keys, divisor="lf"):
+    """*text* in an editor whose file manager shows *files*, then *keys*."""
+    SETTINGS.editor.line_divisor = divisor
+    return text_editor(files, text, *keys)
 
 
-def test_ctrl_k_w_asks_before_replacing_a_file(files):
+def answer(name):
+    """Type *name* in the file dialog's name line, and OK."""
+    return [lambda a: None, *typed(name), KeyEvent("enter"), lambda a: None]
+
+
+def test_ctrl_k_w_writes_the_block_with_the_line_divisor(files):
+    block_file(files, b"one\r\ntwo\r\nthree\r\n", KeyEvent("down", shift=True),
+               KeyEvent("down", shift=True), *chord("w"), *answer("part.txt"), divisor="crlf")
+    # DN's BlockWrite: the Editor setup's divisor, none after the last line.
+    assert (files / "part.txt").read_bytes() == b"one\r\ntwo\r\n"
+
+
+def test_ctrl_k_w_asks_overwrite_append_or_cancel(files):
     (files / "part.txt").write_bytes(b"old")
     asked = []
-    text_editor(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), lambda a: None,
-                *typed("part.txt"), KeyEvent("enter"), lambda a: None,
-                lambda a: asked.append(a.modal.prompt if a.modal else None))
-    assert "already exists" in asked[0]
-    assert (files / "part.txt").read_bytes() == b"old"
-    app, _ = text_editor(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), lambda a: None,
-                         *typed("part.txt"), KeyEvent("enter"), lambda a: None,
-                         KeyEvent("y", alt=True), lambda a: None)
-    assert (files / "part.txt").read_bytes() == b"new"
+    block_file(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"),
+               lambda a: asked.append((a.modal.prompt, a.modal.no.text) if a.modal else None),
+               KeyEvent("p", alt=True), lambda a: None)
+    assert "already exists" in asked[0][0] and asked[0][1] == "A~p~pend"
+    assert (files / "part.txt").read_bytes() == b"oldnew"
+
+
+def test_ctrl_k_w_overwrites_on_yes_and_keeps_a_read_only_file_read_only(files):
+    target = files / "part.txt"
+    target.write_bytes(b"old")
+    target.chmod(0o444)
+    block_file(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"),
+               KeyEvent("y", alt=True), lambda a: None,
+               KeyEvent("enter"), lambda a: None)  # "Modify it anyway?" -- OK
+    assert target.read_bytes() == b"new"
+    assert target.stat().st_mode & 0o777 == 0o444
 
 
 def test_ctrl_k_w_waits_for_a_block(files):
-    from navigator.widgets.editor.commands import WriteBlock
+    from navigator.widgets.editor.commands import BlockWrite
 
     app, _ = text_editor(files, b"abc\n")
-    assert app.command_enabled(WriteBlock) is False
+    assert app.command_enabled(BlockWrite) is False
 
 
 def test_ctrl_k_w_writes_a_column_block_line_by_line(files):
     SETTINGS.editor.vertical_blocks = True
-    text_editor(files, b"abcd\nefgh\n", KeyEvent("right"), *[KeyEvent("right", shift=True)] * 2,
-                KeyEvent("down", shift=True), *chord("w"), lambda a: None,
-                *typed("cols.txt"), KeyEvent("enter"), lambda a: None)
+    block_file(files, b"abcd\nefgh\n", KeyEvent("right"), *[KeyEvent("right", shift=True)] * 2,
+               KeyEvent("down", shift=True), *chord("w"), *answer("cols.txt"))
     assert (files / "cols.txt").read_bytes() == b"bc\nfg"
 
 
-def test_ctrl_k_r_reads_a_file_in_at_the_cursor_and_marks_it(files):
+def test_ctrl_k_r_reads_a_file_in_marks_it_and_ends_column_blocks(files):
+    SETTINGS.editor.vertical_blocks = True
     (files / "piece.txt").write_bytes(b"X\nY")
-    _, editor = text_editor(files, b"ab\r\n", KeyEvent("right"), *chord("r"), lambda a: None,
-                            *typed("piece.txt"), KeyEvent("enter"), lambda a: None)
+    _, editor = block_file(files, b"ab\r\n", KeyEvent("right"), *chord("r"), *answer("piece.txt"))
     assert editor.document.encode() == b"aX\r\nYb\r\n"
+    assert editor.vertical_blocks is False
     assert editor.block_text == "X\nY" and (editor.line, editor.col) == (0, 1)
 
 
-def test_ctrl_k_r_says_when_the_file_cannot_be_read(files):
+def test_ctrl_k_r_says_a_name_in_no_directory_is_invalid(files):
     said = []
-    _, editor = text_editor(files, b"ab\n", *chord("r"), lambda a: None,
-                            *typed("missing.txt"), KeyEvent("enter"), lambda a: None,
-                            lambda a: said.append(a.modal.prompt if a.modal else None))
-    assert "Cannot read" in said[0]
+    _, editor = block_file(files, b"ab\n", *chord("r"), *answer("nowhere/x.txt"),
+                           lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said == ["Invalid file name."]
     assert editor.document.encode() == b"ab\n"
