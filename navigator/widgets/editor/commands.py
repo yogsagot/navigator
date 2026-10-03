@@ -140,6 +140,34 @@ class SwitchInsert(Command):
     """``cmSwitchIns``: Ins, ^V -- insert and overwrite."""
 
 
+class ClipboardCut(Command):
+    """``cmCut``: Shift+Del -- the block to the clipboard, and out of the text.
+
+    Not ``Cut``/``Copy``/``Paste``: ``Copy`` is F5's, and a handler named
+    ``on_copy`` or ``on_paste`` would answer that command or a paste event.
+    """
+
+    title = "Cut"
+
+
+class ClipboardCopy(Command):
+    """``cmCopy``: Ctrl+Ins -- the block to the clipboard."""
+
+    title = "Copy"
+
+
+class ClipboardPaste(Command):
+    """``cmPaste``: Shift+Ins -- the clipboard at the cursor."""
+
+    title = "Paste"
+
+
+class ClearBlock(Command):
+    """``cmClear``: Ctrl+Del -- the block out of the text, the clipboard untouched."""
+
+    title = "Clear"
+
+
 class Undo(Command):
     """``cmUndo``: Alt+Backspace, ^Q^L."""
 
@@ -153,6 +181,10 @@ class SaveText(Command):
 
 
 __all__ = [
+    "ClearBlock",
+    "ClipboardCopy",
+    "ClipboardCut",
+    "ClipboardPaste",
     "EditorMovement",
     "MoveLeft",
     "MoveRight",

@@ -503,3 +503,103 @@ def test_shift_f4_takes_a_name_under_a_directory_and_refuses_a_missing_one(files
 def test_shift_f4_on_a_directory_is_refused(files):
     _, window, modal = edit_named(files, "dir")
     assert window is None and modal.title == "Cannot edit file"
+
+
+# -- blocks and the clipboard -----------------------------------------------------------------
+
+
+def test_a_place_shifts_with_an_insert_or_delete_around_it():
+    from navigator.editor.document import shifted
+
+    at = Pos(1, 4)
+    assert shifted(at, "insert", Pos(0, 2), Pos(0, 5)) == at            # a line above, no break
+    assert shifted(at, "insert", Pos(1, 1), Pos(1, 3)) == Pos(1, 6)     # earlier on its line
+    assert shifted(at, "insert", Pos(1, 1), Pos(2, 0)) == Pos(2, 3)     # a break before it
+    assert shifted(at, "insert", Pos(1, 4), Pos(1, 6)) == Pos(1, 6)     # right at it: goes before
+    assert shifted(at, "insert", Pos(1, 4), Pos(1, 6), stay=True) == at
+    assert shifted(at, "delete", Pos(1, 0), Pos(1, 2)) == Pos(1, 2)
+    assert shifted(at, "delete", Pos(0, 3), Pos(1, 6)) == Pos(0, 3)     # inside: closes up
+    assert shifted(at, "delete", Pos(0, 3), Pos(1, 1)) == Pos(0, 6)
+
+
+def test_the_buffer_tells_its_listeners_of_undone_edits_too():
+    buffer = EditBuffer(Document.from_bytes(b"abc"))
+    heard = []
+    buffer.listeners.append(lambda *change: heard.append(change))
+    buffer.begin((0, 0))
+    buffer.insert(Pos(0, 1), "XY")
+    buffer.end()
+    buffer.undo()
+    assert heard == [("insert", Pos(0, 1), Pos(0, 3)), ("delete", Pos(0, 1), Pos(0, 3))]
+
+
+def marked(files, *keys):
+    """The editor on text.txt after *keys*: Shift+movements mark, the rest act."""
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys])
+    return app, editor_window(app).editor
+
+
+def test_shift_with_a_movement_marks_and_back_unmarks(files):
+    _, editor = marked(files, KeyEvent("right", shift=True), KeyEvent("right", shift=True),
+                       KeyEvent("down", shift=True))
+    assert editor.block == (Pos(0, 0), Pos(1, 2))
+    assert editor.block_text == "first line\nse"
+    _, editor = marked(files, KeyEvent("right", shift=True), KeyEvent("left", shift=True))
+    assert editor.block is None
+
+
+def test_ctrl_insert_copies_the_block_with_plain_line_breaks(files):
+    app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                         KeyEvent("insert", ctrl=True))
+    assert app.terminal.clipboard == [("line\nsecond", False)]
+    assert editor.block == (Pos(0, 6), Pos(1, 6))  # a copy leaves it marked
+
+
+def test_shift_delete_cuts_and_undo_brings_it_back(files):
+    app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                         KeyEvent("delete", shift=True))
+    assert app.terminal.clipboard == [("line\nsecond", False)]
+    assert editor.document.encode() == b"first \tline\r\n"
+    assert editor.block is None and (editor.line, editor.col) == (0, 6)
+    _, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                       KeyEvent("delete", shift=True), KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
+
+
+def test_ctrl_delete_clears_without_touching_the_clipboard(files):
+    app, editor = marked(files, KeyEvent("end", shift=True), KeyEvent("delete", ctrl=True))
+    assert app.terminal.clipboard == []
+    assert editor.document.encode() == b"\r\nsecond\tline\r\n"
+
+
+def test_shift_insert_pastes_in_the_files_own_line_breaks(files):
+    SETTINGS.system.system_clipboard = False  # Navigator's own, which a test can read back
+    app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                         KeyEvent("insert", ctrl=True), KeyEvent("pagedown", ctrl=True),
+                         KeyEvent("insert", shift=True), lambda a: None)
+    assert editor.document.encode() == b"first line\r\nsecond\tline\r\nline\r\nsecond"
+
+
+def test_the_block_follows_text_typed_before_it_and_not_after(files):
+    _, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("end", shift=True),
+                       KeyEvent("home"), *typed("ab"), KeyEvent("end"), *typed("z"))
+    assert editor.block == (Pos(0, 8), Pos(0, 12))
+    assert editor.block_text == "line"
+
+
+def test_the_block_is_painted_in_its_own_colour(files):
+    app, editor = marked(files, KeyEvent("right", shift=True))
+    buffer = screen(app)
+    selected = editor.part_style("selected")
+    cells = [buffer.get(x, y) for y in range(buffer.height) for x in range(buffer.width)]
+    assert sum(1 for char, style in cells if style == selected) == 1
+    assert ("f", selected) in cells
+
+
+def test_cut_copy_and_clear_wait_for_a_block(files):
+    from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste
+
+    _, editor = marked(files)
+    assert not any(editor.enables(c()) for c in (ClipboardCut, ClipboardCopy, ClearBlock))
+    assert editor.enables(ClipboardPaste())

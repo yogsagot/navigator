@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import SaveText, Undo
+from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -128,12 +128,15 @@ EditWindow(Window):
             MenuLine:
             MenuItem:
                 text: 'Cu~t~'
+                command: ClipboardCut
                 key: 'Shift-Del'
             MenuItem:
                 text: '~C~opy'
+                command: ClipboardCopy
                 key: 'Ctrl-Ins'
             MenuItem:
                 text: '~P~aste'
+                command: ClipboardPaste
                 key: 'Shift-Ins'
             MenuItem:
                 text: 'C~o~py to...'
@@ -142,6 +145,7 @@ EditWindow(Window):
             MenuLine:
             MenuItem:
                 text: 'C~l~ear'
+                command: ClearBlock
                 key: 'Ctrl-Del'
         SubMenu:
             id: edit_menu_search

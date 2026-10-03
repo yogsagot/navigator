@@ -12,6 +12,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   departure from DN's rewriting. Saving renames a new file over the old one.
 - **Every key is a command named after DN's `cm*`** in `FileEditor.keys` (`navigator/widgets/editor/commands.py`).
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
+- **Stream blocks and the clipboard.** Shift with any movement marks (`_marking` wraps the movement handlers; the
+  block grows from the cursor, or from its other end when the cursor stood on one). `FileEditor.block` is
+  `(start, end)` in `Pos`, start first, or None; it persists while the cursor moves (DN's *Persistent blocks*, the
+  default; the setting itself is still unread) and follows every edit, undo's included, through
+  `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
+  `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
+  (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
+  `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
+  F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
+  to come: column blocks (`vertical_blocks`), the `^K` block commands, unmarking (`^K H`), mouse marking.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a

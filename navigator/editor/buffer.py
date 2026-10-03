@@ -19,6 +19,7 @@ There is no redo, as there was none in DN.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Callable
 
 from navigator.editor.document import Document, Pos, split_text
 
@@ -53,6 +54,11 @@ class EditBuffer:
         self.undo_stack: list[Group] = []
         self._open: Group | None = None
         self._saved: object = None  # the top group when last saved; None: empty stack
+        #: Called after every primitive change, undo's included, with
+        #: ``"insert"`` or ``"delete"`` and where it began and ended -- a
+        #: delete's end being where the text it took out had ended.  What
+        #: holds places in the text (a block) follows the edits through it.
+        self.listeners: list[Callable[[str, Pos, Pos], None]] = []
 
     # -- grouping ----------------------------------------------------------------
 
@@ -92,6 +98,7 @@ class EditBuffer:
             return at
         end = self.document.insert(at, text)
         self._record(Change("insert", at, text))
+        self._tell("insert", at, end)
         return end
 
     def delete(self, start: Pos, end: Pos) -> str:
@@ -101,7 +108,12 @@ class EditBuffer:
             start, end = end, start
         text = self.document.delete(start, end)
         self._record(Change("delete", start, text))
+        self._tell("delete", start, end)
         return text
+
+    def _tell(self, kind: str, start: Pos, end: Pos) -> None:
+        for listener in self.listeners:
+            listener(kind, start, end)
 
     def _record(self, change: Change) -> None:
         if self._open is None:
@@ -128,8 +140,10 @@ class EditBuffer:
             if change.kind == "insert":
                 end = _end_of(change.at, change.text)
                 document.delete(change.at, end)
+                self._tell("delete", change.at, end)
             else:
-                document.insert(change.at, change.text)
+                end = document.insert(change.at, change.text)
+                self._tell("insert", change.at, end)
         if self._saved is group:
             self._saved = _LOST
         return group.before

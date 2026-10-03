@@ -21,8 +21,9 @@ printable character.
 
 from __future__ import annotations
 
+import functools
 from pathlib import Path
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
@@ -31,6 +32,10 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    ClearBlock,
+    ClipboardCopy,
+    ClipboardCut,
+    ClipboardPaste,
     DeleteBack,
     DeleteChar,
     DeleteLine,
@@ -61,7 +66,7 @@ from navigator.widgets.editor.commands import (
 )
 from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
-from navigator.editor.document import BREAK, NEWLINES, Document, Pos
+from navigator.editor.document import BREAK, NEWLINES, Document, Pos, shifted
 from navigator.editor.save import write_file
 from navigator.settings import SETTINGS
 
@@ -71,6 +76,27 @@ BREAK_CHARS = frozenset(", []{}():;.^&*!#$/\\'\"%><-+=|?\r\n\t\x0c")
 
 #: How many lines one wheel notch moves the view.
 WHEEL_ROWS = 3
+
+
+def _marking(
+    handler: Callable[[Any, Any], Awaitable[bool]],
+) -> Callable[[Any, Any], Awaitable[bool]]:
+    """A movement that, with its command's *extend* (Shift), drags the block along.
+
+    The block grows from wherever the cursor stood unless that was one of the
+    block's ends, in which case the other end stays put: Shift+Right then
+    Shift+Left takes back what the first marked.
+    """
+
+    @functools.wraps(handler)
+    async def moving(self: Any, event: Any) -> bool:
+        before = self._mark_pos()
+        done = await handler(self, event)
+        if getattr(event, "extend", False):
+            self._extend_block(before)
+        return done
+
+    return moving
 
 
 class FileEditor(Widget):
@@ -147,6 +173,12 @@ class FileEditor(Widget):
         "insert": SwitchInsert,
         "ctrl+v": SwitchInsert,
         "alt+backspace": Undo,
+        # ``cmCut``, ``cmCopy``, ``cmPaste`` and ``cmClear``: Turbo Vision's
+        # keys, since Ctrl+C and Ctrl+V are WordStar's here.
+        "shift+delete": ClipboardCut,
+        "ctrl+insert": ClipboardCopy,
+        "shift+insert": ClipboardPaste,
+        "ctrl+delete": ClearBlock,
     }
 
     #: What typing reaches: the command line's Enter, Home, End and Tab step
@@ -174,9 +206,15 @@ class FileEditor(Widget):
     #: Column blocks rather than stream ones: DN's ``VertBlock``.
     vertical_blocks: bool = reactive(False)
 
+    #: The marked block, its start before its end, or None: a stream block,
+    #: from one place in the text to another.  It stays when the cursor
+    #: moves, as DN's *Persistent blocks* kept it, and follows the edits made
+    #: around it (:meth:`_follow_edit`).
+    block: tuple[Pos, Pos] | None = reactive(None)
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.buffer = EditBuffer()
+        self._use(EditBuffer())
         #: Where a Tab stops, and how far a tab character reaches.
         self.tab_size = SETTINGS.editor.tab_size
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
@@ -203,10 +241,15 @@ class FileEditor(Widget):
             document = Document()
         if not any(document.endings):
             document.newline = NEWLINES[SETTINGS.editor.line_divisor]
-        self.buffer = EditBuffer(document)
+        self._use(EditBuffer(document))
+        self.block = None
         self.path = path
         self.line = self.col = self.top = self.left = 0
         self.revision += 1
+
+    def _use(self, buffer: EditBuffer) -> None:
+        self.buffer = buffer
+        buffer.listeners.append(self._follow_edit)
 
     def save(self) -> None:
         """Write the text to :attr:`path`.  Raises ``OSError``."""
@@ -278,6 +321,7 @@ class FileEditor(Widget):
 
     # -- movements ---------------------------------------------------------------
 
+    @_marking
     async def on_move_left(self, event: MoveLeft) -> bool:
         """One column left; over a tab or a wide character, to its start."""
         self._moved()
@@ -291,6 +335,7 @@ class FileEditor(Widget):
             self._go(Pos(self.line, index - 1))
         return True
 
+    @_marking
     async def on_move_right(self, event: MoveRight) -> bool:
         self._moved()
         index, past = self._index()
@@ -301,21 +346,25 @@ class FileEditor(Widget):
             self._go(Pos(self.line, index + 1))
         return True
 
+    @_marking
     async def on_move_up(self, event: MoveUp) -> bool:
         self._moved()
         self._go_column(self.line - 1, self.col)
         return True
 
+    @_marking
     async def on_move_down(self, event: MoveDown) -> bool:
         self._moved()
         self._go_column(self.line + 1, self.col)
         return True
 
+    @_marking
     async def on_line_start(self, event: LineStart) -> bool:
         self._moved()
         self._go_column(self.line, 0)
         return True
 
+    @_marking
     async def on_line_end(self, event: LineEnd) -> bool:
         """``cmEnd``: after the last character that is not a blank."""
         self._moved()
@@ -323,6 +372,7 @@ class FileEditor(Widget):
         self._go(Pos(self.line, len(text.rstrip(" "))))
         return True
 
+    @_marking
     async def on_page_up(self, event: PageUp) -> bool:
         self._moved()
         rows = max(1, self.height)
@@ -330,6 +380,7 @@ class FileEditor(Widget):
         self._go_column(self.line - rows, self.col)
         return True
 
+    @_marking
     async def on_page_down(self, event: PageDown) -> bool:
         self._moved()
         rows = max(1, self.height)
@@ -338,21 +389,25 @@ class FileEditor(Widget):
         self._go_column(self.line + rows, self.col)
         return True
 
+    @_marking
     async def on_screen_top(self, event: ScreenTop) -> bool:
         self._moved()
         self._go_column(self.top, self.col)
         return True
 
+    @_marking
     async def on_screen_bottom(self, event: ScreenBottom) -> bool:
         self._moved()
         self._go_column(self.top + max(1, self.height) - 1, self.col)
         return True
 
+    @_marking
     async def on_text_start(self, event: TextStart) -> bool:
         self._moved()
         self._go_column(0, 0)
         return True
 
+    @_marking
     async def on_text_end(self, event: TextEnd) -> bool:
         self._moved()
         self._go(self.document.end)
@@ -417,14 +472,78 @@ class FileEditor(Widget):
                 return Pos(line, index)
         return Pos(line, len(text))
 
+    @_marking
     async def on_word_left(self, event: WordLeft) -> bool:
         self._moved()
         self._go(self._word_left(self._pos()))
         return True
 
+    @_marking
     async def on_word_right(self, event: WordRight) -> bool:
         self._moved()
         self._go(self._word_right(self._pos()))
+        return True
+
+    # -- the block ---------------------------------------------------------------
+
+    def _mark_pos(self) -> Pos:
+        """The cursor as a place a block can end at: past a line's end, its end."""
+        index, _ = self._index()
+        return Pos(self.line, min(index, len(self._text())))
+
+    def _extend_block(self, before: Pos) -> None:
+        here = self._mark_pos()
+        block = self.block
+        anchor = before
+        if block is not None and before in block:
+            anchor = block[1] if before == block[0] else block[0]
+        self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+
+    def _follow_edit(self, kind: str, start: Pos, end: Pos) -> None:
+        """An edit made: the block's ends move with the text around them."""
+        block = self.block
+        if block is None:
+            return
+        first = shifted(block[0], kind, start, end)
+        last = shifted(block[1], kind, start, end, stay=True)
+        self.block = (first, last) if first < last else None
+
+    @property
+    def block_text(self) -> str:
+        """What the block holds, its line breaks plain ``\\n``: what a copy hands out."""
+        if self.block is None:
+            return ""
+        return BREAK.sub("\n", self.document.text(*self.block))
+
+    def _delete_block(self) -> None:
+        block = self.block
+        if block is None:
+            return
+        self._begin()
+        self.buffer.delete(*block)
+        self._go(block[0])
+        self._end()
+
+    async def on_clipboard_copy(self, event: ClipboardCopy) -> bool:
+        app = self.application
+        if self.block is not None and app is not None:
+            app.copy_to_clipboard(self.block_text)
+        return True
+
+    async def on_clipboard_cut(self, event: ClipboardCut) -> bool:
+        await self.on_clipboard_copy(ClipboardCopy())
+        self._delete_block()
+        return True
+
+    async def on_clear_block(self, event: ClearBlock) -> bool:
+        self._delete_block()
+        return True
+
+    async def on_clipboard_paste(self, event: ClipboardPaste) -> bool:
+        """Ask for the clipboard; it arrives as a paste, which :meth:`on_paste` types."""
+        app = self.application
+        if app is not None:
+            app.request_clipboard()
         return True
 
     # -- edits -------------------------------------------------------------------
@@ -677,6 +796,8 @@ class FileEditor(Widget):
         if isinstance(command, Undo):
             self.revision
             return self.buffer.can_undo
+        if isinstance(command, (ClipboardCut, ClipboardCopy, ClearBlock)):
+            return self.block is not None
         return super().enables(command)
 
     async def on_undo(self, event: Undo) -> bool:
@@ -751,9 +872,27 @@ class FileEditor(Widget):
             return x, y
         return None
 
+    def _block_columns(self, number: int) -> tuple[int, int] | None:
+        """The columns line *number* has in the block, end exclusive, or None.
+
+        A line whose break is in the block gets one more, so an empty line
+        inside it shows.
+        """
+        block = self.block
+        if block is None or not block[0].line <= number <= block[1].line:
+            return None
+        text, tab = self.document.lines[number], self.tab_size
+        first = columns.column_of(text, block[0].index, tab) if number == block[0].line else 0
+        if number == block[1].line:
+            last = columns.column_of(text, block[1].index, tab)
+        else:
+            last = columns.width(text, tab) + 1
+        return (first, last) if first < last else None
+
     def render(self, surface: Surface) -> None:
         self.revision
         style = self.style
+        selected = self.part_style("selected")
         surface.fill(0, 0, self.width, self.height, " ", style)
         lines = self.document.lines
         left, width = self.left, self.width
@@ -761,17 +900,23 @@ class FileEditor(Widget):
             number = self.top + y
             if number >= len(lines):
                 break
+            span = self._block_columns(number)
+            if span is not None:
+                start, stop = max(span[0], left), min(span[1], left + width)
+                if start < stop:
+                    surface.fill(start - left, y, stop - start, 1, " ", selected)
             row = columns.cells(lines[number], self.tab_size, limit=left + width)
             for x in range(width):
                 column = x + left
                 if column >= len(row):
                     break
+                cell = selected if span is not None and span[0] <= column < span[1] else style
                 char, _ = row[column]
                 if char == "":
                     if x == 0:
-                        surface.set_cell(x, y, " ", style)
+                        surface.set_cell(x, y, " ", cell)
                     continue
                 if x == width - 1 and column + 1 < len(row) and row[column + 1][0] == "":
-                    surface.set_cell(x, y, " ", style)
+                    surface.set_cell(x, y, " ", cell)
                     continue
-                surface.set_cell(x, y, char, style)
+                surface.set_cell(x, y, char, cell)

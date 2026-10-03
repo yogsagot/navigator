@@ -100,7 +100,8 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 Left for later, by phase:
 
 1. Key chords (navkit and markup), and the WordStar `^K`/`^Q` half of `EDITOR COMMANDS`.
-2. Blocks, stream and column, with the clipboard.
+2. Blocks: column blocks, the `^K` block commands, mouse marking and *Persistent blocks* off (stream blocks and the
+   clipboard keys are written).
 3. Find, Replace, Goto line.
 4. `FileDialog`, Save as, SmartPad, the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.

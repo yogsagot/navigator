@@ -40,6 +40,29 @@ class Pos:
     index: int
 
 
+def shifted(pos: Pos, kind: str, start: Pos, end: Pos, *, stay: bool = False) -> Pos:
+    """Where *pos* is after an edit: ``"insert"`` put text from *start* to
+    *end*, or ``"delete"`` took out what lay between them.
+
+    A place inside what was deleted closes up to *start*.  Text inserted
+    right at *pos* goes before it, unless *stay* -- a block's end, which
+    should not swallow what is typed after it.
+    """
+    if kind == "insert":
+        if pos < start or (stay and pos == start):
+            return pos
+        if pos.line == start.line:
+            return Pos(end.line, end.index + pos.index - start.index)
+        return Pos(pos.line + end.line - start.line, pos.index)
+    if pos <= start:
+        return pos
+    if pos <= end:
+        return start
+    if pos.line == end.line:
+        return Pos(start.line, start.index + pos.index - end.index)
+    return Pos(pos.line - (end.line - start.line), pos.index)
+
+
 def split_text(text: str) -> tuple[list[str], list[str]]:
     """*text* as lines and the terminators between them; the last has ``""``."""
     lines, endings, start = [], [], 0
