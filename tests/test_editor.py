@@ -434,3 +434,36 @@ def test_undo_takes_an_unindent_back_whole(tmp_path, quiet_console):
 def test_without_backspace_unindents_one_blank_goes(tmp_path, quiet_console):
     SETTINGS.editor.backspace_unindents = False
     assert backspaced(tmp_path, "a\n    b\n", 1, 4) == ("a\n   b\n", 3)
+
+
+# -- Line divisor ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("divisor, newline", [("lf", "\n"), ("crlf", "\r\n"), ("cr", "\r")])
+def test_a_new_file_breaks_lines_as_line_divisor_says(tmp_path, divisor, newline):
+    from navigator.widgets.editor.file_editor import FileEditor
+
+    SETTINGS.editor.line_divisor = divisor
+    editor = FileEditor()
+    editor.open(tmp_path / "new.txt", new=True)
+    assert editor.document.newline == newline
+
+
+def test_enter_in_an_empty_file_types_the_line_divisor(tmp_path, quiet_console):
+    SETTINGS.editor.line_divisor = "crlf"
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "text.txt").write_bytes(b"")
+    app = navigator(tmp_path)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *typed("a"), KeyEvent("enter"), *typed("b")])
+    assert editor_window(app).editor.document.encode() == b"a\r\nb"
+
+
+def test_a_file_with_breaks_keeps_its_own(tmp_path):
+    from navigator.widgets.editor.file_editor import FileEditor
+
+    SETTINGS.editor.line_divisor = "crlf"
+    (tmp_path / "unix.txt").write_bytes(b"one\ntwo\n")
+    editor = FileEditor()
+    editor.open(tmp_path / "unix.txt")
+    assert editor.document.newline == "\n"

@@ -25,8 +25,11 @@ from pathlib import Path
 BREAK = re.compile(r"\r\n|\r|\n")
 _BREAK_BYTES = re.compile(rb"\r\n|\r|\n")
 
-#: What a new file's line breaks are.
+#: What a new file's line breaks are, unless the editor is told otherwise.
 DEFAULT_NEWLINE = "\n"
+
+#: The Editor setup's *Line divisor* choices, as the terminators they name.
+NEWLINES = {"lf": "\n", "crlf": "\r\n", "cr": "\r"}
 
 
 @dataclass(frozen=True, slots=True, order=True)

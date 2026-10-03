@@ -374,7 +374,7 @@ class EditorDefaultsData(Section):
     paragraph: int = Setting(5, doc="Paragraph indent", honoured=False)
     #: DN's default was CR+LF; on POSIX a new line is LF.
     line_divisor: str = Setting(
-        "lf", choices=LINE_DIVISORS, doc="Line ending of a new file", honoured=False,
+        "lf", choices=LINE_DIVISORS, doc="Line ending of a file with none yet, a new one",
     )
     tab_size: int = Setting(8, doc="Tab size")
 

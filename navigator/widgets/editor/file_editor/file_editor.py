@@ -61,7 +61,7 @@ from navigator.widgets.editor.commands import (
 )
 from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
-from navigator.editor.document import BREAK, Document, Pos
+from navigator.editor.document import BREAK, NEWLINES, Document, Pos
 from navigator.editor.save import write_file
 from navigator.settings import SETTINGS
 
@@ -190,7 +190,9 @@ class FileEditor(Widget):
         """Edit *path* from its start.  Raises ``OSError`` if it cannot be read.
 
         With *new*, a file that does not exist is an empty text that saving
-        will create -- Shift+F4's *Edit new file*.
+        will create -- Shift+F4's *Edit new file*.  A text with no line break
+        to follow, new or not, breaks lines as the Editor setup's *Line
+        divisor* says.
         """
         path = Path(path)
         try:
@@ -199,6 +201,8 @@ class FileEditor(Widget):
             if not new:
                 raise
             document = Document()
+        if not any(document.endings):
+            document.newline = NEWLINES[SETTINGS.editor.line_divisor]
         self.buffer = EditBuffer(document)
         self.path = path
         self.line = self.col = self.top = self.left = 0
