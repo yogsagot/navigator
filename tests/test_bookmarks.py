@@ -19,6 +19,9 @@ from navigator.bookmarks import (
     bookmarks,
     default_bookmarks,
     find_bookmark,
+    label_bookmark,
+    mounted_places,
+    move_bookmark,
     remove_bookmark,
     seed_bookmarks,
 )
@@ -30,6 +33,8 @@ from navml.widgets.menu.popup_menu import PopupMenu
 @pytest.fixture
 def places(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    # The machine's own drives stay out of the box; a test that wants some sets this.
+    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: [])
     for name in ("start", "first", "second", "gone"):
         (tmp_path / name).mkdir()
     return tmp_path
@@ -113,6 +118,64 @@ def test_a_bookmark_added_goes_last_and_only_once(tmp_path):
 
 
 # -- the box ------------------------------------------------------------------------
+
+
+def test_a_bookmark_moves_one_place_and_not_past_either_end(tmp_path):
+    for name in ("a", "b", "c"):
+        add_bookmark(tmp_path / name)
+    remove_bookmark(tmp_path / "b")
+    add_bookmark(tmp_path / "d")
+
+    assert move_bookmark(tmp_path / "d", -1)
+    assert paths() == [str(tmp_path / n) for n in ("a", "d", "c")]
+    assert move_bookmark(tmp_path / "a", 1)
+    assert paths() == [str(tmp_path / n) for n in ("d", "a", "c")]
+    assert not move_bookmark(tmp_path / "d", -1)
+    assert not move_bookmark(tmp_path / "c", 1)
+    assert not move_bookmark(tmp_path / "nowhere", 1)
+    assert paths() == [str(tmp_path / n) for n in ("d", "a", "c")]
+
+
+def test_a_label_is_shown_in_place_of_the_path_which_moves_to_the_key_column(monkeypatch, tmp_path):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    add_bookmark(tmp_path / "work")
+    add_bookmark(tmp_path / "play")
+    assert label_bookmark(tmp_path / "work", "  ~Projects  ")
+    assert not label_bookmark(tmp_path / "elsewhere", "No")
+    menu, _ = bookmark_menu(bookmarks(), bookmarked=False)
+    work, play = menu.entries()[:2]
+    assert parse_shortcut(work.text)[:3:2] == ("1 ~Projects", "1") and work.key == "~/work"
+    assert parse_shortcut(play.text)[0] == "2 ~/play" and play.key == ""
+    label_bookmark(tmp_path / "work", "")
+    menu, _ = bookmark_menu(bookmarks(), bookmarked=False)
+    assert parse_shortcut(menu.entries()[0].text)[0] == "1 ~/work"
+
+
+def test_what_is_mounted_is_read_from_the_mount_table(tmp_path):
+    table = tmp_path / "mounts"
+    table.write_text(
+        "/dev/sda1 / ext4 rw 0 0\n"
+        "/dev/sdb1 /mnt/usb vfat rw 0 0\n"
+        "/dev/sdc1 /media/me/MY\\040DISK exfat rw 0 0\n"
+        "/dev/sdd1 /run/media/me/STICK vfat rw 0 0\n"
+        "/dev/sde1 /media/cdrom iso9660 ro 0 0\n"
+        "/dev/sdf1 /mnt/usb/inner ext4 rw 0 0\n"
+        "tmpfs /media/me tmpfs rw 0 0\n"
+        "/dev/sdg1 /run/media/other/THEIRS vfat rw 0 0\n"
+    )
+    assert mounted_places(table, user="me") == [
+        Path("/media/cdrom"), Path("/media/me/MY DISK"), Path("/mnt/usb"), Path("/run/media/me/STICK"),
+    ]
+
+
+def test_without_a_mount_table_every_mount_directory_is_offered(tmp_path):
+    (tmp_path / "mnt" / "empty").mkdir(parents=True)
+    (tmp_path / "media" / "me" / "STICK").mkdir(parents=True)
+    (tmp_path / "run" / "me" / "DISK").mkdir(parents=True)
+    found = mounted_places(tmp_path / "no-proc", tmp_path / "mnt", tmp_path / "media",
+                           tmp_path / "run", user="me")
+    assert found == [tmp_path / "mnt" / "empty", tmp_path / "media" / "me" / "STICK",
+                     tmp_path / "run" / "me" / "DISK"]
 
 
 def test_the_box_offers_add_or_remove_and_greys_a_directory_that_is_gone(places):
@@ -243,3 +306,179 @@ def test_a_greyed_bookmark_cannot_be_chosen(places):
     ])
     assert still == [True]
     assert app.manager.left.path == places / "start"
+
+
+def test_ctrl_up_and_down_move_the_selected_bookmark_and_keep_it_selected(places):
+    for name in ("first", "second", "gone"):
+        add_bookmark(places / name)
+    app = navigator(places / "start")
+    seen = {}
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("down"), KeyEvent("down"), lambda a: None,
+        KeyEvent("up", ctrl=True), lambda a: None,
+        KeyEvent("up", ctrl=True), lambda a: None,
+        KeyEvent("up", ctrl=True), lambda a: None,
+        lambda a: seen.update(order=paths(), current=popup(a).box.current),
+        KeyEvent("down", ctrl=True), lambda a: None,
+        lambda a: seen.update(after=paths()),
+        KeyEvent("enter"), lambda a: None,
+    ])
+    first, second, gone = (str(places / n) for n in ("first", "second", "gone"))
+    assert seen["order"] == [gone, first, second] and seen["current"] == 0
+    assert seen["after"] == [first, gone, second]
+    assert app.manager.left.path == places / "gone"
+
+
+def test_ctrl_down_on_add_moves_nothing_and_leaves_the_box_open(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = {}
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("end"), lambda a: None,
+        KeyEvent("down", ctrl=True), lambda a: None,
+        lambda a: seen.update(open=popup(a) is not None, current=popup(a).box.current),
+        KeyEvent("escape"), lambda a: None,
+    ])
+    assert seen["open"] and seen["current"] == 2
+    assert paths() == [str(places / "first")]
+
+
+def dialog(app):
+    from navigator.widgets.manager.bookmark_label_dialog import BookmarkLabelDialog
+
+    return next((c for c in app.root.children if isinstance(c, BookmarkLabelDialog)), None)
+
+
+def test_f2_labels_the_selected_bookmark_and_the_box_comes_back(places):
+    add_bookmark(places / "first")
+    add_bookmark(places / "second")
+    label_bookmark(places / "second", "Old")
+    app = navigator(places / "start")
+    seen = {}
+
+    def type_label(a):
+        box = dialog(a)
+        seen["was"] = box.entry.value
+        box.entry.value = "Two"
+
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("down"), KeyEvent("f2"), lambda a: None,
+        type_label,
+        KeyEvent("enter"), lambda a: None,
+        lambda a: seen.update(shown=captions(a), current=popup(a).box.current),
+        KeyEvent("escape"), lambda a: None,
+    ])
+    assert seen["was"] == "Old"
+    assert seen["shown"][:2] == [f"1 {places / 'first'}", "2 Two"] and seen["current"] == 1
+    assert [row.label for row in bookmarks()] == ["", "Two"]
+
+
+def test_an_emptied_label_goes_and_cancel_keeps_it(places):
+    add_bookmark(places / "first")
+    label_bookmark(places / "first", "One")
+    app = navigator(places / "start")
+    seen = {}
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f2"), lambda a: None,
+        KeyEvent("escape"), lambda a: None,
+        lambda a: seen.update(kept=bookmarks()[0].label),
+        KeyEvent("f2"), lambda a: None,
+        lambda a: setattr(dialog(a).entry, "value", "  "),
+        KeyEvent("enter"), lambda a: None,
+        KeyEvent("escape"), lambda a: None,
+    ])
+    assert seen["kept"] == "One"
+    assert bookmarks()[0].label == ""
+
+
+def test_del_removes_the_selected_bookmark_and_selects_the_next(places):
+    for name in ("first", "second", "gone"):
+        add_bookmark(places / name)
+    app = navigator(places / "start")
+    seen = {}
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("down"), KeyEvent("delete"), lambda a: None,
+        lambda a: seen.update(middle=(paths(), popup(a).box.current)),
+        KeyEvent("delete"), lambda a: None,
+        lambda a: seen.update(last=(paths(), popup(a).box.current)),
+        KeyEvent("delete"), lambda a: None,
+        lambda a: seen.update(empty=(paths(), captions(a))),
+        KeyEvent("delete"), lambda a: None,
+        lambda a: seen.update(on_add=(popup(a) is not None, captions(a))),
+        KeyEvent("escape"), lambda a: None,
+    ])
+    first, gone = str(places / "first"), str(places / "gone")
+    assert seen["middle"] == ([first, gone], 1)
+    assert seen["last"] == ([first], 0)
+    assert seen["empty"] == ([], ["Add this folder"])
+    assert seen["on_add"] == (True, ["Add this folder"])
+    assert app.manager.left.path == places / "start"
+
+
+def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, monkeypatch):
+    for name in ("usb", "disk"):
+        (places / name).mkdir()
+    mounted = [places / "disk", places / "first", places / "usb"]
+    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: mounted)
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = {}
+
+    def unplug(a):
+        mounted.remove(places / "usb")
+
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        lambda a: seen.update(shown=captions(a), lines=lines(a)),
+        KeyEvent("3", char="3"), lambda a: None,
+        lambda a: seen.update(went=a.manager.left.path),
+        unplug,
+        KeyEvent("f1", alt=True), lambda a: None,
+        lambda a: seen.update(unplugged=captions(a)),
+        KeyEvent("down"), lambda a: None,
+        KeyEvent("delete"), lambda a: None,
+        KeyEvent("f2"), lambda a: None,
+        KeyEvent("up", ctrl=True), lambda a: None,
+        lambda a: seen.update(still=(captions(a), paths(), popup(a).box.current)),
+        KeyEvent("escape"), lambda a: None,
+    ])
+    first, disk, usb = (str(places / n) for n in ("first", "disk", "usb"))
+    assert seen["shown"] == [f"1 {first}", f"2 {disk}", f"3 {usb}", "Add this folder"]
+    assert seen["lines"] == [1, 4]
+    assert seen["went"] == places / "usb"
+    # The panel stood at the drive, which is gone: the box opens on the first entry.
+    assert seen["unplugged"] == [f"1 {first}", f"2 {disk}", "Add this folder"]
+    # On a mount's entry Del, F2 and Ctrl+Up pass by: nothing stored, the box still open there.
+    assert seen["still"] == (seen["unplugged"], [first], 2)
+
+
+def test_the_box_opens_on_the_mount_the_panel_is_at_and_add_bookmarks_it(places, monkeypatch):
+    (places / "usb").mkdir()
+    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: [places / "usb"])
+    add_bookmark(places / "first")
+    app = navigator(places / "usb")
+    seen = {}
+    run_app(app, [
+        KeyEvent("f1", alt=True), lambda a: None,
+        lambda a: seen.update(current=popup(a).box.current),
+        KeyEvent("a", char="a"), lambda a: None,
+        KeyEvent("f1", alt=True), lambda a: None,
+        lambda a: seen.update(shown=captions(a), lines=lines(a)),
+        KeyEvent("escape"), lambda a: None,
+    ])
+    assert seen["current"] == 2
+    usb = str(places / "usb")
+    assert paths() == [str(places / "first"), usb]
+    assert seen["shown"] == [f"1 {places / 'first'}", f"2 {usb}", "Remove this folder"]
+    assert seen["lines"] == [2]
+
+
+def lines(app) -> list[int]:
+    from navml.widgets.menu.menu_line import MenuLine
+
+    return [i for i, entry in enumerate(popup(app).box.entries()) if isinstance(entry, MenuLine)]

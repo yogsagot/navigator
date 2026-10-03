@@ -29,7 +29,7 @@ import asyncio
 import os
 import shlex
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Sequence
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
 from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText

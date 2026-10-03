@@ -28,20 +28,21 @@ class Bookmark(Model):    # bookmark.nml:7
     __fields__ = (
         _Field("path", str, ''),    # bookmark.nml:10
         _Field("seq", int, 0),    # bookmark.nml:12
+        _Field("label", str, ''),    # bookmark.nml:14
     )
     __indexes__ = (
-        _Index("by_path", ('path',), unique=True),    # bookmark.nml:13
-        _Index("by_seq", ('seq',)),    # bookmark.nml:14
+        _Index("by_path", ('path',), unique=True),    # bookmark.nml:15
+        _Index("by_seq", ('seq',)),    # bookmark.nml:16
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "bookmarks" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0)',
+        'CREATE TABLE "bookmarks" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0, "label" TEXT NOT NULL DEFAULT \'\')',
         'CREATE UNIQUE INDEX "bookmarks_by_path" ON "bookmarks" ("path")',
         'CREATE INDEX "bookmarks_by_seq" ON "bookmarks" ("seq")',
     )
-    __schema__ = "dcbccf335734e163"
+    __schema__ = "52fa204afb44d26d"
 
     id: int | None
 
@@ -50,3 +51,6 @@ class Bookmark(Model):    # bookmark.nml:7
 
     #: Smaller first; a bookmark added goes after every other.
     seq: int    # bookmark.nml:12
+
+    #: What the box shows in place of the path; empty for the path itself.
+    label: str    # bookmark.nml:14

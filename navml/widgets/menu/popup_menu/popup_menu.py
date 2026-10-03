@@ -12,6 +12,15 @@ lines and wrapping round, Home and End go to the ends, Enter or the marked
 letter chooses, Esc closes.  A click chooses what it is released on, and a
 press outside the box closes it.
 
+**A box taller than the screen is cut to it and scrolls** (``MenuBox`` has
+how); PgUp and PgDn then move a box's height, and the wheel moves the
+selection one entry, without wrapping round.
+
+**A caller can add keys** (``keys=("ctrl+up",)``): one of them closes the box
+answering with the entry selected, enabled or not, and :attr:`PopupMenu.pressed`
+names the key -- so the caller can act on that entry and open the box again,
+as the bookmarks' box does to move one.
+
 **An entry need not ask for a command.**  A bar's item without one is greyed
 until its feature exists; a popup's entries are usually choices its caller
 reads off the answer, so here an item is enabled unless it is ``disabled``,
@@ -51,7 +60,8 @@ class PopupMenu(Widget):
     """*menu*'s entries in a box at *x*, *y*, the entry *current* selected."""
 
     def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
-                 current: int = -1, behind: Widget | None = None, **kwargs: Any) -> None:
+                 current: int = -1, behind: Widget | None = None,
+                 keys: tuple[str, ...] = (), **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.menu = menu if menu is not None else SubMenu()
         #: Where the box's top left corner goes, in screen coordinates; it is
@@ -62,6 +72,12 @@ class PopupMenu(Widget):
         #: The widget whose point of view decides whether an entry that names
         #: a command is enabled.
         self.behind = behind
+        #: Keys that close the box on the entry selected; see the module.
+        self.keys = keys
+        #: Which of :attr:`keys` closed it, or None if it was not one of them.
+        self.pressed: str | None = None
+        #: The index of the entry selected when the box closed.
+        self.selected = -1
         self.box: PopupBox | None = None
         self._pending: asyncio.Future[Any] | None = None
         self.modal = True
@@ -104,6 +120,8 @@ class PopupMenu(Widget):
 
     def close(self, result: MenuItem | None = None) -> None:
         """Come down, answering *result*."""
+        if self.box is not None:
+            self.selected = self.box.current
         if self._pending is not None and not self._pending.done():
             self._pending.set_result(result)
         elif self._pending is None and self.parent is not None:
@@ -112,6 +130,7 @@ class PopupMenu(Widget):
     def _open(self) -> None:
         width, height = self.measure(self.menu, self.application, self.behind)
         width = min(width, max(10, self.width))
+        height = min(height, max(3, self.height))
         x = max(0, min(self.at[0], self.width - width))
         y = max(0, min(self.at[1], self.height - height))
         box = PopupBox(self.menu, x=x, y=y, width=width, height=height)
@@ -143,10 +162,18 @@ class PopupMenu(Widget):
             return True
         if event.matches("escape"):
             self.close(None)
+        elif self.keys and event.matches(*self.keys):
+            entries = box.entries()
+            self.pressed = event.name
+            self.close(entries[box.current] if 0 <= box.current < len(entries) else None)
         elif event.matches("up"):
             box.step(-1)
         elif event.matches("down"):
             box.step(1)
+        elif event.matches("pageup"):
+            box.page(-1)
+        elif event.matches("pagedown"):
+            box.page(1)
         elif event.matches("home"):
             box.current = -1
             box.step(1)
@@ -163,7 +190,12 @@ class PopupMenu(Widget):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         box = self.box
-        if box is None or event.button != "left" or event.is_wheel:
+        if box is None:
+            return True
+        if event.button in ("wheel_up", "wheel_down"):
+            box.move(-1 if event.button == "wheel_up" else 1)
+            return True
+        if event.button != "left" or event.is_wheel:
             return True
         if box.contains(event.x, event.y):
             row = box.entry_at(event.y - box.y)

@@ -14,7 +14,7 @@ import asyncio
 import os
 import shlex
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Sequence
 
 from navkit.reactive import computed, effect, reactive, untracked
 
@@ -228,10 +228,24 @@ class Manager(Window):
         it if it is bookmarked already; removing one opens the box again,
         without it, so several can go in a row.  A bookmark whose directory is
         gone -- a drive no longer mounted -- is greyed.
+
+        Ctrl+Up and Ctrl+Down move the selected bookmark one place, and the
+        box opens again with it still selected (DN's drive letters had an
+        order of their own; this list has only the one its user gives it).
+        F2 asks for the selected one's label, shown in place of its path, and
+        Del removes it, unasked, as *Remove this folder* does the panel's own.
+
+        Below the bookmarks, what is mounted now and not bookmarked
+        (``mounted_places``), read each time the box opens; those entries are
+        only places to go, and the three keys pass them by.
         """
         from navml.widgets.menu.popup_menu import PopupMenu
 
-        from navigator.bookmarks import add_bookmark, bookmarks, find_bookmark, remove_bookmark
+        from navigator.bookmarks import (
+            add_bookmark, bookmarks, find_bookmark, key_of, label_bookmark, mounted_places,
+            move_bookmark, remove_bookmark,
+        )
+        from navigator.widgets.manager.bookmark_label_dialog import BookmarkLabelDialog
 
         app = self.application
         if app is None:
@@ -239,10 +253,15 @@ class Manager(Window):
         keep: int | None = None
         while True:
             rows = bookmarks()
+            marked = {row.path for row in rows}
+            mounts = [path for path in mounted_places() if key_of(path) not in marked]
             here = find_bookmark(panel.path)
-            menu, toggle = bookmark_menu(rows, here is not None)
+            menu, toggle = bookmark_menu(rows, here is not None, mounts)
+            # Entry by entry, where each one goes; None for a line and the toggle.
+            places = [row.path for row in rows] + ([None] if rows and mounts else [])
+            places += [key_of(path) for path in mounts]
             current = keep if keep is not None else next(
-                (index for index, row in enumerate(rows) if here is not None and row.path == here.path),
+                (index for index, place in enumerate(places) if place == key_of(panel.path)),
                 0,
             )
             # The layout settles in this batch's effects; a side just brought
@@ -252,7 +271,32 @@ class Manager(Window):
             ox, oy = panel.offset()
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
-            chosen = await PopupMenu(menu, x, y, current=current, behind=self).execute(app)
+            box = PopupMenu(menu, x, y, current=current, behind=self,
+                            keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
+            chosen = await box.execute(app)
+            if box.pressed == DELETE_BOOKMARK_KEY:
+                keep = box.selected
+                if 0 <= keep < len(rows):
+                    remove_bookmark(rows[keep].path)
+                    keep = min(keep, max(0, len(rows) - 2))
+                continue
+            if box.pressed == LABEL_BOOKMARK_KEY:
+                keep = box.selected
+                if 0 <= keep < len(rows):
+                    dialog = BookmarkLabelDialog()
+                    dialog.entry.value = rows[keep].label
+                    dialog.entry.entry.select_all()
+                    label = await dialog.execute(app)
+                    if label is not None:
+                        label_bookmark(rows[keep].path, label)
+                continue
+            if box.pressed is not None:
+                keep = box.selected
+                if 0 <= keep < len(rows):
+                    by = -1 if box.pressed == "ctrl+up" else 1
+                    if move_bookmark(rows[keep].path, by):
+                        keep += by
+                continue
             if chosen is None:
                 return
             if chosen is toggle:
@@ -262,7 +306,7 @@ class Manager(Window):
                 remove_bookmark(panel.path)
                 keep = min(current, max(0, len(rows) - 2))
                 continue
-            panel.path = Path(rows[menu.entries().index(chosen)].path)
+            panel.path = Path(places[menu.entries().index(chosen)])
             panel.focus()
             return
 
@@ -1221,30 +1265,48 @@ class Manager(Window):
 #: box had its drive letters, then the letters *Add* and *Remove* leave free.
 BOOKMARK_KEYS = "1234567890bcdefghijklmnopqstuvwxyz"
 
+#: The keys that move the selected bookmark up and down in the box.
+MOVE_BOOKMARK_KEYS = ("ctrl+up", "ctrl+down")
 
-def bookmark_menu(rows: list[Any], bookmarked: bool) -> tuple[Any, Any]:
-    """The box's entries for *rows*, and the item that adds or removes.
+#: The key that asks for the selected bookmark's label.
+LABEL_BOOKMARK_KEY = "f2"
+
+#: The key that removes the selected bookmark.
+DELETE_BOOKMARK_KEY = "delete"
+
+
+def bookmark_menu(rows: list[Any], bookmarked: bool,
+                  mounts: Sequence[Path] = ()) -> tuple[Any, Any]:
+    """The box's entries for *rows*, then *mounts*, and the item that adds or removes.
 
     The home directory is spelled ``~``, as a shell would; a file name's
     tildes are doubled so the caption shows them rather than marking a key.
+    A labelled bookmark shows its label, and its path where a menu shows an
+    entry's key.
     """
     from navml.widgets.dialog.control.control import escape_caption
     from navml.widgets.menu.sub_menu import SubMenu
 
     menu = SubMenu()
     home = str(Path.home())
-    for index, row in enumerate(rows):
-        shown = row.path
+    entries = [(row.path, row.label) for row in rows]
+    entries += [(str(path), "") for path in mounts]
+    for index, (path, label) in enumerate(entries):
+        if index == len(rows) and rows:
+            menu.add_line()
+        shown = path
         if shown == home or shown.startswith(home.rstrip("/") + "/"):
             shown = "~" + shown[len(home.rstrip("/")):]
-        caption = escape_caption(shown)
+        caption = escape_caption(label or shown)
         if index < len(BOOKMARK_KEYS):
             caption = f"~{BOOKMARK_KEYS[index]}~ {caption}"
         else:
             caption = f"  {caption}"
         item = menu.add_item(caption)
-        item.disabled = not Path(row.path).is_dir()
-    if rows:
+        if label:
+            item.key = shown
+        item.disabled = not Path(path).is_dir()
+    if entries:
         menu.add_line()
     toggle = menu.add_item("~R~emove this folder" if bookmarked else "~A~dd this folder")
     return menu, toggle

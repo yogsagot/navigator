@@ -1,0 +1,22 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: F2 in the bookmarks box: the label shown in place of a bookmark's path.
+#:
+#: DN's ``InputBox`` shape, as F7's dialog is; a dialog of its own only because
+#: an empty answer here means "no label", where ``MkdirDialog`` answers None.
+BookmarkLabelDialog(Dialog):
+    modal_width: 48
+    modal_height: 8
+    title: "Bookmark label"
+    #: Opened from the bookmarks box, and holds nothing a click could lose.
+    close_on_outside_click: True
+
+    Field:
+        id: entry
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~L~abel"
+        label_width: 8

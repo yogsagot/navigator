@@ -17,6 +17,14 @@ Every measurement here is ``MENUS.PAS``'s:
   three for a submenu's arrow; never under ten.  Height is one row per entry
   and two for the frame.
 
+**A box opened shorter than that scrolls** -- a departure: Turbo Vision's
+boxes never had more entries than the screen had rows, but a popup listing
+the user's own entries (the bookmarks) can.  The rows inside the frame show a
+window of the entries that always holds the selection, and the frame carries
+the scroll bar's ``▲`` or ``▼`` where entries are hidden above or below.  A
+box at its measured height never scrolls, so every menu of the bar is
+painted exactly as before.
+
 The frame uses the widget's ``border`` like any other frame, so a terminal
 with no box-drawing characters gets ``+-+`` rather than replacement boxes.
 """
@@ -67,6 +75,10 @@ class MenuBox(Widget):
         #: that had the keyboard before the menu took it.  Set by whoever
         #: opens the box; None asks from wherever the focus is.
         self.behind: Widget | None = None
+        #: The first entry shown, when there are more than the box has rows
+        #: for.  Not reactive: :meth:`scroll` derives it from :attr:`current`
+        #: while painting, which is why it is never assigned from outside.
+        self.top = 0
 
     def layout(self, width: int, height: int) -> None:
         """Keep the size it was opened with.
@@ -139,9 +151,51 @@ class MenuBox(Widget):
                 self.current = index
                 return
 
+    def rows(self) -> int:
+        """How many entries fit inside the frame."""
+        return max(0, self.height - 2)
+
+    def scroll(self) -> int:
+        """Move :attr:`top` the least that shows the selection; the new top.
+
+        Clamped too, so a box that has room for every entry shows them from
+        the first, and one that loses entries does not leave rows empty.
+        """
+        count, rows = len(self.entries()), self.rows()
+        top = self.top
+        if 0 <= self.current < count:
+            top = min(top, self.current)
+            top = max(top, self.current - rows + 1)
+        self.top = max(0, min(top, count - rows))
+        return self.top
+
+    def page(self, delta: int) -> None:
+        """PgUp/PgDn: the selection a box's height up (-1) or down (1)."""
+        self.move(delta * max(1, self.rows() - 1))
+
+    def move(self, delta: int) -> None:
+        """The selection *delta* entries on, not wrapping round as :meth:`step` does.
+
+        It stops at the first or last entry that can hold it, skipping lines
+        towards where it was going and back if there is none that way.
+        """
+        entries = self.entries()
+        if not entries or delta == 0:
+            return
+        target = max(0, min(len(entries) - 1, self.current + delta))
+        direction = 1 if delta > 0 else -1
+        for index in (*range(target, -1 if direction < 0 else len(entries), direction),
+                      *range(target, len(entries) if direction < 0 else -1, -direction)):
+            if self.selectable(index):
+                self.current = index
+                return
+
     def entry_at(self, row: int) -> int:
         """The entry on *row* of this box, or -1 for the frame."""
         index = row - 1
+        if not 0 <= index < self.rows():
+            return -1
+        index += self.scroll()
         return index if 0 <= index < len(self.entries()) else -1
 
     # -- painting ---------------------------------------------------------------
@@ -158,9 +212,12 @@ class MenuBox(Widget):
             surface.draw_text(2, y, middle * max(0, width - 4), style)
             surface.draw_text(width - 2, y, ends[1] + " ", normal)
 
+        entries = self.entries()
+        top, rows = self.scroll(), self.rows()
         frame_line(0, (tl, tr), horizontal, normal)
-        for index, entry in enumerate(self.entries()):
-            y = index + 1
+        for index in range(top, min(len(entries), top + rows)):
+            entry = entries[index]
+            y = index - top + 1
             if isinstance(entry, MenuLine):
                 frame_line(y, (left_tee, right_tee), horizontal, normal)
                 continue
@@ -181,7 +238,14 @@ class MenuBox(Widget):
                 key = key_caption(entry, self.application, self.behind)
                 if key:
                     surface.draw_text(width - 3 - len(key), y, key, row)
-        frame_line(len(self.entries()) + 1, (bl, br), horizontal, normal)
+        bottom = min(len(entries), rows) + 1
+        frame_line(bottom, (bl, br), horizontal, normal)
+        if width >= 6:
+            bars = SCROLLBARS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"]
+            if top > 0:
+                surface.draw_text(width - 4, 0, bars[0], normal)
+            if top + rows < len(entries):
+                surface.draw_text(width - 4, bottom, bars[1], normal)
 
 
 def key_caption(item: MenuItem, app: Application | None,

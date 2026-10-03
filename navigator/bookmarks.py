@@ -14,6 +14,11 @@ otherwise), and every directory under ``/mnt`` and ``/media``.  A ``Marker``
 row records that it was, so a user who removes every bookmark keeps an empty
 list rather than getting the defaults back.
 
+**The mounts are read again every time the box opens** (:func:`mounted_places`):
+whatever is mounted under ``/mnt``, ``/media`` or ``/run/media/$USER`` now and
+is not bookmarked is offered below the bookmarks, unstored, as DN's box
+offered the drives there were at the time it opened.
+
 The rows are :class:`~navigator.models.bookmark.Bookmark`; a path is stored
 absolute, case and all, as the file histories store theirs.
 """
@@ -22,6 +27,7 @@ from __future__ import annotations
 
 import getpass
 import os
+import re
 import shlex
 from pathlib import Path
 
@@ -91,41 +97,93 @@ def _subdirectories(path: Path) -> list[Path]:
         return []
 
 
+def _user(home: Path) -> str:
+    try:
+        return getpass.getuser()
+    except (KeyError, OSError):
+        return home.name
+
+
+def _mount_directories(mnt: Path, media: Path, run_media: Path, user: str) -> list[Path]:
+    """The directories where drives are mounted, mounted or not.
+
+    ``/media/$USER`` is where udisks mounts a desktop's removable drives
+    (``/run/media/$USER`` on Fedora and Arch), so it is the drives under it
+    that are offered, not the folder itself; anything else directly in
+    ``/media`` -- Debian's ``/media/cdrom`` -- is offered as it is.
+    """
+    found = list(_subdirectories(mnt))
+    for child in _subdirectories(media):
+        if child.name == user:
+            found.extend(_subdirectories(child))
+        else:
+            found.append(child)
+    found.extend(_subdirectories(run_media / user))
+    return found
+
+
+def _unescape_mount(field: str) -> str:
+    r"""A ``/proc/self/mounts`` path with its octal escapes (``\040`` for a space) undone."""
+    return re.sub(r"\\([0-7]{3})", lambda match: chr(int(match.group(1), 8)), field)
+
+
+def mounted_places(
+    mounts: Path = Path("/proc/self/mounts"),
+    mnt: Path = Path("/mnt"),
+    media: Path = Path("/media"),
+    run_media: Path = Path("/run/media"),
+    user: str | None = None,
+) -> list[Path]:
+    """What is mounted under ``/mnt``, ``/media`` and ``/run/media/$USER`` now.
+
+    Read from *mounts*, so an empty mount point is not offered; a system
+    without ``/proc`` gets every directory where a drive would be instead,
+    as the first set does.  Only direct children count: a drive is mounted
+    at ``/mnt/usb``, and what is mounted inside it is the drive's business.
+    """
+    user = user if user is not None else _user(Path.home())
+    try:
+        text = mounts.read_text(encoding="utf-8", errors="surrogateescape")
+    except OSError:
+        return _mount_directories(mnt, media, run_media, user)
+    parents = {mnt, media, media / user, run_media / user}
+    found: set[Path] = set()
+    for line in text.splitlines():
+        fields = line.split()
+        if len(fields) < 2:
+            continue
+        point = Path(_unescape_mount(fields[1]))
+        if point.parent in parents and point != media / user:
+            found.add(point)
+    return sorted(found)
+
+
 def default_bookmarks(
     home: Path | None = None,
     config_home: Path | None = None,
     mnt: Path = Path("/mnt"),
     media: Path = Path("/media"),
     user: str | None = None,
+    run_media: Path = Path("/run/media"),
 ) -> list[Path]:
     """The first set, in the order it is offered.
 
-    ``/media/$USER`` is where udisks mounts a desktop's removable drives, so
-    it is the drives under it that are offered, not the folder itself;
-    anything else directly in ``/media`` -- Debian's ``/media/cdrom`` -- is
-    offered as it is.  A desktop folder ``user-dirs.dirs`` points at the home
-    directory itself is how it says "none", and is left out.
+    A desktop folder ``user-dirs.dirs`` points at the home directory itself
+    is how it says "none", and is left out; the drives are
+    :func:`_mount_directories`'.
     """
     home = home if home is not None else Path.home()
     if config_home is None:
         config_home = Path(os.environ.get("XDG_CONFIG_HOME") or home / ".config")
     if user is None:
-        try:
-            user = getpass.getuser()
-        except (KeyError, OSError):
-            user = home.name
+        user = _user(home)
     named = read_user_dirs(home, config_home)
     found: list[Path] = [home]
     for variable, folder in USER_DIRS:
         path = named.get(variable, home / folder)
         if path != home and path.is_dir():
             found.append(path)
-    found.extend(_subdirectories(mnt))
-    for child in _subdirectories(media):
-        if child.name == user:
-            found.extend(_subdirectories(child))
-        else:
-            found.append(child)
+    found.extend(_mount_directories(mnt, media, run_media, user))
     unique: list[Path] = []
     for path in found:
         if path not in unique:
@@ -166,3 +224,28 @@ def add_bookmark(path: Path | str) -> Bookmark:
 def remove_bookmark(path: Path | str) -> bool:
     """*path* no longer bookmarked; False if it was not."""
     return Bookmark.where(path=key_of(path)).delete() > 0
+
+
+def label_bookmark(path: Path | str, label: str) -> bool:
+    """Show *path* as *label* in the box, or as itself for ``""``; False if not bookmarked."""
+    return Bookmark.where(path=key_of(path)).update(label=label.strip()) > 0
+
+
+def move_bookmark(path: Path | str, by: int) -> bool:
+    """*path* one place earlier (*by* -1) or later (+1); False if it cannot go.
+
+    It changes places with its neighbour, the two ``seq`` values swapped, so
+    the gaps removing leaves behind never matter.
+    """
+    rows = bookmarks()
+    key = key_of(path)
+    index = next((i for i, row in enumerate(rows) if row.path == key), None)
+    if index is None or by not in (-1, 1) or not 0 <= index + by < len(rows):
+        return False
+    one, other = rows[index], rows[index + by]
+    with DATABASE.transaction():
+        # ``seq`` is not unique, so the swap needs no placeholder.
+        one.seq, other.seq = other.seq, one.seq
+        one.save()
+        other.save()
+    return True

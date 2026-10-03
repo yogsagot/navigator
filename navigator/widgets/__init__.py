@@ -46,6 +46,7 @@ navml.register(__name__)
 _WIDGETS = {
     "AboutDialog": "about_dialog",
     "AttrDialog": "file_ops.attr_dialog",
+    "BookmarkLabelDialog": "manager.bookmark_label_dialog",
     "ChangeDirDialog": "tree.change_dir_dialog",
     "Clock": "shell.clock",
     "ConfirmationsDialog": "setup.confirmations_dialog",
@@ -110,6 +111,7 @@ if TYPE_CHECKING:
     # every widget untyped at every call site.  These are the real types.
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.file_ops.attr_dialog import AttrDialog
+    from navigator.widgets.manager.bookmark_label_dialog import BookmarkLabelDialog
     from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
     from navigator.widgets.shell.clock import Clock
     from navigator.widgets.file_ops.copy_dialog import CopyDialog

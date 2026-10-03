@@ -426,3 +426,94 @@ def test_the_bar_repaints_when_its_context_changes():
     ])
     # The frame after the assignment is the loop's own, not a forced one.
     assert "Tools" in painted[1]
+
+
+# -- a box shorter than its entries scrolls ------------------------------------------
+
+
+def long_menu(count=10):
+    menu = SubMenu()
+    for index in range(count):
+        MenuItem(parent=menu, text=f"Entry {index}")
+    MenuLine(parent=menu)
+    MenuItem(parent=menu, text="~L~ast")
+    return menu
+
+
+def painted(box):
+    buffer = ScreenBuffer(box.width, box.height)
+    box.render(buffer.view(0, 0, box.width, box.height))
+    return ["".join(buffer.get(x, y)[0] or " " for x in range(box.width)) for y in range(box.height)]
+
+
+def test_a_short_box_shows_a_window_that_follows_the_selection(terminal):
+    box = MenuBox(long_menu(), x=0, y=0, width=16, height=6)
+    box.current = 0
+    rows = painted(box)
+    assert [row[3:10] for row in rows[1:5]] == ["Entry 0", "Entry 1", "Entry 2", "Entry 3"]
+    assert rows[0][12] == "─" and rows[5][12] == "▼"
+    box.current = 6
+    rows = painted(box)
+    assert box.top == 3 and rows[4][3:10] == "Entry 6"
+    assert rows[0][12] == "▲" and rows[5][12] == "▼"
+    assert box.entry_at(1) == 3 and box.entry_at(4) == 6 and box.entry_at(5) == -1
+    box.current = 11
+    rows = painted(box)
+    assert box.top == 8 and rows[3][1:3] == "├─" and rows[4][3:7] == "Last"
+    assert rows[0][12] == "▲" and rows[5][12] == "─"
+    box.current = 9
+    assert box.scroll() == 8                    # already in view: nothing moves
+
+
+def test_a_box_at_its_measured_height_never_scrolls(terminal):
+    menu = long_menu(3)
+    width, height = MenuBox.measure(menu)
+    box = MenuBox(menu, x=0, y=0, width=width, height=height)
+    box.current = 4
+    rows = painted(box)
+    assert box.top == 0 and "▲" not in rows[0] and "▼" not in rows[-1]
+
+
+def test_page_and_move_stop_at_the_ends_and_skip_the_line(terminal):
+    box = MenuBox(long_menu(), x=0, y=0, width=16, height=6)
+    box.current = 0
+    box.page(1)
+    assert box.current == 3
+    box.move(7)
+    assert box.current == 11                    # landing on the line at 10 goes on past it
+    box.move(-1)
+    assert box.current == 9                     # and back over it the other way
+    box.move(5)
+    assert box.current == 11                    # no wrapping round at the end
+    box.page(-1)
+    box.page(-1)
+    box.page(-1)
+    box.page(-1)
+    assert box.current == 0
+
+
+def test_a_popup_taller_than_the_screen_is_cut_to_it_and_scrolls():
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    root = Widget()
+    app = Application(root, terminal=FakeTerminal(width=40, height=8))
+    seen = {}
+
+    async def run(a):
+        seen["chosen"] = await PopupMenu(long_menu(), 5, 3).execute(a)
+
+    def look(a):
+        popup = next(c for c in a.root.children if isinstance(c, PopupMenu))
+        seen.update(height=popup.box.height, y=popup.box.y, current=popup.box.current,
+                    top=popup.box.top)
+
+    run_app(app, [
+        lambda a: a.spawn(run(a)), lambda a: None,
+        KeyEvent("pagedown"), KeyEvent("pagedown"),
+        MouseClickEvent(10, 2, "wheel_down", "press"), lambda a: None,
+        look,
+        KeyEvent("enter"), lambda a: None,
+    ])
+    assert seen["height"] == 8 and seen["y"] == 0
+    assert seen["current"] == 11 and seen["top"] == 6
+    assert seen["chosen"].text == "~L~ast"

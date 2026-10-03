@@ -59,8 +59,13 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   manager is active); *Directory tree*, *Info* and *Quick view* moved into it from *Manager* -- a departure; *Manager*
   stays global for *New*.
 - **A popup menu** is `PopupMenu` (`TMenuPopup`): one `MenuBox` anywhere, run like a dialog -- spawn
-  `execute(app)`, which answers the `MenuItem` chosen or None; a command-less item is a choice, not greyed. The
-  bookmarks box is its first user (`navigator-bookmarks`).
+  `execute(app)`, which answers the `MenuItem` chosen or None; a command-less item is a choice, not greyed. `keys=`
+  adds keys that close it on the selected entry (enabled or not), setting `pressed` and `selected`, for a caller that
+  acts and reopens. The bookmarks box is its first user (`navigator-bookmarks`).
+- **A `MenuBox` opened shorter than `measure()` scrolls** (a departure; TV boxes never outgrew the screen): `top` is
+  the first entry shown, a plain attribute `scroll()` derives from `current` while painting and in `entry_at` -- never
+  assign it. `▲`/`▼` on the frame mark hidden entries. `move(n)`/`page(n)` move without wrapping, unlike `step`.
+  Only `PopupMenu` opens one short (cut to the screen, PgUp/PgDn, wheel); the bar's boxes keep their measured height.
 
 ## Read when
 

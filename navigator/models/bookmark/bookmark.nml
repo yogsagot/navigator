@@ -10,5 +10,7 @@ Bookmark(Model):
     field path: str
     #: Smaller first; a bookmark added goes after every other.
     field seq: int
+    #: What the box shows in place of the path; empty for the path itself.
+    field label: str
     unique by_path: path
     index by_seq: seq
