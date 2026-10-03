@@ -22,13 +22,17 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
-  to come: ^K R/W (block to and from a file, waiting on a file dialog).
+  to come: nothing of ^K/^Q but DN's file dialog for ^K R/W (below).
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H unmarks, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
   `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
-  end, ^Q L undoes, ^Q D/T insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the
+  end, ^Q L undoes, ^K R/W read a file in at the cursor (marked) and write the block out -- also Editor > Edit's
+  *Paste from...*/*Copy to...* -- handled by `EditWindow` (dialogs and I/O; the editor's `block_file_text`/`read_block`
+  are the text). The name is asked in Shift+F4's `EditFileDialog` retitled, history `blockfile`, relative to the edited
+  file's directory, until DN's file dialog exists; replacing a file asks first; a write emits `FileSaved` so panels
+  re-read. A stream block keeps its own line ends; a column block's lines lose their padding. ^Q D/T insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the
   attributes dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take them all. DN's `cm*` names for these were not to hand, so the commands are named
   for what they do. A pending chord shows as `^K` at the info line's end (a departure).
 - **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit

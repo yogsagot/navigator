@@ -34,6 +34,8 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    ReadBlock,
+    WriteBlock,
     InsertDate,
     InsertTime,
     CapitalizeBlock,
@@ -241,6 +243,8 @@ class FileEditor(Widget):
             "\\": CapitalizeBlock,
             "t": MarkWord,
             "l": MarkLine,
+            "r": ReadBlock,
+            "w": WriteBlock,
         }),
         **_wordstar("ctrl+q", {
             "b": GoBlockStart,
@@ -922,6 +926,30 @@ class FileEditor(Widget):
     async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
         self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
         return True
+
+    # -- ^K R and ^K W: the window asks for the file; these are the text ------
+
+    def block_file_text(self) -> str:
+        """The block as ^K W writes it: a stream block with its own line ends, a
+        column block's lines without their padding, joined by the file's break."""
+        if self.column_block is not None:
+            return self.document.newline.join(piece.rstrip(" ") for piece in self._column_pieces())
+        if self.block is None:
+            return ""
+        return self.document.text(*self.block)
+
+    def read_block(self, text: str) -> None:
+        """^K R's text at the cursor in the file's own line breaks, marked as a
+        stream block (unmarked under column blocks), the cursor at its start."""
+        text = BREAK.sub(self.document.newline, text)
+        self._moved()
+        self._begin_replacing()
+        at = self._pad()
+        end = self.buffer.insert(at, text)
+        if not self.vertical_blocks and at < end:
+            self.block = (at, end)
+        self._go(at)
+        self._end()
 
     # -- ^Q D and ^Q T -------------------------------------------------------------
 

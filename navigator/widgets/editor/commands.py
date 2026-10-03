@@ -259,6 +259,18 @@ class GoBlockEnd(Command):
     title = "Block end"
 
 
+class ReadBlock(Command):
+    """^K R, Editor > Edit > *Paste from...*: a file's text at the cursor, marked."""
+
+    title = "Read block"
+
+
+class WriteBlock(Command):
+    """^K W, Editor > Edit > *Copy to...*: the block written to a file."""
+
+    title = "Write block"
+
+
 class InsertDate(Command):
     """^Q D, Editor > Misc > *Insert date*: today's date at the cursor."""
 
@@ -296,6 +308,8 @@ __all__ = [
     "ClipboardPaste",
     "EditorMovement",
     "InsertDate",
+    "ReadBlock",
+    "WriteBlock",
     "InsertTime",
     "MarkBlockStart",
     "MarkBlockEnd",

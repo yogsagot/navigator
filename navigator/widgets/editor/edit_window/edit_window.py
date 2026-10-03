@@ -22,10 +22,12 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
+from navigator.editor.document import decode, encode
+from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import SaveText
+from navigator.widgets.editor.commands import ReadBlock, SaveText, WriteBlock
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,6 +139,76 @@ class EditWindow(Window):
             return False
         await self.emit(FileSaved(self.editor.path))
         return True
+
+    # -- ^K R and ^K W -------------------------------------------------------------
+
+    def enables(self, command: Any) -> bool:
+        if isinstance(command, WriteBlock):
+            return self.editor.has_block
+        return super().enables(command)
+
+    async def _block_file(self, title: str) -> Path | None:
+        """Ask for a file's name, as Shift+F4 does; relative to the edited file's directory.
+
+        Shift+F4's dialog with its own title and history, where DN had its file
+        dialog (still to come).
+        """
+        from navigator.widgets.editor.edit_file_dialog import EditFileDialog
+
+        dialog = EditFileDialog()
+        dialog.title = title
+        dialog.entry.history_id = "blockfile"
+        name = await dialog.execute(self.application)
+        if not name:
+            return None
+        here = self.editor.path.parent if self.editor.path is not None else Path.cwd()
+        return here / Path(name).expanduser()
+
+    async def _say(self, message: str) -> None:
+        await Dialog(title="Error", prompt=message, buttons="ok").execute(self.application)
+
+    async def on_write_block(self, event: WriteBlock) -> bool:
+        self.spawn(self.write_block())
+        return True
+
+    async def write_block(self) -> None:
+        """^K W: the block to a file, asking before one is replaced."""
+        data = encode(self.editor.block_file_text())
+        path = await self._block_file("Write block to file")
+        if path is None:
+            return
+        if path.is_dir():
+            await self._say(f"{path} is a directory")
+            return
+        if path.exists():
+            replace = await Dialog(
+                title="Warning", prompt=f"File {path.name} already exists. Overwrite?",
+                buttons="yes-no",
+            ).execute(self.application)
+            if replace is not True:
+                return
+        try:
+            write_file(path, data)
+        except OSError as error:
+            await self._say(f"Cannot write {path}: {error.strerror or error}")
+            return
+        await self.emit(FileSaved(path))
+
+    async def on_read_block(self, event: ReadBlock) -> bool:
+        self.spawn(self.read_block())
+        return True
+
+    async def read_block(self) -> None:
+        """^K R: a file's text at the cursor, which the editor marks."""
+        path = await self._block_file("Read block from file")
+        if path is None:
+            return
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            await self._say(f"Cannot read {path}: {error.strerror or error}")
+            return
+        self.editor.read_block(decode(data))
 
     # -- closing -----------------------------------------------------------------
 

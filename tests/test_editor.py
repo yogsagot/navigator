@@ -937,3 +937,59 @@ def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
     monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
     _, editor = text_editor(files, b"ab\n", KeyEvent("insert"), ctrl("q"), KeyEvent("d", "d"))
     assert editor.document.encode() == b"04-10-2026ab\n"
+
+
+# -- ^K R and ^K W ------------------------------------------------------------------------------
+
+
+def test_ctrl_k_w_writes_the_block_to_a_file_beside_the_edited_one(files):
+    app, editor = text_editor(files, b"one\r\ntwo\r\nthree\r\n", KeyEvent("down", shift=True),
+                              KeyEvent("down", shift=True), *chord("w"), lambda a: None,
+                              *typed("part.txt"), KeyEvent("enter"), lambda a: None)
+    assert (files / "part.txt").read_bytes() == b"one\r\ntwo\r\n"  # the file's own breaks
+
+
+def test_ctrl_k_w_asks_before_replacing_a_file(files):
+    (files / "part.txt").write_bytes(b"old")
+    asked = []
+    text_editor(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), lambda a: None,
+                *typed("part.txt"), KeyEvent("enter"), lambda a: None,
+                lambda a: asked.append(a.modal.prompt if a.modal else None))
+    assert "already exists" in asked[0]
+    assert (files / "part.txt").read_bytes() == b"old"
+    app, _ = text_editor(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), lambda a: None,
+                         *typed("part.txt"), KeyEvent("enter"), lambda a: None,
+                         KeyEvent("y", alt=True), lambda a: None)
+    assert (files / "part.txt").read_bytes() == b"new"
+
+
+def test_ctrl_k_w_waits_for_a_block(files):
+    from navigator.widgets.editor.commands import WriteBlock
+
+    app, _ = text_editor(files, b"abc\n")
+    assert app.command_enabled(WriteBlock) is False
+
+
+def test_ctrl_k_w_writes_a_column_block_line_by_line(files):
+    SETTINGS.editor.vertical_blocks = True
+    text_editor(files, b"abcd\nefgh\n", KeyEvent("right"), *[KeyEvent("right", shift=True)] * 2,
+                KeyEvent("down", shift=True), *chord("w"), lambda a: None,
+                *typed("cols.txt"), KeyEvent("enter"), lambda a: None)
+    assert (files / "cols.txt").read_bytes() == b"bc\nfg"
+
+
+def test_ctrl_k_r_reads_a_file_in_at_the_cursor_and_marks_it(files):
+    (files / "piece.txt").write_bytes(b"X\nY")
+    _, editor = text_editor(files, b"ab\r\n", KeyEvent("right"), *chord("r"), lambda a: None,
+                            *typed("piece.txt"), KeyEvent("enter"), lambda a: None)
+    assert editor.document.encode() == b"aX\r\nYb\r\n"
+    assert editor.block_text == "X\nY" and (editor.line, editor.col) == (0, 1)
+
+
+def test_ctrl_k_r_says_when_the_file_cannot_be_read(files):
+    said = []
+    _, editor = text_editor(files, b"ab\n", *chord("r"), lambda a: None,
+                            *typed("missing.txt"), KeyEvent("enter"), lambda a: None,
+                            lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert "Cannot read" in said[0]
+    assert editor.document.encode() == b"ab\n"

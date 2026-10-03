@@ -100,7 +100,7 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 Left for later, by phase:
 
 1. The rest of the `^Q` half of `EDITOR COMMANDS` (key chords and the `^K` block commands are written).
-2. Blocks: ^K R/W, block to and from a file (everything else is written).
+2. Blocks: written, ^K R/W included (their file name is asked in a one-line dialog until item 4's `FileDialog`).
 3. Find, Replace, Goto line.
 4. `FileDialog`, Save as, SmartPad, the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.

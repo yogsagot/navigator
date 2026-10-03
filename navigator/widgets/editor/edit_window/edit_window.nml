@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks
+from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, ReadBlock, WriteBlock, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -140,8 +140,10 @@ EditWindow(Window):
                 key: 'Shift-Ins'
             MenuItem:
                 text: 'C~o~py to...'
+                command: WriteBlock
             MenuItem:
                 text: 'P~a~ste from...'
+                command: ReadBlock
             MenuLine:
             MenuItem:
                 text: 'C~l~ear'
