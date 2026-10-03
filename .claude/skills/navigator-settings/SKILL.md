@@ -152,6 +152,7 @@ note:
 | `editor.tab_size`, `editor.vertical_blocks` | Seed a new editor |
 | `viewer.hex_mode`, `viewer.wrap_lines` | Seed F3's viewer |
 | `editor.auto_indent` | Enter indents the new line as the one it split (`on_new_line`, DN's `MakeEnter`) |
+| `editor.backspace_unindents` | Backspace with only blanks before the cursor goes back to the indent of the nearest shallower line above (column 0 if none), deleting the blanks between, one undo step (`FileEditor._unindent`). The Borland IDEs' meaning, DN's source not being to hand. Inside a tab, or past the end of a line with text, it is the plain Backspace |
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |
 | `file_manager.column_titles` | The detailed and list modes' heading row (`Panel._follow_column_titles`, an effect, so it applies at once); the dividers stay |
 | `file_manager.tag_character` / `tag_sign` | The tagged row's gutter mark: `tag_sign`'s first character (empty: `√`; `+` on the ASCII tier when it is not ASCII); off, the colour alone |

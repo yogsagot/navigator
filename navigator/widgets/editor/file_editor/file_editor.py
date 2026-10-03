@@ -513,8 +513,60 @@ class FileEditor(Widget):
         self._end()
         return True
 
+    def _unindent(self) -> bool:
+        """*Backspace unindents*: back to the indent of the line above that is shallower.
+
+        Only with nothing but blanks before the cursor, and the cursor on a
+        character's start rather than inside a tab.  The nearest line above
+        with text and an indent narrower than the cursor's column says where
+        to go, or column 0 if none does; the blanks between are deleted, and
+        spaces make up the width where a tab would overshoot.  Past the end
+        of an all-blank line it is the same; past the end of one with text it
+        is not this.  The Borland IDEs' option: DN's source was not to hand.
+        """
+        if not SETTINGS.editor.backspace_unindents or self.col == 0:
+            return False
+        text = self._text()
+        index, past = self._index()
+        index = min(index, len(text))
+        before = text[:index]
+        if before.strip(" \t") or (past and text.strip(" \t")):
+            return False
+        if not past and columns.column_of(text, index, self.tab_size) != self.col:
+            return False
+        target = 0
+        for line in range(self.line - 1, -1, -1):
+            above = self._text(line)
+            if above.strip(" \t"):
+                indent = columns.width(above[:len(above) - len(above.lstrip(" \t"))], self.tab_size)
+                if indent < self.col:
+                    target = indent
+                    break
+        if columns.width(before, self.tab_size) <= target:
+            # Only blanks past the end of the line: nothing to delete.
+            self._moved()
+            self._go_column(self.line, target)
+            return True
+        keep = 0
+        while keep < index and columns.width(before[:keep + 1], self.tab_size) <= target:
+            keep += 1
+        pad = target - columns.width(before[:keep], self.tab_size)
+        self._begin("back")
+        self.buffer.delete(Pos(self.line, keep), Pos(self.line, index))
+        if pad:
+            self.buffer.insert(Pos(self.line, keep), " " * pad)
+        self._go_column(self.line, target)
+        self._end()
+        return True
+
     async def on_delete_back(self, event: DeleteBack) -> bool:
-        """``MakeBack``: the character before the cursor, or the line break."""
+        """``MakeBack``: the character before the cursor, or the line break.
+
+        In the line's leading blanks, under the Editor setup's *Backspace
+        unindents*, :meth:`_unindent` instead.
+        """
+        if self._unindent():
+            return True
         index, past = self._index()
         if past:
             self._moved()

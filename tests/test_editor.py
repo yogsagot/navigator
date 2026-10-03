@@ -16,6 +16,7 @@ from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
 from navigator.editor.document import Document, Pos
 from navigator.editor.save import write_file
+from navigator.settings import SETTINGS
 
 
 # -- the document ------------------------------------------------------------------
@@ -376,3 +377,60 @@ def test_an_editor_feature_still_to_come_is_greyed(files):
 
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, ask])
     assert seen == {"justify": False, "save": True}
+
+
+# -- Backspace unindents ----------------------------------------------------------------
+
+
+def backspaced(tmp_path, text: str, line: int, col: int, times: int = 1):
+    """*text* in an editor, the cursor put on *line*/*col*, Backspace *times*."""
+    (tmp_path / "dir").mkdir(exist_ok=True)
+    (tmp_path / "text.txt").write_text(text)
+    app = navigator(tmp_path)
+
+    def place(a):
+        editor = editor_window(a).editor
+        editor.line, editor.col = line, col
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, place,
+                  *[KeyEvent("backspace") for _ in range(times)]])
+    editor = editor_window(app).editor
+    return editor.document.encode().decode(), editor.col
+
+
+def test_backspace_in_the_indent_goes_back_to_a_shallower_line_above(tmp_path, quiet_console):
+    text = "a\n    b\n        c\n        d\n"
+    assert backspaced(tmp_path, text, 3, 8) == ("a\n    b\n        c\n    d\n", 4)
+    assert backspaced(tmp_path, text, 3, 8, times=2) == ("a\n    b\n        c\nd\n", 0)
+
+
+def test_backspace_on_the_text_is_still_one_character(tmp_path, quiet_console):
+    assert backspaced(tmp_path, "a\n    bc\n", 1, 5) == ("a\n    c\n", 4)
+
+
+def test_a_tab_that_overshoots_is_made_up_with_spaces(tmp_path, quiet_console):
+    # A tab to column 8 under a line indented 2: the tab goes, two spaces stay.
+    assert backspaced(tmp_path, "  a\n\tb\n", 1, 8) == ("  a\n  b\n", 2)
+
+
+def test_past_the_end_of_a_blank_line_the_cursor_only_moves(tmp_path, quiet_console):
+    assert backspaced(tmp_path, "    a\n\n", 1, 8) == ("    a\n\n", 4)
+
+
+def test_undo_takes_an_unindent_back_whole(tmp_path, quiet_console):
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "text.txt").write_text("a\n        b\n")
+    app = navigator(tmp_path)
+
+    def place(a):
+        editor = editor_window(a).editor
+        editor.line, editor.col = 1, 8
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, place,
+                  KeyEvent("backspace"), KeyEvent("backspace", alt=True)])
+    assert editor_window(app).editor.document.encode() == b"a\n        b\n"
+
+
+def test_without_backspace_unindents_one_blank_goes(tmp_path, quiet_console):
+    SETTINGS.editor.backspace_unindents = False
+    assert backspaced(tmp_path, "a\n    b\n", 1, 4) == ("a\n   b\n", 3)

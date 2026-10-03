@@ -355,7 +355,9 @@ class EditorDefaultsData(Section):
     LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
 
     create_backup: bool = Setting(False, doc="Create backup files", honoured=False)
-    backspace_unindents: bool = Setting(True, doc="Backspace unindents", honoured=False)
+    backspace_unindents: bool = Setting(
+        True, doc="Backspace in the leading blanks goes back to the indent of a line above",
+    )
     auto_brackets: bool = Setting(False, doc="Close brackets as they are typed", honoured=False)
     auto_indent: bool = Setting(True, doc="Enter indents the new line as the one above")
     autowrap: bool = Setting(False, doc="Wrap at the right margin", honoured=False)
