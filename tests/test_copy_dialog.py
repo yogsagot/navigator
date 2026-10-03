@@ -96,12 +96,19 @@ def test_ok_answers_a_request_and_is_remembered(tmp_path):
     dialog.options.value = CHECK_FREE | MOVE
     request = dialog.accept()
     assert request == CopyRequest(
-        [tmp_path / "f.txt", tmp_path / "g"], f"{tmp_path / 'b'}/", OVERWRITE, CHECK_FREE | MOVE
+        [tmp_path / "f.txt", tmp_path / "g"], f"{tmp_path / 'b'}/", OVERWRITE, CHECK_FREE | MOVE,
+        flush=True,
     )
     # The next F5 opens as this one closed, less F6's *Remove source*.
     again = CopyDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path / "b")
     assert again.mode.value == OVERWRITE
     assert again.options.value == CHECK_FREE
+
+
+def test_the_request_flushes_as_system_setup_says(tmp_path):
+    SETTINGS.system.flush_buffers = False
+    dialog = CopyDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path / "b")
+    assert dialog.accept().flush is False
 
 
 def test_an_empty_line_answers_nothing(tmp_path):

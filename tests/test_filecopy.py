@@ -28,7 +28,7 @@ def write(path: Path, text: str) -> Path:
     return path
 
 
-def copy(sources, target, *, cwd, mode=ASK, options=PRESERVE, answers=None):
+def copy(sources, target, *, cwd, mode=ASK, options=PRESERVE, answers=None, flush=False):
     """Run a copy; *answers* is a callable or a list consumed in order."""
     asked: list = []
 
@@ -39,7 +39,7 @@ def copy(sources, target, *, cwd, mode=ASK, options=PRESERVE, answers=None):
         return answers.pop(0) if answers else None
 
     job = CopyJob(asker=asker)
-    done = run(CopyRequest(list(sources), str(target), mode, options), job, cwd)
+    done = run(CopyRequest(list(sources), str(target), mode, options, flush), job, cwd)
     return done, asked, job
 
 
@@ -253,6 +253,45 @@ def test_move_across_filesystems_copies_then_deletes(tree, tmp_path, monkeypatch
     assert not asked and len(done) == 2
     assert not (src / "a.txt").exists() and not (src / "sub").exists()
     assert (dst / "sub" / "c.txt").read_text() == "gamma"
+
+
+def test_flush_syncs_each_file_written_and_only_when_asked(tree, tmp_path, monkeypatch):
+    src, dst = tree
+    synced = []
+    real = os.fsync
+    monkeypatch.setattr(filecopy.os, "fsync", lambda fd: synced.append(fd) or real(fd))
+    copy([src / "a.txt"], dst, cwd=tmp_path)
+    assert synced == []
+    copy([src / "b.txt", src / "sub"], dst, cwd=tmp_path, flush=True)
+    assert len(synced) == 2
+
+
+def test_a_failed_sync_fails_the_file_and_a_move_keeps_its_source(tree, tmp_path, monkeypatch):
+    src, dst = tree
+
+    def cross(*args, **kwargs):
+        raise OSError(errno.EXDEV, "Invalid cross-device link")
+
+    def broken(fd):
+        raise OSError(errno.EIO, "Input/output error")
+
+    monkeypatch.setattr(filecopy.os, "replace", cross)
+    monkeypatch.setattr(filecopy.os, "fsync", broken)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, options=MOVE, flush=True,
+                          answers=lambda q: True)
+    assert done == [] and isinstance(asked[0], filecopy.Failure)
+    assert (src / "a.txt").exists() and not (dst / "a.txt").exists()
+
+
+def test_a_file_system_that_cannot_sync_still_copies(tree, tmp_path, monkeypatch):
+    src, dst = tree
+
+    def unsupported(fd):
+        raise OSError(errno.EINVAL, "Invalid argument")
+
+    monkeypatch.setattr(filecopy.os, "fsync", unsupported)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, flush=True)
+    assert done == [src / "a.txt"] and not asked
 
 
 def test_move_keeps_a_source_that_was_skipped(clash, tmp_path):

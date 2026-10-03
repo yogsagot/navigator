@@ -20,6 +20,7 @@ from navkit.events import Event
 from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
 from navigator.filecopy import ASK, MOVE, PRESERVE, CopyRequest
+from navigator.settings import SETTINGS
 
 
 class CopyDialog(Dialog, _Component):

@@ -59,6 +59,9 @@ class CopyRequest:
     target: str
     mode: int = ASK
     options: int = PRESERVE
+    #: System Setup's *Flush buffers*: each file written is synced to disk
+    #: before it counts as copied -- and before a move deletes its source.
+    flush: bool = False
 
     @property
     def move(self) -> bool:
@@ -241,6 +244,7 @@ class _Copier:
         self.follow = bool(request.options & FOLLOW_LINKS)
         self.preserve = bool(request.options & PRESERVE)
         self.check_free = bool(request.options & CHECK_FREE)
+        self.flush = request.flush
         self.move = request.move
         self.is_root = hasattr(os, "geteuid") and os.geteuid() == 0
         #: The directories being copied, by identity: a loop through a
@@ -556,6 +560,9 @@ class _Copier:
                         writer.write(chunk)
                         job.file_done += len(chunk)
                         job.done_bytes += len(chunk)
+                    if self.flush:
+                        writer.flush()
+                        _sync(writer.fileno())
             return True
         except Stopped:
             # A half-written copy is worse than none, and nothing of a file
@@ -595,6 +602,19 @@ def _free_space(directory: Path) -> int | None:
     except OSError:
         return None
     return fs.f_bavail * fs.f_frsize
+
+
+def _sync(fd: int) -> None:
+    """``fsync`` *fd*; a write-back error raises, as a failed write would.
+
+    A file system that cannot sync at all (``EINVAL``, ``ENOTSUP``) has
+    nothing to flush, which is not a failure of the copy.
+    """
+    try:
+        os.fsync(fd)
+    except OSError as error:
+        if error.errno not in (errno.EINVAL, errno.ENOTSUP):
+            raise
 
 
 def _remove_quietly(path: Path) -> None:

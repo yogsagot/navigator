@@ -134,6 +134,7 @@ note:
 |---|---|
 | `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console |
 | `system.show_hidden` | A new panel's `show_hidden` |
+| `system.flush_buffers` | Copy and a cross-device move `fsync` each file written (`CopyRequest.flush`, set by `CopyDialog.accept`) before it counts as done or a move deletes its source; a sync error fails that file like a write error. `EINVAL`/`ENOTSUP` (a file system with nothing to sync) is not an error. A rename-move writes nothing, so syncs nothing |
 | `system.internal_terminal` | Off: Ctrl+O hands the real terminal to the shell, as Midnight Commander does, and commands from the line run there (a departure: not DN's; `console-command-line` has the mechanism). Also a System Setup box, *Use internal terminal* |
 | `interface.clock`, `interface.hide_status_line` | Clock and key bar visibility |
 | `interface.hide_menu_bar` | The desktop takes the top row; the bar floats over it only while a menu is open |

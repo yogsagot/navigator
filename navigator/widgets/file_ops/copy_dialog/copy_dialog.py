@@ -22,6 +22,7 @@ from navml.widgets.dialog.dialog import Dialog
 
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navigator.filecopy import ASK, MOVE, PRESERVE, CopyRequest
+from navigator.settings import SETTINGS
 
 #: ``ccCopyMode`` and ``ccCopyOpt``: what the last accepted dialog said.  DN
 #: began at *Ask* and nothing ticked; *Preserve attributes* begins ticked
@@ -116,6 +117,7 @@ class CopyDialog(Dialog):
             target=target,
             mode=self.mode.value,
             options=self.options.value,
+            flush=SETTINGS.system.flush_buffers,
         )
 
     # -- the buttons -----------------------------------------------------------
