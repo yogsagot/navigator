@@ -85,7 +85,8 @@ def _marking(
 
     The block grows from wherever the cursor stood unless that was one of the
     block's ends, in which case the other end stays put: Shift+Right then
-    Shift+Left takes back what the first marked.
+    Shift+Left takes back what the first marked.  Without Shift, and with the
+    Editor setup's *Persistent blocks* off, the block goes.
     """
 
     @functools.wraps(handler)
@@ -94,6 +95,8 @@ def _marking(
         done = await handler(self, event)
         if getattr(event, "extend", False):
             self._extend_block(before)
+        elif not SETTINGS.editor.persistent_blocks:
+            self.block = None
         return done
 
     return moving
@@ -553,6 +556,28 @@ class FileEditor(Widget):
     def _begin(self, merge: str | None = None) -> None:
         self.buffer.begin((self.line, self.col), merge)
 
+    def _begin_replacing(self, merge: str | None = None) -> None:
+        """:meth:`_begin` an edit that, with *Persistent blocks* off, replaces the block.
+
+        The block goes in the same undo group as what replaces it, and starts
+        a group of its own rather than joining a run of typing before it.
+        """
+        block = self.block
+        if SETTINGS.editor.persistent_blocks or block is None:
+            self._begin(merge)
+            return
+        self._moved()
+        self._begin(merge)
+        self.buffer.delete(*block)
+        self._go(block[0])
+
+    def _deleting_block(self) -> bool:
+        """Backspace and Del with *Persistent blocks* off: the block, if any, and nothing else."""
+        if SETTINGS.editor.persistent_blocks or self.block is None:
+            return False
+        self._delete_block()
+        return True
+
     def _end(self) -> None:
         self.buffer.end()
         self.revision += 1
@@ -572,7 +597,7 @@ class FileEditor(Widget):
 
     def type_text(self, text: str) -> None:
         """Characters typed at the cursor, inserted or over what is there."""
-        self._begin("type")
+        self._begin_replacing("type")
         at = self._pad()
         if self.overwrite:
             line = self._text()
@@ -585,7 +610,7 @@ class FileEditor(Widget):
     def insert_text(self, text: str) -> None:
         """A paste: line breaks become the file's own."""
         text = BREAK.sub(self.document.newline, text)
-        self._begin()
+        self._begin_replacing()
         end = self.buffer.insert(self._pad(), text)
         self._go(end)
         self._end()
@@ -595,7 +620,7 @@ class FileEditor(Widget):
 
         The indent only under the Editor setup's *Auto indent*.
         """
-        self._begin()
+        self._begin_replacing()
         index, _ = self._index()
         text = self._text()
         at = Pos(self.line, min(index, len(text)))
@@ -631,7 +656,9 @@ class FileEditor(Widget):
             self._moved()
             self._go_column(self.line, stop)
             return True
-        self._begin("type")
+        self._begin_replacing("type")
+        # Again: a block replaced has moved the cursor to where it began.
+        stop = (self.col // self.tab_size + 1) * self.tab_size
         at = self._pad()
         self.buffer.insert(at, " " * (stop - self.col))
         self._go_column(self.line, stop)
@@ -688,9 +715,10 @@ class FileEditor(Widget):
         """``MakeBack``: the character before the cursor, or the line break.
 
         In the line's leading blanks, under the Editor setup's *Backspace
-        unindents*, :meth:`_unindent` instead.
+        unindents*, :meth:`_unindent` instead; with *Persistent blocks* off
+        and a block marked, the block alone.
         """
-        if self._unindent():
+        if self._deleting_block() or self._unindent():
             return True
         index, past = self._index()
         if past:
@@ -716,7 +744,12 @@ class FileEditor(Widget):
         return True
 
     async def on_delete_char(self, event: DeleteChar) -> bool:
-        """``MakeDel``: the character under the cursor, or join the next line."""
+        """``MakeDel``: the character under the cursor, or join the next line.
+
+        With *Persistent blocks* off and a block marked, the block alone.
+        """
+        if self._deleting_block():
+            return True
         index, past = self._index()
         text = self._text()
         if index < len(text) and not past:

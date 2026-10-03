@@ -153,6 +153,7 @@ note:
 | `editor.tab_size`, `editor.vertical_blocks` | Seed a new editor |
 | `viewer.hex_mode`, `viewer.wrap_lines` | Seed F3's viewer |
 | `editor.line_divisor` | The terminator a text with no line break yet takes (`FileEditor.open` sets `Document.newline` from `document.NEWLINES`): a new file, an empty one, a single line. A file with breaks keeps its most common one |
+| `editor.persistent_blocks` | On (DN's default): the block stays as the cursor moves and edits go round it. Off: a movement without Shift unmarks, typing, Enter, Tab and a paste replace the block (one undo), Backspace and Del delete it alone |
 | `editor.auto_indent` | Enter indents the new line as the one it split (`on_new_line`, DN's `MakeEnter`) |
 | `editor.backspace_unindents` | Backspace with only blanks before the cursor goes back to the indent of the nearest shallower line above (column 0 if none), deleting the blanks between, one undo step (`FileEditor._unindent`). The Borland IDEs' meaning, DN's source not being to hand. Inside a tab, or past the end of a line with text, it is the plain Backspace |
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |

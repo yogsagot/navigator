@@ -653,3 +653,50 @@ def test_a_double_click_marks_the_word(files):
 def test_a_middle_click_asks_for_the_primary_selection(files):
     app, _ = mouse(files, (0, 0, "press", {"button": "middle"}))
     assert app.terminal.clipboard_queries == [True]
+
+
+# -- Persistent blocks ------------------------------------------------------------------------
+
+
+def test_persistent_blocks_stay_through_movement_and_typing(files):
+    _, editor = marked(files, KeyEvent("right", shift=True), KeyEvent("right", shift=True),
+                       KeyEvent("end"), *typed("x"))
+    assert editor.block_text == "fi"
+    assert editor.document.encode().startswith(b"first linex\r\n")
+
+
+def test_without_persistent_blocks_a_movement_unmarks(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, KeyEvent("right", shift=True), KeyEvent("right"))
+    assert editor.block is None
+
+
+def test_without_persistent_blocks_typing_replaces_the_block(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, *typed("ab"), KeyEvent("home"),
+                       *[KeyEvent("right", shift=True)] * 7, *typed("X"))
+    assert editor.document.encode().startswith(b"X line\r\n")
+    assert editor.block is None and (editor.line, editor.col) == (0, 1)
+
+
+def test_without_persistent_blocks_one_undo_takes_the_replacement_back(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, *typed("ab"), KeyEvent("home"),
+                       *[KeyEvent("right", shift=True)] * 7, *typed("X"),
+                       KeyEvent("backspace", alt=True))
+    # The replacement went as one, leaving the typing before the block alone.
+    assert editor.document.encode().startswith(b"abfirst line\r\n")
+
+
+@pytest.mark.parametrize("key", ["delete", "backspace"])
+def test_without_persistent_blocks_del_and_backspace_take_the_block_alone(files, key):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, KeyEvent("right"), *[KeyEvent("right", shift=True)] * 4,
+                       KeyEvent(key))
+    assert editor.document.encode().startswith(b"f line\r\n")
+
+
+def test_without_persistent_blocks_a_paste_replaces_the_block(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, KeyEvent("end", shift=True), PasteEvent("new"))
+    assert editor.document.encode().startswith(b"new\r\nsecond")

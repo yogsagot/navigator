@@ -14,8 +14,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
 - **Stream blocks and the clipboard.** Shift with any movement marks (`_marking` wraps the movement handlers; the
   block grows from the cursor, or from its other end when the cursor stood on one). `FileEditor.block` is
-  `(start, end)` in `Pos`, start first, or None; it persists while the cursor moves (DN's *Persistent blocks*, the
-  default; the setting itself is still unread) and follows every edit, undo's included, through
+  `(start, end)` in `Pos`, start first, or None; it persists while the cursor moves under *Persistent blocks* (DN's
+  default). Off: a movement without Shift unmarks, typing/Enter/Tab/paste replace the block in one undo group
+  (`_begin_replacing`), and Backspace/Del delete the block alone (`_deleting_block`). Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,

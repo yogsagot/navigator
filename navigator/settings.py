@@ -370,7 +370,9 @@ class EditorDefaultsData(Section):
     optimal_fill: bool = Setting(False, doc="Optimal fill with tabs", honoured=False)
     highlight_line: bool = Setting(False, doc="Highlight the cursor's line", honoured=False)
     highlight_column: bool = Setting(False, doc="Highlight the cursor's column", honoured=False)
-    persistent_blocks: bool = Setting(True, doc="Persistent blocks", honoured=False)
+    persistent_blocks: bool = Setting(
+        True, doc="The block stays when the cursor moves; off, typing replaces it",
+    )
     overwrite_blocks: bool = Setting(False, doc="Typing overwrites a block", honoured=False)
     lock_file: bool = Setting(False, doc="Lock the file being edited", honoured=False)
     left_margin: int = Setting(0, doc="Left margin", honoured=False)
