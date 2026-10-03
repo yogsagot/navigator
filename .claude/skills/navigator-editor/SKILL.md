@@ -22,7 +22,17 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
-  to come: column blocks (`vertical_blocks`), the `^K` block commands, unmarking (`^K H`).
+  to come: the `^K` block commands, unmarking (`^K H`).
+- **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit
+  history; Editor > Options > *Vertical blocks* switches it, ticked through `FileEditor.checks`, and unmarks).
+  `FileEditor.column_block` is two corner *cells* `(line, col)` -- columns, not indices, since a rectangle runs past
+  short lines and across tabs -- and `rectangle` is `(top, left, bottom, right)`, right exclusive. Only one of
+  `block`/`column_block` is ever set; marking code speaks of "ends" (`_here`, `_block_ends`, `_set_block`) so keys,
+  Shift+click, drags and double-clicks serve both. A character belongs to the column it starts in
+  (`columns.span`), so a tab straddling the left edge stays out. A copy hands out each line's piece without padding
+  blanks, and remembers the padded pieces in `_COLUMN_CLIP` (newest only): pasting exactly that text back inserts a
+  rectangle (`_insert_rectangle`: short lines padded to the column, lines added past the end, the cursor left at the
+  top-left). A column block keeps its columns through edits and moves only by whole lines.
 - **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured) marks from the press,
   scrolling a line at a time past the top or bottom row; Shift+click extends the block as Shift+movement does; a
   double-click marks the word between `BREAK_CHARS`. A block marked by the mouse becomes the primary selection on

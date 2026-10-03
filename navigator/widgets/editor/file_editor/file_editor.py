@@ -61,6 +61,7 @@ from navigator.widgets.editor.commands import (
     TextEnd,
     TextStart,
     Undo,
+    VerticalBlocks,
     WordLeft,
     WordRight,
 )
@@ -77,6 +78,11 @@ BREAK_CHARS = frozenset(", []{}():;.^&*!#$/\\'\"%><-+=|?\r\n\t\x0c")
 #: How many lines one wheel notch moves the view.
 WHEEL_ROWS = 3
 
+#: The text of the last column block copied, with the padded pieces it was
+#: copied from: a paste of exactly that text goes in as a rectangle.  Shared
+#: by every editor, as the clipboard is, and holding only the newest copy.
+_COLUMN_CLIP: dict[str, list[str]] = {}
+
 
 def _marking(
     handler: Callable[[Any, Any], Awaitable[bool]],
@@ -91,12 +97,12 @@ def _marking(
 
     @functools.wraps(handler)
     async def moving(self: Any, event: Any) -> bool:
-        before = self._mark_pos()
+        before = self._here()
         done = await handler(self, event)
         if getattr(event, "extend", False):
             self._extend_block(before)
         elif not SETTINGS.editor.persistent_blocks:
-            self.block = None
+            self._unmark()
         return done
 
     return moving
@@ -209,11 +215,18 @@ class FileEditor(Widget):
     #: Column blocks rather than stream ones: DN's ``VertBlock``.
     vertical_blocks: bool = reactive(False)
 
-    #: The marked block, its start before its end, or None: a stream block,
-    #: from one place in the text to another.  It stays when the cursor
-    #: moves, as DN's *Persistent blocks* kept it, and follows the edits made
-    #: around it (:meth:`_follow_edit`).
+    #: The marked stream block, its start before its end, or None: from one
+    #: place in the text to another.  It stays when the cursor moves, as
+    #: DN's *Persistent blocks* kept it, and follows the edits made around it
+    #: (:meth:`_follow_edit`).
     block: tuple[Pos, Pos] | None = reactive(None)
+
+    #: The marked column block, or None: two opposite corners as screen
+    #: cells ``(line, col)``, the one marking started from first.  Columns,
+    #: not string indices, because a rectangle runs past short lines' ends
+    #: and across tabs; :attr:`rectangle` is what it covers.  Only one of the
+    #: two blocks is ever marked, the one :attr:`vertical_blocks` says.
+    column_block: tuple[tuple[int, int], tuple[int, int]] | None = reactive(None)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -224,8 +237,9 @@ class FileEditor(Widget):
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
-        #: The block's fixed end while the left button drags, else None.
-        self._drag_from: Pos | None = None
+        #: The block's fixed end while the left button drags, else None: a
+        #: ``Pos``, or a ``(line, col)`` cell for a column block.
+        self._drag_from: Any = None
 
     # -- the file ----------------------------------------------------------------
 
@@ -247,7 +261,7 @@ class FileEditor(Widget):
         if not any(document.endings):
             document.newline = NEWLINES[SETTINGS.editor.line_divisor]
         self._use(EditBuffer(document))
-        self.block = None
+        self._unmark()
         self.path = path
         self.line = self.col = self.top = self.left = 0
         self.revision += 1
@@ -490,49 +504,144 @@ class FileEditor(Widget):
         return True
 
     # -- the block ---------------------------------------------------------------
+    #
+    # Two kinds, one at a time.  A stream block's ends are places in the text
+    # (``Pos``); a column block's are screen cells ``(line, col)``, the corners
+    # of a rectangle.  Marking speaks of "ends" either way -- ``_here`` is the
+    # cursor as the kind in force sees it -- so Shift+movement, Shift+click
+    # and a drag are the same code for both.
 
     def _mark_pos(self) -> Pos:
         """The cursor as a place a block can end at: past a line's end, its end."""
         index, _ = self._index()
         return Pos(self.line, min(index, len(self._text())))
 
-    def _extend_block(self, before: Pos) -> None:
-        here = self._mark_pos()
-        block = self.block
+    def _here(self) -> Any:
+        """The cursor as an end of the kind of block in force."""
+        return (self.line, self.col) if self.vertical_blocks else self._mark_pos()
+
+    def _block_ends(self) -> tuple[Any, Any] | None:
+        return self.column_block if self.vertical_blocks else self.block
+
+    @property
+    def has_block(self) -> bool:
+        return self.block is not None or self.column_block is not None
+
+    def _unmark(self) -> None:
+        self.block = None
+        self.column_block = None
+
+    def _set_block(self, anchor: Any, here: Any) -> None:
+        """Mark from *anchor* to *here*; nothing, if the two enclose nothing."""
+        if self.vertical_blocks:
+            self.column_block = (anchor, here) if anchor[1] != here[1] else None
+        else:
+            self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+
+    def _extend_block(self, before: Any) -> None:
+        ends = self._block_ends()
         anchor = before
-        if block is not None and before in block:
-            anchor = block[1] if before == block[0] else block[0]
-        self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+        if ends is not None and before in ends:
+            anchor = ends[1] if before == ends[0] else ends[0]
+        self._set_block(anchor, self._here())
+
+    @property
+    def rectangle(self) -> tuple[int, int, int, int] | None:
+        """The column block as ``(top, left, bottom, right)``: lines inclusive, columns end-exclusive."""
+        corners = self.column_block
+        if corners is None:
+            return None
+        (a, x), (b, y) = corners
+        return min(a, b), min(x, y), max(a, b), max(x, y)
 
     def _follow_edit(self, kind: str, start: Pos, end: Pos) -> None:
-        """An edit made: the block's ends move with the text around them."""
+        """An edit made: the block's ends move with the text around them.
+
+        A column block keeps its columns and moves only by whole lines, when
+        an edit adds or takes out line breaks above it.
+        """
         block = self.block
-        if block is None:
-            return
-        first = shifted(block[0], kind, start, end)
-        last = shifted(block[1], kind, start, end, stay=True)
-        self.block = (first, last) if first < last else None
+        if block is not None:
+            first = shifted(block[0], kind, start, end)
+            last = shifted(block[1], kind, start, end, stay=True)
+            self.block = (first, last) if first < last else None
+        corners = self.column_block
+        if corners is not None and end.line != start.line:
+            def moved(cell: tuple[int, int]) -> tuple[int, int]:
+                line, col = cell
+                # A break typed at a line's very start pushes it down, block and all.
+                return shifted(Pos(line, 0), kind, start, end).line, col
+            self.column_block = (moved(corners[0]), moved(corners[1]))
+
+    def _column_pieces(self) -> list[str]:
+        """Each line's part of the column block, padded out to its width."""
+        top, left, bottom, right = self.rectangle
+        pieces = []
+        for number in range(top, bottom + 1):
+            text = self.document.lines[number] if number < len(self.document) else ""
+            i, j = columns.span(text, left, right, self.tab_size)
+            piece = text[i:j]
+            shown = columns.column_of(text, j, self.tab_size) - columns.column_of(text, i, self.tab_size)
+            pieces.append(piece + " " * max(0, (right - left) - shown))
+        return pieces
 
     @property
     def block_text(self) -> str:
-        """What the block holds, its line breaks plain ``\\n``: what a copy hands out."""
+        """What the block holds, its line breaks plain ``\\n``: what a copy hands out.
+
+        A column block's lines lose the blanks that only padded them out.
+        """
+        if self.column_block is not None:
+            return "\n".join(piece.rstrip(" ") for piece in self._column_pieces())
         if self.block is None:
             return ""
         return BREAK.sub("\n", self.document.text(*self.block))
 
-    def _delete_block(self) -> None:
+    def _take_block(self) -> None:
+        """Delete the block inside an open group; the cursor to where it began."""
+        if self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            for number in range(top, min(bottom, len(self.document) - 1) + 1):
+                i, j = columns.span(self.document.lines[number], left, right, self.tab_size)
+                self.buffer.delete(Pos(number, i), Pos(number, j))
+            self.column_block = None
+            self._go_column(top, left)
+            return
         block = self.block
-        if block is None:
+        if block is not None:
+            self.buffer.delete(*block)
+            self._go(block[0])
+
+    def _delete_block(self) -> None:
+        if not self.has_block:
             return
         self._begin()
-        self.buffer.delete(*block)
-        self._go(block[0])
+        self._take_block()
         self._end()
 
-    async def on_clipboard_copy(self, event: ClipboardCopy) -> bool:
+    def _copy_block(self, *, primary: bool = False) -> None:
+        """Hand the block to the clipboard; a column block is remembered as one.
+
+        So pasting it back puts it in as a rectangle, as DN's clipboard knew
+        a vertical block from a stream one.
+        """
         app = self.application
-        if self.block is not None and app is not None:
-            app.copy_to_clipboard(self.block_text)
+        if not self.has_block or app is None:
+            return
+        text = self.block_text
+        if self.column_block is not None:
+            _COLUMN_CLIP.clear()
+            _COLUMN_CLIP[text] = self._column_pieces()
+        app.copy_to_clipboard(text, primary=primary)
+
+    async def on_vertical_blocks(self, event: VerticalBlocks) -> bool:
+        """Switch between column and stream blocks; what is marked is unmarked."""
+        self._unmark()
+        self.vertical_blocks = not self.vertical_blocks
+        return True
+
+    async def on_clipboard_copy(self, event: ClipboardCopy) -> bool:
+        self._copy_block()
         return True
 
     async def on_clipboard_cut(self, event: ClipboardCut) -> bool:
@@ -562,18 +671,16 @@ class FileEditor(Widget):
         The block goes in the same undo group as what replaces it, and starts
         a group of its own rather than joining a run of typing before it.
         """
-        block = self.block
-        if SETTINGS.editor.persistent_blocks or block is None:
+        if SETTINGS.editor.persistent_blocks or not self.has_block:
             self._begin(merge)
             return
         self._moved()
         self._begin(merge)
-        self.buffer.delete(*block)
-        self._go(block[0])
+        self._take_block()
 
     def _deleting_block(self) -> bool:
         """Backspace and Del with *Persistent blocks* off: the block, if any, and nothing else."""
-        if SETTINGS.editor.persistent_blocks or self.block is None:
+        if SETTINGS.editor.persistent_blocks or not self.has_block:
             return False
         self._delete_block()
         return True
@@ -608,11 +715,45 @@ class FileEditor(Widget):
         self._end()
 
     def insert_text(self, text: str) -> None:
-        """A paste: line breaks become the file's own."""
+        """A paste: line breaks become the file's own.
+
+        Text a column block was copied as goes back in as a rectangle
+        (:meth:`_insert_rectangle`).
+        """
+        pieces = _COLUMN_CLIP.get(BREAK.sub("\n", text))
+        if pieces is not None:
+            self._insert_rectangle(pieces)
+            return
         text = BREAK.sub(self.document.newline, text)
         self._begin_replacing()
         end = self.buffer.insert(self._pad(), text)
         self._go(end)
+        self._end()
+
+    def _insert_rectangle(self, pieces: list[str]) -> None:
+        """Each piece at the cursor's column, one line under another.
+
+        Short lines are padded out to the column and lines are added past the
+        text's end; a piece with nothing after it loses its padding.  The
+        cursor stays at the top-left corner.
+        """
+        self._begin_replacing()
+        line, col = self.line, self.col
+        for offset, piece in enumerate(pieces):
+            number = line + offset
+            if number >= len(self.document):
+                self.buffer.insert(self.document.end, self.document.newline)
+            text = self.document.lines[number]
+            index, past = columns.index_at(text, col, self.tab_size)
+            if index >= len(text):
+                piece = piece.rstrip(" ")
+                if not piece:
+                    continue
+            if past:
+                self.buffer.insert(Pos(number, index), " " * past)
+                index += past
+            self.buffer.insert(Pos(number, index), piece)
+        self._go_column(line, col)
         self._end()
 
     async def on_new_line(self, event: NewLine) -> bool:
@@ -832,8 +973,14 @@ class FileEditor(Widget):
             self.revision
             return self.buffer.can_undo
         if isinstance(command, (ClipboardCut, ClipboardCopy, ClearBlock)):
-            return self.block is not None
+            return self.has_block
         return super().enables(command)
+
+    def checks(self, command: Any) -> bool | None:
+        """Editor > Options ticks *Vertical blocks* while column blocks are in force."""
+        if isinstance(command, VerticalBlocks):
+            return self.vertical_blocks
+        return super().checks(command)
 
     async def on_undo(self, event: Undo) -> bool:
         before = self.buffer.undo()
@@ -877,16 +1024,16 @@ class FileEditor(Widget):
         if event.action == "press":
             self.focus()
             self._moved()
-            before = self._mark_pos()
+            before = self._here()
             self._point(event)
-            here = self._mark_pos()
+            here = self._here()
             if event.shift:
                 # Shift+click: the block's far end stays, as Shift+movement keeps it.
                 self._extend_block(before)
-                block = self.block
-                self._drag_from = here if block is None else (block[0] if here == block[1] else block[1])
+                ends = self._block_ends()
+                self._drag_from = here if ends is None else (ends[0] if here == ends[1] else ends[1])
             else:
-                self.block = None
+                self._unmark()
                 self._drag_from = here
             if app is not None:
                 app.capture_mouse(self)
@@ -910,15 +1057,12 @@ class FileEditor(Widget):
         y = min(max(event.y, 0), max(0, self.height - 1))
         self._go_column(self.top + y, self.left + max(0, event.x))
 
-    def _mark_to(self, anchor: Pos) -> None:
-        here = self._mark_pos()
-        self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+    def _mark_to(self, anchor: Any) -> None:
+        self._set_block(anchor, self._here())
 
     def _copy_primary(self) -> None:
         """A block marked by the mouse is the primary selection, as a drag elsewhere is."""
-        app = self.application
-        if self.block is not None and app is not None:
-            app.copy_to_clipboard(self.block_text, primary=True)
+        self._copy_block(primary=True)
 
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
         """The word under the pointer, marked: the run between two ``BREAK_CHARS``."""
@@ -935,7 +1079,12 @@ class FileEditor(Widget):
             start -= 1
         while stop < len(text) and text[stop] not in BREAK_CHARS:
             stop += 1
-        self.block = (Pos(self.line, start), Pos(self.line, stop))
+        if self.vertical_blocks:
+            tab = self.tab_size
+            self.column_block = ((self.line, columns.column_of(text, start, tab)),
+                                 (self.line, columns.column_of(text, stop, tab)))
+        else:
+            self.block = (Pos(self.line, start), Pos(self.line, stop))
         self._go(Pos(self.line, stop))
         self._copy_primary()
         return True
@@ -977,6 +1126,10 @@ class FileEditor(Widget):
         A line whose break is in the block gets one more, so an empty line
         inside it shows.
         """
+        rectangle = self.rectangle
+        if rectangle is not None:
+            top, left, bottom, right = rectangle
+            return (left, right) if top <= number <= bottom else None
         block = self.block
         if block is None or not block[0].line <= number <= block[1].line:
             return None

@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo
+from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo, VerticalBlocks
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -285,6 +285,7 @@ EditWindow(Window):
                 text: '~J~ustify on wrap'
             MenuItem:
                 text: '~V~ertical blocks'
+                command: VerticalBlocks
             MenuItem:
                 text: 'Opti~m~al fill'
             MenuItem:

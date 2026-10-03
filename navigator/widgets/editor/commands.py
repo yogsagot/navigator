@@ -168,6 +168,12 @@ class ClearBlock(Command):
     title = "Clear"
 
 
+class VerticalBlocks(Command):
+    """Editor > Options > *Vertical blocks*: column blocks, or stream ones (DN's ``VertBlock``)."""
+
+    title = "Vertical blocks"
+
+
 class Undo(Command):
     """``cmUndo``: Alt+Backspace, ^Q^L."""
 
@@ -186,6 +192,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "VerticalBlocks",
     "MoveLeft",
     "MoveRight",
     "MoveUp",

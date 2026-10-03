@@ -700,3 +700,87 @@ def test_without_persistent_blocks_a_paste_replaces_the_block(files):
     SETTINGS.editor.persistent_blocks = False
     _, editor = marked(files, KeyEvent("end", shift=True), PasteEvent("new"))
     assert editor.document.encode().startswith(b"new\r\nsecond")
+
+
+# -- column blocks ----------------------------------------------------------------------------
+
+
+def columns_editor(files, text: bytes, *keys):
+    """*text* in an editor with column blocks in force, then *keys*."""
+    SETTINGS.editor.vertical_blocks = True
+    (files / "text.txt").write_bytes(text)
+    return marked(files, *keys)
+
+
+def test_shift_movement_marks_a_rectangle_across_short_lines(files):
+    _, editor = columns_editor(files, b"abcdef\nab\nabcdef\n",
+                               KeyEvent("right"), KeyEvent("right"),
+                               *[KeyEvent("right", shift=True)] * 3,
+                               *[KeyEvent("down", shift=True)] * 2)
+    assert editor.rectangle == (0, 2, 2, 5)
+    assert editor.block is None
+    assert editor.block_text == "cde\n\ncde"
+
+
+def test_cutting_a_rectangle_takes_each_lines_columns_and_undo_restores(files):
+    app, editor = columns_editor(files, b"abcdef\nab\nabcdef\n",
+                                 KeyEvent("right"), KeyEvent("right"),
+                                 *[KeyEvent("right", shift=True)] * 3,
+                                 *[KeyEvent("down", shift=True)] * 2,
+                                 KeyEvent("delete", shift=True))
+    assert editor.document.encode() == b"abf\nab\nabf\n"
+    assert editor.column_block is None and (editor.line, editor.col) == (0, 2)
+    assert app.terminal.clipboard == [("cde\n\ncde", False)]
+
+
+def test_a_copied_rectangle_pastes_back_as_one(files):
+    SETTINGS.system.system_clipboard = False
+    _, editor = columns_editor(files, b"abcd\nefgh\n",
+                               *[KeyEvent("right", shift=True)] * 2, KeyEvent("down", shift=True),
+                               KeyEvent("insert", ctrl=True),
+                               KeyEvent("up"), KeyEvent("end"),
+                               KeyEvent("insert", shift=True), lambda a: None)
+    assert editor.document.encode() == b"abcdab\nefghef\n"
+
+
+def test_a_rectangle_pasted_past_short_lines_and_the_end_pads_and_adds(files):
+    SETTINGS.system.system_clipboard = False
+    _, editor = columns_editor(files, b"abcd\nefgh",
+                               *[KeyEvent("right", shift=True)] * 2, KeyEvent("down", shift=True),
+                               KeyEvent("insert", ctrl=True),
+                               KeyEvent("down"), *[KeyEvent("right")] * 4,
+                               KeyEvent("insert", shift=True), lambda a: None)
+    assert editor.document.encode() == b"abcd\nefgh  ab\n      ef"
+
+
+def test_a_tab_belongs_to_the_column_it_starts_in(files):
+    # Columns 2 to 9: on "a\tbc" the tab starts at 1, outside; "b" at 8 is in, "c" at 9 is not.
+    app, editor = columns_editor(files, b"abcdefghij\na\tbc\n",
+                                 KeyEvent("right"), KeyEvent("right"),
+                                 *[KeyEvent("right", shift=True)] * 7, KeyEvent("down", shift=True),
+                                 KeyEvent("delete", shift=True))
+    assert app.terminal.clipboard == [("cdefghi\nb", False)]
+    assert editor.document.encode() == b"abj\na\tc\n"
+
+
+def test_the_rectangle_moves_down_with_a_line_break_above_it(files):
+    _, editor = columns_editor(files, b"top\nabcd\nefgh\n",
+                               KeyEvent("down"), *[KeyEvent("right", shift=True)] * 2,
+                               KeyEvent("up"), KeyEvent("home"), KeyEvent("enter"))
+    assert editor.rectangle == (2, 0, 2, 2)
+    assert editor.block_text == "ab"
+
+
+def test_vertical_blocks_switches_unmarks_and_is_ticked(files):
+    from navigator.widgets.editor.commands import VerticalBlocks
+
+    seen = []
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("right", shift=True),
+                  lambda a: a.spawn(editor_window(a).editor.on_vertical_blocks(VerticalBlocks())),
+                  lambda a: None,
+                  lambda a: seen.append((editor_window(a).editor.vertical_blocks,
+                                         editor_window(a).editor.has_block,
+                                         editor_window(a).editor.checks(VerticalBlocks())))])
+    assert seen == [(True, False, True)]

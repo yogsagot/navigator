@@ -110,3 +110,20 @@ def cells(line: str, tab: int = TAB, limit: int | None = None) -> list[tuple[str
         if cols == 2:
             out.append(("", index))
     return out
+
+
+def span(line: str, left: int, right: int, tab: int = TAB) -> tuple[int, int]:
+    """The string indices of the characters that start in columns *left* to *right*.
+
+    What a column block holds of *line*: a tab or a wide character belongs to
+    the column it starts in, so one straddling *left* stays outside.  Past the
+    line's end both are ``len(line)``.
+    """
+    column, first = 0, None
+    for index, char in enumerate(line):
+        if first is None and column >= left:
+            first = index
+        if column >= right:
+            return (index if first is None else first), index
+        column += advance(char, column, tab)
+    return (len(line) if first is None else first), len(line)

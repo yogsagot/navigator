@@ -16,7 +16,7 @@ from navkit.events import Event as _Event
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo    # edit_window.nml:1
+from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo, VerticalBlocks    # edit_window.nml:1
 from navigator.widgets.editor.file_editor import FileEditor    # edit_window.nml:2
 from navml.commands import CloseWindow    # edit_window.nml:3
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:4
@@ -167,10 +167,10 @@ class EditWindow(Window, _Component):
         _w59 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:282
         _w60 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:284
         _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:286
-        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:288
-        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:290
-        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:292
-        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:294
+        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:289
+        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:291
+        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:293
+        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:295
 
         self.zoomed = True    # edit_window.nml:22
 
@@ -390,11 +390,12 @@ class EditWindow(Window, _Component):
         _w60.text = '~J~ustify on wrap'    # edit_window.nml:285
 
         _w61.text = '~V~ertical blocks'    # edit_window.nml:287
+        _w61.command = VerticalBlocks    # edit_window.nml:288
 
-        _w62.text = 'Opti~m~al fill'    # edit_window.nml:289
+        _w62.text = 'Opti~m~al fill'    # edit_window.nml:290
 
-        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:291
+        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:292
 
-        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:293
+        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:294
 
-        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:295
+        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:296
