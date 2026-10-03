@@ -14,6 +14,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
+- **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a
+  name (history `editfile`), relative to the active panel, `~` expanded; `Manager.edit_named` opens it with
+  `open_editor(..., new=True)`, so a name that does not exist is an empty text saving creates. A directory or a missing
+  parent directory is refused up front. With *Internal editor* off it goes to `$EDITOR`. DN's own dialog was not to
+  hand; this one is shaped as F7's.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
   viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`.** DN's marks,

@@ -31,6 +31,7 @@ from navigator.widgets.manager.commands import (
     Delete,
     DeleteSingle,
     Edit,
+    EditNamed,
     GoParent,
     HideInactive,
     HideLeft,
@@ -939,19 +940,65 @@ class Manager(Window):
         self.spawn(self.edit())
         return True
 
-    def run_external(self, variable: str, fallback: str) -> None:
-        """Run the program ``$variable`` names (or *fallback*) on the selected file.
+    def run_external(self, variable: str, fallback: str, path: Path | None = None) -> None:
+        """Run the program ``$variable`` names (or *fallback*) on *path*, else the selected file.
 
         As though it had been typed on the command line, so it runs on the
         console with the keyboard, and the panels look again when it is done.
         """
-        panel = self.active_panel
-        entry = panel.selected
         shell = getattr(self.application, "shell", None)
-        if entry is None or entry.is_dir or shell is None:
+        if path is None:
+            panel = self.active_panel
+            entry = panel.selected
+            if entry is None or entry.is_dir:
+                return
+            path = panel.path / entry.name
+        if shell is None:
             return
         program = os.environ.get(variable, "").strip() or fallback
-        shell.run_command(f"{program} {shlex.quote(str(panel.path / entry.name))}")
+        shell.run_command(f"{program} {shlex.quote(str(path))}")
+
+    async def on_edit_named(self, event: EditNamed) -> bool:
+        """Shift+F4: ``cmXEditFile``, a file named in a dialog, new or not."""
+        self.spawn(self.edit_named())
+        return True
+
+    async def edit_named(self) -> None:
+        """Ask for a name and edit that file, which saving creates if it is new.
+
+        A relative name is the active panel's; ``~`` is the home directory.
+        A directory, or a name whose directory does not exist, is said so
+        rather than left for the save to fail on.  With *Internal editor* off
+        the name goes to ``$EDITOR``, as F4's file does.
+        """
+        from navigator.widgets.editor.edit_file_dialog import EditFileDialog
+
+        panel = self.active_panel
+        name = await EditFileDialog().execute(self.application)
+        if not name:
+            return
+        path = panel.path / Path(name).expanduser()
+        problem = None
+        if path.is_dir():
+            problem = "Is a directory"
+        elif not path.parent.is_dir():
+            problem = "No such directory"
+        if problem is None and not SETTINGS.system.internal_editor:
+            self.run_external("EDITOR", "vi", path)
+            return
+        desktop = self.desktop
+        if problem is None and desktop is not None:
+            try:
+                open_editor(desktop, path, new=True)
+                return
+            except OSError as error:
+                problem = error.strerror or str(error)
+        if problem is not None:
+            await Dialog(
+                title="Cannot edit file",
+                prompt=f"{name}: {problem}",
+                buttons="ok",
+            ).execute(self.application)
 
     async def edit(self) -> None:
         """Open the selected file in an editor on this window's desktop.

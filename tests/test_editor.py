@@ -467,3 +467,39 @@ def test_a_file_with_breaks_keeps_its_own(tmp_path):
     editor = FileEditor()
     editor.open(tmp_path / "unix.txt")
     assert editor.document.newline == "\n"
+
+
+# -- Shift+F4: Edit new file ----------------------------------------------------------------
+
+
+def edit_named(tmp_path, name: str, *after):
+    app = navigator(tmp_path)
+    seen = {}
+    run_app(app, [KeyEvent("f4", shift=True), lambda a: None, *typed(name), KeyEvent("enter"),
+                  lambda a: None, *after,
+                  lambda a: seen.update(window=editor_window(a), modal=a.modal)])
+    return app, seen["window"], seen["modal"]
+
+
+def test_shift_f4_edits_a_new_file_that_saving_creates(files):
+    app, window, _ = edit_named(files, "fresh.txt", *typed("hi"), KeyEvent("f2"), lambda a: None)
+    assert window is not None and window.editor.path == files / "fresh.txt"
+    assert (files / "fresh.txt").read_bytes() == b"hi"
+
+
+def test_shift_f4_on_an_existing_name_edits_that_file(files):
+    _, window, _ = edit_named(files, "text.txt")
+    assert window.editor.document.encode() == b"first line\r\nsecond\tline\r\n"
+
+
+def test_shift_f4_takes_a_name_under_a_directory_and_refuses_a_missing_one(files):
+    _, window, _ = edit_named(files, "dir/inner.txt")
+    assert window.editor.path == files / "dir" / "inner.txt"
+    _, window, modal = edit_named(files, "nowhere/inner.txt")
+    assert window is None and modal is not None and modal.title == "Cannot edit file"
+    assert not (files / "nowhere").exists()
+
+
+def test_shift_f4_on_a_directory_is_refused(files):
+    _, window, modal = edit_named(files, "dir")
+    assert window is None and modal.title == "Cannot edit file"

@@ -1,0 +1,21 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: Shift+F4, DN's ``cmXEditFile``: the name of a file to edit, which need not
+#: exist yet.  Shaped as F7's Make directory is: one field with its history.
+EditFileDialog(Dialog):
+    modal_width: 60
+    modal_height: 8
+    title: "Edit new file"
+    close_on_outside_click: True
+
+    Field:
+        id: entry
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~F~ile name"
+        label_width: 12
+        #: The names edited this way before, a Down away.
+        history_id: "editfile"
