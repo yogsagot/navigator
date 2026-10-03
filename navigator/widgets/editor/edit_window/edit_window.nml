@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, SaveText, Undo, VerticalBlocks
+from navigator.widgets.editor.commands import CapitalizeBlock, ClearBlock, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, LowercaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UppercaseBlock, VerticalBlocks
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -188,25 +188,32 @@ EditWindow(Window):
             text: '~B~lock'
             MenuItem:
                 text: '~M~ove'
+                command: MoveBlock
                 key: 'Ctrl K V'
             MenuItem:
                 text: '~C~opy'
+                command: CopyBlock
                 key: 'Ctrl K C'
             MenuItem:
                 text: '~I~ndent'
+                command: IndentBlock
                 key: 'Ctrl K I'
             MenuItem:
                 text: '~U~nindent'
+                command: UnindentBlock
                 key: 'Ctrl K U'
             MenuLine:
             MenuItem:
                 text: 'U~p~percase'
+                command: UppercaseBlock
                 key: 'Ctrl K ['
             MenuItem:
                 text: '~L~owercase'
+                command: LowercaseBlock
                 key: 'Ctrl K ]'
             MenuItem:
                 text: 'Capi~t~alize'
+                command: CapitalizeBlock
                 key: 'Ctrl K \\'
             MenuLine:
             MenuItem:
@@ -245,6 +252,7 @@ EditWindow(Window):
                     key: 'Ctrl+Shift ['
                 MenuItem:
                     text: '~B~lock'
+                    command: UppercaseBlock
                     key: 'Ctrl K ['
             SubMenu:
                 id: edit_menu_misc_lowercase
@@ -257,6 +265,7 @@ EditWindow(Window):
                     key: 'Ctrl+Shift ]'
                 MenuItem:
                     text: '~B~lock'
+                    command: LowercaseBlock
                     key: 'Ctrl K ]'
             SubMenu:
                 id: edit_menu_misc_capitalize
@@ -269,6 +278,7 @@ EditWindow(Window):
                     key: 'Ctrl+Shift \\'
                 MenuItem:
                     text: '~B~lock'
+                    command: CapitalizeBlock
                     key: 'Ctrl K \\'
         SubMenu:
             id: edit_menu_options

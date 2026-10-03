@@ -16,6 +16,12 @@ widget -- and walks up to the application, which is Turbo Vision's
 ``evCommand`` routing: the command goes to whoever holds the state it acts on,
 wherever the key that asked for it was bound.
 
+**A key may be a chord**, two or more keys pressed one after another and
+written with a space between them: ``"ctrl+k b"``, WordStar's way of having
+more commands than keys.  The application holds the keys that begin a chord
+some table on the current path binds (:meth:`Application.chord`), and the key
+that completes it is looked up as the whole chord.
+
 **A key table is a class attribute**, ``keys = {"f7": MakeDirectory}``, merged
 down the MRO the way ``emits`` is -- except that two tables naming one key are
 two answers to one question, so the subclass's wins.  A value is a command
@@ -72,8 +78,16 @@ class KeyTableError(TypeError):
 MODIFIERS = ("ctrl", "alt", "shift")
 
 
+def _normal_spec(spec: str) -> str:
+    """:func:`_normalize`, each key of a chord on its own."""
+    return " ".join(_normalize(part) for part in spec.split())
+
+
 def parse_key(spec: str) -> str:
     """*spec* in its canonical spelling, or :class:`ValueError` saying why not.
+
+    A chord -- keys separated by blanks, ``"ctrl+k b"`` -- is each of its keys
+    so checked and spelled.
 
     ``"Ctrl+Shift+F6"`` is ``"ctrl+shift+f6"``, which is what
     :attr:`KeyEvent.name` reports, so a table keyed by this is looked up
@@ -82,8 +96,10 @@ def parse_key(spec: str) -> str:
     otherwise say so only by never working -- and a modifier with no key after
     it, ``"ctrl+"``, which would otherwise be read as a key called ``ctrl``.
     """
-    if not isinstance(spec, str) or not spec.strip() or any(c.isspace() for c in spec.strip()):
+    if not isinstance(spec, str) or not spec.strip():
         raise ValueError(f"{spec!r} is not a key")
+    if len(spec.split()) > 1:
+        return " ".join(parse_key(part) for part in spec.split())
     if any(not part for part in spec.strip().split("+")):
         raise ValueError(f"{spec!r} is not a key: it has an empty part")
     normal = _normalize(spec)
@@ -141,12 +157,22 @@ def check_keys(cls: type) -> None:
                 f"{seen[normal]!r} and {spec!r}"
             )
         seen[normal] = spec
+        if " " in normal and normal.split()[0] in table_keys(table):
+            raise KeyTableError(
+                f"{cls.__name__}.keys binds {normal.split()[0]!r} both alone and "
+                f"as the start of the chord {normal!r}"
+            )
         is_class = isinstance(binding, type) and issubclass(binding, Command)
         if not is_class and not isinstance(binding, Command):
             raise KeyTableError(
                 f"{cls.__name__}.keys[{spec!r}] is {binding!r}, which is not "
                 f"a Command class or instance"
             )
+
+
+def table_keys(table: Mapping[str, Any]) -> set[str]:
+    """*table*'s keys in their canonical spelling, chords whole."""
+    return {_normal_spec(spec) for spec in table}
 
 
 def key_table(cls: type) -> dict[str, Binding]:
@@ -158,8 +184,18 @@ def key_table(cls: type) -> dict[str, Binding]:
     merged: dict[str, Binding] = {}
     for klass in reversed(cls.__mro__):
         for spec, binding in vars(klass).get("keys", {}).items():
-            merged[_normalize(spec)] = binding
+            merged[_normal_spec(spec)] = binding
     return merged
+
+
+def chord_prefixes(table: Mapping[str, Binding]) -> set[str]:
+    """Every key sequence that begins one of *table*'s chords without ending it."""
+    found: set[str] = set()
+    for spec in table:
+        keys = spec.split()
+        for length in range(1, len(keys)):
+            found.add(" ".join(keys[:length]))
+    return found
 
 
 # -- where a command goes -------------------------------------------------------
@@ -306,7 +342,11 @@ def key_label(spec: str) -> str:
     modifiers capitalised and joined with a hyphen, function keys and letters
     upper case.
     """
-    *mods, key = parse_key(spec).split("+")
+    normal = parse_key(spec)
+    if " " in normal:
+        # A chord, as DN's menus wrote one: ``Ctrl-K C``.
+        return " ".join(key_label(part) for part in normal.split())
+    *mods, key = normal.split("+")
     name = _KEY_LABELS.get(key, key.upper() if len(key) <= 3 else key.title())
     return "-".join([*(m.title() for m in mods), name])
 

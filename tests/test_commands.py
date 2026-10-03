@@ -304,3 +304,56 @@ def test_whether_a_command_is_on_is_asked_of_the_widget_that_would_run_it():
     assert app.command_checked(Jump) is None         # handled by nobody: disabled
     toggle.allow = False
     assert app.command_checked(Save) is None         # disabled is neither on nor off
+
+
+# -- chords -------------------------------------------------------------------------
+
+
+class WordStar(Recorder):
+    keys = {"ctrl+k s": Save, "ctrl+k ctrl+s": Save, "ctrl+k x": Close}
+
+
+def test_a_chord_is_spelled_and_labelled_key_by_key():
+    from navkit.commands import key_label
+
+    assert parse_key("Ctrl+K  B") == "ctrl+k b"
+    assert key_label("ctrl+k b") == "Ctrl-K B"
+    assert key_table(WordStar)["ctrl+k ctrl+s"] is Save
+
+
+def test_a_key_bound_alone_and_as_a_chord_start_is_refused():
+    with pytest.raises(KeyTableError, match="both alone"):
+        type("Broken", (Widget,), {"keys": {"ctrl+k": Save, "ctrl+k b": Close}})
+
+
+def test_a_chord_runs_its_command_and_neither_key_reaches_on_key(terminal):
+    root = WordStar()
+    root.can_focus = True
+    app = Application(root, terminal=terminal)
+    seen = []
+    run_app(app, [lambda a: root.focus(), KeyEvent("k", ctrl=True),
+                  lambda a: seen.append(a.chord), KeyEvent("s", "s"),
+                  lambda a: seen.append(a.chord),
+                  KeyEvent("k", ctrl=True), KeyEvent("s", ctrl=True)])
+    assert seen == ["ctrl+k", ""]
+    assert root.ran == [Save(), Save()]
+    assert root.keys_seen == []
+
+
+def test_a_key_completing_nothing_is_swallowed_with_the_chord(terminal):
+    root = WordStar()
+    root.can_focus = True
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: root.focus(), KeyEvent("k", ctrl=True), KeyEvent("q", "q"),
+                  KeyEvent("a", "a")])
+    assert root.ran == [] and root.keys_seen == ["a"]
+    assert app.chord == ""
+
+
+def test_a_chord_prefix_off_the_focus_path_is_an_ordinary_key(terminal):
+    root = Recorder()
+    root.can_focus = True
+    root.add(WordStar())  # bound, but not where the keyboard is
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: root.focus(), KeyEvent("k", ctrl=True)])
+    assert root.keys_seen == ["ctrl+k"] and app.chord == ""

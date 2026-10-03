@@ -22,7 +22,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`ClearBlock`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's. Still
-  to come: the `^K` block commands, unmarking (`^K H`).
+  to come: ^K R/W (block to and from a file, waiting on a file dialog), ^Q D/T (date and time).
+- **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
+  start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H unmarks, C copies
+  the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
+  indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
+  `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
+  end, ^Q L undoes. Column blocks take them all. DN's `cm*` names for these were not to hand, so the commands are named
+  for what they do. A pending chord shows as `^K` at the info line's end (a departure).
 - **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit
   history; Editor > Options > *Vertical blocks* switches it, ticked through `FileEditor.checks`, and unmarks).
   `FileEditor.column_block` is two corner *cells* `(line, col)` -- columns, not indices, since a rectangle runs past

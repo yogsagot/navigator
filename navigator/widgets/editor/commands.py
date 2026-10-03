@@ -168,6 +168,97 @@ class ClearBlock(Command):
     title = "Clear"
 
 
+# -- the ^K and ^Q block commands ----------------------------------------------
+#
+# WordStar's two-key commands, which DN's ``EDITOR COMMANDS`` kept: Ctrl+K
+# then a letter, the letter with or without Ctrl.  Named after what they do,
+# DN's own ``cm*`` names for them not being to hand.
+
+
+class MarkBlockStart(Command):
+    """^K B: the block begins at the cursor."""
+
+    title = "Block start"
+
+
+class MarkBlockEnd(Command):
+    """^K K: the block ends at the cursor."""
+
+    title = "Block end"
+
+
+class HideBlock(Command):
+    """^K H: unmark the block."""
+
+    title = "Hide block"
+
+
+class CopyBlock(Command):
+    """^K C: a copy of the block at the cursor, marked in its place."""
+
+    title = "Copy block"
+
+
+class MoveBlock(Command):
+    """^K V: the block moved to the cursor."""
+
+    title = "Move block"
+
+
+class IndentBlock(Command):
+    """^K I: every line of the block a column further right."""
+
+    title = "Indent"
+
+
+class UnindentBlock(Command):
+    """^K U: every line of the block a column further left, where a blank allows."""
+
+    title = "Unindent"
+
+
+class UppercaseBlock(Command):
+    """^K [: the block in upper case."""
+
+    title = "Uppercase"
+
+
+class LowercaseBlock(Command):
+    """^K ]: the block in lower case."""
+
+    title = "Lowercase"
+
+
+class CapitalizeBlock(Command):
+    """^K \\: each word of the block capitalised."""
+
+    title = "Capitalize"
+
+
+class MarkWord(Command):
+    """^K T: the word at the cursor, marked."""
+
+    title = "Mark word"
+
+
+class MarkLine(Command):
+    """^K L: the cursor's line, marked."""
+
+    title = "Mark line"
+
+
+class GoBlockStart(Command):
+    """^Q B: the cursor to the block's start."""
+
+    title = "Block start"
+
+
+class GoBlockEnd(Command):
+    """^Q K: the cursor to the block's end."""
+
+    title = "Block end"
+
+
 class VerticalBlocks(Command):
     """Editor > Options > *Vertical blocks*: column blocks, or stream ones (DN's ``VertBlock``)."""
 
@@ -192,6 +283,20 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "MarkBlockStart",
+    "MarkBlockEnd",
+    "HideBlock",
+    "CopyBlock",
+    "MoveBlock",
+    "IndentBlock",
+    "UnindentBlock",
+    "UppercaseBlock",
+    "LowercaseBlock",
+    "CapitalizeBlock",
+    "MarkWord",
+    "MarkLine",
+    "GoBlockStart",
+    "GoBlockEnd",
     "VerticalBlocks",
     "MoveLeft",
     "MoveRight",

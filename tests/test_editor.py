@@ -784,3 +784,136 @@ def test_vertical_blocks_switches_unmarks_and_is_ticked(files):
                                          editor_window(a).editor.has_block,
                                          editor_window(a).editor.checks(VerticalBlocks())))])
     assert seen == [(True, False, True)]
+
+
+# -- Ctrl+K and Ctrl+Q --------------------------------------------------------------------------
+
+
+def ctrl(letter):
+    return KeyEvent(letter, ctrl=True)
+
+
+def chord(*keys):
+    """Ctrl+K then *keys*: a letter plain, or a KeyEvent as given."""
+    return [ctrl("k"), *[KeyEvent(k, k) if isinstance(k, str) else k for k in keys]]
+
+
+def text_editor(files, text: bytes, *keys):
+    """*text* in an editor, then *keys*; each open starts at the top, not where the last left off."""
+    SETTINGS.interface.store_editor_position = False
+    (files / "text.txt").write_bytes(text)
+    return marked(files, *keys)
+
+
+def test_ctrl_k_b_and_k_mark_with_the_letter_plain_or_with_ctrl(files):
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"), *chord("b"),
+                            *[KeyEvent("right")] * 3, ctrl("k"), ctrl("k"))
+    assert editor.block_text == "bcd"
+    _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right")] * 4, *chord("k"),
+                            KeyEvent("home"), *chord("b"))
+    assert editor.block_text == "abcd"  # the end first, then the start
+
+
+def test_a_chords_second_key_never_types(files):
+    _, editor = text_editor(files, b"abc\n", *chord("z"), *typed("x"))
+    assert editor.document.encode() == b"xabc\n"
+
+
+def test_the_info_line_shows_a_chord_waiting(files):
+    seen = []
+    (files / "text.txt").write_bytes(b"abc\n")
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, ctrl("k"),
+                  lambda a: seen.append(editor_window(a).editor.info_text),
+                  KeyEvent("h", "h"), lambda a: seen.append(editor_window(a).editor.info_text)])
+    assert seen[0].endswith(" ^K") and not seen[1].endswith("^K")
+
+
+def test_ctrl_k_h_unmarks_and_t_and_l_mark_a_word_and_a_line(files):
+    _, editor = text_editor(files, b"one two\nthree\n", *[KeyEvent("right")] * 5, *chord("t"))
+    assert editor.block_text == "two"
+    _, editor = text_editor(files, b"one two\nthree\n", *chord("l"))
+    assert editor.block_text == "one two\n"
+    _, editor = text_editor(files, b"one two\nthree\n", *chord("l"), *chord("h"))
+    assert editor.block is None
+
+
+def test_ctrl_k_c_copies_the_block_to_the_cursor_and_marks_the_copy(files):
+    _, editor = text_editor(files, b"abc\nxyz\n", *[KeyEvent("right", shift=True)] * 2,
+                            KeyEvent("down"), KeyEvent("end"), *chord("c"))
+    assert editor.document.encode() == b"abc\nxyzab\n"
+    assert editor.block == (Pos(1, 3), Pos(1, 5))
+
+
+def test_ctrl_k_v_moves_the_block_and_one_undo_puts_it_back(files):
+    _, editor = text_editor(files, b"abc\nxyz\n", *[KeyEvent("right", shift=True)] * 2,
+                            KeyEvent("down"), KeyEvent("end"), *chord("v"))
+    assert editor.document.encode() == b"c\nxyzab\n"
+    assert editor.block_text == "ab"
+    _, editor = text_editor(files, b"abc\nxyz\n", *[KeyEvent("right", shift=True)] * 2,
+                            KeyEvent("down"), KeyEvent("end"), *chord("v"),
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"abc\nxyz\n"
+
+
+def test_ctrl_k_v_inside_the_block_does_nothing(files):
+    _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 4,
+                            KeyEvent("left"), KeyEvent("left"), *chord("v"))
+    assert editor.document.encode() == b"abcdef\n"
+
+
+def test_ctrl_k_y_deletes_the_block(files):
+    _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 2, *chord("y"))
+    assert editor.document.encode() == b"cdef\n"
+
+
+def test_ctrl_k_i_and_u_indent_and_unindent_the_blocks_lines(files):
+    _, editor = text_editor(files, b"a\n b\nc\n", KeyEvent("down", shift=True),
+                            KeyEvent("down", shift=True), *chord("i"))
+    # The block ends at the start of line 2, which it does not touch.
+    assert editor.document.encode() == b" a\n  b\nc\n"
+    assert editor.block[0] == Pos(0, 0)
+    _, editor = text_editor(files, b"\ta\n b\nc\n", KeyEvent("down", shift=True),
+                            KeyEvent("down", shift=True), *chord("u"))
+    assert editor.document.encode() == b"       a\nb\nc\n"
+
+
+def test_ctrl_k_brackets_change_the_case_of_the_block(files):
+    _, editor = text_editor(files, b"hello world\n", KeyEvent("end", shift=True), *chord("["))
+    assert editor.document.encode() == b"HELLO WORLD\n"
+    _, editor = text_editor(files, b"HELLO WORLD\n", KeyEvent("end", shift=True), *chord("]"))
+    assert editor.document.encode() == b"hello world\n"
+    _, editor = text_editor(files, b"hELLO wORLD\n", KeyEvent("end", shift=True), *chord("\\"))
+    assert editor.document.encode() == b"Hello World\n"
+    assert editor.block_text == "Hello World"
+
+
+def test_ctrl_q_b_and_k_go_to_the_blocks_ends(files):
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"),
+                            *[KeyEvent("right", shift=True)] * 3, ctrl("q"), KeyEvent("b", "b"))
+    assert editor.col == 1
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"),
+                            *[KeyEvent("right", shift=True)] * 3, KeyEvent("home"),
+                            ctrl("q"), ctrl("k"))
+    assert editor.col == 4
+
+
+def test_ctrl_q_y_deletes_to_the_end_of_the_line(files):
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"), KeyEvent("right"),
+                            ctrl("q"), KeyEvent("y", "y"))
+    assert editor.document.encode() == b"ab\n"
+
+
+def test_column_blocks_take_the_k_commands_too(files):
+    SETTINGS.editor.vertical_blocks = True
+    _, editor = text_editor(files, b"abcd\nefgh\n", KeyEvent("right"), *chord("b"),
+                            KeyEvent("down"), KeyEvent("right"), KeyEvent("right"), *chord("k"),
+                            *chord("["))
+    assert editor.rectangle == (0, 1, 1, 3)
+    assert editor.document.encode() == b"aBCd\neFGh\n"
+    _, editor = text_editor(files, b"abcd\nefgh\n", KeyEvent("right"),
+                            KeyEvent("right", shift=True), KeyEvent("down", shift=True),
+                            KeyEvent("end"), *chord("v"))
+    # "b"/"f" out of columns 1-2, in again at the end of line 1: its column 4, less the
+    # one column the block took out of it.  The text has no line 2, so one is added.
+    assert editor.document.encode() == b"acd\neghb\n   f"

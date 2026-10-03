@@ -76,6 +76,12 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
 - Where bindings sit: `Navigator.keys` holds Ctrl+O, F1, F10 (the menu), Alt+X, and Enter/Home/End for the command
   line (Alt+X is on the application because a way out cannot live on a window the user can close); `manager.nml`
   holds Tab, Alt+R/Ctrl+R and F2-F8; `Desktop.keys` the window keys; `dialog.nml` Esc, Enter and Tab.
+- **Chords**: a spec may be keys separated by a blank, `"ctrl+k b"` (`parse_key`, `key_label` -> `Ctrl-K B`). A table
+  may not bind a key both alone and as a chord's start. `Application._chord_key` runs before the key tables: a key
+  that begins a chord bound by a table *on the current path* (the application's unless a modal is up, then the focus
+  path's) is held in the reactive `Application.chord`; the next key completes it -- looked up in the same tables,
+  same order -- or is swallowed with it, never typed. Off the path a prefix key is an ordinary key, so Ctrl+K still
+  reaches a program in the console.
 - An instance in a table (`GoParent(by_key=True)`) lets `enables` treat the key and the menu differently.
 - Key names: a bare `+` is `plus`, a bare Space is named `space` (its `key` is `" "`), keypad operators
   `kp_plus`/`kp_minus`/`kp_multiply`/`kp_divide`.

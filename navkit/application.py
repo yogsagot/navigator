@@ -242,6 +242,12 @@ class Application:
     #: always empty.  Reactive, so a key bar reading it in ``render()`` swaps
     #: its row while Alt is held and swaps it back on the release.
     modifiers: frozenset[str] = reactive(frozenset())
+    #: The keys of a chord pressed so far -- ``"ctrl+k"`` after Ctrl+K, when
+    #: some table on the way to the focus binds a chord beginning with it --
+    #: or empty.  The next key completes the chord or abandons it, and is
+    #: swallowed either way, as WordStar's was.  Reactive, so whatever shows
+    #: that a chord is pending (an editor's info line) follows it.
+    chord: str = reactive("")
 
     def __init__(
         self,
@@ -921,6 +927,8 @@ class Application:
             if await self.on_event(event):
                 return
             if isinstance(event, KeyEvent):
+                if await self._chord_key(event):
+                    return
                 # Dispatching on the modal rather than the root is the whole
                 # of keyboard exclusivity: the walk runs from the focused
                 # widget up to whatever it was called on, so it neither starts
@@ -1093,6 +1101,42 @@ class Application:
                 await _call(modal, outside, handler)
 
     # -- commands ------------------------------------------------------------
+
+    def _key_tables(self) -> list[dict[str, commands.Binding]]:
+        """The tables a key is looked up in, in the order it is: the
+        application's (not past a modal), then the focus path's, nearest first."""
+        scope = self.modal or self._root
+        tables = [] if self.modal is not None else [commands.key_table(type(self))]
+        if scope is not None:
+            path = scope._focus_path() or [scope]
+            tables += [commands.key_table(type(widget)) for widget in path]
+        return tables
+
+    async def _chord_key(self, event: KeyEvent) -> bool:
+        """A key that begins, continues or ends a chord; False for any other.
+
+        A key completing a chord runs the first binding of it found where a
+        key is looked up.  One that neither completes nor continues the chord
+        held is swallowed with it -- it was typed as the chord's second key,
+        not as text.  Only the tables on the current path count, so Ctrl+K
+        is held for an editor's chords and still reaches a program in the
+        console.
+        """
+        if event.name in ("", None):
+            return False
+        sequence = f"{self.chord} {event.name}" if self.chord else event.name
+        tables = self._key_tables()
+        if self.chord:
+            self.chord = ""
+            for table in tables:
+                binding = table.get(sequence)
+                if binding is not None:
+                    await commands.run(self, binding)
+                    return True
+        if any(sequence in commands.chord_prefixes(table) for table in tables):
+            self.chord = sequence
+            return True
+        return bool(sequence != event.name)
 
     async def _run_key(self, event: KeyEvent) -> bool:
         """The application's own key table, before the tree and never past a

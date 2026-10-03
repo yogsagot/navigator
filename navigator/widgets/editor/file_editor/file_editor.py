@@ -22,6 +22,7 @@ printable character.
 from __future__ import annotations
 
 import functools
+import re
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -32,6 +33,20 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    CapitalizeBlock,
+    CopyBlock,
+    GoBlockEnd,
+    GoBlockStart,
+    HideBlock,
+    IndentBlock,
+    LowercaseBlock,
+    MarkBlockEnd,
+    MarkBlockStart,
+    MarkLine,
+    MarkWord,
+    MoveBlock,
+    UnindentBlock,
+    UppercaseBlock,
     ClearBlock,
     ClipboardCopy,
     ClipboardCut,
@@ -82,6 +97,20 @@ WHEEL_ROWS = 3
 #: copied from: a paste of exactly that text goes in as a rectangle.  Shared
 #: by every editor, as the clipboard is, and holding only the newest copy.
 _COLUMN_CLIP: dict[str, list[str]] = {}
+
+
+def _wordstar(prefix: str, letters: dict[str, Any]) -> dict[str, Any]:
+    """*prefix* then each key, and then each letter with Ctrl held too, as WordStar took them."""
+    table = {}
+    for key, command in letters.items():
+        table[f"{prefix} {key}"] = command
+        if len(key) == 1 and key.isalpha():
+            table[f"{prefix} ctrl+{key}"] = command
+    return table
+
+
+#: A word, for Capitalize: letters and digits, not the underscore.
+_WORD = re.compile(r"[^\W_]+")
 
 
 def _marking(
@@ -188,6 +217,28 @@ class FileEditor(Widget):
         "ctrl+insert": ClipboardCopy,
         "shift+insert": ClipboardPaste,
         "ctrl+delete": ClearBlock,
+        # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
+        **_wordstar("ctrl+k", {
+            "b": MarkBlockStart,
+            "k": MarkBlockEnd,
+            "h": HideBlock,
+            "c": CopyBlock,
+            "v": MoveBlock,
+            "y": ClearBlock,
+            "i": IndentBlock,
+            "u": UnindentBlock,
+            "[": UppercaseBlock,
+            "]": LowercaseBlock,
+            "\\": CapitalizeBlock,
+            "t": MarkWord,
+            "l": MarkLine,
+        }),
+        **_wordstar("ctrl+q", {
+            "b": GoBlockStart,
+            "k": GoBlockEnd,
+            "y": DeleteToEnd,
+            "l": Undo,
+        }),
     }
 
     #: What typing reaches: the command line's Enter, Home, End and Tab step
@@ -240,6 +291,9 @@ class FileEditor(Widget):
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
+        #: ^K B or ^K K pressed with no block marked: the end it set, and
+        #: whether it was the start, waiting for the other.  Any edit drops it.
+        self._half_mark: tuple[Any, bool] | None = None
 
     # -- the file ----------------------------------------------------------------
 
@@ -530,6 +584,7 @@ class FileEditor(Widget):
     def _unmark(self) -> None:
         self.block = None
         self.column_block = None
+        self._half_mark = None
 
     def _set_block(self, anchor: Any, here: Any) -> None:
         """Mark from *anchor* to *here*; nothing, if the two enclose nothing."""
@@ -560,6 +615,7 @@ class FileEditor(Widget):
         A column block keeps its columns and moves only by whole lines, when
         an edit adds or takes out line breaks above it.
         """
+        self._half_mark = None
         block = self.block
         if block is not None:
             first = shifted(block[0], kind, start, end)
@@ -633,6 +689,228 @@ class FileEditor(Widget):
             _COLUMN_CLIP.clear()
             _COLUMN_CLIP[text] = self._column_pieces()
         app.copy_to_clipboard(text, primary=primary)
+
+    # -- the ^K and ^Q commands -------------------------------------------------
+
+    def _ordered_ends(self) -> tuple[Any, Any] | None:
+        """The block's start and end in the kind in force: places, or corner cells."""
+        if self.vertical_blocks:
+            rectangle = self.rectangle
+            if rectangle is None:
+                return None
+            top, left, bottom, right = rectangle
+            return (top, left), (bottom, right)
+        return self.block
+
+    def _set_ordered(self, start: Any, end: Any) -> None:
+        if self.vertical_blocks:
+            fits = start[0] <= end[0] and start[1] < end[1]
+            self.column_block = (start, end) if fits else None
+        else:
+            self.block = (start, end) if start < end else None
+
+    def _mark_end(self, *, first: bool) -> None:
+        """^K B (*first*) or ^K K: one end of the block at the cursor.
+
+        With a block marked, that end moves.  With none, the end waits for
+        the other one, and the two make the block once both are set.
+        """
+        here = self._here()
+        ends = self._ordered_ends()
+        if ends is None:
+            half = self._half_mark
+            if half is not None and half[1] != first:
+                self._half_mark = None
+                self._set_ordered(*((here, half[0]) if first else (half[0], here)))
+            else:
+                self._half_mark = (here, first)
+            return
+        start, end = ends
+        self._set_ordered(*((here, end) if first else (start, here)))
+
+    async def on_mark_block_start(self, event: MarkBlockStart) -> bool:
+        self._mark_end(first=True)
+        return True
+
+    async def on_mark_block_end(self, event: MarkBlockEnd) -> bool:
+        self._mark_end(first=False)
+        return True
+
+    async def on_hide_block(self, event: HideBlock) -> bool:
+        self._unmark()
+        return True
+
+    async def on_mark_word(self, event: MarkWord) -> bool:
+        self._unmark()
+        self._mark_word()
+        return True
+
+    async def on_mark_line(self, event: MarkLine) -> bool:
+        """The cursor's line, its break included; as a column block, its width."""
+        self._unmark()
+        line, text = self.line, self._text()
+        if self.vertical_blocks:
+            width = columns.width(text, self.tab_size)
+            if width:
+                self.column_block = ((line, 0), (line, width))
+        elif line + 1 < len(self.document):
+            self.block = (Pos(line, 0), Pos(line + 1, 0))
+        elif text:
+            self.block = (Pos(line, 0), Pos(line, len(text)))
+        return True
+
+    async def on_go_block_start(self, event: GoBlockStart) -> bool:
+        self._moved()
+        start, _ = self._ordered_ends()
+        self._go_column(*start) if self.vertical_blocks else self._go(start)
+        return True
+
+    async def on_go_block_end(self, event: GoBlockEnd) -> bool:
+        self._moved()
+        _, end = self._ordered_ends()
+        self._go_column(*end) if self.vertical_blocks else self._go(end)
+        return True
+
+    async def on_copy_block(self, event: CopyBlock) -> bool:
+        """^K C: the block's text again at the cursor, and the copy marked."""
+        line, col = self.line, self.col
+        self._moved()
+        self._begin()
+        if self.column_block is not None:
+            pieces = self._column_pieces()
+            _, left, _, right = self.rectangle
+            width = right - left
+            self._put_rectangle(pieces, line, col)
+            self.column_block = ((line, col), (line + len(pieces) - 1, col + width))
+            self._go_column(line, col)
+        else:
+            text = self.document.text(*self.block)
+            at = self._pad()
+            end = self.buffer.insert(at, text)
+            self.block = (at, end)
+            self._go(at)
+        self._end()
+        return True
+
+    async def on_move_block(self, event: MoveBlock) -> bool:
+        """^K V: the block taken out and put in at the cursor, still marked.
+
+        Nothing happens with the cursor inside the block, where it would be
+        put into itself.
+        """
+        line, col = self.line, self.col
+        if self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            if top <= line <= bottom and left <= col < right:
+                return True
+            pieces = self._column_pieces()
+            self._moved()
+            self._begin()
+            self._take_block()
+            if top <= line <= bottom and col >= right:
+                col -= right - left
+            self._put_rectangle(pieces, line, col)
+            self.column_block = ((line, col), (line + len(pieces) - 1, col + right - left))
+            self._go_column(line, col)
+            self._end()
+            return True
+        start, end = self.block
+        if start < self._mark_pos() < end:
+            return True
+        self._moved()
+        self._begin()
+        at = self._pad()
+        start, end = self.block  # padding the cursor's line may have moved it
+        text = self.buffer.delete(start, end)
+        at = shifted(at, "delete", start, end)
+        stop = self.buffer.insert(at, text)
+        self.block = (at, stop)
+        self._go(at)
+        self._end()
+        return True
+
+    def _block_lines(self) -> range:
+        """The lines the block touches; a stream block ending at a line's start
+        does not touch that line."""
+        if self.column_block is not None:
+            top, _, bottom, _ = self.rectangle
+            return range(top, min(bottom, len(self.document) - 1) + 1)
+        start, end = self.block
+        last = end.line - 1 if end.index == 0 and end.line > start.line else end.line
+        return range(start.line, last + 1)
+
+    async def on_indent_block(self, event: IndentBlock) -> bool:
+        """^K I: a blank before each line of the block -- at its left column, for a column block."""
+        left = self.rectangle[1] if self.column_block is not None else 0
+        block = self.block
+        self._moved()
+        self._begin()
+        for number in self._block_lines():
+            text = self.document.lines[number]
+            index, past = columns.index_at(text, left, self.tab_size)
+            if not past and index < len(text):
+                self.buffer.insert(Pos(number, index), " ")
+        if block is not None and block[0].index == 0:
+            # The blank went before the block's first character, and into it.
+            self.block = (Pos(block[0].line, 0), self.block[1])
+        self._end()
+        return True
+
+    async def on_unindent_block(self, event: UnindentBlock) -> bool:
+        """^K U: one blank out of each line of the block where one stands there; a
+        leading tab gives way to one column fewer of spaces."""
+        left = self.rectangle[1] if self.column_block is not None else 0
+        self._moved()
+        self._begin()
+        for number in self._block_lines():
+            text = self.document.lines[number]
+            index, past = columns.index_at(text, left, self.tab_size)
+            if past or index >= len(text) or text[index] not in " \t":
+                continue
+            width = columns.advance(text[index], columns.column_of(text, index, self.tab_size),
+                                    self.tab_size)
+            self.buffer.delete(Pos(number, index), Pos(number, index + 1))
+            if width > 1:
+                self.buffer.insert(Pos(number, index), " " * (width - 1))
+        self._end()
+        return True
+
+    def _recase(self, change: Callable[[str], str]) -> None:
+        """The block's text through *change*, the block kept where it is."""
+        self._moved()
+        self._begin()
+        if self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            corners = self.column_block
+            for number in self._block_lines():
+                text = self.document.lines[number]
+                i, j = columns.span(text, left, right, self.tab_size)
+                new = change(text[i:j])
+                if new != text[i:j]:
+                    self.buffer.delete(Pos(number, i), Pos(number, j))
+                    self.buffer.insert(Pos(number, i), new)
+            self.column_block = corners
+        else:
+            start, end = self.block
+            old = self.document.text(start, end)
+            new = change(old)
+            if new != old:
+                self.buffer.delete(start, end)
+                end = self.buffer.insert(start, new)
+                self.block = (start, end)
+        self._end()
+
+    async def on_uppercase_block(self, event: UppercaseBlock) -> bool:
+        self._recase(str.upper)
+        return True
+
+    async def on_lowercase_block(self, event: LowercaseBlock) -> bool:
+        self._recase(str.lower)
+        return True
+
+    async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
+        self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
+        return True
 
     async def on_vertical_blocks(self, event: VerticalBlocks) -> bool:
         """Switch between column and stream blocks; what is marked is unmarked."""
@@ -739,6 +1017,12 @@ class FileEditor(Widget):
         """
         self._begin_replacing()
         line, col = self.line, self.col
+        self._put_rectangle(pieces, line, col)
+        self._go_column(line, col)
+        self._end()
+
+    def _put_rectangle(self, pieces: list[str], line: int, col: int) -> None:
+        """:meth:`_insert_rectangle`'s edits, inside a group the caller opened."""
         for offset, piece in enumerate(pieces):
             number = line + offset
             if number >= len(self.document):
@@ -753,8 +1037,6 @@ class FileEditor(Widget):
                 self.buffer.insert(Pos(number, index), " " * past)
                 index += past
             self.buffer.insert(Pos(number, index), piece)
-        self._go_column(line, col)
-        self._end()
 
     async def on_new_line(self, event: NewLine) -> bool:
         """``MakeEnter``: split the line, and indent the new one as this one is.
@@ -972,7 +1254,11 @@ class FileEditor(Widget):
         if isinstance(command, Undo):
             self.revision
             return self.buffer.can_undo
-        if isinstance(command, (ClipboardCut, ClipboardCopy, ClearBlock)):
+        if isinstance(command, (
+            ClipboardCut, ClipboardCopy, ClearBlock, HideBlock, CopyBlock, MoveBlock,
+            IndentBlock, UnindentBlock, UppercaseBlock, LowercaseBlock, CapitalizeBlock,
+            GoBlockStart, GoBlockEnd,
+        )):
             return self.has_block
         return super().enables(command)
 
@@ -1070,10 +1356,16 @@ class FileEditor(Widget):
             return False
         self._drag_from = None
         self._point(event)
+        if self._mark_word():
+            self._copy_primary()
+        return True
+
+    def _mark_word(self) -> bool:
+        """Mark the word at the cursor, the run between two ``BREAK_CHARS``; False on none."""
         at = self._mark_pos()
         text = self._text()
         if at.index >= len(text) or text[at.index] in BREAK_CHARS:
-            return True
+            return False
         start, stop = at.index, at.index
         while start and text[start - 1] not in BREAK_CHARS:
             start -= 1
@@ -1086,14 +1378,13 @@ class FileEditor(Widget):
         else:
             self.block = (Pos(self.line, start), Pos(self.line, stop))
         self._go(Pos(self.line, stop))
-        self._copy_primary()
         return True
 
     # -- the info line -------------------------------------------------------------
 
     @computed
     def info_text(self) -> str:
-        """``TInfoLine``: modified mark, line:column, the code under the cursor, block mode.
+        """``TInfoLine``: modified mark, line:column, the code under the cursor, block mode, a pending chord.
 
         ``☼══12:34 [065] (↔)``.  The code is the character's own number, which
         was a byte in DN and is a code point here -- three digits until it
@@ -1110,7 +1401,15 @@ class FileEditor(Widget):
             char = text[index]
             code = ord(char) - 0xDC00 if columns.is_escaped(char) else ord(char)
         block = ("(↕)" if unicode else "(|)") if self.vertical_blocks else ("(↔)" if unicode else "(-)")
-        return f"{mark}{bar}{bar}{self.line + 1}:{self.col + 1} [{code:03d}] {block}"
+        # A departure: the keys of a chord still waiting for its last, WordStar's
+        # ``^K``, so a key about to be swallowed is not a surprise.
+        app = self.application
+        pending = ""
+        if app is not None and app.chord:
+            pending = " " + " ".join(
+                f"^{key[5:].upper()}" if key.startswith("ctrl+") else key for key in app.chord.split()
+            )
+        return f"{mark}{bar}{bar}{self.line + 1}:{self.col + 1} [{code:03d}] {block}{pending}"
 
     # -- painting ------------------------------------------------------------------
 
