@@ -188,7 +188,7 @@ class BlockEnd(Command):
 
 
 class HideBlock(Command):
-    """``cmHideBlock``: ^K^H -- unmark the block."""
+    """``cmHideBlock``: ^K^H, Alt+H -- the block hidden, or shown again."""
 
     title = "Hide block"
 
@@ -233,6 +233,20 @@ class CapitalizeBlock(Command):
     """``cmCapitalizeBlock``: ^K^\\ -- each word of the block capitalised."""
 
     title = "Capitalize"
+
+
+class SortBlock(Command):
+    """``cmSortBlock``: ^K^S, Alt+T -- the column block's lines sorted by its columns."""
+
+    title = "Sort"
+
+
+class CalcBlock(Command):
+    """``cmCalcBlock``: Alt+Ins, Block > *Calculate sum* -- the column block's numbers
+    added up, the sum to the clipboard.  (DN's table also gave it ^K^U, which
+    ``cmUnindentBlock`` had first and its menu shows.)"""
+
+    title = "Calculate sum"
 
 
 class MarkWord(Command):
@@ -301,8 +315,9 @@ class InsertTime(Command):
     title = "Insert time"
 
 
-class VerticalBlocks(Command):
-    """Editor > Options > *Vertical blocks*: column blocks, or stream ones (DN's ``VertBlock``)."""
+class SwitchBlock(Command):
+    """``cmSwitchBlock``: ^B^V, Editor > Options > *Vertical blocks* -- column blocks
+    or stream ones (``VertBlock``), the block marked kept and read the other way."""
 
     title = "Vertical blocks"
 
@@ -325,6 +340,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "CalcBlock",
+    "SortBlock",
     "GotoMarker",
     "PlaceMarker",
     "InsertDate",
@@ -345,7 +362,7 @@ __all__ = [
     "MarkLine",
     "MoveBlockStart",
     "MoveBlockEnd",
-    "VerticalBlocks",
+    "SwitchBlock",
     "MoveLeft",
     "MoveRight",
     "MoveUp",

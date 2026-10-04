@@ -1,4 +1,4 @@
-from navigator.widgets.editor.commands import CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UpcaseBlock, VerticalBlocks
+from navigator.widgets.editor.commands import CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -220,9 +220,11 @@ EditWindow(Window):
             MenuLine:
             MenuItem:
                 text: '~S~ort'
+                command: SortBlock
                 key: 'Alt-T'
             MenuItem:
                 text: 'Calc~u~late sum'
+                command: CalcBlock
                 key: 'Alt-Ins'
         SubMenu:
             id: edit_menu_misc
@@ -299,7 +301,7 @@ EditWindow(Window):
                 text: '~J~ustify on wrap'
             MenuItem:
                 text: '~V~ertical blocks'
-                command: VerticalBlocks
+                command: SwitchBlock
             MenuItem:
                 text: 'Opti~m~al fill'
             MenuItem:

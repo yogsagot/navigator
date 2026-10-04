@@ -24,6 +24,7 @@ from __future__ import annotations
 import functools
 import re
 import time
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -34,6 +35,8 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    CalcBlock,
+    SortBlock,
     GotoMarker,
     PlaceMarker,
     BlockRead,
@@ -83,7 +86,7 @@ from navigator.widgets.editor.commands import (
     TextEnd,
     TextStart,
     Undo,
-    VerticalBlocks,
+    SwitchBlock,
     WordLeft,
     WordRight,
 )
@@ -120,6 +123,32 @@ def _wordstar(prefix: str, letters: dict[str, Any]) -> dict[str, Any]:
 def _now() -> time.struct_time:
     """The time ^Q D and ^Q T write; a function so a test can fix it."""
     return time.localtime()
+
+
+#: What Pascal's ``Val`` reads as a real: a sign, digits with a point, an exponent.
+_NUMBER = re.compile(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?")
+
+
+def block_sum(pieces: list[str]) -> str:
+    """``CalcBlock``'s sum of *pieces*, each with its blanks removed (``DelSpaces``).
+
+    A piece that is not a number counts as nothing, as ``Val``'s failure left
+    0.  Written as ``Str(R:0:20)`` was, its trailing zeros and point cut --
+    but added exactly, where DN's 6-byte ``Real`` would print 0.1 + 0.2 with
+    its binary error.
+    """
+    total = Decimal(0)
+    for piece in pieces:
+        text = piece.replace(" ", "")
+        if _NUMBER.fullmatch(text):
+            try:
+                total += Decimal(text)
+            except InvalidOperation:
+                pass
+    written = format(total, "f")
+    if "." in written:
+        written = written.rstrip("0").rstrip(".")
+    return "0" if written in ("", "-0") else written
 
 
 #: A word, for Capitalize: letters and digits, not the underscore.
@@ -230,6 +259,10 @@ class FileEditor(Widget):
         "ctrl+insert": ClipboardCopy,
         "shift+insert": ClipboardPaste,
         "ctrl+delete": Clear,
+        "alt+h": HideBlock,
+        "alt+t": SortBlock,
+        "alt+insert": CalcBlock,
+        **_wordstar("ctrl+b", {"v": SwitchBlock}),
         # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
         **_wordstar("ctrl+k", {
             "b": BlockStart,
@@ -245,6 +278,7 @@ class FileEditor(Widget):
             "\\": CapitalizeBlock,
             "t": MarkWord,
             "l": MarkLine,
+            "s": SortBlock,
             "r": BlockRead,
             "w": BlockWrite,
             # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
@@ -298,6 +332,11 @@ class FileEditor(Widget):
     #: and across tabs; :attr:`rectangle` is what it covers.  Only one of the
     #: two blocks is ever marked, the one :attr:`vertical_blocks` says.
     column_block: tuple[tuple[int, int], tuple[int, int]] | None = reactive(None)
+
+    #: ``not BlockVisible``: the block marked but hidden by ^K H / Alt+H.  It is
+    #: neither painted nor acted on, follows the edits all the same, and shows
+    #: again at a second ^K H or as soon as anything marks.
+    block_hidden: bool = reactive(False)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -602,16 +641,24 @@ class FileEditor(Widget):
         return self.column_block if self.vertical_blocks else self.block
 
     @property
-    def has_block(self) -> bool:
+    def marked(self) -> bool:
+        """Whether a block is marked, shown or hidden."""
         return self.block is not None or self.column_block is not None
+
+    @property
+    def has_block(self) -> bool:
+        """DN's ``BlockVisible and ValidBlock``: a block marked and shown, to act on."""
+        return self.marked and not self.block_hidden
 
     def _unmark(self) -> None:
         self.block = None
         self.column_block = None
+        self.block_hidden = False
         self._half_mark = None
 
     def _set_block(self, anchor: Any, here: Any) -> None:
         """Mark from *anchor* to *here*; nothing, if the two enclose nothing."""
+        self.block_hidden = False
         if self.vertical_blocks:
             self.column_block = (anchor, here) if anchor[1] != here[1] else None
         else:
@@ -727,6 +774,7 @@ class FileEditor(Widget):
         return self.block
 
     def _set_ordered(self, start: Any, end: Any) -> None:
+        self.block_hidden = False
         if self.vertical_blocks:
             fits = start[0] <= end[0] and start[1] < end[1]
             self.column_block = (start, end) if fits else None
@@ -761,7 +809,8 @@ class FileEditor(Widget):
         return True
 
     async def on_hide_block(self, event: HideBlock) -> bool:
-        self._unmark()
+        """``cmHideBlock``: ``BlockVisible := not BlockVisible``."""
+        self.block_hidden = not self.block_hidden
         return True
 
     async def on_mark_word(self, event: MarkWord) -> bool:
@@ -924,6 +973,75 @@ class FileEditor(Widget):
                 self.block = (start, end)
         self._end()
 
+    #: ``dlED_VertNeed``, word for word.
+    VERTICAL_NEEDED = "Vertical blocks need for this operation"
+
+    async def on_sort_block(self, event: SortBlock) -> bool:
+        """``SortBlock`` (``EDITOR.PAS``): the lines the column block spans, ordered by
+        what stands in its columns.
+
+        Only a column block says which columns; a stream block is told so, as
+        ``ErrMsg(dlED_VertNeed)`` told it.  The keys compare as strings, case
+        and all, as Pascal's ``<`` compared them.  Each line keeps the ending of
+        the place it lands in.  Two departures: a stable sort, where DN's
+        quicksort could swap lines whose keys are equal, and an undo, where DN
+        threw its undo record away.
+        """
+        if self.column_block is None:
+            from navml.widgets.dialog.dialog import Dialog
+
+            app = self.application
+            if app is not None:
+                self.spawn(Dialog(title="Error", prompt=self.VERTICAL_NEEDED, buttons="ok").execute(app))
+            return True
+        top, left, bottom, right = self.rectangle
+        lines = self.document.lines
+        bottom = min(bottom, len(lines) - 1)
+        if bottom <= top:
+            return True
+        tab = self.tab_size
+
+        def key(text: str) -> str:
+            i, j = columns.span(text, left, right, tab)
+            return text[i:j]
+
+        old = lines[top:bottom + 1]
+        new = sorted(old, key=key)
+        if new == old:
+            return True
+        endings = self.document.endings[top:bottom]
+        text = "".join(line + ending for line, ending in zip(new, endings)) + new[-1]
+        corners = self.column_block
+        self._moved()
+        self._begin()
+        self.buffer.delete(Pos(top, 0), Pos(bottom, len(lines[bottom])))
+        self.buffer.insert(Pos(top, 0), text)
+        self.column_block = corners
+        self._end()
+        return True
+
+    async def on_calc_block(self, event: CalcBlock) -> bool:
+        """``CalcBlock`` (``EDITOR.PAS``): the numbers in the column block's columns,
+        added up and put on the clipboard (``cmPutInClipboard``), the text
+        untouched -- the sum is pasted where it is wanted.  A stream block gets
+        ``dlED_VertNeed``, as for Sort."""
+        app = self.application
+        if self.column_block is None:
+            from navml.widgets.dialog.dialog import Dialog
+
+            if app is not None:
+                self.spawn(Dialog(title="Error", prompt=self.VERTICAL_NEEDED, buttons="ok").execute(app))
+            return True
+        top, left, bottom, right = self.rectangle
+        lines = self.document.lines
+        pieces = []
+        for number in range(top, min(bottom, len(lines) - 1) + 1):
+            i, j = columns.span(lines[number], left, right, self.tab_size)
+            pieces.append(lines[number][i:j])
+        if app is not None:
+            app.copy_to_clipboard(block_sum(pieces))
+        return True
+
     async def on_upcase_block(self, event: UpcaseBlock) -> bool:
         self._recase(str.upper)
         return True
@@ -1006,6 +1124,7 @@ class FileEditor(Widget):
         self._begin_replacing()
         self.column_block = None
         self.vertical_blocks = False
+        self.block_hidden = False
         at = self._pad()
         end = self.buffer.insert(at, text)
         self.block = (at, end) if at < end else None
@@ -1032,9 +1151,34 @@ class FileEditor(Widget):
         self._insert_now(TIME_FORMAT)
         return True
 
-    async def on_vertical_blocks(self, event: VerticalBlocks) -> bool:
-        """Switch between column and stream blocks; what is marked is unmarked."""
-        self._unmark()
+    async def on_switch_block(self, event: SwitchBlock) -> bool:
+        """``cmSwitchBlock``: ``VertBlock := not VertBlock``.
+
+        DN's block was two points whichever kind it was, so the one marked
+        stays and is read the other way: a stream block becomes the rectangle
+        between its ends, a rectangle the stream from its top-left to its
+        bottom-right.  One that would enclose nothing goes.  Hidden stays hidden.
+        """
+        tab = self.tab_size
+        lines = self.document.lines
+        if self.block is not None:
+            start, end = self.block
+            first = (start.line, columns.column_of(lines[start.line], start.index, tab))
+            last = (end.line, columns.column_of(lines[end.line], end.index, tab))
+            self.block = None
+            self.column_block = (first, last) if first[1] != last[1] else None
+        elif self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            bottom = min(bottom, len(lines) - 1)
+
+            def place(line: int, col: int) -> Pos:
+                return Pos(line, min(columns.index_at(lines[line], col, tab)[0], len(lines[line])))
+
+            start, end = place(min(top, bottom), left), place(bottom, right)
+            self.column_block = None
+            self.block = (start, end) if start < end else None
+        if not self.marked:
+            self.block_hidden = False
         self.vertical_blocks = not self.vertical_blocks
         return True
 
@@ -1374,9 +1518,12 @@ class FileEditor(Widget):
         if isinstance(command, Undo):
             self.revision
             return self.buffer.can_undo
+        if isinstance(command, HideBlock):
+            return self.marked
         if isinstance(command, (
-            ClipboardCut, ClipboardCopy, Clear, HideBlock, CopyBlock, MoveBlock,
-            IndentBlock, UnindentBlock, UpcaseBlock, LowcaseBlock, CapitalizeBlock,
+            ClipboardCut, ClipboardCopy, Clear, CopyBlock, MoveBlock,
+            IndentBlock, UnindentBlock, UpcaseBlock, LowcaseBlock, CapitalizeBlock, SortBlock,
+            CalcBlock,
             MoveBlockStart, MoveBlockEnd,
         )):
             return self.has_block
@@ -1384,7 +1531,7 @@ class FileEditor(Widget):
 
     def checks(self, command: Any) -> bool | None:
         """Editor > Options ticks *Vertical blocks* while column blocks are in force."""
-        if isinstance(command, VerticalBlocks):
+        if isinstance(command, SwitchBlock):
             return self.vertical_blocks
         return super().checks(command)
 
@@ -1545,6 +1692,8 @@ class FileEditor(Widget):
         A line whose break is in the block gets one more, so an empty line
         inside it shows.
         """
+        if self.block_hidden:
+            return None
         rectangle = self.rectangle
         if rectangle is not None:
             top, left, bottom, right = rectangle

@@ -6,7 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.widgets.editor.commands import CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, UnindentBlock, Undo, UpcaseBlock, VerticalBlocks
+from navigator.widgets.editor.commands import CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar

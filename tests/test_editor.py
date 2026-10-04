@@ -771,19 +771,29 @@ def test_the_rectangle_moves_down_with_a_line_break_above_it(files):
     assert editor.block_text == "ab"
 
 
-def test_vertical_blocks_switches_unmarks_and_is_ticked(files):
-    from navigator.widgets.editor.commands import VerticalBlocks
+def test_ctrl_b_v_switches_column_blocks_keeping_the_block_and_is_ticked(files):
+    from navigator.widgets.editor.commands import SwitchBlock
 
     seen = []
+    (files / "text.txt").write_bytes(b"abcdef\nghijkl\n")
+    SETTINGS.interface.store_editor_position = False
     app = navigator(files)
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.vertical_blocks, editor.checks(SwitchBlock()), editor.block,
+                     editor.rectangle))
+
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
-                  KeyEvent("right", shift=True),
-                  lambda a: a.spawn(editor_window(a).editor.on_vertical_blocks(VerticalBlocks())),
-                  lambda a: None,
-                  lambda a: seen.append((editor_window(a).editor.vertical_blocks,
-                                         editor_window(a).editor.has_block,
-                                         editor_window(a).editor.checks(VerticalBlocks())))])
-    assert seen == [(True, False, True)]
+                  KeyEvent("right"), KeyEvent("right", shift=True), KeyEvent("right", shift=True),
+                  KeyEvent("down", shift=True),
+                  ctrl("b"), KeyEvent("v", "v"), look,
+                  ctrl("b"), ctrl("v"), look])
+    # The stream (0,1)-(1,3) is the rectangle with those corners, and back.
+    assert seen == [
+        (True, True, None, (0, 1, 1, 3)),
+        (False, False, (Pos(0, 1), Pos(1, 3)), None),
+    ]
 
 
 # -- Ctrl+K and Ctrl+Q --------------------------------------------------------------------------
@@ -829,13 +839,43 @@ def test_the_info_line_shows_a_chord_waiting(files):
     assert seen[0].endswith(" ^K") and not seen[1].endswith("^K")
 
 
-def test_ctrl_k_h_unmarks_and_t_and_l_mark_a_word_and_a_line(files):
+def test_ctrl_k_t_and_l_mark_a_word_and_a_line(files):
     _, editor = text_editor(files, b"one two\nthree\n", *[KeyEvent("right")] * 5, *chord("t"))
     assert editor.block_text == "two"
     _, editor = text_editor(files, b"one two\nthree\n", *chord("l"))
     assert editor.block_text == "one two\n"
-    _, editor = text_editor(files, b"one two\nthree\n", *chord("l"), *chord("h"))
-    assert editor.block is None
+
+
+def test_ctrl_k_h_and_alt_h_hide_the_block_and_show_it_again(files):
+    seen = []
+    (files / "text.txt").write_bytes(b"abcdef\n")
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.has_block, editor.marked, editor._block_columns(0)))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *[KeyEvent("right", shift=True)] * 2, look,
+                  *chord("h"), look, KeyEvent("h", alt=True), look])
+    assert seen == [(True, True, (0, 2)), (False, True, None), (True, True, (0, 2))]
+
+
+def test_a_hidden_block_waits_out_the_block_commands_and_follows_edits(files):
+    from navigator.widgets.editor.commands import Clear, CopyBlock
+
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"),
+                            *[KeyEvent("right", shift=True)] * 2, KeyEvent("h", alt=True),
+                            KeyEvent("home"), *typed("xy"))
+    assert not editor.enables(Clear()) and not editor.enables(CopyBlock())
+    assert editor.block == (Pos(0, 3), Pos(0, 5))  # moved with the text typed before it
+
+
+def test_marking_anew_shows_a_hidden_block(files):
+    _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 2,
+                            KeyEvent("h", alt=True), KeyEvent("end"), *chord("k"))
+    assert editor.has_block and editor.block_text == "abcdef"
 
 
 def test_ctrl_k_c_copies_the_block_to_the_cursor_and_marks_the_copy(files):
@@ -1056,3 +1096,81 @@ def test_markers_come_back_with_the_edit_history(files):
     from navigator.models.edit_record import EditRecord
 
     assert EditRecord.find(files / "text.txt").marks == ",,,,,,,,4:0"
+
+
+# -- ^K S / Alt+T: sort block -----------------------------------------------------------------------
+
+
+def column_marked(text: bytes, left: int, width: int, down: int):
+    """Keys marking a column block from (0, *left*), *width* wide, *down* lines further."""
+    return [*[KeyEvent("right")] * left, *[KeyEvent("right", shift=True)] * width,
+            *[KeyEvent("down", shift=True)] * down]
+
+
+def test_sort_orders_the_lines_by_the_blocks_columns(files):
+    SETTINGS.editor.vertical_blocks = True
+    text = b"x 3 c\ny 1 a\nz 2 b\nkeep\n"
+    _, editor = text_editor(files, text, *column_marked(text, 2, 1, 2), KeyEvent("t", alt=True))
+    assert editor.document.encode() == b"y 1 a\nz 2 b\nx 3 c\nkeep\n"
+    assert editor.rectangle == (0, 2, 2, 3)
+
+
+def test_sort_by_ctrl_k_s_keeps_each_places_line_ending_and_one_undo_restores(files):
+    SETTINGS.editor.vertical_blocks = True
+    text = b"b\r\na\nc"
+    _, editor = text_editor(files, text, *column_marked(text, 0, 1, 2), *chord("s"))
+    assert editor.document.encode() == b"a\r\nb\nc"
+    _, editor = text_editor(files, text, *column_marked(text, 0, 1, 2), *chord("s"),
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == text
+
+
+def test_sort_is_case_sensitive_and_stable(files):
+    SETTINGS.editor.vertical_blocks = True
+    text = b"b2\na1\nB3\nb4\n"
+    _, editor = text_editor(files, text, *column_marked(text, 0, 1, 3), KeyEvent("t", alt=True))
+    assert editor.document.encode() == b"B3\na1\nb2\nb4\n"
+
+
+def test_sort_needs_a_column_block(files):
+    said = []
+    _, editor = text_editor(files, b"b\na\n", KeyEvent("down", shift=True), KeyEvent("t", alt=True),
+                            lambda a: None, lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said == ["Vertical blocks need for this operation"]
+    assert editor.document.encode() == b"b\na\n"
+
+
+# -- Alt+Ins: calculate sum ------------------------------------------------------------------------
+
+
+def test_alt_ins_puts_the_column_blocks_sum_on_the_clipboard(files):
+    SETTINGS.editor.vertical_blocks = True
+    text = b"a  12.5 x\nb   0.1 y\nc  n/a  z\nd  -2   w\n"
+    app, editor = text_editor(files, text, *column_marked(text, 2, 5, 3), KeyEvent("insert", alt=True))
+    assert app.terminal.clipboard == [("10.6", False)]
+    assert editor.document.encode() == text  # the text is left alone
+
+
+def test_the_sum_is_exact_and_written_without_trailing_zeros():
+    from navigator.widgets.editor.file_editor.file_editor import block_sum
+
+    assert block_sum(["0.1", "0.2"]) == "0.3"
+    assert block_sum([" 1 000", "x", "-3"]) == "997"  # blanks removed, a word is nothing
+    assert block_sum(["1e2", "2.50"]) == "102.5"
+    assert block_sum([]) == "0"
+
+
+def test_calculate_needs_a_column_block(files):
+    said = []
+    app, _ = text_editor(files, b"1\n2\n", KeyEvent("down", shift=True), KeyEvent("insert", alt=True),
+                         lambda a: None, lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said == ["Vertical blocks need for this operation"]
+    assert app.terminal.clipboard == []
+
+
+def test_ctrl_k_u_stays_unindent(files):
+    from navigator.widgets.editor.commands import UnindentBlock
+    from navigator.widgets.editor.file_editor import FileEditor
+    from navkit.commands import key_table
+
+    assert key_table(FileEditor)["ctrl+k u"] is UnindentBlock

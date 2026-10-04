@@ -24,10 +24,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
-  and not yet here: `cmHideBlock`'s second key Alt+H, `cmSwitchBlock` (^B^V, column blocks on and off),
-  `cmSortBlock`, `cmCalcBlock`, `cmPrintBlock`, `cmBracketPair`.
+  and not yet here: `cmPrintBlock`, `cmBracketPair`, and the info line's block
+  indicator answering a click with `cmSwitchBlock`.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
-  start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H unmarks, C copies
+  start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
   `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
@@ -41,6 +41,19 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `yes-no-cancel` with `no` relabelled), a read-only one asks *Modify it anyway?* and gets its mode back afterwards;
   the write emits `FileSaved` (`cmRereadDir`). Reading turns column blocks off (`VertBlock := Off`) and marks what it
   put in.
+- **Sort, ^K S / Alt+T** (`SortBlock`, DN's `SortBlock` in `EDITOR.PAS`, also Block > Sort): the lines a *column*
+  block spans, ordered by its columns' text as plain strings (case-sensitive, as Pascal's `<`); a stream block gets
+  `dlED_VertNeed`, "Vertical blocks need for this operation", word for word. Each line keeps the ending of the place it
+  lands in. Departures: stable (DN's quicksort was not) and one undo step (DN dropped its undo record).
+- **Calculate sum, Alt+Ins** (`CalcBlock`, DN's `CalcBlock`, also Block > *Calculate sum*): the numbers in a column
+  block's columns, each with its blanks removed (`DelSpaces`) and read as `Val` would (a non-number counts 0),
+  added up and put on the clipboard (`cmPutInClipboard`); the text is untouched and nothing is shown. Written as
+  `Str(R:0:20)` less trailing zeros, but summed with `Decimal` (a departure: DN's `Real` printed binary error).
+  DN's table also gave ^K^U to it, but `cmUnindentBlock` had ^K^U first and the menu shows Unindent there, so ^K U
+  stays Unindent. A stream block gets `dlED_VertNeed`.
+- **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
+  still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
+  is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).
 - **Markers, ^K1-9 / ^Q1-9** (`PlaceMarker(n)`/`GotoMarker(n)`, DN's `cmPlaceMarker`/`cmGotoMarker` over `MarkPos`):
   `FileEditor.markers`, nine fixed `(line, col)` -- not moved by edits, as DN's were not. Going to one centres it
   (`Pos := Delta - Size div 2`) and, being a movement, unmarks under *Persistent blocks* off; an unset one does
@@ -50,7 +63,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take all the ^K commands.
   A pending chord shows as `^K` at the info line's end (a departure).
 - **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit
-  history; Editor > Options > *Vertical blocks* switches it, ticked through `FileEditor.checks`, and unmarks).
+  history; `SwitchBlock`, DN's `cmSwitchBlock`, switches it -- ^B^V and Editor > Options > *Vertical blocks*,
+  ticked through `FileEditor.checks`. DN's block was two points either way, so the switch keeps it and reads it the
+  other way: a stream block becomes the rectangle between its ends, a rectangle the stream from top-left to
+  bottom-right; one enclosing nothing goes).
   `FileEditor.column_block` is two corner *cells* `(line, col)` -- columns, not indices, since a rectangle runs past
   short lines and across tabs -- and `rectangle` is `(top, left, bottom, right)`, right exclusive. Only one of
   `block`/`column_block` is ever set; marking code speaks of "ends" (`_here`, `_block_ends`, `_set_block`) so keys,
