@@ -1258,3 +1258,39 @@ def test_print_file_is_the_one_command_the_manager_binds_too():
     from navigator.widgets.manager import commands as manager_commands
 
     assert manager_commands.PrintFile is PrintFile
+
+
+# -- Alt+Left/Right, ^Q[ / ^Q^]: the bracket pair --------------------------------------------------
+
+
+def test_alt_right_on_an_opening_bracket_goes_to_its_close_across_lines(files):
+    text = b"f(a, (b),\n  c) + x\n"
+    _, editor = text_editor(files, text, KeyEvent("right"), KeyEvent("right", alt=True))
+    assert (editor.line, editor.col) == (1, 3)
+
+
+def test_a_closing_bracket_goes_back_to_its_opener(files):
+    text = b"f(a, (b),\n  c) + x\n"
+    _, editor = text_editor(files, text, KeyEvent("down"), *[KeyEvent("right")] * 3,
+                            KeyEvent("left", alt=True))
+    assert (editor.line, editor.col) == (0, 1)
+
+
+def test_only_the_same_kind_of_bracket_counts(files):
+    text = b"[ ( ] ) ]\n"
+    _, editor = text_editor(files, text, ctrl("q"), KeyEvent("[", "["))
+    assert (editor.line, editor.col) == (0, 4)
+
+
+def test_ctrl_q_ctrl_close_bracket_is_the_same_command(files):
+    text = b"{x}\n"
+    _, editor = text_editor(files, text, ctrl("q"), KeyEvent("]", ctrl=True))
+    assert (editor.line, editor.col) == (0, 2)
+
+
+def test_no_bracket_or_no_pair_stays_put(files):
+    _, editor = text_editor(files, b"ab(c\n", KeyEvent("right", alt=True))
+    assert (editor.line, editor.col) == (0, 0)
+    _, editor = text_editor(files, b"ab(c\n", KeyEvent("right"), KeyEvent("right"),
+                            KeyEvent("right", alt=True))
+    assert (editor.line, editor.col) == (0, 2)

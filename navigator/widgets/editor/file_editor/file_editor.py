@@ -35,6 +35,7 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    BracketPair,
     PrintBlock,
     CalcBlock,
     SortBlock,
@@ -263,6 +264,8 @@ class FileEditor(Widget):
         "alt+h": HideBlock,
         "alt+t": SortBlock,
         "alt+insert": CalcBlock,
+        "alt+left": BracketPair,
+        "alt+right": BracketPair,
         **_wordstar("ctrl+b", {"v": SwitchBlock}),
         # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
         **_wordstar("ctrl+k", {
@@ -293,8 +296,11 @@ class FileEditor(Widget):
             "l": Undo,
             "d": InsertDate,
             "t": InsertTime,
+            # ``^Q'['`` and ``^Q^]``, as the table has them, neither with the other's form.
+            "[": BracketPair,
             **{str(n): GotoMarker(n) for n in range(1, 10)},
         }),
+        "ctrl+q ctrl+]": BracketPair,
     }
 
     #: What typing reaches: the command line's Enter, Home, End and Tab step
@@ -1054,6 +1060,57 @@ class FileEditor(Widget):
 
     async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
         self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
+        return True
+
+    # -- ^Q[: the bracket pair ---------------------------------------------------------
+
+    #: What opens, mapped to what closes it: ``SearchFwd``'s three pairs.
+    BRACKETS = {"(": ")", "[": "]", "{": "}"}
+
+    def bracket_pair(self) -> Pos | None:
+        """Where the bracket under the cursor is answered, or None.
+
+        DN's ``SearchFwd`` and ``SearchBwd``: an opening bracket looks forward
+        and a closing one back, line after line, counting only brackets of its
+        own kind -- strings and comments are not told apart, as they were not.
+        """
+        index, past = self._index()
+        text = self._text()
+        if past or index >= len(text):
+            return None
+        char = text[index]
+        lines = self.document.lines
+        if char in self.BRACKETS:
+            opener, closer, step = char, self.BRACKETS[char], 1
+        elif char in self.BRACKETS.values():
+            closer = char
+            opener = next(o for o, c in self.BRACKETS.items() if c == char)
+            step = -1
+        else:
+            return None
+        depth = 0
+        line, at = self.line, index
+        while 0 <= line < len(lines):
+            row = lines[line]
+            while 0 <= at < len(row):
+                if row[at] == opener:
+                    depth += step
+                elif row[at] == closer:
+                    depth -= step
+                if depth == 0:
+                    return Pos(line, at)
+                at += step
+            line += step
+            if 0 <= line < len(lines):
+                at = 0 if step > 0 else len(lines[line]) - 1
+        return None
+
+    async def on_bracket_pair(self, event: BracketPair) -> bool:
+        """``cmBracketPair``: the cursor to the bracket's pair, if it has one."""
+        found = self.bracket_pair()
+        if found is not None:
+            self._moved()
+            self._go(found)
         return True
 
     # -- ^K1-9 and ^Q1-9 -----------------------------------------------------------

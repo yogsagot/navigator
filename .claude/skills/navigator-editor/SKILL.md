@@ -24,7 +24,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
-  and not yet here: `cmBracketPair`, and the info line's block
+  and not yet here: the info line's block
   indicator answering a click with `cmSwitchBlock`.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
@@ -61,6 +61,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   Print block (`EditWindow.print_lines`). `PrintFile` is one command, as `cmPrintFile` was: it lives in
   `navigator/commands.py` (re-exported by `manager/commands.py`) because the file manager's Ctrl+F9 answers it too
   (`navigator-file-ops`).
+- **Bracket pair, Alt+Left / Alt+Right / ^Q[ / ^Q^]** (`BracketPair`, DN's `cmBracketPair`, `SearchFwd`/`SearchBwd`
+  in `EDITOR.PAS`): on `(` `[` `{` the cursor goes forward to the matching close, on `)` `]` `}` back to the opener,
+  across lines, counting only brackets of the same kind and blind to strings and comments, as DN was; no bracket under
+  the cursor or no pair, and it stays. ^Q[ and ^Q^] are bound only in the forms the table gives.
 - **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
   still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
   is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).

@@ -255,6 +255,13 @@ class PrintBlock(Command):
     title = "Print Block"
 
 
+class BracketPair(Command):
+    """``cmBracketPair``: Alt+Left, Alt+Right, ^Q[, ^Q^] -- the cursor to the
+    bracket that pairs with the one under it."""
+
+    title = "Bracket pair"
+
+
 class MarkWord(Command):
     """``cmMarkWord``: ^K^T -- the word at the cursor, marked."""
 
@@ -346,6 +353,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "BracketPair",
     "PrintBlock",
     "CalcBlock",
     "SortBlock",
