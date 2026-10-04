@@ -1388,3 +1388,48 @@ def test_a_click_on_the_info_lines_place_asks_for_a_line(files):
                   click_info(lambda e: e.place_indicator()[0]), lambda a: None,
                   lambda a: seen.append(a.modal.title if a.modal else None)])
     assert seen == ["Goto Line"]
+
+
+# -- Ctrl+P / the info line's code: the character table --------------------------------------------
+
+
+@pytest.fixture
+def chart_on(monkeypatch):
+    from navigator.widgets.shell.ascii_chart import ascii_chart as module
+
+    def start(code):
+        monkeypatch.setitem(module._last, "code", code)
+    return start
+
+
+def test_ctrl_p_types_the_character_picked(files, chart_on):
+    chart_on(65)
+    _, editor = text_editor(files, b"xy\n", KeyEvent("right"), KeyEvent("p", ctrl=True),
+                            lambda a: None, KeyEvent("right"), KeyEvent("enter"), lambda a: None)
+    assert editor.document.encode() == b"xBy\n"
+
+
+def test_a_box_drawing_character_goes_in_as_unicode(files, chart_on):
+    chart_on(0xB3)
+    _, editor = text_editor(files, b"a\n", KeyEvent("p", ctrl=True), lambda a: None,
+                            KeyEvent("enter"), lambda a: None)
+    assert editor.document.encode() == "│a\n".encode()
+
+
+def test_a_click_on_the_info_lines_code_opens_the_chart(files, chart_on):
+    seen = []
+    (files / "text.txt").write_bytes(b"abc\n")
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  click_info(lambda e: e.code_indicator()[0] + 1), lambda a: None,
+                  lambda a: seen.append(a.modal.title if a.modal else None)])
+    assert seen == ["ASCII Chart"]
+
+
+def test_the_code_indicator_is_the_bracketed_code():
+    from navigator.widgets.editor.file_editor import FileEditor
+
+    editor = FileEditor()
+    start, end = editor.code_indicator()
+    assert editor.info_text[start:end] == "[000]"

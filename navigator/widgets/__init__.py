@@ -44,6 +44,8 @@ navml.register(__name__)
 #: discovered, so a typo is an `AttributeError' naming the widget.  Two names
 #: map to `panel': its module carries `DirEntry' beside `Panel'.
 _WIDGETS = {
+    "AsciiChart": "shell.ascii_chart",
+    "CharTable": "shell.char_table",
     "AboutDialog": "about_dialog",
     "AttrDialog": "file_ops.attr_dialog",
     "BookmarkLabelDialog": "manager.bookmark_label_dialog",
@@ -132,6 +134,8 @@ if TYPE_CHECKING:
     from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
     from navigator.widgets.shell.file_history_dialog import FileHistoryDialog
     from navigator.widgets.shell.file_record_list import FileRecordList
+    from navigator.widgets.shell.ascii_chart import AsciiChart
+    from navigator.widgets.shell.char_table import CharTable
     from navigator.widgets.viewer.file_viewer import FileViewer
     from navigator.widgets.viewer.file_window import FileWindow
     from navigator.widgets.viewer.goto_dialog import GotoDialog

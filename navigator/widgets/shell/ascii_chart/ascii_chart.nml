@@ -1,0 +1,28 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.shell.char_table import CharTable
+
+#: DOS Navigator's ``TASCIIChart`` (``ASCIITAB.PAS``): *ASCII Chart*, 34 by 12.
+#:
+#: The table fills the inside of the frame but its last two rows -- 32 by 8,
+#: one character a cell -- and the report (``TReport``) is the last row:
+#: ``Char: c Decimal: nnn Hex: hh``.  ``Dialog``'s buttons and message are
+#: not this layout, and the hand-written half hides them.
+AsciiChart(Dialog):
+    modal_width: 34
+    modal_height: 12
+    title: "ASCII Chart"
+
+    CharTable:
+        id: table
+        x: 1
+        y: 1
+        width: 32
+        height: 8
+
+    StaticText:
+        id: report
+        x: 1
+        y: 10
+        width: 32
+        height: 1

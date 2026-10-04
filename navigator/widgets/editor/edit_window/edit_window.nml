@@ -1,5 +1,5 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -249,6 +249,7 @@ EditWindow(Window):
                 key: 'F6'
             MenuItem:
                 text: 'Character ta~b~le'
+                command: AsciiTable
                 key: 'Ctrl P'
             MenuItem:
                 text: 'Line Dra~w~ing'

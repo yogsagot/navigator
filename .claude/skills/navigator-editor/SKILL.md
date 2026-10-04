@@ -68,8 +68,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock` and one on its line:column
   `GotoLineNumber`, as `TInfoLine.HandleEvent` turned them into `cmSwitchBlock`/`cmGotoLineNumber`.
   `FileEditor.block_indicator()`/`place_indicator()` say where they stand, worked out from the text since the code
-  may outgrow three digits. Its third place, the code (`cmSpecChar`), waits on the character table; every press on
-  the line is the line's, so none reaches the frame.
+  may outgrow three digits; `code_indicator()` is its third place, `[nnn]` (`cmSpecChar`), which opens the
+  character table. Every press on the line is the line's, so none reaches the frame.
+- **The character table, Ctrl+P** (`AsciiTable`, DN's `cmASCIITable`/`cmSpecChar`, also Editor > Misc > *Character
+  table* and the info line's code): `AsciiChart` (`shell/ascii_chart`, DN's `TASCIIChart`, 34 by 12) around
+  `CharTable` (`shell/char_table`, `TTable`: 32 by 8 CP437 glyphs from `viewer.cp437`, block caret) and a report line
+  (`TReport`). Arrows/Home/End move, a press or drag picks, Esc cancels, Enter/Ctrl+B/Ctrl+P or a double click take;
+  a character typed that code page 437 has is taken at once. It reopens on the code last taken (`p` at first). The
+  editor types what the chart shows -- the glyph, `│` for 179, the text being Unicode -- and a NUL for 0. Departure:
+  centred, where DN reopened it where it was left. Utilities > *ASCII Table* (Ctrl+B, the command line) is not wired.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

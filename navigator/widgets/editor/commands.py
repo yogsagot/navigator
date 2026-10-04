@@ -269,6 +269,14 @@ class GotoLineNumber(Command):
     title = "Go to line"
 
 
+class AsciiTable(Command):
+    """``cmASCIITable``: Ctrl+P, Editor > Misc > *Character table*, or a click on
+    the info line's character code (``cmSpecChar``, which DN answered the same
+    way) -- *ASCII Chart*, and the character picked typed at the cursor."""
+
+    title = "Character table"
+
+
 class MarkWord(Command):
     """``cmMarkWord``: ^K^T -- the word at the cursor, marked."""
 
@@ -360,6 +368,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "AsciiTable",
     "GotoLineNumber",
     "BracketPair",
     "PrintBlock",

@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    AsciiTable,
     GotoLineNumber,
     BracketPair,
     PrintBlock,
@@ -268,6 +269,7 @@ class FileEditor(Widget):
         "alt+t": SortBlock,
         "alt+insert": CalcBlock,
         "alt+g": GotoLineNumber,
+        "ctrl+p": AsciiTable,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
         **_wordstar("ctrl+b", {"v": SwitchBlock}),
@@ -363,6 +365,7 @@ class FileEditor(Widget):
         #: set as it is written.
         self._block_at = (0, 0)
         self._place_at = (0, 0)
+        self._code_at = (0, 0)
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
@@ -1751,6 +1754,8 @@ class FileEditor(Widget):
         head = f"{mark}{bar}{bar}{place} [{code:03d}] "
         self._block_at = (len(head), len(head) + len(block))
         self._place_at = (3, 3 + len(place))
+        code_start = 3 + len(place) + 1
+        self._code_at = (code_start, code_start + len(f"[{code:03d}]"))
         return f"{head}{block}{pending}"
 
     def place_indicator(self) -> tuple[int, int]:
@@ -1758,6 +1763,12 @@ class FileEditor(Widget):
         click asks *Goto Line* of -- ``TInfoLine``'s ``2 < X < Length(S)``."""
         _ = self.info_text
         return self._place_at
+
+    def code_indicator(self) -> tuple[int, int]:
+        """Where ``[nnn]`` stands in :attr:`info_text`, end exclusive: what a click
+        asks *ASCII Chart* of -- ``TInfoLine``'s ``Length(S) < X <= Length(S)+5``."""
+        _ = self.info_text
+        return self._code_at
 
     def go_to_line(self, number: int) -> None:
         """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same
@@ -1840,10 +1851,9 @@ class InfoLine(StaticText):
     """``TInfoLine``: the editor's line over the bottom frame, and what a click on it asks.
 
     DN gave it three places to click: the line and column (``cmGotoLineNumber``),
-    the character's code (``cmSpecChar``) and the block indicator
-    (``cmSwitchBlock``).  The character code has no command here yet; a press
-    anywhere on the line is the line's all the same, as ``ClearEvent`` made it,
-    so it never reaches the frame beneath.
+    the character's code (``cmSpecChar``, *ASCII Chart*) and the block indicator
+    (``cmSwitchBlock``).  A press anywhere on the line is the line's, as
+    ``ClearEvent`` made it, so it never reaches the frame beneath.
     """
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
@@ -1857,4 +1867,7 @@ class InfoLine(StaticText):
             start, end = editor.place_indicator()
             if start <= event.x < end:
                 await editor.emit(GotoLineNumber())
+            start, end = editor.code_indicator()
+            if start <= event.x < end:
+                await editor.emit(AsciiTable())
         return True

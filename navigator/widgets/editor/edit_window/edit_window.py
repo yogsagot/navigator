@@ -32,6 +32,7 @@ from navigator.models.edit_record import EditRecord
 from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
+    AsciiTable,
     BlockRead,
     BlockWrite,
     GotoLineNumber,
@@ -271,6 +272,28 @@ class EditWindow(Window):
         number = await GotoLineDialog().execute(self.application)
         if number is not None:
             self.editor.go_to_line(number)
+
+    # -- Ctrl+P: the character table --------------------------------------------------
+
+    async def on_ascii_table(self, event: AsciiTable) -> bool:
+        self.spawn(self.ascii_table())
+        return True
+
+    async def ascii_table(self) -> None:
+        """``ASCIITable``, then ``InputChar``: the character picked typed at the cursor.
+
+        Typed as the chart shows it -- the VGA's glyph, ``│`` for 179 and ``☺``
+        for 1 -- the text being Unicode where DN's was bytes; 0, whose glyph
+        is a blank, is a NUL.
+        """
+        from navigator.widgets.shell.ascii_chart import AsciiChart
+        from navigator.widgets.shell.char_table.char_table import glyph
+
+        code = await AsciiChart().execute(self.application)
+        if code is None:
+            return
+        self.editor.focus()
+        self.editor.type_text("\x00" if code == 0 else glyph(code))
 
     # -- ^K P / Shift+F8 ------------------------------------------------------------
 

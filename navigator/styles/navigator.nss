@@ -348,6 +348,8 @@ Modal StaticText#info                 { fg: $dialog-information-pane-fg;  bg: $d
 /* TFileInfoPane, CInfoPane: the file dialog's path and focused entry, the
    same Information pane, [61]. */
 FileInfoPane                          { fg: $dialog-information-pane-fg;  bg: $dialog-information-pane-bg }
+/* TTable in *ASCII Chart*: the dialog's text, and TTable.BlockCursor's caret. */
+CharTable                             { fg: $dialog-static-text-fg;       bg: $dialog-static-text-bg; caret: block }
 Modal TreeView                        { fg: $dialog-tree-normal-tree-fg;      bg: $dialog-tree-normal-tree-bg }
 Modal TreeView::node                  { fg: $dialog-tree-normal-nodes-fg;     bg: $dialog-tree-normal-nodes-bg }
 Modal TreeView::node:selected         { fg: $dialog-tree-selected-passive-fg; bg: $dialog-tree-selected-passive-bg }
