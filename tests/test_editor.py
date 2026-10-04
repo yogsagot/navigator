@@ -1294,3 +1294,58 @@ def test_no_bracket_or_no_pair_stays_put(files):
     _, editor = text_editor(files, b"ab(c\n", KeyEvent("right"), KeyEvent("right"),
                             KeyEvent("right", alt=True))
     assert (editor.line, editor.col) == (0, 2)
+
+
+# -- the info line's block indicator ---------------------------------------------------------------
+
+
+def click_info(at):
+    """A left click on the info line, *at(editor)* columns into it, through the screen."""
+    from navkit.events import MouseClickEvent
+
+    def action(app):
+        window = editor_window(app)
+        info = window.info
+        ox, oy = info.offset()
+        x, y = ox + info.x + at(window.editor), oy + info.y
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="press"))
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="release"))
+    return action
+
+
+def test_a_click_on_the_block_indicator_switches_column_blocks(files):
+    seen = []
+    (files / "text.txt").write_bytes(b"abcdef\nghijkl\n")
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.vertical_blocks, editor.rectangle))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("right", shift=True), KeyEvent("down", shift=True),
+                  click_info(lambda e: e.block_indicator()[0] + 1), lambda a: None, look])
+    assert seen == [(True, (0, 0, 1, 1))]  # the stream block, read as a rectangle
+
+
+def test_a_click_elsewhere_on_the_info_line_does_nothing(files):
+    seen = []
+    (files / "text.txt").write_bytes(b"abc\n")
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  click_info(lambda e: 4), lambda a: None,
+                  lambda a: seen.append((editor_window(a).editor.vertical_blocks,
+                                         editor_window(a).zoomed))])
+    assert seen == [(False, True)]
+
+
+def test_the_indicator_is_found_however_long_the_code_before_it():
+    from navigator.widgets.editor.file_editor import FileEditor
+
+    editor = FileEditor()
+    editor.buffer.document.lines[0] = "中"  # a code past three digits
+    editor.revision += 1
+    start, end = editor.block_indicator()
+    assert editor.info_text[start:end] in ("(↔)", "(-)")

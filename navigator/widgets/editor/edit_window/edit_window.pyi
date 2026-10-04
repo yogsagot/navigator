@@ -8,10 +8,9 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.commands import PrintFile
 from navigator.widgets.editor.commands import CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
-from navigator.widgets.editor.file_editor import FileEditor
+from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
-from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
@@ -40,7 +39,7 @@ class EditWindow(Window, _Component):
     editor: FileEditor
     vbar: ScrollBar
     hbar: ScrollBar
-    info: StaticText
+    info: InfoLine
     edit_menu: SubMenu
     edit_menu_file: SubMenu
     edit_menu_edit: SubMenu

@@ -23,9 +23,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
-  `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
-  and not yet here: the info line's block
-  indicator answering a click with `cmSwitchBlock`.
+  `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Every ^K/^Q
+  command in the table is here.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
@@ -65,6 +64,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   in `EDITOR.PAS`): on `(` `[` `{` the cursor goes forward to the matching close, on `)` `]` `}` back to the opener,
   across lines, counting only brackets of the same kind and blind to strings and comments, as DN was; no bracket under
   the cursor or no pair, and it stays. ^Q[ and ^Q^] are bound only in the forms the table gives.
+- **The info line is `InfoLine`** (DN's `TInfoLine`, a `StaticText` beside `FileEditor`, styled by
+  `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock`, as `TInfoLine.HandleEvent`
+  turned a click there into `cmSwitchBlock`. `FileEditor.block_indicator()` says where the indicator stands, worked
+  out from the text since the code before it may outgrow three digits. Its other two places, line:column
+  (`cmGotoLineNumber`) and the code (`cmSpecChar`), wait on those features; every press on the line is the line's, so
+  none reaches the frame.
 - **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
   still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
   is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).

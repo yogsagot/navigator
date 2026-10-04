@@ -34,6 +34,8 @@ from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
+from navml.widgets.dialog.static_text import StaticText
+
 from navigator.widgets.editor.commands import (
     BracketPair,
     PrintBlock,
@@ -355,6 +357,8 @@ class FileEditor(Widget):
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
+        #: The block indicator's columns in the info line, set as it is written.
+        self._block_at = (0, 0)
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
@@ -1739,7 +1743,16 @@ class FileEditor(Widget):
             pending = " " + " ".join(
                 f"^{key[5:].upper()}" if key.startswith("ctrl+") else key for key in app.chord.split()
             )
-        return f"{mark}{bar}{bar}{self.line + 1}:{self.col + 1} [{code:03d}] {block}{pending}"
+        head = f"{mark}{bar}{bar}{self.line + 1}:{self.col + 1} [{code:03d}] "
+        self._block_at = (len(head), len(head) + len(block))
+        return f"{head}{block}{pending}"
+
+    def block_indicator(self) -> tuple[int, int]:
+        """Where ``(↔)``/``(↕)`` stands in :attr:`info_text`, end exclusive: what a
+        click switches -- ``TInfoLine``'s ``Length(S)+7 .. Length(S)+9``, worked out
+        from the text itself because the code before it may be longer than three."""
+        _ = self.info_text
+        return self._block_at
 
     # -- painting ------------------------------------------------------------------
 
@@ -1803,3 +1816,24 @@ class FileEditor(Widget):
                     surface.set_cell(x, y, " ", cell)
                     continue
                 surface.set_cell(x, y, char, cell)
+
+
+class InfoLine(StaticText):
+    """``TInfoLine``: the editor's line over the bottom frame, and what a click on it asks.
+
+    DN gave it three places to click: the line and column (``cmGotoLineNumber``),
+    the character's code (``cmSpecChar``) and the block indicator
+    (``cmSwitchBlock``).  Only the last has a command here yet; a press anywhere
+    on the line is the line's all the same, as ``ClearEvent`` made it, so it
+    never reaches the frame beneath.
+    """
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.action != "press":
+            return True
+        editor = getattr(self.parent, "editor", None)
+        if event.button == "left" and isinstance(editor, FileEditor):
+            start, end = editor.block_indicator()
+            if start <= event.x < end:
+                await editor.emit(SwitchBlock())
+        return True
