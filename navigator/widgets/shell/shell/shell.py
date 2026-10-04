@@ -23,6 +23,7 @@ from navkit.stylesheet import Stylesheet
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
+from navigator.commands import AsciiTable
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark
 from navigator.widgets.shell.commands import (
@@ -473,6 +474,9 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return False
+        if isinstance(command, AsciiTable):
+            # ``ouiHideCmdline``: a hidden line takes no character either.
+            return not SETTINGS.interface.hide_command_line
         if isinstance(
             command,
             (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine,
@@ -729,6 +733,26 @@ class Shell(DockLayout):
     async def on_toggle_mark_by_space(self, event: ToggleMarkBySpace) -> bool:
         self.active_manager.active_panel.toggle_mark()
         return True
+
+    async def on_ascii_table(self, event: AsciiTable) -> bool:
+        """Ctrl+B, Utilities > *Character table*: DN's ``ASCIITable``."""
+        self.spawn(self.ascii_table())
+        return True
+
+    async def ascii_table(self) -> None:
+        """*ASCII Chart*, then the character picked on the command line.
+
+        DN put it back as a key press (``PutEvent``), which reached the
+        command line wherever the panels had the keyboard; here it goes into
+        the line directly.  Code 0 is no key, and nothing.  The character is
+        the one the chart shows (``│`` for 179), the line being Unicode.
+        """
+        from navigator.widgets.shell.ascii_chart import AsciiChart
+        from navigator.widgets.shell.char_table.char_table import glyph
+
+        code = await AsciiChart().execute(self.application)
+        if code:
+            self.command_line.insert(glyph(code))
 
     async def on_insert_name(self, event: InsertName) -> bool:
         self._insert_entry(whole=False)

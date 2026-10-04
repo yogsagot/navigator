@@ -37,7 +37,7 @@ from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
 from navigator.bookmarks import seed_bookmarks
-from navigator.commands import Help, Quit, ToggleConsole
+from navigator.commands import AsciiTable, Help, Quit, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
@@ -136,6 +136,9 @@ class Navigator(Application):
         "ctrl+f2": HideRight,
         "f1": Help,
         "f10": OpenMenu,
+        #: Utilities > *Character table*, DN's ``kbCtrlB``.  An editor's ^B^V
+        #: chord keeps Ctrl+B for itself, as DN's editor table did.
+        "ctrl+b": AsciiTable,
         "alt+x": Quit(desktop=True),
         "enter": ExecuteCommandLine,
         "home": CommandLineHome,

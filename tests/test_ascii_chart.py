@@ -75,3 +75,73 @@ async def chart_double_click(app):
 def test_the_next_chart_opens_on_the_character_last_taken():
     run(KeyEvent("right"), KeyEvent("enter"))
     assert AsciiChart().table.code == 113
+
+
+# -- Ctrl+B, Utilities > Character table: the command line -------------------------------------------
+
+
+@pytest.fixture
+def nav(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    (tmp_path / "text.txt").write_text("abc\n")
+    return tmp_path
+
+
+def navigator(path):
+    from navigator.__main__ import Navigator
+
+    return Navigator(path, path, terminal=FakeTerminal(80, 24))
+
+
+def test_ctrl_b_puts_the_character_picked_on_the_command_line(nav):
+    app = navigator(nav)
+    seen = []
+    run_app(app, [KeyEvent("b", ctrl=True), lambda a: None,
+                  lambda a: seen.append(a.modal.title if a.modal else None),
+                  KeyEvent("right"), KeyEvent("enter"), lambda a: None])
+    assert seen == ["ASCII Chart"]
+    assert app.shell.command_line.value == "q"
+
+
+def test_the_utilities_menu_item_runs_it(nav):
+    from navigator.commands import AsciiTable
+
+    app = navigator(nav)
+    run_app(app, [lambda a: a.spawn(a.run_command(AsciiTable)), lambda a: None,
+                  KeyEvent("x", "x"), lambda a: None])
+    assert app.shell.command_line.value == "x"
+
+
+def test_code_zero_puts_nothing(nav):
+    app = navigator(nav)
+    run_app(app, [KeyEvent("b", ctrl=True), lambda a: None, KeyEvent("home"),
+                  KeyEvent("enter"), lambda a: None])
+    assert app.shell.command_line.value == ""
+
+
+def test_a_hidden_command_line_takes_no_character(nav):
+    from navigator.commands import AsciiTable
+    from navigator.settings import SETTINGS
+
+    SETTINGS.interface.hide_command_line = True
+    app = navigator(nav)
+    seen = []
+    run_app(app, [lambda a: seen.append(a.command_enabled(AsciiTable))])
+    assert seen == [False]
+
+
+def test_in_an_editor_ctrl_b_is_still_the_column_block_chord(nav):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(nav)
+    seen = []
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        seen.append((a.modal is None, window.editor.vertical_blocks))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("b", ctrl=True), KeyEvent("v", "v"), lambda a: None, look])
+    assert seen == [(True, True)]

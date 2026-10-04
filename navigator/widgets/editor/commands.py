@@ -6,6 +6,10 @@ from dataclasses import dataclass
 
 from navkit.commands import Command
 
+# Shared with the shell, which answers it too; named here as well for the
+# key table and the menu that bind it.
+from navigator.commands import AsciiTable  # noqa: F401 -- re-exported
+
 
 # -- the editor ------------------------------------------------------------------
 #
@@ -267,14 +271,6 @@ class GotoLineNumber(Command):
     click on the info line's line and column -- the cursor to a line asked for."""
 
     title = "Go to line"
-
-
-class AsciiTable(Command):
-    """``cmASCIITable``: Ctrl+P, Editor > Misc > *Character table*, or a click on
-    the info line's character code (``cmSpecChar``, which DN answered the same
-    way) -- *ASCII Chart*, and the character picked typed at the cursor."""
-
-    title = "Character table"
 
 
 class MarkWord(Command):

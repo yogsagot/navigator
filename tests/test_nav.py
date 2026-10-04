@@ -2500,6 +2500,8 @@ def test_the_application_keeps_only_what_is_global():
         "ctrl+f1", "ctrl+f2",
         # File Edit History and File View History: Utilities, nobody's panel's.
         "alt+pageup", "alt+pagedown",
+        # Utilities > Character table, for the command line.
+        "ctrl+b",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
     }

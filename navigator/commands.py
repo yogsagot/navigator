@@ -34,6 +34,15 @@ class Quit(Command):
     desktop: bool = False
 
 
+class AsciiTable(Command):
+    """``cmASCIITable``: *ASCII Chart*, and the character picked typed where the
+    keyboard is -- Ctrl+B and Utilities > *Character table* for the command line,
+    Ctrl+P (and the info line's code, ``cmSpecChar``) in the editor, which
+    answers it nearer the keyboard."""
+
+    title = "Character table"
+
+
 class PrintFile(Command):
     """``cmPrintFile``: one command, as in DN, answered by whichever window has it --
     the editor's F8 prints its text, the file manager's Ctrl+F9 the file under
@@ -47,6 +56,7 @@ class ToggleConsole(Command):
 
 
 __all__ = [
+    "AsciiTable",
     "Help",
     "PrintFile",
     "Quit",

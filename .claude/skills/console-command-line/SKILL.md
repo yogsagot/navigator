@@ -114,6 +114,14 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   bound beside it (mc's key) for terminals that send Ctrl+Enter as Enter.
 - **Space tags while the line is empty** (`ToggleMarkBySpace`, bound in `manager.nml`, handled and gated by `Shell`).
 
+## The character table (Ctrl+B)
+
+Utilities > *Character table* (DN's *ASCII Table*, `cmASCIITable`, `kbCtrlB` in `Navigator.keys`): `Shell.ascii_table`
+opens `AsciiChart` (`shell/ascii_chart`) and puts the character picked -- its CP437 glyph, `│` for 179 -- on the
+command line with `CommandLine.insert`, where DN put it back as a key press the line took; code 0 is nothing.
+Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^B^V chord, so the editor keeps it
+(its own Ctrl+P opens the same chart for the text). Under tmux, Ctrl+B is tmux's prefix and never arrives.
+
 ## Read when
 
 | Reference | Read when |

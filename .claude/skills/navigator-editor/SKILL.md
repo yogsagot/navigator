@@ -76,7 +76,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`TReport`). Arrows/Home/End move, a press or drag picks, Esc cancels, Enter/Ctrl+B/Ctrl+P or a double click take;
   a character typed that code page 437 has is taken at once. It reopens on the code last taken (`p` at first). The
   editor types what the chart shows -- the glyph, `│` for 179, the text being Unicode -- and a NUL for 0. Departure:
-  centred, where DN reopened it where it was left. Utilities > *ASCII Table* (Ctrl+B, the command line) is not wired.
+  centred, where DN reopened it where it was left. `AsciiTable` lives in `navigator/commands.py`: the shell answers
+  it too (`console-command-line`), and an editor's ^B^V chord keeps Ctrl+B in the editor, as DN's table did.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor
