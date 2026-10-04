@@ -1433,3 +1433,60 @@ def test_the_code_indicator_is_the_bracketed_code():
     editor = FileEditor()
     start, end = editor.code_indicator()
     assert editor.info_text[start:end] == "[000]"
+
+
+# -- F3 Open and Shift+F2 Save as --------------------------------------------------------------------
+
+
+def test_f3_opens_another_file_into_the_window(files):
+    (files / "other.txt").write_bytes(b"other text\n")
+    seen = []
+    app, editor = text_editor(files, b"first\n", KeyEvent("f3"), lambda a: None,
+                              lambda a: seen.append((a.modal.title, a.modal.pick.text) if a.modal else None),
+                              *typed("other.txt"), KeyEvent("enter"), lambda a: None)
+    assert seen == [("Open a File", "~O~pen")]
+    assert editor.path == files / "other.txt"
+    assert editor.document.encode() == b"other text\n"
+    assert editor_window(app).title == f"Edit - {files / 'other.txt'}"
+
+
+def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
+    asked = []
+    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f3"), lambda a: None,
+                            lambda a: asked.append(a.modal.prompt if a.modal else None),
+                            KeyEvent("escape"), lambda a: None)
+    assert asked == ["File text.txt was modified. Save?"]
+    assert editor.document.encode() == b"xfirst\n" and editor.path == files / "text.txt"
+
+
+def test_a_file_that_will_not_open_is_said_and_the_text_stays(files):
+    said = []
+    _, editor = text_editor(files, b"first\n", KeyEvent("f3"), lambda a: None,
+                            *typed("missing.txt"), KeyEvent("enter"), lambda a: None,
+                            lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said and said[0].startswith("Cannot open")
+    assert editor.document.encode() == b"first\n"
+
+
+def test_shift_f2_saves_under_a_new_name_and_the_window_takes_it(files):
+    seen = []
+    app, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f2", shift=True), lambda a: None,
+                              lambda a: seen.append(a.modal.title if a.modal else None),
+                              *typed("copy.txt"), KeyEvent("enter"), lambda a: None)
+    assert seen == ["Save File As"]
+    assert (files / "copy.txt").read_bytes() == b"xfirst\n"
+    assert (files / "text.txt").read_bytes() == b"first\n"  # the old file untouched
+    assert editor.path == files / "copy.txt" and not editor.modified
+    assert editor_window(app).title == f"Edit - {files / 'copy.txt'}"
+
+
+def test_save_as_over_a_file_asks_yes_or_cancel_without_append(files):
+    (files / "copy.txt").write_bytes(b"old")
+    asked = []
+    _, editor = text_editor(files, b"new\n", KeyEvent("f2", shift=True), lambda a: None,
+                            *typed("copy.txt"), KeyEvent("enter"), lambda a: None,
+                            lambda a: asked.append((a.modal.prompt, a.modal.no.text) if a.modal else None),
+                            KeyEvent("escape"), lambda a: None)
+    assert "OK to overwrite it?" in asked[0][0] and asked[0][1] == "Cancel"
+    assert (files / "copy.txt").read_bytes() == b"old"
+    assert editor.path == files / "text.txt"

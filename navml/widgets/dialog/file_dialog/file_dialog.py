@@ -68,6 +68,7 @@ class FileDialog(Dialog):
         directory: Path | str | None = None,
         wildcard: str = EVERYTHING,
         hidden: bool = False,
+        ok_text: str | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -77,6 +78,9 @@ class FileDialog(Dialog):
         if title is not None:
             self.title = title
         self.caption.text = label
+        if ok_text is not None:
+            # ``fdOpenButton``: the same ``cmFileOpen`` under *Open* rather than *OK*.
+            self.pick.text = ok_text
         self.target.history_id = history_id
         #: The history the full path is recorded in.
         self.history_id = history_id

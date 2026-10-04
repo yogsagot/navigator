@@ -352,6 +352,18 @@ class Undo(Command):
     title = "Undo"
 
 
+class LoadText(Command):
+    """``cmLoadText``: F3, Editor > File > *Open...* -- another file into this window."""
+
+    title = "Open"
+
+
+class SaveTextAs(Command):
+    """``cmSaveTextAs``: Shift+F2, Editor > File > *Save as...* -- the text under a new name."""
+
+    title = "Save as"
+
+
 class SaveText(Command):
     """``cmSaveText``: F2."""
 
@@ -364,6 +376,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "LoadText",
+    "SaveTextAs",
     "AsciiTable",
     "GotoLineNumber",
     "BracketPair",

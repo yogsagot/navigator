@@ -1,5 +1,5 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, LoadText, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -28,6 +28,8 @@ EditWindow(Window):
         escape: CloseWindow
         alt+f3: CloseWindow
         f2: SaveText
+        f3: LoadText
+        shift+f2: SaveTextAs
         #: ``StatusDef hcEditor``'s ``:~F8~ Print Block``.
         #: ``~F8~ Print``: the text the editor holds.
         f8: PrintFile
@@ -99,6 +101,7 @@ EditWindow(Window):
             text: '~F~ile'
             MenuItem:
                 text: '~O~pen...'
+                command: LoadText
                 key: 'F3'
             MenuItem:
                 text: '~S~ave'
@@ -106,6 +109,7 @@ EditWindow(Window):
                 key: 'F2'
             MenuItem:
                 text: 'Save ~a~s...'
+                command: SaveTextAs
                 key: 'Shift-F2'
             MenuItem:
                 text: 'Save a~l~l...'

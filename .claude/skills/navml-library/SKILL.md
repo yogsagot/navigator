@@ -38,7 +38,8 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   middle click pastes the primary selection. A paste walks the focus path when `Application.on_paste` declines it.
 
 - **`FileDialog`** (`navml/widgets/dialog/file_dialog/`, DN's `TFileDialog` from `DNSTDDLG.PAS`, every rectangle
-  `TFileDialog.Init`'s): `FileDialog(title=, label=, history_id=, directory=, wildcard="*", hidden=)`, `execute()`
+  `TFileDialog.Init`'s): `FileDialog(title=, label=, history_id=, directory=, wildcard="*", hidden=, ok_text=)` (*ok_text* `"~O~pen"` is
+  DN's `fdOpenButton`), `execute()`
   answering a full path or None. OK is `Valid(cmFileOpen)` (`valid()`): a wildcard or a directory re-lists and stays
   up, a name in an existing directory closes, anything else says *Invalid drive or directory.*/*Invalid file name.*
   An effect stands for `cmFileFocused`: the focused list fills the name line (a directory as `dir/` + wildcard) and

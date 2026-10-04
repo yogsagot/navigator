@@ -36,8 +36,10 @@ from navigator.widgets.editor.commands import (
     BlockRead,
     BlockWrite,
     GotoLineNumber,
+    LoadText,
     PrintBlock,
     SaveText,
+    SaveTextAs,
 )
 
 
@@ -162,10 +164,11 @@ class EditWindow(Window):
             return self.editor.has_block
         return super().enables(command)
 
-    async def _block_file(self, title: str, label: str) -> Path | None:
-        """``GetFileNameDialog``: DN's file dialog, with OK and Help.
+    async def _ask_file(
+        self, title: str, label: str, history_id: str, ok_text: str | None = None,
+    ) -> Path | None:
+        """``GetFileNameDialog``: DN's file dialog, with OK (or *ok_text*) and Help.
 
-        The history is the one DN's ^K R and ^K W shared, ``hsEditPasteFrom``.
         It lists the active panel's directory first, which was DN's current
         one; without a file manager, the edited file's.
         """
@@ -177,11 +180,56 @@ class EditWindow(Window):
         if manager is not None:
             directory = manager.active_panel.path
         dialog = FileDialog(
-            title=title, label=label, history_id="edit_paste_from",
+            title=title, label=label, history_id=history_id, ok_text=ok_text,
             directory=directory, hidden=SETTINGS.system.show_hidden,
         )
         name = await dialog.execute(self.application)
         return Path(name) if name else None
+
+    async def _block_file(self, title: str, label: str) -> Path | None:
+        """^K R and ^K W's name, in the history they shared, ``hsEditPasteFrom``."""
+        return await self._ask_file(title, label, "edit_paste_from")
+
+    async def _check_for_over(self, path: Path, *, append: bool) -> tuple[bool, int | None] | None:
+        """``CheckForOver``: whether *path* may be written, and how.
+
+        Nothing to ask for a file that is not there.  One that is, is *OK to
+        overwrite it?* -- with *Append* beside Yes where *append* allows it --
+        and a read-only one *Modify it anyway?* as well, its mode lifted for
+        the write and handed back to be put back after.  Answers ``(append,
+        mode)``, or None for Cancel.
+        """
+        if not path.exists():
+            return False, None
+        query = Dialog(
+            title="Warning",
+            prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
+            buttons="yes-no-cancel" if append else "yes-no",
+        )
+        if append:
+            query.no.text = "A~p~pend"
+        else:
+            query.no.text = "Cancel"
+        answer = await query.execute(self.application)
+        if answer is None or (answer is False and not append):
+            return None
+        appending = answer is False
+        restore: int | None = None
+        if not os.access(path, os.W_OK):
+            modify = await Dialog(
+                title="Warning",
+                prompt=f"File {path.name}\nis marked as Read-Only.\nModify it anyway?",
+                buttons="ok-cancel",
+            ).execute(self.application)
+            if modify is not True:
+                return None
+            try:
+                restore = path.stat().st_mode
+                path.chmod(restore | stat.S_IWUSR)
+            except OSError as error:
+                await self._say(f"Cannot write {path}: {error.strerror or error}")
+                return None
+        return appending, restore
 
     async def _say(self, message: str) -> None:
         await Dialog(title="Error", prompt=message, buttons="ok").execute(self.application)
@@ -202,34 +250,10 @@ class EditWindow(Window):
         path = await self._block_file("Copy block to", "File ~N~ame")
         if path is None:
             return
-        append = False
-        #: A read-only file's mode, put back once written, as ``SetFileAttr`` did.
-        restore: int | None = None
-        if path.exists():
-            query = Dialog(
-                title="Warning",
-                prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
-                buttons="yes-no-cancel",
-            )
-            query.no.text = "A~p~pend"
-            answer = await query.execute(self.application)
-            if answer is None:
-                return
-            append = answer is False
-            if not os.access(path, os.W_OK):
-                modify = await Dialog(
-                    title="Warning",
-                    prompt=f"File {path.name}\nis marked as Read-Only.\nModify it anyway?",
-                    buttons="ok-cancel",
-                ).execute(self.application)
-                if modify is not True:
-                    return
-                try:
-                    restore = path.stat().st_mode
-                    path.chmod(restore | stat.S_IWUSR)
-                except OSError as error:
-                    await self._say(f"Cannot write {path}: {error.strerror or error}")
-                    return
+        answer = await self._check_for_over(path, append=True)
+        if answer is None:
+            return
+        append, restore = answer
         try:
             if append:
                 with open(path, "ab") as file:
@@ -342,6 +366,76 @@ class EditWindow(Window):
         problem = await loop.run_in_executor(None, spool, "\n".join(lines) + "\n")
         if problem is not None:
             await self._say(f"Cannot print: {problem}")
+
+    # -- F3 and Shift+F2 ----------------------------------------------------------------
+
+    async def on_load_text(self, event: LoadText) -> bool:
+        self.spawn(self.load_text())
+        return True
+
+    async def load_text(self) -> None:
+        """``cmLoadText``: another file into this window, DN's ``OpenFile``.
+
+        A changed text is offered a save first (``AskSave``: Cancel keeps
+        everything as it is).  Then *Open a File*, with *Open* for its OK, in
+        the ``hsEditOpen`` history.  The file being left has its record kept,
+        and the one opened comes back as it was last left.  A departure: a
+        file that will not open is said and the window keeps its text, where
+        DN closed the window.
+        """
+        if self.editor.modified:
+            name = self.editor.path.name if self.editor.path else "Untitled"
+            answer = await Dialog(
+                title="Warning", prompt=f"File {name} was modified. Save?",
+                buttons="yes-no-cancel",
+            ).execute(self.application)
+            if answer is None or (answer is True and not await self.save()):
+                return
+        path = await self._ask_file("Open a File", "~N~ame", "edit_open", ok_text="~O~pen")
+        if path is None:
+            return
+        self.remember_history()
+        try:
+            self.editor.open(path)
+        except OSError as error:
+            await self._say(f"Cannot open {path}: {error.strerror or error}")
+            return
+        self.title = f"Edit - {self.editor.path}"
+        self.recall_history()
+        self.editor.focus()
+
+    async def on_save_text_as(self, event: SaveTextAs) -> bool:
+        self.spawn(self.save_as())
+        return True
+
+    async def save_as(self) -> None:
+        """``SaveFileAs``: the text under a name asked in *Save File As*, ``hsEditSave``.
+
+        An existing file is asked about first (``CheckForOver``) -- without the
+        *Append* DN offered, a departure: appending the whole text to another
+        file and then editing that file under its name left an editor showing
+        less than was on disk, for the next F2 to throw away.  The window takes
+        the new name and its title, and the text counts as saved.
+        """
+        path = await self._ask_file("Save File As", "~S~ave File As", "edit_save")
+        if path is None:
+            return
+        answer = await self._check_for_over(path, append=False)
+        if answer is None:
+            return
+        _, restore = answer
+        old = self.editor.path
+        self.editor.path = path
+        try:
+            self.editor.save()
+            if restore is not None:
+                path.chmod(stat.S_IMODE(restore))
+        except OSError as error:
+            self.editor.path = old
+            await self._say(f"Cannot write {path}: {error.strerror or error}")
+            return
+        self.title = f"Edit - {self.editor.path}"
+        await self.emit(FileSaved(path))
 
     # -- closing -----------------------------------------------------------------
 

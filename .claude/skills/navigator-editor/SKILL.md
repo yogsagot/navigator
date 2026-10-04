@@ -78,6 +78,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   editor types what the chart shows -- the glyph, `│` for 179, the text being Unicode -- and a NUL for 0. Departure:
   centred, where DN reopened it where it was left. `AsciiTable` lives in `navigator/commands.py`: the shell answers
   it too (`console-command-line`), and an editor's ^B^V chord keeps Ctrl+B in the editor, as DN's table did.
+- **Open, F3, and Save as, Shift+F2** (`LoadText`/`SaveTextAs`, DN's `cmLoadText`/`cmSaveTextAs`, `OpenFile` and
+  `SaveFileAs`; also Editor > File): the name from navml's `FileDialog` via `EditWindow._ask_file` -- *Open a File*,
+  *~N~ame*, an *~O~pen* button (`fdOpenButton`), history `edit_open`; *Save File As*, *~S~ave File As*, OK,
+  `edit_save` -- listing the active panel's directory. Open offers a changed text a save first (Cancel keeps all),
+  records the file being left, loads the new one into the same window and brings its record back; a file that will
+  not open is said and the text stays (DN closed the window). Save as asks `_check_for_over`'s question without
+  *Append* (a departure: appending the whole text elsewhere and then editing that file under its name lost what was on
+  disk at the next F2), puts a read-only file's mode back, and the window takes the new name; `FileSaved` re-reads
+  panels. `_check_for_over` is shared with ^K W, which keeps *Append*.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor
