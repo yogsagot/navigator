@@ -37,6 +37,10 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    FCenter,
+    FJustify,
+    FLeft,
+    FRight,
     Replace,
     ReverseSearch,
     StartSearch,
@@ -274,7 +278,17 @@ class FileEditor(Widget):
         "ctrl+p": AsciiTable,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
-        **_wordstar("ctrl+b", {"v": SwitchBlock}),
+        "alt+j": FJustify,
+        "alt+r": FRight,
+        "alt+l": FLeft,
+        "alt+c": FCenter,
+        **_wordstar("ctrl+b", {
+            "v": SwitchBlock,
+            "j": FJustify,
+            "r": FRight,
+            "l": FLeft,
+            "c": FCenter,
+        }),
         # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
         **_wordstar("ctrl+k", {
             "b": BlockStart,
@@ -363,6 +377,12 @@ class FileEditor(Widget):
         #: Where a Tab stops, and how far a tab character reaches.
         self.tab_size = SETTINGS.editor.tab_size
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
+        #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
+        #: paragraph indent, seeded from the Editor setup and changed by
+        #: *Format Margins* for this editor alone, as ``SetFormat`` did.
+        self.margins = (
+            SETTINGS.editor.left_margin, SETTINGS.editor.right_margin, SETTINGS.editor.paragraph,
+        )
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -1603,6 +1623,9 @@ class FileEditor(Widget):
             return self.buffer.can_undo
         if isinstance(command, HideBlock):
             return self.marked
+        if isinstance(command, (FJustify, FRight, FLeft, FCenter)):
+            # ``not (ValidBlock and BlockVisible) or VertBlock``: a stream block only.
+            return self.block is not None and not self.block_hidden
         if isinstance(command, (
             ClipboardCut, ClipboardCopy, Clear, CopyBlock, MoveBlock,
             IndentBlock, UnindentBlock, UpcaseBlock, LowcaseBlock, CapitalizeBlock, SortBlock,
@@ -1866,6 +1889,54 @@ class FileEditor(Widget):
             return None
         text, tab = self.document.lines[number], self.tab_size
         return columns.column_of(text, found[0].index, tab), columns.column_of(text, found[1].index, tab)
+
+    # -- paragraph formatting -------------------------------------------------------------
+
+    #: Which ``FormatBlock`` each command asks for.
+    FORMATS = {FJustify: "justify", FRight: "right", FLeft: "left", FCenter: "center"}
+
+    def format_block(self, mode: str) -> None:
+        """``FormatBlock``: the stream block's whole lines as one paragraph, laid out
+        between this editor's margins (:mod:`navigator.editor.paragraph`).
+
+        The lines go in one undo step; the block then covers the new lines,
+        from the start of the first to the start of the line after them, and
+        the cursor is at its start.
+        """
+        from navigator.editor.paragraph import format_lines
+
+        if self.block is None or self.block_hidden:
+            return
+        start, end = self.block
+        last = end.line - 1 if end.index == 0 and end.line > start.line else end.line
+        left, right, indent = self.margins
+        new = format_lines(self.document.lines[start.line:last + 1], mode,
+                           left=left, right=right, indent=indent)
+        self._moved()
+        self._begin()
+        self.buffer.delete(Pos(start.line, 0), Pos(last, len(self.document.lines[last])))
+        self.buffer.insert(Pos(start.line, 0), self.document.newline.join(new))
+        self._end()
+        after = start.line + len(new)
+        stop = Pos(after, 0) if after < len(self.document) else self.document.end
+        self.block = (Pos(start.line, 0), stop) if stop > Pos(start.line, 0) else None
+        self._go(Pos(start.line, 0))
+
+    async def on_f_justify(self, event: FJustify) -> bool:
+        self.format_block("justify")
+        return True
+
+    async def on_f_right(self, event: FRight) -> bool:
+        self.format_block("right")
+        return True
+
+    async def on_f_left(self, event: FLeft) -> bool:
+        self.format_block("left")
+        return True
+
+    async def on_f_center(self, event: FCenter) -> bool:
+        self.format_block("center")
+        return True
 
     def go_to_line(self, number: int) -> None:
         """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same

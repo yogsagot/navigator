@@ -115,6 +115,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   replace* is ticked, each replacement its own undo step (`udReplace`); only *Change all* goes on past the first;
   replacements made unasked end with *N replaces made*. Shift+F7 repeats the last search, replacement included, from
   the cursor. Departure: the query box is centred, where DN put it clear of the line found.
+- **Paragraph formatting, Alt+J/R/L/C** (`FJustify`/`FRight`/`FLeft`/`FCenter`, DN's `cmF*` and `FormatBlock`; also
+  ^B^J/R/L/C and Editor > Paragraph): `navigator/editor/paragraph.py`. The stream block's whole lines (one ending at a
+  line's start leaves that line out) are one paragraph -- blank lines are no break, runs of blanks one -- laid out
+  between `FileEditor.margins` (`LeftSide`, `RightSide`, `InSide`): a line takes a word while `length + word + blank`
+  stays under its room; right ends against the right margin, center sits midway, justify widens every line but the
+  last gap by gap from the left and indents the first. One undo step; the block then covers the new lines, the cursor
+  at its start. Disabled for a column block. *Margins...* (`SetMargins`, `MarginsDialog`, `dlgEditorFormat` 39 by 11)
+  changes this editor's margins only, seeded from the Editor setup, a number that does not read kept, then
+  `fix_margins` (`SetFormat`'s corrections). DN's line-only `cmL*` had no key in the English resource and are not here.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

@@ -1660,3 +1660,62 @@ def test_ctrl_q_f_and_a_open_find_and_replace(files, fresh_search):
                 lambda a: seen.append(a.modal.title), KeyEvent("escape"), lambda a: None,
                 ctrl("q"), ctrl("a"), lambda a: None, lambda a: seen.append(a.modal.title))
     assert seen == ["Find", "Replace"]
+
+
+# -- Alt+J/R/L/C: paragraph formatting ---------------------------------------------------------------
+
+
+PARAGRAPH = b"aaa bbb\nccc  ddd eee\nfff\nnext\n"
+
+
+def test_alt_j_justifies_the_block_as_one_paragraph(files):
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin, SETTINGS.editor.paragraph = 0, 12, 2
+    _, editor = text_editor(files, PARAGRAPH, *[KeyEvent("down", shift=True)] * 3,
+                            KeyEvent("j", alt=True))
+    assert editor.document.encode() == b"  aaa    bbb\nccc  ddd eee\nfff\nnext\n"
+    assert editor.block == (Pos(0, 0), Pos(3, 0)) and (editor.line, editor.col) == (0, 0)
+
+
+def test_formatting_is_one_undo_step(files):
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 2, 40
+    _, editor = text_editor(files, PARAGRAPH, *[KeyEvent("down", shift=True)] * 3,
+                            KeyEvent("l", alt=True))
+    assert editor.document.encode() == b"  aaa bbb ccc ddd eee fff\nnext\n"
+    _, editor = text_editor(files, PARAGRAPH, *[KeyEvent("down", shift=True)] * 3,
+                            KeyEvent("l", alt=True), KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == PARAGRAPH
+
+
+def test_ctrl_b_r_is_right(files):
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 10
+    _, editor = text_editor(files, b"ab cd\n", KeyEvent("end", shift=True), ctrl("b"),
+                            KeyEvent("r", "r"))
+    assert editor.document.encode() == b"     ab cd\n"
+
+
+def test_a_column_block_formats_nothing(files):
+    from navigator.widgets.editor.commands import FJustify
+
+    SETTINGS.editor.vertical_blocks = True
+    _, editor = text_editor(files, PARAGRAPH, KeyEvent("right", shift=True),
+                            KeyEvent("down", shift=True))
+    assert editor.enables(FJustify()) is False
+
+
+def test_format_margins_sets_this_editors_margins(files):
+    seen = []
+
+    def fill(a):
+        a.modal.left.value, a.modal.right.value, a.modal.indent.value = "4", "30", "x"
+
+    _, editor = text_editor(files, PARAGRAPH, lambda a: a.spawn(a.run_command(SetMarginsCommand())),
+                            lambda a: None, lambda a: seen.append(a.modal.title), fill,
+                            KeyEvent("enter"), lambda a: None)
+    assert seen == ["Format Margins"]
+    assert editor.margins == (4, 30, SETTINGS.editor.paragraph)  # "x" left the indent as it was
+
+
+def SetMarginsCommand():
+    from navigator.widgets.editor.commands import SetMargins
+
+    return SetMargins()

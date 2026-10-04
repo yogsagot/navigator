@@ -386,9 +386,9 @@ class EditorDefaultsData(Section):
     )
     overwrite_blocks: bool = Setting(False, doc="Typing overwrites a block", honoured=False)
     lock_file: bool = Setting(False, doc="Lock the file being edited", honoured=False)
-    left_margin: int = Setting(0, doc="Left margin", honoured=False)
-    right_margin: int = Setting(78, doc="Right margin", honoured=False)
-    paragraph: int = Setting(5, doc="Paragraph indent", honoured=False)
+    left_margin: int = Setting(0, doc="Left margin a new editor formats paragraphs to")
+    right_margin: int = Setting(78, doc="Right margin a new editor formats paragraphs to")
+    paragraph: int = Setting(5, doc="A justified paragraph's first-line indent in a new editor")
     #: DN's default was CR+LF; on POSIX a new line is LF.
     line_divisor: str = Setting(
         "lf", choices=LINE_DIVISORS, doc="Line ending of a file with none yet, a new one",

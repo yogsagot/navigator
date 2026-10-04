@@ -292,6 +292,36 @@ class ReverseSearch(Command):
     title = "Rev. Search"
 
 
+class FJustify(Command):
+    """``cmFJustify``: Alt+J, ^B^J -- the block one paragraph, justified to the margins."""
+
+    title = "Justify"
+
+
+class FRight(Command):
+    """``cmFRight``: Alt+R, ^B^R -- the block one paragraph, against the right margin."""
+
+    title = "Right"
+
+
+class FLeft(Command):
+    """``cmFLeft``: Alt+L, ^B^L -- the block one paragraph, from the left margin."""
+
+    title = "Left"
+
+
+class FCenter(Command):
+    """``cmFCenter``: Alt+C, ^B^C -- the block one paragraph, centred between the margins."""
+
+    title = "Center"
+
+
+class SetMargins(Command):
+    """``cmSetMargins``: Editor > Paragraph > *Margins...* -- this editor's margins."""
+
+    title = "Margins"
+
+
 class GotoLineNumber(Command):
     """``cmGotoLineNumber``: Alt+G, Editor > Search > *Go to line number...*, or a
     click on the info line's line and column -- the cursor to a line asked for."""
@@ -408,6 +438,11 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "FCenter",
+    "FJustify",
+    "FLeft",
+    "FRight",
+    "SetMargins",
     "ContSearch",
     "Replace",
     "ReverseSearch",

@@ -1,0 +1,65 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: Editor > Paragraph > *Margins...*: DOS Navigator's ``dlgEditorFormat``,
+#: *Format Margins*, 39 by 11 -- three lines from column 20 with their labels
+#: at 2, and OK, Cancel and Help along row 8, the resource's every rectangle.
+MarginsDialog(Dialog):
+    modal_width: 39
+    modal_height: 11
+    title: "Format Margins"
+
+    Field:
+        id: left
+        x: 2
+        y: 2
+        width: 35
+        height: 1
+        label_text: "~L~eft margin"
+        label_width: 18
+
+    Field:
+        id: right
+        x: 2
+        y: 4
+        width: 35
+        height: 1
+        label_text: "~R~ight margin"
+        label_width: 18
+
+    Field:
+        id: indent
+        x: 2
+        y: 6
+        width: 35
+        height: 1
+        label_text: "~P~aragraph"
+        label_width: 18
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 7
+        y: 8
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 17
+        y: 8
+        width: 10
+        height: 2
+
+    #: No help is written yet: shown, and disabled.
+    Button:
+        id: helper
+        text: "Help"
+        disabled: True
+        x: 27
+        y: 8
+        width: 10
+        height: 2

@@ -33,6 +33,7 @@ from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
     AsciiTable,
+    SetMargins,
     ContSearch,
     Replace,
     ReverseSearch,
@@ -404,6 +405,20 @@ class EditWindow(Window):
                 title="Information", prompt=f"{made} replaces made", buttons="ok",
             ).execute(self.application)
         return True
+
+    # -- Paragraph > Margins -------------------------------------------------------------
+
+    async def on_set_margins(self, event: SetMargins) -> bool:
+        self.spawn(self.set_margins())
+        return True
+
+    async def set_margins(self) -> None:
+        """``SetFormat``: *Format Margins* for this editor's margins and indent."""
+        from navigator.widgets.editor.margins_dialog import MarginsDialog
+
+        margins = await MarginsDialog(self.editor.margins).execute(self.application)
+        if margins is not None:
+            self.editor.margins = margins
 
     # -- Alt+G -------------------------------------------------------------------------
 

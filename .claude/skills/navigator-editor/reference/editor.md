@@ -104,7 +104,7 @@ Left for later, by phase:
 3. Written: Find, Replace, Search again, Reversed search, Goto line.
 4. Written: Open, Save as, Save all, the `FileDialog`, SmartPad and the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.
-5. Autoindent's remaining rules, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
+5. Autoindent's remaining rules, autobrackets, autowrap, line drawing (backspace unindent and paragraph format are written).
 6. Highlighting and macros from `DN.HGL`.
 7. Editor defaults, persisted, edit history, backups, file locking and printing.
 

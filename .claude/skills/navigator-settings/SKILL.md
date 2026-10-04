@@ -151,6 +151,7 @@ note:
 | `confirmations.create_dir` | Off: copy and link create a missing target directory without asking |
 | `confirmations.exit` | On: Alt+X asks DN's `dlQueryExit` first |
 | `editor.tab_size`, `editor.vertical_blocks` | Seed a new editor |
+| `editor.left_margin` / `right_margin` / `paragraph` | Seed a new editor's `margins` for paragraph formatting (Alt+J/R/L/C); *Format Margins* changes one editor's alone |
 | `viewer.hex_mode`, `viewer.wrap_lines` | Seed F3's viewer |
 | `editor.line_divisor` | The terminator a text with no line break yet takes (`FileEditor.open` sets `Document.newline` from `document.NEWLINES`): a new file, an empty one, a single line. A file with breaks keeps its most common one |
 | `editor.persistent_blocks` | On (DN's default): the block stays as the cursor moves and edits go round it. Off: a movement without Shift unmarks, typing, Enter, Tab and a paste replace the block (one undo), Backspace and Del delete it alone |
