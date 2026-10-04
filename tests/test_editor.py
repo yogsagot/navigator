@@ -1349,3 +1349,42 @@ def test_the_indicator_is_found_however_long_the_code_before_it():
     editor.revision += 1
     start, end = editor.block_indicator()
     assert editor.info_text[start:end] in ("(↔)", "(-)")
+
+
+# -- Alt+G: go to line ------------------------------------------------------------------------------
+
+
+def test_alt_g_goes_to_the_line_typed_keeping_the_column(files):
+    _, editor = text_editor(files, lines(30), KeyEvent("right"), KeyEvent("right"),
+                            KeyEvent("g", alt=True), lambda a: None, *typed("17"),
+                            KeyEvent("enter"), lambda a: None)
+    assert (editor.line, editor.col) == (16, 2)
+
+
+def test_a_line_past_the_end_is_the_last_and_nonsense_goes_nowhere(files):
+    _, editor = text_editor(files, lines(5), KeyEvent("g", alt=True), lambda a: None,
+                            *typed("999"), KeyEvent("enter"), lambda a: None)
+    assert editor.line == len(editor.document) - 1
+    for text in ("0", "-3", "x"):
+        _, editor = text_editor(files, lines(5), KeyEvent("down"), KeyEvent("g", alt=True),
+                                lambda a: None, *typed(text), KeyEvent("enter"), lambda a: None)
+        assert editor.line == 1, text
+
+
+def test_goto_line_opens_with_the_number_last_typed(files):
+    from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
+    from navigator.widgets.editor.goto_line_dialog import goto_line_dialog as module
+
+    module._last["text"] = "12"
+    assert GotoLineDialog().number.value == "12"
+
+
+def test_a_click_on_the_info_lines_place_asks_for_a_line(files):
+    seen = []
+    (files / "text.txt").write_bytes(lines(5))
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  click_info(lambda e: e.place_indicator()[0]), lambda a: None,
+                  lambda a: seen.append(a.modal.title if a.modal else None)])
+    assert seen == ["Goto Line"]

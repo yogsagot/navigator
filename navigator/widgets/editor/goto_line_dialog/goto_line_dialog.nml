@@ -1,0 +1,22 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: Alt+G in the editor: DOS Navigator's ``dlgGotoLine``, *Goto Line*.
+#:
+#: The label at column 3, the line from 16 to 28 and its history after it, as
+#: the resource has them.  A row taller than DN's 34 by 7, for the blank row
+#: the viewer's *Goto Address* keeps between line and buttons.
+GotoLineDialog(Dialog):
+    modal_width: 34
+    modal_height: 8
+    title: "Goto Line"
+
+    Field:
+        id: number
+        x: 3
+        y: 2
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "~L~ine number"
+        label_width: 13
+        history_id: "goto_line"

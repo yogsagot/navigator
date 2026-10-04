@@ -65,11 +65,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   across lines, counting only brackets of the same kind and blind to strings and comments, as DN was; no bracket under
   the cursor or no pair, and it stays. ^Q[ and ^Q^] are bound only in the forms the table gives.
 - **The info line is `InfoLine`** (DN's `TInfoLine`, a `StaticText` beside `FileEditor`, styled by
-  `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock`, as `TInfoLine.HandleEvent`
-  turned a click there into `cmSwitchBlock`. `FileEditor.block_indicator()` says where the indicator stands, worked
-  out from the text since the code before it may outgrow three digits. Its other two places, line:column
-  (`cmGotoLineNumber`) and the code (`cmSpecChar`), wait on those features; every press on the line is the line's, so
-  none reaches the frame.
+  `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock` and one on its line:column
+  `GotoLineNumber`, as `TInfoLine.HandleEvent` turned them into `cmSwitchBlock`/`cmGotoLineNumber`.
+  `FileEditor.block_indicator()`/`place_indicator()` say where they stand, worked out from the text since the code
+  may outgrow three digits. Its third place, the code (`cmSpecChar`), waits on the character table; every press on
+  the line is the line's, so none reaches the frame.
+- **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
+  info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
+  `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor
+  on that line at the same column (`FileEditor.go_to_line`, `ScrollTo(Delta.X, I-1)`), past the end on the last;
+  anything else does nothing. DN shared its history with *Goto Address* (`hsdbSearch`); here each has its own.
 - **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
   still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
   is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).

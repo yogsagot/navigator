@@ -262,6 +262,13 @@ class BracketPair(Command):
     title = "Bracket pair"
 
 
+class GotoLineNumber(Command):
+    """``cmGotoLineNumber``: Alt+G, Editor > Search > *Go to line number...*, or a
+    click on the info line's line and column -- the cursor to a line asked for."""
+
+    title = "Go to line"
+
+
 class MarkWord(Command):
     """``cmMarkWord``: ^K^T -- the word at the cursor, marked."""
 
@@ -353,6 +360,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "GotoLineNumber",
     "BracketPair",
     "PrintBlock",
     "CalcBlock",

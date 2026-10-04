@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    GotoLineNumber,
     BracketPair,
     PrintBlock,
     CalcBlock,
@@ -266,6 +267,7 @@ class FileEditor(Widget):
         "alt+h": HideBlock,
         "alt+t": SortBlock,
         "alt+insert": CalcBlock,
+        "alt+g": GotoLineNumber,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
         **_wordstar("ctrl+b", {"v": SwitchBlock}),
@@ -357,8 +359,10 @@ class FileEditor(Widget):
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
-        #: The block indicator's columns in the info line, set as it is written.
+        #: The block indicator's and the line:column's places in the info line,
+        #: set as it is written.
         self._block_at = (0, 0)
+        self._place_at = (0, 0)
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
@@ -1743,9 +1747,23 @@ class FileEditor(Widget):
             pending = " " + " ".join(
                 f"^{key[5:].upper()}" if key.startswith("ctrl+") else key for key in app.chord.split()
             )
-        head = f"{mark}{bar}{bar}{self.line + 1}:{self.col + 1} [{code:03d}] "
+        place = f"{self.line + 1}:{self.col + 1}"
+        head = f"{mark}{bar}{bar}{place} [{code:03d}] "
         self._block_at = (len(head), len(head) + len(block))
+        self._place_at = (3, 3 + len(place))
         return f"{head}{block}{pending}"
+
+    def place_indicator(self) -> tuple[int, int]:
+        """Where ``line:column`` stands in :attr:`info_text`, end exclusive: what a
+        click asks *Goto Line* of -- ``TInfoLine``'s ``2 < X < Length(S)``."""
+        _ = self.info_text
+        return self._place_at
+
+    def go_to_line(self, number: int) -> None:
+        """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same
+        column; past the end, the last line."""
+        self._moved()
+        self._go_column(number - 1, self.col)
 
     def block_indicator(self) -> tuple[int, int]:
         """Where ``(↔)``/``(↕)`` stands in :attr:`info_text`, end exclusive: what a
@@ -1823,9 +1841,9 @@ class InfoLine(StaticText):
 
     DN gave it three places to click: the line and column (``cmGotoLineNumber``),
     the character's code (``cmSpecChar``) and the block indicator
-    (``cmSwitchBlock``).  Only the last has a command here yet; a press anywhere
-    on the line is the line's all the same, as ``ClearEvent`` made it, so it
-    never reaches the frame beneath.
+    (``cmSwitchBlock``).  The character code has no command here yet; a press
+    anywhere on the line is the line's all the same, as ``ClearEvent`` made it,
+    so it never reaches the frame beneath.
     """
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
@@ -1836,4 +1854,7 @@ class InfoLine(StaticText):
             start, end = editor.block_indicator()
             if start <= event.x < end:
                 await editor.emit(SwitchBlock())
+            start, end = editor.place_indicator()
+            if start <= event.x < end:
+                await editor.emit(GotoLineNumber())
         return True

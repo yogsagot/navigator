@@ -31,7 +31,13 @@ from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import BlockRead, BlockWrite, PrintBlock, SaveText
+from navigator.widgets.editor.commands import (
+    BlockRead,
+    BlockWrite,
+    GotoLineNumber,
+    PrintBlock,
+    SaveText,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,6 +257,20 @@ class EditWindow(Window):
             await self._say(f"Cannot read {path}: {error.strerror or error}")
             return
         self.editor.read_block(decode(data))
+
+    # -- Alt+G -------------------------------------------------------------------------
+
+    async def on_goto_line_number(self, event: GotoLineNumber) -> bool:
+        self.spawn(self.goto_line())
+        return True
+
+    async def goto_line(self) -> None:
+        """``GotoLine``: *Goto Line*, then the cursor to the line given, if one was."""
+        from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
+
+        number = await GotoLineDialog().execute(self.application)
+        if number is not None:
+            self.editor.go_to_line(number)
 
     # -- ^K P / Shift+F8 ------------------------------------------------------------
 
