@@ -1,0 +1,43 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+
+#: ``dlQueryReplace``, a 50 by 8 ``mfQuery`` box: Yes, All, No and Cancel.
+ReplaceQuery(Dialog):
+    modal_width: 50
+    modal_height: 8
+    title: "Confirm"
+    prompt: "Replace this occurence?"
+
+    Button:
+        id: pick
+        text: "~Y~es"
+        default: True
+        x: 3
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    #: ``mfAllButton``: this one and every one after it, unasked.
+    Button:
+        id: every
+        text: "~A~ll"
+        x: 14
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    Button:
+        id: skip
+        text: "~N~o"
+        x: 25
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 36
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2

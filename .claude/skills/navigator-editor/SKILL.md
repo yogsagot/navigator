@@ -99,6 +99,22 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   titled *SmartPad(TM) - path*; `EditWindow(smartpad=True)` keeps no edit history, saves unasked on closing (Esc,
   Close all, Alt+X) and sends no `FileSaved`. Alt+Q is on `Navigator.keys`; the Shell answers it, putting the console
   away first.
+- **Find and Replace** (`StartSearch` F7 / ^Q F, `Replace` Ctrl+F7 / ^Q A, `ContSearch` Shift+F7, `ReverseSearch`
+  Alt+F7 / ^Q R; DN's `StartSearch` in `EDITOR.PAS` and `TFileEditor.Search` in `MICROED.PAS`). The model is
+  `navigator/editor/search.py` (`SearchData`, the record `SEARCH` kept between searches as DN's typed constant was --
+  look it up as `search.SEARCH` at call time; `find`/`find_in_line`; `BREAK_CHARS` now lives there). Line by line:
+  forward from a place, backward a match ending at or before it; *Case sensitive* off ignores case, *Whole words only*
+  wants `BREAK_CHARS` or a line's edge round it, *Selected text* searches only the block's part of each line
+  (`FileEditor._search_bounds`, stream or column). `FindDialog` (`editor/find_dialog`) is both `dlgEditorFind` and
+  `dlgEditorReplace` (property `replace`, every rectangle the resource's), opening on the word at the cursor
+  (`StartSearch`'s guess), history `find_text` for both lines; *Change all* answers `"all"`. *Entire scope* starts at
+  the text's start (its end, backward); nothing found says *Search string not found* and puts the cursor back. A
+  match puts the cursor after it (before it, backward) and is lit while the cursor and text stay
+  (`show_found`/`found_on_display`); a reversed search with it lit starts from its far side (`SearchOnDisplay`).
+  Replacing asks `ReplaceQuery` (`dlQueryReplace`, Yes/All/No/Cancel; *All* stops the asking) while *Prompt on
+  replace* is ticked, each replacement its own undo step (`udReplace`); only *Change all* goes on past the first;
+  replacements made unasked end with *N replaces made*. Shift+F7 repeats the last search, replacement included, from
+  the cursor. Departure: the query box is centred, where DN put it clear of the line found.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

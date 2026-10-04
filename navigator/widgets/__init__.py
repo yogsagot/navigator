@@ -67,6 +67,8 @@ _WIDGETS = {
     "EraseQuery": "file_ops.erase_query",
     "ExitDialog": "shell.exit_dialog",
     "FileEditor": "editor.file_editor",
+    "FindDialog": "editor.find_dialog",
+    "ReplaceQuery": "editor.replace_query",
     "GotoLineDialog": "editor.goto_line_dialog",
     "InfoLine": "editor.file_editor",
     "FileHistoryDialog": "shell.file_history_dialog",
@@ -131,6 +133,8 @@ if TYPE_CHECKING:
     from navigator.widgets.editor.edit_window import EditWindow
     from navigator.widgets.file_ops.erase_query import EraseQuery
     from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+    from navigator.widgets.editor.find_dialog import FindDialog
+    from navigator.widgets.editor.replace_query import ReplaceQuery
     from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
     from navigator.widgets.shell.file_history_dialog import FileHistoryDialog
     from navigator.widgets.shell.file_record_list import FileRecordList

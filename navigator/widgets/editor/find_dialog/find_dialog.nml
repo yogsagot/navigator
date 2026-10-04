@@ -1,0 +1,144 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: DOS Navigator's ``dlgEditorFind`` (55 by 15) and ``dlgEditorReplace`` (55 by
+#: 18), one document because they differ only by the *New text* line, a third
+#: option and *Change all*: every rectangle is the resource's, the replace
+#: dialog's two rows lower where it says so.  Both lines keep ``hsFindText``.
+FindDialog(Dialog):
+    #: Which of the two: *Find* (F7) or *Replace* (Ctrl+F7).
+    property replace: False
+
+    modal_width: 55
+    modal_height: 18 if root.replace else 15
+    title: "Replace" if root.replace else "Find"
+
+    Field:
+        id: text
+        x: 3
+        y: 2
+        width: 49
+        height: 1
+        label_text: "~T~ext to find"
+        label_width: 14
+        history_id: "find_text"
+
+    Field:
+        id: new
+        visible: root.replace
+        x: 7
+        y: 4
+        width: 45
+        height: 1
+        label_text: "~N~ew text"
+        label_width: 10
+        history_id: "find_text"
+
+    Label:
+        id: options_caption
+        text: "Options"
+        link: options
+        x: 3
+        y: 6 if root.replace else 4
+        width: 24
+        height: 1
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 7 if root.replace else 5
+        width: 24
+        height: 3 if root.replace else 2
+        items: ["~C~ase sensitive", "~W~hole words only", "~P~rompt on replace"] if root.replace else ["~C~ase sensitive", "~W~hole words only"]
+
+    Label:
+        id: direction_caption
+        text: "Direction"
+        link: direction
+        x: 30
+        y: 6 if root.replace else 4
+        width: 22
+        height: 1
+
+    RadioButtons:
+        id: direction
+        x: 30
+        y: 7 if root.replace else 5
+        width: 22
+        height: 2
+        items: ["Forwar~d~", "~B~ackward"]
+
+    Label:
+        id: scope_caption
+        text: "Scope"
+        link: scope
+        x: 3
+        y: 11 if root.replace else 8
+        width: 24
+        height: 1
+
+    RadioButtons:
+        id: scope
+        x: 3
+        y: 12 if root.replace else 9
+        width: 24
+        height: 2
+        items: ["~G~lobal", "~S~elected text"]
+
+    Label:
+        id: origin_caption
+        text: "Origin"
+        link: origin
+        x: 30
+        y: 11 if root.replace else 8
+        width: 22
+        height: 1
+
+    RadioButtons:
+        id: origin
+        x: 30
+        y: 12 if root.replace else 9
+        width: 22
+        height: 2
+        items: ["~E~ntire scope", "~F~rom cursor"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 6 if root.replace else 22
+        y: 15 if root.replace else 12
+        width: 10
+        height: 2
+
+    #: ``cmYes``: every occurrence, not the first.
+    Button:
+        id: all
+        text: "Change ~a~ll"
+        visible: root.replace
+        x: 16
+        y: 15
+        width: 16
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 32
+        y: 15 if root.replace else 12
+        width: 10
+        height: 2
+
+    #: No help is written yet: shown, and disabled.
+    Button:
+        id: helper
+        text: "Help"
+        disabled: True
+        x: 42
+        y: 15 if root.replace else 12
+        width: 10
+        height: 2

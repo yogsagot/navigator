@@ -101,7 +101,7 @@ Left for later, by phase:
 
 1. The rest of the `^Q` half of `EDITOR COMMANDS` (key chords and the `^K` block commands are written).
 2. Blocks: written, ^K R/W included, through DN's file dialog.
-3. Find, Replace (Goto line is written).
+3. Written: Find, Replace, Search again, Reversed search, Goto line.
 4. Written: Open, Save as, Save all, the `FileDialog`, SmartPad and the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.
 5. Autoindent's remaining rules, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.

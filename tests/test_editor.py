@@ -1524,3 +1524,139 @@ def test_ctrl_f2_in_an_editor_is_not_hide_right(files):
                          lambda a: seen.append(a.manager.hidden_side))
     assert seen == [None]
     assert (files / "text.txt").read_bytes() == b"xabc\n"
+
+
+# -- F7 find, Ctrl+F7 replace, Shift+F7 again, Alt+F7 reversed ---------------------------------------
+
+
+@pytest.fixture
+def fresh_search(monkeypatch):
+    """A search record of DN's defaults for each test, as a new session has."""
+    from navigator.editor import search
+
+    data = search.SearchData()
+    monkeypatch.setattr(search, "SEARCH", data)
+    return data
+
+
+def set_dialog(**changes):
+    """An action setting the open dialog's controls: ``options=``, ``direction=``..."""
+    def action(app):
+        for name, value in changes.items():
+            control = getattr(app.modal, name)
+            control.value = value
+            if hasattr(control, "sel"):
+                control.sel = value
+    return action
+
+
+def modal_text(seen):
+    return lambda a: seen.append(a.modal.prompt if a.modal else None)
+
+
+TEXT = b"one cat\ntwo Cat\ncat three\n"
+
+
+def test_f7_finds_from_the_start_and_lights_the_match(files, fresh_search):
+    seen = {}
+    _, editor = text_editor(files, TEXT, KeyEvent("down"), KeyEvent("f7"), lambda a: None,
+                            *typed("cat"), KeyEvent("enter"), lambda a: None,
+                            lambda a: seen.update(lit=editor_window(a).editor._found_columns(0)))
+    assert (editor.line, editor.col) == (0, 7)
+    assert seen["lit"] == (4, 7)
+
+
+def test_the_find_dialog_opens_on_the_word_at_the_cursor(files, fresh_search):
+    seen = []
+    text_editor(files, TEXT, KeyEvent("right"), KeyEvent("f7"), lambda a: None,
+                lambda a: seen.append(a.modal.text.value))
+    assert seen == ["one"]
+
+
+def test_shift_f7_finds_the_next_and_alt_f7_the_one_before(files, fresh_search):
+    _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("cat"),
+                            KeyEvent("enter"), lambda a: None,
+                            KeyEvent("f7", shift=True), lambda a: None,
+                            KeyEvent("f7", shift=True), lambda a: None)
+    assert (editor.line, editor.col) == (2, 3)  # "Cat" counted: no case
+    _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("cat"),
+                            KeyEvent("enter"), lambda a: None,
+                            KeyEvent("f7", shift=True), lambda a: None,
+                            KeyEvent("f7", alt=True), lambda a: None)
+    assert (editor.line, editor.col) == (0, 4)
+
+
+def test_case_and_whole_words_and_backward(files, fresh_search):
+    _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("Cat"),
+                            set_dialog(options=1), KeyEvent("enter"), lambda a: None)
+    assert (editor.line, editor.col) == (1, 7)
+    _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("cat"),
+                            set_dialog(direction=1), KeyEvent("enter"), lambda a: None)
+    assert (editor.line, editor.col) == (2, 0)  # from the end, backward: the last
+
+
+def test_nothing_found_says_so_and_the_cursor_stays(files, fresh_search):
+    said = []
+    _, editor = text_editor(files, TEXT, KeyEvent("down"), KeyEvent("f7"), lambda a: None,
+                            *typed("dog"), KeyEvent("enter"), lambda a: None, modal_text(said))
+    assert said == ["Search string not found"]
+    assert (editor.line, editor.col) == (1, 0)
+
+
+def test_selected_text_searches_only_the_block(files, fresh_search):
+    _, editor = text_editor(files, TEXT, KeyEvent("down"), KeyEvent("down", shift=True),
+                            KeyEvent("down", shift=True), KeyEvent("f7"), lambda a: None,
+                            *typed("cat"), set_dialog(scope=1), KeyEvent("enter"), lambda a: None)
+    assert (editor.line, editor.col) == (1, 7)
+
+
+def test_replace_asks_and_yes_replaces_the_first_only(files, fresh_search):
+    asked = []
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            *typed("cat"), KeyEvent("tab"), *typed("dog"), KeyEvent("enter"),
+                            lambda a: None, modal_text(asked), KeyEvent("y", alt=True), lambda a: None)
+    assert asked == ["Replace this occurence?"]
+    assert editor.document.encode() == b"one dog\ntwo Cat\ncat three\n"
+
+
+def replace_cat_with_dog(a):
+    """Fill *Replace* in: ``cat`` for ``dog``, whatever the last one left there."""
+    a.modal.text.value, a.modal.new.value = "cat", "dog"
+
+
+def test_change_all_with_all_replaces_everything_and_one_undo_takes_one_back(files, fresh_search):
+    def change_all(a):
+        a.spawn(a.modal.on_all_click(None))
+
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            replace_cat_with_dog, change_all, lambda a: None,
+                            KeyEvent("a", alt=True), lambda a: None, lambda a: None)
+    assert editor.document.encode() == b"one dog\ntwo dog\ndog three\n"
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            replace_cat_with_dog, change_all, lambda a: None,
+                            KeyEvent("a", alt=True), lambda a: None, lambda a: None,
+                            KeyEvent("enter"), lambda a: None,  # "2 replaces made": after All, unasked
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"one dog\ntwo dog\ncat three\n"
+
+
+def test_change_all_without_prompting_counts_what_it_made(files, fresh_search):
+    said = []
+
+    def change_all(a):
+        a.modal.options.value = 0  # no prompt on replace
+        a.spawn(a.modal.on_all_click(None))
+
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            *typed("cat"), KeyEvent("tab"), *typed("dog"), change_all, lambda a: None,
+                            lambda a: None, modal_text(said))
+    assert said == ["3 replaces made"]
+    assert editor.document.encode() == b"one dog\ntwo dog\ndog three\n"
+
+
+def test_ctrl_q_f_and_a_open_find_and_replace(files, fresh_search):
+    seen = []
+    text_editor(files, TEXT, ctrl("q"), KeyEvent("f", "f"), lambda a: None,
+                lambda a: seen.append(a.modal.title), KeyEvent("escape"), lambda a: None,
+                ctrl("q"), ctrl("a"), lambda a: None, lambda a: seen.append(a.modal.title))
+    assert seen == ["Find", "Replace"]

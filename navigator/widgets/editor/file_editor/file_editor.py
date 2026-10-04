@@ -37,6 +37,9 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    Replace,
+    ReverseSearch,
+    StartSearch,
     AsciiTable,
     GotoLineNumber,
     BracketPair,
@@ -100,12 +103,11 @@ from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
 from navigator.editor.document import BREAK, NEWLINES, Document, Pos, shifted
 from navigator.editor.save import write_file
+from navigator.editor import search
+from navigator.editor.search import BREAK_CHARS, SearchData
 from navigator.fileattr import DATE_FORMAT, TIME_FORMAT
 from navigator.settings import SETTINGS
 
-#: DN's ``BreakChars`` (``ADVANCE.PAS``): what ends a word for Ctrl+Left,
-#: Ctrl+Right and the word deletes, less DOS's end-of-file mark ``^Z``.
-BREAK_CHARS = frozenset(", []{}():;.^&*!#$/\\'\"%><-+=|?\r\n\t\x0c")
 
 #: How many lines one wheel notch moves the view.
 WHEEL_ROWS = 3
@@ -302,6 +304,9 @@ class FileEditor(Widget):
             "l": Undo,
             "d": InsertDate,
             "t": InsertTime,
+            "f": StartSearch,
+            "a": Replace,
+            "r": ReverseSearch,
             # ``^Q'['`` and ``^Q^]``, as the table has them, neither with the other's form.
             "[": BracketPair,
             **{str(n): GotoMarker(n) for n in range(1, 10)},
@@ -361,6 +366,10 @@ class FileEditor(Widget):
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
+        #: The match the last search showed, and the cursor and text it was shown
+        #: for: ``SearchActive``'s highlight lasts only while both stand.
+        self._found: tuple[Pos, Pos] | None = None
+        self._found_for: tuple[int, int, int] | None = None
         #: The block indicator's and the line:column's places in the info line,
         #: set as it is written.
         self._block_at = (0, 0)
@@ -1792,6 +1801,72 @@ class FileEditor(Widget):
         rows = max(1, self.height)
         self.top = max(0, self.line - rows + 1)
 
+    # -- the search ----------------------------------------------------------------------
+
+    def word_at_cursor(self) -> str:
+        """``StartSearch``'s first guess: the word the cursor is on, or nothing."""
+        text = self._text()
+        index = self._mark_pos().index
+        if index >= len(text) or text[index] in BREAK_CHARS:
+            return ""
+        start, stop = index, index
+        while start and text[start - 1] not in BREAK_CHARS:
+            start -= 1
+        while stop < len(text) and text[stop] not in BREAK_CHARS:
+            stop += 1
+        return text[start:stop]
+
+    def _search_bounds(self, number: int) -> tuple[int, int] | None:
+        """The part of line *number* the block covers, as indices -- *Selected text*."""
+        text = self.document.lines[number]
+        if self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            if not top <= number <= bottom:
+                return None
+            return columns.span(text, left, right, self.tab_size)
+        if self.block is None:
+            return None
+        start, end = self.block
+        if not start.line <= number <= end.line:
+            return None
+        return (start.index if number == start.line else 0,
+                end.index if number == end.line else len(text))
+
+    def find(self, at: Pos, data: SearchData, *, backward: bool) -> tuple[Pos, Pos] | None:
+        """The next match of *data* from *at*: the whole text, or the block's part of it."""
+        bounds = self._search_bounds if data.selected else None
+        return search.find(self.document.lines, at, data, backward=backward, bounds=bounds)
+
+    def show_found(self, found: tuple[Pos, Pos], *, backward: bool) -> None:
+        """The cursor after the match -- before it, searching backward -- and the match
+        lit (``SearchActive``) until the cursor or the text moves."""
+        self._moved()
+        self._go(found[0] if backward else found[1])
+        self._found = found
+        self._found_for = (self.line, self.col, self.revision)
+
+    def found_on_display(self) -> tuple[Pos, Pos] | None:
+        """``SearchOnDisplay``: the match still lit, if the cursor and text are as it left them."""
+        if self._found is not None and self._found_for == (self.line, self.col, self.revision):
+            return self._found
+        return None
+
+    def replace_found(self, found: tuple[Pos, Pos], new: str) -> Pos:
+        """One replacement, an undo step of its own as DN's ``udReplace``; where it ends."""
+        self._moved()
+        self._begin()
+        self.buffer.delete(*found)
+        end = self.buffer.insert(found[0], new)
+        self._end()
+        return end
+
+    def _found_columns(self, number: int) -> tuple[int, int] | None:
+        found, mark = self._found, self._found_for
+        if found is None or mark != (self.line, self.col, self.revision) or found[0].line != number:
+            return None
+        text, tab = self.document.lines[number], self.tab_size
+        return columns.column_of(text, found[0].index, tab), columns.column_of(text, found[1].index, tab)
+
     def go_to_line(self, number: int) -> None:
         """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same
         column; past the end, the last line."""
@@ -1847,7 +1922,7 @@ class FileEditor(Widget):
             number = self.top + y
             if number >= len(lines):
                 break
-            span = self._block_columns(number)
+            span = self._block_columns(number) or self._found_columns(number)
             if span is not None:
                 start, stop = max(span[0], left), min(span[1], left + width)
                 if start < stop:

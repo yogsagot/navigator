@@ -266,6 +266,32 @@ class BracketPair(Command):
     title = "Bracket pair"
 
 
+class StartSearch(Command):
+    """``cmStartSearch``: F7, ^Q^F, Editor > Search > *Find...*."""
+
+    title = "Search"
+
+
+class Replace(Command):
+    """``cmReplace``: Ctrl+F7, ^Q^A, Editor > Search > *Replace...*."""
+
+    title = "Replace"
+
+
+class ContSearch(Command):
+    """``cmContSearch``: Shift+F7, Editor > Search > *Search again* -- the last search,
+    its replacement included, from the cursor."""
+
+    title = "Cont. Search"
+
+
+class ReverseSearch(Command):
+    """``cmReverseSearch``: Alt+F7, ^Q^R, Editor > Search > *Reversed search* -- the
+    last search once the other way."""
+
+    title = "Rev. Search"
+
+
 class GotoLineNumber(Command):
     """``cmGotoLineNumber``: Alt+G, Editor > Search > *Go to line number...*, or a
     click on the info line's line and column -- the cursor to a line asked for."""
@@ -382,6 +408,10 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "ContSearch",
+    "Replace",
+    "ReverseSearch",
+    "StartSearch",
     "SaveAll",
     "LoadText",
     "SaveTextAs",

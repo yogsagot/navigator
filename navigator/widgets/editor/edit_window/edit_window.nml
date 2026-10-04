@@ -1,5 +1,5 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, LoadText, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -31,6 +31,12 @@ EditWindow(Window):
         f3: LoadText
         shift+f2: SaveTextAs
         ctrl+f2: SaveAll
+        #: ``StatusDef hcEditor``: ``F7 Search``, ``Alt-F7 Rev. Search``,
+        #: ``Ctrl-F7 Replace``, ``Shift-F7 Cont. Search``.
+        f7: StartSearch
+        alt+f7: ReverseSearch
+        ctrl+f7: Replace
+        shift+f7: ContSearch
         #: ``StatusDef hcEditor``'s ``:~F8~ Print Block``.
         #: ``~F8~ Print``: the text the editor holds.
         f8: PrintFile
@@ -166,15 +172,19 @@ EditWindow(Window):
             text: '~S~earch'
             MenuItem:
                 text: '~F~ind...'
+                command: StartSearch
                 key: 'F7'
             MenuItem:
                 text: '~R~eplace...'
+                command: Replace
                 key: 'Ctrl-F7'
             MenuItem:
                 text: '~S~earch again'
+                command: ContSearch
                 key: 'Shift-F7'
             MenuItem:
                 text: 'Re~v~ersed search'
+                command: ReverseSearch
                 key: 'Alt-F7'
             MenuItem:
                 text: '~G~o to line number...'

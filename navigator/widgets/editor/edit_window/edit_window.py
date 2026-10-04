@@ -33,6 +33,10 @@ from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
     AsciiTable,
+    ContSearch,
+    Replace,
+    ReverseSearch,
+    StartSearch,
     BlockRead,
     BlockWrite,
     GotoLineNumber,
@@ -295,6 +299,111 @@ class EditWindow(Window):
             await self._say(f"Cannot read {path}: {error.strerror or error}")
             return
         self.editor.read_block(decode(data))
+
+    # -- F7: find and replace ------------------------------------------------------------
+
+    #: ``ReplaceAll``: whether the last Replace was *Change all*, which Shift+F7 keeps.
+    _replace_all = False
+
+    async def on_start_search(self, event: StartSearch) -> bool:
+        self.spawn(self.start_search(replace=False))
+        return True
+
+    async def on_replace(self, event: Replace) -> bool:
+        self.spawn(self.start_search(replace=True))
+        return True
+
+    async def on_cont_search(self, event: ContSearch) -> bool:
+        self.spawn(self.search())
+        return True
+
+    async def on_reverse_search(self, event: ReverseSearch) -> bool:
+        self.spawn(self.search(reverse=True))
+        return True
+
+    async def start_search(self, *, replace: bool) -> None:
+        """``StartSearch``: *Find* or *Replace*, then the search from where *Origin* says.
+
+        *Entire scope* starts from the text's start, or its end searching
+        backward, and the cursor goes back where it was if nothing is found.
+        """
+        from navigator.editor import search
+        from navigator.editor.document import Pos
+        from navigator.widgets.editor.find_dialog import FindDialog
+
+        editor = self.editor
+        answer = await FindDialog(
+            word=editor.word_at_cursor(), replace=replace,
+        ).execute(self.application)
+        if answer is None:
+            return
+        self._replace_all = replace and answer == "all"
+        at = None
+        if not search.SEARCH.from_cursor:
+            at = editor.document.end if search.SEARCH.backward else Pos(0, 0)
+        await self.search(at=at)
+
+    async def search(self, *, reverse: bool = False, at: Any = None) -> bool:
+        """``TFileEditor.Search``: from *at* (else the cursor), with :data:`SEARCH`.
+
+        A plain search stops at the first match.  A replacement asks each time
+        while *Prompt on replace* is ticked -- *All* stops the asking -- and
+        goes on only for *Change all*.  Nothing found says so; replacements made
+        unasked are counted.  True when something was found.
+        """
+        from navigator.editor import search
+        from navigator.widgets.editor.replace_query import ReplaceQuery
+
+        data, editor = search.SEARCH, self.editor
+        backward = data.backward != reverse
+        if not data.text or (data.selected and not editor.has_block):
+            return False
+        here = editor._mark_pos()
+        if at is None:
+            at = here
+            # ``if SearchOnDisplay then Search``: with the last match still lit,
+            # a search the other way starts from its far side, not into it.
+            shown = editor.found_on_display()
+            if shown is not None:
+                at = shown[0] if backward else shown[1]
+        replace_all, prompt = self._replace_all, data.prompt
+        found_any, made = False, 0
+        while True:
+            found = editor.find(at, data, backward=backward)
+            if found is None:
+                break
+            found_any = True
+            editor.show_found(found, backward=backward)
+            if data.new is None:
+                return True
+            choice = "yes"
+            if prompt:
+                choice = await ReplaceQuery().execute(self.application)
+                if choice == "all":
+                    choice, replace_all, prompt = "yes", True, False
+            if choice is None:
+                return True
+            if choice == "yes":
+                end = editor.replace_found(found, data.new)
+                at = found[0] if backward else end
+                editor._go(at)
+                if not prompt:
+                    made += 1
+            else:
+                at = found[0] if backward else found[1]
+            if not replace_all:
+                break
+        if not found_any:
+            editor._go_column(here.line, editor._column(here))
+            await Dialog(title="Error", prompt="Search string not found", buttons="ok").execute(
+                self.application,
+            )
+            return False
+        if made:
+            await Dialog(
+                title="Information", prompt=f"{made} replaces made", buttons="ok",
+            ).execute(self.application)
+        return True
 
     # -- Alt+G -------------------------------------------------------------------------
 
