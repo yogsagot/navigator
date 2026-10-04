@@ -91,6 +91,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   editor window, this one first and the rest front to back, saved as F2 saves, each failure said and the rest going
   on. A departure: only changed texts are written, where DN's `SaveFile` rewrote every one. The application's Ctrl+F2
   (Hide right) is disabled with no console showing a file manager, so the key reaches the editor window.
+- **SmartPad, Alt+Q** (`OpenSmartpad`, DN's `cmOpenSmartpad`, ≡ > *SmartPad (TM)*; `navigator/smartpad.py`): one
+  editor window on `settings.smartpad_path()` -- `SmartPad.DN` in `$SMARTPAD`, else beside the database (DN's fell
+  back to its own directory). Each opening stamps the end, `InsertInfo`'s `──────< date time >──…` (`FileEditor.stamp`)
+  with the cursor on an empty line under it; a stamp alone is not a change (a text already changed stays so). A second
+  Alt+Q brings the one pad up and stamps again. The window is the desktop less two cells all round (not zoomed),
+  titled *SmartPad(TM) - path*; `EditWindow(smartpad=True)` keeps no edit history, saves unasked on closing (Esc,
+  Close all, Alt+X) and sends no `FileSaved`. Alt+Q is on `Navigator.keys`; the Shell answers it, putting the console
+  away first.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

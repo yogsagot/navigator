@@ -1770,6 +1770,28 @@ class FileEditor(Widget):
         _ = self.info_text
         return self._code_at
 
+    def stamp(self, line: str) -> None:
+        """SmartPad's ``InsertInfo``: *line* after the text's end, an empty line
+        under it, and the cursor there.
+
+        DN put the two lines into the text without marking it modified, so a
+        pad opened and closed untouched is not saved for the stamp alone; a
+        text already changed stays changed.
+        """
+        was_modified = self.modified
+        self._moved()
+        self._begin()
+        end = self.document.end
+        lead = self.document.newline if self.document.lines[end.line] else ""
+        self.buffer.insert(end, lead + line + self.document.newline)
+        self._end()
+        if not was_modified:
+            self.buffer.mark_saved()
+            self.revision += 1
+        self._go(self.document.end)
+        rows = max(1, self.height)
+        self.top = max(0, self.line - rows + 1)
+
     def go_to_line(self, number: int) -> None:
         """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same
         column; past the end, the last line."""

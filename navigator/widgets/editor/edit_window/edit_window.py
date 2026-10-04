@@ -64,11 +64,20 @@ class EditWindow(Window):
 
     emits = (FileSaved,)
 
-    def __init__(self, path: Path | str, *, new: bool = False, **kwargs: Any) -> None:
+    def __init__(
+        self, path: Path | str, *, new: bool = False, smartpad: bool = False, **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
+        #: SmartPad's window (``navigator.smartpad``): its own title, no edit
+        #: history, and saved without a question on the way out.
+        self.smartpad = smartpad
         self.editor.open(path, new=new)
-        # `dlEditTitle': ``Edit - `` and the whole name.
-        self.title = f"Edit - {self.editor.path}"
+        self.title = self._title()
+
+    def _title(self) -> str:
+        """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own."""
+        prefix = "SmartPad(TM) - " if self.smartpad else "Edit - "
+        return f"{prefix}{self.editor.path}"
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -78,14 +87,15 @@ class EditWindow(Window):
 
     def list_name(self) -> str:
         """Window > List's line: the title, which already says ``Edit - ``."""
-        return f"Edit - {self.editor.path}"
+        return self._title()
 
     # -- the File Edit History -------------------------------------------------
 
     def remember_history(self) -> None:
-        """``StoreEditInfo``: this file's record, as the editor is now."""
+        """``StoreEditInfo``: this file's record, as the editor is now -- never
+        SmartPad's (``not SmartPad and ... StoreEditInfo``)."""
         editor = self.editor
-        if not SETTINGS.interface.track_editing or editor.path is None:
+        if self.smartpad or not SETTINGS.interface.track_editing or editor.path is None:
             return
         EditRecord.store(
             editor.path,
@@ -155,7 +165,9 @@ class EditWindow(Window):
                 buttons="ok",
             ).execute(self.application)
             return False
-        await self.emit(FileSaved(self.editor.path))
+        if not self.smartpad:
+            # ``FileChanged``, which SmartPad's own file never set off.
+            await self.emit(FileSaved(self.editor.path))
         return True
 
     # -- ^K R and ^K W -------------------------------------------------------------
@@ -425,7 +437,7 @@ class EditWindow(Window):
         except OSError as error:
             await self._say(f"Cannot open {path}: {error.strerror or error}")
             return
-        self.title = f"Edit - {self.editor.path}"
+        self.title = self._title()
         self.recall_history()
         self.editor.focus()
 
@@ -459,7 +471,7 @@ class EditWindow(Window):
             self.editor.path = old
             await self._say(f"Cannot write {path}: {error.strerror or error}")
             return
-        self.title = f"Edit - {self.editor.path}"
+        self.title = self._title()
         await self.emit(FileSaved(path))
 
     # -- closing -----------------------------------------------------------------
@@ -468,7 +480,9 @@ class EditWindow(Window):
         return self.editor.modified
 
     async def ask_to_close(self) -> bool:
-        """``dlQueryModified``: save, lose, or stay open."""
+        """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked."""
+        if self.smartpad:
+            return await self.save()
         name = self.editor.path.name if self.editor.path else "Untitled"
         answer = await Dialog(
             title="Warning",

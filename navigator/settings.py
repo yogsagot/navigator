@@ -100,6 +100,17 @@ def database_path() -> Path:
     return state_dir() / DATABASE_NAME
 
 
+#: SmartPad's file: DN's ``'SmartPad' + '.DN'``.
+SMARTPAD_NAME = "SmartPad.DN"
+
+
+def smartpad_path() -> Path:
+    """SmartPad's file: in the directory ``$SMARTPAD`` names, as DN read it, else
+    beside the database -- where DN's fell back to its own directory."""
+    directory = os.environ.get("SMARTPAD", "").strip()
+    return (Path(directory).expanduser() if directory else state_dir()) / SMARTPAD_NAME
+
+
 class Setting(Reactive):
     """One key of ``navigator.ini``: a reactive attribute that knows how to be written.
 

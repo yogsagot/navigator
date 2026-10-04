@@ -43,6 +43,12 @@ class AsciiTable(Command):
     title = "Character table"
 
 
+class OpenSmartpad(Command):
+    """``cmOpenSmartpad``: Alt+Q, ≡ > *SmartPad (TM)* -- the notepad, opened or brought up."""
+
+    title = "SmartPad"
+
+
 class PrintFile(Command):
     """``cmPrintFile``: one command, as in DN, answered by whichever window has it --
     the editor's F8 prints its text, the file manager's Ctrl+F9 the file under
@@ -58,6 +64,7 @@ class ToggleConsole(Command):
 __all__ = [
     "AsciiTable",
     "Help",
+    "OpenSmartpad",
     "PrintFile",
     "Quit",
     "ToggleConsole",

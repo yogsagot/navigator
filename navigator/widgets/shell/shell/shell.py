@@ -23,7 +23,7 @@ from navkit.stylesheet import Stylesheet
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import AsciiTable
+from navigator.commands import AsciiTable, OpenSmartpad
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark
 from navigator.widgets.shell.commands import (
@@ -732,6 +732,15 @@ class Shell(DockLayout):
 
     async def on_toggle_mark_by_space(self, event: ToggleMarkBySpace) -> bool:
         self.active_manager.active_panel.toggle_mark()
+        return True
+
+    async def on_open_smartpad(self, event: OpenSmartpad) -> bool:
+        """Alt+Q, ≡ > *SmartPad (TM)*: ``OpenSmartpad`` (``navigator.smartpad``)."""
+        from navigator.smartpad import open_smartpad
+
+        if self.console_visible:
+            self.toggle_console()
+        open_smartpad(self.desktop)
         return True
 
     async def on_ascii_table(self, event: AsciiTable) -> bool:

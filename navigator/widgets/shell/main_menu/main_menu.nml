@@ -1,4 +1,4 @@
-from navigator.commands import AsciiTable, Quit, ToggleConsole
+from navigator.commands import AsciiTable, OpenSmartpad, Quit, ToggleConsole
 from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, UserMenu, View, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import About, EditHistory, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
@@ -70,6 +70,7 @@ MainMenu(MenuBar):
             key: 'Ctrl-O'
         MenuItem:
             text: 'S~m~artPad (TM)'
+            command: OpenSmartpad
             key: 'Alt-Q'
         MenuItem:
             text: '~T~rashcan on/off'
