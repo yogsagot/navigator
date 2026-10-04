@@ -49,6 +49,15 @@ an unreadable value.
 
 The first dialog wired into the application; `Field(history_id="mkdir")`.
 
+## Printing (Ctrl+F9)
+
+`Manager.print_files`, DN's `CM_Print` -> `PrintFiles` (`FLTOOLS.PAS`, `GAUGES.PAS`): the selection
+(`Manager.selection`, DN's `GetSelection`) less its directories -- nothing at all if that leaves nothing -- after
+DN's *Print file NAME?* / *Print N files?* (N counting the directories, as DN's did). Each file goes to the spooler by
+name (`navigator/printing.spool_file`: `lp`, else `lpr`, given the absolute path), standing for DN's print manager,
+and is untagged once queued (`cmCopyUnselect`); a refusal stops the run, says why, and leaves the rest tagged.
+`PrintFile` is the editor's F8 command too, so it lives in `navigator/commands.py`.
+
 ## Read when
 
 | Reference | Read when |

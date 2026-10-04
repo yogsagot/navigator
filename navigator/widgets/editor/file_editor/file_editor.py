@@ -35,6 +35,7 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.widgets.editor.commands import (
+    PrintBlock,
     CalcBlock,
     SortBlock,
     GotoMarker,
@@ -279,6 +280,7 @@ class FileEditor(Widget):
             "t": MarkWord,
             "l": MarkLine,
             "s": SortBlock,
+            "p": PrintBlock,
             "r": BlockRead,
             "w": BlockWrite,
             # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
@@ -1100,7 +1102,11 @@ class FileEditor(Widget):
         block on one line, which is the same thing -- gives each line's columns
         as they stand, cut short where a line is, never padded.
         """
-        divisor = NEWLINES[SETTINGS.editor.line_divisor]
+        return NEWLINES[SETTINGS.editor.line_divisor].join(self.block_lines())
+
+    def block_lines(self) -> list[str]:
+        """The block line by line, DN's ``GetSelection``: a stream block's lines from
+        its start to its end, a column block's columns of each line, unpadded."""
         if self.column_block is not None:
             top, left, bottom, right = self.rectangle
             lines = []
@@ -1108,10 +1114,10 @@ class FileEditor(Widget):
                 text = self.document.lines[number] if number < len(self.document) else ""
                 i, j = columns.span(text, left, right, self.tab_size)
                 lines.append(text[i:j])
-            return divisor.join(lines)
+            return lines
         if self.block is None:
-            return ""
-        return BREAK.sub(divisor, self.document.text(*self.block))
+            return []
+        return BREAK.split(self.document.text(*self.block))
 
     def read_block(self, text: str) -> None:
         """^K R's text at the cursor: DN's ``BlockRead``, which turned column blocks

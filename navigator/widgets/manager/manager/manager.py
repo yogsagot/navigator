@@ -39,6 +39,7 @@ from navigator.widgets.manager.commands import (
     InvertSelection,
     MakeDirectory,
     MakeLink,
+    PrintFile,
     QuickView,
     RenameMove,
     Rescan,
@@ -359,7 +360,7 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and (
                 entry is not None and entry.name != ".."
             )
-        if isinstance(command, (Copy, RenameMove, MakeLink, Delete, ChangeAttributes)):
+        if isinstance(command, (Copy, RenameMove, MakeLink, Delete, ChangeAttributes, PrintFile)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
             return not (self.tree.focused or self.quick.focused) and bool(
@@ -509,6 +510,44 @@ class Manager(Window):
         if entry is None or entry.name == "..":
             return []
         return [entry]
+
+    async def on_print_file(self, event: PrintFile) -> bool:
+        """Ctrl+F9: ``cmPrintFile``, DN's ``CM_Print`` -> ``PrintFiles`` (``GAUGES.PAS``)."""
+        self.spawn(self.print_files())
+        return True
+
+    async def print_files(self) -> None:
+        """The selection's files to the printer, untagged as each is queued.
+
+        Directories are passed over, and a selection of nothing else prints
+        nothing.  The question is DN's *Print file NAME?* or *Print N files?*,
+        N counting what was selected, directories included, as DN's did.  The
+        spooler (:mod:`navigator.printing`) stands for DN's print manager; one
+        that refuses stops the run and says why.
+        """
+        from navigator.printing import spool_file
+
+        panel = self.active_panel
+        entries = self.selection(panel)
+        files = [entry for entry in entries if not entry.is_dir]
+        if not files:
+            return
+        what = f"file {entries[0].name}" if len(entries) == 1 else f"{len(entries)} files"
+        answer = await Dialog(
+            title="Confirmation", prompt=f"Print {what}?", buttons="yes-no",
+        ).execute(self.application)
+        if answer is not True:
+            return
+        loop = asyncio.get_running_loop()
+        for entry in files:
+            problem = await loop.run_in_executor(None, spool_file, panel.path / entry.name)
+            if problem is not None:
+                await Dialog(
+                    title="Error", prompt=f"Cannot print {entry.name}: {problem}", buttons="ok",
+                ).execute(self.application)
+                return
+            # ``cmCopyUnselect``: what has gone to the printer is untagged.
+            panel.marked = panel.marked - {entry.name}
 
     async def on_copy(self, event: Copy) -> bool:
         """F5: ``cmCopyFiles``."""

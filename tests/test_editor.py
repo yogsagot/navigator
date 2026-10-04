@@ -1174,3 +1174,87 @@ def test_ctrl_k_u_stays_unindent(files):
     from navkit.commands import key_table
 
     assert key_table(FileEditor)["ctrl+k u"] is UnindentBlock
+
+
+# -- ^K P / Shift+F8: print block --------------------------------------------------------------------
+
+
+@pytest.fixture
+def spooler(monkeypatch):
+    """``lp`` stood in for: what it was given, and what it answers."""
+    import subprocess
+
+    from navigator import printing
+
+    jobs = []
+    answer = {"code": 0, "stderr": b""}
+
+    def run(argv, input=None, **kwargs):
+        jobs.append((argv, input))
+        return subprocess.CompletedProcess(argv, answer["code"], b"", answer["stderr"])
+
+    monkeypatch.setattr(printing.shutil, "which", lambda name: f"/usr/bin/{name}")
+    monkeypatch.setattr(printing.subprocess, "run", run)
+    return jobs, answer
+
+
+def test_shift_f8_asks_and_prints_the_block(files, spooler):
+    jobs, _ = spooler
+    asked = []
+    text_editor(files, b"one\ntwo\nthree\n", KeyEvent("down", shift=True), KeyEvent("end", shift=True),
+                KeyEvent("f8", shift=True), lambda a: None,
+                lambda a: asked.append(a.modal.prompt if a.modal else None),
+                KeyEvent("y", alt=True), lambda a: None, lambda a: None)
+    assert asked == ["Print 2 lines?"]
+    assert jobs == [(["lp"], b"one\ntwo\n")]
+
+
+def test_ctrl_k_p_prints_and_no_prints_nothing(files, spooler):
+    jobs, _ = spooler
+    text_editor(files, b"one\ntwo\n", KeyEvent("end", shift=True), *chord("p"), lambda a: None,
+                KeyEvent("n", alt=True), lambda a: None)
+    assert jobs == []
+
+
+def test_a_spooler_that_refuses_says_why(files, spooler):
+    jobs, answer = spooler
+    answer.update(code=1, stderr=b"lp: Error - No default destination.")
+    said = []
+    text_editor(files, b"one\n", KeyEvent("end", shift=True), KeyEvent("f8", shift=True), lambda a: None,
+                KeyEvent("y", alt=True), lambda a: None, lambda a: None,
+                lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said == ["Cannot print: lp: Error - No default destination."]
+
+
+def test_print_block_waits_for_a_block(files, spooler):
+    from navigator.widgets.editor.commands import PrintBlock
+
+    app, _ = text_editor(files, b"one\n")
+    assert app.command_enabled(PrintBlock) is False
+
+
+def test_lpr_stands_in_where_there_is_no_lp():
+    from navigator.printing import print_command
+
+    assert print_command(lambda name: "/bin/lp" if name == "lp" else None) == ["lp"]
+    assert print_command(lambda name: "/bin/lpr" if name == "lpr" else None) == ["lpr"]
+    assert print_command(lambda name: None) is None
+
+
+def test_f8_prints_the_whole_text_as_it_stands(files, spooler):
+    jobs, _ = spooler
+    asked = []
+    text_editor(files, b"one\r\ntwo\r\n", KeyEvent("end"), *typed("!"),
+                KeyEvent("f8"), lambda a: None,
+                lambda a: asked.append(a.modal.prompt if a.modal else None),
+                KeyEvent("y", alt=True), lambda a: None, lambda a: None)
+    # The unsaved edit is printed; the line break at the end makes no third line.
+    assert asked == ["Print 2 lines?"]
+    assert jobs == [(["lp"], b"one!\ntwo\n")]
+
+
+def test_print_file_is_the_one_command_the_manager_binds_too():
+    from navigator.commands import PrintFile
+    from navigator.widgets.manager import commands as manager_commands
+
+    assert manager_commands.PrintFile is PrintFile

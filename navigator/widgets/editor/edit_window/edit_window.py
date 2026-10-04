@@ -13,6 +13,7 @@ Alt+X all ask it the same way.
 
 from __future__ import annotations
 
+import asyncio
 import os
 import stat
 from dataclasses import dataclass
@@ -28,8 +29,9 @@ from navigator.editor.document import decode, encode
 from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
+from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import BlockRead, SaveText, BlockWrite
+from navigator.widgets.editor.commands import BlockRead, BlockWrite, PrintBlock, SaveText
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,7 +151,7 @@ class EditWindow(Window):
     # -- ^K R and ^K W -------------------------------------------------------------
 
     def enables(self, command: Any) -> bool:
-        if isinstance(command, BlockWrite):
+        if isinstance(command, (BlockWrite, PrintBlock)):
             return self.editor.has_block
         return super().enables(command)
 
@@ -249,6 +251,54 @@ class EditWindow(Window):
             await self._say(f"Cannot read {path}: {error.strerror or error}")
             return
         self.editor.read_block(decode(data))
+
+    # -- ^K P / Shift+F8 ------------------------------------------------------------
+
+    async def on_print_block(self, event: PrintBlock) -> bool:
+        self.spawn(self.print_block())
+        return True
+
+    async def print_block(self) -> None:
+        """``Print(On)`` (``EDITOR.PAS``): the block, as ``GetSelection`` gave it."""
+        await self.print_lines(self.editor.block_lines())
+
+    async def on_print_file(self, event: PrintFile) -> bool:
+        self.spawn(self.print_file())
+        return True
+
+    async def print_file(self) -> None:
+        """``Print(Off)``, F8: the whole text as it stands, saved or not -- what the
+        editor holds, ``FileLines``, not what is on disk.  A text ending in a line
+        break has no empty line after it to print."""
+        lines = list(self.editor.document.lines)
+        if len(lines) > 1 and lines[-1] == "":
+            lines.pop()
+        await self.print_lines(lines)
+
+    async def print_lines(self, lines: list[str]) -> None:
+        """``Print``: *Print N lines?* (``dlED_PrintQuery``), then *lines* to the printer.
+
+        The spooler stands for DN's print manager (:mod:`navigator.printing`);
+        a line ends in LF rather than DN's CR LF, which is what it expects.
+        A spooler that refuses -- no printer, no default destination -- says
+        why.
+        """
+        from navigator.printing import spool
+
+        if not lines:
+            return
+        count = len(lines)
+        answer = await Dialog(
+            title="Confirmation",
+            prompt=f"Print {count} line{'s' if count != 1 else ''}?",
+            buttons="yes-no",
+        ).execute(self.application)
+        if answer is not True:
+            return
+        loop = asyncio.get_running_loop()
+        problem = await loop.run_in_executor(None, spool, "\n".join(lines) + "\n")
+        if problem is not None:
+            await self._say(f"Cannot print: {problem}")
 
     # -- closing -----------------------------------------------------------------
 

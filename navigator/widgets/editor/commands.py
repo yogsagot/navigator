@@ -249,6 +249,12 @@ class CalcBlock(Command):
     title = "Calculate sum"
 
 
+class PrintBlock(Command):
+    """``cmPrintBlock``: ^K^P, Shift+F8 -- the block to the printer."""
+
+    title = "Print Block"
+
+
 class MarkWord(Command):
     """``cmMarkWord``: ^K^T -- the word at the cursor, marked."""
 
@@ -340,6 +346,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "PrintBlock",
     "CalcBlock",
     "SortBlock",
     "GotoMarker",

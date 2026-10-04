@@ -16,6 +16,10 @@ from dataclasses import dataclass
 
 from navkit.commands import Command
 
+# Shared with the editor, which answers it too; named here as well for the
+# key table and the menu that bind it.
+from navigator.commands import PrintFile  # noqa: F401 -- re-exported
+
 
 class UserMenu(Command):
     title = "User"
@@ -197,12 +201,6 @@ class Calculator(Command):
     """Ctrl+F6, ``cmCalculator``."""
 
     title = "Calc"
-
-
-class PrintFile(Command):
-    """Ctrl+F9, ``cmPrintFile``."""
-
-    title = "Print"
 
 
 class DiskInfo(Command):

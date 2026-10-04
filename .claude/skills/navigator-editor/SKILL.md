@@ -24,7 +24,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Still in the table
-  and not yet here: `cmPrintBlock`, `cmBracketPair`, and the info line's block
+  and not yet here: `cmBracketPair`, and the info line's block
   indicator answering a click with `cmSwitchBlock`.
 - **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
@@ -51,6 +51,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `Str(R:0:20)` less trailing zeros, but summed with `Decimal` (a departure: DN's `Real` printed binary error).
   DN's table also gave ^K^U to it, but `cmUnindentBlock` had ^K^U first and the menu shows Unindent there, so ^K U
   stays Unindent. A stream block gets `dlED_VertNeed`.
+- **Print block, ^K P / Shift+F8** (`PrintBlock`, DN's `Print(On)` in `EDITOR.PAS`, also Editor > File > *Print
+  block*): *Print N lines?* (`dlED_PrintQuery`), then the block's lines (`FileEditor.block_lines`, DN's
+  `GetSelection`) to `navigator/printing.py`, which hands them to `lp` (else `lpr`) in an executor -- the system
+  spooler standing for DN's `.PRN` file and print manager. LF line ends, no closing form feed. A refusal (no
+  printer, no default destination) is shown as the spooler's own words.
+- **Print file, F8** (`PrintFile`, DN's `Print(Off)`, also Editor > File > *Print*): the whole text the editor holds,
+  saved or not (DN printed `FileLines`), less the empty line after a final break; same question and spooler as
+  Print block (`EditWindow.print_lines`). `PrintFile` is one command, as `cmPrintFile` was: it lives in
+  `navigator/commands.py` (re-exported by `manager/commands.py`) because the file manager's Ctrl+F9 answers it too
+  (`navigator-file-ops`).
 - **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
   still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
   is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).

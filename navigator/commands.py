@@ -34,12 +34,21 @@ class Quit(Command):
     desktop: bool = False
 
 
+class PrintFile(Command):
+    """``cmPrintFile``: one command, as in DN, answered by whichever window has it --
+    the editor's F8 prints its text, the file manager's Ctrl+F9 the file under
+    the cursor."""
+
+    title = "Print"
+
+
 class ToggleConsole(Command):
     """Ctrl+O: put the windows away to show the console, or bring them back."""
 
 
 __all__ = [
     "Help",
+    "PrintFile",
     "Quit",
     "ToggleConsole",
 ]
