@@ -38,6 +38,7 @@ from navigator.widgets.editor.commands import (
     GotoLineNumber,
     LoadText,
     PrintBlock,
+    SaveAll,
     SaveText,
     SaveTextAs,
 )
@@ -366,6 +367,30 @@ class EditWindow(Window):
         problem = await loop.run_in_executor(None, spool, "\n".join(lines) + "\n")
         if problem is not None:
             await self._say(f"Cannot print: {problem}")
+
+    # -- Ctrl+F2 ------------------------------------------------------------------------
+
+    async def on_save_all(self, event: SaveAll) -> bool:
+        self.spawn(self.save_all())
+        return True
+
+    async def save_all(self) -> None:
+        """``cmSaveAll``: ``GlobalMessage(evCommand, cmSaveText)``, every editor saving.
+
+        Every editor window on the desktop, this one first and the rest front
+        to back, each saving as F2 does and saying why if it cannot -- the
+        others go on.  A departure: only a text that has changed is written,
+        where DN's ``SaveFile`` rewrote every one, unchanged or not, and moved
+        each file's time for nothing.
+        """
+        desktop = self.parent
+        windows = [self] + [
+            window for window in reversed(desktop.windows() if desktop is not None else [])
+            if isinstance(window, EditWindow) and window is not self
+        ]
+        for window in windows:
+            if window.editor.modified:
+                await window.save()
 
     # -- F3 and Shift+F2 ----------------------------------------------------------------
 

@@ -87,6 +87,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   *Append* (a departure: appending the whole text elsewhere and then editing that file under its name lost what was on
   disk at the next F2), puts a read-only file's mode back, and the window takes the new name; `FileSaved` re-reads
   panels. `_check_for_over` is shared with ^K W, which keeps *Append*.
+- **Save all, Ctrl+F2** (`SaveAll`, DN's `cmSaveAll`, a `GlobalMessage` of `cmSaveText`; also Editor > File): every
+  editor window, this one first and the rest front to back, saved as F2 saves, each failure said and the rest going
+  on. A departure: only changed texts are written, where DN's `SaveFile` rewrote every one. The application's Ctrl+F2
+  (Hide right) is disabled with no console showing a file manager, so the key reaches the editor window.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

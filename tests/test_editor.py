@@ -1490,3 +1490,37 @@ def test_save_as_over_a_file_asks_yes_or_cancel_without_append(files):
     assert "OK to overwrite it?" in asked[0][0] and asked[0][1] == "Cancel"
     assert (files / "copy.txt").read_bytes() == b"old"
     assert editor.path == files / "text.txt"
+
+
+# -- Ctrl+F2: save all ------------------------------------------------------------------------------
+
+
+def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
+    (files / "one.txt").write_bytes(b"one\n")
+    (files / "two.txt").write_bytes(b"two\n")
+    (files / "three.txt").write_bytes(b"three\n")
+    stamp = (files / "three.txt").stat().st_mtime_ns
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+
+    def open_editor_on(name):
+        def action(a):
+            from navigator.file_history import open_editor
+            open_editor(a.shell.desktop, files / name)
+        return action
+
+    run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),
+                  open_editor_on("two.txt"), lambda a: None, *typed("2"),
+                  open_editor_on("three.txt"), lambda a: None,
+                  KeyEvent("f2", ctrl=True), lambda a: None, lambda a: None])
+    assert (files / "one.txt").read_bytes() == b"1one\n"
+    assert (files / "two.txt").read_bytes() == b"2two\n"
+    assert (files / "three.txt").stat().st_mtime_ns == stamp  # unchanged, not rewritten
+
+
+def test_ctrl_f2_in_an_editor_is_not_hide_right(files):
+    seen = []
+    app, _ = text_editor(files, b"abc\n", *typed("x"), KeyEvent("f2", ctrl=True), lambda a: None,
+                         lambda a: seen.append(a.manager.hidden_side))
+    assert seen == [None]
+    assert (files / "text.txt").read_bytes() == b"xabc\n"

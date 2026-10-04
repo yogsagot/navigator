@@ -364,6 +364,12 @@ class SaveTextAs(Command):
     title = "Save as"
 
 
+class SaveAll(Command):
+    """``cmSaveAll``: Ctrl+F2, Editor > File > *Save all* -- every editor's text saved."""
+
+    title = "Save all"
+
+
 class SaveText(Command):
     """``cmSaveText``: F2."""
 
@@ -376,6 +382,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SaveAll",
     "LoadText",
     "SaveTextAs",
     "AsciiTable",
