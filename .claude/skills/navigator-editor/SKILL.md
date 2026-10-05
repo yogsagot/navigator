@@ -182,6 +182,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   Shift the whole line (`_recase_here`). A blank line is left alone; the line loses its trailing blanks either way; the
   cursor stays; one undo step. `capitalize` is `CapCaseStr`, shared with ^K \. Ctrl+[ is Esc's byte and the Ctrl+Shift
   forms need the kitty protocol; Ctrl+], Ctrl+\ and Alt+/ arrive from any terminal, and the menu works everywhere.
+- **Optimal fill** (`FileEditor.optimal_fill`, DN's `OptimalFill`, seeded from the setup, switched by Editor > Options >
+  *Optimal fill* -- `SwitchFill`, `cmSwitchFill` -- and ticked): what is written goes through `columns.optimal_fill`,
+  DN's `CompressString` -- chunk by chunk of the tab size from the line's start, a chunk ending in two blanks or more
+  has that run made one tab; a lone blank and a last partial chunk stay. Applied in `FileEditor.snapshot` (every save
+  path) and `block_file_text` (^K W); the text in the editor keeps its blanks. With it on, saving rewrites blanks in
+  lines nobody touched -- the option's point, and the one exception to byte-for-byte, off by default. Departure: chunks
+  are measured in columns, keeping a tab already there, where DN met only spaces (tabs expanded on loading).
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

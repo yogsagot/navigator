@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchFill,
     CapString,
     CapWord,
     LowString,
@@ -118,7 +119,7 @@ from navigator.widgets.editor.commands import (
 )
 from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
-from navigator.editor.document import BREAK, NEWLINES, Document, Pos, shifted
+from navigator.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
 from navigator.editor.save import write_file
 from navigator.editor import search
 from navigator.editor.search import BREAK_CHARS, SearchData
@@ -395,6 +396,11 @@ class FileEditor(Widget):
     #: ``AutoBrackets``: an opening bracket typed with its partner after it.
     auto_brackets: bool = reactive(False)
 
+    #: ``OptimalFill``: runs of blanks written to the file as tabs where they
+    #: end on a tab stop (``columns.optimal_fill``); the text here keeps its
+    #: blanks.  Seeded from the Editor setup, switched by Editor > Options.
+    optimal_fill: bool = reactive(False)
+
     #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
     #: a line's first character goes back to an indent above.  Seeded from the
     #: Editor setup, switched for this editor alone from Editor > Options.
@@ -431,6 +437,7 @@ class FileEditor(Widget):
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
         self.autowrap = SETTINGS.editor.autowrap
         self.auto_brackets = SETTINGS.editor.auto_brackets
+        self.optimal_fill = SETTINGS.editor.optimal_fill
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
@@ -511,7 +518,8 @@ class FileEditor(Widget):
         """
         if self.path is None:
             raise OSError("no file name")
-        write_file(self.path, self.buffer.document.encode())
+        lines, endings, _ = self.snapshot()
+        write_file(self.path, encode_lines(lines, endings))
         self.buffer.mark_saved()
         self.revision += 1
 
@@ -523,7 +531,15 @@ class FileEditor(Widget):
         them never change, so the copies are the text whatever is typed next.
         """
         document = self.buffer.document
-        return list(document.lines), list(document.endings), self.buffer.save_point()
+        lines = self.filled(document.lines)
+        return lines, list(document.endings), self.buffer.save_point()
+
+    def filled(self, lines: list[str]) -> list[str]:
+        """*lines* as they are written: through ``CompressString`` with *Optimal fill*
+        on, a copy as they stand without."""
+        if not self.optimal_fill:
+            return list(lines)
+        return [columns.optimal_fill(line, self.tab_size) for line in lines]
 
     def saved(self, point: object) -> None:
         """The text as :meth:`snapshot` took it is on disk now."""
@@ -1447,7 +1463,7 @@ class FileEditor(Widget):
         block on one line, which is the same thing -- gives each line's columns
         as they stand, cut short where a line is, never padded.
         """
-        return NEWLINES[SETTINGS.editor.line_divisor].join(self.block_lines())
+        return NEWLINES[SETTINGS.editor.line_divisor].join(self.filled(self.block_lines()))
 
     def block_lines(self) -> list[str]:
         """The block line by line, DN's ``GetSelection``: a stream block's lines from
@@ -1510,6 +1526,11 @@ class FileEditor(Widget):
     async def on_switch_back(self, event: SwitchBack) -> bool:
         """``cmSwitchBack``: ``BackIndent := not BackIndent``."""
         self.back_indent = not self.back_indent
+        return True
+
+    async def on_switch_fill(self, event: SwitchFill) -> bool:
+        """``cmSwitchFill``: ``OptimalFill := not OptimalFill``."""
+        self.optimal_fill = not self.optimal_fill
         return True
 
     async def on_switch_brackets(self, event: SwitchBrackets) -> bool:
@@ -1999,6 +2020,8 @@ class FileEditor(Widget):
             return self.autowrap
         if isinstance(command, SwitchBrackets):
             return self.auto_brackets
+        if isinstance(command, SwitchFill):
+            return self.optimal_fill
         if isinstance(command, SwitchIndent):
             return self.auto_indent
         if isinstance(command, SwitchBack):

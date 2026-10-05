@@ -127,3 +127,31 @@ def span(line: str, left: int, right: int, tab: int = TAB) -> tuple[int, int]:
             return (index if first is None else first), index
         column += advance(char, column, tab)
     return (len(line) if first is None else first), len(line)
+
+
+def optimal_fill(line: str, tab: int = TAB) -> str:
+    """*line* as DN's ``CompressString`` wrote it under *Optimal fill*.
+
+    Chunk by chunk of *tab* columns from the line's start, a chunk ending in
+    two blanks or more has that run made one tab; a lone blank, and a last
+    chunk the line ends inside, are left as they are.  A tab already there is
+    kept, and a wide character counts two columns -- DN met neither, having
+    expanded tabs on loading and had no wide characters.
+    """
+    out: list[str] = []
+    blanks = 0
+    column = 0
+    for char in line:
+        if char == " ":
+            blanks += 1
+            column += 1
+            if column % tab == 0:
+                out.append("\t" if blanks >= 2 else " " * blanks)
+                blanks = 0
+            continue
+        out.append(" " * blanks)
+        blanks = 0
+        out.append(char)
+        column += advance(char, column, tab)
+    out.append(" " * blanks)
+    return "".join(out)

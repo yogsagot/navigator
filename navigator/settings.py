@@ -380,7 +380,9 @@ class EditorDefaultsData(Section):
     autowrap: bool = Setting(False, doc="A new editor wraps a line typed past the right margin")
     justify_on_wrap: bool = Setting(False, doc="A new editor widens the line a wrap leaves to the margin")
     vertical_blocks: bool = Setting(False, doc="Column blocks rather than stream ones")
-    optimal_fill: bool = Setting(False, doc="Optimal fill with tabs", honoured=False)
+    optimal_fill: bool = Setting(
+        False, doc="A new editor writes blanks reaching a tab stop as a tab",
+    )
     highlight_line: bool = Setting(False, doc="Highlight the cursor's line", honoured=False)
     highlight_column: bool = Setting(False, doc="Highlight the cursor's column", honoured=False)
     persistent_blocks: bool = Setting(

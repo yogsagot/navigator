@@ -1924,3 +1924,46 @@ def test_a_blank_line_or_no_word_changes_nothing(files):
 def test_one_undo_takes_the_change_back(files):
     _, editor = text_editor(files, b"abc\n", KeyEvent("[", ctrl=True), KeyEvent("backspace", alt=True))
     assert editor.document.encode() == b"abc\n"
+
+
+# -- Optimal fill ----------------------------------------------------------------------------------
+
+
+def test_optimal_fill_makes_blanks_reaching_a_tab_stop_tabs():
+    from navigator.editor.columns import optimal_fill
+
+    assert optimal_fill("        x") == "\tx"
+    assert optimal_fill("  a     b") == "  a\tb"
+    assert optimal_fill("abc d   e") == "abc d\te"     # one blank ending a chunk stays
+    assert optimal_fill("   ") == "   "               # a chunk the line ends inside stays
+    assert optimal_fill("a\t  b        c") == "a\t  b\t   c"
+
+
+def test_f2_with_optimal_fill_writes_tabs_and_the_text_keeps_its_blanks(files):
+    SETTINGS.editor.optimal_fill = True
+    _, editor = text_editor(files, b"        x\n", KeyEvent("end"), *typed("!"), lambda a: None,
+                            KeyEvent("f2"), lambda a: None, lambda a: None)
+    assert (files / "text.txt").read_bytes() == b"\tx!\n"
+    assert editor.document.lines[0] == "        x!" and not editor.modified
+
+
+def test_without_optimal_fill_the_blanks_are_written_as_they_are(files):
+    _, editor = text_editor(files, b"        x\n", KeyEvent("end"), *typed("!"), lambda a: None,
+                            KeyEvent("f2"), lambda a: None, lambda a: None)
+    assert (files / "text.txt").read_bytes() == b"        x!\n"
+
+
+def test_ctrl_k_w_writes_the_block_filled_too(files):
+    SETTINGS.editor.optimal_fill = True
+    block_file(files, b"        a\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"))
+    assert (files / "part.txt").read_bytes() == b"\ta"
+
+
+def test_optimal_fill_switches_and_is_ticked(files):
+    from navigator.widgets.editor.commands import SwitchFill
+
+    seen = []
+    text_editor(files, b"x\n", lambda a: seen.append(editor_window(a).editor.checks(SwitchFill())),
+                lambda a: a.spawn(editor_window(a).editor.on_switch_fill(SwitchFill())), lambda a: None,
+                lambda a: seen.append(editor_window(a).editor.checks(SwitchFill())))
+    assert seen == [False, True]

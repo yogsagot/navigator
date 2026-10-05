@@ -151,6 +151,7 @@ note:
 | `confirmations.create_dir` | Off: copy and link create a missing target directory without asking |
 | `confirmations.exit` | On: Alt+X asks DN's `dlQueryExit` first |
 | `editor.tab_size`, `editor.vertical_blocks` | Seed a new editor |
+| `editor.optimal_fill` | Seeds a new editor's *Optimal fill* (Editor > Options switches one editor's): blanks written as tabs on save and ^K W |
 | `editor.auto_brackets` | Seeds a new editor's *AutoBrackets* (Editor > Options switches one editor's) |
 | `editor.autowrap` / `justify_on_wrap` | Seed a new editor's *Auto wrap* and *Justify on wrap* (Editor > Options switches one editor's) |
 | `editor.left_margin` / `right_margin` / `paragraph` | Seed a new editor's `margins` for paragraph formatting (Alt+J/R/L/C); *Format Margins* changes one editor's alone |

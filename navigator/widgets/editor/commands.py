@@ -342,6 +342,13 @@ class SwitchBack(Command):
     title = "Backspace indents"
 
 
+class SwitchFill(Command):
+    """``cmSwitchFill``: Editor > Options > *Optimal fill* -- blanks written as tabs
+    where they reach a tab stop (``OptimalFill``)."""
+
+    title = "Optimal fill"
+
+
 class SwitchBrackets(Command):
     """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
     typed with their closing partner (``AutoBrackets``)."""
@@ -521,6 +528,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchFill",
     "CapString",
     "CapWord",
     "LowString",
