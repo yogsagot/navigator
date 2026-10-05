@@ -229,6 +229,55 @@ def test_a_hidden_button_is_out_of_the_tab_order_and_the_shortcut_walk():
     assert dialog.cancel not in list(dialog.controls())
 
 
+# -- arrows between buttons ---------------------------------------------------
+
+
+def arrows(root, start, *keys):
+    """Focus *start* under *root*, press *keys*; who holds the keyboard after each."""
+    from conftest import awaited, settle
+
+    app = Application(root, terminal=FakeTerminal(60, 16))
+    settle()
+    start.focus()
+    seen = []
+    for key in keys:
+        awaited(app._handle(KeyEvent(key=key)))
+        settle()
+        seen.append(app.focused)
+    return seen
+
+
+def test_the_arrows_walk_a_dialog_s_buttons_and_stop_at_the_ends():
+    root = Widget()
+    dialog = Dialog(buttons="yes-no-cancel", parent=root)
+    ok, no, cancel = dialog.ok, dialog.no, dialog.cancel
+    assert arrows(root, ok, "right", "right", "right", "left", "up", "up", "down") == [
+        no, cancel, cancel, no, ok, ok, no,
+    ]
+
+
+def test_the_arrows_pass_over_a_hidden_button():
+    root = Widget()
+    dialog = Dialog(buttons="ok-cancel", parent=root)
+    assert not dialog.no.visible
+    assert arrows(root, dialog.ok, "right", "left") == [dialog.cancel, dialog.ok]
+
+
+def test_the_arrows_stay_among_buttons_and_leave_an_input_line_its_own():
+    from navml.widgets import InputLine
+
+    root = Widget()
+    line = InputLine(parent=root, x=0, y=0, width=20, height=1)
+    first = Button("One", parent=root, x=0, y=2, width=11, height=2)
+    second = Button("Two", parent=root, x=0, y=4, width=11, height=2)
+    third = Button("Three", parent=root, x=0, y=6, width=11, height=2)
+    # A column placed by hand, with no layout: Down and Up walk it.
+    assert arrows(root, first, "down", "down", "down", "up", "up", "up") == [
+        second, third, third, second, first, first,
+    ]
+    # The input line keeps Left and Right for its cursor.
+    assert arrows(root, line, "right", "left") == [line, line]
+
 
 def test_yes_no_is_yes_and_no_with_no_cancel():
     """``mfYesButton + mfNoButton``: a question with two answers."""

@@ -19,6 +19,10 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   `Dialog.buttons` has `ok`, `yes-no-cancel`, ...; `Dialog.valid()` (`Valid(cmOK)`) keeps a dialog up over a value it
   cannot read. F7 Mkdir was the first dialog wired into the application.
 - `Button` emits `ClickEvent`; mouse and Space both go through one `press()`. Clicks act on release.
+- **Arrows walk buttons** (a departure: `TButton` ignored them). Left/Up to the previous, Right/Down to the next,
+  no wrap. The group is the unbroken run of buttons around the focused one in the dialog's tab order
+  (`Button._row`), not a container -- most dialogs place buttons by `x`/`y` -- so keep a button row together in
+  tree order, and any other control between buttons splits the run.
 - `Cluster` lays out in columns as `TCluster` did. **Tri-state `CheckBoxes`**: `mixed` draws `[?]`, `tristate` lets a
   bit cycle back to it.
 - `ListViewer` hooks: `capacity`, `index_at`, `render_items`, overridable `_follow_cursor`; `framed = False` drops the

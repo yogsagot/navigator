@@ -82,6 +82,15 @@ class Button(Control):
     (:attr:`KeyEvent.releases`) and flashes for :data:`FLASH` where it does
     not.  Enter and the ``Alt`` shortcut press at once, as they did in the
     original, which drew the pressed state for the mouse alone.
+
+    **The arrows walk the buttons beside it** -- Left and Up to the previous
+    one, Right and Down to the next, stopping at either end.  A departure:
+    ``TButton`` left the arrows alone.  "Beside" is the unbroken run of
+    buttons around this one in the dialog's tab order (:meth:`_row`), not a
+    container, because most dialogs place their buttons by ``x`` and ``y``
+    with no group to hold them -- and the tab order already has them
+    together, hidden and disabled ones left out, and stops at the first
+    control that is not a button.
     """
 
     #: What this widget emits, read through :func:`navkit.events.emitted`.
@@ -144,6 +153,8 @@ class Button(Control):
     async def on_key(self, event: KeyEvent) -> bool:
         if event.name == "enter":
             return await self.press()
+        if event.matches("left", "up", "right", "down"):
+            return self._step(-1 if event.matches("left", "up") else 1)
         if not _is_space(event):
             return False
         if self.down or self.inert:
@@ -160,6 +171,36 @@ class Button(Control):
         self.down = True
         self._flash = app.call_every(FLASH, self._end_flash)
         return True
+
+    def _step(self, by: int) -> bool:
+        """Give the keyboard to the button *by* places along :meth:`_row`.
+
+        False at either end, so the key goes on outward as it did before
+        buttons took the arrows -- and while a Space holds this one down,
+        which leaving would pop up unclicked.
+        """
+        if self.down:
+            return False
+        row = self._row()
+        index = row.index(self) + by
+        if not 0 <= index < len(row):
+            return False
+        return row[index].focus()
+
+    def _row(self) -> list[Button]:
+        """The unbroken run of buttons around this one in its dialog's tab order."""
+        scope = _dialog_of(self)
+        order = scope.focusable() if scope is not None else []
+        if self not in order:
+            return [self]
+        at = order.index(self)
+        start = at
+        while start > 0 and isinstance(order[start - 1], Button):
+            start -= 1
+        end = at + 1
+        while end < len(order) and isinstance(order[end], Button):
+            end += 1
+        return order[start:end]
 
     async def on_key_release(self, event: KeyReleaseEvent) -> bool:
         if not (_is_space(event) and self.down) or self._flash is not None:
