@@ -1873,3 +1873,20 @@ def test_autoindent_and_backspace_indents_switch_and_are_ticked(files):
                 lambda a: a.spawn(editor_window(a).editor.on_switch_back(SwitchBack())), lambda a: None,
                 look)
     assert seen == [(True, True), (False, False)]
+
+
+# -- F6: duplicate line -------------------------------------------------------------------------------
+
+
+def test_f6_puts_a_copy_of_the_line_under_it_and_the_cursor_stays(files):
+    _, editor = text_editor(files, b"one\r\ntwo\r\n", KeyEvent("right"), KeyEvent("f6"))
+    assert editor.document.encode() == b"one\r\none\r\ntwo\r\n"
+    assert (editor.line, editor.col) == (0, 1)
+
+
+def test_the_last_line_without_an_ending_is_copied_too_and_undo_takes_it_back(files):
+    _, editor = text_editor(files, b"a\nlast", KeyEvent("down"), KeyEvent("f6"))
+    assert editor.document.encode() == b"a\nlast\nlast"
+    _, editor = text_editor(files, b"a\nlast", KeyEvent("down"), KeyEvent("f6"),
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"a\nlast"

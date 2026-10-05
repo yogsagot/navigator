@@ -173,6 +173,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   mixed junction); going straight back the way it came draws nothing. Erasing blanks the cell and takes the arm into it
   off any neighbouring junction (three or four arms; a plain line beside is left). Down off the last line adds one.
   Each stroke is one undo step. ^Q^M is bound as `ctrl+q enter` too, Ctrl+M arriving as Enter.
+- **Duplicate line, F6** (`DuplicateLine`, DN's `cmDuplicateLine`, also Editor > Misc): a copy of the cursor's line
+  under it, put after the line's own text so the line keeps its ending and the copy takes the file's usual break; the
+  cursor stays; one undo step.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    DuplicateLine,
     SwitchDrawMode,
     SwitchBack,
     SwitchIndent,
@@ -282,6 +283,7 @@ class FileEditor(Widget):
         "alt+insert": CalcBlock,
         "alt+g": GotoLineNumber,
         "f4": SwitchDrawMode,
+        "f6": DuplicateLine,
         "ctrl+p": AsciiTable,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
@@ -1688,6 +1690,19 @@ class FileEditor(Widget):
             self.buffer.delete(Pos(line, len(kept)), Pos(line, at))
         self._go_column(line + 1, columns.width(indent, self.tab_size))
         self._end()
+        return True
+
+    async def on_duplicate_line(self, event: DuplicateLine) -> bool:
+        """``cmDuplicateLine``: ``FileLines^.AtInsert(LastY+1, GetLine(LastY))``, one undo
+        step.  The copy is put after the line's own text, so the line keeps its
+        ending and the copy takes the file's usual break before it."""
+        line, col = self.line, self.col
+        text = self._text()
+        self._moved()
+        self._begin()
+        self.buffer.insert(Pos(line, len(text)), self.document.newline + text)
+        self._end()
+        self._go_column(line, col)
         return True
 
     async def on_insert_line(self, event: InsertLine) -> bool:

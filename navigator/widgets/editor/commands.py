@@ -132,6 +132,13 @@ class DeleteWordRight(Command):
     """``cmDelWordRight``: ^T."""
 
 
+class DuplicateLine(Command):
+    """``cmDuplicateLine``: F6, Editor > Misc > *Duplicate line* -- a copy of the
+    cursor's line under it, the cursor staying put."""
+
+    title = "Dupe"
+
+
 class DeleteLine(Command):
     """``cmDeleteLine``: ^Y."""
 
@@ -478,6 +485,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "DuplicateLine",
     "SwitchDrawMode",
     "SwitchBack",
     "SwitchIndent",
