@@ -369,7 +369,7 @@ class EditorDefaultsData(Section):
     #: DN's order was CR+LF, CR, LF; POSIX's own ending comes first here.
     LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
 
-    create_backup: bool = Setting(False, doc="Create backup files", honoured=False)
+    create_backup: bool = Setting(False, doc="F2 keeps the old file as NAME.bak")
     backspace_unindents: bool = Setting(
         True, doc="Backspace in the leading blanks goes back to the indent of a line above",
     )

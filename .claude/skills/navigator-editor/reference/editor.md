@@ -81,6 +81,11 @@ DN never had the question: its command line lived in the panel window.
 - Two cases cannot be renamed over and are written in place: a file with other hard links, and a directory Navigator
   may not create in.
 - A symlink is followed, so the link stays a link.
+- *Create backup files* (`ebfCBF`) keeps the old file as `NAME.bak` on F2 (`SaveFile`) alone: Save as and ^K W
+  went through `CheckForOver`, whose `CreateBackup` ran only when the file did not exist. The old file is hard-linked
+  under the backup's name just before the new one is renamed over it, so a stopped write leaves the old backup, and
+  a write in place copies it. `.bak` goes after the name, where DN's `.BAK` replaced the extension (8.3 had no room),
+  so `foo.c` and `foo.h` keep a backup each. A backup that cannot be made does not stop the save, as `ClrIO` let it.
 - A save emits `FileSaved`, and `Shell` re-reads every panel showing that directory (`FileChanged` → `cmRereadDir`).
 
 **The caret is DN's**: `NormalCursor`, an underline, while inserting, and `BlockCursor` while overwriting (Ins). It
@@ -106,7 +111,7 @@ Left for later, by phase:
    while it is in use*); most of its entries wait on the phases here.
 5. Written: autoindent, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
 6. Highlighting and macros from `DN.HGL`.
-7. Editor defaults, persisted, edit history, backups, file locking and printing.
+7. Editor defaults, persisted, edit history, backups and printing are written; file locking is left.
 
 Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is
 indented as the part kept -- as the whole line when that part is blank -- with the cursor at the indent and no blanks

@@ -149,6 +149,59 @@ def test_a_hard_linked_file_is_written_in_place(tmp_path):
     assert second.read_bytes() == b"new"
 
 
+def test_a_backup_is_the_old_file_under_name_bak(tmp_path):
+    target = tmp_path / "foo.c"
+    target.write_bytes(b"old")
+    target.chmod(0o640)
+    (tmp_path / "foo.c.bak").write_bytes(b"older")
+    write_file(target, b"new", backup=True)
+    assert target.read_bytes() == b"new"
+    backup = tmp_path / "foo.c.bak"
+    assert backup.read_bytes() == b"old" and backup.stat().st_mode & 0o777 == 0o640
+    assert not (tmp_path / "foo.bak").exists()
+
+
+def test_without_backup_or_an_old_file_none_is_made(tmp_path):
+    target = tmp_path / "a.txt"
+    target.write_bytes(b"old")
+    write_file(target, b"new")
+    write_file(tmp_path / "b.txt", b"new", backup=True)
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["a.txt", "b.txt"]
+
+
+def test_a_stopped_write_leaves_the_old_backup(tmp_path):
+    from navigator.job import Stopped
+
+    class Job:
+        stopped = True
+        cancellable = True
+
+    target = tmp_path / "a.txt"
+    target.write_bytes(b"old")
+    (tmp_path / "a.txt.bak").write_bytes(b"older")
+    with pytest.raises(Stopped):
+        write_file(target, [b"new"], Job(), backup=True)
+    assert (tmp_path / "a.txt.bak").read_bytes() == b"older"
+    assert target.read_bytes() == b"old"
+
+
+def test_a_file_written_in_place_is_backed_up_by_a_copy(tmp_path):
+    first = tmp_path / "a"
+    first.write_bytes(b"old")
+    os.link(first, tmp_path / "b")
+    write_file(first, b"new", backup=True)
+    assert (tmp_path / "b").read_bytes() == b"new"
+    assert (tmp_path / "a.bak").read_bytes() == b"old"
+
+
+def test_a_backup_that_cannot_be_made_does_not_stop_the_save(tmp_path):
+    target = tmp_path / "a.txt"
+    target.write_bytes(b"old")
+    (tmp_path / "a.txt.bak").mkdir()
+    write_file(target, b"new", backup=True)
+    assert target.read_bytes() == b"new"
+
+
 # -- the window ----------------------------------------------------------------------
 
 
@@ -1977,6 +2030,23 @@ def test_f2_with_optimal_fill_writes_tabs_and_the_text_keeps_its_blanks(files):
                             KeyEvent("f2"), lambda a: None, lambda a: None)
     assert (files / "text.txt").read_bytes() == b"\tx!\n"
     assert editor.document.lines[0] == "        x!" and not editor.modified
+
+
+def test_f2_with_create_backup_keeps_the_old_file_and_save_as_does_not(files):
+    SETTINGS.editor.create_backup = True
+    (files / "copy.txt").write_bytes(b"old copy")
+    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None,
+                KeyEvent("f2", shift=True), lambda a: None, *typed("copy.txt"), KeyEvent("enter"),
+                lambda a: None, KeyEvent("y", alt=True), lambda a: None, lambda a: None)
+    assert (files / "text.txt.bak").read_bytes() == b"first\n"
+    assert (files / "text.txt").read_bytes() == b"xfirst\n"
+    assert (files / "copy.txt").read_bytes() == b"xfirst\n"
+    assert not (files / "copy.txt.bak").exists()
+
+
+def test_f2_without_create_backup_makes_none(files):
+    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None)
+    assert not (files / "text.txt.bak").exists()
 
 
 def test_without_optimal_fill_the_blanks_are_written_as_they_are(files):

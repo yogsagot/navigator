@@ -160,6 +160,7 @@ note:
 | `editor.line_divisor` | The terminator a text with no line break yet takes (`FileEditor.open` sets `Document.newline` from `document.NEWLINES`): a new file, an empty one, a single line. A file with breaks keeps its most common one |
 | `editor.persistent_blocks` | On (DN's default): the block stays as the cursor moves and edits go round it. Off: a movement without Shift, typing, Enter, Backspace and Del unmark it (`BlockOff`) |
 | `editor.overwrite_blocks` | Only with *Persistent blocks* off (DN's `(ebfPbl + ebfObl) = ebfObl`): typing and pastes replace the block (one undo), Del deletes it alone; Backspace never does |
+| `editor.create_backup` | F2 (and saving on close, Ctrl+F2) keeps the old file as `NAME.bak` (`save.backup_of`); Save as and ^K W never back up, as DN's never did |
 | `editor.auto_indent` | Seeds a new editor's *Autoindent* (`FileEditor.auto_indent`; Editor > Options switches one editor's): Enter's `MakeEnter` rules (`navigator-editor`) |
 | `editor.backspace_unindents` | Seeds a new editor's *Backspace indents* (`FileEditor.back_indent`; Editor > Options switches one editor's): `MakeBack`'s `BackIndent` (`navigator-editor`) |
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |

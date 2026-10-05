@@ -174,7 +174,7 @@ class EditWindow(Window):
         try:
             if path is None:
                 raise OSError("no file name")
-            written = await self._write(path)
+            written = await self._write(path, backup=SETTINGS.editor.create_backup)
         except OSError as error:
             await Dialog(
                 title="Error",
@@ -187,13 +187,16 @@ class EditWindow(Window):
             await self.emit(FileSaved(path))
         return written
 
-    async def _write(self, path: Path) -> bool:
+    async def _write(self, path: Path, backup: bool = False) -> bool:
         """The text to *path*, on a thread: DN's ``SaveFile`` behind ``WriteMsg``.
 
         The text is taken as it is when the write starts; what is typed while
         it runs is not in the file, and leaves the text changed.  *Writing
         file* comes up if it takes a while, and *Cancel* there leaves the file
         as it was.  True once written, False if cancelled; raises ``OSError``.
+        *backup* keeps the old file as ``NAME.bak``: only F2 asks for one, as
+        only ``SaveFile`` made one (``CheckForOver``'s, behind Save as and
+        ^K W, ran when the file did not exist, and so never had one to make).
         """
         from navigator.widgets.editor.loading import write_in_background
 
@@ -201,7 +204,7 @@ class EditWindow(Window):
             lines, endings, point = self.editor.snapshot()
             written = await write_in_background(
                 self.application,
-                lambda job: write_file(path, encode_lines(lines, endings, job), job),
+                lambda job: write_file(path, encode_lines(lines, endings, job), job, backup),
                 total=len(lines),
             )
             if written:

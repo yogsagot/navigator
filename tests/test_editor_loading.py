@@ -357,7 +357,7 @@ def slow_write(monkeypatch):
     jobs = []
     real = save_module.write_file
 
-    def write(path, data, job=None):
+    def write(path, data, job=None, backup=False):
         if job is not None:
             jobs.append(job)
             chunks = [data] if isinstance(data, bytes) else data
@@ -369,7 +369,7 @@ def slow_write(monkeypatch):
                 yield from chunks
 
             data = held()
-        return real(path, data, job)
+        return real(path, data, job, backup)
 
     monkeypatch.setattr(edit_window, "write_file", write)
     monkeypatch.setattr(loading, "SLOW_PROGRESS_DELAY", 0.05)
