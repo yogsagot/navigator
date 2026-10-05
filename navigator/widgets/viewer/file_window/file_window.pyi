@@ -17,7 +17,6 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
-import asyncio
 from pathlib import Path
 from typing import Any
 from navkit.commands import Command
@@ -27,6 +26,7 @@ from navml.widgets.dialog.scroll_bar import ScrollEvent
 import navigator.viewer as viewer_model
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
+from navigator.progress import run_with_progress
 from navigator.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
@@ -37,7 +37,7 @@ class FileWindow(Window, _Component):
     bar: ScrollBar
     info: StaticText
     view_menu: SubMenu
-    def __init__(self, path: Path | str, *, mode: str | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, path: Path | str, *, mode: str | None = ..., source: Any = ..., **kwargs: Any) -> None: ...
     def take_keyboard(self) -> None: ...
     def list_name(self) -> str: ...
     def remember_history(self) -> None: ...
@@ -62,4 +62,3 @@ class FileWindow(Window, _Component):
     async def search_for(self) -> None: ...
     async def search_again(self, *, reverse: bool) -> None: ...
     async def search(self, search: ViewSearch, backward: bool) -> None: ...
-    async def _watch(self, work: asyncio.Future[Any], job: SearchJob, total: int) -> None: ...

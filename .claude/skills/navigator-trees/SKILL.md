@@ -22,6 +22,11 @@ Slots `[94-101]`, `[104-110]`.
   desktop in the dialog palette; Esc closes it, Enter sends the active panel there (the tree's `ChosenEvent` bubbles to
   `Shell`). DN 1.51 defined that window but never opened it (its menu entry opened a second file manager) -- taking the
   window was a choice.
+- **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
+  unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
+  info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a
+  running application both answer at once, as before. Opening a branch (`children()`) and `show_path` still read on the
+  loop: the panel has just listed the same directories, and a branch the user opens is one at a time.
 - **Hidden files**: Ctrl+T's tree tracks the active panel's `show_hidden` (`DirectoryTree.set_show_hidden`); Alt+T and
   the tree window take it when opened (`hidden=`). Nodes carry it as `TreeNode.show_hidden`, and `show_path` grafts in a
   dot-directory the path goes through, so a panel inside `~/.config` still has a tree that finds it.

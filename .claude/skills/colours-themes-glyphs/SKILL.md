@@ -55,7 +55,9 @@ back. **A child program's cells are never pinned** (`Style.terminal_palette`, pe
 that bundle a Nerd Font fallback (kitty, WezTerm, Ghostty) or a session that says so; a multiplexer needs the override.
 A non-UTF-8 locale gets ASCII. `navkit/glyphs.py` holds the frame sets (`single`, `double`, `round`, `ascii`) and imports
 nothing; `draw_box` takes six characters, never a name; `Widget.box_charset()` resolves the sheet's wish against the
-tier. `Widget.box_joins()` matches tees (`┬┴` single, `╤╧` double).
+tier. `Widget.box_joins()` matches tees (`┬┴` single, `╤╧` double). `SPINNERS` (`dos` `▌▀▐▄`, the default, from
+CP437's half blocks; `braille`, by name only, since the Linux console font lacks it; `ascii` `|/-\`) are navml
+`Spinner`'s frames, a sheet's `frames:` -- not `chars:`, which the gauge and scroll bar declare with other names.
 
 **The Nerd Font icon gutter in `Panel` is the project's one standing modern exception**, taken deliberately, on only
 where the font is known to exist, reversible with `icons: none` or `--glyphs unicode`. Don't re-litigate it and don't

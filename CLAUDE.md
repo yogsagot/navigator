@@ -111,6 +111,10 @@ Each was found by running something, not by reasoning; the owning skill has the 
   changed. **A computed may not write.** A widget's `style` is computed -- author `inline_style`/`merge_style()`.
 - **The application's own `on_key`/`on_mouse_click` step aside while `app.modal` is set.**
 - **Focus moves in the same call that changes what is shown, never from an effect** (an effect runs after the batch).
+- **Nothing that can wait on a disk runs on the loop.** Read or write on a thread through
+  `navigator.progress.run_with_progress` (with a box) or `navml.background.Background` (a widget's small read); the
+  thread shares plain fields and a stop flag, never anything reactive. Single syscalls on a path just named stay
+  (`navigator-file-ops` lists them).
 - **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
   tests get a fresh `:memory:` one each.
 - **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.

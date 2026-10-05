@@ -1,6 +1,6 @@
 ---
 name: navml-library
-description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
+description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, Spinner, navml.background, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
 ---
 
 # The widget library: dialogs, controls, layouts, history
@@ -29,7 +29,11 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   frame; it claims only a *bare* Enter.
 - `StaticText.links` marks the `http(s)://` runs it paints (OSC 8, see `navkit-terminal`).
 - **`ProgressBar`** (`navml/widgets/progress_bar/`): `value`/`total`/`percent`, as wide as placed, `█▒` from navkit's
-  `GAUGES`.
+  `GAUGES`. **`Spinner`** (`navml/widgets/spinner/`): one cell turning through navkit's `SPINNERS` every `interval` ms
+  while mounted (`call_every`, as `Timer`); `frame` counts up. Navigator's `WriteWin` puts one beside its message.
+- **`navml/background.py`'s `Background`**: a widget's slow read on a pool of threads, answered on the loop with an
+  `Outcome` and the application woken to paint it; with no application running it answers on the spot. One pool per
+  kind of read. `TreeView.probe_in_background` and `FileDialog.read_directory` use it.
 - **`MaskedLine`/`MaskedField`**: digits typed into fixed places; Left/Right, Home/End, Backspace/Delete blank a digit;
   a base-8 `MaskedField` takes 0-7 only. **`DateField`/`TimeField`** are masked lines with a `Calendar` (TVDEMO's
   `TCalendarView` with a cursor; month/year picked from lists by click, `M`/`Y`, or Tab) or a `TimePicker` dropped by

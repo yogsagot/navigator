@@ -604,7 +604,7 @@ def test_the_lazy_re_exports_are_transparent():
         "InputLine",
         "Label", "Layout", "LinearLayout", "ListViewer", "MaskedField", "MaskedLine", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "PopupMenu", "ProgressBar", "RadioButtons", "ScrollBar",
-        "Spacer", "StackLayout", "StaticText", "SubMenu", "TimeButton", "TimeField",
+        "Spacer", "Spinner", "StackLayout", "StaticText", "SubMenu", "TimeButton", "TimeField",
         "TimePicker", "Timer",
         "TreeView", "VerticalLayout", "Window", "WindowList", "WindowManagerDialog",
     ]

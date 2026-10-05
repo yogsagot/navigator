@@ -178,6 +178,8 @@ StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text
  * background -- black and, to the eye, dark grey in DEFAULT.PAL.  Without a
  * rule the bar inherited the dialog frame's white. */
 ProgressBar           { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg }
+/* A spinner beside a box's message turns in the message's colour. */
+Spinner               { fg: $dialog-static-text-fg;      bg: $dialog-static-text-bg }
 
 Label                 { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg }
 Label:selected        { fg: $dialog-label-selected-fg;   bg: $dialog-label-selected-bg }

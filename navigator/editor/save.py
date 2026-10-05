@@ -11,6 +11,12 @@ file: **a file with other hard links**, which a rename would split from its
 siblings, and **a directory Navigator may not create in**, where there is
 nowhere to make the new file.  A symbolic link is followed, so the file it
 points at is what changes and the link stays a link.
+
+**Written on a thread, and stoppable** (``EditWindow._write``): the text comes
+as chunks, a *job* sees each one go and may stop the write between two -- the
+new file is then removed and the old one was never touched.  A write in place
+cannot be stopped half way without leaving half a file, so it says so
+(``job.cancellable``) and runs to its end.
 """
 
 from __future__ import annotations
@@ -19,6 +25,9 @@ import os
 import stat
 import tempfile
 from pathlib import Path
+from typing import Any, Iterable
+
+from navigator.job import Stopped
 
 
 def resolve(path: Path) -> Path:
@@ -29,20 +38,31 @@ def resolve(path: Path) -> Path:
         return path
 
 
-def write_file(path: Path, data: bytes) -> None:
-    """Put *data* in *path*, as safely as the file allows.  Raises ``OSError``."""
+def write_file(path: Path, data: bytes | Iterable[bytes], job: Any = None) -> None:
+    """Put *data* in *path*, as safely as the file allows.  Raises ``OSError``.
+
+    *data* is the bytes, or an iterable of chunks of them.  A *job* that is
+    stopped between chunks raises :class:`~navigator.job.Stopped`, with the
+    old file as it was -- unless the write is in place, which finishes.
+    """
+    chunks = [data] if isinstance(data, (bytes, bytearray)) else data
     target = resolve(path)
     try:
         info = os.stat(target)
     except FileNotFoundError:
         info = None
     if info is not None and (info.st_nlink > 1 or not os.access(target.parent, os.W_OK)):
-        _write_in_place(target, data)
+        if job is not None:
+            job.cancellable = False
+        _write_in_place(target, chunks)
         return
     descriptor, temporary = tempfile.mkstemp(prefix=f".{target.name}.", dir=target.parent)
     try:
         with os.fdopen(descriptor, "wb") as file:
-            file.write(data)
+            for chunk in chunks:
+                if job is not None and job.stopped:
+                    raise Stopped
+                file.write(chunk)
             file.flush()
             os.fsync(file.fileno())
         if info is not None:
@@ -64,9 +84,10 @@ def write_file(path: Path, data: bytes) -> None:
         raise
 
 
-def _write_in_place(path: Path, data: bytes) -> None:
+def _write_in_place(path: Path, chunks: Iterable[bytes]) -> None:
     with open(path, "r+b") as file:
-        file.write(data)
+        for chunk in chunks:
+            file.write(chunk)
         file.truncate()
         file.flush()
         os.fsync(file.fileno())

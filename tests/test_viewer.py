@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 import pytest
 
 from conftest import FakeTerminal, run_app, settle
@@ -365,13 +367,17 @@ def slow_search(monkeypatch):
     original = ViewSource._find
 
     def _find(self, read, pattern, start, backward, span, job):
-        while not (release.is_set() or job.stopped):
+        release.jobs.append(job)
+        # Bounded, so a search nobody stops fails a test instead of hanging it.
+        deadline = time.monotonic() + 5
+        while not (release.is_set() or job.stopped) and time.monotonic() < deadline:
             job.position = self.size // 2
             release.wait(0.01)
         return original(self, read, pattern, start, backward, span, job)
 
     monkeypatch.setattr(ViewSource, "_find", _find)
     monkeypatch.setattr(viewer_model, "last_search", ViewSearch("line 050"))
+    release.jobs = []
     return release
 
 
@@ -415,6 +421,20 @@ def test_stop_ends_a_search_and_says_nothing(files, slow_search):
     ], settle=0.1)
     # Stopped, not "not found": no message, no hit.
     assert seen == [(None, None)]
+
+
+def test_quitting_during_a_search_stops_its_thread(files, slow_search):
+    # Never released: before the search's task stopped its job when cancelled,
+    # the thread searched on and ``asyncio.run`` waited for it -- for ever.
+    app = navigator(files)
+    started = time.monotonic()
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("f7", shift=True), lambda a: None, lambda a: None,
+        lambda a: a.exit(),
+    ], settle=0.1, timeout=3)
+    assert slow_search.jobs and slow_search.jobs[0].stopped
+    assert time.monotonic() - started < 2.5
 
 
 # -- the quick view -------------------------------------------------------------

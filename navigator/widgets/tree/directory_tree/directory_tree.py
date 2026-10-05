@@ -24,7 +24,13 @@ from typing import Any
 from navkit.reactive import computed
 from navkit.screen import Surface
 
+from navml.background import Background, Outcome
 from navml.widgets.dialog.tree_view import TreeNode, TreeView
+
+#: Where the file counts under the tree are taken: a directory of a hundred
+#: thousand files, or one on a dead mount, is counted without the screen
+#: waiting for it.
+_COUNTS = Background("nav-count", workers=2)
 
 
 def _listed(name: str, hidden: bool) -> bool:
@@ -148,6 +154,10 @@ class DirectoryTree(TreeView):
     #: The two rows ``TTreeInfoView`` paints under the tree.
     parts = ("info",)
 
+    #: Whether a branch has anything in it is asked on a thread: one stuck
+    #: automount under ``/`` would otherwise stop the whole tree painting.
+    probe_in_background = True
+
     #: Rows kept under the tree for the path and the file count.
     INFO_ROWS = 2
 
@@ -159,8 +169,10 @@ class DirectoryTree(TreeView):
         self.show_hidden = True
         self.root = directory_root()
         #: ``count_files`` per path, cleared by :meth:`reload`: counting runs
-        #: when the cursor stops on a directory, not on every repaint.
+        #: when the cursor stops on a directory, not on every repaint -- and on
+        #: a thread, the line left blank until the count is in.
         self._counts: dict[Path, tuple[int, int]] = {}
+        self._counting: set[Path] = set()
 
     @computed
     def rows(self) -> int:
@@ -180,6 +192,7 @@ class DirectoryTree(TreeView):
         """Read the tree again: ``Reread``, keeping the cursor where it was."""
         here = self.selected_path
         self._counts.clear()
+        self._counting.clear()
         self.root = directory_root(self.show_hidden)
         if here is not None:
             self.show(here)
@@ -198,14 +211,27 @@ class DirectoryTree(TreeView):
         inset = self.inset
         if path is None or self.height < 2 * inset + self.INFO_ROWS:
             return
-        if path not in self._counts:
-            self._counts[path] = count_files(path)
+        if path not in self._counts and path not in self._counting:
+            self._counting.add(path)
+            _COUNTS.run(self, count_files, path,
+                        done=lambda outcome, path=path: self._counted(path, outcome))
+        counted = self._counts.get(path)
         style, inner = self.part_style("info"), self.inner_width
         top = self.height - inset - self.INFO_ROWS
         text = str(path)
         if len(text) > inner - 1:
             text = "..." + text[-(inner - 4):] if inner > 4 else text[:inner]
         # ``TTreeInfoView.Draw`` starts its text one column in: ``B[1]``.
-        for offset, line in enumerate((text, files_line(*self._counts[path]))):
+        count = files_line(*counted) if counted is not None else ""
+        for offset, line in enumerate((text, count)):
             surface.fill(inset, top + offset, inner, 1, " ", style)
             surface.draw_text(inset + 1, top + offset, line, style, max(0, inner - 1))
+
+    def _counted(self, path: Path, outcome: Outcome) -> None:
+        if path in self._counting:
+            self._counting.discard(path)
+            self._counts[path] = outcome.result()
+            app = self.application
+            if app is not None and app.is_running:
+                # Not when answered on the spot, from inside ``render``.
+                self.invalidate()

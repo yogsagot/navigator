@@ -10,6 +10,15 @@ models in `navigator/`. Operations run on a thread through **`navigator/job.py`'
 `CopyJob`, `EraseJob` and `AttrJob` share; **`Manager._watch_job`** is the loop that watches one. Progress boxes are
 DN's `TWhileView` with the library's `ProgressBar`. Copied/erased entries are untagged and both panels re-read.
 
+**Nothing that can wait on a disk runs on the loop.** A job that asks questions goes through `_watch_job`; one that
+only reads or writes goes through **`navigator/progress.py`'s `run_with_progress(app, func, job, make_box, refresh)`**
+(the viewer's search, the editor's reads and saves, F3's open, Alt+E's survey): the box after a delay
+(`PROGRESS_DELAY`, or `SLOW_PROGRESS_DELAY` for file reads and writes, which use `WriteWin`), and the job stopped if the
+task ends unfinished. Small reads a widget paints from (tree probes and counts, the quick view, the file dialog) use
+`navml.background.Background`, one pool per kind so a dead mount cannot starve another. **What stays on the loop, on
+purpose**: F7's mkdir, Shift+F5's symlink, Shift+F4's `is_dir` checks and ^K W's existence/chmod -- one syscall each on
+a path the user has just named, where a thread hop would only reorder the dialogs around it.
+
 ## Copy and move (F5, F6)
 
 DN's `FILECOPY.PAS`. `navigator/filecopy.py` is the model (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy
@@ -38,7 +47,9 @@ cursor's entry whatever is tagged.
 
 ## File attributes (Alt+E)
 
-DN's `cmSetFAttr` read for Linux (a departure: DN edited four DOS bits). `navigator/fileattr.py` (`survey`,
+DN's `cmSetFAttr` read for Linux (a departure: DN edited four DOS bits). What the dialog shows is gathered first on a
+thread (`attr_dialog.gather`: every `stat`, and the user/group lists NSS may fetch from a directory server), under
+*Reading file attributes* if slow, and passed in as `facts`. `navigator/fileattr.py` (`survey`,
 `AttrRequest`, `AttrJob`/`run` on a thread, never through a link under recursion). `AttrDialog` is one dialog over every
 tagged file, as `dlgFilesAttr` was: a twelve-bit grid with an octal line (a base-8 `MaskedField`, each digit setting its
 three boxes), *User*/*Group* `ChoiceField`s, DN's *Date*/*Time* (`DateField`/`TimeField`), and *Recurse*. DN's Set/Clear

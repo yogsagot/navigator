@@ -17,7 +17,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
 - **While a viewer window is active the bar has a *View* menu after *File*** (modes, filters and wrap ticked, search, go
   to, close) -- see `navml-windows-menus` for how a window's menu joins the bar.
 - A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge, percentage, Stop), fed
-  through a `SearchJob` the thread writes and the loop reads. It uses the library's `ProgressBar`.
+  through a `SearchJob` the thread writes and the loop reads. It uses the library's `ProgressBar`. It runs through
+  `navigator.progress.run_with_progress`, which **stops the job whenever the task ends with the work unfinished** --
+  a viewer closed or Navigator quitting mid-search used to leave the thread reading to EOF, and `asyncio.run` waited.
+- **Opening is on a thread too**: `open_viewer` is async, building the `ViewSource` (stat, open, `/proc`'s
+  read-whole) through `run_with_progress` and handing it to `FileWindow(source=...)`/`FileViewer.open(source=...)`;
+  *Reading file* after `SLOW_PROGRESS_DELAY`, Cancel opens nothing. The quick view opens its file through
+  `navml.background.Background` and shows only what the cursor is still on when it lands.
 - **Ctrl+Q is DN's quick view** (`QuickViewer`, a framed `FileViewer`), standing in the passive panel's place through
   `Manager.switch_view`; it follows the active panel's cursor, and Tab moves the keyboard in and out.
 - **File View History (Alt+PgDn)**: DN's `TViewRecord`. Each file's window rectangle (scaled to the desktop, as

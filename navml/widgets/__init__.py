@@ -70,6 +70,7 @@ _COMPONENTS = {
     "RadioButtons": "dialog.radio_buttons",
     "ScrollBar": "dialog.scroll_bar",
     "Spacer": "spacer",
+    "Spinner": "spinner",
     "StackLayout": "layout.stack_layout",
     "StaticText": "dialog.static_text",
     "SubMenu": "menu.sub_menu",
@@ -167,6 +168,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.scroll_bar import ScrollBar
     from navml.widgets.progress_bar import ProgressBar
     from navml.widgets.spacer import Spacer
+    from navml.widgets.spinner import Spinner
     from navml.widgets.layout.stack_layout import StackLayout
     from navml.widgets.dialog.static_text import StaticText
     from navml.widgets.timer import Timer

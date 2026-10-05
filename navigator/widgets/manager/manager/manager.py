@@ -256,9 +256,18 @@ class Manager(Window):
         while True:
             rows = bookmarks()
             marked = {row.path for row in rows}
-            mounts = [path for path in mounted_places() if key_of(path) not in marked]
+
+            def look(rows: list[Any] = rows) -> tuple[list[Path], set[str]]:
+                # The mounts, and which places are there to go to, on a
+                # thread: a dead network mount answers ``is_dir`` in minutes.
+                mounts = mounted_places()
+                places = [row.path for row in rows] + [str(path) for path in mounts]
+                return mounts, {place for place in places if Path(place).is_dir()}
+
+            found, present = await asyncio.to_thread(look)
+            mounts = [path for path in found if key_of(path) not in marked]
             here = find_bookmark(panel.path)
-            menu, toggle = bookmark_menu(rows, here is not None, mounts)
+            menu, toggle = bookmark_menu(rows, here is not None, mounts, present)
             # Entry by entry, where each one goes; None for a line and the toggle.
             places = [row.path for row in rows] + ([None] if rows and mounts else [])
             places += [key_of(path) for path in mounts]
@@ -629,7 +638,7 @@ class Manager(Window):
         The box closing -- its button, or Esc -- holds the worker and asks
         ``dlQueryAbort`` before anything stops.
         """
-        from navigator.widgets.viewer.file_window.file_window import PROGRESS_DELAY, PROGRESS_TICK
+        from navigator.progress import PROGRESS_DELAY, PROGRESS_TICK
 
         app = self.application
         loop = asyncio.get_running_loop()
@@ -895,7 +904,22 @@ class Manager(Window):
         entries = self.selection(panel)
         if app is None or not entries:
             return
-        request = await AttrDialog(entries=entries, here=Path(panel.path)).execute(app)
+        from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+        from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
+
+        here = Path(panel.path)
+        # What the dialog shows is asked of the system on a thread: a stat per
+        # entry, and user and group lists a directory server may be slow with.
+        looking = FileJob()
+        facts = await run_with_progress(
+            app, lambda: gather([here / entry.name for entry in entries]), looking,
+            lambda: progress_box(looking, "Reading file attributes"), refresh_box(looking),
+            delay=SLOW_PROGRESS_DELAY,
+        )
+        if looking.stopped:
+            return
+        request = await AttrDialog(entries=entries, here=here, facts=facts).execute(app)
         if request is None:
             return
         job = fileattr.AttrJob()
@@ -959,7 +983,7 @@ class Manager(Window):
             return
         path = panel.path / entry.name
         try:
-            open_viewer(desktop, path, mode)
+            await open_viewer(desktop, path, mode)
         except OSError as error:
             await Dialog(
                 title="Cannot view file",
@@ -1028,7 +1052,7 @@ class Manager(Window):
         desktop = self.desktop
         if problem is None and desktop is not None:
             try:
-                open_editor(desktop, path, new=True)
+                await open_editor(desktop, path, new=True)
                 return
             except OSError as error:
                 problem = error.strerror or str(error)
@@ -1052,7 +1076,7 @@ class Manager(Window):
             return
         path = panel.path / entry.name
         try:
-            open_editor(desktop, path)
+            await open_editor(desktop, path)
         except OSError as error:
             await Dialog(
                 title="Cannot edit file",
@@ -1369,8 +1393,12 @@ DELETE_BOOKMARK_KEY = "delete"
 
 
 def bookmark_menu(rows: list[Any], bookmarked: bool,
-                  mounts: Sequence[Path] = ()) -> tuple[Any, Any]:
+                  mounts: Sequence[Path] = (),
+                  present: set[str] | None = None) -> tuple[Any, Any]:
     """The box's entries for *rows*, then *mounts*, and the item that adds or removes.
+
+    An entry whose directory is not there is greyed: one not in *present*,
+    or, without it, one that is not a directory now.
 
     The home directory is spelled ``~``, as a shell would; a file name's
     tildes are doubled so the caption shows them rather than marking a key.
@@ -1398,7 +1426,7 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         item = menu.add_item(caption)
         if label:
             item.key = shown
-        item.disabled = not Path(path).is_dir()
+        item.disabled = not (path in present if present is not None else Path(path).is_dir())
     if entries:
         menu.add_line()
     toggle = menu.add_item("~R~emove this folder" if bookmarked else "~A~dd this folder")

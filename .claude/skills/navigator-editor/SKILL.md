@@ -10,6 +10,20 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame.
 - **A file round-trips byte for byte** -- tabs, each line's own terminator, non-UTF-8 bytes (`surrogateescape`) -- a
   departure from DN's rewriting. Saving renames a new file over the old one.
+- **Reading and writing run on a thread, behind DN's `WriteMsg`** (`ReadBlock`, `SaveFile`). `read_document`
+  (`navigator/editor/document.py`) reads 4 MiB chunks through `LineReader`, which splits exactly as `from_bytes` does
+  however the bytes are cut (a CR ending a chunk waits for the next -- DN's `ReadBlock` stepped back for it), in a few
+  C calls per chunk so the loop keeps painting. `navigator/widgets/editor/loading.py` runs it through
+  `navigator.progress.run_with_progress`: `open_editor` is **async** and returns None when cancelled; F3 (`load_text`),
+  ^K R and SmartPad go the same way. Saving snapshots the lists (`FileEditor.snapshot`), writes them as chunks on a
+  thread (`encode_lines`, `write_file(path, chunks, job)`) under one `EditWindow._saving` lock, and marks the
+  snapshot's save point (`EditBuffer.save_point`/`mark_saved(point)`) -- what is typed meanwhile leaves the text
+  changed. **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/memory.py`): against 75% of
+  `MemAvailable` before reading, then after every chunk projected from the lines so far (DN's
+  `4*(LCount+50)+FFSize`). Departures: the box (`WriteWin`, `file_ops/write_win`) waits `SLOW_PROGRESS_DELAY` (1 s)
+  before it appears, has a spinner, a gauge with a percentage and *Cancel* (DN's was a still message read past by Esc);
+  a cancelled save removes its temporary and leaves the file as it was, except a write in place (hard links), which
+  cannot stop half way and hides *Cancel* (`job.cancellable`).
 - **Every key is a command named after DN's `cm*`** in `FileEditor.keys` (`navigator/widgets/editor/commands.py`).
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
 - **Stream blocks and the clipboard.** Shift with any movement marks (`_marking` wraps the movement handlers; the
@@ -193,7 +207,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   hand; this one is shaped as F7's.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`.** DN's marks,
+  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`**, awaited from a spawned task. DN's marks,
   block, highlighting, auto-indent and margins get columns when the editor has them: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus

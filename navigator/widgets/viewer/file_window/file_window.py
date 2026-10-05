@@ -9,7 +9,6 @@ only consumer of the queue the dialog's keys arrive on.
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from typing import Any
 
@@ -35,32 +34,29 @@ from navigator.widgets.viewer.commands import (
 )
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
+from navigator.progress import run_with_progress
 from navigator.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
-
-#: How long a search runs before it shows its progress: DN's two timer ticks
-#: (``NewTimer(Tmr, 2)``) at 18.2 Hz.
-PROGRESS_DELAY = 2 / 18.2
-
-#: How often the gauge is brought up to date.
-PROGRESS_TICK = 0.1
 
 
 class FileWindow(Window):
     """A file in a viewer window: F3, and File > View > As Text / As Hex.
 
     Raises ``OSError`` from the constructor if *path* cannot be read, so the
-    caller can say so before a window that shows nothing is opened.
+    caller can say so before a window that shows nothing is opened.  Given
+    the *source*, a ``ViewSource`` opened on a thread (``open_viewer``), the
+    window opens nothing itself.
     """
 
-    def __init__(self, path: Path | str, *, mode: str | None = None, **kwargs: Any) -> None:
+    def __init__(self, path: Path | str, *, mode: str | None = None, source: Any = None,
+                 **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # Seeded, never bound: the viewer navigates both.  No mode asked for
         # is the Editor/Viewer setup's *Hex mode*.
         if mode is None:
             mode = "hex" if SETTINGS.viewer.hex_mode else "text"
-        self.viewer.open(path)
+        self.viewer.open(path, source=source)
         self.viewer.mode = mode
         self.viewer.wrap = SETTINGS.viewer.wrap_lines
         if mode == "hex":
@@ -254,7 +250,7 @@ class FileWindow(Window):
 
         Run on a thread, because a gigabyte is not searched between two frames;
         the loop keeps painting -- the clock keeps ticking -- while it looks.
-        A search still going after ``PROGRESS_DELAY`` puts up *Search
+        A search still going after ``navigator.progress.PROGRESS_DELAY`` puts up *Search
         Progress*, and *Stop* in it ends the search where it is.
         """
         viewer = self.viewer
@@ -270,13 +266,21 @@ class FileWindow(Window):
         pattern, span = search.compile()
         job = SearchJob()
         job.position = start
-        work = asyncio.ensure_future(asyncio.to_thread(
-            source.find, pattern, start, backward=backward, span=span, job=job
-        ))
-        done, _ = await asyncio.wait({work}, timeout=PROGRESS_DELAY)
-        if not done:
-            await self._watch(work, job, source.size)
-        found = await work
+        total = source.size
+
+        def make_box() -> Any:
+            from navigator.widgets.viewer.search_progress import SearchProgress
+
+            return SearchProgress(total=total, position=job.position)
+
+        def refresh(box: Any) -> None:
+            box.position = job.position
+
+        found = await run_with_progress(
+            self.application,
+            lambda: source.find(pattern, start, backward=backward, span=span, job=job),
+            job, make_box, refresh,
+        )
         if job.stopped:
             # DN's -2: stopped, so nothing is said about finding nothing.
             return
@@ -286,27 +290,3 @@ class FileWindow(Window):
             ).execute(self.application)
             return
         viewer.show_hit(*found)
-
-    async def _watch(self, work: asyncio.Future[Any], job: SearchJob, total: int) -> None:
-        """Show *Search Progress* until *work* ends, or stop it if *Stop* comes first."""
-        from navigator.widgets.viewer.search_progress import SearchProgress
-
-        app = self.application
-        if app is None:
-            return
-        box = SearchProgress(total=total, position=job.position)
-
-        async def tick() -> None:
-            box.position = job.position
-
-        repeat = app.call_every(PROGRESS_TICK, tick)
-        answer = asyncio.ensure_future(box.execute(app))
-        try:
-            await asyncio.wait({work, answer}, return_when=asyncio.FIRST_COMPLETED)
-            if answer.done():
-                job.stop()
-            else:
-                box.close(None)
-                await answer
-        finally:
-            repeat.cancel()

@@ -16,6 +16,14 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
 
 - Arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R/Alt+R re-reads. **A re-read keeps the cursor on its entry**
   (`Panel.reload`, DN's `RereadDir`); only a change of directory starts at the top.
+- **A directory is read on a thread** (`scan_directory`, on `panel._SCANNER`). `_rescan`, the effect, takes the
+  cursor notes (`_return_to`, `_keep`) into a `_ScanRequest`, waits `SCAN_GRACE` (50 ms) and applies inline if the
+  read is done -- nearly always, so a frame never shows a half state -- else spawns `_await_scan`, which applies only
+  if no later read was asked for (`_generation`). **With no application running it waits for the read**, so model
+  tests' `reload()` + `settle()` still see the listing at once (and so does Navigator's first listing, before the loop
+  starts). Meanwhile a re-read of the same directory keeps its rows; a new directory shows *Reading directory...*
+  (`scanning`) with no rows, so nothing acts on the last directory's entries. Departure: DN blocked until the read was
+  done, so keys typed meanwhile acted on the new listing; here they act on the empty one.
 - `Panel.on_double_click` enters the clicked row (a directory or `..`) -- the press already moved the cursor. What needs
   the desktop (activating the other panel on a press, the wheel, console scrollback) stays on
   `Navigator.on_mouse_click`, which returns False while `app.modal` is set.

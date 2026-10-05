@@ -122,6 +122,24 @@ def with_current(choices: list[str], current: str) -> list[str]:
     return sorted([*choices, current])
 
 
+def gather(paths: Sequence[Path]) -> dict[str, Any]:
+    """Everything the dialog shows that has to be asked of the system.
+
+    Every file's ``stat``, and the user and group names and lists -- which
+    NSS may fetch from a directory server -- in one call a thread can make
+    (``Manager.change_attributes``), so the screen does not wait for them.
+    """
+    survey = fileattr.survey(paths)
+    return {
+        "survey": survey,
+        "user": "" if survey.uid is None else fileattr.user_name(survey.uid),
+        "users": fileattr.users(),
+        "can_chown_user": fileattr.can_chown_user(),
+        "group": "" if survey.gid is None else fileattr.group_name(survey.gid),
+        "groups": fileattr.assignable_groups(),
+    }
+
+
 class AttrDialog(Dialog):
     """*File Attributes* (Alt+E): the mode, owner, group and time of the selection."""
 
@@ -129,15 +147,19 @@ class AttrDialog(Dialog):
         self,
         entries: Sequence[Any] = (),
         here: Path | None = None,
+        facts: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
-        """*entries* are the panel's selection in *here*."""
+        """*entries* are the panel's selection in *here*; *facts* is what
+        :func:`gather` found of them, asked for here if not given."""
         super().__init__(**kwargs)
         self.message.visible = False
         self._entries = list(entries)
         self._here = Path(here) if here is not None else Path.cwd()
         self._paths = [self._here / entry.name for entry in self._entries]
-        self.survey = fileattr.survey(self._paths)
+        if facts is None:
+            facts = gather(self._paths)
+        self.survey = facts["survey"]
         #: The bits the user has pressed, as grid items.
         self.touched = 0
         self._request: fileattr.AttrRequest | None = None
@@ -154,11 +176,11 @@ class AttrDialog(Dialog):
         self.octal.value = fileattr.octal(survey.mode, survey.mixed)
         self.symbolic.text = fileattr.symbolic(survey.mode, survey.mixed)
 
-        self.user.value = "" if survey.uid is None else fileattr.user_name(survey.uid)
-        self.user.choices = with_current(fileattr.users(), self.user.value)
-        self.user.disabled = not fileattr.can_chown_user()
-        self.group.value = "" if survey.gid is None else fileattr.group_name(survey.gid)
-        self.group.choices = with_current(fileattr.assignable_groups(), self.group.value)
+        self.user.value = facts["user"]
+        self.user.choices = with_current(facts["users"], self.user.value)
+        self.user.disabled = not facts["can_chown_user"]
+        self.group.value = facts["group"]
+        self.group.choices = with_current(facts["groups"], self.group.value)
         self.date.value = fileattr.date_text(survey.mtime)
         self.clock.value = fileattr.time_text(survey.mtime)
 

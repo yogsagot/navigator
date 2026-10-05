@@ -740,7 +740,7 @@ class Shell(DockLayout):
 
         if self.console_visible:
             self.toggle_console()
-        open_smartpad(self.desktop)
+        self.spawn(open_smartpad(self.desktop))
         return True
 
     async def on_ascii_table(self, event: AsciiTable) -> bool:
@@ -1062,9 +1062,9 @@ class Shell(DockLayout):
             return
         try:
             if viewing:
-                open_viewer(self.desktop, path)
+                await open_viewer(self.desktop, path)
             else:
-                open_editor(self.desktop, path)
+                await open_editor(self.desktop, path)
         except OSError as error:
             await Dialog(
                 title="Cannot view file" if viewing else "Cannot edit file",

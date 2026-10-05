@@ -34,15 +34,19 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from navkit.events import Event, KeyEvent
 from navkit.reactive import effect
 from navkit.widget import Widget
 
+from navml.background import Background, Outcome
 from navml.history import HISTORY
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.file_list import scan
+
+#: Where a file dialog reads the directories it is taken to.
+_READER = Background("navml-files", workers=2)
 
 #: What lists everything: DN's ``x_x``, ``*.*``, less the dot.
 EVERYTHING = "*"
@@ -71,6 +75,8 @@ class FileDialog(Dialog):
         ok_text: str | None = None,
         **kwargs: Any,
     ) -> None:
+        #: Counts the reads asked for, so one overtaken by another is dropped.
+        self._reading = 0
         super().__init__(**kwargs)
         # Dialog's bottom row and message are not in this layout.
         self.row.visible = False
@@ -101,12 +107,30 @@ class FileDialog(Dialog):
 
     # -- the lists -----------------------------------------------------------------
 
-    def read_directory(self) -> None:
-        """``ReadDirectory``: both lists again, and the path in the info pane."""
-        files, dirs = scan(self.directory, self.wildcard, self.hidden)
-        self.files.show(files)
-        self.dirs.show(dirs)
-        self.info.path = os.path.join(str(self.directory), self.wildcard)
+    def read_directory(self, then: Callable[[], None] | None = None) -> None:
+        """``ReadDirectory``: both lists again, and the path in the info pane.
+
+        Read on a thread once the dialog is up, so a directory on a dead
+        mount does not stop the screen; *then* runs once the lists are filled,
+        unless another read was asked for meanwhile.  The first read, in the
+        constructor, is of a directory a panel has just listed, and is done on
+        the spot -- the dialog has no application to answer it through yet.
+        """
+        self._reading += 1
+        reading = self._reading
+        directory, wildcard = self.directory, self.wildcard
+
+        def done(outcome: Outcome) -> None:
+            if reading != self._reading:
+                return
+            files, dirs = outcome.result()
+            self.files.show(files)
+            self.dirs.show(dirs)
+            self.info.path = os.path.join(str(directory), wildcard)
+            if then is not None:
+                then()
+
+        _READER.run(self, scan, directory, wildcard, self.hidden, done=done)
 
     def _follow_lists(self) -> None:
         """``cmFileFocused``: the focused list's entry, in the line and the pane."""
@@ -173,12 +197,17 @@ class FileDialog(Dialog):
         in_dirs = self.dirs.focused
         self.directory = directory
         self.wildcard = wildcard
-        self.read_directory()
-        if in_dirs or not self.files.items:
-            if self.dirs.items:
-                self.info.item = self.dirs.items[0]
-        else:
-            self.files.focus()
+
+        def placed() -> None:
+            # In the call that fills the lists: the keyboard moves with what
+            # is shown, never from an effect after it.
+            if in_dirs or not self.files.items:
+                if self.dirs.items:
+                    self.info.item = self.dirs.items[0]
+            else:
+                self.files.focus()
+
+        self.read_directory(placed)
 
     def _say(self, message: str) -> None:
         """``ErrMsg``, and the name line to be typed again."""

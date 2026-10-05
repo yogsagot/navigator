@@ -15,6 +15,8 @@ original draws on the right.
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
 import os
 import stat
 import time
@@ -23,10 +25,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from navkit.events import Event, KeyEvent, MouseClickEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
-from navkit.reactive import computed, effect, peek, reactive
+from navkit.reactive import computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -228,6 +230,74 @@ def window_text(text: str, offset: int, room: int) -> str:
     return ELLIPSIS + fit_text(skip_cells(text, offset + marker), room - marker)
 
 
+#: How long a rescan may hold the frame up before it is left to finish on
+#: its own: long enough for any local directory, short enough not to be felt.
+SCAN_GRACE = 0.05
+
+#: The threads directories are read on.  More than one, so a read stuck on a
+#: dead mount does not hold up the other panel's.
+_SCANNER = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="nav-scan")
+
+
+@dataclass
+class _ScanRequest:
+    """One read of a directory, and where its cursor is to go once it lands."""
+
+    path: Path
+    return_to: str | None
+    keep: tuple[Path, str, int, int] | None
+
+
+def scan_directory(path: Path, show_hidden: bool) -> tuple[list[DirEntry], str | None]:
+    """*path*'s entries, ``..`` first and sorted, and why not if it cannot be read.
+
+    Touches nothing but the file system, so a thread may run it.
+    """
+    entries: list[DirEntry] = []
+    error: str | None = None
+    if path != path.parent:
+        try:
+            info = path.parent.stat()
+            entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime,
+                                   uid=info.st_uid, gid=info.st_gid))
+        except OSError:
+            entries.append(DirEntry("..", True, 0))
+    try:
+        with os.scandir(path) as scan:
+            for item in scan:
+                if not show_hidden and item.name.startswith("."):
+                    continue
+                try:
+                    info = item.stat()
+                except OSError:
+                    # A dangling link: describe the link itself.
+                    try:
+                        info = item.stat(follow_symlinks=False)
+                    except OSError:
+                        info = None
+                try:
+                    is_link = item.is_symlink()
+                except OSError:
+                    is_link = False
+                target = None
+                if is_link:
+                    try:
+                        target = os.readlink(item.path)
+                    except OSError:
+                        pass
+                if info is None:
+                    entries.append(DirEntry(item.name, False, 0, is_link=is_link, link_target=target))
+                    continue
+                is_dir = stat.S_ISDIR(info.st_mode)
+                size = 0 if is_dir else info.st_size
+                entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
+                                        target, info.st_uid, info.st_gid))
+    except OSError as exc:
+        error = exc.strerror or str(exc)
+    entries.sort(key=lambda entry: entry.sort_key)
+    return entries, error
+
+
 class Panel(ListViewer):
     """One side of the desktop: a directory, listed.
 
@@ -253,6 +323,10 @@ class Panel(ListViewer):
     path: Path = reactive(Path("."))
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
+    #: Set while a directory the panel has moved to is still being read on its
+    #: thread, which takes a slow disk or a dead network mount longer than a
+    #: frame: the rows say *Reading directory...* meanwhile.
+    scanning: bool = reactive(False)
     #: Columns kept clear at each end of the top edge, so the path never runs
     #: under a window icon painted there -- the file manager's close and zoom
     #: icons sit on its panels' frames.  Kept at both ends because the title
@@ -307,6 +381,10 @@ class Panel(ListViewer):
         #: The directory the last rescan read, which tells a re-read (keep
         #: the tags) from a move (drop them).
         self._listed: Path | None = None
+        #: Counts the reads started, so one that lands after a later one was
+        #: asked for is dropped; and the read still on its thread, if any.
+        self._generation = 0
+        self._pending: _ScanRequest | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         if path is not None:
@@ -323,53 +401,63 @@ class Panel(ListViewer):
     # -- the listing ---------------------------------------------------------
 
     def _rescan(self) -> None:
-        """Re-read the directory, whenever the path or the token changes."""
+        """Re-read the directory, whenever the path or the token changes.
+
+        **Read on a thread** (:func:`scan_directory`), so a directory on a
+        slow disk or a hung network mount does not stop the screen.  One read
+        within :data:`SCAN_GRACE` -- which is nearly every one -- is shown in
+        this same frame, as it always was; a slower one is shown when it is
+        done, unless the panel has moved on by then.  With no application
+        running (a test driving the model), the read is waited for.
+        """
         _ = self.reload_token  # read for the dependency; this is what Ctrl+R moves
         path = self.path
         show_hidden = self.show_hidden
-        entries: list[DirEntry] = []
-        error: str | None = None
-        if path != path.parent:
-            try:
-                info = path.parent.stat()
-                entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime,
-                                       uid=info.st_uid, gid=info.st_gid))
-            except OSError:
-                entries.append(DirEntry("..", True, 0))
+        # Taken now, for this read: a later move or reload sets its own.
+        request = _ScanRequest(path, self._return_to, self._keep)
+        self._return_to = self._keep = None
+        pending = self._pending
+        if pending is not None and pending.path == path:
+            # A read superseded before it landed hands on where the cursor
+            # was to go, unless the new one says otherwise.
+            if request.return_to is None and request.keep is None:
+                request.return_to, request.keep = pending.return_to, pending.keep
+        self._generation += 1
+        generation = self._generation
+        future = _SCANNER.submit(scan_directory, path, show_hidden)
+        with untracked():
+            app = self.application
+        if app is None or not app.is_running:
+            self._apply(request, *future.result())
+            return
         try:
-            with os.scandir(path) as scan:
-                for item in scan:
-                    if not show_hidden and item.name.startswith("."):
-                        continue
-                    try:
-                        info = item.stat()
-                    except OSError:
-                        # A dangling link: describe the link itself.
-                        try:
-                            info = item.stat(follow_symlinks=False)
-                        except OSError:
-                            info = None
-                    try:
-                        is_link = item.is_symlink()
-                    except OSError:
-                        is_link = False
-                    target = None
-                    if is_link:
-                        try:
-                            target = os.readlink(item.path)
-                        except OSError:
-                            pass
-                    if info is None:
-                        entries.append(DirEntry(item.name, False, 0, is_link=is_link, link_target=target))
-                        continue
-                    is_dir = stat.S_ISDIR(info.st_mode)
-                    size = 0 if is_dir else info.st_size
-                    entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
-                                            target, info.st_uid, info.st_gid))
-        except OSError as exc:
-            error = exc.strerror or str(exc)
-        entries.sort(key=lambda entry: entry.sort_key)
+            result = future.result(timeout=SCAN_GRACE)
+        except concurrent.futures.TimeoutError:
+            self._pending = request
+            if path != self._listed:
+                # Somewhere new: its rows are not the last directory's.
+                self.items = []
+                self.error = None
+                self.scanning = True
+            app.spawn(self._await_scan(generation, request, future))
+            return
+        self._apply(request, *result)
 
+    async def _await_scan(self, generation: int, request: _ScanRequest,
+                          future: concurrent.futures.Future[Any]) -> None:
+        result = await asyncio.wrap_future(future)
+        if generation != self._generation:
+            return  # the panel has been somewhere else, or re-read, since
+        self._apply(request, *result)
+        app = self.application
+        if app is not None:
+            app.post_event(WakeEvent())
+
+    def _apply(self, request: _ScanRequest, entries: list[DirEntry], error: str | None) -> None:
+        """Show what a read of ``request.path`` found."""
+        path = request.path
+        self._pending = None
+        self.scanning = False
         self.items = entries
         self.error = error
         # Peeked, not read: the rescan must not depend on the tags, or every
@@ -383,8 +471,7 @@ class Panel(ListViewer):
             marked &= {entry.name for entry in entries}
         self.marked = marked
         self._listed = path
-        target, self._return_to = self._return_to, None
-        keep, self._keep = self._keep, None
+        target, keep = request.return_to, request.keep
         if keep is not None and keep[0] == path and target is None:
             # A re-read of the same directory: the cursor stays on its entry,
             # or where the entry was if it went, and the view does not jump.
@@ -976,6 +1063,10 @@ class Panel(ListViewer):
         surface.draw_text(self.width - 9, y, item.display_size, style, 8)
 
     def render_items(self, surface: Surface) -> None:
+        if self.scanning:
+            surface.draw_text(self.inset + 1, self.inset + self.header, "Reading directory...",
+                              self.style, max(0, self.width - 4))
+            return
         if self.view_mode != "list":
             super().render_items(surface)
             return

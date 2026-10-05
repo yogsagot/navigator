@@ -129,6 +129,19 @@ ASCII_GAUGE = "#."
 GAUGES = {"dos": DOS_GAUGE, "ascii": ASCII_GAUGE}
 DEFAULT_GAUGE = "dos"
 
+#: A spinner's frames, drawn one after another in one cell.  DOS Navigator had
+#: none -- its boxes said *Reading file* and stood still -- so the default is
+#: drawn from CP437's half blocks, which every VGA and Linux console font has,
+#: going round as a quarter turn each frame.  Braille spins more smoothly where
+#: the font has it; the Linux console's does not, so it is asked for by name.
+DOS_SPINNER = "▌▀▐▄"
+BRAILLE_SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+ASCII_SPINNER = "|/-\\"
+
+#: The sets a ``chars`` declaration may name on a spinner.
+SPINNERS = {"dos": DOS_SPINNER, "braille": BRAILLE_SPINNER, "ascii": ASCII_SPINNER}
+DEFAULT_SPINNER = "dos"
+
 #: Four marks: check box off, check box on, radio off, radio on.  The brackets
 #: around them are *not* here.  ``[ ]`` and ``( )`` are ASCII in the original
 #: too and are fixed in the widget, which is how Turbo Vision spells them --
@@ -177,6 +190,12 @@ def gauge(name: str, tier: int = GLYPHS_UNICODE) -> str:
     """The named gauge characters, degraded to what *tier* can render."""
     chars = GAUGES.get(name, GAUGES[DEFAULT_GAUGE])
     return ASCII_GAUGE if tier < GLYPHS_UNICODE else chars
+
+
+def spinner(name: str, tier: int = GLYPHS_UNICODE) -> str:
+    """The named spinner's frames, degraded to what *tier* can render."""
+    chars = SPINNERS.get(name, SPINNERS[DEFAULT_SPINNER])
+    return ASCII_SPINNER if tier < GLYPHS_UNICODE else chars
 
 
 def marks(name: str, tier: int = GLYPHS_UNICODE) -> str:

@@ -44,6 +44,8 @@ class Group:
 
 #: The save point when the saved text can no longer be reached by undoing.
 _LOST = object()
+#: :meth:`EditBuffer.mark_saved` with no point: the text as it is.
+_NOW = object()
 
 
 class EditBuffer:
@@ -155,9 +157,26 @@ class EditBuffer:
         top = self.undo_stack[-1] if self.undo_stack else None
         return top is not self._saved
 
-    def mark_saved(self) -> None:
+    def save_point(self) -> object:
+        """What :meth:`mark_saved` is to be told once a save started now lands.
+
+        The text as it is now: a save runs on a thread, and what is typed
+        meanwhile was not written.
+        """
         self.seal()
-        self._saved = self.undo_stack[-1] if self.undo_stack else None
+        return self.undo_stack[-1] if self.undo_stack else None
+
+    def mark_saved(self, point: object = _NOW) -> None:
+        """The text as it was at *point* -- by default, now -- is what is on disk.
+
+        A *point* undone while its save ran is no state the text can come
+        back to by editing forward, so nothing then counts as saved.
+        """
+        if point is _NOW:
+            point = self.save_point()
+        elif point is not None and not any(group is point for group in self.undo_stack):
+            point = _LOST
+        self._saved = point
 
 
 def _end_of(start: Pos, text: str) -> Pos:

@@ -95,6 +95,7 @@ _WIDGETS = {
     "SystemSetupDialog": "setup.system_setup_dialog",
     "TreeWindow": "tree.tree_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
+    "WriteWin": "file_ops.write_win",
 }
 
 __all__ = sorted(_WIDGETS)
@@ -129,6 +130,7 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.console import Console
     from navigator.widgets.file_ops.delete_dialog import DeleteDialog
     from navigator.widgets.file_ops.delete_progress import DeleteProgress
+    from navigator.widgets.file_ops.write_win import WriteWin
     from navigator.widgets.tree.directory_tree import DirectoryTree
     from navigator.widgets.editor.edit_file_dialog import EditFileDialog
     from navigator.widgets.editor.edit_window import EditWindow

@@ -85,9 +85,13 @@ class FileViewer(Widget):
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
 
-    def open(self, path: Path | str) -> None:
-        """Show *path* from its start.  Raises ``OSError`` if it cannot be read."""
-        source = ViewSource(path)
+    def open(self, path: Path | str, *, source: ViewSource | None = None) -> None:
+        """Show *path* from its start.  Raises ``OSError`` if it cannot be read.
+
+        Given the *source*, opened already on a thread, nothing is read here.
+        """
+        if source is None:
+            source = ViewSource(path)
         if self.source is not None:
             self.source.close()
         self.source = source

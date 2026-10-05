@@ -1,0 +1,65 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.progress_bar import ProgressBar
+from navml.widgets.spinner import Spinner
+
+#: A file being read or written: DOS Navigator's ``WriteMsg``, the
+#: ``TWriteWin`` ``ReadBlock`` put up with *Reading file* and saving with
+#: *Writing file*.
+#:
+#: DN's was a plain box, its message centred and nothing else; Esc, read
+#: between blocks, was the only way out.  Three departures, all for files DN
+#: never met: a spinner beside the message, so a slow disk is not taken for a
+#: hung program; ``StrGrd``'s gauge and the percentage under it, whenever the
+#: size is known; and *Cancel*, which says what Esc does.
+WriteWin(Dialog):
+    modal_width: 34
+    modal_height: 9
+    title: ""
+    buttons: "ok"
+    closable: False
+
+    property notice: ""
+    #: How far the work has got, and how far it goes; a total of 0 is not
+    #: known, and shows neither gauge nor percentage.
+    property position: 0
+    property total: 0
+    #: False for work that cannot stop half way -- a file written in place --
+    #: which takes *Cancel* away and lets Esc and Enter do nothing.
+    property cancellable: True
+
+    Spinner:
+        id: spinner
+        x: max(1, (parent.width - len(root.notice)) // 2 - 2)
+        y: 1
+        width: 1
+        height: 1
+
+    StaticText:
+        id: notice_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.notice
+
+    ProgressBar:
+        id: bar
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        visible: root.total > 0
+        value: root.position
+        total: root.total
+
+    StaticText:
+        id: percent_row
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        visible: root.total > 0
+        text: "%d%%" % bar.percent

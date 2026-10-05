@@ -1506,7 +1506,7 @@ def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
     def open_editor_on(name):
         def action(a):
             from navigator.file_history import open_editor
-            open_editor(a.shell.desktop, files / name)
+            a.spawn(open_editor(a.shell.desktop, files / name))
         return action
 
     run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),

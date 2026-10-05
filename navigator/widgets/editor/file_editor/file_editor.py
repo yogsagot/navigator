@@ -447,6 +447,15 @@ class FileEditor(Widget):
             if not new:
                 raise
             document = Document()
+        self.use_document(path, document)
+
+    def use_document(self, path: Path | str, document: Document) -> None:
+        """Edit *document*, already read from *path*, from its start.
+
+        What :meth:`open` does once the file is read -- for a caller that read
+        it on a thread (``navigator.widgets.editor.loading``).
+        """
+        path = Path(path)
         if not any(document.endings):
             document.newline = NEWLINES[SETTINGS.editor.line_divisor]
         self._use(EditBuffer(document))
@@ -461,11 +470,30 @@ class FileEditor(Widget):
         buffer.listeners.append(self._follow_edit)
 
     def save(self) -> None:
-        """Write the text to :attr:`path`.  Raises ``OSError``."""
+        """Write the text to :attr:`path`, here and now.  Raises ``OSError``.
+
+        The window writes on a thread instead (``EditWindow._write``), through
+        :meth:`snapshot` and :meth:`saved`.
+        """
         if self.path is None:
             raise OSError("no file name")
         write_file(self.path, self.buffer.document.encode())
         self.buffer.mark_saved()
+        self.revision += 1
+
+    def snapshot(self) -> tuple[list[str], list[str], object]:
+        """The text as it is now, for a thread to write: lines, endings, and
+        the point :meth:`saved` is to be given once it is written.
+
+        Copies of the two lists, which edits change in place; the strings in
+        them never change, so the copies are the text whatever is typed next.
+        """
+        document = self.buffer.document
+        return list(document.lines), list(document.endings), self.buffer.save_point()
+
+    def saved(self, point: object) -> None:
+        """The text as :meth:`snapshot` took it is on disk now."""
+        self.buffer.mark_saved(point)
         self.revision += 1
 
     @computed

@@ -129,6 +129,19 @@ class RecordingWidget(Widget):
         return self.handles
 
 
+class Until:
+    """A ``run_app`` action that waits until ``predicate(app)`` holds.
+
+    For work that runs on a thread -- a file read, a search -- whose end is
+    not a fixed number of steps away.  Fails the test if *timeout* passes
+    first, rather than letting the next action act too soon.
+    """
+
+    def __init__(self, predicate, timeout: float = 2.0) -> None:
+        self.predicate = predicate
+        self.timeout = timeout
+
+
 def run_app(
     app: Application,
     actions=(),
@@ -138,14 +151,27 @@ def run_app(
 ):
     """Run *app* until it exits, applying *actions* once the loop is live.
 
-    Each action is either an :class:`~navkit.events.Event` to post or a
-    callable taking the application.  The application is asked to exit after
-    the last action unless it already stopped on its own.
+    Each action is either an :class:`~navkit.events.Event` to post, an
+    :class:`Until` to wait on, or a callable taking the application.  The
+    application is asked to exit after the last action unless it already
+    stopped on its own.
     """
+
+    waited_out: list[Until] = []
 
     async def drive() -> None:
         await asyncio.sleep(settle)
         for action in actions:
+            if isinstance(action, Until):
+                loop = asyncio.get_running_loop()
+                deadline = loop.time() + action.timeout
+                while not action.predicate(app):
+                    if loop.time() > deadline:
+                        waited_out.append(action)
+                        app.exit()
+                        return
+                    await asyncio.sleep(0.005)
+                continue
             if isinstance(action, Event):
                 app.post_event(action)
             else:
@@ -161,7 +187,10 @@ def run_app(
         finally:
             driver.cancel()
 
-    return asyncio.run(asyncio.wait_for(main(), timeout))
+    result = asyncio.run(asyncio.wait_for(main(), timeout))
+    if waited_out:
+        raise AssertionError(f"Until: still waiting after {waited_out[0].timeout}s")
+    return result
 
 
 def awaited(coro):

@@ -69,6 +69,7 @@ from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 
+from navml.background import Background, Outcome
 from navml.widgets.dialog.commands import QuickSearch
 from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -177,6 +178,10 @@ class ChosenEvent(Event):
     node: Any = None
 
 
+#: Where unopened nodes are probed, for a tree that probes off the loop.
+_PROBES = Background("navml-probe", workers=4)
+
+
 class TreeView(ListViewer):
     """The rows of a :class:`TreeNode` tree, with branches drawn between them."""
 
@@ -214,6 +219,13 @@ class TreeView(ListViewer):
     caret_on_name = True
 
     SEARCH_LABEL = " Search: "
+
+    #: Whether an unopened node's probe runs on a thread, for a tree whose
+    #: probes may wait -- a directory on a dead mount.  The row shows ``[+]``
+    #: until the answer is in, which is what a node with no probe shows.
+    probe_in_background = False
+    #: The nodes whose probe is on a thread now.
+    _probing: set[TreeNode] | None = None
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
@@ -367,12 +379,39 @@ class TreeView(ListViewer):
             return ""
         tee, corner, horizontal, _, down = self._chars()
         start = tee if row.more else corner
-        if row.node.has_children() and (not row.node.loaded or row.node.children()):
+        if self.node_has_children(row.node) and (not row.node.loaded or row.node.children()):
             if self.collapsible:
                 mark = "-" if row.node.expanded else "+"
                 return f"{start}{horizontal}[{mark}] "
             return f"{start}{horizontal}{horizontal}{down}"
         return start + horizontal * 3
+
+    def node_has_children(self, node: TreeNode) -> bool:
+        """:meth:`TreeNode.has_children`, for painting: never waits on a probe
+        when :attr:`probe_in_background` says it may be slow."""
+        if (not self.probe_in_background or node._has_children is not None
+                or node.probe is None):
+            return node.has_children()
+        app = self.application
+        if app is None or not app.is_running:
+            return node.has_children()
+        if self._probing is None:
+            self._probing = set()
+        if node not in self._probing:
+            self._probing.add(node)
+            _PROBES.run(self, node.probe, node,
+                        done=lambda outcome, node=node: self._probed(node, outcome))
+        return True
+
+    def _probed(self, node: TreeNode, outcome: Outcome) -> None:
+        if self._probing is not None:
+            self._probing.discard(node)
+        if node._has_children is None:
+            try:
+                node._has_children = bool(outcome.result())
+            except OSError:
+                node._has_children = False
+            self.refresh()
 
     def name_column(self, row: TreeRow) -> int:
         """Where a row's name starts, in DOS Navigator's columns."""

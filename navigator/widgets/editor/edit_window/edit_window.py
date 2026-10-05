@@ -25,7 +25,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
-from navigator.editor.document import decode, encode
+from navigator.editor.document import Document, encode, encode_lines, read_text
 from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
@@ -65,18 +65,27 @@ class EditWindow(Window):
     Raises ``OSError`` from the constructor if *path* cannot be read, so the
     caller can say so before a window that shows nothing is opened.  With
     *new*, a file that does not exist yet is an empty text that saving creates.
+    Given the *document*, already read from *path* on a thread
+    (``navigator.widgets.editor.loading``), the window reads nothing itself.
     """
 
     emits = (FileSaved,)
 
     def __init__(
-        self, path: Path | str, *, new: bool = False, smartpad: bool = False, **kwargs: Any,
+        self, path: Path | str, *, document: Document | None = None, new: bool = False,
+        smartpad: bool = False, **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         #: SmartPad's window (``navigator.smartpad``): its own title, no edit
         #: history, and saved without a question on the way out.
         self.smartpad = smartpad
-        self.editor.open(path, new=new)
+        #: One save at a time: a second F2, or *Yes* to *Save?* while one is
+        #: still writing, waits for it and then writes what the text is then.
+        self._saving = asyncio.Lock()
+        if document is None:
+            self.editor.open(path, new=new)
+        else:
+            self.editor.use_document(path, document)
         self.title = self._title()
 
     def _title(self) -> str:
@@ -161,19 +170,43 @@ class EditWindow(Window):
 
     async def save(self) -> bool:
         """Write the file; say why not if it cannot be.  True when written."""
+        path = self.editor.path
         try:
-            self.editor.save()
+            if path is None:
+                raise OSError("no file name")
+            written = await self._write(path)
         except OSError as error:
             await Dialog(
                 title="Error",
-                prompt=f"Cannot write {self.editor.path}: {error.strerror or error}",
+                prompt=f"Cannot write {path}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
             return False
-        if not self.smartpad:
+        if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
-            await self.emit(FileSaved(self.editor.path))
-        return True
+            await self.emit(FileSaved(path))
+        return written
+
+    async def _write(self, path: Path) -> bool:
+        """The text to *path*, on a thread: DN's ``SaveFile`` behind ``WriteMsg``.
+
+        The text is taken as it is when the write starts; what is typed while
+        it runs is not in the file, and leaves the text changed.  *Writing
+        file* comes up if it takes a while, and *Cancel* there leaves the file
+        as it was.  True once written, False if cancelled; raises ``OSError``.
+        """
+        from navigator.widgets.editor.loading import write_in_background
+
+        async with self._saving:
+            lines, endings, point = self.editor.snapshot()
+            written = await write_in_background(
+                self.application,
+                lambda job: write_file(path, encode_lines(lines, endings, job), job),
+                total=len(lines),
+            )
+            if written:
+                self.editor.saved(point)
+            return written
 
     # -- ^K R and ^K W -------------------------------------------------------------
 
@@ -272,16 +305,29 @@ class EditWindow(Window):
         if answer is None:
             return
         append, restore = answer
-        try:
+
+        def write(job: Any) -> None:
             if append:
+                job.cancellable = False  # one write: all of it, or none
                 with open(path, "ab") as file:
                     file.write(data)
             else:
-                write_file(path, data)
-            if restore is not None:
-                path.chmod(stat.S_IMODE(restore))
+                write_file(path, data, job)
+
+        from navigator.widgets.editor.loading import write_in_background
+
+        try:
+            written = await write_in_background(self.application, write)
         except OSError as error:
             await self._say(f"Cannot write {path}: {error.strerror or error}")
+            return
+        finally:
+            if restore is not None:
+                try:
+                    path.chmod(stat.S_IMODE(restore))
+                except OSError:
+                    pass
+        if not written:
             return
         await self.emit(FileSaved(path))
 
@@ -294,12 +340,17 @@ class EditWindow(Window):
         path = await self._block_file("Paste from File", "~P~aste from")
         if path is None:
             return
+        from navigator.widgets.editor.loading import read_in_background
+
         try:
-            data = path.read_bytes()
+            text = await read_in_background(
+                self.application, lambda job, budget: read_text(path, job, budget=budget))
         except OSError as error:
             await self._say(f"Cannot read {path}: {error.strerror or error}")
             return
-        self.editor.read_block(decode(data))
+        if text is None:
+            return
+        self.editor.read_block(text)
 
     # -- F7: find and replace ------------------------------------------------------------
 
@@ -555,12 +606,18 @@ class EditWindow(Window):
         path = await self._ask_file("Open a File", "~N~ame", "edit_open", ok_text="~O~pen")
         if path is None:
             return
-        self.remember_history()
+        from navigator.widgets.editor.loading import load_document
+
         try:
-            self.editor.open(path)
+            document = await load_document(self.application, path)
         except OSError as error:
             await self._say(f"Cannot open {path}: {error.strerror or error}")
             return
+        if document is None:
+            # Cancelled, or too large -- said already: the text stays.
+            return
+        self.remember_history()
+        self.editor.use_document(path, document)
         self.title = self._title()
         self.recall_history()
         self.editor.focus()
@@ -585,18 +642,23 @@ class EditWindow(Window):
         if answer is None:
             return
         _, restore = answer
-        old = self.editor.path
-        self.editor.path = path
         try:
-            self.editor.save()
-            if restore is not None:
-                path.chmod(stat.S_IMODE(restore))
+            written = await self._write(path)
         except OSError as error:
-            self.editor.path = old
             await self._say(f"Cannot write {path}: {error.strerror or error}")
             return
+        finally:
+            if restore is not None:
+                try:
+                    path.chmod(stat.S_IMODE(restore))
+                except OSError:
+                    pass
+        if not written:
+            return
+        self.editor.path = path
         self.title = self._title()
-        await self.emit(FileSaved(path))
+        if self.parent is not None:
+            await self.emit(FileSaved(path))
 
     # -- closing -----------------------------------------------------------------
 
