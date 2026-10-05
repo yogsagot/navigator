@@ -1967,3 +1967,69 @@ def test_optimal_fill_switches_and_is_ticked(files):
                 lambda a: a.spawn(editor_window(a).editor.on_switch_fill(SwitchFill())), lambda a: None,
                 lambda a: seen.append(editor_window(a).editor.checks(SwitchFill())))
     assert seen == [False, True]
+
+
+# -- Current line and column highlight -------------------------------------------------------------
+
+
+def editor_cells(files, text, *keys):
+    """The editor after *keys*, and a reader of its painted cell at (row, column) of its own."""
+    (files / "text.txt").write_bytes(text)
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        buffer = screen(a)
+        editor = editor_window(a).editor
+        ox, oy = editor.offset()
+        seen["editor"] = editor
+        seen["cell"] = lambda row, col: buffer.get(ox + editor.x + col, oy + editor.y + row)
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys, look])
+    return seen["editor"], seen["cell"]
+
+
+def test_the_current_line_is_painted_in_its_own_colour(files):
+    SETTINGS.editor.highlight_line = True
+    editor, cell = editor_cells(files, b"one\ntwo\n", KeyEvent("down"))
+    lit = editor.part_style("current_line")
+    assert cell(1, 0) == ("t", lit) and cell(1, 10)[1] == lit   # past the text too
+    assert cell(0, 0) == ("o", editor.style)
+
+
+def test_a_block_on_the_current_line_takes_current_line_selected(files):
+    SETTINGS.editor.highlight_line = True
+    editor, cell = editor_cells(files, b"one\n", KeyEvent("right", shift=True))
+    assert cell(0, 0)[1] == editor.part_style("current_line_selected")
+
+
+def test_the_current_column_is_lit_on_every_row(files):
+    SETTINGS.editor.highlight_column = True
+    editor, cell = editor_cells(files, b"one\ntwo\n", KeyEvent("right"))
+    lit = editor.part_style("current_column")
+    assert cell(0, 1) == ("n", lit) and cell(1, 1) == ("w", lit)
+    assert cell(5, 1)[1] == lit                                   # a row past the text
+    assert cell(0, 0)[1] == editor.style
+
+
+def test_neither_is_lit_by_default(files):
+    editor, cell = editor_cells(files, b"one\n")
+    assert cell(0, 0)[1] == editor.style
+
+
+def test_both_switch_and_are_ticked(files):
+    from navigator.widgets.editor.commands import SwitchHiColumn, SwitchHiLine
+
+    seen = []
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.checks(SwitchHiLine()), editor.checks(SwitchHiColumn())))
+
+    text_editor(files, b"x\n", look,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_hi_line(SwitchHiLine())),
+                lambda a: None,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_hi_column(SwitchHiColumn())),
+                lambda a: None, look)
+    assert seen == [(False, False), (True, True)]

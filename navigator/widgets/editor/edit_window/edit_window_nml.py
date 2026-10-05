@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile    # edit_window.nml:1
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine    # edit_window.nml:3
 from navml.commands import CloseWindow    # edit_window.nml:4
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:5
@@ -178,8 +178,8 @@ class EditWindow(Window, _Component):
         _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:344
         _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:347
         _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:350
-        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:352
-        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:354
+        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:353
+        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:356
 
         self.zoomed = True    # edit_window.nml:22
 
@@ -450,7 +450,9 @@ class EditWindow(Window, _Component):
         _w62.command = SwitchFill    # edit_window.nml:349
 
         _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:351
+        _w63.command = SwitchHiLine    # edit_window.nml:352
 
-        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:353
+        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:354
+        _w64.command = SwitchHiColumn    # edit_window.nml:355
 
-        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:355
+        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:357

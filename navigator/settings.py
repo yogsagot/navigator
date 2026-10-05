@@ -383,8 +383,8 @@ class EditorDefaultsData(Section):
     optimal_fill: bool = Setting(
         False, doc="A new editor writes blanks reaching a tab stop as a tab",
     )
-    highlight_line: bool = Setting(False, doc="Highlight the cursor's line", honoured=False)
-    highlight_column: bool = Setting(False, doc="Highlight the cursor's column", honoured=False)
+    highlight_line: bool = Setting(False, doc="A new editor highlights the cursor's line")
+    highlight_column: bool = Setting(False, doc="A new editor highlights the cursor's column")
     persistent_blocks: bool = Setting(
         True, doc="The block stays when the cursor moves; off, typing replaces it",
     )

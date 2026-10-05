@@ -37,6 +37,8 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchHiColumn,
+    SwitchHiLine,
     SwitchFill,
     CapString,
     CapWord,
@@ -401,6 +403,12 @@ class FileEditor(Widget):
     #: blanks.  Seeded from the Editor setup, switched by Editor > Options.
     optimal_fill: bool = reactive(False)
 
+    #: ``HiliteLine``: the cursor's line in *Current line*; ``HiliteColumn``:
+    #: its column, on every row, in *Current column*.  Seeded from the Editor
+    #: setup, switched by Editor > Options.
+    highlight_line: bool = reactive(False)
+    highlight_column: bool = reactive(False)
+
     #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
     #: a line's first character goes back to an indent above.  Seeded from the
     #: Editor setup, switched for this editor alone from Editor > Options.
@@ -438,6 +446,8 @@ class FileEditor(Widget):
         self.autowrap = SETTINGS.editor.autowrap
         self.auto_brackets = SETTINGS.editor.auto_brackets
         self.optimal_fill = SETTINGS.editor.optimal_fill
+        self.highlight_line = SETTINGS.editor.highlight_line
+        self.highlight_column = SETTINGS.editor.highlight_column
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
@@ -1528,6 +1538,16 @@ class FileEditor(Widget):
         self.back_indent = not self.back_indent
         return True
 
+    async def on_switch_hi_line(self, event: SwitchHiLine) -> bool:
+        """``cmSwitchHiLine``: ``HiliteLine := not HiliteLine``."""
+        self.highlight_line = not self.highlight_line
+        return True
+
+    async def on_switch_hi_column(self, event: SwitchHiColumn) -> bool:
+        """``cmSwitchHiColumn``: ``HiliteColumn := not HiliteColumn``."""
+        self.highlight_column = not self.highlight_column
+        return True
+
     async def on_switch_fill(self, event: SwitchFill) -> bool:
         """``cmSwitchFill``: ``OptimalFill := not OptimalFill``."""
         self.optimal_fill = not self.optimal_fill
@@ -2022,6 +2042,10 @@ class FileEditor(Widget):
             return self.auto_brackets
         if isinstance(command, SwitchFill):
             return self.optimal_fill
+        if isinstance(command, SwitchHiLine):
+            return self.highlight_line
+        if isinstance(command, SwitchHiColumn):
+            return self.highlight_column
         if isinstance(command, SwitchIndent):
             return self.auto_indent
         if isinstance(command, SwitchBack):
@@ -2375,16 +2399,24 @@ class FileEditor(Widget):
         return (first, last) if first < last else None
 
     def render(self, surface: Surface) -> None:
+        """The text, the block and the match lit -- and, as DN's ``Draw`` had them,
+        the cursor's line in *Current line* (a block or match on it in *Current line
+        selected*) and its column on every row in *Current column*, laid last."""
         self.revision
-        style = self.style
-        selected = self.part_style("selected")
-        surface.fill(0, 0, self.width, self.height, " ", style)
+        normal = self.style
+        normal_selected = self.part_style("selected")
+        surface.fill(0, 0, self.width, self.height, " ", normal)
         lines = self.document.lines
         left, width = self.left, self.width
         for y in range(self.height):
             number = self.top + y
             if number >= len(lines):
                 break
+            style, selected = normal, normal_selected
+            if self.highlight_line and number == self.line:
+                style = self.part_style("current_line")
+                selected = self.part_style("current_line_selected")
+                surface.fill(0, y, width, 1, " ", style)
             span = self._block_columns(number) or self._found_columns(number)
             if span is not None:
                 start, stop = max(span[0], left), min(span[1], left + width)
@@ -2405,6 +2437,13 @@ class FileEditor(Widget):
                     surface.set_cell(x, y, " ", cell)
                     continue
                 surface.set_cell(x, y, char, cell)
+        if self.highlight_column and 0 <= self.col - left < width:
+            # ``WordRec(B[Delta.X - Pos.X]).Hi := CC[7]``: every row, text or not.
+            column_style = self.part_style("current_column")
+            x = self.col - left
+            for y in range(self.height):
+                char = surface.get(x, y)[0] or " "
+                surface.set_cell(x, y, char, column_style)
 
 
 class InfoLine(StaticText):

@@ -189,6 +189,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   path) and `block_file_text` (^K W); the text in the editor keeps its blanks. With it on, saving rewrites blanks in
   lines nobody touched -- the option's point, and the one exception to byte-for-byte, off by default. Departure: chunks
   are measured in columns, keeping a tab already there, where DN met only spaces (tabs expanded on loading).
+- **Current line and column highlight** (`FileEditor.highlight_line`/`highlight_column`, DN's `HiliteLine`/
+  `HiliteColumn`, seeded from the setup, switched by Editor > Options -- `SwitchHiLine`/`SwitchHiColumn`,
+  `cmSwitchHiLine`/`cmSwitchHiColumn` -- and ticked): `render` paints the cursor's row in `FileEditor::current_line`
+  ([182]), a block or match on it in `::current_line_selected` ([183]), and the cursor's column on every row of the
+  window, text or not, in `::current_column` ([185]), laid last as DN's `Draw` set `CC[7]` over all else.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

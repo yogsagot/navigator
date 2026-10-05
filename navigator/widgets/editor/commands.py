@@ -349,6 +349,18 @@ class SwitchFill(Command):
     title = "Optimal fill"
 
 
+class SwitchHiLine(Command):
+    """``cmSwitchHiLine``: Editor > Options > *Current line highlight* (``HiliteLine``)."""
+
+    title = "Current line highlight"
+
+
+class SwitchHiColumn(Command):
+    """``cmSwitchHiColumn``: Editor > Options > *Current column highlight* (``HiliteColumn``)."""
+
+    title = "Current column highlight"
+
+
 class SwitchBrackets(Command):
     """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
     typed with their closing partner (``AutoBrackets``)."""
@@ -528,6 +540,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchHiColumn",
+    "SwitchHiLine",
     "SwitchFill",
     "CapString",
     "CapWord",

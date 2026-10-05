@@ -342,6 +342,10 @@ EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg
 FileEditor                                     { fg: $editor-normal-text-fg;   bg: $editor-normal-text-bg; caret: underline }
 FileEditor:overwrite                           { caret: block }
 FileEditor::selected                           { fg: $editor-selected-text-fg; bg: $editor-selected-text-bg }
+/* HiliteLine and HiliteColumn: the Editor group's [182], [183] and [185]. */
+FileEditor::current_line                       { fg: $editor-highlight-current-line-fg;          bg: $editor-highlight-current-line-bg }
+FileEditor::current_line_selected              { fg: $editor-highlight-current-line-selected-fg; bg: $editor-highlight-current-line-selected-bg }
+FileEditor::current_column                     { fg: $editor-highlight-current-column-fg;        bg: $editor-highlight-current-column-bg }
 
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information
