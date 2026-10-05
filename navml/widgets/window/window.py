@@ -339,12 +339,18 @@ class Window(Widget):
         """Bring the window forward, then try the chrome, then the children.
 
         *event* is in the desktop's coordinates, as for any widget.
+
+        **Always claimed**: a window is opaque, as a Turbo Vision one was, so
+        an action nothing inside it wants -- a right click, say -- stops here
+        rather than falling through to the window underneath, which would
+        raise that one on any press and so swap the two on every click.
         """
         local = event.translated(-self.x, -self.y)
         if isinstance(event, DoubleClickEvent):
             if event.button == "left" and await self.on_double_click(local):
                 return True
-            return await super().dispatch_mouse(event)
+            await super().dispatch_mouse(event)
+            return True
         if event.action == "press" and not event.is_wheel:
             was_active = self.active
             desktop = self.desktop
@@ -359,7 +365,8 @@ class Window(Widget):
                 # well as raising it -- but its icons were not showing.
                 self._start_drag("move", local)
                 return True
-        return await super().dispatch_mouse(event)
+        await super().dispatch_mouse(event)
+        return True
 
     def _press_chrome(self, local: MouseClickEvent) -> bool:
         hit = self.chrome_hit(local.x, local.y)

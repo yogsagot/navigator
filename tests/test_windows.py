@@ -154,6 +154,17 @@ def test_a_press_on_a_background_window_raises_it_and_still_reaches_the_child(de
     assert front.active is False
 
 
+def test_a_click_nothing_claims_does_not_fall_through_to_the_window_behind(desk):
+    app, desktop = desk
+    back = desktop.open(Window(x=0, y=0, width=30, height=10))
+    front = desktop.open(Window(x=0, y=0, width=30, height=10))
+    # Nothing in either window takes a right click; it used to reach `back'
+    # and raise it, so each right click swapped the two.
+    for _ in range(2):
+        handle(app, press(5, 6, "right"), release(5, 6, "right"))
+        assert desktop.active_window is front
+
+
 def test_activation_hands_back_the_focus_a_window_had(desk):
     app, desktop = desk
     back = desktop.open(window(0, 0, 30, 10))
