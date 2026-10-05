@@ -23,8 +23,14 @@ TIMEOUT = 10.0
 NO_SPOOLER = "No print command: neither lp nor lpr is installed"
 
 
-def print_command(which: Callable[[str], str | None] = shutil.which) -> list[str] | None:
-    """The command that prints its standard input, if there is one."""
+def print_command(which: Callable[[str], str | None] | None = None) -> list[str] | None:
+    """The command that prints its standard input, if there is one.
+
+    ``shutil.which`` is looked up at the call, not bound as the default, so
+    that replacing it -- as the tests do -- reaches this function too.
+    """
+    if which is None:
+        which = shutil.which
     for argv in (["lp"], ["lpr"]):
         if which(argv[0]):
             return argv
