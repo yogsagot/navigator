@@ -316,6 +316,18 @@ class FCenter(Command):
     title = "Center"
 
 
+class SwitchIndent(Command):
+    """``cmSwitchIndent``: Editor > Options > *Autoindent* (``AutoIndent``)."""
+
+    title = "Autoindent"
+
+
+class SwitchBack(Command):
+    """``cmSwitchBack``: Editor > Options > *Backspace indents* (``BackIndent``)."""
+
+    title = "Backspace indents"
+
+
 class SwitchBrackets(Command):
     """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
     typed with their closing partner (``AutoBrackets``)."""
@@ -459,6 +471,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchBack",
+    "SwitchIndent",
     "SwitchBrackets",
     "SwitchSave",
     "SwitchWrap",

@@ -104,10 +104,12 @@ Left for later, by phase:
 3. Written: Find, Replace, Search again, Reversed search, Goto line.
 4. Written: Open, Save as, Save all, the `FileDialog`, SmartPad and the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.
-5. Autoindent's remaining rules, line drawing (backspace unindent, paragraph format, autowrap and autobrackets are written).
+5. Line drawing (autoindent, backspace unindent, paragraph format, autowrap and autobrackets are written).
 6. Highlighting and macros from `DN.HGL`.
 7. Editor defaults, persisted, edit history, backups, file locking and printing.
 
-Autoindent's first rule is written already: Enter indents the new line as this one is, and leaves only the cursor
-at the indent, not blanks, when nothing follows. A Tab inserts blanks to the next stop, as `MakeTab` did.
+Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is
+indented as the part kept -- as the whole line when that part is blank -- with the cursor at the indent and no blanks
+left behind when nothing follows. Enter in overwrite only moves to the next line. A Tab inserts blanks to the next
+stop, as `MakeTab` did.
 

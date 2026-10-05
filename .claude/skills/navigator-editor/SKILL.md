@@ -138,6 +138,17 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   at a line's end or before a blank goes in with its partner, the cursor between (`_bracket_pair`, `InputChar`'s
   `LastX >= WL or WorkString[LastX+1] = ' '`); before anything else -- its own closing bracket included -- and in
   overwrite, the character alone. One undo step with the typing.
+- **Autoindent and Backspace indents** are DN's `MakeEnter` and `MakeBack`, per editor (`auto_indent`/`back_indent`,
+  seeded from the setup's *Auto indent* and *Backspace unindents*, switched by Editor > Options *Autoindent*
+  (`SwitchIndent`, `cmSwitchIndent`) and *Backspace indents* (`SwitchBack`, `cmSwitchBack`), ticked). **Enter**
+  (`on_new_line`): in overwrite only to the next line's start (a line added past the last). Inserting, the part kept
+  loses its trailing blanks and the part moved the line's last ones; with Autoindent the moved part's leading blanks
+  give way to the indent of the part kept -- the whole line's if that part is blank -- the cursor at it, and a new line
+  with nothing after the indent is left empty with the cursor waiting there; without, it moves as it is, the cursor at
+  column 0. Edits go right to left so a block's ends follow. **Backspace** (`_unindent`): only on a line's first
+  character (blanks before, none under) or anywhere on an all-blank line, never on the first line; back to the indent
+  of the nearest line above with text and a narrower indent, the blanks before the cursor becoming that many spaces;
+  no such line, a plain Backspace. Departure from DN, which expanded tabs: a leading tab is indentation by its width.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

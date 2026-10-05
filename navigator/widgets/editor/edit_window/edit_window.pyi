@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar

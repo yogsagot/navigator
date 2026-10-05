@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile    # edit_window.nml:1
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine    # edit_window.nml:3
 from navml.commands import CloseWindow    # edit_window.nml:4
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:5
@@ -171,15 +171,15 @@ class EditWindow(Window, _Component):
         _w55 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:314
         self.edit_menu_options = SubMenu(parent=self.edit_menu)    # edit_window.nml:318
         _w56 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:321
-        _w57 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:323
-        _w58 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:326
-        _w59 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:328
-        _w60 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:331
-        _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:334
-        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:337
-        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:339
-        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:341
-        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:343
+        _w57 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:324
+        _w58 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:327
+        _w59 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:330
+        _w60 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:333
+        _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:336
+        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:339
+        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:341
+        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:343
+        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:345
 
         self.zoomed = True    # edit_window.nml:22
 
@@ -421,25 +421,27 @@ class EditWindow(Window, _Component):
         self.edit_menu_options.text = '~O~ptions'    # edit_window.nml:320
 
         _w56.text = '~B~ackspace indents'    # edit_window.nml:322
+        _w56.command = SwitchBack    # edit_window.nml:323
 
-        _w57.text = 'AutoB~r~ackets'    # edit_window.nml:324
-        _w57.command = SwitchBrackets    # edit_window.nml:325
+        _w57.text = 'AutoB~r~ackets'    # edit_window.nml:325
+        _w57.command = SwitchBrackets    # edit_window.nml:326
 
-        _w58.text = 'Auto~i~ndent'    # edit_window.nml:327
+        _w58.text = 'Auto~i~ndent'    # edit_window.nml:328
+        _w58.command = SwitchIndent    # edit_window.nml:329
 
-        _w59.text = '~A~uto wrap'    # edit_window.nml:329
-        _w59.command = SwitchSave    # edit_window.nml:330
+        _w59.text = '~A~uto wrap'    # edit_window.nml:331
+        _w59.command = SwitchSave    # edit_window.nml:332
 
-        _w60.text = '~J~ustify on wrap'    # edit_window.nml:332
-        _w60.command = SwitchWrap    # edit_window.nml:333
+        _w60.text = '~J~ustify on wrap'    # edit_window.nml:334
+        _w60.command = SwitchWrap    # edit_window.nml:335
 
-        _w61.text = '~V~ertical blocks'    # edit_window.nml:335
-        _w61.command = SwitchBlock    # edit_window.nml:336
+        _w61.text = '~V~ertical blocks'    # edit_window.nml:337
+        _w61.command = SwitchBlock    # edit_window.nml:338
 
-        _w62.text = 'Opti~m~al fill'    # edit_window.nml:338
+        _w62.text = 'Opti~m~al fill'    # edit_window.nml:340
 
-        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:340
+        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:342
 
-        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:342
+        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:344
 
-        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:344
+        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:346

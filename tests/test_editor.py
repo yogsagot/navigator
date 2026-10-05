@@ -1803,3 +1803,73 @@ def test_auto_brackets_switches_and_is_ticked(files):
                 lambda a: None,
                 lambda a: seen.append(editor_window(a).editor.checks(SwitchBrackets())))
     assert seen == [False, True]
+
+
+# -- DN's MakeEnter and MakeBack: the rest of autoindent --------------------------------------------
+
+
+def at(line, col):
+    """Keys putting the cursor on *line*, *col* from the top-left."""
+    return [*[KeyEvent("down")] * line, *[KeyEvent("right")] * col]
+
+
+def test_enter_inside_the_indent_gives_the_whole_lines_indent(files):
+    _, editor = text_editor(files, b"    foo\n", *at(0, 2), KeyEvent("enter"))
+    assert editor.document.encode() == b"\n    foo\n"
+    assert (editor.line, editor.col) == (1, 4)
+
+
+def test_enter_drops_the_moved_parts_blanks_and_the_lines_trailing_ones(files):
+    _, editor = text_editor(files, b"    a   b   \n", *at(0, 5), KeyEvent("enter"))
+    assert editor.document.encode() == b"    a\n    b\n"
+    assert (editor.line, editor.col) == (1, 4)
+
+
+def test_without_autoindent_the_moved_part_keeps_its_blanks_and_the_cursor_starts_the_line(files):
+    SETTINGS.editor.auto_indent = False
+    _, editor = text_editor(files, b"  a  b\n", *at(0, 3), KeyEvent("enter"))
+    assert editor.document.encode() == b"  a\n  b\n"
+    assert (editor.line, editor.col) == (1, 0)
+
+
+def test_enter_in_overwrite_goes_to_the_next_line_and_adds_one_at_the_end(files):
+    # The edit history would bring overwrite back on the second open; Ins would undo it.
+    SETTINGS.interface.track_editing = False
+    _, editor = text_editor(files, b"ab\ncd", KeyEvent("insert"), KeyEvent("right"), KeyEvent("enter"))
+    assert editor.document.encode() == b"ab\ncd" and (editor.line, editor.col) == (1, 0)
+    _, editor = text_editor(files, b"ab\ncd", KeyEvent("insert"), KeyEvent("down"), KeyEvent("enter"))
+    assert editor.document.encode() == b"ab\ncd\n" and (editor.line, editor.col) == (2, 0)
+
+
+def test_backspace_mid_indent_deletes_one_blank(files):
+    _, editor = text_editor(files, b"a\n    b\n", *at(1, 2), KeyEvent("backspace"))
+    assert editor.document.encode() == b"a\n   b\n" and editor.col == 1
+
+
+def test_backspace_with_no_shallower_line_above_or_on_the_first_line_is_plain(files):
+    _, editor = text_editor(files, b"    a\n    b\n", *at(1, 4), KeyEvent("backspace"))
+    assert editor.document.encode() == b"    a\n   b\n"
+    _, editor = text_editor(files, b"    a\n", *at(0, 4), KeyEvent("backspace"))
+    assert editor.document.encode() == b"   a\n"
+
+
+def test_the_indent_backspace_leaves_is_written_in_spaces(files):
+    _, editor = text_editor(files, b"  x\n\t\tb\n", KeyEvent("down"), KeyEvent("end"), KeyEvent("home"),
+                            KeyEvent("right"), KeyEvent("right"), KeyEvent("backspace"))
+    assert editor.document.encode() == b"  x\n  b\n" and editor.col == 2
+
+
+def test_autoindent_and_backspace_indents_switch_and_are_ticked(files):
+    from navigator.widgets.editor.commands import SwitchBack, SwitchIndent
+
+    seen = []
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.checks(SwitchIndent()), editor.checks(SwitchBack())))
+
+    text_editor(files, b"x\n", look,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_indent(SwitchIndent())), lambda a: None,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_back(SwitchBack())), lambda a: None,
+                look)
+    assert seen == [(True, True), (False, False)]

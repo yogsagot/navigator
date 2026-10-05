@@ -37,6 +37,8 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchBack,
+    SwitchIndent,
     SwitchBrackets,
     SwitchSave,
     SwitchWrap,
@@ -365,6 +367,12 @@ class FileEditor(Widget):
     #: ``AutoBrackets``: an opening bracket typed with its partner after it.
     auto_brackets: bool = reactive(False)
 
+    #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
+    #: a line's first character goes back to an indent above.  Seeded from the
+    #: Editor setup, switched for this editor alone from Editor > Options.
+    auto_indent: bool = reactive(True)
+    back_indent: bool = reactive(True)
+
     #: The marked stream block, its start before its end, or None: from one
     #: place in the text to another.  It stays when the cursor moves, as
     #: DN's *Persistent blocks* kept it, and follows the edits made around it
@@ -391,6 +399,8 @@ class FileEditor(Widget):
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
         self.autowrap = SETTINGS.editor.autowrap
         self.auto_brackets = SETTINGS.editor.auto_brackets
+        self.auto_indent = SETTINGS.editor.auto_indent
+        self.back_indent = SETTINGS.editor.backspace_unindents
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
         #: paragraph indent, seeded from the Editor setup and changed by
@@ -1269,6 +1279,16 @@ class FileEditor(Widget):
         self._insert_now(TIME_FORMAT)
         return True
 
+    async def on_switch_indent(self, event: SwitchIndent) -> bool:
+        """``cmSwitchIndent``: ``AutoIndent := not AutoIndent``."""
+        self.auto_indent = not self.auto_indent
+        return True
+
+    async def on_switch_back(self, event: SwitchBack) -> bool:
+        """``cmSwitchBack``: ``BackIndent := not BackIndent``."""
+        self.back_indent = not self.back_indent
+        return True
+
     async def on_switch_brackets(self, event: SwitchBrackets) -> bool:
         """``cmSwitchBrackets``: ``AutoBrackets := not AutoBrackets``."""
         self.auto_brackets = not self.auto_brackets
@@ -1482,25 +1502,51 @@ class FileEditor(Widget):
             self.buffer.insert(Pos(number, index), piece)
 
     async def on_new_line(self, event: NewLine) -> bool:
-        """``MakeEnter``: split the line, and indent the new one as this one is.
+        """``MakeEnter``.
 
-        The indent only under the Editor setup's *Auto indent*.
+        In overwrite, no split: the cursor to the next line's start, a line
+        added past the last.  Inserting, the line is split at the cursor, the
+        part kept losing its trailing blanks and the part moved down the line's
+        last ones.  With *Autoindent* the moved part's leading blanks give way to
+        the indent of the part kept -- of the whole line, if that part is blank
+        -- and the cursor goes to it; without, it moves as it is and the cursor
+        to its start.  A new line with nothing after its indent is left empty,
+        the cursor waiting at the indent, as DN's trimmed it once left.
         """
+        if self.overwrite:
+            self._moved()
+            if self.line == len(self.document) - 1:
+                self._begin()
+                self.buffer.insert(self.document.end, self.document.newline)
+                self._end()
+            self._go_column(self.line + 1, 0)
+            return True
         self._begin_replacing()
         index, _ = self._index()
         text = self._text()
-        at = Pos(self.line, min(index, len(text)))
-        indent = text[:len(text) - len(text.lstrip(" \t"))]
-        tail = text[at.index:]
-        if at.index <= len(indent) or not SETTINGS.editor.auto_indent:
-            indent = ""
-        end = self.buffer.insert(at, self.document.newline + (indent if tail.strip() else ""))
-        self._go(end)
-        if not tail.strip() and indent:
-            # Nothing follows: the new line stays empty and the cursor waits
-            # at the indent, as DN's did, rather than leaving blanks behind.
-            self.col = columns.width(indent, self.tab_size)
-            self._follow()
+        line = self.line
+        at = min(index, len(text))
+        kept = text[:at].rstrip(" ")
+        moved = text[at:].rstrip(" ")
+        indent = ""
+        lead = 0
+        if self.auto_indent:
+            lead = len(moved) - len(moved.lstrip(" \t"))
+            moved = moved[lead:]
+            source = kept if kept.strip(" \t") else text
+            indent = source[:len(source) - len(source.lstrip(" \t"))]
+        # Right to left, so each edit leaves the places of the next alone.
+        end = len(text.rstrip(" "))
+        if end > at:
+            self.buffer.delete(Pos(line, end), Pos(line, len(text)))
+        else:
+            self.buffer.delete(Pos(line, at), Pos(line, len(text)))
+        if lead:
+            self.buffer.delete(Pos(line, at), Pos(line, at + lead))
+        self.buffer.insert(Pos(line, at), self.document.newline + (indent if moved else ""))
+        if len(kept) < at:
+            self.buffer.delete(Pos(line, len(kept)), Pos(line, at))
+        self._go_column(line + 1, columns.width(indent, self.tab_size))
         self._end()
         return True
 
@@ -1532,27 +1578,29 @@ class FileEditor(Widget):
         return True
 
     def _unindent(self) -> bool:
-        """*Backspace unindents*: back to the indent of the line above that is shallower.
+        """``MakeBack``'s ``BackIndent``: back to the indent of a line above.
 
-        Only with nothing but blanks before the cursor, and the cursor on a
-        character's start rather than inside a tab.  The nearest line above
-        with text and an indent narrower than the cursor's column says where
-        to go, or column 0 if none does; the blanks between are deleted, and
-        spaces make up the width where a tab would overshoot.  Past the end
-        of an all-blank line it is the same; past the end of one with text it
-        is not this.  The Borland IDEs' option: DN's source was not to hand.
+        Only on a line's first character -- blanks before the cursor and none
+        under it -- or anywhere on an all-blank line, and not on the first line.
+        The nearest line above with text and a narrower indent says how far;
+        the blanks before the cursor become that many spaces, as DN wrote
+        them.  No such line, and Backspace is the plain one.  A departure: a
+        tab counts as indentation by its width, where DN had expanded tabs on
+        loading and met only spaces.
         """
-        if not SETTINGS.editor.backspace_unindents or self.col == 0:
+        if not self.back_indent or self.line == 0:
             return False
         text = self._text()
         index, past = self._index()
-        index = min(index, len(text))
-        before = text[:index]
-        if before.strip(" \t") or (past and text.strip(" \t")):
+        before = text[:min(index, len(text))]
+        blank_line = not text.strip(" \t")
+        if before.strip(" \t"):
+            return False
+        if not blank_line and (past or index >= len(text) or text[index] in " \t"):
             return False
         if not past and columns.column_of(text, index, self.tab_size) != self.col:
             return False
-        target = 0
+        target = None
         for line in range(self.line - 1, -1, -1):
             above = self._text(line)
             if above.strip(" \t"):
@@ -1560,19 +1608,14 @@ class FileEditor(Widget):
                 if indent < self.col:
                     target = indent
                     break
-        if columns.width(before, self.tab_size) <= target:
-            # Only blanks past the end of the line: nothing to delete.
-            self._moved()
-            self._go_column(self.line, target)
-            return True
-        keep = 0
-        while keep < index and columns.width(before[:keep + 1], self.tab_size) <= target:
-            keep += 1
-        pad = target - columns.width(before[:keep], self.tab_size)
+        if target is None:
+            return False
         self._begin("back")
-        self.buffer.delete(Pos(self.line, keep), Pos(self.line, index))
-        if pad:
-            self.buffer.insert(Pos(self.line, keep), " " * pad)
+        cut = min(index, len(text))
+        if cut:
+            self.buffer.delete(Pos(self.line, 0), Pos(self.line, cut))
+        if target and not blank_line:
+            self.buffer.insert(Pos(self.line, 0), " " * target)
         self._go_column(self.line, target)
         self._end()
         return True
@@ -1720,6 +1763,10 @@ class FileEditor(Widget):
             return self.autowrap
         if isinstance(command, SwitchBrackets):
             return self.auto_brackets
+        if isinstance(command, SwitchIndent):
+            return self.auto_indent
+        if isinstance(command, SwitchBack):
+            return self.back_indent
         if isinstance(command, SwitchWrap):
             return self.justify_on_wrap
         return super().checks(command)
