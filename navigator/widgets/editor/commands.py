@@ -316,6 +316,13 @@ class FCenter(Command):
     title = "Center"
 
 
+class SwitchBrackets(Command):
+    """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
+    typed with their closing partner (``AutoBrackets``)."""
+
+    title = "AutoBrackets"
+
+
 class SwitchSave(Command):
     """``cmSwitchSave``: Editor > Options > *Auto wrap* -- DN's name for the switch
     that wraps a line typed past the right margin (``AutoWrap``)."""
@@ -452,6 +459,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchBrackets",
     "SwitchSave",
     "SwitchWrap",
     "FCenter",

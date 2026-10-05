@@ -1,5 +1,5 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -322,6 +322,7 @@ EditWindow(Window):
                 text: '~B~ackspace indents'
             MenuItem:
                 text: 'AutoB~r~ackets'
+                command: SwitchBrackets
             MenuItem:
                 text: 'Auto~i~ndent'
             MenuItem:

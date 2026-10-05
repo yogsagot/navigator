@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchBrackets,
     SwitchSave,
     SwitchWrap,
     FCenter,
@@ -361,6 +362,9 @@ class FileEditor(Widget):
     autowrap: bool = reactive(False)
     justify_on_wrap: bool = reactive(False)
 
+    #: ``AutoBrackets``: an opening bracket typed with its partner after it.
+    auto_brackets: bool = reactive(False)
+
     #: The marked stream block, its start before its end, or None: from one
     #: place in the text to another.  It stays when the cursor moves, as
     #: DN's *Persistent blocks* kept it, and follows the edits made around it
@@ -386,6 +390,7 @@ class FileEditor(Widget):
         self.tab_size = SETTINGS.editor.tab_size
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
         self.autowrap = SETTINGS.editor.autowrap
+        self.auto_brackets = SETTINGS.editor.auto_brackets
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
         #: paragraph indent, seeded from the Editor setup and changed by
@@ -1264,6 +1269,11 @@ class FileEditor(Widget):
         self._insert_now(TIME_FORMAT)
         return True
 
+    async def on_switch_brackets(self, event: SwitchBrackets) -> bool:
+        """``cmSwitchBrackets``: ``AutoBrackets := not AutoBrackets``."""
+        self.auto_brackets = not self.auto_brackets
+        return True
+
     async def on_switch_save(self, event: SwitchSave) -> bool:
         """``cmSwitchSave``: ``AutoWrap := not AutoWrap``."""
         self.autowrap = not self.autowrap
@@ -1375,17 +1385,36 @@ class FileEditor(Widget):
         ``LastX >= RightSide``.
         """
         column = self.col
+        pair = self._bracket_pair(text)
         self._begin_replacing("type")
         at = self._pad()
         if self.overwrite:
             line = self._text()
             stop = min(len(line), at.index + len(text))
             self.buffer.delete(at, Pos(at.line, stop))
-        end = self.buffer.insert(at, text)
-        self._go(end)
+        end = self.buffer.insert(at, pair or text)
+        self._go(Pos(at.line, at.index + 1) if pair else end)
         self._end()
         if self.autowrap and column >= self.margins[1]:
             self._wrap()
+
+    #: ``InputChar``'s three pairs.
+    BRACKET_PAIRS = {"(": "()", "{": "{}", "[": "[]"}
+
+    def _bracket_pair(self, text: str) -> str | None:
+        """The pair *AutoBrackets* types for *text*, or None.
+
+        Only in insert mode -- overwrite put the character alone -- and only at
+        the line's end or before a blank (``LastX >= WL`` or a ``' '`` there), so
+        a bracket typed in front of a word stays single.
+        """
+        if not self.auto_brackets or self.overwrite or text not in self.BRACKET_PAIRS:
+            return None
+        index, past = self._index()
+        line = self._text()
+        if past or index >= len(line) or line[index] == " ":
+            return self.BRACKET_PAIRS[text]
+        return None
 
     def _wrap(self) -> None:
         """``SplitString``: the cursor's line split at the margin, an undo step of its own."""
@@ -1683,12 +1712,14 @@ class FileEditor(Widget):
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
-        """Editor > Options ticks *Vertical blocks*, *Auto wrap* and *Justify on wrap*
-        while they are on (``SetM``)."""
+        """Editor > Options ticks *Vertical blocks*, *Auto wrap*, *Justify on wrap* and
+        *AutoBrackets* while they are on (``SetM``)."""
         if isinstance(command, SwitchBlock):
             return self.vertical_blocks
         if isinstance(command, SwitchSave):
             return self.autowrap
+        if isinstance(command, SwitchBrackets):
+            return self.auto_brackets
         if isinstance(command, SwitchWrap):
             return self.justify_on_wrap
         return super().checks(command)

@@ -133,6 +133,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   there moves too, as in DN -- the rest put under the left margin; *Justify on wrap* widens what stays to the margin.
   The cursor follows its text. Departure: a line with no break before the margin is cut at the margin, where DN's
   search stopped at the first character. Pastes do not wrap, as DN's `InputChar` alone did.
+- **AutoBrackets** (`FileEditor.auto_brackets`, DN's `AutoBrackets`, seeded from the Editor setup, switched per editor
+  by Editor > Options > *AutoBrackets* -- `SwitchBrackets`, `cmSwitchBrackets` -- and ticked): `(`, `{` or `[` typed
+  at a line's end or before a blank goes in with its partner, the cursor between (`_bracket_pair`, `InputChar`'s
+  `LastX >= WL or WorkString[LastX+1] = ' '`); before anything else -- its own closing bracket included -- and in
+  overwrite, the character alone. One undo step with the typing.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

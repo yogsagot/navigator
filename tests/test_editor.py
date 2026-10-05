@@ -1767,3 +1767,39 @@ def test_editor_options_switch_and_tick_both(files):
                 lambda a: a.spawn(editor_window(a).editor.on_switch_wrap(SwitchWrap())), lambda a: None,
                 look)
     assert seen == [(False, False), (True, True)]
+
+
+# -- AutoBrackets ---------------------------------------------------------------------------------
+
+
+def test_auto_brackets_types_the_pair_with_the_cursor_between(files):
+    SETTINGS.editor.auto_brackets = True
+    _, editor = text_editor(files, b"f\n", KeyEvent("end"), *typed("("), *typed("x"))
+    assert editor.document.encode() == b"f(x)\n"
+    _, editor = text_editor(files, b"a b\n", KeyEvent("right"), *typed("["), *typed("{"))
+    # Before a blank, a pair; then before its own "]", which is no blank, "{" alone -- DN's rule.
+    assert editor.document.encode() == b"a[{] b\n"
+
+
+def test_before_a_word_or_in_overwrite_the_bracket_stays_single(files):
+    SETTINGS.editor.auto_brackets = True
+    _, editor = text_editor(files, b"word\n", *typed("("))
+    assert editor.document.encode() == b"(word\n"
+    _, editor = text_editor(files, b"ab\n", KeyEvent("insert"), *typed("("))
+    assert editor.document.encode() == b"(b\n"
+
+
+def test_without_auto_brackets_nothing_is_added(files):
+    _, editor = text_editor(files, b"f\n", KeyEvent("end"), *typed("("))
+    assert editor.document.encode() == b"f(\n"
+
+
+def test_auto_brackets_switches_and_is_ticked(files):
+    from navigator.widgets.editor.commands import SwitchBrackets
+
+    seen = []
+    text_editor(files, b"x\n", lambda a: seen.append(editor_window(a).editor.checks(SwitchBrackets())),
+                lambda a: a.spawn(editor_window(a).editor.on_switch_brackets(SwitchBrackets())),
+                lambda a: None,
+                lambda a: seen.append(editor_window(a).editor.checks(SwitchBrackets())))
+    assert seen == [False, True]

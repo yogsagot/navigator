@@ -373,7 +373,9 @@ class EditorDefaultsData(Section):
     backspace_unindents: bool = Setting(
         True, doc="Backspace in the leading blanks goes back to the indent of a line above",
     )
-    auto_brackets: bool = Setting(False, doc="Close brackets as they are typed", honoured=False)
+    auto_brackets: bool = Setting(
+        False, doc="A new editor types ( { [ with their partner after them",
+    )
     auto_indent: bool = Setting(True, doc="Enter indents the new line as the one above")
     autowrap: bool = Setting(False, doc="A new editor wraps a line typed past the right margin")
     justify_on_wrap: bool = Setting(False, doc="A new editor widens the line a wrap leaves to the margin")
