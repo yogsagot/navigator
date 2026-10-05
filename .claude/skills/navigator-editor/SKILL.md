@@ -176,6 +176,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
 - **Duplicate line, F6** (`DuplicateLine`, DN's `cmDuplicateLine`, also Editor > Misc): a copy of the cursor's line
   under it, put after the line's own text so the line keeps its ending and the copy takes the file's usual break; the
   cursor stays; one undo step.
+- **Word and line case** (`UpWord`/`LowWord`/`CapWord`, DN's `cmUpWord`.., and `UpString`/`LowString`/`CapString`;
+  Editor > Misc > Uppercase/Lowercase/Capitalize > *Word*/*Line*): Ctrl+[ / Ctrl+] / Ctrl+\ (and Alt+/ for Capitalize)
+  change the word the cursor is in or just after -- back to a `BREAK_CHARS` character and on to the next -- and with
+  Shift the whole line (`_recase_here`). A blank line is left alone; the line loses its trailing blanks either way; the
+  cursor stays; one undo step. `capitalize` is `CapCaseStr`, shared with ^K \. Ctrl+[ is Esc's byte and the Ctrl+Shift
+  forms need the kitty protocol; Ctrl+], Ctrl+\ and Alt+/ arrive from any terminal, and the menu works everywhere.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

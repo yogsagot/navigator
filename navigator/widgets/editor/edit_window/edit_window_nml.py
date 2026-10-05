@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile    # edit_window.nml:1
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine    # edit_window.nml:3
 from navml.commands import CloseWindow    # edit_window.nml:4
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:5
@@ -78,9 +78,9 @@ class EditWindow(Window, _Component):
     edit_menu_block: SubMenu    # edit_window.nml:217
     edit_menu_misc: SubMenu    # edit_window.nml:258
     edit_menu_misc_uppercase: SubMenu    # edit_window.nml:282
-    edit_menu_misc_lowercase: SubMenu    # edit_window.nml:295
-    edit_menu_misc_capitalize: SubMenu    # edit_window.nml:308
-    edit_menu_options: SubMenu    # edit_window.nml:321
+    edit_menu_misc_lowercase: SubMenu    # edit_window.nml:297
+    edit_menu_misc_capitalize: SubMenu    # edit_window.nml:312
+    edit_menu_options: SubMenu    # edit_window.nml:327
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -159,27 +159,27 @@ class EditWindow(Window, _Component):
         _w46 = MenuLine(parent=self.edit_menu_misc)    # edit_window.nml:280
         self.edit_menu_misc_uppercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:281
         _w47 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:284
-        _w48 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:287
-        _w49 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:290
-        self.edit_menu_misc_lowercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:294
-        _w50 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:297
-        _w51 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:300
-        _w52 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:303
-        self.edit_menu_misc_capitalize = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:307
-        _w53 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:310
-        _w54 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:313
-        _w55 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:316
-        self.edit_menu_options = SubMenu(parent=self.edit_menu)    # edit_window.nml:320
-        _w56 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:323
-        _w57 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:326
-        _w58 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:329
-        _w59 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:332
-        _w60 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:335
-        _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:338
-        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:341
-        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:343
-        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:345
-        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:347
+        _w48 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:288
+        _w49 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:292
+        self.edit_menu_misc_lowercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:296
+        _w50 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:299
+        _w51 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:303
+        _w52 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:307
+        self.edit_menu_misc_capitalize = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:311
+        _w53 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:314
+        _w54 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:318
+        _w55 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:322
+        self.edit_menu_options = SubMenu(parent=self.edit_menu)    # edit_window.nml:326
+        _w56 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:329
+        _w57 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:332
+        _w58 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:335
+        _w59 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:338
+        _w60 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:341
+        _w61 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:344
+        _w62 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:347
+        _w63 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:349
+        _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:351
+        _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:353
 
         self.zoomed = True    # edit_window.nml:22
 
@@ -387,63 +387,69 @@ class EditWindow(Window, _Component):
         self.edit_menu_misc_uppercase.text = '~U~ppercase'    # edit_window.nml:283
 
         _w47.text = '~W~ord'    # edit_window.nml:285
-        _w47.key = 'Ctrl ['    # edit_window.nml:286
+        _w47.command = UpWord    # edit_window.nml:286
+        _w47.key = 'Ctrl ['    # edit_window.nml:287
 
-        _w48.text = '~L~ine'    # edit_window.nml:288
-        _w48.key = 'Ctrl+Shift ['    # edit_window.nml:289
+        _w48.text = '~L~ine'    # edit_window.nml:289
+        _w48.command = UpString    # edit_window.nml:290
+        _w48.key = 'Ctrl+Shift ['    # edit_window.nml:291
 
-        _w49.text = '~B~lock'    # edit_window.nml:291
-        _w49.command = UpcaseBlock    # edit_window.nml:292
-        _w49.key = 'Ctrl K ['    # edit_window.nml:293
+        _w49.text = '~B~lock'    # edit_window.nml:293
+        _w49.command = UpcaseBlock    # edit_window.nml:294
+        _w49.key = 'Ctrl K ['    # edit_window.nml:295
 
-        self.edit_menu_misc_lowercase.text = '~L~owercase'    # edit_window.nml:296
+        self.edit_menu_misc_lowercase.text = '~L~owercase'    # edit_window.nml:298
 
-        _w50.text = '~W~ord'    # edit_window.nml:298
-        _w50.key = 'Ctrl ]'    # edit_window.nml:299
+        _w50.text = '~W~ord'    # edit_window.nml:300
+        _w50.command = LowWord    # edit_window.nml:301
+        _w50.key = 'Ctrl ]'    # edit_window.nml:302
 
-        _w51.text = '~L~ine'    # edit_window.nml:301
-        _w51.key = 'Ctrl+Shift ]'    # edit_window.nml:302
+        _w51.text = '~L~ine'    # edit_window.nml:304
+        _w51.command = LowString    # edit_window.nml:305
+        _w51.key = 'Ctrl+Shift ]'    # edit_window.nml:306
 
-        _w52.text = '~B~lock'    # edit_window.nml:304
-        _w52.command = LowcaseBlock    # edit_window.nml:305
-        _w52.key = 'Ctrl K ]'    # edit_window.nml:306
+        _w52.text = '~B~lock'    # edit_window.nml:308
+        _w52.command = LowcaseBlock    # edit_window.nml:309
+        _w52.key = 'Ctrl K ]'    # edit_window.nml:310
 
-        self.edit_menu_misc_capitalize.text = '~C~apitalize'    # edit_window.nml:309
+        self.edit_menu_misc_capitalize.text = '~C~apitalize'    # edit_window.nml:313
 
-        _w53.text = '~W~ord'    # edit_window.nml:311
-        _w53.key = 'Ctrl \\'    # edit_window.nml:312
+        _w53.text = '~W~ord'    # edit_window.nml:315
+        _w53.command = CapWord    # edit_window.nml:316
+        _w53.key = 'Ctrl \\'    # edit_window.nml:317
 
-        _w54.text = '~L~ine'    # edit_window.nml:314
-        _w54.key = 'Ctrl+Shift \\'    # edit_window.nml:315
+        _w54.text = '~L~ine'    # edit_window.nml:319
+        _w54.command = CapString    # edit_window.nml:320
+        _w54.key = 'Ctrl+Shift \\'    # edit_window.nml:321
 
-        _w55.text = '~B~lock'    # edit_window.nml:317
-        _w55.command = CapitalizeBlock    # edit_window.nml:318
-        _w55.key = 'Ctrl K \\'    # edit_window.nml:319
+        _w55.text = '~B~lock'    # edit_window.nml:323
+        _w55.command = CapitalizeBlock    # edit_window.nml:324
+        _w55.key = 'Ctrl K \\'    # edit_window.nml:325
 
-        self.edit_menu_options.text = '~O~ptions'    # edit_window.nml:322
+        self.edit_menu_options.text = '~O~ptions'    # edit_window.nml:328
 
-        _w56.text = '~B~ackspace indents'    # edit_window.nml:324
-        _w56.command = SwitchBack    # edit_window.nml:325
+        _w56.text = '~B~ackspace indents'    # edit_window.nml:330
+        _w56.command = SwitchBack    # edit_window.nml:331
 
-        _w57.text = 'AutoB~r~ackets'    # edit_window.nml:327
-        _w57.command = SwitchBrackets    # edit_window.nml:328
+        _w57.text = 'AutoB~r~ackets'    # edit_window.nml:333
+        _w57.command = SwitchBrackets    # edit_window.nml:334
 
-        _w58.text = 'Auto~i~ndent'    # edit_window.nml:330
-        _w58.command = SwitchIndent    # edit_window.nml:331
+        _w58.text = 'Auto~i~ndent'    # edit_window.nml:336
+        _w58.command = SwitchIndent    # edit_window.nml:337
 
-        _w59.text = '~A~uto wrap'    # edit_window.nml:333
-        _w59.command = SwitchSave    # edit_window.nml:334
+        _w59.text = '~A~uto wrap'    # edit_window.nml:339
+        _w59.command = SwitchSave    # edit_window.nml:340
 
-        _w60.text = '~J~ustify on wrap'    # edit_window.nml:336
-        _w60.command = SwitchWrap    # edit_window.nml:337
+        _w60.text = '~J~ustify on wrap'    # edit_window.nml:342
+        _w60.command = SwitchWrap    # edit_window.nml:343
 
-        _w61.text = '~V~ertical blocks'    # edit_window.nml:339
-        _w61.command = SwitchBlock    # edit_window.nml:340
+        _w61.text = '~V~ertical blocks'    # edit_window.nml:345
+        _w61.command = SwitchBlock    # edit_window.nml:346
 
-        _w62.text = 'Opti~m~al fill'    # edit_window.nml:342
+        _w62.text = 'Opti~m~al fill'    # edit_window.nml:348
 
-        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:344
+        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:350
 
-        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:346
+        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:352
 
-        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:348
+        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:354

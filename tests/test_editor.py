@@ -1890,3 +1890,37 @@ def test_the_last_line_without_an_ending_is_copied_too_and_undo_takes_it_back(fi
     _, editor = text_editor(files, b"a\nlast", KeyEvent("down"), KeyEvent("f6"),
                             KeyEvent("backspace", alt=True))
     assert editor.document.encode() == b"a\nlast"
+
+
+# -- the word's and the line's case ----------------------------------------------------------------
+
+
+def test_ctrl_bracket_keys_change_the_case_of_the_word_at_the_cursor(files):
+    _, editor = text_editor(files, b"one two.three\n", *at(0, 5), KeyEvent("[", ctrl=True))
+    assert editor.document.encode() == b"one TWO.three\n" and (editor.line, editor.col) == (0, 5)
+    _, editor = text_editor(files, b"ONE TWO\n", KeyEvent("]", ctrl=True))
+    assert editor.document.encode() == b"one TWO\n"
+    _, editor = text_editor(files, b"oNE two\n", KeyEvent("\\", ctrl=True))
+    assert editor.document.encode() == b"One two\n"
+
+
+def test_the_word_just_behind_the_cursor_counts(files):
+    _, editor = text_editor(files, b"abc def\n", *at(0, 3), KeyEvent("/", alt=True))
+    assert editor.document.encode() == b"Abc def\n"
+
+
+def test_with_shift_or_the_line_command_the_whole_line_changes_and_loses_its_trailing_blanks(files):
+    _, editor = text_editor(files, b"abc def  \n", KeyEvent("[", ctrl=True, shift=True))
+    assert editor.document.encode() == b"ABC DEF\n"
+
+
+def test_a_blank_line_or_no_word_changes_nothing(files):
+    _, editor = text_editor(files, b"   \n", KeyEvent("[", ctrl=True))
+    assert editor.document.encode() == b"   \n" and not editor.modified
+    _, editor = text_editor(files, b"(x)\n", KeyEvent("[", ctrl=True))
+    assert editor.document.encode() == b"(x)\n"
+
+
+def test_one_undo_takes_the_change_back(files):
+    _, editor = text_editor(files, b"abc\n", KeyEvent("[", ctrl=True), KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"abc\n"

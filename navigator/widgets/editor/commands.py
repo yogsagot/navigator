@@ -376,6 +376,42 @@ class GotoLineNumber(Command):
     title = "Go to line"
 
 
+class UpWord(Command):
+    """``cmUpWord``: Ctrl+[, Editor > Misc > Uppercase > *Word*."""
+
+    title = "Uppercase word"
+
+
+class LowWord(Command):
+    """``cmLowWord``: Ctrl+], Editor > Misc > Lowercase > *Word*."""
+
+    title = "Lowercase word"
+
+
+class CapWord(Command):
+    """``cmCapWord``: Ctrl+\\, Alt+/, Editor > Misc > Capitalize > *Word*."""
+
+    title = "Capitalize word"
+
+
+class UpString(Command):
+    """``cmUpString``: Ctrl+Shift+[, Editor > Misc > Uppercase > *Line*."""
+
+    title = "Uppercase line"
+
+
+class LowString(Command):
+    """``cmLowString``: Ctrl+Shift+], Editor > Misc > Lowercase > *Line*."""
+
+    title = "Lowercase line"
+
+
+class CapString(Command):
+    """``cmCapString``: Ctrl+Shift+\\, Editor > Misc > Capitalize > *Line*."""
+
+    title = "Capitalize line"
+
+
 class MarkWord(Command):
     """``cmMarkWord``: ^K^T -- the word at the cursor, marked."""
 
@@ -485,6 +521,12 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "CapString",
+    "CapWord",
+    "LowString",
+    "LowWord",
+    "UpString",
+    "UpWord",
     "DuplicateLine",
     "SwitchDrawMode",
     "SwitchBack",

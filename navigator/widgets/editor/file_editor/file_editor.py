@@ -37,6 +37,12 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    CapString,
+    CapWord,
+    LowString,
+    LowWord,
+    UpString,
+    UpWord,
     DuplicateLine,
     SwitchDrawMode,
     SwitchBack,
@@ -174,6 +180,11 @@ def block_sum(pieces: list[str]) -> str:
 _WORD = re.compile(r"[^\W_]+")
 
 
+def capitalize(text: str) -> str:
+    """``CapCaseStr``: each word's first letter upper case, the rest lower."""
+    return _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text)
+
+
 def _marking(
     handler: Callable[[Any, Any], Awaitable[bool]],
 ) -> Callable[[Any, Any], Awaitable[bool]]:
@@ -284,6 +295,16 @@ class FileEditor(Widget):
         "alt+g": GotoLineNumber,
         "f4": SwitchDrawMode,
         "f6": DuplicateLine,
+        # ``$1A1B``, ``$1B1D``, ``^\\`` and ``kbAltSlash``; with Shift, the line.
+        # Ctrl+[ is Esc's byte, so it and the Ctrl+Shift forms need the kitty
+        # keyboard protocol to arrive as themselves.
+        "ctrl+[": UpWord,
+        "ctrl+]": LowWord,
+        "ctrl+\\": CapWord,
+        "alt+/": CapWord,
+        "ctrl+shift+[": UpString,
+        "ctrl+shift+]": LowString,
+        "ctrl+shift+\\": CapString,
         "ctrl+p": AsciiTable,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
@@ -1165,7 +1186,67 @@ class FileEditor(Widget):
         return True
 
     async def on_capitalize_block(self, event: CapitalizeBlock) -> bool:
-        self._recase(lambda text: _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text))
+        self._recase(capitalize)
+        return True
+
+    # -- the word's or the line's case ----------------------------------------------------
+
+    def _recase_here(self, change: Callable[[str], str], *, line: bool) -> None:
+        """The case of the word at the cursor, or of the whole *line*: DN's
+        ``cmUpWord`` .. ``cmCapString``.
+
+        Nothing on a blank line.  The line loses its trailing blanks either way.
+        The word runs back from the cursor to a ``BREAK_CHARS`` character and on
+        to the next, so one just behind the cursor counts.  The cursor stays;
+        one undo step.
+        """
+        text = self._text()
+        if not text.strip(" "):
+            return
+        kept = text.rstrip(" ")
+        if line:
+            new = change(kept)
+        else:
+            index = min(self._mark_pos().index, len(kept))
+            start = index
+            while start and kept[start - 1] not in BREAK_CHARS:
+                start -= 1
+            stop = start
+            while stop < len(kept) and kept[stop] not in BREAK_CHARS:
+                stop += 1
+            new = kept[:start] + change(kept[start:stop]) + kept[stop:]
+        if new == text:
+            return
+        number, col = self.line, self.col
+        self._moved()
+        self._begin()
+        self.buffer.delete(Pos(number, 0), Pos(number, len(text)))
+        self.buffer.insert(Pos(number, 0), new)
+        self._end()
+        self._go_column(number, col)
+
+    async def on_up_word(self, event: UpWord) -> bool:
+        self._recase_here(str.upper, line=False)
+        return True
+
+    async def on_low_word(self, event: LowWord) -> bool:
+        self._recase_here(str.lower, line=False)
+        return True
+
+    async def on_cap_word(self, event: CapWord) -> bool:
+        self._recase_here(capitalize, line=False)
+        return True
+
+    async def on_up_string(self, event: UpString) -> bool:
+        self._recase_here(str.upper, line=True)
+        return True
+
+    async def on_low_string(self, event: LowString) -> bool:
+        self._recase_here(str.lower, line=True)
+        return True
+
+    async def on_cap_string(self, event: CapString) -> bool:
+        self._recase_here(capitalize, line=True)
         return True
 
     # -- ^Q[: the bracket pair ---------------------------------------------------------
