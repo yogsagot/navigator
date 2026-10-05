@@ -163,6 +163,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   character (blanks before, none under) or anywhere on an all-blank line, never on the first line; back to the indent
   of the nearest line above with text and a narrower indent, the blanks before the cursor becoming that many spaces;
   no such line, a plain Backspace. Departure from DN, which expanded tabs: a leading tab is indentation by its width.
+- **Line drawing, F4 / ^Q^M** (`SwitchDrawMode`, DN's `cmSwitchDrawMode` and `DrawLine`; also Editor > Misc > *Line
+  Drawing*; `navigator/editor/linedraw.py`): F4 cycles `FileEditor.draw_mode` off, single, double; the info line shows
+  `{┼}`/`{╬}` where the block's kind was, and the pen is lifted. While on, the arrows (and ^E ^D ^X ^S) are
+  `DrawLine`'s before any key table -- `FileEditor._run_key` looks at the raw key, since a command does not carry the
+  modifier that decides: Shift draws, Ctrl erases, neither only moves a cell. Drawing picks the cell's character from
+  a 15-entry mask table (up 1, right 2, down 4, left 8) of the arms its neighbours reach it with, the way the pen came
+  and the way it goes, in DN's four tables (`Line00/01/10/11`, so a line crossing one of the other weight gets the
+  mixed junction); going straight back the way it came draws nothing. Erasing blanks the cell and takes the arm into it
+  off any neighbouring junction (three or four arms; a plain line beside is left). Down off the last line adds one.
+  Each stroke is one undo step. ^Q^M is bound as `ctrl+q enter` too, Ctrl+M arriving as Enter.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

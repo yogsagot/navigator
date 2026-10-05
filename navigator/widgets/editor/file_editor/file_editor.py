@@ -37,6 +37,7 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchDrawMode,
     SwitchBack,
     SwitchIndent,
     SwitchBrackets,
@@ -280,6 +281,7 @@ class FileEditor(Widget):
         "alt+t": SortBlock,
         "alt+insert": CalcBlock,
         "alt+g": GotoLineNumber,
+        "f4": SwitchDrawMode,
         "ctrl+p": AsciiTable,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
@@ -329,6 +331,9 @@ class FileEditor(Widget):
             # ``^Q'['`` and ``^Q^]``, as the table has them, neither with the other's form.
             "[": BracketPair,
             **{str(n): GotoMarker(n) for n in range(1, 10)},
+            "m": SwitchDrawMode,
+            # ``^Q^M``: Ctrl+M is Enter on a terminal that cannot tell them apart.
+            "enter": SwitchDrawMode,
         }),
         "ctrl+q ctrl+]": BracketPair,
     }
@@ -372,6 +377,10 @@ class FileEditor(Widget):
     #: Editor setup, switched for this editor alone from Editor > Options.
     auto_indent: bool = reactive(True)
     back_indent: bool = reactive(True)
+
+    #: ``DrawMode``: 0 off, 1 single lines, 2 double.  While on, the arrows
+    #: draw (with Shift), erase (with Ctrl) or only move (:meth:`_draw_key`).
+    draw_mode: int = reactive(0)
 
     #: The marked stream block, its start before its end, or None: from one
     #: place in the text to another.  It stays when the cursor moves, as
@@ -423,6 +432,8 @@ class FileEditor(Widget):
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
+        #: ``LastDir``: where the pen came into the cell it is on, or None.
+        self._pen: int | None = None
         #: DN's ``MarkPos``: markers 1 to 9, each a ``(line, col)`` or None.
         #: Fixed places, as DN's were -- an edit above one does not move it.
         self.markers: list[tuple[int, int] | None] = [None] * 9
@@ -1206,6 +1217,107 @@ class FileEditor(Widget):
             self._go(found)
         return True
 
+    # -- F4: line drawing ---------------------------------------------------------------
+
+    #: The keys ``DrawLine`` answered, and the direction each goes.
+    DRAW_KEYS = {"up": 0, "right": 1, "down": 2, "left": 3, "e": 0, "d": 1, "x": 2, "s": 3}
+
+    async def on_switch_draw_mode(self, event: SwitchDrawMode) -> bool:
+        """``cmSwitchDrawMode``: off, single, double, off; the pen lifted."""
+        self.draw_mode = (self.draw_mode + 1) % 3
+        self._pen = None
+        return True
+
+    async def _run_key(self, event: KeyEvent) -> bool:
+        """While drawing, the arrows (and ^E ^D ^X ^S) are ``DrawLine``'s before any
+        command they are bound to: a key table hands a command on without the
+        Shift or Ctrl that decide here between drawing, erasing and moving."""
+        if self.draw_mode and self._draw_key(event):
+            return True
+        return await super()._run_key(event)
+
+    def _draw_key(self, event: KeyEvent) -> bool:
+        key = event.key
+        direction = self.DRAW_KEYS.get(key)
+        if direction is None or event.alt or (len(key) == 1 and not event.ctrl):
+            return False
+        if event.shift:
+            how = "draw"
+        elif event.ctrl:
+            how = "erase"
+        else:
+            how = "move"
+        self.draw_line(direction, how)
+        return True
+
+    def _cell(self, line: int, col: int) -> str:
+        """The character in a cell, a blank past a line's end or outside the text."""
+        if not 0 <= line < len(self.document) or col < 0:
+            return " "
+        text = self.document.lines[line]
+        index, past = columns.index_at(text, col, self.tab_size)
+        return " " if past or index >= len(text) else text[index]
+
+    def _put(self, line: int, col: int, char: str) -> None:
+        """*char* into a cell, the line padded out to it with blanks if short."""
+        text = self.document.lines[line]
+        index, past = columns.index_at(text, col, self.tab_size)
+        if past or index >= len(text):
+            self.buffer.insert(Pos(line, len(text)), " " * past + char)
+        elif text[index] != char:
+            self.buffer.delete(Pos(line, index), Pos(line, index + 1))
+            self.buffer.insert(Pos(line, index), char)
+
+    def draw_line(self, direction: int, how: str) -> None:
+        """``DrawLine``: draw, erase or only move one cell *direction* (0 up, 1 right,
+        2 down, 3 left).
+
+        Drawing or erasing is skipped going straight back the way the pen came;
+        either way the cursor then moves, a line added below the last, and the
+        pen remembers the side it came in by.
+        """
+        from navigator.editor import linedraw
+
+        line, col = self.line, self.col
+        double = self.draw_mode == 2
+        if how != "move" and self._pen != direction:
+            up, down = self._cell(line - 1, col), self._cell(line + 1, col)
+            left, right = self._cell(line, col - 1), self._cell(line, col + 1)
+            self._moved()
+            self._begin()
+            if how == "draw":
+                self._put(line, col, linedraw.drawn(
+                    up, right, down, left, double=double, direction=direction, came=self._pen,
+                ))
+            else:
+                for (y, x, char, arm) in ((line - 1, col, up, 4), (line + 1, col, down, 1),
+                                         (line, col - 1, left, 2)):
+                    new = linedraw.without_arm(char, arm) if 0 <= y < len(self.document) and x >= 0 else None
+                    if new is not None:
+                        self._put(y, x, new)
+                self._put(line, col, " ")
+                text = self.document.lines[line]
+                if columns.width(text, self.tab_size) > col + 1:
+                    new = linedraw.without_arm(right, 8)
+                    if new is not None:
+                        self._put(line, col + 1, new)
+            self._end()
+        self._moved()
+        if direction == 0:
+            self._go_column(line - 1, col)
+        elif direction == 2:
+            if line == len(self.document) - 1:
+                self._begin()
+                self.buffer.insert(self.document.end, self.document.newline)
+                self._end()
+            self._go_column(line + 1, col)
+        elif direction == 1:
+            self._go_column(line, col + 1)
+        else:
+            self._go_column(line, max(0, col - 1))
+        if how != "move":
+            self._pen = (direction + 2) % 4
+
     # -- ^K1-9 and ^Q1-9 -----------------------------------------------------------
 
     async def on_place_marker(self, event: PlaceMarker) -> bool:
@@ -1932,6 +2044,9 @@ class FileEditor(Widget):
             char = text[index]
             code = ord(char) - 0xDC00 if columns.is_escaped(char) else ord(char)
         block = ("(↕)" if unicode else "(|)") if self.vertical_blocks else ("(↔)" if unicode else "(-)")
+        if self.draw_mode:
+            # ``{┼}``/``{╬}``: the pen's weight, where the block's kind was.
+            block = ("{┼}", "{╬}")[self.draw_mode - 1] if unicode else ("{+}", "{#}")[self.draw_mode - 1]
         # A departure: the keys of a chord still waiting for its last, WordStar's
         # ``^K``, so a key about to be swallowed is not a surprise.
         app = self.application

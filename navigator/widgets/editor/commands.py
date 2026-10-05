@@ -316,6 +316,13 @@ class FCenter(Command):
     title = "Center"
 
 
+class SwitchDrawMode(Command):
+    """``cmSwitchDrawMode``: F4, ^Q^M, Editor > Misc > *Line Drawing* -- off, single
+    lines, double lines, and off again."""
+
+    title = "Line Drawing"
+
+
 class SwitchIndent(Command):
     """``cmSwitchIndent``: Editor > Options > *Autoindent* (``AutoIndent``)."""
 
@@ -471,6 +478,7 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchDrawMode",
     "SwitchBack",
     "SwitchIndent",
     "SwitchBrackets",
