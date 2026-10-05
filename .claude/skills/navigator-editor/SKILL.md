@@ -124,6 +124,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   at its start. Disabled for a column block. *Margins...* (`SetMargins`, `MarginsDialog`, `dlgEditorFormat` 39 by 11)
   changes this editor's margins only, seeded from the Editor setup, a number that does not read kept, then
   `fix_margins` (`SetFormat`'s corrections). DN's line-only `cmL*` had no key in the English resource and are not here.
+- **Auto wrap and Justify on wrap** (`FileEditor.autowrap`/`justify_on_wrap`, DN's `AutoWrap`/`AutoJustify`, seeded from
+  the Editor setup, switched per editor by Editor > Options -- `SwitchSave` is DN's own name, `cmSwitchSave`, for
+  *Auto wrap*, `SwitchWrap` (`cmSwitchWrap`) for *Justify on wrap* -- and ticked through `checks`): a character typed
+  at or past the right margin (`type_text`, `InputChar`'s `LastX >= RightSide`) wraps the line, its own undo step
+  after the typing's (`_wrap`, `paragraph.wrap_line`, DN's `SplitString`). Trailing blanks go; a line still past the
+  margin is cut after its last blank or `,:.?!+;` at or before it -- so a word ending on the margin with no break
+  there moves too, as in DN -- the rest put under the left margin; *Justify on wrap* widens what stays to the margin.
+  The cursor follows its text. Departure: a line with no break before the margin is cut at the margin, where DN's
+  search stopped at the first character. Pastes do not wrap, as DN's `InputChar` alone did.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

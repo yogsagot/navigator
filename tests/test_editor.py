@@ -1719,3 +1719,51 @@ def SetMarginsCommand():
     from navigator.widgets.editor.commands import SetMargins
 
     return SetMargins()
+
+
+# -- Auto wrap and Justify on wrap -----------------------------------------------------------------
+
+
+def test_typing_past_the_margin_wraps_with_auto_wrap(files):
+    SETTINGS.editor.autowrap = True
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 20
+    _, editor = text_editor(files, b"the quick brown fox\n", KeyEvent("end"), *typed(" jumps"))
+    assert editor.document.encode() == b"the quick brown fox\njumps\n"
+    assert (editor.line, editor.col) == (1, 5)
+
+
+def test_without_auto_wrap_the_line_just_grows(files):
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 20
+    _, editor = text_editor(files, b"the quick brown fox\n", KeyEvent("end"), *typed(" jumps"))
+    assert editor.document.encode() == b"the quick brown fox jumps\n"
+
+
+def test_justify_on_wrap_widens_the_line_left_behind(files):
+    SETTINGS.editor.autowrap = SETTINGS.editor.justify_on_wrap = True
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 20
+    _, editor = text_editor(files, b"the quick brown fox\n", KeyEvent("end"), *typed(" jumps"))
+    assert editor.document.encode() == b"the  quick brown fox\njumps\n"
+
+
+def test_one_undo_takes_the_wrap_back_and_keeps_the_typing(files):
+    SETTINGS.editor.autowrap = True
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 20
+    _, editor = text_editor(files, b"the quick brown fox\n", KeyEvent("end"), *typed(" j"),
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"the quick brown fox j\n"
+
+
+def test_editor_options_switch_and_tick_both(files):
+    from navigator.widgets.editor.commands import SwitchSave, SwitchWrap
+
+    seen = []
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append((editor.checks(SwitchSave()), editor.checks(SwitchWrap())))
+
+    text_editor(files, b"x\n", look,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_save(SwitchSave())), lambda a: None,
+                lambda a: a.spawn(editor_window(a).editor.on_switch_wrap(SwitchWrap())), lambda a: None,
+                look)
+    assert seen == [(False, False), (True, True)]

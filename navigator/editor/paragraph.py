@@ -90,3 +90,55 @@ def fix_margins(left: int, right: int, indent: int) -> tuple[int, int, int]:
     if indent >= right or indent < 0:
         indent = left
     return left, right, indent
+
+
+#: What ``SplitString`` may break a line after, besides a blank.
+WRAP_BREAKS = frozenset(" ,:.?!+;")
+
+
+def wrap_line(
+    text: str, cursor: int, *, left: int, right: int, justify: bool,
+) -> tuple[str, str, tuple[int, int]] | None:
+    """``SplitString``: *text* split where typing has pushed it past the right margin.
+
+    Trailing blanks go first; a line no longer past the margin is not split
+    (None).  Otherwise the line is cut after the last blank or ``,:.?!+;`` at
+    or before the margin, the part after it -- its leading blanks dropped --
+    put on a new line under the left margin; with *justify* the part that
+    stays is widened to the margin as ``AutoJustify`` widened it.  Answers
+    the two lines and where the cursor, a string index *cursor* in *text*,
+    ends up: ``(0, index)`` on the first, ``(1, index)`` on the new one.
+
+    A departure: a line with no break before the margin is cut at the margin,
+    where DN's search for a break stopped at the first character and kept it.
+    """
+    stripped = text.rstrip(" ")
+    if len(stripped) <= right:
+        return None
+    cut = right
+    while cut > 0 and stripped[cut - 1] not in WRAP_BREAKS:
+        cut -= 1
+    if cut == 0 or not stripped[:cut].strip(" "):
+        cut = right
+    head = stripped[:cut].rstrip(" ")
+    rest = stripped[cut:]
+    tail = rest.lstrip(" ")
+    tail_start = cut + (len(rest) - len(tail))
+    if justify:
+        head = _justify_to(head, right)
+    new = " " * left + tail
+    if cursor >= tail_start:
+        return head, new, (1, left + min(cursor, len(stripped)) - tail_start)
+    if cursor > len(head):
+        return head, new, (1, left)
+    return head, new, (0, cursor)
+
+
+def _justify_to(line: str, width: int) -> str:
+    """``AutoJustify``: blanks added after each word in turn, from the first, until
+    *line* reaches *width*; a line of one word, or leading blanks only, stays."""
+    indent = len(line) - len(line.lstrip(" "))
+    body = line[indent:]
+    if " " not in body:
+        return line
+    return " " * indent + _justify(body, width - indent)

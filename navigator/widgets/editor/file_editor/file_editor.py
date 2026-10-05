@@ -37,6 +37,8 @@ from navkit.widget import Widget
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
+    SwitchSave,
+    SwitchWrap,
     FCenter,
     FJustify,
     FLeft,
@@ -353,6 +355,12 @@ class FileEditor(Widget):
     #: Column blocks rather than stream ones: DN's ``VertBlock``.
     vertical_blocks: bool = reactive(False)
 
+    #: ``AutoWrap``: a line typed past the right margin wraps; ``AutoJustify``:
+    #: the line it leaves is widened to the margin.  Seeded from the Editor
+    #: setup, switched for this editor alone from Editor > Options.
+    autowrap: bool = reactive(False)
+    justify_on_wrap: bool = reactive(False)
+
     #: The marked stream block, its start before its end, or None: from one
     #: place in the text to another.  It stays when the cursor moves, as
     #: DN's *Persistent blocks* kept it, and follows the edits made around it
@@ -377,6 +385,8 @@ class FileEditor(Widget):
         #: Where a Tab stops, and how far a tab character reaches.
         self.tab_size = SETTINGS.editor.tab_size
         self.vertical_blocks = SETTINGS.editor.vertical_blocks
+        self.autowrap = SETTINGS.editor.autowrap
+        self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
         #: paragraph indent, seeded from the Editor setup and changed by
         #: *Format Margins* for this editor alone, as ``SetFormat`` did.
@@ -1254,6 +1264,16 @@ class FileEditor(Widget):
         self._insert_now(TIME_FORMAT)
         return True
 
+    async def on_switch_save(self, event: SwitchSave) -> bool:
+        """``cmSwitchSave``: ``AutoWrap := not AutoWrap``."""
+        self.autowrap = not self.autowrap
+        return True
+
+    async def on_switch_wrap(self, event: SwitchWrap) -> bool:
+        """``cmSwitchWrap``: ``AutoJustify := not AutoJustify``."""
+        self.justify_on_wrap = not self.justify_on_wrap
+        return True
+
     async def on_switch_block(self, event: SwitchBlock) -> bool:
         """``cmSwitchBlock``: ``VertBlock := not VertBlock``.
 
@@ -1348,7 +1368,13 @@ class FileEditor(Widget):
         return Pos(self.line, index)
 
     def type_text(self, text: str) -> None:
-        """Characters typed at the cursor, inserted or over what is there."""
+        """Characters typed at the cursor, inserted or over what is there.
+
+        Typed at or past the right margin with *Auto wrap* on, the line then
+        wraps (:meth:`_wrap`), as ``InputChar`` called ``SplitString`` once
+        ``LastX >= RightSide``.
+        """
+        column = self.col
         self._begin_replacing("type")
         at = self._pad()
         if self.overwrite:
@@ -1358,6 +1384,27 @@ class FileEditor(Widget):
         end = self.buffer.insert(at, text)
         self._go(end)
         self._end()
+        if self.autowrap and column >= self.margins[1]:
+            self._wrap()
+
+    def _wrap(self) -> None:
+        """``SplitString``: the cursor's line split at the margin, an undo step of its own."""
+        from navigator.editor.paragraph import wrap_line
+
+        left, right, _ = self.margins
+        text = self._text()
+        split = wrap_line(text, self._mark_pos().index, left=left, right=right,
+                          justify=self.justify_on_wrap)
+        if split is None:
+            return
+        head, tail, (down, index) = split
+        line = self.line
+        self._moved()
+        self._begin()
+        self.buffer.delete(Pos(line, 0), Pos(line, len(text)))
+        self.buffer.insert(Pos(line, 0), head + self.document.newline + tail)
+        self._end()
+        self._go(Pos(line + down, index))
 
     def insert_text(self, text: str) -> None:
         """A paste: line breaks become the file's own.
@@ -1636,9 +1683,14 @@ class FileEditor(Widget):
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
-        """Editor > Options ticks *Vertical blocks* while column blocks are in force."""
+        """Editor > Options ticks *Vertical blocks*, *Auto wrap* and *Justify on wrap*
+        while they are on (``SetM``)."""
         if isinstance(command, SwitchBlock):
             return self.vertical_blocks
+        if isinstance(command, SwitchSave):
+            return self.autowrap
+        if isinstance(command, SwitchWrap):
+            return self.justify_on_wrap
         return super().checks(command)
 
     async def on_undo(self, event: Undo) -> bool:

@@ -316,6 +316,20 @@ class FCenter(Command):
     title = "Center"
 
 
+class SwitchSave(Command):
+    """``cmSwitchSave``: Editor > Options > *Auto wrap* -- DN's name for the switch
+    that wraps a line typed past the right margin (``AutoWrap``)."""
+
+    title = "Auto wrap"
+
+
+class SwitchWrap(Command):
+    """``cmSwitchWrap``: Editor > Options > *Justify on wrap* -- the line a wrap
+    leaves behind widened to the margin (``AutoJustify``)."""
+
+    title = "Justify on wrap"
+
+
 class SetMargins(Command):
     """``cmSetMargins``: Editor > Paragraph > *Margins...* -- this editor's margins."""
 
@@ -438,6 +452,8 @@ __all__ = [
     "ClipboardCut",
     "ClipboardPaste",
     "EditorMovement",
+    "SwitchSave",
+    "SwitchWrap",
     "FCenter",
     "FJustify",
     "FLeft",
