@@ -1498,7 +1498,7 @@ class FileEditor(Widget):
         """
         text = BREAK.sub(self.document.newline, text)
         self._moved()
-        self._begin_replacing()
+        self._begin()
         self.column_block = None
         self.vertical_blocks = False
         self.block_hidden = False
@@ -1513,9 +1513,9 @@ class FileEditor(Widget):
     def _insert_now(self, format: str) -> None:
         """The date or time in DN's ``Date (D-M-Y)``/``Time (H:M:S)`` form -- the
         attributes dialog's -- inserted at the cursor, never typed over what is
-        there even in overwrite; with *Persistent blocks* off it replaces the block."""
+        there even in overwrite, and the block left alone, as ``InsertDateTime`` left it."""
         self._moved()
-        self._begin_replacing()
+        self._begin()
         end = self.buffer.insert(self._pad(), time.strftime(format, _now()))
         self._go(end)
         self._end()
@@ -1624,25 +1624,43 @@ class FileEditor(Widget):
     def _begin(self, merge: str | None = None) -> None:
         self.buffer.begin((self.line, self.col), merge)
 
-    def _begin_replacing(self, merge: str | None = None) -> None:
-        """:meth:`_begin` an edit that, with *Persistent blocks* off, replaces the block.
+    @staticmethod
+    def _overwrites_blocks() -> bool:
+        """DN's ``EdOpt and (ebfPbl + ebfObl) = ebfObl``: *Overwrite blocks* on and
+        *Persistent blocks* off, the one pair under which an edit takes the block."""
+        editor = SETTINGS.editor
+        return editor.overwrite_blocks and not editor.persistent_blocks
 
-        The block goes in the same undo group as what replaces it, and starts
-        a group of its own rather than joining a run of typing before it.
+    def _block_off(self) -> None:
+        """``BlockOff``: with *Persistent blocks* off the block goes; on, it stays."""
+        if not SETTINGS.editor.persistent_blocks:
+            self._unmark()
+
+    def _begin_typed(self, merge: str | None = None) -> None:
+        """:meth:`_begin` what is typed or pasted: ``InputChar``'s and ``PasteBlock``'s
+        ``DeleteBlock`` under :meth:`_overwrites_blocks`, then ``BlockOff``.
+
+        A block taken goes in the same undo group as what replaces it, and
+        starts a group of its own rather than joining a run of typing before it.
         """
-        if SETTINGS.editor.persistent_blocks or not self.has_block:
+        if self._overwrites_blocks() and self.has_block:
+            self._moved()
             self._begin(merge)
+            self._take_block()
             return
-        self._moved()
+        self._block_off()
         self._begin(merge)
-        self._take_block()
 
     def _deleting_block(self) -> bool:
-        """Backspace and Del with *Persistent blocks* off: the block, if any, and nothing else."""
-        if SETTINGS.editor.persistent_blocks or not self.has_block:
-            return False
-        self._delete_block()
-        return True
+        """Del's ``DeleteBlock`` under :meth:`_overwrites_blocks`: the block alone.
+
+        Otherwise the block goes (``BlockOff``, with *Persistent blocks* off)
+        and Del deletes as ever."""
+        if self._overwrites_blocks() and self.has_block:
+            self._delete_block()
+            return True
+        self._block_off()
+        return False
 
     def _end(self) -> None:
         self.buffer.end()
@@ -1670,7 +1688,7 @@ class FileEditor(Widget):
         """
         column = self.col
         pair = self._bracket_pair(text)
-        self._begin_replacing("type")
+        self._begin_typed("type")
         at = self._pad()
         if self.overwrite:
             line = self._text()
@@ -1730,7 +1748,7 @@ class FileEditor(Widget):
             self._insert_rectangle(pieces)
             return
         text = BREAK.sub(self.document.newline, text)
-        self._begin_replacing()
+        self._begin_typed()
         end = self.buffer.insert(self._pad(), text)
         self._go(end)
         self._end()
@@ -1742,7 +1760,7 @@ class FileEditor(Widget):
         text's end; a piece with nothing after it loses its padding.  The
         cursor stays at the top-left corner.
         """
-        self._begin_replacing()
+        self._begin_typed()
         line, col = self.line, self.col
         self._put_rectangle(pieces, line, col)
         self._go_column(line, col)
@@ -1785,7 +1803,8 @@ class FileEditor(Widget):
                 self._end()
             self._go_column(self.line + 1, 0)
             return True
-        self._begin_replacing()
+        self._block_off()
+        self._begin()
         index, _ = self._index()
         text = self._text()
         line = self.line
@@ -1845,7 +1864,7 @@ class FileEditor(Widget):
             self._moved()
             self._go_column(self.line, stop)
             return True
-        self._begin_replacing("type")
+        self._begin("type")
         # Again: a block replaced has moved the cursor to where it began.
         stop = (self.col // self.tab_size + 1) * self.tab_size
         at = self._pad()
@@ -1901,10 +1920,12 @@ class FileEditor(Widget):
         """``MakeBack``: the character before the cursor, or the line break.
 
         In the line's leading blanks, under the Editor setup's *Backspace
-        unindents*, :meth:`_unindent` instead; with *Persistent blocks* off
-        and a block marked, the block alone.
+        unindents*, :meth:`_unindent` instead.  The block is never taken: with
+        *Persistent blocks* off it only goes (``BlockOff; MakeBack``).
         """
-        if self._deleting_block() or self._unindent():
+        # ``cmDelBackChar: BlockOff; MakeBack``: Backspace never takes the block.
+        self._block_off()
+        if self._unindent():
             return True
         index, past = self._index()
         if past:
@@ -1932,7 +1953,7 @@ class FileEditor(Widget):
     async def on_delete_char(self, event: DeleteChar) -> bool:
         """``MakeDel``: the character under the cursor, or join the next line.
 
-        With *Persistent blocks* off and a block marked, the block alone.
+        With *Overwrite blocks* on and *Persistent blocks* off, a marked block alone.
         """
         if self._deleting_block():
             return True

@@ -388,7 +388,9 @@ class EditorDefaultsData(Section):
     persistent_blocks: bool = Setting(
         True, doc="The block stays when the cursor moves; off, typing replaces it",
     )
-    overwrite_blocks: bool = Setting(False, doc="Typing overwrites a block", honoured=False)
+    overwrite_blocks: bool = Setting(
+        False, doc="With persistent blocks off, typing, pasting and Del replace the block",
+    )
     lock_file: bool = Setting(False, doc="Lock the file being edited", honoured=False)
     left_margin: int = Setting(0, doc="Left margin a new editor formats paragraphs to")
     right_margin: int = Setting(78, doc="Right margin a new editor formats paragraphs to")

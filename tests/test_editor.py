@@ -671,16 +671,35 @@ def test_without_persistent_blocks_a_movement_unmarks(files):
     assert editor.block is None
 
 
-def test_without_persistent_blocks_typing_replaces_the_block(files):
+def overwriting_blocks():
+    """*Persistent blocks* off and *Overwrite blocks* on: DN's ``(ebfPbl + ebfObl) = ebfObl``."""
     SETTINGS.editor.persistent_blocks = False
+    SETTINGS.editor.overwrite_blocks = True
+
+
+def test_without_persistent_blocks_typing_only_unmarks(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 5, *typed("X"))
+    assert editor.document.encode().startswith(b"firstX line\r\n")
+    assert editor.block is None
+
+
+def test_with_overwrite_blocks_typing_replaces_the_block(files):
+    overwriting_blocks()
     _, editor = marked(files, *typed("ab"), KeyEvent("home"),
                        *[KeyEvent("right", shift=True)] * 7, *typed("X"))
     assert editor.document.encode().startswith(b"X line\r\n")
     assert editor.block is None and (editor.line, editor.col) == (0, 1)
 
 
-def test_without_persistent_blocks_one_undo_takes_the_replacement_back(files):
-    SETTINGS.editor.persistent_blocks = False
+def test_overwrite_blocks_does_nothing_while_blocks_persist(files):
+    SETTINGS.editor.overwrite_blocks = True
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 5, *typed("X"))
+    assert editor.document.encode().startswith(b"firstX line\r\n") and editor.block_text == "first"
+
+
+def test_one_undo_takes_the_replacement_back(files):
+    overwriting_blocks()
     _, editor = marked(files, *typed("ab"), KeyEvent("home"),
                        *[KeyEvent("right", shift=True)] * 7, *typed("X"),
                        KeyEvent("backspace", alt=True))
@@ -688,16 +707,29 @@ def test_without_persistent_blocks_one_undo_takes_the_replacement_back(files):
     assert editor.document.encode().startswith(b"abfirst line\r\n")
 
 
-@pytest.mark.parametrize("key", ["delete", "backspace"])
-def test_without_persistent_blocks_del_and_backspace_take_the_block_alone(files, key):
-    SETTINGS.editor.persistent_blocks = False
+def test_with_overwrite_blocks_del_takes_the_block(files):
+    overwriting_blocks()
     _, editor = marked(files, KeyEvent("right"), *[KeyEvent("right", shift=True)] * 4,
-                       KeyEvent(key))
+                       KeyEvent("delete"))
     assert editor.document.encode().startswith(b"f line\r\n")
 
 
-def test_without_persistent_blocks_a_paste_replaces_the_block(files):
+def test_backspace_never_takes_the_block_and_unmarks_without_persistence(files):
+    overwriting_blocks()
+    _, editor = marked(files, KeyEvent("right"), *[KeyEvent("right", shift=True)] * 4,
+                       KeyEvent("backspace"))
+    # ``BlockOff; MakeBack``: the block goes, one character before the cursor with it.
+    assert editor.document.encode().startswith(b"firs line\r\n") and editor.block is None
+
+
+def test_without_overwrite_blocks_del_unmarks_and_deletes_a_character(files):
     SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 2, KeyEvent("delete"))
+    assert editor.document.encode().startswith(b"fist line\r\n") and editor.block is None
+
+
+def test_with_overwrite_blocks_a_paste_replaces_the_block(files):
+    overwriting_blocks()
     _, editor = marked(files, KeyEvent("end", shift=True), PasteEvent("new"))
     assert editor.document.encode().startswith(b"new\r\nsecond")
 

@@ -29,8 +29,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
 - **Stream blocks and the clipboard.** Shift with any movement marks (`_marking` wraps the movement handlers; the
   block grows from the cursor, or from its other end when the cursor stood on one). `FileEditor.block` is
   `(start, end)` in `Pos`, start first, or None; it persists while the cursor moves under *Persistent blocks* (DN's
-  default). Off: a movement without Shift unmarks, typing/Enter/Tab/paste replace the block in one undo group
-  (`_begin_replacing`), and Backspace/Del delete the block alone (`_deleting_block`). Either way it follows every edit, undo's included, through
+  default). Off, it goes (`_block_off`, DN's `BlockOff`) on a movement without Shift, typing, Enter, Backspace and Del.
+  *Overwrite blocks* only counts with *Persistent blocks* off (DN's `(ebfPbl + ebfObl) = ebfObl`, both read live from
+  the setup): then typing and pastes replace the block in one undo group (`_begin_typed`, `InputChar`'s and
+  `PasteBlock`'s `DeleteBlock`), and Del deletes it alone (`_deleting_block`); Backspace never takes it, and Tab,
+  ^Q D/T and ^K R leave it be. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
