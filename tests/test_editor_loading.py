@@ -18,7 +18,7 @@ import pytest
 
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
-from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE, spinner
+from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE, spinner
 
 from navigator import memory, smartpad
 from navigator.__main__ import Navigator
@@ -322,6 +322,13 @@ def test_the_spinner_degrades_to_ascii():
     assert spinner("dos", GLYPHS_ASCII) == "|/-\\"
     assert spinner("braille", GLYPHS_UNICODE).startswith("⠋")
     assert spinner("nonsense") == spinner("dos")
+
+
+def test_the_default_spinner_is_braille_with_a_nerd_font():
+    assert spinner("auto", GLYPHS_NERD).startswith("⠋")
+    assert spinner("auto", GLYPHS_UNICODE) == "▌▀▐▄"
+    assert spinner("auto", GLYPHS_ASCII) == "|/-\\"
+    assert spinner("dos", GLYPHS_NERD) == "▌▀▐▄"  # asked for by name, kept
 
 
 def test_a_spinner_turns_only_while_mounted():
