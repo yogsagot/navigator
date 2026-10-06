@@ -3,7 +3,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SortBy, SwapPanels, SwitchPanel
+from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -84,6 +84,7 @@ Manager(Window):
         alt+g: CountLength
         shift+enter: ChangeInactive
         alt+v: ReadFileList
+        alt+k: SetupColumns
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
@@ -162,6 +163,7 @@ Manager(Window):
         MenuLine:
         MenuItem:
             text: 'Setup c~o~lumns'
+            command: SetupColumns
             key: 'Alt-K'
         MenuItem:
             text: '~S~etup Panel'

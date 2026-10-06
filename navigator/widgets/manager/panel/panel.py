@@ -139,6 +139,11 @@ class DirEntry:
         return stat.filemode(self.mode)[1:]
 
     @property
+    def display_path(self) -> str:
+        """Where an entry from elsewhere is: a *Find:* listing's path column."""
+        return str(self.directory) if self.directory is not None else ""
+
+    @property
     def display_owner(self) -> str:
         """``user:group``, as ``ls -l`` names them, a number where no name is
         known, and blank for an entry that could not be read.
@@ -516,6 +521,9 @@ class Panel(ListViewer):
     #: ``TFindDrive``, :class:`navigator.filefind.FindListing`), or None.  It
     #: belongs to the directory it was shown at: going anywhere else drops it.
     found: Any = reactive(None)
+    #: The detailed mode's columns this panel shows (*Columns Setup*, Alt+K,
+    #: DN's per-panel ``ShowFlags``); ``path`` counts in a *Find:* listing only.
+    columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date", "path")))
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -1057,9 +1065,12 @@ class Panel(ListViewer):
         "attributes": ("Attr", 9, "display_attributes"),
         "owner": ("Owner", None, "display_owner"),
         "date": ("Date", 16, "display_date"),
+        "path": ("Path", None, "display_path"),
     }
-    DETAIL_ORDER = ("size", "attributes", "owner", "date")
-    DROP_ORDER = ("owner", "attributes", "date")
+    DETAIL_ORDER = ("size", "attributes", "owner", "date", "path")
+    DROP_ORDER = ("owner", "attributes", "path", "date")
+    #: The widest the path column grows; a longer one starts with ``...``.
+    MAX_PATH_WIDTH = 30
     #: The widest the owner column grows; a longer ``user:group`` ends in
     #: ``...``.
     MAX_OWNER_WIDTH = 17
@@ -1077,9 +1088,13 @@ class Panel(ListViewer):
         the date.  The owner column is as wide as the longest owner listed.
         """
         inset, inner = self.inset, self.inner_width
-        shown = list(self.DETAIL_ORDER)
+        # *Columns Setup*'s choice, the path only where entries are from elsewhere.
+        wanted, listing = self.columns, self.found is not None
+        shown = [key for key in self.DETAIL_ORDER
+                 if key in wanted and (key != "path" or listing)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
         widths["owner"] = self._owner_width()
+        widths["path"] = self._path_width() if "path" in shown else 0
 
         def rest() -> int:
             return inner - sum(widths[key] + 1 for key in shown)
@@ -1087,7 +1102,8 @@ class Panel(ListViewer):
         for key in self.DROP_ORDER:
             if rest() >= self.MIN_NAME_WIDTH:
                 break
-            shown.remove(key)
+            if key in shown:
+                shown.remove(key)
         name_width = max(1, rest())
         columns = [("name", inset, name_width)]
         x = inset + name_width + 1
@@ -1096,6 +1112,12 @@ class Panel(ListViewer):
             columns.append((key, x, width))
             x += width + 1
         return tuple(columns)
+
+    def _path_width(self) -> int:
+        """The path column's width: its longest directory, between its
+        heading and :data:`MAX_PATH_WIDTH`."""
+        longest = max((text_width(item.display_path) for item in self.items), default=0)
+        return max(len(self.DETAIL_COLUMNS["path"][0]), min(longest, self.MAX_PATH_WIDTH))
 
     def _owner_width(self) -> int:
         """The owner column's width: its longest ``user:group``, never
@@ -1375,6 +1397,8 @@ class Panel(ListViewer):
                     # The cursor bar covers the dividers; draw them back in it.
                     surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
                 text = getattr(item, self.DETAIL_COLUMNS[key][2])
+                if key == "path" and len(text) > width:
+                    text = "..." + text[-(width - 3):] if width > 3 else text[-width:]
                 surface.draw_text(x, y, fit_text(text, width), style, width)
             return
         # Still an explicit limit: the name stops where the size column

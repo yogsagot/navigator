@@ -312,6 +312,13 @@ class CountLength(Command):
     """
 
 
+class SetupColumns(Command):
+    """Alt+K, Panel > Setup columns: which columns the panel shows.
+
+    DOS Navigator's ``cmSetupColumns`` (``CM_SetShowParms``).
+    """
+
+
 class DirBranch(Command):
     """Panel > Directory Branch: every file below the directory, in one listing.
 
@@ -411,6 +418,7 @@ __all__ = [
     "ChangeInactive",
     "ReadFileList",
     "DirBranch",
+    "SetupColumns",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

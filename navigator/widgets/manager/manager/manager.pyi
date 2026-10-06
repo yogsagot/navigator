@@ -11,7 +11,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SortBy, SwapPanels, SwitchPanel
+from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, PrintFile, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, CompareDir, CountLength, FastRename, FindFile, MakeList, ReadFileList, PanelSetup, SortBy, SwapPanels, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, PrintFile, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, CompareDir, CountLength, FastRename, FindFile, MakeList, ReadFileList, SetupColumns, PanelSetup, SortBy, SwapPanels, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
@@ -72,6 +72,8 @@ class Manager(Window, _Component):
     async def read_file_list(self, panel: Panel) -> None: ...
     async def on_find_file(self, event: FindFile) -> bool: ...
     async def find_file(self, panel: Panel) -> None: ...
+    async def on_setup_columns(self, event: SetupColumns) -> bool: ...
+    async def setup_columns(self, panel: Panel) -> None: ...
     async def on_dir_branch(self, event: DirBranch) -> bool: ...
     async def directory_branch(self, panel: Panel) -> None: ...
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None: ...

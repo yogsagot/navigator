@@ -56,6 +56,7 @@ from navigator.widgets.manager.commands import (
     FindFile,
     MakeList,
     ReadFileList,
+    SetupColumns,
     PanelSetup,
     SortBy,
     SwapPanels,
@@ -314,6 +315,36 @@ class Manager(Window):
         if request is None:
             return
         await self._search_into(panel, request, f"Find: {request.mask}")
+
+    async def on_setup_columns(self, event: SetupColumns) -> bool:
+        self.spawn(self.setup_columns(self.active_panel))
+        return True
+
+    async def setup_columns(self, panel: Panel) -> None:
+        """Alt+K: ``CM_SetShowParms``, *panel*'s columns.
+
+        OK shows the detailed mode with the columns ticked -- with none, the
+        names alone, as DN's ``ShowFlags`` of 0 was its brief panel.  *Brief*
+        is the list mode (``cmYes``); *Full* every column (``GetFullFlags``).
+        A choice is the panel's own, as ``ShowFlags`` was.
+        """
+        from navigator.widgets.manager.columns_dialog import ColumnsDialog
+        from navigator.widgets.manager.columns_dialog.columns_dialog import COLUMNS
+
+        answer = await ColumnsDialog(panel.columns, panel.found is not None).execute(self.application)
+        if answer is None:
+            return
+        if answer[0] == "brief":
+            panel.view_mode = "list"
+            return
+        if answer[0] == "full":
+            panel.columns = frozenset(COLUMNS)
+            panel.view_mode = "detailed"
+            return
+        columns = answer[1]
+        panel.columns = columns
+        shown = columns - ({"path"} if panel.found is None else set())
+        panel.view_mode = "detailed" if shown else "list"
 
     async def on_dir_branch(self, event: DirBranch) -> bool:
         self.spawn(self.directory_branch(self.active_panel))

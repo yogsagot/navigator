@@ -50,6 +50,15 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). A bookmarked directory (`Panel.is_bookmarked`) gets its own glyph in
   either -- see `colours-themes-glyphs` -- and a tag still wins over both. Rows are coloured by file type -- see `colours-themes-glyphs`.
 
+## Columns Setup (Alt+K)
+
+`SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
+`ColumnsDialog` (`dlgDiskParms`; `dlgFindParms`'s *Path* box only in a *Find:* listing) over **`Panel.columns`**, the
+detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date, and `path` (`display_path`,
+measured like owner up to `MAX_PATH_WIDTH`, cut from its start), shown only where entries are from elsewhere. OK
+shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the list mode; *Full*
+every column. `DROP_ORDER` still drops columns (owner, attributes, path, date) to keep the name `MIN_NAME_WIDTH`.
+
 ## Hidden files (Ctrl+H)
 
 `ToggleHidden`, `Panel.show_hidden`, `toggle_hidden`, per panel, shown by default -- our key (it took DN's *Directory

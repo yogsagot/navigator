@@ -1,0 +1,68 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Alt+K, Panel > Setup columns: DOS Navigator's ``dlgDiskParms`` (and, for a
+#: *Find:* listing, ``dlgFindParms``, whose last box is the path).
+#:
+#: *Show* and its boxes, OK, *Brief*, *Full* and Cancel, where DN had them
+#: down the right and along the bottom; the boxes are the detailed mode's
+#: columns -- POSIX's size, attributes, owner and date, where DN's were size,
+#: date, time and descriptions, which ``descript.ion`` went with.
+ColumnsDialog(Dialog):
+    modal_width: 40
+    modal_height: 13
+    title: "Columns Setup"
+
+    Label:
+        id: show_caption
+        x: 3
+        y: 1
+        width: 6
+        height: 1
+        text: "Show"
+        link: show
+
+    CheckBoxes:
+        id: show
+        x: 3
+        y: 2
+        width: 20
+        height: 5
+        items: ["~S~ize", "~A~ttributes", "~O~wner", "~D~ate", "~P~ath"]
+
+    #: DN's ``cmYes``: names alone.
+    Button:
+        id: brief
+        text: "~B~rief"
+        x: 26
+        y: 2
+        width: 11
+        height: 2
+
+    #: DN's ``cmNo``: every column (``GetFullFlags``).
+    Button:
+        id: full
+        text: "~F~ull"
+        x: 26
+        y: 5
+        width: 11
+        height: 2
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 7
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 20
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
