@@ -66,6 +66,8 @@ from navkit.console import ConsoleScreen
 from navkit.events import Event
 from navkit.process import PtyProcess
 
+from navigator.tempdir import temp_root as _temp_root
+
 #: The OSC number the marks are carried under.  Private: no terminal assigns it.
 MARK = 6973
 
@@ -508,7 +510,7 @@ class Subshell:
             rb"\x1b\]%d;%s;([ABCDHORU])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
             % (MARK, self._nonce.encode())
         )
-        self._directory = tempfile.mkdtemp(prefix="navigator-shell-")
+        self._directory = tempfile.mkdtemp(prefix="navigator-shell-", dir=_temp_root())
         argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce)
         self._zle = Path(argv[0]).name == "zsh"
         #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.

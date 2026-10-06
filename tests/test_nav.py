@@ -2626,7 +2626,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     copy: *Copy* and *Ren* left the *Disabled* colour, the key bar's styles
     again the only thing that moved.  And once more, the same way, when F8
     got the delete.  And once more when the prompt dropped DOS's ``>`` for a
-    POSIX shell's ``$``: ``.>`` became ``.$``, and nothing else moved.
+    POSIX shell's ``$``: ``.>`` became ``.$``, and nothing else moved.  And
+    once more when F2 got the user menu: *User* left the *Disabled* colour,
+    the key bar's styles the only line that moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     (tmp_path / "alpha").mkdir()
@@ -2886,8 +2888,8 @@ def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
     run_app(app, [lambda a: enabled.extend(
         (c.title, a.command_enabled(c)) for _, c, _, _ in a.shell.keybar.items()
     )])
-    # View, Edit, MkDir and the menu work; the rest are file operations still to come.
-    assert [title for title, on in enabled if on] == ["View", "Edit", "MkDir", "Menu"]
+    # The user menu, View, Edit, MkDir and the menu work; the rest wait on something.
+    assert [title for title, on in enabled if on] == ["User", "View", "Edit", "MkDir", "Menu"]
 
 
 def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):

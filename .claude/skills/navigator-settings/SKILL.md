@@ -134,6 +134,7 @@ note:
 |---|---|
 | `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console |
 | `system.show_hidden` | A new panel's `show_hidden` |
+| `system.temp_dir` | `navigator.tempdir.temp_root()`, read each time: the user menu's private directory and the subshell's rc files; empty is `$TMPDIR` |
 | `system.system_clipboard` | On (a departure: DN's default was off): copies go to OSC 52 and the desktop's tool, pastes read them. Off: `Application.system_clipboard` false, a clipboard private to Navigator (`Shell._choose_clipboard`, an effect) |
 | `system.flush_buffers` | Copy and a cross-device move `fsync` each file written (`CopyRequest.flush`, set by `CopyDialog.accept`) before it counts as done or a move deletes its source; a sync error fails that file like a write error. `EINVAL`/`ENOTSUP` (a file system with nothing to sync) is not an error. A rename-move writes nothing, so syncs nothing |
 | `system.internal_terminal` | Off: Ctrl+O hands the real terminal to the shell, as Midnight Commander does, and commands from the line run there (a departure: not DN's; `console-command-line` has the mechanism). Also a System Setup box, *Use internal terminal* |

@@ -109,8 +109,24 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class MenuFileEdit(Command):
+    """Options > Global menu definition: the global ``dn.mnu`` in an editor.
+
+    DOS Navigator's ``cmMenuFileEdit``; F4 in the global user menu too.
+    """
+
+
+class LocalMenuFileEdit(Command):
+    """Options > Local menu definition: the active panel's ``dn.mnu`` in an editor.
+
+    DOS Navigator's ``cmLocalMenuFileEdit``; F4 in a local user menu too.
+    """
+
+
 __all__ = [
     "About",
+    "MenuFileEdit",
+    "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",
     "InsertName",

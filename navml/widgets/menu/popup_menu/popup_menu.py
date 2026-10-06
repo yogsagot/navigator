@@ -16,8 +16,14 @@ press outside the box closes it.
 how); PgUp and PgDn then move a box's height, and the wheel moves the
 selection one entry, without wrapping round.
 
+**A submenu opens beside its entry**, as a :class:`MenuSession`'s does:
+Enter, Right or a click on a :class:`SubMenu` entry opens its box two
+columns in and one row under the entry, Esc or Left closes the top box, and
+the answer is the :class:`MenuItem` chosen at whatever depth.  :attr:`box`
+stays the first box; :attr:`boxes` is the open stack.
+
 **A caller can add keys** (``keys=("ctrl+up",)``): one of them closes the box
-answering with the entry selected, enabled or not, and :attr:`PopupMenu.pressed`
+answering with the entry selected in the top box, enabled or not, and :attr:`PopupMenu.pressed`
 names the key -- so the caller can act on that entry and open the box again,
 as the bookmarks' box does to move one.
 
@@ -89,7 +95,12 @@ class PopupMenu(Widget):
         self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
 
     def layout(self, width: int, height: int) -> None:
-        """The box is placed by :meth:`_open`, never by a cascade."""
+        """The boxes are placed by :meth:`_drop`, never by a cascade."""
+
+    @property
+    def boxes(self) -> list[PopupBox]:
+        """The open boxes, the first one first and the one taking keys last."""
+        return [child for child in self.children if isinstance(child, PopupBox)]
 
     @staticmethod
     def measure(menu: SubMenu, app: Application | None = None,
@@ -128,40 +139,62 @@ class PopupMenu(Widget):
             self.parent.remove(self)
 
     def _open(self) -> None:
-        width, height = self.measure(self.menu, self.application, self.behind)
+        self.box = self._drop(self.menu, *self.at, self.start)
+
+    def _drop(self, menu: SubMenu, x: int, y: int, current: int = -1) -> PopupBox:
+        """A box for *menu* with its corner at *x*, *y*, kept on the screen."""
+        width, height = self.measure(menu, self.application, self.behind)
         width = min(width, max(10, self.width))
         height = min(height, max(3, self.height))
-        x = max(0, min(self.at[0], self.width - width))
-        y = max(0, min(self.at[1], self.height - height))
-        box = PopupBox(self.menu, x=x, y=y, width=width, height=height)
+        x = max(0, min(x, self.width - width))
+        y = max(0, min(y, self.height - height))
+        box = PopupBox(menu, x=x, y=y, width=width, height=height)
         box.behind = self.behind
-        self.box = box
         self.add(box)
-        if box.selectable(self.start):
-            box.current = self.start
+        if box.selectable(current):
+            box.current = current
         else:
             box.current = -1
             box.step(1)
+        return box
 
-    def choose(self, index: int) -> None:
-        """Enter on entry *index*: close with it, if it can be chosen."""
-        box = self.box
+    def choose(self, index: int, box: PopupBox | None = None) -> None:
+        """Enter on entry *index* of *box* (the top one): open a submenu
+        beside it, or close with an item, if it can be chosen."""
+        boxes = self.boxes
+        box = box if box is not None else (boxes[-1] if boxes else None)
         entries = box.entries() if box is not None else []
         if not 0 <= index < len(entries):
             return
         entry = entries[index]
         box.current = index
-        if isinstance(entry, MenuItem) and box.enabled(entry):
+        if not box.enabled(entry):
+            return
+        if isinstance(entry, SubMenu):
+            for later in boxes[boxes.index(box) + 1:]:
+                self.remove(later)
+            self._drop(entry, box.x + 2, box.y + index - box.top + 2)
+        elif isinstance(entry, MenuItem):
             self.close(entry)
 
     # -- input --------------------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
-        box = self.box
-        if box is None:
+        boxes = self.boxes
+        if not boxes:
             return True
+        box = boxes[-1]
         if event.matches("escape"):
-            self.close(None)
+            if len(boxes) > 1:
+                self.remove(box)
+            else:
+                self.close(None)
+        elif event.matches("left") and len(boxes) > 1:
+            self.remove(box)
+        elif event.matches("right"):
+            entries = box.entries()
+            if 0 <= box.current < len(entries) and isinstance(entries[box.current], SubMenu):
+                self.choose(box.current)
         elif self.keys and event.matches(*self.keys):
             entries = box.entries()
             self.pressed = event.name
@@ -189,21 +222,24 @@ class PopupMenu(Widget):
         return True
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        box = self.box
-        if box is None:
+        boxes = self.boxes
+        if not boxes:
             return True
         if event.button in ("wheel_up", "wheel_down"):
-            box.move(-1 if event.button == "wheel_up" else 1)
+            boxes[-1].move(-1 if event.button == "wheel_up" else 1)
             return True
         if event.button != "left" or event.is_wheel:
             return True
-        if box.contains(event.x, event.y):
+        box = next((b for b in reversed(boxes) if b.contains(event.x, event.y)), None)
+        if box is not None:
             row = box.entry_at(event.y - box.y)
             inside = box.x + 2 <= event.x < box.x + box.width - 2
             if row >= 0 and inside and box.selectable(row):
                 if event.action == "release":
-                    self.choose(row)
+                    self.choose(row, box)
                 else:
+                    for later in boxes[boxes.index(box) + 1:]:
+                        self.remove(later)
                     box.current = row
             return True
         if event.action == "press":
@@ -214,9 +250,10 @@ class PopupMenu(Widget):
 
     def render_tree(self, surface: Surface) -> None:
         """The box over its shadow; the layer itself paints and dims nothing."""
-        if not self.visible or self.box is None:
+        if not self.visible:
             return
-        self.box.render_tree(surface.view(self.x, self.y, self.width, self.height))
+        for box in self.boxes:
+            box.render_tree(surface.view(self.x, self.y, self.width, self.height))
 
 
 def letter_of(entries: list[Any], char: str) -> int:

@@ -267,7 +267,8 @@ class SystemData(Section):
     internal_terminal: bool = Setting(
         True, doc="Ctrl+O shows the console inside Navigator; off hands the real terminal to the shell, as mc does",
     )
-    temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR", honoured=False)
+    #: DN's ``SwpDir``: where the shell's rc files and the user menu's script go.
+    temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR")
 
 
 class StartupData(Section):

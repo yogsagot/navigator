@@ -20,12 +20,13 @@ from navkit.events import Event, KeyEvent
 from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
 from navkit.stylesheet import Stylesheet
+from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
-from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark
+from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     About,
     CommandLineEnd,
@@ -39,6 +40,8 @@ from navigator.widgets.shell.commands import (
     InsertName,
     InsertPath,
     InterfaceSetup,
+    LocalMenuFileEdit,
+    MenuFileEdit,
     NewManager,
     OpenTreeWindow,
     SetupConfirmation,
@@ -743,6 +746,197 @@ class Shell(DockLayout):
         self.spawn(open_smartpad(self.desktop))
         return True
 
+    # -- F2: the user menu (navigator.usermenu) ------------------------------------
+
+    async def on_user_menu(self, event: UserMenu) -> bool:
+        """F2, Utilities > *User menu*: ``cmUserMenu``, DN's ``ExecUserMenu``."""
+        self.spawn(self.user_menu())
+        return True
+
+    async def on_menu_file_edit(self, event: MenuFileEdit) -> bool:
+        from navigator.usermenu import global_menu
+
+        self.spawn(self.edit_menu_file(global_menu()))
+        return True
+
+    async def on_local_menu_file_edit(self, event: LocalMenuFileEdit) -> bool:
+        from navigator.usermenu import MENU_NAME
+
+        self.spawn(self.edit_menu_file(self._menu_directory() / MENU_NAME))
+        return True
+
+    def _menu_directory(self) -> Path:
+        """Where a local menu is looked for from: the active panel's directory."""
+        return Path(self._command_directory() or Path.cwd())
+
+    def _menu_panels(self) -> tuple[Any, Any]:
+        """The active panel and the passive one if it is showing, as ``cmGetUserParams``."""
+        manager = self.active_manager
+        if manager is None:
+            return None, None
+        passive = manager.passive_panel
+        return manager.active_panel, (passive if passive.visible else None)
+
+    @staticmethod
+    def _menu_side(panel: Any, list_file: str = "-") -> Any:
+        from navigator.usermenu import Side
+
+        if panel is None:
+            return Side()
+        entry = panel.selected
+        return Side.of(Path(panel.path), entry.name if entry is not None else None, list_file)
+
+    async def edit_menu_file(self, path: Path) -> None:
+        """A ``dn.mnu`` in an editor, made by saving if it is not there yet."""
+        from navigator.file_history import open_editor
+
+        if self.console_visible:
+            self.toggle_console()
+        try:
+            await open_editor(self.desktop, path, new=True)
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot edit {path}: {error.strerror or error}",
+                         buttons="ok").execute(self.application)
+
+    async def user_menu(self, want_global: bool = False) -> None:
+        """``ExecUserMenu``: the menu in a box in the middle of the screen, and
+        the item chosen run in the console.
+
+        The local ``dn.mnu`` -- the active panel's directory's, or the nearest
+        above it -- else the global one; F2 in the box changes between them,
+        F4 edits the one shown, and a caption's own F-key, which outranks
+        both, chooses its item.  Neither file: ``dlMNUNotFound``.
+        """
+        import asyncio
+
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.usermenu import MENU_NAME, caption, find_menu, parse
+
+        app = self.application
+        if app is None:
+            return
+        while True:
+            found = await asyncio.to_thread(find_menu, self._menu_directory(), want_global)
+            if found is None:
+                await Dialog(title="Error", prompt=f"File {MENU_NAME} not found",
+                             buttons="ok").execute(app)
+                return
+            path, is_global = found
+            try:
+                text = await asyncio.to_thread(path.read_text, encoding="utf-8", errors="replace")
+            except OSError as error:
+                await Dialog(title="Error", prompt=f"Cannot read {path}: {error.strerror or error}",
+                             buttons="ok").execute(app)
+                return
+            menu = parse(text, path, is_global)
+            active, passive = (self._menu_side(panel) for panel in self._menu_panels())
+            box_menu = SubMenu()
+            items: dict[int, Any] = {}
+            fkeys: dict[str, Any] = {}
+
+            def fill(into: Any, entries: list[Any]) -> None:
+                for entry in entries:
+                    if entry.children:
+                        fill(into.add_submenu(caption(entry, active, passive)), entry.children)
+                    elif entry.is_line:
+                        into.add_line()
+                    else:
+                        items[id(into.add_item(caption(entry, active, passive)))] = entry
+                        if entry.fkey:
+                            fkeys.setdefault(entry.fkey, entry)
+
+            fill(box_menu, menu.items)
+            if not items:
+                return
+            box = PopupMenu(box_menu, behind=self, keys=tuple(dict.fromkeys([*fkeys, "f2", "f4"])))
+            width, height = PopupMenu.measure(box_menu, app, self)
+            box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
+            chosen = await box.execute(app)
+            pressed = box.pressed
+            if pressed in fkeys:
+                entry = fkeys[pressed]
+            elif pressed == "f2":
+                want_global = not is_global
+                continue
+            elif pressed == "f4":
+                await self.edit_menu_file(path)
+                return
+            elif chosen is None:
+                return
+            else:
+                entry = items.get(id(chosen))
+                if entry is None:
+                    return
+            await self.run_menu_item(menu, entry)
+            return
+
+    async def run_menu_item(self, menu: Any, entry: Any) -> None:
+        """An item's lines, its parameters asked first if it wants them, run
+        in the console as a script the shell sources.
+
+        ``%1`` and ``%2`` are files listing each panel's tagged names, or the
+        one at its cursor (``GetUserParams``); they, and the script, are kept
+        under fixed names in Navigator's own temporary directory
+        (:func:`navigator.tempdir.private_dir`), as DN's ``$DN$.BAT`` and
+        ``$$$DN$$.LST`` were in its swap directory.
+        """
+        import asyncio
+        import shlex
+
+        from navigator.tempdir import private_dir
+        from navigator.usermenu import script_text
+        from navigator.widgets.shell.menu_params_dialog import MenuParamsDialog
+
+        app = self.application
+        commands = menu.commands(entry)
+        params = ""
+        if commands.asks:
+            answer = await MenuParamsDialog(commands.title, commands.default).execute(app)
+            if answer is None:
+                return
+            params = answer
+        if not commands.lines:
+            return
+        active_panel, passive_panel = self._menu_panels()
+
+        def names(panel: Any) -> list[str] | None:
+            if panel is None:
+                return None
+            marked = panel.marked_entries
+            if marked:
+                return [entry.name for entry in marked]
+            return [panel.selected.name] if panel.selected is not None else []
+
+        lists = (names(active_panel), names(passive_panel))
+
+        def write() -> Path:
+            directory = private_dir()
+            files = []
+            for name, listed in zip(("active.lst", "passive.lst"), lists):
+                if listed is None:
+                    files.append("-")
+                    continue
+                target = directory / name
+                target.write_text("".join(f"{line}\n" for line in listed), encoding="utf-8",
+                                  errors="surrogateescape")
+                files.append(str(target))
+            script = directory / "usermenu.sh"
+            active = self._menu_side(active_panel, files[0])
+            passive = self._menu_side(passive_panel, files[1])
+            script.write_text(script_text(commands, active, passive, str(script), params),
+                              encoding="utf-8", errors="surrogateescape")
+            return script
+
+        try:
+            script = await asyncio.to_thread(write)
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot write the menu's script: {error.strerror or error}",
+                         buttons="ok").execute(app)
+            return
+        self.run_command(f". {shlex.quote(str(script))}", typed=False)
+
     async def on_ascii_table(self, event: AsciiTable) -> bool:
         """Ctrl+B, Utilities > *Character table*: DN's ``ASCIITable``."""
         self.spawn(self.ascii_table())
@@ -795,13 +989,18 @@ class Shell(DockLayout):
         self.run_command(self.command_line.value)
         return True
 
-    def run_command(self, command: str) -> None:
-        """Run *command* as though it had been typed on the command line."""
+    def run_command(self, command: str, *, typed: bool = True) -> None:
+        """Run *command* as though it had been typed on the command line.
+
+        *typed* off is for a command the line did not hold -- a user menu
+        item's -- which leaves the line and its history alone.
+        """
         if not command.strip():
             return
-        HISTORY.add(HISTORY_ID, command)
-        self.command_line.clear()
-        self._walk = None
+        if typed:
+            HISTORY.add(HISTORY_ID, command)
+            self.command_line.clear()
+            self._walk = None
         cwd = self._command_directory()
         if not self.console_visible and not SETTINGS.system.internal_terminal:
             # mc's way: the command runs on the real terminal, and Navigator

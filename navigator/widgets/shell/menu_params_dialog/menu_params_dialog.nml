@@ -1,0 +1,35 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: A user menu item's ``%3`` .. ``%9``: DOS Navigator's ``InputBox`` with
+#: ``dlMenuParams`` for its title and the item's ``<Title`` line, or
+#: ``dlMenuParamLabel``, for its caption -- on the row above the line, as
+#: ``InputBox`` put a label that would not fit beside it.
+MenuParamsDialog(Dialog):
+    #: The caption: the item's ``<Title``, or DN's *Parameters*.
+    property caption: "~P~arameters"
+
+    modal_width: 60
+    modal_height: 9
+    title: "Menu Parameters"
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.caption
+        link: entry.entry
+
+    #: DN's ``hsInputParams``.
+    Field:
+        id: entry
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "menu_params"
