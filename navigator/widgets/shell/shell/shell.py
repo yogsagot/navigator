@@ -29,6 +29,7 @@ from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen,
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     About,
+    DriveInfoSetup,
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
@@ -1201,6 +1202,12 @@ class Shell(DockLayout):
         from navigator.widgets.setup.fm_setup_dialog import FMSetupDialog
 
         self.spawn(self.setup(FMSetupDialog(), "file_manager"))
+        return True
+
+    async def on_drive_info_setup(self, event: DriveInfoSetup) -> bool:
+        from navigator.widgets.setup.drive_info_dialog import DriveInfoDialog
+
+        self.spawn(self.setup(DriveInfoDialog(), "drive_info"))
         return True
 
     async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:

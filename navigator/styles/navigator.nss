@@ -123,6 +123,10 @@ DirectoryTree::info                  { fg: $tree-info-box-fg; bg: $tree-info-box
    which is CDoubleWindow's 13 and 14 -- the File Manager group's *Quick View*
    text, [92] and [93].  Framed and titled like a panel, since it stands where
    one stood; its scroll bar is the panel's. */
+InfoPanel                            { fg: $panel-fg; bg: $panel-bg; border: single }
+InfoPanel:focused                    { border: double }
+InfoPanel::title                     { fg: $title-fg; bg: $title-bg }
+InfoPanel::highlight                 { fg: $directory-fg; bg: $panel-bg; bold: true }
 QuickViewer                          { fg: $panel-fg; bg: $panel-bg; border: single }
 QuickViewer:focus_within             { border: double }
 QuickViewer::title                   { fg: $title-fg; bg: $title-bg }

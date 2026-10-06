@@ -1,0 +1,30 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Options > File Manager > Information panel: DOS Navigator's ``dlgDriveInfoSetup``.
+#:
+#: Its boxes in its order, less *EMS* and *XMS Information*, which only
+#: meant something on DOS; *Conventional Memory* is the machine's.  Help is
+#: left out, having nothing to show yet.
+DriveInfoDialog(Dialog):
+    modal_width: 46
+    modal_height: 15
+    title: "Information Panel Setup"
+
+    Label:
+        id: items_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "Items to display"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 9
+        items: ["~D~irectory Title", "~T~otals", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]

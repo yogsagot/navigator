@@ -31,6 +31,7 @@ from navigator.widgets.manager.commands import (
     Copy,
     Delete,
     DeleteSingle,
+    DiskInfo,
     Edit,
     EditNamed,
     GoParent,
@@ -161,6 +162,7 @@ class Manager(Window):
         self.right.path = right
         self.tree.visible = False
         self.quick.visible = False
+        self.info.visible = False
         #: The pending "panel, follow the tree" -- cancelled by every move.
         self._follow: asyncio.Task[Any] | None = None
         #: What hiding a side set aside: the rectangle and ``zoomed`` before,
@@ -173,6 +175,7 @@ class Manager(Window):
         effect(self, Manager._tree_follows_panel)
         effect(self, Manager._panel_follows_tree)
         effect(self, Manager._quick_view_follows_panel)
+        effect(self, Manager._info_follows_panel)
 
     # -- commands ------------------------------------------------------------
     #
@@ -837,6 +840,11 @@ class Manager(Window):
 
     async def on_quick_view(self, event: QuickView) -> bool:
         self.toggle_quick_view()
+        return True
+
+    async def on_disk_info(self, event: DiskInfo) -> bool:
+        """Ctrl+L: ``cmDiskInfo``, ``SwitchView(dtInfo)``."""
+        self.switch_view(self.info)
         return True
 
     async def on_tree_chosen(self, event: Any) -> bool:
@@ -1725,10 +1733,25 @@ class Manager(Window):
             active.focus()
         if view is self.quick:
             self._quick_view_follows_panel()
+        if view is self.info:
+            self._info_follows_panel()
         self.panels.invalidate()
 
     def _focus_replacement(self) -> None:
-        (self.quick.viewer if self.replacement is self.quick else self.tree).focus()
+        replacement = self.replacement
+        (self.quick.viewer if replacement is self.quick else replacement).focus()
+
+    def _info_follows_panel(self) -> None:
+        """The information panel describes the active panel's directory, read
+        again whenever the panel is (``cmRereadInfo``)."""
+        if self.replacement is not self.info:
+            return
+        panel = self.active_panel
+        directory, entries, _ = panel.path, panel.items, panel.reload_token
+        found = panel.found
+        with untracked():
+            if found is None:
+                self.info.show(directory, entries)
 
     def _quick_view_follows_panel(self) -> None:
         """The quick view shows whatever the active panel's cursor is on: ``SendLocated``."""

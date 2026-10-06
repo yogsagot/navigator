@@ -10,6 +10,7 @@ from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkB
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navigator.widgets.viewer.quick_viewer import QuickViewer
+from navigator.widgets.manager.info_panel import InfoPanel
 from navigator.widgets.manager.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.menu.menu_item import MenuItem
@@ -124,6 +125,10 @@ Manager(Window):
             id: quick
             title_margin: 5
 
+        #: The information panel Ctrl+L puts there instead (DN's ``TDiskInfo``).
+        InfoPanel:
+            id: info
+
     #: DOS Navigator's *Panel* menu (``dlgMainMenu``), the file manager's own:
     #: on the main bar after *Utilities*, where DN had it, but only while this
     #: window is the active one -- every entry acts on its panels, and from a
@@ -178,6 +183,7 @@ Manager(Window):
             key: 'Ctrl-T'
         MenuItem:
             text: 'I~n~fo'
+            command: DiskInfo
             key: 'Ctrl-L'
         MenuItem:
             text: 'Quic~k~ view'

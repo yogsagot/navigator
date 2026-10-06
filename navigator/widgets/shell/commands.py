@@ -184,6 +184,12 @@ class FileManagerSetup(Command):
     title = "File Manager Setup"
 
 
+class DriveInfoSetup(Command):
+    """Options > File Manager > Information panel: DOS Navigator's ``cmDriveInfoSetup``."""
+
+    title = "Information Panel"
+
+
 class FileManagerDefaults(Command):
     """Options > File Manager > New Manager defaults: DOS Navigator's ``cmFMDefaults``.
 

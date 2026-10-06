@@ -164,6 +164,18 @@ The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows 
 total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
 directory at each read, `fmiDirLen`) is not written yet.
 
+## Information panel (Ctrl+L)
+
+`DiskInfo`, `Manager.on_disk_info`, DN's `cmDiskInfo` -> `SwitchView(dtInfo)` (also Panel > Info): `InfoPanel`
+(`manager/info_panel`, Python-only, framed like the quick view, `::highlight` for DN's `~` runs) takes the passive
+panel's place as the tree and quick view do. `Manager._info_follows_panel` (an effect on the active panel's path,
+items and `reload_token`; not while it shows a *Find:* listing) calls `InfoPanel.show`, which reads the disk and the
+machine on a thread (`navigator/diskinfo.gather`: `disk_usage`, the longest mount in `/proc/self/mounts`, a
+`/dev/disk/by-label` label, `/proc/meminfo`, the resident set, `DirInfo` else `File_ID.DIZ` in any case) and keeps
+the last answer up meanwhile. `diskinfo.lines` lays them out as `TDiskInfo.Draw`, each behind a `[drive_info]` box;
+totals come from the listing (entries counted as `CountDirLen` counted them, bytes the files'). DN's EMS/XMS lines
+are left out; its memory three are read for POSIX.
+
 ## Comparing directories (Panel menu)
 
 `CompareDir`, `Manager.compare_directories`, DN's `cmCompareDir` -> `CM_CompareDirs`, from Panel > Compare directories

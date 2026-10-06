@@ -67,6 +67,7 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 | `[editor]` + `[viewer]` | `EditorDefaultsData`, `ViewerDefaultsData` | `EditorDefaultsDialog` (`dlgEditorDefaults`) | `EditorDefaults` |
 | `[file_manager]` | `FMSetupData` | `FMSetupDialog` (`dlgFMSetup`) | `FileManagerSetup` (`cmFMSetup`) |
 | `[panel_defaults]` | `PanelDefaultsData` | `FMDefaultsDialog` (`dlgFMDefaults`) | `FileManagerDefaults` (`cmFMDefaults`) |
+| `[drive_info]` | `DriveInfoData` | `DriveInfoDialog` (`dlgDriveInfoSetup`) | `DriveInfoSetup` |
 
 `FMSetup` would be handled by `on_f_m_setup`, which is why those two commands are spelled out.
 
@@ -168,6 +169,7 @@ note:
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |
 | `file_manager.column_titles` | The detailed and list modes' heading row (`Panel._follow_column_titles`, an effect, so it applies at once); the dividers stay |
 | `file_manager.tag_character` / `tag_sign` | The tagged row's gutter mark: `tag_sign`'s first character (empty: `√`; `+` on the ASCII tier when it is not ASCII); off, the colour alone |
+| `drive_info.*` | Each line of Ctrl+L's information panel (`diskinfo.lines`), read at every paint. The field is `directory_title`, not `title`: a field named `title` would hide the section's own `title` |
 | `panel_defaults.sort_by` | Seeds each new panel's `sort_mode` (Alt+B changes one panel's) |
 | `panel_defaults.executables_first` / `archives_first` | Read at each panel read (`Panel._rescan`, untracked): those files lead by name, extension and type |
 | `panel_defaults.files_highlight` | File-type row colours (`Panel.row_style`) |

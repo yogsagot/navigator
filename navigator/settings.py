@@ -484,10 +484,37 @@ class PanelDefaultsData(Section):
 
 # -- the whole file ---------------------------------------------------------------
 
+class DriveInfoData(Section):
+    """``dlgDriveInfoSetup`` / ``DriveInfoData``: what Ctrl+L's information panel shows.
+
+    DN's eleven boxes less its *EMS* and *XMS Information*, which only meant
+    something on DOS; the memory three are read for POSIX (``InfoPanel``).
+    """
+
+    name = "drive_info"
+    title = "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)"
+
+    OPTIONS: ClassVar[tuple[str, ...]] = (
+        "directory_title", "totals", "volume_size", "volume_free", "volume_label",
+        "total_memory", "user_memory", "navigator_memory", "information_file",
+    )
+
+    directory_title: bool = Setting(True, doc="The directory's name")
+    totals: bool = Setting(True, doc="How many files it holds, and their bytes")
+    volume_size: bool = Setting(True, doc="The file system's size")
+    volume_free: bool = Setting(True, doc="Its free space")
+    volume_label: bool = Setting(True, doc="Its label, or its device and type")
+    total_memory: bool = Setting(True, doc="The machine's memory (DN's conventional memory)")
+    user_memory: bool = Setting(True, doc="Memory available to programs (DN's memory for user)")
+    navigator_memory: bool = Setting(True, doc="Memory Navigator takes")
+    information_file: bool = Setting(True, doc="The directory's DirInfo or File_ID.DIZ")
+
+
 #: Every section, in the order the file lists them.
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
+    DriveInfoData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -515,6 +542,7 @@ class Settings:
     viewer: ViewerDefaultsData
     file_manager: FMSetupData
     panel_defaults: PanelDefaultsData
+    drive_info: DriveInfoData
 
     def __init__(self) -> None:
         for cls in SECTIONS:

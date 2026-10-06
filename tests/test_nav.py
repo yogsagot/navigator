@@ -1365,6 +1365,8 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.file_ops.mkdir_dialog.mkdir_dialog_nml",
         "navigator.widgets.manager",
         "navigator.widgets.manager.commands",               # names only, no widget
+        "navigator.widgets.manager.info_panel",             # Ctrl+L, placed by the manager
+        "navigator.widgets.manager.info_panel.info_panel",
         "navigator.widgets.manager.manager",
         "navigator.widgets.manager.manager.manager",
         "navigator.widgets.manager.manager.manager_nml",
@@ -2966,7 +2968,7 @@ def test_the_ctrl_row_greys_what_is_not_written_and_not_what_is(tree):
         ),
     ])
     assert "Print" not in enabled
-    assert enabled == ["New Manager", "Close", "Calc", "Tree", "Preview", "Show"]
+    assert enabled == ["New Manager", "Close", "Calc", "Info", "Tree", "Preview", "Show"]
 
 
 def test_a_click_on_a_held_row_runs_that_rows_command(tree):
