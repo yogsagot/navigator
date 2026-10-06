@@ -305,6 +305,13 @@ class ToggleShowMode(Command):
     title = "Show"
 
 
+class CountLength(Command):
+    """Alt+G: the bytes under the directory at the cursor and the tagged ones.
+
+    DOS Navigator's ``cmCountLen``, Panel > Count directory length.
+    """
+
+
 class ToggleHidden(Command):
     """Ctrl+H: show or hide the active panel's dot-files.
 
@@ -367,6 +374,7 @@ __all__ = [
     "ChangeDirectory",
     "ToggleTree",
     "SortBy",
+    "CountLength",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

@@ -105,6 +105,16 @@ any other key ends it and does its job, as do a click, a directory change and lo
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;
   `tree_replaces` is a computed over them.
 
+## Directory length (Alt+G)
+
+`CountLength`, `Manager.count_length`, DN's `cmCountLen` (also Panel > Count directory length): the directory at the
+cursor (`..` counts the one listed) and every tagged directory get the bytes beneath them, counted on a thread by
+`navigator/dirlength.py` (`CountDirLen`: dot-files count, symlinks count as themselves and are never followed, unreadable
+directories count as nothing) under `run_with_progress`'s *Counting directory length* box; Esc keeps what was counted.
+The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows the size where `DIR` was, the tagged
+total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
+directory at each read, `fmiDirLen`) is not written yet.
+
 ## Swapping panels (Ctrl+U)
 
 `SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change

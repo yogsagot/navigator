@@ -69,13 +69,19 @@ class DirEntry:
     permission bits, when it was last modified, who owns it and whether it
     is a symlink.
 
+    A directory's ``size`` is 0 until Alt+G counts it (``counted``, DN's
+    ``Attr or $80``): the bytes beneath it, shown in the size column in
+    place of ``DIR``.  A re-read makes new entries, and the count goes with
+    the old ones, as it did in DN.
+
     ``mode`` is the link's *target*'s, except for a link pointing nowhere,
     where there is no target to describe and it is the link's own.
     ``link_target`` is what a link says it points at, as ``readlink`` gives
     it, read with the directory so that painting it costs no system call.
     """
 
-    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid")
+    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
+                 "counted")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
                  is_link: bool = False, link_target: str | None = None,
@@ -89,6 +95,7 @@ class DirEntry:
         self.link_target = link_target
         self.uid = uid
         self.gid = gid
+        self.counted = False
 
     @property
     def is_executable(self) -> bool:
@@ -97,10 +104,8 @@ class DirEntry:
 
     @property
     def display_size(self) -> str:
-        if self.name == "..":
-            return " UP--DIR"
-        if self.is_dir:
-            return "     DIR"
+        if self.is_dir and not self.counted:
+            return " UP--DIR" if self.name == ".." else "     DIR"
         size = float(self.size)
         for unit in ("", "K", "M", "G", "T"):
             if size < 1024 or unit == "T":

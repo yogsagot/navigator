@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 from navkit.reactive import computed, effect, reactive, untracked
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, PrintFile, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, SortBy, SwapPanels, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, GoParent, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, PrintFile, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, CountLength, SortBy, SwapPanels, ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree, UnselectGroup, View, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.panel import SORT_MODES
@@ -61,6 +61,8 @@ class Manager(Window, _Component):
     async def on_switch_panel(self, event: SwitchPanel) -> bool: ...
     async def on_hide_left(self, event: HideLeft) -> bool: ...
     async def on_hide_right(self, event: HideRight) -> bool: ...
+    async def on_count_length(self, event: CountLength) -> bool: ...
+    async def count_length(self, panel: Panel) -> None: ...
     async def on_swap_panels(self, event: SwapPanels) -> bool: ...
     async def on_hide_inactive(self, event: HideInactive) -> bool: ...
     async def on_rescan(self, event: Rescan) -> bool: ...

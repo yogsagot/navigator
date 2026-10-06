@@ -46,6 +46,7 @@ from navigator.widgets.manager.commands import (
     ScrollNames,
     SelectGroup,
     SwitchPanel,
+    CountLength,
     SortBy,
     SwapPanels,
     ToggleHidden,
@@ -183,6 +184,55 @@ class Manager(Window):
     async def on_hide_right(self, event: HideRight) -> bool:
         await self.toggle_side("right")
         return True
+
+    async def on_count_length(self, event: CountLength) -> bool:
+        self.spawn(self.count_length(self.active_panel))
+        return True
+
+    async def count_length(self, panel: Panel) -> None:
+        """Alt+G: ``CountLen``, each directory's bytes into its size column.
+
+        The directory at the cursor -- ``..`` standing for the one listed --
+        and every tagged one, counted on a thread (:mod:`navigator.dirlength`)
+        under *Counting directory length* if it takes a while.  Nothing is
+        done with the cursor on a file and nothing tagged.  Esc there stops
+        it: what was counted before keeps its count, and the rest stays
+        ``DIR``, as DN's ``Abort`` left them.
+        """
+        from navigator.dirlength import count_dir_length
+        from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+
+        app = self.application
+        here = Path(panel.path)
+        entries = [entry for entry in panel.marked_entries if entry.is_dir]
+        current = panel.selected
+        if current is not None and current.is_dir and current not in entries:
+            entries.insert(0, current)
+        if app is None or not entries:
+            return
+        targets = [(entry, here if entry.name == ".." else here / entry.name) for entry in entries]
+        job = FileJob()
+
+        def count() -> list[tuple[Any, int]]:
+            done = []
+            for entry, path in targets:
+                size = count_dir_length(path, job)
+                if size is None:
+                    break
+                done.append((entry, size))
+            return done
+
+        counted = await run_with_progress(
+            app, count, job, lambda: progress_box(job, "Counting directory length"),
+            refresh_box(job), delay=SLOW_PROGRESS_DELAY,
+        )
+        for entry, size in counted:
+            entry.size, entry.counted = size, True
+        if counted and counted[0][0] in panel.items:
+            # The same entries, changed, while the panel still lists them: a
+            # new list is what it sees.
+            panel.items = list(panel.items)
 
     async def on_swap_panels(self, event: SwapPanels) -> bool:
         self.swap_panels()
