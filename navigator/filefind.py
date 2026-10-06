@@ -74,6 +74,8 @@ class FindRequest:
     words: bool = False
     scope: str = "directory"
     limits: Advanced = Advanced()
+    #: Whether a directory may be a match; *Directory Branch* lists files alone.
+    directories: bool = True
 
 
 def parse_time(text: str) -> float | None:
@@ -248,6 +250,8 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                         if key not in seen and (not one_device or own.st_dev == device):
                             seen.add(key)
                             subdirectories.append(Path(item.path))
+                    if is_dir and not request.directories:
+                        continue
                     if not filetypes.in_filter(item.name, request.mask):
                         continue
                     if not _passes(item.name, info, is_link, limits):

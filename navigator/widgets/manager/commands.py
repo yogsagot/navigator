@@ -312,6 +312,14 @@ class CountLength(Command):
     """
 
 
+class DirBranch(Command):
+    """Panel > Directory Branch: every file below the directory, in one listing.
+
+    DOS Navigator's ``cmDirBranch`` (``CM_Branch``, ``OpenDirectory``).  Its
+    Ctrl+H is Navigator's hidden-files key, so it has the menu alone.
+    """
+
+
 class ReadFileList(Command):
     """Alt+V, Panel > Read file list: the list file at the cursor as a listing.
 
@@ -402,6 +410,7 @@ __all__ = [
     "CompareDir",
     "ChangeInactive",
     "ReadFileList",
+    "DirBranch",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

@@ -119,6 +119,11 @@ leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Ente
 panel there. A listing belongs to the path it was shown at: going elsewhere drops it. Nothing found: *No files found*,
 the panel untouched. F7 and Compare are disabled in a listing.
 
+**Panel > Directory Branch** (`DirBranch`, `Manager.directory_branch`, DN's `CM_Branch`/`OpenDirectory`): every
+file below the panel's directory, directories left out (`FindRequest(directories=False)`), searched through the same
+`_search_into` as Alt+F7 into a listing titled `Branch: <dir>`. Menu only: DN's Ctrl+H is Navigator's hidden-files
+key. Disabled in a listing, as `CM_Branch` acted on a disk alone.
+
 **Alt+V, Panel > Read file list** (`ReadFileList`, `Manager.read_file_list`, DN's `cmPanelMakeList` ->
 `TFindDrive.InitList`): the list file at the cursor read on a thread by `filefind.read_list` -- a line a name (whole,
 blanks included: a departure, DN cut at the first blank), relative to the panel's directory, `~` expanded, masks

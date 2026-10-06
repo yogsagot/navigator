@@ -275,3 +275,21 @@ def test_a_list_naming_nothing_there_says_so(place):
     run_app(app, [on_list, KeyEvent("v", alt=True), Until(lambda a: a.modal is not None),
                   lambda a: seen.update(prompt=a.modal.prompt, found=a.manager.left.found), KeyEvent("enter")])
     assert seen == {"prompt": "No files found", "found": None}
+
+
+# -- Panel > Directory Branch -------------------------------------------------------------
+
+
+def test_directory_branch_lists_every_file_below_and_no_directory(place):
+    from navigator.widgets.manager.commands import DirBranch
+
+    app = navigator(place)
+    seen = {}
+    run_app(app, [lambda a: a.spawn(a.run_command(DirBranch)), Until(finding), lambda a: None,
+                  lambda a: seen.update(items=keys(a.manager.left), title=a.manager.left.found.title,
+                                        again=a.command_enabled(DirBranch()))])
+    assert seen["title"] == f"Branch: {place}"
+    assert seen["items"][0] == ".."
+    assert sorted(seen["items"][1:]) == sorted(str(place / p) for p in (
+        ".hidden.txt", "a/README", "b/README", "b/big.bin", "a/deep/note.txt", "top.txt"))
+    assert seen["again"] is False

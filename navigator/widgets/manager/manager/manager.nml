@@ -1,5 +1,5 @@
 from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
@@ -158,6 +158,7 @@ Manager(Window):
             key: 'Alt-G'
         MenuItem:
             text: 'Directory Branc~h~'
+            command: DirBranch
         MenuLine:
         MenuItem:
             text: 'Setup c~o~lumns'

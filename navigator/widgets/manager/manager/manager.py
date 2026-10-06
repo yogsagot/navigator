@@ -31,6 +31,7 @@ from navigator.widgets.manager.commands import (
     Copy,
     Delete,
     DeleteSingle,
+    DirBranch,
     DiskInfo,
     Edit,
     EditNamed,
@@ -304,11 +305,7 @@ class Manager(Window):
         first file found and fills as the rest are (``cmInsertFile``); nothing
         found leaves it as it was and says *No files found*.
         """
-        from navigator.bookmarks import mounted_places
-        from navigator.filefind import FindJob, FindListing, search
         from navigator.widgets.manager.find_file_dialog import FindFileDialog
-        from navigator.widgets.manager.find_progress import FindProgress
-        from navigator.widgets.manager.panel.panel import make_entry
 
         app = self.application
         if app is None:
@@ -316,9 +313,38 @@ class Manager(Window):
         request = await FindFileDialog().execute(app)
         if request is None:
             return
+        await self._search_into(panel, request, f"Find: {request.mask}")
+
+    async def on_dir_branch(self, event: DirBranch) -> bool:
+        self.spawn(self.directory_branch(self.active_panel))
+        return True
+
+    async def directory_branch(self, panel: Panel) -> None:
+        """Panel > Directory Branch: ``CM_Branch`` -- every file in the panel's
+        directory and every one below it, directories left out, as a listing
+        titled ``Branch:`` and the directory (DN's ``dlBranch``).  Searched as
+        Alt+F7 searches, so a long walk shows its box and Esc stops it."""
+        from navigator.filefind import FindRequest
+
+        if panel.found is not None:
+            return  # ``CM_Branch`` acted on a disk alone
+        request = FindRequest(recursive=True, scope="directory", directories=False)
+        await self._search_into(panel, request, f"Branch: {panel.path}")
+
+    async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
+        """*request* searched from *panel*'s directory into a listing titled
+        *title*, filling as it is found; nothing found says so."""
+        from navigator.bookmarks import mounted_places
+        from navigator.filefind import FindJob, FindListing, search
+        from navigator.widgets.manager.find_progress import FindProgress
+        from navigator.widgets.manager.panel.panel import make_entry
+
+        app = self.application
+        if app is None:
+            return
         start, hidden = Path(panel.path), panel.show_hidden
         current = panel.selected
-        listing = FindListing(f"Find: {request.mask}", start, live=True,
+        listing = FindListing(title, start, live=True,
                               return_to=current.name if current is not None else None)
         job = FindJob()
 
@@ -742,6 +768,9 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and bool(
                 self.selection(self.active_panel)
             )
+        if isinstance(command, DirBranch):
+            # ``CM_Branch`` acted on a disk's directory alone.
+            return self.active_panel.found is None
         if isinstance(command, MakeDirectory):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.
