@@ -23,7 +23,7 @@ import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
@@ -81,11 +81,12 @@ class DirEntry:
     """
 
     __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
-                 "counted")
+                 "counted", "directory")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
                  is_link: bool = False, link_target: str | None = None,
-                 uid: int | None = None, gid: int | None = None):
+                 uid: int | None = None, gid: int | None = None,
+                 directory: Path | None = None):
         self.name = name
         self.is_dir = is_dir
         self.size = size
@@ -96,6 +97,21 @@ class DirEntry:
         self.uid = uid
         self.gid = gid
         self.counted = False
+        #: Where the entry is, for one listed away from the panel's own
+        #: directory -- a *Find:* listing's (DN's per-file ``Owner``); None
+        #: for one in the directory the panel shows.
+        self.directory = directory
+
+    @property
+    def key(self) -> str:
+        """What tags and the cursor know the entry by: its name, or, for one
+        from elsewhere, its whole path -- a *Find:* listing may hold two
+        ``README``s."""
+        return self.name if self.directory is None else os.path.join(str(self.directory), self.name)
+
+    def path_in(self, here: Path) -> Path:
+        """The entry's path, in the panel showing *here*."""
+        return Path(self.directory if self.directory is not None else here) / self.name
 
     @property
     def is_executable(self) -> bool:
@@ -251,6 +267,9 @@ class _ScanRequest:
     path: Path
     return_to: str | None
     keep: tuple[Path, str, int, int] | None
+    #: What is listed: the path, or the *Find:* listing shown at it -- so a
+    #: listing's own re-reads keep tags and cursor, and entering one does not.
+    where: Any = None
 
 
 #: DN's sort modes (``psm*``, ``SortMode``), named as the *New Manager
@@ -324,6 +343,79 @@ def order_entries(
     return up + sorted(rest, key=key)
 
 
+def make_entry(item: os.DirEntry[str], directory: Path | None = None) -> DirEntry:
+    """*item* as a :class:`DirEntry`: its target's facts, or a dangling
+    link's own, and what a link says it points at."""
+    try:
+        info = item.stat()
+    except OSError:
+        # A dangling link: describe the link itself.
+        try:
+            info = item.stat(follow_symlinks=False)
+        except OSError:
+            info = None
+    try:
+        is_link = item.is_symlink()
+    except OSError:
+        is_link = False
+    target = None
+    if is_link:
+        try:
+            target = os.readlink(item.path)
+        except OSError:
+            pass
+    if info is None:
+        return DirEntry(item.name, False, 0, is_link=is_link, link_target=target, directory=directory)
+    is_dir = stat.S_ISDIR(info.st_mode)
+    size = 0 if is_dir else info.st_size
+    return DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
+                    target, info.st_uid, info.st_gid, directory)
+
+
+def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
+    """The entry for *path* as it is now, or None if it is gone."""
+    try:
+        info = path.lstat()
+    except OSError:
+        return None
+    is_link = stat.S_ISLNK(info.st_mode)
+    target = None
+    if is_link:
+        try:
+            target = os.readlink(path)
+        except OSError:
+            pass
+        try:
+            info = path.stat()
+        except OSError:
+            pass
+    is_dir = stat.S_ISDIR(info.st_mode)
+    return DirEntry(path.name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
+                    is_link, target, info.st_uid, info.st_gid, directory)
+
+
+def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,
+                 executables_first: bool = False, archives_first: bool = False,
+                 mask: str = filetypes.ALL_FILES) -> tuple[list[DirEntry], str | None]:
+    """A *Find:* listing re-read (``DosReread``): each entry as it is now, the
+    gone ones dropped, under a ``..`` that leads back.  A thread runs it."""
+    filtered = mask.strip() not in ("", filetypes.ALL_FILES)
+    found: list[DirEntry] = [DirEntry("..", True, 0)]
+    for entry in entries:
+        if entry.name == "..":
+            continue
+        if not show_hidden and entry.name.startswith("."):
+            continue
+        fresh = entry_at(entry.path_in(Path("/")), entry.directory)
+        if fresh is None:
+            continue
+        if filtered and not fresh.is_dir and not filetypes.in_filter(fresh.name, mask):
+            continue
+        found.append(fresh)
+    return order_entries(found, sort, executables_first=executables_first,
+                         archives_first=archives_first), None
+
+
 def scan_directory(
     path: Path, show_hidden: bool, sort: str = "name", *,
     executables_first: bool = False, archives_first: bool = False,
@@ -359,31 +451,7 @@ def scan_directory(
                             continue
                     except OSError:
                         continue
-                try:
-                    info = item.stat()
-                except OSError:
-                    # A dangling link: describe the link itself.
-                    try:
-                        info = item.stat(follow_symlinks=False)
-                    except OSError:
-                        info = None
-                try:
-                    is_link = item.is_symlink()
-                except OSError:
-                    is_link = False
-                target = None
-                if is_link:
-                    try:
-                        target = os.readlink(item.path)
-                    except OSError:
-                        pass
-                if info is None:
-                    entries.append(DirEntry(item.name, False, 0, is_link=is_link, link_target=target))
-                    continue
-                is_dir = stat.S_ISDIR(info.st_mode)
-                size = 0 if is_dir else info.st_size
-                entries.append(DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
-                                        target, info.st_uid, info.st_gid))
+                entries.append(make_entry(item))
     except OSError as exc:
         error = exc.strerror or str(exc)
     entries = order_entries(entries, sort, executables_first=executables_first,
@@ -444,6 +512,10 @@ class Panel(ListViewer):
     #: ``-`` to leave out (:func:`navigator.filetypes.in_filter`).  Per panel,
     #: set by Alt+S; directories are always listed.
     file_mask: str = reactive(filetypes.ALL_FILES)
+    #: A *Find:* listing shown in place of the directory (Alt+F7, DN's
+    #: ``TFindDrive``, :class:`navigator.filefind.FindListing`), or None.  It
+    #: belongs to the directory it was shown at: going anywhere else drops it.
+    found: Any = reactive(None)
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -521,7 +593,12 @@ class Panel(ListViewer):
         show_hidden = self.show_hidden
         sort = self.sort_mode
         mask = self.file_mask
+        found = self.found
         _ = self.display  # Alt+S re-reads, as DN's ``Setup`` did (``RereadDir``)
+        if found is not None and found.origin != path:
+            # The panel went somewhere: the *Find:* listing is left behind.
+            with untracked():
+                self.found = found = None
         with untracked():
             # The defaults are read at each read, not followed: changing them
             # re-sorts a panel following them at its next read.
@@ -529,7 +606,8 @@ class Panel(ListViewer):
                      "archives_first": self.shows("archives_first"),
                      "mask": mask}
         # Taken now, for this read: a later move or reload sets its own.
-        request = _ScanRequest(path, self._return_to, self._keep)
+        request = _ScanRequest(path, self._return_to, self._keep,
+                               path if found is None else (path, id(found)))
         self._return_to = self._keep = None
         pending = self._pending
         if pending is not None and pending.path == path:
@@ -539,7 +617,17 @@ class Panel(ListViewer):
                 request.return_to, request.keep = pending.return_to, pending.keep
         self._generation += 1
         generation = self._generation
-        future = _SCANNER.submit(scan_directory, path, show_hidden, sort, **flags)
+        if found is not None and found.live:
+            # Still being searched: the entries as found, only ordered.
+            entries = [DirEntry("..", True, 0)] + [e for e in found.entries
+                                                   if show_hidden or not e.name.startswith(".")]
+            self._apply(request, order_entries(entries, sort, executables_first=flags["executables_first"],
+                                               archives_first=flags["archives_first"]), None)
+            return
+        if found is not None:
+            future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort, **flags)
+        else:
+            future = _SCANNER.submit(scan_directory, path, show_hidden, sort, **flags)
         with untracked():
             app = self.application
         if app is None or not app.is_running:
@@ -549,7 +637,7 @@ class Panel(ListViewer):
             result = future.result(timeout=SCAN_GRACE)
         except concurrent.futures.TimeoutError:
             self._pending = request
-            if path != self._listed:
+            if request.where != self._listed:
                 # Somewhere new: its rows are not the last directory's.
                 self.items = []
                 self.error = None
@@ -578,20 +666,21 @@ class Panel(ListViewer):
         # Peeked, not read: the rescan must not depend on the tags, or every
         # Insert would re-read the directory.
         marked = peek(self, Panel.marked)
-        if path != self._listed:
+        where = request.where if request.where is not None else path
+        if where != self._listed:
             marked = frozenset()
             self.quick_search = None
             self.name_scroll = 0
         elif marked:
-            marked &= {entry.name for entry in entries}
+            marked &= {entry.key for entry in entries}
         self.marked = marked
-        self._listed = path
+        self._listed = where
         target, keep = request.return_to, request.keep
         if keep is not None and keep[0] == path and target is None:
             # A re-read of the same directory: the cursor stays on its entry,
             # or where the entry was if it went, and the view does not jump.
-            _, name, cursor, scroll = keep
-            found = next((i for i, item in enumerate(entries) if item.name == name), None)
+            _, key, cursor, scroll = keep
+            found = next((i for i, item in enumerate(entries) if item.key == key), None)
             self.cursor = found if found is not None else min(cursor, max(0, len(entries) - 1))
             self.scroll = scroll
             return
@@ -600,21 +689,77 @@ class Panel(ListViewer):
         )
         self.scroll = 0
 
-    def reload(self) -> None:
+    def reload(self, key: str | None = None) -> None:
         """Re-read the directory this panel shows, keeping the cursor on its entry.
 
         DOS Navigator's re-read after a command left the cursor where it was;
         this one used to send it back to the top, so the file just run, or
-        just renamed by a command, was lost.
+        just renamed by a command, was lost.  *key* (:attr:`DirEntry.key`) is
+        where the cursor goes instead, if it is there: the entry just renamed.
         """
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+            self._keep = (self.path, key or entry.key, self.cursor, self.scroll)
         self.reload_token += 1
 
+    def name_cell(self) -> tuple[int, int, int] | None:
+        """``(x, y, width)`` of the name at the cursor, past its gutter, in this
+        panel's own cells; None when it is not on show.  Where Alt+F6's line
+        goes, as DN put ``TInputFName`` over ``LastCurPos``."""
+        index = self.cursor
+        if not 0 <= index < len(self.items):
+            return None
+        gutter, top = self.gutter, self.inset + self.header
+        if self.view_mode == "list":
+            right = self.inset + self.inner_width
+            for first, x, width in self.list_columns:
+                if first <= index < first + self.rows:
+                    return x + gutter, top + index - first, max(1, min(width, right - x) - gutter)
+            return None
+        row = index - self.scroll
+        if not 0 <= row < self.rows:
+            return None
+        if self.view_mode == "detailed":
+            columns = self.detail_columns
+            if not columns:
+                return None
+            _, x, width = columns[0]
+        else:
+            x, width = 1, max(1, self.name_width)
+        return x + gutter, top + row, max(1, width - gutter)
+
+    def show_found(self, listing: Any) -> None:
+        """Show *listing* in place of the directory, the cursor at its top."""
+        self._keep = None
+        self.found = listing
+
+    def leave_found(self) -> None:
+        """``..`` in a *Find:* listing: ``ChangeUp``, back to the directory it
+        was shown at, the cursor where the panel had left it."""
+        if self.found is not None:
+            self._return_to = self.found.return_to
+            self.found = None
+
+    def go_to_entry(self, entry: DirEntry | None = None) -> None:
+        """A found entry's own directory, the cursor on it: DN's ``_CtrlPgDn``
+        on a *Find:* listing (``GotoFile``)."""
+        entry = entry if entry is not None else self.selected
+        if entry is None or entry.directory is None:
+            return
+        self._return_to = entry.name
+        self.found = None
+        self.path = Path(entry.directory)
+
     def enter(self) -> None:
-        """Descend into the selected directory."""
+        """Descend into the selected directory -- or, in a *Find:* listing,
+        go back (``..``) or go to the entry, as DN's Enter did there."""
         entry = self.selected
+        if self.found is not None and entry is not None:
+            if entry.name == "..":
+                self.leave_found()
+            else:
+                self.go_to_entry(entry)
+            return
         if entry is None or not entry.is_dir:
             return
         # The rescan is deferred, so the cursor we want afterwards has to be
@@ -628,6 +773,9 @@ class Panel(ListViewer):
         DN's ``_CtrlPgUp``: what choosing ``..`` does, from anywhere in the
         listing.  At the root there is nowhere to go and nothing happens.
         """
+        if self.found is not None:
+            self.leave_found()
+            return
         parent = (self.path / "..").resolve()
         if parent == self.path:
             return
@@ -637,7 +785,20 @@ class Panel(ListViewer):
     # -- tagging -------------------------------------------------------------
 
     def is_marked(self, item: DirEntry) -> bool:
-        return item.name in self.marked
+        return item.key in self.marked
+
+    def untag_paths(self, paths: Iterable[Path]) -> None:
+        """Take the tags off the entries at *paths*: what a copy, a move or an
+        erase leaves of the ones it finished."""
+        done = {Path(path) for path in paths}
+        if done:
+            self.untag(item for item in self.items if item.path_in(self.path) in done)
+
+    def untag(self, entries: Iterable[DirEntry]) -> None:
+        """Take *entries*' tags off: what an operation done on them leaves."""
+        keys = {entry.key for entry in entries}
+        if keys & self.marked:
+            self.marked = self.marked - keys
 
     def toggle_mark(self) -> None:
         """Insert: tag or untag the entry under the cursor, and step down.
@@ -651,7 +812,7 @@ class Panel(ListViewer):
         if entry is None:
             return
         if entry.name != "..":
-            self.marked = self.marked ^ {entry.name}
+            self.marked = self.marked ^ {entry.key}
         self.move_cursor(1)
 
     def select_group(self, mask: str, *, select: bool = True, invert: bool = False) -> None:
@@ -667,7 +828,7 @@ class Panel(ListViewer):
         if not patterns:
             return
         matched = {
-            item.name
+            item.key
             for item in self.items
             if item.name != ".."
             and (select is False or not item.is_dir)
@@ -683,7 +844,7 @@ class Panel(ListViewer):
         never tagged.
         """
         flipped = {
-            item.name
+            item.key
             for item in self.items
             if item.name != ".." and (directories or not item.is_dir)
         }
@@ -693,7 +854,7 @@ class Panel(ListViewer):
     def marked_entries(self) -> list[DirEntry]:
         """The tagged entries, in listing order."""
         marked = self.marked
-        return [item for item in self.items if item.name in marked]
+        return [item for item in self.items if item.key in marked]
 
     async def choose(self) -> bool:
         """What Enter and a double click mean here: descend, or run.
@@ -703,8 +864,11 @@ class Panel(ListViewer):
         else is left alone.
         """
         entry = self.selected
+        if self.found is not None:
+            self.enter()
+            return True
         if entry is not None and not entry.is_dir:
-            path = self.path / entry.name
+            path = entry.path_in(self.path)
             if path.is_file() and os.access(path, os.X_OK):
                 await self.emit(ExecuteFile(path))
             return True
@@ -758,7 +922,7 @@ class Panel(ListViewer):
             raise ValueError(f"unknown sort mode {sort!r}")
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+            self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.sort_mode = sort
         self.display = frozenset(display)
         self.file_mask = mask.strip() or filetypes.ALL_FILES
@@ -775,7 +939,7 @@ class Panel(ListViewer):
             return
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+            self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.sort_mode = mode
 
     def toggle_hidden(self) -> None:
@@ -787,7 +951,7 @@ class Panel(ListViewer):
         """
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+            self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.show_hidden = not self.show_hidden
 
     # -- quick search --------------------------------------------------------
@@ -1086,8 +1250,9 @@ class Panel(ListViewer):
         return max(1, self.width - 12)
 
     def title_text(self) -> str:
-        """The path across the top frame, clipped to fit."""
-        title = str(self.path)
+        """The path across the top frame, clipped to fit -- or, for a *Find:*
+        listing, what it was found by (DN's drive name, ``Find: *.c``)."""
+        title = self.found.title if self.found is not None else str(self.path)
         room = max(4, self.width - 4 - 2 * self.title_margin)
         if len(title) > room:
             title = "..." + title[-(room - 3) :]
@@ -1114,6 +1279,13 @@ class Panel(ListViewer):
             entry = self.selected
             if entry is None:
                 summary = f" {len(self.items)} items "
+            elif entry.directory is not None:
+                # DN's find panel gave the file's directory a row of its own;
+                # here it is the whole path, its start cut as the title's is.
+                text, room = str(entry.path_in(self.path)), max(4, self.width - 6)
+                if len(text) > room:
+                    text = "..." + text[-(room - 3):]
+                summary = f" {text} "
             elif entry.link_target is not None:
                 summary = f" {entry.name} -> {entry.link_target} "
             else:
@@ -1165,7 +1337,7 @@ class Panel(ListViewer):
         """Whether *item* is a directory on the Alt+F1/Alt+F2 list."""
         if not item.is_dir or item.name == "..":
             return False
-        return os.path.join(str(self.path), item.name) in bookmarked_paths()
+        return str(item.path_in(self.path)) in bookmarked_paths()
 
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
                    item: DirEntry, style: Style, offset: int = 0) -> None:

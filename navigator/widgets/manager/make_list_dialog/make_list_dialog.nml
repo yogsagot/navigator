@@ -1,0 +1,42 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: Alt+L, Panel > Make list file: DOS Navigator's ``dlgMakeList``.
+#:
+#: Its rows as ``DN.DNR`` has them, three columns wider; Help is left out,
+#: having nothing to show yet.  *Action*'s history is the command line's,
+#: ``hsExecDOSCmd``, as DN's was.
+MakeListDialog(Dialog):
+    modal_width: 52
+    modal_height: 12
+    title: "Make List File"
+
+    #: DN's ``hsMakeList``.
+    Field:
+        id: file_name
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~F~ile name"
+        label_width: 11
+        history_id: "make_list"
+
+    Field:
+        id: action
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~A~ction"
+        label_width: 11
+        history_id: "command"
+
+    CheckBoxes:
+        id: options
+        x: 4
+        y: 6
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["~S~tore path names to list file", "A~u~todetermine necessity of path names"]

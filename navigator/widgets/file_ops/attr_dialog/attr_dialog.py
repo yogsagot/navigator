@@ -156,7 +156,7 @@ class AttrDialog(Dialog):
         self.message.visible = False
         self._entries = list(entries)
         self._here = Path(here) if here is not None else Path.cwd()
-        self._paths = [self._here / entry.name for entry in self._entries]
+        self._paths = [entry.path_in(self._here) for entry in self._entries]
         if facts is None:
             facts = gather(self._paths)
         self.survey = facts["survey"]

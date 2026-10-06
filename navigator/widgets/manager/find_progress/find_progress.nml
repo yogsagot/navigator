@@ -1,0 +1,34 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+
+#: A search under way: the ``TWhileView`` ``FindFile`` put on the desktop,
+#: titled ``dlDBViewSearch`` -- the directory being looked in, and how many
+#: have been found (``dlFilesFound``).  Its *Cancel* asks *Cancel search?*
+#: before anything stops, as ``dlQueryCancelSearch`` did.
+FindProgress(Dialog):
+    modal_width: 56
+    modal_height: 8
+    title: "Search"
+    buttons: "ok"
+    closable: False
+
+    property directory: ""
+    property count: 0
+
+    StaticText:
+        id: directory_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.fit(root.directory)
+
+    StaticText:
+        id: count_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: (str(root.count) + " files found") if root.count else "No files found"

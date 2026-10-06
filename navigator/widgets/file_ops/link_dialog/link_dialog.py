@@ -76,7 +76,7 @@ class LinkDialog(Dialog):
         relative = bool(self.options.value & RELATIVE)
         _session["relative"] = relative
         return LinkRequest(
-            sources=[self._here / entry.name for entry in self._entries],
+            sources=[entry.path_in(self._here) for entry in self._entries],
             target=target,
             relative=relative,
         )

@@ -75,6 +75,6 @@ class DeleteDialog(Dialog):
         recursive = bool(self.options.value & RECURSIVE)
         _session["recursive"] = recursive
         return EraseRequest(
-            sources=[self._here / entry.name for entry in self._entries],
+            sources=[entry.path_in(self._here) for entry in self._entries],
             recursive=recursive,
         )

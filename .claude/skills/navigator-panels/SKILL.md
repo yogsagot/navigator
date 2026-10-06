@@ -105,6 +105,44 @@ any other key ends it and does its job, as do a click, a directory change and lo
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;
   `tree_replaces` is a computed over them.
 
+## Find file (Alt+F7) and the *Find:* listing
+
+`FindFile`, `Manager.find_file`, DN's `FindFile`/`FindFiles` (also Disk > Find...): `FindFileDialog` (`dlgFileFind`,
+own OK / *Advanced...* / Cancel row, session-kept answers, opening on *Recursive* + *Current directory*) and
+`AdvancedSearchDialog` (`dlgAdvanceSearch`: ISO dates, sizes, POSIX kinds, *Clear all*) give a `FindRequest`;
+`navigator/filefind.search` walks on a thread (mask via `in_filter`, text by chunked regex, never through a symlink,
+one file system for *Entire disk* / *All drives*) under `FindProgress` through `_watch_job(..., abort="Cancel
+search?")`. **Results are a `FindListing` in `Panel.found`** (DN's `TFindDrive`): the panel lists its entries -- live
+while searching, re-`stat`ed by `restat_found` on a re-read, gone ones dropped -- under a `..` that leads back
+(`leave_found`, cursor where it was); title `Find: mask`, footer the entry's whole path. Enter / Ctrl+PgUp on `..`
+leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Enter `ChangeInactive` sends the other
+panel there. A listing belongs to the path it was shown at: going elsewhere drops it. Nothing found: *No files found*,
+the panel untouched. F7 and Compare are disabled in a listing.
+
+**Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
+its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,
+`marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`.
+
+## Make list (Alt+L)
+
+`MakeList`, `Manager.make_list`, DN's `CM_MakeList` -> `MakeListFile` (also Panel > Make list file): nothing tagged,
+`SelectDialog` first; then `MakeListDialog` (`dlgMakeList`: file name, history `make_list`, opened on its last entry
+or `makelist.DEFAULT_NAME` `dnlist.txt` -- DN's `DNLIST.BAT` -- and *Action*, history `command`, opened on the last
+command run; *Store path names* / *Autodetermine*, kept for the session in `Manager.make_list_options`, where DN kept
+them in its configuration). `navigator/makelist.py`: one line per file, or per file per `;` template (`;;` a `;`) with
+`! .! !\ !/ !: !!`, values shell-quoted, a template without macros followed by the quoted file; *Autodetermine* adds
+paths for files outside the list's directory and puts `!\` before a bare name macro. An existing file asks Yes /
+A~p~pend / Cancel. Written files are untagged and `FileSaved` re-reads the panels showing the list's directory.
+
+## Fast rename (Alt+F6)
+
+`FastRename`, `Manager.fast_rename`, DN's `CM_RenameSingle`: `fast_rename.FastRenameLine`, an `InputLine` run as a
+modal overlay over `Panel.name_cell()` (one cell further left, for its scroll arrow), the name all selected. Enter
+renames; Up, Down, Left at the start and Right at the end rename and then are posted to the panel (DN's `PutEvent`);
+Esc cancels (a departure: DN's renamed); a click outside cancels; `/` is not typed. Never `..`. A name already taken
+is refused (DOS's rename refused it, POSIX's replaces). The tag follows the file; `Panel.reload(name=new)` keeps the
+cursor on it; `FileSaved` re-reads the other panels.
+
 ## Panel Options (Alt+S)
 
 `PanelSetup`, `Manager.panel_setup`, DN's `cmPanelSetup` -> `Setup` (also Panel > Setup Panel): `PanelSetupDialog`

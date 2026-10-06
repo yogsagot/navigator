@@ -113,7 +113,7 @@ class CopyDialog(Dialog):
         _session["mode"] = self.mode.value
         _session["options"] = self.options.value
         return CopyRequest(
-            sources=[self._here / entry.name for entry in self._entries],
+            sources=[entry.path_in(self._here) for entry in self._entries],
             target=target,
             mode=self.mode.value,
             options=self.options.value,

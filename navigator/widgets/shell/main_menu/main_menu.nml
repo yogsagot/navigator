@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, Quit, ToggleConsole
-from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, View, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import About, EditHistory, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -117,6 +117,7 @@ MainMenu(MenuBar):
                 key: 'Shift-F4'
         MenuItem:
             text: '~F~ind...'
+            command: FindFile
             key: 'Alt-F7'
         MenuItem:
             text: '~C~opy...'

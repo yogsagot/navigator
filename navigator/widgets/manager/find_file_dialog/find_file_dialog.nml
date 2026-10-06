@@ -1,0 +1,99 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Alt+F7, Disk > Find file: DOS Navigator's ``dlgFileFind``.
+#:
+#: Its rows as ``DN.DNR`` lays them, two columns wider and a row taller for
+#: this library's buttons; DN's own row of OK, *Advanced...* and Cancel,
+#: Help left out with nothing to show yet.  Cancel carries no letter, as the
+#: resource's did: ``~C~`` is *Case sensitive*'s.
+FindFileDialog(Dialog):
+    modal_width: 52
+    modal_height: 18
+    title: "Find File"
+
+    #: DN's ``hsFindMask``.
+    Field:
+        id: mask
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~F~ile mask"
+        label_width: 14
+        history_id: "find_mask"
+
+    #: DN's ``hsFindText``.
+    Field:
+        id: text
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~T~ext to find"
+        label_width: 14
+        history_id: "find_text"
+
+    Label:
+        id: options_caption
+        x: 3
+        y: 6
+        width: 10
+        height: 1
+        text: "Options"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 7
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words"]
+
+    Label:
+        id: scope_caption
+        x: 3
+        y: 10
+        width: 10
+        height: 1
+        text: "Scope"
+        link: scope
+
+    RadioButtons:
+        id: scope
+        x: 3
+        y: 11
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["~E~ntire disk", "Current ~d~irectory", "~A~ll drives"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 3
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    #: DN's command 3223: *Advanced search*'s own dialog.
+    Button:
+        id: advanced
+        text: "Ad~v~anced..."
+        x: 16
+        y: max(0, parent.height - 4)
+        width: 15
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 33
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

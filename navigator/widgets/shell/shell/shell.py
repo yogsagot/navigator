@@ -728,7 +728,7 @@ class Shell(DockLayout):
         if entry.name == "..":
             text = _escape(str(directory).rstrip("/")) + "/"
         elif whole:
-            text = _escape(str(directory / entry.name))
+            text = _escape(str(entry.path_in(directory)))
         else:
             text = _escape(entry.name)
         self.command_line.insert_name(text)

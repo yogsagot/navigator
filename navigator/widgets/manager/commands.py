@@ -312,6 +312,14 @@ class CountLength(Command):
     """
 
 
+class ChangeInactive(Command):
+    """Shift+Enter in a *Find:* listing: the other panel goes to the file.
+
+    DOS Navigator's ``cmChangeInactive``, ``cmFindGotoFile`` sent to the
+    passive panel.
+    """
+
+
 class CompareDir(Command):
     """Panel > Compare directories: tag what each panel has that the other
     lacks or has older.
@@ -385,6 +393,7 @@ __all__ = [
     "SortBy",
     "CountLength",
     "CompareDir",
+    "ChangeInactive",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

@@ -11,6 +11,7 @@ base the markup's ``Manager(Window):`` head asks for.
 from __future__ import annotations
 
 import asyncio
+import errno
 import os
 import shlex
 from pathlib import Path
@@ -46,8 +47,12 @@ from navigator.widgets.manager.commands import (
     ScrollNames,
     SelectGroup,
     SwitchPanel,
+    ChangeInactive,
     CompareDir,
     CountLength,
+    FastRename,
+    FindFile,
+    MakeList,
     PanelSetup,
     SortBy,
     SwapPanels,
@@ -64,7 +69,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
-from navigator.widgets.manager.panel.panel import SORT_MODES
+from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.file_history import open_editor, open_viewer
 from navigator.settings import SETTINGS
 
@@ -213,7 +218,12 @@ class Manager(Window):
             entries.insert(0, current)
         if app is None or not entries:
             return
-        targets = [(entry, here if entry.name == ".." else here / entry.name) for entry in entries]
+        if panel.found is not None:
+            # ``..`` leads back out of a *Find:* listing; it has no length.
+            entries = [entry for entry in entries if entry.name != ".."]
+            if not entries:
+                return
+        targets = [(entry, here if entry.name == ".." else entry.path_in(here)) for entry in entries]
         job = FileJob()
 
         def count() -> list[tuple[Any, int]]:
@@ -235,6 +245,207 @@ class Manager(Window):
             # The same entries, changed, while the panel still lists them: a
             # new list is what it sees.
             panel.items = list(panel.items)
+
+    async def on_change_inactive(self, event: ChangeInactive) -> bool:
+        """Shift+Enter in a *Find:* listing: ``cmChangeInactive``, the passive
+        panel on the found file's directory, its cursor on the file -- shown,
+        if it was hidden or stood behind the tree or the quick view."""
+        entry = self.active_panel.selected
+        if entry is None or entry.directory is None:
+            return True
+        side = "right" if self.active_panel is self.left else "left"
+        self.bring_side(side).go_to_entry(entry)
+        return True
+
+    async def on_find_file(self, event: FindFile) -> bool:
+        self.spawn(self.find_file(self.active_panel))
+        return True
+
+    async def find_file(self, panel: Panel) -> None:
+        """Alt+F7: ``FindFile``, what *Find File* asks for found into *panel*.
+
+        The search runs on a thread (:func:`navigator.filefind.search`) under
+        *Search* -- the directory it is in and the count -- whose Cancel asks
+        DN's *Cancel search?*.  The panel becomes a *Find:* listing with the
+        first file found and fills as the rest are (``cmInsertFile``); nothing
+        found leaves it as it was and says *No files found*.
+        """
+        from navigator.bookmarks import mounted_places
+        from navigator.filefind import FindJob, FindListing, search
+        from navigator.widgets.manager.find_file_dialog import FindFileDialog
+        from navigator.widgets.manager.find_progress import FindProgress
+        from navigator.widgets.manager.panel.panel import make_entry
+
+        app = self.application
+        if app is None:
+            return
+        request = await FindFileDialog().execute(app)
+        if request is None:
+            return
+        start, hidden = Path(panel.path), panel.show_hidden
+        current = panel.selected
+        listing = FindListing(f"Find: {request.mask}", start, live=True,
+                              return_to=current.name if current is not None else None)
+        job = FindJob()
+
+        def work() -> list[Any]:
+            mounts = mounted_places() if request.scope == "drives" else ()
+            return search(request, start, lambda directory, item, info: make_entry(item, directory),
+                          job, show_hidden=hidden, mounts=mounts)
+
+        def refresh(box: Any = None) -> None:
+            if box is not None:
+                box.directory, box.count = job.directory, len(job.found)
+            if len(job.found) != len(listing.entries) and Path(panel.path) == start:
+                listing.entries = list(job.found)
+                if panel.found is not listing:
+                    panel.show_found(listing)
+                else:
+                    panel.reload()
+
+        async def no_questions(question: Any) -> None:
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(work))
+        try:
+            await self._watch_job(running, job, FindProgress, refresh, no_questions,
+                                  abort="Cancel search?")
+            await running
+        finally:
+            if not running.done():
+                job.stop()
+        refresh()
+        listing.live = False
+        if not listing.entries:
+            await Dialog(title="Error", prompt="No files found", buttons="ok").execute(app)
+            return
+        if panel.found is listing:
+            panel.reload()
+            panel.focus()
+
+    async def on_fast_rename(self, event: FastRename) -> bool:
+        self.spawn(self.fast_rename(self.active_panel))
+        return True
+
+    async def fast_rename(self, panel: Panel) -> None:
+        """Alt+F6: ``cmFastRename`` -> ``CM_RenameSingle``, the name edited in place.
+
+        :class:`~navigator.widgets.manager.fast_rename.FastRenameLine` over the
+        name at the cursor -- never ``..`` -- and the file renamed when it ends
+        with another name; a name already taken is refused, as DOS's rename
+        refused it where POSIX's would replace it.  The cursor stays on the
+        file under its new name, a tag goes with it, and Up or Down ending
+        the line is then the panel's (``PutEvent``).
+        """
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+        from navigator.widgets.manager.fast_rename import FastRenameLine
+
+        app = self.application
+        entry, cell = panel.selected, panel.name_cell()
+        if app is None or entry is None or entry.name == ".." or cell is None:
+            return
+        ox, oy = panel.offset()
+        x, y, width = cell
+        old = entry.name
+        new, key = await FastRenameLine(old, ox + panel.x + x, oy + panel.y + y, width).execute(app)
+        if new and new != old:
+            here = Path(entry.directory if entry.directory is not None else panel.path)
+
+            def rename() -> None:
+                target = here / new
+                if os.path.lexists(target) and not os.path.samefile(here / old, target):
+                    raise FileExistsError(errno.EEXIST, "a file of that name is already there")
+                os.rename(here / old, target)
+
+            try:
+                await asyncio.to_thread(rename)
+            except OSError as error:
+                await Dialog(title="Error",
+                             prompt=f"Could not rename {old}\nto {new}: {error.strerror or error}",
+                             buttons="ok").execute(app)
+            else:
+                old_key = entry.key
+                renamed = DirEntry(new, entry.is_dir, entry.size, directory=entry.directory)
+                if panel.found is not None:
+                    # The listing knows its files by name: tell it the new one.
+                    for found in panel.found.entries:
+                        if found.key == old_key:
+                            found.name = new
+                if old_key in panel.marked:
+                    panel.marked = (panel.marked - {old_key}) | {renamed.key}
+                await self.emit(FileSaved(here / new))
+                panel.reload(key=renamed.key)
+        if key is not None:
+            app.post_event(key)
+
+    #: *Make List File*'s boxes as last left, for the session (DN kept
+    #: ``MakeListFileOptions`` in its configuration).
+    make_list_options = 0
+
+    async def on_make_list(self, event: MakeList) -> bool:
+        self.spawn(self.make_list(self.active_panel))
+        return True
+
+    async def make_list(self, panel: Panel) -> None:
+        """Alt+L: ``CM_MakeList`` -> ``MakeListFile``, the tagged files in a list file.
+
+        Nothing tagged, *Select* comes first, and nothing tagged after it is
+        nothing to do.  Then *Make List File*; a file already there is asked
+        about -- *Yes* replaces it, *Append* adds to it -- and what is written
+        is untagged, file by file as DN's ``cmCopyUnselect`` did, and every
+        panel showing the list's directory re-reads (``RereadDirectory``).
+        The relative name is the active panel's directory's, DN's current one.
+        """
+        from navigator.makelist import make_lines
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+        from navigator.widgets.manager.make_list_dialog import MakeListDialog
+        from navigator.widgets.manager.select_dialog import SelectDialog
+
+        app = self.application
+        if app is None or not panel.items:
+            return
+        if not panel.marked_entries:
+            answer = await SelectDialog(select=True, invert=False).execute(app)
+            if answer is None:
+                return
+            mask, except_mask = answer
+            panel.select_group(mask, select=True, invert=except_mask)
+        entries = panel.marked_entries
+        if not entries:
+            return
+        here = Path(panel.path)
+        answer = await MakeListDialog(type(self).make_list_options).execute(app)
+        if answer is None:
+            return
+        name, action, options = answer
+        type(self).make_list_options = options
+        target = (here / Path(name).expanduser()).absolute()
+        appending = False
+        if await asyncio.to_thread(target.exists):
+            query = Dialog(title="Warning",
+                           prompt=f"File {target.name}\nalready exists.\nOK to overwrite it?",
+                           buttons="yes-no-cancel")
+            query.no.text = "A~p~pend"
+            reply = await query.execute(app)
+            if reply is None:
+                return
+            appending = reply is False
+        lines = make_lines([entry.path_in(here) for entry in entries], action, target.parent, options)
+
+        def write() -> None:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with open(target, "a" if appending else "w", encoding="utf-8",
+                      errors="surrogateescape") as file:
+                file.writelines(f"{text}\n" for text in lines)
+
+        try:
+            await asyncio.to_thread(write)
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot open {target}: {error.strerror or error}",
+                         buttons="ok").execute(app)
+            return
+        panel.untag(entries)
+        await self.emit(FileSaved(target))
 
     async def on_panel_setup(self, event: PanelSetup) -> bool:
         self.spawn(self.panel_setup(self.active_panel))
@@ -497,6 +708,16 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and bool(
                 self.selection(self.active_panel)
             )
+        if isinstance(command, MakeDirectory):
+            # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
+            # directory to make one in.
+            return self.active_panel.found is None
+        if isinstance(command, ChangeInactive):
+            entry = self.active_panel.selected
+            return self.active_panel.found is not None and entry is not None and entry.name != ".."
+        if isinstance(command, CompareDir):
+            # Two directories, compared: a *Find:* listing is not one.
+            return self.left.found is None and self.right.found is None
         if isinstance(command, SwitchPanel):
             # With one side hidden there is no other one for Tab to go to.
             return self.hidden_side is None
@@ -700,14 +921,14 @@ class Manager(Window):
             return
         loop = asyncio.get_running_loop()
         for entry in files:
-            problem = await loop.run_in_executor(None, spool_file, panel.path / entry.name)
+            problem = await loop.run_in_executor(None, spool_file, entry.path_in(panel.path))
             if problem is not None:
                 await Dialog(
                     title="Error", prompt=f"Cannot print {entry.name}: {problem}", buttons="ok",
                 ).execute(self.application)
                 return
             # ``cmCopyUnselect``: what has gone to the printer is untagged.
-            panel.marked = panel.marked - {entry.name}
+            panel.untag([entry])
 
     async def on_copy(self, event: Copy) -> bool:
         """F5: ``cmCopyFiles``."""
@@ -754,9 +975,7 @@ class Manager(Window):
                 # Cancelled -- Navigator is going -- so the thread is told to
                 # stop rather than left copying, or asking, behind it.
                 job.stop()
-        names = {path.name for path in done}
-        if names:
-            panel.marked = panel.marked - names
+        panel.untag_paths(done)
         panel.reload()
         other.reload()
 
@@ -780,6 +999,7 @@ class Manager(Window):
         make_box: Callable[[], Any],
         refresh: Callable[[Any], None],
         answer: Callable[[Any], Awaitable[Any]],
+        abort: str = "Abort operation?",
     ) -> None:
         """A worker's progress box, its one button, and its questions, until *work* ends.
 
@@ -821,7 +1041,7 @@ class Manager(Window):
                     box, shown = None, None
                     job.pause()
                     try:
-                        if await self._ask_yes_no("Abort operation?") is True:
+                        if await self._ask_yes_no(abort) is True:
                             job.stop()
                     finally:
                         job.resume()
@@ -929,7 +1149,7 @@ class Manager(Window):
             request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
         else:
             request = fileerase.EraseRequest(
-                sources=[Path(panel.path) / entry.name for entry in entries]
+                sources=[entry.path_in(Path(panel.path)) for entry in entries]
             )
         if request is None:
             return
@@ -947,9 +1167,7 @@ class Manager(Window):
         finally:
             if not work.done():
                 job.stop()
-            names = {path.name for path in done}
-            if names:
-                panel.marked = panel.marked - names
+            panel.untag_paths(done)
             panel.reload()
             other.reload()
 
@@ -1004,7 +1222,7 @@ class Manager(Window):
         if request is None:
             return
         destination = filecopy.resolve_target(request.target, request.sources, here)
-        linked: set[str] = set()
+        linked: set[Path] = set()
         try:
             if destination.create:
                 if SETTINGS.confirmations.create_dir and await self._ask_yes_no(
@@ -1023,10 +1241,9 @@ class Manager(Window):
                     if not await self._ask_skip(filecopy.error_message(error)):
                         break
                     continue
-                linked.add(source.name)
+                linked.add(source)
         finally:
-            if linked:
-                panel.marked = panel.marked - linked
+            panel.untag_paths(linked)
             panel.reload()
             other.reload()
 
@@ -1064,7 +1281,7 @@ class Manager(Window):
         # entry, and user and group lists a directory server may be slow with.
         looking = FileJob()
         facts = await run_with_progress(
-            app, lambda: gather([here / entry.name for entry in entries]), looking,
+            app, lambda: gather([entry.path_in(here) for entry in entries]), looking,
             lambda: progress_box(looking, "Reading file attributes"), refresh_box(looking),
             delay=SLOW_PROGRESS_DELAY,
         )
@@ -1094,9 +1311,7 @@ class Manager(Window):
         finally:
             if not work.done():
                 job.stop()
-            names = {path.name for path in done}
-            if names:
-                panel.marked = panel.marked - names
+            panel.untag_paths(done)
             panel.reload()
             other.reload()
 
@@ -1132,7 +1347,7 @@ class Manager(Window):
         desktop = self.desktop
         if entry is None or entry.is_dir or desktop is None:
             return
-        path = panel.path / entry.name
+        path = entry.path_in(panel.path)
         try:
             await open_viewer(desktop, path, mode)
         except OSError as error:
@@ -1166,7 +1381,7 @@ class Manager(Window):
             entry = panel.selected
             if entry is None or entry.is_dir:
                 return
-            path = panel.path / entry.name
+            path = entry.path_in(panel.path)
         if shell is None:
             return
         program = os.environ.get(variable, "").strip() or fallback
@@ -1225,7 +1440,7 @@ class Manager(Window):
         desktop = self.desktop
         if entry is None or entry.is_dir or desktop is None:
             return
-        path = panel.path / entry.name
+        path = entry.path_in(panel.path)
         try:
             await open_editor(desktop, path)
         except OSError as error:
@@ -1521,7 +1736,7 @@ class Manager(Window):
             return
         panel = self.active_panel
         entry, directory = panel.selected, panel.path
-        path = None if entry is None or entry.is_dir else directory / entry.name
+        path = None if entry is None or entry.is_dir else entry.path_in(directory)
         with untracked():
             self.quick.show(path)
 

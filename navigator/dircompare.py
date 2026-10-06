@@ -71,7 +71,7 @@ def _matches(entry: Any, other: Any, request: CompareRequest,
         if here is None or there is None:
             raise ValueError("comparing contents needs both directories")
         try:
-            return filecmp.cmp(here / entry.name, there / other.name, shallow=False)
+            return filecmp.cmp(entry.path_in(here), other.path_in(there), shallow=False)
         except OSError:
             return False  # one that cannot be read is not shown to be the same
     return True
