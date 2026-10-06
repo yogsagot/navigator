@@ -754,6 +754,14 @@ class Application:
         self.terminal.suspend()
         self._cursor_shown = None
 
+    def redraw(self) -> None:
+        """Paint the next frame whole, every cell, whatever the terminal is
+        thought to show already -- for a screen something else has written
+        over.  Turbo Vision's ``Application^.Redraw``."""
+        self._front = None
+        self._cursor_shown = None
+        self.invalidate()
+
     def reclaim_terminal(self) -> None:
         """End a :meth:`release_terminal` loan: the screen back, repainted whole."""
         if self._released is None:

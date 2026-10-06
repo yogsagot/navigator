@@ -19,12 +19,13 @@ from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
+from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import AsciiTable, OpenSmartpad
+from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
@@ -138,6 +139,30 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_show_user_screen(self, event: ShowUserScreen) -> bool:
+        """Alt+F5, ≡ > *User screen*: ``ShowUserScreen`` -- the console, until
+        any key or click, which then goes nowhere else and the windows come
+        back.  Already showing, it stays; with *Use internal terminal* off it
+        is Ctrl+O's handing over of the real terminal."""
+        if self.console_visible:
+            return True
+        if not SETTINGS.system.internal_terminal:
+            self.toggle_console()
+            return True
+        app = self.application
+        if app is None:
+            return True
+        self.toggle_console()
+        if not self.console_visible:
+            return True
+        self.spawn(self._peek(app))
+        return True
+
+    async def _peek(self, app: Any) -> None:
+        await UserScreenPeek().execute(app)
+        if self.console_visible:
+            self.toggle_console()
 
     def toggle_console(self) -> None:
         """Put the windows away to show the console, or bring them back.
@@ -1353,3 +1378,49 @@ class Shell(DockLayout):
 def _escape(text: str) -> str:
     """*text* with every character a shell would split or expand backslashed."""
     return "".join("\\" + char if char in _SHELL_SPECIAL else char for char in text)
+
+
+class UserScreenPeek(Widget):
+    """A layer over the whole screen that paints nothing and takes the next
+    key or click: what DN's ``ShowUserScreen`` waited for.  Modal, so the
+    console under it is shown and not typed into."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.modal = True
+        self.can_focus = True
+        self.dims_behind = False
+        self.x = bind(lambda o: 0)
+        self.y = bind(lambda o: 0)
+        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
+        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self._done: Any = None
+
+    async def execute(self, app: Any) -> None:
+        import asyncio
+
+        self._done = asyncio.get_running_loop().create_future()
+        app.overlay(self)
+        self.focus()
+        try:
+            await self._done
+        finally:
+            if self.parent is not None:
+                self.parent.remove(self)
+
+    def _end(self) -> None:
+        if self._done is not None and not self._done.done():
+            self._done.set_result(None)
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        self._end()
+        return True
+
+    async def on_mouse_click(self, event: Any) -> bool:
+        if event.action == "press" and not event.is_wheel:
+            self._end()
+        return True
+
+    def render(self, surface: Surface) -> None:
+        """Nothing: the console under it is the point."""
+

@@ -21,11 +21,12 @@ from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
+from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
-from navigator.commands import AsciiTable, OpenSmartpad
+from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import About, DriveInfoSetup, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, FileManagerDefaults, FileManagerSetup, InsertName, InsertPath, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
@@ -33,6 +34,9 @@ from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navigator.scheme import default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
+
+
+class UserScreenPeek(Widget): ...
 
 
 class Shell(DockLayout, _Component):
@@ -44,6 +48,8 @@ class Shell(DockLayout, _Component):
     keybar: KeyBar
     command_line: CommandLine
     def __init__(self, left: Path, right: Path, scheme: Stylesheet | None = ..., **kwargs): ...
+    async def on_show_user_screen(self, event: ShowUserScreen) -> bool: ...
+    async def _peek(self, app: Any) -> None: ...
     def toggle_console(self) -> None: ...
     def relay_terminal(self) -> bool: ...
     def _relayed_input(self, data: bytes) -> bytes: ...

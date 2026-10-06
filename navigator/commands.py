@@ -34,6 +34,22 @@ class Quit(Command):
     desktop: bool = False
 
 
+class Refresh(Command):
+    """≡ > Refresh display: the whole screen painted again.
+
+    DOS Navigator's ``cmRefresh`` (``Redraw``), for a screen another program
+    has written over.
+    """
+
+
+class ShowUserScreen(Command):
+    """Alt+F5, ≡ > User screen: the console shown until a key is pressed.
+
+    DOS Navigator's ``cmShowUserScreen``: a look behind the windows, where
+    Ctrl+O (``cmShowOutput``) is the console to type into.
+    """
+
+
 class AsciiTable(Command):
     """``cmASCIITable``: *ASCII Chart*, and the character picked typed where the
     keyboard is -- Ctrl+B and Utilities > *Character table* for the command line,
@@ -67,5 +83,7 @@ __all__ = [
     "OpenSmartpad",
     "PrintFile",
     "Quit",
+    "Refresh",
+    "ShowUserScreen",
     "ToggleConsole",
 ]

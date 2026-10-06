@@ -122,6 +122,15 @@ command line with `CommandLine.insert`, where DN put it back as a key press the 
 Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^B^V chord, so the editor keeps it
 (its own Ctrl+P opens the same chart for the text). Under tmux, Ctrl+B is tmux's prefix and never arrives.
 
+## User screen (Alt+F5) and Refresh display
+
+- **≡ > User screen, Alt+F5** (`ShowUserScreen`, DN's `cmShowUserScreen`; Ctrl+O is its `cmShowOutput`):
+  `Shell.on_show_user_screen` shows the console and overlays `UserScreenPeek`, a modal layer that paints nothing,
+  does not dim, and ends on the next key or click -- which goes nowhere else -- and the windows come back. Already
+  showing, it stays; with *Use internal terminal* off it is Ctrl+O's hand-over.
+- **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
+  which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
+
 ## The calculator (Ctrl+F6)
 
 `Calculator` (bound in `manager.nml`; Utilities > Calculator from anywhere) is `Shell.on_calculator`: DN's `InsertCalc`,
