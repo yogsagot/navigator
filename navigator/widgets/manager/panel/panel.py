@@ -327,14 +327,20 @@ def order_entries(
 def scan_directory(
     path: Path, show_hidden: bool, sort: str = "name", *,
     executables_first: bool = False, archives_first: bool = False,
+    mask: str = filetypes.ALL_FILES,
 ) -> tuple[list[DirEntry], str | None]:
     """*path*'s entries, ``..`` first and in *sort*'s order
     (:func:`order_entries`), and why not if it cannot be read.
+
+    A file *mask* (:func:`navigator.filetypes.in_filter`) leaves out the files
+    it does not let through; every directory is listed whatever it says, as
+    DN's ``GetDirectory`` listed them.
 
     Touches nothing but the file system, so a thread may run it.
     """
     entries: list[DirEntry] = []
     error: str | None = None
+    filtered = mask.strip() not in ("", filetypes.ALL_FILES)
     if path != path.parent:
         try:
             info = path.parent.stat()
@@ -347,6 +353,12 @@ def scan_directory(
             for item in scan:
                 if not show_hidden and item.name.startswith("."):
                     continue
+                if filtered and not filetypes.in_filter(item.name, mask):
+                    try:
+                        if not item.is_dir():
+                            continue
+                    except OSError:
+                        continue
                 try:
                     info = item.stat()
                 except OSError:
@@ -423,6 +435,15 @@ class Panel(ListViewer):
     #: How the listing is ordered, one of :data:`SORT_MODES`: DN's ``SortMode``,
     #: per panel, seeded from the *New Manager defaults* and changed by Alt+B.
     sort_mode: str = reactive("name")
+    #: The *Display* boxes this panel has: ``PanelDefaultsData.DISPLAY``'s
+    #: names that are on.  None while it follows the *New Manager defaults*,
+    #: read live; Alt+S's *Panel Options* gives it its own (DN's per-panel
+    #: ``PanelFlags``).  Ask :meth:`shows`.
+    display: Any = reactive(None)
+    #: Which files are listed (DN's ``FileMask``): ``;``-separated patterns,
+    #: ``-`` to leave out (:func:`navigator.filetypes.in_filter`).  Per panel,
+    #: set by Alt+S; directories are always listed.
+    file_mask: str = reactive(filetypes.ALL_FILES)
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -499,12 +520,14 @@ class Panel(ListViewer):
         path = self.path
         show_hidden = self.show_hidden
         sort = self.sort_mode
+        mask = self.file_mask
+        _ = self.display  # Alt+S re-reads, as DN's ``Setup`` did (``RereadDir``)
         with untracked():
-            # Read at each read, not followed: changing them re-sorts a panel
-            # at its next read, where DN's applied to the next manager made.
-            defaults = SETTINGS.panel_defaults
-            flags = {"executables_first": defaults.executables_first,
-                     "archives_first": defaults.archives_first}
+            # The defaults are read at each read, not followed: changing them
+            # re-sorts a panel following them at its next read.
+            flags = {"executables_first": self.shows("executables_first"),
+                     "archives_first": self.shows("archives_first"),
+                     "mask": mask}
         # Taken now, for this read: a later move or reload sets its own.
         request = _ScanRequest(path, self._return_to, self._keep)
         self._return_to = self._keep = None
@@ -717,6 +740,28 @@ class Panel(ListViewer):
         row away at once.  The dividers stay either way."""
         titled = self.view_mode != "simple" and SETTINGS.file_manager.column_titles
         self.header = 1 if titled else 0
+
+    def shows(self, option: str) -> bool:
+        """Whether *Display* box *option* is on for this panel: its own, once
+        Alt+S has set them, else the *New Manager defaults*' -- read live, a
+        departure: DN copied the defaults into each manager it made, and only
+        *Panel Options* changed one."""
+        display = self.display
+        if display is None:
+            return bool(getattr(SETTINGS.panel_defaults, option))
+        return option in display
+
+    def set_options(self, sort: str, display: frozenset[str], mask: str) -> None:
+        """Alt+S's answer (DN's ``Setup``): this panel's order, *Display*
+        boxes and file mask, and one re-read keeping the cursor on its entry."""
+        if sort not in SORT_MODES:
+            raise ValueError(f"unknown sort mode {sort!r}")
+        entry = self.selected
+        if entry is not None:
+            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+        self.sort_mode = sort
+        self.display = frozenset(display)
+        self.file_mask = mask.strip() or filetypes.ALL_FILES
 
     def sort_by(self, mode: str) -> None:
         """Order the listing by *mode*: what Alt+B's choice does (``CM_SortBy``).
@@ -1056,17 +1101,14 @@ class Panel(ListViewer):
         """
         if self.quick_search is not None:
             return f"{self.SEARCH_LABEL}{self.quick_search} "
-        # New Manager defaults' *Selected files* and *Current file* say which
-        # of the two the line may show; with neither it is empty.  Read live
-        # rather than copied into each new manager as DN's were, so the boxes
-        # apply to the panels already open.
-        shown = SETTINGS.panel_defaults
-        marked = self.marked_entries if shown.selected_files else []
+        # *Selected files* and *Current file* say which of the two the line
+        # may show; with neither it is empty (:meth:`shows`).
+        marked = self.marked_entries if self.shows("selected_files") else []
         if marked:
             # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.
             size = sum(item.size for item in marked)
             summary = f" {size:,} bytes in {len(marked)} selected files "
-        elif not shown.current_file:
+        elif not self.shows("current_file"):
             return ""
         else:
             entry = self.selected
@@ -1081,11 +1123,10 @@ class Panel(ListViewer):
 
     def row_style(self, index: int, item: DirEntry) -> Style:
         classes = ("directory",) if item.is_dir else ()
-        # New Manager defaults' *Files highlight*: off, every file is coloured
-        # alike (read live, as the info line's boxes are).
+        # *Files highlight*: off, every file is coloured alike.
         category = (
             filetypes.category_of(item.name, item.is_dir, item.type_mark)
-            if SETTINGS.panel_defaults.files_highlight else None
+            if self.shows("files_highlight") else None
         )
         if category:
             classes += (category,)

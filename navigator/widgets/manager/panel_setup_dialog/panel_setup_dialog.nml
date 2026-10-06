@@ -1,0 +1,70 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Alt+S, Panel > Setup Panel: DOS Navigator's ``dlgPanelSetup``, *Panel Options*.
+#:
+#: *Panel Defaults* for one panel, with the file mask where that dialog has
+#: the left panel's kind: laid out as ``FMDefaultsDialog`` is, so the two
+#: read alike, with its captions -- *Group* is *Type* here too.  Help is left
+#: out, having nothing to show yet.
+PanelSetupDialog(Dialog):
+    modal_width: 52
+    modal_height: 17
+    title: "Panel Options"
+
+    Label:
+        id: sort_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "Sort by"
+        link: sort_by
+
+    RadioButtons:
+        id: sort_by
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 2
+        items: ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "T~y~pe", "~U~nsorted"]
+
+    Label:
+        id: display_caption
+        x: 2
+        y: 5
+        width: 12
+        height: 1
+        text: "Display"
+        link: display
+
+    CheckBoxes:
+        id: display
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 4
+        items: ["Director~y~ length", "~C~urrent file", "Se~l~ected files", "T~o~tals", "~F~ree space", "Files ~h~ighlight", "E~x~ecutable first", "~A~rchives first"]
+
+    Label:
+        id: mask_caption
+        x: 2
+        y: 11
+        width: 12
+        height: 1
+        text: "File ~m~ask"
+        link: mask.entry
+
+    #: DN's ``hsFileMask``.
+    Field:
+        id: mask
+        x: 2
+        y: 12
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "file_mask"

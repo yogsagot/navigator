@@ -105,6 +105,17 @@ any other key ends it and does its job, as do a click, a directory change and lo
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;
   `tree_replaces` is a computed over them.
 
+## Panel Options (Alt+S)
+
+`PanelSetup`, `Manager.panel_setup`, DN's `cmPanelSetup` -> `Setup` (also Panel > Setup Panel): `PanelSetupDialog`
+(`dlgPanelSetup`, laid out as `FMDefaultsDialog` plus *File mask*, history `file_mask`) opens on the panel's own
+values and OK is `Panel.set_options(sort, display, mask)`: one re-read keeping the cursor. **`Panel.display`** is None
+while the panel follows the *New Manager defaults* live and a frozenset of `PanelDefaultsData.DISPLAY` names once set;
+ask `Panel.shows(option)`, never `SETTINGS.panel_defaults` directly. **`Panel.file_mask`** (DN's `FileMask`, `*` for
+all) filters files, never directories, in `scan_directory` through `filetypes.in_filter` (`InFilter`: `;` patterns,
+`-` excludes, the last match decides, nothing matching is out; case counts). Nothing on screen says a mask is set, as
+in DN. *Directory length*, *Totals* and *Free space* are stored but not drawn yet.
+
 ## Directory length (Alt+G)
 
 `CountLength`, `Manager.count_length`, DN's `cmCountLen` (also Panel > Count directory length): the directory at the

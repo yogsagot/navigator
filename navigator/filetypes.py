@@ -78,6 +78,31 @@ def matches(name: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
 
 
+#: A panel's mask that lets every file through.
+ALL_FILES = "*"
+
+
+def in_filter(name: str, mask: str) -> bool:
+    """Whether *name* passes a panel's file mask: DN's ``InFilter``.
+
+    ``;``-separated patterns, blanks dropped; one led by ``-`` excludes.  The
+    last pattern that matches decides, and a name none matches is out -- so
+    ``*;-*.bak`` is everything but backups.  An empty mask, or ``*``, lets
+    everything through.  Patterns match as :func:`matches` does, case and
+    all, a departure for the reason it gives.
+    """
+    found = patterns(mask.replace(" ", ""))
+    if not found or found == [ALL_FILES]:
+        return True
+    for pattern in reversed(found):
+        excluded = pattern.startswith("-")
+        if excluded:
+            pattern = pattern[1:].lstrip()
+        if pattern and fnmatch.fnmatchcase(name, pattern):
+            return not excluded
+    return False
+
+
 def _index(categories: dict[str, str]) -> tuple[dict[str, str], list[tuple[str, list[str]]]]:
     """*categories* split once for :func:`category_of`: a plain ``*.ext`` --
     nearly every pattern -- becomes an extension lookup, and the rest (``*~``,

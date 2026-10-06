@@ -173,7 +173,8 @@ note:
 | `panel_defaults.files_highlight` | File-type row colours (`Panel.row_style`) |
 | `panel_defaults.current_file` / `selected_files` | What the panel's info line (its footer) may show; neither, it is empty |
 
-The `panel_defaults` above are read live by every panel, a departure: DN copied *New Manager defaults* into each
+The `panel_defaults` *Display* boxes above are read live by every panel (`Panel.shows`) **until Alt+S's *Panel
+Options* gives that panel its own** (`Panel.display`), a departure: DN copied *New Manager defaults* into each
 manager it made. `file_manager.info_divider` stays unhonoured because the info line is the frame's footer, with no
 divider to drop.
 

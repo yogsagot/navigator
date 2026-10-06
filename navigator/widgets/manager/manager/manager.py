@@ -48,6 +48,7 @@ from navigator.widgets.manager.commands import (
     SwitchPanel,
     CompareDir,
     CountLength,
+    PanelSetup,
     SortBy,
     SwapPanels,
     ToggleHidden,
@@ -234,6 +235,19 @@ class Manager(Window):
             # The same entries, changed, while the panel still lists them: a
             # new list is what it sees.
             panel.items = list(panel.items)
+
+    async def on_panel_setup(self, event: PanelSetup) -> bool:
+        self.spawn(self.panel_setup(self.active_panel))
+        return True
+
+    async def panel_setup(self, panel: Panel) -> None:
+        """Alt+S: ``cmPanelSetup``, DN's ``Setup`` -- *Panel Options* for *panel*,
+        and its answer becomes that panel's own (:meth:`Panel.set_options`)."""
+        from navigator.widgets.manager.panel_setup_dialog import PanelSetupDialog
+
+        answer = await PanelSetupDialog(panel).execute(self.application)
+        if answer is not None:
+            panel.set_options(*answer)
 
     async def on_compare_dir(self, event: CompareDir) -> bool:
         self.spawn(self.compare_directories())

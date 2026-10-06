@@ -155,6 +155,7 @@ Manager(Window):
             key: 'Alt-K'
         MenuItem:
             text: '~S~etup Panel'
+            command: PanelSetup
             key: 'Alt-S'
         MenuItem:
             text: 'Sort ~b~y...'
