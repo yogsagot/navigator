@@ -47,6 +47,7 @@ from navigator.widgets.manager.commands import (
     SelectGroup,
     SwitchPanel,
     SortBy,
+    SwapPanels,
     ToggleHidden,
     ToggleMark,
     ToggleShowMode,
@@ -181,6 +182,10 @@ class Manager(Window):
 
     async def on_hide_right(self, event: HideRight) -> bool:
         await self.toggle_side("right")
+        return True
+
+    async def on_swap_panels(self, event: SwapPanels) -> bool:
+        self.swap_panels()
         return True
 
     async def on_hide_inactive(self, event: HideInactive) -> bool:
@@ -1224,6 +1229,37 @@ class Manager(Window):
             self.show_side(other)
         elif self.hidden_side is None:
             self.hide_side(other)
+
+    def swap_panels(self) -> None:
+        """Ctrl+U: ``cmSwapPanels``, the two sides change places.
+
+        Each panel goes over whole -- directory, cursor, tags, view mode,
+        order -- and so does a tree or quick view standing in for one, beside
+        the panel it stands in for.  The keyboard stays with the panel it was
+        with, now on the other side, as DN's ``LeftView`` and ``RightView``
+        changed places and the selected view stayed selected.  ``left`` and
+        ``right`` are names for the sides, so they change places too.
+
+        A hidden side is shown first, as DN's ``cmHideRight``/``cmHideLeft``
+        before the swap showed it; the two after it, meant to hide a side
+        again, found both showing by then and did nothing.
+        """
+        if self.hidden_side is not None:
+            self.show_side(self.hidden_side)
+        left, right = self.left, self.right
+        row = self.panels.children
+        i, j = row.index(left), row.index(right)
+        row[i], row[j] = right, left
+        replacement = self.replacement
+        if replacement is not None:
+            row.remove(replacement)
+            row.insert(row.index(self.replaced), replacement)
+        left.on_execute_file, right.on_execute_file = right.on_execute_file, left.on_execute_file
+        self.left, self.right = right, left
+        # The row's order changed in place, which its layout does not
+        # follow: placed again here, in this batch.
+        self.panels.arrange()
+        self.panels.invalidate()
 
     def show_only(self, side: str) -> None:
         """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``."""

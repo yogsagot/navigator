@@ -3,7 +3,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SortBy, SwitchPanel
+from navigator.widgets.manager.commands import SelectGroup, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -79,6 +79,7 @@ Manager(Window):
         ctrl+f9: PrintFile
         ctrl+l: DiskInfo
         ctrl+p: HideInactive
+        ctrl+u: SwapPanels
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode

@@ -123,6 +123,13 @@ class HideRight(Command):
     """
 
 
+class SwapPanels(Command):
+    """Ctrl+U: the two sides change places.
+
+    DOS Navigator's ``cmSwapPanels``, Manager > Swap panels.
+    """
+
+
 class HideInactive(Command):
     """Ctrl+P: hide the side without the keyboard, or show it again.
 
@@ -360,6 +367,7 @@ __all__ = [
     "ChangeDirectory",
     "ToggleTree",
     "SortBy",
+    "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",
     "ChangeRight",

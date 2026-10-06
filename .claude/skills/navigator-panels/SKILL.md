@@ -105,6 +105,14 @@ any other key ends it and does its job, as do a click, a directory change and lo
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;
   `tree_replaces` is a computed over them.
 
+## Swapping panels (Ctrl+U)
+
+`SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change
+places in the `panels` row, whole, and **`Manager.left`/`right` are swapped with them** -- they name sides, not panels,
+so Alt+F1, Ctrl+F1 and the rest act on whatever is on that side now. A tree or quick view goes beside the panel it
+stands in for; the keyboard stays with its panel. A hidden side is shown first (DN's code ended that way too). The row
+is re-`arrange()`d by hand: reordering `children` in place is not something its layout follows.
+
 ## Read when
 
 No DESIGN reference of its own; panel-related library notes are in
