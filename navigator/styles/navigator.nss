@@ -43,6 +43,14 @@ Window::title       { fg: $frame-fg; bg: $frame-bg }
 Window:active::title { fg: $active-frame-fg; bg: $active-frame-bg }
 Window::icon        { fg: $frame-icon-fg; bg: $frame-icon-bg }
 
+/* The calculator is a dialog DN put on the desktop as a window: a dialog's
+   colours, its frame single while another window is in front. */
+CalculatorWindow               { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+CalculatorWindow:active        { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+CalculatorWindow::title,
+CalculatorWindow:active::title { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg }
+CalculatorWindow::icon         { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg }
+
 /* A panel's own colours are its listing colours, which is also what the frame
    and the fill inherit -- as in the original, where the frame and the interior
    of a file panel share a background and differ only in intensity. */

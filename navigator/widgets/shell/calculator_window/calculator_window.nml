@@ -1,0 +1,147 @@
+from navigator.widgets.shell.calculator_window.calc_line import CalcLine
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.history import History
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.window import Window
+
+#: Ctrl+F6, Utilities > Calculator: DOS Navigator's ``dlgCalculator``.
+#:
+#: A dialog DN put on the desktop as a window (``InsertWindow``), so it stays
+#: up beside the others; one at a time.  Laid out where the resource and
+#: ``InsertCalc`` put things: the expression with its history, *Copy As*'s
+#: five forms, the indicator's five rows beside them -- decimal, hexadecimal,
+#: binary, octal and the exponent form, worked out as the line is typed --
+#: and *Evaluate*, *Copy* and *Close* along the bottom.  Help is left out.
+CalculatorWindow(Window):
+    title: "Calculator"
+    zoomable: False
+    resizable: False
+
+    #: The indicator's five rows (``TIndicator.Draw``), the Python half's.
+    property rows: ["", "", "", "", ""]
+
+    #: A dialog's keys, which a window does not have of its own: Esc closes,
+    #: Enter evaluates, Tab walks the controls -- this window's alone.
+    keys:
+        escape: Cancel
+        enter: Default
+        tab: SelectNext
+        shift+tab: SelectPrevious
+
+    Label:
+        id: expression_caption
+        x: 2
+        y: 2
+        width: 12
+        height: 1
+        text: "Ex~p~ression"
+        link: line
+
+    #: DN's ``TCalcLine``, its history ``hsCalcLine``.
+    CalcLine:
+        id: line
+        x: 2
+        y: 3
+        width: max(1, parent.width - 7)
+        height: 1
+
+    History:
+        id: history
+        link: line
+        history_id: "calc"
+        x: max(0, parent.width - 5)
+        y: 3
+        width: 3
+        height: 1
+
+    Label:
+        id: copy_caption
+        x: 2
+        y: 5
+        width: 10
+        height: 1
+        text: "Copy ~A~s"
+        link: copy_as
+
+    RadioButtons:
+        id: copy_as
+        x: 2
+        y: 6
+        width: 9
+        height: 5
+        items: ["~D~EC", "~H~EX", "~B~IN", "~O~CT", "~E~XP"]
+
+    StaticText:
+        id: row0
+        x: 12
+        y: 6
+        width: max(0, parent.width - 14)
+        height: 1
+        align: "right"
+        text: root.rows[0]
+
+    StaticText:
+        id: row1
+        x: 12
+        y: 7
+        width: max(0, parent.width - 14)
+        height: 1
+        align: "right"
+        text: root.rows[1]
+
+    StaticText:
+        id: row2
+        x: 12
+        y: 8
+        width: max(0, parent.width - 14)
+        height: 1
+        align: "right"
+        text: root.rows[2]
+
+    StaticText:
+        id: row3
+        x: 12
+        y: 9
+        width: max(0, parent.width - 14)
+        height: 1
+        align: "right"
+        text: root.rows[3]
+
+    StaticText:
+        id: row4
+        x: 12
+        y: 10
+        width: max(0, parent.width - 14)
+        height: 1
+        align: "right"
+        text: root.rows[4]
+
+    #: DN's ``cmCalcValue``, the default.
+    Button:
+        id: evaluate_button
+        text: "E~v~aluate"
+        default: True
+        x: 3
+        y: 12
+        width: 12
+        height: 2
+
+    #: DN's ``cmCopyClip``: the value, in *Copy As*'s form, on the clipboard.
+    Button:
+        id: copy_button
+        text: "~C~opy"
+        x: 16
+        y: 12
+        width: 10
+        height: 2
+
+    Button:
+        id: close_button
+        text: "Close"
+        x: 27
+        y: 12
+        width: 10
+        height: 2

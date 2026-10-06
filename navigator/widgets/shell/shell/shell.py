@@ -26,7 +26,7 @@ from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
-from navigator.widgets.manager.commands import HideLeft, HideRight, ToggleMark, UserMenu
+from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     About,
     CommandLineEnd,
@@ -744,6 +744,28 @@ class Shell(DockLayout):
         if self.console_visible:
             self.toggle_console()
         self.spawn(open_smartpad(self.desktop))
+        return True
+
+    # -- Ctrl+F6: the calculator ----------------------------------------------------
+
+    async def on_calculator(self, event: Calculator) -> bool:
+        """Ctrl+F6, Utilities > *Calculator*: ``InsertCalc`` -- the one calculator
+        window, brought forward if it is open, else opened where DN put it."""
+        from navigator.widgets.shell.calculator_window import CalculatorWindow
+        from navigator.widgets.shell.calculator_window.calculator_window import HEIGHT, WIDTH, X, Y
+
+        if self.console_visible:
+            self.toggle_console()
+        desktop = self.desktop
+        for window in desktop.windows():
+            if isinstance(window, CalculatorWindow):
+                desktop.activate(window)
+                return True
+        window = desktop.open(CalculatorWindow())
+        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
+        window.locate(min(X, max(0, desktop.width - width)), min(Y, max(0, desktop.height - height)),
+                      width, height)
+        window.take_keyboard()
         return True
 
     # -- F2: the user menu (navigator.usermenu) ------------------------------------

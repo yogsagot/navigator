@@ -2966,7 +2966,7 @@ def test_the_ctrl_row_greys_what_is_not_written_and_not_what_is(tree):
         ),
     ])
     assert "Print" not in enabled
-    assert enabled == ["New Manager", "Close", "Tree", "Preview", "Show"]
+    assert enabled == ["New Manager", "Close", "Calc", "Tree", "Preview", "Show"]
 
 
 def test_a_click_on_a_held_row_runs_that_rows_command(tree):

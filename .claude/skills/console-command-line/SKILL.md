@@ -122,6 +122,19 @@ command line with `CommandLine.insert`, where DN put it back as a key press the 
 Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^B^V chord, so the editor keeps it
 (its own Ctrl+P opens the same chart for the text). Under tmux, Ctrl+B is tmux's prefix and never arrives.
 
+## The calculator (Ctrl+F6)
+
+`Calculator` (bound in `manager.nml`; Utilities > Calculator from anywhere) is `Shell.on_calculator`: DN's `InsertCalc`,
+**one** `CalculatorWindow` (`shell/calculator_window`) on the desktop -- a dialog in a `Window`, DN's
+`InsertWindow`, 49x15 at (10, 5), dialog colours from `navigator.nss`. A window has no dialog keys of its own, so it
+binds Esc/Enter/Tab/Shift+Tab to navml's `Cancel`/`Default`/`SelectNext`/`SelectPrevious` and answers them itself
+(Tab cycles its own `focusable()`), and walks Alt+letter over its controls. The indicator's five rows (decimal, hex,
+binary, octal, exponent; *Error*; *Overflow*) follow the line through an effect. Enter evaluates: the line becomes
+the value, selected, and `CalcLine` lets a digit replace it and anything else carry on from it. *Copy* puts *Copy
+As*'s form through `app.copy_to_clipboard`. Esc/*Close* record the line in history `calc`. The sums are
+`navigator/calculator.py` (`PAR.PAS`'s numbers, operators and functions; **arithmetic precedence, a departure** --
+DN's put `^` below `*`; integer forms 64-bit where DN's were 32). Button ids must not shadow methods (`evaluate`).
+
 ## Read when
 
 | Reference | Read when |
