@@ -675,6 +675,9 @@ class Panel(ListViewer):
         # Insert would re-read the directory.
         marked = peek(self, Panel.marked)
         where = request.where if request.where is not None else path
+        if where != self._listed and where == path and error is None:
+            # ``AddToDirectoryHistory``: a directory the panel has come to.
+            self._remember_directory(path)
         if where != self._listed:
             marked = frozenset()
             self.quick_search = None
@@ -696,6 +699,15 @@ class Panel(ListViewer):
             (index for index, item in enumerate(entries) if item.name == target), 0
         )
         self.scroll = 0
+
+    @staticmethod
+    def _remember_directory(path: Path) -> None:
+        """Interface's *Track directories*: *path* first in the ``directories``
+        history (Alt+Backspace), as ``AddToDirectoryHistory`` put it."""
+        if SETTINGS.interface.track_directories:
+            from navml.history import HISTORY
+
+            HISTORY.add("directories", str(path))
 
     def reload(self, key: str | None = None) -> None:
         """Re-read the directory this panel shows, keeping the cursor on its entry.

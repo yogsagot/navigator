@@ -50,6 +50,23 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). A bookmarked directory (`Panel.is_bookmarked`) gets its own glyph in
   either -- see `colours-themes-glyphs` -- and a tag still wins over both. Rows are coloured by file type -- see `colours-themes-glyphs`.
 
+## Directory history (Alt+Backspace) and quick directories (Alt+1..9)
+
+- **Panel > Change drive** is `ChangeDrive` (Alt+C's bookmarks box, `navigator-bookmarks`).
+- **`DirHistory`** (Alt+Backspace, Panel > History of directories), DN's `cmDirHistory` -> `DirHistoryMenu`: every
+  directory a panel comes to (a new listing, not a re-read or a *Find:* listing) goes first into navml's `HISTORY`
+  list `directories` (`Panel._remember_directory`, DN's `AddToDirectoryHistory`) while Interface's *Track
+  directories* is on (on by default, a departure; off, Alt+Backspace says DN's `dlSetDirHistory`).
+  `DirHistoryDialog` (`dlgDirectoryHistory`): *Go to* (Enter, a double click), *Delete record* (stays open), Cancel.
+- **Quick directories are the bookmarks** (a merge, a departure: DN's nine `DirsToChange` slots and its drive
+  letters' box were two things; Navigator's bookmarks already replaced the letters with directories). Alt+1..9
+  `QuickChange(slot)` go to the *N*-th bookmark with no box (none that far: nothing); Alt+Shift+1..9
+  `StoreQuickDir(slot)` ask DN's `dlPromptForQDir` (*as bookmark N*) and `place_bookmark` the panel's directory at
+  place *N*, moving it if already bookmarked (disabled in a listing); Alt+Shift+0 / Panel > Quick dirs `ListOfDirs`
+  is the bookmarks box (`choose_bookmark`). These keys sit in `Manager.keys` (Python) because a terminal without the
+  kitty protocol sends Alt with the *shifted* character -- `alt+!`..`alt+(` and `alt+)` are bound beside
+  `alt+shift+N` for a US layout. A directory gone is said, not entered (`Manager._go_to`).
+
 ## Advanced filter (Alt+Del)
 
 `AdvancedFilter`, `Manager.advanced_filter`, DN's `cmAdvFilter` -> `CM_AdvancedFilter`: `FilterDialog`

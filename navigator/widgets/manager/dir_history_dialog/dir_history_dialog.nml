@@ -1,0 +1,46 @@
+from navigator.widgets.manager.dir_history_dialog.dir_list import DirList
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+
+#: Alt+Backspace, Panel > History of directories: DOS Navigator's
+#: ``dlgDirectoryHistory`` -- the directories the panels have been to, the
+#: last first, over *Go to*, *Delete record* and *Cancel*, where ``DN.DNR``
+#: put them.
+DirHistoryDialog(Dialog):
+    modal_width: 59
+    modal_height: 17
+    title: "Directories History"
+
+    DirList:
+        id: places
+        framed: False
+        x: 2
+        y: 2
+        width: 55
+        height: 11
+
+    Button:
+        id: pick
+        text: "~G~o to"
+        default: True
+        x: 4
+        y: 14
+        width: 11
+        height: 2
+
+    #: DN's ``cmYes``, broadcast: the record goes, the dialog stays.
+    Button:
+        id: drop
+        text: "~D~elete record"
+        x: 21
+        y: 14
+        width: 17
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 44
+        y: 14
+        width: 11
+        height: 2

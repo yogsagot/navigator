@@ -58,6 +58,10 @@ from navigator.widgets.manager.commands import (
     ReadFileList,
     SetupColumns,
     AdvancedFilter,
+    DirHistory,
+    ListOfDirs,
+    QuickChange,
+    StoreQuickDir,
     PanelSetup,
     SortBy,
     SwapPanels,
@@ -114,6 +118,15 @@ class Manager(Window):
         "backspace": GoParent(by_key=True),
         "shift+backspace": GoParent(),
         "ctrl+pageup": GoParent(),
+        #: DN's quick directories: Alt+1 .. Alt+9 go, Alt+Shift+1 .. 9 store,
+        #: Alt+Shift+0 lists them.  A terminal without the kitty protocol
+        #: sends Alt with the shifted character, so a US layout's ``!`` ..
+        #: ``(`` and ``)`` are bound too.
+        **{f"alt+{n}": QuickChange(slot=n) for n in range(1, 10)},
+        **{f"alt+shift+{n}": StoreQuickDir(slot=n) for n in range(1, 10)},
+        **{f"alt+{sign}": StoreQuickDir(slot=n) for n, sign in enumerate("!@#$%^&*(", 1)},
+        "alt+shift+0": ListOfDirs(),
+        "alt+)": ListOfDirs(),
         #: DN's ``fmoDelErase``: Del deletes while the command line is empty,
         #: and edits the line otherwise; Shift+Del is the menu's single delete.
         "delete": Delete(by_key=True),
@@ -316,6 +329,74 @@ class Manager(Window):
         if request is None:
             return
         await self._search_into(panel, request, f"Find: {request.mask}")
+
+    # -- where the panels have been, and the quick directories ----------------------
+
+    async def _go_to(self, panel: Panel, place: str) -> None:
+        """*panel* to *place* (``cmChangeDirectory``), or why not."""
+        target = Path(place)
+        if not await asyncio.to_thread(target.is_dir):
+            await Dialog(title="Error", prompt=f"Directory {place} is not there", buttons="ok"
+                         ).execute(self.application)
+            return
+        panel.path = target
+        panel.focus()
+
+    async def on_dir_history(self, event: DirHistory) -> bool:
+        self.spawn(self.dir_history(self.active_panel))
+        return True
+
+    async def dir_history(self, panel: Panel) -> None:
+        """Alt+Backspace: ``DirHistoryMenu`` -- the directories the panels have
+        been to (Interface's *Track directories*, else DN's ``dlSetDirHistory``),
+        and *panel* to the one chosen.  An empty history asks nothing."""
+        from navml.history import HISTORY
+        from navigator.widgets.manager.dir_history_dialog import DirHistoryDialog
+        from navigator.widgets.manager.dir_history_dialog.dir_history_dialog import HISTORY_ID
+
+        app = self.application
+        if not SETTINGS.interface.track_directories:
+            await Dialog(title="Error", prompt='Set the interface option\n"Track directories" ON first',
+                         buttons="ok").execute(app)
+            return
+        if not HISTORY.entries(HISTORY_ID):
+            return
+        place = await DirHistoryDialog().execute(app)
+        if place:
+            await self._go_to(panel, place)
+
+    # The quick directories are the bookmarks: DN's nine ``DirsToChange``
+    # slots and its drive letters' box became one list (``navigator.bookmarks``).
+
+    async def on_quick_change(self, event: QuickChange) -> bool:
+        """Alt+*N*: ``DoChange(DirsToChange[N])`` -- the *N*-th bookmark, with no
+        box between; there being none that far, nothing is done."""
+        from navigator.bookmarks import bookmarks
+
+        rows = bookmarks()
+        if 0 < event.slot <= len(rows):
+            self.spawn(self._go_to(self.active_panel, rows[event.slot - 1].path))
+        return True
+
+    async def on_store_quick_dir(self, event: StoreQuickDir) -> bool:
+        self.spawn(self.store_quick_dir(self.active_panel, event.slot))
+        return True
+
+    async def store_quick_dir(self, panel: Panel, slot: int) -> None:
+        """Alt+Shift+*N*: DN's ``dlPromptForQDir``, then the panel's directory
+        bookmarked at place *N* (``place_bookmark``), so Alt+*N* comes back to it."""
+        from navigator.bookmarks import place_bookmark
+
+        prompt = f"Store this directory\nas bookmark {slot}?"
+        if await self._ask_yes_no(prompt, "Confirm") is not True:
+            return
+        place_bookmark(panel.path, slot)
+        panel.invalidate()
+
+    async def on_list_of_dirs(self, event: ListOfDirs) -> bool:
+        """Alt+Shift+0: ``DoQuickChange``'s list, which is the bookmarks box."""
+        self.spawn(self.choose_bookmark(self.active_panel))
+        return True
 
     async def on_advanced_filter(self, event: AdvancedFilter) -> bool:
         self.spawn(self.advanced_filter(self.active_panel))
@@ -830,6 +911,9 @@ class Manager(Window):
             return not (self.tree.focused or self.quick.focused) and bool(
                 self.selection(self.active_panel)
             )
+        if isinstance(command, StoreQuickDir):
+            # ``Drive^.DriveType <> dtDisk``: a listing is not a directory to keep.
+            return self.active_panel.found is None
         if isinstance(command, DirBranch):
             # ``CM_Branch`` acted on a disk's directory alone.
             return self.active_panel.found is None

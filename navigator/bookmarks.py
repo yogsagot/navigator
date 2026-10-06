@@ -286,3 +286,25 @@ def move_bookmark(path: Path | str, by: int) -> bool:
         one.save()
         other.save()
     return True
+
+
+def place_bookmark(path: Path | str, position: int) -> Bookmark:
+    """*path* bookmarked at *position*, counted from 1 -- moved there if it was
+    bookmarked already, and the ones from there on a place later; past the
+    end, it goes last.  Alt+Shift+*N*, which DN's quick directories were.
+    """
+    key = key_of(path)
+    rows = bookmarks()
+    existing = next((row for row in rows if row.path == key), None)
+    others = [row for row in rows if row.path != key]
+    index = max(0, min(position - 1, len(others)))
+    with DATABASE.transaction():
+        if existing is None:
+            existing = Bookmark.create(path=key, seq=0)
+        ordered = others[:index] + [existing] + others[index:]
+        for seq, row in enumerate(ordered, 1):
+            if row.seq != seq:
+                row.seq = seq
+                row.save()
+    _forget()
+    return existing

@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import AdvancedFilter, ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
+from navigator.widgets.manager.commands import AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
@@ -86,6 +86,7 @@ Manager(Window):
         alt+v: ReadFileList
         alt+k: SetupColumns
         alt+delete: AdvancedFilter
+        alt+backspace: DirHistory
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
@@ -215,6 +216,7 @@ Manager(Window):
         MenuLine:
         MenuItem:
             text: 'Change ~d~rive'
+            command: ChangeDrive
             key: 'Alt-C'
         MenuItem:
             text: 'Change direc~t~ory'
@@ -230,7 +232,9 @@ Manager(Window):
             key: 'Alt-R'
         MenuItem:
             text: '~Q~uick dirs...'
+            command: ListOfDirs
             key: 'Alt-Shift-0'
         MenuItem:
             text: 'History of directories...'
+            command: DirHistory
             key: 'Alt-BkSp'

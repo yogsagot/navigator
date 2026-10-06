@@ -65,3 +65,9 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   PgUp/PgDn and the wheel included.
 - Alt+F1/F2 are Manager keys, so from the console (Ctrl+O) the menu entries are greyed; DN's user screen behaviour for
   them was not ported.
+
+## DN's quick directories
+
+Alt+1..9 jump to bookmark 1..9 without the box, Alt+Shift+1..9 put the panel's directory at that place
+(`bookmarks.place_bookmark`, moving or inserting and renumbering `seq`), Alt+Shift+0 opens the box: DN's
+`DirsToChange`, merged into this list rather than kept as a second one (`navigator-panels`).

@@ -312,6 +312,39 @@ class CountLength(Command):
     """
 
 
+class DirHistory(Command):
+    """Alt+Backspace, Panel > History of directories: where the panels have been.
+
+    DOS Navigator's ``cmDirHistory`` (``DirHistoryMenu``).
+    """
+
+
+class ListOfDirs(Command):
+    """Alt+Shift+0, Panel > Quick dirs: the bookmarks box for the active panel.
+
+    DOS Navigator's ``cmListOfDirs`` (``DoQuickChange``), which listed its
+    quick directories; they are the bookmarks here.
+    """
+
+
+@dataclass(frozen=True, slots=True)
+class QuickChange(Command):
+    """Alt+1 .. Alt+9: the active panel to bookmark *slot*, no box.
+
+    DOS Navigator's ``cmQuickChange1`` .. ``cmQuickChange9``.
+    """
+
+    slot: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class StoreQuickDir(Command):
+    """Alt+Shift+1 .. Alt+Shift+9: the active panel's directory bookmarked at
+    place *slot*, asked first (``dlPromptForQDir``)."""
+
+    slot: int = 1
+
+
 class AdvancedFilter(Command):
     """Alt+Del, Panel > Advanced filter: show or hide files by extension.
 
@@ -427,6 +460,10 @@ __all__ = [
     "DirBranch",
     "SetupColumns",
     "AdvancedFilter",
+    "DirHistory",
+    "ListOfDirs",
+    "QuickChange",
+    "StoreQuickDir",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

@@ -326,7 +326,8 @@ class InterfaceData(Section):
     #: knows exists.
     track_editing: bool = Setting(True, doc="Track editing history: Alt+PgUp, modes restored")
     track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, modes restored")
-    track_directories: bool = Setting(False, doc="Track directories", honoured=False)
+    #: On, a departure as the two above: DN's default was off.
+    track_directories: bool = Setting(True, doc="Track directories: Alt+Backspace lists where the panels have been")
     #: A departure: DN fixed these at 20 (``MaxHistorySize``,
     #: ``MaxEditHistorySize``), when every list sat in 64K of DOS memory.
     #: One size for every history; pinned entries are never counted out.
