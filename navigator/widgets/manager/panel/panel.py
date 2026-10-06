@@ -935,6 +935,16 @@ class Panel(ListViewer):
         self.display = frozenset(display)
         self.file_mask = mask.strip() or filetypes.ALL_FILES
 
+    def set_file_mask(self, mask: str) -> None:
+        """A new file mask, and one re-read keeping the cursor on its entry."""
+        mask = mask.strip() or filetypes.ALL_FILES
+        if mask == self.file_mask:
+            return
+        entry = self.selected
+        if entry is not None:
+            self._keep = (self.path, entry.key, self.cursor, self.scroll)
+        self.file_mask = mask
+
     def sort_by(self, mode: str) -> None:
         """Order the listing by *mode*: what Alt+B's choice does (``CM_SortBy``).
 
@@ -1273,12 +1283,24 @@ class Panel(ListViewer):
 
     def title_text(self) -> str:
         """The path across the top frame, clipped to fit -- or, for a *Find:*
-        listing, what it was found by (DN's drive name, ``Find: *.c``)."""
+        listing, what it was found by (DN's drive name, ``Find: *.c``).
+
+        **A file mask other than ``*`` follows in brackets**, ``/src [*.c;*.h]``
+        -- Alt+Del's *Filter* or Alt+S's *File mask*.  Not DN's: its panel said
+        nothing of a mask, and a panel that hides files without saying so
+        reads as a directory that lacks them.  The path gives way first; the
+        mask is cut only when the bracket alone would not fit.
+        """
         title = self.found.title if self.found is not None else str(self.path)
+        mask = self.file_mask.strip()
+        suffix = f" [{mask}]" if mask not in ("", filetypes.ALL_FILES) else ""
         room = max(4, self.width - 4 - 2 * self.title_margin)
-        if len(title) > room:
-            title = "..." + title[-(room - 3) :]
-        return f" {title} "
+        if suffix and len(suffix) > room - 4:
+            suffix = suffix[: max(0, room - 8)] + "...]" if room > 12 else ""
+        space = room - len(suffix)
+        if len(title) > space:
+            title = "..." + title[-(space - 3):] if space > 3 else title[-max(space, 0):]
+        return f" {title}{suffix} "
 
     def footer_text(self) -> str:
         """The selected name, or an item count when there is nothing to name.

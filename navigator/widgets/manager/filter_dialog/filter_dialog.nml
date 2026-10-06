@@ -1,0 +1,46 @@
+from navigator.widgets.manager.filter_dialog.filter_list import FilterList
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+
+#: Alt+Del, Panel > Advanced filter: DOS Navigator's ``dlgAdvancedFilter``.
+#:
+#: The list of masks over *Show*, *Hide* and *Close*, as ``DN.DNR`` and
+#: ``MakeDialog`` laid them out, a column wider.  Help is left out.
+FilterDialog(Dialog):
+    modal_width: 38
+    modal_height: 16
+    title: "Filter"
+
+    FilterList:
+        id: masks
+        x: 3
+        y: 2
+        width: max(0, parent.width - 6)
+        height: max(0, parent.height - 7)
+
+    #: DN's ``cmOK``: what is marked, shown.
+    Button:
+        id: show
+        text: "~S~how"
+        default: True
+        x: 2
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    #: DN's ``cmNo``: what is marked, hidden.
+    Button:
+        id: hide
+        text: "~H~ide"
+        x: 13
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Close"
+        x: 24
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

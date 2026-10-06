@@ -312,6 +312,13 @@ class CountLength(Command):
     """
 
 
+class AdvancedFilter(Command):
+    """Alt+Del, Panel > Advanced filter: show or hide files by extension.
+
+    DOS Navigator's ``cmAdvFilter`` (``CM_AdvancedFilter``).
+    """
+
+
 class SetupColumns(Command):
     """Alt+K, Panel > Setup columns: which columns the panel shows.
 
@@ -419,6 +426,7 @@ __all__ = [
     "ReadFileList",
     "DirBranch",
     "SetupColumns",
+    "AdvancedFilter",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

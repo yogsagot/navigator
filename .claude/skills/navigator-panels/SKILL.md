@@ -50,6 +50,17 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). A bookmarked directory (`Panel.is_bookmarked`) gets its own glyph in
   either -- see `colours-themes-glyphs` -- and a tag still wins over both. Rows are coloured by file type -- see `colours-themes-glyphs`.
 
+## Advanced filter (Alt+Del)
+
+`AdvancedFilter`, `Manager.advanced_filter`, DN's `cmAdvFilter` -> `CM_AdvancedFilter`: `FilterDialog`
+(`dlgAdvancedFilter`) over a `FilterList` (DN's `TSelectList`: Space/Ins mark and step, `+`/`-`/`*` all/none/invert,
+right click) of `advfilter.extensions` -- `*` and each `*.ext` of the directory read again on a thread whatever the
+mask hides (a listing's own entries in a *Find:* listing). *Show*/*Hide* take the marked masks, or the one at the
+cursor, into `Panel.file_mask` through `advfilter.combine` (DN's intent without its string surgery: `*` sets the
+whole mask; from show-all, *Show* narrows to the chosen and *Hide* excludes them; otherwise a chosen pattern replaces
+what the mask said of it, appended so it decides) and `Panel.set_file_mask` (re-read, cursor kept). The box comes back
+on the same mask after each, until *Close*.
+
 ## Columns Setup (Alt+K)
 
 `SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
@@ -171,8 +182,8 @@ values and OK is `Panel.set_options(sort, display, mask)`: one re-read keeping t
 while the panel follows the *New Manager defaults* live and a frozenset of `PanelDefaultsData.DISPLAY` names once set;
 ask `Panel.shows(option)`, never `SETTINGS.panel_defaults` directly. **`Panel.file_mask`** (DN's `FileMask`, `*` for
 all) filters files, never directories, in `scan_directory` through `filetypes.in_filter` (`InFilter`: `;` patterns,
-`-` excludes, the last match decides, nothing matching is out; case counts). Nothing on screen says a mask is set, as
-in DN. *Directory length*, *Totals* and *Free space* are stored but not drawn yet.
+`-` excludes, the last match decides, nothing matching is out; case counts). A mask other than `*` follows the path in the
+title, `/src [*;-*.bak]` (`title_text`; the path is cut first) -- a departure: DN's panel said nothing of it. *Directory length*, *Totals* and *Free space* are stored but not drawn yet.
 
 ## Directory length (Alt+G)
 

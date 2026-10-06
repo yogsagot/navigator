@@ -57,6 +57,7 @@ from navigator.widgets.manager.commands import (
     MakeList,
     ReadFileList,
     SetupColumns,
+    AdvancedFilter,
     PanelSetup,
     SortBy,
     SwapPanels,
@@ -315,6 +316,36 @@ class Manager(Window):
         if request is None:
             return
         await self._search_into(panel, request, f"Find: {request.mask}")
+
+    async def on_advanced_filter(self, event: AdvancedFilter) -> bool:
+        self.spawn(self.advanced_filter(self.active_panel))
+        return True
+
+    async def advanced_filter(self, panel: Panel) -> None:
+        """Alt+Del: ``CM_AdvancedFilter`` -- the *Filter* box over *panel*'s
+        extensions, again after each *Show* or *Hide*, on the mask it was on,
+        until *Close* (:mod:`navigator.advfilter`).  The extensions are the
+        directory's whatever the mask hides, read on a thread -- or a
+        listing's own; none at all, and there is nothing to ask."""
+        from navigator.advfilter import combine, extensions
+        from navigator.widgets.manager.filter_dialog import FilterDialog
+        from navigator.widgets.manager.panel.panel import scan_directory
+
+        app = self.application
+        cursor = 0
+        while app is not None:
+            if panel.found is not None:
+                entries = list(panel.found.entries)
+            else:
+                entries, _ = await asyncio.to_thread(scan_directory, Path(panel.path), panel.show_hidden)
+            masks = extensions(entries)
+            if len(masks) < 2:
+                return
+            answer = await FilterDialog(masks, cursor).execute(app)
+            if answer is None:
+                return
+            show, chosen, cursor = answer
+            panel.set_file_mask(combine(panel.file_mask, chosen, show))
 
     async def on_setup_columns(self, event: SetupColumns) -> bool:
         self.spawn(self.setup_columns(self.active_panel))

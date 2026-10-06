@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
+from navigator.widgets.manager.commands import AdvancedFilter, ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
@@ -85,6 +85,7 @@ Manager(Window):
         shift+enter: ChangeInactive
         alt+v: ReadFileList
         alt+k: SetupColumns
+        alt+delete: AdvancedFilter
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
@@ -209,6 +210,7 @@ Manager(Window):
             key: 'Gray "*"'
         MenuItem:
             text: 'Advanced filter...'
+            command: AdvancedFilter
             key: 'Alt-Del'
         MenuLine:
         MenuItem:
