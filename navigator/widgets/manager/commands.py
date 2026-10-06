@@ -312,6 +312,13 @@ class CountLength(Command):
     """
 
 
+class ReadFileList(Command):
+    """Alt+V, Panel > Read file list: the list file at the cursor as a listing.
+
+    DOS Navigator's ``cmPanelMakeList`` (``TFindDrive.InitList``).
+    """
+
+
 class ChangeInactive(Command):
     """Shift+Enter in a *Find:* listing: the other panel goes to the file.
 
@@ -394,6 +401,7 @@ __all__ = [
     "CountLength",
     "CompareDir",
     "ChangeInactive",
+    "ReadFileList",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

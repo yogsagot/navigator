@@ -54,6 +54,7 @@ from navigator.widgets.manager.commands import (
     FastRename,
     FindFile,
     MakeList,
+    ReadFileList,
     PanelSetup,
     SortBy,
     SwapPanels,
@@ -259,6 +260,36 @@ class Manager(Window):
         side = "right" if self.active_panel is self.left else "left"
         self.bring_side(side).go_to_entry(entry)
         return True
+
+    async def on_read_file_list(self, event: ReadFileList) -> bool:
+        self.spawn(self.read_file_list(self.active_panel))
+        return True
+
+    async def read_file_list(self, panel: Panel) -> None:
+        """Alt+V: ``cmPanelMakeList`` -- the list file at the cursor read on a
+        thread (:func:`navigator.filefind.read_list`) into a listing titled
+        with its name (``TFindDrive.InitList``), ``..`` leading back.  None of
+        its files there: *No files found*, as ``ReadList`` said."""
+        from navigator.filefind import FindListing, read_list
+        from navigator.widgets.manager.panel.panel import entry_at
+
+        app = self.application
+        entry = panel.selected
+        if app is None or entry is None or entry.is_dir:
+            return
+        here = Path(panel.path)
+        source = entry.path_in(here)
+        try:
+            entries = await asyncio.to_thread(
+                read_list, source, here, lambda path: entry_at(path, path.parent))
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot read {source}: {error.strerror or error}",
+                         buttons="ok").execute(app)
+            return
+        if not entries:
+            await Dialog(title="Error", prompt="No files found", buttons="ok").execute(app)
+            return
+        panel.show_found(FindListing(str(source), here, entries, return_to=entry.name))
 
     async def on_find_file(self, event: FindFile) -> bool:
         self.spawn(self.find_file(self.active_panel))
@@ -715,6 +746,9 @@ class Manager(Window):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.
             return self.active_panel.found is None
+        if isinstance(command, ReadFileList):
+            entry = self.active_panel.selected
+            return entry is not None and not entry.is_dir
         if isinstance(command, ChangeInactive):
             entry = self.active_panel.selected
             return self.active_panel.found is not None and entry is not None and entry.name != ".."

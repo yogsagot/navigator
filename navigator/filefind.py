@@ -265,3 +265,44 @@ def _stat_or_lstat(item: os.DirEntry[str]) -> os.stat_result:
         return item.stat()
     except OSError:
         return item.stat(follow_symlinks=False)
+
+
+def read_list(list_file: Path, here: Path, make_entry: Any) -> list[Any]:
+    """Alt+V: the files a list file names, as DN's ``ReadList`` read them.
+
+    A line each, blanks round it dropped; relative to *here*, the panel's
+    directory, as ``FExpand`` read it, ``~`` a home; a line with ``*``, ``?``
+    or ``[`` a mask, every file it matches.  A name not there is passed
+    over, ``.`` and ``..`` too, and a file named twice is listed once.
+    *make_entry* makes the entry for a path that is there, or None.  A
+    departure: DN cut a line at its first blank, which no 8.3 name had; a
+    POSIX name may, so the whole line is the name.  Raises ``OSError`` if
+    the list cannot be read.  A thread runs it.
+    """
+    import glob
+
+    text = Path(list_file).read_text(encoding="utf-8", errors="surrogateescape")
+    found: list[Any] = []
+    seen: set[str] = set()
+    for line in text.splitlines():
+        name = line.strip()
+        if not name:
+            continue
+        path = Path(name).expanduser()
+        if not path.is_absolute():
+            path = Path(here) / path
+        if glob.has_magic(str(path)):
+            paths = [Path(match) for match in sorted(glob.glob(str(path)))]
+        else:
+            paths = [path]
+        for each in paths:
+            if each.name in (".", ".."):
+                continue
+            key = os.path.normpath(str(each))
+            if key in seen:
+                continue
+            entry = make_entry(Path(key))
+            if entry is not None:
+                seen.add(key)
+                found.append(entry)
+    return found

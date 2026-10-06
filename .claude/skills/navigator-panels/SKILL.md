@@ -119,6 +119,12 @@ leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Ente
 panel there. A listing belongs to the path it was shown at: going elsewhere drops it. Nothing found: *No files found*,
 the panel untouched. F7 and Compare are disabled in a listing.
 
+**Alt+V, Panel > Read file list** (`ReadFileList`, `Manager.read_file_list`, DN's `cmPanelMakeList` ->
+`TFindDrive.InitList`): the list file at the cursor read on a thread by `filefind.read_list` -- a line a name (whole,
+blanks included: a departure, DN cut at the first blank), relative to the panel's directory, `~` expanded, masks
+globbed as a shell does (no dot-files for `*`), missing names skipped, each file once -- into a `FindListing` titled
+with the list's path. Nothing there: *No files found*. Enabled on a file only.
+
 **Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
 its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,
 `marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`.

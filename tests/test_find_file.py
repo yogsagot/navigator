@@ -230,3 +230,48 @@ def test_alt_f6_renames_a_found_file_in_its_own_directory(place):
                   lambda a: seen.update(items=keys(a.manager.left), at=a.manager.left.selected.key)])
     memo = str(place / "a" / "deep" / "memo.txt")
     assert seen == {"items": ["..", memo], "at": memo}
+
+
+# -- Alt+V: Read file list ---------------------------------------------------------------
+
+
+def test_read_list_takes_names_paths_and_masks_once_each(place):
+    from navigator.filefind import read_list
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    (place / "my list.lst").write_text(
+        "top.txt\n  a/README  \n" + str(place / "b" / "big.bin") + "\n*.txt\nmissing\n\ntop.txt\n..\n")
+    entries = read_list(place / "my list.lst", place, lambda p: entry_at(p, p.parent))
+    # ``*.txt`` matches as a shell's would: not the dot-file, and top.txt is in already.
+    assert [str(e.path_in(place).relative_to(place)) for e in entries] == \
+        ["top.txt", "a/README", "b/big.bin"]
+
+
+def test_alt_v_opens_the_list_at_the_cursor_as_a_listing(place):
+    (place / "files.lst").write_text("a/README\nb/README\n")
+    app = navigator(place)
+    seen = {}
+
+    def on_list(a):
+        a.manager.left.cursor = keys(a.manager.left).index("files.lst")
+
+    run_app(app, [on_list, KeyEvent("v", alt=True), Until(lambda a: a.manager.left.found is not None),
+                  lambda a: None,
+                  lambda a: seen.update(items=keys(a.manager.left), title=a.manager.left.found.title),
+                  to(".."), KeyEvent("enter"), lambda a: None, lambda a: None,
+                  lambda a: seen.update(back=a.manager.left.selected.name)])
+    assert seen["items"] == ["..", str(place / "a" / "README"), str(place / "b" / "README")]
+    assert seen["title"] == str(place / "files.lst") and seen["back"] == "files.lst"
+
+
+def test_a_list_naming_nothing_there_says_so(place):
+    (place / "empty.lst").write_text("nothing\n")
+    app = navigator(place)
+    seen = {}
+
+    def on_list(a):
+        a.manager.left.cursor = keys(a.manager.left).index("empty.lst")
+
+    run_app(app, [on_list, KeyEvent("v", alt=True), Until(lambda a: a.modal is not None),
+                  lambda a: seen.update(prompt=a.modal.prompt, found=a.manager.left.found), KeyEvent("enter")])
+    assert seen == {"prompt": "No files found", "found": None}

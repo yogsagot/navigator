@@ -2,7 +2,7 @@ from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeA
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
+from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
 from navigator.widgets.manager.commands import SelectGroup, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
@@ -83,6 +83,7 @@ Manager(Window):
         ctrl+u: SwapPanels
         alt+g: CountLength
         shift+enter: ChangeInactive
+        alt+v: ReadFileList
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
@@ -146,6 +147,7 @@ Manager(Window):
             key: 'Alt-L'
         MenuItem:
             text: 'Read file ~l~ist'
+            command: ReadFileList
             key: 'Alt-V'
         MenuItem:
             text: '~C~ompare directories'
