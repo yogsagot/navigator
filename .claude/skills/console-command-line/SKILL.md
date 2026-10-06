@@ -131,6 +131,16 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 - **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
   which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
 
+## Screen grabber (Shift+Alt+Ins)
+
+`ScreenGrab` (global key; ≡ > Screen grabber), DN's `cmExecGrabber` -> `ScreenGrabber`: `Shell.screen_grab` says
+DN's `dlGrabWelcome` once a session, then overlays `shell/grabber.ScreenGrabber` -- modal, undimming, painting the
+cells already under its rectangle with `reverse` flipped and keeping their text (`surface.get`, continuation cells
+skipped). `TGrabber.HandleEvent`'s keys: arrows move (Ctrl: 8 across, 4 down), Shift+arrows size from the bottom
+right, PgUp/PgDn/Home/End to the edges, clamped on screen and at least a cell. Enter copies the rows joined by
+newlines through `app.copy_to_clipboard`; Esc nothing. The rectangle is remembered (`grabber._last`, DN's
+`Top`/`Bot`). A departure: the screen under it is live, not a frozen copy.
+
 ## The calculator (Ctrl+F6)
 
 `Calculator` (bound in `manager.nml`; Utilities > Calculator from anywhere) is `Shell.on_calculator`: DN's `InsertCalc`,

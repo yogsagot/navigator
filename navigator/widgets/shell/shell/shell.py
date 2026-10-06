@@ -25,7 +25,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
+from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
@@ -139,6 +139,34 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    #: Whether the grabber has said how it works this session (DN's ``NotMessage``).
+    _grabber_told = False
+
+    async def on_screen_grab(self, event: ScreenGrab) -> bool:
+        self.spawn(self.screen_grab())
+        return True
+
+    async def screen_grab(self) -> None:
+        """Shift+Alt+Ins: ``ScreenGrabber`` -- DN's ``dlGrabWelcome`` the first
+        time, then the rectangle (:mod:`navigator.widgets.shell.grabber`), and
+        what Enter took on the clipboard, a line a row."""
+        from navigator.widgets.shell.grabber import ScreenGrabber
+
+        app = self.application
+        if app is None or any(isinstance(child, ScreenGrabber) for child in app.root.children):
+            return  # DN's ``Here``: one at a time
+        if not type(self)._grabber_told:
+            type(self)._grabber_told = True
+            await Dialog(
+                title="Information",
+                prompt="Use arrows to move area\nUse Shift-Arrows to change area size\n\n"
+                       "After selecting press Enter to place\narea image into the clipboard",
+                buttons="ok",
+            ).execute(app)
+        rows = await ScreenGrabber().execute(app)
+        if rows:
+            app.copy_to_clipboard("\n".join(rows))
 
     async def on_show_user_screen(self, event: ShowUserScreen) -> bool:
         """Alt+F5, ≡ > *User screen*: ``ShowUserScreen`` -- the console, until

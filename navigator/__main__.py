@@ -37,7 +37,7 @@ from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
 from navigator.bookmarks import seed_bookmarks
-from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ShowUserScreen, ToggleConsole
+from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
 from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
@@ -130,6 +130,7 @@ class Navigator(Application):
     keys = {
         "ctrl+o": ToggleConsole,
         "alt+f5": ShowUserScreen,
+        "alt+shift+insert": ScreenGrab,
         "ctrl+f3": NewManager,
         "alt+pageup": EditHistory,
         "alt+pagedown": ViewHistory,

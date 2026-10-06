@@ -50,6 +50,13 @@ class ShowUserScreen(Command):
     """
 
 
+class ScreenGrab(Command):
+    """Shift+Alt+Ins, ≡ > Screen grabber: a rectangle of the screen to the clipboard.
+
+    DOS Navigator's ``cmExecGrabber`` (``ScreenGrabber``).
+    """
+
+
 class AsciiTable(Command):
     """``cmASCIITable``: *ASCII Chart*, and the character picked typed where the
     keyboard is -- Ctrl+B and Utilities > *Character table* for the command line,
@@ -84,6 +91,7 @@ __all__ = [
     "PrintFile",
     "Quit",
     "Refresh",
+    "ScreenGrab",
     "ShowUserScreen",
     "ToggleConsole",
 ]

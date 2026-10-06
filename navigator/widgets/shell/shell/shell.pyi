@@ -26,7 +26,7 @@ from navkit.stylesheet import Stylesheet
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
-from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
+from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import About, DriveInfoSetup, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, FileManagerDefaults, FileManagerSetup, InsertName, InsertPath, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
@@ -47,7 +47,10 @@ class Shell(DockLayout, _Component):
     clock: Clock
     keybar: KeyBar
     command_line: CommandLine
+    _grabber_told: _Any
     def __init__(self, left: Path, right: Path, scheme: Stylesheet | None = ..., **kwargs): ...
+    async def on_screen_grab(self, event: ScreenGrab) -> bool: ...
+    async def screen_grab(self) -> None: ...
     async def on_show_user_screen(self, event: ShowUserScreen) -> bool: ...
     async def _peek(self, app: Any) -> None: ...
     def toggle_console(self) -> None: ...

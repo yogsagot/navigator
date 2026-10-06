@@ -2504,8 +2504,8 @@ def test_the_application_keeps_only_what_is_global():
         "alt+pageup", "alt+pagedown",
         # Utilities > Character table, for the command line; the SmartPad.
         "ctrl+b", "alt+q",
-        # ≡ > User screen: a look at the console from anywhere.
-        "alt+f5",
+        # ≡ > User screen: a look at the console from anywhere; the screen grabber.
+        "alt+f5", "alt+shift+insert",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
     }
