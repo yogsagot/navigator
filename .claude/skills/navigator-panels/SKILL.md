@@ -57,6 +57,17 @@ Branch*, whose caption was dropped), where DN's `ossShowHidden` was a system opt
 on a name it hides is dropped. *Panel > Show/hide hidden files* is **ticked** while the active panel shows them. Every
 directory tree follows it (see `navigator-trees`). Ctrl+H decoding: `navkit-terminal`.
 
+## Sorting (Alt+B)
+
+`Panel.sort_mode`, one of `SORT_MODES` (name, extension, size, time, type, unsorted -- `PanelDefaultsData.SORT_BY`), is
+DN's per-panel `SortMode`, seeded from *New Manager defaults* > *Sort by*. `order_entries` is `TFilesCollection.Compare`
+and runs on the scan thread: `..` first; directories first except by *Type* (DN's *Group*: directory, executable,
+archive, the `filetypes.CATEGORIES` after it, the rest -- `filetypes.GROUPS`); size and time largest/newest first;
+names case-folded. *Executables first*/*Archives first* lead the files except by size and time, read at each read (not
+followed). *Unsorted* is `scandir`'s order, without the two flags (DN's compare was no order there). Alt+B and *Panel >
+Sort by* are `Manager.choose_sort`: `CM_SortBy`'s `PopupMenu`, centred on the panel (DN put it at the panel's top left), on the current mode, captions
+`SORT_CAPTIONS` (*Type* is T~y~pe). `Panel.sort_by(mode)` re-reads keeping the cursor on its entry.
+
 ## Tagging
 
 - **Insert tags** (`ToggleMark`, DN's `kbIns`): the entry joins `Panel.marked` (names, never `..`), cursor steps down,

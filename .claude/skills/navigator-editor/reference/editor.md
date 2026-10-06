@@ -86,6 +86,13 @@ DN never had the question: its command line lived in the panel window.
   under the backup's name just before the new one is renamed over it, so a stopped write leaves the old backup, and
   a write in place copies it. `.bak` goes after the name, where DN's `.BAK` replaced the extension (8.3 had no room),
   so `foo.c` and `foo.h` keep a backup each. A backup that cannot be made does not stop the save, as `ClrIO` let it.
+- *Lock edited files* (`ebfLck`) is DN's `Locker`, the file kept open in DOS's compatibility mode so `SHARE` kept
+  other programs from writing it. POSIX has only advisory locks, so it is an exclusive `flock` (`editor/lock.py`):
+  it keeps off what asks -- another Navigator, `flock(1)` -- and not `vi`. Within the program a lock is one
+  descriptor, counted, so two windows on one file share it as DN's own editors did. It is taken on open, Open and
+  Save as, re-taken after every save (the rename leaves the old inode holding it), and let go on close. Every write
+  the editor makes (F2, Save as, ^K W) is refused on a file another program holds (`refuse_if_locked`, DN's
+  `CantWrite`), whatever this editor's own setting says, as `SHARE` refused DN.
 - A save emits `FileSaved`, and `Shell` re-reads every panel showing that directory (`FileChanged` → `cmRereadDir`).
 
 **The caret is DN's**: `NormalCursor`, an underline, while inserting, and `BlockCursor` while overwriting (Ins). It
@@ -111,7 +118,7 @@ Left for later, by phase:
    while it is in use*); most of its entries wait on the phases here.
 5. Written: autoindent, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
 6. Highlighting and macros from `DN.HGL`.
-7. Editor defaults, persisted, edit history, backups and printing are written; file locking is left.
+7. Written: editor defaults, persisted, edit history, backups, file locking and printing.
 
 Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is
 indented as the part kept -- as the whole line when that part is blank -- with the cursor at the indent and no blanks

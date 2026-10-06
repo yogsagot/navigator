@@ -39,6 +39,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
+from navigator.editor.lock import refuse_if_locked
 from navigator.job import Stopped
 
 
@@ -64,9 +65,12 @@ def write_file(
     stopped between chunks raises :class:`~navigator.job.Stopped`, with the
     old file as it was -- unless the write is in place, which finishes.
     *backup* keeps the old file, if there was one, as :func:`backup_of` it.
+    A file another program holds locked is not written
+    (:func:`~navigator.editor.lock.refuse_if_locked`).
     """
     chunks = [data] if isinstance(data, (bytes, bytearray)) else data
     target = resolve(path)
+    refuse_if_locked(target)
     try:
         info = os.stat(target)
     except FileNotFoundError:

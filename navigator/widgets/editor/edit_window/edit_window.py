@@ -26,6 +26,7 @@ from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
 from navigator.editor.document import Document, encode, encode_lines, read_text
+from navigator.editor.lock import refuse_if_locked
 from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
@@ -159,6 +160,7 @@ class EditWindow(Window):
         # has been agreed to, which is when this is called.
         if self.parent is not None:
             self.remember_history()
+        self.editor.unlock_file()
         super().close()
 
     # -- saving ------------------------------------------------------------------
@@ -202,11 +204,16 @@ class EditWindow(Window):
 
         async with self._saving:
             lines, endings, point = self.editor.snapshot()
-            written = await write_in_background(
-                self.application,
-                lambda job: write_file(path, encode_lines(lines, endings, job), job, backup),
-                total=len(lines),
-            )
+            try:
+                written = await write_in_background(
+                    self.application,
+                    lambda job: write_file(path, encode_lines(lines, endings, job), job, backup),
+                    total=len(lines),
+                )
+            finally:
+                # ``LockFile`` again, written or not: a save renames a new
+                # file over the one locked, and the lock goes with that.
+                self.editor.lock_file()
             if written:
                 self.editor.saved(point)
             return written
@@ -312,6 +319,7 @@ class EditWindow(Window):
         def write(job: Any) -> None:
             if append:
                 job.cancellable = False  # one write: all of it, or none
+                refuse_if_locked(path)
                 with open(path, "ab") as file:
                     file.write(data)
             else:
@@ -659,6 +667,7 @@ class EditWindow(Window):
         if not written:
             return
         self.editor.path = path
+        self.editor.lock_file()
         self.title = self._title()
         if self.parent is not None:
             await self.emit(FileSaved(path))

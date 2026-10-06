@@ -100,6 +100,27 @@ def _index(categories: dict[str, str]) -> tuple[dict[str, str], list[tuple[str, 
 _BY_EXTENSION, _OTHERS = _index(CATEGORIES)
 
 
+#: DN's ``TType`` order, which *Group* sorts by: ``ttDirectory``, ``ttExec``,
+#: ``ttArc``, then the custom groups (``ttCust1``..``ttCust5``) -- here the
+#: categories after ``archive``, in their order -- and last, everything else.
+GROUPS: tuple[str, ...] = ("directory", "executable", *CATEGORIES)
+
+
+@lru_cache(maxsize=4096)
+def group_of(name: str) -> str | None:
+    """The category *name* belongs to by its name alone, or None: what
+    :func:`category_of` falls back to once the entry's type has had its say."""
+    stem, dot, extension = name.rpartition(".")
+    if dot and stem:
+        found = _BY_EXTENSION.get(extension.lower())
+        if found:
+            return found
+    for category, rest in _OTHERS:
+        if matches(name, rest):
+            return category
+    return None
+
+
 @lru_cache(maxsize=4096)
 def category_of(name: str, is_dir: bool, mark: str = " ") -> str | None:
     """The colour class for an entry called *name*, of type *mark*, or None.
@@ -119,12 +140,4 @@ def category_of(name: str, is_dir: bool, mark: str = " ") -> str | None:
         return BY_TYPE[mark]
     if is_dir:
         return None
-    stem, dot, extension = name.rpartition(".")
-    if dot and stem:
-        found = _BY_EXTENSION.get(extension.lower())
-        if found:
-            return found
-    for category, rest in _OTHERS:
-        if matches(name, rest):
-            return category
-    return None
+    return group_of(name)

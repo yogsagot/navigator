@@ -2044,6 +2044,105 @@ def test_f2_with_create_backup_keeps_the_old_file_and_save_as_does_not(files):
     assert not (files / "copy.txt.bak").exists()
 
 
+# -- Lock edited files ---------------------------------------------------------------
+
+
+@pytest.fixture
+def locks():
+    """Another program's locks, as a descriptor of their own; all let go after."""
+    import fcntl
+
+    from navigator.editor import lock
+
+    held = []
+
+    def hold(path):
+        descriptor = os.open(path, os.O_RDONLY)
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        held.append(descriptor)
+        return descriptor
+
+    yield hold
+    for descriptor in held:
+        os.close(descriptor)
+    for descriptor, _ in list(lock._held.values()):
+        os.close(descriptor)
+    lock._held.clear()
+
+
+def lockable(path) -> bool:
+    """Whether another program could take *path*'s lock now."""
+    import fcntl
+
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return True
+    except BlockingIOError:
+        return False
+    finally:
+        os.close(descriptor)
+
+
+def test_a_lock_is_shared_within_the_program_and_the_last_release_frees_it(tmp_path, locks):
+    from navigator.editor import lock
+
+    path = tmp_path / "a.txt"
+    path.write_bytes(b"x")
+    first, second = lock.take(path), lock.take(path)
+    assert first == second and not lockable(path)
+    assert not lock.locked_elsewhere(path)  # ours: a write of our own goes ahead
+    lock.release(first)
+    assert not lockable(path)
+    lock.release(second)
+    assert lockable(path)
+    assert lock.take(tmp_path / "missing") is None
+
+
+def test_a_file_another_program_holds_is_not_written(tmp_path, locks):
+    from navigator.editor import lock
+
+    path = tmp_path / "a.txt"
+    path.write_bytes(b"old")
+    locks(path)
+    assert lock.take(path) is None and lock.locked_elsewhere(path)
+    with pytest.raises(OSError, match="locked by another program"):
+        write_file(path, b"new")
+    assert path.read_bytes() == b"old"
+
+
+def test_with_lock_file_the_editor_holds_its_file_across_saves_until_closed(files, locks):
+    SETTINGS.editor.lock_file = True
+    seen = {}
+    path = files / "text.txt"
+    path.write_bytes(b"first\n")
+    run_app(navigator(files), [
+        KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: seen.update(opened=lockable(path)),
+        *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None,
+        lambda a: seen.update(saved=lockable(path)),
+        KeyEvent("escape"), lambda a: None, lambda a: seen.update(closed=lockable(path)),
+    ])
+    assert path.read_bytes() == b"xfirst\n"
+    assert seen == {"opened": False, "saved": False, "closed": True}
+
+
+def test_without_lock_file_the_editor_holds_nothing(files, locks):
+    seen = []
+    text_editor(files, b"first\n", lambda a: seen.append(lockable(files / "text.txt")))
+    assert seen == [True]
+
+
+def test_f2_on_a_file_another_program_holds_says_so_and_keeps_the_text_changed(files, locks):
+    said = []
+    (files / "text.txt").write_bytes(b"first\n")
+    locks(files / "text.txt")
+    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None,
+                            lambda a: None,
+                            lambda a: said.append(a.modal.prompt if a.modal else None))
+    assert said[0] and "locked by another program" in said[0]
+    assert (files / "text.txt").read_bytes() == b"first\n" and editor.modified
+
+
 def test_f2_without_create_backup_makes_none(files):
     text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None)
     assert not (files / "text.txt.bak").exists()

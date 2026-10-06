@@ -32,10 +32,10 @@ def slow_dir(tree, monkeypatch):
     release = threading.Event()
     real = panel_module.scan_directory
 
-    def scan(path, show_hidden):
+    def scan(path, show_hidden, *args, **kwargs):
         if Path(path).name == "slow":
             release.wait(5)
-        return real(path, show_hidden)
+        return real(path, show_hidden, *args, **kwargs)
 
     monkeypatch.setattr(panel_module, "scan_directory", scan)
     monkeypatch.setattr(panel_module, "SCAN_GRACE", 0.01)

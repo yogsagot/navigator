@@ -43,7 +43,7 @@ from navigator import filetypes
 from navigator import icons as icon_glyphs
 from navigator.bookmarks import bookmarked_paths
 from navigator.fileattr import group_name, user_name
-from navigator.settings import SETTINGS
+from navigator.settings import SETTINGS, PanelDefaultsData
 
 # Asked once per id rather than once per row painted: the password and group
 # databases do not change under a running listing often enough to matter.
@@ -91,9 +91,9 @@ class DirEntry:
         self.gid = gid
 
     @property
-    def sort_key(self) -> tuple:
-        # ".." first, then directories, then files -- as in the original.
-        return (self.name != "..", not self.is_dir, self.name.lower())
+    def is_executable(self) -> bool:
+        """A regular file someone may run: DN's ``ttExec``, read off the mode."""
+        return not self.is_dir and stat.S_ISREG(self.mode) and bool(self.mode & 0o111)
 
     @property
     def display_size(self) -> str:
@@ -248,8 +248,83 @@ class _ScanRequest:
     keep: tuple[Path, str, int, int] | None
 
 
-def scan_directory(path: Path, show_hidden: bool) -> tuple[list[DirEntry], str | None]:
-    """*path*'s entries, ``..`` first and sorted, and why not if it cannot be read.
+#: DN's sort modes (``psm*``, ``SortMode``), named as the *New Manager
+#: defaults* name them; "type" is DN's *Group*.
+SORT_MODES: tuple[str, ...] = PanelDefaultsData.SORT_BY
+
+
+def _extension(name: str) -> str:
+    """What *Extension* sorts by: after the last dot, and none for a dot-file."""
+    stem, dot, extension = name.rpartition(".")
+    return extension.lower() if dot and stem else ""
+
+
+def _group_rank(entry: DirEntry) -> int:
+    """``GetFileType``'s number for *entry*, with no type (0) taken as 100."""
+    if entry.is_dir:
+        return 0
+    if entry.is_executable:
+        return 1
+    group = filetypes.group_of(entry.name)
+    return filetypes.GROUPS.index(group) if group is not None else 100
+
+
+def order_entries(
+    entries: list[DirEntry], sort: str = "name", *,
+    executables_first: bool = False, archives_first: bool = False,
+) -> list[DirEntry]:
+    """*entries* in a panel's order: ``TFilesCollection.Compare``.
+
+    ``..`` comes first whatever the mode.  *Name*, *Extension*, *Size* and
+    *Time* put the directories before the files; size and time go largest
+    and newest first.  *Type* is DN's *Group*: directories, executables,
+    archives, the custom groups, then the rest, each by name.  Names compare
+    without regard to case, as DOS's upper-cased ones did, the exact name
+    breaking a tie.
+
+    *executables_first* and *archives_first* are the panel flags
+    (``fmiExeFirst``, ``fmiArchivesFirst``): among the files, those kinds
+    first, except when sorting by size or time, as DN skipped them there.
+    *Unsorted* is the directory's own order, and a departure in leaving the
+    two flags out: DN's compare applied them to some pairs and not to
+    others, which is no order at all.
+    """
+    up = [entry for entry in entries if entry.name == ".."]
+    rest = [entry for entry in entries if entry.name != ".."]
+    if sort == "unsorted":
+        return up + rest
+    kinds = sort not in ("size", "time")
+
+    def first(entry: DirEntry) -> tuple[bool, bool]:
+        if not kinds or entry.is_dir:
+            return (False, False)
+        return (
+            executables_first and not entry.is_executable,
+            archives_first and filetypes.group_of(entry.name) != "archive",
+        )
+
+    def by_name(entry: DirEntry) -> tuple[str, str]:
+        return (entry.name.lower(), entry.name)
+
+    if sort == "extension":
+        key = lambda entry: (not entry.is_dir, *first(entry), _extension(entry.name), *by_name(entry))
+    elif sort == "size":
+        key = lambda entry: (not entry.is_dir, -entry.size, *by_name(entry))
+    elif sort == "time":
+        key = lambda entry: (not entry.is_dir, -entry.mtime, *by_name(entry))
+    elif sort == "type":
+        key = lambda entry: (_group_rank(entry), *first(entry), *by_name(entry))
+    else:
+        key = lambda entry: (not entry.is_dir, *first(entry), *by_name(entry))
+    return up + sorted(rest, key=key)
+
+
+def scan_directory(
+    path: Path, show_hidden: bool, sort: str = "name", *,
+    executables_first: bool = False, archives_first: bool = False,
+) -> tuple[list[DirEntry], str | None]:
+    """*path*'s entries, ``..`` first and in *sort*'s order
+    (:func:`order_entries`), and why not if it cannot be read.
 
     Touches nothing but the file system, so a thread may run it.
     """
@@ -294,7 +369,8 @@ def scan_directory(path: Path, show_hidden: bool) -> tuple[list[DirEntry], str |
                                         target, info.st_uid, info.st_gid))
     except OSError as exc:
         error = exc.strerror or str(exc)
-    entries.sort(key=lambda entry: entry.sort_key)
+    entries = order_entries(entries, sort, executables_first=executables_first,
+                            archives_first=archives_first)
     return entries, error
 
 
@@ -339,6 +415,9 @@ class Panel(ListViewer):
     #: Whether names starting with ``.`` are listed.  Ctrl+H flips it, per
     #: panel like ``view_mode``; ``..`` is always listed.
     show_hidden: bool = reactive(True)
+    #: How the listing is ordered, one of :data:`SORT_MODES`: DN's ``SortMode``,
+    #: per panel, seeded from the *New Manager defaults* and changed by Alt+B.
+    sort_mode: str = reactive("name")
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -387,6 +466,7 @@ class Panel(ListViewer):
         self._pending: _ScanRequest | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
+        self.sort_mode = SETTINGS.panel_defaults.sort_by
         if path is not None:
             self.path = path
 
@@ -413,6 +493,13 @@ class Panel(ListViewer):
         _ = self.reload_token  # read for the dependency; this is what Ctrl+R moves
         path = self.path
         show_hidden = self.show_hidden
+        sort = self.sort_mode
+        with untracked():
+            # Read at each read, not followed: changing them re-sorts a panel
+            # at its next read, where DN's applied to the next manager made.
+            defaults = SETTINGS.panel_defaults
+            flags = {"executables_first": defaults.executables_first,
+                     "archives_first": defaults.archives_first}
         # Taken now, for this read: a later move or reload sets its own.
         request = _ScanRequest(path, self._return_to, self._keep)
         self._return_to = self._keep = None
@@ -424,7 +511,7 @@ class Panel(ListViewer):
                 request.return_to, request.keep = pending.return_to, pending.keep
         self._generation += 1
         generation = self._generation
-        future = _SCANNER.submit(scan_directory, path, show_hidden)
+        future = _SCANNER.submit(scan_directory, path, show_hidden, sort, **flags)
         with untracked():
             app = self.application
         if app is None or not app.is_running:
@@ -625,6 +712,21 @@ class Panel(ListViewer):
         row away at once.  The dividers stay either way."""
         titled = self.view_mode != "simple" and SETTINGS.file_manager.column_titles
         self.header = 1 if titled else 0
+
+    def sort_by(self, mode: str) -> None:
+        """Order the listing by *mode*: what Alt+B's choice does (``CM_SortBy``).
+
+        A re-read, as DN's ``RereadDir`` was, keeping the cursor on its entry;
+        the mode it already has changes nothing.
+        """
+        if mode not in SORT_MODES:
+            raise ValueError(f"unknown sort mode {mode!r}")
+        if mode == self.sort_mode:
+            return
+        entry = self.selected
+        if entry is not None:
+            self._keep = (self.path, entry.name, self.cursor, self.scroll)
+        self.sort_mode = mode
 
     def toggle_hidden(self) -> None:
         """Ctrl+H: hide the dot-files, or show them again.

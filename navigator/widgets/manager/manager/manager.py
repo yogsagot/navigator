@@ -46,6 +46,7 @@ from navigator.widgets.manager.commands import (
     ScrollNames,
     SelectGroup,
     SwitchPanel,
+    SortBy,
     ToggleHidden,
     ToggleMark,
     ToggleShowMode,
@@ -59,6 +60,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
+from navigator.widgets.manager.panel.panel import SORT_MODES
 from navigator.file_history import open_editor, open_viewer
 from navigator.settings import SETTINGS
 
@@ -448,6 +450,35 @@ class Manager(Window):
         """Ctrl+Y: the active panel's next show mode -- simple, detailed, list."""
         self.active_panel.cycle_view_mode()
         return True
+
+    async def on_sort_by(self, event: SortBy) -> bool:
+        """Alt+B: the active panel's order, chosen from a box (``CM_SortBy``)."""
+        self.spawn(self.choose_sort(self.active_panel))
+        return True
+
+    async def choose_sort(self, panel: Panel) -> None:
+        """``CM_SortBy``'s box, on the mode the panel has (``Menu^.Default``);
+        a choice re-sorts it.
+
+        Centred on the panel, a departure: DN put it at the panel's top left
+        corner, over the first names rather than the middle of the listing
+        the eye is on.  DN's *Group* is *Type* here, as in the *New Manager
+        defaults*, and so its hot key is Y.
+        """
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        menu = SubMenu()
+        items = [menu.add_item(caption) for caption in SORT_CAPTIONS]
+        width, height = PopupMenu.measure(menu, self.application, self)
+        ox, oy = panel.offset()
+        x = ox + panel.x + (panel.width - width) // 2
+        y = oy + panel.y + (panel.height - height) // 2
+        box = PopupMenu(menu, x, y, current=SORT_MODES.index(panel.sort_mode), behind=self)
+        chosen = await box.execute(self.application)
+        if chosen is None:
+            return
+        panel.sort_by(SORT_MODES[items.index(chosen)])
 
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
@@ -1390,6 +1421,11 @@ LABEL_BOOKMARK_KEY = "f2"
 
 #: The key that removes the selected bookmark.
 DELETE_BOOKMARK_KEY = "delete"
+
+
+#: ``dlSortName`` .. ``dlSortUnsorted``, in :data:`SORT_MODES`' order --
+#: DN's menu order, *Group* named *Type*.
+SORT_CAPTIONS = ("~N~ame", "~E~xtension", "~S~ize", "~T~ime", "T~y~pe", "~U~nsorted")
 
 
 def bookmark_menu(rows: list[Any], bookmarked: bool,

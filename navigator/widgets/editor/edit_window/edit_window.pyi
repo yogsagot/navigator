@@ -26,6 +26,7 @@ from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navigator.editor.document import Document, encode, encode_lines, read_text
+from navigator.editor.lock import refuse_if_locked
 from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord

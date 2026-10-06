@@ -122,6 +122,7 @@ from navigator.widgets.editor.commands import (
 from navigator.editor import columns
 from navigator.editor.buffer import EditBuffer
 from navigator.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
+from navigator.editor import lock
 from navigator.editor.save import write_file
 from navigator.editor import search
 from navigator.editor.search import BREAK_CHARS, SearchData
@@ -480,6 +481,9 @@ class FileEditor(Widget):
         #: ^K B or ^K K pressed with no block marked: the end it set, and
         #: whether it was the start, waiting for the other.  Any edit drops it.
         self._half_mark: tuple[Any, bool] | None = None
+        #: ``Locker``: what ``lock.take`` gave while this editor holds its
+        #: file (*Lock edited files*), else None.
+        self._lock: tuple[int, int] | None = None
 
     # -- the file ----------------------------------------------------------------
 
@@ -515,6 +519,20 @@ class FileEditor(Widget):
         self.path = path
         self.line = self.col = self.top = self.left = 0
         self.revision += 1
+        self.lock_file()
+
+    def lock_file(self) -> None:
+        """``LockFile``: hold :attr:`path` against other programs, if the
+        Editor setup's *Lock edited files* says so -- read now, as DN read
+        ``EditorDefaults`` each time.  Whatever was held before is let go."""
+        self.unlock_file()
+        if SETTINGS.editor.lock_file and self.path is not None:
+            self._lock = lock.take(self.path)
+
+    def unlock_file(self) -> None:
+        """``UnLockFile``: let other programs at the file again."""
+        lock.release(self._lock)
+        self._lock = None
 
     def _use(self, buffer: EditBuffer) -> None:
         self.buffer = buffer
@@ -532,6 +550,7 @@ class FileEditor(Widget):
         write_file(self.path, encode_lines(lines, endings))
         self.buffer.mark_saved()
         self.revision += 1
+        self.lock_file()
 
     def snapshot(self) -> tuple[list[str], list[str], object]:
         """The text as it is now, for a thread to write: lines, endings, and

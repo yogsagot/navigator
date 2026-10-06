@@ -391,7 +391,9 @@ class EditorDefaultsData(Section):
     overwrite_blocks: bool = Setting(
         False, doc="With persistent blocks off, typing, pasting and Del replace the block",
     )
-    lock_file: bool = Setting(False, doc="Lock the file being edited", honoured=False)
+    lock_file: bool = Setting(
+        False, doc="An editor holds its file with an advisory lock other programs can see",
+    )
     left_margin: int = Setting(0, doc="Left margin a new editor formats paragraphs to")
     right_margin: int = Setting(78, doc="Right margin a new editor formats paragraphs to")
     paragraph: int = Setting(5, doc="A justified paragraph's first-line indent in a new editor")
@@ -463,7 +465,7 @@ class PanelDefaultsData(Section):
 
     #: DN's default was the extension; Navigator's panels sort by name.
     sort_by: str = Setting(
-        "name", choices=SORT_BY, aliases={"group": "type"}, doc="Sort by", honoured=False,
+        "name", choices=SORT_BY, aliases={"group": "type"}, doc="A new panel's order (Alt+B changes one panel's)",
     )
     directory_length: bool = Setting(False, doc="Directory length", honoured=False)
     current_file: bool = Setting(True, doc="The info line names the current file")
@@ -471,8 +473,8 @@ class PanelDefaultsData(Section):
     totals: bool = Setting(False, doc="Totals", honoured=False)
     free_space: bool = Setting(True, doc="Free space", honoured=False)
     files_highlight: bool = Setting(True, doc="Colour files by type")
-    executables_first: bool = Setting(True, doc="Executables first", honoured=False)
-    archives_first: bool = Setting(True, doc="Archives first", honoured=False)
+    executables_first: bool = Setting(True, doc="Executables before the other files, by name, extension and type")
+    archives_first: bool = Setting(True, doc="Archives before the other files, by name, extension and type")
     left_panel: str = Setting(
         "files", choices=LEFT_PANEL, aliases={"drive": "files"},
         doc="Left panel in a new Manager", honoured=False,
