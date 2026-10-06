@@ -2506,6 +2506,8 @@ def test_the_application_keeps_only_what_is_global():
         "ctrl+b", "alt+q",
         # ≡ > User screen: a look at the console from anywhere; the screen grabber.
         "alt+f5", "alt+shift+insert",
+        # Utilities > Commands History, the command line's.
+        "alt+f8",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
     }

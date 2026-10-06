@@ -1,0 +1,33 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: DOS Navigator's ``InputBox``: a caption over one line, OK and Cancel --
+#: *Edit History*'s, here, as Commands history's *Edit* opened it.
+EditLineDialog(Dialog):
+    #: The caption over the line.
+    property caption: "~S~tring"
+
+    modal_width: 60
+    modal_height: 9
+    title: "Edit History"
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.caption
+        link: line.entry
+
+    #: DN's ``hsEditHistory``.
+    Field:
+        id: line
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "edit_history"

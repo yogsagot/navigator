@@ -51,6 +51,7 @@ from navigator.widgets.shell.commands import (
     CompleteCommandLine,
     EditHistory,
     ExecuteCommandLine,
+    HistoryList,
     NewManager,
     ViewHistory,
 )
@@ -131,6 +132,7 @@ class Navigator(Application):
         "ctrl+o": ToggleConsole,
         "alt+f5": ShowUserScreen,
         "alt+shift+insert": ScreenGrab,
+        "alt+f8": HistoryList,
         "ctrl+f3": NewManager,
         "alt+pageup": EditHistory,
         "alt+pagedown": ViewHistory,

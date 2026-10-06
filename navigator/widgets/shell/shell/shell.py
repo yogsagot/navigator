@@ -39,6 +39,7 @@ from navigator.widgets.shell.commands import (
     ExecuteCommandLine,
     FileManagerDefaults,
     FileManagerSetup,
+    HistoryList,
     InsertName,
     InsertPath,
     InterfaceSetup,
@@ -139,6 +140,24 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_history_list(self, event: HistoryList) -> bool:
+        self.spawn(self.command_history())
+        return True
+
+    async def command_history(self) -> None:
+        """Alt+F8: ``CmdHistory`` -- *Run* puts the command on the line and runs
+        it, *Drop* puts it there alone, the cursor at its end."""
+        from navigator.widgets.shell.command_history_dialog import CommandHistoryDialog
+
+        answer = await CommandHistoryDialog().execute(self.application)
+        if answer is None:
+            return
+        how, command = answer
+        if how == "run":
+            self.run_command(command)
+        else:
+            self.command_line.set_text(command)
 
     #: Whether the grabber has said how it works this session (DN's ``NotMessage``).
     _grabber_told = False

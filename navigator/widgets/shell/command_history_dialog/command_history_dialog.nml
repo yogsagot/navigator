@@ -1,0 +1,65 @@
+from navigator.widgets.shell.command_history_dialog.history_list import HistoryList
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+
+#: Alt+F8, Utilities > Commands History: DOS Navigator's ``dlgCommandsHistory``.
+#:
+#: The commands typed, the newest at the foot and the cursor on it, over
+#: *Run*, *Drop*, *Edit*, *Kill* and *Cancel* where ``DN.DNR`` put them.
+CommandHistoryDialog(Dialog):
+    modal_width: 59
+    modal_height: 17
+    title: "Commands history"
+
+    HistoryList:
+        id: commands
+        framed: False
+        x: 2
+        y: 2
+        width: 55
+        height: 11
+
+    #: ``cmOK``: the command on the line, and run.
+    Button:
+        id: run
+        text: "~R~un"
+        default: True
+        x: 3
+        y: 14
+        width: 10
+        height: 2
+
+    #: ``cmYes``: the command on the line, not run.
+    Button:
+        id: drop
+        text: "~D~rop"
+        x: 14
+        y: 14
+        width: 10
+        height: 2
+
+    #: ``cmOK`` broadcast to the list: the command edited in place.
+    Button:
+        id: edit
+        text: "~E~dit"
+        x: 25
+        y: 14
+        width: 10
+        height: 2
+
+    #: ``cmYes`` broadcast to the list: the command forgotten.
+    Button:
+        id: kill
+        text: "~K~ill"
+        x: 36
+        y: 14
+        width: 10
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 47
+        y: 14
+        width: 10
+        height: 2

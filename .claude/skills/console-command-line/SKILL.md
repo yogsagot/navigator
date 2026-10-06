@@ -131,6 +131,17 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 - **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
   which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
 
+## Commands history (Alt+F8)
+
+`HistoryList` (global key; Utilities > Commands History), DN's `cmHistoryList` -> `CmdHistory`:
+`CommandHistoryDialog` (`dlgCommandsHistory`) over a `HistoryList` of the command line's `HISTORY` list `command`,
+the oldest at the top and the cursor on the newest. Space marks a command -- DN's `+` flag is navml's *pinned*,
+synced to the store as the box closes or acts -- Left/Right go to the marked one before/after, Del or *Kill* forgets
+one (a marked one is refused, where DN beeped), *Edit* reworks it in `EditLineDialog` (`InputBox`, *Edit History*,
+history `edit_history`; it comes back as the newest, keeping its mark). *Run* (Enter, double click) is
+`Shell.run_command`; *Drop* puts it on the line (`set_text`). DN's Shift+Up/Down reordering is not here: the store
+keeps its lists by when.
+
 ## Screen grabber (Shift+Alt+Ins)
 
 `ScreenGrab` (global key; ≡ > Screen grabber), DN's `cmExecGrabber` -> `ScreenGrabber`: `Shell.screen_grab` says

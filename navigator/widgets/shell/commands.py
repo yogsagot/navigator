@@ -109,6 +109,13 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class HistoryList(Command):
+    """Alt+F8, Utilities > Commands History: the commands typed, in a box.
+
+    DOS Navigator's ``cmHistoryList`` (``CmdHistory``).
+    """
+
+
 class MenuFileEdit(Command):
     """Options > Global menu definition: the global ``dn.mnu`` in an editor.
 
@@ -126,6 +133,7 @@ class LocalMenuFileEdit(Command):
 __all__ = [
     "About",
     "MenuFileEdit",
+    "HistoryList",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",
