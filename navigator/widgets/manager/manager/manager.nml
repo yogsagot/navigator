@@ -1,5 +1,5 @@
 from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan
@@ -142,7 +142,7 @@ Manager(Window):
             key: 'Alt-V'
         MenuItem:
             text: '~C~ompare directories'
-            key: 'Ctrl-C'
+            command: CompareDir
         MenuItem:
             text: 'Count directory len~g~th'
             command: CountLength

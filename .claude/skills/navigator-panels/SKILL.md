@@ -115,6 +115,17 @@ The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows 
 total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
 directory at each read, `fmiDirLen`) is not written yet.
 
+## Comparing directories (Panel menu)
+
+`CompareDir`, `Manager.compare_directories`, DN's `cmCompareDir` -> `CM_CompareDirs`, from Panel > Compare directories
+only -- DN's Ctrl+C is left unbound, kept for a clipboard copy still to be designed:
+`CompareDialog` (`dlgCompareDirs`: size, time, attributes, contents; Select/Unselect; opens on size+time+Select every
+time, as `DT` was reset) then `navigator/dircompare.py` on each panel against the other. A file matches one of the
+same name (exact case) passing every check: same size, **this one no newer** (to the second), same permission bits,
+same bytes. *Select* tags exactly what has no match (directories never), *Unselect* only untags it -- so Select tags
+what a copy across would bring up to date. Only *contents* reads the disk, on a thread under *Comparing files*; Esc
+leaves the tags. A panel that moved meanwhile is left alone.
+
 ## Swapping panels (Ctrl+U)
 
 `SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change

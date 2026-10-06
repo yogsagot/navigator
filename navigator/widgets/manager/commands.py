@@ -312,6 +312,15 @@ class CountLength(Command):
     """
 
 
+class CompareDir(Command):
+    """Panel > Compare directories: tag what each panel has that the other
+    lacks or has older.
+
+    DOS Navigator's ``cmCompareDir``.  Its Ctrl+C is not bound: that key is
+    kept for copying to the clipboard.
+    """
+
+
 class ToggleHidden(Command):
     """Ctrl+H: show or hide the active panel's dot-files.
 
@@ -375,6 +384,7 @@ __all__ = [
     "ToggleTree",
     "SortBy",
     "CountLength",
+    "CompareDir",
     "SwapPanels",
     "ChangeDrive",
     "ChangeLeft",

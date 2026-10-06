@@ -46,6 +46,7 @@ from navigator.widgets.manager.commands import (
     ScrollNames,
     SelectGroup,
     SwitchPanel,
+    CompareDir,
     CountLength,
     SortBy,
     SwapPanels,
@@ -233,6 +234,56 @@ class Manager(Window):
             # The same entries, changed, while the panel still lists them: a
             # new list is what it sees.
             panel.items = list(panel.items)
+
+    async def on_compare_dir(self, event: CompareDir) -> bool:
+        self.spawn(self.compare_directories())
+        return True
+
+    async def compare_directories(self) -> None:
+        """Panel > Compare directories: ``CM_CompareDirs``, each panel against the other.
+
+        *Compare directories* asks what to compare and whether to select or
+        unselect; then each panel's files are compared with the other's
+        (:mod:`navigator.dircompare`) and its tags set from what differs.
+        Reading the files' contents goes on a thread, under *Comparing
+        files* if it takes a while (DN's ``dlComparing``), and Esc there
+        leaves the tags as they were; the rest is the listings alone.  A
+        panel that has moved on by the time it is done is left alone.
+        """
+        from navigator.dircompare import differing, tagged
+        from navigator.widgets.manager.compare_dialog import CompareDialog
+
+        app = self.application
+        if app is None:
+            return
+        panel, other = self.active_panel, self.passive_panel
+        request = await CompareDialog().execute(app)
+        if request is None:
+            return
+        here, there = Path(panel.path), Path(other.path)
+        mine, theirs = list(panel.items), list(other.items)
+
+        def compare(job: Any = None) -> tuple[set[str], set[str]] | None:
+            first = differing(mine, theirs, request, here, there, job)
+            second = differing(theirs, mine, request, there, here, job) if first is not None else None
+            return None if second is None else (first, second)
+
+        if request.contents:
+            from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+            from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+
+            job = FileJob()
+            found = await run_with_progress(
+                app, lambda: compare(job), job, lambda: progress_box(job, "Comparing files"),
+                refresh_box(job), delay=SLOW_PROGRESS_DELAY,
+            )
+        else:
+            found = compare()
+        if found is None:
+            return
+        for side, place, names in ((panel, here, found[0]), (other, there, found[1])):
+            if Path(side.path) == place:
+                side.marked = tagged(side.marked, names, request)
 
     async def on_swap_panels(self, event: SwapPanels) -> bool:
         self.swap_panels()

@@ -165,6 +165,23 @@ class Dialog(Modal):
         mine = [w for w in self.buttons_row if w in order]
         return [w for w in order if w not in mine] + mine
 
+    async def activate_shortcut(self, letter: str) -> bool:
+        """Alt+*letter* to the first control answering to it, this dialog's own
+        buttons last.
+
+        The tree puts them first, for :meth:`focusable`'s reason.  Turbo
+        Vision gave the key to the control inserted first, and a resource
+        inserted its buttons last, so a caption sharing a letter with
+        *Cancel* -- *Compare ~c~ontents*, *~C~ase sensitive* -- won it.
+        """
+        mine = self.buttons_row
+        ordered = [c for c in self.controls() if c not in mine]
+        ordered += [c for c in self.controls() if c in mine]
+        for control in ordered:
+            if control.shortcut_match(letter):
+                return await control.activate(letter)
+        return False
+
     @property
     def buttons_row(self) -> tuple[Widget, ...]:
         """This dialog's own buttons, left to right.

@@ -74,7 +74,9 @@ table (`navml/models/history_entry/`, DN's rules in its `.py` half's `remember()
   steps around a side only when it carries a binding, so a literal size becomes full-screen the moment `overlay()` adds
   it. Route the size through a declared property the base binds from.
 - **A derived component's own children land after its base's** (`super().__init__()` is the generated constructor's
-  first line); `Dialog.focusable()` moves its buttons to the end, or every derived dialog opens with focus on OK.
+  first line); `Dialog.focusable()` moves its buttons to the end, or every derived dialog opens with focus on OK, and
+  `Dialog.activate_shortcut()` asks them last, or ~C~ancel takes Alt+C from *Compare ~c~ontents* (TV gave a shared
+  letter to the control inserted first, and resources inserted buttons last).
 - **Effects belong in `mounted()`, not `__init__`**, for any widget that can be removed and put back -- every widget in
   a dialog. `remove()` disposes a subtree's effects.
 

@@ -1,0 +1,50 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Panel > Compare directories: DOS Navigator's ``dlgCompareDirs``.
+#:
+#: *Options* over *Selection mode*, as ``DN.DNR`` stacks them; the buttons go
+#: under them rather than down the right, where this library puts every
+#: dialog's, and DN's Help goes until there is help to show.
+CompareDialog(Dialog):
+    modal_width: 34
+    modal_height: 15
+    title: "Compare directories"
+
+    Label:
+        id: options_caption
+        x: 2
+        y: 1
+        width: 10
+        height: 1
+        text: "Options"
+        link: options
+
+    #: Size and time ticked, as ``DT.O := 3`` opened it every time.
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 2
+        width: 26
+        height: 4
+        items: ["Compare ~s~ize", "Compare ~t~ime", "Compare ~a~ttributes", "Compare ~c~ontents"]
+        value: 3
+
+    Label:
+        id: mode_caption
+        x: 2
+        y: 7
+        width: 16
+        height: 1
+        text: "Selection mode"
+        link: mode
+
+    RadioButtons:
+        id: mode
+        x: 2
+        y: 8
+        width: 26
+        height: 2
+        items: ["S~e~lect", "~U~nselect"]

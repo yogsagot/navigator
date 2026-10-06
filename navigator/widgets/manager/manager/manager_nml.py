@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.commands import ArchiveFiles, Calculator, ChangeAttributes, ChangeDirectory    # manager.nml:1
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit    # manager.nml:2
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DiskInfo, Edit    # manager.nml:2
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive    # manager.nml:3
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup    # manager.nml:4
 from navigator.widgets.manager.commands import PrintFile, QuickView, RenameMove, Rescan    # manager.nml:5
@@ -212,7 +212,7 @@ class Manager(Window, _Component):
         _w2.key = 'Alt-V'    # manager.nml:142
 
         _w3.text = '~C~ompare directories'    # manager.nml:144
-        _w3.key = 'Ctrl-C'    # manager.nml:145
+        _w3.command = CompareDir    # manager.nml:145
 
         _w4.text = 'Count directory len~g~th'    # manager.nml:147
         _w4.command = CountLength    # manager.nml:148
