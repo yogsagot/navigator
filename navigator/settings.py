@@ -48,6 +48,8 @@ from typing import Any, ClassVar
 from navkit.reactive import Reactive
 from navml.coder import Coder
 
+from navigator import filetypes
+
 #: The file's name, in the directory :func:`config_dir` names.
 FILE_NAME = "navigator.ini"
 
@@ -552,11 +554,32 @@ class ColumnDefaultsData(Section):
         return frozenset(name.split("_", 1)[1] for name in names if getattr(self, name))
 
 
+class HighlightGroupsData(Section):
+    """``dlgHighlightGroups`` / ``CustomMask1``..``5``: which files take each colour.
+
+    DN's five *Custom* masks, which coloured a row Custom 1 to 5 and sorted
+    it among them by *Group*.  Navigator named its five (``filetypes.CUSTOM``)
+    and filled them in, so the dialog's lines are those names, and a mask is
+    the panel's own syntax -- ``;``-separated shell patterns, ``*.ext`` for
+    DN's bare extensions -- matched without regard to case.  The *Archives*
+    mask was never in this dialog in DN, and is not here.
+    """
+
+    name = "highlight_groups"
+    title = "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)"
+
+    image: str = Setting(filetypes.CATEGORIES["image"], doc="Images")
+    media: str = Setting(filetypes.CATEGORIES["media"], doc="Audio and video")
+    document: str = Setting(filetypes.CATEGORIES["document"], doc="Documents")
+    source: str = Setting(filetypes.CATEGORIES["source"], doc="Source code")
+    temp: str = Setting(filetypes.CATEGORIES["temp"], doc="Backups and temporary files")
+
+
 #: Every section, in the order the file lists them.
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData, ColumnDefaultsData,
+    DriveInfoData, ColumnDefaultsData, HighlightGroupsData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -586,6 +609,7 @@ class Settings:
     panel_defaults: PanelDefaultsData
     drive_info: DriveInfoData
     column_defaults: ColumnDefaultsData
+    highlight_groups: HighlightGroupsData
 
     def __init__(self) -> None:
         for cls in SECTIONS:

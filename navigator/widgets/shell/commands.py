@@ -267,6 +267,12 @@ class ColumnDefaults(Command):
     title = "Column Defaults"
 
 
+class HighlightGroups(Command):
+    """Options > File Manager > Highlight groups: DOS Navigator's ``cmHighlightGroups``."""
+
+    title = "Highlight Groups"
+
+
 class FileManagerDefaults(Command):
     """Options > File Manager > New Manager defaults: DOS Navigator's ``cmFMDefaults``.
 

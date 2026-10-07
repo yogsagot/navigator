@@ -249,12 +249,15 @@ def _default_settings(monkeypatch, tmp_path):
     ``config_path()`` -- which ``XDG_CONFIG_HOME`` here points into the test's
     own temporary directory.
     """
+    from navigator import filetypes
     from navigator.settings import SETTINGS
 
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     SETTINGS.reset()
+    filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()
+    filetypes.use_masks(filetypes.CATEGORIES)
 
 
 @pytest.fixture(autouse=True)

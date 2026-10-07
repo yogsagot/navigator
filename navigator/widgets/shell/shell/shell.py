@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
-from navkit.reactive import bind, computed, effect
+from navkit.reactive import bind, computed, effect, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet, StylesheetError
@@ -33,6 +33,7 @@ from navigator.widgets.shell.commands import (
     ChangeColors,
     DriveInfoSetup,
     ColumnDefaults,
+    HighlightGroups,
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
@@ -65,6 +66,7 @@ from navigator.widgets.shell.commands import (
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
+from navigator import filetypes
 from navigator.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
@@ -104,6 +106,8 @@ class Shell(DockLayout):
         #: The theme the sheet was loaded from: what Options > Colors loads
         #: again beneath the palette it edits.
         self.theme = DEFAULT_THEME
+        #: *Highlight groups*' masks as this shell last saw them (``_use_highlight_groups``).
+        self._highlight_masks: dict[str, str] | None = None
         #: ``.root`` on the whole screen while Navigator runs as root, so a
         #: sheet can mark every window and dialog under it.
         if hasattr(os, "geteuid") and os.geteuid() == 0:
@@ -700,6 +704,7 @@ class Shell(DockLayout):
         effect(self, Shell._follow_panel)
         effect(self, Shell._size_histories)
         effect(self, Shell._choose_clipboard)
+        effect(self, Shell._use_highlight_groups)
 
     def _size_histories(self) -> None:
         """Interface's *History size* is how long every input-line list grows.
@@ -708,6 +713,26 @@ class Shell(DockLayout):
         Navigator's settings, so it is told from here.
         """
         HISTORY.limit = max(1, SETTINGS.interface.history_size)
+
+    def _use_highlight_groups(self) -> None:
+        """*Highlight groups*' masks put in force, and every panel read again
+        when they changed: ``SetHighlightGroups``' ``cmPanelReread``, since a
+        row's colour and its place under *Group* both come from them.
+
+        ``filetypes`` knows nothing of Navigator's settings, so it is told from here.
+        """
+        section = SETTINGS.highlight_groups
+        masks = {key: getattr(section, key) for key in filetypes.CUSTOM}
+        # What this shell last saw rather than what ``use_masks`` answers: the
+        # masks are the process's, and another shell may have put them in force.
+        seen, self._highlight_masks = self._highlight_masks, masks
+        filetypes.use_masks(masks)
+        with untracked():
+            if seen is not None and seen != masks and self.desktop is not None:
+                for window in self.desktop.windows():
+                    if isinstance(window, Manager):
+                        window.left.reload()
+                        window.right.reload()
 
     def _choose_clipboard(self) -> None:
         """System Setup's *Use system clipboard*: the desktop's, or Navigator's own.
@@ -1533,6 +1558,12 @@ class Shell(DockLayout):
         from navigator.widgets.setup.column_defaults_dialog import ColumnDefaultsDialog
 
         self.spawn(self.setup(ColumnDefaultsDialog(), "column_defaults"))
+        return True
+
+    async def on_highlight_groups(self, event: HighlightGroups) -> bool:
+        from navigator.widgets.setup.highlight_dialog import HighlightDialog
+
+        self.spawn(self.setup(HighlightDialog(), "highlight_groups"))
         return True
 
     async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:

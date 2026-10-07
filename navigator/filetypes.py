@@ -43,7 +43,9 @@ BY_TYPE = {
 #: matched without regard to case, as *Select group* reads them).  The first
 #: category that matches wins, so the order is the precedence.  ``archive`` is
 #: DN's; the rest are the custom groups DN left to the user, filled in with the
-#: kinds a file manager is actually pointed at.
+#: kinds a file manager is actually pointed at.  These are the defaults: Options
+#: > File Manager > Highlight groups edits the five after ``archive``
+#: (:data:`CUSTOM`), and :func:`use_masks` puts them in force.
 CATEGORIES = {
     "archive": "*.zip;*.tar;*.gz;*.tgz;*.bz2;*.tbz;*.tbz2;*.xz;*.txz;*.zst;*.lz;*.lzma;*.z;"
                "*.7z;*.rar;*.arj;*.lha;*.lzh;*.cab;*.ace;*.zoo;*.cpio;*.deb;*.rpm;*.apk;"
@@ -123,6 +125,29 @@ def _index(categories: dict[str, str]) -> tuple[dict[str, str], list[tuple[str, 
 
 
 _BY_EXTENSION, _OTHERS = _index(CATEGORIES)
+
+#: The categories *Highlight groups* edits -- DN's ``CustomMask1``..``5`` --
+#: in their order, which is also their precedence.
+CUSTOM: tuple[str, ...] = tuple(category for category in CATEGORIES if category != "archive")
+
+#: The masks in force, :data:`CATEGORIES` until :func:`use_masks` says otherwise.
+_masks: dict[str, str] = dict(CATEGORIES)
+
+
+def use_masks(masks: dict[str, str]) -> bool:
+    """Put *masks* (``{category: mask}``, any of :data:`CUSTOM`) in force,
+    the rest keeping theirs, and say whether anything changed -- DN's
+    ``SetHighlightGroups`` writing ``CustomMask1``..``5``.  A listing already
+    painted keeps its colours and order until it is read again."""
+    global _BY_EXTENSION, _OTHERS
+    wanted = {**_masks, **{key: value for key, value in masks.items() if key in CUSTOM}}
+    if wanted == _masks:
+        return False
+    _masks.update(wanted)
+    _BY_EXTENSION, _OTHERS = _index(_masks)
+    group_of.cache_clear()
+    category_of.cache_clear()
+    return True
 
 
 #: DN's ``TType`` order, which *Group* sorts by: ``ttDirectory``, ``ttExec``,
