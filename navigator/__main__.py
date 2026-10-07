@@ -29,7 +29,7 @@ from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo
 from navkit.commands import Command
 from navkit.database import DATABASE
-from navkit.events import MouseClickEvent, PasteEvent
+from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
 from navkit.process import MARKER
 from navkit.stylesheet import Stylesheet
@@ -74,6 +74,10 @@ class Navigator(Application):
         loads again under the palette it edits."""
         scheme = scheme or default_scheme()
         self._given = (left, right) if given else None
+        #: The directory Navigator started in, DOS's current one at the start.
+        self._start = left
+        #: When a key, a click or a paste last came: *Inactivity hour exit*.
+        self._last_input = 0.0
         kwargs.setdefault("title", "Navigator")
         self.shell = Shell(left, right, scheme)
         self.shell.theme = theme
@@ -91,6 +95,12 @@ class Navigator(Application):
         if self.terminal.is_tty:
             self.shell.console.start()
         await self._restore_desktop()
+        self._last_input = self._now()
+        self.call_every(self.idle_check_every, self._check_idle)
+        # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
+        # once its desktop was in place (``RunMenu``).
+        if SETTINGS.startup.auto_user_menu:
+            self.shell.spawn(self.shell.user_menu())
 
     async def _restore_desktop(self) -> None:
         """Startup's *Autosave desktop*: the desktop saved on the way out last
@@ -105,10 +115,46 @@ class Navigator(Application):
             return
         desktop = self.shell.desktop
         first = list(desktop.windows())
-        made = await desktop_state.restore(desktop, data, dirs=self._given)
+        made = await desktop_state.restore(desktop, data, dirs=self._given, here=self._start)
         if any(isinstance(window, Manager) for window in made):
             for window in first:
                 window.close()
+
+    #: Startup's *Inactivity hour exit*: how long nothing may be typed or
+    #: clicked -- DN's ``ElapsedTimeInSecs(IdleSecs) > 3600`` in ``GetEvent``.
+    idle_exit_after = 3600.0
+    #: How often that is looked at.
+    idle_check_every = 60.0
+
+    async def on_event(self, event: Event) -> bool:
+        if isinstance(event, (KeyEvent, MouseClickEvent, PasteEvent)):
+            self._last_input = self._now()
+        return False
+
+    async def _check_idle(self) -> None:
+        """``ExecExit`` after an idle hour, or ``$DNIDLE`` run in its place.
+
+        Not while a command runs on the console -- DN was not running then,
+        so its hour started when the program ended -- and, a departure, not
+        while an editor holds a changed text: ``ExecExit`` went through
+        ``Done`` without asking, and the text would be lost.
+        """
+        if not SETTINGS.startup.inactivity_exit:
+            return
+        shell = self.shell
+        if shell.console.busy:
+            self._last_input = self._now()
+            return
+        if self._now() - self._last_input <= self.idle_exit_after:
+            return
+        if any(window.must_ask() for window in shell.desktop.windows()):
+            return
+        self._last_input = self._now()
+        command = os.environ.get("DNIDLE", "")
+        if command:
+            shell.run_command(command, typed=False)
+        else:
+            self.exit()
 
     async def on_stop(self) -> None:
         # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
@@ -390,6 +436,19 @@ def load_settings(path: Path | None = None) -> None:
         SETTINGS.path = path
 
 
+def clear_histories() -> None:
+    """``ClearHistories``: every unpinned entry gone -- each input line's
+    list, the commands, the directories, and the files viewed and edited.
+    What is pinned stays, as DN kept an entry flagged ``'+'``."""
+    from navigator.models.edit_record import EditRecord
+    from navigator.models.view_record import ViewRecord
+    from navml.models.history_entry import HistoryEntry
+
+    with DATABASE.transaction():
+        for model in (HistoryEntry, ViewRecord, EditRecord):
+            model.delete_where(pinned=False)
+
+
 def open_database(path: Path | None = None) -> None:
     """Open the database every model uses, or carry on in memory.
 
@@ -476,6 +535,12 @@ def main(argv: list[str] | None = None) -> int:
         seed_bookmarks()
     except sqlite3.Error as error:
         print(f"nav: bookmarks: {error}", file=sys.stderr)
+    # Startup's *Clear history*, as DN cleared its at the first start.
+    if SETTINGS.startup.clear_history:
+        try:
+            clear_histories()
+        except sqlite3.Error as error:
+            print(f"nav: histories: {error}", file=sys.stderr)
     # A flag is this session's alone: it wins over the settings file and is
     # never written back to it.
     appearance = SETTINGS.appearance

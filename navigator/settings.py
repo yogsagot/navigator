@@ -284,14 +284,18 @@ class StartupData(Section):
         "inactivity_exit", "autosave_desktop", "preserve_directory",
     )
 
-    auto_user_menu: bool = Setting(False, doc="Auto run the User Menu", honoured=False)
-    clear_history: bool = Setting(False, doc="Clear history on startup", honoured=False)
-    inactivity_exit: bool = Setting(False, doc="Exit after an hour of inactivity", honoured=False)
+    auto_user_menu: bool = Setting(False, doc="Auto run the User Menu")
+    #: ``ClearHistories``: what is pinned stays.
+    clear_history: bool = Setting(False, doc="Clear the unpinned history entries on startup")
+    inactivity_exit: bool = Setting(False, doc="Exit after an hour of inactivity")
     #: Saving on exit and restoring at the next start, both: DN restored
     #: ``DN.DSK`` at every start whenever there was one.
     autosave_desktop: bool = Setting(False, doc="Save the desktop on exit and restore it at the next start")
+    #: DN's ``osuPreserveDir`` (``TFilePanelRoot.Store``): off, the active
+    #: panel follows the shell's directory after a command and opens in the
+    #: start directory in a restored desktop; on, it keeps its own.
     preserve_directory: bool = Setting(
-        False, doc="Leave the shell in the active panel's directory", honoured=False,
+        False, doc="The active panel keeps its directory after a command and in a restored desktop",
     )
 
 

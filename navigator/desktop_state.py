@@ -213,17 +213,34 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
 
 
 async def restore(desktop: Any, data: dict[str, Any], *,
-                  dirs: tuple[Path, Path] | None = None) -> list[Any]:
+                  dirs: tuple[Path, Path] | None = None, here: Path | None = None) -> list[Any]:
     """``RetrieveDesktop``: *data*'s windows opened on *desktop*, where they
     were, bottom to top, the one in front brought forward.  *dirs* are the
     command line's directories, given: the first file manager's panels go
-    there.  The windows made, those that could be."""
+    there.  The windows made, those that could be.
+
+    *here* is the current directory, DN's DOS one: the active panel of the
+    topmost file manager opens there unless Startup's *Preserve directory*
+    is ticked -- ``TFilePanelRoot.Store`` wrote that panel's drive as nil
+    otherwise, which read back as wherever DOS was.  Decided here rather than
+    when saving, so the box can be changed either way after.
+    """
     from navigator.file_history import place_window
+    from navigator.settings import SETTINGS
 
     made: list[Any] = []
     front = data.get("front")
     in_front = None
-    for index, kept in enumerate(data.get("windows") or []):
+    windows = list(data.get("windows") or [])
+    managers = [index for index, kept in enumerate(windows)
+                if isinstance(kept, dict) and kept.get("kind") == "manager"]
+    if here is not None and managers and not SETTINGS.startup.preserve_directory \
+            and not (dirs and managers[-1] == managers[0]):
+        top = dict(windows[managers[-1]])
+        side = "right" if top.get("active") == "right" else "left"
+        top[side] = {**(top.get(side) or {}), "path": str(here), "cursor": None}
+        windows[managers[-1]] = top
+    for index, kept in enumerate(windows):
         try:
             window = await _make(desktop, kept, dirs)
         except (OSError, KeyError, TypeError, ValueError):

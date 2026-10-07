@@ -22,3 +22,6 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   one) saves in `Navigator.on_stop` -- the windows are still open there, as quitting only asks -- and restores in
   `on_start`, replacing the file manager the start opened once a manager has come back. Directories given on the
   command line (`Navigator(given=True)`) go to the first manager restored, its cursors dropped.
+- **The topmost manager's active panel opens in the current directory** (`restore(here=)`: the start directory, or
+  the active panel's for Load desktop) unless Startup's *Preserve directory* is ticked -- DN's `TFilePanelRoot.Store`
+  wrote that panel's drive as nil. Decided at restore rather than save, so the saved directory is never lost.

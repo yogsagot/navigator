@@ -185,9 +185,10 @@ class Shell(DockLayout):
             await Dialog(title="Error", prompt="No desktop has been saved", buttons="ok"
                          ).execute(self.application)
             return
+        here = self._command_directory()
         if not await self.desktop.close_all_asking():
             return
-        await desktop_state.restore(self.desktop, data)
+        await desktop_state.restore(self.desktop, data, here=here)
 
     # -- the palette ------------------------------------------------------------------
 
@@ -1537,12 +1538,18 @@ class Shell(DockLayout):
         self._follow_shell(cwd)
 
     def _follow_shell(self, cwd: Path | None) -> None:
-        """Send the active panel wherever the shell went, and re-read both."""
+        """Send the active panel wherever the shell went, and re-read both.
+
+        Not with Startup's *Preserve directory*: DN stored the active panel's
+        drive across a command only then (``TFilePanelRoot.Store``), and
+        otherwise let it take the directory DOS came back with.
+        """
         manager = self.active_manager
         if manager is None:
             return
         panel = manager.active_panel
-        if cwd is not None and cwd != panel.path and cwd.is_dir():
+        if (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
+                and cwd.is_dir()):
             panel.path = cwd
         for each in (manager.left, manager.right):
             each.reload()
