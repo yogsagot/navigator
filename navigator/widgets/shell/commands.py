@@ -109,6 +109,20 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class SaveDesktop(Command):
+    """Options > Save desktop: the windows kept, to be had back.
+
+    DOS Navigator's ``cmSaveDesk`` (``SaveRealDsk``).
+    """
+
+
+class LoadDesktop(Command):
+    """Options > Load desktop: the windows last kept, in place of these.
+
+    DOS Navigator's ``cmLoadDesk`` (``RetrieveDesktop``).
+    """
+
+
 class ExecuteOsCommand(Command):
     """File > Execute OS command: a command line asked in a box, and run.
 
@@ -160,6 +174,8 @@ __all__ = [
     "EnvEdit",
     "SystemInfo",
     "ExecuteOsCommand",
+    "SaveDesktop",
+    "LoadDesktop",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",

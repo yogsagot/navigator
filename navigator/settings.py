@@ -285,7 +285,9 @@ class StartupData(Section):
     auto_user_menu: bool = Setting(False, doc="Auto run the User Menu", honoured=False)
     clear_history: bool = Setting(False, doc="Clear history on startup", honoured=False)
     inactivity_exit: bool = Setting(False, doc="Exit after an hour of inactivity", honoured=False)
-    autosave_desktop: bool = Setting(False, doc="Save the desktop on exit", honoured=False)
+    #: Saving on exit and restoring at the next start, both: DN restored
+    #: ``DN.DSK`` at every start whenever there was one.
+    autosave_desktop: bool = Setting(False, doc="Save the desktop on exit and restore it at the next start")
     preserve_directory: bool = Setting(
         False, doc="Leave the shell in the active panel's directory", honoured=False,
     )

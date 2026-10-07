@@ -62,9 +62,13 @@ class Navigator(Application):
     """The file manager application."""
 
     def __init__(
-        self, left: Path, right: Path, scheme: Stylesheet | None = None, **kwargs
+        self, left: Path, right: Path, scheme: Stylesheet | None = None, *,
+        given: bool = False, **kwargs
     ):
+        """*given*: *left* and *right* came from the command line, so a desktop
+        restored at the start puts its first file manager there."""
         scheme = scheme or default_scheme()
+        self._given = (left, right) if given else None
         kwargs.setdefault("title", "Navigator")
         self.shell = Shell(left, right, scheme)
         super().__init__(root=self.shell, **kwargs)
@@ -80,8 +84,32 @@ class Navigator(Application):
         # Headless, nobody is, and the first command starts it as before.
         if self.terminal.is_tty:
             self.shell.console.start()
+        await self._restore_desktop()
+
+    async def _restore_desktop(self) -> None:
+        """Startup's *Autosave desktop*: the desktop saved on the way out last
+        time, in place of the file manager this one opened with -- DN read
+        ``DN.DSK`` at every start; here only while the box is ticked."""
+        from navigator import desktop_state
+
+        if not SETTINGS.startup.autosave_desktop:
+            return
+        data = desktop_state.load()
+        if not data or not data.get("windows"):
+            return
+        desktop = self.shell.desktop
+        first = list(desktop.windows())
+        made = await desktop_state.restore(desktop, data, dirs=self._given)
+        if any(isinstance(window, Manager) for window in made):
+            for window in first:
+                window.close()
 
     async def on_stop(self) -> None:
+        # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
+        if SETTINGS.startup.autosave_desktop:
+            from navigator import desktop_state
+
+            desktop_state.save(self.shell.desktop)
         # Every viewer and editor still open is recorded, as ``cmQuit`` went
         # through each window's ``Valid`` -- whatever way Navigator is left.
         remember_windows(self.shell.desktop)
@@ -480,7 +508,8 @@ def main(argv: list[str] | None = None) -> int:
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
     right = Path(args.right).expanduser().resolve() if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
-    Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal).run()
+    Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
+              given=bool(args.left)).run()
     return 0
 
 

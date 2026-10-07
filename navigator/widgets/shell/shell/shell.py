@@ -40,6 +40,8 @@ from navigator.widgets.shell.commands import (
     FileManagerDefaults,
     EnvEdit,
     ExecuteOsCommand,
+    LoadDesktop,
+    SaveDesktop,
     SystemInfo,
     FileManagerSetup,
     HistoryList,
@@ -143,6 +145,32 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_save_desktop(self, event: SaveDesktop) -> bool:
+        """Options > Save desktop: ``SaveRealDsk`` (``navigator.desktop_state``)."""
+        from navigator import desktop_state
+
+        desktop_state.save(self.desktop)
+        return True
+
+    async def on_load_desktop(self, event: LoadDesktop) -> bool:
+        self.spawn(self.load_desktop())
+        return True
+
+    async def load_desktop(self) -> None:
+        """Options > Load desktop: ``RetrieveDesktop`` -- every window closed,
+        asked as Close all asks, and the saved ones put in their place.  A
+        Cancel keeps the desktop as it is; none saved says so."""
+        from navigator import desktop_state
+
+        data = desktop_state.load()
+        if data is None:
+            await Dialog(title="Error", prompt="No desktop has been saved", buttons="ok"
+                         ).execute(self.application)
+            return
+        if not await self.desktop.close_all_asking():
+            return
+        await desktop_state.restore(self.desktop, data)
 
     async def on_execute_os_command(self, event: ExecuteOsCommand) -> bool:
         self.spawn(self.execute_os_command())

@@ -1,0 +1,12 @@
+from navkit.database import Model
+
+#: A desktop saved: what DOS Navigator wrote to ``DN.DSK`` (``SaveDesktop``),
+#: the windows and their state, as JSON (``navigator.desktop_state``).  One
+#: row a name; Navigator writes ``default``, as DN wrote ``DN`` and
+#: ``$DNDSK``.
+SavedDesktop(Model):
+    table: "desktops"
+    field name: str
+    #: ``navigator.desktop_state.snapshot``'s dict, as JSON.
+    field data: str
+    unique by_name: name
