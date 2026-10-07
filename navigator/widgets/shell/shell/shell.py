@@ -34,6 +34,11 @@ from navigator.widgets.shell.commands import (
     DriveInfoSetup,
     ColumnDefaults,
     HighlightGroups,
+    EditQuickRun,
+    ExtFileEdit,
+    ExternalViewers,
+    ExternalEditors,
+    QuickRun,
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
@@ -67,6 +72,7 @@ from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator import filetypes
+from navigator.associations import EDITORS, EXTENSIONS, QUICK_RUN, VIEWERS
 from navigator.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
@@ -1151,7 +1157,11 @@ class Shell(DockLayout):
         if panel is None:
             return Side()
         entry = panel.selected
-        return Side.of(Path(panel.path), entry.name if entry is not None else None, list_file)
+        if entry is None:
+            return Side.of(Path(panel.path), None, list_file)
+        # A *Find:* listing's entry is in a directory of its own.
+        path = entry.path_in(Path(panel.path))
+        return Side.of(path.parent, entry.name, list_file)
 
     async def edit_menu_file(self, path: Path) -> None:
         """A ``dn.mnu`` in an editor, made by saving if it is not there yet."""
@@ -1240,8 +1250,13 @@ class Shell(DockLayout):
             return
 
     async def run_menu_item(self, menu: Any, entry: Any) -> None:
-        """An item's lines, its parameters asked first if it wants them, run
-        in the console as a script the shell sources.
+        """An item's lines, run as :meth:`run_commands` runs them."""
+        await self.run_commands(menu.commands(entry))
+
+    async def run_commands(self, commands: Any) -> None:
+        """A user menu item's lines -- or an ``.ini`` entry's
+        (:mod:`navigator.associations`) -- its parameters asked first if it
+        wants them, run in the console as a script the shell sources.
 
         ``%1`` and ``%2`` are files listing each panel's tagged names, or the
         one at its cursor (``GetUserParams``); they, and the script, are kept
@@ -1257,7 +1272,6 @@ class Shell(DockLayout):
         from navigator.widgets.shell.menu_params_dialog import MenuParamsDialog
 
         app = self.application
-        commands = menu.commands(entry)
         params = ""
         if commands.asks:
             answer = await MenuParamsDialog(commands.title, commands.default).execute(app)
@@ -1303,6 +1317,120 @@ class Shell(DockLayout):
                          buttons="ok").execute(app)
             return
         self.run_command(f". {shlex.quote(str(script))}", typed=False)
+
+    # -- extensions.ini, viewers.ini, editors.ini, quickrun.ini ----------------
+
+    async def on_open_file(self, event: Any) -> bool:
+        """Enter on a file that is not itself a program: ``ExecFile`` -- what
+        ``extensions.ini`` says for its name (DN's ``DN.EXT``), else nothing."""
+        if not self.console.busy:
+            self.spawn(self.run_associated(EXTENSIONS, event.path.name))
+        return True
+
+    async def on_quick_run(self, event: QuickRun) -> bool:
+        """Ctrl+Shift+F1 .. F10: ``QuickExecExternal`` -- ``quickrun.ini``'s
+        ``[F1]`` .. ``[F10]`` (DN's ``DN.XRN``); a key with no section does nothing."""
+        if not self.console.busy:
+            self.spawn(self.run_associated(QUICK_RUN, key=f"F{event.number}"))
+        return True
+
+    async def run_associated(self, file_name: str, name: str | None = None, *,
+                             key: str | None = None) -> bool:
+        """Run what *file_name* (one of :mod:`navigator.associations`' four)
+        has for the file called *name*, or for *key*; False when it has
+        nothing, so the caller does what it did without one.
+
+        One entry runs at once; several are offered in a menu in the middle
+        of the screen, their captions' macros put in, and Esc runs none (and
+        still answers True: the file had something).  A file that will not
+        read, or is not an ``.ini``, is said so.
+        """
+        import asyncio
+
+        from navigator import associations
+
+        app = self.application
+        if app is None:
+            return False
+        try:
+            groups = await asyncio.to_thread(associations.read, file_name)
+        except (OSError, ValueError) as error:
+            reason = error.strerror if isinstance(error, OSError) and error.strerror else error
+            await Dialog(title="Error", prompt=f"Cannot read {file_name}: {reason}",
+                         buttons="ok").execute(app)
+            return True
+        group = (associations.for_key(groups, key) if key is not None
+                 else associations.for_file(groups, name or ""))
+        if group is None:
+            return False
+        action = group.actions[0]
+        if len(group.actions) > 1:
+            action = await self._choose_action(group.actions)
+            if action is None:
+                return True
+        await self.run_commands(action.commands)
+        return True
+
+    async def _choose_action(self, actions: Any) -> Any:
+        """A ``PopupMenu`` of *actions*' captions, as F2's box is shown: the one chosen, or None."""
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.usermenu import expand
+
+        app = self.application
+        active, passive = (self._menu_side(panel) for panel in self._menu_panels())
+        box_menu = SubMenu()
+        chosen_of = {id(box_menu.add_item(expand(action.caption, active, passive, quote=False))): action
+                     for action in actions}
+        box = PopupMenu(box_menu, behind=self)
+        width, height = PopupMenu.measure(box_menu, app, self)
+        box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
+        chosen = await box.execute(app)
+        return chosen_of.get(id(chosen)) if chosen is not None else None
+
+    async def on_edit_quick_run(self, event: EditQuickRun) -> bool:
+        self.spawn(self.edit_associations(QUICK_RUN))
+        return True
+
+    async def on_ext_file_edit(self, event: ExtFileEdit) -> bool:
+        self.spawn(self.edit_associations(EXTENSIONS))
+        return True
+
+    async def on_external_viewers(self, event: ExternalViewers) -> bool:
+        self.spawn(self.edit_associations(VIEWERS))
+        return True
+
+    async def on_external_editors(self, event: ExternalEditors) -> bool:
+        self.spawn(self.edit_associations(EDITORS))
+        return True
+
+    async def edit_associations(self, file_name: str) -> None:
+        """Options > Quick run file edit, Extension file edit, Viewers or
+        Editors: the file in an editor, written first from its template
+        (:data:`navigator.associations.TEMPLATES`) when it is not there yet,
+        as DN's came filled in."""
+        import asyncio
+
+        from navigator import associations
+
+        path = associations.path_of(file_name)
+
+        def seed() -> None:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                with path.open("x", encoding="utf-8") as stream:
+                    stream.write(associations.TEMPLATES[file_name])
+            except FileExistsError:
+                pass
+
+        try:
+            await asyncio.to_thread(seed)
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot write {path}: {error.strerror or error}",
+                         buttons="ok").execute(self.application)
+            return
+        await self.edit_menu_file(path)
 
     async def on_ascii_table(self, event: AsciiTable) -> bool:
         """Ctrl+B, Utilities > *Character table*: DN's ``ASCIITable``."""

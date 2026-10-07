@@ -53,6 +53,7 @@ from navigator.widgets.shell.commands import (
     CompleteCommandLine,
     EditHistory,
     ExecuteCommandLine,
+    QuickRun,
     HistoryList,
     NewManager,
     ViewHistory,
@@ -183,6 +184,9 @@ class Navigator(Application):
         "home": CommandLineHome,
         "end": CommandLineEnd,
         "tab": CompleteCommandLine,
+        #: *Quick run*, DN's Ctrl+Shift+F1 .. F10 (``QuickExecExternal``):
+        #: ``quickrun.ini``'s ``[F1]`` .. ``[F10]``.
+        **{f"ctrl+shift+f{number}": QuickRun(number) for number in range(1, 11)},
     }
 
     def enables(self, command: Command) -> bool:

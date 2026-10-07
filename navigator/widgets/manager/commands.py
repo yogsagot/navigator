@@ -29,6 +29,12 @@ class View(Command):
     title = "View"
 
 
+class AlternateView(Command):
+    """Alt+F3, File > Alternate view: DOS Navigator's ``cmIntFileView`` --
+    the viewer *Internal viewer* does not pick: ``viewers.ini``'s, or the
+    window."""
+
+
 class ViewAsText(Command):
     """File > View > As Text: ``cmViewText``, the viewer opened in text mode."""
 
@@ -39,6 +45,11 @@ class ViewAsHex(Command):
 
 class Edit(Command):
     title = "Edit"
+
+
+class AlternateEdit(Command):
+    """Alt+F4, File > Alternate edit: DOS Navigator's ``cmIntFileEdit``, as
+    :class:`AlternateView` for the editor."""
 
 
 class Copy(Command):

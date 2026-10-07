@@ -135,7 +135,7 @@ note:
 
 | Setting | Effect |
 |---|---|
-| `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console |
+| `system.internal_viewer` / `internal_editor` | Off: F3/F4 run `viewers.ini`/`editors.ini`'s entry for the file, else `$PAGER` (default `less`) / `$EDITOR` (default `vi`) on the console; Alt+F3/Alt+F4 do the other (`navigator-user-menu`) |
 | `system.show_hidden` | A new panel's `show_hidden` |
 | `system.temp_dir` | `navigator.tempdir.temp_root()`, read each time: the user menu's private directory and the subshell's rc files; empty is `$TMPDIR` |
 | `system.system_clipboard` | On (a departure: DN's default was off): copies go to OSC 52 and the desktop's tool, pastes read them. Off: `Application.system_clipboard` false, a clipboard private to Navigator (`Shell._choose_clipboard`, an effect) |

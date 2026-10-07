@@ -64,6 +64,15 @@ class ExecuteFile(Event):
     path: Path
 
 
+@dataclass(frozen=True, slots=True)
+class OpenFile(Event):
+    """Enter on a file that is not itself a program: whatever its name says
+    to run, which ``Shell`` reads from ``extensions.ini`` -- DOS Navigator's
+    ``_GotoExt``, ``cmExecFile`` and ``DN.EXT``."""
+
+    path: Path
+
+
 class DirEntry:
     """One line in a panel: a name, whether it is a directory, its size, its
     permission bits, when it was last modified, who owns it and whether it
@@ -477,7 +486,7 @@ class Panel(ListViewer):
     """
 
     #: Enter on an executable, going up to whoever runs commands.
-    emits = (ExecuteFile,)
+    emits = (ExecuteFile, OpenFile)
 
     #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
     #: means "whenever the terminal can draw one" and ``none`` refuses even
@@ -901,8 +910,8 @@ class Panel(ListViewer):
         """What Enter and a double click mean here: descend, or run.
 
         A directory is descended into.  A file the user may execute is run --
-        :class:`ExecuteFile`, emitted up to whoever runs commands.  Anything
-        else is left alone.
+        :class:`ExecuteFile`, emitted up to whoever runs commands -- and any
+        other file is :class:`OpenFile`, for whoever knows what its name runs.
         """
         entry = self.selected
         if self.found is not None:
@@ -912,6 +921,8 @@ class Panel(ListViewer):
             path = entry.path_in(self.path)
             if path.is_file() and os.access(path, os.X_OK):
                 await self.emit(ExecuteFile(path))
+            elif path.is_file():
+                await self.emit(OpenFile(path))
             return True
         self.enter()
         return True

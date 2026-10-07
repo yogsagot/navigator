@@ -8,6 +8,8 @@ for where the rest live.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from navkit.commands import Command
 
 
@@ -271,6 +273,39 @@ class HighlightGroups(Command):
     """Options > File Manager > Highlight groups: DOS Navigator's ``cmHighlightGroups``."""
 
     title = "Highlight Groups"
+
+
+class EditQuickRun(Command):
+    """Options > Quick run file edit: DOS Navigator's ``cmEditQuickRun``, ``quickrun.ini`` (DN's ``DN.XRN``)."""
+
+    title = "Quick Run File"
+
+
+class ExtFileEdit(Command):
+    """Options > Extension file edit: DOS Navigator's ``cmExtFileEdit``, ``extensions.ini`` (DN's ``DN.EXT``)."""
+
+    title = "Extension File"
+
+
+class ExternalViewers(Command):
+    """Options > Viewers: DOS Navigator's ``cmExternalViewers``, ``viewers.ini`` (DN's ``DN.VWR``)."""
+
+    title = "Viewers"
+
+
+class ExternalEditors(Command):
+    """Options > Editors: DOS Navigator's ``cmExternalEditors``, ``editors.ini`` (DN's ``DN.EDT``)."""
+
+    title = "Editors"
+
+
+@dataclass(frozen=True, slots=True)
+class QuickRun(Command):
+    """Ctrl+Shift+F1 .. F10: DOS Navigator's ``QuickExecExternal``, *number*'s
+    section of ``quickrun.ini``.  DN's own help said Ctrl+Alt; its code read
+    Shift, which is also what a Linux console leaves alone."""
+
+    number: int = 1
 
 
 class FileManagerDefaults(Command):

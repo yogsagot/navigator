@@ -2510,6 +2510,8 @@ def test_the_application_keeps_only_what_is_global():
         "alt+f8",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
+        # Quick run: DN ran DN.XRN from anywhere on the desktop.
+        *(f"ctrl+shift+f{number}" for number in range(1, 11)),
     }
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help

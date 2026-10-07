@@ -1,6 +1,6 @@
 from navigator.commands import AsciiTable, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, View, ViewAsHex, ViewAsText
-from navigator.widgets.shell.commands import About, ChangeColors, ColumnDefaults, HighlightGroups, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, View, ViewAsHex, ViewAsText
+from navigator.widgets.shell.commands import About, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -102,6 +102,7 @@ MainMenu(MenuBar):
             MenuLine:
             MenuItem:
                 text: 'Alternate vie~w~'
+                command: AlternateView
                 key: 'Alt-F3'
         SubMenu:
             id: file_edit
@@ -112,6 +113,7 @@ MainMenu(MenuBar):
                 key: 'F4'
             MenuItem:
                 text: '~A~lternate edit'
+                command: AlternateEdit
                 key: 'Alt-F4'
             MenuLine:
             MenuItem:
@@ -298,8 +300,10 @@ MainMenu(MenuBar):
         MenuLine:
         MenuItem:
             text: '~Q~uick run file edit...'
+            command: EditQuickRun
         MenuItem:
             text: 'E~x~tension file edit...'
+            command: ExtFileEdit
         MenuItem:
             text: '~H~ighlight file edit...'
         MenuItem:
@@ -310,8 +314,10 @@ MainMenu(MenuBar):
             command: LocalMenuFileEdit
         MenuItem:
             text: '~V~iewers...'
+            command: ExternalViewers
         MenuItem:
             text: '~E~ditors...'
+            command: ExternalEditors
         MenuLine:
         MenuItem:
             text: '~S~ave desktop'

@@ -23,6 +23,8 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
 from navigator.widgets.manager.commands import (
+    AlternateEdit,
+    AlternateView,
     ChangeAttributes,
     ChangeDirectory,
     ChangeDrive,
@@ -80,6 +82,7 @@ from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.file_history import open_editor, open_viewer
+from navigator.associations import EDITORS, VIEWERS
 from navigator.settings import SETTINGS
 
 
@@ -1535,14 +1538,43 @@ class Manager(Window):
     async def on_view(self, event: View) -> bool:
         """F3: ``cmFileView``, the selected file in a viewer window.
 
-        Or in ``$PAGER`` on the console, with *Internal viewer* off in System
-        Setup; and in hex from the start with the viewer's *Hex mode* on.
+        Or, with *Internal viewer* off in System Setup, what ``viewers.ini``
+        says for it, else ``$PAGER`` on the console (:meth:`view_file`); and
+        in hex from the start with the viewer's *Hex mode* on.
         """
-        if not SETTINGS.system.internal_viewer:
-            self.run_external("PAGER", "less")
-            return True
-        self.spawn(self.view())
+        self.spawn(self.view_file(True))
         return True
+
+    async def on_alternate_view(self, event: AlternateView) -> bool:
+        """Alt+F3, File > Alternate view: ``cmIntFileView``, F3 the other way round."""
+        self.spawn(self.view_file(False))
+        return True
+
+    async def view_file(self, intern: bool) -> None:
+        """DN's ``ViewFile(Intern, ...)``: F3 is *intern*, Alt+F3 is not.
+
+        The key that agrees with *Internal viewer* opens the viewer window;
+        the other runs what ``viewers.ini`` says for the file (DN's
+        ``DN.VWR``), and without an entry falls back -- F3 to ``$PAGER``, as
+        it did before there was a ``viewers.ini``, Alt+F3 to the window, as
+        DN's did.
+        """
+        if intern == SETTINGS.system.internal_viewer:
+            await self.view()
+        elif await self._run_associated(VIEWERS):
+            return
+        elif intern:
+            self.run_external("PAGER", "less")
+        else:
+            await self.view()
+
+    async def _run_associated(self, file_name: str) -> bool:
+        """What *file_name* has for the selected file, run; False if nothing."""
+        shell = getattr(self.application, "shell", None)
+        entry = self.active_panel.selected
+        if shell is None or entry is None or entry.is_dir:
+            return False
+        return await shell.run_associated(file_name, entry.name)
 
     async def on_view_as_text(self, event: ViewAsText) -> bool:
         self.spawn(self.view("text"))
@@ -1577,14 +1609,31 @@ class Manager(Window):
     async def on_edit(self, event: Edit) -> bool:
         """F4: ``cmEditFile``, the selected file in an editor window.
 
-        Or in ``$EDITOR`` on the console, with *Internal editor* off in System
-        Setup -- where DN ran the editor its Options > Editors named.
+        Or, with *Internal editor* off in System Setup, what ``editors.ini``
+        (Options > Editors) says for it, else ``$EDITOR`` on the console
+        (:meth:`edit_file`).
         """
-        if not SETTINGS.system.internal_editor:
-            self.run_external("EDITOR", "vi")
-            return True
-        self.spawn(self.edit())
+        self.spawn(self.edit_file(True))
         return True
+
+    async def on_alternate_edit(self, event: AlternateEdit) -> bool:
+        """Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round."""
+        self.spawn(self.edit_file(False))
+        return True
+
+    async def edit_file(self, intern: bool) -> None:
+        """DN's ``EditFile(Intern, ...)``, as :meth:`view_file` for the viewer:
+        ``editors.ini`` (DN's ``DN.EDT``) for the key that disagrees with
+        *Internal editor*, falling back to ``$EDITOR`` for F4 and the editor
+        window for Alt+F4."""
+        if intern == SETTINGS.system.internal_editor:
+            await self.edit()
+        elif await self._run_associated(EDITORS):
+            return
+        elif intern:
+            self.run_external("EDITOR", "vi")
+        else:
+            await self.edit()
 
     def run_external(self, variable: str, fallback: str, path: Path | None = None) -> None:
         """Run the program ``$variable`` names (or *fallback*) on *path*, else the selected file.

@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import re
 import shlex
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -126,26 +127,12 @@ class Menu:
 
     def commands(self, entry: Entry) -> "Commands":
         """What choosing *entry* runs: its lines, up to the next ``>`` line."""
-        lines: list[str] = []
-        title = default = ""
-        asks = False
+        body: list[str] = []
         for raw in self.lines[entry.line + 1:]:
-            text = raw.strip()
-            if text.startswith(">"):
+            if raw.strip().startswith(">"):
                 break
-            if not text or text.startswith(";"):
-                continue
-            if text.startswith("<"):
-                asks = True
-                rest = text[1:]
-                if rest.startswith("="):
-                    default = rest[1:]
-                else:
-                    title = rest.lstrip()
-                continue
-            lines.append(text)
-            asks = asks or bool(re.search(r"(?<!%)%[3-9]", text))
-        return Commands(lines, asks, title, default)
+            body.append(raw)
+        return commands_of(body)
 
 
 @dataclass(frozen=True)
@@ -156,6 +143,30 @@ class Commands:
     asks: bool = False
     title: str = ""
     default: str = ""
+
+
+def commands_of(body: Iterable[str]) -> Commands:
+    """An item's lines as what runs: ``<Title`` and ``<=text`` taken out for
+    the parameters box, ``;`` lines and blank ones dropped, and whether a
+    ``%3`` .. ``%9`` among them asks for parameters too."""
+    lines: list[str] = []
+    title = default = ""
+    asks = False
+    for raw in body:
+        text = raw.strip()
+        if not text or text.startswith(";"):
+            continue
+        if text.startswith("<"):
+            asks = True
+            rest = text[1:]
+            if rest.startswith("="):
+                default = rest[1:]
+            else:
+                title = rest.lstrip()
+            continue
+        lines.append(text)
+        asks = asks or bool(re.search(r"(?<!%)%[3-9]", text))
+    return Commands(lines, asks, title, default)
 
 
 def parse(text: str, path: Path = Path(MENU_NAME), is_global: bool = False) -> Menu:
