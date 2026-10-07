@@ -69,6 +69,7 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 | `[panel_defaults]` | `PanelDefaultsData` | `FMDefaultsDialog` (`dlgFMDefaults`) | `FileManagerDefaults` (`cmFMDefaults`) |
 | `[drive_info]` | `DriveInfoData` | `DriveInfoDialog` (`dlgDriveInfoSetup`) | `DriveInfoSetup` |
 | `[column_defaults]` | `ColumnDefaultsData` (`ColumnsDefaults`) | `ColumnDefaultsDialog` (`dlgColumnsDefaults`) | `ColumnDefaults` (`cmColumnDefaults`) |
+| `[uucode]` | `UUCodeData` (`TUUEncodeData`, `UUDecodeOptions`) | `UUEncodeDialog`, `UUDecodeDialog` (`dlgUUEncode`, `dlgUUDecode`, under `file_ops/`) | `UuEncode`, `UuDecode` -- saved by `Manager._keep_uucode`, not `Shell.setup` |
 | `[highlight_groups]` | `HighlightGroupsData` (`CustomMask1`..`5`) | `HighlightDialog` (`dlgHighlightGroups`) | `HighlightGroups` (`cmHighlightGroups`) |
 
 `FMSetup` would be handled by `on_f_m_setup`, which is why those two commands are spelled out.
@@ -184,6 +185,7 @@ note:
 | `file_manager.tag_character` / `tag_sign` | The tagged row's gutter mark: `tag_sign`'s first character (empty: `√`; `+` on the ASCII tier when it is not ASCII); off, the colour alone |
 | `drive_info.*` | Each line of Ctrl+L's information panel (`diskinfo.lines`), read at every paint. The field is `directory_title`, not `title`: a field named `title` would hide the section's own `title` |
 | `column_defaults.*` | A new panel's `columns` (*Disk Drive*) and each *Find:* listing's `find_columns` (*File find*), `ColumnDefaultsData.columns(listing)`. *TEMP:* and *TDR View* are left out as DOS-only, *Archives* until archive handlers; every box defaults on (DN's were 0, its brief panel) |
+| `uucode.*` | What UU Encode and UU Decode open on and run with (`navigator-file-ops`); `line_ends` defaults to `lf` (a departure: DN's was DOS's CR+LF) |
 | `highlight_groups.*` | The five custom file-type masks (`filetypes.use_masks`, from `Shell._use_highlight_groups`): row colours and *Group* order; a change re-reads every panel. The lines are named after Navigator's groups, not DN's *Custom 1*..*5*; a mask is kept with blanks and empty patterns dropped (`DelSpaces`) |
 | `panel_defaults.sort_by` | Seeds each new panel's `sort_mode` (Alt+B changes one panel's) |
 | `panel_defaults.executables_first` / `archives_first` | Read at each panel read (`Panel._rescan`, untracked): those files lead by name, extension and type |

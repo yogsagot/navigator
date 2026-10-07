@@ -5,7 +5,7 @@ from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, M
 from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
-from navigator.widgets.manager.commands import UnselectGroup, UserMenu, View
+from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
@@ -80,6 +80,8 @@ Manager(Window):
         alt+e: ChangeAttributes
         ctrl+f6: Calculator
         ctrl+f9: PrintFile
+        ctrl+f7: UuEncode
+        ctrl+f8: UuDecode
         ctrl+l: DiskInfo
         ctrl+p: HideInactive
         ctrl+u: SwapPanels

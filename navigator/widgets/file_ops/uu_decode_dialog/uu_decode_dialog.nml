@@ -1,0 +1,72 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > UU Decode, Ctrl+F8: DOS Navigator's ``dlgUUDecode``.
+#:
+#: The target directory under its caption, the three options, and OK /
+#: Cancel / Tree; Help is left out, having nothing to show yet.  A row taller
+#: than DN's 49 by 11, for this library's buttons.
+UUDecodeDialog(Dialog):
+    modal_width: 49
+    modal_height: 12
+    title: "UU Decode"
+
+    keys:
+        f10: ChooseTarget
+
+    Label:
+        id: target_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "Target ~d~irectory"
+        link: target.entry
+
+    #: DN's ``hsUUDecode``.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "uudecode"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 3
+        items: ["~C~heck existing files", "Display ~e~rror messages", "~S~ave broken files"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

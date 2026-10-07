@@ -323,6 +323,20 @@ class CountLength(Command):
     """
 
 
+class UuEncode(Command):
+    """Ctrl+F7, File > UU Encode: the file at the cursor, UU-encoded.
+
+    DOS Navigator's ``cmUUEncodeFile`` (``UuEncode``, UUCODE.PAS).
+    """
+
+
+class UuDecode(Command):
+    """Ctrl+F8, File > UU Decode: the files UU-encoded in the file at the cursor.
+
+    DOS Navigator's ``cmUUDecodeFile`` (``UuDecode``, UUCODE.PAS).
+    """
+
+
 class DirHistory(Command):
     """Alt+Backspace, Panel > History of directories: where the panels have been.
 
@@ -465,6 +479,8 @@ __all__ = [
     "ToggleTree",
     "SortBy",
     "CountLength",
+    "UuEncode",
+    "UuDecode",
     "CompareDir",
     "ChangeInactive",
     "ReadFileList",

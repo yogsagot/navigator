@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, the Job worker contract (navigator/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -67,7 +67,22 @@ The first dialog wired into the application; `Field(history_id="mkdir")`.
 DN's *Print file NAME?* / *Print N files?* (N counting the directories, as DN's did). Each file goes to the spooler by
 name (`navigator/printing.spool_file`: `lp`, else `lpr`, given the absolute path), standing for DN's print manager,
 and is untagged once queued (`cmCopyUnselect`); a refusal stops the run, says why, and leaves the rest tagged.
-`PrintFile` is the editor's F8 command too, so it lives in `navigator/commands.py`.
+`PrintFile` is the editor's F8 command too, so it lives in `navigator/commands.py`. File > Print sends it.
+
+## UU Encode / UU Decode (Ctrl+F7, Ctrl+F8)
+
+`navigator/uucode.py`, DN's `UUCODE.PAS`/`UUE2INC.ASM`, on the file at the cursor (`UuEncode`/`UuDecode`, enabled on
+a file only); `Manager.uu_encode`/`uu_decode` -> `_run_uucode` (a `FileJob` under `WriteWin`, `_watch_job`, questions
+by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* boxes).
+- **Encode** is transcribed: `plan()` is `CalcLSsize`; one file a section (`NAME.uue`, else `.uu1`.. `.u10`.. `.100`);
+  `section N of M of file NAME  < uuencode by Navigator >`; statistics, `filetime` (DOS packed time), `table`,
+  `begin 644`; `UUXLT` with a backquote for 0; checksum levels cumulative -- entire `sum -r/size`, per-section
+  `sum -r/size` over the counted lines plus `\n`, a check character per line (`GetLnCrc`), DN's `crc64`
+  (`CRC64_START`, add-and-rotate). Every answer is kept in `[uucode]` and saved when it changes.
+- **Decode** reads one file holding any files and sections in any order (a state machine, not a transcription of DN's):
+  section headers, `table`, `filetime`, `begin`/`end`, `sum -r/size` checked, anything else passed over. A severe
+  error breaks a file, written only with *Save broken files*; *Check existing files* asks; *Display error messages*
+  shows each. Departures: names keep case and length; a blank line also ends the data; `crc64` is not checked.
 
 ## Read when
 

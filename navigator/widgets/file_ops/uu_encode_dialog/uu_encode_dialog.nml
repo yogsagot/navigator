@@ -1,0 +1,123 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: File > UU Encode, Ctrl+F7: DOS Navigator's ``dlgUUEncode``.
+#:
+#: Laid out where the resource puts things: where to on the second row, the
+#: *Prefixes* and the *Checksum level* side by side under it, *Lines per
+#: section* and the *Target file format* below, and OK / Cancel / Tree along
+#: the bottom.  A row taller than DN's 60 by 17, for this library's buttons;
+#: Help is left out, having nothing to show yet.
+UUEncodeDialog(Dialog):
+    modal_width: 60
+    modal_height: 18
+    title: "UU Encode"
+
+    #: ``StatusDef``'s ``F10 Tree``, as the Copy dialog's.
+    keys:
+        f10: ChooseTarget
+
+    #: DN's ``hsUUEncode``.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~E~ncode to"
+        label_width: 12
+        history_id: "uuencode"
+
+    Label:
+        id: prefixes_caption
+        x: 2
+        y: 4
+        width: 12
+        height: 1
+        text: "~P~refixes"
+        link: prefixes
+
+    #: ``ckFileTime``, ``ckMapTable``, ``ckStatistic``.
+    CheckBoxes:
+        id: prefixes
+        x: 2
+        y: 5
+        width: 29
+        height: 3
+        items: ["~F~ile creation date&time", "Char ~m~apping table", "St~a~tistics"]
+
+    Label:
+        id: checksum_caption
+        x: 32
+        y: 4
+        width: 18
+        height: 1
+        text: "~C~hecksum level"
+        link: checksum
+
+    #: ``ckNone`` .. ``ck64``: each includes those above it.
+    RadioButtons:
+        id: checksum
+        x: 32
+        y: 5
+        width: max(0, parent.width - 34)
+        height: 5
+        items: ["~N~one", "of Entire ~i~nput file", "of Each ~s~ection", "of Eac~h~ line", "Advanced ~6~4-bit"]
+
+    MaskedField:
+        id: lines
+        x: 2
+        y: 9
+        width: 26
+        height: 1
+        label_text: "~L~ines per section"
+        label_width: 20
+        mask: "9999"
+
+    Label:
+        id: format_caption
+        x: 2
+        y: 11
+        width: 20
+        height: 1
+        text: "~T~arget file format"
+        link: format
+
+    RadioButtons:
+        id: format
+        x: 2
+        y: 12
+        width: 29
+        height: 1
+        items: ["~D~OS <CR>+<LF>", "~U~NIX"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 12
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 25
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "T~r~ee"
+        x: 38
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

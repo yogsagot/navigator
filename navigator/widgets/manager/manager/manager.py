@@ -72,6 +72,8 @@ from navigator.widgets.manager.commands import (
     ToggleShowMode,
     ToggleTree,
     UnselectGroup,
+    UuDecode,
+    UuEncode,
     View,
     ViewAsHex,
     ViewAsText,
@@ -269,6 +271,139 @@ class Manager(Window):
             # The same entries, changed, while the panel still lists them: a
             # new list is what it sees.
             panel.items = list(panel.items)
+
+    # -- UU Encode and UU Decode (navigator.uucode) ---------------------------------
+
+    async def on_uu_encode(self, event: UuEncode) -> bool:
+        self.spawn(self.uu_encode(self.active_panel))
+        return True
+
+    async def on_uu_decode(self, event: UuDecode) -> bool:
+        self.spawn(self.uu_decode(self.active_panel))
+        return True
+
+    async def uu_encode(self, panel: Panel) -> None:
+        """Ctrl+F7: ``UuEncode`` -- *UU Encode* asks where and how, and the
+        file at the cursor is encoded on a thread, into one file a section."""
+        from navigator import uucode
+        from navigator.widgets.file_ops.uu_encode_dialog import UUEncodeDialog
+
+        app = self.application
+        source = self._uu_source(panel)
+        if app is None or source is None:
+            return
+        answer = await UUEncodeDialog(source=source, other=self._uu_other(panel),
+                                      hidden=panel.show_hidden).execute(app)
+        if answer is None:
+            return
+        self._keep_uucode(answer["uucode"])
+        section = SETTINGS.uucode
+        request = uucode.EncodeRequest(
+            source, answer["target"], file_time=section.file_time, map_table=section.map_table,
+            statistics=section.statistics, checksum=section.checksum,
+            lines=section.lines_per_section, crlf=section.line_ends == "crlf",
+        )
+        await self._run_uucode(panel, lambda job: uucode.encode(request, job, source.parent),
+                               f"Encoding {source.name}", beep_after=20)
+
+    async def uu_decode(self, panel: Panel) -> None:
+        """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
+        and every file the one at the cursor holds is decoded on a thread."""
+        from navigator import uucode
+        from navigator.widgets.file_ops.uu_decode_dialog import UUDecodeDialog
+
+        app = self.application
+        source = self._uu_source(panel)
+        if app is None or source is None:
+            return
+        answer = await UUDecodeDialog(here=source.parent, other=self._uu_other(panel),
+                                      hidden=panel.show_hidden).execute(app)
+        if answer is None:
+            return
+        self._keep_uucode(answer["uucode"])
+        section = SETTINGS.uucode
+        text = os.path.expanduser(answer["target"])
+        out = source.parent / text if text else source.parent
+        await self._run_uucode(
+            panel,
+            lambda job: uucode.decode(source, out, job, check_existing=section.check_existing,
+                                      display_errors=section.display_errors,
+                                      save_broken=section.save_broken),
+            f"Decoding {source.name}", beep_after=5,
+        )
+
+    @staticmethod
+    def _uu_source(panel: Panel) -> Path | None:
+        entry = panel.selected
+        if entry is None or entry.is_dir:
+            return None
+        return entry.path_in(Path(panel.path))
+
+    def _uu_other(self, panel: Panel) -> Path | None:
+        """``cmPushFirstName``: the other panel's directory, while it shows."""
+        other = self.right if panel is self.left else self.left
+        return Path(other.path) if other.visible and other.found is None else None
+
+    @staticmethod
+    def _keep_uucode(values: dict[str, Any]) -> None:
+        """What the dialog was accepted with, kept for the next time and
+        saved, as DN set ``ConfigModified`` when it changed."""
+        import contextlib
+
+        section = SETTINGS.uucode
+        changed = {key: value for key, value in values.items() if getattr(section, key) != value}
+        if changed:
+            section.update(changed)
+            with contextlib.suppress(OSError):
+                SETTINGS.save(section="uucode")
+
+    async def _run_uucode(self, panel: Panel, work_on: Callable[[Any], Any], notice: str,
+                          beep_after: float) -> None:
+        """*work_on(job)* on a thread under a box saying *notice*, its
+        questions answered, its failure said, and the panels read again.
+        *Beep after copy* rings for one that took longer than *beep_after*
+        seconds, as DN's timer did."""
+        from navigator.job import Stopped
+        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+
+        app = self.application
+        job = FileJob()
+        job.cancellable = True
+        started = asyncio.get_running_loop().time()
+        work = asyncio.ensure_future(asyncio.to_thread(work_on, job))
+        problem = None
+        try:
+            await self._watch_job(work, job, lambda: progress_box(job, notice), refresh_box(job),
+                                  self._answer_uu_question)
+            await work
+        except Stopped:
+            pass
+        except ValueError as error:
+            problem = str(error)
+        except OSError as error:
+            where = f"{error.filename}: " if error.filename else ""
+            problem = f"{where}{error.strerror or error}"
+        finally:
+            if not work.done():
+                job.stop()
+        for each in (self.left, self.right):
+            each.reload()
+        if problem is not None:
+            await Dialog(title="Error", prompt=problem, buttons="ok").execute(app)
+        elif (not job.stopped and SETTINGS.file_manager.beep_after_copy
+              and asyncio.get_running_loop().time() - started > beep_after):
+            app.bell()
+
+    async def _answer_uu_question(self, question: Any) -> Any:
+        from navigator import uucode
+        from navigator.widgets.file_ops.exists_query import ExistsQuery
+
+        app = self.application
+        if isinstance(question, uucode.FileExists):
+            return await ExistsQuery(path=question.path).execute(app)
+        if isinstance(question, uucode.DecodeError):
+            await Dialog(title="Error", prompt=question.text, buttons="ok").execute(app)
+        return None
 
     async def on_change_inactive(self, event: ChangeInactive) -> bool:
         """Shift+Enter in a *Find:* listing: ``cmChangeInactive``, the passive
@@ -931,6 +1066,10 @@ class Manager(Window):
         if isinstance(command, ChangeInactive):
             entry = self.active_panel.selected
             return self.active_panel.found is not None and entry is not None and entry.name != ".."
+        if isinstance(command, (UuEncode, UuDecode)):
+            # DN's ``PF^.Attr and Directory = 0``: the file at the cursor.
+            entry = self.active_panel.selected
+            return entry is not None and not entry.is_dir
         if isinstance(command, CompareDir):
             # Two directories, compared: a *Find:* listing is not one.
             return self.left.found is None and self.right.found is None

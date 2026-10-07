@@ -582,11 +582,38 @@ class HighlightGroupsData(Section):
     temp: str = Setting(filetypes.CATEGORIES["temp"], doc="Backups and temporary files")
 
 
+class UUCodeData(Section):
+    """``TUUEncodeData`` and ``UUDecodeOptions``: what File > UU Encode and
+    UU Decode were last accepted with, kept as DN kept them (``cfgUUEData``)."""
+
+    name = "uucode"
+    title = "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)"
+
+    #: The *Prefixes* boxes, in bit order (``ckFileTime``, ``ckMapTable``, ``ckStatistic``).
+    PREFIXES: ClassVar[tuple[str, ...]] = ("file_time", "map_table", "statistics")
+    #: ``ckNone`` .. ``ck64``: each level includes the ones before it.
+    CHECKSUMS: ClassVar[tuple[str, ...]] = ("none", "entire", "section", "line", "crc64")
+    LINE_ENDS: ClassVar[tuple[str, ...]] = ("crlf", "lf")
+    #: *UU Decode*'s three boxes, in bit order.
+    DECODE: ClassVar[tuple[str, ...]] = ("check_existing", "display_errors", "save_broken")
+
+    file_time: bool = Setting(True, doc="Encoding writes the file's date and time first")
+    map_table: bool = Setting(False, doc="Encoding writes the character mapping table")
+    statistics: bool = Setting(True, doc="Encoding writes the statistics block")
+    checksum: str = Setting("section", choices=CHECKSUMS, doc="Encoding's checksum level")
+    lines_per_section: int = Setting(100, doc="Encoded lines per section (at least 10)")
+    #: DN's default was DOS's ``<CR><LF>``; a POSIX text file ends its lines in ``<LF>``.
+    line_ends: str = Setting("lf", choices=LINE_ENDS, doc="Encoded files' line ends")
+    check_existing: bool = Setting(True, doc="Decoding asks before writing over a file")
+    display_errors: bool = Setting(True, doc="Decoding shows each error as it finds it")
+    save_broken: bool = Setting(False, doc="Decoding keeps a file it could not decode whole")
+
+
 #: Every section, in the order the file lists them.
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData, ColumnDefaultsData, HighlightGroupsData,
+    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, UUCodeData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -617,6 +644,7 @@ class Settings:
     drive_info: DriveInfoData
     column_defaults: ColumnDefaultsData
     highlight_groups: HighlightGroupsData
+    uucode: UUCodeData
 
     def __init__(self) -> None:
         for cls in SECTIONS:
