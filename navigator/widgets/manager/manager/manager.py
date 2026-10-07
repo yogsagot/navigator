@@ -75,6 +75,7 @@ from navigator.widgets.manager.commands import (
     UuDecode,
     UuEncode,
     View,
+    ViewAsDataBase,
     ViewAsHex,
     ViewAsText,
 )
@@ -1786,6 +1787,10 @@ class Manager(Window):
         self.spawn(self.view("hex"))
         return True
 
+    async def on_view_as_data_base(self, event: ViewAsDataBase) -> bool:
+        self.spawn(self.view("database"))
+        return True
+
     async def view(self, mode: str | None = None) -> None:
         """Open the selected file in a viewer on this window's desktop.
 
@@ -1799,6 +1804,25 @@ class Manager(Window):
         if entry is None or entry.is_dir or desktop is None:
             return
         path = entry.path_in(panel.path)
+        if mode == "database" or (mode is None and path.suffix.lower() == ".dbf"):
+            # ``ViewFile``'s ``XT = '.DBF'``, and *As DataBase*: the dBase
+            # viewer -- F3 on a ``.dbf`` that is not one falls back to text.
+            from navigator.dbf import DBFError
+            from navigator.widgets.viewer.db_window.db_window import open_database
+
+            try:
+                await open_database(desktop, path)
+                return
+            except DBFError:
+                if mode == "database":
+                    await Dialog(title="Cannot view file", prompt=f"{entry.name}: not a dBase file",
+                                 buttons="ok").execute(self.application)
+                    return
+            except OSError as error:
+                await Dialog(title="Cannot view file", prompt=f"{entry.name}: {error.strerror or error}",
+                             buttons="ok").execute(self.application)
+                return
+            mode = None
         try:
             await open_viewer(desktop, path, mode)
         except OSError as error:

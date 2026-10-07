@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import random
+import re
 from pathlib import Path
 
 import pytest
@@ -69,7 +70,8 @@ def test_every_saver_paints_a_screen_of_its_own(place, kind):
     if kind == "blackness":
         assert text.strip() == ""
     elif kind == "clock":
-        assert len(text.split()) == 1 and len(text.strip()) == 5
+        # HH:MM, its colon blank half of each second.
+        assert re.fullmatch(r"\d\d[: ]\d\d", text.strip())
     elif kind == "star_flight":
         assert set(text) - {" "} <= set("·∙•♦☼") and text.strip()
     else:

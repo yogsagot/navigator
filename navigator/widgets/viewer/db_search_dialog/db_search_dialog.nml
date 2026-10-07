@@ -1,0 +1,76 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: F7 in the dBase viewer: DOS Navigator's ``dlgDbFind`` -- the text, *Case
+#: sensitive*, the scope and the direction, in the resource's places.  A row
+#: taller than its 55 by 12 for this library's buttons; Help is left out.
+DBSearchDialog(Dialog):
+    modal_width: 55
+    modal_height: 13
+    title: "Search"
+    buttons: "ok-cancel"
+
+    #: DN's ``hsdbSearch``.
+    Field:
+        id: text
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~T~ext to search"
+        label_width: 16
+        history_id: "dbsearch"
+
+    Label:
+        id: options_caption
+        x: 3
+        y: 4
+        width: 8
+        height: 1
+        text: "Options"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 12
+        y: 4
+        width: 20
+        height: 1
+        items: ["~C~ase sensitive"]
+
+    Label:
+        id: scope_caption
+        x: 5
+        y: 6
+        width: 6
+        height: 1
+        text: "Scope"
+        link: scope
+
+    RadioButtons:
+        id: scope
+        x: 12
+        y: 6
+        width: 21
+        height: 2
+        items: ["~I~n cursor field", "~A~ll fields"]
+
+    Label:
+        id: direction_caption
+        x: 35
+        y: 4
+        width: 10
+        height: 1
+        text: "Direction"
+        link: direction
+
+    RadioButtons:
+        id: direction
+        x: 35
+        y: 5
+        width: 18
+        height: 3
+        items: ["~F~orward", "~B~ackward", "~E~ntire scope"]

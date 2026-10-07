@@ -371,6 +371,20 @@ FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg
 FileViewer                                     { fg: $viewer-normal-text-fg;   bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
 FileViewer::selected                           { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
 
+/* The dBase viewer (File > View > As DataBase): TDBWindow takes CDBWindow,
+   the dBase viewer group [166] to [171] -- its frame, icons, the field
+   titles, the records and the cursor's cell.  TDBIndicator draws over the
+   bottom frame in the frame's colour. */
+DBWindow                                       { fg: $dbase-frame-passive-fg; bg: $dbase-frame-passive-bg; bold: $dbase-frame-passive-bold; dim: $dbase-frame-passive-dim; italic: $dbase-frame-passive-italic; underline: $dbase-frame-passive-underline; reverse: $dbase-frame-passive-reverse }
+DBWindow:active                                { fg: $dbase-frame-active-fg; bg: $dbase-frame-active-bg; bold: $dbase-frame-active-bold; dim: $dbase-frame-active-dim; italic: $dbase-frame-active-italic; underline: $dbase-frame-active-underline; reverse: $dbase-frame-active-reverse }
+DBWindow::title                                { fg: $dbase-frame-passive-fg; bg: $dbase-frame-passive-bg; bold: $dbase-frame-passive-bold; dim: $dbase-frame-passive-dim; italic: $dbase-frame-passive-italic; underline: $dbase-frame-passive-underline; reverse: $dbase-frame-passive-reverse }
+DBWindow:active::title                         { fg: $dbase-frame-active-fg; bg: $dbase-frame-active-bg; bold: $dbase-frame-active-bold; dim: $dbase-frame-active-dim; italic: $dbase-frame-active-italic; underline: $dbase-frame-active-underline; reverse: $dbase-frame-active-reverse }
+DBWindow::icon                                 { fg: $dbase-frame-icons-fg; bg: $dbase-frame-icons-bg; bold: $dbase-frame-icons-bold; dim: $dbase-frame-icons-dim; italic: $dbase-frame-icons-italic; underline: $dbase-frame-icons-underline; reverse: $dbase-frame-icons-reverse }
+DBWindow StaticText#indicator                  { fg: $dbase-frame-active-fg; bg: $dbase-frame-active-bg; bold: $dbase-frame-active-bold; dim: $dbase-frame-active-dim; italic: $dbase-frame-active-italic; underline: $dbase-frame-active-underline; reverse: $dbase-frame-active-reverse }
+DBViewer                                       { fg: $dbase-normal-text-fg; bg: $dbase-normal-text-bg; bold: $dbase-normal-text-bold; dim: $dbase-normal-text-dim; italic: $dbase-normal-text-italic; underline: $dbase-normal-text-underline; reverse: $dbase-normal-text-reverse }
+DBViewer::titles                               { fg: $dbase-fields-titles-fg; bg: $dbase-fields-titles-bg; bold: $dbase-fields-titles-bold; dim: $dbase-fields-titles-dim; italic: $dbase-fields-titles-italic; underline: $dbase-fields-titles-underline; reverse: $dbase-fields-titles-reverse }
+DBViewer::cursor                               { fg: $dbase-cursor-fg; bg: $dbase-cursor-bg; bold: $dbase-cursor-bold; dim: $dbase-cursor-dim; italic: $dbase-cursor-italic; underline: $dbase-cursor-underline; reverse: $dbase-cursor-reverse }
+
 /* The editor: TEditWindow takes CUniWindow, the Editor/Spreadsheet group
    [70] to [77] -- TEditFrame's frame, icons and title, TEditScrollBar's page
    and icons, the text and a block.  TInfoLine draws over the bottom frame in

@@ -90,6 +90,24 @@ class ChooseEncoding(Command):
     title = "XLat"
 
 
+class ShowFields(Command):
+    """F2 in the dBase viewer: ``cmShowFields``, the file's structure."""
+
+    title = "Fields"
+
+
+class ShowMemo(Command):
+    """F3 in the dBase viewer: ``cmShowMemo``, the memo at the cursor."""
+
+    title = "View Memo"
+
+
+class EditDbField(Command):
+    """F4 in the dBase viewer: ``cmEditDBField``, the cell at the cursor changed."""
+
+    title = "Edit Field"
+
+
 class CloseViewer(Command):
     """F3 in a viewer: close it, as Midnight Commander's F3 does.
 
@@ -113,4 +131,7 @@ __all__ = [
     "CloseViewer",
     "SaveViewAs",
     "ChooseEncoding",
+    "ShowFields",
+    "ShowMemo",
+    "EditDbField",
 ]

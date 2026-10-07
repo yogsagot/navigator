@@ -1,6 +1,6 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
 ---
 
 # The file viewer
@@ -41,6 +41,16 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*; the rectangle, `top`, `x_delta` and `cursor` come
   back only under *Store viewer position* as well.
   The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The Ctrl+Q quick viewer records nothing.
+- **The dBase viewer** (File > View > As DataBase, `ViewAsDataBase`; F3 on a `.dbf`, DN's `ViewFile` `XT = '.DBF'`):
+  `navigator/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
+  cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As
+  DataBase says so). `DBWindow`/`DBViewer` (`viewer/db_window/`) are `TDBWindow`/`TDBViewer`: field names over the
+  records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates
+  `DD-MM-YYYY` as the panels', `record/records` over the bottom frame; Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn,
+  mouse quadrants. F2 *Structure of*, F3 *Memo view* (`DBListDialog`), F4 edits the cell in place (`EditLineDialog`,
+  history `edit_dbf`; L flips T/F; refused write-protected), F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked
+  at one field a record by a slip, every one in scope is looked at here), Shift+F7/Ctrl+L again. A file with no
+  records shows *Empty database* and opens nothing. Colours are the dBase group [166]-[171]. Not kept in a desktop.
 - Commands: `navigator/widgets/viewer/commands.py`.
 
 ## Read when

@@ -43,6 +43,10 @@ class ViewAsHex(Command):
     """File > View > As Hex: ``cmViewHex``, the viewer opened in hex mode."""
 
 
+class ViewAsDataBase(Command):
+    """File > View > As DataBase: ``cmViewDBF``, the dBase viewer."""
+
+
 class Edit(Command):
     title = "Edit"
 
@@ -466,6 +470,7 @@ __all__ = [
     "View",
     "ViewAsText",
     "ViewAsHex",
+    "ViewAsDataBase",
     "Edit",
     "Copy",
     "RenameMove",

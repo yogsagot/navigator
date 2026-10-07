@@ -1,0 +1,26 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.static_text import StaticText
+
+#: The dBase viewer's two boxes of lines: F2's *Structure of* (``GetInfo``:
+#: ``dlDBViewInfoString`` over ``TFieldListBox``) and F3's *Memo view*
+#: (``ViewMemo``'s text) -- a heading, the lines under it, and OK.
+DBListDialog(Dialog):
+    modal_width: 50
+    modal_height: 18
+    buttons: "ok"
+
+    StaticText:
+        id: heading
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+
+    ListViewer:
+        id: lines
+        framed: False
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: max(0, parent.height - 7)
