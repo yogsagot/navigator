@@ -360,7 +360,7 @@ class ConfirmsData(Section):
     erase_non_empty_dir: bool = Setting(True, doc="Ask before erasing a non-empty directory")
     erase_read_only: bool = Setting(True, doc="Ask before erasing a read-only file")
     create_dir: bool = Setting(False, doc="Ask before creating a missing target directory")
-    drag_and_drop: bool = Setting(False, doc="Ask before drag-and-drop operations", honoured=False)
+    drag_and_drop: bool = Setting(False, doc="The Copy dialog before files dropped with the mouse are copied")
     exit: bool = Setting(True, doc="Ask before quitting Navigator")
 
 
@@ -439,7 +439,7 @@ class FMSetupData(Section):
     DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character")
 
     auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
-    drag_drop_columns: bool = Setting(False, doc="Drag-and-drop from columns", honoured=False)
+    drag_drop_columns: bool = Setting(False, doc="Files can be dragged out of a panel with the mouse")
     beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy")
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
     space_toggles_selection: bool = Setting(

@@ -43,6 +43,12 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
 - A too-long name ends in `...` (`fit_text`, in cells) and starts with one while scrolled (`window_text`). In simple and
   detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
+- **Drag-and-drop** (File Manager Setup's box, `panel/drag.py`): a left press on a row captures the mouse; the first
+  move with the button held makes a `DragLabel` overlay (` name ` or ` N selected files `, `$30`, shadow) that follows
+  it -- the tagged files if the row is tagged, else the row's own, never `..`. The release finds the target with
+  `drop_target` (a panel's directory row or its directory, its own panel only on a directory row; a tree's node) and
+  the panel emits `Dropped`, which its `Manager.on_dropped` turns into `copy_entries` -- Shift at the release moves,
+  Confirmations' *Drag and drop* asks with the Copy dialog first, and a directory is never dropped into itself.
 - **Left, Right, Home and End go to a command line with text** under File Manager Setup's *Use arrows* (on, DN's
   default), and Shift+ them to the panel; off, the other way round (`Panel.arrows_to_line`, `Panel.LINE_KEYS`;
   `Manager.enables(ScrollNames)`, `Shell.enables(CommandLineHome/End)`, and `Shell._panel_keeps` stopping a plain one

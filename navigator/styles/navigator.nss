@@ -254,6 +254,10 @@ Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
 CommandLine            { fg: light_gray; bg: black }
 CommandLine::prompt    { fg: white }
 CommandLine::selection { fg: black; bg: light_gray }
+
+/* What a panel drag carries (drag.py): `TDragger.Draw' wrote $30, black on
+   cyan, with no palette entry behind it -- so a literal here too. */
+DragLabel              { fg: black; bg: cyan }
 /* Interface's `Block Insert Cursor' (`ouiBlockInsertCursor'): on `Shell',
    which answers for the command line's caret.  Unticked, the terminal's own. */
 Shell:block_insert { caret: block }

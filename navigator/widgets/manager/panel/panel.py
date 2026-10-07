@@ -44,6 +44,7 @@ from navigator import icons as icon_glyphs
 from navigator.bookmarks import bookmarked_paths
 from navigator.fileattr import group_name, user_name
 from navigator.settings import SETTINGS, PanelDefaultsData
+from navigator.widgets.manager.panel.drag import Dropped
 
 # Asked once per id rather than once per row painted: the password and group
 # databases do not change under a running listing often enough to matter.
@@ -556,7 +557,7 @@ class Panel(ListViewer):
     """
 
     #: Enter on an executable, going up to whoever runs commands.
-    emits = (ExecuteFile, OpenFile)
+    emits = (ExecuteFile, OpenFile, Dropped)
 
     #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
     #: means "whenever the terminal can draw one" and ``none`` refuses even
@@ -657,6 +658,9 @@ class Panel(ListViewer):
         #: asked for is dropped; and the read still on its thread, if any.
         self._generation = 0
         self._pending: _ScanRequest | None = None
+        #: A press that may become a drag, or one under way: its row, its
+        #: label once the pointer has moved, and the entries it carries.
+        self._drag: dict[str, Any] | None = None
         #: What stops the read's directory counting (*Directory length*).
         self._scan_job: ScanJob | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
@@ -1173,9 +1177,65 @@ class Panel(ListViewer):
         return min(x, self.width - 2), self.height - 1
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if self._drag is not None and event.action in ("move", "release"):
+            return self._dragging(event)
         if event.action == "press" and not event.is_wheel:
             self.quick_search = None
-        return await super().on_mouse_click(event)
+        taken = await super().on_mouse_click(event)
+        if (taken and event.action == "press" and event.button == "left"
+                and SETTINGS.file_manager.drag_drop_columns):
+            # File Manager Setup's *Drag-and-drop*: the press may be a drag's
+            # start, which the first move with the button held decides.
+            index = self.index_at(event.x, event.y)
+            app = self.application
+            if index is not None and app is not None:
+                self._drag = {"index": index, "label": None, "entries": None}
+                app.capture_mouse(self)
+        return taken
+
+    def _dragging(self, event: MouseClickEvent) -> bool:
+        """``DragMover``: the label follows the pointer, and the release drops."""
+        from navigator.widgets.manager.panel.drag import DragLabel, Dropped, drop_target, label_for
+
+        drag, app = self._drag, self.application
+        assert drag is not None
+        ox, oy = self.offset()
+        x, y = event.x + ox + self.x, event.y + oy + self.y
+        label = drag["label"]
+        if event.action == "move":
+            if app is None:
+                return True
+            if label is None:
+                entries = self._drag_entries(drag["index"])
+                if not entries:
+                    self._drag = None
+                    app.release_mouse()
+                    return True
+                drag["entries"] = entries
+                label = drag["label"] = app.overlay(DragLabel(label_for(entries)))
+            root = app.root
+            label.place(x, y, root.width, root.height)
+            return True
+        # The release: the label goes, and the files go where it was dropped.
+        self._drag = None
+        if label is None or app is None:
+            return True
+        label.parent.remove(label)
+        where = drop_target(app, x, y, self)
+        if where is not None:
+            target, panel = where
+            self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), target, event.shift, panel)))
+        return True
+
+    def _drag_entries(self, index: int) -> list[DirEntry]:
+        """``CM_DragDropper``'s files: the tagged ones when the row is tagged,
+        else the row's own -- never ``..``."""
+        if not 0 <= index < len(self.items):
+            return []
+        entry = self.items[index]
+        if self.is_marked(entry):
+            return self.marked_entries
+        return [] if entry.name == ".." else [entry]
 
     async def on_key(self, event: KeyEvent) -> bool:
         """The quick search's keys while it is on, then the listing's.

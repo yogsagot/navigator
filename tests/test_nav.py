@@ -1377,6 +1377,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.manager.manager.manager",
         "navigator.widgets.manager.manager.manager_nml",
         "navigator.widgets.manager.panel",
+        "navigator.widgets.manager.panel.drag",             # what a mouse drag carries, the panel's
         "navigator.widgets.manager.panel.panel",
         "navigator.widgets.shell",
         "navigator.widgets.shell.clock",

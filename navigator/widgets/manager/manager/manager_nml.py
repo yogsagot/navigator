@@ -143,12 +143,20 @@ class Manager(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
+    async def on_left_dropped(self, event: _Event) -> bool:    # manager.nml:112
+        """``left`` raised an event whose handler is ``on_dropped``."""
+        return False
+
     async def on_left_execute_file(self, event: _Event) -> bool:    # manager.nml:112
         """``left`` raised an event whose handler is ``on_execute_file``."""
         return False
 
     async def on_left_open_file(self, event: _Event) -> bool:    # manager.nml:112
         """``left`` raised an event whose handler is ``on_open_file``."""
+        return False
+
+    async def on_right_dropped(self, event: _Event) -> bool:    # manager.nml:116
+        """``right`` raised an event whose handler is ``on_dropped``."""
         return False
 
     async def on_right_execute_file(self, event: _Event) -> bool:    # manager.nml:116
@@ -210,10 +218,12 @@ class Manager(Window, _Component):
         self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:109
 
         self.left.title_margin = 5    # manager.nml:113
+        self.left.on_dropped = self.on_left_dropped    # manager.nml:112
         self.left.on_execute_file = self.on_left_execute_file    # manager.nml:112
         self.left.on_open_file = self.on_left_open_file    # manager.nml:112
 
         self.right.title_margin = 5    # manager.nml:117
+        self.right.on_dropped = self.on_right_dropped    # manager.nml:116
         self.right.on_execute_file = self.on_right_execute_file    # manager.nml:116
         self.right.on_open_file = self.on_right_open_file    # manager.nml:116
 

@@ -16,7 +16,7 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
   combinators. Specificity is CSS's `(names, classes + states, types)`, ties break on source order, no `!important`.
 - **`Component { }` matches every markup-built widget** and no hand-written one (type selectors match by name).
 - `navigator/styles/navigator.nss` holds the rules and defines no variable (it does not parse alone); a theme is always
-  loaded after it. The command line's `$0F`/`$07` is the one literal-colour rule in it.
+  loaded after it. The command line's `$0F`/`$07` and a panel drag's `DragLabel` (`$30`) are its only literal-colour rules: DN hard-coded both.
 
 ## Things to know before touching it
 

@@ -80,6 +80,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
+from navigator.widgets.manager.panel.drag import Dropped
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.file_history import open_editor, open_viewer
 from navigator.associations import EDITORS, VIEWERS
@@ -1171,19 +1172,58 @@ class Manager(Window):
         at a time.  What was copied in full is untagged, as DN deselected each
         file as it went; what was skipped keeps its tag.
         """
+        panel, other = self.active_panel, self.passive_panel
+        entries = self.selection(panel)
+        if entries:
+            await self.copy_entries(panel, entries, Path(other.path), move=move, others=(other,))
+
+    async def on_dropped(self, event: Dropped) -> bool:
+        """Files dropped from one of this window's panels: ``CM_Dropped``.
+
+        Into *target* at once, unless Confirmations' *Drag and drop* asks
+        first (``cfMouseConfirm``), when the Copy dialog comes up with it
+        filled in.  A directory is never dropped into itself.
+        """
+        source = event.source
+        if source not in (self.left, self.right):
+            return False
+        target = event.target.resolve() if event.target.exists() else event.target
+        here = Path(source.path)
+        if any(entry.is_dir and entry.path_in(here) in (target, *target.parents) for entry in event.entries):
+            return True
+        others = (event.panel,) if event.panel is not None and event.panel is not source else ()
+        self.spawn(self.copy_entries(source, list(event.entries), target, move=event.move,
+                                     others=others, ask=SETTINGS.confirmations.drag_and_drop))
+        return True
+
+    async def copy_entries(self, panel: Panel, entries: list[Any], target: Path, *, move: bool,
+                           others: tuple[Any, ...] = (), ask: bool = True) -> None:
+        """*entries* of *panel* copied (or moved) to *target*: the Copy dialog
+        first when *ask*, else at once in the dialog's session mode and
+        options; then *panel* and *others* look again."""
         from navigator import filecopy
+        from navigator.widgets.file_ops import copy_dialog
         from navigator.widgets.file_ops.copy_dialog import CopyDialog
 
         app = self.application
-        panel, other = self.active_panel, self.passive_panel
-        entries = self.selection(panel)
         if app is None or not entries:
             return
         here = Path(panel.path)
-        request = await CopyDialog(
-            entries=entries, here=here, other=Path(other.path),
-            hidden=panel.show_hidden, move=move,
-        ).execute(app)
+        if ask:
+            request = await CopyDialog(
+                entries=entries, here=here, other=target,
+                hidden=panel.show_hidden, move=move,
+            ).execute(app)
+        else:
+            session = copy_dialog._session
+            options = session["options"] & ~filecopy.MOVE
+            request = filecopy.CopyRequest(
+                sources=[entry.path_in(here) for entry in entries],
+                target=str(target).rstrip("/") + "/",
+                mode=session["mode"],
+                options=options | filecopy.MOVE if move else options,
+                flush=SETTINGS.system.flush_buffers,
+            )
         if request is None:
             return
         job = filecopy.CopyJob()
@@ -1198,7 +1238,8 @@ class Manager(Window):
                 job.stop()
         panel.untag_paths(done)
         panel.reload()
-        other.reload()
+        for other in others:
+            other.reload()
         if SETTINGS.file_manager.beep_after_copy and not job.stopped:
             # ``BeepAfterCopy``, after a copy that was not aborted.
             app.bell()
