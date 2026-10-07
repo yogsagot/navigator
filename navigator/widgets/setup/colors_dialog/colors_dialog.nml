@@ -1,0 +1,129 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.color_selector import ColorDisplay, ColorSelector
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.static_text import StaticText
+
+#: Options > Colors: DOS Navigator's ``dlgColors``, Turbo Vision's
+#: ``TColorDialog`` as COLORSEL.PAS built it.
+#:
+#: *Group* and *Item* on the left, the *Foreground* and *Background* grids and
+#: the sample on the right, as ``TColorDialog.Init`` placed them.  Below them
+#: what a terminal draws that DOS could not: either colour as any colour at
+#: all -- a name, ``#rrggbb`` or the terminal's ``default`` -- and the five
+#: text attributes, each ``[?]`` until it is set (``inherit``: the entry says
+#: nothing, so it is whatever the row sits on).  DN's monochrome and
+#: black-and-white selectors are left out, as there is no such screen.
+ColorsDialog(Dialog):
+    modal_width: 70
+    modal_height: 24
+    title: "Colors"
+
+    Label:
+        id: group_caption
+        x: 2
+        y: 2
+        width: 8
+        height: 1
+        text: "~G~roup"
+        link: groups
+
+    ListViewer:
+        id: groups
+        x: 3
+        y: 3
+        width: 21
+        height: 12
+
+    Label:
+        id: item_caption
+        x: 25
+        y: 2
+        width: 7
+        height: 1
+        text: "~I~tem"
+        link: items
+
+    ListViewer:
+        id: items
+        x: 26
+        y: 3
+        width: 24
+        height: 12
+
+    Label:
+        id: foreground_caption
+        x: 54
+        y: 2
+        width: 12
+        height: 1
+        text: "~F~oreground"
+        link: foreground
+
+    ColorSelector:
+        id: foreground
+        x: 54
+        y: 3
+        width: 12
+        height: 4
+
+    Label:
+        id: background_caption
+        x: 54
+        y: 8
+        width: 12
+        height: 1
+        text: "~B~ackground"
+        link: background
+
+    ColorSelector:
+        id: background
+        x: 54
+        y: 9
+        width: 12
+        height: 4
+
+    #: DN's ``TColorDisplay``: ``' '+dlColorsText``, in the entry's style.
+    ColorDisplay:
+        id: sample
+        x: 54
+        y: 14
+        width: 12
+        height: 1
+
+    StaticText:
+        id: hint
+        x: 3
+        y: 15
+        width: max(0, parent.width - 6)
+        height: 1
+        text: "Any colour: a name, #rrggbb, or default for the terminal's own"
+
+    Field:
+        id: foreground_value
+        x: 2
+        y: 16
+        width: 31
+        height: 1
+        label_text: "Fo~r~eground"
+        label_width: 12
+
+    Field:
+        id: background_value
+        x: 35
+        y: 16
+        width: 31
+        height: 1
+        label_text: "Bac~k~ground"
+        label_width: 12
+
+    #: The attributes, ``[?]`` for ``inherit``.
+    CheckBoxes:
+        id: attributes
+        x: 3
+        y: 18
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["Bo~l~d", "~D~im", "I~t~alic", "~U~nderline", "R~e~verse"]

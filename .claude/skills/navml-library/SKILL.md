@@ -57,6 +57,10 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   may not import Navigator's). Departures: no drives, no 8.3 completion, `*` for `*.*`. Styled `FileInfoPane` in
   `navigator.nss` (the Information pane, [61]).
 
+- **`ColorSelector`** and **`ColorDisplay`** (`navml/widgets/dialog/color_selector/`, Python alone): TV's
+  `TColorSelector` -- `color` an index into `COLORS` (the attribute byte's sixteen, by name), `-1` for none, swatches
+  of blanks on the colour with TV's `◘` mark (`*` on ASCII), arrows wrapping as `TColorSelector.HandleEvent` did; no
+  event, the owner follows `color` -- and `TColorDisplay`, `text` repeated in `sample` (a `Style`).
 - **`GroupBox`** (`navml/widgets/dialog/group_box/`): Turbo Vision's `ofFramed` view with a `TLabel` on its frame
   line -- a single frame (the sheet's `border`), `title` two cells in on the top edge with a blank either side (`~A~`
   in `::shortcut`), children placed inside in its own coordinates (the frame is the outer row and column). It never

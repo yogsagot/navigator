@@ -598,7 +598,7 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "Calendar", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "Control",
+        "Button", "Calendar", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "ColorDisplay", "ColorSelector", "Control",
         "DateButton", "DateField", "Desktop", "Dialog",
         "DockLayout", "DropDown", "Field", "FileDialog", "FileInfoPane", "FileList", "GridLayout", "GroupBox", "History", "HorizontalLayout",
         "InputLine",

@@ -50,6 +50,8 @@ editor's phases, DN's TETRIS easter egg.
 - Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
   defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
   flag wins over the file for that session and is never written back
+- Options > Colors keeps the user's palette beside it as `palette.nss` (what differs from the theme, loaded after it);
+  Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead

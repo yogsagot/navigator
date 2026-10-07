@@ -40,7 +40,9 @@ from navigator.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
-from navigator.scheme import DEFAULT_THEME, default_scheme, load_scheme, theme_names
+from navigator.scheme import (
+    DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
+)
 from navigator.file_history import remember_windows
 from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
@@ -63,14 +65,17 @@ class Navigator(Application):
 
     def __init__(
         self, left: Path, right: Path, scheme: Stylesheet | None = None, *,
-        given: bool = False, **kwargs
+        given: bool = False, theme: str = DEFAULT_THEME, **kwargs
     ):
         """*given*: *left* and *right* came from the command line, so a desktop
-        restored at the start puts its first file manager there."""
+        restored at the start puts its first file manager there.  *theme*
+        names the theme *scheme* was loaded from, which Options > Colors
+        loads again under the palette it edits."""
         scheme = scheme or default_scheme()
         self._given = (left, right) if given else None
         kwargs.setdefault("title", "Navigator")
         self.shell = Shell(left, right, scheme)
+        self.shell.theme = theme
         super().__init__(root=self.shell, **kwargs)
 
     @property
@@ -471,16 +476,22 @@ def main(argv: list[str] | None = None) -> int:
     # never written back to it.
     appearance = SETTINGS.appearance
     if args.theme is not None:
+        theme = args.theme
         try:
-            scheme = load_scheme(args.theme)
+            theme_path(theme)
         except LookupError as exc:
             parser.error(str(exc))
     else:
+        theme = appearance.theme
         try:
-            scheme = load_scheme(appearance.theme)
+            theme_path(theme)
         except LookupError as exc:
             print(f"nav: {SETTINGS.path}: {exc}; using {DEFAULT_THEME}", file=sys.stderr)
-            scheme = load_scheme(DEFAULT_THEME)
+            theme = DEFAULT_THEME
+    # The user's palette (Options > Colors) goes over whichever theme it is.
+    scheme, problem = user_scheme(theme)
+    if problem is not None:
+        print(f"nav: {problem}; the palette is left out", file=sys.stderr)
 
     # A theme that names its colours is transcribing a palette that left the
     # VGA registers alone, so `blue' means the value that adapter held and not
@@ -509,7 +520,7 @@ def main(argv: list[str] | None = None) -> int:
     right = Path(args.right).expanduser().resolve() if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
     Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
-              given=bool(args.left)).run()
+              given=bool(args.left), theme=theme).run()
     return 0
 
 

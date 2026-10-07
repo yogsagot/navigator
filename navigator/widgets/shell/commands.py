@@ -123,6 +123,27 @@ class LoadDesktop(Command):
     """
 
 
+class ChangeColors(Command):
+    """Options > Colors: every entry's colours and attributes, edited.
+
+    DOS Navigator's ``cmChangeColors`` (``ChangeColors``, COLORS.PAS).
+    """
+
+
+class StoreColors(Command):
+    """Options > Store palette: the palette written to a file of one's own.
+
+    DOS Navigator's ``cmStoreColors`` (``StoreColors``, DNUTIL.PAS).
+    """
+
+
+class LoadColors(Command):
+    """Options > Load palette: a palette read from a file, in place of this one.
+
+    DOS Navigator's ``cmLoadColors`` (``LoadColors``, DNUTIL.PAS).
+    """
+
+
 class ExecuteOsCommand(Command):
     """File > Execute OS command: a command line asked in a box, and run.
 

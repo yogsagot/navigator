@@ -15,7 +15,7 @@ from typing import Any as _Any
 from navml.component import Component as _Component
 from navigator.commands import AsciiTable, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole    # main_menu.nml:1
 from navigator.widgets.manager.commands import Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, View, ViewAsHex, ViewAsText    # main_menu.nml:2
-from navigator.widgets.shell.commands import About, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
+from navigator.widgets.shell.commands import About, ChangeColors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow    # main_menu.nml:4
 from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:5
 from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:6
@@ -85,7 +85,7 @@ class MainMenu(MenuBar, _Component):
     options_configuration: SubMenu    # main_menu.nml:253
     options_file_manager: SubMenu    # main_menu.nml:275
     options_archives: SubMenu    # main_menu.nml:291
-    window: SubMenu    # main_menu.nml:328
+    window: SubMenu    # main_menu.nml:331
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -183,20 +183,20 @@ class MainMenu(MenuBar, _Component):
         _w81 = MenuItem(parent=self.options)    # main_menu.nml:317
         _w82 = MenuLine(parent=self.options)    # main_menu.nml:320
         _w83 = MenuItem(parent=self.options)    # main_menu.nml:321
-        _w84 = MenuItem(parent=self.options)    # main_menu.nml:323
-        _w85 = MenuItem(parent=self.options)    # main_menu.nml:325
-        self.window = SubMenu(parent=self)    # main_menu.nml:327
-        _w86 = MenuItem(parent=self.window)    # main_menu.nml:330
-        _w87 = MenuItem(parent=self.window)    # main_menu.nml:333
-        _w88 = MenuItem(parent=self.window)    # main_menu.nml:336
-        _w89 = MenuLine(parent=self.window)    # main_menu.nml:339
-        _w90 = MenuItem(parent=self.window)    # main_menu.nml:340
-        _w91 = MenuItem(parent=self.window)    # main_menu.nml:344
-        _w92 = MenuItem(parent=self.window)    # main_menu.nml:348
-        _w93 = MenuItem(parent=self.window)    # main_menu.nml:352
-        _w94 = MenuItem(parent=self.window)    # main_menu.nml:356
-        _w95 = MenuLine(parent=self.window)    # main_menu.nml:360
-        _w96 = MenuItem(parent=self.window)    # main_menu.nml:361
+        _w84 = MenuItem(parent=self.options)    # main_menu.nml:324
+        _w85 = MenuItem(parent=self.options)    # main_menu.nml:327
+        self.window = SubMenu(parent=self)    # main_menu.nml:330
+        _w86 = MenuItem(parent=self.window)    # main_menu.nml:333
+        _w87 = MenuItem(parent=self.window)    # main_menu.nml:336
+        _w88 = MenuItem(parent=self.window)    # main_menu.nml:339
+        _w89 = MenuLine(parent=self.window)    # main_menu.nml:342
+        _w90 = MenuItem(parent=self.window)    # main_menu.nml:343
+        _w91 = MenuItem(parent=self.window)    # main_menu.nml:347
+        _w92 = MenuItem(parent=self.window)    # main_menu.nml:351
+        _w93 = MenuItem(parent=self.window)    # main_menu.nml:355
+        _w94 = MenuItem(parent=self.window)    # main_menu.nml:359
+        _w95 = MenuLine(parent=self.window)    # main_menu.nml:363
+        _w96 = MenuItem(parent=self.window)    # main_menu.nml:364
 
         self.system.text = '~≡~'    # main_menu.nml:52
 
@@ -446,42 +446,45 @@ class MainMenu(MenuBar, _Component):
         _w81.command = LoadDesktop    # main_menu.nml:319
 
         _w83.text = 'C~o~lors...'    # main_menu.nml:322
+        _w83.command = ChangeColors    # main_menu.nml:323
 
-        _w84.text = 'S~t~ore palette'    # main_menu.nml:324
+        _w84.text = 'S~t~ore palette'    # main_menu.nml:325
+        _w84.command = StoreColors    # main_menu.nml:326
 
-        _w85.text = 'Lo~a~d palette'    # main_menu.nml:326
+        _w85.text = 'Lo~a~d palette'    # main_menu.nml:328
+        _w85.command = LoadColors    # main_menu.nml:329
 
-        self.window.text = '~W~indow'    # main_menu.nml:329
+        self.window.text = '~W~indow'    # main_menu.nml:332
 
-        _w86.text = '~T~ile'    # main_menu.nml:331
-        _w86.command = TileWindows    # main_menu.nml:332
+        _w86.text = '~T~ile'    # main_menu.nml:334
+        _w86.command = TileWindows    # main_menu.nml:335
 
-        _w87.text = 'C~a~scade'    # main_menu.nml:334
-        _w87.command = CascadeWindows    # main_menu.nml:335
+        _w87.text = 'C~a~scade'    # main_menu.nml:337
+        _w87.command = CascadeWindows    # main_menu.nml:338
 
-        _w88.text = 'Cl~o~se all'    # main_menu.nml:337
-        _w88.command = CloseAllWindows    # main_menu.nml:338
+        _w88.text = 'Cl~o~se all'    # main_menu.nml:340
+        _w88.command = CloseAllWindows    # main_menu.nml:341
 
-        _w90.text = '~S~ize/Move'    # main_menu.nml:341
-        _w90.command = SizeMoveWindow    # main_menu.nml:342
-        _w90.key = 'Ctrl-F5'    # main_menu.nml:343
+        _w90.text = '~S~ize/Move'    # main_menu.nml:344
+        _w90.command = SizeMoveWindow    # main_menu.nml:345
+        _w90.key = 'Ctrl-F5'    # main_menu.nml:346
 
-        _w91.text = '~Z~oom'    # main_menu.nml:345
-        _w91.command = ZoomWindow    # main_menu.nml:346
-        _w91.key = 'Alt-Z'    # main_menu.nml:347
+        _w91.text = '~Z~oom'    # main_menu.nml:348
+        _w91.command = ZoomWindow    # main_menu.nml:349
+        _w91.key = 'Alt-Z'    # main_menu.nml:350
 
-        _w92.text = '~N~ext'    # main_menu.nml:349
-        _w92.command = NextWindow    # main_menu.nml:350
-        _w92.key = 'Alt-Tab'    # main_menu.nml:351
+        _w92.text = '~N~ext'    # main_menu.nml:352
+        _w92.command = NextWindow    # main_menu.nml:353
+        _w92.key = 'Alt-Tab'    # main_menu.nml:354
 
-        _w93.text = '~P~revious'    # main_menu.nml:353
-        _w93.command = PreviousWindow    # main_menu.nml:354
-        _w93.key = 'Ctrl-Tab'    # main_menu.nml:355
+        _w93.text = '~P~revious'    # main_menu.nml:356
+        _w93.command = PreviousWindow    # main_menu.nml:357
+        _w93.key = 'Ctrl-Tab'    # main_menu.nml:358
 
-        _w94.text = '~C~lose'    # main_menu.nml:357
-        _w94.command = CloseWindow    # main_menu.nml:358
-        _w94.key = 'Ctrl-F4'    # main_menu.nml:359
+        _w94.text = '~C~lose'    # main_menu.nml:360
+        _w94.command = CloseWindow    # main_menu.nml:361
+        _w94.key = 'Ctrl-F4'    # main_menu.nml:362
 
-        _w96.text = '~L~ist...'    # main_menu.nml:362
-        _w96.command = WindowManager    # main_menu.nml:363
-        _w96.key = 'Alt-0'    # main_menu.nml:364
+        _w96.text = '~L~ist...'    # main_menu.nml:365
+        _w96.command = WindowManager    # main_menu.nml:366
+        _w96.key = 'Alt-0'    # main_menu.nml:367

@@ -39,6 +39,8 @@ _COMPONENTS = {
     "ChoiceField": "dialog.choice_field",
     "ChoiceLine": "dialog.choice_line",
     "Cluster": "dialog.cluster",
+    "ColorDisplay": "dialog.color_selector",
+    "ColorSelector": "dialog.color_selector",
     "Control": "dialog.control",
     "DateButton": "dialog.date_button",
     "DateField": "dialog.date_field",
@@ -134,6 +136,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.button import Button
     from navml.widgets.dialog.check_boxes import CheckBoxes
     from navml.widgets.dialog.cluster import Cluster
+    from navml.widgets.dialog.color_selector import ColorDisplay, ColorSelector
     from navml.widgets.dialog.control import Control
     from navml.widgets.desktop import Desktop
     from navml.widgets.dialog.dialog import Dialog

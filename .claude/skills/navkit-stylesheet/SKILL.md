@@ -37,6 +37,9 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
 - A widget may carry its own sheet in `stylesheet` (what an object brings, assigned); `effective_stylesheet` (derived)
   walks up to the nearest, ending at the application's. `Manager` uses this, so the desktop is styled with or without an
   application around it.
+- **`inherit` on a `Style` field drops the declaration** (`stylesheet.INHERIT`), whether written or held by a
+  variable -- how `attributes.nss` gives every entry an attribute variable without breaking inheritance.
+  `variables_in(text)` answers a sheet's definitions as written (references unresolved).
 - `stylesheet.check_declarations(text, *, line, filename)` checks names and grammar, leaving `$variables` for run time
   (navml's `style:` blocks use it).
 

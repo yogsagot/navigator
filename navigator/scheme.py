@@ -17,7 +17,7 @@ from functools import cache
 from importlib.resources import files
 from pathlib import Path
 
-from navkit.stylesheet import Stylesheet, read
+from navkit.stylesheet import Stylesheet, StylesheetError, load, read
 
 
 #: Where sheets live.  A directory rather than a single file because a theme is
@@ -32,19 +32,49 @@ STYLES = Path(str(files("navigator.styles")))
 #: What the screens are made of: the rules, in terms of variables it does not
 #: define.  It does not parse on its own; a palette always follows it.
 SCHEME_PATH = STYLES / "navigator.nss"
+#: Every entry's text attributes, between the rules and the theme
+#: (``attributes.nss``): what Options > Colors sets beyond the colours.
+ATTRIBUTES_PATH = STYLES / "attributes.nss"
 
 #: The palettes, one per colour scheme, each defining every variable the sheet
 #: above reads.  They are DOS Navigator's own ``COLORS/*.PAL`` files decoded by
 #: ``tools/palconv.py``, so retheming is picking one rather than writing one.
 THEMES = STYLES / "themes"
 
+#: What a palette given as text is called in an error.
+PALETTE_SOURCE = "<palette>"
+
 #: The scheme DOS Navigator itself starts in -- ``DEFAULT.PAL``.
 DEFAULT_THEME = "default"
 
 
+def _theme_dirs() -> list[Path]:
+    """Where a theme is looked for by name: the user's own first (Store
+    palette's default directory, ``~/.config/navigator/themes``), so one
+    stored under a shipped name is the one that loads, then the shipped ones."""
+    from navigator.palette import user_themes
+
+    return [user_themes(), THEMES]
+
+
 def theme_names() -> list[str]:
-    """Every theme that can be asked for by name."""
-    return sorted(path.stem for path in THEMES.glob("*.nss"))
+    """Every theme that can be asked for by name, the user's among them."""
+    found: set[str] = set()
+    for directory in _theme_dirs():
+        try:
+            found.update(path.stem for path in directory.glob("*.nss"))
+        except OSError:
+            pass
+    return sorted(found)
+
+
+def theme_path(theme: str) -> Path:
+    """The file *theme* names; ``LookupError`` for none."""
+    for directory in _theme_dirs():
+        path = directory / f"{theme}.nss"
+        if path.is_file():
+            return path
+    raise LookupError(f"no theme {theme!r}; there is " + ", ".join(theme_names()))
 
 
 def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
@@ -67,6 +97,11 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     is here instead of being left to whoever calls.  Ordering is the price of
     catching a misspelled property at its ``.nss`` line.
     """
+    _import_widgets()
+    return read(SCHEME_PATH, ATTRIBUTES_PATH, theme_path(theme), *extra)
+
+
+def _import_widgets() -> None:
     import navml.widgets
 
     import navigator.widgets.manager.panel  # noqa: F401 -- declares `icons'
@@ -76,12 +111,41 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     # rather than a list of imports: a list is a thing to forget.
     navml.widgets.import_all()
 
-    path = THEMES / f"{theme}.nss"
+
+def theme_sources(theme: str = DEFAULT_THEME) -> list[tuple[str, str]]:
+    """The rules, the attributes and *theme*, read: what :func:`scheme_from`
+    parses.  The disk half of :func:`load_scheme`, for a caller that parses
+    the same three again and again -- Options > Colors, at every change --
+    and reads them once, on a thread.  Raises ``OSError`` and ``LookupError``."""
+    return [(str(path), path.read_text(encoding="utf-8"))
+            for path in (SCHEME_PATH, ATTRIBUTES_PATH, theme_path(theme))]
+
+
+def scheme_from(sources: list[tuple[str, str]], *extra: tuple[str, str]) -> Stylesheet:
+    """:func:`theme_sources`' sheets parsed, with *extra* loaded last."""
+    _import_widgets()
+    return load([*sources, *extra])
+
+
+def palette_source(text: str) -> tuple[str, str]:
+    """A palette's *text*, as :func:`scheme_from` takes it."""
+    return (PALETTE_SOURCE, text)
+
+
+def user_scheme(theme: str = DEFAULT_THEME) -> tuple[Stylesheet, str | None]:
+    """*theme* with the user's palette (Options > Colors, ``palette.nss``)
+    over it, and what was wrong with the palette, or None.  A palette that
+    cannot be read or parsed is left out, so a broken hand edit costs its
+    colours and not the session."""
+    from navigator.palette import palette_path
+
+    path = palette_path()
     if not path.is_file():
-        raise LookupError(
-            f"no theme {theme!r}; there is " + ", ".join(theme_names())
-        )
-    return read(SCHEME_PATH, path, *extra)
+        return load_scheme(theme), None
+    try:
+        return load_scheme(theme, path), None
+    except StylesheetError as error:
+        return load_scheme(theme), str(error)
 
 
 @cache

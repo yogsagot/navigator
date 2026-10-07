@@ -20,7 +20,7 @@ from navkit.events import Event, KeyEvent
 from navkit.reactive import bind, computed, effect
 from navkit.screen import Surface
 from navkit.widget import Widget
-from navkit.stylesheet import Stylesheet
+from navkit.stylesheet import Stylesheet, StylesheetError
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
@@ -30,6 +30,7 @@ from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen,
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     About,
+    ChangeColors,
     DriveInfoSetup,
     CommandLineEnd,
     CommandLineHome,
@@ -40,8 +41,10 @@ from navigator.widgets.shell.commands import (
     FileManagerDefaults,
     EnvEdit,
     ExecuteOsCommand,
+    LoadColors,
     LoadDesktop,
     SaveDesktop,
+    StoreColors,
     SystemInfo,
     FileManagerSetup,
     HistoryList,
@@ -61,7 +64,7 @@ from navigator.widgets.shell.commands import (
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
-from navigator.scheme import default_scheme
+from navigator.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
 
@@ -97,6 +100,9 @@ class Shell(DockLayout):
         reason ``Panel.path`` is: the shell inside it navigates it.
         """
         super().__init__(stylesheet=scheme or default_scheme(), **kwargs)
+        #: The theme the sheet was loaded from: what Options > Colors loads
+        #: again beneath the palette it edits.
+        self.theme = DEFAULT_THEME
         #: ``.root`` on the whole screen while Navigator runs as root, so a
         #: sheet can mark every window and dialog under it.
         if hasattr(os, "geteuid") and os.geteuid() == 0:
@@ -171,6 +177,154 @@ class Shell(DockLayout):
         if not await self.desktop.close_all_asking():
             return
         await desktop_state.restore(self.desktop, data)
+
+    # -- the palette ------------------------------------------------------------------
+
+    async def _palette_base(self) -> tuple[list[tuple[str, str]], dict[str, str]] | None:
+        """The theme's sheets, read on a thread, and every entry's variables
+        as the theme alone gives them -- what a palette is the difference
+        from.  None, said so, if the theme cannot be read."""
+        import asyncio
+
+        from navigator.palette import entry_values
+        from navigator.scheme import scheme_from, theme_sources
+
+        try:
+            sources = await asyncio.to_thread(theme_sources, self.theme)
+        except (OSError, LookupError) as error:
+            await self._palette_failed(f"Cannot read the theme: {getattr(error, 'strerror', None) or error}")
+            return None
+        return sources, entry_values(scheme_from(sources).variables)
+
+    async def _palette_failed(self, prompt: str) -> None:
+        await Dialog(title="Error", prompt=prompt, buttons="ok").execute(self.application)
+
+    async def _keep_palette(self, sources: list[tuple[str, str]], palette: dict[str, str]) -> None:
+        """*palette* (what differs from the theme) painted and kept as
+        ``palette.nss`` -- DN's ``cmUpdateConfig`` after its palette changed."""
+        import asyncio
+
+        from navigator.palette import render_palette, save_palette
+        from navigator.scheme import palette_source, scheme_from
+
+        self.stylesheet = scheme_from(sources, palette_source(render_palette(palette, "palette")))
+        try:
+            await asyncio.to_thread(save_palette, palette)
+        except OSError as error:
+            await self._palette_failed(f"Cannot save the palette: {error.strerror or error}")
+
+    async def on_change_colors(self, event: ChangeColors) -> bool:
+        self.spawn(self.change_colors())
+        return True
+
+    async def change_colors(self) -> None:
+        """Options > Colors: ``ChangeColors`` -- the dialog over the palette as
+        it is, every change painted as it is made; OK keeps it, Cancel puts
+        the screen back as it was."""
+        from navigator.palette import differences, entry_values, render_palette
+        from navigator.scheme import palette_source, scheme_from
+        from navigator.widgets.setup.colors_dialog import ColorsDialog
+
+        base = await self._palette_base()
+        if base is None:
+            return
+        sources, theme = base
+        before = self.stylesheet
+
+        def apply(values: dict[str, str]) -> None:
+            text = render_palette(differences(theme, values), "palette")
+            try:
+                self.stylesheet = scheme_from(sources, palette_source(text))
+            except StylesheetError:
+                pass  # a value the sheet refuses: the screen stays as it was
+
+        answer = await ColorsDialog(entry_values(before.variables), apply).execute(self.application)
+        if answer is None:
+            self.stylesheet = before
+            return
+        await self._keep_palette(sources, differences(theme, answer))
+
+    async def on_store_colors(self, event: StoreColors) -> bool:
+        self.spawn(self.store_colors())
+        return True
+
+    async def store_colors(self) -> None:
+        """Options > Store palette: ``StoreColors`` -- every entry's colours
+        and attributes written as a sheet, named in a file box opened on the
+        user's themes (DN's ``COLORS\\*.PAL``), whose name ``--theme`` then
+        takes.  A file that is there is asked about first."""
+        import asyncio
+
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        from navigator.palette import entry_values, render_palette, user_themes, write_sheet
+
+        directory = user_themes()
+        try:
+            await asyncio.to_thread(directory.mkdir, parents=True, exist_ok=True)
+        except OSError as error:
+            await self._palette_failed(f"Cannot make {directory}: {error.strerror or error}")
+            return
+        name = await FileDialog(title="Store Color Palette", label="~F~ile name", history_id="colors",
+                                directory=directory, wildcard="*.nss").execute(self.application)
+        if not name:
+            return
+        path = Path(name)
+        if not path.suffix:
+            path = path.with_suffix(".nss")
+        if await asyncio.to_thread(path.exists):
+            answer = await Dialog(title="Warning", prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
+                                  buttons="yes-no").execute(self.application)
+            if answer is not True:
+                return
+        text = render_palette(entry_values(self.stylesheet.variables), f"{path.stem} -- a palette stored by Navigator")
+        try:
+            await asyncio.to_thread(write_sheet, path, text)
+        except OSError as error:
+            await self._palette_failed(f"Cannot write {path}: {error.strerror or error}")
+
+    async def on_load_colors(self, event: LoadColors) -> bool:
+        self.spawn(self.load_colors())
+        return True
+
+    async def load_colors(self) -> None:
+        """Options > Load palette: ``LoadColors`` -- a sheet picked in a file
+        box (the user's themes if there are any, else the ones Navigator
+        ships), its colours put over the theme and kept as the palette, as
+        DN's ``LoadPalFromFile`` replaced the one in ``DN.CFG``.  One that does
+        not parse is said so and changes nothing."""
+        import asyncio
+
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        from navigator.palette import differences, entry_values, user_themes
+        from navigator.scheme import THEMES, scheme_from
+
+        def start() -> Path:
+            mine = user_themes()
+            return mine if any(mine.glob("*.nss")) else THEMES
+
+        directory = await asyncio.to_thread(start)
+        name = await FileDialog(title="Load Color Palette", label="~F~ile name", history_id="colors",
+                                directory=directory, wildcard="*.nss", ok_text="~O~pen").execute(self.application)
+        if not name:
+            return
+        path = Path(name)
+        try:
+            text = await asyncio.to_thread(path.read_text, encoding="utf-8")
+        except (OSError, UnicodeError) as error:
+            await self._palette_failed(f"Cannot read {path}: {getattr(error, 'strerror', None) or error}")
+            return
+        base = await self._palette_base()
+        if base is None:
+            return
+        sources, theme = base
+        try:
+            loaded = scheme_from(sources, (str(path), text))
+        except StylesheetError as error:
+            await self._palette_failed(f"Not a palette:\n{error}")
+            return
+        await self._keep_palette(sources, differences(theme, entry_values(loaded.variables)))
 
     async def on_execute_os_command(self, event: ExecuteOsCommand) -> bool:
         self.spawn(self.execute_os_command())

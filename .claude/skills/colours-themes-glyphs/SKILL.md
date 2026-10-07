@@ -25,8 +25,36 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   makes the other 121 trustworthy. The 84 entries DN.DNR does not name are not carried.
 - Every theme carries all 144; `navigator.nss` reads some (`LIVE` marks them with `>`). Variables are stemmed by group
   *path* (group names repeat); **a published variable name is API** -- `HAND_NAMED` pins the ones `navigator.nss` uses.
-- Variables Navigator needs and DN had no slot for are palconv's **`DERIVED`** table, each an alias of a slot, with
-  `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
+- Variables Navigator needs and DN had no slot for are the **`DERIVED`** table, each an alias of a slot, with
+  palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
+- **The tables live in `navigator/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because
+  Options > Colors reads them too: its groups are `ENTRIES`' runs of one group name (so *Tree* and *Menu* come twice,
+  as in DN) and a last *Navigator* group of `DERIVED` (`DERIVED_ITEMS` names them).
+
+## Attributes, and the user's palette
+
+- **Every entry has seven variables**: `$X-fg`, `$X-bg` and `$X-bold/dim/italic/underline/reverse`
+  (`palette.KEYS`); every `fg: $X-fg` rule in `navigator.nss` also reads the five. Their defaults are
+  `navigator/styles/attributes.nss`, loaded **between the rules and the theme** (`scheme.ATTRIBUTES_PATH`), so a theme
+  or palette may redefine any.
+- **The defaults are `inherit`**, which navkit's parser drops (`stylesheet.INHERIT`), so a rule says nothing of an
+  attribute it never named and the per-property cascade is what it was -- the cursor row stays bold over a directory.
+  Writing `false` there instead breaks that (the golden snapshot catches it). Only three are set: `directory-bold:
+  true`, `marked-bold`/`marked-cursor-bold: false`, which `navigator.nss` had written by hand.
+- **Options > Colors** (`ColorsDialog`, `navigator/widgets/setup/colors_dialog/`; `Shell.change_colors`): DN's
+  `TColorDialog` -- Group, Item, the Foreground/Background grids (navml `ColorSelector`), a sample -- plus a line per
+  colour taking any colour (a name, `#rrggbb`, `default`) and tri-state boxes for the five attributes (`[?]` is
+  `inherit`). Each change re-parses the sheet from texts read once on a thread (`scheme.theme_sources` /
+  `scheme_from`, ~50 ms) and assigns `Shell.stylesheet`, so the screen repaints live; Cancel puts the old sheet back.
+- **The user's palette is `palette.nss`** in the configuration directory (`palette.palette_path()`): only what differs
+  from the theme (`palette.differences`), so a theme changed under it keeps the rest. OK writes it (none left: the file
+  goes); `main()` loads it after the theme (`scheme.user_scheme`), and one that does not parse is left out with a
+  stderr warning. `Shell.theme` is the theme it goes over.
+- **Store palette** writes every entry's seven, resolved, as a full sheet into `~/.config/navigator/themes/`
+  (`palette.user_themes()`, DN's `COLORS\*.PAL`), asking before overwriting; **a theme there is one `--theme` and
+  `theme_names()` find, and wins over a shipped one of the same name** (`scheme.theme_path`). **Load palette** opens
+  the user's themes (or the shipped ones, with none) and keeps the file's difference from the theme as `palette.nss`;
+  one that does not parse says *Not a palette*. **.nss only** -- no `.PAL` reading at run time; that is palconv's job.
 
 ## File-type colours
 

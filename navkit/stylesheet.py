@@ -497,6 +497,13 @@ _VARIABLE = re.compile(r"\$([A-Za-z_][\w-]*)\s*:\s*([^;{}]*);")
 _BLOCK = re.compile(r"\{([^{}]*)\}")
 _HEX = re.compile(r"#([0-9A-Fa-f]{6})\Z")
 _KEYWORD = re.compile(r"[A-Za-z_][\w-]*\Z")
+
+#: What ``inherit`` on a ``Style`` field parses to: the declaration is dropped,
+#: so the field cascades as if the rule had never named it.  Written by hand
+#: it is CSS's keyword; its use is a variable that may hold a value or not --
+#: ``bold: $cursor-bold`` with ``$cursor-bold: inherit`` leaves the cursor row
+#: bold over a directory, as a rule silent on ``bold`` would.
+INHERIT = object()
 _RGB = re.compile(r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\Z")
 _COMPOUND = re.compile(
     r"""
@@ -670,6 +677,13 @@ def _collect_variables(text: str) -> tuple[dict[str, str], dict[str, int]]:
     return raw, lines
 
 
+def variables_in(text: str) -> dict[str, str]:
+    """Every ``$name: value`` *text* defines, as written: a reference to
+    another variable is left a reference.  What a palette editor reads a
+    sheet of definitions with, to write it back."""
+    return _collect_variables(text)[0]
+
+
 def _resolve_variables(
     raw: Mapping[str, str], filename: str, lines: Mapping[str, int]
 ) -> dict[str, str]:
@@ -739,6 +753,8 @@ def parse_value(
             return text
         raise StylesheetError(f"cannot read value {text!r} for {key}", line, filename)
 
+    if text == "inherit":
+        return INHERIT
     if text == "default":
         if key not in ("fg", "bg"):
             raise StylesheetError(
@@ -782,6 +798,8 @@ def _parse_declarations(
                 f"unknown property {key!r}", line, filename
             )
         parsed = parse_value(key, value, variables, line, filename, defer=defer)
+        if parsed is INHERIT:
+            continue
         if defer and isinstance(parsed, str) and parsed.startswith("$"):
             # An unresolved reference: what it will hold is not knowable yet,
             # so there is nothing to hold against the vocabulary.  The key was
