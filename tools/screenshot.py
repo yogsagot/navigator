@@ -21,9 +21,9 @@ to run after a change to anything the desktop paints.
 
 The screen is the real one: the application is constructed as ``nav``
 constructs it and rendered into a :class:`~navkit.screen.ScreenBuffer`, with
-the three things that would make it differ between runs pinned -- the
-directory it lists (built here, with fixed sizes), the clock, and the shell
-the console would otherwise fork.  This is the golden test's recipe
+the four things that would make it differ between runs pinned -- the
+directory it lists (built here, with fixed sizes), the clock, the free
+space under each panel, and the shell the console would otherwise fork.  This is the golden test's recipe
 (``tests/test_nav.py``), applied to a directory worth looking at, with the
 About box (≡ > About) open over it -- so the picture carries the version, and
 a release makes ``--check`` stale until the screenshot is regenerated.
@@ -133,10 +133,12 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     from navigator.scheme import load_scheme
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.shell.clock import clock as clock_module
+    from navigator.widgets.manager.panel import panel as panel_module
     from navigator.widgets.shell.console import Console
 
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
     Console.start = lambda self, argv=None: None
+    panel_module.free_space_text = lambda path: "~412,316,860,416~ free bytes on ~/"
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd
     # Font, and the icon gutter would be a column of replacement boxes.
     info = replace(FULL, palette=VGA_PALETTE, glyphs=GLYPHS_UNICODE)

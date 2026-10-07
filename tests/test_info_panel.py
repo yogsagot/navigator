@@ -10,7 +10,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.diskinfo import DiskFacts, _info_file, _meminfo, _mount_of, gather, lines
+from navigator.diskinfo import DiskFacts, _info_file, _meminfo, mount_of, gather, lines
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel.panel import DirEntry
 
@@ -22,10 +22,10 @@ MOUNTS = """\
 
 
 def test_the_file_system_is_the_longest_mount_holding_the_directory():
-    assert _mount_of(Path("/home/me"), MOUNTS) == ("/", "/dev/sda2", "ext4")
-    assert _mount_of(Path("/mnt/usb/photos"), MOUNTS) == ("/mnt/usb", "/dev/sdb1", "vfat")
-    assert _mount_of(Path("/mnt/usb disk"), MOUNTS) == ("/mnt/usb disk", "/dev/sdc1", "exfat")
-    assert _mount_of(Path("/mnt/usbx"), MOUNTS)[0] == "/"
+    assert mount_of(Path("/home/me"), MOUNTS) == ("/", "/dev/sda2", "ext4")
+    assert mount_of(Path("/mnt/usb/photos"), MOUNTS) == ("/mnt/usb", "/dev/sdb1", "vfat")
+    assert mount_of(Path("/mnt/usb disk"), MOUNTS) == ("/mnt/usb disk", "/dev/sdc1", "exfat")
+    assert mount_of(Path("/mnt/usbx"), MOUNTS)[0] == "/"
 
 
 def test_memory_and_the_information_file(tmp_path):

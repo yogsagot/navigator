@@ -49,7 +49,7 @@ class DiskFacts:
     info_lines: list[str] = field(default_factory=list)
 
 
-def _mount_of(path: Path, mounts: str) -> tuple[str, str, str]:
+def mount_of(path: Path, mounts: str) -> tuple[str, str, str]:
     """``(mount point, device, type)`` of the longest mount holding *path*."""
     best = ("/", "", "")
     target = str(path)
@@ -124,7 +124,7 @@ def gather(directory: Path, *, mounts: Path = Path("/proc/self/mounts"),
         text = mounts.read_text(encoding="utf-8", errors="replace")
     except OSError:
         text = ""
-    facts.mount, facts.device, facts.fs_type = _mount_of(Path(directory).resolve(), text)
+    facts.mount, facts.device, facts.fs_type = mount_of(Path(directory).resolve(), text)
     if facts.device.startswith("/dev/"):
         facts.label = _label_of(facts.device)
     try:

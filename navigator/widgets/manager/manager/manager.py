@@ -1865,6 +1865,23 @@ class Manager(Window):
         if self.hidden_side is None:
             self.hide_side(other)
 
+    def apply_left_panel(self) -> None:
+        """*New Manager defaults*' *Left panel in a new Manager*, once the
+        window is open: ``TDoubleWindow.Init`` sent ``cmDiskInfo``,
+        ``cmDirTree`` or ``cmHideLeft`` with the right panel selected, so the
+        information panel or the tree stood in the left one's place, or the
+        left side was hidden.  *Files* leaves both panels."""
+        choice = SETTINGS.panel_defaults.left_panel
+        if choice == "files":
+            return
+        self.right.focus()
+        if choice == "info":
+            self.switch_view(self.info)
+        elif choice == "tree":
+            self.switch_view(self.tree)
+        elif choice == "absent":
+            self.hide_side("left")
+
     def hide_side(self, side: str) -> None:
         """Hide *side*, and shrink the window to what is left: ``SwitchLeft``.
 

@@ -95,6 +95,9 @@ class Navigator(Application):
         if self.terminal.is_tty:
             self.shell.console.start()
         await self._restore_desktop()
+        if self.manager.parent is not None:
+            # The start's own file manager, not one a desktop brought back.
+            self.manager.apply_left_panel()
         self._last_input = self._now()
         self.call_every(self.idle_check_every, self._check_idle)
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue

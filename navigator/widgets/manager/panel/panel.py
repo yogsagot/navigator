@@ -433,7 +433,7 @@ def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name",
 def scan_directory(
     path: Path, show_hidden: bool, sort: str = "name", *,
     executables_first: bool = False, archives_first: bool = False,
-    mask: str = filetypes.ALL_FILES,
+    mask: str = filetypes.ALL_FILES, dir_length: bool = False, job: Any = None,
 ) -> tuple[list[DirEntry], str | None]:
     """*path*'s entries, ``..`` first and in *sort*'s order
     (:func:`order_entries`), and why not if it cannot be read.
@@ -441,6 +441,11 @@ def scan_directory(
     A file *mask* (:func:`navigator.filetypes.in_filter`) leaves out the files
     it does not let through; every directory is listed whatever it says, as
     DN's ``GetDirectory`` listed them.
+
+    *dir_length* is the *Display* box *Directory length* (``fmiDirLen``):
+    every directory's bytes counted into its size, ``..`` standing for the
+    one listed, as ``GetFilesColl`` called ``GetDirLen`` for each.  *job*'s
+    ``stopped`` ends the counting -- what is not counted yet stays ``DIR``.
 
     Touches nothing but the file system, so a thread may run it.
     """
@@ -468,9 +473,64 @@ def scan_directory(
                 entries.append(make_entry(item))
     except OSError as exc:
         error = exc.strerror or str(exc)
+    if dir_length and error is None:
+        count_lengths(path, entries, job)
     entries = order_entries(entries, sort, executables_first=executables_first,
                             archives_first=archives_first)
     return entries, error
+
+
+def count_lengths(path: Path, entries: list[DirEntry], job: Any = None) -> None:
+    """Each directory among *entries* given its bytes (:mod:`navigator.dirlength`),
+    ``..`` the bytes of *path* itself; nothing more once *job* is stopped."""
+    from navigator.dirlength import count_dir_length
+
+    for entry in entries:
+        if not entry.is_dir:
+            continue
+        size = count_dir_length(path if entry.name == ".." else entry.path_in(path), job)
+        if size is None:
+            return
+        entry.size, entry.counted = size, True
+
+
+def free_space_text(path: Path) -> str:
+    """*Free space*'s line, ``TDrive.GetFreeSpace``: the bytes free on the
+    file system holding *path*, named by where it is mounted as DN named the
+    drive.  Empty when it cannot be told.  A thread runs it."""
+    import shutil
+
+    from navigator import diskinfo
+
+    try:
+        free = shutil.disk_usage(path).free
+    except OSError:
+        return ""
+    try:
+        mounts = Path("/proc/self/mounts").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        mounts = ""
+    mount = diskinfo.mount_of(path.resolve(), mounts)[0]
+    return f"~{free:,}~ free bytes on ~{mount}"
+
+
+class ScanJob:
+    """What stops a read's counting: Esc while it shows *Reading directory...*,
+    or the panel moving on (DN's ``Abort``)."""
+
+    def __init__(self) -> None:
+        self.stopped = False
+
+    def stop(self) -> None:
+        self.stopped = True
+
+
+def read_listing(path: Path, show_hidden: bool, sort: str, *, free: bool,
+                 **options: Any) -> tuple[list[DirEntry], str | None, str]:
+    """:func:`scan_directory` and, with *free*, :func:`free_space_text`: one
+    read on the panel's thread."""
+    entries, error = scan_directory(path, show_hidden, sort, **options)
+    return entries, error, free_space_text(path) if free and error is None else ""
 
 
 class Panel(ListViewer):
@@ -502,6 +562,9 @@ class Panel(ListViewer):
     #: thread, which takes a slow disk or a dead network mount longer than a
     #: frame: the rows say *Reading directory...* meanwhile.
     scanning: bool = reactive(False)
+    #: *Free space*'s line for the directory read last, ``~`` around what is
+    #: bright; empty without the box, or over a *Find:* listing.
+    free_space: str = reactive("")
     #: Columns kept clear at each end of the top edge, so the path never runs
     #: under a window icon painted there -- the file manager's close and zoom
     #: icons sit on its panels' frames.  Kept at both ends because the title
@@ -560,7 +623,7 @@ class Panel(ListViewer):
     VIEW_MODES = ("simple", "detailed", "list")
 
     #: ``heading`` is the column-titles row the detailed and list modes draw.
-    parts = ListViewer.parts + ("heading",)
+    parts = ListViewer.parts + ("heading", "totals", "totals-numbers", "free-space", "free-space-numbers")
 
     def __init__(self, path: Path | None = None, **kwargs: Any):
         """*path* is optional because a widget markup constructs must be.
@@ -584,6 +647,8 @@ class Panel(ListViewer):
         #: asked for is dropped; and the read still on its thread, if any.
         self._generation = 0
         self._pending: _ScanRequest | None = None
+        #: What stops the read's directory counting (*Directory length*).
+        self._scan_job: ScanJob | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
@@ -628,6 +693,11 @@ class Panel(ListViewer):
             flags = {"executables_first": self.shows("executables_first"),
                      "archives_first": self.shows("archives_first"),
                      "mask": mask}
+            dir_length = self.shows("directory_length")
+            free = self.shows("free_space")
+        if self._scan_job is not None:
+            self._scan_job.stop()  # the counting of a read this one supersedes
+        self._scan_job = None
         # Taken now, for this read: a later move or reload sets its own.
         request = _ScanRequest(path, self._return_to, self._keep,
                                path if found is None else (path, id(found)))
@@ -650,7 +720,9 @@ class Panel(ListViewer):
         if found is not None:
             future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort, **flags)
         else:
-            future = _SCANNER.submit(scan_directory, path, show_hidden, sort, **flags)
+            job = self._scan_job = ScanJob() if dir_length else None
+            future = _SCANNER.submit(read_listing, path, show_hidden, sort, free=free,
+                                     dir_length=dir_length, job=job, **flags)
         with untracked():
             app = self.application
         if app is None or not app.is_running:
@@ -679,11 +751,14 @@ class Panel(ListViewer):
         if app is not None:
             app.post_event(WakeEvent())
 
-    def _apply(self, request: _ScanRequest, entries: list[DirEntry], error: str | None) -> None:
+    def _apply(self, request: _ScanRequest, entries: list[DirEntry], error: str | None,
+               free: str = "") -> None:
         """Show what a read of ``request.path`` found."""
         path = request.path
         self._pending = None
+        self._scan_job = None
         self.scanning = False
+        self.free_space = free
         self.items = entries
         self.error = error
         # Peeked, not read: the rescan must not depend on the tags, or every
@@ -1101,6 +1176,13 @@ class Panel(ListViewer):
         """
         if self.quick_search is not None and not self.inert and self._search_key(event):
             return True
+        if event.key == "escape" and self._scan_job is not None and self.scanning:
+            # DN's ``Abort`` while counting: the box goes off for this panel,
+            # and the directory is read without it.
+            self._scan_job.stop()
+            self.display = frozenset(name for name in PanelDefaultsData.DISPLAY
+                                     if name != "directory_length" and self.shows(name))
+            return True
         if self.view_mode == "list" and not self.inert and self.rows:
             if event.key == "left":
                 self.move_cursor(-min(self.rows, self.cursor))
@@ -1381,6 +1463,80 @@ class Panel(ListViewer):
         room = max(1, self.width - 4)
         return summary[: room - 1] + " " if len(summary) > room else summary
 
+    # -- the info lines: *Totals* and *Free space* ------------------------------
+
+    @computed
+    def info_lines(self) -> tuple[tuple[str, str], ...]:
+        """The lines under the listing, ``(text, part)``, ``~`` around what is
+        bright: ``TInfoView``'s *Totals* and *Free space*.  Its *Current file*
+        and *Selected files* are the footer's here.
+
+        Totals is ``CalcTotalInfo``: the files and their bytes, directories
+        not counted.  Free space is not shown over a *Find:* listing, as it
+        was not over DN's find drive.
+        """
+        if not self.framed or self.error is not None:
+            return ()
+        lines = []
+        if self.shows("totals"):
+            items = self.items
+            if not any(item.name != ".." for item in items):
+                text = "No files in this directory"
+            else:
+                files = [item for item in items if not item.is_dir]
+                size = sum(item.size for item in files)
+                text = (f"Total: ~{len(files):,}~ {'file' if len(files) == 1 else 'files'} with "
+                        f"~{size:,}~ {'byte' if size == 1 else 'bytes'}")
+            lines.append((text, "totals"))
+        if self.shows("free_space") and self.found is None and self.free_space:
+            lines.append((self.free_space, "free-space"))
+        return tuple(lines)
+
+    @computed
+    def info_height(self) -> int:
+        """The rows the info lines take, with File Manager Setup's *Info
+        divider* above them (``fmsDivider``) -- none without a line to divide."""
+        lines = len(self.info_lines)
+        return lines + (1 if lines and SETTINGS.file_manager.info_divider else 0)
+
+    @computed
+    def rows(self) -> int:
+        """How many listing lines fit between the frames, the header and the info lines."""
+        return max(0, self.height - 2 * self.inset - self.header - self.info_height)
+
+    def render_info(self, surface: Surface) -> None:
+        """The divider and the info lines, centred, between the listing and the frame."""
+        height = self.info_height
+        if not height:
+            return
+        left, width = self.inset, self.inner_width
+        y = self.height - self.inset - height
+        if SETTINGS.file_manager.info_divider:
+            # DN's ``─``, ``┴`` where a column divider comes down onto it.
+            single = glyphs_module.charset("single", self.glyphs)[4]
+            tee = glyphs_module.joins("single", self.glyphs)[3]
+            divider = self.part_style("divider")
+            surface.draw_text(left, y, single * width, divider, width)
+            if self.view_mode != "simple":
+                spans = self._column_spans()
+                for index, (_, x, span) in enumerate(spans[:-1]):
+                    if x + span < left + width:
+                        surface.draw_text(x + span, y, tee, divider, 1)
+            y += 1
+        for text, part in self.info_lines:
+            plain = text.replace("~", "")
+            x = left + max(0, (width - len(plain)) // 2)
+            surface.fill(left, y, width, 1, " ", self.part_style(part))
+            bright = False
+            for piece in text.split("~"):
+                room = left + width - x
+                if piece and room > 0:
+                    style = self.part_style(f"{part}-numbers" if bright else part)
+                    surface.draw_text(x, y, piece[:room], style, room)
+                    x += len(piece[:room])
+                bright = not bright
+            y += 1
+
     def row_style(self, index: int, item: DirEntry) -> Style:
         classes = ("directory",) if item.is_dir else ()
         # *Files highlight*: off, every file is coloured alike.
@@ -1472,6 +1628,10 @@ class Panel(ListViewer):
         self._draw_name(surface, 1, y, max(1, self.name_width), item, style, self.name_offset)
         surface.draw_text(self.width - 9, y, item.display_size, style, 8)
 
+    def render(self, surface: Surface) -> None:
+        super().render(surface)
+        self.render_info(surface)
+
     def render_items(self, surface: Surface) -> None:
         if self.scanning:
             surface.draw_text(self.inset + 1, self.inset + self.header, "Reading directory...",
@@ -1545,7 +1705,10 @@ class Panel(ListViewer):
                 for y in range(top, bottom):
                     surface.draw_text(edge, y, glyph, divider, 1)
                 if self.framed:
-                    for y, tee in ((0, top_tee), (self.height - 1, bottom_tee)):
+                    # The info lines stand between the column and the bottom
+                    # frame: the divider over them takes the tee, if any.
+                    ends = ((0, top_tee),) if self.info_height else ((0, top_tee), (self.height - 1, bottom_tee))
+                    for y, tee in ends:
                         char, style = surface.get(edge, y)
                         if char == horizontal:
                             surface.set_cell(edge, y, tee, style)

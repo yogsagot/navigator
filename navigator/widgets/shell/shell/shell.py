@@ -1613,7 +1613,7 @@ class Shell(DockLayout):
         """
         current = self.active_manager
         start = current.active_panel.path if current is not None else Path.cwd()
-        self.desktop.open(Manager(start, start))
+        self.desktop.open(Manager(start, start)).apply_left_panel()
         return True
 
     async def on_hide_left(self, event: HideLeft) -> bool:

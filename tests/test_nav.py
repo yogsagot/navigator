@@ -32,6 +32,7 @@ from navigator.__main__ import Navigator, main, version_banner
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
+from navigator.settings import SETTINGS
 from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
 from navigator.widgets import Clock, DirEntry, Manager, Panel, Shell
 from navigator.widgets.manager.panel.panel import fit_text, skip_cells, window_text
@@ -756,6 +757,7 @@ def test_a_narrow_detailed_panel_gives_up_owner_and_attributes_first(panel):
 
 
 def test_the_list_mode_lays_names_out_in_columns(tmp_path):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     many_files(tmp_path, 30)
     panel = Panel(tmp_path, width=40, height=10)
     panel.stylesheet = default_scheme()
@@ -776,6 +778,7 @@ def test_the_list_mode_lays_names_out_in_columns(tmp_path):
 
 
 def test_the_list_mode_draws_no_divider_after_the_last_column(tmp_path):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     many_files(tmp_path, 10)
     panel = Panel(tmp_path, width=60, height=10)
     panel.stylesheet = default_scheme()
@@ -857,6 +860,7 @@ def divider_columns(panel) -> list[int]:
 
 
 def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     app = navigator(tree, size=(200, 24))  # wide enough that the path leaves a divider clear
     run_app(app, [])
     for panel in (app.manager.left, app.manager.right):
@@ -876,6 +880,7 @@ def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
 
 
 def test_the_list_mode_has_no_tee_after_its_last_column(tmp_path):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     many_files(tmp_path, 10)
     panel = Panel(tmp_path, width=60, height=10)
     panel.stylesheet = default_scheme()
@@ -908,6 +913,7 @@ def test_a_tee_leaves_the_footer_standing_on_its_cell(tmp_path):
 
 
 def test_an_ascii_terminal_joins_the_divider_with_a_plus(tree):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     app = navigator_with(tree, GLYPHS_ASCII)
     run_app(app, [])
     panel = app.manager.right
@@ -2636,9 +2642,14 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     got the delete.  And once more when the prompt dropped DOS's ``>`` for a
     POSIX shell's ``$``: ``.>`` became ``.$``, and nothing else moved.  And
     once more when F2 got the user menu: *User* left the *Disabled* colour,
-    the key bar's styles the only line that moved.
+    the key bar's styles the only line that moved.  And once more when the
+    *New Manager defaults*' *Free space* was honoured: each panel gave its
+    last two rows to the info divider and the free-space line, pinned here to
+    a number that does not depend on the disk the suite runs on.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
+    monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_text",
+                        lambda path: "~1,000,000~ free bytes on ~/")
     (tmp_path / "alpha").mkdir()
     (tmp_path / "beta").mkdir()
     (tmp_path / "one.txt").touch()
@@ -2840,6 +2851,7 @@ def test_a_panel_that_fits_shows_no_scrollbar(panel):
 
 
 def test_a_long_listing_shows_the_scrollbar_on_the_right_frame(tmp_path):
+    SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
     for n in range(60):
         (tmp_path / f"file{n:02}").touch()
     panel = Panel(tmp_path, width=40, height=20)

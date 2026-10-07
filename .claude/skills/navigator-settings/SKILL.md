@@ -184,11 +184,14 @@ note:
 | `panel_defaults.executables_first` / `archives_first` | Read at each panel read (`Panel._rescan`, untracked): those files lead by name, extension and type |
 | `panel_defaults.files_highlight` | File-type row colours (`Panel.row_style`) |
 | `panel_defaults.current_file` / `selected_files` | What the panel's info line (its footer) may show; neither, it is empty |
+| `panel_defaults.totals` / `free_space` | DN's `TInfoView` lines under the listing (`Panel.info_lines`, parts `totals`/`free-space` and their `-numbers` on `[122]`-`[125]`): *Total: N files with B bytes* (files only, `CalcTotalInfo`) and *B free bytes on MOUNT* (read with the directory, `free_space_text`; not over a *Find:* listing). Free space is on by default, as DN's was |
+| `file_manager.info_divider` | A `─` row over those lines, `┴` where a column divider comes down (`Panel.render_info`); the frame then takes no bottom tee. No lines, no divider |
+| `panel_defaults.directory_length` | Every read counts each directory's bytes into its size (`scan_directory(dir_length=)`, `..` the one listed), on the scan thread; Esc while *Reading directory...* stops it and turns the box off for that panel, as DN's `Abort` did |
+| `panel_defaults.left_panel` | `Manager.apply_left_panel`, run for Ctrl+F3's manager and the start's own (not a restored one): the right panel takes the keys and the information panel or tree stands in the left's place, or the left side is hidden (`TDoubleWindow.Init`) |
 
 The `panel_defaults` *Display* boxes above are read live by every panel (`Panel.shows`) **until Alt+S's *Panel
 Options* gives that panel its own** (`Panel.display`), a departure: DN copied *New Manager defaults* into each
-manager it made. `file_manager.info_divider` stays unhonoured because the info line is the frame's footer, with no
-divider to drop.
+manager it made.
 
 Everything else is `honoured=False`.
 

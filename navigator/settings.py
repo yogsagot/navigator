@@ -452,7 +452,7 @@ class FMSetupData(Section):
         True, doc="Backspace goes to the parent directory while the command line is empty",
     )
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
-    info_divider: bool = Setting(True, doc="Info divider", honoured=False)
+    info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")
     tag_sign: str = Setting("√", doc="Tag sign; empty means √")
 
@@ -477,17 +477,18 @@ class PanelDefaultsData(Section):
     sort_by: str = Setting(
         "name", choices=SORT_BY, aliases={"group": "type"}, doc="A new panel's order (Alt+B changes one panel's)",
     )
-    directory_length: bool = Setting(False, doc="Directory length", honoured=False)
+    #: ``fmiDirLen``: each directory's bytes counted at every read (Esc stops it).
+    directory_length: bool = Setting(False, doc="Count each directory's bytes into its size at every read")
     current_file: bool = Setting(True, doc="The info line names the current file")
     selected_files: bool = Setting(True, doc="The info line totals the selected files")
-    totals: bool = Setting(False, doc="Totals", honoured=False)
-    free_space: bool = Setting(True, doc="Free space", honoured=False)
+    totals: bool = Setting(False, doc="A line under the listing totals its files")
+    free_space: bool = Setting(True, doc="A line under the listing gives the free space")
     files_highlight: bool = Setting(True, doc="Colour files by type")
     executables_first: bool = Setting(True, doc="Executables before the other files, by name, extension and type")
     archives_first: bool = Setting(True, doc="Archives before the other files, by name, extension and type")
     left_panel: str = Setting(
         "files", choices=LEFT_PANEL, aliases={"drive": "files"},
-        doc="Left panel in a new Manager", honoured=False,
+        doc="Left panel in a new Manager",
     )
 
 

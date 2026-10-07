@@ -105,6 +105,11 @@ Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold:
    A departure: DN drew them in `[86] List divider', which is left inert. */
 Panel::heading       { fg: $column-title-fg; bg: $column-title-bg; bold: $column-title-bold; dim: $column-title-dim; italic: $column-title-italic; underline: $column-title-underline; reverse: $column-title-reverse }
 Panel::divider       { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+/* The info lines under the listing (TInfoView): [122]-[125]. */
+Panel::totals             { fg: $info-totals-text-fg; bg: $info-totals-text-bg; bold: $info-totals-text-bold; dim: $info-totals-text-dim; italic: $info-totals-text-italic; underline: $info-totals-text-underline; reverse: $info-totals-text-reverse }
+Panel::totals-numbers     { fg: $info-totals-numbers-fg; bg: $info-totals-numbers-bg; bold: $info-totals-numbers-bold; dim: $info-totals-numbers-dim; italic: $info-totals-numbers-italic; underline: $info-totals-numbers-underline; reverse: $info-totals-numbers-reverse }
+Panel::free-space         { fg: $info-free-space-text-fg; bg: $info-free-space-text-bg; bold: $info-free-space-text-bold; dim: $info-free-space-text-dim; italic: $info-free-space-text-italic; underline: $info-free-space-text-underline; reverse: $info-free-space-text-reverse }
+Panel::free-space-numbers { fg: $info-free-space-numbers-fg; bg: $info-free-space-numbers-bg; bold: $info-free-space-numbers-bold; dim: $info-free-space-numbers-dim; italic: $info-free-space-numbers-italic; underline: $info-free-space-numbers-underline; reverse: $info-free-space-numbers-reverse }
 
 /* The directory tree a panel becomes (Ctrl+T): the File Manager group's own
    tree slots, [94] to [101].  The lines and the ground are *Normal tree*, the
