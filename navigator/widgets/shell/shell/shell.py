@@ -38,6 +38,7 @@ from navigator.widgets.shell.commands import (
     EditorDefaults,
     ExecuteCommandLine,
     FileManagerDefaults,
+    EnvEdit,
     FileManagerSetup,
     HistoryList,
     InsertName,
@@ -140,6 +141,27 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_env_edit(self, event: EnvEdit) -> bool:
+        self.spawn(self.edit_environment())
+        return True
+
+    async def edit_environment(self) -> None:
+        """Utilities > Edit environment: ``EditDOSEvironment`` over Navigator's
+        own variables; OK makes what changed so there (``navigator.environ``)
+        and in the console's shell, unseen (``Subshell.set_environment``)."""
+        import os
+
+        from navigator.environ import apply, changes
+        from navigator.widgets.shell.environment_dialog import EnvironmentDialog
+
+        before = dict(os.environ)
+        after = await EnvironmentDialog(before).execute(self.application)
+        if after is None:
+            return
+        found = changes(before, after)
+        apply(found)
+        self.console.subshell.set_environment(found)
 
     async def on_history_list(self, event: HistoryList) -> bool:
         self.spawn(self.command_history())

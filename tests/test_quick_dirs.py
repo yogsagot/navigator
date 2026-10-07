@@ -94,17 +94,17 @@ def test_alt_shift_n_bookmarks_at_n_alt_n_goes_and_alt_shift_0_opens_the_box(pla
     seen = {}
     run_app(app, [
         into("one"), lambda a: None,
-        KeyEvent("1", alt=True, shift=True), Until(titled("Confirm")),
+        KeyEvent("1", alt=True, shift=True), Until(titled("Confirm"), timeout=5),
         lambda a: seen.update(ask=a.modal.prompt), KeyEvent("y", alt=True), lambda a: None,
         lambda a: seen.update(order=[Path(r.path).name for r in bookmarks()]),
         into(".."), lambda a: None,
-        KeyEvent("2", alt=True), Until(lambda a: a.manager.left.path == place / "two"),
-        KeyEvent("!", "!", alt=True), Until(titled("Confirm")), KeyEvent("y", alt=True), lambda a: None,
+        KeyEvent("2", alt=True), Until(lambda a: a.manager.left.path == place / "two", timeout=5),
+        KeyEvent("!", "!", alt=True), Until(titled("Confirm"), timeout=5), KeyEvent("y", alt=True), lambda a: None,
         lambda a: seen.update(again=[Path(r.path).name for r in bookmarks()]),
         KeyEvent("1", alt=True), lambda a: None, lambda a: None,
         lambda a: seen.update(at=a.manager.left.path),
         KeyEvent("0", alt=True, shift=True),
-        Until(lambda a: any(isinstance(c, PopupMenu) for c in a.root.children)),
+        Until(lambda a: any(isinstance(c, PopupMenu) for c in a.root.children), timeout=5),
         lambda a: seen.update(box=True), KeyEvent("escape"),
     ])
     assert seen["ask"] == "Store this directory\nas bookmark 1?"

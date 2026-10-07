@@ -1,0 +1,88 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+
+#: Utilities > Edit environment: DOS Navigator's ``dlgEditEnvironment``.
+#:
+#: The names on the left, the focused one's value on the line under them,
+#: and OK, *Rename*, *Append*, *Delete* and Cancel down the right, as
+#: ``DN.DNR`` and ``MakeDialog`` laid them out, a little larger.  The title
+#: drops DN's *DOS*.  Help is left out.
+EnvironmentDialog(Dialog):
+    modal_width: 62
+    modal_height: 20
+    title: "Environment Variables Editor"
+
+    Label:
+        id: names_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~V~ariables"
+        link: names
+
+    #: DN's ``TVarList``.
+    ListViewer:
+        id: names
+        x: 2
+        y: 2
+        width: 45
+        height: 13
+
+    #: The focused variable's value; what is typed is kept as the cursor
+    #: moves on, as ``FocusItem`` kept it.
+    Field:
+        id: value
+        x: 2
+        y: 16
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Val~u~e"
+        label_width: 7
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 49
+        y: 2
+        width: 11
+        height: 2
+
+    #: ``cmYes`` broadcast: the focused variable renamed.
+    Button:
+        id: rename
+        text: "~R~ename"
+        x: 49
+        y: 4
+        width: 11
+        height: 2
+
+    #: ``cmOK`` broadcast: a variable added where the cursor is.
+    Button:
+        id: append
+        text: "~A~ppend"
+        x: 49
+        y: 6
+        width: 11
+        height: 2
+
+    #: ``cmNo`` broadcast: the focused variable deleted, asked first.
+    Button:
+        id: delete
+        text: "~D~elete"
+        x: 49
+        y: 8
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 49
+        y: 10
+        width: 11
+        height: 2

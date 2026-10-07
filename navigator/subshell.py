@@ -617,6 +617,28 @@ class Subshell:
         self._send_next()
         return True
 
+    def set_environment(self, changes: dict[str, str | None]) -> bool:
+        """Tell the running shell what Utilities > Edit environment changed:
+        a line it runs unseen, as the ``cd`` is -- ``export`` and ``unset``,
+        or fish's ``set -gx`` and ``set -e``.  Only a shell with Navigator's
+        hook in it is told; another keeps its copy until it starts again,
+        when it takes Navigator's own.  False if it was not told.
+        """
+        if not changes or not self.is_running or not self.can_complete:
+            return False
+        fish = Path(self.shell).name == "fish"
+        parts = []
+        for name, value in changes.items():
+            if value is None:
+                parts.append(f"set -e {shlex.quote(name)}" if fish else f"unset {shlex.quote(name)}")
+            elif fish:
+                parts.append(f"set -gx {shlex.quote(name)} {shlex.quote(value)}")
+            else:
+                parts.append(f"export {name}={shlex.quote(value)}")
+        self._queue.append((" " + "; ".join(parts), "silent"))
+        self._send_next()
+        return True
+
     def history(self, callback: Callable[[list[str]], None]) -> bool:
         """Ask for the shell's history, newest first -- what readline's Up walks.
 

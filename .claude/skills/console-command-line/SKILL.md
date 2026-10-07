@@ -131,6 +131,17 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 - **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
   which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
 
+## Edit environment (Utilities)
+
+`EnvEdit`, `Shell.edit_environment`, DN's `cmEnvEdit` -> `EditDOSEvironment`: `EnvironmentDialog`
+(`dlgEditEnvironment`) over `os.environ`, names sorted, the focused one's value on the *Value* line (kept as the
+cursor moves, DN's `FocusItem`/`SetValue`); *Append* (`NAME=value` in `EditLineDialog`, history `new_variable`,
+put where the cursor is), *Rename* (the value goes with it), *Delete* (`dlEnvDelConfirm`). OK: `environ.changes`
+before/after, `environ.apply` to Navigator's own environment -- what the external viewer/editor, the user menu and a
+shell started anew take -- and `Subshell.set_environment` tells the running shell in one silent line (`export`/`unset`,
+fish's `set -gx`/`set -e`), only a shell with the hook (`can_complete`); another keeps its copy until it restarts.
+Names keep their case (DN upper-cased them).
+
 ## Commands history (Alt+F8)
 
 `HistoryList` (global key; Utilities > Commands History), DN's `cmHistoryList` -> `CmdHistory`:

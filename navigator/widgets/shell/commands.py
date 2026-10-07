@@ -109,6 +109,13 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class EnvEdit(Command):
+    """Utilities > Edit environment: the environment variables, in an editor.
+
+    DOS Navigator's ``cmEnvEdit`` (``EditDOSEvironment``).
+    """
+
+
 class HistoryList(Command):
     """Alt+F8, Utilities > Commands History: the commands typed, in a box.
 
@@ -134,6 +141,7 @@ __all__ = [
     "About",
     "MenuFileEdit",
     "HistoryList",
+    "EnvEdit",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",
