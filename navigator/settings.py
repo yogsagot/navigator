@@ -582,6 +582,29 @@ class HighlightGroupsData(Section):
     temp: str = Setting(filetypes.CATEGORIES["temp"], doc="Backups and temporary files")
 
 
+class SaversData(Section):
+    """``TSaversData``: Options > Configuration > Screen savers (DN's
+    ``TSaversDialog``) -- which savers take turns, after how long, and
+    whether the mouse's corners call one (``cfgSaversData``)."""
+
+    name = "savers"
+    title = "Options > Configuration > Screen savers (DN's TSaversDialog)"
+
+    #: DN's *Time*: never, or 1, 2, 5 or 10 minutes without a key or a click.
+    TIMES: ClassVar[tuple[str, ...]] = ("never", "1", "2", "5", "10")
+
+    #: Empty, as DN's list began: no saver comes until one is chosen.
+    selected: str = Setting("", doc="The savers taking turns, by name, separated by commas")
+    time: str = Setting("1", choices=TIMES, doc="Minutes idle before a saver comes, or never")
+    mouse: bool = Setting(
+        False, doc="The pointer in the top right corner calls a saver; in the bottom right, none comes",
+    )
+
+    def names(self) -> list[str]:
+        """:attr:`selected` as a list."""
+        return [name for name in (part.strip() for part in self.selected.split(",")) if name]
+
+
 class UUCodeData(Section):
     """``TUUEncodeData`` and ``UUDecodeOptions``: what File > UU Encode and
     UU Decode were last accepted with, kept as DN kept them (``cfgUUEData``)."""
@@ -613,7 +636,7 @@ class UUCodeData(Section):
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, UUCodeData,
+    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, UUCodeData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -644,6 +667,7 @@ class Settings:
     drive_info: DriveInfoData
     column_defaults: ColumnDefaultsData
     highlight_groups: HighlightGroupsData
+    savers: SaversData
     uucode: UUCodeData
 
     def __init__(self) -> None:

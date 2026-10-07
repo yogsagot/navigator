@@ -63,7 +63,8 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `Application(double_click=...)`. Clockless by construction (told `now`).
 - **The one clock is `Application.call_every(seconds, async_callback)`**, returning a cancellable `Repeat`; callable
   before the loop runs; every tick is posted and awaited inside a dispatch.
-- Hover: a position the application keeps (`hovered` state).
+- Hover: a position the application keeps (`hovered` state). `Application.pointer` is the last reported `(x, y)` of
+  any mouse report, plain motion included -- a plain attribute, not reactive (the screen savers' corners read it).
 
 ## Commands and key tables
 

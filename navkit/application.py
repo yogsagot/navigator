@@ -236,6 +236,10 @@ class Application:
     #: follow it the way ``focused`` follows the keyboard.  Left alone while
     #: the mouse is captured: a drag is not the pointer wandering.
     hovered: Widget | None = reactive(None)
+    #: Where the terminal last said the mouse pointer was, ``(x, y)`` on the
+    #: screen, or None before it has said.  Plain, not reactive: a fact for
+    #: whoever asks (DN's ``MouseWhere``), moved by every report.
+    pointer: tuple[int, int] | None = None
     #: The modifier keys held down right now -- some of ``ctrl``, ``alt`` and
     #: ``shift``.  Moved only by a :class:`ModifiersEvent`, which only a
     #: terminal speaking the kitty keyboard protocol sends, so elsewhere it is
@@ -930,6 +934,8 @@ class Application:
         # early for a claimed event and re-enters itself for a double click,
         # so a plain reset would report "not dispatching" while the outer call
         # still is.
+        if isinstance(event, MouseClickEvent):
+            self.pointer = (event.x, event.y)
         if isinstance(event, MouseClickEvent) and _is_plain_motion(event):
             # The pointer moving with no button held.  A fact the application
             # keeps rather than an event anybody is offered: mode 1003 reports

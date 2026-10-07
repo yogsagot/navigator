@@ -78,6 +78,8 @@ class Navigator(Application):
         self._start = left
         #: When a key, a click or a paste last came: *Inactivity hour exit*.
         self._last_input = 0.0
+        #: Whether the pointer was in the top right corner at the last look.
+        self._in_corner = False
         kwargs.setdefault("title", "Navigator")
         self.shell = Shell(left, right, scheme)
         self.shell.theme = theme
@@ -100,6 +102,7 @@ class Navigator(Application):
             self.manager.apply_left_panel()
         self._last_input = self._now()
         self.call_every(self.idle_check_every, self._check_idle)
+        self.call_every(self.saver_check_every, self._check_saver)
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
         # once its desktop was in place (``RunMenu``).
         if SETTINGS.startup.auto_user_menu:
@@ -128,6 +131,31 @@ class Navigator(Application):
     idle_exit_after = 3600.0
     #: How often that is looked at.
     idle_check_every = 60.0
+
+    #: How often the screen savers' *Time* and corners are looked at.
+    saver_check_every = 1.0
+
+    async def _check_saver(self) -> None:
+        """``InsertIdler``'s callers: *Time* minutes with no key or click
+        (``GetEvent``), or with *Use mouse* the pointer coming into the top
+        right corner (``EventError``) -- and none while it rests in the
+        bottom right.  Not while a command runs on the console, which DN
+        was not running to notice."""
+        from navigator.savers import DELAYS
+
+        shell, savers = self.shell, SETTINGS.savers
+        if shell.resting or shell.console.busy or not savers.names():
+            return
+        width, height = shell.width, shell.height
+        pointer = self.pointer if savers.mouse else None
+        corner = pointer == (width - 1, 0)
+        came, self._in_corner = corner and not self._in_corner, corner
+        if pointer == (width - 1, height - 1):
+            return
+        delay = DELAYS.get(savers.time)
+        if came or (delay is not None and self._now() - self._last_input >= delay):
+            self._last_input = self._now()
+            self.spawn(shell.rest())
 
     async def on_event(self, event: Event) -> bool:
         if isinstance(event, (KeyEvent, MouseClickEvent, PasteEvent)):

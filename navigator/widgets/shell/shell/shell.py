@@ -12,6 +12,7 @@ what a Python-only widget would say too, and it is the base the markup's
 from __future__ import annotations
 
 import os
+import random
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -29,6 +30,8 @@ from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScr
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
+    SaversSetup,
+    ScreenRest,
     About,
     ChangeColors,
     DriveInfoSetup,
@@ -155,6 +158,8 @@ class Shell(DockLayout):
         #: Whether the console was put up by a command rather than by Ctrl+O,
         #: and so is to be taken down again when the command is done.
         self._shown_for_command = False
+        #: A screen saver is up (``SSaver <> nil``): no second one comes.
+        self.resting = False
         #: Whether the real terminal was handed to the shell for a command
         #: rather than by Ctrl+O, and so is to be taken back when it is done.
         self._relayed_for_command = False
@@ -1714,6 +1719,48 @@ class Shell(DockLayout):
 
         self.spawn(self.setup(ColumnDefaultsDialog(), "column_defaults"))
         return True
+
+    async def on_savers_setup(self, event: SaversSetup) -> bool:
+        from navigator.widgets.setup.savers_dialog import SaversDialog
+
+        self.spawn(self.setup(SaversDialog(), "savers"))
+        return True
+
+    async def on_screen_rest(self, event: ScreenRest) -> bool:
+        self.spawn(self.rest(asked=True))
+        return True
+
+    async def rest(self, *, asked: bool = False) -> None:
+        """``InsertIdler``: one of the selected savers, at random, until a key.
+
+        A built-in one is :class:`ScreenSaver` over everything; an external
+        one runs on the console as a command does, until it exits.  With
+        none selected DN did nothing; ≡ > Screen rest, *asked*, brings
+        *Star flight* then, a departure -- a menu item that did nothing
+        looked broken.
+        """
+        import shlex
+
+        from navigator import savers
+        from navigator.widgets.shell.screen_saver import KINDS, ScreenSaver
+
+        app = self.application
+        if app is None or self.resting:
+            return
+        names = SETTINGS.savers.names() or (["star_flight"] if asked else [])
+        if not names:
+            return
+        name = random.choice(names)
+        self.resting = True
+        try:
+            if name in KINDS:
+                await ScreenSaver(name).execute(app)
+            else:
+                path = savers.savers_dir() / name
+                if path.is_file() and not self.console.busy:
+                    self.run_command(shlex.quote(str(path)), typed=False)
+        finally:
+            self.resting = False
 
     async def on_highlight_groups(self, event: HighlightGroups) -> bool:
         from navigator.widgets.setup.highlight_dialog import HighlightDialog

@@ -190,8 +190,23 @@ class LocalMenuFileEdit(Command):
     """
 
 
+class SaversSetup(Command):
+    """Options > Configuration > Screen savers: DOS Navigator's ``cmSaversSetup``."""
+
+    title = "Screen Savers"
+
+
+class ScreenRest(Command):
+    """≡ > Screen rest: DOS Navigator's ``cmScreenRest`` -- a screen saver now
+    (``InsertIdler``)."""
+
+    title = "Screen Rest"
+
+
 __all__ = [
     "About",
+    "SaversSetup",
+    "ScreenRest",
     "MenuFileEdit",
     "HistoryList",
     "EnvEdit",
