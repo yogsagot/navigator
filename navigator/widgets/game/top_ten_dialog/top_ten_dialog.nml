@@ -1,0 +1,21 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: DOS Navigator's ``dlgTetrisTop10`` and ``dlgPentixTop10``: the heading,
+#: and ten lines under it in a frame (``ShowScores``), the one just entered
+#: bright.  OK alone, as DN's.
+TopTenDialog(Dialog):
+    modal_width: 59
+    modal_height: 19
+    title: "Pentix Top Ten" if root.game_style == "pentix" else "Tetris Top Ten"
+    buttons: "ok"
+
+    property game_style: "tetris"
+
+    Label:
+        id: heading
+        x: 2
+        y: 2
+        width: 55
+        height: 1
+        text: "~Name                           Start  End       Score~"

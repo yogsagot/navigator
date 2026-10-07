@@ -30,7 +30,7 @@ layered in three parts, each depending only on the one below:
 names has to be importable by its own name.
 
 Still to come (README sketches it): pluggable filesystem handlers (ssh, smb, archives), a plugin system, the rest of the
-editor's phases, DN's TETRIS easter egg.
+editor's phases.
 
 ## Environment and commands
 
@@ -157,6 +157,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `dn.mnu` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
+| `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |

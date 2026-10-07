@@ -605,6 +605,21 @@ class SaversData(Section):
         return [name for name in (part.strip() for part in self.selected.split(",")) if name]
 
 
+class TetrisData(Section):
+    """``TetrisRec``: ≡ > Game's *Setup game* (DN's ``dlgGameSetup``), kept
+    as DN kept it (``cfgTetrisRec``)."""
+
+    name = "tetris"
+    title = "≡ > Game > Setup (DN's dlgGameSetup)"
+
+    STYLES: ClassVar[tuple[str, ...]] = ("tetris", "pentix")
+
+    #: DN's ``L: 4``, the fifth level, *Never mind*.
+    level: int = Setting(5, doc="The level a game starts at, 1 to 10")
+    style: str = Setting("tetris", choices=STYLES, doc="Classic Tetris, or Pentix's 27 figures")
+    preview: bool = Setting(False, doc="Show the next piece (it scores less)")
+
+
 class UUCodeData(Section):
     """``TUUEncodeData`` and ``UUDecodeOptions``: what File > UU Encode and
     UU Decode were last accepted with, kept as DN kept them (``cfgUUEData``)."""
@@ -636,7 +651,7 @@ class UUCodeData(Section):
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, UUCodeData,
+    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, TetrisData, UUCodeData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -668,6 +683,7 @@ class Settings:
     column_defaults: ColumnDefaultsData
     highlight_groups: HighlightGroupsData
     savers: SaversData
+    tetris: TetrisData
     uucode: UUCodeData
 
     def __init__(self) -> None:

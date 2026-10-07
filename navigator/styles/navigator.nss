@@ -43,13 +43,18 @@ Window::title       { fg: $frame-fg; bg: $frame-bg; bold: $frame-bold; dim: $fra
 Window:active::title { fg: $active-frame-fg; bg: $active-frame-bg; bold: $active-frame-bold; dim: $active-frame-dim; italic: $active-frame-italic; underline: $active-frame-underline; reverse: $active-frame-reverse }
 Window::icon        { fg: $frame-icon-fg; bg: $frame-icon-bg; bold: $frame-icon-bold; dim: $frame-icon-dim; italic: $frame-icon-italic; underline: $frame-icon-underline; reverse: $frame-icon-reverse }
 
-/* The calculator is a dialog DN put on the desktop as a window: a dialog's
-   colours, its frame single while another window is in front. */
-CalculatorWindow               { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
-CalculatorWindow:active        { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+/* The calculator and the game are dialogs DN put on the desktop as windows: a
+   dialog's colours, the frame single while another window is in front. */
+CalculatorWindow,
+GameWindow                     { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+CalculatorWindow:active,
+GameWindow:active              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 CalculatorWindow::title,
-CalculatorWindow:active::title { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
-CalculatorWindow::icon         { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
+CalculatorWindow:active::title,
+GameWindow::title,
+GameWindow:active::title       { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+CalculatorWindow::icon,
+GameWindow::icon               { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 
 /* A panel's own colours are its listing colours, which is also what the frame
    and the fill inherit -- as in the original, where the frame and the interior
@@ -262,6 +267,13 @@ DragLabel              { fg: black; bg: cyan }
 /* The screen savers (screen_saver.py): DN drew them in $07, light grey on
    black, its stars' bright ones in $0F -- no palette entry either. */
 ScreenSaver            { fg: light_gray; bg: black }
+
+/* The game's Info and Best boxes (TGameInfo): label colours, the numbers
+   bright; the Best box in the clusters' colours, as Owner^.GetColor($1112). */
+GameInfo::info         { fg: $dialog-label-normal-fg; bg: $dialog-label-normal-bg; bold: $dialog-label-normal-bold; dim: $dialog-label-normal-dim; italic: $dialog-label-normal-italic; underline: $dialog-label-normal-underline; reverse: $dialog-label-normal-reverse }
+GameInfo::info-bright  { fg: $dialog-label-selected-fg; bg: $dialog-label-selected-bg; bold: $dialog-label-selected-bold; dim: $dialog-label-selected-dim; italic: $dialog-label-selected-italic; underline: $dialog-label-selected-underline; reverse: $dialog-label-selected-reverse }
+GameInfo::best         { fg: $dialog-cluster-selected-fg; bg: $dialog-cluster-selected-bg; bold: $dialog-cluster-selected-bold; dim: $dialog-cluster-selected-dim; italic: $dialog-cluster-selected-italic; underline: $dialog-cluster-selected-underline; reverse: $dialog-cluster-selected-reverse }
+GameInfo::best-bright  { fg: $dialog-cluster-shortcut-fg; bg: $dialog-cluster-shortcut-bg; bold: $dialog-cluster-shortcut-bold; dim: $dialog-cluster-shortcut-dim; italic: $dialog-cluster-shortcut-italic; underline: $dialog-cluster-shortcut-underline; reverse: $dialog-cluster-shortcut-reverse }
 
 /* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
    its text in their static text, dragged in their frame icons' colour. */

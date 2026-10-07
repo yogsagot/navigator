@@ -30,6 +30,7 @@ from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScr
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
+    Game,
     ToggleTrashCan,
     SaversSetup,
     ScreenRest,
@@ -1732,6 +1733,25 @@ class Shell(DockLayout):
         if isinstance(command, ToggleTrashCan):
             return self.trash.shown
         return super().checks(command)
+
+    async def on_game(self, event: Game) -> bool:
+        """≡ > Game: ``TGameWindow`` -- the one game window, brought forward if
+        it is open, else opened in the middle of the desktop (``ofCentered``)."""
+        from navigator.widgets.game.game_window import GameWindow
+        from navigator.widgets.game.game_window.game_window import HEIGHT, WIDTH
+
+        if self.console_visible:
+            self.toggle_console()
+        desktop = self.desktop
+        for window in desktop.windows():
+            if isinstance(window, GameWindow):
+                desktop.activate(window)
+                return True
+        window = desktop.open(GameWindow())
+        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
+        window.locate(max(0, (desktop.width - width) // 2), max(0, (desktop.height - height) // 2), width, height)
+        window.glass.focus()
+        return True
 
     async def on_toggle_trash_can(self, event: ToggleTrashCan) -> bool:
         """≡ > Trashcan on/off: ``cmHideShowTools``."""

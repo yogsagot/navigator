@@ -1,0 +1,81 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: DOS Navigator's ``dlgGameSetup``: the ten levels down the left, the game
+#: style and the preview on the right, OK and Cancel under them -- the
+#: resource's places, its 53 by 15.
+GameSetupDialog(Dialog):
+    modal_width: 53
+    modal_height: 15
+    title: "Setup game"
+
+    Label:
+        id: level_caption
+        x: 3
+        y: 2
+        width: 8
+        height: 1
+        text: "Level"
+        link: level
+
+    RadioButtons:
+        id: level
+        x: 3
+        y: 3
+        width: 25
+        height: 10
+        items: ["~1~ - Baby", "~2~ - Little fella", "~3~ - Big child", "~4~ - It's easy", "~5~ - Never mind", "~6~ - I'm powerful !", "~7~ - Insanity coming", "~8~ - So what ?..", "~9~ - Madness", "1~0~ - Sanitarium"]
+
+    Label:
+        id: style_caption
+        x: 30
+        y: 2
+        width: 12
+        height: 1
+        text: "~G~ame style"
+        link: game_style
+
+    RadioButtons:
+        id: game_style
+        x: 30
+        y: 3
+        width: 20
+        height: 2
+        items: ["Classic ~t~etris", "Penti~x~"]
+
+    Label:
+        id: options_caption
+        x: 30
+        y: 6
+        width: 10
+        height: 1
+        text: "~O~ptions"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 30
+        y: 7
+        width: 19
+        height: 1
+        items: ["~P~iece preview"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 40
+        y: 9
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 40
+        y: 11
+        width: 11
+        height: 2

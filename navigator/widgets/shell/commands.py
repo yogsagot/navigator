@@ -190,6 +190,11 @@ class LocalMenuFileEdit(Command):
     """
 
 
+class Game(Command):
+    """≡ > Game, Alt+F9: DOS Navigator's ``cmGame`` -- *Navigator's game*,
+    Tetris.  No title: DN's status line gave Alt+F9 no caption."""
+
+
 class ToggleTrashCan(Command):
     """≡ > Trashcan on/off: DOS Navigator's ``cmHideShowTools`` -- the trash
     can files are dropped on to erase them, shown or hidden."""
@@ -214,6 +219,7 @@ __all__ = [
     "About",
     "SaversSetup",
     "ToggleTrashCan",
+    "Game",
     "ScreenRest",
     "MenuFileEdit",
     "HistoryList",

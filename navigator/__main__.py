@@ -54,6 +54,7 @@ from navigator.widgets.shell.commands import (
     EditHistory,
     ExecuteCommandLine,
     QuickRun,
+    Game,
     HistoryList,
     NewManager,
     ViewHistory,
@@ -256,6 +257,8 @@ class Navigator(Application):
         "ctrl+b": AsciiTable,
         #: ≡ > *SmartPad (TM)*, DN's ``kbAltQ`` -- from anywhere the desktop is.
         "alt+q": OpenSmartpad,
+        #: ≡ > *Game*, DN's ``kbAltF9`` -- *Navigator's game*, from anywhere.
+        "alt+f9": Game,
         "alt+x": Quit(desktop=True),
         "enter": ExecuteCommandLine,
         "home": CommandLineHome,

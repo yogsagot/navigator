@@ -1,0 +1,18 @@
+from navkit.database import Model
+
+#: One line of a Top Ten: DN's ``HiScores`` record, kept in ``dn.tet``.
+#:
+#: Ten for Tetris and ten for Pentix, as DN's twenty were, told apart by
+#: ``style``.  Better first; one as good as another goes after it.
+TetrisScore(Model):
+    table: "tetris_scores"
+    #: ``tetris`` or ``pentix``.
+    field style: str
+    field name: str
+    #: The level the game began at and the one it ended at.
+    field start: int
+    field end: int
+    field score: int
+    #: Larger is newer: the tie-break, older first.
+    field seq: int
+    index by_style: style, score

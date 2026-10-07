@@ -1,0 +1,77 @@
+from navigator.widgets.game.commands import GameSetup, LevelUp, NewGame, PauseGame, ShowTopTen, TogglePreview
+from navigator.widgets.game.game_window.glass import Glass
+from navigator.widgets.game.game_window.info import GameInfo
+from navml.commands import CloseWindow
+from navml.widgets.dialog.button import Button
+from navml.widgets.window import Window
+
+#: ≡ > Game: DOS Navigator's ``TGameWindow``, *Navigator's game*.
+#:
+#: A dialog DN put on the desktop as a window, one at a time: the glass down
+#: the left, *Info* with *Next* and *Best* beside it, and *New*, *Setup*,
+#: *Top 10* and *Pause* under them, where ``TGameWindow.Init`` put them --
+#: the glass's frame on the window's bottom edge, as its rectangles put it
+#: there in DN.  Its keys are ``StatusDef hcTetris``'s.
+GameWindow(Window):
+    title: "Navigator's game"
+    zoomable: False
+    resizable: False
+
+    keys:
+        escape: CloseWindow
+        f2: NewGame
+        f3: PauseGame
+        f4: ShowTopTen
+        f5: GameSetup
+        kp_plus: LevelUp
+        kp_multiply: TogglePreview
+        alt+n: NewGame
+        alt+p: PauseGame
+        alt+t: ShowTopTen
+        alt+s: GameSetup
+
+    Glass:
+        id: glass
+        x: 1
+        y: 1
+        width: 26
+        height: 21
+
+    GameInfo:
+        id: info
+        x: 28
+        y: 1
+        width: 23
+        height: 15
+
+    Button:
+        id: new_button
+        text: "~N~ew"
+        x: 28
+        y: 17
+        width: 11
+        height: 2
+
+    Button:
+        id: setup_button
+        text: "~S~etup"
+        x: 39
+        y: 17
+        width: 11
+        height: 2
+
+    Button:
+        id: top_button
+        text: "~T~op 10"
+        x: 28
+        y: 19
+        width: 11
+        height: 2
+
+    Button:
+        id: pause_button
+        text: "~P~ause"
+        x: 39
+        y: 19
+        width: 11
+        height: 2

@@ -1,0 +1,21 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: DOS Navigator's ``dlgTetrisWinner``: a name for the Top Ten, its history
+#: ``hsTetris``.  A row taller than DN's 50 by 7, for this library's
+#: buttons; Help is left out.
+WinnerDialog(Dialog):
+    modal_width: 50
+    modal_height: 8
+    title: "You have entered Top Ten!"
+    buttons: "ok-cancel"
+
+    Field:
+        id: player
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Enter your name:"
+        label_width: 18
+        history_id: "tetris"
