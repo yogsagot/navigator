@@ -81,11 +81,18 @@ on the same mask after each, until *Close*.
 ## Columns Setup (Alt+K)
 
 `SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
-`ColumnsDialog` (`dlgDiskParms`; `dlgFindParms`'s *Path* box only in a *Find:* listing) over **`Panel.columns`**, the
-detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date, and `path` (`display_path`,
-measured like owner up to `MAX_PATH_WIDTH`, cut from its start), shown only where entries are from elsewhere. OK
-shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the list mode; *Full*
-every column. `DROP_ORDER` still drops columns (owner, attributes, path, date) to keep the name `MIN_NAME_WIDTH`.
+`ColumnsDialog` (`dlgDiskParms`; `dlgFindParms`'s *Path* box only in a *Find:* listing) over
+**`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date,
+and `path` (`display_path`, measured like owner up to `MAX_PATH_WIDTH`, cut from its start), shown only where entries
+are from elsewhere. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
+list mode; *Full* every column. `DROP_ORDER` still drops columns (owner, attributes, path, date) to keep the name
+`MIN_NAME_WIDTH`.
+
+A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, so a panel holds two sets:
+`Panel.columns` over a directory and `Panel.find_columns` over a listing; `shown_columns` reads and writes whichever
+is showing. **Options > File Manager > Column defaults** (`ColumnDefaults`, `dlgColumnsDefaults`,
+`[column_defaults]`) seeds them: `columns` when a panel is made, `find_columns` by every `show_found` (DN's
+`TFindDrive.Init`). Only `columns` goes into the saved desktop.
 
 ## Hidden files (Ctrl+H)
 

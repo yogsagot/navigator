@@ -513,11 +513,50 @@ class DriveInfoData(Section):
     information_file: bool = Setting(True, doc="The directory's DirInfo or File_ID.DIZ")
 
 
+class ColumnDefaultsData(Section):
+    """``dlgColumnsDefaults`` / ``ColumnsDefaults``: the detailed columns a new listing shows.
+
+    DN kept a ``ShowFlags`` word for each kind of drive -- *Disk Drive*,
+    *File find*, *TEMP:*, *Archives* and *TDR View* -- and each new drive took
+    its kind's.  Two of them are listings here: a directory, and a *Find:*
+    listing (Alt+F7, Panel > Directory Branch, Read file list).  *TEMP:* and
+    *TDR View* only meant something on DOS; *Archives* comes with archive
+    handlers.  The boxes are *Columns Setup*'s (Alt+K), POSIX's size,
+    attributes, owner and date where DN's were size, date, time and
+    descriptions.  DN's defaults were 0, its brief panel; Navigator's panels
+    always showed every column, so every box defaults on.
+    """
+
+    name = "column_defaults"
+    title = "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)"
+
+    #: *Disk Drive*'s boxes, in their order.
+    DISK: ClassVar[tuple[str, ...]] = ("disk_size", "disk_attributes", "disk_owner", "disk_date")
+    #: *File find*'s boxes, in their order.
+    FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_owner", "find_date", "find_path")
+
+    disk_size: bool = Setting(True, doc="A directory shows the size")
+    disk_attributes: bool = Setting(True, doc="A directory shows the attributes")
+    disk_owner: bool = Setting(True, doc="A directory shows the owner")
+    disk_date: bool = Setting(True, doc="A directory shows the date")
+    find_size: bool = Setting(True, doc="A Find: listing shows the size")
+    find_attributes: bool = Setting(True, doc="A Find: listing shows the attributes")
+    find_owner: bool = Setting(True, doc="A Find: listing shows the owner")
+    find_date: bool = Setting(True, doc="A Find: listing shows the date")
+    find_path: bool = Setting(True, doc="A Find: listing shows each file's directory")
+
+    def columns(self, listing: bool) -> frozenset[str]:
+        """The columns a new directory (*listing* false) or *Find:* listing shows,
+        as ``Panel.columns`` names them."""
+        names = self.FIND if listing else self.DISK
+        return frozenset(name.split("_", 1)[1] for name in names if getattr(self, name))
+
+
 #: Every section, in the order the file lists them.
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData,
+    DriveInfoData, ColumnDefaultsData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -546,6 +585,7 @@ class Settings:
     file_manager: FMSetupData
     panel_defaults: PanelDefaultsData
     drive_info: DriveInfoData
+    column_defaults: ColumnDefaultsData
 
     def __init__(self) -> None:
         for cls in SECTIONS:

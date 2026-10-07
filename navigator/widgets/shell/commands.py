@@ -261,6 +261,12 @@ class DriveInfoSetup(Command):
     title = "Information Panel"
 
 
+class ColumnDefaults(Command):
+    """Options > File Manager > Column defaults: DOS Navigator's ``cmColumnDefaults``."""
+
+    title = "Column Defaults"
+
+
 class FileManagerDefaults(Command):
     """Options > File Manager > New Manager defaults: DOS Navigator's ``cmFMDefaults``.
 

@@ -91,3 +91,54 @@ def test_a_find_listing_has_a_path_column_cut_from_its_start(place):
     deep = str(place / "deep" / "er")
     shown = deep if len(deep) <= seen["width"] else "..." + deep[-(seen["width"] - 3):]
     assert any(row.rstrip() == shown for row in seen["rows"])
+
+
+def test_column_defaults_seed_a_new_panel_and_each_find_listing(place):
+    from navigator.settings import SETTINGS
+    from navigator.widgets.manager.commands import DirBranch
+
+    SETTINGS.column_defaults.update({"disk_owner": False, "disk_attributes": False, "find_size": False})
+    app = navigator(place)
+    seen = {}
+
+    def detailed(a):
+        a.manager.left.view_mode = "detailed"
+        seen["disk"] = keys(a.manager.left)
+
+    def narrow(a):
+        a.manager.left.shown_columns = frozenset({"date"})  # Alt+K on the listing: the listing's alone
+
+    run_app(app, [detailed, lambda a: a.spawn(a.run_command(DirBranch)),
+                  Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live),
+                  lambda a: None, lambda a: seen.update(find=keys(a.manager.left)), narrow, lambda a: None,
+                  lambda a: a.manager.left.leave_found(), lambda a: None,
+                  lambda a: seen.update(back=keys(a.manager.left)),
+                  lambda a: a.spawn(a.run_command(DirBranch)),
+                  Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live),
+                  lambda a: None, lambda a: seen.update(again=keys(a.manager.left))])
+    assert seen["disk"] == ["name", "size", "date"]
+    assert seen["find"] == ["name", "attributes", "owner", "date", "path"]
+    assert seen["back"] == ["name", "size", "date"]
+    assert seen["again"] == seen["find"]
+
+
+def test_the_column_defaults_dialog_saves_its_section(place):
+    from navigator.settings import SETTINGS
+    from navigator.widgets.shell.commands import ColumnDefaults
+
+    app = navigator(place)
+    seen = {}
+
+    def untick(a):
+        seen["title"] = a.modal.title
+        seen["before"] = (a.modal.disk.value, a.modal.find.value)
+        a.modal.disk.value = 0b1001
+        a.modal.find.value = 0b10000
+
+    run_app(app, [lambda a: a.spawn(a.run_command(ColumnDefaults)),
+                  Until(lambda a: getattr(a.modal, "title", None) == "Column Defaults", timeout=5),
+                  untick, KeyEvent("enter"), lambda a: None])
+    assert seen["title"] == "Column Defaults" and seen["before"] == (0b1111, 0b11111)
+    assert SETTINGS.column_defaults.columns(False) == {"size", "date"}
+    assert SETTINGS.column_defaults.columns(True) == {"path"}
+    assert "disk_owner = no" in SETTINGS.path.read_text()

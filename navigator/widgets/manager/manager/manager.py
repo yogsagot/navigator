@@ -443,18 +443,18 @@ class Manager(Window):
         from navigator.widgets.manager.columns_dialog import ColumnsDialog
         from navigator.widgets.manager.columns_dialog.columns_dialog import COLUMNS
 
-        answer = await ColumnsDialog(panel.columns, panel.found is not None).execute(self.application)
+        answer = await ColumnsDialog(panel.shown_columns, panel.found is not None).execute(self.application)
         if answer is None:
             return
         if answer[0] == "brief":
             panel.view_mode = "list"
             return
         if answer[0] == "full":
-            panel.columns = frozenset(COLUMNS)
+            panel.shown_columns = frozenset(COLUMNS)
             panel.view_mode = "detailed"
             return
         columns = answer[1]
-        panel.columns = columns
+        panel.shown_columns = columns
         shown = columns - ({"path"} if panel.found is None else set())
         panel.view_mode = "detailed" if shown else "list"
 

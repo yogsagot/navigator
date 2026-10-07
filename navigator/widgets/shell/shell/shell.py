@@ -32,6 +32,7 @@ from navigator.widgets.shell.commands import (
     About,
     ChangeColors,
     DriveInfoSetup,
+    ColumnDefaults,
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
@@ -1526,6 +1527,12 @@ class Shell(DockLayout):
         from navigator.widgets.setup.drive_info_dialog import DriveInfoDialog
 
         self.spawn(self.setup(DriveInfoDialog(), "drive_info"))
+        return True
+
+    async def on_column_defaults(self, event: ColumnDefaults) -> bool:
+        from navigator.widgets.setup.column_defaults_dialog import ColumnDefaultsDialog
+
+        self.spawn(self.setup(ColumnDefaultsDialog(), "column_defaults"))
         return True
 
     async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:

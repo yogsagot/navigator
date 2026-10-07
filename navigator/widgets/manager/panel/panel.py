@@ -521,9 +521,14 @@ class Panel(ListViewer):
     #: ``TFindDrive``, :class:`navigator.filefind.FindListing`), or None.  It
     #: belongs to the directory it was shown at: going anywhere else drops it.
     found: Any = reactive(None)
-    #: The detailed mode's columns this panel shows (*Columns Setup*, Alt+K,
-    #: DN's per-panel ``ShowFlags``); ``path`` counts in a *Find:* listing only.
-    columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date", "path")))
+    #: The detailed mode's columns this panel shows over a directory
+    #: (*Columns Setup*, Alt+K, DN's ``ShowFlags`` of its disk drive), seeded
+    #: from *Column defaults*' *Disk Drive*.
+    columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date")))
+    #: The same over a *Find:* listing, which was a drive of its own in DN
+    #: with its own ``ShowFlags``: seeded from *File find* by each listing
+    #: shown, and the only one of the two where ``path`` counts.
+    find_columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date", "path")))
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -573,6 +578,7 @@ class Panel(ListViewer):
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
+        self.columns = SETTINGS.column_defaults.columns(False)
         if path is not None:
             self.path = path
 
@@ -751,7 +757,22 @@ class Panel(ListViewer):
     def show_found(self, listing: Any) -> None:
         """Show *listing* in place of the directory, the cursor at its top."""
         self._keep = None
+        # DN's ``TFindDrive.Init``: a new drive, *File find*'s defaults.
+        self.find_columns = SETTINGS.column_defaults.columns(True)
         self.found = listing
+
+    @property
+    def shown_columns(self) -> frozenset[str]:
+        """The columns of what the panel lists now: :attr:`find_columns` over a
+        *Find:* listing, :attr:`columns` over a directory."""
+        return self.find_columns if self.found is not None else self.columns
+
+    @shown_columns.setter
+    def shown_columns(self, columns: frozenset[str]) -> None:
+        if self.found is not None:
+            self.find_columns = columns
+        else:
+            self.columns = columns
 
     def leave_found(self) -> None:
         """``..`` in a *Find:* listing: ``ChangeUp``, back to the directory it
@@ -1111,7 +1132,7 @@ class Panel(ListViewer):
         """
         inset, inner = self.inset, self.inner_width
         # *Columns Setup*'s choice, the path only where entries are from elsewhere.
-        wanted, listing = self.columns, self.found is not None
+        wanted, listing = self.shown_columns, self.found is not None
         shown = [key for key in self.DETAIL_ORDER
                  if key in wanted and (key != "path" or listing)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
