@@ -131,6 +131,13 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 - **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
   which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
 
+## Execute OS command (File)
+
+`ExecuteOsCommand` (*Os*, so the handler is `on_execute_os_command`), `Shell.execute_os_command`, DN's
+`cmExecuteDOSCmd` -> `ExecDOSCmd`: `EditLineDialog` titled *Execute OS Command* (DN's said *DOS*), caption
+*Command*, in the command line's history, opened on the file at the active panel's cursor if it is executable
+(shell-escaped, its whole path in a listing, a blank after), the caret at the end; OK is `run_command`, as typed.
+
 ## System Information (Utilities)
 
 `SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/sysinfo.gather` on a

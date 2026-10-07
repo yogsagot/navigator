@@ -39,6 +39,7 @@ from navigator.widgets.shell.commands import (
     ExecuteCommandLine,
     FileManagerDefaults,
     EnvEdit,
+    ExecuteOsCommand,
     SystemInfo,
     FileManagerSetup,
     HistoryList,
@@ -142,6 +143,31 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_execute_os_command(self, event: ExecuteOsCommand) -> bool:
+        self.spawn(self.execute_os_command())
+        return True
+
+    async def execute_os_command(self) -> None:
+        """File > Execute OS command: ``ExecDOSCmd`` -- DN's ``InputBox``, opened
+        on the file at the active panel's cursor if it is one to run (followed
+        by a blank, for its arguments), in the command line's history; OK runs
+        it as though it had been typed there.  *OS* where DN's title said *DOS*."""
+        from navigator.widgets.shell.edit_line_dialog import EditLineDialog
+
+        text = ""
+        manager = self.active_manager
+        entry = manager.active_panel.selected if manager is not None else None
+        if entry is not None and entry.is_executable:
+            name = str(entry.path_in(manager.active_panel.path)) if entry.directory is not None else entry.name
+            text = _escape(name) + " "
+        box = EditLineDialog(text, history=HISTORY_ID, caption="~C~ommand")
+        box.title = "Execute OS Command"
+        box.line.entry.anchor = None
+        box.line.entry.cursor = len(text)
+        command = await box.execute(self.application)
+        if command and command.strip():
+            self.run_command(command)
 
     async def on_system_info(self, event: SystemInfo) -> bool:
         self.spawn(self.system_info())

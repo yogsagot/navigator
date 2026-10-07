@@ -109,6 +109,15 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class ExecuteOsCommand(Command):
+    """File > Execute OS command: a command line asked in a box, and run.
+
+    DOS Navigator's ``cmExecuteDOSCmd`` (``ExecDOSCmd``).  *Os*, not *OS*,
+    so its handler is ``on_execute_os_command`` -- the reason
+    :class:`FileManagerSetup` is spelled out.
+    """
+
+
 class SystemInfo(Command):
     """Utilities > System Information: the machine, its disks, memory and system.
 
@@ -150,6 +159,7 @@ __all__ = [
     "HistoryList",
     "EnvEdit",
     "SystemInfo",
+    "ExecuteOsCommand",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",
