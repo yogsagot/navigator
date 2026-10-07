@@ -190,6 +190,13 @@ class LocalMenuFileEdit(Command):
     """
 
 
+class ToggleTrashCan(Command):
+    """≡ > Trashcan on/off: DOS Navigator's ``cmHideShowTools`` -- the trash
+    can files are dropped on to erase them, shown or hidden."""
+
+    title = "Trashcan"
+
+
 class SaversSetup(Command):
     """Options > Configuration > Screen savers: DOS Navigator's ``cmSaversSetup``."""
 
@@ -206,6 +213,7 @@ class ScreenRest(Command):
 __all__ = [
     "About",
     "SaversSetup",
+    "ToggleTrashCan",
     "ScreenRest",
     "MenuFileEdit",
     "HistoryList",

@@ -19,6 +19,8 @@ What a window keeps:
 - a **tree window** the directory it was on.
 - the **calculator** its expression.
 
+And whether the trash can shows, and where (``TTrashCan``).
+
 A window that cannot be made again -- a file gone, a directory gone -- is
 left out, and the rest come back.  Startup's *Autosave desktop* saves one on
 the way out and restores it at the next start (``Navigator``).
@@ -106,7 +108,12 @@ def snapshot(desktop: Any) -> dict[str, Any]:
         if window is desktop.active_window:
             front = len(windows)
         windows.append(kept)
-    return {"version": VERSION, "windows": windows, "front": front}
+    data: dict[str, Any] = {"version": VERSION, "windows": windows, "front": front}
+    trash = getattr(desktop.parent, "trash", None)
+    if trash is not None:
+        # ``SaveDesktop`` wrote whether the trash can showed, and where.
+        data["trash"] = {"shown": bool(trash.shown), "gap_x": trash.gap_x, "gap_y": trash.gap_y}
+    return data
 
 
 # -- the database ----------------------------------------------------------------------------
@@ -257,4 +264,9 @@ async def restore(desktop: Any, data: dict[str, Any], *,
             in_front = window
     if in_front is not None:
         desktop.activate(in_front)
+    trash, kept = getattr(desktop.parent, "trash", None), data.get("trash")
+    if trash is not None and isinstance(kept, dict):
+        trash.shown = bool(kept.get("shown"))
+        trash.gap_x = max(0, int(kept.get("gap_x", 1)))
+        trash.gap_y = max(0, int(kept.get("gap_y", 1)))
     return made

@@ -15,6 +15,7 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   - `EditWindow`: `path` (cursor and scroll are the edit history's), SmartPad as SmartPad; `FileWindow`: `path`,
     `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression.
   Anything else is not kept. A window that cannot be made again (a file or directory gone) is left out.
+- The trash can's showing and place are kept too (`snapshot`'s `trash`), as `SaveDesktop` wrote them.
 - **Save desktop** (`SaveDesktop`) writes over the saved one. **Load desktop** (`LoadDesktop`) says *No desktop has
   been saved* with none, else closes every window as Close all does (`close_all_asking`; a Cancel keeps the desktop)
   and `restore`s.

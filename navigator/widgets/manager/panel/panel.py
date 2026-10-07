@@ -1195,7 +1195,7 @@ class Panel(ListViewer):
 
     def _dragging(self, event: MouseClickEvent) -> bool:
         """``DragMover``: the label follows the pointer, and the release drops."""
-        from navigator.widgets.manager.panel.drag import DragLabel, Dropped, drop_target, label_for
+        from navigator.widgets.manager.panel.drag import TRASH, DragLabel, Dropped, drop_target, label_for
 
         drag, app = self._drag, self.application
         assert drag is not None
@@ -1222,7 +1222,9 @@ class Panel(ListViewer):
             return True
         label.parent.remove(label)
         where = drop_target(app, x, y, self)
-        if where is not None:
+        if where == TRASH:
+            self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), None, False, trash=True)))
+        elif where is not None:
             target, panel = where
             self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), target, event.shift, panel)))
         return True

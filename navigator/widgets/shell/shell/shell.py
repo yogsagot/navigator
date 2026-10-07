@@ -30,6 +30,7 @@ from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScr
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
+    ToggleTrashCan,
     SaversSetup,
     ScreenRest,
     About,
@@ -132,6 +133,12 @@ class Shell(DockLayout):
         # once -- and these read only SETTINGS.
         interface = SETTINGS.interface
         self.clock.visible = bind(lambda w: interface.clock)
+        # ≡ > Trashcan on/off's ``TTrashCan``: over the desktop's windows,
+        # floating where its own bindings put it, as the clock does.
+        from navigator.widgets.shell.trash_can import TrashCan
+
+        self.trash = self.add(TrashCan(self.desktop))
+        self.trash.merge_style("dock: none")
         self.keybar.visible = bind(lambda w: not interface.hide_status_line)
         # *Auto hide Command Line*: DN 1.51 declared the box and never read
         # it, so this is the behaviour its ``CheckSize`` and ``ToggleCmdLine``
@@ -1718,6 +1725,17 @@ class Shell(DockLayout):
         from navigator.widgets.setup.column_defaults_dialog import ColumnDefaultsDialog
 
         self.spawn(self.setup(ColumnDefaultsDialog(), "column_defaults"))
+        return True
+
+    def checks(self, command: Command) -> bool | None:
+        """≡ > Trashcan on/off is ticked while the trash can shows."""
+        if isinstance(command, ToggleTrashCan):
+            return self.trash.shown
+        return super().checks(command)
+
+    async def on_toggle_trash_can(self, event: ToggleTrashCan) -> bool:
+        """≡ > Trashcan on/off: ``cmHideShowTools``."""
+        self.trash.shown = not self.trash.shown
         return True
 
     async def on_savers_setup(self, event: SaversSetup) -> bool:

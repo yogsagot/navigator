@@ -262,6 +262,11 @@ DragLabel              { fg: black; bg: cyan }
 /* The screen savers (screen_saver.py): DN drew them in $07, light grey on
    black, its stars' bright ones in $0F -- no palette entry either. */
 ScreenSaver            { fg: light_gray; bg: black }
+
+/* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
+   its text in their static text, dragged in their frame icons' colour. */
+TrashCan               { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }
+TrashCan:dragging      { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 /* Interface's `Block Insert Cursor' (`ouiBlockInsertCursor'): on `Shell',
    which answers for the command line's caret.  Unticked, the terminal's own. */
 Shell:block_insert { caret: block }

@@ -49,6 +49,13 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   `drop_target` (a panel's directory row or its directory, its own panel only on a directory row; a tree's node) and
   the panel emits `Dropped`, which its `Manager.on_dropped` turns into `copy_entries` -- Shift at the release moves,
   Confirmations' *Drag and drop* asks with the Copy dialog first, and a directory is never dropped into itself.
+- **The trash can** (≡ > Trashcan on/off, `ToggleTrashCan`, DN's `TTrashCan`/`cmHideShowTools`, ticked while shown):
+  `widgets/shell/trash_can.py`, a `Shell` child over the desktop bound to the desktop's bottom right corner by
+  `gap_x`/`gap_y` (so a resize keeps it there, `gfGrowAll`), dragged by the mouse, `TrashCan:dragging` in the frame
+  icons' colour. A drop on it is `Dropped(trash=True)` (`drag.TRASH`), and `Manager.erase_entries(quiet=...)` erases
+  -- *quiet* (no Delete dialog, Yes to non-empty and read-only) unless Confirmations' *Drag and drop* is ticked, as
+  DN set `Confirms := 0`. Shown and placed are saved with the desktop (`desktop_state`'s `trash`). DN's double click
+  ran the *Reanimator* undelete, which has nothing to do here.
 - **Left, Right, Home and End go to a command line with text** under File Manager Setup's *Use arrows* (on, DN's
   default), and Shift+ them to the panel; off, the other way round (`Panel.arrows_to_line`, `Panel.LINE_KEYS`;
   `Manager.enables(ScrollNames)`, `Shell.enables(CommandLineHome/End)`, and `Shell._panel_keeps` stopping a plain one

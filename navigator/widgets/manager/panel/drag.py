@@ -28,13 +28,16 @@ from navkit.widget import Widget
 @dataclass(frozen=True, slots=True)
 class Dropped(Event):
     """*entries*, dragged out of *source*, dropped on *target*: copy them there
-    (``cmDropped``).  *panel* is the panel dropped on, if it was one."""
+    (``cmDropped``) -- or erase them, dropped on the trash can.  *panel* is
+    the panel dropped on, if it was one."""
 
     source: Any
     entries: tuple[Any, ...]
-    target: Path
+    target: Path | None
     move: bool
     panel: Any = None
+    #: Dropped on the trash can: erase them (``cmEraseGroup``), *target* None.
+    trash: bool = False
 
 
 class DragLabel(Widget):
@@ -69,22 +72,30 @@ def label_for(entries: list[Any]) -> str:
     return entries[0].name if len(entries) == 1 else f"{len(entries)} selected files"
 
 
-def drop_target(app: Any, x: int, y: int, source: Any) -> tuple[Path, Any] | None:
+#: What :func:`drop_target` answers for the trash can.
+TRASH = "trash"
+
+
+def drop_target(app: Any, x: int, y: int, source: Any) -> tuple[Path, Any] | str | None:
     """Where a drop at screen *x*, *y* puts the files, and the panel it is on.
 
     A panel takes them into the directory row under the pointer or else its
     own directory -- its own entries only into one of its directory rows; a
-    directory tree into the directory under the pointer.  None for anything
-    else, or a *Find:* listing, which is not a directory to copy into.
+    directory tree into the directory under the pointer; the trash can is
+    :data:`TRASH`.  None for anything else, or a *Find:* listing, which is
+    not a directory to copy into.
     """
     from navml.widgets.dialog.tree_view import TreeView
 
     from navigator.widgets.manager.panel.panel import Panel
+    from navigator.widgets.shell.trash_can import TrashCan
 
     root = app.root
     widget = root.widget_at(x, y) if root is not None else None
-    while widget is not None and not isinstance(widget, (Panel, TreeView)):
+    while widget is not None and not isinstance(widget, (Panel, TreeView, TrashCan)):
         widget = widget.parent
+    if isinstance(widget, TrashCan):
+        return TRASH
     if widget is None:
         return None
     ox, oy = widget.offset()

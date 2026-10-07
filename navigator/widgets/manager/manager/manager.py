@@ -1317,7 +1317,8 @@ class Manager(Window):
             await self.copy_entries(panel, entries, Path(other.path), move=move, others=(other,))
 
     async def on_dropped(self, event: Dropped) -> bool:
-        """Files dropped from one of this window's panels: ``CM_Dropped``.
+        """Files dropped from one of this window's panels: ``CM_Dropped`` -- or
+        on the trash can, which erases them.
 
         Into *target* at once, unless Confirmations' *Drag and drop* asks
         first (``cfMouseConfirm``), when the Copy dialog comes up with it
@@ -1326,6 +1327,12 @@ class Manager(Window):
         source = event.source
         if source not in (self.left, self.right):
             return False
+        if event.trash:
+            # ``TTrashCan``: ``cmEraseGroup`` with every confirmation off,
+            # unless Confirmations' *Drag and drop* is ticked.
+            self.spawn(self.erase_entries(source, list(event.entries),
+                                          quiet=not SETTINGS.confirmations.drag_and_drop))
+            return True
         target = event.target.resolve() if event.target.exists() else event.target
         here = Path(source.path)
         if any(entry.is_dir and entry.path_in(here) in (target, *target.parents) for entry in event.entries):
@@ -1531,17 +1538,24 @@ class Manager(Window):
         -- the *Erase* box, and the worker's *not empty*, *read-only* and
         failure questions.  What went is untagged; what was kept keeps its tag.
         """
-        from navigator import fileerase
-        from navigator.widgets.file_ops.delete_dialog import DeleteDialog
-        from navigator.widgets.file_ops.delete_progress import DeleteProgress
-
-        app = self.application
-        panel, other = self.active_panel, self.passive_panel
+        panel = self.active_panel
         if single:
             entry = panel.selected
             entries = [] if entry is None or entry.name == ".." else [entry]
         else:
             entries = self.selection(panel)
+        await self.erase_entries(panel, entries)
+
+    async def erase_entries(self, panel: Panel, entries: list[Any], *, quiet: bool = False) -> None:
+        """*entries* of *panel* erased, as F8 erases them -- or, *quiet*, as
+        the trash can did with ``Confirms := 0``: no dialog, and Yes to the
+        questions on the way."""
+        from navigator import fileerase
+        from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+        from navigator.widgets.file_ops.delete_progress import DeleteProgress
+
+        app = self.application
+        other = self.right if panel is self.left else self.left
         if app is None or not entries:
             return
         # *Erase single file* and *Erase multiple files* in Confirmations
@@ -1549,7 +1563,7 @@ class Manager(Window):
         # and so no *Recursive delete* either -- a non-empty directory is
         # then asked about below, if that is ticked.
         confirms = SETTINGS.confirmations
-        if confirms.erase_single if len(entries) == 1 else confirms.erase_multiple:
+        if not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
             request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
         else:
             request = fileerase.EraseRequest(
@@ -1566,7 +1580,8 @@ class Manager(Window):
 
         done: list[Path] = []
         try:
-            await self._watch_job(work, job, DeleteProgress, refresh, self._answer_erase_question)
+            await self._watch_job(work, job, DeleteProgress, refresh,
+                                  lambda question: self._answer_erase_question(question, quiet=quiet))
             done = await work
         finally:
             if not work.done():
@@ -1575,10 +1590,13 @@ class Manager(Window):
             panel.reload()
             other.reload()
 
-    async def _answer_erase_question(self, question: Any) -> Any:
+    async def _answer_erase_question(self, question: Any, *, quiet: bool = False) -> Any:
         """Put one of the eraser's questions to the user, and answer as it expects."""
         from navigator import fileerase, filecopy
         from navigator.widgets.file_ops.erase_query import EraseQuery
+
+        if quiet and isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
+            return fileerase.YES
 
         # *Erase non-empty sub-dir* and *Erase read-only files* in
         # Confirmations (``cfEraseSubdir``, ``cfEraseReadonly``): unticked,
