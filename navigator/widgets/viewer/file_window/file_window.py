@@ -21,6 +21,8 @@ from navml.widgets.window import Window
 import navigator.viewer as viewer_model
 from navigator.widgets.viewer.commands import (
     AddFilter,
+    ChooseEncoding,
+    SaveViewAs,
     CloseViewer,
     ContinueSearch,
     GotoAddress,
@@ -210,6 +212,72 @@ class FileWindow(Window):
 
     # -- searching -------------------------------------------------------------
 
+    # -- File > Save as and Encoding -------------------------------------------------
+
+    async def on_save_view_as(self, event: SaveViewAs) -> bool:
+        self.spawn(self.save_as())
+        return True
+
+    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
+        self.spawn(self.choose_encoding())
+        return True
+
+    async def choose_encoding(self) -> None:
+        """Shift+F6: ``LoadXlatTable`` -- the code pages in a box, the one in
+        use marked.  DN offered its ``XLT\\*.XLT`` files and Shift+F6 again
+        put the table away; here *UTF-8* is that, first in the box."""
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        viewer = self.viewer
+        codecs = [codec for codec, _ in viewer_model.ENCODINGS]
+        menu = SubMenu()
+        items = [menu.add_item(caption) for _, caption in viewer_model.ENCODINGS]
+        width, height = PopupMenu.measure(menu, self.application, self)
+        ox, oy = self.offset()
+        x = ox + self.x + max(0, (self.width - width) // 2)
+        y = oy + self.y + max(0, (self.height - height) // 2)
+        box = PopupMenu(menu, x, y, current=codecs.index(viewer.encoding), behind=self)
+        chosen = await box.execute(self.application)
+        if chosen is not None:
+            viewer.set_encoding(codecs[items.index(chosen)])
+
+    async def save_as(self) -> None:
+        """Shift+F5: ``cmSaveAll`` -- *Save File As*, and the file written
+        there through the encoding, as DN wrote it through its ``Xlat``
+        table: a file read in a code page is written in UTF-8.  On a thread,
+        and the panels showing where it went look again (``cmRereadDir``)."""
+        import asyncio
+
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        viewer = self.viewer
+        source = viewer.source
+        app = self.application
+        if source is None or viewer.path is None:
+            return
+        name = await FileDialog(
+            title="Save File As", label="~S~ave File As", history_id="edit_save",
+            directory=viewer.path.parent, hidden=SETTINGS.system.show_hidden,
+        ).execute(app)
+        if not name:
+            return
+        target = Path(name)
+        if target.exists():
+            answer = await Dialog(title="Warning", prompt=f"File {target.name}\nalready exists.\nOK to overwrite it?",
+                                  buttons="yes-no").execute(app)
+            if answer is not True:
+                return
+        try:
+            await asyncio.to_thread(viewer_model.save_as, source.path, target, viewer.encoding)
+        except OSError as error:
+            await Dialog(title="Error", prompt=f"Cannot write {target}: {error.strerror or error}",
+                         buttons="ok").execute(app)
+            return
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+
+        await self.emit(FileSaved(target))
+
     async def on_search_for(self, event: SearchFor) -> bool:
         self.spawn(self.search_for())
         return True
@@ -263,7 +331,7 @@ class FileWindow(Window):
             start = viewer.top
         else:
             start = viewer.cursor
-        pattern, span = search.compile()
+        pattern, span = search.compile(viewer.encoding)
         job = SearchJob()
         job.position = start
         total = source.size

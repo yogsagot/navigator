@@ -24,6 +24,7 @@ the way it does in a terminal.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import stat
@@ -86,6 +87,64 @@ def cp437(byte: int) -> str:
     return bytes((byte,)).decode("cp437")
 
 
+#: File > Encoding (Shift+F6): what DN's ``*.XLT`` translation tables were
+#: for -- a file in another code page read in the one on the screen.  The
+#: code pages DN's tables translated between, and those a POSIX desktop
+#: still meets.  ``utf-8`` is none: the bytes as they come.
+ENCODINGS: tuple[tuple[str, str], ...] = (
+    ("utf-8", "UTF-8"),
+    ("cp437", "CP437 DOS Latin US"),
+    ("cp850", "CP850 DOS Latin 1"),
+    ("cp852", "CP852 DOS Latin 2"),
+    ("cp866", "CP866 DOS Cyrillic"),
+    ("cp1250", "Windows-1250 Central European"),
+    ("cp1251", "Windows-1251 Cyrillic"),
+    ("cp1252", "Windows-1252 Western"),
+    ("iso8859-1", "ISO-8859-1 Latin 1"),
+    ("iso8859-2", "ISO-8859-2 Latin 2"),
+    ("iso8859-5", "ISO-8859-5 Cyrillic"),
+    ("koi8-r", "KOI8-R Russian"),
+    ("koi8-u", "KOI8-U Ukrainian"),
+)
+
+
+def byte_table(codec: str) -> tuple[str, ...] | None:
+    """Every byte's glyph in the one-byte code page *codec* -- DN's ``Xlat``
+    table -- or None for UTF-8, which is no table at all.  The controls
+    stay what a VGA drew for them, and a byte the code page leaves
+    undefined is drawn as code page 437 would."""
+    if codec == "utf-8":
+        return None
+    table = []
+    for byte in range(256):
+        if byte < 0x20 or byte == 0x7F:
+            table.append(cp437(byte))
+            continue
+        char = bytes((byte,)).decode(codec, errors="replace")
+        table.append(cp437(byte) if char == "\ufffd" or char_width(char) != 1 else char)
+    return tuple(table)
+
+
+def save_as(source: Path, target: Path, codec: str = "utf-8") -> None:
+    """The viewer's *Save as*: *source* written to *target* -- as it is, or
+    read in the one-byte *codec* and written in UTF-8, as DN wrote it
+    through its ``Xlat`` table.  Through a temporary file beside *target*,
+    so a failure leaves nothing half written.  A thread runs it."""
+    import tempfile
+
+    target = Path(target)
+    handle, temp = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.")
+    try:
+        with os.fdopen(handle, "wb") as out, open(source, "rb") as data:
+            while block := data.read(1 << 16):
+                out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
+        os.replace(temp, target)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.unlink(temp)
+        raise
+
+
 @dataclass(frozen=True, slots=True)
 class Line:
     """One screen row of text: its cells, the bytes it covers, and what follows.
@@ -106,6 +165,8 @@ class ViewSource:
 
     def __init__(self, path: Path | str):
         self.path = Path(path)
+        #: The code page the bytes are read in (:func:`byte_table`); None is UTF-8.
+        self.table: tuple[str, ...] | None = None
         self._fd: int | None = None
         self._chunks: OrderedDict[int, bytes] = OrderedDict()
         self._data: bytes | None = None
@@ -227,7 +288,7 @@ class ViewSource:
         data = self.read(offset, eol - offset)
         cells: list[tuple[str, int]] = []
         stop = decode_cells(data, offset, cells, filter=filter, width=width,
-                            max_cols=None if width else max_cols)
+                            max_cols=None if width else max_cols, table=self.table)
         if width and stop < eol:
             # A character wider than the whole row still has to be passed,
             # or the viewer would stand on it forever.
@@ -383,13 +444,16 @@ class SearchJob:
 
 def decode_cells(data: bytes, base: int, cells: list[tuple[str, int]], *,
                  filter: int = 0, width: int | None = None,
-                 max_cols: int | None = None) -> int:
+                 max_cols: int | None = None, table: tuple[str, ...] | None = None) -> int:
     """Append the columns *data* paints to *cells*; return the offset reached.
 
     *base* is the offset of ``data[0]`` in the file.  Decoding stops early --
     and the offset returned says where -- when the next character would not
-    fit in *width* columns, or once *max_cols* columns are known.
+    fit in *width* columns, or once *max_cols* columns are known.  With a
+    *table* (:func:`byte_table`) each byte is its own character, one column.
     """
+    if table is not None:
+        return _decode_table(data, base, cells, table, filter, width, max_cols)
     i, n = 0, len(data)
     while i < n:
         col = len(cells)
@@ -450,6 +514,28 @@ def decode_cells(data: bytes, base: int, cells: list[tuple[str, int]], *,
     return base + i
 
 
+def _decode_table(data: bytes, base: int, cells: list[tuple[str, int]], table: tuple[str, ...],
+                  filter: int, width: int | None, max_cols: int | None) -> int:
+    """:func:`decode_cells` through a one-byte code page's table."""
+    for i, byte in enumerate(data):
+        col = len(cells)
+        if max_cols is not None and col >= max_cols:
+            return base + i
+        if byte == 0x09:
+            count = TAB - col % TAB
+            if width is not None:
+                if col >= width:
+                    return base + i
+                count = min(count, max(1, width - col))
+            cells.extend((" ", base + i) for _ in range(count))
+            continue
+        if width is not None and col + 1 > width:
+            return base + i
+        hidden = filter and (byte < 0x20 or byte == 0x7F or (filter == 1 and byte >= 0x80))
+        cells.append((FILTERED if hidden else table[byte], base + i))
+    return base + len(data)
+
+
 def _is_combining(char: str) -> bool:
     return unicodedata.combining(char) != 0 or unicodedata.category(char) in ("Mn", "Me", "Cf")
 
@@ -467,32 +553,33 @@ def dump_row_bytes(width: int) -> int:
     return max(16, (width - 9) // 16 * 16)
 
 
-def hex_char(byte: int, filter: int) -> str:
+def hex_char(byte: int, filter: int, table: tuple[str, ...] | None = None) -> str:
     """The character column of a hex row: ``DumpStr``'s rules."""
     if byte == 0:
         return "."
     if filter and (byte < 0x20 or (filter == 1 and byte >= 0x80)):
         return FILTERED
-    return cp437(byte)
+    return table[byte] if table is not None else cp437(byte)
 
 
-def dump_char(byte: int, filter: int) -> str:
+def dump_char(byte: int, filter: int, table: tuple[str, ...] | None = None) -> str:
     """A dump row's character: ``XDumpStr``, which leaves 0 to the font."""
     if filter and (byte < 0x20 or (filter == 1 and byte >= 0x80)):
         return FILTERED
-    return cp437(byte)
+    return table[byte] if table is not None else cp437(byte)
 
 
-def hex_row(data: bytes, address: int, per_row: int, filter: int) -> str:
+def hex_row(data: bytes, address: int, per_row: int, filter: int,
+            table: tuple[str, ...] | None = None) -> str:
     """``AAAAAAAA: 4F 5A ... │ OZ...`` -- ``DumpStr``, padded to a full row."""
     pairs = "".join(f"{b:02X} " for b in data).ljust(per_row * 3)
-    chars = "".join(hex_char(b, filter) for b in data)
+    chars = "".join(hex_char(b, filter, table) for b in data)
     return f"{address & 0xFFFFFFFF:08X}: {pairs}│ {chars}"
 
 
-def dump_row(data: bytes, address: int, filter: int) -> str:
+def dump_row(data: bytes, address: int, filter: int, table: tuple[str, ...] | None = None) -> str:
     """``AAAAAAAA text...`` -- ``XDumpStr``."""
-    return f"{address & 0xFFFFFFFF:08X} " + "".join(dump_char(b, filter) for b in data)
+    return f"{address & 0xFFFFFFFF:08X} " + "".join(dump_char(b, filter, table) for b in data)
 
 
 #: Where the hex pairs of a row begin, and where its characters begin.
@@ -513,13 +600,14 @@ DUMP_CHARS_AT = 9
 _WORD = rb"0-9A-Za-z_\x80-\xff"
 
 
-def compile_search(text: str, *, case: bool = False, words: bool = False
-                   ) -> tuple[re.Pattern[bytes], int]:
-    """A bytes pattern finding *text* in UTF-8, and the longest match it can make.
+def compile_search(text: str, *, case: bool = False, words: bool = False,
+                   encoding: str = "utf-8") -> tuple[re.Pattern[bytes], int]:
+    """A bytes pattern finding *text* in *encoding*, and the longest match it can make.
 
     Each character becomes the alternation of its case variants' encodings, so
     *Case sensitive* off finds ``Ä`` for ``ä`` too -- which ``re.IGNORECASE``
-    on bytes would not, knowing only ASCII.
+    on bytes would not, knowing only ASCII.  A character *encoding* has no
+    byte for can match nothing.
     """
     parts: list[bytes] = []
     span = 0
@@ -527,7 +615,9 @@ def compile_search(text: str, *, case: bool = False, words: bool = False
         variants = {char}
         if not case:
             variants |= {v for v in (char.lower(), char.upper(), char.casefold()) if len(v) == 1}
-        encoded = sorted({v.encode("utf-8") for v in variants})
+        encoded = sorted({v.encode(encoding, errors="ignore") for v in variants} - {b""})
+        if not encoded:
+            return re.compile(rb"(?!)"), 1
         span += max(len(e) for e in encoded)
         if len(encoded) == 1:
             parts.append(re.escape(encoded[0]))
@@ -556,8 +646,8 @@ class ViewSearch:
     words: bool = False
     backward: bool = False
 
-    def compile(self) -> tuple[re.Pattern[bytes], int]:
-        return compile_search(self.what, case=self.case, words=self.words)
+    def compile(self, encoding: str = "utf-8") -> tuple[re.Pattern[bytes], int]:
+        return compile_search(self.what, case=self.case, words=self.words, encoding=encoding)
 
 
 #: The last search, shared by every viewer as DN's ``SearchString`` was, so

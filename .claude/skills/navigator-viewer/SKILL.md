@@ -1,6 +1,6 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
 ---
 
 # The file viewer
@@ -13,7 +13,14 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   or a control is its CP437 glyph.
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
-  it in either mode. Read-only for now.
+  it in either mode. Read-only for now, so Shift+F2's *Store* (DN's hex-edit `WriteModify`) stays greyed.
+- **Shift+F6, File > Encoding** is DN's `cmLoadXlatTable`: instead of an `XLT\*.XLT` table, a `PopupMenu` of one-byte
+  code pages (`viewer.ENCODINGS`, *UTF-8* first and meaning none). `FileViewer.set_encoding` puts `byte_table(codec)` on
+  `ViewSource.table`, which `line()` (and so wrapping and scrolling), the hex and dump rows and `compile_search(...,
+  encoding=)` all go through; the info line ends `{CP866}`. Controls stay the VGA's glyphs. Not kept in the view record.
+- **Shift+F5, File > Save as** is `cmSaveAll`: DN's *Save File As* file dialog (history `edit_save`, the editor's), and
+  `viewer.save_as` writes the file through a temporary beside it -- as it is, or read in the chosen code page and
+  written in UTF-8, as DN wrote through its `Xlat`; `FileSaved` then re-reads the panels.
 - **While a viewer window is active the bar has a *View* menu after *File*** (modes, filters and wrap ticked, search, go
   to, close) -- see `navml-windows-menus` for how a window's menu joins the bar.
 - A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge, percentage, Stop), fed

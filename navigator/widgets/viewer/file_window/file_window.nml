@@ -1,4 +1,4 @@
-from navigator.widgets.viewer.commands import AddFilter, CloseViewer, ContinueSearch, GotoAddress, HexMode
+from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
@@ -24,9 +24,9 @@ FileWindow(Window):
     zoomed: True
 
     #: ``StatusDef hcView``, in its order: the plain row, then Ctrl's and
-    #: Shift's.  What DN bound there and Navigator cannot do yet -- Shift+F2
-    #: Store, Shift+F5 Save as, Shift+F6 XLat -- is left out, so the bar closes
-    #: up round it.  Ctrl+L continues a search with no caption, as it did.
+    #: Shift's.  Shift+F2's *Store* is left out, there being no hex editing
+    #: to store, so the bar closes up round it; Shift+F6's *XLat* chooses an
+    #: encoding.  Ctrl+L continues a search with no caption, as it did.
     #: F3 closes the viewer, as Midnight Commander's does -- not DN's, which
     #: bound nothing there -- and has no caption either, so the line is DN's.
     keys:
@@ -38,6 +38,8 @@ FileWindow(Window):
         f6: AddFilter
         f7: SearchFor
         ctrl+f7: ReverseSearch
+        shift+f5: SaveViewAs
+        shift+f6: ChooseEncoding
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
 
@@ -124,9 +126,11 @@ FileWindow(Window):
             key: 'Shift-F2'
         MenuItem:
             text: 'Sav~e~ as...'
+            command: SaveViewAs
             key: 'Shift-F5'
         MenuItem:
             text: 'Encod~i~ng...'
+            command: ChooseEncoding
             key: 'Shift-F6'
         MenuLine:
         MenuItem:

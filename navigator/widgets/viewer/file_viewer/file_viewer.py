@@ -31,6 +31,8 @@ from navigator.viewer import (
     FILTER_TAGS,
     HEX_PAIRS_AT,
     ViewSource,
+    byte_table,
+    ENCODINGS,
     dump_row,
     dump_row_bytes,
     group_digits,
@@ -65,6 +67,9 @@ class FileViewer(Widget):
     mode: str = reactive("text")
     wrap: bool = reactive(False)
     filter: int = reactive(0)
+    #: File > Encoding: the code page the bytes are read in, one of
+    #: ``viewer.ENCODINGS``'s; ``utf-8`` is DN's viewer with no ``XLT`` loaded.
+    encoding: str = reactive("utf-8")
 
     #: The offset of the first row shown.
     top: int = reactive(0)
@@ -95,6 +100,7 @@ class FileViewer(Widget):
         if self.source is not None:
             self.source.close()
         self.source = source
+        source.table = byte_table(self.encoding)
         self.path = source.path
         self.size = source.size
         self.top = self.x_delta = self.cursor = 0
@@ -176,7 +182,8 @@ class FileViewer(Widget):
         else:
             text = "[>=<][" if self.wrap else "[<=>]["
             text += f"{self.percent()}% of {group_digits(self.size)} Bytes"
-        return text + "]" + FILTER_TAGS[self.filter]
+        tag = "" if self.encoding == "utf-8" else "{" + dict(ENCODINGS)[self.encoding].split()[0] + "}"
+        return text + "]" + FILTER_TAGS[self.filter] + tag
 
     def percent(self) -> int:
         """How far into the file the view is: 100 once the end is showing."""
@@ -307,6 +314,18 @@ class FileViewer(Widget):
     def cycle_filter(self) -> None:
         """F6: no filter, ``{ASCII}``, ``{Printable}``."""
         self.set_filter((self.filter + 1) % len(FILTER_TAGS))
+
+    def set_encoding(self, codec: str) -> None:
+        """Read the file in *codec* from now on: ``SetXlatFile``.  The row at
+        the top stays the row at the top, found again in the new widths."""
+        if codec not in dict(ENCODINGS):
+            raise ValueError(f"{codec} is not one of the viewer's encodings")
+        self.encoding = codec
+        if self.source is not None:
+            self.source.table = byte_table(codec)
+            if self.mode == "text":
+                self.top = min(self.source.line_start(self.top, self.wrap_width), self._last_top())
+        self.invalidate()
 
     def set_filter(self, filter: int) -> None:
         if not 0 <= filter < len(FILTER_TAGS):
@@ -521,9 +540,9 @@ class FileViewer(Widget):
                 break
             data = source.read(address, per)
             if hex_mode:
-                surface.draw_text(0, y, hex_row(data, address, per, self.filter), style)
+                surface.draw_text(0, y, hex_row(data, address, per, self.filter, self.source.table), style)
             else:
-                surface.draw_text(0, y, dump_row(data, address, self.filter), style)
+                surface.draw_text(0, y, dump_row(data, address, self.filter, self.source.table), style)
             if self.hit is None:
                 continue
             chars_at = hex_chars_at(per) if hex_mode else DUMP_CHARS_AT
@@ -532,7 +551,7 @@ class FileViewer(Widget):
                     continue
                 if hex_mode:
                     surface.draw_text(HEX_PAIRS_AT + index * 3, y, f"{byte:02X}", selected)
-                    char = hex_row(data[index:index + 1], 0, 1, self.filter)[-1]
+                    char = hex_row(data[index:index + 1], 0, 1, self.filter, self.source.table)[-1]
                 else:
-                    char = dump_row(data[index:index + 1], 0, self.filter)[-1]
+                    char = dump_row(data[index:index + 1], 0, self.filter, self.source.table)[-1]
                 surface.set_cell(chars_at + index, y, char, selected)

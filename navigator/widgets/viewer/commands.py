@@ -76,6 +76,20 @@ class SearchAgain(Command):
     """Ctrl+L: ``cmContinueSearch`` again, bound with no caption as DN bound it."""
 
 
+class SaveViewAs(Command):
+    """Shift+F5, File > Save as: ``cmSaveAll`` -- the file viewed, written
+    under another name, read in its encoding and written in the screen's."""
+
+    title = "Save as"
+
+
+class ChooseEncoding(Command):
+    """Shift+F6, File > Encoding: ``cmLoadXlatTable`` -- the code page the
+    file is read in, DN's ``XLT`` table."""
+
+    title = "XLat"
+
+
 class CloseViewer(Command):
     """F3 in a viewer: close it, as Midnight Commander's F3 does.
 
@@ -97,4 +111,6 @@ __all__ = [
     "ContinueSearch",
     "SearchAgain",
     "CloseViewer",
+    "SaveViewAs",
+    "ChooseEncoding",
 ]
