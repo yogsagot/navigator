@@ -754,6 +754,14 @@ class Application:
         self.terminal.suspend()
         self._cursor_shown = None
 
+    def bell(self) -> None:
+        """Ring the terminal's bell -- DOS Navigator's ``Beep`` -- now: a frame
+        is written whole within one turn, so nothing of one is pending here."""
+        bell = getattr(self.terminal, "bell", None)
+        if bell is not None:
+            bell()
+            self.terminal.flush()
+
     def redraw(self) -> None:
         """Paint the next frame whole, every cell, whatever the terminal is
         thought to show already -- for a screen something else has written

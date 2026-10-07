@@ -35,6 +35,9 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
   unless unbound (`keybind = ctrl+enter=unbind`). xfce4-terminal eats Alt+E/F/V/T/B/H unless menu access keys are off.
 - **Find out what a terminal sends**: `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]` (`q` twice or
   Ctrl+C quits) -- e.g. whether Ctrl+Shift+V arrives as a paste or a key.
+- **`Application.bell()`** rings BEL now: `Terminal.bell()` queues it and the application flushes at once, since an
+  unchanged frame writes (and flushes) nothing. A terminal without `bell` (a test's) is skipped; `FakeTerminal.bells`
+  counts them.
 
 ## Hyperlinks (OSC 8)
 

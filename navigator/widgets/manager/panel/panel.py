@@ -357,6 +357,16 @@ def order_entries(
     return up + sorted(rest, key=key)
 
 
+def command_line_text(widget: Any) -> str:
+    """What the command line of the screen *widget* is on holds; ``""`` with none."""
+    while widget is not None:
+        line = getattr(widget, "command_line", None)
+        if line is not None:
+            return line.value
+        widget = widget.parent
+    return ""
+
+
 def make_entry(item: os.DirEntry[str], directory: Path | None = None) -> DirEntry:
     """*item* as a :class:`DirEntry`: its target's facts, or a dangling
     link's own, and what a link says it points at."""
@@ -1183,6 +1193,8 @@ class Panel(ListViewer):
             self.display = frozenset(name for name in PanelDefaultsData.DISPLAY
                                      if name != "directory_length" and self.shows(name))
             return True
+        if self.arrows_to_line(event):
+            return False
         if self.view_mode == "list" and not self.inert and self.rows:
             if event.key == "left":
                 self.move_cursor(-min(self.rows, self.cursor))
@@ -1191,6 +1203,23 @@ class Panel(ListViewer):
                 self.move_cursor(min(self.rows, len(self.items) - 1 - self.cursor))
                 return True
         return await super().on_key(event)
+
+    #: The keys File Manager Setup's *Use arrows* gives the command line.
+    LINE_KEYS = ("left", "right", "home", "end")
+
+    def arrows_to_line(self, event: KeyEvent) -> bool:
+        """Whether *event* is the command line's rather than this panel's.
+
+        Left, Right, Home and End go to a command line holding text --
+        unshifted with *Use arrows* on (DN's default), with Shift held with
+        it off; the other way round they are the panel's (``fmoUseArrows``,
+        ``(ShiftState and 3 <> 0) xor (Options and fmoUseArrows = 0)``).
+        """
+        if event.key not in self.LINE_KEYS or event.ctrl or event.alt:
+            return False
+        if SETTINGS.file_manager.use_arrows == event.shift:
+            return False
+        return bool(command_line_text(self))
 
     #: The detailed mode's columns after the name: heading, width, and the
     #: ``DirEntry`` property that fills it.  Dropped in :data:`DROP_ORDER`

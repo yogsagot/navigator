@@ -174,6 +174,9 @@ note:
 | `editor.lock_file` | Read at each `LockFile`: an editor holds its file with an exclusive advisory `flock` (`navigator/editor/lock.py`) from open to close, re-taken after every save. A write to a file another program holds is refused whatever this says |
 | `editor.auto_indent` | Seeds a new editor's *Autoindent* (`FileEditor.auto_indent`; Editor > Options switches one editor's): Enter's `MakeEnter` rules (`navigator-editor`) |
 | `editor.backspace_unindents` | Seeds a new editor's *Backspace indents* (`FileEditor.back_indent`; Editor > Options switches one editor's): `MakeBack`'s `BackIndent` (`navigator-editor`) |
+| `file_manager.use_arrows` | On: Left/Right/Home/End edit a command line with text, Shift+ them the panel; off, reversed (`navigator-panels`) |
+| `file_manager.auto_change_dir` | On: a cursor resting in the manager's tree takes the active panel there (`Manager._panel_follows_tree`); off, only Enter does |
+| `file_manager.beep_after_copy` | A copy or move that was not aborted rings the terminal's bell (`Application.bell`, BEL; DN's `BeepAfterCopy`) |
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |
 | `file_manager.column_titles` | The detailed and list modes' heading row (`Panel._follow_column_titles`, an effect, so it applies at once); the dividers stay |
 | `file_manager.tag_character` / `tag_sign` | The tagged row's gutter mark: `tag_sign`'s first character (empty: `√`; `+` on the ASCII tier when it is not ASCII); off, the colour alone |

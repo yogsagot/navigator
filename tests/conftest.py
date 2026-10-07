@@ -44,6 +44,8 @@ class FakeTerminal:
         self.started = False
         self.stopped = False
         self.title: str | None = None
+        #: How many times the bell was rung.
+        self.bells = 0
         #: What was copied, as ``(text, primary)``, and which reads were asked for.
         self.clipboard: list[tuple[str, bool]] = []
         self.clipboard_queries: list[bool] = []
@@ -69,6 +71,9 @@ class FakeTerminal:
 
     def set_title(self, title: str) -> None:
         self.title = title
+
+    def bell(self) -> None:
+        self.bells += 1
 
     def set_clipboard(self, text: str, *, primary: bool = False) -> None:
         self.clipboard.append((text, primary))

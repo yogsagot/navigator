@@ -438,15 +438,17 @@ class FMSetupData(Section):
     )
     DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character")
 
-    auto_change_dir: bool = Setting(True, doc="Auto change directory", honoured=False)
+    auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
     drag_drop_columns: bool = Setting(False, doc="Drag-and-drop from columns", honoured=False)
-    beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy", honoured=False)
+    beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy")
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
     space_toggles_selection: bool = Setting(
         True, doc="Space tags the cursor's file while the command line is empty",
     )
     del_erases: bool = Setting(True, doc="Del erases files while the command line is empty")
-    use_arrows: bool = Setting(True, doc="Use the arrow keys", honoured=False)
+    use_arrows: bool = Setting(
+        True, doc="Left, Right, Home and End edit a command line with text; off, with Shift",
+    )
     #: DN's default was off; Navigator's Backspace has always gone up.
     bs_upper_dir: bool = Setting(
         True, doc="Backspace goes to the parent directory while the command line is empty",

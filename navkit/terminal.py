@@ -991,6 +991,10 @@ class Terminal:
         if self.info.title:
             self.write(f"\x1b]0;{title}\x07")
 
+    def bell(self) -> None:
+        """Queue the terminal's bell, BEL, for the next :meth:`flush`."""
+        self.write("\x07")
+
     def read(self, size: int = 65536) -> bytes:
         """Read available input.  Returns ``b""`` at end of input."""
         try:

@@ -606,6 +606,8 @@ class Shell(DockLayout):
             return False
         if self._console_is_the_terminal() and await self._terminal_key(event):
             return True
+        if self._panel_keeps(event):
+            return False
         if await self.command_line.on_key(event):
             return True
         # *ESC for user screen* (``ouiEsc``): Esc with nothing on the line
@@ -616,6 +618,20 @@ class Shell(DockLayout):
             self.toggle_console()
             return True
         return False
+
+    def _panel_keeps(self, event: KeyEvent) -> bool:
+        """A plain arrow, Home or End a panel declined, with *Use arrows* off:
+        not the line's either -- DN's ``TSpecScroll`` let it go nowhere."""
+        from navigator.widgets.manager.panel import Panel
+
+        app = self.application
+        return (
+            not SETTINGS.file_manager.use_arrows
+            and event.key in Panel.LINE_KEYS
+            and not (event.shift or event.ctrl or event.alt)
+            and app is not None
+            and isinstance(app.focused, Panel)
+        )
 
     # -- the console's history keys --------------------------------------------
 
@@ -863,6 +879,10 @@ class Shell(DockLayout):
             command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine)
         ):
             if not self.command_line.value.strip():
+                return False
+            if isinstance(command, (CommandLineHome, CommandLineEnd)) and not SETTINGS.file_manager.use_arrows:
+                # *Use arrows* off: Home and End are the panel's, Shift+Home and
+                # Shift+End the line's (``fmoUseArrows``).
                 return False
             if isinstance(command, ExecuteCommandLine):
                 return not self.console.busy

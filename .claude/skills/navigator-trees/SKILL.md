@@ -10,7 +10,8 @@ Slots `[94-101]`, `[104-110]`.
 - The library's `TreeView` is a `ListViewer` of flattened, lazily loaded `TreeNode`s, drawn as `TTreeView.Draw` draws
   them. Navigator's `DirectoryTree` (`navigator/widgets/tree/`) is what **Ctrl+T** puts in the passive panel's place
   (DBLWND.PAS's `SwitchView`, via `Manager.switch_view`): the tree follows the active panel, and Enter or a resting
-  cursor sends the panel where the tree points.
+  cursor sends the panel where the tree points -- the resting one only under File Manager Setup's *Auto change
+  directory* (`fmoAutoChangeDir`, on by default); Enter always.
 - **Every tree has Ctrl+S quick search, and it is a path** (DN's `SearchForMask`): the panel's matching rules
   (`navml/quick_search.py`), and `/` opens the branch matched and confines the search to its children, so a lazy tree
   never needs a branch nobody opened. Typing searches too, except in Ctrl+T's tree (`type_to_search: False`), where it

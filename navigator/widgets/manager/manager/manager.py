@@ -938,9 +938,10 @@ class Manager(Window):
             return self.hidden_side is None
         if isinstance(command, ScrollNames):
             panel = self.active_panel
+            # The plain arrows are the command line's under *Use arrows*.
             return (
                 not (self.tree.focused or self.quick.focused)
-                and not self._command_line_has_text()
+                and not (self._command_line_has_text() and SETTINGS.file_manager.use_arrows)
                 and panel.can_scroll_names(command.step)
             )
         return super().enables(command)
@@ -1198,6 +1199,9 @@ class Manager(Window):
         panel.untag_paths(done)
         panel.reload()
         other.reload()
+        if SETTINGS.file_manager.beep_after_copy and not job.stopped:
+            # ``BeepAfterCopy``, after a copy that was not aborted.
+            app.bell()
 
     async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
         """The copy's progress box, *Stop*, and the worker's questions, until *work* ends."""
@@ -2053,6 +2057,8 @@ class Manager(Window):
 
         DOS Navigator's ``NeedLocated``: every move restarts the wait, and the
         panel moves only once the cursor has stayed put for ``LOCATE_DELAY``.
+        Only under File Manager Setup's *Auto change directory*
+        (``fmoAutoChangeDir``), as DN set ``NeedLocated`` only then.
         """
         path, focused = self.tree.selected_path, self.tree.focused
         with untracked():
@@ -2063,6 +2069,7 @@ class Manager(Window):
             if (
                 self.tree_replaces is None or not focused or path is None
                 or app is None or not app.is_running
+                or not SETTINGS.file_manager.auto_change_dir
             ):
                 return
             self._follow = self.spawn(self._follow_later(path))
