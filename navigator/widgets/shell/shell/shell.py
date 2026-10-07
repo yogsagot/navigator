@@ -39,6 +39,7 @@ from navigator.widgets.shell.commands import (
     ExecuteCommandLine,
     FileManagerDefaults,
     EnvEdit,
+    SystemInfo,
     FileManagerSetup,
     HistoryList,
     InsertName,
@@ -141,6 +142,21 @@ class Shell(DockLayout):
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
         self.manager = self.desktop.open(Manager(left, right))
+
+    async def on_system_info(self, event: SystemInfo) -> bool:
+        self.spawn(self.system_info())
+        return True
+
+    async def system_info(self) -> None:
+        """Utilities > System Information: the machine read on a thread
+        (:func:`navigator.sysinfo.gather`), then DN's dialog."""
+        import asyncio
+
+        from navigator.sysinfo import gather
+        from navigator.widgets.shell.system_info_dialog import SystemInfoDialog
+
+        facts = await asyncio.to_thread(gather)
+        await SystemInfoDialog(facts).execute(self.application)
 
     async def on_env_edit(self, event: EnvEdit) -> bool:
         self.spawn(self.edit_environment())

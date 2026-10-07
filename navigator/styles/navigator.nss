@@ -183,6 +183,10 @@ Modal::title          { fg: $dialog-frame-background-fg; bg: $dialog-frame-backg
 Modal::icon           { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg }
 
 StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text-bg }
+/* An ofFramed view's frame is drawn in the dialog's own colours, its caption a label's. */
+GroupBox              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; border: single }
+GroupBox::title       { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg }
+GroupBox::shortcut    { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-shortcut-bg }
 
 /* A gauge in `TWhileView''s colour, which is its lines' colour: `GetColor(7)'
  * of `CDialog', and `CGrayDialog' maps entry 7 to [38] *Label normal*, not to

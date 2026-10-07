@@ -131,6 +131,15 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 - **≡ > Refresh display** (`Refresh`, DN's `cmRefresh`): `Navigator.on_refresh` -> navkit's `Application.redraw()`,
   which forgets the front buffer so the next frame sends every cell -- for a screen another program wrote over.
 
+## System Information (Utilities)
+
+`SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/sysinfo.gather` on a
+thread, from files under a root (`/`; tests pass a fake tree), then `SystemInfoDialog` with DN's four `ofFramed` boxes -- navml's `GroupBox`, titled on
+the frame -- read for Linux -- *Main board* (DMI vendor+product, CPU model and max MHz, CPUs where DN had the co-processor), *Disk drives*
+(`/sys/block` less loop/ram/zram/dm/md/sr/fd: size, model, removable), *Memory* (total, available, swap), *Other*
+(os-release, kernel, host, uptime where DN had COM/LPT and the DOS version). `sysinfo.lines` right-aligns labels to a
+colon and cuts a value to its box.
+
 ## Edit environment (Utilities)
 
 `EnvEdit`, `Shell.edit_environment`, DN's `cmEnvEdit` -> `EditDOSEvironment`: `EnvironmentDialog`

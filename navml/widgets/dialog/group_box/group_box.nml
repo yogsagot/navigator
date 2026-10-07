@@ -1,0 +1,9 @@
+#: A titled single frame round its children: what Turbo Vision drew for a
+#: view with ``ofFramed`` and a ``TLabel`` on the frame's top line, as DOS
+#: Navigator's System Information built its four boxes.  The children are
+#: placed inside it in its own coordinates, the frame taking the outer row
+#: and column on each side.
+GroupBox:
+    #: The caption on the top edge, two cells in, with a blank either side;
+    #: a ``~A~`` run is drawn in the shortcut colour.  Empty: no caption.
+    property title: ""

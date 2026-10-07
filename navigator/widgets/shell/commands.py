@@ -109,6 +109,13 @@ class ToggleMarkBySpace(Command):
     """
 
 
+class SystemInfo(Command):
+    """Utilities > System Information: the machine, its disks, memory and system.
+
+    DOS Navigator's ``cmSystemInfo`` (``SystemInfo``).
+    """
+
+
 class EnvEdit(Command):
     """Utilities > Edit environment: the environment variables, in an editor.
 
@@ -142,6 +149,7 @@ __all__ = [
     "MenuFileEdit",
     "HistoryList",
     "EnvEdit",
+    "SystemInfo",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
     "CompleteCommandLine",
