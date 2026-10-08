@@ -966,8 +966,26 @@ def test_a_name_too_long_for_its_column_ends_in_an_ellipsis(tmp_path, modes):
     buffer = ScreenBuffer(40, 10)
     panel.render(buffer)
     row = next(text_at(buffer, y) for y in range(10) if "a_file" in text_at(buffer, y))
-    assert "..." in row
+    assert "…" in row
     assert ".txt" not in row
+
+
+def test_window_text_and_fit_text_take_the_marker_they_are_given():
+    assert fit_text("a_rather_long_name.txt", 10, "…") == "a_rather_…"
+    assert window_text("abcdefghijkl", 2, 8, "…") == "…defghi…"
+    assert window_text("abcdefghijkl", 4, 8, "…") == "…fghijkl"
+
+
+def test_an_ascii_terminal_cuts_a_scrolled_name_with_three_dots(tmp_path, quiet_console):
+    (tmp_path / LONG_NAME).write_text("")
+    app = navigator_with(tmp_path, GLYPHS_ASCII)
+    run_app(app, [KeyEvent("right")] * 3)
+    panel = app.manager.left
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    row = next(text_at(buffer, y) for y in range(panel.height) if "_whose_" in text_at(buffer, y))
+    assert row.count("...") == 2
+    assert "…" not in row
 
 
 def test_left_and_right_scroll_the_names_and_stop_at_the_ends(tmp_path, quiet_console):
@@ -981,8 +999,8 @@ def test_left_and_right_scroll_the_names_and_stop_at_the_ends(tmp_path, quiet_co
     panel.render(buffer)
     # Scrolled to the end, the longest name's tail shows after a marker.
     row = next(text_at(buffer, y) for y in range(panel.height) if "column.txt" in text_at(buffer, y))
-    assert row.count("...") == 1
-    assert row.index("...") < row.index("column.txt")
+    assert row.count("…") == 1
+    assert row.index("…") < row.index("column.txt")
     app = navigator(tmp_path)
     run_app(app, [KeyEvent("right")] * 3 + [KeyEvent("left")])
     assert app.manager.left.name_offset == 2

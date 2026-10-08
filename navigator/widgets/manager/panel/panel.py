@@ -208,7 +208,8 @@ class DirEntry:
         return time.strftime("%d-%m-%Y %H:%M", time.localtime(self.mtime))
 
 
-#: What ends a name cut short to fit its column.
+#: What ends a name cut short to fit its column, by default -- three dots, the
+#: ASCII tier's; a panel passes its own (``Panel.ellipsis``), ``…`` above it.
 ELLIPSIS = "..."
 
 
@@ -231,14 +232,15 @@ def skip_cells(text: str, cells: int) -> str:
     return ""
 
 
-def fit_text(text: str, room: int) -> str:
-    """*text* in *room* cells, ending in :data:`ELLIPSIS` if it had to be cut.
+def fit_text(text: str, room: int, marker: str = ELLIPSIS) -> str:
+    """*text* in *room* cells, ending in *marker* if it had to be cut.
 
     With no room for the marker and a character beside it, just cut.
     """
     if text_width(text) <= room:
         return text
-    keep = room - len(ELLIPSIS) if room > len(ELLIPSIS) else room
+    size = text_width(marker)
+    keep = room - size if room > size else room
     used = 0
     for index, char in enumerate(text):
         used += char_width(char)
@@ -247,23 +249,23 @@ def fit_text(text: str, room: int) -> str:
             break
     else:
         head = text
-    return head + ELLIPSIS if room > len(ELLIPSIS) else head
+    return head + marker if room > size else head
 
 
-def window_text(text: str, offset: int, room: int) -> str:
+def window_text(text: str, offset: int, room: int, marker: str = ELLIPSIS) -> str:
     """Cells *offset* to *offset* + *room* of *text*, marked where it is cut.
 
-    Scrolled at all, the first cells of the window are :data:`ELLIPSIS`
+    Scrolled at all, the first cells of the window are *marker*
     rather than a marker pushed in front, so the window does not move -- a
     name shows its end exactly when it would have without the marker.  A
     name scrolled wholly out of the window leaves the marker alone, saying
     there is a name there.  With no room for the marker and a character
     beside it, the text is just cut.
     """
-    marker = len(ELLIPSIS)
-    if offset <= 0 or room <= marker:
-        return fit_text(skip_cells(text, offset), room)
-    return ELLIPSIS + fit_text(skip_cells(text, offset + marker), room - marker)
+    size = text_width(marker)
+    if offset <= 0 or room <= size:
+        return fit_text(skip_cells(text, offset), room, marker)
+    return marker + fit_text(skip_cells(text, offset + size), room - size, marker)
 
 
 #: How long a rescan may hold the frame up before it is left to finish on
@@ -1515,8 +1517,7 @@ class Panel(ListViewer):
         if suffix and len(suffix) > room - 4:
             suffix = suffix[: max(0, room - 8)] + "...]" if room > 12 else ""
         space = room - len(suffix)
-        if len(title) > space:
-            title = "..." + title[-(space - 3):] if space > 3 else title[-max(space, 0):]
+        title = self._cut_start(title, space)
         return f" {title}{suffix} "
 
     def footer_text(self) -> str:
@@ -1543,9 +1544,7 @@ class Panel(ListViewer):
             elif entry.directory is not None:
                 # DN's find panel gave the file's directory a row of its own;
                 # here it is the whole path, its start cut as the title's is.
-                text, room = str(entry.path_in(self.path)), max(4, self.width - 6)
-                if len(text) > room:
-                    text = "..." + text[-(room - 3):]
+                text = self._cut_start(str(entry.path_in(self.path)), max(4, self.width - 6))
                 summary = f" {text} "
             elif entry.link_target is not None:
                 summary = f" {entry.name} -> {entry.link_target} "
@@ -1674,6 +1673,20 @@ class Panel(ListViewer):
             return False
         return str(item.path_in(self.path)) in bookmarked_paths()
 
+    @property
+    def ellipsis(self) -> str:
+        """What marks a name or path cut short: ``…``, or ``...`` in ASCII."""
+        return glyphs_module.ellipsis(self.glyphs)
+
+    def _cut_start(self, text: str, room: int) -> str:
+        """*text* in *room* characters, its start cut and marked if it must be."""
+        if len(text) <= room:
+            return text
+        marker = self.ellipsis
+        if room > len(marker):
+            return marker + text[-(room - len(marker)):]
+        return text[-room:] if room > 0 else ""
+
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
                    item: DirEntry, style: Style, offset: int = 0) -> None:
         """The tag, the icon or the type mark, and the name, in *width* cells.
@@ -1695,7 +1708,7 @@ class Panel(ListViewer):
             surface.draw_text(x, y, mark, style, gutter)
         if width > gutter:
             room = width - gutter
-            name = window_text(item.name, offset, room)
+            name = window_text(item.name, offset, room, self.ellipsis)
             surface.draw_text(x + gutter, y, name, style, room)
 
     def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
@@ -1710,9 +1723,9 @@ class Panel(ListViewer):
                     # The cursor bar covers the dividers; draw them back in it.
                     surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
                 text = getattr(item, self.DETAIL_COLUMNS[key][2])
-                if key == "path" and len(text) > width:
-                    text = "..." + text[-(width - 3):] if width > 3 else text[-width:]
-                surface.draw_text(x, y, fit_text(text, width), style, width)
+                if key == "path":
+                    text = self._cut_start(text, width)
+                surface.draw_text(x, y, fit_text(text, width, self.ellipsis), style, width)
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.

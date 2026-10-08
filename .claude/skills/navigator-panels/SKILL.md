@@ -40,8 +40,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   (`DirEntry.display_owner`, names cached, a number where there is none). Owner, then Attr, then Date drop when the name
   would fall under 12 cells.
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
-- A too-long name ends in `...` (`fit_text`, in cells) and starts with one while scrolled (`window_text`). In simple and
-  detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
+- A too-long name ends in `…` (`fit_text`, in cells) and starts with one while scrolled (`window_text`); `...` at the
+  ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title, footer path and path column cut their start with the
+  same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
 - **Drag-and-drop** (File Manager Setup's box, `panel/drag.py`): a left press on a row captures the mouse; the first
   move with the button held makes a `DragLabel` overlay (` name ` or ` N selected files `, `$30`, shadow) that follows

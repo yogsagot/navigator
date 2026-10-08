@@ -219,6 +219,11 @@ def marks(name: str, tier: int = GLYPHS_UNICODE) -> str:
     return ASCII_MARKS if tier < GLYPHS_UNICODE else chars
 
 
+def ellipsis(tier: int = GLYPHS_UNICODE) -> str:
+    """What ends text cut short: ``…`` (U+2026, one cell), three dots in ASCII."""
+    return "..." if tier < GLYPHS_UNICODE else "\u2026"
+
+
 def tier_named(name: str, default: int | None = None) -> int | None:
     """The tier *name* stands for, or *default* if it names nothing.
 
