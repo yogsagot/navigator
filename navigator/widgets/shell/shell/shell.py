@@ -1442,24 +1442,15 @@ class Shell(DockLayout):
     async def edit_associations(self, file_name: str) -> None:
         """Options > Quick run file edit, Extension file edit, Viewers or
         Editors: the file in an editor, written first from its template
-        (:data:`navigator.associations.TEMPLATES`) when it is not there yet,
-        as DN's came filled in."""
+        (:func:`navigator.associations.seed`) should it have gone since
+        Navigator started."""
         import asyncio
 
         from navigator import associations
 
         path = associations.path_of(file_name)
-
-        def seed() -> None:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            try:
-                with path.open("x", encoding="utf-8") as stream:
-                    stream.write(associations.TEMPLATES[file_name])
-            except FileExistsError:
-                pass
-
         try:
-            await asyncio.to_thread(seed)
+            await asyncio.to_thread(associations.seed, file_name)
         except OSError as error:
             await Dialog(title="Error", prompt=f"Cannot write {path}: {error.strerror or error}",
                          buttons="ok").execute(self.application)

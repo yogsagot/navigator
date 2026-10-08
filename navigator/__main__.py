@@ -36,6 +36,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator.associations import seed_all as seed_associations
 from navigator.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
@@ -564,6 +565,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     load_settings(args.config)
+    # extensions.ini, viewers.ini, editors.ini and quickrun.ini beside it,
+    # written from their templates when missing, as navigator.ini is.
+    for problem in seed_associations():
+        print(f"nav: {problem}", file=sys.stderr)
     open_database(args.database)
     try:
         seed_bookmarks()

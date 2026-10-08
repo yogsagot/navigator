@@ -46,8 +46,10 @@ DN's Alt+Enter `[ ]` menu became, since Alt+Enter stays *Insert name*; DN's Shif
 - **Ctrl+Shift+F1..F10** (`QuickRun(number)`, on `Navigator.keys` -- DN's code read Shift, its help said Alt):
   `quickrun.ini`'s section; none, nothing.
 - **Options > Quick run file edit / Extension file edit / Viewers / Editors** (`EditQuickRun`, `ExtFileEdit`,
-  `ExternalViewers`, `ExternalEditors`): `Shell.edit_associations` writes `associations.TEMPLATES[...]` first if the
-  file is missing (exclusive create, on a thread), then edits it. Global only: DN's local copies (Shift on the menu
+  `ExternalViewers`, `ExternalEditors`): `Shell.edit_associations` calls `associations.seed` first if the
+  file is missing (exclusive create, on a thread), then edits it. `main()` already seeds all four after
+  `load_settings` (`associations.seed_all`, complaints to stderr), so the templates' examples are live from the first
+  start, as DN's files shipped filled in; only `main()` does, so an application a test builds never writes them. Global only: DN's local copies (Shift on the menu
   item, the current directory's file) are not read.
 - All run through **`Shell.run_commands(commands)`**, the user menu's runner (`run_menu_item` calls it). `_menu_side`
   takes a *Find:* entry's own directory. A file that is not an `.ini` says *Cannot read ...* in an Error box.

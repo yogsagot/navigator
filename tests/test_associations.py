@@ -53,6 +53,17 @@ def test_a_file_that_is_not_an_ini_is_a_value_error_and_a_missing_one_is_empty()
     assert associations.read(EXTENSIONS) == []
 
 
+def test_seed_all_writes_the_missing_files_and_leaves_the_users_alone():
+    mine = associations.path_of(VIEWERS)
+    mine.parent.mkdir(parents=True, exist_ok=True)
+    mine.write_text("[*.png]\nMine = feh !.!\n", encoding="utf-8")
+    assert associations.seed_all() == []
+    assert mine.read_text(encoding="utf-8") == "[*.png]\nMine = feh !.!\n"
+    for file_name in (EXTENSIONS, EDITORS, QUICK_RUN):
+        assert associations.path_of(file_name).read_text(encoding="utf-8") == TEMPLATES[file_name]
+    assert associations.seed(EXTENSIONS) is False
+
+
 def test_every_template_reads_as_what_it_says():
     assert for_file(parse(TEMPLATES[EXTENSIONS]), "x.tgz").actions[1].caption == "Extract here"
     assert for_file(parse(TEMPLATES[VIEWERS]), "a.PDF") is not None

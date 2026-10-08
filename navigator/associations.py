@@ -26,7 +26,9 @@ several offers them in a menu, as DN's Alt+Enter offered ``DN.EXT``'s
 what several entries mean rather than a key of its own, and DN's
 Shift+Enter variant (``( )``) has no key and so no place.
 
-The files are only ever read whole, on a thread: :func:`read`.
+The files are only ever read whole, on a thread: :func:`read`.  Each is
+written from its template the first time Navigator starts without it
+(:func:`seed_all`), as DN's came filled in.
 """
 
 from __future__ import annotations
@@ -171,3 +173,35 @@ Word processor = libreoffice !.!
 Disk usage = du -sh !\\*
 """,
 }
+
+
+def seed(file_name: str) -> bool:
+    """Write *file_name* (one of the four) from its template if it is not there.
+
+    True when it was written, False when it was there already; ``OSError``
+    when it could not be.  Never overwrites: the file is created exclusively.
+    """
+    path = path_of(file_name)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("x", encoding="utf-8") as stream:
+            stream.write(TEMPLATES[file_name])
+    except FileExistsError:
+        return False
+    return True
+
+
+def seed_all() -> list[str]:
+    """Each of the four that is missing written from its template, as
+    ``navigator.ini`` is written with its defaults at the first start.
+
+    A complaint for each that could not be, rather than an exception: a file
+    that cannot be written only leaves its association empty.
+    """
+    problems = []
+    for file_name in TEMPLATES:
+        try:
+            seed(file_name)
+        except OSError as error:
+            problems.append(f"{path_of(file_name)}: {error.strerror or error}")
+    return problems
