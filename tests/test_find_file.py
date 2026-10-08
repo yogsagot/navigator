@@ -296,11 +296,14 @@ def test_directory_branch_lists_every_file_below_and_no_directory(place):
 
 
 def test_the_progress_line_cuts_a_long_directory_from_its_start():
+    from types import SimpleNamespace
+
+    from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE
     from navigator.widgets.manager.find_progress import FindProgress
 
-    box = FindProgress()  # detached: the Unicode tier
-    room = box.modal_width - 4
     path = "/" + "d" * 100 + "/end"
-    assert box.fit("/short") == "/short"
-    assert box.fit(path) == "…" + path[-(room - 1):]
-    assert len(box.fit(path)) == room
+    box = SimpleNamespace(modal_width=56, glyphs=GLYPHS_UNICODE)
+    assert FindProgress.fit(box, "/short") == "/short"
+    assert FindProgress.fit(box, path) == "…" + path[-51:]
+    box.glyphs = GLYPHS_ASCII
+    assert FindProgress.fit(box, path) == "..." + path[-49:]

@@ -9,6 +9,7 @@ from navml.widgets.dialog.group_box import GroupBox
 from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
+from navkit import glyphs
 from navigator.sysinfo import SystemFacts, lines
 
 
@@ -22,3 +23,4 @@ class SystemInfoDialog(Dialog, _Component):
     other_box: GroupBox
     other: StaticText
     def __init__(self, facts: SystemFacts | None = ..., **kwargs: Any) -> None: ...
+    def mounted(self) -> None: ...
