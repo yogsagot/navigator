@@ -2668,8 +2668,8 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     a number that does not depend on the disk the suite runs on.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
-    monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_text",
-                        lambda path: "~1,000,000~ free bytes on ~/")
+    monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_of",
+                        lambda path: (1_000_000, "/"))
     (tmp_path / "alpha").mkdir()
     (tmp_path / "beta").mkdir()
     (tmp_path / "one.txt").touch()

@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.shell.command_history_dialog.history_list import HistoryList    # command_history_dialog.nml:1
@@ -89,7 +91,7 @@ class CommandHistoryDialog(Dialog, _Component):
 
         self.modal_width = 59    # command_history_dialog.nml:10
         self.modal_height = 17    # command_history_dialog.nml:11
-        self.title = 'Commands history'    # command_history_dialog.nml:12
+        self.title = _bind(lambda _o: _tr('Commands history'), yielding=True)    # command_history_dialog.nml:12
 
         self.commands.framed = False    # command_history_dialog.nml:16
         self.commands.x = 2    # command_history_dialog.nml:17
@@ -99,7 +101,7 @@ class CommandHistoryDialog(Dialog, _Component):
         self.commands.on_chosen = self.on_commands_chosen    # command_history_dialog.nml:15
         self.commands.on_killed = self.on_commands_killed    # command_history_dialog.nml:15
 
-        self.run.text = '~R~un'    # command_history_dialog.nml:25
+        self.run.text = _bind(lambda _o: _tr('~R~un'), yielding=True)    # command_history_dialog.nml:25
         self.run.default = True    # command_history_dialog.nml:26
         self.run.x = 3    # command_history_dialog.nml:27
         self.run.y = 14    # command_history_dialog.nml:28
@@ -107,28 +109,28 @@ class CommandHistoryDialog(Dialog, _Component):
         self.run.height = 2    # command_history_dialog.nml:30
         self.run.on_click = self.on_run_click    # command_history_dialog.nml:24
 
-        self.drop.text = '~D~rop'    # command_history_dialog.nml:35
+        self.drop.text = _bind(lambda _o: _tr('~D~rop'), yielding=True)    # command_history_dialog.nml:35
         self.drop.x = 14    # command_history_dialog.nml:36
         self.drop.y = 14    # command_history_dialog.nml:37
         self.drop.width = 10    # command_history_dialog.nml:38
         self.drop.height = 2    # command_history_dialog.nml:39
         self.drop.on_click = self.on_drop_click    # command_history_dialog.nml:34
 
-        self.edit.text = '~E~dit'    # command_history_dialog.nml:44
+        self.edit.text = _bind(lambda _o: _tr('~E~dit'), yielding=True)    # command_history_dialog.nml:44
         self.edit.x = 25    # command_history_dialog.nml:45
         self.edit.y = 14    # command_history_dialog.nml:46
         self.edit.width = 10    # command_history_dialog.nml:47
         self.edit.height = 2    # command_history_dialog.nml:48
         self.edit.on_click = self.on_edit_click    # command_history_dialog.nml:43
 
-        self.kill.text = '~K~ill'    # command_history_dialog.nml:53
+        self.kill.text = _bind(lambda _o: _tr('~K~ill'), yielding=True)    # command_history_dialog.nml:53
         self.kill.x = 36    # command_history_dialog.nml:54
         self.kill.y = 14    # command_history_dialog.nml:55
         self.kill.width = 10    # command_history_dialog.nml:56
         self.kill.height = 2    # command_history_dialog.nml:57
         self.kill.on_click = self.on_kill_click    # command_history_dialog.nml:52
 
-        self.abandon.text = 'Cancel'    # command_history_dialog.nml:61
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # command_history_dialog.nml:61
         self.abandon.x = 47    # command_history_dialog.nml:62
         self.abandon.y = 14    # command_history_dialog.nml:63
         self.abandon.width = 10    # command_history_dialog.nml:64

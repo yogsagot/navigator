@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navkit.widget import Widget
 from navml.background import Background, Outcome
@@ -34,7 +35,7 @@ class FileDialog(Dialog, _Component):
     abandon: Button
     helper: Button
     info: FileInfoPane
-    def __init__(self, *, title: str | None = ..., label: str = ..., history_id: str = ..., directory: Path | str | None = ..., wildcard: str = ..., hidden: bool = ..., ok_text: str | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, *, title: str | None = ..., label: str | None = ..., history_id: str = ..., directory: Path | str | None = ..., wildcard: str = ..., hidden: bool = ..., ok_text: str | None = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     async def on_helper_click(self, event: _Event) -> bool: ...
     def mounted(self) -> None: ...

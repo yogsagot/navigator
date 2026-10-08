@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -67,39 +68,57 @@ class EditorDefaultsDialog(Dialog, _Component):
 
         self.modal_width = 56    # editor_defaults_dialog.nml:16
         self.modal_height = 21    # editor_defaults_dialog.nml:17
-        self.title = 'Editor/Viewer Defaults'    # editor_defaults_dialog.nml:18
+        self.title = _bind(    # editor_defaults_dialog.nml:18
+            lambda _o: _tr('Editor/Viewer Defaults'),
+            yielding=True,
+        )
 
         self.editor_caption.x = 2    # editor_defaults_dialog.nml:22
         self.editor_caption.y = 1    # editor_defaults_dialog.nml:23
         self.editor_caption.width = 16    # editor_defaults_dialog.nml:24
         self.editor_caption.height = 1    # editor_defaults_dialog.nml:25
-        self.editor_caption.text = 'Editor options'    # editor_defaults_dialog.nml:26
+        self.editor_caption.text = _bind(    # editor_defaults_dialog.nml:26
+            lambda _o: _tr('Editor options'),
+            yielding=True,
+        )
         self.editor_caption.link = _bind(lambda _o: self.editor)    # editor_defaults_dialog.nml:27
 
         self.editor.x = 2    # editor_defaults_dialog.nml:31
         self.editor.y = 2    # editor_defaults_dialog.nml:32
         self.editor.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # editor_defaults_dialog.nml:33
         self.editor.height = 7    # editor_defaults_dialog.nml:34
-        self.editor.items = ['~C~reate backup files', '~B~ackspace unindents', 'Au~t~oBrackets', '~A~uto indent', 'A~u~towrap', '~J~ustify on wrap', '~V~ertical blocks', 'Opti~m~al fill', '~H~ighlight line', 'H~i~ghlight column', '~P~ersistent blocks', '~O~verwrite blocks', 'Lock ~f~ile']    # editor_defaults_dialog.nml:35
+        self.editor.items = _bind(    # editor_defaults_dialog.nml:35
+            lambda _o: [_tr('~C~reate backup files'), _tr('~B~ackspace unindents'), _tr('Au~t~oBrackets'), _tr('~A~uto indent'), _tr('A~u~towrap'), _tr('~J~ustify on wrap'), _tr('~V~ertical blocks'), _tr('Opti~m~al fill'), _tr('~H~ighlight line'), _tr('H~i~ghlight column'), _tr('~P~ersistent blocks'), _tr('~O~verwrite blocks'), _tr('Lock ~f~ile')],
+            yielding=True,
+        )
 
         self.viewer_caption.x = 2    # editor_defaults_dialog.nml:39
         self.viewer_caption.y = 10    # editor_defaults_dialog.nml:40
         self.viewer_caption.width = 16    # editor_defaults_dialog.nml:41
         self.viewer_caption.height = 1    # editor_defaults_dialog.nml:42
-        self.viewer_caption.text = 'Viewer options'    # editor_defaults_dialog.nml:43
+        self.viewer_caption.text = _bind(    # editor_defaults_dialog.nml:43
+            lambda _o: _tr('Viewer options'),
+            yielding=True,
+        )
         self.viewer_caption.link = _bind(lambda _o: self.viewer)    # editor_defaults_dialog.nml:44
 
         self.viewer.x = 2    # editor_defaults_dialog.nml:48
         self.viewer.y = 11    # editor_defaults_dialog.nml:49
         self.viewer.width = 20    # editor_defaults_dialog.nml:50
         self.viewer.height = 2    # editor_defaults_dialog.nml:51
-        self.viewer.items = ['He~x~ mode', '~W~rap lines']    # editor_defaults_dialog.nml:52
+        self.viewer.items = _bind(    # editor_defaults_dialog.nml:52
+            lambda _o: [_tr('He~x~ mode'), _tr('~W~rap lines')],
+            yielding=True,
+        )
 
         self.left_margin.x = 30    # editor_defaults_dialog.nml:56
         self.left_margin.y = 10    # editor_defaults_dialog.nml:57
         self.left_margin.width = 20    # editor_defaults_dialog.nml:58
         self.left_margin.height = 1    # editor_defaults_dialog.nml:59
-        self.left_margin.label_text = '~L~eft margin'    # editor_defaults_dialog.nml:60
+        self.left_margin.label_text = _bind(    # editor_defaults_dialog.nml:60
+            lambda _o: _tr('~L~eft margin'),
+            yielding=True,
+        )
         self.left_margin.label_width = 15    # editor_defaults_dialog.nml:61
         self.left_margin.mask = '999'    # editor_defaults_dialog.nml:62
 
@@ -107,7 +126,10 @@ class EditorDefaultsDialog(Dialog, _Component):
         self.right_margin.y = 11    # editor_defaults_dialog.nml:67
         self.right_margin.width = 20    # editor_defaults_dialog.nml:68
         self.right_margin.height = 1    # editor_defaults_dialog.nml:69
-        self.right_margin.label_text = '~R~ight margin'    # editor_defaults_dialog.nml:70
+        self.right_margin.label_text = _bind(    # editor_defaults_dialog.nml:70
+            lambda _o: _tr('~R~ight margin'),
+            yielding=True,
+        )
         self.right_margin.label_width = 15    # editor_defaults_dialog.nml:71
         self.right_margin.mask = '999'    # editor_defaults_dialog.nml:72
 
@@ -115,7 +137,10 @@ class EditorDefaultsDialog(Dialog, _Component):
         self.paragraph.y = 12    # editor_defaults_dialog.nml:77
         self.paragraph.width = 20    # editor_defaults_dialog.nml:78
         self.paragraph.height = 1    # editor_defaults_dialog.nml:79
-        self.paragraph.label_text = 'Para~g~raph'    # editor_defaults_dialog.nml:80
+        self.paragraph.label_text = _bind(    # editor_defaults_dialog.nml:80
+            lambda _o: _tr('Para~g~raph'),
+            yielding=True,
+        )
         self.paragraph.label_width = 15    # editor_defaults_dialog.nml:81
         self.paragraph.mask = '999'    # editor_defaults_dialog.nml:82
 
@@ -123,7 +148,10 @@ class EditorDefaultsDialog(Dialog, _Component):
         self.tab_size.y = 14    # editor_defaults_dialog.nml:87
         self.tab_size.width = 20    # editor_defaults_dialog.nml:88
         self.tab_size.height = 1    # editor_defaults_dialog.nml:89
-        self.tab_size.label_text = 'Tab si~z~e'    # editor_defaults_dialog.nml:90
+        self.tab_size.label_text = _bind(    # editor_defaults_dialog.nml:90
+            lambda _o: _tr('Tab si~z~e'),
+            yielding=True,
+        )
         self.tab_size.label_width = 15    # editor_defaults_dialog.nml:91
         self.tab_size.mask = '999'    # editor_defaults_dialog.nml:92
 
@@ -131,11 +159,17 @@ class EditorDefaultsDialog(Dialog, _Component):
         self.divisor_caption.y = 14    # editor_defaults_dialog.nml:97
         self.divisor_caption.width = 24    # editor_defaults_dialog.nml:98
         self.divisor_caption.height = 1    # editor_defaults_dialog.nml:99
-        self.divisor_caption.text = 'Line ~d~ivisor (editor)'    # editor_defaults_dialog.nml:100
+        self.divisor_caption.text = _bind(    # editor_defaults_dialog.nml:100
+            lambda _o: _tr('Line ~d~ivisor (editor)'),
+            yielding=True,
+        )
         self.divisor_caption.link = _bind(lambda _o: self.line_divisor)    # editor_defaults_dialog.nml:101
 
         self.line_divisor.x = 2    # editor_defaults_dialog.nml:105
         self.line_divisor.y = 15    # editor_defaults_dialog.nml:106
         self.line_divisor.width = 26    # editor_defaults_dialog.nml:107
         self.line_divisor.height = 1    # editor_defaults_dialog.nml:108
-        self.line_divisor.items = ['LF', 'CR+LF', 'CR']    # editor_defaults_dialog.nml:109
+        self.line_divisor.items = _bind(    # editor_defaults_dialog.nml:109
+            lambda _o: [_tr('LF'), _tr('CR+LF'), _tr('CR')],
+            yielding=True,
+        )

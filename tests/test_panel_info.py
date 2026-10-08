@@ -20,13 +20,13 @@ from navigator.widgets.manager.panel import panel as panel_module
 from navigator.widgets.manager.panel.panel import ScanJob, scan_directory
 from navigator.widgets.shell.commands import NewManager
 
-FREE = "~1,000~ free bytes on ~/"
+FREE = (1000, "/")
 
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
-    monkeypatch.setattr(panel_module, "free_space_text", lambda path: FREE)
+    monkeypatch.setattr(panel_module, "free_space_of", lambda path: FREE)
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "x").write_text("x" * 10)
     (tmp_path / "sub" / "deeper").mkdir()

@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.button import Button    # margins_dialog.nml:1
@@ -73,30 +75,39 @@ class MarginsDialog(Dialog, _Component):
 
         self.modal_width = 39    # margins_dialog.nml:9
         self.modal_height = 11    # margins_dialog.nml:10
-        self.title = 'Format Margins'    # margins_dialog.nml:11
+        self.title = _bind(lambda _o: _tr('Format Margins'), yielding=True)    # margins_dialog.nml:11
 
         self.left.x = 2    # margins_dialog.nml:15
         self.left.y = 2    # margins_dialog.nml:16
         self.left.width = 35    # margins_dialog.nml:17
         self.left.height = 1    # margins_dialog.nml:18
-        self.left.label_text = '~L~eft margin'    # margins_dialog.nml:19
+        self.left.label_text = _bind(    # margins_dialog.nml:19
+            lambda _o: _tr('~L~eft margin'),
+            yielding=True,
+        )
         self.left.label_width = 18    # margins_dialog.nml:20
 
         self.right.x = 2    # margins_dialog.nml:24
         self.right.y = 4    # margins_dialog.nml:25
         self.right.width = 35    # margins_dialog.nml:26
         self.right.height = 1    # margins_dialog.nml:27
-        self.right.label_text = '~R~ight margin'    # margins_dialog.nml:28
+        self.right.label_text = _bind(    # margins_dialog.nml:28
+            lambda _o: _tr('~R~ight margin'),
+            yielding=True,
+        )
         self.right.label_width = 18    # margins_dialog.nml:29
 
         self.indent.x = 2    # margins_dialog.nml:33
         self.indent.y = 6    # margins_dialog.nml:34
         self.indent.width = 35    # margins_dialog.nml:35
         self.indent.height = 1    # margins_dialog.nml:36
-        self.indent.label_text = '~P~aragraph'    # margins_dialog.nml:37
+        self.indent.label_text = _bind(    # margins_dialog.nml:37
+            lambda _o: _tr('~P~aragraph'),
+            yielding=True,
+        )
         self.indent.label_width = 18    # margins_dialog.nml:38
 
-        self.pick.text = 'O~K~'    # margins_dialog.nml:42
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # margins_dialog.nml:42
         self.pick.default = True    # margins_dialog.nml:43
         self.pick.x = 7    # margins_dialog.nml:44
         self.pick.y = 8    # margins_dialog.nml:45
@@ -104,14 +115,14 @@ class MarginsDialog(Dialog, _Component):
         self.pick.height = 2    # margins_dialog.nml:47
         self.pick.on_click = self.on_pick_click    # margins_dialog.nml:41
 
-        self.abandon.text = 'Cancel'    # margins_dialog.nml:51
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # margins_dialog.nml:51
         self.abandon.x = 17    # margins_dialog.nml:52
         self.abandon.y = 8    # margins_dialog.nml:53
         self.abandon.width = 10    # margins_dialog.nml:54
         self.abandon.height = 2    # margins_dialog.nml:55
         self.abandon.on_click = self.on_abandon_click    # margins_dialog.nml:50
 
-        self.helper.text = 'Help'    # margins_dialog.nml:60
+        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # margins_dialog.nml:60
         self.helper.disabled = True    # margins_dialog.nml:61
         self.helper.x = 27    # margins_dialog.nml:62
         self.helper.y = 8    # margins_dialog.nml:63

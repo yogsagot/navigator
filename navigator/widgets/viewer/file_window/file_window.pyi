@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 from navkit.commands import Command
 from navkit.events import DoubleClickEvent
+from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 import navigator.viewer as viewer_model

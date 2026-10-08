@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from navkit.commands import Command, key_label, layer_key
 from navkit.events import MouseClickEvent
+from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.widget import Widget
 
@@ -52,7 +53,7 @@ class KeyBar(Widget):
         """
         found, column = [], 0
         for key, command in self._row():
-            width = len(_shown(key)) + 1 + len(command.title) + 2
+            width = len(_shown(key)) + 1 + len(tr(command.title)) + 2
             if column + width - 2 >= self.width:
                 break
             found.append((key, command, column, width))
@@ -87,7 +88,7 @@ class KeyBar(Widget):
             surface.draw_text(
                 start + 1, 0, name, self.part_style("key", disabled=disabled)
             )
-            surface.draw_text(start + 1 + len(name), 0, f" {command.title} ", label)
+            surface.draw_text(start + 1 + len(name), 0, f" {tr(command.title)} ", label)
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A press on an item asks for its command, as the key would.

@@ -32,16 +32,17 @@ from __future__ import annotations
 
 import ast
 import builtins
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from navkit.events import emitted
-from navkit.reactive import UNKNOWN
+from navkit.reactive import UNKNOWN, Computed
 
 from navml.coder import Coder
 from navml.expression import (
     ARGUMENT,
     BIND,
+    TRANSLATED,
     compile_expression,
     compile_handler,
 )
@@ -52,7 +53,7 @@ from navml.parser import (
     PropertyDecl,
     StylePropertyDecl,
 )
-from navml.resolve import Resolved
+from navml.resolve import Resolved, declared
 
 #: The first line of every file this module writes, and what ``navml build``
 #: looks for before it is willing to overwrite one.
@@ -89,6 +90,7 @@ _IMPORTS = {
     "_Event": ("navkit.events", "Event"),
     "_StyleProperty": ("navkit.stylesheet", "StyleProperty"),
     "_bind": ("navkit.reactive", "bind"),
+    "_tr": ("navkit.i18n", "tr"),
     "_reactive": ("navkit.reactive", "reactive"),
     "_Alias": ("navml._alias", "_Alias"),
     "_Component": ("navml.component", "Component"),
@@ -188,7 +190,14 @@ def _collect_lines(
             ids=resolved.ids,
             line=prop.line,
             filename=resolved.filename,
+            translate=prop.name in TRANSLATED,
         )
+        if compiled.translated:
+            build.needing("_tr")
+            if not _followable(resolved, block, prop.name):
+                # A plain attribute cannot follow a binding: translated once,
+                # into the language of the moment the widget was built.
+                compiled = replace(compiled, rewritten=False)
         if compiled.rewritten:
             build.needing("_bind")
         lines.extend(
@@ -205,6 +214,14 @@ def _collect_lines(
         _collect_handler(build, block, owner, handler, lines)
 
 
+def _followable(resolved: Resolved, block: Block, name: str) -> bool:
+    """Whether *name* on *block* is reactive, so a binding to it is followed."""
+    if block is resolved.document.root and name in resolved.declared:
+        return not isinstance(resolved.declared[name], EventDecl)
+    found = declared(resolved.class_of(block), name)
+    return found is not None and not isinstance(found, Computed)
+
+
 def _assignment(target: str, compiled, line: int) -> list[_Line]:
     """``target = value``, wrapped at the binding's bracket when it is long.
 
@@ -215,9 +232,11 @@ def _assignment(target: str, compiled, line: int) -> list[_Line]:
     statement = f"{target} = {compiled.value}"
     if len(statement) + _BODY <= _WIDTH or not compiled.rewritten:
         return [_Line(statement, line)]
+    tail = "," if compiled.yielding else ""
     return [
         _Line(f"{target} = {BIND}(", line),
-        _Line(f"lambda {ARGUMENT}: {compiled.expression}", indent=1),
+        _Line(f"lambda {ARGUMENT}: {compiled.expression}{tail}", indent=1),
+        *([_Line("yielding=True,", indent=1)] if compiled.yielding else []),
         _Line(")"),
     ]
 

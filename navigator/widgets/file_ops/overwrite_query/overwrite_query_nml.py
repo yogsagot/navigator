@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -88,7 +89,7 @@ class OverwriteQuery(Dialog, _Component):
 
         self.modal_width = 66    # overwrite_query.nml:14
         self.modal_height = 13    # overwrite_query.nml:15
-        self.title = 'Confirm'    # overwrite_query.nml:16
+        self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # overwrite_query.nml:16
 
         self.details.x = 1    # overwrite_query.nml:20
         self.details.y = 2    # overwrite_query.nml:21
@@ -100,9 +101,15 @@ class OverwriteQuery(Dialog, _Component):
         self.for_all.y = 8    # overwrite_query.nml:31
         self.for_all.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # overwrite_query.nml:32
         self.for_all.height = 1    # overwrite_query.nml:33
-        self.for_all.items = ['Accept choice for ~a~ll files']    # overwrite_query.nml:34
+        self.for_all.items = _bind(    # overwrite_query.nml:34
+            lambda _o: [_tr('Accept choice for ~a~ll files')],
+            yielding=True,
+        )
 
-        self.overwrite.text = '~O~verwrite'    # overwrite_query.nml:38
+        self.overwrite.text = _bind(    # overwrite_query.nml:38
+            lambda _o: _tr('~O~verwrite'),
+            yielding=True,
+        )
         self.overwrite.default = True    # overwrite_query.nml:39
         self.overwrite.x = 2    # overwrite_query.nml:40
         self.overwrite.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # overwrite_query.nml:41
@@ -110,28 +117,28 @@ class OverwriteQuery(Dialog, _Component):
         self.overwrite.height = 2    # overwrite_query.nml:43
         self.overwrite.on_click = self.on_overwrite_click    # overwrite_query.nml:37
 
-        self.append.text = 'A~p~pend'    # overwrite_query.nml:47
+        self.append.text = _bind(lambda _o: _tr('A~p~pend'), yielding=True)    # overwrite_query.nml:47
         self.append.x = 16    # overwrite_query.nml:48
         self.append.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # overwrite_query.nml:49
         self.append.width = 11    # overwrite_query.nml:50
         self.append.height = 2    # overwrite_query.nml:51
         self.append.on_click = self.on_append_click    # overwrite_query.nml:46
 
-        self.rename.text = '~R~ename'    # overwrite_query.nml:55
+        self.rename.text = _bind(lambda _o: _tr('~R~ename'), yielding=True)    # overwrite_query.nml:55
         self.rename.x = 28    # overwrite_query.nml:56
         self.rename.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # overwrite_query.nml:57
         self.rename.width = 11    # overwrite_query.nml:58
         self.rename.height = 2    # overwrite_query.nml:59
         self.rename.on_click = self.on_rename_click    # overwrite_query.nml:54
 
-        self.skip.text = '~S~kip'    # overwrite_query.nml:63
+        self.skip.text = _bind(lambda _o: _tr('~S~kip'), yielding=True)    # overwrite_query.nml:63
         self.skip.x = 40    # overwrite_query.nml:64
         self.skip.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # overwrite_query.nml:65
         self.skip.width = 11    # overwrite_query.nml:66
         self.skip.height = 2    # overwrite_query.nml:67
         self.skip.on_click = self.on_skip_click    # overwrite_query.nml:62
 
-        self.abandon.text = 'Cancel'    # overwrite_query.nml:71
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # overwrite_query.nml:71
         self.abandon.x = 52    # overwrite_query.nml:72
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # overwrite_query.nml:73
         self.abandon.width = 11    # overwrite_query.nml:74

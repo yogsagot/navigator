@@ -20,8 +20,11 @@ default -- and then no cell is marked.
 
 from __future__ import annotations
 
+from typing import Any
+
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.reactive import reactive
+from navkit.i18n import tr
+from navkit.reactive import bind, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.stylesheet import COLOR_NAMES
@@ -121,6 +124,11 @@ class ColorDisplay(Control):
 
     #: The style the sample is drawn in.
     sample: Style = reactive(Style())
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        if "text" not in kwargs:
+            self.text = bind(lambda _o: tr(" Text "), yielding=True)
 
     def render(self, surface: Surface) -> None:
         if not self.text:

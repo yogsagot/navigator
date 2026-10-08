@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -55,13 +56,18 @@ class SelectDialog(Dialog, _Component):
 
         self.modal_width = 30    # select_dialog.nml:17
         self.modal_height = 10    # select_dialog.nml:18
-        self.title = _bind(lambda _o: 'Select' if self.select else 'Unselect')    # select_dialog.nml:19
+        self.title = _bind(    # select_dialog.nml:19
+            lambda _o: _tr('Select') if self.select else _tr('Unselect')
+        )
 
         self.mask_caption.x = 2    # select_dialog.nml:23
         self.mask_caption.y = 1    # select_dialog.nml:24
         self.mask_caption.width = 12    # select_dialog.nml:25
         self.mask_caption.height = 1    # select_dialog.nml:26
-        self.mask_caption.text = '~F~ile mask'    # select_dialog.nml:27
+        self.mask_caption.text = _bind(    # select_dialog.nml:27
+            lambda _o: _tr('~F~ile mask'),
+            yielding=True,
+        )
         self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # select_dialog.nml:28
 
         self.mask.x = 2    # select_dialog.nml:33
@@ -76,4 +82,7 @@ class SelectDialog(Dialog, _Component):
         self.options.y = 4    # select_dialog.nml:44
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:45
         self.options.height = 1    # select_dialog.nml:46
-        self.options.items = ['~E~xcept mask']    # select_dialog.nml:47
+        self.options.items = _bind(    # select_dialog.nml:47
+            lambda _o: [_tr('~E~xcept mask')],
+            yielding=True,
+        )

@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -57,43 +58,61 @@ class FMDefaultsDialog(Dialog, _Component):
 
         self.modal_width = 52    # fm_defaults_dialog.nml:14
         self.modal_height = 18    # fm_defaults_dialog.nml:15
-        self.title = 'Panel Defaults'    # fm_defaults_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('Panel Defaults'), yielding=True)    # fm_defaults_dialog.nml:16
 
         self.sort_caption.x = 2    # fm_defaults_dialog.nml:20
         self.sort_caption.y = 1    # fm_defaults_dialog.nml:21
         self.sort_caption.width = 12    # fm_defaults_dialog.nml:22
         self.sort_caption.height = 1    # fm_defaults_dialog.nml:23
-        self.sort_caption.text = 'Sort by'    # fm_defaults_dialog.nml:24
+        self.sort_caption.text = _bind(    # fm_defaults_dialog.nml:24
+            lambda _o: _tr('Sort by'),
+            yielding=True,
+        )
         self.sort_caption.link = _bind(lambda _o: self.sort_by)    # fm_defaults_dialog.nml:25
 
         self.sort_by.x = 2    # fm_defaults_dialog.nml:29
         self.sort_by.y = 2    # fm_defaults_dialog.nml:30
         self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_dialog.nml:31
         self.sort_by.height = 2    # fm_defaults_dialog.nml:32
-        self.sort_by.items = ['~N~ame', '~E~xtension', '~S~ize', '~T~ime', 'T~y~pe', '~U~nsorted']    # fm_defaults_dialog.nml:33
+        self.sort_by.items = _bind(    # fm_defaults_dialog.nml:33
+            lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('T~y~pe'), _tr('~U~nsorted')],
+            yielding=True,
+        )
 
         self.display_caption.x = 2    # fm_defaults_dialog.nml:37
         self.display_caption.y = 5    # fm_defaults_dialog.nml:38
         self.display_caption.width = 12    # fm_defaults_dialog.nml:39
         self.display_caption.height = 1    # fm_defaults_dialog.nml:40
-        self.display_caption.text = 'Display'    # fm_defaults_dialog.nml:41
+        self.display_caption.text = _bind(    # fm_defaults_dialog.nml:41
+            lambda _o: _tr('Display'),
+            yielding=True,
+        )
         self.display_caption.link = _bind(lambda _o: self.display)    # fm_defaults_dialog.nml:42
 
         self.display.x = 2    # fm_defaults_dialog.nml:46
         self.display.y = 6    # fm_defaults_dialog.nml:47
         self.display.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_dialog.nml:48
         self.display.height = 4    # fm_defaults_dialog.nml:49
-        self.display.items = ['Director~y~ length', '~C~urrent file', 'Se~l~ected files', 'T~o~tals', '~F~ree space', 'Files ~h~ighlight', 'E~x~ecutable first', '~A~rchives first']    # fm_defaults_dialog.nml:50
+        self.display.items = _bind(    # fm_defaults_dialog.nml:50
+            lambda _o: [_tr('Director~y~ length'), _tr('~C~urrent file'), _tr('Se~l~ected files'), _tr('T~o~tals'), _tr('~F~ree space'), _tr('Files ~h~ighlight'), _tr('E~x~ecutable first'), _tr('~A~rchives first')],
+            yielding=True,
+        )
 
         self.left_caption.x = 2    # fm_defaults_dialog.nml:54
         self.left_caption.y = 11    # fm_defaults_dialog.nml:55
         self.left_caption.width = 40    # fm_defaults_dialog.nml:56
         self.left_caption.height = 1    # fm_defaults_dialog.nml:57
-        self.left_caption.text = 'Left panel in new Manager will be...'    # fm_defaults_dialog.nml:58
+        self.left_caption.text = _bind(    # fm_defaults_dialog.nml:58
+            lambda _o: _tr('Left panel in new Manager will be...'),
+            yielding=True,
+        )
         self.left_caption.link = _bind(lambda _o: self.left_panel)    # fm_defaults_dialog.nml:59
 
         self.left_panel.x = 2    # fm_defaults_dialog.nml:63
         self.left_panel.y = 12    # fm_defaults_dialog.nml:64
         self.left_panel.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_dialog.nml:65
         self.left_panel.height = 1    # fm_defaults_dialog.nml:66
-        self.left_panel.items = ['Files', '~I~nfo', 'T~r~ee', 'A~b~sent']    # fm_defaults_dialog.nml:67
+        self.left_panel.items = _bind(    # fm_defaults_dialog.nml:67
+            lambda _o: [_tr('Files'), _tr('~I~nfo'), _tr('T~r~ee'), _tr('A~b~sent')],
+            yielding=True,
+        )

@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog    # ascii_chart.nml:1
@@ -59,7 +61,7 @@ class AsciiChart(Dialog, _Component):
 
         self.modal_width = 34    # ascii_chart.nml:12
         self.modal_height = 12    # ascii_chart.nml:13
-        self.title = 'ASCII Chart'    # ascii_chart.nml:14
+        self.title = _bind(lambda _o: _tr('ASCII Chart'), yielding=True)    # ascii_chart.nml:14
 
         self.table.x = 1    # ascii_chart.nml:18
         self.table.y = 1    # ascii_chart.nml:19

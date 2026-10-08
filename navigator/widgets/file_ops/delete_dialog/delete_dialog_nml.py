@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -51,7 +52,7 @@ class DeleteDialog(Dialog, _Component):
 
         self.modal_width = 50    # delete_dialog.nml:14
         self.modal_height = 10    # delete_dialog.nml:15
-        self.title = 'Delete'    # delete_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('Delete'), yielding=True)    # delete_dialog.nml:16
         self.buttons = 'ok-cancel'    # delete_dialog.nml:17
 
         self.prompt_head.x = 2    # delete_dialog.nml:22
@@ -59,7 +60,10 @@ class DeleteDialog(Dialog, _Component):
         self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_dialog.nml:24
         self.prompt_head.height = 1    # delete_dialog.nml:25
         self.prompt_head.align = 'center'    # delete_dialog.nml:26
-        self.prompt_head.text = 'Do you wish to delete'    # delete_dialog.nml:27
+        self.prompt_head.text = _bind(    # delete_dialog.nml:27
+            lambda _o: _tr('Do you wish to delete'),
+            yielding=True,
+        )
 
         self.prompt_caption.x = 2    # delete_dialog.nml:32
         self.prompt_caption.y = 2    # delete_dialog.nml:33
@@ -73,4 +77,7 @@ class DeleteDialog(Dialog, _Component):
         self.options.y = 4    # delete_dialog.nml:42
         self.options.width = 24    # delete_dialog.nml:43
         self.options.height = 1    # delete_dialog.nml:44
-        self.options.items = ['~R~ecursive delete']    # delete_dialog.nml:45
+        self.options.items = _bind(    # delete_dialog.nml:45
+            lambda _o: [_tr('~R~ecursive delete')],
+            yielding=True,
+        )

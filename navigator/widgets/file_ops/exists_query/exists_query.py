@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -25,7 +26,8 @@ class ExistsQuery(Dialog):
         self.row.visible = False
         self.message.visible = False
         if path is not None:
-            self.details.text = f"File {escape_caption(cut(str(path)))} already exists.\nOverwrite?"
+            self.details.text = tr("File {name} already exists.\nOverwrite?").format(
+                name=escape_caption(cut(str(path))))
 
     def slot(self, index: int) -> int:
         """The column of the *index*-th button of the centred row."""

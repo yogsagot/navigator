@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -56,26 +57,35 @@ class SystemSetupDialog(Dialog, _Component):
 
         self.modal_width = 60    # system_setup_dialog.nml:17
         self.modal_height = 13    # system_setup_dialog.nml:18
-        self.title = 'System Setup'    # system_setup_dialog.nml:19
+        self.title = _bind(lambda _o: _tr('System Setup'), yielding=True)    # system_setup_dialog.nml:19
 
         self.options_caption.x = 3    # system_setup_dialog.nml:23
         self.options_caption.y = 1    # system_setup_dialog.nml:24
         self.options_caption.width = 12    # system_setup_dialog.nml:25
         self.options_caption.height = 1    # system_setup_dialog.nml:26
-        self.options_caption.text = '~O~ptions'    # system_setup_dialog.nml:27
+        self.options_caption.text = _bind(    # system_setup_dialog.nml:27
+            lambda _o: _tr('~O~ptions'),
+            yielding=True,
+        )
         self.options_caption.link = _bind(lambda _o: self.options)    # system_setup_dialog.nml:28
 
         self.options.x = 3    # system_setup_dialog.nml:32
         self.options.y = 2    # system_setup_dialog.nml:33
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # system_setup_dialog.nml:34
         self.options.height = 3    # system_setup_dialog.nml:35
-        self.options.items = ['Internal ~e~ditor', 'Internal ~v~iewer', '~U~se system clipboard', '~S~how hidden files', 'S~y~nc after copying', 'Use internal te~r~minal']    # system_setup_dialog.nml:36
+        self.options.items = _bind(    # system_setup_dialog.nml:36
+            lambda _o: [_tr('Internal ~e~ditor'), _tr('Internal ~v~iewer'), _tr('~U~se system clipboard'), _tr('~S~how hidden files'), _tr('S~y~nc after copying'), _tr('Use internal te~r~minal')],
+            yielding=True,
+        )
 
         self.temp_caption.x = 3    # system_setup_dialog.nml:40
         self.temp_caption.y = 6    # system_setup_dialog.nml:41
         self.temp_caption.width = 24    # system_setup_dialog.nml:42
         self.temp_caption.height = 1    # system_setup_dialog.nml:43
-        self.temp_caption.text = '~T~emporary directory'    # system_setup_dialog.nml:44
+        self.temp_caption.text = _bind(    # system_setup_dialog.nml:44
+            lambda _o: _tr('~T~emporary directory'),
+            yielding=True,
+        )
         self.temp_caption.link = _bind(lambda _o: self.temp_dir.entry)    # system_setup_dialog.nml:45
 
         self.temp_dir.x = 3    # system_setup_dialog.nml:49

@@ -29,6 +29,7 @@ from typing import Any
 import time
 
 from navkit.events import KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import peek, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -185,7 +186,7 @@ class FileInfoPane(Widget):
         item = self.item
         if item is None:
             return " " + self.path, ""
-        size = "Directory" if item.is_dir else str(item.size)
+        size = tr("Directory") if item.is_dir else str(item.size)
         when = time.strftime(self.DATE_FORMAT, time.localtime(item.mtime)) if item.mtime else ""
         return " " + self.path, f" {item.name:<12} {size:<10}  {when}"
 

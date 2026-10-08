@@ -17,7 +17,7 @@ CompareDialog(Dialog):
         id: options_caption
         x: 2
         y: 1
-        width: 10
+        width: 12
         height: 1
         text: "Options"
         link: options

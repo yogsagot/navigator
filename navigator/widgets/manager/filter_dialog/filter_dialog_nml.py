@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -70,14 +71,14 @@ class FilterDialog(Dialog, _Component):
 
         self.modal_width = 38    # filter_dialog.nml:10
         self.modal_height = 16    # filter_dialog.nml:11
-        self.title = 'Filter'    # filter_dialog.nml:12
+        self.title = _bind(lambda _o: _tr('Filter'), yielding=True)    # filter_dialog.nml:12
 
         self.masks.x = 3    # filter_dialog.nml:16
         self.masks.y = 2    # filter_dialog.nml:17
         self.masks.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # filter_dialog.nml:18
         self.masks.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # filter_dialog.nml:19
 
-        self.show.text = '~S~how'    # filter_dialog.nml:24
+        self.show.text = _bind(lambda _o: _tr('~S~how'), yielding=True)    # filter_dialog.nml:24
         self.show.default = True    # filter_dialog.nml:25
         self.show.x = 2    # filter_dialog.nml:26
         self.show.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:27
@@ -85,14 +86,14 @@ class FilterDialog(Dialog, _Component):
         self.show.height = 2    # filter_dialog.nml:29
         self.show.on_click = self.on_show_click    # filter_dialog.nml:23
 
-        self.hide.text = '~H~ide'    # filter_dialog.nml:34
+        self.hide.text = _bind(lambda _o: _tr('~H~ide'), yielding=True)    # filter_dialog.nml:34
         self.hide.x = 13    # filter_dialog.nml:35
         self.hide.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:36
         self.hide.width = 10    # filter_dialog.nml:37
         self.hide.height = 2    # filter_dialog.nml:38
         self.hide.on_click = self.on_hide_click    # filter_dialog.nml:33
 
-        self.abandon.text = 'Close'    # filter_dialog.nml:42
+        self.abandon.text = _bind(lambda _o: _tr('Close'), yielding=True)    # filter_dialog.nml:42
         self.abandon.x = 24    # filter_dialog.nml:43
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:44
         self.abandon.width = 11    # filter_dialog.nml:45

@@ -69,6 +69,7 @@ def edit_budget() -> int | None:
 
 async def out_of_memory(app: Any) -> None:
     """``TApplication.OutOfMemory``: say so, and nothing else happens."""
+    from navkit.i18n import tr
     from navml.widgets.dialog.dialog import Dialog
 
-    await Dialog(title="Error", prompt=NOT_ENOUGH_MEMORY, buttons="ok").execute(app)
+    await Dialog(title=tr("Error"), prompt=tr("Not enough memory to complete operation."), buttons="ok").execute(app)

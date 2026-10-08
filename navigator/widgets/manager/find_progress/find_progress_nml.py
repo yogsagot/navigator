@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -49,7 +50,7 @@ class FindProgress(Dialog, _Component):
 
         self.modal_width = 56    # find_progress.nml:9
         self.modal_height = 8    # find_progress.nml:10
-        self.title = 'Search'    # find_progress.nml:11
+        self.title = _bind(lambda _o: _tr('Search'), yielding=True)    # find_progress.nml:11
         self.buttons = 'ok'    # find_progress.nml:12
         self.closable = False    # find_progress.nml:13
 
@@ -68,5 +69,5 @@ class FindProgress(Dialog, _Component):
         self.count_row.height = 1    # find_progress.nml:32
         self.count_row.align = 'center'    # find_progress.nml:33
         self.count_row.text = _bind(    # find_progress.nml:34
-            lambda _o: str(self.count) + ' files found' if self.count else 'No files found'
+            lambda _o: str(self.count) + ' files found' if self.count else _tr('No files found')
         )

@@ -33,9 +33,11 @@ import errno
 import os
 import shutil
 import stat
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
+
+from navkit.i18n import tr
 
 from navigator.job import POLL, Job, Stopped
 
@@ -107,10 +109,23 @@ class NoRoom:
 
 @dataclass
 class Failure:
-    """Something went wrong with *path*.  True skips it, False stops."""
+    """Something went wrong with *path*.  True skips it, False stops.
+
+    *reason* may be a callable giving a template for *values*, so that a
+    worker thread names a message that is put into words on the loop, where
+    the language is read.
+    """
 
     path: Path
-    message: str
+    reason: str | Callable[[], str]
+    values: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def message(self) -> str:
+        if callable(self.reason):
+            text = self.reason()
+            return text.format(**self.values) if self.values else text
+        return self.reason
 
 
 @dataclass
@@ -264,9 +279,9 @@ class _Copier:
             raise Stopped
         return answer
 
-    def _fail(self, path: Path, message: str) -> bool:
+    def _fail(self, path: Path, message: str | Callable[[], str], **values: Any) -> bool:
         """Say what went wrong with *path*; False, as a skipped source is, or stop."""
-        self._ask(Failure(path, message))
+        self._ask(Failure(path, message, values))
         return False
 
     def _checkpoint(self) -> None:
@@ -340,7 +355,7 @@ class _Copier:
             return self._link(source, dest, st)
         if stat.S_ISREG(st.st_mode):
             return self._file(source, dest, st)
-        return self._fail(source, f"{source.name} is not a regular file")
+        return self._fail(source, lambda: tr("{name} is not a regular file"), name=source.name)
 
     def _same(self, source: Path, dest: Path) -> bool:
         try:
@@ -354,12 +369,12 @@ class _Copier:
         real_source = source.resolve()
         real_dest = dest.resolve() if dest.exists() else dest.parent.resolve() / dest.name
         if real_dest == real_source or real_source in real_dest.parents:
-            return self._fail(source, f"Cannot copy directory {source.name} into itself")
+            return self._fail(source, lambda: tr("Cannot copy directory {name} into itself"), name=source.name)
         key = (st.st_dev, st.st_ino)
         if key in self._walking:
-            return self._fail(source, f"{source} loops back on itself")
+            return self._fail(source, lambda: tr("{where} loops back on itself"), where=source)
         if dest.is_symlink() or (dest.exists() and not dest.is_dir()):
-            return self._fail(dest, f"Can not overwrite {dest.name} with a directory")
+            return self._fail(dest, lambda: tr("Can not overwrite {name} with a directory"), name=dest.name)
         if self.move and not self._cross_device and not dest.exists():
             size = self._measure(source)
             try:
@@ -417,12 +432,12 @@ class _Copier:
         self.job.file_bytes = self.job.file_done = 0
         if os.path.lexists(dest):
             if self._same_link(source, dest):
-                return self._fail(source, f"{source.name} can not be copied to itself")
+                return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
             action, dest = self._resolve_existing(source, dest, st)
             if action == "skip":
                 return False
             if action == "append":
-                return self._fail(source, f"Can not append to {dest.name}: it is a link")
+                return self._fail(source, lambda: tr("Can not append to {name}: it is a link"), name=dest.name)
         if self.move:
             try:
                 os.replace(source, dest)
@@ -479,7 +494,7 @@ class _Copier:
                 self._fail(dest, error_message(error))
                 return "skip", dest
             if stat.S_ISDIR(existing.st_mode):
-                self._fail(dest, f"Can not overwrite directory {dest.name}")
+                self._fail(dest, lambda: tr("Can not overwrite directory {name}"), name=dest.name)
                 return "skip", dest
             mode = self.mode
             if mode == OVERWRITE:
@@ -507,7 +522,7 @@ class _Copier:
         job.file_bytes, job.file_done = st.st_size, 0
         if os.path.lexists(dest) and self._same(source, dest):
             job.done_bytes += st.st_size
-            return self._fail(source, f"{source.name} can not be copied to itself")
+            return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
         action, dest = self._resolve_existing(source, dest, st)
         job.dest = str(dest)
         if action == "skip":

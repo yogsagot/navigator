@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.history import HISTORY
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
@@ -37,9 +38,9 @@ class CalculatorWindow(Window):
         try:
             value = calculator.evaluate(text)
         except calculator.CalcError:
-            return ["", "", "Error", "", ""]
+            return ["", "", tr("Error"), "", ""]
         forms = [calculator.radix(value, base) for base in (16, 2, 8)]
-        return [calculator.decimal(value), *(form or "Overflow" for form in forms),
+        return [calculator.decimal(value), *(form or tr("Overflow") for form in forms),
                 calculator.exponent(value)]
 
     # -- what the buttons and keys do ---------------------------------------------------

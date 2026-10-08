@@ -26,6 +26,9 @@ Observable attributes and the bindings between them; the mechanism navml markup 
   checks the `frozenset`.
 - **Assigning a value over a live binding raises**, deliberately; `unbind()` takes it back. Assigning another `bind()`
   replaces the old one. This is why `Widget.layout()` checks `is_bound()`.
+- **A yielding binding is the exception**: `bind(expr, yielding=True)` is a default that a plain assignment replaces
+  (the cell unlinks first). Markup's translated captions are bound that way (`i18n` skill); don't use it to dodge a
+  real conflict.
 - **A `bind()` on a non-reactive attribute is silently stored** (no descriptor to notice). A `computed` target raises
   and an unknown `Widget()` keyword raises, so what is left is a typo on a plain attribute; the repr
   `<unassigned binding ...>` gives it away.

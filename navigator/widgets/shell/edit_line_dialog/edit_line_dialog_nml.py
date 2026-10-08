@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -48,7 +49,7 @@ class EditLineDialog(Dialog, _Component):
 
         self.modal_width = 60    # edit_line_dialog.nml:11
         self.modal_height = 9    # edit_line_dialog.nml:12
-        self.title = 'Edit History'    # edit_line_dialog.nml:13
+        self.title = _bind(lambda _o: _tr('Edit History'), yielding=True)    # edit_line_dialog.nml:13
 
         self.caption_label.x = 2    # edit_line_dialog.nml:17
         self.caption_label.y = 1    # edit_line_dialog.nml:18

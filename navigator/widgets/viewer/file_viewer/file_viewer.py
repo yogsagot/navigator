@@ -22,6 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -181,7 +182,7 @@ class FileViewer(Widget):
             text = f"[{self.cursor & 0xFFFFFFFF:08X} {ruler}"
         else:
             text = "[>=<][" if self.wrap else "[<=>]["
-            text += f"{self.percent()}% of {group_digits(self.size)} Bytes"
+            text += tr("{percent}% of {size} Bytes").format(percent=self.percent(), size=group_digits(self.size))
         tag = "" if self.encoding == "utf-8" else "{" + dict(ENCODINGS)[self.encoding].split()[0] + "}"
         return text + "]" + FILTER_TAGS[self.filter] + tag
 

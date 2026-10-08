@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -58,37 +59,52 @@ class FMSetupDialog(Dialog, _Component):
 
         self.modal_width = 60    # fm_setup_dialog.nml:17
         self.modal_height = 15    # fm_setup_dialog.nml:18
-        self.title = 'File Manager Setup'    # fm_setup_dialog.nml:19
+        self.title = _bind(lambda _o: _tr('File Manager Setup'), yielding=True)    # fm_setup_dialog.nml:19
 
         self.behavior_caption.x = 2    # fm_setup_dialog.nml:23
         self.behavior_caption.y = 1    # fm_setup_dialog.nml:24
         self.behavior_caption.width = 12    # fm_setup_dialog.nml:25
         self.behavior_caption.height = 1    # fm_setup_dialog.nml:26
-        self.behavior_caption.text = 'Behavior'    # fm_setup_dialog.nml:27
+        self.behavior_caption.text = _bind(    # fm_setup_dialog.nml:27
+            lambda _o: _tr('Behavior'),
+            yielding=True,
+        )
         self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_dialog.nml:28
 
         self.behavior.x = 2    # fm_setup_dialog.nml:32
         self.behavior.y = 2    # fm_setup_dialog.nml:33
         self.behavior.width = 33    # fm_setup_dialog.nml:34
         self.behavior.height = 8    # fm_setup_dialog.nml:35
-        self.behavior.items = ['Auto c~h~ange directory', 'Drag~-~and~-~drop from columns', '~B~eep after copy', '~E~NTER opens archive', '~S~PACE toggles selection', '~D~EL erases file(s)', 'Use ←/→ ~k~eys', 'BS - go to ~u~pper directory']    # fm_setup_dialog.nml:36
+        self.behavior.items = _bind(    # fm_setup_dialog.nml:36
+            lambda _o: [_tr('Auto c~h~ange directory'), _tr('Drag~-~and~-~drop from columns'), _tr('~B~eep after copy'), _tr('~E~NTER opens archive'), _tr('~S~PACE toggles selection'), _tr('~D~EL erases file(s)'), _tr('Use ←/→ ~k~eys'), _tr('BS - go to ~u~pper directory')],
+            yielding=True,
+        )
 
         self.display_caption.x = 37    # fm_setup_dialog.nml:40
         self.display_caption.y = 1    # fm_setup_dialog.nml:41
         self.display_caption.width = 12    # fm_setup_dialog.nml:42
         self.display_caption.height = 1    # fm_setup_dialog.nml:43
-        self.display_caption.text = 'Display'    # fm_setup_dialog.nml:44
+        self.display_caption.text = _bind(    # fm_setup_dialog.nml:44
+            lambda _o: _tr('Display'),
+            yielding=True,
+        )
         self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_dialog.nml:45
 
         self.display.x = 37    # fm_setup_dialog.nml:49
         self.display.y = 2    # fm_setup_dialog.nml:50
         self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_dialog.nml:51
         self.display.height = 3    # fm_setup_dialog.nml:52
-        self.display.items = ['Colu~m~n titles', '~I~nfo divider', '~T~ag character']    # fm_setup_dialog.nml:53
+        self.display.items = _bind(    # fm_setup_dialog.nml:53
+            lambda _o: [_tr('Colu~m~n titles'), _tr('~I~nfo divider'), _tr('~T~ag character')],
+            yielding=True,
+        )
 
         self.tag_sign.x = 37    # fm_setup_dialog.nml:57
         self.tag_sign.y = 6    # fm_setup_dialog.nml:58
         self.tag_sign.width = 16    # fm_setup_dialog.nml:59
         self.tag_sign.height = 1    # fm_setup_dialog.nml:60
-        self.tag_sign.label_text = 'Ta~g~ sign:'    # fm_setup_dialog.nml:61
+        self.tag_sign.label_text = _bind(    # fm_setup_dialog.nml:61
+            lambda _o: _tr('Ta~g~ sign:'),
+            yielding=True,
+        )
         self.tag_sign.label_width = 12    # fm_setup_dialog.nml:62

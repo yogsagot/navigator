@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Mapping
 
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
@@ -74,8 +75,8 @@ class EnvironmentDialog(Dialog):
         where the cursor is."""
         from navigator.widgets.shell.edit_line_dialog import EditLineDialog
 
-        box = EditLineDialog("", history="new_variable", caption="~V~ariable")
-        box.title = "Add Environment Variable"
+        box = EditLineDialog("", history="new_variable", caption=tr("~V~ariable"))
+        box.title = tr("Add Environment Variable")
         text = await box.execute(self.application)
         name, _, value = (text or "").partition("=")
         name = name.strip()
@@ -101,8 +102,8 @@ class EnvironmentDialog(Dialog):
         if index >= len(self.pairs):
             return
         old = self.pairs[index][0]
-        box = EditLineDialog(old, history="new_variable", caption="~N~ew name")
-        box.title = f'Rename variable "{old}"'
+        box = EditLineDialog(old, history="new_variable", caption=tr("~N~ew name"))
+        box.title = tr('Rename variable "{name}"').format(name=old)
         new = ((await box.execute(self.application)) or "").strip()
         if not valid_name(new) or new == old:
             return
@@ -124,7 +125,8 @@ class EnvironmentDialog(Dialog):
         if index >= len(self.pairs):
             return
         name = self.pairs[index][0]
-        answer = await Dialog(title="Confirm", prompt=f'OK to delete the Environment\nvariable "{name}"',
+        answer = await Dialog(title=tr("Confirm"),
+                              prompt=tr('OK to delete the Environment\nvariable "{name}"').format(name=name),
                               buttons="yes-no").execute(self.application)
         if answer is not True:
             return

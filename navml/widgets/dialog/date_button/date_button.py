@@ -41,6 +41,7 @@ from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
+from navkit.i18n import tr
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -59,6 +60,20 @@ SECTIONS = ("days", "month", "year")
 
 #: How many years either side of the one shown the year list offers.
 YEARS_AROUND = 100
+
+
+def month_names() -> list[str]:
+    """The twelve months, January first, in the current language."""
+    return [
+        tr("January"), tr("February"), tr("March"), tr("April"), tr("May"), tr("June"),
+        tr("July"), tr("August"), tr("September"), tr("October"), tr("November"),
+        tr("December"),
+    ]
+
+
+def weekday_names() -> list[str]:
+    """The seven weekdays' two-letter names, Monday first, in the current language."""
+    return [tr("Mo"), tr("Tu"), tr("We"), tr("Th"), tr("Fr"), tr("Sa"), tr("Su")]
 
 
 class _Choice:
@@ -147,7 +162,7 @@ class CalendarView(Widget):
 
     def title_spans(self) -> tuple[tuple[int, str], tuple[int, str]]:
         """Where the month's name and the year are painted, and what they say."""
-        month, year = _calendar.month_name[self.day.month], str(self.day.year)
+        month, year = month_names()[self.day.month - 1], str(self.day.year)
         inner = self.width - 2 * self.inset
         start = self.inset + max(0, (inner - len(month) - 1 - len(year)) // 2)
         return (start, month), (start + len(month) + 1, year)
@@ -159,7 +174,7 @@ class CalendarView(Widget):
             return None
         self.section = section
         if section == "month":
-            items = list(_calendar.month_name)[1:]
+            items = month_names()
             current = self.day.month - 1
             chosen = lambda text: self.set_month(items.index(text) + 1)  # noqa: E731
         else:
@@ -303,7 +318,8 @@ class CalendarView(Widget):
         (mx, month), (yx, year) = self.title_spans()
         surface.draw_text(mx, inset, month, self.part_style("title", selected=self.section == "month"))
         surface.draw_text(yx, inset, year, self.part_style("title", selected=self.section == "year"))
-        names = [_calendar.day_abbr[(self.first_weekday + i) % 7][:2] for i in range(7)]
+        days = weekday_names()
+        names = [days[(self.first_weekday + i) % 7] for i in range(7)]
         weekday = self.part_style("weekday")
         for column, name in enumerate(names):
             surface.draw_text(inset + 1 + 3 * column, inset + 1, name, weekday)

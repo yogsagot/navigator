@@ -14,6 +14,7 @@ from typing import Any
 
 from navkit.commands import Command
 from navkit.events import DoubleClickEvent
+from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
@@ -74,7 +75,7 @@ class FileWindow(Window):
 
     def list_name(self) -> str:
         """Window > List's line: DN's ``dlViewFile``, ``View - `` and the name."""
-        return f"View - {self.viewer.path}"
+        return tr("View - {path}").format(path=self.viewer.path)
 
     # -- the File View History -------------------------------------------------
 
@@ -257,21 +258,23 @@ class FileWindow(Window):
         if source is None or viewer.path is None:
             return
         name = await FileDialog(
-            title="Save File As", label="~S~ave File As", history_id="edit_save",
+            title=tr("Save File As"), label=tr("~S~ave File As"), history_id="edit_save",
             directory=viewer.path.parent, hidden=SETTINGS.system.show_hidden,
         ).execute(app)
         if not name:
             return
         target = Path(name)
         if target.exists():
-            answer = await Dialog(title="Warning", prompt=f"File {target.name}\nalready exists.\nOK to overwrite it?",
+            answer = await Dialog(title=tr("Warning"),
+                                  prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
                                   buttons="yes-no").execute(app)
             if answer is not True:
                 return
         try:
             await asyncio.to_thread(viewer_model.save_as, source.path, target, viewer.encoding)
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot write {target}: {error.strerror or error}",
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error),
                          buttons="ok").execute(app)
             return
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
@@ -354,7 +357,7 @@ class FileWindow(Window):
             return
         if found is None:
             await Dialog(
-                title="Search", prompt="Search string not found", buttons="ok"
+                title=tr("Search"), prompt=tr("Search string not found"), buttons="ok"
             ).execute(self.application)
             return
         viewer.show_hit(*found)

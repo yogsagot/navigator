@@ -65,6 +65,7 @@ from typing import Any, Callable, Iterable
 
 from navkit import glyphs as glyphs_module
 from navkit.events import Event, KeyEvent, MouseClickEvent
+from navkit.i18n import tr
 from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface
 from navkit.style import Style
@@ -217,8 +218,6 @@ class TreeView(ListViewer):
     #: An owner that shows :meth:`search_label` on a frame of its own turns it
     #: off and places the caret there itself.
     caret_on_name = True
-
-    SEARCH_LABEL = " Search: "
 
     #: Whether an unopened node's probe runs on a thread, for a tree whose
     #: probes may wait -- a directory on a dead mount.  The row shows ``[+]``
@@ -473,7 +472,7 @@ class TreeView(ListViewer):
         """
         if self.search is None:
             return ""
-        return f"{self.SEARCH_LABEL}{self.search_path} "
+        return tr(" Search: ") + f"{self.search_path} "
 
     def footer_text(self) -> str:
         """While searching, the path typed so far; otherwise the list's own."""
@@ -488,7 +487,7 @@ class TreeView(ListViewer):
             return None
         if self.framed:
             footer = self.footer_text()
-            x = self.label_x(footer) + len(self.SEARCH_LABEL) + len(self.search_path)
+            x = self.label_x(footer) + len(tr(" Search: ")) + len(self.search_path)
             return min(x, self.width - 2), self.height - 1
         row = self.selected
         if row is None or not self.caret_on_name:

@@ -21,6 +21,8 @@ import platform
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from navkit.i18n import tr
+
 #: Block devices that are not disks.
 _NOT_DISKS = ("loop", "ram", "zram", "dm-", "md", "sr", "fd")
 
@@ -138,11 +140,29 @@ def gather(root: Path = Path("/")) -> SystemFacts:
     return SystemFacts(_board(root), _disks(root), _memory(root), _other(root))
 
 
+def _labels() -> dict[str, str]:
+    """The rows' labels as shown."""
+    return {
+        "Machine type": tr("Machine type"),
+        "CPU": tr("CPU"),
+        "CPUs": tr("CPUs"),
+        "Total": tr("Total"),
+        "Available": tr("Available"),
+        "Swap": tr("Swap"),
+        "OS": tr("OS"),
+        "Kernel": tr("Kernel"),
+        "Host": tr("Host"),
+        "Up": tr("Up"),
+    }
+
+
 def lines(rows: list[tuple[str, str]], width: int, marker: str = "...") -> str:
     """A box's text, DN's way: the labels right-aligned to a colon, values cut
     to the box (*width* cells) and ended in *marker* where they are."""
     if not rows:
-        return " None"
+        return " " + tr("None")
+    labels = _labels()
+    rows = [(labels.get(label, label), value) for label, value in rows]
     room = max(len(label) for label, _ in rows)
     out = []
     for label, value in rows:

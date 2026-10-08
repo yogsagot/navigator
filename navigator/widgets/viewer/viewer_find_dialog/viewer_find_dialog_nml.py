@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -56,13 +57,16 @@ class ViewerFindDialog(Dialog, _Component):
 
         self.modal_width = 50    # viewer_find_dialog.nml:13
         self.modal_height = 14    # viewer_find_dialog.nml:14
-        self.title = 'Find'    # viewer_find_dialog.nml:15
+        self.title = _bind(lambda _o: _tr('Find'), yielding=True)    # viewer_find_dialog.nml:15
 
         self.what_caption.x = 2    # viewer_find_dialog.nml:19
         self.what_caption.y = 2    # viewer_find_dialog.nml:20
         self.what_caption.width = 14    # viewer_find_dialog.nml:21
         self.what_caption.height = 1    # viewer_find_dialog.nml:22
-        self.what_caption.text = '~S~earch for'    # viewer_find_dialog.nml:23
+        self.what_caption.text = _bind(    # viewer_find_dialog.nml:23
+            lambda _o: _tr('~S~earch for'),
+            yielding=True,
+        )
         self.what_caption.link = _bind(lambda _o: self.what.entry)    # viewer_find_dialog.nml:24
 
         self.what.x = 2    # viewer_find_dialog.nml:30
@@ -75,26 +79,38 @@ class ViewerFindDialog(Dialog, _Component):
 
         self.options_caption.x = 2    # viewer_find_dialog.nml:40
         self.options_caption.y = 7    # viewer_find_dialog.nml:41
-        self.options_caption.width = 10    # viewer_find_dialog.nml:42
+        self.options_caption.width = 12    # viewer_find_dialog.nml:42
         self.options_caption.height = 1    # viewer_find_dialog.nml:43
-        self.options_caption.text = 'Options'    # viewer_find_dialog.nml:44
+        self.options_caption.text = _bind(    # viewer_find_dialog.nml:44
+            lambda _o: _tr('Options'),
+            yielding=True,
+        )
         self.options_caption.link = _bind(lambda _o: self.options)    # viewer_find_dialog.nml:45
 
         self.options.x = 2    # viewer_find_dialog.nml:49
         self.options.y = 8    # viewer_find_dialog.nml:50
         self.options.width = 22    # viewer_find_dialog.nml:51
         self.options.height = 2    # viewer_find_dialog.nml:52
-        self.options.items = ['~C~ase sensitive', '~W~hole words']    # viewer_find_dialog.nml:53
+        self.options.items = _bind(    # viewer_find_dialog.nml:53
+            lambda _o: [_tr('~C~ase sensitive'), _tr('~W~hole words')],
+            yielding=True,
+        )
 
         self.direction_caption.x = 26    # viewer_find_dialog.nml:57
         self.direction_caption.y = 7    # viewer_find_dialog.nml:58
         self.direction_caption.width = 12    # viewer_find_dialog.nml:59
         self.direction_caption.height = 1    # viewer_find_dialog.nml:60
-        self.direction_caption.text = 'Direction'    # viewer_find_dialog.nml:61
+        self.direction_caption.text = _bind(    # viewer_find_dialog.nml:61
+            lambda _o: _tr('Direction'),
+            yielding=True,
+        )
         self.direction_caption.link = _bind(lambda _o: self.direction)    # viewer_find_dialog.nml:62
 
         self.direction.x = 26    # viewer_find_dialog.nml:66
         self.direction.y = 8    # viewer_find_dialog.nml:67
         self.direction.width = 18    # viewer_find_dialog.nml:68
         self.direction.height = 2    # viewer_find_dialog.nml:69
-        self.direction.items = ['~F~orward', '~B~ackward']    # viewer_find_dialog.nml:70
+        self.direction.items = _bind(    # viewer_find_dialog.nml:70
+            lambda _o: [_tr('~F~orward'), _tr('~B~ackward')],
+            yielding=True,
+        )

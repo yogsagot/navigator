@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -83,7 +84,7 @@ class EraseQuery(Dialog, _Component):
 
         self.modal_width = 54    # erase_query.nml:13
         self.modal_height = 10    # erase_query.nml:14
-        self.title = 'Confirm'    # erase_query.nml:15
+        self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # erase_query.nml:15
 
         self.details.x = 1    # erase_query.nml:22
         self.details.y = 1    # erase_query.nml:23
@@ -91,7 +92,7 @@ class EraseQuery(Dialog, _Component):
         self.details.height = 3    # erase_query.nml:25
         self.details.align = 'center'    # erase_query.nml:26
 
-        self.refuse.text = '~N~o'    # erase_query.nml:30
+        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # erase_query.nml:30
         self.refuse.default = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:31
         self.refuse.x = _bind(    # erase_query.nml:32
             lambda _o: self.slot(0 if self.kind == 'not-empty' else 1)
@@ -101,7 +102,7 @@ class EraseQuery(Dialog, _Component):
         self.refuse.height = 2    # erase_query.nml:35
         self.refuse.on_click = self.on_refuse_click    # erase_query.nml:29
 
-        self.agree.text = '~Y~es'    # erase_query.nml:39
+        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # erase_query.nml:39
         self.agree.default = _bind(lambda _o: self.kind != 'not-empty')    # erase_query.nml:40
         self.agree.x = _bind(    # erase_query.nml:41
             lambda _o: self.slot(1 if self.kind == 'not-empty' else 0)
@@ -111,14 +112,14 @@ class EraseQuery(Dialog, _Component):
         self.agree.height = 2    # erase_query.nml:44
         self.agree.on_click = self.on_agree_click    # erase_query.nml:38
 
-        self.every.text = '~A~ll'    # erase_query.nml:48
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # erase_query.nml:48
         self.every.x = _bind(lambda _o: self.slot(2))    # erase_query.nml:49
         self.every.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:50
         self.every.width = 11    # erase_query.nml:51
         self.every.height = 2    # erase_query.nml:52
         self.every.on_click = self.on_every_click    # erase_query.nml:47
 
-        self.abandon.text = 'Cancel'    # erase_query.nml:56
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # erase_query.nml:56
         self.abandon.visible = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:57
         self.abandon.x = _bind(lambda _o: self.slot(3))    # erase_query.nml:58
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:59

@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -88,9 +89,9 @@ class WindowManagerDialog(Dialog, _Component):
 
         self.modal_width = 70    # window_manager.nml:16
         self.modal_height = 14    # window_manager.nml:17
-        self.title = 'Windows Manager'    # window_manager.nml:18
+        self.title = _bind(lambda _o: _tr('Windows Manager'), yielding=True)    # window_manager.nml:18
 
-        self.caption.text = '~W~indows'    # window_manager.nml:22
+        self.caption.text = _bind(lambda _o: _tr('~W~indows'), yielding=True)    # window_manager.nml:22
         self.caption.link = _bind(lambda _o: self.windows)    # window_manager.nml:23
         self.caption.x = 2    # window_manager.nml:24
         self.caption.y = 2    # window_manager.nml:25
@@ -104,7 +105,7 @@ class WindowManagerDialog(Dialog, _Component):
         self.windows.height = 9    # window_manager.nml:35
         self.windows.on_chosen = self.on_windows_chosen    # window_manager.nml:30
 
-        self.pick.text = 'O~K~'    # window_manager.nml:39
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # window_manager.nml:39
         self.pick.default = True    # window_manager.nml:40
         self.pick.x = 58    # window_manager.nml:41
         self.pick.y = 3    # window_manager.nml:42
@@ -112,21 +113,21 @@ class WindowManagerDialog(Dialog, _Component):
         self.pick.height = 2    # window_manager.nml:44
         self.pick.on_click = self.on_pick_click    # window_manager.nml:38
 
-        self.shut.text = 'C~l~ose'    # window_manager.nml:49
+        self.shut.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # window_manager.nml:49
         self.shut.x = 58    # window_manager.nml:50
         self.shut.y = 5    # window_manager.nml:51
         self.shut.width = 10    # window_manager.nml:52
         self.shut.height = 2    # window_manager.nml:53
         self.shut.on_click = self.on_shut_click    # window_manager.nml:48
 
-        self.abandon.text = 'Cancel'    # window_manager.nml:57
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # window_manager.nml:57
         self.abandon.x = 58    # window_manager.nml:58
         self.abandon.y = 7    # window_manager.nml:59
         self.abandon.width = 10    # window_manager.nml:60
         self.abandon.height = 2    # window_manager.nml:61
         self.abandon.on_click = self.on_abandon_click    # window_manager.nml:56
 
-        self.helper.text = '~H~elp'    # window_manager.nml:66
+        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # window_manager.nml:66
         self.helper.disabled = True    # window_manager.nml:67
         self.helper.x = 58    # window_manager.nml:68
         self.helper.y = 11    # window_manager.nml:69

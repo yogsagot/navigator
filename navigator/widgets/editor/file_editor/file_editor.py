@@ -30,6 +30,7 @@ from typing import Any, Awaitable, Callable
 
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
+from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -1186,9 +1187,6 @@ class FileEditor(Widget):
                 self.block = (start, end)
         self._end()
 
-    #: ``dlED_VertNeed``, word for word.
-    VERTICAL_NEEDED = "Vertical blocks need for this operation"
-
     async def on_sort_block(self, event: SortBlock) -> bool:
         """``SortBlock`` (``EDITOR.PAS``): the lines the column block spans, ordered by
         what stands in its columns.
@@ -1205,7 +1203,8 @@ class FileEditor(Widget):
 
             app = self.application
             if app is not None:
-                self.spawn(Dialog(title="Error", prompt=self.VERTICAL_NEEDED, buttons="ok").execute(app))
+                self.spawn(Dialog(title=tr("Error"), prompt=tr("Vertical blocks need for this operation"),
+                              buttons="ok").execute(app))
             return True
         top, left, bottom, right = self.rectangle
         lines = self.document.lines
@@ -1243,7 +1242,8 @@ class FileEditor(Widget):
             from navml.widgets.dialog.dialog import Dialog
 
             if app is not None:
-                self.spawn(Dialog(title="Error", prompt=self.VERTICAL_NEEDED, buttons="ok").execute(app))
+                self.spawn(Dialog(title=tr("Error"), prompt=tr("Vertical blocks need for this operation"),
+                              buttons="ok").execute(app))
             return True
         top, left, bottom, right = self.rectangle
         lines = self.document.lines

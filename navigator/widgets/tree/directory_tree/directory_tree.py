@@ -21,6 +21,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr_n
 from navkit.reactive import computed
 from navkit.screen import Surface
 
@@ -144,8 +145,8 @@ def count_files(path: Path) -> tuple[int, int]:
 
 def files_line(files: int, size: int) -> str:
     """``MakeDown``: ``3 files with 1,024 bytes``, ``1 file with 1 byte``."""
-    head = "1 file with " if files == 1 else f"{files} files with "
-    return head + ("1 byte" if size == 1 else f"{size:,} bytes")
+    total = tr_n("{n:,} byte", "{n:,} bytes", size)
+    return tr_n("{n} file with {total}", "{n} files with {total}", files, total=total)
 
 
 class DirectoryTree(TreeView):

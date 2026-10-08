@@ -14,6 +14,7 @@ from navml.widgets.dialog.tree_view import TreeView
 from pathlib import Path
 from typing import Any
 from navkit.events import Event
+from navkit.i18n import tr
 from navigator.widgets.tree.directory_tree.directory_tree import directory_root, show_path
 
 

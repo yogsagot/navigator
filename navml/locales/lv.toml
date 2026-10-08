@@ -1,0 +1,100 @@
+[meta]
+name = "Latviešu"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:66
+"~Y~es" = "~J~ā"
+# navml/widgets/dialog/dialog/dialog.nml:66, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+"O~K~" = "O~K~"
+# navml/widgets/dialog/dialog/dialog.nml:75
+"~N~o" = "~N~ē"
+# navml/widgets/dialog/dialog/dialog.nml:83
+"~C~ancel" = "~A~tcelt"
+# navml/widgets/dialog/dialog/dialog.nml:96, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+"~H~elp" = "~P~alīdzība"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:20
+"Open file" = "Atvērt failu"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:25, navml/widgets/dialog/file_dialog/file_dialog.py:84
+"~N~ame" = "~V~ārds"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:43
+"~F~iles" = "~F~aili"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:60
+"~D~irectories" = "~D~irektorijas"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:18
+"Cancel" = "Atcelt"
+# navml/widgets/window_manager/window_manager.nml:18
+"Windows Manager" = "Logu pārvaldnieks"
+# navml/widgets/window_manager/window_manager.nml:22
+"~W~indows" = "~L~ogi"
+# navml/widgets/window_manager/window_manager.nml:49
+"C~l~ose" = "~A~izvērt"
+# navml/commands.py:28
+"Close" = "Aizvērt"
+# navml/commands.py:34
+"Zoom" = "Izvērst"
+# navml/commands.py:61
+"List" = "Saraksts"
+# navml/commands.py:71
+"Tile" = "Izklāt"
+# navml/commands.py:80
+"Cascade" = "Kaskāde"
+# navml/commands.py:90
+"Close all" = "Aizvērt visus"
+# navml/widgets/dialog/color_selector/color_selector.py:131
+" Text " = " Teksts "
+# navml/widgets/dialog/commands.py:24
+"OK" = "OK"
+# navml/widgets/dialog/commands.py:45
+"Search" = "Meklēt"
+# navml/widgets/dialog/date_button/date_button.py:68
+"January" = "Janvāris"
+# navml/widgets/dialog/date_button/date_button.py:68
+"February" = "Februāris"
+# navml/widgets/dialog/date_button/date_button.py:68
+"March" = "Marts"
+# navml/widgets/dialog/date_button/date_button.py:68
+"April" = "Aprīlis"
+# navml/widgets/dialog/date_button/date_button.py:68
+"May" = "Maijs"
+# navml/widgets/dialog/date_button/date_button.py:68
+"June" = "Jūnijs"
+# navml/widgets/dialog/date_button/date_button.py:69
+"July" = "Jūlijs"
+# navml/widgets/dialog/date_button/date_button.py:69
+"August" = "Augusts"
+# navml/widgets/dialog/date_button/date_button.py:69
+"September" = "Septembris"
+# navml/widgets/dialog/date_button/date_button.py:69
+"October" = "Oktobris"
+# navml/widgets/dialog/date_button/date_button.py:69
+"November" = "Novembris"
+# navml/widgets/dialog/date_button/date_button.py:70
+"December" = "Decembris"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Mo" = "Pr"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Tu" = "Ot"
+# navml/widgets/dialog/date_button/date_button.py:76
+"We" = "Tr"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Th" = "Ce"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Fr" = "Pk"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Sa" = "Se"
+# navml/widgets/dialog/date_button/date_button.py:76
+"Su" = "Sv"
+# navml/widgets/dialog/dialog/dialog.py:307
+"Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."
+# navml/widgets/dialog/file_dialog/file_dialog.py:189
+"Invalid file name." = "Nederīgs faila vārds."
+# navml/widgets/dialog/file_dialog/file_dialog.py:180
+"Invalid drive or directory." = "Nederīgs disks vai direktorija."
+# navml/widgets/dialog/file_dialog/file_dialog.py:215
+"Error" = "Kļūda"
+# navml/widgets/dialog/file_list/file_list.py:189
+"Directory" = "Direktorija"
+# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:475 ...
+" Search: " = " Meklēt: "
+# navml/widgets/menu/commands.py:14
+"Menu" = "Izvēlne"

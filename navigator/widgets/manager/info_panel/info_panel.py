@@ -15,6 +15,7 @@ from typing import Any
 
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
+from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
@@ -82,7 +83,7 @@ class InfoPanel(Widget):
             return
         surface.draw_box(0, 0, self.width, self.height, self.style,
                          charset=self.box_charset(), fill=" ")
-        title = " Information "
+        title = f" {tr('Information')} "
         if len(title) <= self.width - 4 - 2 * self.title_margin:
             surface.draw_text((self.width - len(title)) // 2, 0, title, self.part_style("title"))
         inner = self.width - 2

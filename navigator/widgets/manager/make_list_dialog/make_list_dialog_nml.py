@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -48,13 +49,16 @@ class MakeListDialog(Dialog, _Component):
 
         self.modal_width = 52    # make_list_dialog.nml:11
         self.modal_height = 12    # make_list_dialog.nml:12
-        self.title = 'Make List File'    # make_list_dialog.nml:13
+        self.title = _bind(lambda _o: _tr('Make List File'), yielding=True)    # make_list_dialog.nml:13
 
         self.file_name.x = 2    # make_list_dialog.nml:18
         self.file_name.y = 2    # make_list_dialog.nml:19
         self.file_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:20
         self.file_name.height = 1    # make_list_dialog.nml:21
-        self.file_name.label_text = '~F~ile name'    # make_list_dialog.nml:22
+        self.file_name.label_text = _bind(    # make_list_dialog.nml:22
+            lambda _o: _tr('~F~ile name'),
+            yielding=True,
+        )
         self.file_name.label_width = 11    # make_list_dialog.nml:23
         self.file_name.history_id = 'make_list'    # make_list_dialog.nml:24
 
@@ -62,7 +66,10 @@ class MakeListDialog(Dialog, _Component):
         self.action.y = 4    # make_list_dialog.nml:29
         self.action.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:30
         self.action.height = 1    # make_list_dialog.nml:31
-        self.action.label_text = '~A~ction'    # make_list_dialog.nml:32
+        self.action.label_text = _bind(    # make_list_dialog.nml:32
+            lambda _o: _tr('~A~ction'),
+            yielding=True,
+        )
         self.action.label_width = 11    # make_list_dialog.nml:33
         self.action.history_id = 'command'    # make_list_dialog.nml:34
 
@@ -70,4 +77,7 @@ class MakeListDialog(Dialog, _Component):
         self.options.y = 6    # make_list_dialog.nml:39
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # make_list_dialog.nml:40
         self.options.height = 2    # make_list_dialog.nml:41
-        self.options.items = ['~S~tore path names to list file', 'A~u~todetermine necessity of path names']    # make_list_dialog.nml:42
+        self.options.items = _bind(    # make_list_dialog.nml:42
+            lambda _o: [_tr('~S~tore path names to list file'), _tr('A~u~todetermine necessity of path names')],
+            yielding=True,
+        )

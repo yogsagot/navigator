@@ -21,6 +21,8 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
+from navkit.reactive import bind
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
@@ -87,12 +89,13 @@ class EditWindow(Window):
             self.editor.open(path, new=new)
         else:
             self.editor.use_document(path, document)
-        self.title = self._title()
+        self.title = bind(lambda _o: self._title(), yielding=True)
 
     def _title(self) -> str:
         """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own."""
-        prefix = "SmartPad(TM) - " if self.smartpad else "Edit - "
-        return f"{prefix}{self.editor.path}"
+        if self.smartpad:
+            return tr("SmartPad(TM) - {path}").format(path=self.editor.path)
+        return tr("Edit - {path}").format(path=self.editor.path)
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -179,8 +182,8 @@ class EditWindow(Window):
             written = await self._write(path, backup=SETTINGS.editor.create_backup)
         except OSError as error:
             await Dialog(
-                title="Error",
-                prompt=f"Cannot write {path}: {error.strerror or error}",
+                title=tr("Error"),
+                prompt=tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error),
                 buttons="ok",
             ).execute(self.application)
             return False
@@ -263,14 +266,14 @@ class EditWindow(Window):
         if not path.exists():
             return False, None
         query = Dialog(
-            title="Warning",
-            prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
+            title=tr("Warning"),
+            prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=path.name),
             buttons="yes-no-cancel" if append else "yes-no",
         )
         if append:
-            query.no.text = "A~p~pend"
+            query.no.text = tr("A~p~pend")
         else:
-            query.no.text = "Cancel"
+            query.no.text = tr("Cancel")
         answer = await query.execute(self.application)
         if answer is None or (answer is False and not append):
             return None
@@ -278,8 +281,8 @@ class EditWindow(Window):
         restore: int | None = None
         if not os.access(path, os.W_OK):
             modify = await Dialog(
-                title="Warning",
-                prompt=f"File {path.name}\nis marked as Read-Only.\nModify it anyway?",
+                title=tr("Warning"),
+                prompt=tr("File {name}\nis marked as Read-Only.\nModify it anyway?").format(name=path.name),
                 buttons="ok-cancel",
             ).execute(self.application)
             if modify is not True:
@@ -288,12 +291,12 @@ class EditWindow(Window):
                 restore = path.stat().st_mode
                 path.chmod(restore | stat.S_IWUSR)
             except OSError as error:
-                await self._say(f"Cannot write {path}: {error.strerror or error}")
+                await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
                 return None
         return appending, restore
 
     async def _say(self, message: str) -> None:
-        await Dialog(title="Error", prompt=message, buttons="ok").execute(self.application)
+        await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
 
     async def on_block_write(self, event: BlockWrite) -> bool:
         self.spawn(self.write_block())
@@ -308,7 +311,7 @@ class EditWindow(Window):
         to is re-read in every panel showing it (``cmRereadDir``).
         """
         data = encode(self.editor.block_file_text())
-        path = await self._block_file("Copy block to", "File ~N~ame")
+        path = await self._block_file(tr("Copy block to"), tr("File ~N~ame"))
         if path is None:
             return
         answer = await self._check_for_over(path, append=True)
@@ -330,7 +333,7 @@ class EditWindow(Window):
         try:
             written = await write_in_background(self.application, write)
         except OSError as error:
-            await self._say(f"Cannot write {path}: {error.strerror or error}")
+            await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
             return
         finally:
             if restore is not None:
@@ -348,7 +351,7 @@ class EditWindow(Window):
 
     async def read_block(self) -> None:
         """^K R, ``BlockRead``: a file's text at the cursor, which the editor marks."""
-        path = await self._block_file("Paste from File", "~P~aste from")
+        path = await self._block_file(tr("Paste from File"), tr("~P~aste from"))
         if path is None:
             return
         from navigator.widgets.editor.loading import read_in_background
@@ -357,7 +360,7 @@ class EditWindow(Window):
             text = await read_in_background(
                 self.application, lambda job, budget: read_text(path, job, budget=budget))
         except OSError as error:
-            await self._say(f"Cannot read {path}: {error.strerror or error}")
+            await self._say(tr("Cannot read {path}: {error}").format(path=path, error=error.strerror or error))
             return
         if text is None:
             return
@@ -458,13 +461,13 @@ class EditWindow(Window):
                 break
         if not found_any:
             editor._go_column(here.line, editor._column(here))
-            await Dialog(title="Error", prompt="Search string not found", buttons="ok").execute(
+            await Dialog(title=tr("Error"), prompt=tr("Search string not found"), buttons="ok").execute(
                 self.application,
             )
             return False
         if made:
             await Dialog(
-                title="Information", prompt=f"{made} replaces made", buttons="ok",
+                title=tr("Information"), prompt=tr_n("{n} replace made", "{n} replaces made", made), buttons="ok",
             ).execute(self.application)
         return True
 
@@ -555,8 +558,8 @@ class EditWindow(Window):
             return
         count = len(lines)
         answer = await Dialog(
-            title="Confirmation",
-            prompt=f"Print {count} line{'s' if count != 1 else ''}?",
+            title=tr("Confirmation"),
+            prompt=tr_n("Print {n} line?", "Print {n} lines?", count),
             buttons="yes-no",
         ).execute(self.application)
         if answer is not True:
@@ -564,7 +567,7 @@ class EditWindow(Window):
         loop = asyncio.get_running_loop()
         problem = await loop.run_in_executor(None, spool, "\n".join(lines) + "\n")
         if problem is not None:
-            await self._say(f"Cannot print: {problem}")
+            await self._say(tr("Cannot print: {error}").format(error=problem))
 
     # -- Ctrl+F2 ------------------------------------------------------------------------
 
@@ -607,14 +610,14 @@ class EditWindow(Window):
         DN closed the window.
         """
         if self.editor.modified:
-            name = self.editor.path.name if self.editor.path else "Untitled"
+            name = self.editor.path.name if self.editor.path else tr("Untitled")
             answer = await Dialog(
-                title="Warning", prompt=f"File {name} was modified. Save?",
+                title=tr("Warning"), prompt=tr("File {name} was modified. Save?").format(name=name),
                 buttons="yes-no-cancel",
             ).execute(self.application)
             if answer is None or (answer is True and not await self.save()):
                 return
-        path = await self._ask_file("Open a File", "~N~ame", "edit_open", ok_text="~O~pen")
+        path = await self._ask_file(tr("Open a File"), tr("~N~ame"), "edit_open", ok_text=tr("~O~pen"))
         if path is None:
             return
         from navigator.widgets.editor.loading import load_document
@@ -622,14 +625,14 @@ class EditWindow(Window):
         try:
             document = await load_document(self.application, path)
         except OSError as error:
-            await self._say(f"Cannot open {path}: {error.strerror or error}")
+            await self._say(tr("Cannot open {path}: {error}").format(path=path, error=error.strerror or error))
             return
         if document is None:
             # Cancelled, or too large -- said already: the text stays.
             return
         self.remember_history()
         self.editor.use_document(path, document)
-        self.title = self._title()
+        self.title = bind(lambda _o: self._title(), yielding=True)
         self.recall_history()
         self.editor.focus()
 
@@ -646,7 +649,7 @@ class EditWindow(Window):
         less than was on disk, for the next F2 to throw away.  The window takes
         the new name and its title, and the text counts as saved.
         """
-        path = await self._ask_file("Save File As", "~S~ave File As", "edit_save")
+        path = await self._ask_file(tr("Save File As"), tr("~S~ave File As"), "edit_save")
         if path is None:
             return
         answer = await self._check_for_over(path, append=False)
@@ -656,7 +659,7 @@ class EditWindow(Window):
         try:
             written = await self._write(path)
         except OSError as error:
-            await self._say(f"Cannot write {path}: {error.strerror or error}")
+            await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
             return
         finally:
             if restore is not None:
@@ -668,7 +671,7 @@ class EditWindow(Window):
             return
         self.editor.path = path
         self.editor.lock_file()
-        self.title = self._title()
+        self.title = bind(lambda _o: self._title(), yielding=True)
         if self.parent is not None:
             await self.emit(FileSaved(path))
 
@@ -681,10 +684,10 @@ class EditWindow(Window):
         """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked."""
         if self.smartpad:
             return await self.save()
-        name = self.editor.path.name if self.editor.path else "Untitled"
+        name = self.editor.path.name if self.editor.path else tr("Untitled")
         answer = await Dialog(
-            title="Warning",
-            prompt=f"File {name} was modified. Save?",
+            title=tr("Warning"),
+            prompt=tr("File {name} was modified. Save?").format(name=name),
             buttons="yes-no-cancel",
         ).execute(self.application)
         if answer is None:

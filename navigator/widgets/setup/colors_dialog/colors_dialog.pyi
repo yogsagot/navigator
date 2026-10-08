@@ -13,6 +13,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any, Callable, Mapping
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navkit.style import Style
 from navkit.stylesheet import StylesheetError, parse_value

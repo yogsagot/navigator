@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
 
 from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
@@ -39,15 +40,19 @@ def prompt_for(entries: Sequence[Any], move: bool) -> str:
     doubled so that it shows as itself.  DN's double space before *to* after a
     count was an accident of the spacing, and is not kept.
     """
-    if len(entries) == 1:
-        entry = entries[0]
-        kind = "Directory" if entry.is_dir else "file"
-        what = f"{kind} ~{escape_caption(entry.name)}~"
-    else:
-        what = f"~{len(entries)} files~"
+    if len(entries) != 1:
+        if move:
+            return tr_n("~R~ename or move ~{n} file~ to", "~R~ename or move ~{n} files~ to", len(entries))
+        return tr_n("~C~opy ~{n} file~ to", "~C~opy ~{n} files~ to", len(entries))
+    entry = entries[0]
+    name = escape_caption(entry.name)
+    if entry.is_dir:
+        if move:
+            return tr("~R~ename or move Directory ~{name}~ to").format(name=name)
+        return tr("~C~opy Directory ~{name}~ to").format(name=name)
     if move:
-        return f"~R~ename or move {what} to"
-    return f"~C~opy {what} to"
+        return tr("~R~ename or move file ~{name}~ to").format(name=name)
+    return tr("~C~opy file ~{name}~ to").format(name=name)
 
 
 def target_for(entries: Sequence[Any], here: Path, other: Path | None, move: bool) -> str:

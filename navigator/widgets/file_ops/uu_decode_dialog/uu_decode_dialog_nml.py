@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -83,13 +84,16 @@ class UUDecodeDialog(Dialog, _Component):
 
         self.modal_width = 49    # uu_decode_dialog.nml:14
         self.modal_height = 12    # uu_decode_dialog.nml:15
-        self.title = 'UU Decode'    # uu_decode_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('UU Decode'), yielding=True)    # uu_decode_dialog.nml:16
 
         self.target_caption.x = 2    # uu_decode_dialog.nml:23
         self.target_caption.y = 1    # uu_decode_dialog.nml:24
         self.target_caption.width = 20    # uu_decode_dialog.nml:25
         self.target_caption.height = 1    # uu_decode_dialog.nml:26
-        self.target_caption.text = 'Target ~d~irectory'    # uu_decode_dialog.nml:27
+        self.target_caption.text = _bind(    # uu_decode_dialog.nml:27
+            lambda _o: _tr('Target ~d~irectory'),
+            yielding=True,
+        )
         self.target_caption.link = _bind(lambda _o: self.target.entry)    # uu_decode_dialog.nml:28
 
         self.target.x = 2    # uu_decode_dialog.nml:33
@@ -104,9 +108,12 @@ class UUDecodeDialog(Dialog, _Component):
         self.options.y = 4    # uu_decode_dialog.nml:44
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_decode_dialog.nml:45
         self.options.height = 3    # uu_decode_dialog.nml:46
-        self.options.items = ['~C~heck existing files', 'Display ~e~rror messages', '~S~ave broken files']    # uu_decode_dialog.nml:47
+        self.options.items = _bind(    # uu_decode_dialog.nml:47
+            lambda _o: [_tr('~C~heck existing files'), _tr('Display ~e~rror messages'), _tr('~S~ave broken files')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # uu_decode_dialog.nml:51
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # uu_decode_dialog.nml:51
         self.pick.default = True    # uu_decode_dialog.nml:52
         self.pick.x = 5    # uu_decode_dialog.nml:53
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:54
@@ -114,14 +121,14 @@ class UUDecodeDialog(Dialog, _Component):
         self.pick.height = 2    # uu_decode_dialog.nml:56
         self.pick.on_click = self.on_pick_click    # uu_decode_dialog.nml:50
 
-        self.abandon.text = 'Cancel'    # uu_decode_dialog.nml:60
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_decode_dialog.nml:60
         self.abandon.x = 18    # uu_decode_dialog.nml:61
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:62
         self.abandon.width = 11    # uu_decode_dialog.nml:63
         self.abandon.height = 2    # uu_decode_dialog.nml:64
         self.abandon.on_click = self.on_abandon_click    # uu_decode_dialog.nml:59
 
-        self.tree.text = '~T~ree'    # uu_decode_dialog.nml:68
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # uu_decode_dialog.nml:68
         self.tree.x = 31    # uu_decode_dialog.nml:69
         self.tree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:70
         self.tree.width = 11    # uu_decode_dialog.nml:71

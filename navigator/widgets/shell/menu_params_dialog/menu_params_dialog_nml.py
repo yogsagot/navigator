@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -50,7 +51,7 @@ class MenuParamsDialog(Dialog, _Component):
 
         self.modal_width = 60    # menu_params_dialog.nml:13
         self.modal_height = 9    # menu_params_dialog.nml:14
-        self.title = 'Menu Parameters'    # menu_params_dialog.nml:15
+        self.title = _bind(lambda _o: _tr('Menu Parameters'), yielding=True)    # menu_params_dialog.nml:15
 
         self.caption_label.x = 2    # menu_params_dialog.nml:19
         self.caption_label.y = 1    # menu_params_dialog.nml:20

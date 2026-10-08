@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -46,17 +47,26 @@ class DriveInfoDialog(Dialog, _Component):
 
         self.modal_width = 46    # drive_info_dialog.nml:11
         self.modal_height = 15    # drive_info_dialog.nml:12
-        self.title = 'Information Panel Setup'    # drive_info_dialog.nml:13
+        self.title = _bind(    # drive_info_dialog.nml:13
+            lambda _o: _tr('Information Panel Setup'),
+            yielding=True,
+        )
 
         self.items_caption.x = 2    # drive_info_dialog.nml:17
         self.items_caption.y = 1    # drive_info_dialog.nml:18
         self.items_caption.width = 20    # drive_info_dialog.nml:19
         self.items_caption.height = 1    # drive_info_dialog.nml:20
-        self.items_caption.text = 'Items to display'    # drive_info_dialog.nml:21
+        self.items_caption.text = _bind(    # drive_info_dialog.nml:21
+            lambda _o: _tr('Items to display'),
+            yielding=True,
+        )
         self.items_caption.link = _bind(lambda _o: self.options)    # drive_info_dialog.nml:22
 
         self.options.x = 2    # drive_info_dialog.nml:26
         self.options.y = 2    # drive_info_dialog.nml:27
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # drive_info_dialog.nml:28
         self.options.height = 9    # drive_info_dialog.nml:29
-        self.options.items = ['~D~irectory Title', '~T~otals', 'Volume ~S~ize', 'Volume ~F~ree space', 'Volume ~L~abel', 'Total ~m~emory', 'M~e~mory for user', 'Memory for ~N~avigator', '~I~nformation file']    # drive_info_dialog.nml:30
+        self.options.items = _bind(    # drive_info_dialog.nml:30
+            lambda _o: [_tr('~D~irectory Title'), _tr('~T~otals'), _tr('Volume ~S~ize'), _tr('Volume ~F~ree space'), _tr('Volume ~L~abel'), _tr('Total ~m~emory'), _tr('M~e~mory for user'), _tr('Memory for ~N~avigator'), _tr('~I~nformation file')],
+            yielding=True,
+        )

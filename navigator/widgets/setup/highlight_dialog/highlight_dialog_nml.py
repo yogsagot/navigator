@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -53,13 +54,16 @@ class HighlightDialog(Dialog, _Component):
 
         self.modal_width = 66    # highlight_dialog.nml:12
         self.modal_height = 16    # highlight_dialog.nml:13
-        self.title = 'Highlight groups'    # highlight_dialog.nml:14
+        self.title = _bind(lambda _o: _tr('Highlight groups'), yielding=True)    # highlight_dialog.nml:14
 
         self.image.x = 2    # highlight_dialog.nml:18
         self.image.y = 2    # highlight_dialog.nml:19
         self.image.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_dialog.nml:20
         self.image.height = 1    # highlight_dialog.nml:21
-        self.image.label_text = '~I~mages'    # highlight_dialog.nml:22
+        self.image.label_text = _bind(    # highlight_dialog.nml:22
+            lambda _o: _tr('~I~mages'),
+            yielding=True,
+        )
         self.image.label_width = 18    # highlight_dialog.nml:23
         self.image.history_id = 'customs'    # highlight_dialog.nml:24
 
@@ -67,7 +71,10 @@ class HighlightDialog(Dialog, _Component):
         self.media.y = 4    # highlight_dialog.nml:29
         self.media.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_dialog.nml:30
         self.media.height = 1    # highlight_dialog.nml:31
-        self.media.label_text = '~A~udio and video'    # highlight_dialog.nml:32
+        self.media.label_text = _bind(    # highlight_dialog.nml:32
+            lambda _o: _tr('~A~udio and video'),
+            yielding=True,
+        )
         self.media.label_width = 18    # highlight_dialog.nml:33
         self.media.history_id = 'customs'    # highlight_dialog.nml:34
 
@@ -75,7 +82,10 @@ class HighlightDialog(Dialog, _Component):
         self.document.y = 6    # highlight_dialog.nml:39
         self.document.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_dialog.nml:40
         self.document.height = 1    # highlight_dialog.nml:41
-        self.document.label_text = '~D~ocuments'    # highlight_dialog.nml:42
+        self.document.label_text = _bind(    # highlight_dialog.nml:42
+            lambda _o: _tr('~D~ocuments'),
+            yielding=True,
+        )
         self.document.label_width = 18    # highlight_dialog.nml:43
         self.document.history_id = 'customs'    # highlight_dialog.nml:44
 
@@ -83,7 +93,10 @@ class HighlightDialog(Dialog, _Component):
         self.source.y = 8    # highlight_dialog.nml:49
         self.source.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_dialog.nml:50
         self.source.height = 1    # highlight_dialog.nml:51
-        self.source.label_text = '~S~ource code'    # highlight_dialog.nml:52
+        self.source.label_text = _bind(    # highlight_dialog.nml:52
+            lambda _o: _tr('~S~ource code'),
+            yielding=True,
+        )
         self.source.label_width = 18    # highlight_dialog.nml:53
         self.source.history_id = 'customs'    # highlight_dialog.nml:54
 
@@ -91,6 +104,9 @@ class HighlightDialog(Dialog, _Component):
         self.temp.y = 10    # highlight_dialog.nml:59
         self.temp.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_dialog.nml:60
         self.temp.height = 1    # highlight_dialog.nml:61
-        self.temp.label_text = '~T~emporary files'    # highlight_dialog.nml:62
+        self.temp.label_text = _bind(    # highlight_dialog.nml:62
+            lambda _o: _tr('~T~emporary files'),
+            yielding=True,
+        )
         self.temp.label_width = 18    # highlight_dialog.nml:63
         self.temp.history_id = 'customs'    # highlight_dialog.nml:64

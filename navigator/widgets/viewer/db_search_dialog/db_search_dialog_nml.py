@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -38,71 +39,89 @@ class DBSearchDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     text: Field    # db_search_dialog.nml:18
-    options_caption: Label    # db_search_dialog.nml:28
-    options: CheckBoxes    # db_search_dialog.nml:37
-    scope_caption: Label    # db_search_dialog.nml:45
-    scope: RadioButtons    # db_search_dialog.nml:54
-    direction_caption: Label    # db_search_dialog.nml:62
-    direction: RadioButtons    # db_search_dialog.nml:71
+    options_caption: Label    # db_search_dialog.nml:30
+    options: CheckBoxes    # db_search_dialog.nml:39
+    scope_caption: Label    # db_search_dialog.nml:47
+    scope: RadioButtons    # db_search_dialog.nml:56
+    direction_caption: Label    # db_search_dialog.nml:64
+    direction: RadioButtons    # db_search_dialog.nml:73
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.text = Field(parent=self)    # db_search_dialog.nml:17
-        self.options_caption = Label(parent=self)    # db_search_dialog.nml:27
-        self.options = CheckBoxes(parent=self)    # db_search_dialog.nml:36
-        self.scope_caption = Label(parent=self)    # db_search_dialog.nml:44
-        self.scope = RadioButtons(parent=self)    # db_search_dialog.nml:53
-        self.direction_caption = Label(parent=self)    # db_search_dialog.nml:61
-        self.direction = RadioButtons(parent=self)    # db_search_dialog.nml:70
+        self.options_caption = Label(parent=self)    # db_search_dialog.nml:29
+        self.options = CheckBoxes(parent=self)    # db_search_dialog.nml:38
+        self.scope_caption = Label(parent=self)    # db_search_dialog.nml:46
+        self.scope = RadioButtons(parent=self)    # db_search_dialog.nml:55
+        self.direction_caption = Label(parent=self)    # db_search_dialog.nml:63
+        self.direction = RadioButtons(parent=self)    # db_search_dialog.nml:72
 
         self.modal_width = 55    # db_search_dialog.nml:11
         self.modal_height = 13    # db_search_dialog.nml:12
-        self.title = 'Search'    # db_search_dialog.nml:13
+        self.title = _bind(lambda _o: _tr('Search'), yielding=True)    # db_search_dialog.nml:13
         self.buttons = 'ok-cancel'    # db_search_dialog.nml:14
 
         self.text.x = 2    # db_search_dialog.nml:19
         self.text.y = 2    # db_search_dialog.nml:20
         self.text.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_search_dialog.nml:21
         self.text.height = 1    # db_search_dialog.nml:22
-        self.text.label_text = '~T~ext to search'    # db_search_dialog.nml:23
+        self.text.label_text = _bind(    # db_search_dialog.nml:23
+            lambda _o: _tr('~T~ext to search'),
+            yielding=True,
+        )
         self.text.label_width = 16    # db_search_dialog.nml:24
         self.text.history_id = 'dbsearch'    # db_search_dialog.nml:25
 
-        self.options_caption.x = 3    # db_search_dialog.nml:29
-        self.options_caption.y = 4    # db_search_dialog.nml:30
-        self.options_caption.width = 8    # db_search_dialog.nml:31
-        self.options_caption.height = 1    # db_search_dialog.nml:32
-        self.options_caption.text = 'Options'    # db_search_dialog.nml:33
-        self.options_caption.link = _bind(lambda _o: self.options)    # db_search_dialog.nml:34
+        self.options_caption.x = 1    # db_search_dialog.nml:31
+        self.options_caption.y = 4    # db_search_dialog.nml:32
+        self.options_caption.width = 11    # db_search_dialog.nml:33
+        self.options_caption.height = 1    # db_search_dialog.nml:34
+        self.options_caption.text = _bind(    # db_search_dialog.nml:35
+            lambda _o: _tr('Options'),
+            yielding=True,
+        )
+        self.options_caption.link = _bind(lambda _o: self.options)    # db_search_dialog.nml:36
 
-        self.options.x = 12    # db_search_dialog.nml:38
-        self.options.y = 4    # db_search_dialog.nml:39
-        self.options.width = 20    # db_search_dialog.nml:40
-        self.options.height = 1    # db_search_dialog.nml:41
-        self.options.items = ['~C~ase sensitive']    # db_search_dialog.nml:42
+        self.options.x = 12    # db_search_dialog.nml:40
+        self.options.y = 4    # db_search_dialog.nml:41
+        self.options.width = 20    # db_search_dialog.nml:42
+        self.options.height = 1    # db_search_dialog.nml:43
+        self.options.items = _bind(    # db_search_dialog.nml:44
+            lambda _o: [_tr('~C~ase sensitive')],
+            yielding=True,
+        )
 
-        self.scope_caption.x = 5    # db_search_dialog.nml:46
-        self.scope_caption.y = 6    # db_search_dialog.nml:47
-        self.scope_caption.width = 6    # db_search_dialog.nml:48
-        self.scope_caption.height = 1    # db_search_dialog.nml:49
-        self.scope_caption.text = 'Scope'    # db_search_dialog.nml:50
-        self.scope_caption.link = _bind(lambda _o: self.scope)    # db_search_dialog.nml:51
+        self.scope_caption.x = 5    # db_search_dialog.nml:48
+        self.scope_caption.y = 6    # db_search_dialog.nml:49
+        self.scope_caption.width = 6    # db_search_dialog.nml:50
+        self.scope_caption.height = 1    # db_search_dialog.nml:51
+        self.scope_caption.text = _bind(lambda _o: _tr('Scope'), yielding=True)    # db_search_dialog.nml:52
+        self.scope_caption.link = _bind(lambda _o: self.scope)    # db_search_dialog.nml:53
 
-        self.scope.x = 12    # db_search_dialog.nml:55
-        self.scope.y = 6    # db_search_dialog.nml:56
-        self.scope.width = 21    # db_search_dialog.nml:57
-        self.scope.height = 2    # db_search_dialog.nml:58
-        self.scope.items = ['~I~n cursor field', '~A~ll fields']    # db_search_dialog.nml:59
+        self.scope.x = 12    # db_search_dialog.nml:57
+        self.scope.y = 6    # db_search_dialog.nml:58
+        self.scope.width = 21    # db_search_dialog.nml:59
+        self.scope.height = 2    # db_search_dialog.nml:60
+        self.scope.items = _bind(    # db_search_dialog.nml:61
+            lambda _o: [_tr('~I~n cursor field'), _tr('~A~ll fields')],
+            yielding=True,
+        )
 
-        self.direction_caption.x = 35    # db_search_dialog.nml:63
-        self.direction_caption.y = 4    # db_search_dialog.nml:64
-        self.direction_caption.width = 10    # db_search_dialog.nml:65
-        self.direction_caption.height = 1    # db_search_dialog.nml:66
-        self.direction_caption.text = 'Direction'    # db_search_dialog.nml:67
-        self.direction_caption.link = _bind(lambda _o: self.direction)    # db_search_dialog.nml:68
+        self.direction_caption.x = 35    # db_search_dialog.nml:65
+        self.direction_caption.y = 4    # db_search_dialog.nml:66
+        self.direction_caption.width = 10    # db_search_dialog.nml:67
+        self.direction_caption.height = 1    # db_search_dialog.nml:68
+        self.direction_caption.text = _bind(    # db_search_dialog.nml:69
+            lambda _o: _tr('Direction'),
+            yielding=True,
+        )
+        self.direction_caption.link = _bind(lambda _o: self.direction)    # db_search_dialog.nml:70
 
-        self.direction.x = 35    # db_search_dialog.nml:72
-        self.direction.y = 5    # db_search_dialog.nml:73
-        self.direction.width = 18    # db_search_dialog.nml:74
-        self.direction.height = 3    # db_search_dialog.nml:75
-        self.direction.items = ['~F~orward', '~B~ackward', '~E~ntire scope']    # db_search_dialog.nml:76
+        self.direction.x = 35    # db_search_dialog.nml:74
+        self.direction.y = 5    # db_search_dialog.nml:75
+        self.direction.width = 18    # db_search_dialog.nml:76
+        self.direction.height = 3    # db_search_dialog.nml:77
+        self.direction.items = _bind(    # db_search_dialog.nml:78
+            lambda _o: [_tr('~F~orward'), _tr('~B~ackward'), _tr('~E~ntire scope')],
+            yielding=True,
+        )

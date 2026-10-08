@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -42,12 +43,15 @@ class GotoDialog(Dialog, _Component):
 
         self.modal_width = 34    # goto_dialog.nml:9
         self.modal_height = 8    # goto_dialog.nml:10
-        self.title = 'Goto Address'    # goto_dialog.nml:11
+        self.title = _bind(lambda _o: _tr('Goto Address'), yielding=True)    # goto_dialog.nml:11
 
         self.address.x = 3    # goto_dialog.nml:15
         self.address.y = 2    # goto_dialog.nml:16
         self.address.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_dialog.nml:17
         self.address.height = 1    # goto_dialog.nml:18
-        self.address.label_text = '~A~ddress'    # goto_dialog.nml:19
+        self.address.label_text = _bind(    # goto_dialog.nml:19
+            lambda _o: _tr('~A~ddress'),
+            yielding=True,
+        )
         self.address.label_width = 9    # goto_dialog.nml:20
         self.address.history_id = 'goto_address'    # goto_dialog.nml:21

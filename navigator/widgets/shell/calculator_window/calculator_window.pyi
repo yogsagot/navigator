@@ -17,6 +17,7 @@ from navml.widgets.window import Window
 
 from typing import Any
 from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.history import HISTORY
 from navml.widgets.dialog.control.control import Control

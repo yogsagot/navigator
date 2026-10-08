@@ -12,6 +12,7 @@ from navigator.widgets.shell.char_table import CharTable
 
 from typing import Any
 from navkit.events import KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navigator.widgets.shell.char_table.char_table import glyph
 

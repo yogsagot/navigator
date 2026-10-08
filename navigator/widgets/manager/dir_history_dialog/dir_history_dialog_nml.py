@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.dir_history_dialog.dir_list import DirList    # dir_history_dialog.nml:1
@@ -74,7 +76,10 @@ class DirHistoryDialog(Dialog, _Component):
 
         self.modal_width = 59    # dir_history_dialog.nml:10
         self.modal_height = 17    # dir_history_dialog.nml:11
-        self.title = 'Directories History'    # dir_history_dialog.nml:12
+        self.title = _bind(    # dir_history_dialog.nml:12
+            lambda _o: _tr('Directories History'),
+            yielding=True,
+        )
 
         self.places.framed = False    # dir_history_dialog.nml:16
         self.places.x = 2    # dir_history_dialog.nml:17
@@ -83,7 +88,7 @@ class DirHistoryDialog(Dialog, _Component):
         self.places.height = 11    # dir_history_dialog.nml:20
         self.places.on_chosen = self.on_places_chosen    # dir_history_dialog.nml:15
 
-        self.pick.text = '~G~o to'    # dir_history_dialog.nml:24
+        self.pick.text = _bind(lambda _o: _tr('~G~o to'), yielding=True)    # dir_history_dialog.nml:24
         self.pick.default = True    # dir_history_dialog.nml:25
         self.pick.x = 4    # dir_history_dialog.nml:26
         self.pick.y = 14    # dir_history_dialog.nml:27
@@ -91,14 +96,17 @@ class DirHistoryDialog(Dialog, _Component):
         self.pick.height = 2    # dir_history_dialog.nml:29
         self.pick.on_click = self.on_pick_click    # dir_history_dialog.nml:23
 
-        self.drop.text = '~D~elete record'    # dir_history_dialog.nml:34
+        self.drop.text = _bind(    # dir_history_dialog.nml:34
+            lambda _o: _tr('~D~elete record'),
+            yielding=True,
+        )
         self.drop.x = 21    # dir_history_dialog.nml:35
         self.drop.y = 14    # dir_history_dialog.nml:36
         self.drop.width = 17    # dir_history_dialog.nml:37
         self.drop.height = 2    # dir_history_dialog.nml:38
         self.drop.on_click = self.on_drop_click    # dir_history_dialog.nml:33
 
-        self.abandon.text = 'Cancel'    # dir_history_dialog.nml:42
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # dir_history_dialog.nml:42
         self.abandon.x = 44    # dir_history_dialog.nml:43
         self.abandon.y = 14    # dir_history_dialog.nml:44
         self.abandon.width = 11    # dir_history_dialog.nml:45

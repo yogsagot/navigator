@@ -38,7 +38,9 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+
+from navkit.i18n import tr, tr_n
 
 from navigator.job import Job, Stopped
 
@@ -70,11 +72,26 @@ class FileExists:
     path: Path
 
 
-@dataclass
+@dataclass(eq=False)
 class DecodeError:
-    """One of the decoder's errors, shown with *Display error messages*."""
+    """One of the decoder's errors, shown with *Display error messages*.
 
-    text: str
+    *reason* may be a callable giving a template for *values*, put into
+    words when :attr:`text` is read on the loop, where the language is.
+    """
+
+    reason: str | Callable[[], str]
+    values: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def text(self) -> str:
+        if callable(self.reason):
+            text = self.reason()
+            return text.format(**self.values) if self.values else text
+        return self.reason
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DecodeError) and self.text == other.text
 
 
 # -- the arithmetic ----------------------------------------------------------------------
@@ -459,17 +476,17 @@ class _Decoder:
 
     # -- errors -----------------------------------------------------------------
 
-    def error(self, text: str, severe: bool = True) -> None:
+    def error(self, text: str | Callable[[], str], severe: bool = True, **values: Any) -> None:
         """``Local_Error``: counted, shown with *Display error messages*, and
         a severe one breaks the file it is about."""
         self.result.errors += 1
         if self.display_errors:
-            self.job.ask(DecodeError(text))
+            self.job.ask(DecodeError(text, values))
         current = self.current
         if severe and current is not None and not current.broken:
             current.broken = True
             if not self.save_broken and self.display_errors:
-                self.job.ask(DecodeError(f"Failed to decode {current.name}"))
+                self.job.ask(DecodeError(lambda: tr("Failed to decode {name}"), {"name": current.name}))
 
     # -- what a line is ----------------------------------------------------------
 
@@ -508,7 +525,8 @@ class _Decoder:
         self.current, self.number = record, number
         self.seen = False
         if number in record.sections:
-            self.error(f"Duplicate section {number} of file {record.name}", severe=False)
+            self.error(lambda: tr("Duplicate section {number} of file {name}"), severe=False,
+                       number=number, name=record.name)
             self._sink = None
         else:
             self._sink = record.sections.setdefault(number, bytearray())
@@ -542,7 +560,7 @@ class _Decoder:
             match = _SECTION.match(stripped)
             self.data = self.ended = False
             if match is None:
-                self.error("Can not interpret section header")
+                self.error(lambda: tr("Can not interpret section header"))
                 self._sink = None
                 return
             number, total, name = int(match[1]), match[2], match[3]
@@ -551,7 +569,7 @@ class _Decoder:
             if total is not None:
                 if record.total is not None and record.total != int(total):
                     self.current = record
-                    self.error("Maximal section number mismatch")
+                    self.error(lambda: tr("Maximal section number mismatch"))
                 record.total = int(total)
             self.start_section(record, number)
             self.clear()
@@ -569,7 +587,7 @@ class _Decoder:
             try:
                 stamp = int(stripped.split()[1])
             except (IndexError, ValueError):
-                self.error("Invalid filetime number", severe=False)
+                self.error(lambda: tr("Invalid filetime number"), severe=False)
                 return
             if self.headed and self.current is not None:
                 self.current.file_time = stamp
@@ -579,14 +597,14 @@ class _Decoder:
         if stripped.startswith("begin "):
             parts = stripped.split(None, 2)
             if len(parts) < 3:
-                self.error("File name expected")
+                self.error(lambda: tr("File name expected"))
                 return
             name = os.path.basename(parts[2]) or "unknown"
             self.result.found = True
             if self.headed and self.current is not None:
                 # The first section's header named the file already.
                 if self.current.name != name:
-                    self.error('Filenames of "section" and "begin" mismatch')
+                    self.error(lambda: tr('Filenames of "section" and "begin" mismatch'))
             else:
                 self.start_section(self.open_file(name), 1)
             if not self.tabled:
@@ -603,7 +621,7 @@ class _Decoder:
             return
         if stripped == "end" and (self.data or self.ended):
             if self.data:
-                self.error('Unexpected "end" encountered', severe=False)
+                self.error(lambda: tr('Unexpected "end" encountered'), severe=False)
             self.end_of_data(text)
             return
         if not self.data:
@@ -633,7 +651,7 @@ class _Decoder:
         match = _SUM.match(stripped)
         current = self.current
         if match is None:
-            self.error("Can not interpret CheckSum format", severe=False)
+            self.error(lambda: tr("Can not interpret CheckSum format"), severe=False)
             return
         listed, size, what = int(match[1]), int(match[2]), match[3]
         if current is None or current.skip:
@@ -641,9 +659,9 @@ class _Decoder:
         if what == "section":
             if self._sink is not None:
                 if listed != self.sum:
-                    self.error(f"CRC error - {current.name}, Section {self.number}")
+                    self.error(lambda: tr("CRC error - {name}, Section {number}"), name=current.name, number=self.number)
                 if size != self.size:
-                    self.error(f"Size mismatch - {current.name}, Section {self.number}")
+                    self.error(lambda: tr("Size mismatch - {name}, Section {number}"), name=current.name, number=self.number)
         else:
             current.listed = (listed, size)
         self.clear()
@@ -662,27 +680,29 @@ class _Decoder:
             missing = [n for n in range(1, total + 1) if n not in record.sections]
             if missing:
                 ranges = _ranges(missing)
-                plural = len(missing) > 1
-                self.error(f"{'Sections' if plural else 'Section'} {ranges} of file {record.name} "
-                           f"({total}) {'are absent' if plural else 'is absent'}")
-                self.error(f"Failed to decode completely {record.name}")
+                self.error(lambda n=len(missing), values=dict(ranges=ranges, name=record.name, total=total): tr_n(
+                    "Section {ranges} of file {name} ({total}) is absent",
+                    "Sections {ranges} of file {name} ({total}) are absent", n, **values))
+                self.error(lambda: tr("Failed to decode completely {name}"), name=record.name)
             elif not record.end_found:
-                self.error(f"File is not terminated ({record.name})")
+                self.error(lambda: tr("File is not terminated ({name})"), name=record.name)
             data = b"".join(bytes(record.sections[n]) for n in sorted(record.sections))
             if record.listed is not None and not missing:
                 listed, size = record.listed
                 if size != len(data):
-                    self.error(f"Size mismatch of file {record.name}, Listed={size}, Calculated={len(data)}")
+                    self.error(lambda: tr("Size mismatch of file {name}, Listed={listed}, Calculated={calculated}"),
+                               name=record.name, listed=size, calculated=len(data))
                 elif listed != sum_r(data):
-                    self.error(f"CRC mismatch of file {record.name}, Listed={listed}, "
-                               f"Calculated={sum_r(data)}")
+                    self.error(lambda: tr("CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}"),
+                               name=record.name, listed=listed, calculated=sum_r(data))
             if record.broken and not self.save_broken:
                 continue
             target = self.out_dir / record.name
             try:
                 target.write_bytes(data)
             except OSError as error:
-                self.error(f"Can not create {record.name}: {error.strerror or error}")
+                self.error(lambda: tr("Can not create {name}: {reason}"), name=record.name,
+                           reason=error.strerror or error)
                 continue
             self.result.written.append(target)
             if record.file_time is not None:
@@ -726,5 +746,5 @@ def decode(source: Path, out_dir: Path, job: Job, *, check_existing: bool = True
     if not decoder.stop:
         decoder.finish()
     if not decoder.result.found and display_errors:
-        job.ask(DecodeError(NO_STUFF))
+        job.ask(DecodeError(lambda: tr("There is no UUCode stuff in this file")))
     return decoder.result

@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -57,7 +58,7 @@ class DeleteProgress(Dialog, _Component):
 
         self.modal_width = 50    # delete_progress.nml:12
         self.modal_height = 10    # delete_progress.nml:13
-        self.title = 'Erase'    # delete_progress.nml:14
+        self.title = _bind(lambda _o: _tr('Erase'), yielding=True)    # delete_progress.nml:14
         self.buttons = 'ok'    # delete_progress.nml:15
         self.closable = False    # delete_progress.nml:16
 

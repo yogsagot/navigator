@@ -24,11 +24,13 @@ DBSearchDialog(Dialog):
         label_width: 16
         history_id: "dbsearch"
 
+    #: Two columns further left than DN's, so a longer caption than
+    #: "Options" (Latvian "Iestatījumi") still ends before the box.
     Label:
         id: options_caption
-        x: 3
+        x: 1
         y: 4
-        width: 8
+        width: 11
         height: 1
         text: "Options"
         link: options

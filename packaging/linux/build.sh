@@ -67,6 +67,13 @@ install -m 0755 packaging/linux/nav.sh build/root/usr/bin/nav
 themes=$(ls "$LIB"/navigator/styles/themes/*.nss 2>/dev/null | wc -l)
 [ "$themes" -eq 11 ] || { echo "build.sh: expected 11 themes, packaged $themes" >&2; exit 1; }
 
+# Every catalogue the checkout has, so a language is never silently English.
+for layer in navigator navml; do
+    want=$(ls "$layer"/locales/*.toml 2>/dev/null | wc -l)
+    got=$(ls "$LIB/$layer"/locales/*.toml 2>/dev/null | wc -l)
+    [ "$got" -eq "$want" ] || { echo "build.sh: $layer: expected $want catalogues, packaged $got" >&2; exit 1; }
+done
+
 # `find', not a glob: a component is a directory, so the generated halves sit
 # one level below the widget package.  It also keeps working if one ever sits
 # flat again.

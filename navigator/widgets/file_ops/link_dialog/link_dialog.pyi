@@ -16,6 +16,7 @@ from navml.widgets.dialog.label import Label
 from pathlib import Path
 from typing import Any, Sequence
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
 from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
 from navigator.filelink import LinkRequest

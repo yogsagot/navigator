@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 
 from navml.widgets.dialog.dialog import Dialog
@@ -54,7 +55,8 @@ class AsciiChart(Dialog):
     def _report(self) -> None:
         """``TReport.Draw``: ``'  Char: %c Decimal: %0#%3d Hex: %0#%02x  '``."""
         code = self.table.code
-        self.report.text = f"  Char: {glyph(code)} Decimal: {code:3d} Hex: {code:02x}"
+        self.report.text = "  " + tr("Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}").format(
+            char=glyph(code), decimal=code, hex=code)
 
     def accept(self) -> int:
         _last["code"] = self.table.code

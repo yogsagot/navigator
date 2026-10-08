@@ -36,7 +36,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator import keybindings
+from navigator import keybindings, language
 from navigator.associations import seed_all as seed_associations
 from navigator.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
@@ -545,6 +545,11 @@ def main(argv: list[str] | None = None) -> int:
              "icon beside each name (default: the settings file's, else detect)",
     )
     parser.add_argument(
+        "--language", default=None, metavar="CODE",
+        help="the language to speak: a catalogue's code such as `lv', `en' "
+             "(default: the settings file's, else $LANG)",
+    )
+    parser.add_argument(
         "--reprogram-palette", action="store_true",
         help="rewrite the terminal's sixteen colour registers to the DOS "
              "palette for as long as Navigator runs -- the only thing that "
@@ -600,6 +605,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"nav: histories: {error}", file=sys.stderr)
     # A flag is this session's alone: it wins over the settings file and is
     # never written back to it.
+    language.install((SETTINGS.path or config_path()).parent)
+    language.apply(args.language if args.language is not None else SETTINGS.interface.language)
     appearance = SETTINGS.appearance
     if args.theme is not None:
         theme = args.theme

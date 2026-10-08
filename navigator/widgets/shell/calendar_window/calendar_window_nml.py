@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navml.commands import CloseWindow    # calendar_window.nml:1
@@ -67,7 +69,7 @@ class CalendarWindow(Window, _Component):
         self.month = CalendarView(parent=self)    # calendar_window.nml:23
         self.today_button = Button(parent=self)    # calendar_window.nml:31
 
-        self.title = 'Calendar'    # calendar_window.nml:16
+        self.title = _bind(lambda _o: _tr('Calendar'), yielding=True)    # calendar_window.nml:16
         self.zoomable = False    # calendar_window.nml:17
         self.resizable = False    # calendar_window.nml:18
 
@@ -77,7 +79,10 @@ class CalendarWindow(Window, _Component):
         self.month.height = 8    # calendar_window.nml:28
         self.month.can_focus = True    # calendar_window.nml:29
 
-        self.today_button.text = 'Go to current ~d~ate'    # calendar_window.nml:33
+        self.today_button.text = _bind(    # calendar_window.nml:33
+            lambda _o: _tr('Go to current ~d~ate'),
+            yielding=True,
+        )
         self.today_button.x = 2    # calendar_window.nml:34
         self.today_button.y = 10    # calendar_window.nml:35
         self.today_button.width = 23    # calendar_window.nml:36

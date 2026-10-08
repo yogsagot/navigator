@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr_n
 from navkit.screen import Surface
 from navkit.widget import Widget
 
@@ -69,7 +70,7 @@ class DragLabel(Widget):
 
 def label_for(entries: list[Any]) -> str:
     """The name, or ``N selected files`` (``dlSelectedFiles``)."""
-    return entries[0].name if len(entries) == 1 else f"{len(entries)} selected files"
+    return entries[0].name if len(entries) == 1 else tr_n("{n} selected file", "{n} selected files", len(entries))
 
 
 #: What :func:`drop_target` answers for the trash can.

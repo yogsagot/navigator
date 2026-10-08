@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Sequence
 
+from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 
 from navml.widgets.dialog.button import Button
@@ -39,9 +40,11 @@ def prompt_for(entries: Sequence[Any]) -> str:
     """``file ~NAME~?``, ``directory ~NAME~?``, ``these ~3 files~?``."""
     if len(entries) == 1:
         entry = entries[0]
-        kind = "directory" if entry.is_dir else "file"
-        return f"{kind} ~{escape_caption(cut(entry.name))}~?"
-    return f"these ~{len(entries)} files~?"
+        name = escape_caption(cut(entry.name))
+        if entry.is_dir:
+            return tr("directory ~{name}~?").format(name=name)
+        return tr("file ~{name}~?").format(name=name)
+    return tr_n("these ~{n} file~?", "these ~{n} files~?", len(entries))
 
 
 class DeleteDialog(Dialog):
@@ -60,9 +63,9 @@ class DeleteDialog(Dialog):
         self.message.visible = False
         # ``mfYesNoConfirm``: Yes and No, where No is Cancel's answer.
         unbind(self.ok, Button.text)
-        self.ok.text = "~Y~es"
+        self.ok.text = tr("~Y~es")
         unbind(self.cancel, Button.text)
-        self.cancel.text = "~N~o"
+        self.cancel.text = tr("~N~o")
         self.prompt_caption.text = prompt_for(self._entries)
         self.options.value = RECURSIVE if _session["recursive"] else 0
 

@@ -16,6 +16,7 @@ from typing import Any, Mapping, Sequence
 
 from navkit.commands import KeyTableError, key_label
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
@@ -39,7 +40,7 @@ class KeyBindingsDialog(Dialog):
             for section in self.sections
         }
         self._group = -1
-        self.groups.items = [section.title for section in self.sections]
+        self.groups.items = [tr(section.title) for section in self.sections]
         if self.sections:
             self._list(0)
 
@@ -101,7 +102,7 @@ class KeyBindingsDialog(Dialog):
         entry, keys = selected
         text = f"{entry.title}: {keys_text(keys)}"
         if keys != entry.defaults:
-            text += f"\nDefault: {keys_text(entry.defaults)}"
+            text += "\n" + tr("Default: {keys}").format(keys=keys_text(entry.defaults))
         self.detail.text = text
 
     def keys_of(self, entry: Entry) -> tuple[str, ...]:
@@ -111,12 +112,12 @@ class KeyBindingsDialog(Dialog):
     # -- changing a command's keys ------------------------------------------------------
 
     async def _ask(self, prompt: str) -> bool:
-        answer = await Dialog(title="Key bindings", prompt=prompt,
+        answer = await Dialog(title=tr("Key bindings"), prompt=prompt,
                               buttons="yes-no").execute(self.application)
         return answer is True
 
     async def _refuse(self, prompt: str) -> None:
-        await Dialog(title="Key bindings", prompt=prompt, buttons="ok").execute(self.application)
+        await Dialog(title=tr("Key bindings"), prompt=prompt, buttons="ok").execute(self.application)
 
     def _put(self, assignment: Assignment) -> bool:
         """*assignment* as the section's, if its table can be made; else False."""
@@ -124,7 +125,7 @@ class KeyBindingsDialog(Dialog):
         try:
             section.table(assignment)
         except KeyTableError as error:
-            self.spawn(self._refuse(f"Cannot bind that:\n{error}"))
+            self.spawn(self._refuse(tr("Cannot bind that:\n{error}").format(error=error)))
             return False
         cursor = self.bindings.cursor
         self.assignments[section.name] = assignment
@@ -142,7 +143,8 @@ class KeyBindingsDialog(Dialog):
         owner = next((other for other in section.entries if other.name != entry.name
                       and spec in current.get(other.name, other.defaults)), None)
         if owner is not None:
-            if not await self._ask(f"{label} is bound to {owner.title}.\nReassign it?"):
+            if not await self._ask(tr("{key} is bound to {command}.\nReassign it?").format(
+                    key=label, command=owner.title)):
                 return False
             keys = current.get(owner.name, owner.defaults)
             current[owner.name] = tuple(key for key in keys if key != spec)
@@ -153,8 +155,8 @@ class KeyBindingsDialog(Dialog):
                 shadow = next((e for e in outer.entries
                                if spec in found.get(e.name, e.defaults)), None)
                 if shadow is not None and not await self._ask(
-                        f"{label} is the global key for {shadow.title}, which is\n"
-                        f"looked at first. Bind it here anyway?"):
+                        tr("{key} is the global key for {command}, which is\n"
+                           "looked at first. Bind it here anyway?").format(key=label, command=shadow.title)):
                     return False
         keys = current.get(entry.name, entry.defaults)
         current[entry.name] = (spec,) if replace else (*(k for k in keys if k != spec), spec)
@@ -201,7 +203,7 @@ class KeyBindingsDialog(Dialog):
 
     async def reset_all(self) -> None:
         """Every command of every category back to its default keys."""
-        if not await self._ask("Every key back to its default?"):
+        if not await self._ask(tr("Every key back to its default?")):
             return
         self.assignments = {section.name: section.defaults() for section in self.sections}
         self._refresh()

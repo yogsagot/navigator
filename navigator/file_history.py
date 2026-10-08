@@ -26,6 +26,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
+
 #: ``MinWinSize``: a rectangle smaller than this, once scaled, is not used.
 MIN_WIDTH, MIN_HEIGHT = 16, 6
 
@@ -113,7 +115,7 @@ async def open_viewer(desktop: Any, path: Path | str, mode: str | None = None) -
     job = FileJob()
     source = await run_with_progress(
         desktop.application, lambda: ViewSource(path), job,
-        lambda: progress_box(job, "Reading file"), refresh_box(job),
+        lambda: progress_box(job, tr("Reading file")), refresh_box(job),
         delay=SLOW_PROGRESS_DELAY,
     )
     if job.stopped:

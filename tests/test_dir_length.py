@@ -72,7 +72,7 @@ def test_alt_g_counts_the_directory_at_the_cursor_and_the_tagged_ones(place):
                                         right=sizes(a.manager.right))])
     assert seen["sizes"]["big"] == 3024 and seen["sizes"]["small"] == 7
     assert seen["sizes"][".."] == "UP--DIR" and seen["right"]["big"] == "DIR"
-    assert "7 bytes in 1 selected files" in seen["footer"]
+    assert "7 bytes in 1 selected file " in seen["footer"]
 
 
 def test_alt_g_on_up_counts_the_directory_listed(place):

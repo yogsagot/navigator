@@ -186,6 +186,7 @@ class _Cell:
         "subscribers",
         "value",
         "version",
+        "yielding",
     )
 
     def __init__(
@@ -210,6 +211,9 @@ class _Cell:
         # whatever it used to derive its geometry from.
         self.subscribers: weakref.WeakSet[_Cell] = weakref.WeakSet()
         self.computing = False
+        #: Whether an assigned value replaces the binding rather than being
+        #: refused -- see :func:`bind`'s *yielding*.
+        self.yielding = False
 
     @property
     def label(self) -> str:
@@ -343,6 +347,7 @@ class _Cell:
             dep.subscribers.discard(self)
         self.deps.clear()
         self.compute = None
+        self.yielding = False
         self.state = _State.CLEAN
 
 
@@ -726,6 +731,8 @@ class Reactive(Declaration, Generic[T]):
             self._bind(obj, value)
             return
         cell = self.cell(obj)
+        if cell.yielding:
+            cell.unlink()
         if cell.compute is None:
             # A bound cell refuses every value alike, so which one this was
             # does not arise yet: let set() say the attribute is bound, since
@@ -743,6 +750,7 @@ class Reactive(Declaration, Generic[T]):
         _check_writable(cell)
         cell.unlink()
         cell.compute = binding.expression
+        cell.yielding = binding.yielding
         cell.equal = binding.equal or self.equal or _equal
         cell.state = _State.DIRTY
         cell.notify()
@@ -901,15 +909,17 @@ class Binding:
     make obvious.
     """
 
-    __slots__ = ("equal", "expression")
+    __slots__ = ("equal", "expression", "yielding")
 
     def __init__(
         self,
         expression: Callable[[Any], Any],
         equal: Callable[[Any, Any], bool] | None = None,
+        yielding: bool = False,
     ):
         self.expression = expression
         self.equal = equal
+        self.yielding = yielding
 
     def owned_by(self, owner: object) -> Binding:
         """A copy whose expression is always called with *owner*.
@@ -930,7 +940,9 @@ class Binding:
         because the copy replaces the original at the cell.
         """
         expression = self.expression
-        return Binding(lambda _target: expression(owner), self.equal)
+        return Binding(
+            lambda _target: expression(owner), self.equal, self.yielding
+        )
 
     def __repr__(self) -> str:
         return f"<unassigned binding {self.expression!r}>"
@@ -940,6 +952,7 @@ def bind(
     expression: Callable[[Any], Any],
     *,
     equal: Callable[[Any, Any], bool] | None = None,
+    yielding: bool = False,
 ) -> Any:
     """An expression for a reactive attribute to follow, assigned to it::
 
@@ -953,8 +966,13 @@ def bind(
     Assigning another one replaces the expression, but a plain value while a
     binding is live is an error rather than a silent override -- call
     :func:`unbind` to take the attribute back by hand.
+
+    A *yielding* binding is the exception: a default rather than a rule, which
+    an assigned value replaces.  Markup's translated captions are bound that
+    way -- ``text: "Cancel"`` follows the language, and a handler that sets
+    the button's text to something else simply has.
     """
-    return Binding(expression, equal)
+    return Binding(expression, equal, yielding)
 
 
 def unbind(obj: object, attribute: Any) -> None:

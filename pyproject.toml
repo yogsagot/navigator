@@ -88,6 +88,9 @@ include = ["navkit*", "navml*", "navigator*"]
 # should own.
 "navigator.styles" = ["*.nss"]
 "navigator.styles.themes" = ["*.nss"]
+# Translations, found the same way (navkit/i18n.py).
+"navigator.locales" = ["*.toml"]
+"navml.locales" = ["*.toml"]
 "navml" = ["py.typed"]
 # A component's markup is shipped even though nothing at run time reads it:
 # somebody reading a generated `*_nml.py' should be able to read what it was

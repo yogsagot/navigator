@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Mapping
 
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navkit.style import Style
 from navkit.stylesheet import StylesheetError, parse_value
@@ -55,7 +56,7 @@ class ColorsDialog(Dialog):
         self.groups_of = groups()
         #: The stem the controls show.
         self._shown: str | None = None
-        self.groups.items = [name for name, _ in self.groups_of]
+        self.groups.items = [tr(name) for name, _ in self.groups_of]
         self.attributes.tristate = ALL_BOXES
         self._list_items(0)
 
@@ -71,7 +72,7 @@ class ColorsDialog(Dialog):
 
     def _list_items(self, group: int) -> None:
         self._group = group
-        self.items.items = [item for _, item in self.groups_of[group][1]]
+        self.items.items = [tr(item) for _, item in self.groups_of[group][1]]
         self.items.cursor = 0
         self._show(self.groups_of[group][1][0][0])
 

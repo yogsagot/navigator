@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -51,31 +52,46 @@ class CompareDialog(Dialog, _Component):
 
         self.modal_width = 34    # compare_dialog.nml:12
         self.modal_height = 15    # compare_dialog.nml:13
-        self.title = 'Compare directories'    # compare_dialog.nml:14
+        self.title = _bind(    # compare_dialog.nml:14
+            lambda _o: _tr('Compare directories'),
+            yielding=True,
+        )
 
         self.options_caption.x = 2    # compare_dialog.nml:18
         self.options_caption.y = 1    # compare_dialog.nml:19
-        self.options_caption.width = 10    # compare_dialog.nml:20
+        self.options_caption.width = 12    # compare_dialog.nml:20
         self.options_caption.height = 1    # compare_dialog.nml:21
-        self.options_caption.text = 'Options'    # compare_dialog.nml:22
+        self.options_caption.text = _bind(    # compare_dialog.nml:22
+            lambda _o: _tr('Options'),
+            yielding=True,
+        )
         self.options_caption.link = _bind(lambda _o: self.options)    # compare_dialog.nml:23
 
         self.options.x = 2    # compare_dialog.nml:28
         self.options.y = 2    # compare_dialog.nml:29
         self.options.width = 26    # compare_dialog.nml:30
         self.options.height = 4    # compare_dialog.nml:31
-        self.options.items = ['Compare ~s~ize', 'Compare ~t~ime', 'Compare ~a~ttributes', 'Compare ~c~ontents']    # compare_dialog.nml:32
+        self.options.items = _bind(    # compare_dialog.nml:32
+            lambda _o: [_tr('Compare ~s~ize'), _tr('Compare ~t~ime'), _tr('Compare ~a~ttributes'), _tr('Compare ~c~ontents')],
+            yielding=True,
+        )
         self.options.value = 3    # compare_dialog.nml:33
 
         self.mode_caption.x = 2    # compare_dialog.nml:37
         self.mode_caption.y = 7    # compare_dialog.nml:38
         self.mode_caption.width = 16    # compare_dialog.nml:39
         self.mode_caption.height = 1    # compare_dialog.nml:40
-        self.mode_caption.text = 'Selection mode'    # compare_dialog.nml:41
+        self.mode_caption.text = _bind(    # compare_dialog.nml:41
+            lambda _o: _tr('Selection mode'),
+            yielding=True,
+        )
         self.mode_caption.link = _bind(lambda _o: self.mode)    # compare_dialog.nml:42
 
         self.mode.x = 2    # compare_dialog.nml:46
         self.mode.y = 8    # compare_dialog.nml:47
         self.mode.width = 26    # compare_dialog.nml:48
         self.mode.height = 2    # compare_dialog.nml:49
-        self.mode.items = ['S~e~lect', '~U~nselect']    # compare_dialog.nml:50
+        self.mode.items = _bind(    # compare_dialog.nml:50
+            lambda _o: [_tr('S~e~lect'), _tr('~U~nselect')],
+            yielding=True,
+        )

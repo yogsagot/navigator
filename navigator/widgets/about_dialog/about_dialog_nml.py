@@ -12,6 +12,9 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
+
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog    # about_dialog.nml:1
 from navigator.about import about_text, project_info    # about_dialog.nml:3
@@ -39,6 +42,6 @@ class AboutDialog(Dialog, _Component):
 
         self.modal_width = 52    # about_dialog.nml:13
         self.modal_height = 17    # about_dialog.nml:14
-        self.title = 'About'    # about_dialog.nml:15
+        self.title = _bind(lambda _o: _tr('About'), yielding=True)    # about_dialog.nml:15
         self.buttons = 'ok'    # about_dialog.nml:16
         self.prompt = about_text(project_info())    # about_dialog.nml:17

@@ -27,7 +27,7 @@ class SaversDialog(Dialog):
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.section = section or SETTINGS.savers
-        names = [name for name, _ in savers.BUILT_IN] + (savers.external() if available is None else available)
+        names = list(savers.BUILT_IN) + (savers.external() if available is None else available)
         self.offered.items = [savers.caption(name) for name in names]
         self.chosen.items = [savers.caption(name) for name in self.section.names()]
         self.time.value = self.time.sel = SaversData.TIMES.index(self.section.time)

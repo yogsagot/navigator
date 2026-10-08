@@ -14,6 +14,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 
 from typing import Any, Mapping
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navigator.environ import valid_name
 

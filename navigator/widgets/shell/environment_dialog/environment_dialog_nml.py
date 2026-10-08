@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -90,13 +91,19 @@ class EnvironmentDialog(Dialog, _Component):
 
         self.modal_width = 62    # environment_dialog.nml:14
         self.modal_height = 20    # environment_dialog.nml:15
-        self.title = 'Environment Variables Editor'    # environment_dialog.nml:16
+        self.title = _bind(    # environment_dialog.nml:16
+            lambda _o: _tr('Environment Variables Editor'),
+            yielding=True,
+        )
 
         self.names_caption.x = 2    # environment_dialog.nml:20
         self.names_caption.y = 1    # environment_dialog.nml:21
         self.names_caption.width = 12    # environment_dialog.nml:22
         self.names_caption.height = 1    # environment_dialog.nml:23
-        self.names_caption.text = '~V~ariables'    # environment_dialog.nml:24
+        self.names_caption.text = _bind(    # environment_dialog.nml:24
+            lambda _o: _tr('~V~ariables'),
+            yielding=True,
+        )
         self.names_caption.link = _bind(lambda _o: self.names)    # environment_dialog.nml:25
 
         self.names.x = 2    # environment_dialog.nml:30
@@ -108,10 +115,10 @@ class EnvironmentDialog(Dialog, _Component):
         self.value.y = 16    # environment_dialog.nml:40
         self.value.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # environment_dialog.nml:41
         self.value.height = 1    # environment_dialog.nml:42
-        self.value.label_text = 'Val~u~e'    # environment_dialog.nml:43
+        self.value.label_text = _bind(lambda _o: _tr('Val~u~e'), yielding=True)    # environment_dialog.nml:43
         self.value.label_width = 7    # environment_dialog.nml:44
 
-        self.pick.text = 'O~K~'    # environment_dialog.nml:48
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # environment_dialog.nml:48
         self.pick.default = True    # environment_dialog.nml:49
         self.pick.x = 49    # environment_dialog.nml:50
         self.pick.y = 2    # environment_dialog.nml:51
@@ -119,28 +126,28 @@ class EnvironmentDialog(Dialog, _Component):
         self.pick.height = 2    # environment_dialog.nml:53
         self.pick.on_click = self.on_pick_click    # environment_dialog.nml:47
 
-        self.rename.text = '~R~ename'    # environment_dialog.nml:58
+        self.rename.text = _bind(lambda _o: _tr('~R~ename'), yielding=True)    # environment_dialog.nml:58
         self.rename.x = 49    # environment_dialog.nml:59
         self.rename.y = 4    # environment_dialog.nml:60
         self.rename.width = 11    # environment_dialog.nml:61
         self.rename.height = 2    # environment_dialog.nml:62
         self.rename.on_click = self.on_rename_click    # environment_dialog.nml:57
 
-        self.append.text = '~A~ppend'    # environment_dialog.nml:67
+        self.append.text = _bind(lambda _o: _tr('~A~ppend'), yielding=True)    # environment_dialog.nml:67
         self.append.x = 49    # environment_dialog.nml:68
         self.append.y = 6    # environment_dialog.nml:69
         self.append.width = 11    # environment_dialog.nml:70
         self.append.height = 2    # environment_dialog.nml:71
         self.append.on_click = self.on_append_click    # environment_dialog.nml:66
 
-        self.delete.text = '~D~elete'    # environment_dialog.nml:76
+        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # environment_dialog.nml:76
         self.delete.x = 49    # environment_dialog.nml:77
         self.delete.y = 8    # environment_dialog.nml:78
         self.delete.width = 11    # environment_dialog.nml:79
         self.delete.height = 2    # environment_dialog.nml:80
         self.delete.on_click = self.on_delete_click    # environment_dialog.nml:75
 
-        self.abandon.text = 'Cancel'    # environment_dialog.nml:84
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # environment_dialog.nml:84
         self.abandon.x = 49    # environment_dialog.nml:85
         self.abandon.y = 10    # environment_dialog.nml:86
         self.abandon.width = 11    # environment_dialog.nml:87

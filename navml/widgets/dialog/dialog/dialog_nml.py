@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -122,27 +123,27 @@ class Dialog(Modal, _Component):
         self.row.justify = 'center'    # dialog.nml:62
 
         self.ok.text = _bind(    # dialog.nml:66
-            lambda _o: '~Y~es' if self.buttons in ('yes-no-cancel', 'yes-no') else 'O~K~'
+            lambda _o: _tr('~Y~es') if self.buttons in ('yes-no-cancel', 'yes-no') else _tr('O~K~')
         )
         self.ok.default = True    # dialog.nml:67
         self.ok.inline_style = 'basis: 11; grow: 0'    # dialog.nml:68
         self.ok.on_click = self.on_ok_click    # dialog.nml:65
 
-        self.no.text = '~N~o'    # dialog.nml:75
+        self.no.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # dialog.nml:75
         self.no.visible = _bind(    # dialog.nml:76
             lambda _o: self.buttons in ('yes-no-cancel', 'yes-no')
         )
         self.no.inline_style = 'basis: 11; grow: 0'    # dialog.nml:77
         self.no.on_click = self.on_no_click    # dialog.nml:74
 
-        self.cancel.text = '~C~ancel'    # dialog.nml:83
+        self.cancel.text = _bind(lambda _o: _tr('~C~ancel'), yielding=True)    # dialog.nml:83
         self.cancel.visible = _bind(    # dialog.nml:84
             lambda _o: self.buttons not in ('ok', 'yes-no')
         )
         self.cancel.inline_style = 'basis: 11; grow: 0'    # dialog.nml:85
         self.cancel.on_click = self.on_cancel_click    # dialog.nml:82
 
-        self.info.text = '~H~elp'    # dialog.nml:96
+        self.info.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # dialog.nml:96
         self.info.visible = _bind(lambda _o: self.buttons == 'ok-cancel-help')    # dialog.nml:97
         self.info.inline_style = 'basis: 11; grow: 0'    # dialog.nml:98
 

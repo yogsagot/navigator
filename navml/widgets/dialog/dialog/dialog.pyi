@@ -17,6 +17,7 @@ from typing import Any
 from navkit.application import Application
 from navkit.commands import Command
 from navkit.events import ClickOutsideEvent, Event
+from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.widget import Widget
 from navml.widgets.dialog.history import History

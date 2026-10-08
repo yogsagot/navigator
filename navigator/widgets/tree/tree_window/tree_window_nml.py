@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -70,7 +71,7 @@ class TreeWindow(Window, _Component):
         super().__init__(**kwargs)
         self.tree = DirectoryTree(parent=self)    # tree_window.nml:27
 
-        self.title = 'Directory Tree'    # tree_window.nml:18
+        self.title = _bind(lambda _o: _tr('Directory Tree'), yielding=True)    # tree_window.nml:18
 
         self.tree.framed = False    # tree_window.nml:29
         self.tree.x = 1    # tree_window.nml:30

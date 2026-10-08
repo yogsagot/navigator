@@ -1,4 +1,5 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.masked_field import MaskedField
 
@@ -6,10 +7,11 @@ from navml.widgets.dialog.masked_field import MaskedField
 #:
 #: The resource's twelve boxes in its two columns of six, at its width; Help
 #: is left out, having nothing to show yet.  *History size* below them is a
-#: departure: DN's lists were a fixed 20 long.
+#: departure: DN's lists were a fixed 20 long; so is *Language*, DN's being
+#: the resource set it was installed with.
 InterfaceDialog(Dialog):
     modal_width: 60
-    modal_height: 14
+    modal_height: 16
     title: "Interface Setup"
 
     CheckBoxes:
@@ -29,3 +31,13 @@ InterfaceDialog(Dialog):
         label_text: "~H~istory size"
         label_width: 15
         mask: "999"
+
+    #: Chosen from the catalogues found, never typed.
+    ChoiceField:
+        id: language
+        x: 2
+        y: 10
+        width: 40
+        height: 1
+        label_text: "~L~anguage"
+        label_width: 15

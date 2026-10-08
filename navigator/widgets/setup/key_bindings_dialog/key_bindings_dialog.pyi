@@ -16,6 +16,7 @@ from navigator.widgets.setup.key_bindings_dialog.binding_list import BindingList
 from typing import Any, Mapping, Sequence
 from navkit.commands import KeyTableError, key_label
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navigator.keybindings import Assignment, Entry, Section
 from navigator.widgets.setup.key_bindings_dialog.binding_list import keys_text

@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -85,13 +86,16 @@ class FindFileDialog(Dialog, _Component):
 
         self.modal_width = 52    # find_file_dialog.nml:15
         self.modal_height = 18    # find_file_dialog.nml:16
-        self.title = 'Find File'    # find_file_dialog.nml:17
+        self.title = _bind(lambda _o: _tr('Find File'), yielding=True)    # find_file_dialog.nml:17
 
         self.mask.x = 2    # find_file_dialog.nml:22
         self.mask.y = 2    # find_file_dialog.nml:23
         self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_file_dialog.nml:24
         self.mask.height = 1    # find_file_dialog.nml:25
-        self.mask.label_text = '~F~ile mask'    # find_file_dialog.nml:26
+        self.mask.label_text = _bind(    # find_file_dialog.nml:26
+            lambda _o: _tr('~F~ile mask'),
+            yielding=True,
+        )
         self.mask.label_width = 14    # find_file_dialog.nml:27
         self.mask.history_id = 'find_mask'    # find_file_dialog.nml:28
 
@@ -99,37 +103,49 @@ class FindFileDialog(Dialog, _Component):
         self.text.y = 4    # find_file_dialog.nml:34
         self.text.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_file_dialog.nml:35
         self.text.height = 1    # find_file_dialog.nml:36
-        self.text.label_text = '~T~ext to find'    # find_file_dialog.nml:37
+        self.text.label_text = _bind(    # find_file_dialog.nml:37
+            lambda _o: _tr('~T~ext to find'),
+            yielding=True,
+        )
         self.text.label_width = 14    # find_file_dialog.nml:38
         self.text.history_id = 'find_text'    # find_file_dialog.nml:39
 
         self.options_caption.x = 3    # find_file_dialog.nml:43
         self.options_caption.y = 6    # find_file_dialog.nml:44
-        self.options_caption.width = 10    # find_file_dialog.nml:45
+        self.options_caption.width = 12    # find_file_dialog.nml:45
         self.options_caption.height = 1    # find_file_dialog.nml:46
-        self.options_caption.text = 'Options'    # find_file_dialog.nml:47
+        self.options_caption.text = _bind(    # find_file_dialog.nml:47
+            lambda _o: _tr('Options'),
+            yielding=True,
+        )
         self.options_caption.link = _bind(lambda _o: self.options)    # find_file_dialog.nml:48
 
         self.options.x = 3    # find_file_dialog.nml:52
         self.options.y = 7    # find_file_dialog.nml:53
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # find_file_dialog.nml:54
         self.options.height = 2    # find_file_dialog.nml:55
-        self.options.items = ['Adva~n~ced search', '~C~ase sensitive', '~R~ecursive search', '~W~hole words']    # find_file_dialog.nml:56
+        self.options.items = _bind(    # find_file_dialog.nml:56
+            lambda _o: [_tr('Adva~n~ced search'), _tr('~C~ase sensitive'), _tr('~R~ecursive search'), _tr('~W~hole words')],
+            yielding=True,
+        )
 
         self.scope_caption.x = 3    # find_file_dialog.nml:60
         self.scope_caption.y = 10    # find_file_dialog.nml:61
         self.scope_caption.width = 10    # find_file_dialog.nml:62
         self.scope_caption.height = 1    # find_file_dialog.nml:63
-        self.scope_caption.text = 'Scope'    # find_file_dialog.nml:64
+        self.scope_caption.text = _bind(lambda _o: _tr('Scope'), yielding=True)    # find_file_dialog.nml:64
         self.scope_caption.link = _bind(lambda _o: self.scope)    # find_file_dialog.nml:65
 
         self.scope.x = 3    # find_file_dialog.nml:69
         self.scope.y = 11    # find_file_dialog.nml:70
         self.scope.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # find_file_dialog.nml:71
         self.scope.height = 2    # find_file_dialog.nml:72
-        self.scope.items = ['~E~ntire disk', 'Current ~d~irectory', '~A~ll drives']    # find_file_dialog.nml:73
+        self.scope.items = _bind(    # find_file_dialog.nml:73
+            lambda _o: [_tr('~E~ntire disk'), _tr('Current ~d~irectory'), _tr('~A~ll drives')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # find_file_dialog.nml:77
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # find_file_dialog.nml:77
         self.pick.default = True    # find_file_dialog.nml:78
         self.pick.x = 3    # find_file_dialog.nml:79
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # find_file_dialog.nml:80
@@ -137,14 +153,17 @@ class FindFileDialog(Dialog, _Component):
         self.pick.height = 2    # find_file_dialog.nml:82
         self.pick.on_click = self.on_pick_click    # find_file_dialog.nml:76
 
-        self.advanced.text = 'Ad~v~anced...'    # find_file_dialog.nml:87
+        self.advanced.text = _bind(    # find_file_dialog.nml:87
+            lambda _o: _tr('Ad~v~anced...'),
+            yielding=True,
+        )
         self.advanced.x = 16    # find_file_dialog.nml:88
         self.advanced.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # find_file_dialog.nml:89
         self.advanced.width = 15    # find_file_dialog.nml:90
         self.advanced.height = 2    # find_file_dialog.nml:91
         self.advanced.on_click = self.on_advanced_click    # find_file_dialog.nml:86
 
-        self.abandon.text = 'Cancel'    # find_file_dialog.nml:95
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_file_dialog.nml:95
         self.abandon.x = 33    # find_file_dialog.nml:96
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # find_file_dialog.nml:97
         self.abandon.width = 11    # find_file_dialog.nml:98

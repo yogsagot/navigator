@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import bind, computed, effect, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -197,7 +198,7 @@ class Shell(DockLayout):
 
         data = desktop_state.load()
         if data is None:
-            await Dialog(title="Error", prompt="No desktop has been saved", buttons="ok"
+            await Dialog(title=tr("Error"), prompt=tr("No desktop has been saved"), buttons="ok"
                          ).execute(self.application)
             return
         here = self._command_directory()
@@ -219,12 +220,12 @@ class Shell(DockLayout):
         try:
             sources = await asyncio.to_thread(theme_sources, self.theme)
         except (OSError, LookupError) as error:
-            await self._palette_failed(f"Cannot read the theme: {getattr(error, 'strerror', None) or error}")
+            await self._palette_failed(tr("Cannot read the theme: {error}").format(error=getattr(error, 'strerror', None) or error))
             return None
         return sources, entry_values(scheme_from(sources).variables)
 
     async def _palette_failed(self, prompt: str) -> None:
-        await Dialog(title="Error", prompt=prompt, buttons="ok").execute(self.application)
+        await Dialog(title=tr("Error"), prompt=prompt, buttons="ok").execute(self.application)
 
     async def _keep_palette(self, sources: list[tuple[str, str]], palette: dict[str, str]) -> None:
         """*palette* (what differs from the theme) painted and kept as
@@ -238,7 +239,7 @@ class Shell(DockLayout):
         try:
             await asyncio.to_thread(save_palette, palette)
         except OSError as error:
-            await self._palette_failed(f"Cannot save the palette: {error.strerror or error}")
+            await self._palette_failed(tr("Cannot save the palette: {error}").format(error=error.strerror or error))
 
     async def on_change_colors(self, event: ChangeColors) -> bool:
         self.spawn(self.change_colors())
@@ -290,9 +291,9 @@ class Shell(DockLayout):
         try:
             await asyncio.to_thread(directory.mkdir, parents=True, exist_ok=True)
         except OSError as error:
-            await self._palette_failed(f"Cannot make {directory}: {error.strerror or error}")
+            await self._palette_failed(tr("Cannot make {path}: {error}").format(path=directory, error=error.strerror or error))
             return
-        name = await FileDialog(title="Store Color Palette", label="~F~ile name", history_id="colors",
+        name = await FileDialog(title=tr("Store Color Palette"), label=tr("~F~ile name"), history_id="colors",
                                 directory=directory, wildcard="*.nss").execute(self.application)
         if not name:
             return
@@ -300,7 +301,8 @@ class Shell(DockLayout):
         if not path.suffix:
             path = path.with_suffix(".nss")
         if await asyncio.to_thread(path.exists):
-            answer = await Dialog(title="Warning", prompt=f"File {path.name}\nalready exists.\nOK to overwrite it?",
+            answer = await Dialog(title=tr("Warning"),
+                                  prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=path.name),
                                   buttons="yes-no").execute(self.application)
             if answer is not True:
                 return
@@ -308,7 +310,7 @@ class Shell(DockLayout):
         try:
             await asyncio.to_thread(write_sheet, path, text)
         except OSError as error:
-            await self._palette_failed(f"Cannot write {path}: {error.strerror or error}")
+            await self._palette_failed(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
 
     async def on_load_colors(self, event: LoadColors) -> bool:
         self.spawn(self.load_colors())
@@ -332,15 +334,15 @@ class Shell(DockLayout):
             return mine if any(mine.glob("*.nss")) else THEMES
 
         directory = await asyncio.to_thread(start)
-        name = await FileDialog(title="Load Color Palette", label="~F~ile name", history_id="colors",
-                                directory=directory, wildcard="*.nss", ok_text="~O~pen").execute(self.application)
+        name = await FileDialog(title=tr("Load Color Palette"), label=tr("~F~ile name"), history_id="colors",
+                                directory=directory, wildcard="*.nss", ok_text=tr("~O~pen")).execute(self.application)
         if not name:
             return
         path = Path(name)
         try:
             text = await asyncio.to_thread(path.read_text, encoding="utf-8")
         except (OSError, UnicodeError) as error:
-            await self._palette_failed(f"Cannot read {path}: {getattr(error, 'strerror', None) or error}")
+            await self._palette_failed(tr("Cannot read {path}: {error}").format(path=path, error=getattr(error, 'strerror', None) or error))
             return
         base = await self._palette_base()
         if base is None:
@@ -349,7 +351,7 @@ class Shell(DockLayout):
         try:
             loaded = scheme_from(sources, (str(path), text))
         except StylesheetError as error:
-            await self._palette_failed(f"Not a palette:\n{error}")
+            await self._palette_failed(tr("Not a palette:\n{error}").format(error=error))
             return
         await self._keep_palette(sources, differences(theme, entry_values(loaded.variables)))
 
@@ -370,8 +372,8 @@ class Shell(DockLayout):
         if entry is not None and entry.is_executable:
             name = str(entry.path_in(manager.active_panel.path)) if entry.directory is not None else entry.name
             text = _escape(name) + " "
-        box = EditLineDialog(text, history=HISTORY_ID, caption="~C~ommand")
-        box.title = "Execute OS Command"
+        box = EditLineDialog(text, history=HISTORY_ID, caption=tr("~C~ommand"))
+        box.title = tr("Execute OS Command")
         box.line.entry.anchor = None
         box.line.entry.cursor = len(text)
         command = await box.execute(self.application)
@@ -451,9 +453,9 @@ class Shell(DockLayout):
         if not type(self)._grabber_told:
             type(self)._grabber_told = True
             await Dialog(
-                title="Information",
-                prompt="Use arrows to move area\nUse Shift-Arrows to change area size\n\n"
-                       "After selecting press Enter to place\narea image into the clipboard",
+                title=tr("Information"),
+                prompt=tr("Use arrows to move area\nUse Shift-Arrows to change area size\n\n"
+                          "After selecting press Enter to place\narea image into the clipboard"),
                 buttons="ok",
             ).execute(app)
         rows = await ScreenGrabber().execute(app)
@@ -1231,7 +1233,7 @@ class Shell(DockLayout):
         try:
             await open_editor(self.desktop, path, new=True)
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot edit {path}: {error.strerror or error}",
+            await Dialog(title=tr("Error"), prompt=tr("Cannot edit {path}: {error}").format(path=path, error=error.strerror or error),
                          buttons="ok").execute(self.application)
 
     async def user_menu(self, want_global: bool = False) -> None:
@@ -1256,14 +1258,14 @@ class Shell(DockLayout):
         while True:
             found = await asyncio.to_thread(find_menu, self._menu_directory(), want_global)
             if found is None:
-                await Dialog(title="Error", prompt=f"File {MENU_NAME} not found",
+                await Dialog(title=tr("Error"), prompt=tr("File {name} not found").format(name=MENU_NAME),
                              buttons="ok").execute(app)
                 return
             path, is_global = found
             try:
                 text = await asyncio.to_thread(path.read_text, encoding="utf-8", errors="replace")
             except OSError as error:
-                await Dialog(title="Error", prompt=f"Cannot read {path}: {error.strerror or error}",
+                await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(path=path, error=error.strerror or error),
                              buttons="ok").execute(app)
                 return
             menu = parse(text, path, is_global)
@@ -1372,7 +1374,7 @@ class Shell(DockLayout):
         try:
             script = await asyncio.to_thread(write)
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot write the menu's script: {error.strerror or error}",
+            await Dialog(title=tr("Error"), prompt=tr("Cannot write the menu's script: {error}").format(error=error.strerror or error),
                          buttons="ok").execute(app)
             return
         self.run_command(f". {shlex.quote(str(script))}", typed=False)
@@ -1415,7 +1417,7 @@ class Shell(DockLayout):
             groups = await asyncio.to_thread(associations.read, file_name)
         except (OSError, ValueError) as error:
             reason = error.strerror if isinstance(error, OSError) and error.strerror else error
-            await Dialog(title="Error", prompt=f"Cannot read {file_name}: {reason}",
+            await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(path=file_name, error=reason),
                          buttons="ok").execute(app)
             return True
         group = (associations.for_key(groups, key) if key is not None
@@ -1477,7 +1479,7 @@ class Shell(DockLayout):
         try:
             await asyncio.to_thread(associations.seed, file_name)
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot write {path}: {error.strerror or error}",
+            await Dialog(title=tr("Error"), prompt=tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error),
                          buttons="ok").execute(self.application)
             return
         await self.edit_menu_file(path)
@@ -1709,10 +1711,20 @@ class Shell(DockLayout):
         return True
 
     async def on_interface_setup(self, event: InterfaceSetup) -> bool:
+        self.spawn(self._interface_setup())
+        return True
+
+    async def _interface_setup(self) -> None:
+        from navigator import language
         from navigator.widgets.setup.interface_dialog import InterfaceDialog
 
-        self.spawn(self.setup(InterfaceDialog(), "interface"))
-        return True
+        before = SETTINGS.interface.language
+        await self.setup(InterfaceDialog(), "interface")
+        # Only a change: Cancel, or OK on the same choice, leaves a session's
+        # --language standing.  Every caption bound to it follows this batch.
+        if SETTINGS.interface.language != before:
+            language.apply(SETTINGS.interface.language)
+            self.application.invalidate()
 
     async def on_key_bindings_setup(self, event: KeyBindingsSetup) -> bool:
         self.spawn(self.key_bindings())
@@ -1740,8 +1752,8 @@ class Shell(DockLayout):
             from navml.widgets.dialog.dialog import Dialog
 
             await Dialog(
-                title="Error",
-                prompt=f"Cannot save the key bindings: {error.strerror or error}",
+                title=tr("Error"),
+                prompt=tr("Cannot save the key bindings: {error}").format(error=error.strerror or error),
                 buttons="ok",
             ).execute(app)
 
@@ -1883,8 +1895,8 @@ class Shell(DockLayout):
             from navml.widgets.dialog.dialog import Dialog
 
             await Dialog(
-                title="Error",
-                prompt=f"Cannot save the settings: {error.strerror or error}",
+                title=tr("Error"),
+                prompt=tr("Cannot save the settings: {error}").format(error=error.strerror or error),
                 buttons="ok",
             ).execute(self.application)
 
@@ -1917,17 +1929,17 @@ class Shell(DockLayout):
         viewing = kind == "view"
         tracking = SETTINGS.interface.track_viewing if viewing else SETTINGS.interface.track_editing
         if not tracking:
-            option = "Track viewing history" if viewing else "Track editing history"
+            option = tr("Track viewing history") if viewing else tr("Track editing history")
             await Dialog(
-                title="Error",
-                prompt=f'Set the interface option\n"{option}" ON first',
+                title=tr("Error"),
+                prompt=tr('Set the interface option\n"{option}" ON first').format(option=option),
                 buttons="ok",
             ).execute(self.application)
             return
         model = ViewRecord if viewing else EditRecord
         if not model.count():
             return
-        title = "File View History" if viewing else "File Edit History"
+        title = tr("File View History") if viewing else tr("File Edit History")
         path = await FileHistoryDialog(model, title=title).execute(self.application)
         if path is None:
             return
@@ -1938,7 +1950,7 @@ class Shell(DockLayout):
                 await open_editor(self.desktop, path)
         except OSError as error:
             await Dialog(
-                title="Cannot view file" if viewing else "Cannot edit file",
+                title=tr("Cannot view file") if viewing else tr("Cannot edit file"),
                 prompt=f"{path}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)

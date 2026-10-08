@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -52,30 +53,42 @@ class StartupDialog(Dialog, _Component):
 
         self.modal_width = 60    # startup_dialog.nml:13
         self.modal_height = 12    # startup_dialog.nml:14
-        self.title = 'Startup'    # startup_dialog.nml:15
+        self.title = _bind(lambda _o: _tr('Startup'), yielding=True)    # startup_dialog.nml:15
 
         self.startup_caption.x = 2    # startup_dialog.nml:19
         self.startup_caption.y = 1    # startup_dialog.nml:20
         self.startup_caption.width = 20    # startup_dialog.nml:21
         self.startup_caption.height = 1    # startup_dialog.nml:22
-        self.startup_caption.text = 'Startup options'    # startup_dialog.nml:23
+        self.startup_caption.text = _bind(    # startup_dialog.nml:23
+            lambda _o: _tr('Startup options'),
+            yielding=True,
+        )
         self.startup_caption.link = _bind(lambda _o: self.startup)    # startup_dialog.nml:24
 
         self.startup.x = 2    # startup_dialog.nml:28
         self.startup.y = 2    # startup_dialog.nml:29
         self.startup.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_dialog.nml:30
         self.startup.height = 1    # startup_dialog.nml:31
-        self.startup.items = ['Auto run ~U~ser Menu', 'Clear ~H~istory']    # startup_dialog.nml:32
+        self.startup.items = _bind(    # startup_dialog.nml:32
+            lambda _o: [_tr('Auto run ~U~ser Menu'), _tr('Clear ~H~istory')],
+            yielding=True,
+        )
 
         self.shutdown_caption.x = 2    # startup_dialog.nml:36
         self.shutdown_caption.y = 4    # startup_dialog.nml:37
         self.shutdown_caption.width = 20    # startup_dialog.nml:38
         self.shutdown_caption.height = 1    # startup_dialog.nml:39
-        self.shutdown_caption.text = 'Shutdown options'    # startup_dialog.nml:40
+        self.shutdown_caption.text = _bind(    # startup_dialog.nml:40
+            lambda _o: _tr('Shutdown options'),
+            yielding=True,
+        )
         self.shutdown_caption.link = _bind(lambda _o: self.shutdown)    # startup_dialog.nml:41
 
         self.shutdown.x = 2    # startup_dialog.nml:45
         self.shutdown.y = 5    # startup_dialog.nml:46
         self.shutdown.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_dialog.nml:47
         self.shutdown.height = 2    # startup_dialog.nml:48
-        self.shutdown.items = ['~I~nactivity hour exit', 'Autosave ~D~esktop', '~P~reserve directory']    # startup_dialog.nml:49
+        self.shutdown.items = _bind(    # startup_dialog.nml:49
+            lambda _o: [_tr('~I~nactivity hour exit'), _tr('Autosave ~D~esktop'), _tr('~P~reserve directory')],
+            yielding=True,
+        )

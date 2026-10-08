@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -83,7 +84,7 @@ class ChangeDirDialog(Dialog):
             (base / name).mkdir()
         except OSError as error:
             await Dialog(
-                title="Cannot make directory",
+                title=tr("Cannot make directory"),
                 prompt=error.strerror or str(error),
                 buttons="ok",
             ).execute(self.application)

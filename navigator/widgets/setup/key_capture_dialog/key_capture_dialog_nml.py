@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -45,13 +46,16 @@ class KeyCaptureDialog(Dialog, _Component):
 
         self.modal_width = 44    # key_capture_dialog.nml:9
         self.modal_height = 9    # key_capture_dialog.nml:10
-        self.title = 'Press a key'    # key_capture_dialog.nml:11
+        self.title = _bind(lambda _o: _tr('Press a key'), yielding=True)    # key_capture_dialog.nml:11
 
         self.hint.x = 2    # key_capture_dialog.nml:15
         self.hint.y = 2    # key_capture_dialog.nml:16
         self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # key_capture_dialog.nml:17
         self.hint.height = 2    # key_capture_dialog.nml:18
-        self.hint.text = 'Press the key, or two for a chord.\nEnter takes it, Esc cancels.'    # key_capture_dialog.nml:19
+        self.hint.text = _bind(    # key_capture_dialog.nml:19
+            lambda _o: _tr('Press the key, or two for a chord.\nEnter takes it, Esc cancels.'),
+            yielding=True,
+        )
 
         self.catcher.x = 3    # key_capture_dialog.nml:23
         self.catcher.y = 5    # key_capture_dialog.nml:24

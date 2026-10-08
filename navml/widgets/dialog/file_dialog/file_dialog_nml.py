@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -99,9 +100,9 @@ class FileDialog(Dialog, _Component):
 
         self.modal_width = 47    # file_dialog.nml:18
         self.modal_height = 19    # file_dialog.nml:19
-        self.title = 'Open file'    # file_dialog.nml:20
+        self.title = _bind(lambda _o: _tr('Open file'), yielding=True)    # file_dialog.nml:20
 
-        self.caption.text = '~N~ame'    # file_dialog.nml:25
+        self.caption.text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # file_dialog.nml:25
         self.caption.link = _bind(lambda _o: self.target.entry)    # file_dialog.nml:26
         self.caption.x = 2    # file_dialog.nml:27
         self.caption.y = 2    # file_dialog.nml:28
@@ -115,7 +116,10 @@ class FileDialog(Dialog, _Component):
         self.target.label_text = ''    # file_dialog.nml:38
         self.target.label_width = 0    # file_dialog.nml:39
 
-        self.files_caption.text = '~F~iles'    # file_dialog.nml:43
+        self.files_caption.text = _bind(    # file_dialog.nml:43
+            lambda _o: _tr('~F~iles'),
+            yielding=True,
+        )
         self.files_caption.link = _bind(lambda _o: self.files)    # file_dialog.nml:44
         self.files_caption.x = 2    # file_dialog.nml:45
         self.files_caption.y = 5    # file_dialog.nml:46
@@ -129,7 +133,10 @@ class FileDialog(Dialog, _Component):
         self.files.height = 9    # file_dialog.nml:56
         self.files.on_chosen = self.on_files_chosen    # file_dialog.nml:51
 
-        self.dirs_caption.text = '~D~irectories'    # file_dialog.nml:60
+        self.dirs_caption.text = _bind(    # file_dialog.nml:60
+            lambda _o: _tr('~D~irectories'),
+            yielding=True,
+        )
         self.dirs_caption.link = _bind(lambda _o: self.dirs)    # file_dialog.nml:61
         self.dirs_caption.x = 19    # file_dialog.nml:62
         self.dirs_caption.y = 5    # file_dialog.nml:63
@@ -143,7 +150,7 @@ class FileDialog(Dialog, _Component):
         self.dirs.height = 9    # file_dialog.nml:73
         self.dirs.on_chosen = self.on_dirs_chosen    # file_dialog.nml:68
 
-        self.pick.text = 'O~K~'    # file_dialog.nml:79
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # file_dialog.nml:79
         self.pick.default = True    # file_dialog.nml:80
         self.pick.x = 35    # file_dialog.nml:81
         self.pick.y = 3    # file_dialog.nml:82
@@ -151,14 +158,14 @@ class FileDialog(Dialog, _Component):
         self.pick.height = 2    # file_dialog.nml:84
         self.pick.on_click = self.on_pick_click    # file_dialog.nml:78
 
-        self.abandon.text = 'Cancel'    # file_dialog.nml:88
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # file_dialog.nml:88
         self.abandon.x = 35    # file_dialog.nml:89
         self.abandon.y = 6    # file_dialog.nml:90
         self.abandon.width = 10    # file_dialog.nml:91
         self.abandon.height = 2    # file_dialog.nml:92
         self.abandon.on_click = self.on_abandon_click    # file_dialog.nml:87
 
-        self.helper.text = '~H~elp'    # file_dialog.nml:97
+        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # file_dialog.nml:97
         self.helper.disabled = True    # file_dialog.nml:98
         self.helper.x = 35    # file_dialog.nml:99
         self.helper.y = 9    # file_dialog.nml:100

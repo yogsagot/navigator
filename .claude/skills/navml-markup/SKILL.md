@@ -44,6 +44,10 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
   `path: root.left_path` paints and then raises the first time `Panel.enter()` assigns `path`. Markup cannot say a
   starting value: seed it in the hand-written `__init__` after `super().__init__()` (`manager.py` seeds `left.path`,
   `right.path`, `console.cwd`).
+- **Captions are translated**: a string literal of `text`/`title`/`label_text`/`items`/`prompt` compiles to
+  `_bind(lambda _o: _tr('...'), yielding=True)` -- live on a language change, and replaced (not refused) by a later
+  assignment from Python. Other properties' strings (`key:`, `history_id:`, `after:`) are names, never translated
+  (`i18n` skill).
 - `equal=` is not expressible in markup (a comparator is a function); declare such a property in the hand-written half.
 - markup assigns a component's own `stylesheet` like any other property (`stylesheet` is what an object brings,
   `effective_stylesheet` what it resolves against).

@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -220,239 +221,278 @@ class EditWindow(Window, _Component):
         self.info.height = 1    # edit_window.nml:85
         self.info.text = _bind(lambda _o: self.editor.info_text)    # edit_window.nml:86
 
-        self.edit_menu.text = '~E~ditor'    # edit_window.nml:104
+        self.edit_menu.text = _bind(lambda _o: _tr('~E~ditor'), yielding=True)    # edit_window.nml:104
         self.edit_menu.after = 'File'    # edit_window.nml:105
 
-        self.edit_menu_file.text = '~F~ile'    # edit_window.nml:108
+        self.edit_menu_file.text = _bind(    # edit_window.nml:108
+            lambda _o: _tr('~F~ile'),
+            yielding=True,
+        )
 
-        _w1.text = '~O~pen...'    # edit_window.nml:110
+        _w1.text = _bind(lambda _o: _tr('~O~pen...'), yielding=True)    # edit_window.nml:110
         _w1.command = LoadText    # edit_window.nml:111
         _w1.key = 'F3'    # edit_window.nml:112
 
-        _w2.text = '~S~ave'    # edit_window.nml:114
+        _w2.text = _bind(lambda _o: _tr('~S~ave'), yielding=True)    # edit_window.nml:114
         _w2.command = SaveText    # edit_window.nml:115
         _w2.key = 'F2'    # edit_window.nml:116
 
-        _w3.text = 'Save ~a~s...'    # edit_window.nml:118
+        _w3.text = _bind(lambda _o: _tr('Save ~a~s...'), yielding=True)    # edit_window.nml:118
         _w3.command = SaveTextAs    # edit_window.nml:119
         _w3.key = 'Shift-F2'    # edit_window.nml:120
 
-        _w4.text = 'Save a~l~l...'    # edit_window.nml:122
+        _w4.text = _bind(lambda _o: _tr('Save a~l~l...'), yielding=True)    # edit_window.nml:122
         _w4.command = SaveAll    # edit_window.nml:123
         _w4.key = 'Ctrl-F2'    # edit_window.nml:124
 
-        _w6.text = '~P~rint'    # edit_window.nml:127
+        _w6.text = _bind(lambda _o: _tr('~P~rint'), yielding=True)    # edit_window.nml:127
         _w6.command = PrintFile    # edit_window.nml:128
         _w6.key = 'F8'    # edit_window.nml:129
 
-        _w7.text = 'Print ~b~lock'    # edit_window.nml:131
+        _w7.text = _bind(lambda _o: _tr('Print ~b~lock'), yielding=True)    # edit_window.nml:131
         _w7.command = PrintBlock    # edit_window.nml:132
         _w7.key = 'Shift-F8'    # edit_window.nml:133
 
-        _w9.text = 'E~x~it'    # edit_window.nml:136
+        _w9.text = _bind(lambda _o: _tr('E~x~it'), yielding=True)    # edit_window.nml:136
         _w9.command = CloseWindow    # edit_window.nml:137
         _w9.key = 'Ctrl-F4'    # edit_window.nml:138
 
-        self.edit_menu_edit.text = '~E~dit'    # edit_window.nml:141
+        self.edit_menu_edit.text = _bind(    # edit_window.nml:141
+            lambda _o: _tr('~E~dit'),
+            yielding=True,
+        )
 
-        _w10.text = '~U~ndo'    # edit_window.nml:143
+        _w10.text = _bind(lambda _o: _tr('~U~ndo'), yielding=True)    # edit_window.nml:143
         _w10.command = Undo    # edit_window.nml:144
         _w10.key = 'Alt-BkSp'    # edit_window.nml:145
 
-        _w12.text = 'Cu~t~'    # edit_window.nml:148
+        _w12.text = _bind(lambda _o: _tr('Cu~t~'), yielding=True)    # edit_window.nml:148
         _w12.command = ClipboardCut    # edit_window.nml:149
         _w12.key = 'Shift-Del'    # edit_window.nml:150
 
-        _w13.text = '~C~opy'    # edit_window.nml:152
+        _w13.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:152
         _w13.command = ClipboardCopy    # edit_window.nml:153
         _w13.key = 'Ctrl-Ins'    # edit_window.nml:154
 
-        _w14.text = '~P~aste'    # edit_window.nml:156
+        _w14.text = _bind(lambda _o: _tr('~P~aste'), yielding=True)    # edit_window.nml:156
         _w14.command = ClipboardPaste    # edit_window.nml:157
         _w14.key = 'Shift-Ins'    # edit_window.nml:158
 
-        _w15.text = 'C~o~py to...'    # edit_window.nml:160
+        _w15.text = _bind(lambda _o: _tr('C~o~py to...'), yielding=True)    # edit_window.nml:160
         _w15.command = BlockWrite    # edit_window.nml:161
 
-        _w16.text = 'P~a~ste from...'    # edit_window.nml:163
+        _w16.text = _bind(lambda _o: _tr('P~a~ste from...'), yielding=True)    # edit_window.nml:163
         _w16.command = BlockRead    # edit_window.nml:164
 
-        _w18.text = 'C~l~ear'    # edit_window.nml:167
+        _w18.text = _bind(lambda _o: _tr('C~l~ear'), yielding=True)    # edit_window.nml:167
         _w18.command = Clear    # edit_window.nml:168
         _w18.key = 'Ctrl-Del'    # edit_window.nml:169
 
-        self.edit_menu_search.text = '~S~earch'    # edit_window.nml:172
+        self.edit_menu_search.text = _bind(    # edit_window.nml:172
+            lambda _o: _tr('~S~earch'),
+            yielding=True,
+        )
 
-        _w19.text = '~F~ind...'    # edit_window.nml:174
+        _w19.text = _bind(lambda _o: _tr('~F~ind...'), yielding=True)    # edit_window.nml:174
         _w19.command = StartSearch    # edit_window.nml:175
         _w19.key = 'F7'    # edit_window.nml:176
 
-        _w20.text = '~R~eplace...'    # edit_window.nml:178
+        _w20.text = _bind(lambda _o: _tr('~R~eplace...'), yielding=True)    # edit_window.nml:178
         _w20.command = Replace    # edit_window.nml:179
         _w20.key = 'Ctrl-F7'    # edit_window.nml:180
 
-        _w21.text = '~S~earch again'    # edit_window.nml:182
+        _w21.text = _bind(lambda _o: _tr('~S~earch again'), yielding=True)    # edit_window.nml:182
         _w21.command = ContSearch    # edit_window.nml:183
         _w21.key = 'Shift-F7'    # edit_window.nml:184
 
-        _w22.text = 'Re~v~ersed search'    # edit_window.nml:186
+        _w22.text = _bind(lambda _o: _tr('Re~v~ersed search'), yielding=True)    # edit_window.nml:186
         _w22.command = ReverseSearch    # edit_window.nml:187
         _w22.key = 'Alt-F7'    # edit_window.nml:188
 
-        _w23.text = '~G~o to line number...'    # edit_window.nml:190
+        _w23.text = _bind(    # edit_window.nml:190
+            lambda _o: _tr('~G~o to line number...'),
+            yielding=True,
+        )
         _w23.command = GotoLineNumber    # edit_window.nml:191
         _w23.key = 'Alt-G'    # edit_window.nml:192
 
-        self.edit_menu_paragraph.text = '~P~aragraph'    # edit_window.nml:195
+        self.edit_menu_paragraph.text = _bind(    # edit_window.nml:195
+            lambda _o: _tr('~P~aragraph'),
+            yielding=True,
+        )
 
-        _w24.text = '~J~ustify'    # edit_window.nml:197
+        _w24.text = _bind(lambda _o: _tr('~J~ustify'), yielding=True)    # edit_window.nml:197
         _w24.command = FJustify    # edit_window.nml:198
         _w24.key = 'Alt-J'    # edit_window.nml:199
 
-        _w25.text = '~R~ight'    # edit_window.nml:201
+        _w25.text = _bind(lambda _o: _tr('~R~ight'), yielding=True)    # edit_window.nml:201
         _w25.command = FRight    # edit_window.nml:202
         _w25.key = 'Alt-R'    # edit_window.nml:203
 
-        _w26.text = '~L~eft'    # edit_window.nml:205
+        _w26.text = _bind(lambda _o: _tr('~L~eft'), yielding=True)    # edit_window.nml:205
         _w26.command = FLeft    # edit_window.nml:206
         _w26.key = 'Alt-L'    # edit_window.nml:207
 
-        _w27.text = '~C~enter'    # edit_window.nml:209
+        _w27.text = _bind(lambda _o: _tr('~C~enter'), yielding=True)    # edit_window.nml:209
         _w27.command = FCenter    # edit_window.nml:210
         _w27.key = 'Alt-C'    # edit_window.nml:211
 
-        _w29.text = '~M~argins...'    # edit_window.nml:214
+        _w29.text = _bind(lambda _o: _tr('~M~argins...'), yielding=True)    # edit_window.nml:214
         _w29.command = SetMargins    # edit_window.nml:215
 
-        self.edit_menu_block.text = '~B~lock'    # edit_window.nml:218
+        self.edit_menu_block.text = _bind(    # edit_window.nml:218
+            lambda _o: _tr('~B~lock'),
+            yielding=True,
+        )
 
-        _w30.text = '~M~ove'    # edit_window.nml:220
+        _w30.text = _bind(lambda _o: _tr('~M~ove'), yielding=True)    # edit_window.nml:220
         _w30.command = MoveBlock    # edit_window.nml:221
         _w30.key = 'Ctrl K V'    # edit_window.nml:222
 
-        _w31.text = '~C~opy'    # edit_window.nml:224
+        _w31.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:224
         _w31.command = CopyBlock    # edit_window.nml:225
         _w31.key = 'Ctrl K C'    # edit_window.nml:226
 
-        _w32.text = '~I~ndent'    # edit_window.nml:228
+        _w32.text = _bind(lambda _o: _tr('~I~ndent'), yielding=True)    # edit_window.nml:228
         _w32.command = IndentBlock    # edit_window.nml:229
         _w32.key = 'Ctrl K I'    # edit_window.nml:230
 
-        _w33.text = '~U~nindent'    # edit_window.nml:232
+        _w33.text = _bind(lambda _o: _tr('~U~nindent'), yielding=True)    # edit_window.nml:232
         _w33.command = UnindentBlock    # edit_window.nml:233
         _w33.key = 'Ctrl K U'    # edit_window.nml:234
 
-        _w35.text = 'U~p~percase'    # edit_window.nml:237
+        _w35.text = _bind(lambda _o: _tr('U~p~percase'), yielding=True)    # edit_window.nml:237
         _w35.command = UpcaseBlock    # edit_window.nml:238
         _w35.key = 'Ctrl K ['    # edit_window.nml:239
 
-        _w36.text = '~L~owercase'    # edit_window.nml:241
+        _w36.text = _bind(lambda _o: _tr('~L~owercase'), yielding=True)    # edit_window.nml:241
         _w36.command = LowcaseBlock    # edit_window.nml:242
         _w36.key = 'Ctrl K ]'    # edit_window.nml:243
 
-        _w37.text = 'Capi~t~alize'    # edit_window.nml:245
+        _w37.text = _bind(lambda _o: _tr('Capi~t~alize'), yielding=True)    # edit_window.nml:245
         _w37.command = CapitalizeBlock    # edit_window.nml:246
         _w37.key = 'Ctrl K \\'    # edit_window.nml:247
 
-        _w39.text = '~S~ort'    # edit_window.nml:250
+        _w39.text = _bind(lambda _o: _tr('~S~ort'), yielding=True)    # edit_window.nml:250
         _w39.command = SortBlock    # edit_window.nml:251
         _w39.key = 'Alt-T'    # edit_window.nml:252
 
-        _w40.text = 'Calc~u~late sum'    # edit_window.nml:254
+        _w40.text = _bind(lambda _o: _tr('Calc~u~late sum'), yielding=True)    # edit_window.nml:254
         _w40.command = CalcBlock    # edit_window.nml:255
         _w40.key = 'Alt-Ins'    # edit_window.nml:256
 
-        self.edit_menu_misc.text = '~M~isc'    # edit_window.nml:259
+        self.edit_menu_misc.text = _bind(    # edit_window.nml:259
+            lambda _o: _tr('~M~isc'),
+            yielding=True,
+        )
 
-        _w41.text = 'Insert ~d~ate'    # edit_window.nml:261
+        _w41.text = _bind(lambda _o: _tr('Insert ~d~ate'), yielding=True)    # edit_window.nml:261
         _w41.command = InsertDate    # edit_window.nml:262
         _w41.key = 'Ctrl Q D'    # edit_window.nml:263
 
-        _w42.text = 'Insert ~t~ime'    # edit_window.nml:265
+        _w42.text = _bind(lambda _o: _tr('Insert ~t~ime'), yielding=True)    # edit_window.nml:265
         _w42.command = InsertTime    # edit_window.nml:266
         _w42.key = 'Ctrl Q T'    # edit_window.nml:267
 
-        _w43.text = 'Du~p~licate line'    # edit_window.nml:269
+        _w43.text = _bind(lambda _o: _tr('Du~p~licate line'), yielding=True)    # edit_window.nml:269
         _w43.command = DuplicateLine    # edit_window.nml:270
         _w43.key = 'F6'    # edit_window.nml:271
 
-        _w44.text = 'Character ta~b~le'    # edit_window.nml:273
+        _w44.text = _bind(lambda _o: _tr('Character ta~b~le'), yielding=True)    # edit_window.nml:273
         _w44.command = AsciiTable    # edit_window.nml:274
         _w44.key = 'Ctrl P'    # edit_window.nml:275
 
-        _w45.text = 'Line Dra~w~ing'    # edit_window.nml:277
+        _w45.text = _bind(lambda _o: _tr('Line Dra~w~ing'), yielding=True)    # edit_window.nml:277
         _w45.command = SwitchDrawMode    # edit_window.nml:278
         _w45.key = 'F4'    # edit_window.nml:279
 
-        self.edit_menu_misc_uppercase.text = '~U~ppercase'    # edit_window.nml:283
+        self.edit_menu_misc_uppercase.text = _bind(    # edit_window.nml:283
+            lambda _o: _tr('~U~ppercase'),
+            yielding=True,
+        )
 
-        _w47.text = '~W~ord'    # edit_window.nml:285
+        _w47.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:285
         _w47.command = UpWord    # edit_window.nml:286
         _w47.key = 'Ctrl ['    # edit_window.nml:287
 
-        _w48.text = '~L~ine'    # edit_window.nml:289
+        _w48.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:289
         _w48.command = UpString    # edit_window.nml:290
         _w48.key = 'Ctrl+Shift ['    # edit_window.nml:291
 
-        _w49.text = '~B~lock'    # edit_window.nml:293
+        _w49.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:293
         _w49.command = UpcaseBlock    # edit_window.nml:294
         _w49.key = 'Ctrl K ['    # edit_window.nml:295
 
-        self.edit_menu_misc_lowercase.text = '~L~owercase'    # edit_window.nml:298
+        self.edit_menu_misc_lowercase.text = _bind(    # edit_window.nml:298
+            lambda _o: _tr('~L~owercase'),
+            yielding=True,
+        )
 
-        _w50.text = '~W~ord'    # edit_window.nml:300
+        _w50.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:300
         _w50.command = LowWord    # edit_window.nml:301
         _w50.key = 'Ctrl ]'    # edit_window.nml:302
 
-        _w51.text = '~L~ine'    # edit_window.nml:304
+        _w51.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:304
         _w51.command = LowString    # edit_window.nml:305
         _w51.key = 'Ctrl+Shift ]'    # edit_window.nml:306
 
-        _w52.text = '~B~lock'    # edit_window.nml:308
+        _w52.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:308
         _w52.command = LowcaseBlock    # edit_window.nml:309
         _w52.key = 'Ctrl K ]'    # edit_window.nml:310
 
-        self.edit_menu_misc_capitalize.text = '~C~apitalize'    # edit_window.nml:313
+        self.edit_menu_misc_capitalize.text = _bind(    # edit_window.nml:313
+            lambda _o: _tr('~C~apitalize'),
+            yielding=True,
+        )
 
-        _w53.text = '~W~ord'    # edit_window.nml:315
+        _w53.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:315
         _w53.command = CapWord    # edit_window.nml:316
         _w53.key = 'Ctrl \\'    # edit_window.nml:317
 
-        _w54.text = '~L~ine'    # edit_window.nml:319
+        _w54.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:319
         _w54.command = CapString    # edit_window.nml:320
         _w54.key = 'Ctrl+Shift \\'    # edit_window.nml:321
 
-        _w55.text = '~B~lock'    # edit_window.nml:323
+        _w55.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:323
         _w55.command = CapitalizeBlock    # edit_window.nml:324
         _w55.key = 'Ctrl K \\'    # edit_window.nml:325
 
-        self.edit_menu_options.text = '~O~ptions'    # edit_window.nml:328
+        self.edit_menu_options.text = _bind(    # edit_window.nml:328
+            lambda _o: _tr('~O~ptions'),
+            yielding=True,
+        )
 
-        _w56.text = '~B~ackspace indents'    # edit_window.nml:330
+        _w56.text = _bind(lambda _o: _tr('~B~ackspace indents'), yielding=True)    # edit_window.nml:330
         _w56.command = SwitchBack    # edit_window.nml:331
 
-        _w57.text = 'AutoB~r~ackets'    # edit_window.nml:333
+        _w57.text = _bind(lambda _o: _tr('AutoB~r~ackets'), yielding=True)    # edit_window.nml:333
         _w57.command = SwitchBrackets    # edit_window.nml:334
 
-        _w58.text = 'Auto~i~ndent'    # edit_window.nml:336
+        _w58.text = _bind(lambda _o: _tr('Auto~i~ndent'), yielding=True)    # edit_window.nml:336
         _w58.command = SwitchIndent    # edit_window.nml:337
 
-        _w59.text = '~A~uto wrap'    # edit_window.nml:339
+        _w59.text = _bind(lambda _o: _tr('~A~uto wrap'), yielding=True)    # edit_window.nml:339
         _w59.command = SwitchSave    # edit_window.nml:340
 
-        _w60.text = '~J~ustify on wrap'    # edit_window.nml:342
+        _w60.text = _bind(lambda _o: _tr('~J~ustify on wrap'), yielding=True)    # edit_window.nml:342
         _w60.command = SwitchWrap    # edit_window.nml:343
 
-        _w61.text = '~V~ertical blocks'    # edit_window.nml:345
+        _w61.text = _bind(lambda _o: _tr('~V~ertical blocks'), yielding=True)    # edit_window.nml:345
         _w61.command = SwitchBlock    # edit_window.nml:346
 
-        _w62.text = 'Opti~m~al fill'    # edit_window.nml:348
+        _w62.text = _bind(lambda _o: _tr('Opti~m~al fill'), yielding=True)    # edit_window.nml:348
         _w62.command = SwitchFill    # edit_window.nml:349
 
-        _w63.text = 'Current ~l~ine highlight'    # edit_window.nml:351
+        _w63.text = _bind(    # edit_window.nml:351
+            lambda _o: _tr('Current ~l~ine highlight'),
+            yielding=True,
+        )
         _w63.command = SwitchHiLine    # edit_window.nml:352
 
-        _w64.text = 'Current ~c~olumn highlight'    # edit_window.nml:354
+        _w64.text = _bind(    # edit_window.nml:354
+            lambda _o: _tr('Current ~c~olumn highlight'),
+            yielding=True,
+        )
         _w64.command = SwitchHiColumn    # edit_window.nml:355
 
-        _w65.text = 'Syntax ~h~ighlight'    # edit_window.nml:357
+        _w65.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:357

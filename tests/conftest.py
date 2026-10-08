@@ -229,6 +229,23 @@ def settle() -> None:
 
 
 @pytest.fixture(autouse=True)
+def _english():
+    """Every test speaks English with no catalogues: the language is shared."""
+    from navkit import i18n
+
+    sources = list(i18n._SOURCES)
+    i18n._SOURCES.clear()
+    i18n._CACHE.clear()
+    i18n._PLAIN.clear()
+    i18n.LOCALE.code = i18n.SOURCE
+    yield
+    i18n.LOCALE.code = i18n.SOURCE
+    i18n._SOURCES[:] = sources
+    i18n._CACHE.clear()
+    i18n._PLAIN.clear()
+
+
+@pytest.fixture(autouse=True)
 def _quiet_scheduler():
     """Keep one test's queued effects out of the next one."""
     SCHEDULER.clear()

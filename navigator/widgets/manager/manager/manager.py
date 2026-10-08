@@ -17,6 +17,7 @@ import shlex
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 
+from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
 
 from navml.widgets.dialog.dialog import Dialog
@@ -263,7 +264,7 @@ class Manager(Window):
             return done
 
         counted = await run_with_progress(
-            app, count, job, lambda: progress_box(job, "Counting directory length"),
+            app, count, job, lambda: progress_box(job, tr("Counting directory length")),
             refresh_box(job), delay=SLOW_PROGRESS_DELAY,
         )
         for entry, size in counted:
@@ -305,7 +306,7 @@ class Manager(Window):
             lines=section.lines_per_section, crlf=section.line_ends == "crlf",
         )
         await self._run_uucode(panel, lambda job: uucode.encode(request, job, source.parent),
-                               f"Encoding {source.name}", beep_after=20)
+                               tr("Encoding {name}").format(name=source.name), beep_after=20)
 
     async def uu_decode(self, panel: Panel) -> None:
         """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
@@ -330,7 +331,7 @@ class Manager(Window):
             lambda job: uucode.decode(source, out, job, check_existing=section.check_existing,
                                       display_errors=section.display_errors,
                                       save_broken=section.save_broken),
-            f"Decoding {source.name}", beep_after=5,
+            tr("Decoding {name}").format(name=source.name), beep_after=5,
         )
 
     @staticmethod
@@ -364,6 +365,7 @@ class Manager(Window):
         questions answered, its failure said, and the panels read again.
         *Beep after copy* rings for one that took longer than *beep_after*
         seconds, as DN's timer did."""
+        from navigator import uucode
         from navigator.job import Stopped
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
 
@@ -381,6 +383,8 @@ class Manager(Window):
             pass
         except ValueError as error:
             problem = str(error)
+            if problem == uucode.TOO_SMALL:
+                problem = tr("The input file is too small to UU-Encode.")
         except OSError as error:
             where = f"{error.filename}: " if error.filename else ""
             problem = f"{where}{error.strerror or error}"
@@ -390,7 +394,7 @@ class Manager(Window):
         for each in (self.left, self.right):
             each.reload()
         if problem is not None:
-            await Dialog(title="Error", prompt=problem, buttons="ok").execute(app)
+            await Dialog(title=tr("Error"), prompt=problem, buttons="ok").execute(app)
         elif (not job.stopped and SETTINGS.file_manager.beep_after_copy
               and asyncio.get_running_loop().time() - started > beep_after):
             app.bell()
@@ -403,7 +407,7 @@ class Manager(Window):
         if isinstance(question, uucode.FileExists):
             return await ExistsQuery(path=question.path).execute(app)
         if isinstance(question, uucode.DecodeError):
-            await Dialog(title="Error", prompt=question.text, buttons="ok").execute(app)
+            await Dialog(title=tr("Error"), prompt=question.text, buttons="ok").execute(app)
         return None
 
     async def on_change_inactive(self, event: ChangeInactive) -> bool:
@@ -439,11 +443,12 @@ class Manager(Window):
             entries = await asyncio.to_thread(
                 read_list, source, here, lambda path: entry_at(path, path.parent))
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot read {source}: {error.strerror or error}",
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Cannot read {path}: {reason}").format(path=source, reason=error.strerror or error),
                          buttons="ok").execute(app)
             return
         if not entries:
-            await Dialog(title="Error", prompt="No files found", buttons="ok").execute(app)
+            await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
             return
         panel.show_found(FindListing(str(source), here, entries, return_to=entry.name))
 
@@ -468,7 +473,7 @@ class Manager(Window):
         request = await FindFileDialog().execute(app)
         if request is None:
             return
-        await self._search_into(panel, request, f"Find: {request.mask}")
+        await self._search_into(panel, request, tr("Find: {mask}").format(mask=request.mask))
 
     # -- where the panels have been, and the quick directories ----------------------
 
@@ -476,7 +481,7 @@ class Manager(Window):
         """*panel* to *place* (``cmChangeDirectory``), or why not."""
         target = Path(place)
         if not await asyncio.to_thread(target.is_dir):
-            await Dialog(title="Error", prompt=f"Directory {place} is not there", buttons="ok"
+            await Dialog(title=tr("Error"), prompt=tr("Directory {place} is not there").format(place=place), buttons="ok"
                          ).execute(self.application)
             return
         panel.path = target
@@ -496,7 +501,7 @@ class Manager(Window):
 
         app = self.application
         if not SETTINGS.interface.track_directories:
-            await Dialog(title="Error", prompt='Set the interface option\n"Track directories" ON first',
+            await Dialog(title=tr("Error"), prompt=tr('Set the interface option\n"Track directories" ON first'),
                          buttons="ok").execute(app)
             return
         if not HISTORY.entries(HISTORY_ID):
@@ -527,8 +532,8 @@ class Manager(Window):
         bookmarked at place *N* (``place_bookmark``), so Alt+*N* comes back to it."""
         from navigator.bookmarks import place_bookmark
 
-        prompt = f"Store this directory\nas bookmark {slot}?"
-        if await self._ask_yes_no(prompt, "Confirm") is not True:
+        prompt = tr("Store this directory\nas bookmark {slot}?").format(slot=slot)
+        if await self._ask_yes_no(prompt, tr("Confirm")) is not True:
             return
         place_bookmark(panel.path, slot)
         panel.invalidate()
@@ -612,7 +617,7 @@ class Manager(Window):
         if panel.found is not None:
             return  # ``CM_Branch`` acted on a disk alone
         request = FindRequest(recursive=True, scope="directory", directories=False)
-        await self._search_into(panel, request, f"Branch: {panel.path}")
+        await self._search_into(panel, request, tr("Branch: {path}").format(path=panel.path))
 
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
         """*request* searched from *panel*'s directory into a listing titled
@@ -652,7 +657,7 @@ class Manager(Window):
         running = asyncio.ensure_future(asyncio.to_thread(work))
         try:
             await self._watch_job(running, job, FindProgress, refresh, no_questions,
-                                  abort="Cancel search?")
+                                  abort=tr("Cancel search?"))
             await running
         finally:
             if not running.done():
@@ -660,7 +665,7 @@ class Manager(Window):
         refresh()
         listing.live = False
         if not listing.entries:
-            await Dialog(title="Error", prompt="No files found", buttons="ok").execute(app)
+            await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
             return
         if panel.found is listing:
             panel.reload()
@@ -694,17 +699,22 @@ class Manager(Window):
         if new and new != old:
             here = Path(entry.directory if entry.directory is not None else panel.path)
 
+            taken = "a file of that name is already there"
+
             def rename() -> None:
                 target = here / new
                 if os.path.lexists(target) and not os.path.samefile(here / old, target):
-                    raise FileExistsError(errno.EEXIST, "a file of that name is already there")
+                    raise FileExistsError(errno.EEXIST, taken)
                 os.rename(here / old, target)
 
             try:
                 await asyncio.to_thread(rename)
             except OSError as error:
-                await Dialog(title="Error",
-                             prompt=f"Could not rename {old}\nto {new}: {error.strerror or error}",
+                reason = (tr("a file of that name is already there") if error.strerror == taken
+                          else error.strerror or error)
+                await Dialog(title=tr("Error"),
+                             prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
+                                 old=old, new=new, reason=reason),
                              buttons="ok").execute(app)
             else:
                 old_key = entry.key
@@ -765,10 +775,10 @@ class Manager(Window):
         target = (here / Path(name).expanduser()).absolute()
         appending = False
         if await asyncio.to_thread(target.exists):
-            query = Dialog(title="Warning",
-                           prompt=f"File {target.name}\nalready exists.\nOK to overwrite it?",
+            query = Dialog(title=tr("Warning"),
+                           prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
                            buttons="yes-no-cancel")
-            query.no.text = "A~p~pend"
+            query.no.text = tr("A~p~pend")
             reply = await query.execute(app)
             if reply is None:
                 return
@@ -784,7 +794,8 @@ class Manager(Window):
         try:
             await asyncio.to_thread(write)
         except OSError as error:
-            await Dialog(title="Error", prompt=f"Cannot open {target}: {error.strerror or error}",
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Cannot open {path}: {reason}").format(path=target, reason=error.strerror or error),
                          buttons="ok").execute(app)
             return
         panel.untag(entries)
@@ -842,7 +853,7 @@ class Manager(Window):
 
             job = FileJob()
             found = await run_with_progress(
-                app, lambda: compare(job), job, lambda: progress_box(job, "Comparing files"),
+                app, lambda: compare(job), job, lambda: progress_box(job, tr("Comparing files")),
                 refresh_box(job), delay=SLOW_PROGRESS_DELAY,
             )
         else:
@@ -1167,7 +1178,7 @@ class Manager(Window):
         from navml.widgets.menu.sub_menu import SubMenu
 
         menu = SubMenu()
-        items = [menu.add_item(caption) for caption in SORT_CAPTIONS]
+        items = [menu.add_item(caption) for caption in sort_captions()]
         width, height = PopupMenu.measure(menu, self.application, self)
         ox, oy = panel.offset()
         x = ox + panel.x + (panel.width - width) // 2
@@ -1232,7 +1243,7 @@ class Manager(Window):
             (panel.path / name).mkdir()
         except OSError as error:
             await Dialog(
-                title="Cannot make directory",
+                title=tr("Cannot make directory"),
                 prompt=error.strerror or str(error),
                 buttons="ok",
             ).execute(self.application)
@@ -1275,9 +1286,12 @@ class Manager(Window):
         files = [entry for entry in entries if not entry.is_dir]
         if not files:
             return
-        what = f"file {entries[0].name}" if len(entries) == 1 else f"{len(entries)} files"
+        if len(entries) == 1:
+            prompt = tr("Print file {name}?").format(name=entries[0].name)
+        else:
+            prompt = tr_n("Print {n} file?", "Print {n} files?", len(entries))
         answer = await Dialog(
-            title="Confirmation", prompt=f"Print {what}?", buttons="yes-no",
+            title=tr("Confirmation"), prompt=prompt, buttons="yes-no",
         ).execute(self.application)
         if answer is not True:
             return
@@ -1286,7 +1300,8 @@ class Manager(Window):
             problem = await loop.run_in_executor(None, spool_file, entry.path_in(panel.path))
             if problem is not None:
                 await Dialog(
-                    title="Error", prompt=f"Cannot print {entry.name}: {problem}", buttons="ok",
+                    title=tr("Error"), prompt=tr("Cannot print {name}: {reason}").format(name=entry.name, reason=problem),
+                    buttons="ok",
                 ).execute(self.application)
                 return
             # ``cmCopyUnselect``: what has gone to the printer is untagged.
@@ -1411,7 +1426,7 @@ class Manager(Window):
         make_box: Callable[[], Any],
         refresh: Callable[[Any], None],
         answer: Callable[[Any], Awaitable[Any]],
-        abort: str = "Abort operation?",
+        abort: str | None = None,
     ) -> None:
         """A worker's progress box, its one button, and its questions, until *work* ends.
 
@@ -1453,7 +1468,7 @@ class Manager(Window):
                     box, shown = None, None
                     job.pause()
                     try:
-                        if await self._ask_yes_no(abort) is True:
+                        if await self._ask_yes_no(abort or tr("Abort operation?")) is True:
                             job.stop()
                     finally:
                         job.resume()
@@ -1475,8 +1490,8 @@ class Manager(Window):
                 shown.cancel()
                 await asyncio.wait({shown})
 
-    async def _ask_yes_no(self, prompt: str, title: str = "Confirm") -> Any:
-        return await Dialog(title=title, prompt=prompt, buttons="yes-no").execute(self.application)
+    async def _ask_yes_no(self, prompt: str, title: str | None = None) -> Any:
+        return await Dialog(title=title or tr("Confirm"), prompt=prompt, buttons="yes-no").execute(self.application)
 
     async def _answer_copy_question(self, question: Any) -> Any:
         """Put one of the worker's questions to the user, and answer as it expects."""
@@ -1494,14 +1509,14 @@ class Manager(Window):
             if not SETTINGS.confirmations.create_dir:
                 return True
             return await self._ask_yes_no(
-                f"Would you like to create directory {escape_caption(str(question.path))}?"
+                tr("Would you like to create directory {path}?").format(path=escape_caption(str(question.path)))
             ) is True
         if isinstance(question, filecopy.NoRoom):
             # DN's ``erNotDiskSpace1``: Yes goes on without this file.
             return await self._ask_yes_no(
-                f"There is not enough room to copy file "
-                f"{escape_caption(question.dest.name)}. Copy other files?",
-                title="Warning",
+                tr("There is not enough room to copy file {name}. Copy other files?").format(
+                    name=escape_caption(question.dest.name)),
+                title=tr("Warning"),
             ) is True
         if isinstance(question, filecopy.Failure):
             return await self._ask_skip(question.message)
@@ -1514,9 +1529,9 @@ class Manager(Window):
         from navml.widgets.dialog.button import Button
         from navml.widgets.dialog.control import escape_caption
 
-        box = Dialog(title="Error", prompt=escape_caption(message), buttons="ok-cancel")
+        box = Dialog(title=tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
         unbind(box.ok, Button.text)
-        box.ok.text = "~S~kip"
+        box.ok.text = tr("~S~kip")
         return await box.execute(self.application) is True
 
     # -- deleting ----------------------------------------------------------------
@@ -1576,7 +1591,7 @@ class Manager(Window):
         work = asyncio.ensure_future(asyncio.to_thread(fileerase.run, request, job))
 
         def refresh(box: Any) -> None:
-            box.action, box.path = job.action, job.path
+            box.action, box.path = action_caption(job.action), job.path
             box.done, box.total = job.done, job.total
 
         done: list[Path] = []
@@ -1649,7 +1664,8 @@ class Manager(Window):
         try:
             if destination.create:
                 if SETTINGS.confirmations.create_dir and await self._ask_yes_no(
-                    f"Would you like to create directory {escape_caption(str(destination.directory))}?"
+                    tr("Would you like to create directory {path}?").format(
+                        path=escape_caption(str(destination.directory)))
                 ) is not True:
                     return
                 try:
@@ -1705,7 +1721,7 @@ class Manager(Window):
         looking = FileJob()
         facts = await run_with_progress(
             app, lambda: gather([entry.path_in(here) for entry in entries]), looking,
-            lambda: progress_box(looking, "Reading file attributes"), refresh_box(looking),
+            lambda: progress_box(looking, tr("Reading file attributes")), refresh_box(looking),
             delay=SLOW_PROGRESS_DELAY,
         )
         if looking.stopped:
@@ -1720,11 +1736,11 @@ class Manager(Window):
             # The *Erase* box's lines and gauge fit as they are; only the
             # title is the document's, and so is assigned after it.
             box = DeleteProgress()
-            box.title = "Attributes"
+            box.title = tr("Attributes")
             return box
 
         def refresh(box: Any) -> None:
-            box.action, box.path = job.action, job.path
+            box.action, box.path = action_caption(job.action), job.path
             box.done, box.total = job.done, job.total
 
         done: list[Path] = []
@@ -1815,11 +1831,12 @@ class Manager(Window):
                 return
             except DBFError:
                 if mode == "database":
-                    await Dialog(title="Cannot view file", prompt=f"{entry.name}: not a dBase file",
+                    await Dialog(title=tr("Cannot view file"),
+                                 prompt=tr("{name}: not a dBase file").format(name=entry.name),
                                  buttons="ok").execute(self.application)
                     return
             except OSError as error:
-                await Dialog(title="Cannot view file", prompt=f"{entry.name}: {error.strerror or error}",
+                await Dialog(title=tr("Cannot view file"), prompt=f"{entry.name}: {error.strerror or error}",
                              buttons="ok").execute(self.application)
                 return
             mode = None
@@ -1827,7 +1844,7 @@ class Manager(Window):
             await open_viewer(desktop, path, mode)
         except OSError as error:
             await Dialog(
-                title="Cannot view file",
+                title=tr("Cannot view file"),
                 prompt=f"{entry.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
@@ -1901,9 +1918,9 @@ class Manager(Window):
         path = panel.path / Path(name).expanduser()
         problem = None
         if path.is_dir():
-            problem = "Is a directory"
+            problem = tr("Is a directory")
         elif not path.parent.is_dir():
-            problem = "No such directory"
+            problem = tr("No such directory")
         if problem is None and not SETTINGS.system.internal_editor:
             self.run_external("EDITOR", "vi", path)
             return
@@ -1916,7 +1933,7 @@ class Manager(Window):
                 problem = error.strerror or str(error)
         if problem is not None:
             await Dialog(
-                title="Cannot edit file",
+                title=tr("Cannot edit file"),
                 prompt=f"{name}: {problem}",
                 buttons="ok",
             ).execute(self.application)
@@ -1937,7 +1954,7 @@ class Manager(Window):
             await open_editor(desktop, path)
         except OSError as error:
             await Dialog(
-                title="Cannot edit file",
+                title=tr("Cannot edit file"),
                 prompt=f"{entry.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
@@ -2316,9 +2333,22 @@ LABEL_BOOKMARK_KEY = "f2"
 DELETE_BOOKMARK_KEY = "delete"
 
 
-#: ``dlSortName`` .. ``dlSortUnsorted``, in :data:`SORT_MODES`' order --
-#: DN's menu order, *Group* named *Type*.
-SORT_CAPTIONS = ("~N~ame", "~E~xtension", "~S~ize", "~T~ime", "T~y~pe", "~U~nsorted")
+def sort_captions() -> tuple[str, ...]:
+    """``dlSortName`` .. ``dlSortUnsorted``, in :data:`SORT_MODES`' order --
+    DN's menu order, *Group* named *Type*."""
+    return (tr("~N~ame"), tr("~E~xtension"), tr("~S~ize"), tr("~T~ime"), tr("T~y~pe"), tr("~U~nsorted"))
+
+
+def action_caption(action: str) -> str:
+    """A worker's ``action`` -- one of the English words the erase and
+    attribute jobs set on their thread -- in the current language."""
+    from navigator import fileattr, fileerase
+
+    return {
+        fileerase.ERASING_FILE: tr("Erasing the file"),
+        fileerase.ERASING_DIRECTORY: tr("Erasing the directory"),
+        fileattr.CHANGING: tr("Changing attributes of"),
+    }.get(action, action)
 
 
 def bookmark_menu(rows: list[Any], bookmarked: bool,
@@ -2358,5 +2388,5 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         item.disabled = not (path in present if present is not None else Path(path).is_dir())
     if entries:
         menu.add_line()
-    toggle = menu.add_item("~R~emove this folder" if bookmarked else "~A~dd this folder")
+    toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
     return menu, toggle

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 
 from navml.widgets.dialog.button import Button
@@ -35,7 +36,7 @@ class CopyProgress(Dialog):
         super().__init__(**kwargs)
         # DN's ``dlStop``, as `SearchProgress' relabels it.
         unbind(self.ok, Button.text)
-        self.ok.text = "~S~top"
+        self.ok.text = tr("~S~top")
 
     def fit(self, label: str, path: str) -> str:
         """*label* and then *path*, cut to the row: :func:`fit_path`."""
@@ -43,7 +44,7 @@ class CopyProgress(Dialog):
 
     def count(self, done: int, percent: int) -> str:
         """``N bytes (P%)``, the line under each gauge; *percent* is the bar's own."""
-        return f"{done:,} bytes ({percent}%)"
+        return tr_n("{n:,} byte ({percent}%)", "{n:,} bytes ({percent}%)", done, percent=percent)
 
     def accept(self) -> Any:
         """*Stop* answers what Esc does."""

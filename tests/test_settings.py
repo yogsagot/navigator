@@ -690,7 +690,7 @@ def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
         lambda a: setattr(SETTINGS.panel_defaults, "selected_files", False), look,
         lambda a: setattr(SETTINGS.panel_defaults, "current_file", False), look,
     ])
-    assert "selected files" in seen[0]
+    assert "selected file" in seen[0]
     assert seen[1:] == [" plain ", ""]
 
 

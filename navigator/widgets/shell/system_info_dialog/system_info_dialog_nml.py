@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -59,14 +60,17 @@ class SystemInfoDialog(Dialog, _Component):
 
         self.modal_width = 70    # system_info_dialog.nml:12
         self.modal_height = 22    # system_info_dialog.nml:13
-        self.title = 'System Information'    # system_info_dialog.nml:14
+        self.title = _bind(lambda _o: _tr('System Information'), yielding=True)    # system_info_dialog.nml:14
         self.buttons = 'ok'    # system_info_dialog.nml:15
 
         self.board_box.x = 3    # system_info_dialog.nml:19
         self.board_box.y = 1    # system_info_dialog.nml:20
         self.board_box.width = 64    # system_info_dialog.nml:21
         self.board_box.height = 5    # system_info_dialog.nml:22
-        self.board_box.title = 'Main board'    # system_info_dialog.nml:23
+        self.board_box.title = _bind(    # system_info_dialog.nml:23
+            lambda _o: _tr('Main board'),
+            yielding=True,
+        )
 
         self.board.x = 2    # system_info_dialog.nml:27
         self.board.y = 1    # system_info_dialog.nml:28
@@ -77,7 +81,10 @@ class SystemInfoDialog(Dialog, _Component):
         self.disks_box.y = 6    # system_info_dialog.nml:35
         self.disks_box.width = 64    # system_info_dialog.nml:36
         self.disks_box.height = 6    # system_info_dialog.nml:37
-        self.disks_box.title = 'Disk drives'    # system_info_dialog.nml:38
+        self.disks_box.title = _bind(    # system_info_dialog.nml:38
+            lambda _o: _tr('Disk drives'),
+            yielding=True,
+        )
 
         self.disks.x = 2    # system_info_dialog.nml:42
         self.disks.y = 1    # system_info_dialog.nml:43
@@ -88,7 +95,7 @@ class SystemInfoDialog(Dialog, _Component):
         self.memory_box.y = 12    # system_info_dialog.nml:50
         self.memory_box.width = 26    # system_info_dialog.nml:51
         self.memory_box.height = 6    # system_info_dialog.nml:52
-        self.memory_box.title = 'Memory'    # system_info_dialog.nml:53
+        self.memory_box.title = _bind(lambda _o: _tr('Memory'), yielding=True)    # system_info_dialog.nml:53
 
         self.memory.x = 2    # system_info_dialog.nml:57
         self.memory.y = 1    # system_info_dialog.nml:58
@@ -99,7 +106,7 @@ class SystemInfoDialog(Dialog, _Component):
         self.other_box.y = 12    # system_info_dialog.nml:65
         self.other_box.width = 37    # system_info_dialog.nml:66
         self.other_box.height = 6    # system_info_dialog.nml:67
-        self.other_box.title = 'Other'    # system_info_dialog.nml:68
+        self.other_box.title = _bind(lambda _o: _tr('Other'), yielding=True)    # system_info_dialog.nml:68
 
         self.other.x = 2    # system_info_dialog.nml:72
         self.other.y = 1    # system_info_dialog.nml:73

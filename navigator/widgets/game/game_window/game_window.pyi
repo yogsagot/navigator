@@ -15,6 +15,7 @@ from navml.widgets.window import Window
 
 from typing import Any
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 from navigator import tetris

@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.commands import Command, command_of
+from navkit.i18n import tr_plain
 from navkit.reactive import reactive
 
 from navml.widgets.dialog.control.control import parse_shortcut
@@ -162,8 +163,12 @@ def _names(anchor: Anchor, entry: MenuNode) -> bool:
     if anchor is entry:
         return True
     if isinstance(anchor, str):
-        caption = parse_shortcut(getattr(entry, "text", ""))[0]
-        return bool(caption) and caption.casefold() == anchor.replace("~", "").casefold()
+        # The caption is in the current language and the anchor is English, so
+        # the anchor is translated too; an untranslated one still matches.
+        caption = parse_shortcut(getattr(entry, "text", ""))[0].casefold()
+        return bool(caption) and caption in (
+            anchor.replace("~", "").casefold(), tr_plain(anchor).casefold()
+        )
     if isinstance(entry, MenuItem) and entry.command is not None:
         if isinstance(anchor, type) and issubclass(anchor, Command):
             mine = entry.command

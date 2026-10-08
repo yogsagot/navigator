@@ -23,6 +23,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
+from navkit.reactive import bind
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navigator.editor.document import Document, encode, encode_lines, read_text

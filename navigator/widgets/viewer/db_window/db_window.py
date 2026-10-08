@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
@@ -39,20 +40,20 @@ class DBWindow(Window):
 
     def list_name(self) -> str:
         """Window > List's line: ``dlDBViewName``, *dBase View - * and the name."""
-        return f"dBase View - {self.db.path if self.db is not None else ''}"
+        return tr("dBase View - {path}").format(path=self.db.path if self.db is not None else "")
 
     def close(self) -> None:
         if self.db is not None:
             self.db.close()
         super().close()
 
-    async def _say(self, prompt: str, title: str = "Error") -> None:
-        await Dialog(title=title, prompt=prompt, buttons="ok").execute(self.application)
+    async def _say(self, prompt: str, title: str | None = None) -> None:
+        await Dialog(title=tr("Error") if title is None else title, prompt=prompt, buttons="ok").execute(self.application)
 
     # -- F2, F3 ----------------------------------------------------------------------
 
     async def on_show_fields(self, event: ShowFields) -> bool:
-        self.spawn(show_structure(self.application, self.db, "Structure of "))
+        self.spawn(show_structure(self.application, self.db, tr("Structure of {name}")))
         return True
 
     async def on_show_memo(self, event: ShowMemo) -> bool:
@@ -71,7 +72,7 @@ class DBWindow(Window):
         try:
             text = db.memo(record, db.fields[viewer.field])
         except FileNotFoundError:
-            await self._say("Could not find MEMO file")
+            await self._say(tr("Could not find MEMO file"))
             return
         except OSError as error:
             await self._say(f"{error.strerror or error}")
@@ -79,7 +80,7 @@ class DBWindow(Window):
         if text is None:
             return
         lines = [line for chunk in text.replace("\r\n", "\n").split("\n") for line in _wrapped(chunk, 64)]
-        await DBListDialog(lines=lines, title="Memo view", modal_width=69, modal_height=19).execute(self.application)
+        await DBListDialog(lines=lines, title=tr("Memo view"), modal_width=69, modal_height=19).execute(self.application)
         viewer.focus()
 
     # -- F4 --------------------------------------------------------------------------
@@ -104,15 +105,15 @@ class DBWindow(Window):
         import os
 
         if not os.access(db.path, os.W_OK):
-            await self._say("Could not edit field - file is write-protected")
+            await self._say(tr("Could not edit field - file is write-protected"))
             return
         value = db.raw(record, field)
         if field.kind == "L":
             stored = "F" if value.strip().upper() == "T" else "T"
         else:
             shown = dbf.date_shown(value) if field.kind == "D" else value if field.kind == "C" else value.lstrip()
-            box = EditLineDialog(shown.rstrip() if field.kind != "C" else shown, history="edit_dbf", caption="~V~alue")
-            box.title = "Edit field"
+            box = EditLineDialog(shown.rstrip() if field.kind != "C" else shown, history="edit_dbf", caption=tr("~V~alue"))
+            box.title = tr("Edit field")
             answer = await box.execute(self.application)
             viewer.focus()
             if answer is None:
@@ -128,7 +129,7 @@ class DBWindow(Window):
         try:
             db.write_field(viewer.record, field, stored)
         except OSError as error:
-            await self._say(f"Could not edit field - {error.strerror or error}")
+            await self._say(tr("Could not edit field - {error}").format(error=error.strerror or error))
             return
         viewer.invalidate()
 
@@ -174,7 +175,7 @@ class DBWindow(Window):
         hit = dbf.find(self.db, answer["text"], case=answer["case"], all_fields=answer["all_fields"],
                        backward=answer["direction"] == 1, record=start, field=viewer.field)
         if hit is None:
-            await self._say("Search string not found")
+            await self._say(tr("Search string not found"))
             viewer.focus()
             return
         viewer.go(record=hit[0], field=hit[1])
@@ -185,16 +186,24 @@ def _wrapped(text: str, width: int) -> list[str]:
     return [text[i:i + width] for i in range(0, len(text), width)] or [""]
 
 
+def _type_names() -> dict[str, str]:
+    """:data:`navigator.dbf.TYPES` as the structure box shows them."""
+    return {"N": tr("Numeric"), "C": tr("Character"), "M": tr("Memo"), "L": tr("Logical"), "D": tr("Date"),
+            "F": tr("Float"), "P": tr("Picture")}
+
+
 async def show_structure(app: Any, db: dbf.DBFile, what: str) -> None:
     """``GetInfo``: *Structure of* (or *Empty database*) and the file's
-    name, a line a field -- name, type, length, decimals."""
+    name -- *what*, with ``{name}`` for it -- a line a field: name, type,
+    length, decimals."""
     from navigator.widgets.viewer.db_list_dialog import DBListDialog
 
     name = db.path.name if len(db.path.name) <= 20 else "..." + db.path.name[-17:]
-    lines = [f" {f.name:<12}{dbf.TYPES.get(f.kind, f.kind):<13}{f.length:<11}"
+    types = _type_names()
+    lines = [f" {f.name:<12}{types.get(f.kind, f.kind):<13}{f.length:<11}"
              f"{f.decimals if f.kind in ('N', 'F') else '':<8}" for f in db.fields]
-    await DBListDialog(heading="Name          Type       Length   Decimals", lines=lines,
-                       title=what + name).execute(app)
+    await DBListDialog(heading=tr("Name          Type       Length   Decimals"), lines=lines,
+                       title=what.format(name=name)).execute(app)
 
 
 async def open_database(desktop: Any, path: Path) -> Any:
@@ -206,7 +215,7 @@ async def open_database(desktop: Any, path: Path) -> Any:
 
     db = await asyncio.to_thread(dbf.DBFile, path)
     if db.count == 0:
-        await show_structure(desktop.application, db, "Empty database ")
+        await show_structure(desktop.application, db, tr("Empty database {name}"))
         db.close()
         return None
     window = desktop.open(DBWindow(db))

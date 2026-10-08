@@ -342,6 +342,12 @@ class InterfaceData(Section):
     history_size: int = Setting(
         50, doc="Entries kept per history list: input lines, viewed and edited files",
     )
+    #: Not DN's: its language was the resource set it was installed with.
+    #: Empty follows the environment's ``$LANG``.
+    language: str = Setting(
+        "", doc="The language captions and messages are in: a catalogue's code "
+                "(en, lv, ...), or empty to follow $LANG",
+    )
 
 
 class ConfirmsData(Section):

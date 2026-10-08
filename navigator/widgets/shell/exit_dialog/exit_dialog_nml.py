@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -50,7 +51,7 @@ class ExitDialog(Dialog, _Component):
 
         self.modal_width = 40    # exit_dialog.nml:12
         self.modal_height = 10    # exit_dialog.nml:13
-        self.title = 'Exit'    # exit_dialog.nml:14
+        self.title = _bind(lambda _o: _tr('Exit'), yielding=True)    # exit_dialog.nml:14
         self.buttons = 'yes-no'    # exit_dialog.nml:15
 
         self.prompt_head.x = 2    # exit_dialog.nml:19
@@ -58,17 +59,26 @@ class ExitDialog(Dialog, _Component):
         self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:21
         self.prompt_head.height = 1    # exit_dialog.nml:22
         self.prompt_head.align = 'center'    # exit_dialog.nml:23
-        self.prompt_head.text = 'Do you wish to quit'    # exit_dialog.nml:24
+        self.prompt_head.text = _bind(    # exit_dialog.nml:24
+            lambda _o: _tr('Do you wish to quit'),
+            yielding=True,
+        )
 
         self.prompt_tail.x = 2    # exit_dialog.nml:28
         self.prompt_tail.y = 2    # exit_dialog.nml:29
         self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:30
         self.prompt_tail.height = 1    # exit_dialog.nml:31
         self.prompt_tail.align = 'center'    # exit_dialog.nml:32
-        self.prompt_tail.text = 'Navigator?'    # exit_dialog.nml:33
+        self.prompt_tail.text = _bind(    # exit_dialog.nml:33
+            lambda _o: _tr('Navigator?'),
+            yielding=True,
+        )
 
         self.options.x = _bind(lambda _o: max(0, (_o.parent.width - 22) // 2))    # exit_dialog.nml:38
         self.options.y = 4    # exit_dialog.nml:39
         self.options.width = 22    # exit_dialog.nml:40
         self.options.height = 1    # exit_dialog.nml:41
-        self.options.items = ["~D~on't ask again"]    # exit_dialog.nml:42
+        self.options.items = _bind(    # exit_dialog.nml:42
+            lambda _o: [_tr("~D~on't ask again")],
+            yielding=True,
+        )

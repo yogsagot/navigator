@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.reactive import bind, unbind
 
 from navml.widgets.dialog.button import Button
@@ -17,7 +18,7 @@ class WriteWin(Dialog):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         unbind(self.ok, Button.text)
-        self.ok.text = "~C~ancel"
+        self.ok.text = tr("~C~ancel")
         self.ok.visible = bind(lambda ok: self.cancellable)
 
     def accept(self) -> Any:

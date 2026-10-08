@@ -28,6 +28,8 @@ from functools import cache
 from importlib import metadata
 from pathlib import Path
 
+from navkit.i18n import tr
+
 from navigator import __version__
 
 #: The distribution name, which is what both routes look the table up by.
@@ -112,9 +114,9 @@ def about_text(info: ProjectInfo) -> str:
     """
     author = f"{info.author} <{info.email}>" if info.author and info.email else info.author or info.email
     groups = [
-        ["Navigator", f"Version {info.version}"],
+        ["Navigator", tr("Version {version}").format(version=info.version)],
         [info.summary],
-        [author, f"License: {info.license}" if info.license else ""],
+        [author, tr("License: {license}").format(license=info.license) if info.license else ""],
         [info.homepage],
     ]
     return "\n\n".join(

@@ -19,16 +19,23 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from navkit.i18n import tr
+
 from navigator.settings import config_dir
 
-#: The built-in savers by name, and their captions in DN's dialog, the
-#: bullet marking them as DN's own (``#249``).
-BUILT_IN: tuple[tuple[str, str], ...] = (
-    ("star_flight", "∙ Star flight"),
-    ("flash_light", "∙ Flash-light"),
-    ("clock", "∙ Clock"),
-    ("blackness", "∙ Blackness"),
-)
+#: The built-in savers by name.
+BUILT_IN: tuple[str, ...] = ("star_flight", "flash_light", "clock", "blackness")
+
+
+def built_in_captions() -> dict[str, str]:
+    """The built-in savers' captions in DN's dialog, the bullet marking them
+    as DN's own (``#249``)."""
+    return {
+        "star_flight": tr("∙ Star flight"),
+        "flash_light": tr("∙ Flash-light"),
+        "clock": tr("∙ Clock"),
+        "blackness": tr("∙ Blackness"),
+    }
 
 #: *Time*'s choices in seconds; ``never`` is none.
 DELAYS = {"never": None, "1": 60.0, "2": 120.0, "5": 300.0, "10": 600.0}
@@ -50,12 +57,12 @@ def external() -> list[str]:
 
 def caption(name: str) -> str:
     """What the dialog lists *name* as."""
-    return dict(BUILT_IN).get(name, name)
+    return built_in_captions().get(name, name)
 
 
 def name_of(caption_text: str) -> str:
     """The name a dialog caption stands for."""
-    for name, text in BUILT_IN:
+    for name, text in built_in_captions().items():
         if text == caption_text:
             return name
     return caption_text

@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.shell.file_record_list import FileRecordList    # file_history_dialog.nml:1
@@ -85,7 +87,7 @@ class FileHistoryDialog(Dialog, _Component):
         self.records.height = 11    # file_history_dialog.nml:22
         self.records.on_chosen = self.on_records_chosen    # file_history_dialog.nml:17
 
-        self.pick.text = '~O~pen'    # file_history_dialog.nml:26
+        self.pick.text = _bind(lambda _o: _tr('~O~pen'), yielding=True)    # file_history_dialog.nml:26
         self.pick.default = True    # file_history_dialog.nml:27
         self.pick.x = 4    # file_history_dialog.nml:28
         self.pick.y = 14    # file_history_dialog.nml:29
@@ -93,14 +95,17 @@ class FileHistoryDialog(Dialog, _Component):
         self.pick.height = 2    # file_history_dialog.nml:31
         self.pick.on_click = self.on_pick_click    # file_history_dialog.nml:25
 
-        self.drop.text = '~D~elete record'    # file_history_dialog.nml:36
+        self.drop.text = _bind(    # file_history_dialog.nml:36
+            lambda _o: _tr('~D~elete record'),
+            yielding=True,
+        )
         self.drop.x = 21    # file_history_dialog.nml:37
         self.drop.y = 14    # file_history_dialog.nml:38
         self.drop.width = 17    # file_history_dialog.nml:39
         self.drop.height = 2    # file_history_dialog.nml:40
         self.drop.on_click = self.on_drop_click    # file_history_dialog.nml:35
 
-        self.abandon.text = 'Cancel'    # file_history_dialog.nml:44
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # file_history_dialog.nml:44
         self.abandon.x = 44    # file_history_dialog.nml:45
         self.abandon.y = 14    # file_history_dialog.nml:46
         self.abandon.width = 10    # file_history_dialog.nml:47

@@ -25,6 +25,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from navkit.i18n import tr, tr_n
+
 #: DN's ``sDirInfo`` and ``sFileID``, in the order it looked for them.
 INFO_FILES = ("DirInfo", "File_ID.DIZ")
 
@@ -136,10 +138,6 @@ def gather(directory: Path, *, mounts: Path = Path("/proc/self/mounts"),
     return facts
 
 
-def _count(number: int, one: str, many: str) -> str:
-    return f"{number:,} {one if number == 1 else many}"
-
-
 def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
           shows: Any) -> list[tuple[str, bool]]:
     """The panel's lines, ``(text, centred)``, as ``TDiskInfo.Draw`` laid
@@ -147,37 +145,41 @@ def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
     out: list[tuple[str, bool]] = []
     if shows.directory_title or shows.totals:
         if shows.directory_title:
-            out += [("Current directory:", True), (f"~{directory}~", True)]
+            out += [(tr("Current directory:"), True), (f"~{directory}~", True)]
         if shows.totals:
             listed = [entry for entry in entries if entry.name != ".."]
             if not listed:
-                out.append(("No files in this directory", True))
+                out.append((tr("No files in this directory"), True))
             else:
                 size = sum(entry.size for entry in listed if not entry.is_dir)
-                count, total = _count(len(listed), "file", "files"), _count(size, "byte", "bytes")
-                number, _, word = count.partition(" ")
-                bytes_number, _, bytes_word = total.partition(" ")
-                out.append((f"~{number}~ {word} with ~{bytes_number}~ {bytes_word}", True))
+                total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
+                out.append((tr_n("~{n:,}~ file with {total}", "~{n:,}~ files with {total}", len(listed),
+                                 total=total), True))
         out.append(("", True))
     if facts is not None and (shows.volume_size or shows.volume_free or shows.volume_label):
         if shows.volume_size and facts.total is not None:
-            out.append((f"~{facts.total:,}~ total bytes on ~{facts.mount}~", True))
+            out.append((tr_n("~{n:,}~ total byte on ~{mount}~", "~{n:,}~ total bytes on ~{mount}~",
+                             facts.total, mount=facts.mount), True))
         if shows.volume_free and facts.free is not None:
-            out.append((f"~{facts.free:,}~ free bytes on ~{facts.mount}~", True))
+            out.append((tr_n("~{n:,}~ free byte on ~{mount}~", "~{n:,}~ free bytes on ~{mount}~",
+                             facts.free, mount=facts.mount), True))
         if shows.volume_label and facts.mount:
             if facts.label:
-                out.append((f"Volume label on ~{facts.mount}: {facts.label}~", True))
+                out.append((tr("Volume label on ~{mount}: {label}~").format(mount=facts.mount, label=facts.label),
+                            True))
             elif facts.device:
                 kind = f" ({facts.fs_type})" if facts.fs_type else ""
                 out.append((f"~{facts.device}{kind}~", True))
         out.append(("", True))
     if facts is not None:
         if shows.total_memory and facts.memory_total is not None:
-            out.append((f"~{facts.memory_total >> 10:,}~K bytes total memory", True))
+            out.append((tr("~{n:,}~K bytes total memory").format(n=facts.memory_total >> 10), True))
         if shows.user_memory and facts.memory_available is not None:
-            out.append((f"~{facts.memory_available:,}~ bytes memory for user", True))
+            out.append((tr_n("~{n:,}~ byte memory for user", "~{n:,}~ bytes memory for user",
+                             facts.memory_available), True))
         if shows.navigator_memory and facts.memory_navigator is not None:
-            out.append((f"~{facts.memory_navigator:,}~ bytes memory for Navigator", True))
+            out.append((tr_n("~{n:,}~ byte memory for Navigator", "~{n:,}~ bytes memory for Navigator",
+                             facts.memory_navigator), True))
         if out and shows.information_file and facts.info_lines:
             out.append((f"\0{facts.info_name}", True))  # the rule, drawn by the panel
             out += [(text, False) for text in facts.info_lines]

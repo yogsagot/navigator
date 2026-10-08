@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -83,13 +84,16 @@ class SaversDialog(Dialog, _Component):
 
         self.modal_width = 57    # savers_dialog.nml:16
         self.modal_height = 24    # savers_dialog.nml:17
-        self.title = 'Screen Saver Setup'    # savers_dialog.nml:18
+        self.title = _bind(lambda _o: _tr('Screen Saver Setup'), yielding=True)    # savers_dialog.nml:18
 
         self.chosen_caption.x = 2    # savers_dialog.nml:22
         self.chosen_caption.y = 2    # savers_dialog.nml:23
         self.chosen_caption.width = 17    # savers_dialog.nml:24
         self.chosen_caption.height = 1    # savers_dialog.nml:25
-        self.chosen_caption.text = '~S~elected savers'    # savers_dialog.nml:26
+        self.chosen_caption.text = _bind(    # savers_dialog.nml:26
+            lambda _o: _tr('~S~elected savers'),
+            yielding=True,
+        )
         self.chosen_caption.link = _bind(lambda _o: self.chosen)    # savers_dialog.nml:27
 
         self.chosen.framed = False    # savers_dialog.nml:31
@@ -98,14 +102,14 @@ class SaversDialog(Dialog, _Component):
         self.chosen.width = 18    # savers_dialog.nml:34
         self.chosen.height = 10    # savers_dialog.nml:35
 
-        self.join.text = '<───── ~A~dd'    # savers_dialog.nml:40
+        self.join.text = _bind(lambda _o: _tr('<───── ~A~dd'), yielding=True)    # savers_dialog.nml:40
         self.join.x = 21    # savers_dialog.nml:41
         self.join.y = 6    # savers_dialog.nml:42
         self.join.width = 15    # savers_dialog.nml:43
         self.join.height = 2    # savers_dialog.nml:44
         self.join.on_click = self.on_join_click    # savers_dialog.nml:39
 
-        self.drop.text = '~R~emove ──>'    # savers_dialog.nml:49
+        self.drop.text = _bind(lambda _o: _tr('~R~emove ──>'), yielding=True)    # savers_dialog.nml:49
         self.drop.x = 21    # savers_dialog.nml:50
         self.drop.y = 8    # savers_dialog.nml:51
         self.drop.width = 15    # savers_dialog.nml:52
@@ -116,7 +120,10 @@ class SaversDialog(Dialog, _Component):
         self.offered_caption.y = 2    # savers_dialog.nml:58
         self.offered_caption.width = 18    # savers_dialog.nml:59
         self.offered_caption.height = 1    # savers_dialog.nml:60
-        self.offered_caption.text = 'A~v~ailable savers'    # savers_dialog.nml:61
+        self.offered_caption.text = _bind(    # savers_dialog.nml:61
+            lambda _o: _tr('A~v~ailable savers'),
+            yielding=True,
+        )
         self.offered_caption.link = _bind(lambda _o: self.offered)    # savers_dialog.nml:62
 
         self.offered.framed = False    # savers_dialog.nml:66
@@ -129,17 +136,23 @@ class SaversDialog(Dialog, _Component):
         self.time_caption.y = 14    # savers_dialog.nml:75
         self.time_caption.width = 8    # savers_dialog.nml:76
         self.time_caption.height = 1    # savers_dialog.nml:77
-        self.time_caption.text = '~T~ime'    # savers_dialog.nml:78
+        self.time_caption.text = _bind(lambda _o: _tr('~T~ime'), yielding=True)    # savers_dialog.nml:78
         self.time_caption.link = _bind(lambda _o: self.time)    # savers_dialog.nml:79
 
         self.time.x = 2    # savers_dialog.nml:83
         self.time.y = 15    # savers_dialog.nml:84
         self.time.width = 16    # savers_dialog.nml:85
         self.time.height = 5    # savers_dialog.nml:86
-        self.time.items = ['~N~ever', '~1~ minute', '~2~ minutes', '~5~ minutes', '1~0~ minutes']    # savers_dialog.nml:87
+        self.time.items = _bind(    # savers_dialog.nml:87
+            lambda _o: [_tr('~N~ever'), _tr('~1~ minute'), _tr('~2~ minutes'), _tr('~5~ minutes'), _tr('1~0~ minutes')],
+            yielding=True,
+        )
 
         self.mouse.x = 20    # savers_dialog.nml:91
         self.mouse.y = 15    # savers_dialog.nml:92
         self.mouse.width = 35    # savers_dialog.nml:93
         self.mouse.height = 1    # savers_dialog.nml:94
-        self.mouse.items = ['Use ~m~ouse to call saver']    # savers_dialog.nml:95
+        self.mouse.items = _bind(    # savers_dialog.nml:95
+            lambda _o: [_tr('Use ~m~ouse to call saver')],
+            yielding=True,
+        )

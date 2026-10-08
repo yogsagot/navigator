@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -65,7 +66,9 @@ class CopyProgress(Dialog, _Component):
 
         self.modal_width = 60    # copy_progress.nml:13
         self.modal_height = 13    # copy_progress.nml:14
-        self.title = _bind(lambda _o: 'Rename/move' if self.move else 'Copy')    # copy_progress.nml:15
+        self.title = _bind(    # copy_progress.nml:15
+            lambda _o: _tr('Rename/move') if self.move else _tr('Copy')
+        )
         self.buttons = 'ok'    # copy_progress.nml:16
         self.closable = False    # copy_progress.nml:17
 

@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -100,7 +101,9 @@ class CopyDialog(Dialog, _Component):
 
         self.modal_width = 61    # copy_dialog.nml:22
         self.modal_height = 17    # copy_dialog.nml:23
-        self.title = _bind(lambda _o: 'Rename/move' if self.move else 'Copy')    # copy_dialog.nml:24
+        self.title = _bind(    # copy_dialog.nml:24
+            lambda _o: _tr('Rename/move') if self.move else _tr('Copy')
+        )
 
         self.prompt_caption.x = 2    # copy_dialog.nml:34
         self.prompt_caption.y = 1    # copy_dialog.nml:35
@@ -122,15 +125,21 @@ class CopyDialog(Dialog, _Component):
         self.mode.y = 4    # copy_dialog.nml:55
         self.mode.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:56
         self.mode.height = 5    # copy_dialog.nml:57
-        self.mode.items = ['~O~verwrite all existing files', 'A~p~pend to all existing files', '~A~sk for overwrite', '~S~kip all existing files', 'Refresh o~l~d files']    # copy_dialog.nml:58
+        self.mode.items = _bind(    # copy_dialog.nml:58
+            lambda _o: [_tr('~O~verwrite all existing files'), _tr('A~p~pend to all existing files'), _tr('~A~sk for overwrite'), _tr('~S~kip all existing files'), _tr('Refresh o~l~d files')],
+            yielding=True,
+        )
 
         self.options.x = 3    # copy_dialog.nml:65
         self.options.y = 10    # copy_dialog.nml:66
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:67
         self.options.height = 2    # copy_dialog.nml:68
-        self.options.items = ['Check ~f~ree disk space', 'Pr~e~serve attributes', 'Follow symli~n~ks', 'Remove so~u~rce files']    # copy_dialog.nml:69
+        self.options.items = _bind(    # copy_dialog.nml:69
+            lambda _o: [_tr('Check ~f~ree disk space'), _tr('Pr~e~serve attributes'), _tr('Follow symli~n~ks'), _tr('Remove so~u~rce files')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # copy_dialog.nml:75
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # copy_dialog.nml:75
         self.pick.default = True    # copy_dialog.nml:76
         self.pick.x = 5    # copy_dialog.nml:77
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # copy_dialog.nml:78
@@ -138,21 +147,21 @@ class CopyDialog(Dialog, _Component):
         self.pick.height = 2    # copy_dialog.nml:80
         self.pick.on_click = self.on_pick_click    # copy_dialog.nml:74
 
-        self.abandon.text = 'Cancel'    # copy_dialog.nml:84
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # copy_dialog.nml:84
         self.abandon.x = 18    # copy_dialog.nml:85
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # copy_dialog.nml:86
         self.abandon.width = 11    # copy_dialog.nml:87
         self.abandon.height = 2    # copy_dialog.nml:88
         self.abandon.on_click = self.on_abandon_click    # copy_dialog.nml:83
 
-        self.tree.text = '~T~ree'    # copy_dialog.nml:92
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # copy_dialog.nml:92
         self.tree.x = 31    # copy_dialog.nml:93
         self.tree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # copy_dialog.nml:94
         self.tree.width = 11    # copy_dialog.nml:95
         self.tree.height = 2    # copy_dialog.nml:96
         self.tree.on_click = self.on_tree_click    # copy_dialog.nml:91
 
-        self.help.text = 'Help'    # copy_dialog.nml:102
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:102
         self.help.disabled = True    # copy_dialog.nml:103
         self.help.x = 44    # copy_dialog.nml:104
         self.help.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # copy_dialog.nml:105

@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -24,8 +25,8 @@ def describe(question: NotEmpty | ReadOnly) -> str:
     """``dlEraseDirNotEmpty`` or ``dlEraseRO``, after the name."""
     name = escape_caption(cut(question.path.name))
     if isinstance(question, ReadOnly):
-        return f"File {name}\nis write-protected.\nOK to delete it?"
-    return f"Directory {name}\nis not empty.\nDo you wish to delete it?"
+        return tr("File {name}\nis write-protected.\nOK to delete it?").format(name=name)
+    return tr("Directory {name}\nis not empty.\nDo you wish to delete it?").format(name=name)
 
 
 class EraseQuery(Dialog):

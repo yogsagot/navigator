@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -42,13 +43,19 @@ class WinnerDialog(Dialog, _Component):
 
         self.modal_width = 50    # winner_dialog.nml:8
         self.modal_height = 8    # winner_dialog.nml:9
-        self.title = 'You have entered Top Ten!'    # winner_dialog.nml:10
+        self.title = _bind(    # winner_dialog.nml:10
+            lambda _o: _tr('You have entered Top Ten!'),
+            yielding=True,
+        )
         self.buttons = 'ok-cancel'    # winner_dialog.nml:11
 
         self.player.x = 2    # winner_dialog.nml:15
         self.player.y = 2    # winner_dialog.nml:16
         self.player.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # winner_dialog.nml:17
         self.player.height = 1    # winner_dialog.nml:18
-        self.player.label_text = 'Enter your name:'    # winner_dialog.nml:19
+        self.player.label_text = _bind(    # winner_dialog.nml:19
+            lambda _o: _tr('Enter your name:'),
+            yielding=True,
+        )
         self.player.label_width = 18    # winner_dialog.nml:20
         self.player.history_id = 'tetris'    # winner_dialog.nml:21

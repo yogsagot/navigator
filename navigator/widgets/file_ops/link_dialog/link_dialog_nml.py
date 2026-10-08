@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -89,7 +90,7 @@ class LinkDialog(Dialog, _Component):
 
         self.modal_width = 61    # link_dialog.nml:14
         self.modal_height = 10    # link_dialog.nml:15
-        self.title = 'Create symlink'    # link_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('Create symlink'), yielding=True)    # link_dialog.nml:16
 
         self.prompt_caption.x = 2    # link_dialog.nml:25
         self.prompt_caption.y = 1    # link_dialog.nml:26
@@ -111,9 +112,12 @@ class LinkDialog(Dialog, _Component):
         self.options.y = 4    # link_dialog.nml:45
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # link_dialog.nml:46
         self.options.height = 1    # link_dialog.nml:47
-        self.options.items = ['~R~elative link']    # link_dialog.nml:48
+        self.options.items = _bind(    # link_dialog.nml:48
+            lambda _o: [_tr('~R~elative link')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # link_dialog.nml:52
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # link_dialog.nml:52
         self.pick.default = True    # link_dialog.nml:53
         self.pick.x = 5    # link_dialog.nml:54
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # link_dialog.nml:55
@@ -121,21 +125,21 @@ class LinkDialog(Dialog, _Component):
         self.pick.height = 2    # link_dialog.nml:57
         self.pick.on_click = self.on_pick_click    # link_dialog.nml:51
 
-        self.abandon.text = 'Cancel'    # link_dialog.nml:61
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # link_dialog.nml:61
         self.abandon.x = 18    # link_dialog.nml:62
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # link_dialog.nml:63
         self.abandon.width = 11    # link_dialog.nml:64
         self.abandon.height = 2    # link_dialog.nml:65
         self.abandon.on_click = self.on_abandon_click    # link_dialog.nml:60
 
-        self.tree.text = '~T~ree'    # link_dialog.nml:69
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # link_dialog.nml:69
         self.tree.x = 31    # link_dialog.nml:70
         self.tree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # link_dialog.nml:71
         self.tree.width = 11    # link_dialog.nml:72
         self.tree.height = 2    # link_dialog.nml:73
         self.tree.on_click = self.on_tree_click    # link_dialog.nml:68
 
-        self.help.text = 'Help'    # link_dialog.nml:77
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # link_dialog.nml:77
         self.help.disabled = True    # link_dialog.nml:78
         self.help.x = 44    # link_dialog.nml:79
         self.help.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # link_dialog.nml:80

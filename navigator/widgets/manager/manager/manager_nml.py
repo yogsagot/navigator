@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -234,95 +235,107 @@ class Manager(Window, _Component):
 
         self.quick.title_margin = 5    # manager.nml:134
 
-        self.panel_menu.text = '~P~anel'    # manager.nml:149
+        self.panel_menu.text = _bind(lambda _o: _tr('~P~anel'), yielding=True)    # manager.nml:149
         self.panel_menu.after = 'Utilities'    # manager.nml:150
 
-        _w1.text = '~M~ake list file...'    # manager.nml:152
+        _w1.text = _bind(lambda _o: _tr('~M~ake list file...'), yielding=True)    # manager.nml:152
         _w1.command = MakeList    # manager.nml:153
         _w1.key = 'Alt-L'    # manager.nml:154
 
-        _w2.text = 'Read file ~l~ist'    # manager.nml:156
+        _w2.text = _bind(lambda _o: _tr('Read file ~l~ist'), yielding=True)    # manager.nml:156
         _w2.command = ReadFileList    # manager.nml:157
         _w2.key = 'Alt-V'    # manager.nml:158
 
-        _w3.text = '~C~ompare directories'    # manager.nml:160
+        _w3.text = _bind(    # manager.nml:160
+            lambda _o: _tr('~C~ompare directories'),
+            yielding=True,
+        )
         _w3.command = CompareDir    # manager.nml:161
 
-        _w4.text = 'Count directory len~g~th'    # manager.nml:163
+        _w4.text = _bind(    # manager.nml:163
+            lambda _o: _tr('Count directory len~g~th'),
+            yielding=True,
+        )
         _w4.command = CountLength    # manager.nml:164
         _w4.key = 'Alt-G'    # manager.nml:165
 
-        _w5.text = 'Directory Branc~h~'    # manager.nml:167
+        _w5.text = _bind(lambda _o: _tr('Directory Branc~h~'), yielding=True)    # manager.nml:167
         _w5.command = DirBranch    # manager.nml:168
 
-        _w7.text = 'Setup c~o~lumns'    # manager.nml:171
+        _w7.text = _bind(lambda _o: _tr('Setup c~o~lumns'), yielding=True)    # manager.nml:171
         _w7.command = SetupColumns    # manager.nml:172
         _w7.key = 'Alt-K'    # manager.nml:173
 
-        _w8.text = '~S~etup Panel'    # manager.nml:175
+        _w8.text = _bind(lambda _o: _tr('~S~etup Panel'), yielding=True)    # manager.nml:175
         _w8.command = PanelSetup    # manager.nml:176
         _w8.key = 'Alt-S'    # manager.nml:177
 
-        _w9.text = 'Sort ~b~y...'    # manager.nml:179
+        _w9.text = _bind(lambda _o: _tr('Sort ~b~y...'), yielding=True)    # manager.nml:179
         _w9.command = SortBy    # manager.nml:180
         _w9.key = 'Alt-B'    # manager.nml:181
 
-        _w10.text = 'Vie~w~ mode'    # manager.nml:183
+        _w10.text = _bind(lambda _o: _tr('Vie~w~ mode'), yielding=True)    # manager.nml:183
         _w10.command = ToggleShowMode    # manager.nml:184
         _w10.key = 'Ctrl-Y'    # manager.nml:185
 
-        _w11.text = 'Show/hide h~i~dden files'    # manager.nml:187
+        _w11.text = _bind(    # manager.nml:187
+            lambda _o: _tr('Show/hide h~i~dden files'),
+            yielding=True,
+        )
         _w11.command = ToggleHidden    # manager.nml:188
         _w11.key = 'Ctrl-H'    # manager.nml:189
 
-        _w13.text = 'Director~y~ tree'    # manager.nml:192
+        _w13.text = _bind(lambda _o: _tr('Director~y~ tree'), yielding=True)    # manager.nml:192
         _w13.command = ToggleTree    # manager.nml:193
         _w13.key = 'Ctrl-T'    # manager.nml:194
 
-        _w14.text = 'I~n~fo'    # manager.nml:196
+        _w14.text = _bind(lambda _o: _tr('I~n~fo'), yielding=True)    # manager.nml:196
         _w14.command = DiskInfo    # manager.nml:197
         _w14.key = 'Ctrl-L'    # manager.nml:198
 
-        _w15.text = 'Quic~k~ view'    # manager.nml:200
+        _w15.text = _bind(lambda _o: _tr('Quic~k~ view'), yielding=True)    # manager.nml:200
         _w15.command = QuickView    # manager.nml:201
         _w15.key = 'Ctrl-Q'    # manager.nml:202
 
-        _w17.text = 'Select grou~p~...'    # manager.nml:205
+        _w17.text = _bind(lambda _o: _tr('Select grou~p~...'), yielding=True)    # manager.nml:205
         _w17.command = SelectGroup    # manager.nml:206
         _w17.key = 'Gray "+"'    # manager.nml:207
 
-        _w18.text = '~U~nselect group...'    # manager.nml:209
+        _w18.text = _bind(lambda _o: _tr('~U~nselect group...'), yielding=True)    # manager.nml:209
         _w18.command = UnselectGroup    # manager.nml:210
         _w18.key = 'Gray "-"'    # manager.nml:211
 
-        _w19.text = 'In~v~ert selection'    # manager.nml:213
+        _w19.text = _bind(lambda _o: _tr('In~v~ert selection'), yielding=True)    # manager.nml:213
         _w19.command = InvertSelection    # manager.nml:214
         _w19.key = 'Gray "*"'    # manager.nml:215
 
-        _w20.text = 'Advanced filter...'    # manager.nml:217
+        _w20.text = _bind(lambda _o: _tr('Advanced filter...'), yielding=True)    # manager.nml:217
         _w20.command = AdvancedFilter    # manager.nml:218
         _w20.key = 'Alt-Del'    # manager.nml:219
 
-        _w22.text = 'Change ~d~rive'    # manager.nml:222
+        _w22.text = _bind(lambda _o: _tr('Change ~d~rive'), yielding=True)    # manager.nml:222
         _w22.command = ChangeDrive    # manager.nml:223
         _w22.key = 'Alt-C'    # manager.nml:224
 
-        _w23.text = 'Change direc~t~ory'    # manager.nml:226
+        _w23.text = _bind(lambda _o: _tr('Change direc~t~ory'), yielding=True)    # manager.nml:226
         _w23.command = ChangeDirectory    # manager.nml:227
         _w23.key = 'Alt-T'    # manager.nml:228
 
-        _w24.text = 'Quick s~e~arch'    # manager.nml:230
+        _w24.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # manager.nml:230
         _w24.command = QuickSearch    # manager.nml:231
         _w24.key = 'Ctrl-S'    # manager.nml:232
 
-        _w25.text = '~R~e-read'    # manager.nml:234
+        _w25.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # manager.nml:234
         _w25.command = Rescan    # manager.nml:235
         _w25.key = 'Alt-R'    # manager.nml:236
 
-        _w26.text = '~Q~uick dirs...'    # manager.nml:238
+        _w26.text = _bind(lambda _o: _tr('~Q~uick dirs...'), yielding=True)    # manager.nml:238
         _w26.command = ListOfDirs    # manager.nml:239
         _w26.key = 'Alt-Shift-0'    # manager.nml:240
 
-        _w27.text = 'History of directories...'    # manager.nml:242
+        _w27.text = _bind(    # manager.nml:242
+            lambda _o: _tr('History of directories...'),
+            yielding=True,
+        )
         _w27.command = DirHistory    # manager.nml:243
         _w27.key = 'Alt-BkSp'    # manager.nml:244

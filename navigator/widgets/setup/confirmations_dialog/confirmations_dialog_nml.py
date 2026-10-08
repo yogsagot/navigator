@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -43,10 +44,13 @@ class ConfirmationsDialog(Dialog, _Component):
 
         self.modal_width = 40    # confirmations_dialog.nml:10
         self.modal_height = 13    # confirmations_dialog.nml:11
-        self.title = 'Confirmations'    # confirmations_dialog.nml:12
+        self.title = _bind(lambda _o: _tr('Confirmations'), yielding=True)    # confirmations_dialog.nml:12
 
         self.options.x = 3    # confirmations_dialog.nml:16
         self.options.y = 1    # confirmations_dialog.nml:17
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_dialog.nml:18
         self.options.height = 7    # confirmations_dialog.nml:19
-        self.options.items = ['Erase ~s~ingle file', 'Erase ~m~ultiple files', 'Erase ~n~on-empty sub-dir', 'Erase ~r~ead-only files', '~C~reate non-existing dir', 'Drag~-~and~-~drop operations', 'E~x~it confirmation']    # confirmations_dialog.nml:20
+        self.options.items = _bind(    # confirmations_dialog.nml:20
+            lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation')],
+            yielding=True,
+        )

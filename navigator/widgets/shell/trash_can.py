@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import MouseClickEvent
+from navkit.i18n import tr
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -73,5 +74,5 @@ class TrashCan(Widget):
         return event.action == "press"
 
     def render(self, surface: Surface) -> None:
-        for y, text in enumerate(ROWS):
+        for y, text in enumerate((ROWS[0], tr("Trash"), ROWS[2])):
             surface.draw_text(0, y, text, self.style, WIDTH)

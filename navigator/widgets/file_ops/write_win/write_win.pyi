@@ -10,6 +10,7 @@ from navml.widgets.progress_bar import ProgressBar
 from navml.widgets.spinner import Spinner
 
 from typing import Any
+from navkit.i18n import tr
 from navkit.reactive import bind, unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.commands import Cancel, Default

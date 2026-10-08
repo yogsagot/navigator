@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
-from navigator.tetris import FIGURES, Game, colour_of
+from navigator.tetris import ANONYMOUS, FIGURES, Game, colour_of
 
 #: A preview cell, as the glass draws one.
 BLOCK = "█"
@@ -24,7 +25,7 @@ class GameInfo(Widget):
         super().__init__(**kwargs)
         self.game: Game | None = None
         #: The best entry: ``(name, score)``, kept by the window.
-        self.best: tuple[str, int] = ("Anonymous", 0)
+        self.best: tuple[str, int] = (ANONYMOUS, 0)
 
     def _line(self, surface: Surface, y: int, text: str, part: str, edges: str = "││", fill: str = " ") -> None:
         """One row of a box: *edges* at its ends, *text* in it with ``~``
@@ -47,11 +48,11 @@ class GameInfo(Widget):
         game = self.game
         if game is None:
             return
-        self._line(surface, 0, " ~Info~ ", "info", "┌┐", "─")
-        self._line(surface, 1, f"Score: ~{game.score}~", "info")
-        self._line(surface, 2, f"Lines: ~{game.lines}~", "info")
-        self._line(surface, 3, f"Level: ~{game.level}~", "info")
-        self._line(surface, 4, " ~Next~ ", "info", "├┤", "─")
+        self._line(surface, 0, f" ~{tr('Info')}~ ", "info", "┌┐", "─")
+        self._line(surface, 1, tr("Score: ~{score}~").format(score=game.score), "info")
+        self._line(surface, 2, tr("Lines: ~{lines}~").format(lines=game.lines), "info")
+        self._line(surface, 3, tr("Level: ~{level}~").format(level=game.level), "info")
+        self._line(surface, 4, f" ~{tr('Next')}~ ", "info", "├┤", "─")
         for y in range(5, 10):
             self._line(surface, y, "", "info")
             surface.fill(1, y, self.width - 2, 1, " ", Style(fg=7, bg=0))
@@ -61,7 +62,9 @@ class GameInfo(Widget):
                 surface.draw_text(col * 2 + 3, 4 + row, BLOCK * 2, style, 2)
         self._line(surface, 10, "", "info", "└┘", "─")
         name, score = self.best
-        self._line(surface, 11, " ~Best~ ", "best", "┌┐", "─")
-        self._line(surface, 12, f"~Name:~ {name}", "best")
-        self._line(surface, 13, f"~Score:~ {score}", "best")
+        if name == ANONYMOUS:
+            name = tr("Anonymous")
+        self._line(surface, 11, f" ~{tr('Best')}~ ", "best", "┌┐", "─")
+        self._line(surface, 12, tr("~Name:~ {name}").format(name=name), "best")
+        self._line(surface, 13, tr("~Score:~ {score}").format(score=score), "best")
         self._line(surface, 14, "", "best", "└┘", "─")

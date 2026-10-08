@@ -13,6 +13,7 @@ import time
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -33,11 +34,12 @@ def describe(question: Overwrite, width: int = 40) -> str:
     sizes = [f"{question.source_size:,}", f"{question.dest_size:,}"]
     wide = max(len(s) for s in sizes)
     return "\n".join((
-        f"File {escape_caption(name)}",
-        "already exists in destination directory",
+        tr("File {name}\nalready exists in destination directory").format(name=escape_caption(name)),
         "",
-        f"  Source:  {stamp(question.source_mtime)}  {sizes[0]:>{wide}} bytes",
-        f"Existing:  {stamp(question.dest_mtime)}  {sizes[1]:>{wide}} bytes",
+        tr_n("  Source:  {date}  {size} byte", "  Source:  {date}  {size} bytes", question.source_size,
+             date=stamp(question.source_mtime), size=f"{sizes[0]:>{wide}}"),
+        tr_n("Existing:  {date}  {size} byte", "Existing:  {date}  {size} bytes", question.dest_size,
+             date=stamp(question.dest_mtime), size=f"{sizes[1]:>{wide}}"),
     ))
 
 
@@ -80,11 +82,11 @@ class OverwriteQuery(Dialog):
         from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 
         box = MkdirDialog()
-        box.title = "Rename file"
+        box.title = tr("Rename file")
         if self._question is not None:
             box.entry.value = self._question.dest.name
             box.entry.entry.select_all()
-        box.entry.label_text = "~N~ew name"
+        box.entry.label_text = tr("~N~ew name")
         box.entry.label_width = 10
         box.entry.history_id = ""
         name = await box.execute(self.application)

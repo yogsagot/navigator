@@ -60,6 +60,10 @@ editor's phases.
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead
+- Captions are translated: English is the key, catalogues are `navml/locales/*.toml` and `navigator/locales/*.toml`
+  (plus `locales/` beside `navigator.ini`). `--language CODE` or Options > Interface picks one, else `$LANG`.
+  `./venv/bin/python tools/i18n.py extract CODE` creates or updates a language, `tools/i18n.py check` exits 1 on gaps
+  (`i18n` skill)
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
   `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
@@ -126,6 +130,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
   tests get a fresh `:memory:` one each.
 - **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.
 - **A sheet cannot be parsed before the widgets it styles are imported** (`load_scheme()` imports `Panel` first).
+- **User-visible text goes through `tr()`/`tr_n()`** with a literal English key and whole-sentence placeholders;
+  markup captions are wrapped by the generator (`i18n` skill).
 - **Assets go through `importlib.resources`**, and a new asset directory needs a `[tool.setuptools.package-data]` entry.
 
 ## Working conventions
@@ -167,6 +173,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |
 | `navigator-file-ops` | copy, move, symlink, erase, attributes, mkdir, jobs |
+| `i18n` | `tr`/`tr_n`, TOML catalogues, generated live captions and yielding bindings, `--language`, `tools/i18n.py` |
 | `release-packaging` | PyPI, version, `.deb`/`.rpm`, repositories, GPG, release workflow |
 | `dn-porting` | finding DN's source, naming after it, recording departures |
 

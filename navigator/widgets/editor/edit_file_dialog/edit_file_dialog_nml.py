@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -41,13 +42,16 @@ class EditFileDialog(Dialog, _Component):
 
         self.modal_width = 60    # edit_file_dialog.nml:7
         self.modal_height = 8    # edit_file_dialog.nml:8
-        self.title = 'Edit new file'    # edit_file_dialog.nml:9
+        self.title = _bind(lambda _o: _tr('Edit new file'), yielding=True)    # edit_file_dialog.nml:9
         self.close_on_outside_click = True    # edit_file_dialog.nml:10
 
         self.entry.x = 2    # edit_file_dialog.nml:14
         self.entry.y = 2    # edit_file_dialog.nml:15
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # edit_file_dialog.nml:16
         self.entry.height = 1    # edit_file_dialog.nml:17
-        self.entry.label_text = '~F~ile name'    # edit_file_dialog.nml:18
+        self.entry.label_text = _bind(    # edit_file_dialog.nml:18
+            lambda _o: _tr('~F~ile name'),
+            yielding=True,
+        )
         self.entry.label_width = 12    # edit_file_dialog.nml:19
         self.entry.history_id = 'editfile'    # edit_file_dialog.nml:21

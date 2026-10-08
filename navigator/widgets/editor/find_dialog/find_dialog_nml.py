@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -102,13 +103,18 @@ class FindDialog(Dialog, _Component):
 
         self.modal_width = 55    # find_dialog.nml:16
         self.modal_height = _bind(lambda _o: 18 if self.replace else 15)    # find_dialog.nml:17
-        self.title = _bind(lambda _o: 'Replace' if self.replace else 'Find')    # find_dialog.nml:18
+        self.title = _bind(    # find_dialog.nml:18
+            lambda _o: _tr('Replace') if self.replace else _tr('Find')
+        )
 
         self.text.x = 3    # find_dialog.nml:22
         self.text.y = 2    # find_dialog.nml:23
         self.text.width = 49    # find_dialog.nml:24
         self.text.height = 1    # find_dialog.nml:25
-        self.text.label_text = '~T~ext to find'    # find_dialog.nml:26
+        self.text.label_text = _bind(    # find_dialog.nml:26
+            lambda _o: _tr('~T~ext to find'),
+            yielding=True,
+        )
         self.text.label_width = 14    # find_dialog.nml:27
         self.text.history_id = 'find_text'    # find_dialog.nml:28
 
@@ -117,11 +123,17 @@ class FindDialog(Dialog, _Component):
         self.new.y = 4    # find_dialog.nml:34
         self.new.width = 45    # find_dialog.nml:35
         self.new.height = 1    # find_dialog.nml:36
-        self.new.label_text = '~N~ew text'    # find_dialog.nml:37
+        self.new.label_text = _bind(    # find_dialog.nml:37
+            lambda _o: _tr('~N~ew text'),
+            yielding=True,
+        )
         self.new.label_width = 10    # find_dialog.nml:38
         self.new.history_id = 'find_text'    # find_dialog.nml:39
 
-        self.options_caption.text = 'Options'    # find_dialog.nml:43
+        self.options_caption.text = _bind(    # find_dialog.nml:43
+            lambda _o: _tr('Options'),
+            yielding=True,
+        )
         self.options_caption.link = _bind(lambda _o: self.options)    # find_dialog.nml:44
         self.options_caption.x = 3    # find_dialog.nml:45
         self.options_caption.y = _bind(lambda _o: 6 if self.replace else 4)    # find_dialog.nml:46
@@ -133,10 +145,13 @@ class FindDialog(Dialog, _Component):
         self.options.width = 24    # find_dialog.nml:54
         self.options.height = _bind(lambda _o: 3 if self.replace else 2)    # find_dialog.nml:55
         self.options.items = _bind(    # find_dialog.nml:56
-            lambda _o: ['~C~ase sensitive', '~W~hole words only', '~P~rompt on replace'] if self.replace else ['~C~ase sensitive', '~W~hole words only']
+            lambda _o: [_tr('~C~ase sensitive'), _tr('~W~hole words only'), _tr('~P~rompt on replace')] if self.replace else [_tr('~C~ase sensitive'), _tr('~W~hole words only')]
         )
 
-        self.direction_caption.text = 'Direction'    # find_dialog.nml:60
+        self.direction_caption.text = _bind(    # find_dialog.nml:60
+            lambda _o: _tr('Direction'),
+            yielding=True,
+        )
         self.direction_caption.link = _bind(lambda _o: self.direction)    # find_dialog.nml:61
         self.direction_caption.x = 30    # find_dialog.nml:62
         self.direction_caption.y = _bind(lambda _o: 6 if self.replace else 4)    # find_dialog.nml:63
@@ -147,9 +162,12 @@ class FindDialog(Dialog, _Component):
         self.direction.y = _bind(lambda _o: 7 if self.replace else 5)    # find_dialog.nml:70
         self.direction.width = 22    # find_dialog.nml:71
         self.direction.height = 2    # find_dialog.nml:72
-        self.direction.items = ['Forwar~d~', '~B~ackward']    # find_dialog.nml:73
+        self.direction.items = _bind(    # find_dialog.nml:73
+            lambda _o: [_tr('Forwar~d~'), _tr('~B~ackward')],
+            yielding=True,
+        )
 
-        self.scope_caption.text = 'Scope'    # find_dialog.nml:77
+        self.scope_caption.text = _bind(lambda _o: _tr('Scope'), yielding=True)    # find_dialog.nml:77
         self.scope_caption.link = _bind(lambda _o: self.scope)    # find_dialog.nml:78
         self.scope_caption.x = 3    # find_dialog.nml:79
         self.scope_caption.y = _bind(lambda _o: 11 if self.replace else 8)    # find_dialog.nml:80
@@ -160,9 +178,15 @@ class FindDialog(Dialog, _Component):
         self.scope.y = _bind(lambda _o: 12 if self.replace else 9)    # find_dialog.nml:87
         self.scope.width = 24    # find_dialog.nml:88
         self.scope.height = 2    # find_dialog.nml:89
-        self.scope.items = ['~G~lobal', '~S~elected text']    # find_dialog.nml:90
+        self.scope.items = _bind(    # find_dialog.nml:90
+            lambda _o: [_tr('~G~lobal'), _tr('~S~elected text')],
+            yielding=True,
+        )
 
-        self.origin_caption.text = 'Origin'    # find_dialog.nml:94
+        self.origin_caption.text = _bind(    # find_dialog.nml:94
+            lambda _o: _tr('Origin'),
+            yielding=True,
+        )
         self.origin_caption.link = _bind(lambda _o: self.origin)    # find_dialog.nml:95
         self.origin_caption.x = 30    # find_dialog.nml:96
         self.origin_caption.y = _bind(lambda _o: 11 if self.replace else 8)    # find_dialog.nml:97
@@ -173,9 +197,12 @@ class FindDialog(Dialog, _Component):
         self.origin.y = _bind(lambda _o: 12 if self.replace else 9)    # find_dialog.nml:104
         self.origin.width = 22    # find_dialog.nml:105
         self.origin.height = 2    # find_dialog.nml:106
-        self.origin.items = ['~E~ntire scope', '~F~rom cursor']    # find_dialog.nml:107
+        self.origin.items = _bind(    # find_dialog.nml:107
+            lambda _o: [_tr('~E~ntire scope'), _tr('~F~rom cursor')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # find_dialog.nml:111
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # find_dialog.nml:111
         self.pick.default = True    # find_dialog.nml:112
         self.pick.x = _bind(lambda _o: 6 if self.replace else 22)    # find_dialog.nml:113
         self.pick.y = _bind(lambda _o: 15 if self.replace else 12)    # find_dialog.nml:114
@@ -183,7 +210,7 @@ class FindDialog(Dialog, _Component):
         self.pick.height = 2    # find_dialog.nml:116
         self.pick.on_click = self.on_pick_click    # find_dialog.nml:110
 
-        self.all.text = 'Change ~a~ll'    # find_dialog.nml:121
+        self.all.text = _bind(lambda _o: _tr('Change ~a~ll'), yielding=True)    # find_dialog.nml:121
         self.all.visible = _bind(lambda _o: self.replace)    # find_dialog.nml:122
         self.all.x = 16    # find_dialog.nml:123
         self.all.y = 15    # find_dialog.nml:124
@@ -191,14 +218,14 @@ class FindDialog(Dialog, _Component):
         self.all.height = 2    # find_dialog.nml:126
         self.all.on_click = self.on_all_click    # find_dialog.nml:120
 
-        self.abandon.text = 'Cancel'    # find_dialog.nml:130
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_dialog.nml:130
         self.abandon.x = 32    # find_dialog.nml:131
         self.abandon.y = _bind(lambda _o: 15 if self.replace else 12)    # find_dialog.nml:132
         self.abandon.width = 10    # find_dialog.nml:133
         self.abandon.height = 2    # find_dialog.nml:134
         self.abandon.on_click = self.on_abandon_click    # find_dialog.nml:129
 
-        self.helper.text = 'Help'    # find_dialog.nml:139
+        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # find_dialog.nml:139
         self.helper.disabled = True    # find_dialog.nml:140
         self.helper.x = 42    # find_dialog.nml:141
         self.helper.y = _bind(lambda _o: 15 if self.replace else 12)    # find_dialog.nml:142

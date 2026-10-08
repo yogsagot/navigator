@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -140,52 +141,52 @@ class FileWindow(Window, _Component):
         self.info.height = 1    # file_window.nml:72
         self.info.text = _bind(lambda _o: self.viewer.info_text)    # file_window.nml:73
 
-        self.view_menu.text = '~V~iew'    # file_window.nml:86
+        self.view_menu.text = _bind(lambda _o: _tr('~V~iew'), yielding=True)    # file_window.nml:86
         self.view_menu.after = 'File'    # file_window.nml:87
 
-        _w1.text = '~T~ext'    # file_window.nml:89
+        _w1.text = _bind(lambda _o: _tr('~T~ext'), yielding=True)    # file_window.nml:89
         _w1.command = SetViewMode('text')    # file_window.nml:90
 
-        _w2.text = '~H~ex'    # file_window.nml:92
+        _w2.text = _bind(lambda _o: _tr('~H~ex'), yielding=True)    # file_window.nml:92
         _w2.command = SetViewMode('hex')    # file_window.nml:93
 
-        _w3.text = '~D~ump'    # file_window.nml:95
+        _w3.text = _bind(lambda _o: _tr('~D~ump'), yielding=True)    # file_window.nml:95
         _w3.command = SetViewMode('dump')    # file_window.nml:96
 
-        _w5.text = '~W~rap lines'    # file_window.nml:99
+        _w5.text = _bind(lambda _o: _tr('~W~rap lines'), yielding=True)    # file_window.nml:99
         _w5.command = Unwrap    # file_window.nml:100
 
-        _w6.text = '~N~o filter'    # file_window.nml:102
+        _w6.text = _bind(lambda _o: _tr('~N~o filter'), yielding=True)    # file_window.nml:102
         _w6.command = SetViewFilter(0)    # file_window.nml:103
 
-        _w7.text = '~A~SCII filter'    # file_window.nml:105
+        _w7.text = _bind(lambda _o: _tr('~A~SCII filter'), yielding=True)    # file_window.nml:105
         _w7.command = SetViewFilter(1)    # file_window.nml:106
 
-        _w8.text = '~P~rintable filter'    # file_window.nml:108
+        _w8.text = _bind(lambda _o: _tr('~P~rintable filter'), yielding=True)    # file_window.nml:108
         _w8.command = SetViewFilter(2)    # file_window.nml:109
 
-        _w10.text = '~S~earch...'    # file_window.nml:112
+        _w10.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # file_window.nml:112
         _w10.command = SearchFor    # file_window.nml:113
 
-        _w11.text = 'Search a~g~ain'    # file_window.nml:115
+        _w11.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # file_window.nml:115
         _w11.command = ContinueSearch    # file_window.nml:116
 
-        _w12.text = 'Re~v~erse search'    # file_window.nml:118
+        _w12.text = _bind(lambda _o: _tr('Re~v~erse search'), yielding=True)    # file_window.nml:118
         _w12.command = ReverseSearch    # file_window.nml:119
 
-        _w13.text = 'Go to add~r~ess...'    # file_window.nml:121
+        _w13.text = _bind(lambda _o: _tr('Go to add~r~ess...'), yielding=True)    # file_window.nml:121
         _w13.command = GotoAddress    # file_window.nml:122
 
-        _w15.text = 'St~o~re'    # file_window.nml:125
+        _w15.text = _bind(lambda _o: _tr('St~o~re'), yielding=True)    # file_window.nml:125
         _w15.key = 'Shift-F2'    # file_window.nml:126
 
-        _w16.text = 'Sav~e~ as...'    # file_window.nml:128
+        _w16.text = _bind(lambda _o: _tr('Sav~e~ as...'), yielding=True)    # file_window.nml:128
         _w16.command = SaveViewAs    # file_window.nml:129
         _w16.key = 'Shift-F5'    # file_window.nml:130
 
-        _w17.text = 'Encod~i~ng...'    # file_window.nml:132
+        _w17.text = _bind(lambda _o: _tr('Encod~i~ng...'), yielding=True)    # file_window.nml:132
         _w17.command = ChooseEncoding    # file_window.nml:133
         _w17.key = 'Shift-F6'    # file_window.nml:134
 
-        _w19.text = '~C~lose'    # file_window.nml:137
+        _w19.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:137
         _w19.command = CloseWindow    # file_window.nml:138

@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navkit.widget import Widget
 
@@ -51,9 +52,6 @@ _READER = Background("navml-files", workers=2)
 #: What lists everything: DN's ``x_x``, ``*.*``, less the dot.
 EVERYTHING = "*"
 
-INVALID_DIRECTORY = "Invalid drive or directory."
-INVALID_FILE_NAME = "Invalid file name."
-
 
 def is_wild(name: str) -> bool:
     """``IsWild``: whether *name* is a pattern rather than a name."""
@@ -67,7 +65,7 @@ class FileDialog(Dialog):
         self,
         *,
         title: str | None = None,
-        label: str = "~N~ame",
+        label: str | None = None,
         history_id: str = "",
         directory: Path | str | None = None,
         wildcard: str = EVERYTHING,
@@ -83,7 +81,7 @@ class FileDialog(Dialog):
         self.message.visible = False
         if title is not None:
             self.title = title
-        self.caption.text = label
+        self.caption.text = label if label is not None else tr("~N~ame")
         if ok_text is not None:
             # ``fdOpenButton``: the same ``cmFileOpen`` under *Open* rather than *OK*.
             self.pick.text = ok_text
@@ -179,7 +177,7 @@ class FileDialog(Dialog):
         text = self.target.value.strip()
         if text and is_wild(path.name):
             if not path.parent.is_dir():
-                self._say(INVALID_DIRECTORY)
+                self._say(tr("Invalid drive or directory."))
                 return False
             self._change_to(path.parent, path.name)
             return False
@@ -188,7 +186,7 @@ class FileDialog(Dialog):
             return False
         if path.parent.is_dir():
             return True
-        self._say(INVALID_FILE_NAME)
+        self._say(tr("Invalid file name."))
         return False
 
     def _change_to(self, directory: Path, wildcard: str) -> None:
@@ -214,7 +212,7 @@ class FileDialog(Dialog):
         app = self.application
         self.target.entry.focus()
         if app is not None:
-            self.spawn(Dialog(title="Error", prompt=message, buttons="ok").execute(app))
+            self.spawn(Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(app))
 
     def record_history(self) -> None:
         """``HistoryAdd(HistoryID, FExpand(S))``: the full path, not what was typed."""

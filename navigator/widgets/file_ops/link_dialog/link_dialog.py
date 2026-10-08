@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from navkit.events import Event
+from navkit.i18n import tr, tr_n
 
 from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
@@ -30,13 +31,13 @@ RELATIVE = 0x01
 
 def prompt_for(entries: Sequence[Any]) -> str:
     """``Create symlink to file NAME in``, ``… Directory NAME …``, ``… 3 files …``."""
-    if len(entries) == 1:
-        entry = entries[0]
-        kind = "Directory" if entry.is_dir else "file"
-        what = f"{kind} ~{escape_caption(entry.name)}~"
-    else:
-        what = f"~{len(entries)} files~"
-    return f"Create ~s~ymlink to {what} in"
+    if len(entries) != 1:
+        return tr_n("Create ~s~ymlink to ~{n} file~ in", "Create ~s~ymlink to ~{n} files~ in", len(entries))
+    entry = entries[0]
+    name = escape_caption(entry.name)
+    if entry.is_dir:
+        return tr("Create ~s~ymlink to Directory ~{name}~ in").format(name=name)
+    return tr("Create ~s~ymlink to file ~{name}~ in").format(name=name)
 
 
 class LinkDialog(Dialog):

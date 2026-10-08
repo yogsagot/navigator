@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -84,13 +85,16 @@ class AdvancedSearchDialog(Dialog, _Component):
 
         self.modal_width = 52    # advanced_search_dialog.nml:14
         self.modal_height = 16    # advanced_search_dialog.nml:15
-        self.title = 'Advanced search'    # advanced_search_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('Advanced search'), yielding=True)    # advanced_search_dialog.nml:16
 
         self.after.x = 2    # advanced_search_dialog.nml:21
         self.after.y = 2    # advanced_search_dialog.nml:22
         self.after.width = 38    # advanced_search_dialog.nml:23
         self.after.height = 1    # advanced_search_dialog.nml:24
-        self.after.label_text = 'Date is ~a~fter'    # advanced_search_dialog.nml:25
+        self.after.label_text = _bind(    # advanced_search_dialog.nml:25
+            lambda _o: _tr('Date is ~a~fter'),
+            yielding=True,
+        )
         self.after.label_width = 22    # advanced_search_dialog.nml:26
         self.after.history_id = 'find_after'    # advanced_search_dialog.nml:27
 
@@ -98,7 +102,10 @@ class AdvancedSearchDialog(Dialog, _Component):
         self.before.y = 3    # advanced_search_dialog.nml:33
         self.before.width = 38    # advanced_search_dialog.nml:34
         self.before.height = 1    # advanced_search_dialog.nml:35
-        self.before.label_text = 'Date is ~b~efore'    # advanced_search_dialog.nml:36
+        self.before.label_text = _bind(    # advanced_search_dialog.nml:36
+            lambda _o: _tr('Date is ~b~efore'),
+            yielding=True,
+        )
         self.before.label_width = 22    # advanced_search_dialog.nml:37
         self.before.history_id = 'find_before'    # advanced_search_dialog.nml:38
 
@@ -106,30 +113,39 @@ class AdvancedSearchDialog(Dialog, _Component):
         self.greater.y = 5    # advanced_search_dialog.nml:43
         self.greater.width = 36    # advanced_search_dialog.nml:44
         self.greater.height = 1    # advanced_search_dialog.nml:45
-        self.greater.label_text = 'Size is ~g~reater than'    # advanced_search_dialog.nml:46
+        self.greater.label_text = _bind(    # advanced_search_dialog.nml:46
+            lambda _o: _tr('Size is ~g~reater than'),
+            yielding=True,
+        )
         self.greater.label_width = 22    # advanced_search_dialog.nml:47
 
         self.less.x = 2    # advanced_search_dialog.nml:51
         self.less.y = 6    # advanced_search_dialog.nml:52
         self.less.width = 36    # advanced_search_dialog.nml:53
         self.less.height = 1    # advanced_search_dialog.nml:54
-        self.less.label_text = 'Size is ~l~ess than'    # advanced_search_dialog.nml:55
+        self.less.label_text = _bind(    # advanced_search_dialog.nml:55
+            lambda _o: _tr('Size is ~l~ess than'),
+            yielding=True,
+        )
         self.less.label_width = 22    # advanced_search_dialog.nml:56
 
         self.kinds_caption.x = 3    # advanced_search_dialog.nml:60
         self.kinds_caption.y = 8    # advanced_search_dialog.nml:61
         self.kinds_caption.width = 12    # advanced_search_dialog.nml:62
         self.kinds_caption.height = 1    # advanced_search_dialog.nml:63
-        self.kinds_caption.text = 'Kind'    # advanced_search_dialog.nml:64
+        self.kinds_caption.text = _bind(lambda _o: _tr('Kind'), yielding=True)    # advanced_search_dialog.nml:64
         self.kinds_caption.link = _bind(lambda _o: self.kinds)    # advanced_search_dialog.nml:65
 
         self.kinds.x = 3    # advanced_search_dialog.nml:69
         self.kinds.y = 9    # advanced_search_dialog.nml:70
         self.kinds.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # advanced_search_dialog.nml:71
         self.kinds.height = 2    # advanced_search_dialog.nml:72
-        self.kinds.items = ['E~x~ecutable', 'S~y~mbolic link', 'H~i~dden', 'R~e~ad-only']    # advanced_search_dialog.nml:73
+        self.kinds.items = _bind(    # advanced_search_dialog.nml:73
+            lambda _o: [_tr('E~x~ecutable'), _tr('S~y~mbolic link'), _tr('H~i~dden'), _tr('R~e~ad-only')],
+            yielding=True,
+        )
 
-        self.pick.text = 'O~K~'    # advanced_search_dialog.nml:77
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # advanced_search_dialog.nml:77
         self.pick.default = True    # advanced_search_dialog.nml:78
         self.pick.x = 3    # advanced_search_dialog.nml:79
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:80
@@ -137,14 +153,14 @@ class AdvancedSearchDialog(Dialog, _Component):
         self.pick.height = 2    # advanced_search_dialog.nml:82
         self.pick.on_click = self.on_pick_click    # advanced_search_dialog.nml:76
 
-        self.clear.text = '~C~lear all'    # advanced_search_dialog.nml:87
+        self.clear.text = _bind(lambda _o: _tr('~C~lear all'), yielding=True)    # advanced_search_dialog.nml:87
         self.clear.x = 16    # advanced_search_dialog.nml:88
         self.clear.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:89
         self.clear.width = 14    # advanced_search_dialog.nml:90
         self.clear.height = 2    # advanced_search_dialog.nml:91
         self.clear.on_click = self.on_clear_click    # advanced_search_dialog.nml:86
 
-        self.abandon.text = 'Cancel'    # advanced_search_dialog.nml:95
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # advanced_search_dialog.nml:95
         self.abandon.x = 32    # advanced_search_dialog.nml:96
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:97
         self.abandon.width = 11    # advanced_search_dialog.nml:98

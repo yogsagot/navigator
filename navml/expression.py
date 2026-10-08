@@ -58,6 +58,19 @@ BIND = "_bind"
 #: the same reason, since the expression it wraps is the document's.
 ARGUMENT = "_o"
 
+#: What a translated literal is wrapped in: :func:`navkit.i18n.tr`.
+TRANSLATE = "_tr"
+
+#: The properties whose string literals are captions, and so are translated:
+#: ``title: "Copy"`` compiles to ``_bind(lambda _o: _tr('Copy'))``.  Anything
+#: else -- ``key:``, ``history_id:``, ``align:``, a menu's ``after:`` anchor --
+#: is a name the program reads, not text a person does.
+TRANSLATED = frozenset({"text", "title", "label_text", "items", "prompt"})
+
+#: The functions that read the current language, so an expression calling one
+#: is followed like one reading the widget.
+_TRANSLATING = frozenset({"tr", "tr_n", TRANSLATE})
+
 
 @dataclass(frozen=True, slots=True)
 class Compiled:
@@ -78,10 +91,18 @@ class Compiled:
     rewritten: bool
     #: Whether the whole expression was a literal.
     constant: bool
+    #: Whether a literal was wrapped in :data:`TRANSLATE`, which the generated
+    #: module then has to import.
+    translated: bool = False
+    #: Whether the only thing followed is the language, so the binding is a
+    #: default an assignment may replace (``bind(..., yielding=True)``).
+    yielding: bool = False
 
     @property
     def binding(self) -> str:
         """The expression as :func:`~navkit.reactive.bind` takes it."""
+        if self.yielding:
+            return f"{BIND}(lambda {ARGUMENT}: {self.expression}, yielding=True)"
         return f"{BIND}(lambda {ARGUMENT}: {self.expression})"
 
     @property
@@ -107,6 +128,9 @@ class _Scope(ast.NodeTransformer):
         #: ``width`` must not become the widget's.
         self.bound: list[set[str]] = [set(bound)]
         self.rewrote = False
+        self.translated = False
+        #: Whether the expression calls something that reads the language.
+        self.reads_language = False
 
     def visit(self, node: ast.AST) -> ast.AST:
         """Hand *node* to whichever handler claims its type.
@@ -189,6 +213,36 @@ class _Scope(ast.NodeTransformer):
                     ctx=ast.Load(),
                 )
             )
+        if name in _TRANSLATING:
+            # Not the widget's, but it reads the language, which changes.
+            self.reads_language = True
+        return node
+
+    def translate(self, node: ast.expr) -> ast.expr:
+        """Wrap the caption literals of a value in :data:`TRANSLATE`.
+
+        Only where the literal *is* the value -- the whole expression, an item
+        of a list, a branch of a conditional or an ``or`` -- never a fragment
+        of a larger string, a format, or a method's receiver, which are not
+        captions and would be translated out of their sentence.  A literal with
+        no letter in it (``""``, ``"─"``, ``"7"``) is left alone.
+        """
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, str) and any(c.isalpha() for c in node.value):
+                self.translated = True
+                return ast.Call(
+                    func=ast.Name(id=TRANSLATE, ctx=ast.Load()),
+                    args=[node],
+                    keywords=[],
+                )
+            return node
+        if isinstance(node, (ast.List, ast.Tuple)):
+            node.elts = [self.translate(e) for e in node.elts]
+        elif isinstance(node, ast.IfExp):
+            node.body = self.translate(node.body)
+            node.orelse = self.translate(node.orelse)
+        elif isinstance(node, ast.BoolOp):
+            node.values = [self.translate(v) for v in node.values]
         return node
 
     def _rewritten(self, node: ast.expr) -> ast.expr:
@@ -218,21 +272,27 @@ def compile_expression(
     owner: str = ARGUMENT,
     line: int = 0,
     filename: str = "<markup>",
+    translate: bool = False,
 ) -> Compiled:
     """Compile one property expression.
 
     *own* is every attribute the widget's class declares and *ids* every id the
     document declares; *owner* is the expression naming the widget the property
     belongs to, which is the lambda's parameter unless a handler is being
-    compiled through :func:`compile_handler`.
+    compiled through :func:`compile_handler`.  With *translate*, the caption
+    literals are wrapped in :data:`TRANSLATE`, which makes the expression one
+    that has to be followed: the language can change under it.
     """
     tree = _parse(source, line, filename, mode="eval")
+    constant = isinstance(tree.body, ast.Constant)
     scope = _Scope(_owner(owner, line, filename), own, ids)
-    body = scope.visit(tree.body)
+    body = scope.visit(scope.translate(tree.body) if translate else tree.body)
     return Compiled(
         expression=ast.unparse(ast.fix_missing_locations(body)),
-        rewritten=scope.rewrote,
-        constant=isinstance(tree.body, ast.Constant),
+        rewritten=scope.rewrote or scope.reads_language,
+        constant=constant and not scope.translated,
+        translated=scope.translated,
+        yielding=scope.reads_language and not scope.rewrote,
     )
 
 

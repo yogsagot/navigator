@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -108,7 +109,7 @@ class CalculatorWindow(Window, _Component):
         self.copy_button = Button(parent=self)    # calculator_window.nml:133
         self.close_button = Button(parent=self)    # calculator_window.nml:141
 
-        self.title = 'Calculator'    # calculator_window.nml:19
+        self.title = _bind(lambda _o: _tr('Calculator'), yielding=True)    # calculator_window.nml:19
         self.zoomable = False    # calculator_window.nml:20
         self.resizable = False    # calculator_window.nml:21
 
@@ -116,7 +117,10 @@ class CalculatorWindow(Window, _Component):
         self.expression_caption.y = 2    # calculator_window.nml:37
         self.expression_caption.width = 12    # calculator_window.nml:38
         self.expression_caption.height = 1    # calculator_window.nml:39
-        self.expression_caption.text = 'Ex~p~ression'    # calculator_window.nml:40
+        self.expression_caption.text = _bind(    # calculator_window.nml:40
+            lambda _o: _tr('Ex~p~ression'),
+            yielding=True,
+        )
         self.expression_caption.link = _bind(lambda _o: self.line)    # calculator_window.nml:41
 
         self.line.x = 2    # calculator_window.nml:46
@@ -135,14 +139,20 @@ class CalculatorWindow(Window, _Component):
         self.copy_caption.y = 5    # calculator_window.nml:63
         self.copy_caption.width = 10    # calculator_window.nml:64
         self.copy_caption.height = 1    # calculator_window.nml:65
-        self.copy_caption.text = 'Copy ~A~s'    # calculator_window.nml:66
+        self.copy_caption.text = _bind(    # calculator_window.nml:66
+            lambda _o: _tr('Copy ~A~s'),
+            yielding=True,
+        )
         self.copy_caption.link = _bind(lambda _o: self.copy_as)    # calculator_window.nml:67
 
         self.copy_as.x = 2    # calculator_window.nml:71
         self.copy_as.y = 6    # calculator_window.nml:72
         self.copy_as.width = 9    # calculator_window.nml:73
         self.copy_as.height = 5    # calculator_window.nml:74
-        self.copy_as.items = ['~D~EC', '~H~EX', '~B~IN', '~O~CT', '~E~XP']    # calculator_window.nml:75
+        self.copy_as.items = _bind(    # calculator_window.nml:75
+            lambda _o: [_tr('~D~EC'), _tr('~H~EX'), _tr('~B~IN'), _tr('~O~CT'), _tr('~E~XP')],
+            yielding=True,
+        )
 
         self.row0.x = 12    # calculator_window.nml:79
         self.row0.y = 6    # calculator_window.nml:80
@@ -179,7 +189,10 @@ class CalculatorWindow(Window, _Component):
         self.row4.align = 'right'    # calculator_window.nml:119
         self.row4.text = _bind(lambda _o: self.rows[4])    # calculator_window.nml:120
 
-        self.evaluate_button.text = 'E~v~aluate'    # calculator_window.nml:125
+        self.evaluate_button.text = _bind(    # calculator_window.nml:125
+            lambda _o: _tr('E~v~aluate'),
+            yielding=True,
+        )
         self.evaluate_button.default = True    # calculator_window.nml:126
         self.evaluate_button.x = 3    # calculator_window.nml:127
         self.evaluate_button.y = 12    # calculator_window.nml:128
@@ -187,14 +200,14 @@ class CalculatorWindow(Window, _Component):
         self.evaluate_button.height = 2    # calculator_window.nml:130
         self.evaluate_button.on_click = self.on_evaluate_button_click    # calculator_window.nml:124
 
-        self.copy_button.text = '~C~opy'    # calculator_window.nml:135
+        self.copy_button.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:135
         self.copy_button.x = 16    # calculator_window.nml:136
         self.copy_button.y = 12    # calculator_window.nml:137
         self.copy_button.width = 10    # calculator_window.nml:138
         self.copy_button.height = 2    # calculator_window.nml:139
         self.copy_button.on_click = self.on_copy_button_click    # calculator_window.nml:134
 
-        self.close_button.text = 'Close'    # calculator_window.nml:143
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # calculator_window.nml:143
         self.close_button.x = 27    # calculator_window.nml:144
         self.close_button.y = 12    # calculator_window.nml:145
         self.close_button.width = 10    # calculator_window.nml:146

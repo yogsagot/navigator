@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -48,13 +49,13 @@ class MkdirDialog(Dialog, _Component):
 
         self.modal_width = 48    # mkdir_dialog.nml:15
         self.modal_height = 8    # mkdir_dialog.nml:16
-        self.title = 'Make directory'    # mkdir_dialog.nml:17
+        self.title = _bind(lambda _o: _tr('Make directory'), yielding=True)    # mkdir_dialog.nml:17
         self.close_on_outside_click = True    # mkdir_dialog.nml:20
 
         self.entry.x = 2    # mkdir_dialog.nml:26
         self.entry.y = 2    # mkdir_dialog.nml:27
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:28
         self.entry.height = 1    # mkdir_dialog.nml:29
-        self.entry.label_text = '~N~ame'    # mkdir_dialog.nml:30
+        self.entry.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # mkdir_dialog.nml:30
         self.entry.label_width = 7    # mkdir_dialog.nml:31
         self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:33

@@ -39,6 +39,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
+from navkit.i18n import tr
+
 from navigator.filecopy import Failure, error_message
 from navigator.job import Job, Stopped
 
@@ -115,7 +117,7 @@ def parse_octal(text: str) -> int:
     """One to four octal digits as mode bits; ``ValueError`` otherwise."""
     text = text.strip()
     if not 1 <= len(text) <= 4 or any(c not in "01234567" for c in text):
-        raise ValueError(f"{text!r} is not an octal mode")
+        raise ValueError(tr("{text} is not an octal mode").format(text=repr(text)))
     return int(text, 8)
 
 
@@ -237,15 +239,15 @@ def group_name(gid: int) -> str:
 
 def parse_user(text: str) -> int | None:
     """A user named or numbered; ``None`` for blank, ``ValueError`` for nobody."""
-    return _parse_id(text, lambda name: pwd.getpwnam(name).pw_uid, "user")
+    return _parse_id(text, lambda name: pwd.getpwnam(name).pw_uid, tr("There is no user {name}"))
 
 
 def parse_group(text: str) -> int | None:
     """A group named or numbered; ``None`` for blank, ``ValueError`` for none."""
-    return _parse_id(text, lambda name: grp.getgrnam(name).gr_gid, "group")
+    return _parse_id(text, lambda name: grp.getgrnam(name).gr_gid, tr("There is no group {name}"))
 
 
-def _parse_id(text: str, lookup: Callable[[str], int], kind: str) -> int | None:
+def _parse_id(text: str, lookup: Callable[[str], int], missing: str) -> int | None:
     text = text.strip()
     if not text:
         return None
@@ -255,7 +257,7 @@ def _parse_id(text: str, lookup: Callable[[str], int], kind: str) -> int | None:
         pass
     if text.isdigit():
         return int(text)
-    raise ValueError(f"There is no {kind} {text}")
+    raise ValueError(missing.format(name=text))
 
 
 # -- the time --------------------------------------------------------------------
@@ -282,16 +284,16 @@ def parse_mtime(date: str, clock: str, base: float | None) -> float | None:
     if not date and not clock:
         return None
     if base is None and not (date and clock):
-        raise ValueError("Give both a date and a time")
+        raise ValueError(tr("Give both a date and a time"))
     when = time.localtime(base) if base is not None else None
     if date:
-        day, month, year = _numbers(date, "-", "date")
+        day, month, year = _numbers(date, "-", tr("{text} is not a valid date"))
         if year < 100:
             year += 2000 if year < 70 else 1900
     else:
         day, month, year = when.tm_mday, when.tm_mon, when.tm_year
     if clock:
-        parts = _numbers(clock, ":", "time", minimum=2)
+        parts = _numbers(clock, ":", tr("{text} is not a valid time"), minimum=2)
         hour, minute = parts[0], parts[1]
         second = parts[2] if len(parts) > 2 else 0
     else:
@@ -300,18 +302,18 @@ def parse_mtime(date: str, clock: str, base: float | None) -> float | None:
         stamp = time.mktime((year, month, day, hour, minute, second, 0, 0, -1))
         check = time.localtime(stamp)
     except (OverflowError, ValueError):
-        raise ValueError(f"{date or clock} is not a valid date") from None
+        raise ValueError(tr("{text} is not a valid date").format(text=date or clock)) from None
     if (check.tm_mday, check.tm_mon) != (day, month) or not (0 <= hour < 24 and 0 <= minute < 60 and 0 <= second < 62):
-        raise ValueError(f"{date} {clock}".strip() + " is not a valid date")
+        raise ValueError(tr("{text} is not a valid date").format(text=f"{date} {clock}".strip()))
     if base is not None and int(stamp) == int(base):
         return None
     return stamp
 
 
-def _numbers(text: str, separator: str, what: str, minimum: int = 3) -> tuple[int, ...]:
+def _numbers(text: str, separator: str, invalid: str, minimum: int = 3) -> tuple[int, ...]:
     parts = text.split(separator)
     if not minimum <= len(parts) <= 3 or not all(p.strip().isdigit() for p in parts):
-        raise ValueError(f"{text} is not a valid {what}")
+        raise ValueError(invalid.format(text=text))
     return tuple(int(p) for p in parts)
 
 

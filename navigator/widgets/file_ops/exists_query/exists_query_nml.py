@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -76,7 +77,7 @@ class ExistsQuery(Dialog, _Component):
 
         self.modal_width = 58    # exists_query.nml:9
         self.modal_height = 9    # exists_query.nml:10
-        self.title = 'Confirm'    # exists_query.nml:11
+        self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # exists_query.nml:11
 
         self.details.x = 1    # exists_query.nml:15
         self.details.y = 1    # exists_query.nml:16
@@ -84,7 +85,7 @@ class ExistsQuery(Dialog, _Component):
         self.details.height = 2    # exists_query.nml:18
         self.details.align = 'center'    # exists_query.nml:19
 
-        self.agree.text = '~Y~es'    # exists_query.nml:23
+        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # exists_query.nml:23
         self.agree.default = True    # exists_query.nml:24
         self.agree.x = _bind(lambda _o: self.slot(0))    # exists_query.nml:25
         self.agree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # exists_query.nml:26
@@ -92,21 +93,21 @@ class ExistsQuery(Dialog, _Component):
         self.agree.height = 2    # exists_query.nml:28
         self.agree.on_click = self.on_agree_click    # exists_query.nml:22
 
-        self.refuse.text = '~N~o'    # exists_query.nml:32
+        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # exists_query.nml:32
         self.refuse.x = _bind(lambda _o: self.slot(1))    # exists_query.nml:33
         self.refuse.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # exists_query.nml:34
         self.refuse.width = 11    # exists_query.nml:35
         self.refuse.height = 2    # exists_query.nml:36
         self.refuse.on_click = self.on_refuse_click    # exists_query.nml:31
 
-        self.every.text = '~A~ll'    # exists_query.nml:40
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # exists_query.nml:40
         self.every.x = _bind(lambda _o: self.slot(2))    # exists_query.nml:41
         self.every.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # exists_query.nml:42
         self.every.width = 11    # exists_query.nml:43
         self.every.height = 2    # exists_query.nml:44
         self.every.on_click = self.on_every_click    # exists_query.nml:39
 
-        self.abandon.text = 'Cancel'    # exists_query.nml:48
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # exists_query.nml:48
         self.abandon.x = _bind(lambda _o: self.slot(3))    # exists_query.nml:49
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # exists_query.nml:50
         self.abandon.width = 11    # exists_query.nml:51

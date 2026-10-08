@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import glyphs
+from navkit.i18n import tr
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -14,7 +15,7 @@ class FindProgress(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.ok.text = "Cancel"
+        self.ok.text = tr("Cancel")
 
     def fit(self, path: str) -> str:
         """*path*, its start cut to ``…`` (``...`` in ASCII) if the line is too

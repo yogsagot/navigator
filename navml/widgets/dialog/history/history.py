@@ -42,6 +42,7 @@ from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
+from navkit.i18n import tr
 from navkit.reactive import bind, effect, peek, reactive, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -213,8 +214,6 @@ class HistoryList(ListViewer, DropDown):
     #: What has been typed, or None while no search is on.
     search: str | None = reactive(None)
 
-    SEARCH_LABEL = " Search: "
-
     def __init__(self, button: History, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: The button that dropped this, and the line it fills.
@@ -250,13 +249,13 @@ class HistoryList(ListViewer, DropDown):
     def footer_text(self) -> str:
         if self.search is None:
             return super().footer_text()
-        return f"{self.SEARCH_LABEL}{self.search} "
+        return tr(" Search: ") + f"{self.search} "
 
     def cursor_position(self) -> tuple[int, int] | None:
         """While searching, the caret after what has been typed, on the bottom edge."""
         if self.search is None or not self.framed:
             return None
-        x = self.label_x(self.footer_text()) + len(self.SEARCH_LABEL) + len(self.search)
+        x = self.label_x(self.footer_text()) + len(tr(" Search: ")) + len(self.search)
         return min(x, self.width - 2), self.height - 1
 
     def layout(self, width: int, height: int) -> None:

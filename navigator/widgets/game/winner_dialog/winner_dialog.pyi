@@ -8,6 +8,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
 from typing import Any
+from navkit.i18n import tr
 from navigator.tetris import ANONYMOUS
 
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
@@ -91,7 +92,7 @@ class GameWindow(Window):
         game = self.game
         self._asking = True
         try:
-            await Dialog(title="Information", prompt=f"Game over\n\nFinal score - {game.score}",
+            await Dialog(title=tr("Information"), prompt=tr("Game over\n\nFinal score - {score}").format(score=game.score),
                          buttons="ok").execute(app)
             place = tetris.place_for(self.style_name, game.score)
             if place is None:

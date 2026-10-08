@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -75,7 +76,7 @@ class AttrDialog(Dialog, _Component):
 
         self.modal_width = 60    # attr_dialog.nml:20
         self.modal_height = 20    # attr_dialog.nml:21
-        self.title = 'File Attributes'    # attr_dialog.nml:22
+        self.title = _bind(lambda _o: _tr('File Attributes'), yielding=True)    # attr_dialog.nml:22
         self.buttons = 'ok-cancel'    # attr_dialog.nml:23
 
         self.name_row.x = 2    # attr_dialog.nml:28
@@ -92,20 +93,26 @@ class AttrDialog(Dialog, _Component):
         self.heading.y = 4    # attr_dialog.nml:46
         self.heading.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # attr_dialog.nml:47
         self.heading.height = 1    # attr_dialog.nml:48
-        self.heading.text = 'O~w~ner      Group      Others     Special'    # attr_dialog.nml:49
+        self.heading.text = _bind(    # attr_dialog.nml:49
+            lambda _o: _tr('O~w~ner      Group      Others     Special'),
+            yielding=True,
+        )
         self.heading.link = _bind(lambda _o: self.bits)    # attr_dialog.nml:50
 
         self.bits.x = 3    # attr_dialog.nml:54
         self.bits.y = 5    # attr_dialog.nml:55
         self.bits.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # attr_dialog.nml:56
         self.bits.height = 3    # attr_dialog.nml:57
-        self.bits.items = ['Read', 'Write', 'Exec', 'Read', 'Write', 'Exec', 'Read', 'Write', 'Exec', 'Set UID', 'Set GID', 'Sticky']    # attr_dialog.nml:58
+        self.bits.items = _bind(    # attr_dialog.nml:58
+            lambda _o: [_tr('Read'), _tr('Write'), _tr('Exec'), _tr('Read'), _tr('Write'), _tr('Exec'), _tr('Read'), _tr('Write'), _tr('Exec'), _tr('Set UID'), _tr('Set GID'), _tr('Sticky')],
+            yielding=True,
+        )
 
         self.octal.x = 2    # attr_dialog.nml:64
         self.octal.y = 9    # attr_dialog.nml:65
         self.octal.width = 16    # attr_dialog.nml:66
         self.octal.height = 1    # attr_dialog.nml:67
-        self.octal.label_text = '~O~ctal'    # attr_dialog.nml:68
+        self.octal.label_text = _bind(lambda _o: _tr('~O~ctal'), yielding=True)    # attr_dialog.nml:68
         self.octal.label_width = 10    # attr_dialog.nml:69
         self.octal.mask = '9999'    # attr_dialog.nml:70
         self.octal.base = 8    # attr_dialog.nml:71
@@ -119,39 +126,45 @@ class AttrDialog(Dialog, _Component):
         self.user.y = 10    # attr_dialog.nml:86
         self.user.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # attr_dialog.nml:87
         self.user.height = 1    # attr_dialog.nml:88
-        self.user.label_text = '~U~ser'    # attr_dialog.nml:89
+        self.user.label_text = _bind(lambda _o: _tr('~U~ser'), yielding=True)    # attr_dialog.nml:89
         self.user.label_width = 10    # attr_dialog.nml:90
 
         self.group.x = 2    # attr_dialog.nml:94
         self.group.y = 11    # attr_dialog.nml:95
         self.group.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # attr_dialog.nml:96
         self.group.height = 1    # attr_dialog.nml:97
-        self.group.label_text = '~G~roup'    # attr_dialog.nml:98
+        self.group.label_text = _bind(lambda _o: _tr('~G~roup'), yielding=True)    # attr_dialog.nml:98
         self.group.label_width = 10    # attr_dialog.nml:99
 
         self.date.x = 2    # attr_dialog.nml:106
         self.date.y = 12    # attr_dialog.nml:107
         self.date.width = 26    # attr_dialog.nml:108
         self.date.height = 1    # attr_dialog.nml:109
-        self.date.label_text = '~D~ate'    # attr_dialog.nml:110
+        self.date.label_text = _bind(lambda _o: _tr('~D~ate'), yielding=True)    # attr_dialog.nml:110
         self.date.label_width = 10    # attr_dialog.nml:111
 
         self.clock.x = 30    # attr_dialog.nml:115
         self.clock.y = 12    # attr_dialog.nml:116
         self.clock.width = 20    # attr_dialog.nml:117
         self.clock.height = 1    # attr_dialog.nml:118
-        self.clock.label_text = '~T~ime'    # attr_dialog.nml:119
+        self.clock.label_text = _bind(lambda _o: _tr('~T~ime'), yielding=True)    # attr_dialog.nml:119
         self.clock.label_width = 6    # attr_dialog.nml:120
 
         self.recurse_caption.x = 2    # attr_dialog.nml:125
         self.recurse_caption.y = 14    # attr_dialog.nml:126
         self.recurse_caption.width = 10    # attr_dialog.nml:127
         self.recurse_caption.height = 1    # attr_dialog.nml:128
-        self.recurse_caption.text = '~R~ecurse'    # attr_dialog.nml:129
+        self.recurse_caption.text = _bind(    # attr_dialog.nml:129
+            lambda _o: _tr('~R~ecurse'),
+            yielding=True,
+        )
         self.recurse_caption.link = _bind(lambda _o: self.recurse)    # attr_dialog.nml:130
 
         self.recurse.x = 12    # attr_dialog.nml:134
         self.recurse.y = 14    # attr_dialog.nml:135
         self.recurse.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # attr_dialog.nml:136
         self.recurse.height = 1    # attr_dialog.nml:137
-        self.recurse.items = ['No', 'Files', 'Dirs', 'All']    # attr_dialog.nml:138
+        self.recurse.items = _bind(    # attr_dialog.nml:138
+            lambda _o: [_tr('No'), _tr('Files'), _tr('Dirs'), _tr('All')],
+            yielding=True,
+        )

@@ -89,7 +89,7 @@ def test_one_file_opens_on_its_own_mode_owner_and_time(tmp_path):
     assert (dialog.octal.value, dialog.symbolic.text) == ("0640", "rw-r-----")
     assert dialog.user.value == fileattr.user_name(os.getuid())
     assert dialog.date.value == fileattr.date_text(1_700_000_000)
-    assert dialog.info_row.text == "1 bytes"
+    assert dialog.info_row.text == "1 byte"
     assert dialog.recurse.disabled
     assert dialog.user.choices == fileattr.users()
     assert dialog.group.choices == fileattr.assignable_groups()

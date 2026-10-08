@@ -28,6 +28,7 @@ from typing import Any, Iterable
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
+from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
@@ -131,7 +132,8 @@ class DirEntry:
     @property
     def display_size(self) -> str:
         if self.is_dir and not self.counted:
-            return " UP--DIR" if self.name == ".." else "     DIR"
+            mark = tr("UP--DIR") if self.name == ".." else tr("DIR")
+            return f"{mark:>8.8}"
         size = float(self.size)
         for unit in ("", "K", "M", "G", "T"):
             if size < 1024 or unit == "T":
@@ -507,10 +509,10 @@ def count_lengths(path: Path, entries: list[DirEntry], job: Any = None) -> None:
         entry.size, entry.counted = size, True
 
 
-def free_space_text(path: Path) -> str:
-    """*Free space*'s line, ``TDrive.GetFreeSpace``: the bytes free on the
-    file system holding *path*, named by where it is mounted as DN named the
-    drive.  Empty when it cannot be told.  A thread runs it."""
+def free_space_of(path: Path) -> tuple[int, str] | None:
+    """*Free space*'s figures, ``TDrive.GetFreeSpace``: the bytes free on the
+    file system holding *path*, and where it is mounted, as DN named the
+    drive.  ``None`` when it cannot be told.  A thread runs it."""
     import shutil
 
     from navigator import diskinfo
@@ -518,13 +520,12 @@ def free_space_text(path: Path) -> str:
     try:
         free = shutil.disk_usage(path).free
     except OSError:
-        return ""
+        return None
     try:
         mounts = Path("/proc/self/mounts").read_text(encoding="utf-8", errors="replace")
     except OSError:
         mounts = ""
-    mount = diskinfo.mount_of(path.resolve(), mounts)[0]
-    return f"~{free:,}~ free bytes on ~{mount}"
+    return free, diskinfo.mount_of(path.resolve(), mounts)[0]
 
 
 class ScanJob:
@@ -539,11 +540,11 @@ class ScanJob:
 
 
 def read_listing(path: Path, show_hidden: bool, sort: str, *, free: bool,
-                 **options: Any) -> tuple[list[DirEntry], str | None, str]:
-    """:func:`scan_directory` and, with *free*, :func:`free_space_text`: one
+                 **options: Any) -> tuple[list[DirEntry], str | None, tuple[int, str] | None]:
+    """:func:`scan_directory` and, with *free*, :func:`free_space_of`: one
     read on the panel's thread."""
     entries, error = scan_directory(path, show_hidden, sort, **options)
-    return entries, error, free_space_text(path) if free and error is None else ""
+    return entries, error, free_space_of(path) if free and error is None else None
 
 
 class Panel(ListViewer):
@@ -575,9 +576,9 @@ class Panel(ListViewer):
     #: thread, which takes a slow disk or a dead network mount longer than a
     #: frame: the rows say *Reading directory...* meanwhile.
     scanning: bool = reactive(False)
-    #: *Free space*'s line for the directory read last, ``~`` around what is
-    #: bright; empty without the box, or over a *Find:* listing.
-    free_space: str = reactive("")
+    #: *Free space*'s bytes and mount point for the directory read last;
+    #: ``None`` without the box, or over a *Find:* listing.
+    free_space: tuple[int, str] | None = reactive(None)
     #: Columns kept clear at each end of the top edge, so the path never runs
     #: under a window icon painted there -- the file manager's close and zoom
     #: icons sit on its panels' frames.  Kept at both ends because the title
@@ -768,7 +769,7 @@ class Panel(ListViewer):
             app.post_event(WakeEvent())
 
     def _apply(self, request: _ScanRequest, entries: list[DirEntry], error: str | None,
-               free: str = "") -> None:
+               free: tuple[int, str] | None = None) -> None:
         """Show what a read of ``request.path`` found."""
         path = request.path
         self._pending = None
@@ -1167,7 +1168,10 @@ class Panel(ListViewer):
         if not self.focus_within and peek(self, Panel.quick_search) is not None:
             self.quick_search = None
 
-    SEARCH_LABEL = " Search: "
+    @property
+    def search_label(self) -> str:
+        """What the footer says before the typed text while searching."""
+        return f" {tr('Search:')} "
 
     def cursor_position(self) -> tuple[int, int] | None:
         """While searching, the caret after what has been typed, on the footer."""
@@ -1175,7 +1179,7 @@ class Panel(ListViewer):
         if text is None or not self.framed:
             return None
         footer = self.footer_text()
-        x = self.label_x(footer) + len(self.SEARCH_LABEL) + len(text)
+        x = self.label_x(footer) + len(self.search_label) + len(text)
         return min(x, self.width - 2), self.height - 1
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
@@ -1346,13 +1350,13 @@ class Panel(ListViewer):
         """The path column's width: its longest directory, between its
         heading and :data:`MAX_PATH_WIDTH`."""
         longest = max((text_width(item.display_path) for item in self.items), default=0)
-        return max(len(self.DETAIL_COLUMNS["path"][0]), min(longest, self.MAX_PATH_WIDTH))
+        return max(len(self.heading("path")), min(longest, self.MAX_PATH_WIDTH))
 
     def _owner_width(self) -> int:
         """The owner column's width: its longest ``user:group``, never
         narrower than its heading nor wider than :data:`MAX_OWNER_WIDTH`."""
         longest = max((text_width(item.display_owner) for item in self.items), default=0)
-        return max(len(self.DETAIL_COLUMNS["owner"][0]), min(longest, self.MAX_OWNER_WIDTH))
+        return max(len(self.heading("owner")), min(longest, self.MAX_OWNER_WIDTH))
 
     @computed
     def list_columns(self) -> tuple[tuple[int, int, int], ...]:
@@ -1527,20 +1531,22 @@ class Panel(ListViewer):
         searching, what the search has typed instead.
         """
         if self.quick_search is not None:
-            return f"{self.SEARCH_LABEL}{self.quick_search} "
+            return f"{self.search_label}{self.quick_search} "
         # *Selected files* and *Current file* say which of the two the line
         # may show; with neither it is empty (:meth:`shows`).
         marked = self.marked_entries if self.shows("selected_files") else []
         if marked:
             # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.
             size = sum(item.size for item in marked)
-            summary = f" {size:,} bytes in {len(marked)} selected files "
+            total = tr_n("{n:,} byte", "{n:,} bytes", size)
+            summary = " " + tr_n("{total} in {n} selected file", "{total} in {n} selected files", len(marked),
+                                 total=total) + " "
         elif not self.shows("current_file"):
             return ""
         else:
             entry = self.selected
             if entry is None:
-                summary = f" {len(self.items)} items "
+                summary = " " + tr_n("{n} item", "{n} items", len(self.items)) + " "
             elif entry.directory is not None:
                 # DN's find panel gave the file's directory a row of its own;
                 # here it is the whole path, its start cut as the title's is.
@@ -1571,15 +1577,18 @@ class Panel(ListViewer):
         if self.shows("totals"):
             items = self.items
             if not any(item.name != ".." for item in items):
-                text = "No files in this directory"
+                text = tr("No files in this directory")
             else:
                 files = [item for item in items if not item.is_dir]
                 size = sum(item.size for item in files)
-                text = (f"Total: ~{len(files):,}~ {'file' if len(files) == 1 else 'files'} with "
-                        f"~{size:,}~ {'byte' if size == 1 else 'bytes'}")
+                total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
+                text = tr_n("Total: ~{n:,}~ file with {total}", "Total: ~{n:,}~ files with {total}", len(files),
+                            total=total)
             lines.append((text, "totals"))
         if self.shows("free_space") and self.found is None and self.free_space:
-            lines.append((self.free_space, "free-space"))
+            free, mount = self.free_space
+            lines.append((tr_n("~{n:,}~ free byte on ~{mount}", "~{n:,}~ free bytes on ~{mount}", free,
+                               mount=mount), "free-space"))
         return tuple(lines)
 
     @computed
@@ -1738,7 +1747,7 @@ class Panel(ListViewer):
 
     def render_items(self, surface: Surface) -> None:
         if self.scanning:
-            surface.draw_text(self.inset + 1, self.inset + self.header, "Reading directory...",
+            surface.draw_text(self.inset + 1, self.inset + self.header, tr("Reading directory..."),
                               self.style, max(0, self.width - 4))
             return
         if self.view_mode != "list":
@@ -1761,18 +1770,29 @@ class Panel(ListViewer):
                     surface.fill(x, top + row, width, 1, " ", style)
                 self._draw_name(surface, x, top + row, width, item, style)
 
+    @staticmethod
+    def heading(key: str) -> str:
+        """The column *key*'s heading in the current language: ``name`` or
+        one of :data:`DETAIL_COLUMNS`, whose headings are these in English."""
+        return {
+            "name": tr("Name"),
+            "size": tr("Size"),
+            "attributes": tr("Attr"),
+            "owner": tr("Owner"),
+            "date": tr("Date"),
+            "path": tr("Path"),
+        }[key]
+
     def _column_spans(self) -> list[tuple[str, int, int]]:
         """``(heading, x, width)`` for the columns of the current mode."""
         if self.view_mode == "detailed":
-            return [
-                ("Name" if key == "name" else self.DETAIL_COLUMNS[key][0], x, width)
-                for key, x, width in self.detail_columns
-            ]
+            return [(self.heading(key), x, width) for key, x, width in self.detail_columns]
         if self.view_mode == "list":
             columns = self.list_columns
+            name = self.heading("name")
             if not columns:
-                return [("Name", self.inset, self.inner_width)]
-            return [("Name", x, width) for _, x, width in columns]
+                return [(name, self.inset, self.inner_width)]
+            return [(name, x, width) for _, x, width in columns]
         return []
 
     def render_header(self, surface: Surface) -> None:

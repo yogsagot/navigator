@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.reactive import unbind
 
 from navml.widgets.dialog.button import Button
@@ -23,7 +24,7 @@ class SearchProgress(Dialog):
         # because `Dialog' binds the OK caption to its `buttons' (*Yes* for
         # yes-no-cancel) and a value cannot be assigned over a binding.
         unbind(self.ok, Button.text)
-        self.ok.text = "~S~top"
+        self.ok.text = tr("~S~top")
 
     def accept(self) -> Any:
         """*Stop* answers what Esc does: nothing, which is a stopped search."""

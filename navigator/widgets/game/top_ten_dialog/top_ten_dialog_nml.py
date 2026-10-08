@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -46,7 +47,7 @@ class TopTenDialog(Dialog, _Component):
         self.modal_width = 59    # top_ten_dialog.nml:8
         self.modal_height = 19    # top_ten_dialog.nml:9
         self.title = _bind(    # top_ten_dialog.nml:10
-            lambda _o: 'Pentix Top Ten' if self.game_style == 'pentix' else 'Tetris Top Ten'
+            lambda _o: _tr('Pentix Top Ten') if self.game_style == 'pentix' else _tr('Tetris Top Ten')
         )
         self.buttons = 'ok'    # top_ten_dialog.nml:11
 
@@ -54,4 +55,7 @@ class TopTenDialog(Dialog, _Component):
         self.heading.y = 2    # top_ten_dialog.nml:18
         self.heading.width = 55    # top_ten_dialog.nml:19
         self.heading.height = 1    # top_ten_dialog.nml:20
-        self.heading.text = '~Name                           Start  End       Score~'    # top_ten_dialog.nml:21
+        self.heading.text = _bind(    # top_ten_dialog.nml:21
+            lambda _o: _tr('~Name                           Start  End       Score~'),
+            yielding=True,
+        )

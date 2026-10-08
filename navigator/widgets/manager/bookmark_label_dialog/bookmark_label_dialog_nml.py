@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -42,12 +43,12 @@ class BookmarkLabelDialog(Dialog, _Component):
 
         self.modal_width = 48    # bookmark_label_dialog.nml:9
         self.modal_height = 8    # bookmark_label_dialog.nml:10
-        self.title = 'Bookmark label'    # bookmark_label_dialog.nml:11
+        self.title = _bind(lambda _o: _tr('Bookmark label'), yielding=True)    # bookmark_label_dialog.nml:11
         self.close_on_outside_click = True    # bookmark_label_dialog.nml:13
 
         self.entry.x = 2    # bookmark_label_dialog.nml:17
         self.entry.y = 2    # bookmark_label_dialog.nml:18
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:19
         self.entry.height = 1    # bookmark_label_dialog.nml:20
-        self.entry.label_text = '~L~abel'    # bookmark_label_dialog.nml:21
+        self.entry.label_text = _bind(lambda _o: _tr('~L~abel'), yielding=True)    # bookmark_label_dialog.nml:21
         self.entry.label_width = 8    # bookmark_label_dialog.nml:22

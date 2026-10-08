@@ -28,6 +28,7 @@ from typing import Any
 from navkit.application import Application
 from navkit.commands import Command
 from navkit.events import ClickOutsideEvent, Event
+from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
@@ -303,4 +304,4 @@ class Dialog(Modal):
         everything the line cannot say lives here -- and it returns nothing,
         because the generated function supplies the ``return True``.
         """
-        self.prompt = "Enter accepts, Escape dismisses."
+        self.prompt = tr("Enter accepts, Escape dismisses.")

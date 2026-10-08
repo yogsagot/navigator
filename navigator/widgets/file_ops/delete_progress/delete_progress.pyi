@@ -9,6 +9,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar
 
 from typing import Any
+from navkit.i18n import tr
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path

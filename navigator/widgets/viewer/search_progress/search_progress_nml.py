@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
@@ -56,7 +57,7 @@ class SearchProgress(Dialog, _Component):
 
         self.modal_width = 34    # search_progress.nml:14
         self.modal_height = 8    # search_progress.nml:15
-        self.title = 'Search Progress'    # search_progress.nml:16
+        self.title = _bind(lambda _o: _tr('Search Progress'), yielding=True)    # search_progress.nml:16
         self.buttons = 'ok'    # search_progress.nml:17
         self.closable = False    # search_progress.nml:19
 

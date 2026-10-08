@@ -52,6 +52,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.i18n import tr, tr_n
 from navkit.reactive import effect, untracked
 
 from navml.widgets.dialog.control import escape_caption
@@ -73,15 +74,16 @@ def name_for(entries: Sequence[Any]) -> str:
     """``File notes.txt``, ``Directory src``, ``3 files, 1 directory``."""
     if len(entries) == 1:
         entry = entries[0]
-        kind = "Directory" if entry.is_dir else "File"
-        return f"{kind} ~{escape_caption(entry.name)}~"
+        if entry.is_dir:
+            return tr("Directory ~{name}~").format(name=escape_caption(entry.name))
+        return tr("File ~{name}~").format(name=escape_caption(entry.name))
     dirs = sum(1 for entry in entries if entry.is_dir)
     files = len(entries) - dirs
     parts = []
     if files:
-        parts.append(f"{files} file" + ("s" if files != 1 else ""))
+        parts.append(tr_n("{n} file", "{n} files", files))
     if dirs:
-        parts.append(f"{dirs} director" + ("ies" if dirs != 1 else "y"))
+        parts.append(tr_n("{n} directory", "{n} directories", dirs))
     return "~" + ", ".join(parts) + "~"
 
 
@@ -92,21 +94,21 @@ def info_for(survey: fileattr.Survey) -> str:
         return ""
     mode = st.st_mode
     if stat.S_ISDIR(mode):
-        text = "directory"
+        text = tr("directory")
     elif stat.S_ISREG(mode):
-        text = f"{st.st_size:,} bytes"
+        text = tr_n("{n:,} byte", "{n:,} bytes", st.st_size)
     elif stat.S_ISLNK(mode):
-        text = "broken link"
+        text = tr("broken link")
     elif stat.S_ISFIFO(mode):
-        text = "named pipe"
+        text = tr("named pipe")
     elif stat.S_ISSOCK(mode):
-        text = "socket"
+        text = tr("socket")
     elif stat.S_ISCHR(mode) or stat.S_ISBLK(mode):
-        text = "device"
+        text = tr("device")
     else:
-        text = "special file"
+        text = tr("special file")
     if survey.link_target is not None:
-        text = f"link to {survey.link_target}, {text}"
+        text = tr("link to {target}, {kind}").format(target=survey.link_target, kind=text)
     return escape_caption(text[0].upper() + text[1:])
 
 
@@ -309,8 +311,8 @@ class AttrDialog(Dialog):
 
     async def ask_to_close(self) -> bool:
         answer = await Dialog(
-            title="Warning",
-            prompt="Changes will be lost. Are you sure?",
+            title=tr("Warning"),
+            prompt=tr("Changes will be lost. Are you sure?"),
             buttons="yes-no",
         ).execute(self.application)
         return answer is True
@@ -345,7 +347,7 @@ class AttrDialog(Dialog):
         except ValueError as error:
             self._request = None
             if self.application is not None:
-                box = Dialog(title="Error", prompt=escape_caption(str(error)), buttons="ok")
+                box = Dialog(title=tr("Error"), prompt=escape_caption(str(error)), buttons="ok")
                 self.spawn(box.execute(self.application))
             return False
         return True

@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -69,10 +70,13 @@ class ReplaceQuery(Dialog, _Component):
 
         self.modal_width = 50    # replace_query.nml:6
         self.modal_height = 8    # replace_query.nml:7
-        self.title = 'Confirm'    # replace_query.nml:8
-        self.prompt = 'Replace this occurence?'    # replace_query.nml:9
+        self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # replace_query.nml:8
+        self.prompt = _bind(    # replace_query.nml:9
+            lambda _o: _tr('Replace this occurence?'),
+            yielding=True,
+        )
 
-        self.pick.text = '~Y~es'    # replace_query.nml:13
+        self.pick.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # replace_query.nml:13
         self.pick.default = True    # replace_query.nml:14
         self.pick.x = 3    # replace_query.nml:15
         self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # replace_query.nml:16
@@ -80,21 +84,21 @@ class ReplaceQuery(Dialog, _Component):
         self.pick.height = 2    # replace_query.nml:18
         self.pick.on_click = self.on_pick_click    # replace_query.nml:12
 
-        self.every.text = '~A~ll'    # replace_query.nml:23
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # replace_query.nml:23
         self.every.x = 14    # replace_query.nml:24
         self.every.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # replace_query.nml:25
         self.every.width = 10    # replace_query.nml:26
         self.every.height = 2    # replace_query.nml:27
         self.every.on_click = self.on_every_click    # replace_query.nml:22
 
-        self.skip.text = '~N~o'    # replace_query.nml:31
+        self.skip.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # replace_query.nml:31
         self.skip.x = 25    # replace_query.nml:32
         self.skip.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # replace_query.nml:33
         self.skip.width = 10    # replace_query.nml:34
         self.skip.height = 2    # replace_query.nml:35
         self.skip.on_click = self.on_skip_click    # replace_query.nml:30
 
-        self.abandon.text = 'Cancel'    # replace_query.nml:39
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # replace_query.nml:39
         self.abandon.x = 36    # replace_query.nml:40
         self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # replace_query.nml:41
         self.abandon.width = 10    # replace_query.nml:42

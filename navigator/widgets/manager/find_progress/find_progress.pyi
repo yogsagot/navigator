@@ -9,6 +9,7 @@ from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
 from navkit import glyphs
+from navkit.i18n import tr
 
 
 class FindProgress(Dialog, _Component):

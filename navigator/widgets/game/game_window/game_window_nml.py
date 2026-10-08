@@ -13,6 +13,8 @@ from __future__ import annotations
 from typing import Any as _Any
 
 from navkit.events import Event as _Event
+from navkit.i18n import tr as _tr
+from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.game.commands import GameSetup, LevelUp, NewGame, PauseGame, ShowTopTen, TogglePreview    # game_window.nml:1
@@ -96,7 +98,7 @@ class GameWindow(Window, _Component):
         self.top_button = Button(parent=self)    # game_window.nml:63
         self.pause_button = Button(parent=self)    # game_window.nml:71
 
-        self.title = "Navigator's game"    # game_window.nml:16
+        self.title = _bind(lambda _o: _tr("Navigator's game"), yielding=True)    # game_window.nml:16
         self.zoomable = False    # game_window.nml:17
         self.resizable = False    # game_window.nml:18
 
@@ -110,28 +112,34 @@ class GameWindow(Window, _Component):
         self.info.width = 23    # game_window.nml:44
         self.info.height = 15    # game_window.nml:45
 
-        self.new_button.text = '~N~ew'    # game_window.nml:49
+        self.new_button.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:49
         self.new_button.x = 28    # game_window.nml:50
         self.new_button.y = 17    # game_window.nml:51
         self.new_button.width = 11    # game_window.nml:52
         self.new_button.height = 2    # game_window.nml:53
         self.new_button.on_click = self.on_new_button_click    # game_window.nml:48
 
-        self.setup_button.text = '~S~etup'    # game_window.nml:57
+        self.setup_button.text = _bind(    # game_window.nml:57
+            lambda _o: _tr('~S~etup'),
+            yielding=True,
+        )
         self.setup_button.x = 39    # game_window.nml:58
         self.setup_button.y = 17    # game_window.nml:59
         self.setup_button.width = 11    # game_window.nml:60
         self.setup_button.height = 2    # game_window.nml:61
         self.setup_button.on_click = self.on_setup_button_click    # game_window.nml:56
 
-        self.top_button.text = '~T~op 10'    # game_window.nml:65
+        self.top_button.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:65
         self.top_button.x = 28    # game_window.nml:66
         self.top_button.y = 19    # game_window.nml:67
         self.top_button.width = 11    # game_window.nml:68
         self.top_button.height = 2    # game_window.nml:69
         self.top_button.on_click = self.on_top_button_click    # game_window.nml:64
 
-        self.pause_button.text = '~P~ause'    # game_window.nml:73
+        self.pause_button.text = _bind(    # game_window.nml:73
+            lambda _o: _tr('~P~ause'),
+            yielding=True,
+        )
         self.pause_button.x = 39    # game_window.nml:74
         self.pause_button.y = 19    # game_window.nml:75
         self.pause_button.width = 11    # game_window.nml:76

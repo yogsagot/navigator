@@ -18,6 +18,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
+
 from navigator.editor.document import Document, read_document
 from navigator.job import Job, Stopped
 from navigator.memory import NotEnoughMemory, edit_budget, out_of_memory
@@ -53,7 +55,7 @@ def refresh_box(job: FileJob):
     return refresh
 
 
-async def read_in_background(app: Any, read: Any, *, message: str = "Reading file") -> Any:
+async def read_in_background(app: Any, read: Any, *, message: str | None = None) -> Any:
     """Run ``read(job, budget)`` on a thread under *Reading file*.
 
     Returns what it returns, or None if it was cancelled or would not fit --
@@ -64,7 +66,7 @@ async def read_in_background(app: Any, read: Any, *, message: str = "Reading fil
     try:
         return await run_with_progress(
             app, lambda: read(job, budget), job,
-            lambda: progress_box(job, message), refresh_box(job),
+            lambda: progress_box(job, tr("Reading file") if message is None else message), refresh_box(job),
             delay=SLOW_PROGRESS_DELAY,
         )
     except Stopped:
@@ -101,7 +103,7 @@ async def write_in_background(app: Any, write: Any, *, total: int = 0) -> bool:
     try:
         await run_with_progress(
             app, lambda: write(job), job,
-            lambda: progress_box(job, "Writing file"), refresh_box(job),
+            lambda: progress_box(job, tr("Writing file")), refresh_box(job),
             delay=SLOW_PROGRESS_DELAY,
         )
     except Stopped:
