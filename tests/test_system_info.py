@@ -51,6 +51,8 @@ def test_the_boxes_text_and_sizes():
     assert lines([("Total", "16G"), ("Available", "8G")], 40) == "    Total : 16G\nAvailable : 8G"
     assert lines([], 40) == " None"
     assert lines([("OS", "x" * 50)], 20).endswith("...")
+    cut = lines([("OS", "x" * 50)], 20, "\u2026")
+    assert len(cut) == 20 and cut.endswith("x\u2026")
     assert size_text(512 * 1024) == "512K" and size_text(20 << 20) == "20M" and size_text(12 << 30) == "12G"
 
 
@@ -71,3 +73,22 @@ def test_the_menu_opens_the_dialog_on_what_was_read(tmp_path, monkeypatch, root)
                   lambda a: seen.update(title=a.modal.title, memory=a.modal.memory.text)])
     assert seen["title"] == "System Information"
     assert seen["memory"].splitlines()[0] == "    Total : 16G"
+
+
+@pytest.mark.parametrize("ascii", [False, True])
+def test_a_value_too_long_for_its_box_ends_in_the_tiers_ellipsis(ascii):
+    from dataclasses import replace
+
+    from conftest import FULL
+    from navkit.application import Application
+    from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE
+    from navkit.widget import Widget
+    from navigator.widgets.shell.system_info_dialog import SystemInfoDialog
+
+    info = replace(FULL, glyphs=GLYPHS_ASCII if ascii else GLYPHS_UNICODE)
+    app = Application(Widget(), terminal=FakeTerminal(80, 25, info=info))
+    dialog = SystemInfoDialog(SystemFacts(other=[("OS", "x" * 200)]))
+    seen = {}
+    run_app(app, [lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+                  lambda a: seen.update(text=dialog.other.text), lambda a: dialog.close()])
+    assert seen["text"].endswith("x..." if ascii else "x\u2026")

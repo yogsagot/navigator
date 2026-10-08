@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit import glyphs
+
 from navml.widgets.dialog.dialog import Dialog
 
 
@@ -15,6 +17,10 @@ class FindProgress(Dialog):
         self.ok.text = "Cancel"
 
     def fit(self, path: str) -> str:
-        """*path*, its start cut to ``...`` if the line is too short (DN's ``Cut``)."""
+        """*path*, its start cut to ``…`` (``...`` in ASCII) if the line is too
+        short (DN's ``Cut``)."""
         room = max(4, self.modal_width - 4)
-        return path if len(path) <= room else "..." + path[-(room - 3):]
+        if len(path) <= room:
+            return path
+        marker = glyphs.ellipsis(self.glyphs)
+        return marker + path[-(room - len(marker)):]

@@ -89,7 +89,7 @@ def test_a_find_listing_has_a_path_column_cut_from_its_start(place):
                   lambda a: None, look])
     assert seen["keys"][-1] == "path"
     deep = str(place / "deep" / "er")
-    shown = deep if len(deep) <= seen["width"] else "..." + deep[-(seen["width"] - 3):]
+    shown = deep if len(deep) <= seen["width"] else "\u2026" + deep[-(seen["width"] - 1):]
     assert any(row.rstrip() == shown for row in seen["rows"])
 
 

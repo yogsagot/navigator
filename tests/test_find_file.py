@@ -293,3 +293,14 @@ def test_directory_branch_lists_every_file_below_and_no_directory(place):
     assert sorted(seen["items"][1:]) == sorted(str(place / p) for p in (
         ".hidden.txt", "a/README", "b/README", "b/big.bin", "a/deep/note.txt", "top.txt"))
     assert seen["again"] is False
+
+
+def test_the_progress_line_cuts_a_long_directory_from_its_start():
+    from navigator.widgets.manager.find_progress import FindProgress
+
+    box = FindProgress()  # detached: the Unicode tier
+    room = box.modal_width - 4
+    path = "/" + "d" * 100 + "/end"
+    assert box.fit("/short") == "/short"
+    assert box.fit(path) == "…" + path[-(room - 1):]
+    assert len(box.fit(path)) == room

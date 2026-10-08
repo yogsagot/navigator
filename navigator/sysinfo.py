@@ -138,14 +138,14 @@ def gather(root: Path = Path("/")) -> SystemFacts:
     return SystemFacts(_board(root), _disks(root), _memory(root), _other(root))
 
 
-def lines(rows: list[tuple[str, str]], width: int) -> str:
+def lines(rows: list[tuple[str, str]], width: int, marker: str = "...") -> str:
     """A box's text, DN's way: the labels right-aligned to a colon, values cut
-    to the box (*width* cells)."""
+    to the box (*width* cells) and ended in *marker* where they are."""
     if not rows:
         return " None"
     room = max(len(label) for label, _ in rows)
     out = []
     for label, value in rows:
         text = f"{label:>{room}} : {value}"
-        out.append(text if len(text) <= width else text[: max(0, width - 3)] + "...")
+        out.append(text if len(text) <= width else text[: max(0, width - len(marker))] + marker)
     return "\n".join(out)
