@@ -1,0 +1,37 @@
+from navml.commands import CloseWindow
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.date_button import CalendarView
+from navml.widgets.window import Window
+
+#: Utilities > Calendar: Turbo Vision's ``TCalendarWindow`` (TVDEMO), not DOS
+#: Navigator's -- DN 1.51 had no calendar; a departure, asked for.
+#:
+#: A month on the desktop, one window at a time: the month and year between
+#: the arrows that turn it, the weekdays, six weeks with today marked.  It is
+#: navml's ``CalendarView``, the one a date line's ``▐↓▌`` drops, so it pages
+#: and picks a month or a year the same way; here it only shows, as TVDEMO's
+#: did.  *Go to current date* (Alt+D, or ``T`` in the month) brings today
+#: back under the cursor -- not TVDEMO's, asked for.  Esc closes it.
+CalendarWindow(Window):
+    title: "Calendar"
+    zoomable: False
+    resizable: False
+
+    keys:
+        escape: CloseWindow
+
+    CalendarView:
+        id: month
+        x: 2
+        y: 1
+        width: 22
+        height: 8
+        can_focus: True
+
+    Button:
+        id: today_button
+        text: "Go to current ~d~ate"
+        x: 2
+        y: 10
+        width: 23
+        height: 2

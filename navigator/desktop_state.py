@@ -17,7 +17,7 @@ What a window keeps:
   -- cursor, scroll -- is the file's own history's, which opening restores.
   SmartPad comes back as SmartPad.
 - a **tree window** the directory it was on.
-- the **calculator** its expression.
+- the **calculator** its expression, and the **calendar** that it was open (on today again).
 
 And whether the trash can shows, and where (``TTrashCan``).
 
@@ -64,6 +64,7 @@ def _window(window: Any) -> dict[str, Any] | None:
     from navigator.widgets.editor.edit_window import EditWindow
     from navigator.widgets.manager.manager import Manager
     from navigator.widgets.shell.calculator_window import CalculatorWindow
+    from navigator.widgets.shell.calendar_window import CalendarWindow
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.viewer.file_window import FileWindow
 
@@ -93,6 +94,8 @@ def _window(window: Any) -> dict[str, Any] | None:
                     hidden=bool(window.tree.show_hidden))
     elif isinstance(window, CalculatorWindow):
         kept.update(kind="calculator", expression=window.line.value)
+    elif isinstance(window, CalendarWindow):
+        kept.update(kind="calendar")
     else:
         return None
     return kept
@@ -216,6 +219,10 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
         window = desktop.open(CalculatorWindow())
         window.line.value = kept.get("expression") or ""
         return window
+    if kind == "calendar":
+        from navigator.widgets.shell.calendar_window import CalendarWindow
+
+        return desktop.open(CalendarWindow())
     return None
 
 

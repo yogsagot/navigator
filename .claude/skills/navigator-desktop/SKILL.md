@@ -13,7 +13,8 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
     `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `hidden` side, `view`
     standing in (tree/quick/info, put back through `switch_view` after the active panel is focused);
   - `EditWindow`: `path` (cursor and scroll are the edit history's), SmartPad as SmartPad; `FileWindow`: `path`,
-    `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression.
+    `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression; `CalendarWindow`: only that
+    it was open (it comes back on today).
   Anything else is not kept. A window that cannot be made again (a file or directory gone) is left out.
 - The trash can's showing and place are kept too (`snapshot`'s `trash`), as `SaveDesktop` wrote them.
 - **Save desktop** (`SaveDesktop`) writes over the saved one. **Load desktop** (`LoadDesktop`) says *No desktop has

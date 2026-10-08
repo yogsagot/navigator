@@ -162,6 +162,17 @@ class SystemInfo(Command):
     """
 
 
+class OpenCalendar(Command):
+    """Utilities > Calendar: a month on the desktop, today marked.
+
+    Not DOS Navigator 1.51's, which had no calendar -- a departure, asked for:
+    Turbo Vision's ``TCalendarWindow`` from Borland's TVDEMO, the calendar a
+    Turbo Vision desktop of the time offered beside its calculator.
+    """
+
+    title = "Calendar"
+
+
 class EnvEdit(Command):
     """Utilities > Edit environment: the environment variables, in an editor.
 
@@ -225,6 +236,7 @@ __all__ = [
     "HistoryList",
     "EnvEdit",
     "SystemInfo",
+    "OpenCalendar",
     "ExecuteOsCommand",
     "SaveDesktop",
     "LoadDesktop",

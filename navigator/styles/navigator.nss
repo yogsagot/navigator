@@ -43,17 +43,23 @@ Window::title       { fg: $frame-fg; bg: $frame-bg; bold: $frame-bold; dim: $fra
 Window:active::title { fg: $active-frame-fg; bg: $active-frame-bg; bold: $active-frame-bold; dim: $active-frame-dim; italic: $active-frame-italic; underline: $active-frame-underline; reverse: $active-frame-reverse }
 Window::icon        { fg: $frame-icon-fg; bg: $frame-icon-bg; bold: $frame-icon-bold; dim: $frame-icon-dim; italic: $frame-icon-italic; underline: $frame-icon-underline; reverse: $frame-icon-reverse }
 
-/* The calculator and the game are dialogs DN put on the desktop as windows: a
+/* The calculator and the game are dialogs DN put on the desktop as windows,
+   and TVDEMO's calendar beside them (Utilities > Calendar, not DN's): a
    dialog's colours, the frame single while another window is in front. */
 CalculatorWindow,
+CalendarWindow,
 GameWindow                     { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 CalculatorWindow:active,
+CalendarWindow:active,
 GameWindow:active              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 CalculatorWindow::title,
 CalculatorWindow:active::title,
+CalendarWindow::title,
+CalendarWindow:active::title,
 GameWindow::title,
 GameWindow:active::title       { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 CalculatorWindow::icon,
+CalendarWindow::icon,
 GameWindow::icon               { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 
 /* A panel's own colours are its listing colours, which is also what the frame
@@ -297,15 +303,18 @@ HistoryList ScrollBar            { fg: $dialog-history-bar-page-fg;  bg: $dialog
    history list's kin, and take its colours: the line's own [50] for the frame
    and the days, [51] for the one under the cursor, and [52] Input arrow for
    what is not a value -- the month, its arrows, the weekdays, today.  No DN
-   slot names them; neither existed. */
-Calendar, TimePicker             { fg: $dialog-input-normal-fg;      bg: $dialog-input-normal-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
-Calendar::title, Calendar::arrow,
-Calendar::weekday, TimePicker::arrow,
+   slot names them; neither existed.  Utilities > Calendar's window holds the
+   same view and takes the same colours. */
+CalendarView, TimePicker          { fg: $dialog-input-normal-fg;      bg: $dialog-input-normal-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
+CalendarView::title, CalendarView::arrow,
+CalendarView::weekday, TimePicker::arrow,
 TimePicker::separator            { fg: $dialog-input-arrow-fg;       bg: $dialog-input-arrow-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
-Calendar::day:today              { fg: $dialog-input-arrow-fg;       bg: $dialog-input-arrow-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
-Calendar::day:selected,
-Calendar::title:selected,
+CalendarView::day:today          { fg: $dialog-input-arrow-fg;       bg: $dialog-input-arrow-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
+CalendarView::day:selected,
+CalendarView::title:selected,
 TimePicker::value:selected       { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
+/* Today keeps its mark under the cursor: Input arrow's colour on the cursor's. */
+CalendarView::day:selected:today { fg: $dialog-input-arrow-fg;       bg: $dialog-input-selected-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
 HistoryList ScrollBar::arrow,
 HistoryList ScrollBar::thumb     { fg: $dialog-history-bar-icons-fg; bg: $dialog-history-bar-icons-bg; bold: $dialog-history-bar-icons-bold; dim: $dialog-history-bar-icons-dim; italic: $dialog-history-bar-icons-italic; underline: $dialog-history-bar-icons-underline; reverse: $dialog-history-bar-icons-reverse }
 

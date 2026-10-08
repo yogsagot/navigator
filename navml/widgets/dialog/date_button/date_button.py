@@ -43,6 +43,7 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
+from navkit.widget import Widget
 
 from navml.component import take_declared
 from navml.widgets.dialog.drop_down import DropDown
@@ -77,13 +78,24 @@ def add_months(day: datetime.date, months: int) -> datetime.date:
     return day.replace(year=year, month=month, day=min(day.day, last))
 
 
-class Calendar(DropDown):
-    """A month of days, framed and modal, with a cursor on one of them."""
+class CalendarView(Widget):
+    """A month of days with a cursor on one of them: TVDEMO's ``TCalendarView``.
 
-    #: Three columns a day, seven days, a blank either side and the frame.
-    WIDTH = 24
-    #: The frame, the month row, the weekday row and six weeks.
-    HEIGHT = 10
+    What :class:`Calendar` drops and Navigator's *Calendar* window holds.  It
+    moves and pages and picks a month or a year, and paints itself :attr:`inset`
+    cells in from its edges -- one for the drop-down, which draws its frame
+    there, none in a window, whose frame is the window's.  Enter, Space and a
+    click on a day call :meth:`picked`, which is the drop-down's choice and
+    nothing here; Esc is not this view's.
+    """
+
+    #: Three columns a day, seven days and a blank either side.
+    WIDTH = 22
+    #: The month row, the weekday row and six weeks.
+    HEIGHT = 8
+
+    #: How far in from each edge the month is painted.
+    inset = 0
 
     parts = ("title", "arrow", "weekday", "day")
 
@@ -94,15 +106,9 @@ class Calendar(DropDown):
     #: Where the keys are: the ``days``, or the top row's ``month`` or ``year``.
     section: str = reactive("days")
 
-    def __init__(self, button: DateButton | None = None, day: datetime.date | None = None,
-                 **kwargs: Any) -> None:
+    def __init__(self, day: datetime.date | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        #: The button that dropped this, and the line it fills.
-        self.button = button
         self.day = day or datetime.date.today()
-
-    def layout(self, width: int, height: int) -> None:
-        """Keep the rectangle the button worked out; a cascade must not refit it."""
 
     # -- the model -----------------------------------------------------------
 
@@ -142,7 +148,8 @@ class Calendar(DropDown):
     def title_spans(self) -> tuple[tuple[int, str], tuple[int, str]]:
         """Where the month's name and the year are painted, and what they say."""
         month, year = _calendar.month_name[self.day.month], str(self.day.year)
-        start = max(1, (self.width - len(month) - 1 - len(year)) // 2)
+        inner = self.width - 2 * self.inset
+        start = self.inset + max(0, (inner - len(month) - 1 - len(year)) // 2)
         return (start, month), (start + len(month) + 1, year)
 
     def drop(self, section: str) -> HistoryList | None:
@@ -174,7 +181,7 @@ class Calendar(DropDown):
         width, height = max(widest + 3, 16), min(len(items) + 2, 14)
         root = app.root
         x = ox + self.x + (mx if section == "month" else yx) - 1
-        y = oy + self.y
+        y = oy + self.y + self.inset - 1
         x = max(0, min(x, root.width - width))
         y = max(0, min(y, root.height - height))
         window.x = bind(lambda o, v=x: v)
@@ -184,20 +191,15 @@ class Calendar(DropDown):
         app.overlay(window)
         return window
 
-    def choose(self) -> None:
-        """The day goes into the line, and the calendar comes down."""
-        self.close()
-        if self.button is not None:
-            self.button.pick(self.day)
+    def picked(self) -> None:
+        """Enter, Space or a click on a day: nothing, for a view that only shows."""
 
     # -- input ---------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
         day = self.day
         section = self.section
-        if event.matches("escape"):
-            self.close()
-        elif event.matches("tab", "shift+tab"):
+        if event.matches("tab", "shift+tab"):
             step = -1 if event.shift else 1
             self.section = SECTIONS[(SECTIONS.index(section) + step) % len(SECTIONS)]
         elif event.char in ("m", "M"):
@@ -222,7 +224,7 @@ class Calendar(DropDown):
                 else:
                     self.day = datetime.date(day.year, 12, 31) if last else datetime.date(day.year, 1, 1)
         elif event.matches("enter", "space"):
-            self.choose()
+            self.picked()
         elif event.matches("left"):
             self.move(-1)
         elif event.matches("right"):
@@ -245,13 +247,15 @@ class Calendar(DropDown):
             self.day = day.replace(day=_calendar.monthrange(day.year, day.month)[1])
         elif event.char in ("t", "T"):
             self.day = datetime.date.today()
-        # A modal calendar keeps every other key: nothing behind it may act.
+        else:
+            return False
         return True
 
     def day_at(self, x: int, y: int) -> datetime.date | None:
         """The day painted at *x*, *y*, if any."""
-        row, column = y - 3, (x - 1) // 3
-        if not (0 <= row < 6 and 0 <= column < 7 and 1 <= x < 1 + 3 * 7):
+        inset = self.inset
+        row, column = y - inset - 2, (x - inset) // 3
+        if not (0 <= row < 6 and 0 <= column < 7 and inset <= x < inset + 3 * 7):
             return None
         return self.weeks()[row][column]
 
@@ -262,40 +266,47 @@ class Calendar(DropDown):
         if event.action != "press" or event.button != "left":
             return True
         (mx, month), (yx, year) = self.title_spans()
-        if event.y == 1 and 1 <= event.x <= 3:
+        inset, top = self.inset, event.y == self.inset
+        if top and inset <= event.x <= inset + 2:
             self.turn(-1)
-        elif event.y == 1 and self.width - 4 <= event.x <= self.width - 2:
+        elif top and self.width - inset - 3 <= event.x <= self.width - inset - 1:
             self.turn(1)
-        elif event.y == 1 and mx <= event.x < mx + len(month):
+        elif top and mx <= event.x < mx + len(month):
             self.drop("month")
-        elif event.y == 1 and yx <= event.x < yx + len(year):
+        elif top and yx <= event.x < yx + len(year):
             self.drop("year")
         else:
             day = self.day_at(event.x, event.y)
             if day is not None:
                 self.day = day
-                self.choose()
+                self.picked()
+        if self.can_focus and self.application is not None and self.application.focused is not self:
+            self.focus()
         return True
 
     # -- painting ------------------------------------------------------------
 
     def render(self, surface: Surface) -> None:
-        if self.width < 2 or self.height < 2:
+        inset = self.inset
+        if self.width < 2 * inset + 2 or self.height < 2 * inset + 2:
             return
-        surface.draw_box(0, 0, self.width, self.height, self.style,
-                         charset=self.box_charset(), fill=" ")
+        if inset:
+            surface.draw_box(0, 0, self.width, self.height, self.style,
+                             charset=self.box_charset(), fill=" ")
+        else:
+            surface.fill(0, 0, self.width, self.height, " ", self.style)
         day = self.day
         arrows = ARROWS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"]
         arrow = self.part_style("arrow")
-        surface.draw_text(2, 1, arrows[0], arrow)
-        surface.draw_text(self.width - 3, 1, arrows[1], arrow)
+        surface.draw_text(inset + 1, inset, arrows[0], arrow)
+        surface.draw_text(self.width - inset - 2, inset, arrows[1], arrow)
         (mx, month), (yx, year) = self.title_spans()
-        surface.draw_text(mx, 1, month, self.part_style("title", selected=self.section == "month"))
-        surface.draw_text(yx, 1, year, self.part_style("title", selected=self.section == "year"))
+        surface.draw_text(mx, inset, month, self.part_style("title", selected=self.section == "month"))
+        surface.draw_text(yx, inset, year, self.part_style("title", selected=self.section == "year"))
         names = [_calendar.day_abbr[(self.first_weekday + i) % 7][:2] for i in range(7)]
         weekday = self.part_style("weekday")
         for column, name in enumerate(names):
-            surface.draw_text(2 + 3 * column, 2, name, weekday)
+            surface.draw_text(inset + 1 + 3 * column, inset + 1, name, weekday)
         today = datetime.date.today()
         for row, week in enumerate(self.weeks()):
             for column, cell in enumerate(week):
@@ -304,7 +315,43 @@ class Calendar(DropDown):
                 style = self.part_style(
                     "day", selected=cell == day and self.section == "days", today=cell == today
                 )
-                surface.draw_text(1 + 3 * column, 3 + row, f"{cell.day:>3}", style)
+                surface.draw_text(inset + 3 * column, inset + 2 + row, f"{cell.day:>3}", style)
+
+
+class Calendar(CalendarView, DropDown):
+    """A month of days, framed and modal, dropped by a :class:`DateButton`."""
+
+    #: The view and the frame round it.
+    WIDTH = CalendarView.WIDTH + 2
+    HEIGHT = CalendarView.HEIGHT + 2
+
+    inset = 1
+
+    def __init__(self, button: DateButton | None = None, day: datetime.date | None = None,
+                 **kwargs: Any) -> None:
+        super().__init__(day, **kwargs)
+        #: The button that dropped this, and the line it fills.
+        self.button = button
+
+    def layout(self, width: int, height: int) -> None:
+        """Keep the rectangle the button worked out; a cascade must not refit it."""
+
+    def picked(self) -> None:
+        self.choose()
+
+    def choose(self) -> None:
+        """The day goes into the line, and the calendar comes down."""
+        self.close()
+        if self.button is not None:
+            self.button.pick(self.day)
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        if event.matches("escape"):
+            self.close()
+        else:
+            await super().on_key(event)
+        # A modal calendar keeps every other key: nothing behind it may act.
+        return True
 
 
 class DateButton(History):

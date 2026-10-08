@@ -38,6 +38,10 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   a base-8 `MaskedField` takes 0-7 only. **`DateField`/`TimeField`** are masked lines with a `Calendar` (TVDEMO's
   `TCalendarView` with a cursor; month/year picked from lists by click, `M`/`Y`, or Tab) or a `TimePicker` dropped by
   `▐↓▌` or Alt+Down; Up/Down step by the place under the caret, PgUp/PgDn by ten times that, carrying.
+- **`CalendarView`** is the month without the drop-down: `Calendar` is `CalendarView` + `DropDown` with `inset = 1`
+  (its frame) and `picked()` choosing; the view alone (`inset = 0`) answers `False` for keys it does not use, so Esc
+  reaches its window. Styles name `CalendarView`, which matches both. Utilities > Calendar (`CalendarWindow`,
+  TVDEMO's `TCalendarWindow`, a departure: DN 1.51 had no calendar) is one in a window.
 - **`ChoiceField`** is a `ChoiceLine` (an `InputLine` never typed into: every key but Tab/Shift+Tab/Esc/Alt+letter/
   Up/Down drops its list, Enter included; Up/Down step between the dialog's lines) over **`History.choices`**, a fixed
   list that records nothing and that typing quick-searches by the panel's rule.

@@ -31,6 +31,7 @@ from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen,
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     Game,
+    OpenCalendar,
     ToggleTrashCan,
     SaversSetup,
     ScreenRest,
@@ -1150,6 +1151,29 @@ class Shell(DockLayout):
         window = desktop.open(CalculatorWindow())
         width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
         window.locate(min(X, max(0, desktop.width - width)), min(Y, max(0, desktop.height - height)),
+                      width, height)
+        window.take_keyboard()
+        return True
+
+    # -- Utilities > Calendar --------------------------------------------------------
+
+    async def on_open_calendar(self, event: OpenCalendar) -> bool:
+        """Utilities > *Calendar*: TVDEMO's calendar window, a departure (DN had
+        none) -- the one window, brought forward if it is open, else opened in
+        the middle of the desktop on today."""
+        from navigator.widgets.shell.calendar_window import CalendarWindow
+        from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
+
+        if self.console_visible:
+            self.toggle_console()
+        desktop = self.desktop
+        for window in desktop.windows():
+            if isinstance(window, CalendarWindow):
+                desktop.activate(window)
+                return True
+        window = desktop.open(CalendarWindow())
+        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
+        window.locate(max(0, (desktop.width - width) // 2), max(0, (desktop.height - height) // 2),
                       width, height)
         window.take_keyboard()
         return True

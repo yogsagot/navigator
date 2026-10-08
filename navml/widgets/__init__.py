@@ -35,6 +35,7 @@ navml.register(__name__)
 _COMPONENTS = {
     "Button": "dialog.button",
     "Calendar": "dialog.date_button",
+    "CalendarView": "dialog.date_button",
     "CheckBoxes": "dialog.check_boxes",
     "ChoiceField": "dialog.choice_field",
     "ChoiceLine": "dialog.choice_line",
@@ -147,7 +148,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.file_list import FileInfoPane, FileList
     from navml.widgets.dialog.choice_field import ChoiceField
     from navml.widgets.dialog.choice_line import ChoiceLine
-    from navml.widgets.dialog.date_button import Calendar, DateButton
+    from navml.widgets.dialog.date_button import Calendar, CalendarView, DateButton
     from navml.widgets.dialog.date_field import DateField
     from navml.widgets.dialog.time_button import TimeButton, TimePicker
     from navml.widgets.dialog.time_field import TimeField
