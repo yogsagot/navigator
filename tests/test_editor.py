@@ -634,10 +634,10 @@ def test_shift_insert_pastes_in_the_files_own_line_breaks(files):
 
 
 def test_the_block_follows_text_typed_before_it_and_not_after(files):
-    # Tab at the end: a character typed there would replace the block, the
-    # cursor standing on its end.
+    # ^Q D at the end: a character typed there would replace the block and a
+    # Tab indent it, the cursor standing on its end.
     _, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("end", shift=True),
-                       KeyEvent("home"), *typed("ab"), KeyEvent("end"), KeyEvent("tab"))
+                       KeyEvent("home"), *typed("ab"), KeyEvent("end"), KeyEvent("q", ctrl=True), KeyEvent("d"))
     assert editor.block == (Pos(0, 8), Pos(0, 12))
     assert editor.block_text == "line"
 
@@ -1030,6 +1030,48 @@ def test_ctrl_k_i_and_u_indent_and_unindent_the_blocks_lines(files):
     _, editor = text_editor(files, b"\ta\n b\nc\n", KeyEvent("down", shift=True),
                             KeyEvent("down", shift=True), *chord("u"))
     assert editor.document.encode() == b"       a\nb\nc\n"
+
+
+def test_tab_in_the_block_indents_it_and_shift_tab_unindents(files):
+    _, editor = text_editor(files, b"a\n b\nc\n", KeyEvent("down", shift=True),
+                            KeyEvent("down", shift=True), KeyEvent("tab"))
+    # A tab stop's width each, where ^K I puts one blank.
+    assert editor.document.encode() == b"        a\n         b\nc\n" and editor.block[0] == Pos(0, 0)
+    # Up to a tab stop's width each: a whole tab, nine blanks less eight, the one blank there is.
+    _, editor = text_editor(files, b"\ta\n         b\n c\nd\n", *[KeyEvent("down", shift=True)] * 3,
+                            KeyEvent("tab", shift=True))
+    assert editor.document.encode() == b"a\n b\nc\nd\n"
+
+
+def test_tab_outside_the_block_is_a_tab(files):
+    _, editor = text_editor(files, b"a\nb\n", KeyEvent("right", shift=True), KeyEvent("down"),
+                            KeyEvent("tab"))
+    assert editor.document.encode() == b"a\nb       \n" and editor.block_text == "a"
+
+
+def test_shift_tab_with_no_block_unindents_the_cursors_line_by_a_tab_stop(files):
+    _, editor = text_editor(files, b"x\n          a\n  b\n", KeyEvent("down"), KeyEvent("end"),
+                            KeyEvent("tab", shift=True))
+    assert editor.document.encode() == b"x\n  a\n  b\n" and (editor.line, editor.col) == (1, 3)
+    # Fewer blanks than a stop: the ones there are, the cursor in them to the line's start.
+    _, editor = text_editor(files, b"   a\n", KeyEvent("right"), KeyEvent("tab", shift=True))
+    assert editor.document.encode() == b"a\n" and (editor.line, editor.col) == (0, 0)
+
+
+def test_shift_tab_on_a_line_with_no_indent_does_nothing(files):
+    # Not even end the typing run: one undo still takes back both halves.
+    _, editor = text_editor(files, b"abc\n", KeyEvent("end"), *typed("de"), KeyEvent("tab", shift=True),
+                            *typed("fg"), KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"abc\n" and (editor.line, editor.col) == (0, 3)
+    _, editor = text_editor(files, b"abc\n", KeyEvent("right"), KeyEvent("tab", shift=True))
+    assert editor.document.encode() == b"abc\n" and (editor.line, editor.col) == (0, 1)
+    assert not editor.buffer.can_undo
+
+
+def test_shift_tab_outside_the_block_unindents_the_cursors_line_and_keeps_the_block(files):
+    _, editor = text_editor(files, b" a\n        b\n", KeyEvent("end", shift=True), KeyEvent("down"),
+                            KeyEvent("tab", shift=True))
+    assert editor.document.encode() == b" a\nb\n" and editor.block_text == " a"
 
 
 def test_ctrl_k_brackets_change_the_case_of_the_block(files):

@@ -216,16 +216,28 @@ class MoveBlock(Command):
     title = "Move block"
 
 
+@dataclass(frozen=True, slots=True)
 class IndentBlock(Command):
-    """``cmIndentBlock``: ^K^I -- every line of the block a column further right."""
+    """``cmIndentBlock``: ^K^I -- every line of the block a column further right.
+
+    With *stop*, a tab stop's width of columns: Tab in the block, a departure.
+    """
 
     title = "Indent"
 
+    stop: bool = False
 
+
+@dataclass(frozen=True, slots=True)
 class UnindentBlock(Command):
-    """``cmUnindentBlock``: ^K^U -- every line of the block a column further left, where a blank allows."""
+    """``cmUnindentBlock``: ^K^U -- every line of the block a column further left, where a blank allows.
+
+    With *stop*, up to a tab stop's width of columns: Shift+Tab, a departure.
+    """
 
     title = "Unindent"
+
+    stop: bool = False
 
 
 class UpcaseBlock(Command):

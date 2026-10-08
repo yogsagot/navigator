@@ -277,6 +277,9 @@ class FileEditor(Widget):
         "ctrl+n": InsertLine,
         "tab": TabKey,
         "ctrl+i": TabKey,
+        #: ^K U by a tab stop on Shift+Tab, as Tab in the block is ^K I by one
+        #: -- a departure, asked for; DN bound nothing to Shift+Tab here.
+        "shift+tab": UnindentBlock(stop=True),
         "backspace": DeleteBack,
         "ctrl+h": DeleteBack,
         "delete": DeleteChar,
@@ -1093,8 +1096,12 @@ class FileEditor(Widget):
         return range(start.line, last + 1)
 
     async def on_indent_block(self, event: IndentBlock) -> bool:
-        """^K I: a blank before each line of the block -- at its left column, for a column block."""
+        """^K I: a blank before each line of the block -- at its left column, for a column block.
+
+        Tab's (*stop*) puts a tab stop's width of blanks there instead.
+        """
         left = self.rectangle[1] if self.column_block is not None else 0
+        blanks = " " * (self.tab_size if event.stop else 1)
         block = self.block
         self._moved()
         self._begin()
@@ -1102,29 +1109,55 @@ class FileEditor(Widget):
             text = self.document.lines[number]
             index, past = columns.index_at(text, left, self.tab_size)
             if not past and index < len(text):
-                self.buffer.insert(Pos(number, index), " ")
+                self.buffer.insert(Pos(number, index), blanks)
         if block is not None and block[0].index == 0:
             # The blank went before the block's first character, and into it.
             self.block = (Pos(block[0].line, 0), self.block[1])
         self._end()
         return True
 
+    def _blank_at(self, number: int, left: int) -> bool:
+        """Whether line *number* has a blank at column *left* that an unindent can take."""
+        text = self.document.lines[number]
+        index, past = columns.index_at(text, left, self.tab_size)
+        return not past and index < len(text) and text[index] in " \t"
+
     async def on_unindent_block(self, event: UnindentBlock) -> bool:
         """^K U: one blank out of each line of the block where one stands there; a
-        leading tab gives way to one column fewer of spaces."""
-        left = self.rectangle[1] if self.column_block is not None else 0
+        leading tab gives way to one column fewer of spaces.
+
+        Shift+Tab's (*stop*) takes out up to a tab stop's width of columns,
+        one at a time the same way, so a line with fewer blanks loses those it has.
+        With the cursor outside the block, or no block, it unindents the
+        cursor's line instead, the cursor moving left with its text.
+        """
+        alone = event.stop and not self._cursor_in_block()
+        if alone:
+            lines, left = range(self.line, min(self.line + 1, len(self.document))), 0
+        else:
+            lines = self._block_lines()
+            left = self.rectangle[1] if self.column_block is not None else 0
+        if not any(self._blank_at(number, left) for number in lines):
+            # Nothing indented: no edit, and the typing run before goes on.
+            return True
         self._moved()
         self._begin()
-        for number in self._block_lines():
-            text = self.document.lines[number]
-            index, past = columns.index_at(text, left, self.tab_size)
-            if past or index >= len(text) or text[index] not in " \t":
-                continue
-            width = columns.advance(text[index], columns.column_of(text, index, self.tab_size),
-                                    self.tab_size)
-            self.buffer.delete(Pos(number, index), Pos(number, index + 1))
-            if width > 1:
-                self.buffer.insert(Pos(number, index), " " * (width - 1))
+        taken = 0
+        for number in lines:
+            taken = 0
+            for _ in range(self.tab_size if event.stop else 1):
+                text = self.document.lines[number]
+                index, past = columns.index_at(text, left, self.tab_size)
+                if past or index >= len(text) or text[index] not in " \t":
+                    break
+                width = columns.advance(text[index], columns.column_of(text, index, self.tab_size),
+                                        self.tab_size)
+                self.buffer.delete(Pos(number, index), Pos(number, index + 1))
+                if width > 1:
+                    self.buffer.insert(Pos(number, index), " " * (width - 1))
+                taken += 1
+        if alone and taken:
+            self._go_column(self.line, max(0, self.col - taken))
         self._end()
         return True
 
@@ -1912,7 +1945,13 @@ class FileEditor(Widget):
         return True
 
     async def on_tab_key(self, event: TabKey) -> bool:
-        """``MakeTab``: blanks to the next stop, or over them in overwrite."""
+        """``MakeTab``: blanks to the next stop, or over them in overwrite.
+
+        With the cursor in the block, ^K I by a tab stop instead
+        (:meth:`on_indent_block`) -- a departure, asked for, as Shift+Tab is ^K U.
+        """
+        if self._cursor_in_block():
+            return await self.on_indent_block(IndentBlock(stop=True))
         stop = (self.col // self.tab_size + 1) * self.tab_size
         if self.overwrite:
             self._moved()
@@ -2099,6 +2138,9 @@ class FileEditor(Widget):
             return self.buffer.can_undo
         if isinstance(command, HideBlock):
             return self.marked
+        if isinstance(command, UnindentBlock) and command.stop:
+            # Shift+Tab: the cursor's line, when no block is there to take it.
+            return True
         if isinstance(command, (FJustify, FRight, FLeft, FCenter)):
             # ``not (ValidBlock and BlockVisible) or VertBlock``: a stream block only.
             return self.block is not None and not self.block_hidden

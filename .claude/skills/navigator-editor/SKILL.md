@@ -36,7 +36,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   ^Q D/T and ^K R leave it be. **A departure, asked for: with the cursor in the block** (`_cursor_in_block`, either
   end included, a column block's rectangle with the column past its right edge) typing and pastes replace it, Del
   and Backspace delete it alone, and Enter (inserting) replaces it with the break, one undo group each, whatever the
-  two settings say (`_takes_block`). Outside it DN's rules above stand. Either way it follows every edit, undo's included, through
+  two settings say (`_takes_block`). Outside it DN's rules above stand. Likewise Tab with the cursor in the block is
+  ^K I by a tab stop (`on_tab_key`, `IndentBlock(stop=True)`), and Shift+Tab is bound to ^K U by up to a tab stop
+  (`UnindentBlock(stop=True)`, `unindent_block_stop` in `keybindings.ini`, always enabled): with the cursor in the
+  block it unindents the block, otherwise the cursor's line alone, the cursor moving left with its text; nothing indented, no edit at all
+  (the typing run before it goes on, `_blank_at`) --
+  departures too; ^K I/U keep DN's one blank. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
