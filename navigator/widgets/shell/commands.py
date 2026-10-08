@@ -265,6 +265,14 @@ class InterfaceSetup(Command):
     title = "Interface"
 
 
+class KeyBindingsSetup(Command):
+    """Options > Configuration > Key bindings: every key table's keys, and
+    ``keybindings.ini`` written with them.  Not DOS Navigator's, which had no
+    key editor -- a departure, by request (:mod:`navigator.keybindings`)."""
+
+    title = "Keys"
+
+
 class SetupConfirmation(Command):
     """Options > Configuration > Confirmations: DOS Navigator's ``cmSetupConfirmation``."""
 

@@ -790,20 +790,29 @@ class Settings:
             content = Settings()
             content.load(target)
             content.section(section).update(self.section(section).values())
-        target.parent.mkdir(parents=True, exist_ok=True)
-        descriptor, temporary = tempfile.mkstemp(
-            dir=target.parent, prefix=f".{target.name}.", suffix=".tmp"
-        )
-        try:
-            with os.fdopen(descriptor, "w", encoding="utf-8") as file:
-                file.write(content.render())
-            os.replace(temporary, target)
-        except BaseException:
-            with contextlib.suppress(OSError):
-                os.unlink(temporary)
-            raise
+        write_atomically(target, content.render())
         self.path = target
         return target
+
+
+def write_atomically(target: Path, text: str) -> None:
+    """*text* as *target*'s whole content, its directory made if need be.
+
+    Written to a temporary file in the same directory and renamed over the
+    old one, so a crash mid-write leaves the old file whole.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(
+        dir=target.parent, prefix=f".{target.name}.", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as file:
+            file.write(text)
+        os.replace(temporary, target)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.unlink(temporary)
+        raise
 
 
 #: The settings, shared by everything that reads one.

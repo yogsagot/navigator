@@ -36,6 +36,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator import keybindings
 from navigator.associations import seed_all as seed_associations
 from navigator.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
@@ -451,6 +452,18 @@ def version_banner() -> str:
     return f"nav {version} from {here} (python {python})"
 
 
+def load_keybindings() -> None:
+    """``keybindings.ini`` beside ``navigator.ini``: written with every
+    default when missing, then read over the key tables.  A line that will
+    not do is a warning before the screen is taken, and keeps its default."""
+    try:
+        keybindings.seed(Navigator)
+    except OSError as error:
+        print(f"nav: {keybindings.path()}: {error.strerror or error}", file=sys.stderr)
+    for warning in keybindings.load(Navigator):
+        print(f"nav: {warning}", file=sys.stderr)
+
+
 def load_settings(path: Path | None = None) -> None:
     """Read the settings file into :data:`SETTINGS`, writing the defaults first if it is missing.
 
@@ -569,6 +582,7 @@ def main(argv: list[str] | None = None) -> int:
     # written from their templates when missing, as navigator.ini is.
     for problem in seed_associations():
         print(f"nav: {problem}", file=sys.stderr)
+    load_keybindings()
     open_database(args.database)
     try:
         seed_bookmarks()

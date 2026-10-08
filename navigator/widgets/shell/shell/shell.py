@@ -63,6 +63,7 @@ from navigator.widgets.shell.commands import (
     InsertName,
     InsertPath,
     InterfaceSetup,
+    KeyBindingsSetup,
     LocalMenuFileEdit,
     MenuFileEdit,
     NewManager,
@@ -1688,6 +1689,37 @@ class Shell(DockLayout):
 
         self.spawn(self.setup(InterfaceDialog(), "interface"))
         return True
+
+    async def on_key_bindings_setup(self, event: KeyBindingsSetup) -> bool:
+        self.spawn(self.key_bindings())
+        return True
+
+    async def key_bindings(self) -> None:
+        """Options > Configuration > Key bindings: the dialog over every key
+        table as bound now; OK binds what it answers and writes
+        ``keybindings.ini`` (on a thread).  A file that cannot be written is
+        said so, and the keys stay bound for this session."""
+        import asyncio
+
+        from navigator import keybindings
+        from navigator.widgets.setup.key_bindings_dialog import KeyBindingsDialog
+
+        app = self.application
+        found = keybindings.sections(type(app))
+        answer = await KeyBindingsDialog(found).execute(app)
+        if answer is None:
+            return
+        keybindings.apply(found, answer)
+        try:
+            await asyncio.to_thread(keybindings.write, found, answer)
+        except OSError as error:
+            from navml.widgets.dialog.dialog import Dialog
+
+            await Dialog(
+                title="Error",
+                prompt=f"Cannot save the key bindings: {error.strerror or error}",
+                buttons="ok",
+            ).execute(app)
 
     async def on_setup_confirmation(self, event: SetupConfirmation) -> bool:
         from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog

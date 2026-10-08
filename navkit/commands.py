@@ -133,41 +133,55 @@ def check_keys(cls: type) -> None:
 
     Called when the class is created, which is the earliest a typo can be
     reported and the only time it can be reported without the key being
-    pressed: a table is read only when its key arrives.  A spec is also
-    refused when it names a key twice under two spellings -- ``"Ctrl+R"`` and
-    ``"ctrl+r"`` -- because one of the two would be lost without a word.
+    pressed: a table is read only when its key arrives.
     """
     table = vars(cls).get("keys")
-    if table is None:
-        return
+    if table is not None:
+        check_table(cls.__name__, table)
+
+
+def check_table(owner: str, table: Any) -> dict[str, Binding]:
+    """*table* under its keys' canonical spellings, or :class:`KeyTableError`.
+
+    *owner* names the table in the message.  A spec is refused when it is not
+    a key, when it names a key twice under two spellings -- ``"Ctrl+R"`` and
+    ``"ctrl+r"`` -- because one of the two would be lost without a word, and
+    when a key is bound both alone and as the start of a chord, which the
+    chord would never let through.
+    """
     if not isinstance(table, Mapping):
         raise KeyTableError(
-            f"{cls.__name__}.keys must be a mapping of key to command, "
+            f"{owner}.keys must be a mapping of key to command, "
             f"not {type(table).__name__}"
         )
     seen: dict[str, str] = {}
+    normal_table: dict[str, Binding] = {}
     for spec, binding in table.items():
         try:
             normal = parse_key(spec)
         except ValueError as error:
-            raise KeyTableError(f"{cls.__name__}.keys: {error}") from None
+            raise KeyTableError(f"{owner}.keys: {error}") from None
         if normal in seen:
             raise KeyTableError(
-                f"{cls.__name__}.keys binds {normal!r} twice, as "
+                f"{owner}.keys binds {normal!r} twice, as "
                 f"{seen[normal]!r} and {spec!r}"
             )
         seen[normal] = spec
-        if " " in normal and normal.split()[0] in table_keys(table):
-            raise KeyTableError(
-                f"{cls.__name__}.keys binds {normal.split()[0]!r} both alone and "
-                f"as the start of the chord {normal!r}"
-            )
         is_class = isinstance(binding, type) and issubclass(binding, Command)
         if not is_class and not isinstance(binding, Command):
             raise KeyTableError(
-                f"{cls.__name__}.keys[{spec!r}] is {binding!r}, which is not "
+                f"{owner}.keys[{spec!r}] is {binding!r}, which is not "
                 f"a Command class or instance"
             )
+        normal_table[normal] = binding
+    singles = {spec for spec in normal_table if " " not in spec}
+    for normal in normal_table:
+        if " " in normal and normal.split()[0] in singles:
+            raise KeyTableError(
+                f"{owner}.keys binds {normal.split()[0]!r} both alone and "
+                f"as the start of the chord {normal!r}"
+            )
+    return normal_table
 
 
 def table_keys(table: Mapping[str, Any]) -> set[str]:
@@ -175,14 +189,68 @@ def table_keys(table: Mapping[str, Any]) -> set[str]:
     return {_normal_spec(spec) for spec in table}
 
 
+#: The tables put in place of a class's own at run time -- a user's rebinding
+#: -- each with the base it is laid over: ``{cls: (base, table)}``.
+_OVERRIDES: dict[type, tuple[type, dict[str, Binding]]] = {}
+
+
+def override_keys(cls: type, table: Mapping[str, Binding], base: type) -> None:
+    """Make *cls*'s keys *base*'s keys and *table*, whatever its classes say.
+
+    Everything the classes from *base* (exclusive) to *cls* bind is replaced,
+    so a key can be taken away as well as given: both halves of a component,
+    the markup's table and the hand-written one, are one table here.  A
+    subclass of *cls* with no override of its own still adds its own keys
+    over this, and *base*'s own override, if it has one, shows through.
+    Checked as a class's table is, and read at the next key.
+    """
+    if base not in cls.__mro__ or base is cls:
+        raise KeyTableError(f"{base.__name__} is not a base of {cls.__name__}")
+    _OVERRIDES[cls] = (base, check_table(cls.__name__, table))
+
+
+def restore_keys(cls: type | None = None) -> None:
+    """Drop *cls*'s override, or every override with no argument."""
+    if cls is None:
+        _OVERRIDES.clear()
+    else:
+        _OVERRIDES.pop(cls, None)
+
+
+def default_keys(cls: type, base: type) -> dict[str, Binding]:
+    """What *cls*'s own tables bind over *base*'s, overrides ignored: the
+    classes from *base* (exclusive) to *cls*, a subclass winning."""
+    merged: dict[str, Binding] = {}
+    mro = cls.__mro__
+    for klass in reversed(mro[: mro.index(base)]):
+        for spec, binding in vars(klass).get("keys", {}).items():
+            merged[_normal_spec(spec)] = binding
+    return merged
+
+
+def own_keys(cls: type, base: type) -> dict[str, Binding]:
+    """What *cls* binds over *base* now: its override, else :func:`default_keys`."""
+    override = _OVERRIDES.get(cls)
+    if override is not None and override[0] is base:
+        return dict(override[1])
+    return default_keys(cls, base)
+
+
 def key_table(cls: type) -> dict[str, Binding]:
     """Every key *cls* binds, with a subclass's binding winning over its base's.
 
     Keyed by the canonical spelling, so a lookup by :attr:`KeyEvent.name`
-    finds a key however the table spelled it.
+    finds a key however the table spelled it.  A class with an override
+    (:func:`override_keys`) is its base's keys and the override, in place of
+    what the classes between them say.
     """
     merged: dict[str, Binding] = {}
     for klass in reversed(cls.__mro__):
+        override = _OVERRIDES.get(klass)
+        if override is not None:
+            base, table = override
+            merged = key_table(base) | table
+            continue
         for spec, binding in vars(klass).get("keys", {}).items():
             merged[_normal_spec(spec)] = binding
     return merged

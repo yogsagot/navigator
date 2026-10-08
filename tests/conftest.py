@@ -255,6 +255,17 @@ def _fresh_database():
 
 
 @pytest.fixture(autouse=True)
+def _default_keys():
+    """Every test starts from the keys the code binds: ``keybindings.ini``'s
+    overrides live on the classes, and would outlast the test that made them."""
+    from navkit.commands import restore_keys
+
+    restore_keys()
+    yield
+    restore_keys()
+
+
+@pytest.fixture(autouse=True)
 def _default_settings(monkeypatch, tmp_path):
     """Every test starts from the default settings, and none can touch ``~/.config``.
 

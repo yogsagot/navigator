@@ -1,0 +1,118 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.key_bindings_dialog.binding_list import BindingList
+
+#: Options > Configuration > Key bindings: every key table's commands and
+#: their keys, a table to a category, laid out as Colors lays out its groups
+#: and items, with the buttons down the right as Edit environment has them.
+#: Not DOS Navigator's, which had no key editor: a departure, by request.
+KeyBindingsDialog(Dialog):
+    modal_width: 78
+    modal_height: 22
+    title: "Key Bindings"
+
+    Label:
+        id: groups_caption
+        x: 2
+        y: 2
+        width: 12
+        height: 1
+        text: "C~a~tegory"
+        link: groups
+
+    ListViewer:
+        id: groups
+        x: 2
+        y: 3
+        width: 19
+        height: 15
+
+    Label:
+        id: bindings_caption
+        x: 22
+        y: 2
+        width: 12
+        height: 1
+        text: "Co~m~mands"
+        link: bindings
+
+    BindingList:
+        id: bindings
+        x: 22
+        y: 3
+        width: 42
+        height: 15
+
+    #: The command under the cursor in full: its keys, and its defaults
+    #: when they differ.
+    StaticText:
+        id: detail
+        x: 2
+        y: 18
+        width: max(0, parent.width - 4)
+        height: 2
+
+    #: The key caught in *Press a key* in place of the command's keys.
+    Button:
+        id: rebind
+        text: "~R~ebind"
+        default: True
+        x: 65
+        y: 3
+        width: 11
+        height: 2
+
+    #: The key caught added to the command's keys.
+    Button:
+        id: append
+        text: "A~d~d"
+        x: 65
+        y: 5
+        width: 11
+        height: 2
+
+    #: The command left with no key.
+    Button:
+        id: unbind
+        text: "C~l~ear"
+        x: 65
+        y: 7
+        width: 11
+        height: 2
+
+    #: The command's keys as the code binds them.
+    Button:
+        id: restore
+        text: "D~e~fault"
+        x: 65
+        y: 9
+        width: 11
+        height: 2
+
+    #: Every command's, in every category, asked first.
+    Button:
+        id: reset
+        text: "Re~s~et"
+        x: 65
+        y: 11
+        width: 11
+        height: 2
+
+    Button:
+        id: pick
+        text: "O~K~"
+        x: 65
+        y: 13
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 65
+        y: 15
+        width: 11
+        height: 2

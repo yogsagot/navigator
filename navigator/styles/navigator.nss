@@ -237,6 +237,8 @@ InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-norma
 InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
 InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
 InputLine::arrow      { fg: $dialog-input-arrow-fg;      bg: $dialog-input-arrow-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
+/* Key bindings' *Press a key*: the key caught, drawn as a line being typed in. */
+KeyCatcher            { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
 
 /* A disabled control is greyed whole -- caption, marked letter, line, its
  * button and a cluster's items alike.  DOS Navigator's palette has no

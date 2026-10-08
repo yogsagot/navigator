@@ -74,6 +74,10 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   modal**.
 - **The nearest widget with the handler decides whether the command is enabled** (`enables(command)`); a command nobody
   handles is disabled, and a disabled command's key falls through as if unbound. `checks(command)` gives menu ticks.
+- **Run-time overrides**: `override_keys(cls, table, base)` makes `cls`'s keys `key_table(base) | table` in place of
+  what the classes between bind (so a key can be removed); `restore_keys()`, `default_keys()`, `own_keys()`,
+  `check_table()`. `key_table` honours them at every lookup, so they are live at once. Navigator's `keybindings.ini`
+  is the user of it (`navigator-keybindings`).
 - Where bindings sit: `Navigator.keys` holds Ctrl+O, F1, F10 (the menu), Alt+X, and Enter/Home/End for the command
   line (Alt+X is on the application because a way out cannot live on a window the user can close); `manager.nml`
   holds Tab, Alt+R/Ctrl+R and F2-F8; `Desktop.keys` the window keys; `dialog.nml` Esc, Enter and Tab.

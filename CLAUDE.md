@@ -52,6 +52,9 @@ editor's phases.
   flag wins over the file for that session and is never written back
 - `extensions.ini`, `viewers.ini`, `editors.ini` and `quickrun.ini` sit beside it too: what Enter, F3/F4 (or
   Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill)
+- `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
+  Options > Configuration > Key bindings; a line that will not parse warns and keeps its default
+  (`navigator-keybindings` skill)
 - Options > Colors keeps the user's palette beside it as `palette.nss` (what differs from the theme, loaded after it);
   Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
 - Regenerate the colour schemes from a DOS Navigator distribution:
@@ -161,6 +164,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |
+| `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |
 | `navigator-file-ops` | copy, move, symlink, erase, attributes, mkdir, jobs |
 | `release-packaging` | PyPI, version, `.deb`/`.rpm`, repositories, GPG, release workflow |

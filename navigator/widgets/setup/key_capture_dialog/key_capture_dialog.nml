@@ -1,0 +1,26 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.key_capture_dialog.key_catcher import KeyCatcher
+
+#: Key bindings' *Press a key*: whatever is pressed is the key to bind, two in
+#: a row a chord; Enter takes it and Esc leaves it.  Not DOS Navigator's,
+#: which had no key editor.
+KeyCaptureDialog(Dialog):
+    modal_width: 44
+    modal_height: 9
+    title: "Press a key"
+
+    StaticText:
+        id: hint
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 2
+        text: "Press the key, or two for a chord.\nEnter takes it, Esc cancels."
+
+    KeyCatcher:
+        id: catcher
+        x: 3
+        y: 5
+        width: max(0, parent.width - 6)
+        height: 1
