@@ -264,14 +264,28 @@ def put_cursor(panel, name: str) -> None:
     panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == name)
 
 
+async def open_attributes(app, timeout: float = 2.0) -> None:
+    """Alt+E, then wait for the dialog itself rather than a fixed time.
+
+    The command reads the selection's modes before the dialog goes up, and a
+    slow runner can take longer than any short sleep: the keys a test posts
+    next would then reach the panel instead of the dialog.
+    """
+    app.post_event(KeyEvent("e", alt=True))
+    loop = asyncio.get_running_loop()
+    end = loop.time() + timeout
+    while not isinstance(app.modal, AttrDialog):
+        assert loop.time() < end, "the File Attributes dialog never opened"
+        await asyncio.sleep(0.01)
+
+
 def test_alt_e_changes_the_tagged_files_and_untags_them(two):
     a, b = two
 
     async def steps(app, shell):
         panel = shell.manager.left
         panel.marked = frozenset({"one.txt", "two.txt"})
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         asked = type(app.modal).__name__
         # The grid has the keyboard: across to Group, down to Write, press.
         for key in (KeyEvent("right"), KeyEvent("down"), KeyEvent(" ", " ")):
@@ -295,16 +309,14 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
         seen = {}
 
         # Unchanged -- and a box pressed back is no change: Esc closes it.
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         for key in (KeyEvent(" ", " "), KeyEvent(" ", " "), KeyEvent("escape")):
             app.post_event(key)
         await asyncio.sleep(0.06)
         seen["unchanged"] = app.modal
 
         # Changed: Esc asks, and No keeps the dialog up as it was.
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         app.post_event(KeyEvent(" ", " "))
         app.post_event(KeyEvent("escape"))
@@ -335,8 +347,7 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
         seen["yes"] = app.modal
 
         # The Cancel button is the answer: changed, it closes without asking.
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         app.post_event(KeyEvent(" ", " "))
         await asyncio.sleep(0.06)
@@ -362,8 +373,7 @@ def test_the_group_drop_down_offers_the_groups_on_the_current_one(two):
 
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         dialog.group.entry.focus()
         app.post_event(KeyEvent("enter"))
@@ -414,8 +424,7 @@ def test_any_key_on_the_group_line_drops_its_list_and_typing_searches_it(two):
 
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         line = dialog.group.entry
         seen = {}
@@ -505,8 +514,7 @@ def test_up_and_down_move_between_the_lines_and_step_on_octal_date_and_time(two)
 
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         dialog.user.disabled = True
         names = {id(line): name for line, name in zip(
@@ -539,8 +547,7 @@ def test_home_and_end_in_the_group_list_go_to_its_ends(two):
 
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
-        app.post_event(KeyEvent("e", alt=True))
-        await asyncio.sleep(0.06)
+        await open_attributes(app)
         dialog = app.modal
         dialog.group.entry.focus()
         app.post_event(KeyEvent("enter"))
