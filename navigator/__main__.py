@@ -59,6 +59,7 @@ from navigator.widgets.shell.commands import (
     Game,
     HistoryList,
     NewManager,
+    OpenCalendar,
     ViewHistory,
 )
 from navigator.widgets.shell.shell import Shell
@@ -261,6 +262,9 @@ class Navigator(Application):
         "alt+q": OpenSmartpad,
         #: ≡ > *Game*, DN's ``kbAltF9`` -- *Navigator's game*, from anywhere.
         "alt+f9": Game,
+        #: Utilities > *Calendar*, TVDEMO's calendar -- a departure, so a key
+        #: of its own rather than DN's: nothing in Navigator binds F12.
+        "ctrl+f12": OpenCalendar,
         "alt+x": Quit(desktop=True),
         "enter": ExecuteCommandLine,
         "home": CommandLineHome,

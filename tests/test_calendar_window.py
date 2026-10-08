@@ -102,3 +102,18 @@ def test_today_keeps_its_mark_under_the_cursor(app):
     run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), lambda a: None, look])
     assert seen["both"] not in (seen["plain"], seen["cursor"], seen["today"])
     assert seen["both"].fg == seen["today"].fg and seen["both"].bg == seen["cursor"].bg
+
+
+def test_ctrl_f12_opens_the_calendar_from_anywhere_and_the_menu_shows_it(app):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navigator.widgets.shell.commands import OpenCalendar
+
+    seen = {}
+
+    def caption(a):
+        item = next(i for i in a.shell.menu.utilities.children if getattr(i, "command", None) is OpenCalendar)
+        seen.update(key=key_caption(item, a, a.manager.left))
+
+    run_app(app, [caption, KeyEvent("f12", ctrl=True), Until(lambda a: calendar(a) is not None),
+                  lambda a: seen.update(open=True)])
+    assert seen["open"] and seen["key"] == "Ctrl-F12"
