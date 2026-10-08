@@ -33,7 +33,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   *Overwrite blocks* only counts with *Persistent blocks* off (DN's `(ebfPbl + ebfObl) = ebfObl`, both read live from
   the setup): then typing and pastes replace the block in one undo group (`_begin_typed`, `InputChar`'s and
   `PasteBlock`'s `DeleteBlock`), and Del deletes it alone (`_deleting_block`); Backspace never takes it, and Tab,
-  ^Q D/T and ^K R leave it be. Either way it follows every edit, undo's included, through
+  ^Q D/T and ^K R leave it be. **A departure, asked for: with the cursor in the block** (`_cursor_in_block`, either
+  end included, a column block's rectangle with the column past its right edge) typing and pastes replace it, Del
+  and Backspace delete it alone, and Enter (inserting) replaces it with the break, one undo group each, whatever the
+  two settings say (`_takes_block`). Outside it DN's rules above stand. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
   (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,

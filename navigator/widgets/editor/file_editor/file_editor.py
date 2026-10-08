@@ -1650,6 +1650,32 @@ class FileEditor(Widget):
         editor = SETTINGS.editor
         return editor.overwrite_blocks and not editor.persistent_blocks
 
+    def _cursor_in_block(self) -> bool:
+        """Whether the cursor stands in the shown block, either end included.
+
+        A stream block runs from its start to its end in the text; a column
+        block is its rectangle, the column just past its right edge counting as
+        that edge, where Shift+Right leaves the cursor.
+        """
+        if not self.has_block:
+            return False
+        rectangle = self.rectangle
+        if rectangle is not None:
+            top, left, bottom, right = rectangle
+            return top <= self.line <= bottom and left <= self.col <= right
+        start, end = self.block
+        return start <= self._mark_pos() <= end
+
+    def _takes_block(self) -> bool:
+        """Whether an edit at the cursor replaces the block instead.
+
+        DN's rule, :meth:`_overwrites_blocks`, and -- a departure, asked for --
+        whenever the cursor stands in the block, whatever the setup says: what
+        is typed or pasted there replaces it, and Del, Backspace or Enter there
+        takes it, as a modern editor's selection does.
+        """
+        return self.has_block and (self._overwrites_blocks() or self._cursor_in_block())
+
     def _block_off(self) -> None:
         """``BlockOff``: with *Persistent blocks* off the block goes; on, it stays."""
         if not SETTINGS.editor.persistent_blocks:
@@ -1662,7 +1688,7 @@ class FileEditor(Widget):
         A block taken goes in the same undo group as what replaces it, and
         starts a group of its own rather than joining a run of typing before it.
         """
-        if self._overwrites_blocks() and self.has_block:
+        if self._takes_block():
             self._moved()
             self._begin(merge)
             self._take_block()
@@ -1671,11 +1697,11 @@ class FileEditor(Widget):
         self._begin(merge)
 
     def _deleting_block(self) -> bool:
-        """Del's ``DeleteBlock`` under :meth:`_overwrites_blocks`: the block alone.
+        """Del's ``DeleteBlock`` under :meth:`_takes_block`: the block alone.
 
         Otherwise the block goes (``BlockOff``, with *Persistent blocks* off)
         and Del deletes as ever."""
-        if self._overwrites_blocks() and self.has_block:
+        if self._takes_block():
             self._delete_block()
             return True
         self._block_off()
@@ -1813,6 +1839,10 @@ class FileEditor(Widget):
         -- and the cursor goes to it; without, it moves as it is and the cursor
         to its start.  A new line with nothing after its indent is left empty,
         the cursor waiting at the indent, as DN's trimmed it once left.
+
+        Inserting with the cursor in the block, the block goes first and the
+        break takes its place, one undo step (:meth:`_cursor_in_block`, a
+        departure).
         """
         if self.overwrite:
             self._moved()
@@ -1822,8 +1852,13 @@ class FileEditor(Widget):
                 self._end()
             self._go_column(self.line + 1, 0)
             return True
-        self._block_off()
-        self._begin()
+        if self._cursor_in_block():
+            self._moved()
+            self._begin()
+            self._take_block()
+        else:
+            self._block_off()
+            self._begin()
         index, _ = self._index()
         text = self._text()
         line = self.line
@@ -1939,9 +1974,14 @@ class FileEditor(Widget):
         """``MakeBack``: the character before the cursor, or the line break.
 
         In the line's leading blanks, under the Editor setup's *Backspace
-        unindents*, :meth:`_unindent` instead.  The block is never taken: with
-        *Persistent blocks* off it only goes (``BlockOff; MakeBack``).
+        unindents*, :meth:`_unindent` instead.  With the cursor in the block,
+        the block alone (:meth:`_cursor_in_block`, a departure); elsewhere it
+        is not taken, and with *Persistent blocks* off only goes (``BlockOff;
+        MakeBack``).
         """
+        if self._cursor_in_block():
+            self._delete_block()
+            return True
         # ``cmDelBackChar: BlockOff; MakeBack``: Backspace never takes the block.
         self._block_off()
         if self._unindent():

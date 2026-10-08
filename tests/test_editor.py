@@ -634,8 +634,10 @@ def test_shift_insert_pastes_in_the_files_own_line_breaks(files):
 
 
 def test_the_block_follows_text_typed_before_it_and_not_after(files):
+    # Tab at the end: a character typed there would replace the block, the
+    # cursor standing on its end.
     _, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("end", shift=True),
-                       KeyEvent("home"), *typed("ab"), KeyEvent("end"), *typed("z"))
+                       KeyEvent("home"), *typed("ab"), KeyEvent("end"), KeyEvent("tab"))
     assert editor.block == (Pos(0, 8), Pos(0, 12))
     assert editor.block_text == "line"
 
@@ -729,11 +731,28 @@ def overwriting_blocks():
     SETTINGS.editor.overwrite_blocks = True
 
 
-def test_without_persistent_blocks_typing_only_unmarks(files):
-    SETTINGS.editor.persistent_blocks = False
+@pytest.mark.parametrize("persistent", [True, False])
+def test_typing_with_the_cursor_in_the_block_replaces_it(files, persistent):
+    # A departure: DN's rule wanted *Overwrite blocks* on and *Persistent
+    # blocks* off; the cursor in the block is enough, whatever the setup.
+    SETTINGS.editor.persistent_blocks = persistent
     _, editor = marked(files, *[KeyEvent("right", shift=True)] * 5, *typed("X"))
-    assert editor.document.encode().startswith(b"firstX line\r\n")
-    assert editor.block is None
+    assert editor.document.encode().startswith(b"X line\r\n")
+    assert editor.block is None and (editor.line, editor.col) == (0, 1)
+
+
+def test_typing_anywhere_inside_the_block_replaces_it(files):
+    # Not only on an end: Shift+Home leaves the cursor at its start, Right moves in.
+    _, editor = marked(files, *[KeyEvent("right")] * 5, KeyEvent("home", shift=True), KeyEvent("right"),
+                       *typed("X"))
+    assert editor.document.encode().startswith(b"X line\r\n")
+
+
+def test_without_persistent_blocks_typing_elsewhere_only_unmarks(files):
+    SETTINGS.editor.persistent_blocks = False
+    _, editor = marked(files, KeyEvent("k", ctrl=True), KeyEvent("b"), KeyEvent("down"),
+                       KeyEvent("k", ctrl=True), KeyEvent("k"), KeyEvent("up"), *typed("X"))
+    assert editor.document.encode().startswith(b"Xfirst line\r\n") and editor.block is None
 
 
 def test_with_overwrite_blocks_typing_replaces_the_block(files):
@@ -746,8 +765,8 @@ def test_with_overwrite_blocks_typing_replaces_the_block(files):
 
 def test_overwrite_blocks_does_nothing_while_blocks_persist(files):
     SETTINGS.editor.overwrite_blocks = True
-    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 5, *typed("X"))
-    assert editor.document.encode().startswith(b"firstX line\r\n") and editor.block_text == "first"
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 5, KeyEvent("end"), *typed("X"))
+    assert editor.document.encode().startswith(b"first lineX\r\n") and editor.block_text == "first"
 
 
 def test_one_undo_takes_the_replacement_back(files):
@@ -766,18 +785,29 @@ def test_with_overwrite_blocks_del_takes_the_block(files):
     assert editor.document.encode().startswith(b"f line\r\n")
 
 
-def test_backspace_never_takes_the_block_and_unmarks_without_persistence(files):
-    overwriting_blocks()
-    _, editor = marked(files, KeyEvent("right"), *[KeyEvent("right", shift=True)] * 4,
-                       KeyEvent("backspace"))
-    # ``BlockOff; MakeBack``: the block goes, one character before the cursor with it.
-    assert editor.document.encode().startswith(b"firs line\r\n") and editor.block is None
+@pytest.mark.parametrize("persistent", [True, False])
+@pytest.mark.parametrize("key", ["backspace", "delete"])
+def test_backspace_and_del_with_the_cursor_in_the_block_take_it_alone(files, key, persistent):
+    SETTINGS.editor.persistent_blocks = persistent
+    _, editor = marked(files, KeyEvent("right"), *[KeyEvent("right", shift=True)] * 4, KeyEvent(key))
+    assert editor.document.encode().startswith(b"f line\r\n") and editor.block is None
+    assert (editor.line, editor.col) == (0, 1)
 
 
-def test_without_overwrite_blocks_del_unmarks_and_deletes_a_character(files):
-    SETTINGS.editor.persistent_blocks = False
-    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 2, KeyEvent("delete"))
-    assert editor.document.encode().startswith(b"fist line\r\n") and editor.block is None
+def test_backspace_and_del_elsewhere_leave_a_persistent_block(files):
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 2, KeyEvent("end"),
+                       KeyEvent("backspace"), KeyEvent("home"), KeyEvent("down"), KeyEvent("delete"))
+    assert editor.document.encode().startswith(b"first lin\r\necond") and editor.block_text == "fi"
+
+
+def test_enter_with_the_cursor_in_the_block_replaces_it_in_one_undo(files):
+    seen = {}
+    _, editor = marked(files, *[KeyEvent("right", shift=True)] * 6, KeyEvent("enter"),
+                       lambda a: seen.update(text=editor_window(a).editor.document.encode(),
+                                             block=editor_window(a).editor.block),
+                       KeyEvent("backspace", alt=True))
+    assert seen["text"].startswith(b"\r\nline\r\n") and seen["block"] is None
+    assert editor.document.encode().startswith(b"first line\r\n")
 
 
 def test_with_overwrite_blocks_a_paste_replaces_the_block(files):
