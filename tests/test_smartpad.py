@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator import smartpad
@@ -63,7 +63,7 @@ def test_what_is_typed_is_saved_on_closing_without_a_question(pad):
     tmp_path, path = pad
     asked = []
     run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
-        KeyEvent("escape"), lambda a: None, lambda a: asked.append(a.modal))
+        KeyEvent("escape"), IDLE, lambda a: asked.append(a.modal))
     assert asked == [None]
     assert path.read_text() == f"{STAMP}\nhi"
 
@@ -102,5 +102,5 @@ def test_a_second_alt_q_brings_the_same_pad_up_stamped_again(pad):
 def test_the_pad_keeps_no_edit_history(pad):
     tmp_path, path = pad
     run(tmp_path, KeyEvent("q", alt=True), lambda a: None, KeyEvent("x", "x"),
-        KeyEvent("escape"), lambda a: None)
+        KeyEvent("escape"), IDLE)
     assert path.exists() and EditRecord.find(path) is None

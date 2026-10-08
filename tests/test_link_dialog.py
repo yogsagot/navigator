@@ -121,6 +121,16 @@ def run_shell(a: Path, b: Path, steps):
     return asyncio.run(main())
 
 
+async def until(predicate, timeout: float = 2.0) -> None:
+    """Wait for *predicate* rather than a fixed time: the link is made on a thread,
+    and the panel's re-read on another after it, both slower on a loaded runner."""
+    loop = asyncio.get_running_loop()
+    end = loop.time() + timeout
+    while not predicate():
+        assert loop.time() < end, "still waiting"
+        await asyncio.sleep(0.01)
+
+
 def put_cursor(panel, name: str) -> None:
     panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == name)
 
@@ -131,11 +141,12 @@ def test_shift_f5_links_into_the_other_panel(two):
     async def steps(app, manager):
         put_cursor(manager.left, "one.txt")
         app.post_event(KeyEvent("f5", shift=True))
-        await asyncio.sleep(0.06)
+        await until(lambda: isinstance(app.modal, LinkDialog))
+        await asyncio.sleep(0.06)  # painted
         opened = app.modal
         painted = app.terminal.frames[-1]
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await until(lambda: not app._tasks and "one.txt" in [e.name for e in manager.right.items])
         return opened, painted, app.modal, [e.name for e in manager.right.items]
 
     opened, painted, after, right = run_shell(a, b, steps)

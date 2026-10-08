@@ -7,7 +7,7 @@ import random
 
 import pytest
 
-from conftest import FakeTerminal, run_app, settle
+from conftest import IDLE, FakeTerminal, Until, run_app, settle
 from navkit.events import KeyEvent, PasteEvent
 from navkit.screen import ScreenBuffer
 
@@ -269,8 +269,7 @@ def test_typing_edits_and_f2_writes_the_bytes_back(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
                   KeyEvent("end"), *typed("!"), KeyEvent("down"), KeyEvent("end"), KeyEvent("enter"),
-                  *typed("x"), lambda a: None, KeyEvent("f2"), lambda a: None,
-                  lambda a: None])
+                  *typed("x"), lambda a: None, KeyEvent("f2"), IDLE])
     assert (files / "text.txt").read_bytes() == b"first line!\r\nsecond\tline\r\nx\r\n"
     assert not editor_window(app).editor.modified
 
@@ -308,8 +307,7 @@ def test_no_closes_without_saving(files):
 def test_yes_saves_and_closes(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
-                  KeyEvent("escape"), lambda a: None, KeyEvent("y", alt=True), lambda a: None,
-                  lambda a: None])
+                  KeyEvent("escape"), lambda a: None, KeyEvent("y", alt=True), IDLE])
     assert editor_window(app) is None
     assert (files / "text.txt").read_bytes() == b"zfirst line\r\nsecond\tline\r\n"
 
@@ -362,7 +360,8 @@ def test_saving_re_reads_the_panel_showing_the_directory(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
                   lambda a: (files / "new.txt").write_text(""),
-                  KeyEvent("f2"), lambda a: None, lambda a: None])
+                  KeyEvent("f2"),
+                  Until(lambda a: "new.txt" in [e.name for e in a.shell.manager.left.items])])
     names = [entry.name for entry in app.shell.manager.left.items]
     assert "new.txt" in names
 
@@ -535,7 +534,7 @@ def edit_named(tmp_path, name: str, *after):
 
 
 def test_shift_f4_edits_a_new_file_that_saving_creates(files):
-    app, window, _ = edit_named(files, "fresh.txt", *typed("hi"), KeyEvent("f2"), lambda a: None)
+    app, window, _ = edit_named(files, "fresh.txt", *typed("hi"), KeyEvent("f2"), IDLE)
     assert window is not None and window.editor.path == files / "fresh.txt"
     assert (files / "fresh.txt").read_bytes() == b"hi"
 
@@ -1080,7 +1079,7 @@ def answer(name):
 
 def test_ctrl_k_w_writes_the_block_with_the_line_divisor(files):
     block_file(files, b"one\r\ntwo\r\nthree\r\n", KeyEvent("down", shift=True),
-               KeyEvent("down", shift=True), *chord("w"), *answer("part.txt"), divisor="crlf")
+               KeyEvent("down", shift=True), *chord("w"), *answer("part.txt"), IDLE, divisor="crlf")
     # DN's BlockWrite: the Editor setup's divisor, none after the last line.
     assert (files / "part.txt").read_bytes() == b"one\r\ntwo\r\n"
 
@@ -1090,7 +1089,7 @@ def test_ctrl_k_w_asks_overwrite_append_or_cancel(files):
     asked = []
     block_file(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"),
                lambda a: asked.append((a.modal.prompt, a.modal.no.text) if a.modal else None),
-               KeyEvent("p", alt=True), lambda a: None)
+               KeyEvent("p", alt=True), IDLE)
     assert "already exists" in asked[0][0] and asked[0][1] == "A~p~pend"
     assert (files / "part.txt").read_bytes() == b"oldnew"
 
@@ -1101,7 +1100,7 @@ def test_ctrl_k_w_overwrites_on_yes_and_keeps_a_read_only_file_read_only(files):
     target.chmod(0o444)
     block_file(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"),
                KeyEvent("y", alt=True), lambda a: None,
-               KeyEvent("enter"), lambda a: None)  # "Modify it anyway?" -- OK
+               KeyEvent("enter"), IDLE)  # "Modify it anyway?" -- OK
     assert target.read_bytes() == b"new"
     assert target.stat().st_mode & 0o777 == 0o444
 
@@ -1116,7 +1115,7 @@ def test_ctrl_k_w_waits_for_a_block(files):
 def test_ctrl_k_w_writes_a_column_block_line_by_line(files):
     SETTINGS.editor.vertical_blocks = True
     block_file(files, b"abcd\nefgh\n", KeyEvent("right"), *[KeyEvent("right", shift=True)] * 2,
-               KeyEvent("down", shift=True), *chord("w"), *answer("cols.txt"))
+               KeyEvent("down", shift=True), *chord("w"), *answer("cols.txt"), IDLE)
     assert (files / "cols.txt").read_bytes() == b"bc\nfg"
 
 
@@ -1557,7 +1556,7 @@ def test_shift_f2_saves_under_a_new_name_and_the_window_takes_it(files):
     seen = []
     app, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f2", shift=True), lambda a: None,
                               lambda a: seen.append(a.modal.title if a.modal else None),
-                              *typed("copy.txt"), KeyEvent("enter"), lambda a: None)
+                              *typed("copy.txt"), KeyEvent("enter"), IDLE)
     assert seen == ["Save File As"]
     assert (files / "copy.txt").read_bytes() == b"xfirst\n"
     assert (files / "text.txt").read_bytes() == b"first\n"  # the old file untouched
@@ -1571,7 +1570,7 @@ def test_save_as_over_a_file_asks_yes_or_cancel_without_append(files):
     _, editor = text_editor(files, b"new\n", KeyEvent("f2", shift=True), lambda a: None,
                             *typed("copy.txt"), KeyEvent("enter"), lambda a: None,
                             lambda a: asked.append((a.modal.prompt, a.modal.no.text) if a.modal else None),
-                            KeyEvent("escape"), lambda a: None)
+                            KeyEvent("escape"), IDLE)
     assert "OK to overwrite it?" in asked[0][0] and asked[0][1] == "Cancel"
     assert (files / "copy.txt").read_bytes() == b"old"
     assert editor.path == files / "text.txt"
@@ -1597,7 +1596,7 @@ def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
     run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),
                   open_editor_on("two.txt"), lambda a: None, *typed("2"),
                   open_editor_on("three.txt"), lambda a: None,
-                  KeyEvent("f2", ctrl=True), lambda a: None, lambda a: None])
+                  KeyEvent("f2", ctrl=True), IDLE])
     assert (files / "one.txt").read_bytes() == b"1one\n"
     assert (files / "two.txt").read_bytes() == b"2two\n"
     assert (files / "three.txt").stat().st_mtime_ns == stamp  # unchanged, not rewritten
@@ -1605,7 +1604,7 @@ def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
 
 def test_ctrl_f2_in_an_editor_is_not_hide_right(files):
     seen = []
-    app, _ = text_editor(files, b"abc\n", *typed("x"), KeyEvent("f2", ctrl=True), lambda a: None,
+    app, _ = text_editor(files, b"abc\n", *typed("x"), KeyEvent("f2", ctrl=True), IDLE,
                          lambda a: seen.append(a.manager.hidden_side))
     assert seen == [None]
     assert (files / "text.txt").read_bytes() == b"xabc\n"
@@ -2027,7 +2026,7 @@ def test_optimal_fill_makes_blanks_reaching_a_tab_stop_tabs():
 def test_f2_with_optimal_fill_writes_tabs_and_the_text_keeps_its_blanks(files):
     SETTINGS.editor.optimal_fill = True
     _, editor = text_editor(files, b"        x\n", KeyEvent("end"), *typed("!"), lambda a: None,
-                            KeyEvent("f2"), lambda a: None, lambda a: None)
+                            KeyEvent("f2"), IDLE)
     assert (files / "text.txt").read_bytes() == b"\tx!\n"
     assert editor.document.lines[0] == "        x!" and not editor.modified
 
@@ -2035,9 +2034,9 @@ def test_f2_with_optimal_fill_writes_tabs_and_the_text_keeps_its_blanks(files):
 def test_f2_with_create_backup_keeps_the_old_file_and_save_as_does_not(files):
     SETTINGS.editor.create_backup = True
     (files / "copy.txt").write_bytes(b"old copy")
-    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None,
+    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), IDLE,
                 KeyEvent("f2", shift=True), lambda a: None, *typed("copy.txt"), KeyEvent("enter"),
-                lambda a: None, KeyEvent("y", alt=True), lambda a: None, lambda a: None)
+                lambda a: None, KeyEvent("y", alt=True), IDLE)
     assert (files / "text.txt.bak").read_bytes() == b"first\n"
     assert (files / "text.txt").read_bytes() == b"xfirst\n"
     assert (files / "copy.txt").read_bytes() == b"xfirst\n"
@@ -2118,7 +2117,7 @@ def test_with_lock_file_the_editor_holds_its_file_across_saves_until_closed(file
     path.write_bytes(b"first\n")
     run_app(navigator(files), [
         KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: seen.update(opened=lockable(path)),
-        *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None,
+        *typed("x"), KeyEvent("f2"), IDLE,
         lambda a: seen.update(saved=lockable(path)),
         KeyEvent("escape"), lambda a: None, lambda a: seen.update(closed=lockable(path)),
     ])
@@ -2136,27 +2135,27 @@ def test_f2_on_a_file_another_program_holds_says_so_and_keeps_the_text_changed(f
     said = []
     (files / "text.txt").write_bytes(b"first\n")
     locks(files / "text.txt")
-    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None,
-                            lambda a: None,
+    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"),
+                            Until(lambda a: a.modal is not None),
                             lambda a: said.append(a.modal.prompt if a.modal else None))
     assert said[0] and "locked by another program" in said[0]
     assert (files / "text.txt").read_bytes() == b"first\n" and editor.modified
 
 
 def test_f2_without_create_backup_makes_none(files):
-    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), lambda a: None, lambda a: None)
+    text_editor(files, b"first\n", *typed("x"), KeyEvent("f2"), IDLE)
     assert not (files / "text.txt.bak").exists()
 
 
 def test_without_optimal_fill_the_blanks_are_written_as_they_are(files):
     _, editor = text_editor(files, b"        x\n", KeyEvent("end"), *typed("!"), lambda a: None,
-                            KeyEvent("f2"), lambda a: None, lambda a: None)
+                            KeyEvent("f2"), IDLE)
     assert (files / "text.txt").read_bytes() == b"        x!\n"
 
 
 def test_ctrl_k_w_writes_the_block_filled_too(files):
     SETTINGS.editor.optimal_fill = True
-    block_file(files, b"        a\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"))
+    block_file(files, b"        a\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"), IDLE)
     assert (files / "part.txt").read_bytes() == b"\ta"
 
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -70,9 +70,7 @@ def test_beep_after_copy_rings_the_bell_once_the_copy_is_done(place, beep):
         panel.cursor = [e.name for e in panel.items].index("f1.txt")
 
     run_app(app, [on_file, KeyEvent("f5"), Until(lambda a: isinstance(a.modal, CopyDialog)),
-                  # Until the copy's task has ended, not merely its file appeared: the
-                  # thread writes the file first, and the bell follows only once it returns.
-                  KeyEvent("enter"), Until(lambda a: (place / "b" / "f1.txt").exists() and not a._tasks),
+                  KeyEvent("enter"), IDLE,
                   lambda a: seen.update(bells=a.terminal.bells)])
     assert seen["bells"] == (1 if beep else 0)
 

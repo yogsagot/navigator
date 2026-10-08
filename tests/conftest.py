@@ -147,6 +147,14 @@ class Until:
         self.timeout = timeout
 
 
+# Until everything ``spawn`` started has ended: a save, a copy, any command whose
+# work goes to a thread.  Its file can be on disk while the task is still running,
+# and what follows the write -- the text marked unchanged, the bell -- lands only
+# once the task is done, so a fixed number of steps waits long enough only on a
+# fast machine.  Not for work left waiting on a dialog, which never ends by itself.
+IDLE = Until(lambda app: not app._tasks)
+
+
 def run_app(
     app: Application,
     actions=(),

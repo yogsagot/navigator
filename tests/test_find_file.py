@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -191,7 +191,7 @@ def test_tags_tell_two_files_of_one_name_apart_and_an_erase_takes_the_right_one(
                   Until(finding), lambda a: None, to(b_readme), KeyEvent("insert"),
                   lambda a: seen.update(marked=set(a.manager.left.marked)),
                   KeyEvent("f8"), Until(lambda a: a.modal is not None), KeyEvent("enter"),
-                  Until(lambda a: not (place / "b" / "README").exists()), lambda a: None, lambda a: None,
+                  Until(lambda a: not (place / "b" / "README").exists()), IDLE, lambda a: None,
                   lambda a: seen.update(items=keys(a.manager.left))])
     assert seen["marked"] == {b_readme}
     assert (place / "a" / "README").exists()
