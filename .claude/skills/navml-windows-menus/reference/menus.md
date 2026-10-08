@@ -52,7 +52,8 @@ by `TMenuView.Execute`'s rules:
 - Up and Down skip lines and wrap round.
 - Enter or a marked letter chooses an entry.
 - Esc closes the top box, and from the first box closes the whole menu.
-- A release over an entry chooses it, and a press outside everything closes the menu.
+- A release over an entry chooses it; a press on a box or the bar closes every box opened above it (a nested submenu
+  goes, the menu stays), and a press outside everything closes the menu. `PopupMenu` does the same with its boxes.
 
 - **Choosing closes the menu first and asks for the command second.** Removing the modal gives the keyboard back,
   so the command starts from exactly the widget its key would have started from.

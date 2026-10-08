@@ -16,7 +16,8 @@ every key and click itself.  The rules it answers them by are
 * **Esc** closes the top box, and from the first box closes the whole menu --
   the bar passes on the Escape it was handed, as Turbo Vision's did.
 * **The mouse** selects what it is over while the button is down, and chooses
-  on release; a press outside every box and the bar closes the menu.
+  on release; a press on a box (or on the bar) closes every box opened above
+  it, and a press outside every box and the bar closes the menu.
 """
 
 from __future__ import annotations
@@ -222,12 +223,16 @@ class MenuSession(Widget):
                 index != self.bar.current or not self.boxes
             ):
                 self.select(index, drop=True)
+            elif event.action == "press":
+                self._close_above(self.boxes[0] if self.boxes else None)
             elif index >= 0 and event.action == "release":
                 if not isinstance(self.bar.entries()[index], SubMenu):
                     await self._choose_bar(index)
             return True
         for box in reversed(self.boxes):
             if box.contains(event.x, event.y):
+                if event.action == "press":
+                    self._close_above(box)
                 row = box.entry_at(event.y - box.y)
                 inside = box.x + 2 <= event.x < box.x + box.width - 2
                 if row >= 0 and inside and box.selectable(row):
@@ -239,6 +244,13 @@ class MenuSession(Widget):
         if event.action == "press":
             self.bar.close()
         return True
+
+    def _close_above(self, box: MenuBox | None) -> None:
+        """Close every box opened after *box*; None closes them all."""
+        boxes = self.boxes
+        start = boxes.index(box) + 1 if box in boxes else 0
+        for later in boxes[start:]:
+            self.remove(later)
 
     # -- painting ------------------------------------------------------------------------
 

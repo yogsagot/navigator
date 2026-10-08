@@ -9,8 +9,9 @@ closes, with the :class:`MenuItem` chosen or None -- so the same rule holds:
 
 The keys are ``TMenuView.Execute``'s for a box: Up and Down move, skipping
 lines and wrapping round, Home and End go to the ends, Enter or the marked
-letter chooses, Esc closes.  A click chooses what it is released on, and a
-press outside the box closes it.
+letter chooses, Esc closes.  A click chooses what it is released on, a press
+on a box closes every box opened above it, and a press outside every box
+closes the popup.
 
 **A box taller than the screen is cut to it and scrolls** (``MenuBox`` has
 how); PgUp and PgDn then move a box's height, and the wheel moves the
@@ -232,14 +233,15 @@ class PopupMenu(Widget):
             return True
         box = next((b for b in reversed(boxes) if b.contains(event.x, event.y)), None)
         if box is not None:
+            if event.action == "press":
+                for later in boxes[boxes.index(box) + 1:]:
+                    self.remove(later)
             row = box.entry_at(event.y - box.y)
             inside = box.x + 2 <= event.x < box.x + box.width - 2
             if row >= 0 and inside and box.selectable(row):
                 if event.action == "release":
                     self.choose(row, box)
                 else:
-                    for later in boxes[boxes.index(box) + 1:]:
-                        self.remove(later)
                     box.current = row
             return True
         if event.action == "press":

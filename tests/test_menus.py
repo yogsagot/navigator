@@ -279,6 +279,58 @@ def test_a_press_outside_every_box_closes_the_menu():
 
 
 
+@pytest.mark.parametrize("where", ["frame", "row", "bar"])
+def test_a_press_outside_a_nested_box_closes_it_and_keeps_the_menu(where):
+    app, bar, editor = build()
+    seen = []
+
+    def press(a):
+        first = boxes(a)[0]
+        x, y = {"frame": (first.x, first.y), "row": (first.x + 3, first.y + 3),
+                "bar": (bar.item_span(0)[0], 0)}[where]
+        a.post_event(MouseClickEvent(x, y, "left"))
+
+    run_app(app, [
+        lambda a: bar.open(0, drop=True), KeyEvent("m", "m"),
+        lambda a: seen.append(len(boxes(a))),
+        press,
+        lambda a: seen.append((len(boxes(a)), a.modal is not None)),
+    ])
+    assert seen == [2, (1, True)]
+    assert editor.saved == 0
+
+
+def test_a_press_outside_a_nested_popup_box_closes_it_and_keeps_the_popup():
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    menu = SubMenu(text="Pick")
+    MenuItem(parent=menu, text="~O~ne")
+    more = SubMenu(parent=menu, text="~M~ore")
+    MenuItem(parent=more, text="~T~wo")
+    root = Widget()
+    app = Application(root, terminal=FakeTerminal(width=40, height=12))
+    seen = {}
+
+    async def show(a):
+        seen["chosen"] = await PopupMenu(menu, 5, 3).execute(a)
+
+    def popup(a):
+        return next(c for c in a.root.children if isinstance(c, PopupMenu))
+
+    def press(a):
+        first = popup(a).boxes[0]
+        a.post_event(MouseClickEvent(first.x, first.y, "left"))
+
+    run_app(app, [
+        lambda a: a.spawn(show(a)), KeyEvent("m", "m"),
+        lambda a: seen.setdefault("before", len(popup(a).boxes)),
+        press,
+        lambda a: seen.setdefault("after", len(popup(a).boxes)),
+        KeyEvent("escape"),
+    ])
+    assert (seen["before"], seen["after"], seen["chosen"]) == (2, 1, None)
+
+
 # -- changing a menu from Python ------------------------------------------------------
 
 
