@@ -2509,8 +2509,9 @@ def test_the_application_keeps_only_what_is_global():
         "ctrl+f1", "ctrl+f2",
         # File Edit History and File View History: Utilities, nobody's panel's.
         "alt+pageup", "alt+pagedown",
-        # Utilities > Character table, for the command line; the SmartPad; ≡ > Game.
-        "ctrl+b", "alt+q", "alt+f9",
+        # Utilities > Character table, for the command line; the SmartPad; ≡ > Game;
+        # Utilities > Calendar.
+        "ctrl+b", "alt+q", "alt+f9", "ctrl+f12",
         # ≡ > User screen: a look at the console from anywhere; the screen grabber.
         "alt+f5", "alt+shift+insert",
         # Utilities > Commands History, the command line's.
