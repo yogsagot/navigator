@@ -209,9 +209,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   on by default, no checkbox since `dlgEditorDefaults` had none; switched by Editor > Options > *Syntax highlight*,
   `SwitchHighLight`/`cmSwitchHighLight`, ticked; kept in `EditRecord.highlight`). **Pygments lexes**, in token mode
   (`navigator/highlight.py`), where DN had `DoHighlite` and `DN.HGL` -- a departure: multi-line comments and strings
-  come out whole. **`highlight.ini`** beside `navigator.ini` is `DN.HGL` (template and seeding in
-  `associations.TEMPLATES`, Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer =
-  <Pygments alias>` or `none`, first match wins; `[#!]` maps interpreters (`env` and its options looked through, a
+  come out whole. **`highlight.ini`** beside `navigator.ini` is `DN.HGL` (seeded through `associations.TEMPLATES`,
+  Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer = <Pygments alias>`, `none`,
+  or `auto` (Pygments' guess by name and first line, even under `[*] lexer = none`), first match wins. **Its template
+  lists every language Pygments knows** -- `navigator/assets/highlight.ini`, written by `tools/highlight_ini.py`
+  (`--check`; rerun after upgrading Pygments): Navigator's own head (`*.nml`, `*.nss`, `*.log` none), then a pattern
+  two lexers can claim (case folded: `*.c`/`*.C`) in an `auto` section naming the candidates, then one section per
+  lexer, and a hand-kept `[#!]` of ~35 interpreters. `test_the_template_lexes_every_pattern_as_pygments_would` holds
+  it to Pygments' own choice for each pattern. `default_rules()` parses it lazily (~70 ms); `[#!]` maps interpreters (`env` and its options looked through, a
   trailing version optional); `[*] lexer = auto` falls to Pygments' guess by name, `none` stops there. Missing or
   broken, the template's rules (`DEFAULT_RULES`); re-read when its mtime changes, and saving it (`FileSaved`) makes
   every editor and viewer `rehighlight()`. **A token is painted as `FileEditor::token` with its Pygments type's pieces

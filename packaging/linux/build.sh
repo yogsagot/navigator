@@ -121,6 +121,7 @@ fi
 # a real `pip install --target' tree rather than the checkout.
 "$PYTHON" -c "import sys; sys.path.insert(0, '$LIB')
 import navigator, navkit, pyte, pygments.lexers
+import navigator.associations  # reads its highlight.ini template, a package asset
 from navml.widgets import Button, Field, Spacer
 from navigator.widgets import DirEntry, Manager, Panel" \
     || { echo "build.sh: the staged tree does not import" >&2; exit 1; }

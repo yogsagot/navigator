@@ -106,9 +106,12 @@ def parse_rules(text: str, source: str = "<string>") -> Rules:
     return Rules(tuple(masks), tuple(shebangs), fallback)
 
 
-#: The template's own rules: what a missing ``highlight.ini`` means, so a
-#: file removed after the first start still colours as it did.
-DEFAULT_RULES = parse_rules(TEMPLATES[HIGHLIGHT], HIGHLIGHT)
+@lru_cache(maxsize=1)
+def default_rules() -> Rules:
+    """The template's own rules: what a missing ``highlight.ini`` means, so a
+    file removed after the first start still colours as it did.  Parsed the
+    first time a file is lexed, not at import: the template is long."""
+    return parse_rules(TEMPLATES[HIGHLIGHT], HIGHLIGHT)
 
 _rules_lock = threading.Lock()
 _rules_cache: dict[str, tuple[tuple[int, int], Rules]] = {}
@@ -123,7 +126,7 @@ def read_rules() -> Rules:
     try:
         info = os.stat(path)
     except OSError:
-        return DEFAULT_RULES
+        return default_rules()
     stamp = (info.st_mtime_ns, info.st_size)
     with _rules_lock:
         cached = _rules_cache.get(str(path))
@@ -132,7 +135,7 @@ def read_rules() -> Rules:
     try:
         rules = parse_rules(path.read_text(encoding="utf-8", errors="replace"), str(path))
     except (OSError, ValueError):
-        rules = DEFAULT_RULES
+        rules = default_rules()
     with _rules_lock:
         _rules_cache[str(path)] = (stamp, rules)
     return rules
@@ -196,9 +199,10 @@ def lexer_for(file_name: str, first_line: str, rules: Rules | None = None) -> An
     """The lexer for the file called *file_name* whose first line is
     *first_line*, or None when it is not to be coloured.
 
-    The first ``highlight.ini`` mask that takes the name decides; then
+    The first ``highlight.ini`` mask that takes the name decides -- ``auto``
+    there being Pygments' own guess from the name and the first line; then
     ``[#!]`` by the interpreter on the first line; then, unless ``[*]`` says
-    ``none``, Pygments' own guess from the name.  A lexer name Pygments does
+    ``none``, Pygments' guess.  A lexer name Pygments does
     not know counts as no answer at that step.  *rules* default to
     :func:`read_rules`' -- on a thread, then.
     """
@@ -208,7 +212,10 @@ def lexer_for(file_name: str, first_line: str, rules: Rules | None = None) -> An
     for chosen in (rules.by_mask(name), rules.by_shebang(first_line)):
         if chosen == NONE:
             return None
-        if chosen is not None and chosen != AUTO:
+        if chosen == AUTO:
+            # A mask that names several languages: Pygments tells them apart.
+            return _lexer_guessed(name, first_line)
+        if chosen is not None:
             lexer = _lexer_named(chosen)
             if lexer is not None:
                 return lexer

@@ -58,6 +58,8 @@ editor's phases.
   (`navigator-keybindings` skill)
 - Options > Colors keeps the user's palette beside it as `palette.nss` (what differs from the theme, loaded after it);
   Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
+- Regenerate `highlight.ini`'s template (`navigator/assets/highlight.ini`) from the installed Pygments after upgrading
+  it: `./venv/bin/python tools/highlight_ini.py`; `--check` exits 1 when it is stale (a test runs it)
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead

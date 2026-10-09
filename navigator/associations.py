@@ -40,6 +40,7 @@ from __future__ import annotations
 import configparser
 import fnmatch
 from dataclasses import dataclass
+from importlib.resources import files
 from pathlib import Path
 
 from navigator.filetypes import patterns
@@ -179,41 +180,8 @@ Word processor = libreoffice !.!
 [F1]
 Disk usage = du -sh !\\*
 """,
-    HIGHLIGHT: """\
-# Syntax highlighting: which Pygments lexer colours which file, in the editor
-# and the viewer.  Options > Highlight file edit.  A section is a mask
-# (`;'-separated patterns, case aside); the first that matches wins.  `lexer'
-# is a Pygments name or alias (`python3 -m pygments -L lexers' lists them),
-# or `none' for no colours.  The colours are the theme's: ::token rules.
-
-[*.py;*.pyw;*.pyi]
-lexer = python
-
-[*.nml]
-lexer = yaml
-
-[*.nss]
-lexer = css
-
-[*.log;*.txt]
-lexer = none
-
-# A file no mask names, by its first line's #! interpreter: the command's
-# base name, `env' and its options looked through; a trailing version, as in
-# python3.12, may be left off.  Names are `;'-separated.
-[#!]
-python = python
-sh;bash;dash;ksh = bash
-zsh = zsh
-perl = perl
-node = javascript
-ruby = ruby
-
-# Neither: Pygments' own guess from the file's name.  `lexer = none' here
-# colours only the files named above.
-[*]
-lexer = auto
-""",
+    # Every language Pygments knows, written out by tools/highlight_ini.py.
+    HIGHLIGHT: files("navigator.assets").joinpath("highlight.ini").read_text(encoding="utf-8"),
 }
 
 

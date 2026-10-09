@@ -93,6 +93,8 @@ include = ["navkit*", "navml*", "navigator*"]
 "navigator.styles.themes" = ["*.nss"]
 # Translations, found the same way (navkit/i18n.py).
 "navigator.locales" = ["*.toml"]
+# Generated templates of configuration files (tools/highlight_ini.py).
+"navigator.assets" = ["*.ini"]
 "navml.locales" = ["*.toml"]
 "navml" = ["py.typed"]
 # A component's markup is shipped even though nothing at run time reads it:

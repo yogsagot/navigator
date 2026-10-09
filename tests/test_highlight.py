@@ -66,11 +66,47 @@ def test_star_none_leaves_unnamed_files_plain():
     assert name_of(highlight.lexer_for("a.py", "", rules)) == "PythonLexer"
 
 
+def test_the_template_lexes_every_pattern_as_pygments_would():
+    """Each file name a Pygments lexer claims, in each of the template's sections,
+    comes out with the lexer Pygments' own guess gives it."""
+    import fnmatch
+    import sys
+    from pathlib import Path
+
+    from pygments.lexers import find_lexer_class_for_filename
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+    from highlight_ini import lexers, sample
+
+    rules = highlight.default_rules()
+    assert len(rules.masks) > 400
+    for _, _, patterns in lexers():
+        for pattern in patterns:
+            name = sample(pattern)
+            if rules.by_mask(name) == highlight.NONE:
+                continue
+            ours = highlight.lexer_for(name, "", rules)
+            theirs = find_lexer_class_for_filename(name, "")
+            assert type(ours) is theirs, f"{name}: {type(ours).__name__} where Pygments says {theirs.__name__}"
+    assert all(fnmatch.fnmatchcase("x.nml", mask) for mask in rules.masks[0][0])
+
+
+def test_the_template_is_what_the_tool_writes():
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    done = subprocess.run([sys.executable, "tools/highlight_ini.py", "--check"], cwd=root,
+                          capture_output=True, text=True)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
 def test_a_missing_file_means_the_template_and_seeding_writes_it_once():
-    assert highlight.read_rules() == highlight.DEFAULT_RULES
+    assert highlight.read_rules() == highlight.default_rules()
     assert associations.seed(associations.HIGHLIGHT)
     assert not associations.seed(associations.HIGHLIGHT)
-    assert highlight.read_rules() == highlight.DEFAULT_RULES
+    assert highlight.read_rules() == highlight.default_rules()
 
 
 def test_a_changed_file_is_read_again():
@@ -86,7 +122,7 @@ def test_a_broken_file_means_the_template():
     path = associations.path_of(associations.HIGHLIGHT)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("not an ini at all\n")
-    assert highlight.read_rules() == highlight.DEFAULT_RULES
+    assert highlight.read_rules() == highlight.default_rules()
 
 
 # -- tokens ------------------------------------------------------------------------------
@@ -102,7 +138,7 @@ def test_a_tokens_classes_are_its_types_pieces():
 
 
 def python():
-    return highlight.lexer_for("a.py", "", highlight.DEFAULT_RULES)
+    return highlight.lexer_for("a.py", "", highlight.default_rules())
 
 
 def test_lines_keep_exact_indices_across_a_string_running_over_breaks():
@@ -116,7 +152,7 @@ def test_lines_keep_exact_indices_across_a_string_running_over_breaks():
 
 
 def test_a_c_comment_over_two_lines_is_cut_at_the_break():
-    lexer = highlight.lexer_for("a.c", "", highlight.DEFAULT_RULES)
+    lexer = highlight.lexer_for("a.c", "", highlight.default_rules())
     spans = highlight.lex_lines(lexer, ["int a; /* one", "two */ b"], 9)
     assert (7, 13, ("comment", "multiline")) in spans[0]
     assert (0, 6, ("comment", "multiline")) in spans[1]
