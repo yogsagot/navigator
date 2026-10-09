@@ -1107,21 +1107,21 @@ name = "Latviešu"
 # navigator/commands.py:80
 "Print" = "Drukāt"
 # navigator/diskinfo.py:155, navigator/widgets/manager/panel/panel.py:1584
-"~{n:,}~ byte" = ["", "", ""]
+"~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
 # navigator/diskinfo.py:148
 "Current directory:" = "Pašreizējā direktorija:"
 # navigator/diskinfo.py:161
-"~{n:,}~ total byte on ~{mount}~" = ["", "", ""]
+"~{n:,}~ total byte on ~{mount}~" = ["Kopā: ~{n:,}~ baits uz ~{mount}~", "Kopā: ~{n:,}~ baiti uz ~{mount}~", "Kopā: ~{n:,}~ baitu uz ~{mount}~"]
 # navigator/diskinfo.py:164
-"~{n:,}~ free byte on ~{mount}~" = ["", "", ""]
+"~{n:,}~ free byte on ~{mount}~" = ["Brīvs: ~{n:,}~ baits uz ~{mount}~", "Brīvs: ~{n:,}~ baiti uz ~{mount}~", "Brīvs: ~{n:,}~ baitu uz ~{mount}~"]
 # navigator/diskinfo.py:178
-"~{n:,}~ byte memory for user" = ["", "", ""]
+"~{n:,}~ byte memory for user" = ["Pieejams lietotājam: ~{n:,}~ baits", "Pieejams lietotājam: ~{n:,}~ baiti", "Pieejams lietotājam: ~{n:,}~ baitu"]
 # navigator/diskinfo.py:181
-"~{n:,}~ byte memory for Navigator" = ["", "", ""]
+"~{n:,}~ byte memory for Navigator" = ["Navigator izmanto: ~{n:,}~ baits", "Navigator izmanto: ~{n:,}~ baiti", "Navigator izmanto: ~{n:,}~ baitu"]
 # navigator/diskinfo.py:152, navigator/widgets/manager/panel/panel.py:1580
 "No files in this directory" = "Šajā direktorijā nav failu"
 # navigator/diskinfo.py:156
-"~{n:,}~ file with {total}" = ["", "", ""]
+"~{n:,}~ file with {total}" = ["~{n:,}~ fails, {total}", "~{n:,}~ faili, {total}", "~{n:,}~ failu, {total}"]
 # navigator/diskinfo.py:176
 "~{n:,}~K bytes total memory" = "~{n:,}~K baitu kopējā atmiņa"
 # navigator/diskinfo.py:168
@@ -1229,7 +1229,7 @@ name = "Latviešu"
 # navigator/uucode.py:624
 "Unexpected \"end\" encountered" = "Negaidīts \"end\""
 # navigator/uucode.py:683
-"Section {ranges} of file {name} ({total}) is absent" = ["", "", ""]
+"Section {ranges} of file {name} ({total}) is absent" = ["Trūkst faila {name} ({total}) sadaļas {ranges}", "Trūkst faila {name} ({total}) sadaļu {ranges}", "Trūkst faila {name} ({total}) sadaļu {ranges}"]
 # navigator/uucode.py:686
 "Failed to decode completely {name}" = "Neizdevās pilnībā dekodēt {name}"
 # navigator/uucode.py:489
@@ -1389,7 +1389,7 @@ name = "Latviešu"
 # navigator/widgets/editor/edit_window/edit_window.py:561, navigator/widgets/manager/manager/manager.py:1294
 "Confirmation" = "Apstiprinājums"
 # navigator/widgets/editor/edit_window/edit_window.py:562
-"Print {n} line?" = ["", "", ""]
+"Print {n} line?" = ["Drukāt {n} rindu?", "Drukāt {n} rindas?", "Drukāt {n} rindu?"]
 # navigator/widgets/editor/edit_window/edit_window.py:570
 "Cannot print: {error}" = "Nevar drukāt: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:336, navigator/widgets/editor/edit_window/edit_window.py:662, navigator/widgets/editor/edit_window/edit_window.py:294 ...
@@ -1401,7 +1401,7 @@ name = "Latviešu"
 # navigator/widgets/editor/edit_window/edit_window.py:470, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:86 ...
 "Information" = "Informācija"
 # navigator/widgets/editor/edit_window/edit_window.py:470
-"{n} replace made" = ["", "", ""]
+"{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
 # navigator/widgets/editor/edit_window/edit_window.py:628
 "Cannot open {path}: {error}" = "Nevar atvērt {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:690, navigator/widgets/editor/edit_window/edit_window.py:615
@@ -1415,11 +1415,11 @@ name = "Latviešu"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:97
 "directory" = "direktorija"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:84
-"{n} file" = ["", "", ""]
+"{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:86
-"{n} directory" = ["", "", ""]
+"{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99, navigator/widgets/manager/panel/panel.py:1541, navigator/widgets/tree/directory_tree/directory_tree.py:148
-"{n:,} byte" = ["", "", ""]
+"{n:,} byte" = ["{n:,} baits", "{n:,} baiti", "{n:,} baitu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:79
 "File ~{name}~" = "Fails ~{name}~"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
@@ -1441,9 +1441,9 @@ name = "Latviešu"
 # navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:161, navigator/widgets/shell/commands.py:100 ...
 "Tree" = "Koks"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:46
-"~C~opy ~{n} file~ to" = ["", "", ""]
+"~C~opy ~{n} file~ to" = ["~K~opēt ~{n} failu~ uz", "~K~opēt ~{n} failus~ uz", "~K~opēt ~{n} failu~ uz"]
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:45
-"~R~ename or move ~{n} file~ to" = ["", "", ""]
+"~R~ename or move ~{n} file~ to" = ["~P~ārdēvēt/pārvietot ~{n} failu~ uz", "~P~ārdēvēt/pārvietot ~{n} failus~ uz", "~P~ārdēvēt/pārvietot ~{n} failu~ uz"]
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:55
 "~C~opy file ~{name}~ to" = "~K~opēt failu ~{name}~ uz"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:52
@@ -1455,9 +1455,9 @@ name = "Latviešu"
 # navigator/widgets/file_ops/copy_progress/copy_progress.py:39, navigator/widgets/viewer/search_progress/search_progress.py:27
 "~S~top" = "~A~pturēt"
 # navigator/widgets/file_ops/copy_progress/copy_progress.py:47
-"{n:,} byte ({percent}%)" = ["", "", ""]
+"{n:,} byte ({percent}%)" = ["{n:,} baits ({percent}%)", "{n:,} baiti ({percent}%)", "{n:,} baitu ({percent}%)"]
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.py:47
-"these ~{n} file~?" = ["", "", ""]
+"these ~{n} file~?" = ["~{n} failu~?", "~{n} failus~?", "~{n} failu~?"]
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.py:46
 "file ~{name}~?" = "failu ~{name}~?"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.py:45
@@ -1471,7 +1471,7 @@ name = "Latviešu"
 # navigator/widgets/file_ops/exists_query/exists_query.py:29
 "File {name} already exists.\nOverwrite?" = "Fails {name} jau eksistē.\nPārrakstīt?"
 # navigator/widgets/file_ops/link_dialog/link_dialog.py:35
-"Create ~s~ymlink to ~{n} file~ in" = ["", "", ""]
+"Create ~s~ymlink to ~{n} file~ in" = ["Izveidot ~s~aiti uz ~{n} failu~ direktorijā", "Izveidot ~s~aites uz ~{n} failiem~ direktorijā", "Izveidot ~s~aites uz ~{n} failiem~ direktorijā"]
 # navigator/widgets/file_ops/link_dialog/link_dialog.py:40
 "Create ~s~ymlink to file ~{name}~ in" = "Izveidot ~s~aiti uz failu ~{name}~ direktorijā"
 # navigator/widgets/file_ops/link_dialog/link_dialog.py:39
@@ -1481,9 +1481,9 @@ name = "Latviešu"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.py:89, navigator/widgets/shell/environment_dialog/environment_dialog.py:105
 "~N~ew name" = "~J~auns vārds"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.py:39
-"  Source:  {date}  {size} byte" = ["", "", ""]
+"  Source:  {date}  {size} byte" = ["  Avots:  {date}  {size} baits", "  Avots:  {date}  {size} baiti", "  Avots:  {date}  {size} baitu"]
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.py:41
-"Existing:  {date}  {size} byte" = ["", "", ""]
+"Existing:  {date}  {size} byte" = ["Esošais:  {date}  {size} baits", "Esošais:  {date}  {size} baiti", "Esošais:  {date}  {size} baitu"]
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.py:37
 "File {name}\nalready exists in destination directory" = "Fails {name}\njau eksistē mērķa direktorijā"
 # navigator/widgets/game/commands.py:11
@@ -1547,7 +1547,7 @@ name = "Latviešu"
 # navigator/widgets/manager/commands.py:453
 "Edit..." = "Rediģēt..."
 # navigator/widgets/manager/manager/manager.py:1292
-"Print {n} file?" = ["", "", ""]
+"Print {n} file?" = ["Drukāt {n} failu?", "Drukāt {n} failus?", "Drukāt {n} failu?"]
 # navigator/widgets/manager/manager/manager.py:1921
 "Is a directory" = "Tā ir direktorija"
 # navigator/widgets/manager/manager/manager.py:2391
@@ -1613,7 +1613,7 @@ name = "Latviešu"
 # navigator/widgets/manager/manager/manager.py:1835
 "{name}: not a dBase file" = "{name}: nav dBase fails"
 # navigator/widgets/manager/panel/drag.py:73
-"{n} selected file" = ["", "", ""]
+"{n} selected file" = ["{n} atlasīts fails", "{n} atlasīti faili", "{n} atlasītu failu"]
 # navigator/widgets/manager/panel/panel.py:135
 "UP--DIR" = "AUGŠUP"
 # navigator/widgets/manager/panel/panel.py:135
@@ -1621,17 +1621,17 @@ name = "Latviešu"
 # navigator/widgets/manager/panel/panel.py:1174
 "Search:" = "Meklēt:"
 # navigator/widgets/manager/panel/panel.py:1585
-"Total: ~{n:,}~ file with {total}" = ["", "", ""]
+"Total: ~{n:,}~ file with {total}" = ["Kopā: ~{n:,}~ fails, {total}", "Kopā: ~{n:,}~ faili, {total}", "Kopā: ~{n:,}~ failu, {total}"]
 # navigator/widgets/manager/panel/panel.py:1750
 "Reading directory..." = "Lasa direktoriju..."
 # navigator/widgets/manager/panel/panel.py:1778
 "Name" = "Vārds"
 # navigator/widgets/manager/panel/panel.py:1542
-"{total} in {n} selected file" = ["", "", ""]
+"{total} in {n} selected file" = ["{total} {n} atlasītā failā", "{total} {n} atlasītos failos", "{total} {n} atlasītos failos"]
 # navigator/widgets/manager/panel/panel.py:1590
-"~{n:,}~ free byte on ~{mount}" = ["", "", ""]
+"~{n:,}~ free byte on ~{mount}" = ["Brīvs: ~{n:,}~ baits uz ~{mount}", "Brīvs: ~{n:,}~ baiti uz ~{mount}", "Brīvs: ~{n:,}~ baitu uz ~{mount}"]
 # navigator/widgets/manager/panel/panel.py:1549
-"{n} item" = ["", "", ""]
+"{n} item" = ["{n} elements", "{n} elementi", "{n} elementu"]
 # navigator/widgets/setup/interface_dialog/interface_dialog.py:24
 "Automatic" = "Automātiski"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:206
@@ -1729,7 +1729,7 @@ name = "Latviešu"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Atkritne"
 # navigator/widgets/tree/directory_tree/directory_tree.py:149
-"{n} file with {total}" = ["", "", ""]
+"{n} file with {total}" = ["{n} fails, {total}", "{n} faili, {total}", "{n} failu, {total}"]
 # navigator/widgets/viewer/commands.py:19
 "(Un)Wrap" = "Aplauzt"
 # navigator/widgets/viewer/commands.py:26
