@@ -63,6 +63,19 @@ TAB = 8
 #: What DN's filter puts in place of a byte it hides.
 FILTERED = "·"
 
+#: What *Hidden characters* draws for a blank, a tab (its first column; the
+#: rest stay blank) and each kind of line ending, as ``(unicode, ascii)`` --
+#: in the cell's own colours made faint.  A departure: DN had no such option.
+#: ``⏎`` rather than ``↵``, which JetBrainsMono Nerd Font lacks.
+HIDDEN_MARKS: dict[str, tuple[str, str]] = {
+    " ": ("·", "."),
+    "\t": ("→", ">"),
+    "\n": ("↓", "$"),
+    "\r\n": ("⏎", "$"),
+    "\r": ("←", "<"),
+}
+
+
 #: The three filters F6 cycles, by the tag the info line gives each.  DN's
 #: third was ``{32-255}``, every byte of a one-byte code page but the
 #: controls; in UTF-8 that is every printable character, and says so.

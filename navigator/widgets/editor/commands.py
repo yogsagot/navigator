@@ -379,6 +379,14 @@ class SwitchHighLight(Command):
     title = "Syntax highlight"
 
 
+class SwitchHiddenChars(Command):
+    """Editor > Options > *Show hidden characters*, View > *Hidden characters*:
+    spaces, tabs and each line's own ending drawn faintly -- a departure, DN
+    had no such option."""
+
+    title = "Hidden characters"
+
+
 class ChooseFileType(Command):
     """Ctrl+Shift+H: the *File type* menu as a box of its own, over the
     editor or the viewer -- a departure, DN had no such menu."""
@@ -578,6 +586,7 @@ __all__ = [
     "SwitchHiColumn",
     "SwitchHiLine",
     "SwitchHighLight",
+    "SwitchHiddenChars",
     "SetFileType",
     "ChooseFileType",
     "SwitchFill",

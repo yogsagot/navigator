@@ -53,6 +53,7 @@ from navigator.widgets.editor.commands import (
     SetFileType,
 )
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.option_items import editor_items
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,6 +95,7 @@ class EditWindow(Window):
             self.editor.use_document(path, document)
         self.title = bind(lambda _o: self._title(), yielding=True)
         fill_file_types(self.edit_menu_file_type)
+        self.options.items = editor_items(self.editor)
 
     def _title(self) -> str:
         """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own."""

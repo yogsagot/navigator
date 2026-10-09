@@ -8,7 +8,8 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
-from navigator.widgets.editor.commands import ChooseFileType, SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
+from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -16,6 +17,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.option_strip import OptionStrip
 from navml.widgets.window import Window
 
 from pathlib import Path
@@ -26,13 +28,13 @@ from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 import navigator.viewer as viewer_model
-from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.option_items import viewer_items
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.progress import run_with_progress
 from navigator.viewer import SearchJob, ViewSearch
-from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
 
@@ -40,6 +42,7 @@ class FileWindow(Window, _Component):
     viewer: FileViewer
     bar: ScrollBar
     info: StaticText
+    options: OptionStrip
     view_menu: SubMenu
     view_menu_file_type: SubMenu
     def __init__(self, path: Path | str, *, mode: str | None = ..., source: Any = ..., **kwargs: Any) -> None: ...
@@ -51,6 +54,7 @@ class FileWindow(Window, _Component):
     async def on_close_viewer(self, event: CloseViewer) -> bool: ...
     async def on_unwrap(self, event: Unwrap) -> bool: ...
     async def on_switch_high_light(self, event: SwitchHighLight) -> bool: ...
+    async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool: ...
     async def on_set_file_type(self, event: SetFileType) -> bool: ...
     async def on_choose_file_type(self, event: ChooseFileType) -> bool: ...
     async def _choose_file_type(self) -> None: ...

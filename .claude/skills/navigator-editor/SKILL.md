@@ -98,10 +98,30 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
 - **The info line is `InfoLine`** (DN's `TInfoLine`, a `StaticText` beside `FileEditor`, styled by
   `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock` and one on its line:column
   `GotoLineNumber`, as `TInfoLine.HandleEvent` turned them into `cmSwitchBlock`/`cmGotoLineNumber`.
-  Under *Vertical blocks* the `(↕)` is painted as `InfoLine::column_block` (the info line reversed, a departure:
+  With the option strip on, `info_text` leaves the block's kind out (the strip has it; `block_indicator()` is then
+  empty). Under *Vertical blocks* the `(↕)` is painted as `InfoLine::column_block` (the info line reversed, a departure:
   the mode is kept per file and DN's plain arrow was missed). `FileEditor.block_indicator()`/`place_indicator()` say where they stand, worked out from the text since the code
   may outgrow three digits; `code_indicator()` is its third place, `[nnn]` (`cmSpecChar`), which opens the
   character table. Every press on the line is the line's, so none reaches the frame.
+- **The option strip** (a departure, asked for: DN showed options only as menu `On`/`Off`): navml's `OptionStrip#options`
+  on the bottom frame of `EditWindow` (and `FileWindow`), right-aligned before the corner, shown while active and
+  `[editor] show_options` (default on, the dialog's last checkbox). Items are `option_items.editor_items`:
+  Insert/Overwrite, then the block's kind (`SwitchBlock`, `[↔]`/`[↕]`, lit under *Vertical blocks* -- moved off the info line, which shows
+  DN's `(↔)`/`(↕)` and takes its click only while the strip is off; the line-drawing pen stays on the info line);
+  Insert/Overwrite is `SwitchInsert`, which `checks` now ticks in overwrite; then Autoindent, Auto wrap (`SwitchSave`),
+  AutoBrackets, Syntax highlight, Hidden characters, and the file type (`ChooseFileType`, never lit). Switches are
+  spelled per glyph tier -- words (`tr`), `⌶ ⇥ ↩ () § ¶`, or Font Awesome 4 (`icons.OPTION_*`); `⎀`/`↵` were dropped,
+  JetBrainsMono Nerd Font lacking them. The type is `highlight.file_type_label(file_type, lexer_name)`: the chosen
+  type, else `lexer_name` (the lexing thread returns `(lexer_label, spans)`; kept while Hi is off), else `auto`.
+  Priority on a short frame: info line, then strip (`room`), then hbar, which ends a cell before the strip and hides
+  under 4 cells. Styled `EditWindow OptionStrip::item:checked { reverse }`, `:disabled { dim }`.
+- **Hidden characters** (`SwitchHiddenChars`, a departure: Editor > Options > *Show hidden characters*, View >
+  *Hidden characters*, the strip's ¶; `show_hidden`, seeded from `[editor]`/`[viewer] show_hidden`, not kept in the
+  history): `navigator.viewer.HIDDEN_MARKS` -- `·` blank, `→` a tab's first column, and each line's own ending a cell
+  past its text, `↓` LF, `⏎` CRLF, `←` CR (ascii `. > $ $ <`), none on a last line without one. Painted in `render`
+  over the cell's own colours (`derive(dim=True)`), so blocks and the current line show through; columns, cursor and
+  bytes do not change. **Ctrl+Shift+8** on both windows' `keys` (Word's key for its ¶; kitty protocol only), so it is
+  in `keybindings.ini` and the menus show it.
 - **The character table, Ctrl+P** (`AsciiTable`, DN's `cmASCIITable`/`cmSpecChar`, also Editor > Misc > *Character
   table* and the info line's code): `AsciiChart` (`shell/ascii_chart`, DN's `TASCIIChart`, 34 by 12) around
   `CharTable` (`shell/char_table`, `TTable`: 32 by 8 CP437 glyphs from `viewer.cp437`, block caret) and a report line

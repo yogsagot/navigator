@@ -376,6 +376,10 @@ FileWindow::title                              { fg: $viewer-frame-passive-fg; b
 FileWindow:active::title                       { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 FileWindow::icon                               { fg: $viewer-frame-icons-fg;   bg: $viewer-frame-icons-bg; bold: $viewer-frame-icons-bold; dim: $viewer-frame-icons-dim; italic: $viewer-frame-icons-italic; underline: $viewer-frame-icons-underline; reverse: $viewer-frame-icons-reverse }
 FileWindow StaticText#info                     { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+/* A departure: the option strip, as the editor's. */
+FileWindow OptionStrip                         { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+FileWindow OptionStrip::item:checked           { reverse: true }
+FileWindow OptionStrip::item:disabled          { dim: true }
 FileWindow ScrollBar                           { fg: $viewer-scroll-bar-page-fg;  bg: $viewer-scroll-bar-page-bg; bold: $viewer-scroll-bar-page-bold; dim: $viewer-scroll-bar-page-dim; italic: $viewer-scroll-bar-page-italic; underline: $viewer-scroll-bar-page-underline; reverse: $viewer-scroll-bar-page-reverse }
 FileWindow ScrollBar::arrow,
 FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg; bold: $viewer-scroll-bar-icons-bold; dim: $viewer-scroll-bar-icons-dim; italic: $viewer-scroll-bar-icons-italic; underline: $viewer-scroll-bar-icons-underline; reverse: $viewer-scroll-bar-icons-reverse }
@@ -410,6 +414,12 @@ EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  b
 /* A departure: (↕) under Vertical blocks, the info line's colours reversed --
    it stands out whatever the theme. */
 EditWindow InfoLine::column_block              { reverse: true }
+/* A departure: the option strip (OptionStrip) -- DN had none.  The active
+   frame's colours, an option that is on reversed as (↕) is, one that cannot
+   run now faint. */
+EditWindow OptionStrip                         { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
+EditWindow OptionStrip::item:checked           { reverse: true }
+EditWindow OptionStrip::item:disabled          { dim: true }
 EditWindow ScrollBar                           { fg: $editor-scroll-bar-page-fg;  bg: $editor-scroll-bar-page-bg; bold: $editor-scroll-bar-page-bold; dim: $editor-scroll-bar-page-dim; italic: $editor-scroll-bar-page-italic; underline: $editor-scroll-bar-page-underline; reverse: $editor-scroll-bar-page-reverse }
 EditWindow ScrollBar::arrow,
 EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg; bg: $editor-scroll-bar-icons-bg; bold: $editor-scroll-bar-icons-bold; dim: $editor-scroll-bar-icons-dim; italic: $editor-scroll-bar-icons-italic; underline: $editor-scroll-bar-icons-underline; reverse: $editor-scroll-bar-icons-reverse }

@@ -28,6 +28,14 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 - `ListViewer` hooks: `capacity`, `index_at`, `render_items`, overridable `_follow_cursor`; `framed = False` drops the
   frame; it claims only a *bare* Enter.
 - `StaticText.links` marks the `http(s)://` runs it paints (OSC 8, see `navkit-terminal`).
+- **`OptionStrip`** (`navml/widgets/option_strip/`, Python only, not DN's): a window's *options* in a row, each an
+  `OptionItem(command, label, lit=None)`. Lit is the command's `checks` (or `lit()`), greyed its `enables`, both asked
+  of `target` (the widget whose options they are) through `navkit.commands` while painting -- any reactive write
+  repaints, as for `KeyBar`. A left press on an enabled item runs `commands.run(app, command, target)`; every press is
+  the strip's. Each item is drawn `[label]`, a cell apart, and nothing between: on a frame the border shows
+  through (`═[⌶]═[§]═`). `spans`/`used_width` are computed from the labels' display width; bind `width: self.used_width` and give
+  it `room` -- items that would pass it drop from the last. Part `item` with `:checked`/`:disabled`. Actions do not
+  belong on it: those stay on menus and keys.
 - **`ProgressBar`** (`navml/widgets/progress_bar/`): `value`/`total`/`percent`, as wide as placed, `█▒` from navkit's
   `GAUGES`. **`Spinner`** (`navml/widgets/spinner/`): one cell turning through navkit's `SPINNERS` every `interval` ms
   while mounted (`call_every`, as `Timer`); `frame` counts up. Navigator's `WriteWin` puts one beside its message.

@@ -1,6 +1,7 @@
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
-from navigator.widgets.editor.commands import ChooseFileType, SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
+from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -8,6 +9,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.option_strip import OptionStrip
 from navml.widgets.window import Window
 
 #: F3: DOS Navigator's ``TFileWindow`` (``FVIEWER.PAS``).
@@ -45,6 +47,8 @@ FileWindow(Window):
         ctrl+l: SearchAgain
         #: The *File type* menu in a box, as in the editor.
         ctrl+shift+h: ChooseFileType
+        #: *Hidden characters*, as in the editor.
+        ctrl+shift+8: SwitchHiddenChars
 
     FileViewer:
         id: viewer
@@ -75,6 +79,20 @@ FileWindow(Window):
         height: 1
         text: viewer.info_text
 
+    #: A departure: DN had no such strip.  The viewer's options on the bottom
+    #: frame, right-aligned before the corner, each lit while on and switched by
+    #: a click (``option_items.viewer_items``); the info line comes first when
+    #: the frame is short.  Shown while the window is active, as the editor's.
+    OptionStrip:
+        id: options
+        visible: root.active and SETTINGS.viewer.show_options
+        target: viewer
+        room: max(0, parent.width - 3 - (info.x + info.width) - 1)
+        width: self.used_width
+        x: max(0, parent.width - 3 - self.width)
+        y: max(0, parent.height - 1)
+        height: 1
+
     #: The viewer's own menu, on the main menu bar after *File* while this
     #: window is the active one: a ``SubMenu`` among a window's children is
     #: one the shell's ``MenuBar.context`` binding puts there.  DOS Navigator's
@@ -104,6 +122,11 @@ FileWindow(Window):
         MenuItem:
             text: 'S~y~ntax highlight'
             command: SwitchHighLight
+        #: A departure: DN had no such option.  No hotkey: every letter of its
+        #: caption is another entry's already.
+        MenuItem:
+            text: 'Hidden characters'
+            command: SwitchHiddenChars
         #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
         SubMenu:
             id: view_menu_file_type

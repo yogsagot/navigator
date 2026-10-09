@@ -35,8 +35,9 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     Unwrap,
 )
-from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.option_items import viewer_items
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.progress import run_with_progress
@@ -69,6 +70,7 @@ class FileWindow(Window):
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.
         self.title = str(self.viewer.path)
         fill_file_types(self.view_menu_file_type)
+        self.options.items = viewer_items(self.viewer)
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -157,6 +159,11 @@ class FileWindow(Window):
         self.viewer.syntax_highlight = not self.viewer.syntax_highlight
         return True
 
+    async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool:
+        """View > *Hidden characters*: a departure, as the editor's."""
+        self.viewer.show_hidden = not self.viewer.show_hidden
+        return True
+
     async def on_set_file_type(self, event: SetFileType) -> bool:
         """View > *File type*."""
         self.set_file_type(event.file_type)
@@ -207,6 +214,8 @@ class FileWindow(Window):
             return self.viewer.wrap
         if isinstance(command, SwitchHighLight):
             return self.viewer.syntax_highlight
+        if isinstance(command, SwitchHiddenChars):
+            return self.viewer.show_hidden
         if isinstance(command, SetFileType):
             return self.viewer.file_type == command.file_type
         return super().checks(command)
@@ -215,7 +224,7 @@ class FileWindow(Window):
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them."""
         if isinstance(command, GotoAddress):
             return self.viewer.mode != "text"
-        if isinstance(command, (Unwrap, SwitchHighLight, SetFileType, ChooseFileType)):
+        if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):
             return self.viewer.mode == "text"
         if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
             return viewer_model.last_search is not None

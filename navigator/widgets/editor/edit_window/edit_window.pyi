@@ -7,9 +7,11 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
+from navml.widgets.option_strip import OptionStrip
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
@@ -32,9 +34,9 @@ from navigator.editor.lock import refuse_if_locked
 from navigator.editor.save import write_file
 from navigator.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
-from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseFileType, SetFileType
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.option_items import editor_items
 
 
 class FileSaved(Event): ...
@@ -45,6 +47,7 @@ class EditWindow(Window, _Component):
     vbar: ScrollBar
     hbar: ScrollBar
     info: InfoLine
+    options: OptionStrip
     edit_menu: SubMenu
     edit_menu_file: SubMenu
     edit_menu_edit: SubMenu

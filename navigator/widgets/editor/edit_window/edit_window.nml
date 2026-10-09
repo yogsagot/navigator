@@ -1,7 +1,9 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
+from navml.widgets.option_strip import OptionStrip
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
@@ -40,6 +42,9 @@ EditWindow(Window):
         #: The *File type* menu in a box: a departure, as the menu is.
         #: Ctrl+Shift+H needs the kitty keyboard protocol.
         ctrl+shift+h: ChooseFileType
+        #: *Hidden characters*, a departure: Word's key for its ¶.  Needs the
+        #: kitty keyboard protocol too.
+        ctrl+shift+8: SwitchHiddenChars
         #: ``StatusDef hcEditor``'s ``:~F8~ Print Block``.
         #: ``~F8~ Print``: the text the editor holds.
         f8: PrintFile
@@ -65,14 +70,16 @@ EditWindow(Window):
         page: max(1, editor.height)
 
     #: From column 24 to the corner, as ``ChangeBounds`` sized it; its range is
-    #: DN's 0 to 255 until the cursor goes further.
+    #: DN's 0 to 255 until the cursor goes further.  With the option strip
+    #: showing it ends a cell short of the strip instead, and narrower than its
+    #: two arrows, thumb and a cell of track it is not shown at all.
     ScrollBar:
         id: hbar
         orientation: "horizontal"
-        visible: root.active
+        visible: root.active and self.width >= 4
         x: 24
         y: max(0, parent.height - 1)
-        width: max(0, parent.width - 26)
+        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - 24)
         height: 1
         value: editor.col
         maximum: max(255, editor.col)
@@ -87,6 +94,21 @@ EditWindow(Window):
         width: min(len(editor.info_text), max(0, parent.width - 4))
         height: 1
         text: editor.info_text
+
+    #: A departure: DN had no such strip.  The editor's options on the bottom
+    #: frame, right-aligned before the corner, each lit while on and switched by
+    #: a click (``option_items.editor_items``) -- DN showed them only in the
+    #: menu, and a mode kept per file went unnoticed.  The info line comes first
+    #: when the frame is short, then the strip, then the scroll bar.
+    OptionStrip:
+        id: options
+        visible: root.active and SETTINGS.editor.show_options
+        target: editor
+        room: max(0, parent.width - 3 - (info.x + info.width) - 1)
+        width: self.used_width
+        x: max(0, parent.width - 3 - self.width)
+        y: max(0, parent.height - 1)
+        height: 1
 
     #: DOS Navigator's ``dlgEditorMenu`` (``DN.DNR``), every entry in the
     #: original's order with the original's captions and keys -- but as one
@@ -359,6 +381,10 @@ EditWindow(Window):
             MenuItem:
                 text: 'Syntax ~h~ighlight'
                 command: SwitchHighLight
+            #: A departure: DN had no such option.
+            MenuItem:
+                text: 'Show hi~d~den characters'
+                command: SwitchHiddenChars
             #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
             SubMenu:
                 id: edit_menu_file_type

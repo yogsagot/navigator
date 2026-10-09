@@ -587,3 +587,121 @@ def test_set_mode_keeps_the_offset_on_top_and_refuses_a_mode_it_lacks(files):
         viewer.set_mode("braille")
     with pytest.raises(ValueError):
         viewer.set_filter(3)
+
+
+# -- the option strip and hidden characters ---------------------------------------------------
+
+
+def strip_span(window, command):
+    return next(span for span in window.options.spans if span[2].command is command)
+
+
+def click_option(command):
+    from navkit.events import MouseClickEvent
+
+    def action(app):
+        window = opened(app)
+        strip = window.options
+        start = strip_span(window, command)[0]
+        ox, oy = strip.offset()
+        x, y = ox + strip.x + start, oy + strip.y
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="press"))
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="release"))
+    return action
+
+
+def test_the_viewer_strip_shows_mode_switches_encoding_and_type(files):
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=1)))
+    # Painted once, so the lexing thread has said there is no lexer.
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, lambda a: screen(a)])
+    window = opened(app)
+    assert [span[3] for span in window.options.spans] == ["Text", "Wrap", "Hi", "Show", "UTF-8", "plain"]
+    assert window.options.x + window.options.width == window.width - 3
+
+
+def test_in_hex_mode_the_text_options_are_greyed(files):
+    from navigator.widgets.editor.commands import SwitchHiddenChars
+    from navigator.widgets.viewer.commands import HexMode, Unwrap
+
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        window = opened(a)
+        strip = window.options
+        buffer = screen(a)
+        ox, oy = strip.offset()
+        at = lambda command: buffer.get(ox + strip.x + strip_span(window, command)[0], oy + strip.y)[1]  # noqa: E731
+        seen.update(label=strip_span(window, HexMode)[3], wrap=at(Unwrap), hidden=at(SwitchHiddenChars),
+                    grey=strip.part_style("item", disabled=True))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f4"), look])
+    assert seen["label"] == "Hex"
+    assert seen["wrap"] == seen["grey"] and seen["hidden"] == seen["grey"]
+
+
+def test_clicks_on_the_viewer_strip_switch_wrap_and_the_mode(files):
+    from navigator.widgets.viewer.commands import HexMode, Unwrap
+
+    app = navigator(files)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+                  click_option(Unwrap), lambda a: None, lambda a: seen.append(opened(a).viewer.wrap),
+                  click_option(HexMode), lambda a: None, lambda a: seen.append(opened(a).viewer.mode)])
+    assert seen == [True, "hex"]
+
+
+def test_the_viewer_strip_follows_its_setting(files):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.viewer.show_options = False
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None])
+    assert not opened(app).options.visible
+
+
+def test_the_viewer_marks_blanks_tabs_and_each_kind_of_ending(tmp_path, quiet_console):
+    from navigator.settings import SETTINGS
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "text.txt").write_bytes(b"a b\tc  \r\nx\ny\rlast")
+    SETTINGS.viewer.show_hidden = True
+    app = navigator(tmp_path)
+    seen = {}
+
+    def look(a):
+        buffer = screen(a)
+        viewer = opened(a).viewer
+        ox, oy = viewer.offset()
+        seen["rows"] = ["".join(buffer.get(ox + viewer.x + x, oy + viewer.y + y)[0] or " "
+                                for x in range(12)).rstrip() for y in range(4)]
+        seen["mark"] = buffer.get(ox + viewer.x + 1, oy + viewer.y)[1]
+        seen["plain"] = viewer.style
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, look])
+    assert seen["rows"] == ["a·b→    c··⏎", "x↓", "y←", "last"]
+    assert seen["mark"] == seen["plain"].derive(dim=True)
+
+
+def test_hidden_characters_switch_from_the_view_menu(files):
+    from navigator.widgets.editor.commands import SwitchHiddenChars
+
+    app = navigator(files)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+                  lambda a: a.spawn(opened(a).viewer.emit(SwitchHiddenChars())), lambda a: None,
+                  lambda a: seen.append(opened(a).viewer.show_hidden)])
+    assert seen == [True]
+
+
+def test_ctrl_shift_8_switches_hidden_characters_in_the_viewer(files):
+    app = navigator(files)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+                  KeyEvent("8", ctrl=True, shift=True),
+                  lambda a: seen.append(opened(a).viewer.show_hidden)])
+    assert seen == [True]

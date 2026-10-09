@@ -54,7 +54,10 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
   wire one up, drop the flag.
 - **Field order matters.** Fields keep DN's dialog order. Tuples on the class (`OPTIONS`, `BEHAVIOR`, `DISPLAY`, ...)
   list a `CheckBoxes`' items in bit order. `to_bits(names)` and `from_bits(names, value)` convert between those fields
-  and `CheckBoxes.value`.
+  and `CheckBoxes.value`. A departure's checkbox goes last, so the original options' bits stay put:
+  `[editor] show_options` / `[viewer] show_options` (the option strip, on by default, bound live by the windows'
+  markup as `SETTINGS.editor.show_options`). `show_hidden` in both sections has no checkbox (as `syntax_highlight`);
+  it seeds each new editor/viewer, which Editor > Options / View switch.
 - **Sections are named after DN's records**, the dialogs after DN's `dlg*` resources, and the commands after DN's `cm*`:
 
 | Section | Class (DN record) | Dialog (`navigator/widgets/setup/`) | Command |

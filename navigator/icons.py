@@ -121,6 +121,19 @@ BY_TYPE = {
 }
 
 
+#: The editor's and viewer's options on their option strip (``OptionStrip``),
+#: at the Nerd tier.  Font Awesome 4, at the same codepoints in Nerd Fonts 2
+#: and 3; every one checked present in JetBrainsMono Nerd Font.
+OPTION_STREAM_BLOCKS = "\uf07e"    # nf-fa-arrows_h
+OPTION_COLUMN_BLOCKS = "\uf07d"    # nf-fa-arrows_v
+OPTION_INSERT = "\uf246"     # nf-fa-i_cursor
+OPTION_INDENT = "\uf03c"     # nf-fa-indent
+OPTION_WRAP = "\uf149"       # nf-fa-level_down
+OPTION_BRACKETS = "\uf121"   # nf-fa-code
+OPTION_HIGHLIGHT = "\uf1fc"  # nf-fa-paint_brush
+OPTION_HIDDEN = "\uf1dd"     # nf-fa-paragraph
+
+
 def icon_for(name: str, is_dir: bool, mark: str = " ", bookmarked: bool = False) -> str:
     """The glyph standing for an entry called *name*, of type *mark*.
 

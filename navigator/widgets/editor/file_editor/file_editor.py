@@ -44,6 +44,7 @@ from navigator.widgets.editor.commands import (
     SwitchHiColumn,
     SwitchHiLine,
     SwitchHighLight,
+    SwitchHiddenChars,
     SwitchFill,
     CapString,
     CapWord,
@@ -134,6 +135,7 @@ from navigator.editor.search import BREAK_CHARS, SearchData
 from navigator.fileattr import DATE_FORMAT, TIME_FORMAT
 from navigator import highlight
 from navigator.settings import SETTINGS
+from navigator.viewer import HIDDEN_MARKS
 
 
 #: How many lines one wheel notch moves the view.
@@ -153,13 +155,13 @@ LEX_LIMIT = 2 * 1024 * 1024
 
 
 def _lex_text(name: str, file_type: str, lines: tuple[str, ...], until: int,
-              stop: threading.Event) -> Any:
-    """On the thread: the spans of *lines* through *until*, False when the file
-    has no lexer, None when stopped."""
+              stop: threading.Event) -> tuple[str, Any]:
+    """On the thread: the lexer's name ("" for none) and the spans of *lines*
+    through *until* -- False when the file has no lexer, None when stopped."""
     lexer = highlight.lexer_for(name, lines[0] if lines else "", file_type=file_type)
     if lexer is None:
-        return False
-    return highlight.lex_lines(lexer, lines, until, stop)
+        return "", False
+    return highlight.lexer_label(lexer), highlight.lex_lines(lexer, lines, until, stop)
 
 #: The text of the last column block copied, with the padded pieces it was
 #: copied from: a paste of exactly that text goes in as a rectangle.  Shared
@@ -457,6 +459,14 @@ class FileEditor(Widget):
     auto_indent: bool = reactive(True)
     back_indent: bool = reactive(True)
 
+    #: Spaces, tabs and each line's ending drawn faintly (:data:`HIDDEN_MARKS`):
+    #: a departure, DN had no such option.  Seeded from ``[editor] show_hidden``.
+    show_hidden: bool = reactive(False)
+
+    #: The name of the lexer colouring the text, "" for none, None until the
+    #: lexing thread has said: what the option strip shows as the file type.
+    lexer_name: str | None = reactive(None)
+
     #: ``DrawMode``: 0 off, 1 single lines, 2 double.  While on, the arrows
     #: draw (with Shift), erase (with Ctrl) or only move (:meth:`_draw_key`).
     draw_mode: int = reactive(0)
@@ -494,6 +504,7 @@ class FileEditor(Widget):
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
+        self.show_hidden = SETTINGS.editor.show_hidden
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
         #: paragraph indent, seeded from the Editor setup and changed by
         #: *Format Margins* for this editor alone, as ``SetFormat`` did.
@@ -1689,6 +1700,11 @@ class FileEditor(Widget):
         self.syntax_highlight = not self.syntax_highlight
         return True
 
+    async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool:
+        """Editor > Options > *Show hidden characters*: a departure."""
+        self.show_hidden = not self.show_hidden
+        return True
+
     async def on_switch_fill(self, event: SwitchFill) -> bool:
         """``cmSwitchFill``: ``OptimalFill := not OptimalFill``."""
         self.optimal_fill = not self.optimal_fill
@@ -2259,6 +2275,11 @@ class FileEditor(Widget):
             return self.highlight_column
         if isinstance(command, SwitchHighLight):
             return self.syntax_highlight
+        if isinstance(command, SwitchHiddenChars):
+            return self.show_hidden
+        if isinstance(command, SwitchInsert):
+            # Ticked in overwrite: what the option strip lights.
+            return self.overwrite
         if isinstance(command, SwitchIndent):
             return self.auto_indent
         if isinstance(command, SwitchBack):
@@ -2411,6 +2432,10 @@ class FileEditor(Widget):
         if self.draw_mode:
             # ``{┼}``/``{╬}``: the pen's weight, where the block's kind was.
             block = ("{┼}", "{╬}")[self.draw_mode - 1] if unicode else ("{+}", "{#}")[self.draw_mode - 1]
+        elif SETTINGS.editor.show_options:
+            # A departure: the option strip shows the block's kind, with the
+            # editor's other options, so the info line leaves it out.
+            block = ""
         # A departure: the keys of a chord still waiting for its last, WordStar's
         # ``^K``, so a key about to be swallowed is not a surprise.
         app = self.application
@@ -2420,7 +2445,7 @@ class FileEditor(Widget):
                 f"^{key[5:].upper()}" if key.startswith("ctrl+") else key for key in app.chord.split()
             )
         place = f"{self.line + 1}:{self.col + 1}"
-        head = f"{mark}{bar}{bar}{place} [{code:03d}] "
+        head = f"{mark}{bar}{bar}{place} [{code:03d}]" + (" " if block else "")
         self._block_at = (len(head), len(head) + len(block))
         self._place_at = (3, 3 + len(place))
         code_start = 3 + len(place) + 1
@@ -2660,10 +2685,12 @@ class FileEditor(Widget):
             return  # forgotten by rehighlight meanwhile
         self._lex_stop = None
         try:
-            spans = outcome.result()
+            label, spans = outcome.result()
         except Exception:
             # A lexer that fails on this text: show it plain rather than not at all.
-            spans = False
+            label, spans = "", False
+        if self.lexer_name != label:
+            self.lexer_name = label
         if spans is None:
             return
         if spans is False:
@@ -2721,6 +2748,8 @@ class FileEditor(Widget):
         left, width = self.left, self.width
         tokens = self._tokens(min(len(lines), self.top + self.height) - 1)
         looks: dict[tuple[tuple[str, ...], bool], Any] = {}
+        hidden = self.show_hidden
+        tier = 0 if self.glyphs >= GLYPHS_UNICODE else 1
         for y in range(self.height):
             number = self.top + y
             if number >= len(lines):
@@ -2736,9 +2765,17 @@ class FileEditor(Widget):
                 start, stop = max(span[0], left), min(span[1], left + width)
                 if start < stop:
                     surface.fill(start - left, y, stop - start, 1, " ", selected)
-            row = columns.cells(lines[number], self.tab_size, limit=left + width)
+            text = lines[number]
+            row = columns.cells(text, self.tab_size, limit=left + width)
             spans = tokens[number] if tokens is not None and number < len(tokens) else ()
             at = 0
+            if hidden:
+                # The line's ending, a cell past its text, in the colours there.
+                end = columns.width(text, self.tab_size)
+                ending = self.document.endings[number]
+                if ending in HIDDEN_MARKS and left <= end < left + width:
+                    look = selected if span is not None and span[0] <= end < span[1] else style
+                    surface.set_cell(end - left, y, HIDDEN_MARKS[ending][tier], look.derive(dim=True))
             for x in range(width):
                 column = x + left
                 if column >= len(row):
@@ -2762,6 +2799,12 @@ class FileEditor(Widget):
                     continue
                 if x == width - 1 and column + 1 < len(row) and row[column + 1][0] == "":
                     surface.set_cell(x, y, " ", cell)
+                    continue
+                if hidden and text[index] in " \t" and (
+                    text[index] == " " or column == 0 or row[column - 1][1] != index
+                ):
+                    # A blank, or a tab's first column: its mark, faint.
+                    surface.set_cell(x, y, HIDDEN_MARKS[text[index]][tier], cell.derive(dim=True))
                     continue
                 surface.set_cell(x, y, char, cell)
         if self.highlight_column and 0 <= self.col - left < width:

@@ -11,7 +11,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: rather than DN's free input lines, so nothing but a number goes in.  Four
 #: columns wider than DN's 52; Help is left out, having nothing to show yet.
 #: The line divisor lists LF first, a departure from DN's CR+LF, CR, LF:
-#: POSIX's own ending leads.
+#: POSIX's own ending leads.  *Option strip* in each cluster is a departure
+#: too, the strip being one (``OptionStrip``).
 EditorDefaultsDialog(Dialog):
     modal_width: 56
     modal_height: 21
@@ -32,7 +33,7 @@ EditorDefaultsDialog(Dialog):
         y: 2
         width: max(0, parent.width - 4)
         height: 7
-        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile"]
+        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Option ~s~trip"]
 
     Label:
         id: viewer_caption
@@ -48,8 +49,8 @@ EditorDefaultsDialog(Dialog):
         x: 2
         y: 11
         width: 20
-        height: 2
-        items: ["He~x~ mode", "~W~rap lines"]
+        height: 3
+        items: ["He~x~ mode", "~W~rap lines", "Optio~n~ strip"]
 
     MaskedField:
         id: left_margin

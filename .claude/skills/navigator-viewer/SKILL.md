@@ -32,6 +32,12 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type
   (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
+- **The option strip and Hidden characters** -- see `navigator-editor`, which has both; the viewer's strip is
+  `option_items.viewer_items`: the mode (`HexMode`, cycles), Wrap (`Unwrap`), Hi, ¶ (`SwitchHiddenChars`, handled
+  and ticked by `FileWindow`), the encoding (`ChooseEncoding`) and the file type; Wrap, Hi, ¶ and the type are text
+  mode only, greyed in hex/dump. *Hidden characters* (View, Ctrl+Shift+8; no menu hotkey -- every letter is taken) marks text mode only:
+  `FileViewer._hidden_row` reads each row's shown bytes and its last two (the ending) at paint time; the decoders
+  are untouched, and the filter's `·` is told from a blank's by being faint. `[viewer] show_options`/`show_hidden`.
 - **While a viewer window is active the bar has a *View* menu after *File*** (modes, filters and wrap ticked, search, go
   to, close) -- see `navml-windows-menus` for how a window's menu joins the bar.
 - A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge, percentage, Stop), fed

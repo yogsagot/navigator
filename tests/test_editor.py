@@ -256,7 +256,7 @@ def test_f4_opens_the_file_under_the_cursor_zoomed(files):
     buffer = seen["buffer"]
     assert "first line" in row_of(buffer, 2)
     assert "second  line" in row_of(buffer, 3)
-    assert "═══1:1 [102] (↔)" in row_of(buffer, 21) or "===1:1 [102]" in row_of(buffer, 21)
+    assert "═══1:1 [102]" in row_of(buffer, 21) or "===1:1 [102]" in row_of(buffer, 21)
 
 
 def test_f4_on_a_directory_opens_nothing(files):
@@ -1537,6 +1537,8 @@ def click_info(at):
 
 
 def test_a_click_on_the_block_indicator_switches_column_blocks(files):
+    # The info line's indicator is there while the option strip is not.
+    SETTINGS.editor.show_options = False
     seen = []
     (files / "text.txt").write_bytes(b"abcdef\nghijkl\n")
     SETTINGS.interface.store_editor_position = False
@@ -1554,6 +1556,7 @@ def test_a_click_on_the_block_indicator_switches_column_blocks(files):
 
 @pytest.mark.parametrize("vertical", [False, True])
 def test_the_block_indicator_stands_out_under_vertical_blocks(files, vertical):
+    SETTINGS.editor.show_options = False
     SETTINGS.editor.vertical_blocks = vertical
     app = navigator(files)
     seen = {}
@@ -1589,6 +1592,7 @@ def test_a_click_elsewhere_on_the_info_line_does_nothing(files):
 def test_the_indicator_is_found_however_long_the_code_before_it():
     from navigator.widgets.editor.file_editor import FileEditor
 
+    SETTINGS.editor.show_options = False
     editor = FileEditor()
     editor.buffer.document.lines[0] = "中"  # a code past three digits
     editor.revision += 1
@@ -2394,3 +2398,255 @@ def test_both_switch_and_are_ticked(files):
                 lambda a: a.spawn(editor_window(a).editor.on_switch_hi_column(SwitchHiColumn())),
                 lambda a: None, look)
     assert seen == [(False, False), (True, True)]
+
+
+# -- the option strip and hidden characters ---------------------------------------------------
+
+
+def strip_span(window, command):
+    """The option strip's ``(start, end, item, label)`` for *command*."""
+    return next(span for span in window.options.spans if span[2].command is command)
+
+
+def click_option(command, window_of=None):
+    """A left click on the option strip's item for *command*, through the screen."""
+    from navkit.events import MouseClickEvent
+
+    def action(app):
+        window = (window_of or editor_window)(app)
+        strip = window.options
+        start, _end, _item, _label = strip_span(window, command)
+        ox, oy = strip.offset()
+        x, y = ox + strip.x + start, oy + strip.y
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="press"))
+        app.post_event(MouseClickEvent(x=x, y=y, button="left", action="release"))
+    return action
+
+
+def strip_look(app, command, window_of=None):
+    """The style the option strip paints *command*'s item in, read off the screen."""
+    window = (window_of or editor_window)(app)
+    strip = window.options
+    buffer = screen(app)
+    start, _end, _item, _label = strip_span(window, command)
+    ox, oy = strip.offset()
+    return buffer.get(ox + strip.x + start, oy + strip.y)[1]
+
+
+def test_the_option_strip_sits_on_the_bottom_frame_before_the_corner(files):
+    from navigator.widgets.editor.commands import ChooseFileType, SwitchBlock, SwitchInsert
+
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    window = editor_window(app)
+    strip, hbar = window.options, window.hbar
+    assert strip.visible and strip.y == window.height - 1
+    assert strip.x + strip.width == window.width - 3
+    assert hbar.x + hbar.width == strip.x - 1
+    assert [span[2].command for span in strip.spans][:2] == [SwitchInsert, SwitchBlock]
+    assert strip.spans[-1][2].command is ChooseFileType
+
+
+@pytest.mark.parametrize("tier, expected", [
+    (1, ["Ins", "-", "Indent", "Wrap", "Brk", "Hi", "Show", "plain"]),
+    (2, ["⌶", "↔", "⇥", "↩", "()", "§", "¶", "plain"]),
+])
+def test_the_strip_spells_each_option_for_the_glyph_tier(files, tier, expected):
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=tier)))
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    labels = [span[3] for span in editor_window(app).options.spans]
+    assert labels == expected
+
+
+def test_every_strip_symbol_is_one_cell_wide():
+    from navkit.screen import char_width
+    from navigator.viewer import HIDDEN_MARKS
+    from navigator.widgets.editor import option_items
+
+    symbols = [option_items.STREAM_BLOCKS, option_items.COLUMN_BLOCKS, option_items.INSERT, option_items.INDENT, option_items.WRAP, option_items.BRACKETS,
+               option_items.HIGHLIGHT, option_items.HIDDEN]
+    for unicode, nerd in symbols:
+        assert all(char_width(char) == 1 for char in unicode + nerd)
+    assert all(char_width(mark) == 1 for pair in HIDDEN_MARKS.values() for mark in pair)
+
+
+def test_an_option_switched_by_key_or_menu_lights_on_the_strip(files):
+    from navigator.widgets.editor.commands import SwitchInsert, SwitchSave
+
+    app = navigator(files)
+    seen = {}
+
+    def look(name):
+        def action(a):
+            strip = editor_window(a).options
+            seen[name] = (strip_look(a, SwitchInsert), strip_look(a, SwitchSave),
+                          strip.part_style("item"), strip.part_style("item", checked=True))
+        return action
+
+    def wrap_by_menu(a):
+        a.spawn(editor_window(a).editor.emit(SwitchSave()))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look("before"),
+                  KeyEvent("insert"), wrap_by_menu, lambda a: None, look("after")])
+    insert, wrap, plain, lit = seen["before"]
+    assert lit != plain and insert == plain and wrap == plain
+    insert, wrap, plain, lit = seen["after"]
+    assert insert == lit and wrap == lit
+
+
+def test_a_click_on_the_strip_switches_the_option_and_leaves_the_window(files):
+    from navigator.widgets.editor.commands import SwitchIndent, SwitchInsert
+
+    app = navigator(files)
+    seen = {}
+
+    def before(a):
+        window = editor_window(a)
+        seen["rect"] = (window.x, window.y, window.width, window.height)
+        seen["indent"] = window.editor.auto_indent
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, before,
+                  click_option(SwitchIndent), click_option(SwitchInsert), lambda a: None])
+    window = editor_window(app)
+    assert window.editor.auto_indent is not seen["indent"]
+    assert window.editor.overwrite
+    assert (window.x, window.y, window.width, window.height) == seen["rect"]
+
+
+def test_the_strip_names_the_lexer_and_a_click_offers_file_types(tmp_path, quiet_console):
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navigator.widgets.editor.commands import ChooseFileType
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "script.py").write_text("import os\n")
+    app = navigator(tmp_path)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: screen(a),
+                  lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3]),
+                  click_option(ChooseFileType), lambda a: None,
+                  lambda a: seen.update(popup=isinstance(a.modal, PopupMenu)),
+                  KeyEvent("escape")])
+    assert seen["label"].endswith("python")
+    assert seen["popup"]
+
+
+def test_the_strip_follows_its_setting_and_the_scroll_bar_takes_the_room_back(files):
+    app = navigator(files)
+    seen = {}
+
+    def off(a):
+        SETTINGS.editor.show_options = False
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, off, lambda a: None,
+                  lambda a: seen.update(visible=editor_window(a).options.visible,
+                                        hbar=editor_window(a).hbar.width,
+                                        width=editor_window(a).width)])
+    assert not seen["visible"]
+    assert seen["hbar"] == seen["width"] - 26
+
+
+def test_a_narrow_window_drops_the_last_items_and_the_scroll_bar(files):
+    from navigator.widgets.editor.commands import ChooseFileType
+
+    app = Navigator(files, files, terminal=FakeTerminal(40, 24))
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    window = editor_window(app)
+    commands = [span[2].command for span in window.options.spans]
+    assert ChooseFileType not in commands and commands
+    assert not window.hbar.visible
+    assert window.info.width == len(window.editor.info_text)
+
+
+def hidden_rows(tmp_path, data: bytes, *keys, tier=2):
+    """The editor's first rows painted with *Hidden characters* on, and the editor."""
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "text.txt").write_bytes(data)
+    SETTINGS.interface.store_editor_position = False
+    SETTINGS.editor.show_hidden = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=tier)))
+    seen = {}
+
+    def look(a):
+        buffer = screen(a)
+        editor = editor_window(a).editor
+        ox, oy = editor.offset()
+        seen["rows"] = ["".join(buffer.get(ox + editor.x + x, oy + editor.y + y)[0] or " "
+                                for x in range(12)).rstrip() for y in range(4)]
+        seen["cell"] = lambda row, col: buffer.get(ox + editor.x + col, oy + editor.y + row)
+        seen["editor"] = editor
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys, look])
+    return seen
+
+
+def test_hidden_characters_mark_blanks_tabs_and_each_kind_of_ending(tmp_path, quiet_console):
+    seen = hidden_rows(tmp_path, b"a b\tc  \r\nx\ny\rlast")
+    assert seen["rows"] == ["a·b→    c··⏎", "x↓", "y←", "last"]
+
+
+def test_hidden_characters_in_ascii(tmp_path, quiet_console):
+    seen = hidden_rows(tmp_path, b"a b\tc\r\nx\ny\rz", tier=1)
+    assert seen["rows"] == ["a.b>    c$", "x$", "y<", "z"]
+
+
+def test_hidden_marks_are_faint_in_the_colours_under_them_and_change_nothing(tmp_path, quiet_console):
+    SETTINGS.editor.highlight_line = True
+    data = b"a b\r\n"
+    seen = hidden_rows(tmp_path, data, KeyEvent("right", shift=True), KeyEvent("right", shift=True))
+    editor, cell = seen["editor"], seen["cell"]
+    selected = editor.part_style("current_line_selected")
+    current = editor.part_style("current_line")
+    assert cell(0, 1) == ("·", selected.derive(dim=True))   # in the block
+    assert cell(0, 3) == ("⏎", current.derive(dim=True))    # past the text, on the current line
+    assert (editor.line, editor.col) == (0, 2)
+    assert editor.document.encode() == data
+
+
+def test_hidden_characters_switch_from_the_menu_and_the_strip(files):
+    from navigator.widgets.editor.commands import SwitchHiddenChars
+
+    app = navigator(files)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  lambda a: a.spawn(editor_window(a).editor.emit(SwitchHiddenChars())), lambda a: None,
+                  lambda a: seen.append(editor_window(a).editor.show_hidden),
+                  click_option(SwitchHiddenChars), lambda a: None,
+                  lambda a: seen.append(editor_window(a).editor.show_hidden)])
+    assert seen == [True, False]
+
+
+def test_ctrl_shift_8_switches_hidden_characters(files):
+    app = navigator(files)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("8", ctrl=True, shift=True),
+                  lambda a: seen.append(editor_window(a).editor.show_hidden)])
+    assert seen == [True]
+
+
+def test_the_block_kind_moves_from_the_info_line_to_the_strip(files):
+    from navigator.widgets.editor.commands import SwitchBlock
+
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        window = editor_window(a)
+        seen.update(info=window.editor.info_text, lit=strip_look(a, SwitchBlock),
+                    want=window.options.part_style("item", checked=True),
+                    label=strip_span(window, SwitchBlock)[3])
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  click_option(SwitchBlock), lambda a: None, look])
+    assert "(" not in seen["info"]
+    assert editor_window(app).editor.vertical_blocks
+    assert seen["lit"] == seen["want"]
+    assert seen["label"] == "\uf07d"   # nf-fa-arrows_v: the fake terminal is Nerd

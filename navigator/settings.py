@@ -380,7 +380,7 @@ class EditorDefaultsData(Section):
         "create_backup", "backspace_unindents", "auto_brackets", "auto_indent",
         "autowrap", "justify_on_wrap", "vertical_blocks", "optimal_fill",
         "highlight_line", "highlight_column", "persistent_blocks",
-        "overwrite_blocks", "lock_file",
+        "overwrite_blocks", "lock_file", "show_options",
     )
     #: DN's order was CR+LF, CR, LF; POSIX's own ending comes first here.
     LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
@@ -416,6 +416,15 @@ class EditorDefaultsData(Section):
     lock_file: bool = Setting(
         False, doc="An editor holds its file with an advisory lock other programs can see",
     )
+    #: A departure: DN had no such strip.  Last in ``OPTIONS`` so the bits of
+    #: the original's options stay where they were.
+    show_options: bool = Setting(
+        True, doc="The editor's bottom frame shows its options, lit while on; a click switches one",
+    )
+    #: A departure too, with no checkbox: Editor > Options switches it per editor.
+    show_hidden: bool = Setting(
+        False, doc="A new editor shows spaces, tabs and line ends",
+    )
     left_margin: int = Setting(0, doc="Left margin a new editor formats paragraphs to")
     right_margin: int = Setting(78, doc="Right margin a new editor formats paragraphs to")
     paragraph: int = Setting(5, doc="A justified paragraph's first-line indent in a new editor")
@@ -432,7 +441,7 @@ class ViewerDefaultsData(Section):
     name = "viewer"
     title = "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)"
 
-    OPTIONS: ClassVar[tuple[str, ...]] = ("hex_mode", "wrap_lines")
+    OPTIONS: ClassVar[tuple[str, ...]] = ("hex_mode", "wrap_lines", "show_options")
 
     hex_mode: bool = Setting(False, doc="F3 opens in hex mode")
     wrap_lines: bool = Setting(False, doc="Wrap long lines")
@@ -441,6 +450,12 @@ class ViewerDefaultsData(Section):
     syntax_highlight: bool = Setting(
         True, doc="F3 colours a text by syntax, as highlight.ini says",
     )
+    #: A departure: DN had no such strip.
+    show_options: bool = Setting(
+        True, doc="The viewer's bottom frame shows its options, lit while on; a click switches one",
+    )
+    #: A departure too, with no checkbox: View > Hidden characters switches it.
+    show_hidden: bool = Setting(False, doc="F3 shows spaces, tabs and line ends")
 
 
 class FMSetupData(Section):

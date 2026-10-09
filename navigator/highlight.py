@@ -233,6 +233,27 @@ def _usable(lexer: Any) -> Any:
     return None if isinstance(lexer, TextLexer) else lexer
 
 
+def lexer_label(lexer: Any) -> str:
+    """A lexer's short name, its first alias: ``python``, ``nml``."""
+    aliases = getattr(lexer, "aliases", None) or ()
+    return aliases[0] if aliases else str(getattr(lexer, "name", "")).lower()
+
+
+def file_type_label(file_type: str, lexer_name: str | None) -> str:
+    """What the option strip says the text is coloured as: the type chosen from
+    *File type*, else the lexer the thread found (*lexer_name*, "" for none),
+    else -- nothing lexed yet -- ``auto``."""
+    from navkit.i18n import tr
+
+    if file_type == NONE:
+        return tr("plain")
+    if file_type:
+        return file_type
+    if lexer_name is None:
+        return tr("auto")
+    return lexer_name or tr("plain")
+
+
 def lexer_for(file_name: str, first_line: str, rules: Rules | None = None,
               file_type: str = "") -> Any:
     """The lexer for the file called *file_name* whose first line is

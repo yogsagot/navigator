@@ -282,6 +282,26 @@ def test_editor_viewer_saves_both_its_sections(tmp_path, quiet_console):
     assert "tab_size = 4" in text and "wrap_lines = yes" in text
 
 
+def test_the_option_strips_are_on_by_default_and_their_checkboxes_come_last(tmp_path, quiet_console):
+    from navigator.settings import EditorDefaultsData, ViewerDefaultsData
+
+    assert SETTINGS.editor.show_options and SETTINGS.viewer.show_options
+    assert not SETTINGS.editor.show_hidden and not SETTINGS.viewer.show_hidden
+    assert EditorDefaultsData.OPTIONS[-1] == "show_options"
+    assert ViewerDefaultsData.OPTIONS == ("hex_mode", "wrap_lines", "show_options")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def untick(a):
+        a.modal.editor.value &= ~(1 << len(EditorDefaultsData.OPTIONS) - 1)
+        a.modal.viewer.value = 0
+
+    run_app(app, [lambda a: a.spawn(a.run_command(EditorDefaults)), lambda a: None, untick,
+                  KeyEvent("enter"), lambda a: None])
+    assert SETTINGS.editor.show_options is False and SETTINGS.viewer.show_options is False
+    text = config_path().read_text(encoding="utf-8")
+    assert "show_options = no" in text
+
+
 def test_hiding_the_status_line_hides_the_key_bar(tmp_path, quiet_console):
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     seen = []

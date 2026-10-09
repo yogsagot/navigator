@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
@@ -37,6 +38,7 @@ from navigator.viewer import (
     DUMP_CHARS_AT,
     FILTER_TAGS,
     HEX_PAIRS_AT,
+    HIDDEN_MARKS,
     ViewSource,
     byte_table,
     ENCODINGS,
@@ -73,9 +75,9 @@ HEAD = 256
 
 def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: int,
                 size: int, codec: str, stop: threading.Event) -> Any:
-    """On the thread: the spans of the whole lines in ``[low, high)`` of the
-    file, as ``(start, end, spans)``, False when it has no lexer, None when
-    stopped.  *data* is the whole file when the viewer holds it (``/proc``),
+    """On the thread: the lexer's name ("" for none) and the spans of the whole
+    lines in ``[low, high)`` of the file, as ``(start, end, spans)`` -- False when
+    it has no lexer, None when stopped.  *data* is the whole file when the viewer holds it (``/proc``),
     else it is read here."""
     if data is None:
         with open(name, "rb") as stream:
@@ -87,7 +89,7 @@ def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: i
     first = head.split(b"\n", 1)[0].decode("utf-8", errors="replace")
     lexer = highlight.lexer_for(name, first, file_type=file_type)
     if lexer is None:
-        return False
+        return "", False
     start, end = low, low + len(window)
     if low > 0:
         # From the first whole line: a lexer starts in its root state.
@@ -99,7 +101,7 @@ def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: i
         if cut >= 0:
             window, end = window[:cut + 1], start + cut + 1
     spans = highlight.lex_bytes(lexer, window, start, codec, stop)
-    return None if spans is None else (start, end, spans)
+    return highlight.lexer_label(lexer), None if spans is None else (start, end, spans)
 
 
 class FileViewer(Widget):
@@ -141,11 +143,18 @@ class FileViewer(Widget):
     #: View > *File type*: the lexer chosen, ``none``, or empty for
     #: ``highlight.ini``'s choice (:func:`navigator.highlight.lexer_for`).
     file_type: str = reactive("")
+    #: Spaces, tabs and each line's ending drawn faintly in text mode: a
+    #: departure, as the editor's.  Seeded from ``[viewer] show_hidden``.
+    show_hidden: bool = reactive(False)
+    #: The name of the lexer colouring the text, "" for none, None until the
+    #: lexing thread has said: what the option strip shows as the file type.
+    lexer_name: str | None = reactive(None)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source: ViewSource | None = None
         self.syntax_highlight = SETTINGS.viewer.syntax_highlight
+        self.show_hidden = SETTINGS.viewer.show_hidden
         self.rehighlight()
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
@@ -598,10 +607,12 @@ class FileViewer(Widget):
             return  # forgotten by rehighlight meanwhile
         self._lex_stop = None
         try:
-            answer = outcome.result()
+            label, answer = outcome.result()
         except Exception:
             # Unreadable now, or a lexer that fails on this text: plain.
-            answer = False
+            label, answer = "", False
+        if self.lexer_name != label:
+            self.lexer_name = label
         if answer is None:
             return
         if answer is False:
@@ -649,9 +660,14 @@ class FileViewer(Widget):
         spans = self._tokens(self.top, rows[-1].next) if rows else None
         starts = self._starts if spans else None
         looks: dict[tuple[str, ...], Any] = {}
+        hidden = self.show_hidden
+        tier = 0 if self.glyphs >= GLYPHS_UNICODE else 1
         for y, row in enumerate(rows):
             cells = row.cells
             token = 0
+            data = b""
+            if hidden:
+                data = self._hidden_row(surface, y, row, x_delta, tier)
             if starts:
                 token = max(0, bisect.bisect_right(starts, cells[min(x_delta, len(cells) - 1)][1]) - 1) if cells else 0
             for x in range(self.width):
@@ -680,7 +696,30 @@ class FileViewer(Widget):
                     # Half a wide character would spill past the edge.
                     surface.set_cell(x, y, " ", look)
                     continue
+                if hidden and 0 <= at - row.start < len(data):
+                    byte = data[at - row.start]
+                    if byte == 0x20 or (byte == 0x09 and (column == 0 or cells[column - 1][1] != at)):
+                        # A blank, or a tab's first column: its mark, faint.
+                        surface.set_cell(x, y, HIDDEN_MARKS[chr(byte)][tier], look.derive(dim=True))
+                        continue
                 surface.set_cell(x, y, char, look)
+
+    def _hidden_row(self, surface: Surface, y: int, row: Any, x_delta: int, tier: int) -> bytes:
+        """*Hidden characters* on one text row: the mark of the ending that closes
+        it, a cell past its text, painted here; returned, the bytes behind the
+        cells that show, which the caller marks the blanks and tabs among."""
+        source, cells = self.source, row.cells
+        if row.next > row.start:
+            tail = source.read(max(row.start, row.next - 2), min(2, row.next - row.start))
+            ending = "\r\n" if tail.endswith(b"\r\n") else {b"\n": "\n", b"\r": "\r"}.get(tail[-1:])
+            x = len(cells) - x_delta
+            if ending is not None and 0 <= x < self.width:
+                look = self.part_style("selected") if self._hit_covers(row.next - 1) else self.style
+                surface.set_cell(x, y, HIDDEN_MARKS[ending][tier], look.derive(dim=True))
+        shown = cells[x_delta:x_delta + self.width]
+        if not shown:
+            return b""
+        return source.read(row.start, shown[-1][1] - row.start + 1)
 
     def _render_hex(self, surface: Surface) -> None:
         style, selected = self.style, self.part_style("selected")
