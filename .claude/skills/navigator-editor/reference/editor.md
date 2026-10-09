@@ -34,7 +34,13 @@ two primitives, `Document.insert` and `Document.delete`.
 **The cursor lives in columns, not string indices**, as in DN, where the two were the same because every tab had been
 expanded.
 
-- A column may lie past the line's end: Turbo Vision's editor allowed it, and typing there pads with blanks.
+- A column may lie past the line's end -- Turbo Vision's editor allowed it, and typing there pads with blanks -- but
+  no movement puts it there any more (a departure, asked for): `FileEditor._move_to` holds the column to the line's
+  end, Right at the end goes to the next line's start and Left at a line's start to the previous one's end, and
+  Up/Down/PgUp/PgDn aim for the column a run of them began on (`_goal`). Line drawing and the extending of a column block
+  (Shift+movement, Shift+click, a drag: `_extending`) keep the old freedom (`_free`), both needing the cells past
+  the end -- a plain click or movement clamps under *Vertical blocks* too; edits such as Autoindent's empty indented line still leave
+  the cursor where the indent is.
 - A column inside a tab or a wide character belongs to that character, and Left/Right step over it whole.
 - `columns.py` holds the mapping. It follows the rules of `viewer.decode_cells`, over `str` instead of `bytes`.
 

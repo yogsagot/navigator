@@ -407,6 +407,9 @@ EditWindow::title                              { fg: $editor-frame-passive-fg; b
 EditWindow:active::title                       { fg: $editor-frame-title-fg;   bg: $editor-frame-title-bg; bold: $editor-frame-title-bold; dim: $editor-frame-title-dim; italic: $editor-frame-title-italic; underline: $editor-frame-title-underline; reverse: $editor-frame-title-reverse }
 EditWindow::icon                               { fg: $editor-frame-icons-fg;   bg: $editor-frame-icons-bg; bold: $editor-frame-icons-bold; dim: $editor-frame-icons-dim; italic: $editor-frame-icons-italic; underline: $editor-frame-icons-underline; reverse: $editor-frame-icons-reverse }
 EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
+/* A departure: (↕) under Vertical blocks, the info line's colours reversed --
+   it stands out whatever the theme. */
+EditWindow InfoLine::column_block              { reverse: true }
 EditWindow ScrollBar                           { fg: $editor-scroll-bar-page-fg;  bg: $editor-scroll-bar-page-bg; bold: $editor-scroll-bar-page-bold; dim: $editor-scroll-bar-page-dim; italic: $editor-scroll-bar-page-italic; underline: $editor-scroll-bar-page-underline; reverse: $editor-scroll-bar-page-reverse }
 EditWindow ScrollBar::arrow,
 EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg; bg: $editor-scroll-bar-icons-bg; bold: $editor-scroll-bar-icons-bold; dim: $editor-scroll-bar-icons-dim; italic: $editor-scroll-bar-icons-italic; underline: $editor-scroll-bar-icons-underline; reverse: $editor-scroll-bar-icons-reverse }

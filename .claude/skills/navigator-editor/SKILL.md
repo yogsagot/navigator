@@ -24,6 +24,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   before it appears, has a spinner, a gauge with a percentage and *Cancel* (DN's was a still message read past by Esc);
   a cancelled save removes its temporary and leaves the file as it was, except a write in place (hard links), which
   cannot stop half way and hides *Cancel* (`job.cancellable`).
+- **The cursor stays within the line's text** (a departure, asked for; DN's stood anywhere): movements go through
+  `_move_to`, which clamps the column unless `_free` (line drawing, or extending a column block -- Shift+movement, Shift+click, a
+  drag, flagged by `_extending`; a plain click or move clamps in column mode too, *Vertical blocks* being per file).
+  A column block's corner takes `_goal` during Up/Down so Shift+Down across a short line keeps its width; Right/Left cross line ends;
+  vertical moves keep a goal column (`_move_vertically`, `_goal`). `_go_column` itself still places anywhere -- edits
+  that leave the cursor on an indent rely on it.
 - **Every key is a command named after DN's `cm*`** in `FileEditor.keys` (`navigator/widgets/editor/commands.py`).
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
 - **Stream blocks and the clipboard.** Shift with any movement marks (`_marking` wraps the movement handlers; the
@@ -92,7 +98,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
 - **The info line is `InfoLine`** (DN's `TInfoLine`, a `StaticText` beside `FileEditor`, styled by
   `EditWindow StaticText#info`): a left click on its block indicator runs `SwitchBlock` and one on its line:column
   `GotoLineNumber`, as `TInfoLine.HandleEvent` turned them into `cmSwitchBlock`/`cmGotoLineNumber`.
-  `FileEditor.block_indicator()`/`place_indicator()` say where they stand, worked out from the text since the code
+  Under *Vertical blocks* the `(↕)` is painted as `InfoLine::column_block` (the info line reversed, a departure:
+  the mode is kept per file and DN's plain arrow was missed). `FileEditor.block_indicator()`/`place_indicator()` say where they stand, worked out from the text since the code
   may outgrow three digits; `code_indicator()` is its third place, `[nnn]` (`cmSpecChar`), which opens the
   character table. Every press on the line is the line's, so none reaches the frame.
 - **The character table, Ctrl+P** (`AsciiTable`, DN's `cmASCIITable`/`cmSpecChar`, also Editor > Misc > *Character
@@ -280,7 +287,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   blanks, and remembers the padded pieces in `_COLUMN_CLIP` (newest only): pasting exactly that text back inserts a
   rectangle (`_insert_rectangle`: short lines padded to the column, lines added past the end, the cursor left at the
   top-left). A column block keeps its columns through edits and moves only by whole lines.
-- **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured) marks from the press,
+- **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured, and only once the
+  pointer leaves the pressed cell -- terminals report motion inside it, `_press_cell`) marks from the press,
   scrolling a line at a time past the top or bottom row; Shift+click extends the block as Shift+movement does; a
   double-click marks the word between `BREAK_CHARS`. A block marked by the mouse becomes the primary selection on
   release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and

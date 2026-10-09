@@ -164,7 +164,7 @@ class EditWindow(Window):
         last = max(0, editor.line_count - 1)
         editor.top = min(max(0, record.top), last)
         editor.left = max(0, record.left)
-        editor._go_column(record.line, record.col)
+        editor._move_to(record.line, record.col)
 
     def close(self) -> None:
         # ``TFileEditor.Valid(cmClose)``: the record is written once closing

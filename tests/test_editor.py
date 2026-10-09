@@ -8,7 +8,7 @@ import random
 import pytest
 
 from conftest import IDLE, FakeTerminal, Until, run_app, settle
-from navkit.events import KeyEvent, PasteEvent
+from navkit.events import KeyEvent, MouseClickEvent, PasteEvent
 from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
@@ -374,6 +374,59 @@ def test_the_cursor_steps_over_a_tab_whole(files):
     assert editor.col == 8  # six letters of "second", then the tab to its stop
 
 
+def moved(tmp_path, text, *keys):
+    """The cursor ``(line, col)`` after *keys* in an editor on *text*."""
+    (tmp_path / "dir").mkdir(parents=True)
+    (tmp_path / "text.txt").write_text(text)
+    app = navigator(tmp_path)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys])
+    editor = editor_window(app).editor
+    return editor.line, editor.col
+
+
+def test_right_at_a_lines_end_goes_to_the_next_lines_start(tmp_path, quiet_console):
+    assert moved(tmp_path, "ab\ncd\n", *[KeyEvent("right")] * 3) == (1, 0)
+
+
+def test_left_at_a_lines_start_goes_to_the_previous_lines_end(tmp_path, quiet_console):
+    assert moved(tmp_path, "ab\ncd\n", KeyEvent("down"), KeyEvent("left")) == (0, 2)
+
+
+def test_up_and_down_stay_within_the_line_and_keep_the_column_aimed_for(tmp_path, quiet_console):
+    keys = [KeyEvent("end"), KeyEvent("down")]
+    assert moved(tmp_path, "abcdef\nab\nabcdef\n", *keys) == (1, 2)
+    assert moved(tmp_path / "again", "abcdef\nab\nabcdef\n", *keys, KeyEvent("down")) == (2, 6)
+
+
+def test_a_click_past_a_lines_end_lands_on_its_end(tmp_path, quiet_console):
+    def click(a):
+        editor_window(a).editor._point(MouseClickEvent(x=20, y=0, button="left", action="press"))
+
+    assert moved(tmp_path, "ab\n", click) == (0, 2)
+
+
+def test_a_click_past_a_lines_end_lands_on_its_end_with_vertical_blocks_too(tmp_path, quiet_console):
+    def click(a):
+        editor = editor_window(a).editor
+        editor.vertical_blocks = True
+        editor._point(MouseClickEvent(x=20, y=0, button="left", action="press"))
+
+    assert moved(tmp_path, "ab\n", click) == (0, 2)
+
+
+def test_shift_marking_a_column_block_goes_past_a_lines_end(tmp_path, quiet_console):
+    def vertical(a):
+        editor_window(a).editor.vertical_blocks = True
+
+    keys = [vertical, KeyEvent("end"), *[KeyEvent("right", shift=True)] * 3]
+    assert moved(tmp_path, "ab\n", *keys) == (0, 5)
+
+
+def test_drawing_lines_still_moves_past_a_lines_end(tmp_path, quiet_console):
+    keys = [KeyEvent("f4"), *[KeyEvent("right")] * 5]
+    assert moved(tmp_path, "ab\n", *keys) == (0, 5)
+
+
 # -- the Editor menu ---------------------------------------------------------
 
 
@@ -698,6 +751,20 @@ def test_a_click_unmarks_and_a_shift_click_extends(files):
     assert editor.block is None and (editor.line, editor.col) == (1, 6)
 
 
+@pytest.mark.parametrize("vertical", [False, True])
+def test_a_drag_past_a_lines_end_marks_only_to_its_end(files, vertical):
+    # Terminals report motion within the pressed cell too: that marks nothing.
+    SETTINGS.editor.vertical_blocks = vertical
+    _, editor = mouse(files, (30, 0, "press", {}), (30, 0, "move", {}), (30, 0, "release", {}))
+    assert not editor.marked and (editor.line, editor.col) == (0, 10)
+    _, editor = mouse(files, (2, 0, "press", {}), (30, 0, "move", {}), (30, 0, "release", {}))
+    if vertical:
+        # A column block's drag goes past the end: a rectangle wider than the line.
+        assert editor.column_block == ((0, 2), (0, 30)) and editor.col == 30
+    else:
+        assert editor.block == (Pos(0, 2), Pos(0, 10)) and editor.col == 10
+
+
 def test_a_double_click_marks_the_word(files):
     app, editor = mouse(files, (8, 0, "double", {}))
     assert editor.block_text == "line"
@@ -862,9 +929,9 @@ def test_a_rectangle_pasted_past_short_lines_and_the_end_pads_and_adds(files):
     _, editor = columns_editor(files, b"abcd\nefgh",
                                *[KeyEvent("right", shift=True)] * 2, KeyEvent("down", shift=True),
                                KeyEvent("insert", ctrl=True),
-                               KeyEvent("down"), *[KeyEvent("right")] * 4,
+                               KeyEvent("down"), KeyEvent("end"),
                                KeyEvent("insert", shift=True), lambda a: None)
-    assert editor.document.encode() == b"abcd\nefgh  ab\n      ef"
+    assert editor.document.encode() == b"abcd\nefghab\n    ef"
 
 
 def test_a_tab_belongs_to_the_column_it_starts_in(files):
@@ -1483,6 +1550,28 @@ def test_a_click_on_the_block_indicator_switches_column_blocks(files):
                   KeyEvent("right", shift=True), KeyEvent("down", shift=True),
                   click_info(lambda e: e.block_indicator()[0] + 1), lambda a: None, look])
     assert seen == [(True, (0, 0, 1, 1))]  # the stream block, read as a rectangle
+
+
+@pytest.mark.parametrize("vertical", [False, True])
+def test_the_block_indicator_stands_out_under_vertical_blocks(files, vertical):
+    SETTINGS.editor.vertical_blocks = vertical
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        window = editor_window(a)
+        info, editor = window.info, window.editor
+        ox, oy = info.offset()
+        start, end = editor.block_indicator()
+        buffer = screen(a)
+        seen["styles"] = [buffer.get(ox + info.x + x, oy + info.y)[1] for x in range(start, end)]
+        seen["plain"] = buffer.get(ox + info.x, oy + info.y)[1]
+        seen["lit"] = info.part_style("column_block")
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look])
+    expected = seen["lit"] if vertical else seen["plain"]
+    assert seen["lit"] != seen["plain"]
+    assert seen["styles"] == [expected] * 3
 
 
 def test_a_click_elsewhere_on_the_info_line_does_nothing(files):

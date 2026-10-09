@@ -4,9 +4,10 @@
 painted, and the window around it, ``EditWindow``, is the half with markup.
 
 **Its state is the cursor, the view and one counter.**  ``line`` and ``col``
-are the cursor -- a line, and a *column* on screen, which may lie past the
-line's end as it could in DN -- and ``top`` and ``left`` are the first line
-and column shown.  The text itself is a great deal of mutable state that
+are the cursor -- a line, and a *column* on screen, which a movement keeps
+within the line's text (a departure: DN's could stand anywhere past the end;
+drawing lines and marking a column block still can, both needing the room)
+-- and ``top`` and ``left`` are the first line and column shown.  The text itself is a great deal of mutable state that
 changes together, so ``revision`` stands in for all of it, the way
 ``Console.revision`` stands for a console's screen: every edit bumps it, and
 everything painted from the text reads it.
@@ -230,8 +231,13 @@ def _marking(
     @functools.wraps(handler)
     async def moving(self: Any, event: Any) -> bool:
         before = self._here()
-        done = await handler(self, event)
-        if getattr(event, "extend", False):
+        extend = getattr(event, "extend", False)
+        self._extending = extend
+        try:
+            done = await handler(self, event)
+        finally:
+            self._extending = False
+        if extend:
             self._extend_block(before)
         elif not SETTINGS.editor.persistent_blocks:
             self._unmark()
@@ -509,6 +515,15 @@ class FileEditor(Widget):
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
+        #: The cell the left button went down on, until the drag leaves it:
+        #: terminals report motion inside that cell too, which is no drag.
+        self._press_cell: tuple[int, int] | None = None
+        #: Whether the movement under way drags the block along (Shift, or a
+        #: mouse drag): a column block's corner may then go past a line's end.
+        self._extending = False
+        #: The column Up/Down/PgUp/PgDn aim for while they pass shorter lines,
+        #: or None after any other movement or edit.
+        self._goal: int | None = None
         #: ``LastDir``: where the pen came into the cell it is on, or None.
         self._pen: int | None = None
         #: DN's ``MarkPos``: markers 1 to 9, each a ``(line, col)`` or None.
@@ -646,12 +661,38 @@ class FileEditor(Widget):
         """Put the cursor on *pos*, a string index, and bring it into view."""
         self.line = pos.line
         self.col = self._column(pos)
+        self._goal = None
         self._follow()
 
     def _go_column(self, line: int, col: int) -> None:
         self.line = max(0, min(line, len(self.document) - 1))
         self.col = max(0, col)
+        self._goal = None
         self._follow()
+
+    @property
+    def _free(self) -> bool:
+        """Whether a movement may leave the cursor past a line's end: drawing lines
+        and marking a column block need the cells there."""
+        return bool(self.draw_mode) or (self.vertical_blocks and self._extending)
+
+    def _line_width(self, line: int) -> int:
+        return columns.width(self.document.lines[line], self.tab_size)
+
+    def _move_to(self, line: int, col: int) -> None:
+        """A movement to *line*, *col*: the column held to the line's end unless
+        :attr:`_free`."""
+        line = max(0, min(line, len(self.document) - 1))
+        if not self._free:
+            col = min(col, self._line_width(line))
+        self._go_column(line, col)
+
+    def _move_vertically(self, line: int) -> None:
+        """Up/Down and the like: to *line*, aiming for the column the run of
+        them started from, so a short line on the way does not lose it."""
+        goal = self.col if self._goal is None else self._goal
+        self._move_to(line, goal)
+        self._goal = goal
 
     def _follow(self) -> None:
         """Scroll so the cursor is on screen: DN's ``ScrollTo``."""
@@ -681,7 +722,9 @@ class FileEditor(Widget):
         self._moved()
         index, past = self._index()
         text = self._text()
-        if past or index >= len(text):
+        if self.col == 0 and self.line > 0 and not self._free:
+            self._move_to(self.line - 1, self._line_width(self.line - 1))
+        elif past or index >= len(text):
             self._go_column(self.line, self.col - 1)
         elif columns.column_of(text, index, self.tab_size) < self.col:
             self._go(Pos(self.line, index))
@@ -694,8 +737,11 @@ class FileEditor(Widget):
         self._moved()
         index, past = self._index()
         text = self._text()
-        if past or index >= len(text):
+        if self._free and (past or index >= len(text)):
             self._go_column(self.line, self.col + 1)
+        elif index >= len(text):
+            if self.line + 1 < len(self.document):
+                self._go_column(self.line + 1, 0)
         else:
             self._go(Pos(self.line, index + 1))
         return True
@@ -703,13 +749,13 @@ class FileEditor(Widget):
     @_marking
     async def on_move_up(self, event: MoveUp) -> bool:
         self._moved()
-        self._go_column(self.line - 1, self.col)
+        self._move_vertically(self.line - 1)
         return True
 
     @_marking
     async def on_move_down(self, event: MoveDown) -> bool:
         self._moved()
-        self._go_column(self.line + 1, self.col)
+        self._move_vertically(self.line + 1)
         return True
 
     @_marking
@@ -731,7 +777,7 @@ class FileEditor(Widget):
         self._moved()
         rows = max(1, self.height)
         self.top = max(0, self.top - rows)
-        self._go_column(self.line - rows, self.col)
+        self._move_vertically(self.line - rows)
         return True
 
     @_marking
@@ -740,19 +786,19 @@ class FileEditor(Widget):
         rows = max(1, self.height)
         last = len(self.document) - 1
         self.top = max(0, min(self.top + rows, last - rows + 1))
-        self._go_column(self.line + rows, self.col)
+        self._move_vertically(self.line + rows)
         return True
 
     @_marking
     async def on_screen_top(self, event: ScreenTop) -> bool:
         self._moved()
-        self._go_column(self.top, self.col)
+        self._move_vertically(self.top)
         return True
 
     @_marking
     async def on_screen_bottom(self, event: ScreenBottom) -> bool:
         self._moved()
-        self._go_column(self.top + max(1, self.height) - 1, self.col)
+        self._move_vertically(self.top + max(1, self.height) - 1)
         return True
 
     @_marking
@@ -773,7 +819,7 @@ class FileEditor(Widget):
             self._moved()
             self.top -= 1
             if self.line >= self.top + max(1, self.height):
-                self.line -= 1
+                self._move_vertically(self.line - 1)
         return True
 
     async def on_scroll_down(self, event: ScrollDown) -> bool:
@@ -781,7 +827,7 @@ class FileEditor(Widget):
             self._moved()
             self.top += 1
             if self.line < self.top:
-                self.line = self.top
+                self._move_vertically(self.top)
         return True
 
     def _word_left(self, pos: Pos) -> Pos:
@@ -852,8 +898,12 @@ class FileEditor(Widget):
         return Pos(self.line, min(index, len(self._text())))
 
     def _here(self) -> Any:
-        """The cursor as an end of the kind of block in force."""
-        return (self.line, self.col) if self.vertical_blocks else self._mark_pos()
+        """The cursor as an end of the kind of block in force.  A column block's
+        corner takes the column Up/Down aim for, so Shift+Down across a short
+        line keeps the rectangle's width rather than losing it there."""
+        if self.vertical_blocks:
+            return (self.line, self.col if self._goal is None else self._goal)
+        return self._mark_pos()
 
     def _block_ends(self) -> tuple[Any, Any] | None:
         return self.column_block if self.vertical_blocks else self.block
@@ -1530,7 +1580,7 @@ class FileEditor(Widget):
             return True
         self._moved()
         line, col = place
-        self._go_column(line, col)
+        self._move_to(line, col)
         rows, cols = max(1, self.height), max(1, self.width)
         self.top = max(0, min(self.line - rows // 2, len(self.document) - 1))
         self.left = max(0, self.col - cols // 2)
@@ -1994,7 +2044,7 @@ class FileEditor(Widget):
         stop = (self.col // self.tab_size + 1) * self.tab_size
         if self.overwrite:
             self._moved()
-            self._go_column(self.line, stop)
+            self._move_to(self.line, stop)
             return True
         self._begin("type")
         # Again: a block replaced has moved the cursor to where it began.
@@ -2260,7 +2310,7 @@ class FileEditor(Widget):
             self.focus()
             self._moved()
             before = self._here()
-            self._point(event)
+            self._point(event, extending=event.shift)
             here = self._here()
             if event.shift:
                 # Shift+click: the block's far end stays, as Shift+movement keeps it.
@@ -2270,15 +2320,19 @@ class FileEditor(Widget):
             else:
                 self._unmark()
                 self._drag_from = here
+            self._press_cell = (event.x, event.y)
             if app is not None:
                 app.capture_mouse(self)
         elif event.action == "move" and self._drag_from is not None:
+            if self._press_cell == (event.x, event.y):
+                return True
+            self._press_cell = None
             # Past the top or bottom row the text scrolls a line at a time.
             if event.y < 0 and self.top > 0:
                 self.top -= 1
             elif event.y >= self.height and self.top < len(self.document) - 1:
                 self.top += 1
-            self._point(event)
+            self._point(event, extending=True)
             self._mark_to(self._drag_from)
         elif event.action == "release" and self._drag_from is not None:
             self._drag_from = None
@@ -2287,10 +2341,14 @@ class FileEditor(Widget):
             return False
         return True
 
-    def _point(self, event: MouseClickEvent) -> None:
+    def _point(self, event: MouseClickEvent, extending: bool = False) -> None:
         """The cursor to the cell under *event*, held inside the text's rows."""
         y = min(max(event.y, 0), max(0, self.height - 1))
-        self._go_column(self.top + y, self.left + max(0, event.x))
+        self._extending = extending
+        try:
+            self._move_to(self.top + y, self.left + max(0, event.x))
+        finally:
+            self._extending = False
 
     def _mark_to(self, anchor: Any) -> None:
         self._set_block(anchor, self._here())
@@ -2521,7 +2579,7 @@ class FileEditor(Widget):
         """``ScrollTo(Delta.X, I-1)``: line *number*, counted from 1, at the same
         column; past the end, the last line."""
         self._moved()
-        self._go_column(number - 1, self.col)
+        self._move_to(number - 1, self.col)
 
     def block_indicator(self) -> tuple[int, int]:
         """Where ``(↔)``/``(↕)`` stands in :attr:`info_text`, end exclusive: what a
@@ -2722,7 +2780,21 @@ class InfoLine(StaticText):
     the character's code (``cmSpecChar``, *ASCII Chart*) and the block indicator
     (``cmSwitchBlock``).  A press anywhere on the line is the line's, as
     ``ClearEvent`` made it, so it never reaches the frame beneath.
+
+    A departure: under *Vertical blocks* the block indicator ``(↕)`` is painted
+    as ``InfoLine::column_block`` (reversed), since the mode is kept per file and DN's
+    plain arrow was easy to miss.
     """
+
+    parts = (*StaticText.parts, "column_block")
+
+    def render(self, surface: Surface) -> None:
+        super().render(surface)
+        editor = getattr(self.parent, "editor", None)
+        if isinstance(editor, FileEditor) and editor.vertical_blocks and not editor.draw_mode:
+            start, end = editor.block_indicator()
+            surface.draw_text(start, 0, self.text[start:end], self.part_style("column_block"),
+                              max(0, self.width - start))
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.action != "press":
