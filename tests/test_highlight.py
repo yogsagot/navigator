@@ -352,3 +352,93 @@ def test_highlight_file_edit_opens_highlight_ini(files):
                   Until(lambda a: getattr(window(a), "editor", None) is not None)])
     path = associations.path_of(associations.HIGHLIGHT)
     assert path.read_text() == associations.TEMPLATES[associations.HIGHLIGHT]
+
+
+# -- Navigator's own lexers ------------------------------------------------------------------
+
+
+def tokens_of(lexer, text):
+    """*text*'s tokens, checked to cover it whole and in order."""
+    found, at = [], 0
+    for index, token, value in lexer.get_tokens_unprocessed(text):
+        assert index == at
+        at += len(value)
+        found.append((token, value))
+    assert at == len(text)
+    return found
+
+
+@pytest.mark.parametrize("pattern", ["navigator/**/*.nss", "navigator/**/*.nml", "navml/**/*.nml"])
+def test_every_document_in_the_tree_lexes_whole_and_without_an_error(pattern):
+    from pathlib import Path
+
+    from pygments.token import Error
+
+    from navigator.lexers import NmlLexer, NssLexer
+
+    root = Path(__file__).resolve().parent.parent
+    paths = sorted(root.glob(pattern))
+    assert paths
+    for path in paths:
+        lexer = NssLexer() if path.suffix == ".nss" else NmlLexer()
+        tokens = tokens_of(lexer, path.read_text(encoding="utf-8"))
+        assert not [value for token, value in tokens if token in Error], path
+
+
+def test_the_template_gives_nml_and_nss_their_own_lexers():
+    rules = highlight.default_rules()
+    assert name_of(highlight.lexer_for("a.nml", "", rules)) == "NmlLexer"
+    assert name_of(highlight.lexer_for("navigator.nss", "", rules)) == "NssLexer"
+
+
+def test_a_stylesheet_reads_variables_selectors_and_literals():
+    from pygments.token import Comment, Keyword, Name, Number
+
+    from navigator.lexers import NssLexer
+
+    tokens = [pair for pair in tokens_of(NssLexer(), (
+        "$panel-fg: #d8d8d8; /* c */\n"
+        "Panel:active::row, *:not(.root) { fg: $panel-fg; bg: light_cyan; bold: true; caret: block }\n"
+    )) if pair[1].strip()]
+    assert tokens[:3] == [(Name.Variable, "$panel-fg"), (tokens[1][0], ":"), (Number.Hex, "#d8d8d8")]
+    assert (Comment.Multiline, "/*") in tokens
+    assert (Name.Tag, "Panel") in tokens and (Name.Decorator, "::row") in tokens
+    assert (Keyword, "not") in tokens and (Name.Class, ".root") in tokens
+    assert (Name.Property, "fg") in tokens and (Name.Variable, "$panel-fg") in tokens[4:]
+    assert (Name.Builtin, "light_cyan") in tokens and (Keyword.Constant, "true") in tokens
+    assert (Name.Attribute, "caret") in tokens and (Name.Constant, "block") in tokens
+
+
+def test_markup_reads_heads_directives_blocks_and_python():
+    from pygments.token import Comment, Keyword, Name, Number, String
+
+    from navigator.lexers import NmlLexer
+
+    tokens = [pair for pair in tokens_of(NmlLexer(), (
+        "from navml.widgets.dialog.label import Label\n"
+        "\n"
+        "#: A doc comment.\n"
+        "Dialog(Window):\n"
+        "    property text: \"x\"  # trailing\n"
+        "    style_property border: single | double\n"
+        "    event ClickEvent\n"
+        "    keys:\n"
+        "        ctrl+f2: SaveAll\n"
+        "    style:\n"
+        "        bg: #1e1e2e\n"
+        "    Label:\n"
+        "        id: entry\n"
+        "        text: root.title if (\n"
+        "            root.wide) else \"\"\n"
+        "        on_click: self.close()\n"
+    )) if pair[1].strip()]
+    assert (Keyword.Namespace, "from") in tokens
+    assert (Comment.Special, "#: A doc comment.") in tokens
+    assert (Name.Class, "Dialog") in tokens and (Name.Class, "Window") in tokens
+    assert (Keyword.Declaration, "property") in tokens and (Name.Variable, "text") in tokens
+    assert (Comment.Single, "# trailing") in tokens
+    assert (Name.Constant, "single") in tokens and (Name.Class, "ClickEvent") in tokens
+    assert (String.Symbol, "ctrl+f2") in tokens and (Number.Hex, "#1e1e2e") in tokens   # a colour, not a comment
+    assert (Keyword, "id") in tokens and (Name.Variable, "entry") in tokens
+    assert (Keyword, "else") in tokens                                 # the bracket carried the line on
+    assert (Name.Function, "on_click") in tokens and (Name.Builtin.Pseudo, "self") in tokens

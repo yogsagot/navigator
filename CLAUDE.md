@@ -23,7 +23,8 @@ layered in three parts, each depending only on the one below:
   application; `navigator/widgets/` the screens, grouped by purpose (`shell/`, `manager/`, `file_ops/`, `tree/`,
   `viewer/`, `editor/`, `about_dialog/`); `navigator/scheme.py` the stylesheet loader; `navigator/styles/` the `.nss`
   assets. Models sit beside them (`viewer.py`, `editor/`, `filecopy.py`, `fileerase.py`, `fileattr.py`, `filelink.py`,
-  `job.py`, `subshell.py`, `filetypes.py`, `about.py`, `settings.py`).
+  `job.py`, `subshell.py`, `filetypes.py`, `about.py`, `settings.py`, `highlight.py` and `lexers.py` -- syntax
+  highlighting and the `.nml`/`.nss` lexers).
 
 **The widgets are not in `__main__.py`** because that module is already in `sys.modules` as `__main__`, and
 `from navigator.__main__ import Panel` would import a second copy with a second `Panel` class. A widget a document

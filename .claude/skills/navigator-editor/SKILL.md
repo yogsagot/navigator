@@ -213,10 +213,18 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer = <Pygments alias>`, `none`,
   or `auto` (Pygments' guess by name and first line, even under `[*] lexer = none`), first match wins. **Its template
   lists every language Pygments knows** -- `navigator/assets/highlight.ini`, written by `tools/highlight_ini.py`
-  (`--check`; rerun after upgrading Pygments): Navigator's own head (`*.nml`, `*.nss`, `*.log` none), then a pattern
+  (`--check`; rerun after upgrading Pygments): Navigator's own head (`*.nml` -> `nml`, `*.nss` -> `nss`, `*.log` none), then a pattern
   two lexers can claim (case folded: `*.c`/`*.C`) in an `auto` section naming the candidates, then one section per
   lexer, and a hand-kept `[#!]` of ~35 interpreters. `test_the_template_lexes_every_pattern_as_pygments_would` holds
-  it to Pygments' own choice for each pattern. `default_rules()` parses it lazily (~70 ms); `[#!]` maps interpreters (`env` and its options looked through, a
+  it to Pygments' own choice for each pattern. `default_rules()` parses it lazily (~70 ms). **`navigator/lexers.py` is Navigator's own two lexers**:
+  `NssLexer` (a `RegexLexer`; colour names and `Style` fields read from `navkit.stylesheet`, so they cannot drift) and
+  `NmlLexer` (line by line, since indentation decides what a line is: heads, directives, `id`, `on_*` handlers,
+  properties whose values go to Pygments' `PythonLexer` and run on while a bracket is open, `keys:` lines, and
+  `style:` lines whose values go to `NssLexer.value_tokens`; `#` a comment only before a blank, an end or `:`). They
+  keep no state on the instance -- `_lexer_named` shares one across threads -- and live in `navigator` because it is
+  the layer that depends on Pygments. `_lexer_named` finds them by alias before asking Pygments; installed, the
+  `pygments.lexers` entry points in `pyproject.toml` make them Pygments' too. A test lexes every `.nml`/`.nss` in the
+  tree and refuses an `Error` token or a gap; `[#!]` maps interpreters (`env` and its options looked through, a
   trailing version optional); `[*] lexer = auto` falls to Pygments' guess by name, `none` stops there. Missing or
   broken, the template's rules (`DEFAULT_RULES`); re-read when its mtime changes, and saving it (`FileSaved`) makes
   every editor and viewer `rehighlight()`. **A token is painted as `FileEditor::token` with its Pygments type's pieces

@@ -171,6 +171,12 @@ def _lexer_named(name: str) -> Any:
     from pygments.lexers import get_lexer_by_name
     from pygments.util import ClassNotFound
 
+    from navigator.lexers import NmlLexer, NssLexer
+
+    # Navigator's own first: a checkout has no entry points to make them Pygments'.
+    for own in (NmlLexer, NssLexer):
+        if name in own.aliases:
+            return own(stripnl=False, ensurenl=False)
     try:
         return _usable(get_lexer_by_name(name, stripnl=False, ensurenl=False))
     except ClassNotFound:
