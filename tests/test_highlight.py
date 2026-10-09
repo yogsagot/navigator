@@ -217,7 +217,11 @@ def lexed(app) -> bool:
     if child._lex_stop is not None:
         return False
     if editor is not None:
+        if editor._lexed_for != (editor.path, editor.file_type):
+            return False                                   # a new file type, not lexed for yet
         return editor._plain or editor._lexed >= min(editor.line_count, editor.top + editor.height)
+    if viewer._lexed_for is not None and viewer._lexed_for[3] != viewer.file_type:
+        return False
     return viewer._plain or bool(viewer._spans) or viewer.mode != "text"
 
 
@@ -480,6 +484,15 @@ def test_the_file_type_menu_has_automatic_four_groups_and_none():
     assert menu.item_for(SetFileType("python")).text == "~P~ython"
 
 
+def chosen(file_type):
+    """Until the active window's text has *file_type*: a choice made in a
+    spawned task lands a step or more after the key that made it."""
+    def done(app):
+        child = getattr(window(app), "editor", None) or window(app).viewer
+        return child.file_type == file_type
+    return Until(done)
+
+
 def test_the_editor_colours_a_text_as_the_type_chosen_and_keeps_it(files):
     from navigator.models.edit_record import EditRecord
     from navigator.widgets.editor.commands import SetFileType
@@ -487,7 +500,7 @@ def test_the_editor_colours_a_text_as_the_type_chosen_and_keeps_it(files):
     SETTINGS.interface.track_editing = True
     seen = []
     choose = lambda a: a.spawn(window(a).on_set_file_type(SetFileType("python")))
-    editor, cell = painted(files, "notes.txt", b'x = "s"  # note\n', "f4", choose, lambda a: None,
+    editor, cell = painted(files, "notes.txt", b'x = "s"  # note\n', "f4", choose, chosen("python"),
                            lambda a: seen.append((window(a).checks(SetFileType("python")),
                                                   window(a).checks(SetFileType("")))))
     assert seen == [(True, False)]
@@ -501,7 +514,8 @@ def test_the_viewer_colours_a_text_as_the_type_chosen_and_brings_it_back(files):
 
     SETTINGS.interface.track_viewing = True
     viewer, cell = painted(files, "main.c", C_CODE, "f3",
-                           lambda a: a.spawn(window(a).on_set_file_type(SetFileType("none"))))
+                           lambda a: a.spawn(window(a).on_set_file_type(SetFileType("none"))),
+                           chosen("none"))
     assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
     assert ViewRecord.find(files / "main.c").file_type == "none"
     viewer, cell = painted(files, "main.c", C_CODE, "f3")
@@ -511,14 +525,15 @@ def test_the_viewer_colours_a_text_as_the_type_chosen_and_brings_it_back(files):
 def test_ctrl_shift_h_opens_the_file_type_menu_in_a_box(files):
     SETTINGS.interface.track_editing = True
     editor, cell = painted(files, "notes.txt", b'x = "s"  # note\n', "f4",
-                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("s", "s"), KeyEvent("p", "p"))
+                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("s", "s"), KeyEvent("p", "p"),
+                           chosen("python"))
     assert editor.file_type == "python"
     assert cell(0, 9) == ("#", token(editor, "comment", "single"))
 
 
 def test_ctrl_shift_h_in_the_viewer_chooses_none(files):
     viewer, cell = painted(files, "main.c", C_CODE, "f3",
-                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("n", "n"))
+                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("n", "n"), chosen("none"))
     assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
 
 
