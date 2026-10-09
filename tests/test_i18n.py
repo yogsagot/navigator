@@ -33,6 +33,8 @@ name = "Latviešu"
 "Cancel" = "Atcelt"
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 "Unfinished" = ""
+"{n} byte" = ["", "", ""]
+"{n} directory" = ["{n} direktorija", "", "{n} direktoriju"]
 """
 
 
@@ -60,6 +62,21 @@ def test_an_unknown_or_empty_one_stays_english(latvian):
     LOCALE.code = "lv"
     assert tr("Quit") == "Quit"
     assert tr("Unfinished") == "Unfinished"
+
+
+def test_a_plural_left_blank_stays_english(latvian):
+    # What ``tools/i18n.py extract`` writes for a count nobody has translated.
+    LOCALE.code = "lv"
+    assert "{n} byte" not in catalogue("lv")
+    assert tr_n("{n} byte", "{n} bytes", 1) == "1 byte"
+    assert tr_n("{n} byte", "{n} bytes", 5) == "5 bytes"
+    assert tr("{n} byte") == "{n} byte"
+
+
+def test_one_form_left_blank_is_english_for_that_count(latvian):
+    LOCALE.code = "lv"
+    assert tr_n("{n} directory", "{n} directories", 1) == "1 direktorija"
+    assert tr_n("{n} directory", "{n} directories", 2) == "2 directories"
 
 
 def test_a_later_directory_wins_entry_by_entry(latvian, tmp_path_factory):

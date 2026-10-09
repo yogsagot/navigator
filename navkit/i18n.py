@@ -115,10 +115,21 @@ def catalogue(code: str) -> dict[str, Any]:
                 strings = _read(candidate).get("strings", {})
                 found.update(
                     (key, value) for key, value in strings.items()
-                    if value not in ("", [])
+                    if not _unfinished(value)
                 )
         _CACHE[code] = found
     return found
+
+
+def _unfinished(value: Any) -> bool:
+    """An entry ``tools/i18n.py extract`` left to be filled: ``""``, or forms all blank.
+
+    A plural is extracted as ``["", "", ""]``, one blank per form, and kept
+    it would translate every count to nothing rather than to English.
+    """
+    if isinstance(value, list):
+        return not any(value)
+    return value == ""
 
 
 def languages() -> dict[str, str]:
@@ -152,7 +163,7 @@ def tr(text: str) -> str:
     found = catalogue(_code()).get(text)
     if isinstance(found, list):
         found = found[0] if found else None
-    return found if isinstance(found, str) else text
+    return found if isinstance(found, str) and found else text
 
 
 def tr_n(singular: str, plural: str, n: int, **values: Any) -> str:
@@ -168,6 +179,9 @@ def tr_n(singular: str, plural: str, n: int, **values: Any) -> str:
     elif isinstance(found, list) and found:
         text = found[min(plural_form(code, n), len(found) - 1)]
     else:
+        text = ""
+    if not text:
+        # A form left blank among filled ones is English for that count.
         text = singular if n == 1 else plural
     return text.format(n=n, **values)
 
