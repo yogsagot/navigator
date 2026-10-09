@@ -276,6 +276,18 @@ class ScrollNames(Command):
 
 
 @dataclass(frozen=True, slots=True)
+class MoveSeparator(Command):
+    """Alt+Left and Alt+Right: the divider between the two sides a column along.
+
+    DOS Navigator's ``kbAltLeft``/``kbAltRight`` in ``TDoubleWindow.HandleCommand``,
+    which moved the ``TSeparator``; no ``cm*`` of its own.  *step* is -1 for
+    Left and 1 for Right.  Nothing happens while a side is hidden.
+    """
+
+    step: int = 1
+
+
+@dataclass(frozen=True, slots=True)
 class SelectGroup(Command):
     """Gray ``+``, ``cmPanelSelect``: tag every file a mask matches.
 
@@ -511,6 +523,7 @@ __all__ = [
     "ToggleMark",
     "GoParent",
     "ScrollNames",
+    "MoveSeparator",
     "SelectGroup",
     "UnselectGroup",
     "InvertSelection",

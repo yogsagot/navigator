@@ -1264,7 +1264,7 @@ class Panel(ListViewer):
             return True
         if self.arrows_to_line(event):
             return False
-        if self.view_mode == "list" and not self.inert and self.rows:
+        if self.view_mode == "list" and not self.inert and self.rows and not event.alt:
             if event.key == "left":
                 self.move_cursor(-min(self.rows, self.cursor))
                 return True

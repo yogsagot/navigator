@@ -1,6 +1,6 @@
 ---
 name: navigator-panels
-description: The file manager window and its panels -- Manager (manager.nml/manager.py), Panel and DirEntry, view modes (Ctrl+Y simple/detailed/list), name scrolling, tagging (Insert, Space, Gray +/-/*, Select/Unselect group, SelectDialog), Ctrl+S quick search, Ctrl+H hidden files, type marks and icons, Backspace to parent, re-read keeping the cursor, Ctrl+F1/Ctrl+F2/Ctrl+P hiding sides, switch_view, active/passive panel. Use when changing how files are listed, selected or navigated.
+description: The file manager window and its panels -- Manager (manager.nml/manager.py), Panel and DirEntry, view modes (Ctrl+Y simple/detailed/list), name scrolling, tagging (Insert, Space, Gray +/-/*, Select/Unselect group, SelectDialog), Ctrl+S quick search, Ctrl+H hidden files, type marks and icons, Backspace to parent, re-read keeping the cursor, Ctrl+F1/Ctrl+F2/Ctrl+P hiding sides, the draggable divider between the sides (Alt+Left/Alt+Right), switch_view, active/passive panel. Use when changing how files are listed, selected or navigated.
 ---
 
 # The file manager and its panels
@@ -271,6 +271,28 @@ places in the `panels` row, whole, and **`Manager.left`/`right` are swapped with
 so Alt+F1, Ctrl+F1 and the rest act on whatever is on that side now. A tree or quick view goes beside the panel it
 stands in for; the keyboard stays with its panel. A hidden side is shown first (DN's code ended that way too). The row
 is re-`arrange()`d by hand: reordering `children` in place is not something its layout follows.
+
+## The divider between the sides
+
+DN's `TSeparator` (FLPANEL.PAS, `TDoubleWindow.HandleCommand` in DBLWND.PAS). These are the two columns where the
+sides meet: the left side's right frame edge and the right side's left one. Dragging them with the mouse moves the
+divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltRight`) move it one column.
+
+- **The split is a proportion.** `Manager.split` is the first side's share of the row, or `None` for the even split.
+  It is DN's `OldX/OldW`, so resizing or zooming keeps it. `MIN_SIDE` (3) is the narrowest a side can go.
+- **It is applied as a layout hint.** `place_divider()` is an effect that reads the split, the row's width and which
+  views are showing. It gives the first *showing* view `basis: N; grow: 0`, and every other view the defaults.
+  - The hint therefore follows the side, not the panel object: it lands on a tree or quick view that stands in, and
+    after Ctrl+U it moves to the panel that is now on the left.
+  - `swap_panels` calls `place_divider()` itself, because reordering children is not reactive.
+  - With one side hidden, no view gets a hint.
+- **It is hit-tested before the chrome and the children** (`Manager.dispatch_mouse`, `divider_hit`). A panel claims
+  a press anywhere in its rectangle, frame included. The left side's edge column counts only where its `bar` is not
+  showing; on the scroll bar's rows a press there scrolls the list. The drag captures the mouse onto the Manager and
+  is handled in `on_mouse_click`, ahead of `Window`'s own move and resize.
+- **`Panel.on_key` in list mode leaves Alt+Left and Alt+Right alone.** Its bare `left`/`right` check would otherwise
+  take them.
+- A saved desktop keeps `split` (`desktop_state`).
 
 ## Read when
 

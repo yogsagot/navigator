@@ -77,6 +77,7 @@ def _window(window: Any) -> dict[str, Any] | None:
             right=_panel(window.right),
             active="right" if window.active_panel is window.right else "left",
             hidden=window.hidden_side,
+            split=window.split,
             view={window.tree: "tree", window.quick: "quick", window.info: "info"}.get(replacement)
             if replacement is not None else None,
         )
@@ -181,6 +182,9 @@ def _manager(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | None)
         if dirs:
             panel_kept.pop("cursor", None)
         _seed_panel(getattr(manager, side), panel_kept)
+    split = kept.get("split")
+    if isinstance(split, (int, float)) and not isinstance(split, bool) and 0 < split < 1:
+        manager.split = float(split)
     desktop.open(manager)
     active = manager.right if kept.get("active") == "right" else manager.left
     active.focus()

@@ -17,8 +17,10 @@ import shlex
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 
+from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
+from navkit.stylesheet import parse_declarations
 
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
@@ -45,6 +47,7 @@ from navigator.widgets.manager.commands import (
     InvertSelection,
     MakeDirectory,
     MakeLink,
+    MoveSeparator,
     PrintFile,
     QuickView,
     RenameMove,
@@ -143,6 +146,9 @@ class Manager(Window):
         #: takes these first and moves a column instead.
         "left": ScrollNames(-1),
         "right": ScrollNames(1),
+        #: DN's ``kbAltLeft``/``kbAltRight``: the divider a column along.
+        "alt+left": MoveSeparator(-1),
+        "alt+right": MoveSeparator(1),
     }
 
     #: How long the tree's cursor has to rest before the panel follows it:
@@ -167,6 +173,16 @@ class Manager(Window):
     #: or None while both are showing.  DOS Navigator's ``LVisible`` and
     #: ``RVisible``, of which at most one was ever false.
     hidden_side: Any = reactive(None)
+
+    #: The left side's share of the window's width, or None for the even
+    #: split, the odd column to the right.  DOS Navigator's ``TSeparator``
+    #: kept the same thing as ``OldX``/``OldW``, so a window resized or zoomed
+    #: keeps its proportion rather than its column.
+    split: Any = reactive(None)
+
+    #: The narrowest the divider leaves a side: its two frame columns and one
+    #: cell between them.  DN's ``(P.X >= 1) and (P.X < Owner^.Size.X-2)``.
+    MIN_SIDE = 3
 
     def __init__(self, left: Path, right: Path, **kwargs):
         """Build the window, then seed where the panels open.
@@ -193,9 +209,13 @@ class Manager(Window):
         #: What hiding a side set aside: the rectangle and ``zoomed`` before,
         #: the rectangle after, and the two sides' widths, for growing back.
         self._collapse: dict[str, Any] | None = None
+        #: While the divider is held: the column the pointer took it at,
+        #: counted from the right side's left edge (DN's ``B``).
+        self._divider: int | None = None
 
     def mounted(self) -> None:
         super().mounted()
+        effect(self, Manager.place_divider)
         effect(self, Manager._remember_panel)
         effect(self, Manager._tree_follows_panel)
         effect(self, Manager._panel_follows_tree)
@@ -218,6 +238,12 @@ class Manager(Window):
 
     async def on_hide_right(self, event: HideRight) -> bool:
         await self.toggle_side("right")
+        return True
+
+    async def on_move_separator(self, event: MoveSeparator) -> bool:
+        sides = self._sides()
+        if len(sides) == 2:
+            self.move_divider_to(sides[1].x + event.step)
         return True
 
     async def on_count_length(self, event: CountLength) -> bool:
@@ -2096,9 +2122,103 @@ class Manager(Window):
         left.on_execute_file, right.on_execute_file = right.on_execute_file, left.on_execute_file
         self.left, self.right = right, left
         # The row's order changed in place, which its layout does not
-        # follow: placed again here, in this batch.
+        # follow: placed again here, in this batch.  The divider stays
+        # where it was, so the hint moves to the side now first.
+        self.place_divider()
         self.panels.arrange()
         self.panels.invalidate()
+
+    # -- the divider -------------------------------------------------------
+    #
+    # DOS Navigator's ``TSeparator``: the two columns where the sides meet, the
+    # left side's right frame edge and the right side's left one, dragged with
+    # the mouse or moved a column by Alt+Left/Alt+Right.
+
+    def _sides(self) -> list[Any]:
+        """The views the row is showing, left to right."""
+        return [child for child in self.panels.children if child.visible]
+
+    def place_divider(self) -> None:
+        """Give the row's first side the width :attr:`split` asks for.
+
+        The run's effect, reading the split, the row's width and which views
+        are showing, so a side hidden, shown or stood in for re-places it.  The
+        width is the first side's ``basis`` with ``grow: 0``, and every other
+        view says nothing; with one side showing, or no split, none says
+        anything and the row shares itself out as it always did.
+        """
+        sides = self._sides()
+        width = self.panels.width
+        first = None
+        if len(sides) == 2 and self.split is not None:
+            first = self._clamp_divider(round(width * self.split), width)
+        with untracked():
+            for child in self.panels.children:
+                if first is not None and child is sides[0]:
+                    _hint(child, first, 0)
+                else:
+                    _hint(child, 0, 1)
+
+    def _clamp_divider(self, column: int, width: int) -> int:
+        return max(self.MIN_SIDE, min(column, width - self.MIN_SIDE))
+
+    def move_divider_to(self, column: int) -> None:
+        """The divider where the right side starts at *column* of the row."""
+        width = self.panels.width
+        if width < 2 * self.MIN_SIDE or len(self._sides()) != 2:
+            return
+        self.split = self._clamp_divider(column, width) / width
+
+    def divider_hit(self, x: int, y: int) -> bool:
+        """Whether *x*, *y* -- in the window's coordinates -- takes hold of the divider.
+
+        The right side's left frame column always does.  The left side's
+        right one does where its scroll bar is not, which is what a press
+        there means otherwise.
+        """
+        sides = self._sides()
+        if len(sides) != 2 or not 0 <= y < self.panels.height:
+            return False
+        first, second = sides
+        if x == second.x:
+            return True
+        if x != second.x - 1:
+            return False
+        bar = getattr(first, "bar", None)
+        return bar is None or not bar.visible or not bar.y <= y - first.y < bar.y + bar.height
+
+    async def dispatch_mouse(self, event: MouseClickEvent) -> bool:
+        """The divider before anything else.
+
+        Tried ahead of the window's chrome and the panels, as ``Window`` tries
+        its chrome ahead of the children: a panel takes a press anywhere in its
+        rectangle, its frame included.
+        """
+        local = event.translated(-self.x, -self.y)
+        if (
+            event.action == "press" and event.button == "left"
+            and not isinstance(event, DoubleClickEvent)
+            and self.divider_hit(local.x, local.y)
+        ):
+            desktop = self.desktop
+            if desktop is not None and not self.active:
+                desktop.activate(self)
+            self._divider = local.x - self._sides()[1].x
+            app = self.application
+            if app is not None:
+                app.capture_mouse(self)
+            return True
+        return await super().dispatch_mouse(event)
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """A divider drag in progress, else the window's own."""
+        if self._divider is None:
+            return await super().on_mouse_click(event)
+        if event.action == "release":
+            self._divider = None
+        elif event.action == "move":
+            self.move_divider_to(event.x - self._divider)
+        return True
 
     def show_only(self, side: str) -> None:
         """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``."""
@@ -2390,3 +2510,11 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         menu.add_line()
     toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
     return menu, toggle
+
+
+def _hint(widget: Any, basis: int, grow: int) -> None:
+    """*widget*'s layout hint, written only if it changes."""
+    current = parse_declarations(widget.inline_style)
+    if current.get("basis", 0) == basis and current.get("grow", 1) == grow:
+        return
+    widget.merge_style({"basis": basis, "grow": grow})
