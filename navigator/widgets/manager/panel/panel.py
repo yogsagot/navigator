@@ -1140,9 +1140,10 @@ class Panel(ListViewer):
     def _search_key(self, event: KeyEvent) -> bool:
         """A key while searching: True if the search took it.
 
-        Enter and Esc end the search where it stands.  Any other key that is
-        not the search's ends it too and is declined, so it goes on to do
-        what it always does -- Down moves, F3 views.
+        Esc ends the search where it stands.  Any other key that is not the
+        search's ends it too and is declined, so it goes on to do what it
+        always does -- Enter descends into what was found, Down moves, F3
+        views.
         """
         text = self.quick_search or ""
         if event.is_printable:
@@ -1161,7 +1162,7 @@ class Panel(ListViewer):
                     self.cursor = found
             return True
         self.quick_search = None
-        return event.matches("enter", "escape")
+        return event.matches("escape")
 
     def _end_search_unfocused(self) -> None:
         """The search ends when the keyboard leaves the panel."""

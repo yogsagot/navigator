@@ -154,9 +154,9 @@ Sort by* are `Manager.choose_sort`: `CM_SortBy`'s `PopupMenu`, centred on the pa
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first
 name from it that begins so (case folded, `*`/`?`, `..` never found); a character naming nothing is refused, Backspace
-drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret. Enter/Esc end it;
-any other key ends it and does its job, as do a click, a directory change and losing the keyboard. While it runs
-`edits_text` is True. Matching rules: `navml/quick_search.py`.
+drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret. Esc ends it;
+any other key ends it and does its job -- Enter descends into (or runs) what was found in one press -- as do a click, a
+directory change and losing the keyboard. While it runs `edits_text` is True. Matching rules: `navml/quick_search.py`.
 
 ## Hiding sides and replacing a side
 

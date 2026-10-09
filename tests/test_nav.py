@@ -1122,14 +1122,24 @@ def test_the_search_never_finds_the_parent_entry(tree):
     assert app.manager.left.cursor == 0
 
 
-def test_enter_ends_the_search_and_stays_without_running_the_line(tree, quiet_console):
+def test_enter_ends_the_search_and_enters_what_it_found(tree, quiet_console):
+    """One Enter, not two: the search ends and the key goes on to the panel,
+    which descends -- not to the command line, even with text on it."""
     app = navigator(tree)
     run_app(app, [*keys("ls"), KeyEvent("s", ctrl=True), *keys("be"), KeyEvent("enter")])
     panel = app.manager.left
     assert panel.quick_search is None
+    assert panel.path == tree / "beta"
+    assert app.shell.command_line.value == "ls"
+
+
+def test_escape_ends_the_search_and_stays(tree):
+    app = navigator(tree)
+    run_app(app, [KeyEvent("s", ctrl=True), *keys("be"), KeyEvent("escape")])
+    panel = app.manager.left
+    assert panel.quick_search is None
     assert panel.selected.name == "beta"
     assert panel.path == tree
-    assert app.shell.command_line.value == "ls"
 
 
 def test_another_key_ends_the_search_and_does_its_job(tree):
