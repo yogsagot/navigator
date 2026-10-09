@@ -2207,6 +2207,8 @@ class Manager(Window):
             app = self.application
             if app is not None:
                 app.capture_mouse(self)
+            # Drawn single while it is held (``render_after``).
+            self.invalidate()
             return True
         return await super().dispatch_mouse(event)
 
@@ -2216,9 +2218,48 @@ class Manager(Window):
             return await super().on_mouse_click(event)
         if event.action == "release":
             self._divider = None
+            self.invalidate()
         elif event.action == "move":
             self.move_divider_to(event.x - self._divider)
         return True
+
+    async def on_double_click(self, event: DoubleClickEvent) -> bool:
+        """A double click on the divider puts it back in the middle.
+
+        Not DN's, which had no way back but dragging.  The second press has
+        already taken hold of the divider (:meth:`dispatch_mouse`), so the
+        capture brings the double click here; it lets go, and the even split
+        returns.
+        """
+        if self._divider is None:
+            return await super().on_double_click(event)
+        self._divider = None
+        app = self.application
+        if app is not None and app.mouse_capture is self:
+            app.release_mouse()
+        self.split = None
+        self.invalidate()
+        return True
+
+    def render_after(self, surface: Any) -> None:
+        """While the divider is held, its two columns drawn with single lines.
+
+        ``TSeparator.Draw``: the active window's ``║``/``╗``/``╝`` became
+        ``│``/``┐``/``┘`` under ``sfDragging``.  The sides have painted their
+        frames by now, so each double-line character on the two columns is
+        swapped for its single one, which keeps a junction where a side's
+        divider row meets its frame and leaves a scroll bar alone.
+        """
+        if self._divider is not None:
+            sides = self._sides()
+            if len(sides) == 2:
+                for column in (sides[1].x - 1, sides[1].x):
+                    for row in range(self.panels.height):
+                        char, style = surface.get(column, row)
+                        single = _SINGLE_VERTICAL.get(char)
+                        if single is not None:
+                            surface.set_cell(column, row, single, style)
+        super().render_after(surface)
 
     def show_only(self, side: str) -> None:
         """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``."""
@@ -2510,6 +2551,15 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         menu.add_line()
     toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
     return menu, toggle
+
+
+#: A double vertical line's box characters, and the single ones the held
+#: divider is drawn with.
+_SINGLE_VERTICAL = {
+    "║": "│", "╗": "┐", "╝": "┘", "╔": "┌", "╚": "└",
+    "╖": "┐", "╜": "┘", "╓": "┌", "╙": "└",
+    "╢": "┤", "╣": "┤", "╟": "├", "╠": "├", "╫": "┼", "╬": "┼",
+}
 
 
 def _hint(widget: Any, basis: int, grow: int) -> None:

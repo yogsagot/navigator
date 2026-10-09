@@ -172,3 +172,40 @@ def test_a_saved_desktop_keeps_the_split(place):
              lambda a: seen.update(after=widths(a))])
     assert seen["split"] == 0.25
     assert seen["after"] == (20, 60)
+
+
+def test_the_held_divider_is_drawn_with_single_lines(place):
+    seen = {}
+
+    def columns(a):
+        manager = a.manager
+        ox, oy = manager.offset()
+        x = ox + manager.x + manager._sides()[1].x
+        top, bottom = oy + manager.y, oy + manager.y + manager.height - 1
+        return "".join(a._front.get(col, row)[0] for row in (top, top + 5, bottom) for col in (x - 1, x))
+
+    run_app(navigator(place / "short", place / "short"), [
+        lambda a: seen.update(before=columns(a)),
+        mouse(border("right"), "press"), lambda a: None,
+        lambda a: seen.update(held=columns(a)),
+        mouse(border("right"), "release"), lambda a: None,
+        lambda a: seen.update(after=columns(a)),
+    ])
+    assert seen["before"] == seen["after"] != seen["held"]
+    assert not set(seen["held"]) & set("║╗╝╔╚")
+    assert seen["held"] == "".join(
+        {"║": "│", "╗": "┐", "╝": "┘", "╔": "┌", "╚": "└"}.get(c, c) for c in seen["before"])
+
+
+def test_a_double_click_on_the_divider_puts_it_back_in_the_middle(place):
+    seen = {}
+    run_app(navigator(place / "short", place / "short"), [
+        *drag(border("right"), column(25)), lambda a: seen.update(dragged=widths(a)),
+        mouse(border("right"), "press"), mouse(border("right"), "release"), lambda a: None,
+        mouse(border("right"), "press"), mouse(border("right"), "release"), lambda a: None,
+        lambda a: seen.update(after=widths(a), split=a.manager.split, held=a.manager._divider,
+                              capture=a.mouse_capture),
+    ])
+    assert seen["dragged"] == (25, 55)
+    assert seen["after"] == (40, 40) and seen["split"] is None
+    assert seen["held"] is None and seen["capture"] is None

@@ -290,6 +290,13 @@ divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltR
   a press anywhere in its rectangle, frame included. The left side's edge column counts only where its `bar` is not
   showing; on the scroll bar's rows a press there scrolls the list. The drag captures the mouse onto the Manager and
   is handled in `on_mouse_click`, ahead of `Window`'s own move and resize.
+- **A double click on the divider resets the split to `None` (the even split).** This is a departure: DN had no way
+  back except dragging. The second press has already taken hold of the divider and captured the mouse, so the
+  `DoubleClickEvent` reaches `Manager.on_double_click`. It lets go of the divider and clears the split. A double click
+  anywhere else falls through to `Window` (zoom on the title).
+- **While held, the divider is drawn with single lines** (DN's `sfDragging` look). `Manager.render_after` runs after
+  the sides have painted. It swaps each double-vertical box character on the two divider columns for its single one,
+  so junctions keep their shape and scroll bar cells are left alone.
 - **`Panel.on_key` in list mode leaves Alt+Left and Alt+Right alone.** Its bare `left`/`right` check would otherwise
   take them.
 - A saved desktop keeps `split` (`desktop_state`).
