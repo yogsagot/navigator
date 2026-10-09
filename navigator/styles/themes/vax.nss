@@ -13,6 +13,9 @@
  * own theme.
  */
 
+/* Navigator's own colours, the departures below name. */
+$color-amber: #e5b567;
+
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
    its order. `>' marks the ones navigator.nss reads today; the rest are one
    rule away from being live, and are carried rather than dropped. */
@@ -158,7 +161,7 @@ $highlight-custom-2-fg: light_blue;   /*> [176] Custom 2 */
 $highlight-custom-2-bg: black;
 $highlight-custom-3-fg: light_red;    /*> [177] Custom 3 */
 $highlight-custom-3-bg: black;
-$highlight-custom-4-fg: #e5b567;      /*> [180] Custom 4 -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
+$highlight-custom-4-fg: $color-amber; /*> [180] Custom 4 -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $highlight-custom-4-bg: black;
 $highlight-custom-5-fg: blue;         /*> [181] Custom 5 */
 $highlight-custom-5-bg: black;

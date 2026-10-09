@@ -20,7 +20,10 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   applied on generation and marked in the theme's comment. Current: `default` [117], the viewer's *Normal text*, is
   #D8D8D8 at the user's request (DEFAULT.PAL's was 2.6:1 contrast). **No theme paints magenta**, also at the user's
   request: every magenta/light magenta slot in all eleven themes is a `DEPARTURES` entry (mostly amber #E5B567);
-  only the unused `$dn-magenta` register definitions remain.
+  a custom-DAC theme defines fourteen registers, without the two magentas (`UNUSED_COLORS`).
+- **No slot holds a bare `#rrggbb`**: a departure's hex colour must be in palconv's `COLOR_NAMES`, and the theme defines
+  it once at the top as `$color-<name>` (`$color-amber`, `$color-pale_gray`, ...) and refers to it by name; a test
+  enforces it. Like the `$dn-*` registers, `$color-*` names are whole colours, not slots.
 - The slot table comes from `RESOURCE/ENGLISH/DN.DNR` (`COLORITEM <name>, <index>` lines; CP437, decode before
   grepping): all 144 entries the Colors dialog exposes, in 20 nested groups. `palconv.py --names path/to/DN.DNR`
   regenerates it. Twenty-three entries independently agree with the Turbo Vision palette-string chain, which is what

@@ -1301,16 +1301,30 @@ def test_the_themes_all_carry_the_same_palette():
 
     sets = {theme: set(read(THEMES / f"{theme}.nss").variables)
             for theme in theme_names()}
-    # The palettes that reprogram the VGA registers carry sixteen more names.
-    core = {theme: {v for v in names if not v.startswith("dn-")}
+    # The palettes that reprogram the VGA registers carry fourteen more names:
+    # sixteen, less magenta and light magenta, which no theme paints.
+    # Navigator's own named colours ($color-*) go with the departures a theme has.
+    core = {theme: {v for v in names if not v.startswith(("dn-", "color-"))}
             for theme, names in sets.items()}
     reference = core["default"]
     assert len(reference) >= 2 * 144
     for theme, names in core.items():
         assert names == reference, f"{theme} defines a different palette"
     for theme, names in sets.items():
-        registers = names - core[theme]
-        assert len(registers) in (0, 16), f"{theme} has {len(registers)} registers"
+        registers = {v for v in names - core[theme] if v.startswith("dn-")}
+        assert len(registers) in (0, 14), f"{theme} has {len(registers)} registers"
+
+
+def test_a_hex_colour_is_only_ever_a_named_colour():
+    """A `#rrggbb' is written once, as a `$dn-*' register or a `$color-*'
+    name, and every slot refers to it by that name."""
+    import re
+
+    for path in [*THEMES.glob("*.nss"), *THEMES.parent.glob("*.nss")]:
+        for line in path.read_text().splitlines():
+            code = line.split("/*", 1)[0]
+            if re.search(r"#[0-9a-fA-F]{6}", code):
+                assert re.match(r"\$(dn|color)-\w+: #[0-9a-f]{6};\s*$", code), f"{path.name}: {line}"
 
 
 def test_a_theme_only_ever_sets_colours():
@@ -1329,9 +1343,10 @@ def test_a_theme_only_ever_sets_colours():
 
     for theme in theme_names():
         for name in read(THEMES / f"{theme}.nss").variables:
-            # The sixteen VGA registers a custom-DAC palette pins are whole
-            # colours rather than a slot's fore- or background.
-            if name.startswith("dn-"):
+            # The VGA registers a custom-DAC palette pins, and Navigator's own
+            # named colours, are whole colours rather than a slot's fore- or
+            # background.
+            if name.startswith(("dn-", "color-")):
                 continue
             assert name.rsplit("-", 1)[-1] in ("fg", "bg"), f"{theme}: ${name}"
 

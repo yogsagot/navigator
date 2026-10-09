@@ -18,7 +18,6 @@ $dn-blue: #0000aa;
 $dn-green: #00aa00;
 $dn-cyan: #00aaaa;
 $dn-red: #ca0000;
-$dn-magenta: #aa00aa;
 $dn-brown: #aa5500;
 $dn-light_gray: #aaaaaa;
 $dn-dark_gray: #555555;
@@ -26,9 +25,11 @@ $dn-light_blue: #5555ca;
 $dn-light_green: #55ff55;
 $dn-light_cyan: #55ffff;
 $dn-light_red: #ff5555;
-$dn-light_magenta: #ff55ff;
 $dn-yellow: #ffff00;
 $dn-white: #ffffff;
+
+/* Navigator's own colours, the departures below name. */
+$color-amber: #e5b567;
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
    its order. `>' marks the ones navigator.nss reads today; the rest are one
@@ -165,7 +166,7 @@ $column-title-bg: $dn-black;
 /* -- Highlight ----------------------------------------------------------- */
 $directory-fg: $dn-white;             /*> [172] Directories -- CDoubleWindow[33] -> CPanel[7], ttDirectory */
 $directory-bg: $dn-black;
-$executable-fg: #e5b567;              /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
+$executable-fg: $color-amber;         /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $executable-bg: $dn-black;
 $archive-fg: $dn-light_green;         /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: $dn-black;
@@ -279,7 +280,7 @@ $editor-highlight-numbers-fg: $dn-white;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-cyan;
 $editor-highlight-current-line-fg: $dn-white;/*  [182] Current line */
 $editor-highlight-current-line-bg: $dn-black;
-$editor-highlight-cur-line-comments-fg: #e5b567;/*  [184] Cur. line comments -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
+$editor-highlight-cur-line-comments-fg: $color-amber;/*  [184] Cur. line comments -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $editor-highlight-cur-line-comments-bg: $dn-black;
 $editor-highlight-current-line-selected-fg: $dn-white;/*  [183] Current line selected */
 $editor-highlight-current-line-selected-bg: $dn-light_gray;

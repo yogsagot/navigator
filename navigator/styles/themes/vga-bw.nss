@@ -18,7 +18,6 @@ $dn-blue: #393939;
 $dn-green: #393939;
 $dn-cyan: #717171;
 $dn-red: #393939;
-$dn-magenta: #717171;
 $dn-brown: #555555;
 $dn-light_gray: #aaaaaa;
 $dn-dark_gray: #555555;
@@ -26,7 +25,6 @@ $dn-light_blue: #8e8e8e;
 $dn-light_green: #8e8e8e;
 $dn-light_cyan: #c6c6c6;
 $dn-light_red: #8e8e8e;
-$dn-light_magenta: #c6c6c6;
 $dn-yellow: #c6c6c6;
 $dn-white: #ffffff;
 

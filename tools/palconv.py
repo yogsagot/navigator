@@ -251,8 +251,7 @@ LIVE = frozenset({1, 2, 4, 85, 88, 90, 91, 165, 172, 173, 174, 175, 176, 177, 18
 #:   magenta where the ground allows it, brown for magenta, and otherwise
 #:   the nearest colour the palette's neighbours leave free.  ``vga-bw``'s
 #:   light magenta register is a grey, so it takes light cyan, the same grey.
-#:   The ``$dn-magenta``/``$dn-light_magenta`` register definitions stay, as
-#:   every custom-DAC theme defines all sixteen; nothing reads them.
+#:   A custom-DAC theme leaves the two registers out (:data:`UNUSED_COLORS`).
 DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]] = {
     "default": {
         76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
@@ -508,10 +507,29 @@ def _hex(channel_triple: tuple[int, int, int]) -> str:
     return "#" + "".join(f"{round(v * 255 / 63):02x}" for v in channel_triple)
 
 
+#: The DOS colours no theme paints, magenta and light magenta, at the user's
+#: request: a slot a palette paints in one needs a :data:`DEPARTURES` entry,
+#: and a custom-DAC theme leaves their registers undefined.
+UNUSED_COLORS = frozenset({5, 13})
+
+
+#: The ``#rrggbb`` colours a departure may name, each written once at the top
+#: of a theme that uses it as a ``$color-*`` variable and referred to by that
+#: name, so no slot carries a bare hex value.  A departure naming a colour not
+#: listed here is refused.
+COLOR_NAMES = {
+    "#d8d8d8": "pale_gray",
+    "#e5b567": "amber",
+    "#40c8c8": "mid_cyan",
+    "#87afff": "sky_blue",
+}
+
+
 def _palette_variables(palette: Palette) -> list[str]:
     """The ``$dn-*`` colour definitions a custom-DAC palette needs."""
     assert palette.dac is not None
-    return [f"$dn-{DOS_COLORS[i]}: {_hex(palette.dac[i])};" for i in range(16)]
+    return [f"$dn-{DOS_COLORS[i]}: {_hex(palette.dac[i])};"
+            for i in range(16) if i not in UNUSED_COLORS]
 
 
 def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str:
@@ -524,10 +542,18 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
     custom = palette.custom_dac
 
     departures = DEPARTURES.get(name, {})
+    derived_departures = DERIVED_DEPARTURES.get(name, {})
+    named = {value for fg, bg, _why in (*departures.values(), *derived_departures.values())
+             for value in (fg, bg) if isinstance(value, str)}
+    if unnamed := named - COLOR_NAMES.keys():
+        raise PaletteError(f"{name}: {', '.join(sorted(unnamed))} not in COLOR_NAMES")
+    named = [value for value in COLOR_NAMES if value in named]
 
     def spell(value: int | str) -> str:
         if isinstance(value, str):
-            return value
+            return f"$color-{COLOR_NAMES[value]}"
+        if value in UNUSED_COLORS:
+            raise PaletteError(f"{name} paints {DOS_COLORS[value]}; give the slot a DEPARTURES entry")
         return f"$dn-{DOS_COLORS[value]}" if custom else DOS_COLORS[value]
 
     def color(index: int) -> tuple[str, str]:
@@ -571,6 +597,12 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
             "",
         ]
 
+    if named:
+        out += [
+            "/* Navigator's own colours, the departures below name. */",
+            *(f"$color-{COLOR_NAMES[value]}: {value};" for value in named),
+            "",
+        ]
     out += [
         "/* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and",
         "   its order. `>' marks the ones navigator.nss reads today; the rest are one",
@@ -591,7 +623,6 @@ def to_nss(palette: Palette, *, name: str, source: str, description: str) -> str
         out.append(f"${slot.name}-bg: {bg};")
 
     slots = {slot.index: slot for slot in SLOTS}
-    derived_departures = DERIVED_DEPARTURES.get(name, {})
     out += [
         "",
         "/* -- Navigator's own: no DN slot ---------------------------------------- */",

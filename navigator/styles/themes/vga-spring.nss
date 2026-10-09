@@ -18,7 +18,6 @@ $dn-blue: #0000aa;
 $dn-green: #00aa00;
 $dn-cyan: #0079aa;
 $dn-red: #aa1c00;
-$dn-magenta: #be00aa;
 $dn-brown: #ae557d;
 $dn-light_gray: #8e92aa;
 $dn-dark_gray: #555582;
@@ -26,9 +25,11 @@ $dn-light_blue: #5d7df3;
 $dn-light_green: #14d792;
 $dn-light_cyan: #2dcaff;
 $dn-light_red: #ff5169;
-$dn-light_magenta: #ef55ff;
 $dn-yellow: #aeff55;
 $dn-white: #ebffff;
+
+/* Navigator's own colours, the departures below name. */
+$color-amber: #e5b567;
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
    its order. `>' marks the ones navigator.nss reads today; the rest are one
@@ -173,7 +174,7 @@ $highlight-custom-1-fg: $dn-cyan;     /*> [175] Custom 1 */
 $highlight-custom-1-bg: $dn-dark_gray;
 $highlight-custom-2-fg: $dn-green;    /*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-dark_gray;
-$highlight-custom-3-fg: #e5b567;      /*> [177] Custom 3 -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
+$highlight-custom-3-fg: $color-amber; /*> [177] Custom 3 -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
 $highlight-custom-3-bg: $dn-dark_gray;
 $highlight-custom-4-fg: $dn-light_red;/*> [180] Custom 4 */
 $highlight-custom-4-bg: $dn-dark_gray;
@@ -273,7 +274,7 @@ $editor-highlight-comments-fg: $dn-cyan;/*  [164] Comments */
 $editor-highlight-comments-bg: $dn-dark_gray;
 $editor-highlight-symbols-fg: $dn-white;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-dark_gray;
-$editor-highlight-strings-fg: #e5b567;/*  [190] Strings -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
+$editor-highlight-strings-fg: $color-amber;/*  [190] Strings -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
 $editor-highlight-strings-bg: $dn-dark_gray;
 $editor-highlight-numbers-fg: $dn-light_cyan;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-dark_gray;

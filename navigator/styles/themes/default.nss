@@ -13,6 +13,12 @@
  * own theme.
  */
 
+/* Navigator's own colours, the departures below name. */
+$color-pale_gray: #d8d8d8;
+$color-amber: #e5b567;
+$color-mid_cyan: #40c8c8;
+$color-sky_blue: #87afff;
+
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
    its order. `>' marks the ones navigator.nss reads today; the rest are one
    rule away from being live, and are carried rather than dropped. */
@@ -128,7 +134,7 @@ $scrollbar-arrow-fg: black;           /*  [ 84] Scroll bar icons -- CDoubleWindo
 $scrollbar-arrow-bg: white;
 
 /* -- File Panel ---------------------------------------------------------- */
-$panel-fg: #d8d8d8;                   /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
+$panel-fg: $color-pale_gray;          /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
 $panel-bg: dark_gray;
 $marked-fg: yellow;                   /*  [ 87] Selected text -- CDoubleWindow[8] -> CPanel[3] */
 $marked-bg: dark_gray;
@@ -156,7 +162,7 @@ $highlight-custom-1-fg: cyan;         /*> [175] Custom 1 */
 $highlight-custom-1-bg: dark_gray;
 $highlight-custom-2-fg: green;        /*> [176] Custom 2 */
 $highlight-custom-2-bg: dark_gray;
-$highlight-custom-3-fg: #e5b567;      /*> [177] Custom 3 -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
+$highlight-custom-3-fg: $color-amber; /*> [177] Custom 3 -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
 $highlight-custom-3-bg: dark_gray;
 $highlight-custom-4-fg: light_red;    /*> [180] Custom 4 */
 $highlight-custom-4-bg: dark_gray;
@@ -228,7 +234,7 @@ $viewer-scroll-bar-page-fg: white;    /*  [115] Scroll bar page */
 $viewer-scroll-bar-page-bg: dark_gray;
 $viewer-scroll-bar-icons-fg: black;   /*  [116] Scroll bar icons */
 $viewer-scroll-bar-icons-bg: white;
-$viewer-normal-text-fg: #d8d8d8;      /*  [117] Normal text -- Navigator: lighter text, for contrast; the .PAL has light_gray on dark_gray */
+$viewer-normal-text-fg: $color-pale_gray;/*  [117] Normal text -- Navigator: lighter text, for contrast; the .PAL has light_gray on dark_gray */
 $viewer-normal-text-bg: dark_gray;
 $viewer-selected-text-fg: black;      /*  [118] Selected text */
 $viewer-selected-text-bg: light_gray;
@@ -246,7 +252,7 @@ $editor-scroll-bar-page-fg: white;    /*  [ 74] Scroll bar page */
 $editor-scroll-bar-page-bg: dark_gray;
 $editor-scroll-bar-icons-fg: black;   /*  [ 75] Scroll bar icons */
 $editor-scroll-bar-icons-bg: white;
-$editor-normal-text-fg: #d8d8d8;      /*  [ 76] Normal text -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
+$editor-normal-text-fg: $color-pale_gray;/*  [ 76] Normal text -- Navigator: lighter text, as the viewer's [117]; the .PAL has light_gray on dark_gray */
 $editor-normal-text-bg: dark_gray;
 $editor-selected-text-fg: white;      /*  [ 77] Selected text */
 $editor-selected-text-bg: light_gray;
@@ -256,7 +262,7 @@ $editor-highlight-comments-fg: cyan;  /*  [164] Comments */
 $editor-highlight-comments-bg: dark_gray;
 $editor-highlight-symbols-fg: white;  /*  [189] Symbols */
 $editor-highlight-symbols-bg: dark_gray;
-$editor-highlight-strings-fg: #e5b567;/*  [190] Strings -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
+$editor-highlight-strings-fg: $color-amber;/*  [190] Strings -- Navigator: amber rather than magenta; the .PAL has light_magenta on dark_gray */
 $editor-highlight-strings-bg: dark_gray;
 $editor-highlight-numbers-fg: light_cyan;/*  [191] Numbers */
 $editor-highlight-numbers-bg: dark_gray;
@@ -347,21 +353,21 @@ $dbase-cursor-bg: light_gray;
 
 /* -- Navigator's own: no DN slot ---------------------------------------- */
 /* Each is an alias of the slot it names, so this palette colours it too. */
-$image-fg: #40c8c8;                   /*  images -- DN's Custom 1 [175] -- Navigator: brighter than cyan, short of light cyan */
+$image-fg: $color-mid_cyan;           /*  images -- DN's Custom 1 [175] -- Navigator: brighter than cyan, short of light cyan */
 $image-bg: $highlight-custom-1-bg;
 $media-fg: $highlight-custom-2-fg;    /*  audio and video -- DN's Custom 2 [176] */
 $media-bg: $highlight-custom-2-bg;
-$document-fg: #e5b567;                /*  documents -- DN's Custom 3 [177] -- Navigator: amber rather than magenta */
+$document-fg: $color-amber;           /*  documents -- DN's Custom 3 [177] -- Navigator: amber rather than magenta */
 $document-bg: $highlight-custom-3-bg;
 $stale-link-fg: $highlight-custom-4-fg;/*  a symlink pointing nowhere -- DN's Custom 4 [180] */
 $stale-link-bg: $highlight-custom-4-bg;
-$source-fg: #87afff;                  /*  source code -- DN's Custom 5 [181] -- Navigator: lighter than light blue, which is barely visible */
+$source-fg: $color-sky_blue;          /*  source code -- DN's Custom 5 [181] -- Navigator: lighter than light blue, which is barely visible */
 $source-bg: $highlight-custom-5-bg;
 $symlink-fg: light_gray;              /*  a symlink -- Midnight Commander's class, on Custom 1 [175] -- Navigator: MC's link colour; the alias would match images */
 $symlink-bg: $highlight-custom-1-bg;
-$device-fg: #e5b567;                  /*  a character or block device -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
+$device-fg: $color-amber;             /*  a character or block device -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
 $device-bg: $highlight-custom-3-bg;
-$special-fg: #e5b567;                 /*  a socket or a FIFO -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
+$special-fg: $color-amber;            /*  a socket or a FIFO -- MC's class, on Custom 3 [177] -- Navigator: amber rather than magenta, as documents */
 $special-bg: $highlight-custom-3-bg;
 $temp-fg: black;                      /*  backups and temporaries -- MC's class, on Normal text [85] -- Navigator: faint, as MC draws temporaries */
 $temp-bg: $panel-bg;
