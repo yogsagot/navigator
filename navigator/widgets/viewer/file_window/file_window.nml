@@ -1,6 +1,6 @@
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
-from navigator.widgets.editor.commands import SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SwitchHighLight
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.scroll_bar import ScrollBar
@@ -43,6 +43,8 @@ FileWindow(Window):
         shift+f6: ChooseEncoding
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
+        #: The *File type* menu in a box, as in the editor.
+        ctrl+shift+h: ChooseFileType
 
     FileViewer:
         id: viewer
@@ -102,6 +104,11 @@ FileWindow(Window):
         MenuItem:
             text: 'S~y~ntax highlight'
             command: SwitchHighLight
+        #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
+        SubMenu:
+            id: view_menu_file_type
+            text: '~F~ile type'
+            key_command: ChooseFileType
         MenuItem:
             text: '~N~o filter'
             command: SetViewFilter(0)

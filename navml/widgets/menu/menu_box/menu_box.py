@@ -8,7 +8,8 @@ Every measurement here is ``MENUS.PAS``'s:
 * **An entry's colour fills the whole row inside the frame**, so the
   selection bar runs from frame to frame; its caption starts at column 3, and
   its key is right-aligned three columns in from the far edge.  A submenu gets
-  ``►`` where the key would go.
+  ``►`` where the key would go, and its ``key_command``'s key, if it has one,
+  just before the arrow (a departure: Turbo Vision's submenus had no key).
 * **A toggle that is on is ticked** in the column between the frame and the
   caption -- ``√``, or ``+`` with no Unicode -- which Turbo Vision left blank,
   so a tick costs no width.  Whether it is on is the command's to say, through
@@ -101,12 +102,11 @@ class MenuBox(Widget):
             if isinstance(entry, MenuLine):
                 continue
             length = len(parse_shortcut(entry.text)[0]) + 6
+            key = key_caption(entry, app, behind)
             if isinstance(entry, SubMenu):
-                length += 3
-            else:
-                key = key_caption(entry, app, behind)
-                if key:
-                    length += len(key) + 2
+                length += 3 + (len(key) + 1 if key else 0)
+            elif key:
+                length += len(key) + 2
             width = max(width, length)
         return width, height
 
@@ -232,12 +232,13 @@ class MenuBox(Widget):
             if 0 <= start < len(caption):
                 surface.draw_text(3 + start, y, caption[start],
                                   self.part_style("hotkey", **states))
+            key = key_caption(entry, self.application, self.behind)
             if isinstance(entry, SubMenu):
                 surface.draw_text(width - 4, y, arrow, row)
-            else:
-                key = key_caption(entry, self.application, self.behind)
                 if key:
-                    surface.draw_text(width - 3 - len(key), y, key, row)
+                    surface.draw_text(width - 5 - len(key), y, key, row)
+            elif key:
+                surface.draw_text(width - 3 - len(key), y, key, row)
         bottom = min(len(entries), rows) + 1
         frame_line(bottom, (bl, br), horizontal, normal)
         if width >= 6:
@@ -248,16 +249,18 @@ class MenuBox(Widget):
                 surface.draw_text(width - 4, bottom, bars[1], normal)
 
 
-def key_caption(item: MenuItem, app: Application | None,
+def key_caption(item: MenuItem | SubMenu, app: Application | None,
                 behind: Widget | None) -> str:
     """The key shown beside *item*: its live binding, else DOS Navigator's.
 
     A bound key is read off the key tables, so a menu can never claim a key
     that does something else; an entry nobody has bound yet shows the key the
-    original gave it, which is also the key it will get.
+    original gave it, which is also the key it will get.  A submenu's is its
+    ``key_command``'s.
     """
-    if app is not None and item.command is not None:
-        key = commands.key_for(app, item.command, behind)
+    command = item.key_command if isinstance(item, SubMenu) else item.command
+    if app is not None and command is not None:
+        key = commands.key_for(app, command, behind)
         if key is not None:
             return commands.key_label(key)
     return item.key

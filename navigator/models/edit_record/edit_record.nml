@@ -31,6 +31,9 @@ EditRecord(FileRecord):
     field vertical_blocks: bool = False
     #: ``HiLite``: Editor > Options > *Syntax highlight*.
     field highlight: bool = True
+    #: *File type*: the lexer chosen for the text, ``none``, or empty for
+    #: ``highlight.ini``'s choice.  DN chose by ``DN.HGL``'s masks alone.
+    field file_type: str = ""
     #: ``fMarks``: markers 1 to 9 as ``line:col``, comma-separated, empty where unset.
     field marks: str = ""
     unique by_path: path

@@ -49,7 +49,10 @@ from navigator.widgets.editor.commands import (
     SaveAll,
     SaveText,
     SaveTextAs,
+    ChooseFileType,
+    SetFileType,
 )
+from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +93,7 @@ class EditWindow(Window):
         else:
             self.editor.use_document(path, document)
         self.title = bind(lambda _o: self._title(), yielding=True)
+        fill_file_types(self.edit_menu_file_type)
 
     def _title(self) -> str:
         """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own."""
@@ -125,6 +129,7 @@ class EditWindow(Window):
             overwrite=editor.overwrite,
             vertical_blocks=editor.vertical_blocks,
             highlight=editor.syntax_highlight,
+            file_type=editor.file_type,
             marks=editor.markers_text(),
         )
 
@@ -147,6 +152,7 @@ class EditWindow(Window):
         editor.overwrite = record.overwrite
         editor.vertical_blocks = record.vertical_blocks
         editor.syntax_highlight = record.highlight
+        editor.file_type = record.file_type
         # The markers are the text's, not the window's place: back whatever
         # *Store editor position* says, as ``fMarks`` came back.
         editor.restore_markers(record.marks)
@@ -222,6 +228,37 @@ class EditWindow(Window):
             if written:
                 self.editor.saved(point)
             return written
+
+    # -- the file type --------------------------------------------------------------
+
+    async def on_set_file_type(self, event: SetFileType) -> bool:
+        """Editor > Options > *File type*."""
+        self.set_file_type(event.file_type)
+        return True
+
+    async def on_choose_file_type(self, event: ChooseFileType) -> bool:
+        """Ctrl+Shift+H: the same menu in a box of its own."""
+        self.spawn(self._choose_file_type())
+        return True
+
+    async def _choose_file_type(self) -> None:
+        file_type = await choose_file_type(self)
+        if file_type is not None:
+            self.set_file_type(file_type)
+
+    def set_file_type(self, file_type: str) -> None:
+        """The text coloured as *file_type*, highlighting switched on for a
+        language, and the choice kept in the edit history straight away."""
+        editor = self.editor
+        editor.file_type = file_type
+        if file_type:
+            editor.syntax_highlight = True
+        self.remember_history()
+
+    def checks(self, command: Any) -> bool | None:
+        if isinstance(command, SetFileType):
+            return self.editor.file_type == command.file_type
+        return super().checks(command)
 
     # -- ^K R and ^K W -------------------------------------------------------------
 
@@ -634,6 +671,8 @@ class EditWindow(Window):
             return
         self.remember_history()
         self.editor.use_document(path, document)
+        # The menu's choice was the file left's; the record may bring one back.
+        self.editor.file_type = ""
         self.title = bind(lambda _o: self._title(), yielding=True)
         self.recall_history()
         self.editor.focus()

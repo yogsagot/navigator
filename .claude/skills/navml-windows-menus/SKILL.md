@@ -49,6 +49,9 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   Python API for plugins: `add_item`/`add_submenu`/`add_line` with `before=`/`after=` anchors (an entry, a caption, or
   a command), `remove_entry`, `move_entry`, `entry`, `item_for(command)`, plus reactive `hidden`/`disabled` on every
   entry.
+- **A submenu can show a key**: `SubMenu.key_command` names a command that opens its entries some other way, and
+  `MenuBox` paints that command's live key (`key_caption`, else `SubMenu.key`) just before the `►` -- a departure,
+  TV's submenus had none. Display only; choosing the entry still opens the submenu.
 - **A menu tick** is navkit's `Widget.checks(command)` (True/False/None), asked of the same widget `enables` is
   (`Application.command_checked`); `MenuBox` paints `√` (`+` in ASCII) in the blank column left of the caption, so a
   tick costs no width.

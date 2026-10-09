@@ -35,7 +35,8 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     Unwrap,
 )
-from navigator.widgets.editor.commands import SwitchHighLight
+from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHighLight
+from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.progress import run_with_progress
@@ -67,6 +68,7 @@ class FileWindow(Window):
             self.viewer.cursor = 0
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.
         self.title = str(self.viewer.path)
+        fill_file_types(self.view_menu_file_type)
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -92,6 +94,7 @@ class FileWindow(Window):
             wrap=viewer.wrap,
             filter=viewer.filter,
             highlight=viewer.syntax_highlight,
+            file_type=viewer.file_type,
             top=viewer.top,
             x_delta=viewer.x_delta,
             cursor=viewer.cursor,
@@ -118,6 +121,7 @@ class FileWindow(Window):
             viewer.mode = record.mode
         viewer.wrap = record.wrap
         viewer.syntax_highlight = record.highlight
+        viewer.file_type = record.file_type
         if 0 <= record.filter < len(FILTER_TAGS):
             viewer.filter = record.filter
         # *Store viewer position*: without it the file opens from the top, in
@@ -153,6 +157,30 @@ class FileWindow(Window):
         self.viewer.syntax_highlight = not self.viewer.syntax_highlight
         return True
 
+    async def on_set_file_type(self, event: SetFileType) -> bool:
+        """View > *File type*."""
+        self.set_file_type(event.file_type)
+        return True
+
+    async def on_choose_file_type(self, event: ChooseFileType) -> bool:
+        """Ctrl+Shift+H: the same menu in a box of its own."""
+        self.spawn(self._choose_file_type())
+        return True
+
+    async def _choose_file_type(self) -> None:
+        file_type = await choose_file_type(self)
+        if file_type is not None:
+            self.set_file_type(file_type)
+
+    def set_file_type(self, file_type: str) -> None:
+        """The text coloured as *file_type*, highlighting switched on for a
+        language, and the choice kept in the view history straight away."""
+        viewer = self.viewer
+        viewer.file_type = file_type
+        if file_type:
+            viewer.syntax_highlight = True
+        self.remember_history()
+
     async def on_hex_mode(self, event: HexMode) -> bool:
         self.viewer.cycle_mode()
         return True
@@ -179,13 +207,15 @@ class FileWindow(Window):
             return self.viewer.wrap
         if isinstance(command, SwitchHighLight):
             return self.viewer.syntax_highlight
+        if isinstance(command, SetFileType):
+            return self.viewer.file_type == command.file_type
         return super().checks(command)
 
     def enables(self, command: Command) -> bool:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them."""
         if isinstance(command, GotoAddress):
             return self.viewer.mode != "text"
-        if isinstance(command, (Unwrap, SwitchHighLight)):
+        if isinstance(command, (Unwrap, SwitchHighLight, SetFileType, ChooseFileType)):
             return self.viewer.mode == "text"
         if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
             return viewer_model.last_search is not None

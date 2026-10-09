@@ -151,10 +151,11 @@ LEX_AHEAD = 200
 LEX_LIMIT = 2 * 1024 * 1024
 
 
-def _lex_text(name: str, lines: tuple[str, ...], until: int, stop: threading.Event) -> Any:
+def _lex_text(name: str, file_type: str, lines: tuple[str, ...], until: int,
+              stop: threading.Event) -> Any:
     """On the thread: the spans of *lines* through *until*, False when the file
     has no lexer, None when stopped."""
-    lexer = highlight.lexer_for(name, lines[0] if lines else "")
+    lexer = highlight.lexer_for(name, lines[0] if lines else "", file_type=file_type)
     if lexer is None:
         return False
     return highlight.lex_lines(lexer, lines, until, stop)
@@ -440,6 +441,9 @@ class FileEditor(Widget):
     #: ``HiLite``: the text coloured by syntax (:mod:`navigator.highlight`).
     #: Seeded from the setting, switched by Editor > Options.
     syntax_highlight: bool = reactive(True)
+    #: *File type*: the lexer chosen from the menu, ``none``, or empty for
+    #: ``highlight.ini``'s choice (:func:`navigator.highlight.lexer_for`).
+    file_type: str = reactive("")
 
     #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
     #: a line's first character goes back to an indent above.  Seeded from the
@@ -2548,8 +2552,9 @@ class FileEditor(Widget):
         self._lex_stop: threading.Event | None = None
         #: The first line an edit touched while lexing was in flight.
         self._dirty_from: int | None = None
-        #: The name the tokens were lexed for, and whether it had no lexer.
-        self._lexed_for = getattr(self, "path", None)
+        #: The name and file type the tokens were lexed for, and whether
+        #: that had no lexer.
+        self._lexed_for = (getattr(self, "path", None), getattr(self, "file_type", ""))
         self._plain = False
         app = self.application
         if app is not None and app.is_running:
@@ -2572,7 +2577,7 @@ class FileEditor(Widget):
         """
         if not self.syntax_highlight:
             return None
-        if self._lexed_for != self.path:
+        if self._lexed_for != (self.path, self.file_type):
             self.rehighlight()
         if self._plain:
             return None
@@ -2588,7 +2593,7 @@ class FileEditor(Widget):
         stop = threading.Event()
         self._lex_stop, self._dirty_from = stop, None
         name = str(self.path) if self.path is not None else ""
-        _LEXER.run(self, _lex_text, name, lines, until, stop,
+        _LEXER.run(self, _lex_text, name, self.file_type, lines, until, stop,
                    done=lambda outcome: self._lexed_text(outcome, stop))
 
     def _lexed_text(self, outcome: Outcome, stop: threading.Event) -> None:

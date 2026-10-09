@@ -27,6 +27,9 @@ ViewRecord(FileRecord):
     field filter: int
     #: View > *Syntax highlight*, which DN's viewer had not.
     field highlight: bool = True
+    #: View > *File type*: the lexer chosen, ``none``, or empty for
+    #: ``highlight.ini``'s choice.
+    field file_type: str = ""
     #: The byte offset on top.
     field top: int
     field x_delta: int

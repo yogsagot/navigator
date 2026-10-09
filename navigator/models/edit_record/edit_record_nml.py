@@ -47,21 +47,22 @@ class EditRecord(FileRecord):    # edit_record.nml:11
         _Field("overwrite", bool, False),    # edit_record.nml:30
         _Field("vertical_blocks", bool, False),    # edit_record.nml:31
         _Field("highlight", bool, True),    # edit_record.nml:33
-        _Field("marks", str, ''),    # edit_record.nml:35
+        _Field("file_type", str, ''),    # edit_record.nml:36
+        _Field("marks", str, ''),    # edit_record.nml:38
     )
     __indexes__ = (
-        _Index("by_path", ('path',), unique=True),    # edit_record.nml:36
-        _Index("by_seq", ('seq',)),    # edit_record.nml:37
+        _Index("by_path", ('path',), unique=True),    # edit_record.nml:39
+        _Index("by_seq", ('seq',)),    # edit_record.nml:40
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "marks" TEXT NOT NULL DEFAULT \'\')',
+        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "marks" TEXT NOT NULL DEFAULT \'\')',
         'CREATE UNIQUE INDEX "edit_history_by_path" ON "edit_history" ("path")',
         'CREATE INDEX "edit_history_by_seq" ON "edit_history" ("seq")',
     )
-    __schema__ = "013113c8881593b8"
+    __schema__ = "ad774ec8db63d23b"
 
     id: int | None
 
@@ -90,5 +91,9 @@ class EditRecord(FileRecord):    # edit_record.nml:11
     #: ``HiLite``: Editor > Options > *Syntax highlight*.
     highlight: bool    # edit_record.nml:33
 
+    #: *File type*: the lexer chosen for the text, ``none``, or empty for
+    #: ``highlight.ini``'s choice.  DN chose by ``DN.HGL``'s masks alone.
+    file_type: str    # edit_record.nml:36
+
     #: ``fMarks``: markers 1 to 9 as ``line:col``, comma-separated, empty where unset.
-    marks: str    # edit_record.nml:35
+    marks: str    # edit_record.nml:38

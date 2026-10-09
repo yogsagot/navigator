@@ -71,8 +71,8 @@ LEX_AHEAD = 256 * 1024
 HEAD = 256
 
 
-def _lex_window(name: str, data: bytes | None, low: int, high: int, size: int,
-                codec: str, stop: threading.Event) -> Any:
+def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: int,
+                size: int, codec: str, stop: threading.Event) -> Any:
     """On the thread: the spans of the whole lines in ``[low, high)`` of the
     file, as ``(start, end, spans)``, False when it has no lexer, None when
     stopped.  *data* is the whole file when the viewer holds it (``/proc``),
@@ -85,7 +85,7 @@ def _lex_window(name: str, data: bytes | None, low: int, high: int, size: int,
     else:
         head, window = data[:HEAD], data[low:high]
     first = head.split(b"\n", 1)[0].decode("utf-8", errors="replace")
-    lexer = highlight.lexer_for(name, first)
+    lexer = highlight.lexer_for(name, first, file_type=file_type)
     if lexer is None:
         return False
     start, end = low, low + len(window)
@@ -138,6 +138,9 @@ class FileViewer(Widget):
     #: Text coloured by syntax, as ``highlight.ini`` says: a departure, DN's
     #: viewer had none.  Seeded from the setting, switched by View.
     syntax_highlight: bool = reactive(True)
+    #: View > *File type*: the lexer chosen, ``none``, or empty for
+    #: ``highlight.ini``'s choice (:func:`navigator.highlight.lexer_for`).
+    file_type: str = reactive("")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -548,7 +551,7 @@ class FileViewer(Widget):
         stop = getattr(self, "_lex_stop", None)
         if stop is not None:
             stop.set()
-        #: What the tokens were lexed for -- path, encoding, size -- and the
+        #: What the tokens were lexed for -- path, encoding, size, file type -- and the
         #: bytes they cover, ``[start, end)``; the spans, and their starts for
         #: ``bisect``.
         self._lexed_for: Any = None
@@ -572,7 +575,7 @@ class FileViewer(Widget):
         source = self.source
         if not self.syntax_highlight or source is None or self.size == 0:
             return None
-        key = (str(source.path), self.encoding, self.size)
+        key = (str(source.path), self.encoding, self.size, self.file_type)
         if key != self._lexed_for:
             self.rehighlight()
             self._lexed_for = key
@@ -586,7 +589,7 @@ class FileViewer(Widget):
             self._asked = (low, high)
             stop = threading.Event()
             self._lex_stop = stop
-            _LEXER.run(self, _lex_window, key[0], source._data, low, high, self.size,
+            _LEXER.run(self, _lex_window, key[0], self.file_type, source._data, low, high, self.size,
                        self.encoding, stop, done=lambda outcome: self._lexed(outcome, stop))
         return self._spans
 

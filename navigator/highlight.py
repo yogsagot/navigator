@@ -47,6 +47,38 @@ Span = tuple[int, int, tuple[str, ...]]
 #: Pygments' own guess from the file's name.
 NONE, AUTO = "none", "auto"
 
+#: The editor's and the viewer's *File type* menu: each group, by a name its
+#: caption is found under, and its languages, as a caption and the lexer name :func:`lexer_for` is given for it.  A
+#: departure -- DN chose a ``DN.HGL`` section by mask alone -- and a short
+#: list rather than every lexer Pygments has, so each group's box fits a
+#: 24-row screen; ``highlight.ini`` reaches the rest.  The captions are names
+#: and are not translated; the groups' are (:mod:`navigator.widgets.editor.file_type_menu`).
+FILE_TYPES: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
+    ("programming", (
+        ("C", "c"), ("C++", "cpp"), ("C#", "csharp"), ("D", "d"), ("Go", "go"),
+        ("Java", "java"), ("Kotlin", "kotlin"), ("Rust", "rust"), ("Swift", "swift"),
+        ("Pascal", "delphi"), ("Fortran", "fortran"), ("Haskell", "haskell"),
+        ("Scala", "scala"), ("Zig", "zig"), ("Dart", "dart"), ("Assembler", "nasm"),
+    )),
+    ("scripting", (
+        ("Python", "python"), ("Perl", "perl"), ("R", "r"), ("Ruby", "ruby"), ("PHP", "php"),
+        ("Lua", "lua"), ("Tcl", "tcl"), ("Shell", "bash"), ("Fish", "fish"),
+        ("PowerShell", "powershell"), ("Batch", "batch"), ("JavaScript", "javascript"),
+        ("TypeScript", "typescript"), ("Awk", "awk"), ("Vim script", "vim"),
+    )),
+    ("markup", (
+        ("HTML", "html"), ("XML", "xml"), ("CSS", "css"), ("SCSS", "scss"),
+        ("Markdown", "markdown"), ("reStructuredText", "rst"), ("TeX", "latex"),
+        ("YAML", "yaml"), ("JSON", "json"), ("TOML", "toml"), ("NSS", "nss"), ("NML", "nml"),
+    )),
+    ("misc", (
+        ("INI", "ini"), ("SQL", "sql"), ("Diff", "diff"), ("Makefile", "make"),
+        ("CMake", "cmake"), ("Dockerfile", "docker"), ("Nginx", "nginx"),
+        ("Apache", "apacheconf"), ("Properties", "properties"), ("Gettext", "po"),
+        ("Systemd", "systemd"),
+    )),
+)
+
 
 @dataclass(frozen=True)
 class Rules:
@@ -201,9 +233,13 @@ def _usable(lexer: Any) -> Any:
     return None if isinstance(lexer, TextLexer) else lexer
 
 
-def lexer_for(file_name: str, first_line: str, rules: Rules | None = None) -> Any:
+def lexer_for(file_name: str, first_line: str, rules: Rules | None = None,
+              file_type: str = "") -> Any:
     """The lexer for the file called *file_name* whose first line is
     *first_line*, or None when it is not to be coloured.
+
+    A *file_type* chosen from the *File type* menu decides alone: a lexer
+    name, or :data:`NONE`.  Empty, the rules below do.
 
     The first ``highlight.ini`` mask that takes the name decides -- ``auto``
     there being Pygments' own guess from the name and the first line; then
@@ -212,6 +248,8 @@ def lexer_for(file_name: str, first_line: str, rules: Rules | None = None) -> An
     not know counts as no answer at that step.  *rules* default to
     :func:`read_rules`' -- on a thread, then.
     """
+    if file_type:
+        return None if file_type == NONE else _lexer_named(file_type)
     if rules is None:
         rules = read_rules()
     name = os.path.basename(file_name)

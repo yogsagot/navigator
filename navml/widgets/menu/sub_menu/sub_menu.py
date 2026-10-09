@@ -156,6 +156,13 @@ class SubMenu(MenuContainer, MenuNode):
     #: end with neither.  Read nowhere else.
     before: str = reactive("")
     after: str = reactive("")
+    #: A command that opens this submenu's entries some other way -- a box of
+    #: their own -- whose key is shown beside the caption, before the arrow,
+    #: read off the key tables as an item's is.  Only shown: choosing the
+    #: entry still opens the submenu.  :attr:`key` is the caption to show
+    #: while nothing binds it.
+    key_command: Any = reactive(None)
+    key: str = reactive("")
 
 
 def _names(anchor: Anchor, entry: MenuNode) -> bool:

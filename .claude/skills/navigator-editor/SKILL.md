@@ -239,6 +239,18 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   span widens it) and drop `_lexed` to the edited line; an answer keeps only the lines before any edit made while it
   ran, and `render` asks again. Over `LEX_LIMIT` (2 M characters; Pygments lexes about 0.5 M a second) a text stays plain. Use `lex_lines` and the
   `get_tokens_unprocessed` it walks -- never `get_tokens`, which strips and expands and so moves indices.
+- **File type** (Editor > Options > *File type*, View > *File type* in the viewer; `SetFileType(file_type)`, a
+  departure -- DN chose a `DN.HGL` section by mask alone): *Automatic* (`""`, `highlight.ini`'s choice), a submenu
+  each for *Programming*, *Scripting* and *Markup languages* and *Miscellaneous*, and *None* (`none`). The languages
+  are `highlight.FILE_TYPES` (group name, then caption and Pygments/own lexer name), short enough that each box fits
+  24 rows; the menus are empty `SubMenu`s in the markup filled by `file_type_menu.fill_file_types` (hotkeys picked
+  by `_marked`, the first character not yet taken; group captions bound live through `tr`). `FileEditor.file_type`/
+  `FileViewer.file_type` go to `lexer_for(..., file_type=)`, which then decides alone, and are part of what the tokens
+  were lexed for. Choosing switches highlighting on (*None* leaves it), is ticked through the window's `checks`, and
+  is written to the record at once (`remember_history`); kept as `EditRecord.file_type`/`ViewRecord.file_type`. F3's
+  *Open* into the same editor resets it before the new file's record is read. **Ctrl+Shift+H** (`ChooseFileType`, on `EditWindow.keys` and
+  `FileWindow.keys`, so in `keybindings.ini`) opens the same menu as a `PopupMenu` centred on the window
+  (`file_type_menu.choose_file_type`), and both *File type* submenus show it through `key_command`; it needs the kitty keyboard protocol, Ctrl+H being Backspace's byte.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor

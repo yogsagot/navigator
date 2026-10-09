@@ -379,6 +379,23 @@ class SwitchHighLight(Command):
     title = "Syntax highlight"
 
 
+class ChooseFileType(Command):
+    """Ctrl+Shift+H: the *File type* menu as a box of its own, over the
+    editor or the viewer -- a departure, DN had no such menu."""
+
+    title = "File type"
+
+
+@dataclass(frozen=True, slots=True)
+class SetFileType(Command):
+    """Editor > Options > *File type* and View > *File type*: the language the
+    text is coloured as, whatever ``highlight.ini`` says -- a lexer name,
+    ``none``, or empty for ``highlight.ini``'s choice.  A departure: DN chose
+    by mask alone.  Ticked while it is the window's."""
+
+    file_type: str = ""
+
+
 class SwitchBrackets(Command):
     """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
     typed with their closing partner (``AutoBrackets``)."""
@@ -561,6 +578,8 @@ __all__ = [
     "SwitchHiColumn",
     "SwitchHiLine",
     "SwitchHighLight",
+    "SetFileType",
+    "ChooseFileType",
     "SwitchFill",
     "CapString",
     "CapWord",

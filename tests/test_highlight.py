@@ -442,3 +442,106 @@ def test_markup_reads_heads_directives_blocks_and_python():
     assert (Keyword, "id") in tokens and (Name.Variable, "entry") in tokens
     assert (Keyword, "else") in tokens                                 # the bracket carried the line on
     assert (Name.Function, "on_click") in tokens and (Name.Builtin.Pseudo, "self") in tokens
+
+
+# -- the File type menu ---------------------------------------------------------------------
+
+
+def test_a_chosen_file_type_decides_alone():
+    assert name_of(highlight.lexer_for("notes.txt", "", RULES, file_type="python")) == "PythonLexer"
+    assert name_of(highlight.lexer_for("a.py", "", RULES, file_type="none")) is None
+    assert name_of(highlight.lexer_for("a.x", "", RULES, file_type="nml")) == "NmlLexer"
+
+
+def test_every_file_type_names_a_lexer():
+    for _, languages in highlight.FILE_TYPES:
+        for caption, lexer in languages:
+            assert highlight._lexer_named(lexer) is not None, caption
+
+
+def test_the_file_type_menu_has_automatic_four_groups_and_none():
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.sub_menu import SubMenu
+    from navigator.widgets.editor.commands import SetFileType
+    from navigator.widgets.editor.file_type_menu import fill_file_types
+
+    menu = SubMenu()
+    fill_file_types(menu)
+    entries = menu.all_entries()
+    assert [type(e).__name__ for e in entries] == ["MenuItem", "MenuLine", "SubMenu", "SubMenu",
+                                                   "SubMenu", "SubMenu", "MenuLine", "MenuItem"]
+    assert [e.text for e in entries if isinstance(e, (MenuItem, SubMenu))] == [
+        "~A~utomatic", "~P~rogramming languages", "~S~cripting languages", "~M~arkup languages",
+        "M~i~scellaneous", "~N~one"]
+    assert entries[0].command == SetFileType("") and entries[-1].command == SetFileType("none")
+    for group in entries[2:6]:
+        letters = [e.text.split("~")[1].casefold() for e in group.all_entries()]
+        assert len(letters) == len(set(letters)) and len(letters) <= 16
+    assert menu.item_for(SetFileType("python")).text == "~P~ython"
+
+
+def test_the_editor_colours_a_text_as_the_type_chosen_and_keeps_it(files):
+    from navigator.models.edit_record import EditRecord
+    from navigator.widgets.editor.commands import SetFileType
+
+    SETTINGS.interface.track_editing = True
+    seen = []
+    choose = lambda a: a.spawn(window(a).on_set_file_type(SetFileType("python")))
+    editor, cell = painted(files, "notes.txt", b'x = "s"  # note\n', "f4", choose, lambda a: None,
+                           lambda a: seen.append((window(a).checks(SetFileType("python")),
+                                                  window(a).checks(SetFileType("")))))
+    assert seen == [(True, False)]
+    assert cell(0, 9) == ("#", token(editor, "comment", "single"))
+    assert EditRecord.find(files / "notes.txt").file_type == "python"
+
+
+def test_the_viewer_colours_a_text_as_the_type_chosen_and_brings_it_back(files):
+    from navigator.models.view_record import ViewRecord
+    from navigator.widgets.editor.commands import SetFileType
+
+    SETTINGS.interface.track_viewing = True
+    viewer, cell = painted(files, "main.c", C_CODE, "f3",
+                           lambda a: a.spawn(window(a).on_set_file_type(SetFileType("none"))))
+    assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
+    assert ViewRecord.find(files / "main.c").file_type == "none"
+    viewer, cell = painted(files, "main.c", C_CODE, "f3")
+    assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
+
+
+def test_ctrl_shift_h_opens_the_file_type_menu_in_a_box(files):
+    SETTINGS.interface.track_editing = True
+    editor, cell = painted(files, "notes.txt", b'x = "s"  # note\n', "f4",
+                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("s", "s"), KeyEvent("p", "p"))
+    assert editor.file_type == "python"
+    assert cell(0, 9) == ("#", token(editor, "comment", "single"))
+
+
+def test_ctrl_shift_h_in_the_viewer_chooses_none(files):
+    viewer, cell = painted(files, "main.c", C_CODE, "f3",
+                           KeyEvent("h", ctrl=True, shift=True), KeyEvent("n", "n"))
+    assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
+
+
+@pytest.mark.parametrize("key, menu_of", [("f4", lambda w: w.edit_menu.entry("Options")),
+                                          ("f3", lambda w: w.view_menu)])
+def test_the_menu_shows_ctrl_shift_h_beside_file_type(files, key, menu_of):
+    from navml.widgets.menu.menu_box import MenuBox
+
+    (files / "code.py").write_bytes(CODE)
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24))
+    rows = {}
+
+    def look(a):
+        menu = menu_of(window(a))
+        width, height = MenuBox.measure(menu, a, a.focused)
+        box = MenuBox(menu, x=0, y=0, width=width, height=height)
+        box.behind = a.focused
+        a.root.add(box)
+        buffer = ScreenBuffer(width, height)
+        box.render(buffer.view(0, 0, width, height))
+        a.root.remove(box)
+        lines = ["".join(buffer.get(x, y)[0] or " " for x in range(width)) for y in range(height)]
+        rows["row"] = next(line for line in lines if "File type" in line)
+
+    run_app(app, [KeyEvent("end"), KeyEvent(key), Until(lexed), look])
+    assert rows["row"].strip(" │").startswith("File type") and rows["row"].strip(" │").endswith("Ctrl-Shift-H ►")
