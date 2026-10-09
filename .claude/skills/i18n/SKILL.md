@@ -54,6 +54,13 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
 
 ## Adding a language
 
+**`python -m navml extract CODE [PACKAGE ...]`** (`navml/translate.py`) is the extractor, beside `navml build`: it
+scans one package (a directory or a dotted name; the installed navml by default) and rewrites its
+`locales/CODE.toml`, adding what is missing. A package other than navml is never asked for a key navml has. Text no
+scan can see -- captions kept English in a table and passed to `tr()` where shown -- is named by a `strings()`
+function in the package's `locales/__init__.py`, yielding `(key, where)`; Navigator's lists the palette's and the key
+tables' captions. `tools/i18n.py` is that module run over both layers, plus `check`.
+
 `./venv/bin/python tools/i18n.py extract de --name Deutsch` writes `navml/locales/de.toml` and
 `navigator/locales/de.toml` with every key (`""`, each with where it is used). Fill them in; `extract` again keeps
 what is written and adds what is new. `tools/i18n.py check [code]` exits 1 on untranslated or unused keys and on a

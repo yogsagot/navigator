@@ -1,14 +1,15 @@
-"""``python -m navml`` -- the markup toolchain's one command.
+"""``python -m navml`` -- the markup toolchain's command: ``build`` and ``extract``.
 
 Argument parsing and printing, and nothing else: what a build *is* lives in
-:mod:`navml.build`, so that the same work is reachable from a test without
-going through a process.
+:mod:`navml.build`, and what extracting text is in :mod:`navml.translate`, so
+that the same work is reachable from a test without going through a process.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 from typing import Sequence
 
 from navml.build import build
@@ -41,7 +42,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     builder.add_argument(
         "-v", "--verbose", action="store_true", help="name every file"
     )
+    extractor = commands.add_parser(
+        "extract", help="add a package's untranslated text to locales/<code>.toml"
+    )
+    extractor.add_argument("code", help="the language: lv, ru, de_AT, ...")
+    extractor.add_argument(
+        "packages",
+        nargs="*",
+        help="package directories or dotted names; the installed navml package by default",
+    )
+    extractor.add_argument("--name", help="the language's own name, for a new catalogue")
     arguments = parser.parse_args(argv)
+
+    if arguments.command == "extract":
+        return _extract(arguments)
 
     try:
         report = build(arguments.paths, check_only=arguments.check)
@@ -70,6 +84,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"{len(report.documents)} documents, "
         f"{len(report.written)} files written"
     )
+    return OK
+
+
+def _extract(arguments: argparse.Namespace) -> int:
+    from navml.translate import LIBRARY, extract
+
+    try:
+        for package in arguments.packages or [LIBRARY]:
+            path, found, added, unused = extract(package, arguments.code, name=arguments.name)
+            if path.is_relative_to(Path.cwd()):
+                path = path.relative_to(Path.cwd())
+            print(f"{path}: {len(found.keys)} strings, {added} new, {unused} unused")
+    except (MarkupError, ValueError) as error:
+        print(error, file=sys.stderr)
+        return BROKEN
     return OK
 
 

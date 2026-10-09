@@ -234,3 +234,36 @@ def test_menu_anchors_are_english_whatever_is_shown(latvian):
     settle()
     assert menu.entry("Name") is item
     assert menu.entry("Vārds") is item
+
+
+def test_extract_adds_what_is_missing_and_keeps_what_is_written(tmp_path):
+    from navml.__main__ import main
+    from navml.translate import read
+
+    package = tmp_path / "plugin"
+    (package / "locales").mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "locales" / "__init__.py").write_text(
+        "def strings():\n    yield 'From a table', 'plugin/table.py'\n"
+    )
+    (package / "box.nml").write_text("Label:\n    text: \"Hello\"\n")
+    (package / "code.py").write_text(
+        "from navkit.i18n import tr, tr_n\n"
+        "tr('Goodbye')\n"
+        "tr_n('{n} file', '{n} files', 2)\n"
+        "tr('Cancel')\n"  # navml's own: its catalogue answers it
+    )
+    (package / "locales" / "lv.toml").write_text(
+        '[meta]\nname = "Latviešu"\n\n[strings]\n"Goodbye" = "Uz redzēšanos"\n"Gone" = "Prom"\n'
+    )
+
+    assert main(["extract", "lv", str(package)]) == 0
+    written = read(package / "locales" / "lv.toml")
+    assert written["meta"] == {"name": "Latviešu"}
+    assert written["strings"] == {
+        "Hello": "",
+        "Goodbye": "Uz redzēšanos",
+        "{n} file": ["", "", ""],
+        "From a table": "",
+    }
+    assert written["unused"] == {"Gone": "Prom"}

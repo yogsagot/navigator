@@ -62,8 +62,9 @@ editor's phases.
   palette's decoded slots instead
 - Captions are translated: English is the key, catalogues are `navml/locales/*.toml` and `navigator/locales/*.toml`
   (plus `locales/` beside `navigator.ini`). `--language CODE` or Options > Interface picks one, else `$LANG`.
-  `./venv/bin/python tools/i18n.py extract CODE` creates or updates a language, `tools/i18n.py check` exits 1 on gaps
-  (`i18n` skill)
+  `./venv/bin/python -m navml extract CODE navml navigator` adds what is missing to each package's
+  `locales/CODE.toml` (any package directory or dotted name; navml alone by default), `tools/i18n.py extract CODE` does
+  both layers, `tools/i18n.py check` exits 1 on gaps (`i18n` skill)
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
   `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
