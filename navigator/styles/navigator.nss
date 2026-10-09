@@ -417,6 +417,33 @@ FileEditor::selected                           { fg: $editor-selected-text-fg; b
 FileEditor::current_line                       { fg: $editor-highlight-current-line-fg;          bg: $editor-highlight-current-line-bg; bold: $editor-highlight-current-line-bold; dim: $editor-highlight-current-line-dim; italic: $editor-highlight-current-line-italic; underline: $editor-highlight-current-line-underline; reverse: $editor-highlight-current-line-reverse }
 FileEditor::current_line_selected              { fg: $editor-highlight-current-line-selected-fg; bg: $editor-highlight-current-line-selected-bg; bold: $editor-highlight-current-line-selected-bold; dim: $editor-highlight-current-line-selected-dim; italic: $editor-highlight-current-line-selected-italic; underline: $editor-highlight-current-line-selected-underline; reverse: $editor-highlight-current-line-selected-reverse }
 FileEditor::current_column                     { fg: $editor-highlight-current-column-fg;        bg: $editor-highlight-current-column-bg; bold: $editor-highlight-current-column-bold; dim: $editor-highlight-current-column-dim; italic: $editor-highlight-current-column-italic; underline: $editor-highlight-current-column-underline; reverse: $editor-highlight-current-column-reverse }
+/* Syntax highlight: a token's classes are its Pygments type's pieces
+   (navigator/highlight.py), so `::token.string' takes every string and
+   `::token.literal.string.doc' docstrings alone.  DN's four: comments in
+   their own colour [164] ([184] on the current line); symbols [189],
+   strings [190] and numbers [191] only their foreground, over the normal or
+   current line's background, as `Draw' laid `CC[n] and 15' on `C and $F0'.
+   Keywords are `$keyword', normal text but in the default theme (DN left
+   them plain), `and'/`not'/`in' among them; names stay plain.
+   The `:current_line' rule comes first so the classes' foregrounds win. */
+FileEditor::token:current_line                 { fg: $editor-highlight-current-line-fg;          bg: $editor-highlight-current-line-bg; bold: $editor-highlight-current-line-bold; dim: $editor-highlight-current-line-dim; italic: $editor-highlight-current-line-italic; underline: $editor-highlight-current-line-underline; reverse: $editor-highlight-current-line-reverse }
+FileEditor::token.comment                      { fg: $editor-highlight-comments-fg;              bg: $editor-highlight-comments-bg; bold: $editor-highlight-comments-bold; dim: $editor-highlight-comments-dim; italic: $editor-highlight-comments-italic; underline: $editor-highlight-comments-underline; reverse: $editor-highlight-comments-reverse }
+FileEditor::token.comment:current_line         { fg: $editor-highlight-cur-line-comments-fg;     bg: $editor-highlight-cur-line-comments-bg; bold: $editor-highlight-cur-line-comments-bold; dim: $editor-highlight-cur-line-comments-dim; italic: $editor-highlight-cur-line-comments-italic; underline: $editor-highlight-cur-line-comments-underline; reverse: $editor-highlight-cur-line-comments-reverse }
+FileEditor::token.operator,
+FileEditor::token.punctuation                  { fg: $editor-highlight-symbols-fg }
+FileEditor::token.string                       { fg: $editor-highlight-strings-fg }
+FileEditor::token.number                       { fg: $editor-highlight-numbers-fg }
+FileEditor::token.keyword,
+FileEditor::token.operator.word                { fg: $keyword-fg; bold: $keyword-bold; dim: $keyword-dim; italic: $keyword-italic; underline: $keyword-underline; reverse: $keyword-reverse }
+/* The viewer had no highlighting in DN: it borrows the editor's foregrounds,
+   comments' included, and keeps its own background (the quick view's too). */
+FileViewer::token.comment                      { fg: $editor-highlight-comments-fg }
+FileViewer::token.operator,
+FileViewer::token.punctuation                  { fg: $editor-highlight-symbols-fg }
+FileViewer::token.string                       { fg: $editor-highlight-strings-fg }
+FileViewer::token.number                       { fg: $editor-highlight-numbers-fg }
+FileViewer::token.keyword,
+FileViewer::token.operator.word                { fg: $keyword-fg }
 
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information

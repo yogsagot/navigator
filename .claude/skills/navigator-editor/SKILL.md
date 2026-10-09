@@ -1,6 +1,6 @@
 ---
 name: navigator-editor
-description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Document, columns, EditBuffer with undo, save), FileEditor and EditWindow, byte-for-byte round-tripping, editor commands named after DN's cm*, closing with must_ask, and the Editor menu. Use when changing the editor.
+description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Document, columns, EditBuffer with undo, save), FileEditor and EditWindow, byte-for-byte round-tripping, editor commands named after DN's cm*, closing with must_ask, the Editor menu, and syntax highlighting (navigator/highlight.py, Pygments, highlight.ini, the ::token part) for the editor and the viewer. Use when changing the editor or highlighting.
 ---
 
 # The editor
@@ -205,6 +205,27 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `cmSwitchHiLine`/`cmSwitchHiColumn` -- and ticked): `render` paints the cursor's row in `FileEditor::current_line`
   ([182]), a block or match on it in `::current_line_selected` ([183]), and the cursor's column on every row of the
   window, text or not, in `::current_column` ([185]), laid last as DN's `Draw` set `CC[7]` over all else.
+- **Syntax highlight** (`FileEditor.syntax_highlight`, DN's `HiLite`; `editor.syntax_highlight` in `navigator.ini`,
+  on by default, no checkbox since `dlgEditorDefaults` had none; switched by Editor > Options > *Syntax highlight*,
+  `SwitchHighLight`/`cmSwitchHighLight`, ticked; kept in `EditRecord.highlight`). **Pygments lexes**, in token mode
+  (`navigator/highlight.py`), where DN had `DoHighlite` and `DN.HGL` -- a departure: multi-line comments and strings
+  come out whole. **`highlight.ini`** beside `navigator.ini` is `DN.HGL` (template and seeding in
+  `associations.TEMPLATES`, Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer =
+  <Pygments alias>` or `none`, first match wins; `[#!]` maps interpreters (`env` and its options looked through, a
+  trailing version optional); `[*] lexer = auto` falls to Pygments' guess by name, `none` stops there. Missing or
+  broken, the template's rules (`DEFAULT_RULES`); re-read when its mtime changes, and saving it (`FileSaved`) makes
+  every editor and viewer `rehighlight()`. **A token is painted as `FileEditor::token` with its Pygments type's pieces
+  as classes** (`String.Double` -> `.literal.string.double`), and `:current_line` on the highlighted line;
+  `navigator.nss` maps comments [164] ([184] on the current line), operators/punctuation [189], strings [190] and
+  numbers [191], the last three foreground only as DN's `Draw` did. Keywords (and `Operator.Word`: `and`, `not`,
+  `in`) are `$keyword`, a `DERIVED` alias of Normal text [76] -- plain, as DN left them -- which `default` gives
+  yellow. A block or found
+  match paints over tokens, the current column over everything. **Lexing runs on a thread** (`_LEXER`, from `render`
+  as `DirectoryTree` asks for counts): the whole text from line 0 to `LEX_AHEAD` lines past the screen, the lexer
+  chosen there each time from the name and first line. Edits shift the spans (`highlight.shift_spans`, typing inside a
+  span widens it) and drop `_lexed` to the edited line; an answer keeps only the lines before any edit made while it
+  ran, and `render` asks again. Over `LEX_LIMIT` (2 M characters; Pygments lexes about 0.5 M a second) a text stays plain. Use `lex_lines` and the
+  `get_tokens_unprocessed` it walks -- never `get_tokens`, which strips and expands and so moves indices.
 - **Go to line, Alt+G** (`GotoLineNumber`, DN's `GotoLine`, also Editor > Search > *Go to line number...* and the
   info line): `GotoLineDialog` (`dlgGotoLine`'s *Goto Line*, a row taller like the viewer's *Goto Address*, history
   `goto_line`) opens with the number last typed, as `GotoLine`'s `const S` kept it; a number above 0 puts the cursor
@@ -249,8 +270,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   hand; this one is shaped as F7's.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`**, awaited from a spawned task. DN's marks,
-  block, highlighting, auto-indent and margins get columns when the editor has them: add the `field` lines to
+  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`**, awaited from a spawned task. DN's
+  block, auto-indent and margins get columns when the editor has them: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
   nested as submenus, greyed where the feature is still to come.

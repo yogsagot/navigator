@@ -401,6 +401,12 @@ class EditorDefaultsData(Section):
     )
     highlight_line: bool = Setting(False, doc="A new editor highlights the cursor's line")
     highlight_column: bool = Setting(False, doc="A new editor highlights the cursor's column")
+    #: DN's ``HiLite``, which ``DN.HGL`` turned on for the files it named:
+    #: here which lexer is ``highlight.ini``'s, and this is on or off for all.
+    #: No checkbox, as ``dlgEditorDefaults`` had none; Editor > Options switches it.
+    syntax_highlight: bool = Setting(
+        True, doc="A new editor colours its text by syntax, as highlight.ini says",
+    )
     persistent_blocks: bool = Setting(
         True, doc="The block stays when the cursor moves; off, typing replaces it",
     )
@@ -430,6 +436,11 @@ class ViewerDefaultsData(Section):
 
     hex_mode: bool = Setting(False, doc="F3 opens in hex mode")
     wrap_lines: bool = Setting(False, doc="Wrap long lines")
+    #: A departure: DN's viewer had no highlighting.  No checkbox either;
+    #: View > Syntax highlight switches it.
+    syntax_highlight: bool = Setting(
+        True, doc="F3 colours a text by syntax, as highlight.ini says",
+    )
 
 
 class FMSetupData(Section):

@@ -35,6 +35,7 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     Unwrap,
 )
+from navigator.widgets.editor.commands import SwitchHighLight
 from navigator.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.progress import run_with_progress
@@ -90,6 +91,7 @@ class FileWindow(Window):
             mode=viewer.mode,
             wrap=viewer.wrap,
             filter=viewer.filter,
+            highlight=viewer.syntax_highlight,
             top=viewer.top,
             x_delta=viewer.x_delta,
             cursor=viewer.cursor,
@@ -115,6 +117,7 @@ class FileWindow(Window):
         if not keep_mode and record.mode in MODES:
             viewer.mode = record.mode
         viewer.wrap = record.wrap
+        viewer.syntax_highlight = record.highlight
         if 0 <= record.filter < len(FILTER_TAGS):
             viewer.filter = record.filter
         # *Store viewer position*: without it the file opens from the top, in
@@ -144,6 +147,12 @@ class FileWindow(Window):
         self.viewer.toggle_wrap()
         return True
 
+    async def on_switch_high_light(self, event: SwitchHighLight) -> bool:
+        """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
+        DN's viewer did not have."""
+        self.viewer.syntax_highlight = not self.viewer.syntax_highlight
+        return True
+
     async def on_hex_mode(self, event: HexMode) -> bool:
         self.viewer.cycle_mode()
         return True
@@ -168,13 +177,15 @@ class FileWindow(Window):
             return self.viewer.filter == command.filter
         if isinstance(command, Unwrap):
             return self.viewer.wrap
+        if isinstance(command, SwitchHighLight):
+            return self.viewer.syntax_highlight
         return super().checks(command)
 
     def enables(self, command: Command) -> bool:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them."""
         if isinstance(command, GotoAddress):
             return self.viewer.mode != "text"
-        if isinstance(command, Unwrap):
+        if isinstance(command, (Unwrap, SwitchHighLight)):
             return self.viewer.mode == "text"
         if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
             return viewer_model.last_search is not None

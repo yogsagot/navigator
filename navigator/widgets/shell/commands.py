@@ -336,6 +336,12 @@ class ExtFileEdit(Command):
     title = "Extension File"
 
 
+class EditHGL(Command):
+    """Options > Highlight file edit: DOS Navigator's ``cmEditHGL``, ``highlight.ini`` (DN's ``DN.HGL``)."""
+
+    title = "Highlight File"
+
+
 class ExternalViewers(Command):
     """Options > Viewers: DOS Navigator's ``cmExternalViewers``, ``viewers.ini`` (DN's ``DN.VWR``)."""
 

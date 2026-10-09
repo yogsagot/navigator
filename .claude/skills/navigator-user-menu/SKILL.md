@@ -1,6 +1,6 @@
 ---
 name: navigator-user-menu
-description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/usermenu.py (parse, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN. Use when changing the user menu, the .ini associations, or how their commands run.
+description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/usermenu.py (parse, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN; highlight.ini (DN.HGL) is seeded here too but belongs to navigator-editor. Use when changing the user menu, the .ini associations, or how their commands run.
 ---
 
 # The user menu (F2)

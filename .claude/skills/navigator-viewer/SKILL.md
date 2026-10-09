@@ -21,6 +21,16 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
 - **Shift+F5, File > Save as** is `cmSaveAll`: DN's *Save File As* file dialog (history `edit_save`, the editor's), and
   `viewer.save_as` writes the file through a temporary beside it -- as it is, or read in the chosen code page and
   written in UTF-8, as DN wrote through its `Xlat`; `FileSaved` then re-reads the panels.
+- **Syntax highlight**, a departure (DN's viewer had none): the editor's highlighting (`navigator-editor` has the
+  rules, `highlight.ini` and the `::token` part) in text mode only, `FileViewer::token` taking the editor's highlight
+  foregrounds over the viewer's own background -- the quick view's too. `viewer.syntax_highlight` (on), View >
+  *Syntax highlight* (the editor's `SwitchHighLight`, handled by `FileWindow`, ticked), `ViewRecord.highlight`.
+  Nothing counts lines, so a thread reads and lexes a byte window, from the first whole line after `top - LEX_BACK`
+  to `top + LEX_AHEAD` (256 KiB each way, `_lex_window`, its own `open` -- `ViewSource`'s chunk cache is not for
+  threads); cells carry byte offsets, so a row finds its spans by `bisect` and wrapped rows need nothing more. A file
+  of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
+  `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding and size
+  (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
 - **While a viewer window is active the bar has a *View* menu after *File*** (modes, filters and wrap ticked, search, go
   to, close) -- see `navml-windows-menus` for how a window's menu joins the bar.
 - A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge, percentage, Stop), fed

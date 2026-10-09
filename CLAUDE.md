@@ -35,9 +35,9 @@ editor's phases.
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- One run-time dependency, `pyte`, and it is load-bearing: it is the VT emulator behind `navkit/console.py`, which is
-  what makes Ctrl+O possible at all — install it with `./venv/bin/pip install -r requirements.txt`. Everything else is
-  stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
+- Two run-time dependencies, both load-bearing: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+  makes Ctrl+O possible at all, and `pygments`, the lexers behind syntax highlighting (`navigator/highlight.py`) —
+  install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
   recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
@@ -51,7 +51,8 @@ editor's phases.
   defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
   flag wins over the file for that session and is never written back
 - `extensions.ini`, `viewers.ini`, `editors.ini` and `quickrun.ini` sit beside it too: what Enter, F3/F4 (or
-  Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill)
+  Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill);
+  `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill)
 - `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
   Options > Configuration > Key bindings; a line that will not parse warns and keeps its default
   (`navigator-keybindings` skill)

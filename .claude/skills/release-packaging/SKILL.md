@@ -47,7 +47,7 @@ re-uploaded alongside it. Adding a module to it would defeat the point.
 ```
 
 `navigator-fm` has to reach PyPI before the alias is installable, so upload it first. The alias chain is verified by
-`pip install --find-links dist navfm` into a throwaway venv: it must pull `navigator-fm` and `pyte` in behind it and
+`pip install --find-links dist navfm` into a throwaway venv: it must pull `navigator-fm`, `pyte` and `pygments` in behind it and
 leave a working `nav`.
 
 `packaging/linux/` builds the `.deb` and the `.rpm`, both from one `nfpm.yaml`:

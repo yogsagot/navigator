@@ -33,7 +33,10 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
   is the default's own. `stylesheet.register_property()` is the bare form.
 - **A sheet cannot be parsed before the widgets it styles are imported** -- which is why `load_scheme()` imports
   `navigator.widgets.manager.panel` before it parses.
-- Listing rows are **parts** (`Panel::row`, `Panel::heading`, `Panel::divider`), never widgets.
+- Listing rows are **parts** (`Panel::row`, `Panel::heading`, `Panel::divider`), never widgets. So are syntax
+  tokens (`FileEditor::token`, `FileViewer::token`): their classes are the Pygments type's pieces, so
+  `::token.keyword.constant` outranks `::token.keyword` by plain specificity. Resolve a part once per frame per
+  class set, not per cell -- `part_style` walks the sheet's state names on every call.
 - A widget may carry its own sheet in `stylesheet` (what an object brings, assigned); `effective_stylesheet` (derived)
   walks up to the nearest, ending at the application's. `Manager` uses this, so the desktop is styled with or without an
   application around it.

@@ -26,6 +26,10 @@ several offers them in a menu, as DN's Alt+Enter offered ``DN.EXT``'s
 what several entries mean rather than a key of its own, and DN's
 Shift+Enter variant (``( )``) has no key and so no place.
 
+A fifth, :data:`HIGHLIGHT` (``highlight.ini``, DN's ``DN.HGL``), lives
+beside them and is seeded with them, but says which lexer colours a file
+rather than what runs: :mod:`navigator.highlight` reads it.
+
 The files are only ever read whole, on a thread: :func:`read`.  Each is
 written from its template the first time Navigator starts without it
 (:func:`seed_all`), as DN's came filled in.
@@ -50,6 +54,9 @@ VIEWERS = "viewers.ini"
 EDITORS = "editors.ini"
 #: Ctrl+Shift+F1 .. F10: DN's ``DN.XRN``.
 QUICK_RUN = "quickrun.ini"
+#: Which lexer colours which file: DN's ``DN.HGL``.  Its own format, read by
+#: :mod:`navigator.highlight`; only its place and template are kept here.
+HIGHLIGHT = "highlight.ini"
 
 
 @dataclass(frozen=True)
@@ -74,7 +81,7 @@ class Group:
 
 
 def path_of(file_name: str) -> Path:
-    """Where *file_name* (one of the four) lives: beside ``navigator.ini``."""
+    """Where *file_name* (one of :data:`TEMPLATES`') lives: beside ``navigator.ini``."""
     return config_dir() / file_name
 
 
@@ -126,7 +133,7 @@ def for_key(groups: list[Group], key: str) -> Group | None:
     return next((group for group in groups if group.actions and group.name.lower() == key.lower()), None)
 
 
-#: What the four files hold when Options opens one that is not there yet:
+#: What the files hold when Options opens one that is not there yet:
 #: the format, and an example to change -- DN shipped its files filled in.
 TEMPLATES = {
     EXTENSIONS: """\
@@ -172,11 +179,46 @@ Word processor = libreoffice !.!
 [F1]
 Disk usage = du -sh !\\*
 """,
+    HIGHLIGHT: """\
+# Syntax highlighting: which Pygments lexer colours which file, in the editor
+# and the viewer.  Options > Highlight file edit.  A section is a mask
+# (`;'-separated patterns, case aside); the first that matches wins.  `lexer'
+# is a Pygments name or alias (`python3 -m pygments -L lexers' lists them),
+# or `none' for no colours.  The colours are the theme's: ::token rules.
+
+[*.py;*.pyw;*.pyi]
+lexer = python
+
+[*.nml]
+lexer = yaml
+
+[*.nss]
+lexer = css
+
+[*.log;*.txt]
+lexer = none
+
+# A file no mask names, by its first line's #! interpreter: the command's
+# base name, `env' and its options looked through; a trailing version, as in
+# python3.12, may be left off.  Names are `;'-separated.
+[#!]
+python = python
+sh;bash;dash;ksh = bash
+zsh = zsh
+perl = perl
+node = javascript
+ruby = ruby
+
+# Neither: Pygments' own guess from the file's name.  `lexer = none' here
+# colours only the files named above.
+[*]
+lexer = auto
+""",
 }
 
 
 def seed(file_name: str) -> bool:
-    """Write *file_name* (one of the four) from its template if it is not there.
+    """Write *file_name* (one of :data:`TEMPLATES`') from its template if it is not there.
 
     True when it was written, False when it was there already; ``OSError``
     when it could not be.  Never overwrites: the file is created exclusively.
@@ -192,7 +234,7 @@ def seed(file_name: str) -> bool:
 
 
 def seed_all() -> list[str]:
-    """Each of the four that is missing written from its template, as
+    """Each of :data:`TEMPLATES`' files that is missing written from its template, as
     ``navigator.ini`` is written with its defaults at the first start.
 
     A complaint for each that could not be, rather than an exception: a file

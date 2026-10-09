@@ -43,6 +43,7 @@ from navigator.widgets.shell.commands import (
     HighlightGroups,
     EditQuickRun,
     ExtFileEdit,
+    EditHGL,
     ExternalViewers,
     ExternalEditors,
     QuickRun,
@@ -80,7 +81,7 @@ from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator import filetypes
-from navigator.associations import EDITORS, EXTENSIONS, QUICK_RUN, VIEWERS
+from navigator.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
 from navigator.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
@@ -927,13 +928,28 @@ class Shell(DockLayout):
         return False
 
     async def on_file_saved(self, event: FileSaved) -> bool:
-        """``FileChanged``: every panel showing the saved file's directory re-reads."""
+        """``FileChanged``: every panel showing the saved file's directory re-reads.
+
+        ``highlight.ini`` saved colours every open text again by its new rules.
+        """
+        from navigator import associations
+        from navigator.widgets.editor.file_editor import FileEditor
+        from navigator.widgets.viewer.file_viewer import FileViewer
+
         directory = event.path.parent
+        rules = event.path == associations.path_of(HIGHLIGHT)
         for window in self.desktop.windows():
             if isinstance(window, Manager):
                 for panel in (window.left, window.right):
                     if panel.path == directory:
                         panel.reload()
+        if rules:
+            pending = [self.desktop]
+            while pending:
+                widget = pending.pop()
+                if isinstance(widget, (FileEditor, FileViewer)):
+                    widget.rehighlight()
+                pending.extend(widget.children)
         return True
 
     async def on_command_line_home(self, event: CommandLineHome) -> bool:
@@ -1456,6 +1472,10 @@ class Shell(DockLayout):
 
     async def on_ext_file_edit(self, event: ExtFileEdit) -> bool:
         self.spawn(self.edit_associations(EXTENSIONS))
+        return True
+
+    async def on_edit_hgl(self, event: EditHGL) -> bool:
+        self.spawn(self.edit_associations(HIGHLIGHT))
         return True
 
     async def on_external_viewers(self, event: ExternalViewers) -> bool:

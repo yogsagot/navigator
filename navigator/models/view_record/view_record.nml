@@ -25,6 +25,8 @@ ViewRecord(FileRecord):
     field mode: str = "text"
     field wrap: bool = False
     field filter: int
+    #: View > *Syntax highlight*, which DN's viewer had not.
+    field highlight: bool = True
     #: The byte offset on top.
     field top: int
     field x_delta: int

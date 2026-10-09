@@ -117,7 +117,7 @@ Left for later, by phase:
 4. Written: Open, Save as, Save all, the `FileDialog`, SmartPad and the ASCII table. The menu is written (*A window's own menu joins the bar
    while it is in use*); most of its entries wait on the phases here.
 5. Written: autoindent, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
-6. Highlighting and macros from `DN.HGL`.
+6. Highlighting written (Pygments, `highlight.ini` standing for `DN.HGL`); `DN.HGL`'s macros are left.
 7. Written: editor defaults, persisted, edit history, backups, file locking and printing.
 
 Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is

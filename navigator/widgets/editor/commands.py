@@ -373,6 +373,12 @@ class SwitchHiColumn(Command):
     title = "Current column highlight"
 
 
+class SwitchHighLight(Command):
+    """``cmSwitchHighLight``: Editor > Options > *Syntax highlight* (``HiLite``)."""
+
+    title = "Syntax highlight"
+
+
 class SwitchBrackets(Command):
     """``cmSwitchBrackets``: Editor > Options > *AutoBrackets* -- ``(``, ``{`` and ``[``
     typed with their closing partner (``AutoBrackets``)."""
@@ -554,6 +560,7 @@ __all__ = [
     "EditorMovement",
     "SwitchHiColumn",
     "SwitchHiLine",
+    "SwitchHighLight",
     "SwitchFill",
     "CapString",
     "CapWord",

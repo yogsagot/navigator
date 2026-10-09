@@ -18,7 +18,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.commands import PrintFile    # edit_window.nml:1
-from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
+from navigator.widgets.editor.commands import AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, UpcaseBlock, SwitchBlock    # edit_window.nml:2
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine    # edit_window.nml:3
 from navml.commands import CloseWindow    # edit_window.nml:4
 from navml.widgets.dialog.scroll_bar import ScrollBar    # edit_window.nml:5
@@ -496,3 +496,4 @@ class EditWindow(Window, _Component):
         _w64.command = SwitchHiColumn    # edit_window.nml:355
 
         _w65.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:357
+        _w65.command = SwitchHighLight    # edit_window.nml:358

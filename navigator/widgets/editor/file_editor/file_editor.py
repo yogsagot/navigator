@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import functools
 import re
+import threading
 import time
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -35,11 +36,13 @@ from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
+from navml.background import Background, Outcome
 from navml.widgets.dialog.static_text import StaticText
 
 from navigator.widgets.editor.commands import (
     SwitchHiColumn,
     SwitchHiLine,
+    SwitchHighLight,
     SwitchFill,
     CapString,
     CapWord,
@@ -128,11 +131,33 @@ from navigator.editor.save import write_file
 from navigator.editor import search
 from navigator.editor.search import BREAK_CHARS, SearchData
 from navigator.fileattr import DATE_FORMAT, TIME_FORMAT
+from navigator import highlight
 from navigator.settings import SETTINGS
 
 
 #: How many lines one wheel notch moves the view.
 WHEEL_ROWS = 3
+
+#: The thread syntax highlighting lexes on: one, so editors take turns.
+_LEXER = Background("nav-lex", workers=1)
+
+#: Lines lexed past the last one showing, so scrolling a little finds them done.
+LEX_AHEAD = 200
+
+#: A text longer than this many characters is not highlighted: an edit
+#: near its end is lexed again from the start, and Pygments manages about
+#: half a million characters a second -- this is some four seconds of a
+#: thread competing with the loop for the interpreter.
+LEX_LIMIT = 2 * 1024 * 1024
+
+
+def _lex_text(name: str, lines: tuple[str, ...], until: int, stop: threading.Event) -> Any:
+    """On the thread: the spans of *lines* through *until*, False when the file
+    has no lexer, None when stopped."""
+    lexer = highlight.lexer_for(name, lines[0] if lines else "")
+    if lexer is None:
+        return False
+    return highlight.lex_lines(lexer, lines, until, stop)
 
 #: The text of the last column block copied, with the padded pieces it was
 #: copied from: a paste of exactly that text goes in as a rectangle.  Shared
@@ -217,17 +242,15 @@ def _marking(
 class FileEditor(Widget):
     """The inside of an editor window: a text, its cursor, and the keys that edit it."""
 
-    #: ``CFileEditor``'s ten colours, by what they paint.  Only *selected*
-    #: is drawn yet; the rest are named so a sheet can carry them.
+    #: ``CFileEditor``'s ten colours, by what they paint.  Its comments,
+    #: symbols, strings and numbers -- and comments on the current line --
+    #: are all ``token``, told apart by the token's classes and the
+    #: ``current_line`` state (:mod:`navigator.highlight`).
     parts = (
         "selected",
-        "comment",
-        "symbol",
-        "string",
-        "number",
+        "token",
         "current_line",
         "current_line_selected",
-        "current_line_comment",
         "current_column",
     )
 
@@ -414,6 +437,10 @@ class FileEditor(Widget):
     highlight_line: bool = reactive(False)
     highlight_column: bool = reactive(False)
 
+    #: ``HiLite``: the text coloured by syntax (:mod:`navigator.highlight`).
+    #: Seeded from the setting, switched by Editor > Options.
+    syntax_highlight: bool = reactive(True)
+
     #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
     #: a line's first character goes back to an indent above.  Seeded from the
     #: Editor setup, switched for this editor alone from Editor > Options.
@@ -453,6 +480,7 @@ class FileEditor(Widget):
         self.optimal_fill = SETTINGS.editor.optimal_fill
         self.highlight_line = SETTINGS.editor.highlight_line
         self.highlight_column = SETTINGS.editor.highlight_column
+        self.syntax_highlight = SETTINGS.editor.syntax_highlight
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
@@ -541,6 +569,8 @@ class FileEditor(Widget):
     def _use(self, buffer: EditBuffer) -> None:
         self.buffer = buffer
         buffer.listeners.append(self._follow_edit)
+        buffer.listeners.append(self._follow_tokens)
+        self.rehighlight()
 
     def save(self) -> None:
         """Write the text to :attr:`path`, here and now.  Raises ``OSError``.
@@ -1600,6 +1630,11 @@ class FileEditor(Widget):
         self.highlight_column = not self.highlight_column
         return True
 
+    async def on_switch_high_light(self, event: SwitchHighLight) -> bool:
+        """``cmSwitchHighLight``: ``HiLite := not HiLite``."""
+        self.syntax_highlight = not self.syntax_highlight
+        return True
+
     async def on_switch_fill(self, event: SwitchFill) -> bool:
         """``cmSwitchFill``: ``OptimalFill := not OptimalFill``."""
         self.optimal_fill = not self.optimal_fill
@@ -2168,6 +2203,8 @@ class FileEditor(Widget):
             return self.highlight_line
         if isinstance(command, SwitchHiColumn):
             return self.highlight_column
+        if isinstance(command, SwitchHighLight):
+            return self.syntax_highlight
         if isinstance(command, SwitchIndent):
             return self.auto_indent
         if isinstance(command, SwitchBack):
@@ -2489,6 +2526,95 @@ class FileEditor(Widget):
         _ = self.info_text
         return self._block_at
 
+    # -- syntax highlight --------------------------------------------------------
+
+    def rehighlight(self) -> None:
+        """Forget every token and lex again at the next paint: a new text, a new
+        name (Save as), or ``highlight.ini`` saved.
+
+        The text's lexer is chosen on the thread each time it lexes, from the
+        file's name and first line (:func:`navigator.highlight.lexer_for`), so
+        nothing more is needed for a change of either to count.
+        """
+        stop = getattr(self, "_lex_stop", None)
+        if stop is not None:
+            stop.set()
+        #: Each line's spans, as far as known: right up to ``_lexed``, shifted
+        #: with the edits after it until lexed again.
+        self._spans: list[list[highlight.Span]] = []
+        #: How many lines from the top are lexed as the text now stands.
+        self._lexed = 0
+        #: The stop flag of the lexing in flight, else None.
+        self._lex_stop: threading.Event | None = None
+        #: The first line an edit touched while lexing was in flight.
+        self._dirty_from: int | None = None
+        #: The name the tokens were lexed for, and whether it had no lexer.
+        self._lexed_for = getattr(self, "path", None)
+        self._plain = False
+        app = self.application
+        if app is not None and app.is_running:
+            self.invalidate()
+
+    def _follow_tokens(self, kind: str, start: Pos, end: Pos) -> None:
+        """An edit made: the tokens move with their text, and everything from the
+        edited line on is to be lexed again."""
+        if self._lex_stop is not None:
+            self._dirty_from = start.line if self._dirty_from is None else min(self._dirty_from, start.line)
+        highlight.shift_spans(self._spans, kind, start, end)
+        self._lexed = min(self._lexed, start.line)
+
+    def _tokens(self, bottom: int) -> list[list[highlight.Span]] | None:
+        """The spans to paint lines up to *bottom* with, or None for plain text;
+        lexing is asked for when they are not all known.
+
+        From ``render``, as ``DirectoryTree`` asks for its counts: with no
+        application running the answer is there before the frame goes on.
+        """
+        if not self.syntax_highlight:
+            return None
+        if self._lexed_for != self.path:
+            self.rehighlight()
+        if self._plain:
+            return None
+        if self._lexed <= bottom and self._lex_stop is None:
+            self._lex(bottom + LEX_AHEAD)
+        return self._spans
+
+    def _lex(self, until: int) -> None:
+        lines = tuple(self.document.lines)
+        if sum(map(len, lines)) > LEX_LIMIT:
+            self._plain = True
+            return
+        stop = threading.Event()
+        self._lex_stop, self._dirty_from = stop, None
+        name = str(self.path) if self.path is not None else ""
+        _LEXER.run(self, _lex_text, name, lines, until, stop,
+                   done=lambda outcome: self._lexed_text(outcome, stop))
+
+    def _lexed_text(self, outcome: Outcome, stop: threading.Event) -> None:
+        """The thread's answer: the lines before any edit made meanwhile are taken."""
+        if stop is not self._lex_stop:
+            return  # forgotten by rehighlight meanwhile
+        self._lex_stop = None
+        try:
+            spans = outcome.result()
+        except Exception:
+            # A lexer that fails on this text: show it plain rather than not at all.
+            spans = False
+        if spans is None:
+            return
+        if spans is False:
+            self._plain, self._spans = True, []
+        else:
+            valid = len(spans) if self._dirty_from is None else min(len(spans), self._dirty_from)
+            self._spans[:valid] = spans[:valid]
+            self._lexed = valid
+        self._dirty_from = None
+        app = self.application
+        if app is not None and app.is_running:
+            # Not when answered on the spot, from inside ``render``.
+            self.invalidate()
+
     # -- painting ------------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
@@ -2530,12 +2656,15 @@ class FileEditor(Widget):
         surface.fill(0, 0, self.width, self.height, " ", normal)
         lines = self.document.lines
         left, width = self.left, self.width
+        tokens = self._tokens(min(len(lines), self.top + self.height) - 1)
+        looks: dict[tuple[tuple[str, ...], bool], Any] = {}
         for y in range(self.height):
             number = self.top + y
             if number >= len(lines):
                 break
             style, selected = normal, normal_selected
-            if self.highlight_line and number == self.line:
+            current = self.highlight_line and number == self.line
+            if current:
                 style = self.part_style("current_line")
                 selected = self.part_style("current_line_selected")
                 surface.fill(0, y, width, 1, " ", style)
@@ -2545,12 +2674,25 @@ class FileEditor(Widget):
                 if start < stop:
                     surface.fill(start - left, y, stop - start, 1, " ", selected)
             row = columns.cells(lines[number], self.tab_size, limit=left + width)
+            spans = tokens[number] if tokens is not None and number < len(tokens) else ()
+            at = 0
             for x in range(width):
                 column = x + left
                 if column >= len(row):
                     break
-                cell = selected if span is not None and span[0] <= column < span[1] else style
-                char, _ = row[column]
+                char, index = row[column]
+                if span is not None and span[0] <= column < span[1]:
+                    cell = selected
+                else:
+                    cell = style
+                    # The cells' indices only grow along a row: one pointer will do.
+                    while at < len(spans) and spans[at][1] <= index:
+                        at += 1
+                    if at < len(spans) and spans[at][0] <= index:
+                        key = (spans[at][2], current)
+                        cell = looks.get(key)
+                        if cell is None:
+                            cell = looks[key] = self.part_style("token", classes=key[0], current_line=current)
                 if char == "":
                     if x == 0:
                         surface.set_cell(x, y, " ", cell)

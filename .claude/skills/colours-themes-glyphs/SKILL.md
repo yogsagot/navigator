@@ -25,6 +25,10 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   makes the other 121 trustworthy. The 84 entries DN.DNR does not name are not carried.
 - Every theme carries all 144; `navigator.nss` reads some (`LIVE` marks them with `>`). Variables are stemmed by group
   *path* (group names repeat); **a published variable name is API** -- `HAND_NAMED` pins the ones `navigator.nss` uses.
+  The editor's Highlight slots ([164] comments, [184] current-line comments, [189] symbols, [190] strings, [191]
+  numbers) are drawn by the `::token` rules (syntax highlighting, `navigator-editor`); `LIVE` does not list them yet,
+  since adding them regenerates every theme. Keywords have no slot: `DERIVED`'s `keyword` (alias of [76], yellow in
+  `default`). The ten other themes were given palconv's two alias lines by hand, as palconv would write them.
 - Variables Navigator needs and DN had no slot for are the **`DERIVED`** table, each an alias of a slot, with
   palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
 - **The tables live in `navigator/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because

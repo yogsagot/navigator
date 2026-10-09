@@ -367,6 +367,8 @@ $temp-fg: black;                      /*  backups and temporaries -- MC's class,
 $temp-bg: $panel-bg;
 $root-title-fg: white;                /*  a title while running as root -- no slot */
 $root-title-bg: red;
+$keyword-fg: yellow;                  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] -- Navigator: yellow keywords, which DN left plain */
+$keyword-bg: $editor-normal-text-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

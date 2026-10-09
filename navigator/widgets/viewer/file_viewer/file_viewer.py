@@ -19,14 +19,20 @@ in hex they move a *cursor* and the view follows it.
 
 from __future__ import annotations
 
+import bisect
+import threading
 from pathlib import Path
+from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navml.background import Background, Outcome
 
+from navigator import highlight
+from navigator.settings import SETTINGS
 from navigator.viewer import (
     DUMP_CHARS_AT,
     FILTER_TAGS,
@@ -51,12 +57,57 @@ WHEEL_ROWS = 3
 #: How far Ctrl+Left and Ctrl+Right move text sideways.
 BIG_STEP = 20
 
+#: The thread syntax highlighting lexes on.
+_LEXER = Background("nav-view-lex", workers=1)
+
+#: How far before the top the lexing starts, and how far past it it goes:
+#: a file this size or less is lexed whole, from its start, and coloured
+#: exactly; further into a bigger one, a comment or string opened more than
+#: ``LEX_BACK`` above the window is not known to be open.
+LEX_BACK = 256 * 1024
+LEX_AHEAD = 256 * 1024
+
+#: How much of the file's start is read for its ``#!`` line.
+HEAD = 256
+
+
+def _lex_window(name: str, data: bytes | None, low: int, high: int, size: int,
+                codec: str, stop: threading.Event) -> Any:
+    """On the thread: the spans of the whole lines in ``[low, high)`` of the
+    file, as ``(start, end, spans)``, False when it has no lexer, None when
+    stopped.  *data* is the whole file when the viewer holds it (``/proc``),
+    else it is read here."""
+    if data is None:
+        with open(name, "rb") as stream:
+            head = stream.read(HEAD)
+            stream.seek(low)
+            window = stream.read(high - low)
+    else:
+        head, window = data[:HEAD], data[low:high]
+    first = head.split(b"\n", 1)[0].decode("utf-8", errors="replace")
+    lexer = highlight.lexer_for(name, first)
+    if lexer is None:
+        return False
+    start, end = low, low + len(window)
+    if low > 0:
+        # From the first whole line: a lexer starts in its root state.
+        cut = window.find(b"\n")
+        if cut >= 0:
+            window, start = window[cut + 1:], low + cut + 1
+    if end < size:
+        cut = window.rfind(b"\n")
+        if cut >= 0:
+            window, end = window[:cut + 1], start + cut + 1
+    spans = highlight.lex_bytes(lexer, window, start, codec, stop)
+    return None if spans is None else (start, end, spans)
+
 
 class FileViewer(Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
 
-    #: A search hit, drawn in *Selected text* [118].
-    parts = ("selected",)
+    #: A search hit, drawn in *Selected text* [118]; a syntax token
+    #: (:mod:`navigator.highlight`), by its classes.
+    parts = ("selected", "token")
 
     #: The file, once :meth:`open` has read it.  Reactive so that the window's
     #: title can follow it; assigned only by :meth:`open`.
@@ -84,9 +135,15 @@ class FileViewer(Widget):
     #: The last search's hit, as ``(offset, length)``, drawn until the next.
     hit: tuple[int, int] | None = reactive(None)
 
+    #: Text coloured by syntax, as ``highlight.ini`` says: a departure, DN's
+    #: viewer had none.  Seeded from the setting, switched by View.
+    syntax_highlight: bool = reactive(True)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source: ViewSource | None = None
+        self.syntax_highlight = SETTINGS.viewer.syntax_highlight
+        self.rehighlight()
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -102,6 +159,7 @@ class FileViewer(Widget):
             self.source.close()
         self.source = source
         source.table = byte_table(self.encoding)
+        self.rehighlight()
         self.path = source.path
         self.size = source.size
         self.top = self.x_delta = self.cursor = 0
@@ -112,6 +170,7 @@ class FileViewer(Widget):
         if self.source is not None:
             self.source.close()
         self.source = None
+        self.rehighlight()
         self.path = None
         self.size = 0
         self.top = self.x_delta = self.cursor = 0
@@ -482,6 +541,77 @@ class FileViewer(Widget):
         await self.on_key(KeyEvent(key))
         return True
 
+    # -- syntax highlight --------------------------------------------------------
+
+    def rehighlight(self) -> None:
+        """Forget the tokens: another file, another encoding, or ``highlight.ini`` saved."""
+        stop = getattr(self, "_lex_stop", None)
+        if stop is not None:
+            stop.set()
+        #: What the tokens were lexed for -- path, encoding, size -- and the
+        #: bytes they cover, ``[start, end)``; the spans, and their starts for
+        #: ``bisect``.
+        self._lexed_for: Any = None
+        self._covered = (0, 0)
+        self._spans: list[highlight.Span] = []
+        self._starts: list[int] = []
+        #: The stop flag of the lexing in flight, else None.
+        self._lex_stop: threading.Event | None = None
+        #: The window last asked for: never asked twice, or a line longer
+        #: than the window would have it lexed over and over.
+        self._asked: tuple[int, int] | None = None
+        #: No lexer for this file: plain text, until something changes.
+        self._plain = False
+        app = self.application
+        if app is not None and app.is_running:
+            self.invalidate()
+
+    def _tokens(self, top: int, bottom: int) -> list[highlight.Span] | None:
+        """The spans to paint ``[top, bottom)`` with, or None for plain text;
+        a window around *top* is asked for when they do not cover it."""
+        source = self.source
+        if not self.syntax_highlight or source is None or self.size == 0:
+            return None
+        key = (str(source.path), self.encoding, self.size)
+        if key != self._lexed_for:
+            self.rehighlight()
+            self._lexed_for = key
+        if self._plain:
+            return None
+        start, end = self._covered
+        if (top < start or (bottom > end and end < self.size)) and self._lex_stop is None:
+            low, high = max(0, top - LEX_BACK), min(self.size, top + LEX_AHEAD)
+            if (low, high) == self._asked:
+                return self._spans
+            self._asked = (low, high)
+            stop = threading.Event()
+            self._lex_stop = stop
+            _LEXER.run(self, _lex_window, key[0], source._data, low, high, self.size,
+                       self.encoding, stop, done=lambda outcome: self._lexed(outcome, stop))
+        return self._spans
+
+    def _lexed(self, outcome: Outcome, stop: threading.Event) -> None:
+        if stop is not self._lex_stop:
+            return  # forgotten by rehighlight meanwhile
+        self._lex_stop = None
+        try:
+            answer = outcome.result()
+        except Exception:
+            # Unreadable now, or a lexer that fails on this text: plain.
+            answer = False
+        if answer is None:
+            return
+        if answer is False:
+            self._plain, self._spans, self._starts = True, [], []
+        else:
+            start, end, spans = answer
+            self._covered, self._spans = (start, end), spans
+            self._starts = [span[0] for span in spans]
+        app = self.application
+        if app is not None and app.is_running:
+            # Not when answered on the spot, from inside ``render``.
+            self.invalidate()
+
     # -- painting --------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
@@ -512,14 +642,33 @@ class FileViewer(Widget):
         style, selected = self.style, self.part_style("selected")
         x_delta = 0 if self.wrap else self.x_delta
         limit = x_delta + self.width
-        for y, row in enumerate(self._text_rows(self.height, max_cols=limit)):
+        rows = self._text_rows(self.height, max_cols=limit)
+        spans = self._tokens(self.top, rows[-1].next) if rows else None
+        starts = self._starts if spans else None
+        looks: dict[tuple[str, ...], Any] = {}
+        for y, row in enumerate(rows):
             cells = row.cells
+            token = 0
+            if starts:
+                token = max(0, bisect.bisect_right(starts, cells[min(x_delta, len(cells) - 1)][1]) - 1) if cells else 0
             for x in range(self.width):
                 column = x + x_delta
                 if column >= len(cells):
                     break
                 char, at = cells[column]
-                look = selected if self._hit_covers(at) else style
+                if self._hit_covers(at):
+                    look = selected
+                else:
+                    look = style
+                    if spans:
+                        # The cells' offsets only grow along a row: one pointer will do.
+                        while token < len(spans) and spans[token][1] <= at:
+                            token += 1
+                        if token < len(spans) and spans[token][0] <= at:
+                            classes = spans[token][2]
+                            look = looks.get(classes)
+                            if look is None:
+                                look = looks[classes] = self.part_style("token", classes=classes)
                 if char == "":
                     if x == 0:
                         surface.set_cell(x, y, " ", look)

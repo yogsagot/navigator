@@ -221,6 +221,7 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "special": (177, "a socket or a FIFO -- MC's class, on Custom 3"),
     "temp": (85, "backups and temporaries -- MC's class, on Normal text"),
     "root-title": ((15, 4), "a title while running as root -- no slot"),
+    "keyword": (76, "the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text"),
 }
 
 
@@ -256,6 +257,7 @@ DERIVED_ITEMS = {
     "special": "Socket or FIFO",
     "temp": "Temporary file",
     "root-title": "Title as root",
+    "keyword": "Keywords",
 }
 
 #: The palette the Colors dialog writes, in the configuration directory.

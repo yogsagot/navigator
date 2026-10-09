@@ -268,6 +268,8 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
 #: * ``default`` ``document``, ``device``, ``special``: amber #E5B567 rather
 #:   than Custom 3's light magenta, at the user's request.  Devices and
 #:   sockets share it as they share the slot; they are rare outside ``/dev``.
+#: * ``default`` ``keyword``: yellow, at the user's request -- the alias keeps
+#:   keywords normal text, as DN left them.
 DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None, str]]] = {
     "default": {
         "symlink": (7, None, "MC's link colour; the alias would match images"),
@@ -277,6 +279,7 @@ DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None
         "document": ("#e5b567", None, "amber rather than magenta"),
         "device": ("#e5b567", None, "amber rather than magenta, as documents"),
         "special": ("#e5b567", None, "amber rather than magenta, as documents"),
+        "keyword": (14, None, "yellow keywords, which DN left plain"),
     },
 }
 

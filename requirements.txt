@@ -4,3 +4,7 @@
 # background instead of merely handing the screen back to the terminal.  It is
 # pure Python and brings only wcwidth with it.
 pyte>=0.8.2
+# Pygments lexes for syntax highlighting (`navigator.highlight`): the editor
+# and viewer colour its tokens through the stylesheet's ::token rules, where
+# DOS Navigator read its own DN.HGL.  Pure Python, no dependencies of its own.
+pygments>=2.17

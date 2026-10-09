@@ -124,6 +124,7 @@ class EditWindow(Window):
             left=editor.left,
             overwrite=editor.overwrite,
             vertical_blocks=editor.vertical_blocks,
+            highlight=editor.syntax_highlight,
             marks=editor.markers_text(),
         )
 
@@ -145,6 +146,7 @@ class EditWindow(Window):
             return
         editor.overwrite = record.overwrite
         editor.vertical_blocks = record.vertical_blocks
+        editor.syntax_highlight = record.highlight
         # The markers are the text's, not the window's place: back whatever
         # *Store editor position* says, as ``fMarks`` came back.
         editor.restore_markers(record.marks)
