@@ -169,7 +169,7 @@ $executable-fg: $dn-light_red;        /*> [173] Executables -- CDoubleWindow[34]
 $executable-bg: $dn-blue;
 $archive-fg: $dn-light_green;         /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: $dn-blue;
-$highlight-custom-1-fg: $dn-light_magenta;/*> [175] Custom 1 */
+$highlight-custom-1-fg: #e5b567;      /*> [175] Custom 1 -- Navigator: amber rather than magenta; the .PAL has light_magenta on blue */
 $highlight-custom-1-bg: $dn-blue;
 $highlight-custom-2-fg: $dn-light_blue;/*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-blue;

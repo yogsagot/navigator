@@ -173,7 +173,7 @@ $highlight-custom-1-fg: $dn-cyan;     /*> [175] Custom 1 */
 $highlight-custom-1-bg: $dn-dark_gray;
 $highlight-custom-2-fg: $dn-green;    /*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-dark_gray;
-$highlight-custom-3-fg: $dn-light_magenta;/*> [177] Custom 3 */
+$highlight-custom-3-fg: $dn-light_cyan;/*> [177] Custom 3 -- Navigator: light cyan rather than magenta, the same grey; the .PAL has light_magenta on dark_gray */
 $highlight-custom-3-bg: $dn-dark_gray;
 $highlight-custom-4-fg: $dn-light_red;/*> [180] Custom 4 */
 $highlight-custom-4-bg: $dn-dark_gray;
@@ -273,7 +273,7 @@ $editor-highlight-comments-fg: $dn-cyan;/*  [164] Comments */
 $editor-highlight-comments-bg: $dn-dark_gray;
 $editor-highlight-symbols-fg: $dn-white;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-dark_gray;
-$editor-highlight-strings-fg: $dn-light_magenta;/*  [190] Strings */
+$editor-highlight-strings-fg: $dn-light_cyan;/*  [190] Strings -- Navigator: light cyan rather than magenta, the same grey; the .PAL has light_magenta on dark_gray */
 $editor-highlight-strings-bg: $dn-dark_gray;
 $editor-highlight-numbers-fg: $dn-light_cyan;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-dark_gray;

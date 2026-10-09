@@ -173,7 +173,7 @@ $highlight-custom-1-fg: $dn-light_cyan;/*> [175] Custom 1 */
 $highlight-custom-1-bg: $dn-light_blue;
 $highlight-custom-2-fg: $dn-light_gray;/*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-light_blue;
-$highlight-custom-3-fg: $dn-light_magenta;/*> [177] Custom 3 */
+$highlight-custom-3-fg: $dn-yellow;   /*> [177] Custom 3 -- Navigator: yellow rather than magenta; the .PAL has light_magenta on light_blue */
 $highlight-custom-3-bg: $dn-light_blue;
 $highlight-custom-4-fg: $dn-black;    /*> [180] Custom 4 */
 $highlight-custom-4-bg: $dn-light_blue;

@@ -171,7 +171,7 @@ $archive-fg: $dn-cyan;                /*> [174] Archives -- CDoubleWindow[35] ->
 $archive-bg: $dn-white;
 $highlight-custom-1-fg: $dn-red;      /*> [175] Custom 1 */
 $highlight-custom-1-bg: $dn-white;
-$highlight-custom-2-fg: $dn-magenta;  /*> [176] Custom 2 */
+$highlight-custom-2-fg: $dn-black;    /*> [176] Custom 2 -- Navigator: black rather than magenta; the .PAL has magenta on white */
 $highlight-custom-2-bg: $dn-white;
 $highlight-custom-3-fg: $dn-brown;    /*> [177] Custom 3 */
 $highlight-custom-3-bg: $dn-white;
@@ -273,7 +273,7 @@ $editor-highlight-comments-fg: $dn-blue;/*  [164] Comments */
 $editor-highlight-comments-bg: $dn-white;
 $editor-highlight-symbols-fg: $dn-green;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-white;
-$editor-highlight-strings-fg: $dn-light_magenta;/*  [190] Strings */
+$editor-highlight-strings-fg: $dn-brown;/*  [190] Strings -- Navigator: brown rather than magenta; the .PAL has light_magenta on white */
 $editor-highlight-strings-bg: $dn-white;
 $editor-highlight-numbers-fg: $dn-light_blue;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-white;

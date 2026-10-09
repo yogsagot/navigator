@@ -165,7 +165,7 @@ $column-title-bg: $dn-black;
 /* -- Highlight ----------------------------------------------------------- */
 $directory-fg: $dn-white;             /*> [172] Directories -- CDoubleWindow[33] -> CPanel[7], ttDirectory */
 $directory-bg: $dn-black;
-$executable-fg: $dn-light_magenta;    /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec */
+$executable-fg: #e5b567;              /*> [173] Executables -- CDoubleWindow[34] -> CPanel[8], ttExec -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $executable-bg: $dn-black;
 $archive-fg: $dn-light_green;         /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: $dn-black;
@@ -269,7 +269,7 @@ $editor-selected-text-fg: $dn-black;  /*  [ 77] Selected text */
 $editor-selected-text-bg: $dn-light_gray;
 
 /* -- Highlight ----------------------------------------------------------- */
-$editor-highlight-comments-fg: $dn-magenta;/*  [164] Comments */
+$editor-highlight-comments-fg: $dn-brown;/*  [164] Comments -- Navigator: brown rather than magenta; the .PAL has magenta on black */
 $editor-highlight-comments-bg: $dn-black;
 $editor-highlight-symbols-fg: $dn-white;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-cyan;
@@ -279,7 +279,7 @@ $editor-highlight-numbers-fg: $dn-white;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-cyan;
 $editor-highlight-current-line-fg: $dn-white;/*  [182] Current line */
 $editor-highlight-current-line-bg: $dn-black;
-$editor-highlight-cur-line-comments-fg: $dn-light_magenta;/*  [184] Cur. line comments */
+$editor-highlight-cur-line-comments-fg: #e5b567;/*  [184] Cur. line comments -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $editor-highlight-cur-line-comments-bg: $dn-black;
 $editor-highlight-current-line-selected-fg: $dn-white;/*  [183] Current line selected */
 $editor-highlight-current-line-selected-bg: $dn-light_gray;

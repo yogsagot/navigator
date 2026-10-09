@@ -245,11 +245,42 @@ LIVE = frozenset({1, 2, 4, 85, 88, 90, 91, 165, 172, 173, 174, 175, 176, 177, 18
 #:   listing reads as the viewer does.
 #: * ``default`` [76], the editor's *Normal text*: likewise, so an edit
 #:   window reads as the viewer does.
+#: * No magenta anywhere, at the user's request: every slot a palette paints
+#:   magenta or light magenta takes another colour instead -- amber #E5B567
+#:   (``default``'s documents, see :data:`DERIVED_DEPARTURES`) for light
+#:   magenta where the ground allows it, brown for magenta, and otherwise
+#:   the nearest colour the palette's neighbours leave free.  ``vga-bw``'s
+#:   light magenta register is a grey, so it takes light cyan, the same grey.
+#:   The ``$dn-magenta``/``$dn-light_magenta`` register definitions stay, as
+#:   every custom-DAC theme defines all sixteen; nothing reads them.
 DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]] = {
     "default": {
         76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
         85: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
         117: ("#d8d8d8", None, "lighter text, for contrast"),
+        177: ("#e5b567", None, "amber rather than magenta"),
+        190: ("#e5b567", None, "amber rather than magenta"),
+    },
+    "dark": {
+        164: (6, None, "brown rather than magenta"),
+        173: ("#e5b567", None, "amber rather than magenta"),
+        184: ("#e5b567", None, "amber rather than magenta"),
+    },
+    "dosshell": {
+        176: (0, None, "black rather than magenta"),
+        190: (6, None, "brown rather than magenta"),
+    },
+    "norton": {180: ("#e5b567", None, "amber rather than magenta")},
+    "pctools": {177: (14, None, "yellow rather than magenta")},
+    "vax": {180: ("#e5b567", None, "amber rather than magenta")},
+    "vga-blue": {175: ("#e5b567", None, "amber rather than magenta")},
+    "vga-bw": {
+        177: (11, None, "light cyan rather than magenta, the same grey"),
+        190: (11, None, "light cyan rather than magenta, the same grey"),
+    },
+    "vga-spring": {
+        177: ("#e5b567", None, "amber rather than magenta"),
+        190: ("#e5b567", None, "amber rather than magenta"),
     },
 }
 
