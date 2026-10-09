@@ -205,10 +205,11 @@ def test_f5_copies_what_is_tagged_to_the_other_panel(two):
         app.post_event(KeyEvent("insert"))
         await asyncio.sleep(0.06)
         assert manager.left.marked == {"one.txt"}
+        start = len(app.terminal.frames)
         app.post_event(KeyEvent("f5"))
         await asyncio.sleep(0.06)
         assert isinstance(app.modal, CopyDialog)
-        assert " Copy " in app.terminal.frames[-1]
+        assert " Copy " in "".join(app.terminal.frames[start:])
         app.post_event(KeyEvent("enter"))
         await asyncio.sleep(0.3)
         state = (app.modal, manager.left.marked, [e.name for e in manager.right.items])

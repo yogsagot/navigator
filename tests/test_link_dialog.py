@@ -140,11 +140,14 @@ def test_shift_f5_links_into_the_other_panel(two):
 
     async def steps(app, manager):
         put_cursor(manager.left, "one.txt")
+        start = len(app.terminal.frames)
         app.post_event(KeyEvent("f5", shift=True))
         await until(lambda: isinstance(app.modal, LinkDialog))
         await asyncio.sleep(0.06)  # painted
         opened = app.modal
-        painted = app.terminal.frames[-1]
+        # Every frame since the key, not the last: the clock may have
+        # repainted its corner after the dialog's.
+        painted = "".join(app.terminal.frames[start:])
         app.post_event(KeyEvent("enter"))
         await until(lambda: not app._tasks and "one.txt" in [e.name for e in manager.right.items])
         return opened, painted, app.modal, [e.name for e in manager.right.items]

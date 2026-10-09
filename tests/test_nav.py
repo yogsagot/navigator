@@ -2006,10 +2006,11 @@ def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.1)
+        start = len(app.terminal.frames)
         app.post_event(KeyEvent("kp_plus", "+"))
         await asyncio.sleep(0.06)
         assert isinstance(app.modal, SelectDialog)
-        assert " Select " in app.terminal.frames[-1]
+        assert " Select " in "".join(app.terminal.frames[start:])
         assert app.modal.mask.value == "*"
         assert app.modal.options.value == 0
         # The default is selected, so the first key replaces it.
@@ -2743,10 +2744,11 @@ def test_f7_makes_a_directory(tmp_path):
         task = asyncio.create_task(app.run_async())
         await asyncio.sleep(0.1)
 
+        start = len(app.terminal.frames)
         app.post_event(KeyEvent(key="f7"))
         await asyncio.sleep(0.06)
         # Painted *before* anything answers it, which is the whole rule.
-        assert "Make directory" in app.terminal.frames[-1]
+        assert "Make directory" in "".join(app.terminal.frames[start:])
         assert isinstance(app.modal, MkdirDialog)
         assert isinstance(app.focused, InputLine)
 
