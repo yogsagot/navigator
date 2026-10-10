@@ -87,7 +87,7 @@ class EditWindow(Window, _Component):
     edit_menu_misc_lowercase: SubMenu    # edit_window.nml:322
     edit_menu_misc_capitalize: SubMenu    # edit_window.nml:337
     edit_menu_options: SubMenu    # edit_window.nml:352
-    edit_menu_file_type: SubMenu    # edit_window.nml:390
+    edit_menu_file_type: SubMenu    # edit_window.nml:392
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -189,7 +189,7 @@ class EditWindow(Window, _Component):
         _w64 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:378
         _w65 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:381
         _w66 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:385
-        self.edit_menu_file_type = SubMenu(parent=self.edit_menu_options)    # edit_window.nml:389
+        self.edit_menu_file_type = SubMenu(parent=self.edit_menu)    # edit_window.nml:391
 
         self.zoomed = True    # edit_window.nml:24
 
@@ -529,8 +529,8 @@ class EditWindow(Window, _Component):
         )
         _w66.command = SwitchHiddenChars    # edit_window.nml:387
 
-        self.edit_menu_file_type.text = _bind(    # edit_window.nml:391
-            lambda _o: _tr('~F~ile type'),
+        self.edit_menu_file_type.text = _bind(    # edit_window.nml:393
+            lambda _o: _tr('File ~t~ype'),
             yielding=True,
         )
-        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:392
+        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:394

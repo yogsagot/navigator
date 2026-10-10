@@ -385,8 +385,10 @@ EditWindow(Window):
             MenuItem:
                 text: 'Show hi~d~den characters'
                 command: SwitchHiddenChars
-            #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
-            SubMenu:
-                id: edit_menu_file_type
-                text: '~F~ile type'
-                key_command: ChooseFileType
+        #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.  On the
+        #: *Editor* menu itself rather than under *Options*, so it is one step
+        #: away, as the viewer's is on *View*; ``T`` because *File* has ``F``.
+        SubMenu:
+            id: edit_menu_file_type
+            text: 'File ~t~ype'
+            key_command: ChooseFileType

@@ -2556,6 +2556,22 @@ def test_the_strip_s_file_type_icon_follows_the_chosen_type(tmp_path, quiet_cons
     assert seen["label"].startswith(icons.BY_EXTENSION[extension] + " ")
 
 
+def test_the_file_type_menu_wears_icons_once_the_window_is_on_a_nerd_desktop(tmp_path, quiet_console):
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+    from navigator import icons
+    from navigator.widgets.editor.commands import SetFileType
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "script.py").write_text("import os\n")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=3)))
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: seen.update(
+        text=editor_window(a).edit_menu_file_type.item_for(SetFileType("rust")).text)])
+    assert seen["text"] == f"{icons.BY_EXTENSION['rs']} ~R~ust"
+
+
 def test_the_strip_follows_its_setting_and_the_scroll_bar_takes_the_room_back(files):
     app = navigator(files)
     seen = {}

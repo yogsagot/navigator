@@ -94,7 +94,7 @@ class EditWindow(Window):
         else:
             self.editor.use_document(path, document)
         self.title = bind(lambda _o: self._title(), yielding=True)
-        fill_file_types(self.edit_menu_file_type)
+        fill_file_types(self.edit_menu_file_type, self)
         self.options.items = editor_items(self.editor)
 
     def _title(self) -> str:
@@ -234,7 +234,7 @@ class EditWindow(Window):
     # -- the file type --------------------------------------------------------------
 
     async def on_set_file_type(self, event: SetFileType) -> bool:
-        """Editor > Options > *File type*."""
+        """Editor > *File type*."""
         self.set_file_type(event.file_type)
         return True
 

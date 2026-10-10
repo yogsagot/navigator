@@ -396,7 +396,7 @@ class ChooseFileType(Command):
 
 @dataclass(frozen=True, slots=True)
 class SetFileType(Command):
-    """Editor > Options > *File type* and View > *File type*: the language the
+    """Editor > *File type* and View > *File type*: the language the
     text is coloured as, whatever ``highlight.ini`` says -- a lexer name,
     ``none``, or empty for ``highlight.ini``'s choice.  A departure: DN chose
     by mask alone.  Ticked while it is the window's."""

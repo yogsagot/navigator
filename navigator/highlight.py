@@ -242,8 +242,23 @@ def lexer_label(lexer: Any) -> str:
 def file_type_masks(file_type: str) -> tuple[str, ...]:
     """The file names the lexer chosen as *file_type* claims (``*.py``), none
     for :data:`NONE` or a name Pygments does not know."""
-    lexer = _lexer_named(file_type) if file_type and file_type != NONE else None
-    return tuple(getattr(lexer, "filenames", None) or ())
+    return _masks_by_alias().get(file_type, ())
+
+
+@lru_cache(maxsize=1)
+def _masks_by_alias() -> dict[str, tuple[str, ...]]:
+    """Every lexer's file names by each of its aliases, read from Pygments'
+    table rather than the lexers, so that the *File type* menu's icons do not
+    import fifty lexer modules."""
+    from pygments.lexers import get_all_lexers
+
+    from navigator.lexers import NmlLexer, NssLexer
+
+    masks = {alias: tuple(names) for _, aliases, names, _ in get_all_lexers(plugins=False)
+             for alias in aliases}
+    for own in (NmlLexer, NssLexer):
+        masks.update((alias, tuple(own.filenames)) for alias in own.aliases)
+    return masks
 
 
 def file_type_label(file_type: str, lexer_name: str | None) -> str:

@@ -69,7 +69,7 @@ class FileWindow(Window):
             self.viewer.cursor = 0
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.
         self.title = str(self.viewer.path)
-        fill_file_types(self.view_menu_file_type)
+        fill_file_types(self.view_menu_file_type, self)
         self.options.items = viewer_items(self.viewer)
 
     def take_keyboard(self) -> None:

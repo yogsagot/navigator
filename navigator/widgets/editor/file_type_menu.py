@@ -5,18 +5,22 @@ both windows' markup: *Automatic* (``highlight.ini``'s choice), a submenu per
 group, and *None*, each asking for :class:`SetFileType` -- in a window's
 menu, or on its own in a box by Ctrl+Shift+H (:func:`choose_file_type`).  The captions are
 bound as the generator binds a markup caption, so they follow a change of
-language; the languages' own names are names and stay as they are.
+language; the languages' own names are names and stay as they are.  At the
+Nerd tier each language's caption starts with the icon the option strip shows
+for it (:mod:`navigator.icons`).
 """
 
 from __future__ import annotations
 
 from typing import Any, Callable
 
+from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr
 from navkit.reactive import bind
 from navml.widgets.menu.sub_menu import SubMenu
 
-from navigator.highlight import FILE_TYPES, NONE
+from navigator import icons
+from navigator.highlight import FILE_TYPES, NONE, file_type_masks
 from navigator.widgets.editor.commands import SetFileType
 
 #: Each group's caption, by its name in ``FILE_TYPES``.
@@ -48,8 +52,14 @@ def _caption(text: Callable[[], str]) -> object:
     return bind(lambda _o: text(), yielding=True)
 
 
-def fill_file_types(menu: SubMenu) -> None:
-    """Put the file types into *menu*, an empty submenu."""
+def _language(owner: Any, caption: str, lexer: str) -> object:
+    """*caption*, after *lexer*'s icon when *owner* -- the window -- draws Nerd glyphs."""
+    icon = icons.icon_for_masks(file_type_masks(lexer))
+    return bind(lambda _o: f"{icon} {caption}" if owner.glyphs >= GLYPHS_NERD else caption)
+
+
+def fill_file_types(menu: SubMenu, owner: Any) -> None:
+    """Put the file types into *menu*, an empty submenu of *owner*'s."""
     automatic = menu.add_item("", SetFileType(""))
     automatic.text = _caption(lambda: tr("~A~utomatic"))
     menu.add_line()
@@ -57,7 +67,8 @@ def fill_file_types(menu: SubMenu) -> None:
         sub = menu.add_submenu("")
         sub.text = _caption(GROUPS[group])
         for caption, (_, lexer) in zip(_marked([name for name, _ in languages]), languages):
-            sub.add_item(caption, SetFileType(lexer))
+            item = sub.add_item("", SetFileType(lexer))
+            item.text = _language(owner, caption, lexer)
     menu.add_line()
     none = menu.add_item("", SetFileType(NONE))
     none.text = _caption(lambda: tr("~N~one"))
@@ -70,7 +81,7 @@ async def choose_file_type(window: Any) -> str | None:
     from navml.widgets.menu.popup_menu import PopupMenu
 
     menu = SubMenu()
-    fill_file_types(menu)
+    fill_file_types(menu, window)
     app = window.application
     width, height = PopupMenu.measure(menu, app, window)
     ox, oy = window.offset()

@@ -266,12 +266,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   span widens it) and drop `_lexed` to the edited line; an answer keeps only the lines before any edit made while it
   ran, and `render` asks again. Over `LEX_LIMIT` (2 M characters; Pygments lexes about 0.5 M a second) a text stays plain. Use `lex_lines` and the
   `get_tokens_unprocessed` it walks -- never `get_tokens`, which strips and expands and so moves indices.
-- **File type** (Editor > Options > *File type*, View > *File type* in the viewer; `SetFileType(file_type)`, a
+- **File type** (Editor > *File ~t~ype* -- on the *Editor* menu itself, not under *Options*, so it is one step away
+  as on the viewer's *View* -- and View > *File type* in the viewer; `SetFileType(file_type)`, a
   departure -- DN chose a `DN.HGL` section by mask alone): *Automatic* (`""`, `highlight.ini`'s choice), a submenu
   each for *Programming*, *Scripting* and *Markup languages* and *Miscellaneous*, and *None* (`none`). The languages
   are `highlight.FILE_TYPES` (group name, then caption and Pygments/own lexer name), short enough that each box fits
   24 rows; the menus are empty `SubMenu`s in the markup filled by `file_type_menu.fill_file_types` (hotkeys picked
-  by `_marked`, the first character not yet taken; group captions bound live through `tr`). `FileEditor.file_type`/
+  by `_marked`, the first character not yet taken; group captions bound live through `tr`; at the Nerd tier each
+  language's caption starts with its icon, `icons.icon_for_masks(highlight.file_type_masks(lexer))` -- the masks read
+  from Pygments' table, never the lexers, so filling the menu imports none -- and the option strip's *File type*
+  item shows the chosen type's icon the same way, the file's own while it is *Automatic*). `FileEditor.file_type`/
   `FileViewer.file_type` go to `lexer_for(..., file_type=)`, which then decides alone, and are part of what the tokens
   were lexed for. Choosing switches highlighting on (*None* leaves it), is ticked through the window's `checks`, and
   is written to the record at once (`remember_history`); kept as `EditRecord.file_type`/`ViewRecord.file_type`. F3's

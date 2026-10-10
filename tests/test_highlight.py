@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import threading
+from types import SimpleNamespace
 
 import pytest
 
 from conftest import FakeTerminal, Until, run_app, settle
 from navkit.events import KeyEvent
+from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.screen import ScreenBuffer
 
 from navigator import associations, highlight
@@ -470,7 +472,7 @@ def test_the_file_type_menu_has_automatic_four_groups_and_none():
     from navigator.widgets.editor.file_type_menu import fill_file_types
 
     menu = SubMenu()
-    fill_file_types(menu)
+    fill_file_types(menu, SimpleNamespace(glyphs=GLYPHS_UNICODE))
     entries = menu.all_entries()
     assert [type(e).__name__ for e in entries] == ["MenuItem", "MenuLine", "SubMenu", "SubMenu",
                                                    "SubMenu", "SubMenu", "MenuLine", "MenuItem"]
@@ -482,6 +484,20 @@ def test_the_file_type_menu_has_automatic_four_groups_and_none():
         letters = [e.text.split("~")[1].casefold() for e in group.all_entries()]
         assert len(letters) == len(set(letters)) and len(letters) <= 16
     assert menu.item_for(SetFileType("python")).text == "~P~ython"
+
+
+def test_the_file_type_menu_shows_each_language_s_icon_at_the_nerd_tier():
+    from navml.widgets.menu.sub_menu import SubMenu
+    from navigator import icons
+    from navigator.widgets.editor.commands import SetFileType
+    from navigator.widgets.editor.file_type_menu import fill_file_types
+
+    menu = SubMenu()
+    fill_file_types(menu, SimpleNamespace(glyphs=GLYPHS_NERD))
+    assert menu.item_for(SetFileType("python")).text == f"{icons.BY_EXTENSION['py']} ~P~ython"
+    assert menu.item_for(SetFileType("kotlin")).text == f"{icons.BY_EXTENSION['kt']} ~K~otlin"
+    assert menu.item_for(SetFileType("fortran")).text.startswith(f"{icons.FILE} ")
+    assert menu.all_entries()[0].text == "~A~utomatic"
 
 
 def chosen(file_type):
@@ -537,7 +553,7 @@ def test_ctrl_shift_h_in_the_viewer_chooses_none(files):
     assert viewer.file_type == "none" and cell(0, 17)[1] == viewer.style
 
 
-@pytest.mark.parametrize("key, menu_of", [("f4", lambda w: w.edit_menu.entry("Options")),
+@pytest.mark.parametrize("key, menu_of", [("f4", lambda w: w.edit_menu),
                                           ("f3", lambda w: w.view_menu)])
 def test_the_menu_shows_ctrl_shift_h_beside_file_type(files, key, menu_of):
     from navml.widgets.menu.menu_box import MenuBox
