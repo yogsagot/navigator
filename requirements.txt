@@ -7,4 +7,6 @@ pyte>=0.8.2
 # Pygments lexes for syntax highlighting (`navigator.highlight`): the editor
 # and viewer colour its tokens through the stylesheet's ::token rules, where
 # DOS Navigator read its own DN.HGL.  Pure Python, no dependencies of its own.
-pygments>=2.17
+# At least the release navigator/assets/highlight.ini was generated from
+# (tools/highlight_ini.py), so every lexer it names exists.
+pygments>=2.21

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -33,6 +33,11 @@ def into(name: str):
         panel.cursor = [e.name for e in panel.items].index(name)
         panel.enter()
     return action
+
+
+def listed(path: Path) -> Until:
+    """Until the left panel shows *path*'s listing, read on a thread."""
+    return Until(lambda a: a.manager.left._listed == path and not a.manager.left.scanning, timeout=5)
 
 
 def titled(title: str):
@@ -92,21 +97,25 @@ def test_alt_shift_n_bookmarks_at_n_alt_n_goes_and_alt_shift_0_opens_the_box(pla
     add_bookmark(place / "two")
     app = navigator(place)
     seen = {}
+    # Storing a bookmark and going to one are spawned tasks, and a panel reads
+    # its directory on a thread: each step waits for what it reads, not for a
+    # fixed number of frames, which is enough only on an unloaded machine.
     run_app(app, [
-        into("one"), lambda a: None,
+        into("one"), listed(place / "one"),
         KeyEvent("1", alt=True, shift=True), Until(titled("Confirm"), timeout=5),
-        lambda a: seen.update(ask=a.modal.prompt), KeyEvent("y", alt=True), lambda a: None,
+        lambda a: seen.update(ask=a.modal.prompt), KeyEvent("y", alt=True), IDLE,
         lambda a: seen.update(order=[Path(r.path).name for r in bookmarks()]),
-        into(".."), lambda a: None,
-        KeyEvent("2", alt=True), Until(lambda a: a.manager.left.path == place / "two", timeout=5),
-        KeyEvent("!", "!", alt=True), Until(titled("Confirm"), timeout=5), KeyEvent("y", alt=True), lambda a: None,
+        into(".."), listed(place),
+        KeyEvent("2", alt=True), listed(place / "two"),
+        KeyEvent("!", "!", alt=True), Until(titled("Confirm"), timeout=5), KeyEvent("y", alt=True), IDLE,
         lambda a: seen.update(again=[Path(r.path).name for r in bookmarks()]),
-        KeyEvent("1", alt=True), lambda a: None, lambda a: None,
+        into(".."), listed(place),  # away from two, so Alt+1 has somewhere to go
+        KeyEvent("1", alt=True), Until(lambda a: a.manager.left.path == place / "two", timeout=5),
         lambda a: seen.update(at=a.manager.left.path),
         KeyEvent("0", alt=True, shift=True),
         Until(lambda a: any(isinstance(c, PopupMenu) for c in a.root.children), timeout=5),
         lambda a: seen.update(box=True), KeyEvent("escape"),
-    ])
+    ], timeout=30)
     assert seen["ask"] == "Store this directory\nas bookmark 1?"
     assert seen["order"] == ["one", "two"]
     assert seen["again"] == ["two", "one"]  # two moved to the first place
