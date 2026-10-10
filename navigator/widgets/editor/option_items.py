@@ -54,11 +54,19 @@ def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
 
 
 def _type_label(widget: Any) -> str:
-    """The file type in effect, with the file's own icon before it at the Nerd tier."""
+    """The file type in effect, with its icon before it at the Nerd tier: the
+    file's own while the type is automatic, the chosen type's once one is
+    picked from *File type* (a text file's for ``plain``)."""
     label = highlight.file_type_label(widget.file_type, widget.lexer_name)
-    if widget.glyphs >= GLYPHS_NERD and widget.path is not None:
-        return f"{icons.icon_for(widget.path.name, False)} {label}"
-    return label
+    if widget.glyphs < GLYPHS_NERD or widget.path is None:
+        return label
+    if widget.file_type == highlight.NONE:
+        icon = icons.icon_for_masks(("*.txt",))
+    elif widget.file_type:
+        icon = icons.icon_for_masks(highlight.file_type_masks(widget.file_type))
+    else:
+        icon = icons.icon_for(widget.path.name, False)
+    return f"{icon} {label}"
 
 
 def editor_items(editor: Any) -> tuple[OptionItem, ...]:

@@ -18,6 +18,9 @@ or ``--glyphs unicode`` on the command line.
 
 from __future__ import annotations
 
+import fnmatch
+from collections.abc import Iterable
+
 #: The generic three.  Everything that is not matched by extension lands on
 #: :data:`FILE`.
 FOLDER = ""       # nf-custom-folder
@@ -160,3 +163,18 @@ def icon_for(name: str, is_dir: bool, mark: str = " ", bookmarked: bool = False)
     if not dot or not _:
         return plain
     return BY_EXTENSION.get(extension.lower(), plain)
+
+
+def icon_for_masks(masks: Iterable[str]) -> str:
+    """The glyph for the first of *masks* -- a lexer's ``filenames``, such as
+    ``*.py`` -- that takes an extension in :data:`BY_EXTENSION`, else :data:`FILE`.
+
+    This is how the option strip's *File type* follows a type chosen by hand
+    rather than the file's own name.
+    """
+    for mask in masks:
+        mask = mask.lower()
+        for extension, glyph in BY_EXTENSION.items():
+            if fnmatch.fnmatchcase(f"name.{extension}", mask):
+                return glyph
+    return FILE

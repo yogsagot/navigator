@@ -2534,6 +2534,27 @@ def test_the_strip_names_the_lexer_and_a_click_offers_file_types(tmp_path, quiet
     assert seen["popup"]
 
 
+@pytest.mark.parametrize("file_type, extension", [("", "py"), ("rust", "rs"), ("bash", "sh"), ("none", "txt")])
+def test_the_strip_s_file_type_icon_follows_the_chosen_type(tmp_path, quiet_console, file_type, extension):
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+    from navigator import icons
+    from navigator.widgets.editor.commands import ChooseFileType
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "script.py").write_text("import os\n")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=3)))
+    seen = {}
+
+    def choose(a):
+        editor_window(a).editor.file_type = file_type
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, choose, lambda a: None,
+                  lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3])])
+    assert seen["label"].startswith(icons.BY_EXTENSION[extension] + " ")
+
+
 def test_the_strip_follows_its_setting_and_the_scroll_bar_takes_the_room_back(files):
     app = navigator(files)
     seen = {}

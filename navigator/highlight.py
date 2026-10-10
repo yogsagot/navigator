@@ -239,6 +239,13 @@ def lexer_label(lexer: Any) -> str:
     return aliases[0] if aliases else str(getattr(lexer, "name", "")).lower()
 
 
+def file_type_masks(file_type: str) -> tuple[str, ...]:
+    """The file names the lexer chosen as *file_type* claims (``*.py``), none
+    for :data:`NONE` or a name Pygments does not know."""
+    lexer = _lexer_named(file_type) if file_type and file_type != NONE else None
+    return tuple(getattr(lexer, "filenames", None) or ())
+
+
 def file_type_label(file_type: str, lexer_name: str | None) -> str:
     """What the option strip says the text is coloured as: the type chosen from
     *File type*, else the lexer the thread found (*lexer_name*, "" for none),
