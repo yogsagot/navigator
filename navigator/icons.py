@@ -59,6 +59,11 @@ BY_EXTENSION = {
     "sh": "",
     "bash": "",
     "pas": "",
+    "java": "",  # nf-dev-java
+    "kt": "",  # nf-seti-kotlin
+    "kts": "",
+    "rb": "",  # nf-dev-ruby
+    "sql": "",  # nf-dev-database
     # markup and data
     "md": "",
     "rst": "",
