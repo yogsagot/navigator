@@ -95,8 +95,8 @@ you paste goes to the running program too.
 ### Other ways to copy
 
 - **Calculator**: the *Copy* button puts the result on the clipboard.
-- **Screen grabber** (Alt+Shift+Ins): move and size the area with the arrows and Shift+arrows, then press Enter to copy
-  that part of the screen as text.
+- **Screen grabber** (Alt+Shift+Ins): move and size the area with the arrows and Shift+arrows, or drag it out with the
+  mouse, then press Enter to copy that part of the screen as text.
 - **Column sum** (Alt+Ins in the editor, with vertical blocks on): adds up the numbers in the marked column and puts
   the total on the clipboard.
 

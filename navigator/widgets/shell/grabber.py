@@ -11,6 +11,10 @@ DN froze a copy of the screen under it; here the windows go on painting
 under the rectangle, and what it takes is what was under it last.  Its
 clipboard was DN's own, synced out with *Use system clipboard*; here it is
 the application's (``copy_to_clipboard``), which that setting steers.
+
+A departure: DN's grabber took no mouse.  Here a left drag spans the
+rectangle from the cell pressed to the cell under the pointer, the way a
+terminal selects, and the keys go on from there; Enter still copies.
 """
 
 from __future__ import annotations
@@ -47,6 +51,8 @@ class ScreenGrabber(Widget):
         #: The text the rectangle covered when last painted, a string a row.
         self.text: list[str] = []
         self._done: asyncio.Future[Any] | None = None
+        #: The cell a left press landed on while a drag is spanning the rectangle.
+        self._anchor: tuple[int, int] | None = None
 
     async def execute(self, app: Any) -> list[str] | None:
         """Show it; the rows taken with Enter, or None for Esc."""
@@ -103,7 +109,26 @@ class ScreenGrabber(Widget):
             (self.resize if event.shift else self.move)(*step)
         return True
 
+    def span(self, x0: int, y0: int, x1: int, y1: int) -> None:
+        """The rectangle with corners at the two cells, both included."""
+        self._fit(min(x0, x1), min(y0, y1), max(x0, x1) + 1, max(y0, y1) + 1)
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """A left drag spans the rectangle (the departure the module notes)."""
+        if event.button != "left" and not (event.action != "press" and self._anchor is not None):
+            return True
+        x = min(max(event.x, 0), self.width - 1)
+        y = min(max(event.y, 0), self.height - 1)
+        if event.action == "press":
+            self._anchor = (x, y)
+            app = self.application
+            if app is not None:
+                app.capture_mouse(self)
+        elif self._anchor is None:
+            return True
+        self.span(*self._anchor, x, y)
+        if event.action == "release":
+            self._anchor = None
         return True
 
     # -- painting -----------------------------------------------------------------------

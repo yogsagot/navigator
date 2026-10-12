@@ -177,7 +177,9 @@ cells already under its rectangle with `reverse` flipped and keeping their text 
 skipped). `TGrabber.HandleEvent`'s keys: arrows move (Ctrl: 8 across, 4 down), Shift+arrows size from the bottom
 right, PgUp/PgDn/Home/End to the edges, clamped on screen and at least a cell. Enter copies the rows joined by
 newlines through `app.copy_to_clipboard`; Esc nothing. The rectangle is remembered (`grabber._last`, DN's
-`Top`/`Bot`). A departure: the screen under it is live, not a frozen copy.
+`Top`/`Bot`). Departures: the screen under it is live, not a frozen copy; and a left drag spans the rectangle
+from the pressed cell to the pointer (`ScreenGrabber.on_mouse_click`, mouse captured, clamped on screen) -- DN's
+grabber took no mouse. Release only leaves the rectangle; Enter still copies, the keys still adjust it.
 
 ## The calculator (Ctrl+F6)
 
