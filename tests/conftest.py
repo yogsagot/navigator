@@ -282,6 +282,18 @@ def _default_keys():
     restore_keys()
 
 
+@pytest.fixture
+def wordstar():
+    """The editor's WordStar keys, as ``keybindings_wordstar.ini`` binds them
+    -- DN's ^K, ^Q and ^B commands and its Ctrl diamond -- for a test that
+    presses them.  ``_default_keys`` takes them away again afterwards."""
+    from navigator import keybindings
+    from navigator.__main__ import Navigator
+
+    file = keybindings.presets_dir() / "keybindings_wordstar.ini"
+    assert keybindings.load(Navigator, file) == []
+
+
 @pytest.fixture(autouse=True)
 def _default_settings(monkeypatch, tmp_path):
     """Every test starts from the default settings, and none can touch ``~/.config``.

@@ -290,6 +290,7 @@ def test_load_text_cancelled_keeps_the_text_and_the_title(files, slow_read):
     assert seen == {"title": f"Edit - {files / 'text.txt'}", "text": b"first line\nsecond line\n"}
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_r_cancelled_inserts_nothing(files, slow_read):
     SETTINGS.interface.store_editor_position = False
     (files / "piece.txt").write_bytes(b"piece\n")

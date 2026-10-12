@@ -30,6 +30,9 @@ EditWindow(Window):
         escape: CloseWindow
         alt+f3: CloseWindow
         f2: SaveText
+        #: A departure, with the editor's other modern keys: Ctrl+S was
+        #: WordStar's cursor left in DN (``FileEditor.keys``).
+        ctrl+s: SaveText
         f3: LoadText
         shift+f2: SaveTextAs
         ctrl+f2: SaveAll

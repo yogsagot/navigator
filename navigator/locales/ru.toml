@@ -6,129 +6,129 @@ name = "Русский"
 "About" = "О программе"
 # navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:9
 "Edit new file" = "Новый файл"
-# navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:18, navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:22, navigator/widgets/shell/shell/shell.py:297 ...
+# navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:18, navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:22, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:243 ...
 "~F~ile name" = "~И~мя файла"
-# navigator/widgets/editor/edit_window/edit_window.nml:129
+# navigator/widgets/editor/edit_window/edit_window.nml:132
 "~E~ditor" = "~Р~едактор"
-# navigator/widgets/editor/edit_window/edit_window.nml:133, navigator/widgets/shell/main_menu/main_menu.nml:89
+# navigator/widgets/editor/edit_window/edit_window.nml:136, navigator/widgets/shell/main_menu/main_menu.nml:89
 "~F~ile" = "~Ф~айл"
-# navigator/widgets/editor/edit_window/edit_window.nml:135
+# navigator/widgets/editor/edit_window/edit_window.nml:138
 "~O~pen..." = "~О~ткрыть..."
-# navigator/widgets/editor/edit_window/edit_window.nml:139
+# navigator/widgets/editor/edit_window/edit_window.nml:142
 "~S~ave" = "~С~охранить"
-# navigator/widgets/editor/edit_window/edit_window.nml:143
+# navigator/widgets/editor/edit_window/edit_window.nml:146
 "Save ~a~s..." = "Сохранить ~к~ак..."
-# navigator/widgets/editor/edit_window/edit_window.nml:147
+# navigator/widgets/editor/edit_window/edit_window.nml:150
 "Save a~l~l..." = "Сохранить ~в~се..."
-# navigator/widgets/editor/edit_window/edit_window.nml:152, navigator/widgets/shell/main_menu/main_menu.nml:150
+# navigator/widgets/editor/edit_window/edit_window.nml:155, navigator/widgets/shell/main_menu/main_menu.nml:150
 "~P~rint" = "~Н~апечатать"
-# navigator/widgets/editor/edit_window/edit_window.nml:156
+# navigator/widgets/editor/edit_window/edit_window.nml:159
 "Print ~b~lock" = "Печатать ~б~лок"
-# navigator/widgets/editor/edit_window/edit_window.nml:161, navigator/widgets/shell/main_menu/main_menu.nml:182
+# navigator/widgets/editor/edit_window/edit_window.nml:164, navigator/widgets/shell/main_menu/main_menu.nml:182
 "E~x~it" = "В~ы~ход"
-# navigator/widgets/editor/edit_window/edit_window.nml:166, navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:113 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:169, navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:113 ...
 "~E~dit" = "~П~равка"
-# navigator/widgets/editor/edit_window/edit_window.nml:168
+# navigator/widgets/editor/edit_window/edit_window.nml:171
 "~U~ndo" = "~О~тменить"
-# navigator/widgets/editor/edit_window/edit_window.nml:173
+# navigator/widgets/editor/edit_window/edit_window.nml:176
 "Cu~t~" = "В~ы~резать"
-# navigator/widgets/editor/edit_window/edit_window.nml:177, navigator/widgets/editor/edit_window/edit_window.nml:249, navigator/widgets/shell/calculator_window/calculator_window.nml:135
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/edit_window/edit_window.nml:252, navigator/widgets/shell/calculator_window/calculator_window.nml:135
 "~C~opy" = "~К~опировать"
-# navigator/widgets/editor/edit_window/edit_window.nml:181
+# navigator/widgets/editor/edit_window/edit_window.nml:184
 "~P~aste" = "~В~ставить"
-# navigator/widgets/editor/edit_window/edit_window.nml:185
-"C~o~py to..." = "Копировать в ~ф~айл..."
 # navigator/widgets/editor/edit_window/edit_window.nml:188
+"C~o~py to..." = "Копировать в ~ф~айл..."
+# navigator/widgets/editor/edit_window/edit_window.nml:191
 "P~a~ste from..." = "Вставить из ф~а~йла..."
-# navigator/widgets/editor/edit_window/edit_window.nml:192, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:80
+# navigator/widgets/editor/edit_window/edit_window.nml:195, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:80
 "C~l~ear" = "О~ч~истить"
-# navigator/widgets/editor/edit_window/edit_window.nml:197
+# navigator/widgets/editor/edit_window/edit_window.nml:200
 "~S~earch" = "П~о~иск"
-# navigator/widgets/editor/edit_window/edit_window.nml:199, navigator/widgets/shell/main_menu/main_menu.nml:128
+# navigator/widgets/editor/edit_window/edit_window.nml:202, navigator/widgets/shell/main_menu/main_menu.nml:128
 "~F~ind..." = "~И~скать..."
-# navigator/widgets/editor/edit_window/edit_window.nml:203
+# navigator/widgets/editor/edit_window/edit_window.nml:206
 "~R~eplace..." = "~З~аменить..."
-# navigator/widgets/editor/edit_window/edit_window.nml:207
+# navigator/widgets/editor/edit_window/edit_window.nml:210
 "~S~earch again" = "П~р~одолжить поиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:211
+# navigator/widgets/editor/edit_window/edit_window.nml:214
 "Re~v~ersed search" = "О~б~ратный поиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:215
+# navigator/widgets/editor/edit_window/edit_window.nml:218
 "~G~o to line number..." = "Перейти к ~с~троке..."
-# navigator/widgets/editor/edit_window/edit_window.nml:220, navigator/widgets/editor/margins_dialog/margins_dialog.nml:37
+# navigator/widgets/editor/edit_window/edit_window.nml:223, navigator/widgets/editor/margins_dialog/margins_dialog.nml:37
 "~P~aragraph" = "~А~бзац"
-# navigator/widgets/editor/edit_window/edit_window.nml:222
+# navigator/widgets/editor/edit_window/edit_window.nml:225
 "~J~ustify" = "По ~ш~ирине"
-# navigator/widgets/editor/edit_window/edit_window.nml:226
+# navigator/widgets/editor/edit_window/edit_window.nml:229
 "~R~ight" = "По ~п~равому краю"
-# navigator/widgets/editor/edit_window/edit_window.nml:230
+# navigator/widgets/editor/edit_window/edit_window.nml:233
 "~L~eft" = "По ~л~евому краю"
-# navigator/widgets/editor/edit_window/edit_window.nml:234
+# navigator/widgets/editor/edit_window/edit_window.nml:237
 "~C~enter" = "По ~ц~ентру"
-# navigator/widgets/editor/edit_window/edit_window.nml:239
+# navigator/widgets/editor/edit_window/edit_window.nml:242
 "~M~argins..." = "~О~тступы..."
-# navigator/widgets/editor/edit_window/edit_window.nml:243, navigator/widgets/editor/edit_window/edit_window.nml:318, navigator/widgets/editor/edit_window/edit_window.nml:333 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:246, navigator/widgets/editor/edit_window/edit_window.nml:321, navigator/widgets/editor/edit_window/edit_window.nml:336 ...
 "~B~lock" = "~Б~лок"
-# navigator/widgets/editor/edit_window/edit_window.nml:245
+# navigator/widgets/editor/edit_window/edit_window.nml:248
 "~M~ove" = "~П~еренести"
-# navigator/widgets/editor/edit_window/edit_window.nml:253
+# navigator/widgets/editor/edit_window/edit_window.nml:256
 "~I~ndent" = "Сдвиг ~в~право"
-# navigator/widgets/editor/edit_window/edit_window.nml:257
+# navigator/widgets/editor/edit_window/edit_window.nml:260
 "~U~nindent" = "Сдвиг в~л~ево"
-# navigator/widgets/editor/edit_window/edit_window.nml:262
+# navigator/widgets/editor/edit_window/edit_window.nml:265
 "U~p~percase" = "П~р~описные"
-# navigator/widgets/editor/edit_window/edit_window.nml:266, navigator/widgets/editor/edit_window/edit_window.nml:323
+# navigator/widgets/editor/edit_window/edit_window.nml:269, navigator/widgets/editor/edit_window/edit_window.nml:326
 "~L~owercase" = "~С~трочные"
-# navigator/widgets/editor/edit_window/edit_window.nml:270
+# navigator/widgets/editor/edit_window/edit_window.nml:273
 "Capi~t~alize" = "~З~аглавные"
-# navigator/widgets/editor/edit_window/edit_window.nml:275
+# navigator/widgets/editor/edit_window/edit_window.nml:278
 "~S~ort" = "С~о~ртировать"
-# navigator/widgets/editor/edit_window/edit_window.nml:279
+# navigator/widgets/editor/edit_window/edit_window.nml:282
 "Calc~u~late sum" = "В~ы~числить сумму"
-# navigator/widgets/editor/edit_window/edit_window.nml:284
+# navigator/widgets/editor/edit_window/edit_window.nml:287
 "~M~isc" = "Ра~з~ное"
-# navigator/widgets/editor/edit_window/edit_window.nml:286
+# navigator/widgets/editor/edit_window/edit_window.nml:289
 "Insert ~d~ate" = "Вставить ~д~ату"
-# navigator/widgets/editor/edit_window/edit_window.nml:290
+# navigator/widgets/editor/edit_window/edit_window.nml:293
 "Insert ~t~ime" = "Вставить ~в~ремя"
-# navigator/widgets/editor/edit_window/edit_window.nml:294
+# navigator/widgets/editor/edit_window/edit_window.nml:297
 "Du~p~licate line" = "Ду~б~лировать строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:298, navigator/widgets/shell/main_menu/main_menu.nml:208
+# navigator/widgets/editor/edit_window/edit_window.nml:301, navigator/widgets/shell/main_menu/main_menu.nml:208
 "Character ta~b~le" = "~Т~аблица символов"
-# navigator/widgets/editor/edit_window/edit_window.nml:302
+# navigator/widgets/editor/edit_window/edit_window.nml:305
 "Line Dra~w~ing" = "~Р~исование линий"
-# navigator/widgets/editor/edit_window/edit_window.nml:308
+# navigator/widgets/editor/edit_window/edit_window.nml:311
 "~U~ppercase" = "~П~рописные"
-# navigator/widgets/editor/edit_window/edit_window.nml:310, navigator/widgets/editor/edit_window/edit_window.nml:325, navigator/widgets/editor/edit_window/edit_window.nml:340
+# navigator/widgets/editor/edit_window/edit_window.nml:313, navigator/widgets/editor/edit_window/edit_window.nml:328, navigator/widgets/editor/edit_window/edit_window.nml:343
 "~W~ord" = "~С~лово"
-# navigator/widgets/editor/edit_window/edit_window.nml:314, navigator/widgets/editor/edit_window/edit_window.nml:329, navigator/widgets/editor/edit_window/edit_window.nml:344
+# navigator/widgets/editor/edit_window/edit_window.nml:317, navigator/widgets/editor/edit_window/edit_window.nml:332, navigator/widgets/editor/edit_window/edit_window.nml:347
 "~L~ine" = "С~т~рока"
-# navigator/widgets/editor/edit_window/edit_window.nml:338
+# navigator/widgets/editor/edit_window/edit_window.nml:341
 "~C~apitalize" = "~З~аглавные"
-# navigator/widgets/editor/edit_window/edit_window.nml:353, navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:27 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:356, navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:27 ...
 "~O~ptions" = "~Н~астройки"
-# navigator/widgets/editor/edit_window/edit_window.nml:355
-"~B~ackspace indents" = "~З~абой с отступом"
 # navigator/widgets/editor/edit_window/edit_window.nml:358
-"AutoB~r~ackets" = "Авто~с~кобки"
+"~B~ackspace indents" = "~З~абой с отступом"
 # navigator/widgets/editor/edit_window/edit_window.nml:361
-"Auto~i~ndent" = "Авто~о~тступ"
+"AutoB~r~ackets" = "Авто~с~кобки"
 # navigator/widgets/editor/edit_window/edit_window.nml:364
+"Auto~i~ndent" = "Авто~о~тступ"
+# navigator/widgets/editor/edit_window/edit_window.nml:367
 "~A~uto wrap" = "~А~втоперенос"
-# navigator/widgets/editor/edit_window/edit_window.nml:367, navigator/widgets/setup/editor_defaults_dialog/editor_defaults_dialog.nml:36
-"~J~ustify on wrap" = "~В~ыравнивать при переносе"
 # navigator/widgets/editor/edit_window/edit_window.nml:370, navigator/widgets/setup/editor_defaults_dialog/editor_defaults_dialog.nml:36
-"~V~ertical blocks" = "В~е~ртикальные блоки"
+"~J~ustify on wrap" = "~В~ыравнивать при переносе"
 # navigator/widgets/editor/edit_window/edit_window.nml:373, navigator/widgets/setup/editor_defaults_dialog/editor_defaults_dialog.nml:36
+"~V~ertical blocks" = "В~е~ртикальные блоки"
+# navigator/widgets/editor/edit_window/edit_window.nml:376, navigator/widgets/setup/editor_defaults_dialog/editor_defaults_dialog.nml:36
 "Opti~m~al fill" = "Опти~м~альное заполнение"
-# navigator/widgets/editor/edit_window/edit_window.nml:376
-"Current ~l~ine highlight" = "Подсветка ~т~екущей строки"
 # navigator/widgets/editor/edit_window/edit_window.nml:379
-"Current ~c~olumn highlight" = "Подсветка текущей ~к~олонки"
+"Current ~l~ine highlight" = "Подсветка ~т~екущей строки"
 # navigator/widgets/editor/edit_window/edit_window.nml:382
+"Current ~c~olumn highlight" = "Подсветка текущей ~к~олонки"
+# navigator/widgets/editor/edit_window/edit_window.nml:385
 "Syntax ~h~ighlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/editor/edit_window/edit_window.nml:386
+# navigator/widgets/editor/edit_window/edit_window.nml:389
 "Show hi~d~den characters" = "Показывать ск~р~ытые символы"
-# navigator/widgets/editor/edit_window/edit_window.nml:393
+# navigator/widgets/editor/edit_window/edit_window.nml:396
 "File ~t~ype" = "~Т~ип файла"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:297
 "Replace" = "Замена"
@@ -761,7 +761,11 @@ name = "Русский"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:89
 "D~e~fault" = "Ст~а~ндарт"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:98
-"Re~s~et" = "~С~бросить"
+"Rese~t~" = "~С~бросить"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:108
+"~S~ave..." = "Со~х~ранить..."
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:119
+"L~o~ad..." = "За~г~рузить..."
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:11
 "Press a key" = "Нажмите клавишу"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
@@ -872,7 +876,7 @@ name = "Русский"
 "Navigator?" = "с Навигатором?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:42
 "~D~on't ask again" = "Не ~с~прашивать"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:661, navigator/widgets/shell/shell/shell.py:339
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:661, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~О~ткрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:54
 "~A~bout..." = "~О~ программе..."
@@ -1410,7 +1414,7 @@ name = "Русский"
 "~S~ave File As" = "~З~аписать в"
 # navigator/widgets/editor/edit_window/edit_window.py:103
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:311, navigator/widgets/manager/manager/manager.py:805, navigator/widgets/shell/shell/shell.py:306 ...
+# navigator/widgets/editor/edit_window/edit_window.py:311, navigator/widgets/manager/manager/manager.py:805, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:252 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
 # navigator/widgets/editor/edit_window/edit_window.py:602, navigator/widgets/manager/manager/manager.py:1320
 "Confirmation" = "Подтверждение"
@@ -1420,7 +1424,7 @@ name = "Русский"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:377, navigator/widgets/editor/edit_window/edit_window.py:705, navigator/widgets/editor/edit_window/edit_window.py:335 ...
 "Cannot write {path}: {error}" = "Не удаётся записать {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:404, navigator/widgets/shell/shell/shell.py:346, navigator/widgets/shell/shell/shell.py:1436 ...
+# navigator/widgets/editor/edit_window/edit_window.py:404, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:285, navigator/widgets/shell/shell/shell.py:346 ...
 "Cannot read {path}: {error}" = "Не удаётся прочитать {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:505, navigator/widgets/viewer/db_window/db_window.py:178, navigator/widgets/viewer/file_window/file_window.py:410
 "Search string not found" = "Не могу найти строку"
@@ -1434,7 +1438,7 @@ name = "Русский"
 "File {name} was modified. Save?" = "Файл {name} изменён. Сохранить?"
 # navigator/widgets/editor/edit_window/edit_window.py:326
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
-# navigator/widgets/editor/file_editor/file_editor.py:1301, navigator/widgets/editor/file_editor/file_editor.py:1340
+# navigator/widgets/editor/file_editor/file_editor.py:1345, navigator/widgets/editor/file_editor/file_editor.py:1384
 "Vertical blocks need for this operation" = "Выберите вертикальный блок для этой операции"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "~Я~зыки программирования"
@@ -1686,17 +1690,27 @@ name = "Русский"
 "{n} item" = ["{n} элемент", "{n} элемента", "{n} элементов"]
 # navigator/widgets/setup/interface_dialog/interface_dialog.py:24
 "Automatic" = "Автоматически"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:206
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:215
 "Every key back to its default?" = "Вернуть все клавиши по умолчанию?"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:105
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:114
 "Default: {keys}" = "По умолчанию: {keys}"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:115, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:120
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:124, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:129
 "Key bindings" = "Назначение клавиш"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:128
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:243
+"Save Key Bindings" = "Сохранить назначение клавиш"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:276
+"Load Key Bindings" = "Загрузить назначение клавиш"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:293
+"and {count} more" = "и ещё {count}"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:294
+"Some of {name} was not loaded:\n{warnings}" = "Часть {name} не загружена:\n{warnings}"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:137
 "Cannot bind that:\n{error}" = "Невозможно назначить:\n{error}"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:146
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} назначена на {command}.\nПереназначить?"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:158
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:295
+"Cannot make {path}: {error}" = "Невозможно создать {path}: {error}"
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} - глобальная клавиша {command}, она\nпроверяется первой. Всё равно назначить?"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Десятичный: {decimal:3d} Hex: {hex:02x}"
@@ -1762,8 +1776,6 @@ name = "Русский"
 "Cannot read the theme: {error}" = "Невозможно прочитать тему: {error}"
 # navigator/widgets/shell/shell/shell.py:243
 "Cannot save the palette: {error}" = "Невозможно сохранить палитру: {error}"
-# navigator/widgets/shell/shell/shell.py:295
-"Cannot make {path}: {error}" = "Невозможно создать {path}: {error}"
 # navigator/widgets/shell/shell/shell.py:355
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:458

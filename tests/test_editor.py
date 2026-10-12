@@ -274,6 +274,24 @@ def test_typing_edits_and_f2_writes_the_bytes_back(files):
     assert not editor_window(app).editor.modified
 
 
+def test_ctrl_s_saves_by_default(files):
+    # A departure: Ctrl+S was WordStar's cursor left (keybindings_wordstar.ini).
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("end"), *typed("!"), lambda a: None, KeyEvent("s", ctrl=True), IDLE])
+    assert (files / "text.txt").read_bytes() == b"first line!\r\nsecond\tline\r\n"
+    assert not editor_window(app).editor.modified
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_with_the_wordstar_keys_ctrl_s_moves_left(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  KeyEvent("end"), KeyEvent("s", ctrl=True), *typed("!"), lambda a: None])
+    editor = editor_window(app).editor
+    assert editor.document.encode() == b"first lin!e\r\nsecond\tline\r\n"
+
+
 def test_the_info_line_marks_a_changed_text(files):
     app = navigator(files)
     seen = {}
@@ -333,6 +351,15 @@ def test_undo_takes_back_a_word_typed(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("abc"),
                   KeyEvent("backspace", alt=True)])
+    editor = editor_window(app).editor
+    assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
+    assert not editor.modified
+
+
+def test_ctrl_z_undoes_by_default(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("abc"),
+                  KeyEvent("z", ctrl=True)])
     editor = editor_window(app).editor
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
     assert not editor.modified
@@ -969,6 +996,7 @@ def test_the_rectangle_moves_down_with_a_line_break_above_it(files):
     assert editor.block_text == "ab"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_b_v_switches_column_blocks_keeping_the_block_and_is_ticked(files):
     from navigator.widgets.editor.commands import SwitchBlock
 
@@ -1013,6 +1041,7 @@ def text_editor(files, text: bytes, *keys):
     return marked(files, *keys)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_b_and_k_mark_with_the_letter_plain_or_with_ctrl(files):
     _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"), *chord("b"),
                             *[KeyEvent("right")] * 3, ctrl("k"), ctrl("k"))
@@ -1022,11 +1051,13 @@ def test_ctrl_k_b_and_k_mark_with_the_letter_plain_or_with_ctrl(files):
     assert editor.block_text == "abcd"  # the end first, then the start
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_a_chords_second_key_never_types(files):
     _, editor = text_editor(files, b"abc\n", *chord("z"), *typed("x"))
     assert editor.document.encode() == b"xabc\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_the_info_line_shows_a_chord_waiting(files):
     seen = []
     (files / "text.txt").write_bytes(b"abc\n")
@@ -1037,6 +1068,7 @@ def test_the_info_line_shows_a_chord_waiting(files):
     assert seen[0].endswith(" ^K") and not seen[1].endswith("^K")
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_t_and_l_mark_a_word_and_a_line(files):
     _, editor = text_editor(files, b"one two\nthree\n", *[KeyEvent("right")] * 5, *chord("t"))
     assert editor.block_text == "two"
@@ -1044,6 +1076,7 @@ def test_ctrl_k_t_and_l_mark_a_word_and_a_line(files):
     assert editor.block_text == "one two\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_h_and_alt_h_hide_the_block_and_show_it_again(files):
     seen = []
     (files / "text.txt").write_bytes(b"abcdef\n")
@@ -1070,12 +1103,14 @@ def test_a_hidden_block_waits_out_the_block_commands_and_follows_edits(files):
     assert editor.block == (Pos(0, 3), Pos(0, 5))  # moved with the text typed before it
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_marking_anew_shows_a_hidden_block(files):
     _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 2,
                             KeyEvent("h", alt=True), KeyEvent("end"), *chord("k"))
     assert editor.has_block and editor.block_text == "abcdef"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_c_copies_the_block_to_the_cursor_and_marks_the_copy(files):
     _, editor = text_editor(files, b"abc\nxyz\n", *[KeyEvent("right", shift=True)] * 2,
                             KeyEvent("down"), KeyEvent("end"), *chord("c"))
@@ -1083,6 +1118,7 @@ def test_ctrl_k_c_copies_the_block_to_the_cursor_and_marks_the_copy(files):
     assert editor.block == (Pos(1, 3), Pos(1, 5))
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_v_moves_the_block_and_one_undo_puts_it_back(files):
     _, editor = text_editor(files, b"abc\nxyz\n", *[KeyEvent("right", shift=True)] * 2,
                             KeyEvent("down"), KeyEvent("end"), *chord("v"))
@@ -1094,17 +1130,20 @@ def test_ctrl_k_v_moves_the_block_and_one_undo_puts_it_back(files):
     assert editor.document.encode() == b"abc\nxyz\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_v_inside_the_block_does_nothing(files):
     _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 4,
                             KeyEvent("left"), KeyEvent("left"), *chord("v"))
     assert editor.document.encode() == b"abcdef\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_y_deletes_the_block(files):
     _, editor = text_editor(files, b"abcdef\n", *[KeyEvent("right", shift=True)] * 2, *chord("y"))
     assert editor.document.encode() == b"cdef\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_i_and_u_indent_and_unindent_the_blocks_lines(files):
     _, editor = text_editor(files, b"a\n b\nc\n", KeyEvent("down", shift=True),
                             KeyEvent("down", shift=True), *chord("i"))
@@ -1158,6 +1197,7 @@ def test_shift_tab_outside_the_block_unindents_the_cursors_line_and_keeps_the_bl
     assert editor.document.encode() == b" a\nb\n" and editor.block_text == " a"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_brackets_change_the_case_of_the_block(files):
     _, editor = text_editor(files, b"hello world\n", KeyEvent("end", shift=True), *chord("["))
     assert editor.document.encode() == b"HELLO WORLD\n"
@@ -1168,6 +1208,7 @@ def test_ctrl_k_brackets_change_the_case_of_the_block(files):
     assert editor.block_text == "Hello World"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_b_and_k_go_to_the_blocks_ends(files):
     _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"),
                             *[KeyEvent("right", shift=True)] * 3, ctrl("q"), KeyEvent("b", "b"))
@@ -1178,12 +1219,14 @@ def test_ctrl_q_b_and_k_go_to_the_blocks_ends(files):
     assert editor.col == 4
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_y_deletes_to_the_end_of_the_line(files):
     _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"), KeyEvent("right"),
                             ctrl("q"), KeyEvent("y", "y"))
     assert editor.document.encode() == b"ab\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_column_blocks_take_the_k_commands_too(files):
     SETTINGS.editor.vertical_blocks = True
     _, editor = text_editor(files, b"abcd\nefgh\n", KeyEvent("right"), *chord("b"),
@@ -1199,6 +1242,7 @@ def test_column_blocks_take_the_k_commands_too(files):
     assert editor.document.encode() == b"acd\neghb\n   f"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_d_and_t_insert_the_date_and_the_time(files, monkeypatch):
     import time as time_module
 
@@ -1210,6 +1254,7 @@ def test_ctrl_q_d_and_t_insert_the_date_and_the_time(files, monkeypatch):
     assert editor.col == 20
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
     import time as time_module
 
@@ -1233,6 +1278,7 @@ def answer(name):
     return [lambda a: None, *typed(name), KeyEvent("enter"), lambda a: None]
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_w_writes_the_block_with_the_line_divisor(files):
     block_file(files, b"one\r\ntwo\r\nthree\r\n", KeyEvent("down", shift=True),
                KeyEvent("down", shift=True), *chord("w"), *answer("part.txt"), IDLE, divisor="crlf")
@@ -1240,6 +1286,7 @@ def test_ctrl_k_w_writes_the_block_with_the_line_divisor(files):
     assert (files / "part.txt").read_bytes() == b"one\r\ntwo\r\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_w_asks_overwrite_append_or_cancel(files):
     (files / "part.txt").write_bytes(b"old")
     asked = []
@@ -1250,6 +1297,7 @@ def test_ctrl_k_w_asks_overwrite_append_or_cancel(files):
     assert (files / "part.txt").read_bytes() == b"oldnew"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_w_overwrites_on_yes_and_keeps_a_read_only_file_read_only(files):
     target = files / "part.txt"
     target.write_bytes(b"old")
@@ -1268,6 +1316,7 @@ def test_ctrl_k_w_waits_for_a_block(files):
     assert app.command_enabled(BlockWrite) is False
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_w_writes_a_column_block_line_by_line(files):
     SETTINGS.editor.vertical_blocks = True
     block_file(files, b"abcd\nefgh\n", KeyEvent("right"), *[KeyEvent("right", shift=True)] * 2,
@@ -1275,6 +1324,7 @@ def test_ctrl_k_w_writes_a_column_block_line_by_line(files):
     assert (files / "cols.txt").read_bytes() == b"bc\nfg"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_r_reads_a_file_in_marks_it_and_ends_column_blocks(files):
     SETTINGS.editor.vertical_blocks = True
     (files / "piece.txt").write_bytes(b"X\nY")
@@ -1284,6 +1334,7 @@ def test_ctrl_k_r_reads_a_file_in_marks_it_and_ends_column_blocks(files):
     assert editor.block_text == "X\nY" and (editor.line, editor.col) == (0, 1)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_r_says_a_name_in_no_directory_is_invalid(files):
     said = []
     _, editor = block_file(files, b"ab\n", *chord("r"), *answer("nowhere/x.txt"),
@@ -1299,6 +1350,7 @@ def lines(count: int) -> bytes:
     return b"".join(b"line %03d\n" % n for n in range(count))
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_digit_places_a_marker_and_ctrl_q_digit_returns_to_it(files):
     _, editor = text_editor(files, lines(10), KeyEvent("down"), KeyEvent("down"),
                             KeyEvent("right"), *chord("3"), ctrl("pagedown"),
@@ -1306,6 +1358,7 @@ def test_ctrl_k_digit_places_a_marker_and_ctrl_q_digit_returns_to_it(files):
     assert (editor.line, editor.col) == (2, 1)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_going_to_a_marker_centres_it(files):
     _, editor = text_editor(files, lines(200), *[KeyEvent("pagedown")] * 4, *chord("1"),
                             ctrl("pageup"), ctrl("q"), KeyEvent("1", "1"))
@@ -1313,16 +1366,19 @@ def test_going_to_a_marker_centres_it(files):
     assert editor.top > 0
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_an_unset_marker_goes_nowhere(files):
     _, editor = text_editor(files, lines(10), KeyEvent("down"), ctrl("q"), KeyEvent("7", "7"))
     assert (editor.line, editor.col) == (1, 0)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_a_markers_digit_never_types(files):
     _, editor = text_editor(files, b"abc\n", *chord("5"), ctrl("q"), KeyEvent("5", "5"))
     assert editor.document.encode() == b"abc\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_markers_come_back_with_the_edit_history(files):
     (files / "text.txt").write_bytes(lines(10))
     SETTINGS.interface.store_editor_position = False  # the markers come back regardless
@@ -1355,6 +1411,7 @@ def test_sort_orders_the_lines_by_the_blocks_columns(files):
     assert editor.rectangle == (0, 2, 2, 3)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_sort_by_ctrl_k_s_keeps_each_places_line_ending_and_one_undo_restores(files):
     SETTINGS.editor.vertical_blocks = True
     text = b"b\r\na\nc"
@@ -1408,6 +1465,7 @@ def test_calculate_needs_a_column_block(files):
     assert app.terminal.clipboard == []
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_u_stays_unindent(files):
     from navigator.widgets.editor.commands import UnindentBlock
     from navigator.widgets.editor.file_editor import FileEditor
@@ -1516,12 +1574,14 @@ def test_a_closing_bracket_goes_back_to_its_opener(files):
     assert (editor.line, editor.col) == (0, 1)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_only_the_same_kind_of_bracket_counts(files):
     text = b"[ ( ] ) ]\n"
     _, editor = text_editor(files, text, ctrl("q"), KeyEvent("[", "["))
     assert (editor.line, editor.col) == (0, 4)
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_ctrl_close_bracket_is_the_same_command(files):
     text = b"{x}\n"
     _, editor = text_editor(files, text, ctrl("q"), KeyEvent("]", ctrl=True))
@@ -1920,6 +1980,7 @@ def test_change_all_without_prompting_counts_what_it_made(files, fresh_search):
     assert editor.document.encode() == b"one dog\ntwo dog\ndog three\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_f_and_a_open_find_and_replace(files, fresh_search):
     seen = []
     text_editor(files, TEXT, ctrl("q"), KeyEvent("f", "f"), lambda a: None,
@@ -1952,6 +2013,7 @@ def test_formatting_is_one_undo_step(files):
     assert editor.document.encode() == PARAGRAPH
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_b_r_is_right(files):
     SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 10
     _, editor = text_editor(files, b"ab cd\n", KeyEvent("end", shift=True), ctrl("b"),
@@ -2335,6 +2397,7 @@ def test_without_optimal_fill_the_blanks_are_written_as_they_are(files):
     assert (files / "text.txt").read_bytes() == b"        x!\n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_w_writes_the_block_filled_too(files):
     SETTINGS.editor.optimal_fill = True
     block_file(files, b"        a\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"), IDLE)

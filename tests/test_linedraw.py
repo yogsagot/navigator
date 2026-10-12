@@ -86,6 +86,7 @@ def test_ctrl_arrows_erase_and_trim_the_junction_beside(blank):
     assert editor.document.encode().decode() == " │ \n ├─\n │ \n"
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_ctrl_m_switches_too_and_each_stroke_is_one_undo(blank):
     editor = draw(blank, KeyEvent("q", ctrl=True), KeyEvent("enter"), *shift("right", 2),
                   KeyEvent("backspace", alt=True))

@@ -248,6 +248,73 @@ def _marking(
     return moving
 
 
+#: The WordStar keys of DN's ``EDITOR COMMANDS``, no longer bound by default
+#: (see ``FileEditor.keys``): the diamond's and the deleting Ctrl keys, and
+#: the two-key Ctrl+B, Ctrl+K and Ctrl+Q commands.  DN's Ctrl+X and Ctrl+C
+#: (cursor down, page down) are not here -- they are the clipboard's either
+#: way but in ``keybindings_dn151.ini``.  ``keybindings_wordstar.ini`` binds
+#: exactly these, which a test holds it to.
+WORDSTAR = {
+    "ctrl+s": MoveLeft,
+    "ctrl+d": MoveRight,
+    "ctrl+e": MoveUp,
+    "ctrl+a": WordLeft,
+    "ctrl+f": WordRight,
+    "ctrl+r": PageUp,
+    "ctrl+w": ScrollUp,
+    "ctrl+z": ScrollDown,
+    "ctrl+g": DeleteChar,
+    "ctrl+t": DeleteWordRight,
+    **_wordstar("ctrl+b", {
+        "v": SwitchBlock,
+        "j": FJustify,
+        "r": FRight,
+        "l": FLeft,
+        "c": FCenter,
+    }),
+    # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
+    **_wordstar("ctrl+k", {
+        "b": BlockStart,
+        "k": BlockEnd,
+        "h": HideBlock,
+        "c": CopyBlock,
+        "v": MoveBlock,
+        "y": Clear,
+        "i": IndentBlock,
+        "u": UnindentBlock,
+        "[": UpcaseBlock,
+        "]": LowcaseBlock,
+        "\\": CapitalizeBlock,
+        "t": MarkWord,
+        "l": MarkLine,
+        "s": SortBlock,
+        "p": PrintBlock,
+        "r": BlockRead,
+        "w": BlockWrite,
+        # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
+        **{str(n): PlaceMarker(n) for n in range(1, 10)},
+    }),
+    **_wordstar("ctrl+q", {
+        "b": MoveBlockStart,
+        "k": MoveBlockEnd,
+        "y": DeleteToEnd,
+        "l": Undo,
+        "d": InsertDate,
+        "t": InsertTime,
+        "f": StartSearch,
+        "a": Replace,
+        "r": ReverseSearch,
+        # ``^Q'['`` and ``^Q^]``, as the table has them, neither with the other's form.
+        "[": BracketPair,
+        **{str(n): GotoMarker(n) for n in range(1, 10)},
+        "m": SwitchDrawMode,
+        # ``^Q^M``: Ctrl+M is Enter on a terminal that cannot tell them apart.
+        "enter": SwitchDrawMode,
+    }),
+    "ctrl+q ctrl+]": BracketPair,
+}
+
+
 class FileEditor(Widget):
     """The inside of an editor window: a text, its cursor, and the keys that edit it."""
 
@@ -265,33 +332,38 @@ class FileEditor(Widget):
 
     #: ``EDITOR COMMANDS``, the keys that need no second one.  A binding with
     #: Shift is the same movement dragging a block along.
+    #:
+    #: **A departure, asked for:** DN's table was WordStar's as much as Turbo
+    #: Vision's -- the Ctrl+E/S/D/X diamond, Ctrl+A/F words, Ctrl+R/C pages,
+    #: Ctrl+W/Z scrolling, Ctrl+G and Ctrl+T deleting, and the two-key Ctrl+K,
+    #: Ctrl+Q and Ctrl+B commands.  Those keys are the ones every editor since
+    #: uses to save, find and undo, so they are not bound by default; the
+    #: shipped ``keybindings_wordstar.ini`` (and ``keybindings_dn151.ini``, DN's
+    #: own to the key) puts them back, from Options > Configuration > Key
+    #: bindings > Load.  :data:`WORDSTAR` keeps those keys as DN had them.
     keys = {
         "left": MoveLeft,
-        "ctrl+s": MoveLeft,
         "shift+left": MoveLeft(extend=True),
         "right": MoveRight,
-        "ctrl+d": MoveRight,
         "shift+right": MoveRight(extend=True),
         "up": MoveUp,
-        "ctrl+e": MoveUp,
         "shift+up": MoveUp(extend=True),
         "down": MoveDown,
         "shift+down": MoveDown(extend=True),
         "ctrl+left": WordLeft,
-        "ctrl+a": WordLeft,
         "ctrl+shift+left": WordLeft(extend=True),
         "ctrl+right": WordRight,
-        "ctrl+f": WordRight,
         "ctrl+shift+right": WordRight(extend=True),
         "home": LineStart,
         "shift+home": LineStart(extend=True),
         "end": LineEnd,
         "shift+end": LineEnd(extend=True),
         "pageup": PageUp,
-        "ctrl+r": PageUp,
         "shift+pageup": PageUp(extend=True),
         "pagedown": PageDown,
         "shift+pagedown": PageDown(extend=True),
+        "ctrl+up": ScrollUp,
+        "ctrl+down": ScrollDown,
         "ctrl+home": ScreenTop,
         "ctrl+shift+home": ScreenTop(extend=True),
         "ctrl+end": ScreenBottom,
@@ -300,8 +372,6 @@ class FileEditor(Widget):
         "ctrl+shift+pageup": TextStart(extend=True),
         "ctrl+pagedown": TextEnd,
         "ctrl+shift+pagedown": TextEnd(extend=True),
-        "ctrl+w": ScrollUp,
-        "ctrl+z": ScrollDown,
         "enter": NewLine,
         "ctrl+enter": NewLine,
         "ctrl+m": NewLine,
@@ -314,9 +384,7 @@ class FileEditor(Widget):
         "backspace": DeleteBack,
         "ctrl+h": DeleteBack,
         "delete": DeleteChar,
-        "ctrl+g": DeleteChar,
         "ctrl+backspace": DeleteWordLeft,
-        "ctrl+t": DeleteWordRight,
         "ctrl+y": DeleteLine,
         "insert": SwitchInsert,
         "alt+backspace": Undo,
@@ -361,54 +429,21 @@ class FileEditor(Widget):
         "alt+r": FRight,
         "alt+l": FLeft,
         "alt+c": FCenter,
-        **_wordstar("ctrl+b", {
-            "v": SwitchBlock,
-            "j": FJustify,
-            "r": FRight,
-            "l": FLeft,
-            "c": FCenter,
-        }),
-        # ``EDITOR COMMANDS``' two-key half: WordStar's Ctrl+K and Ctrl+Q.
-        **_wordstar("ctrl+k", {
-            "b": BlockStart,
-            "k": BlockEnd,
-            "h": HideBlock,
-            "c": CopyBlock,
-            "v": MoveBlock,
-            "y": Clear,
-            "i": IndentBlock,
-            "u": UnindentBlock,
-            "[": UpcaseBlock,
-            "]": LowcaseBlock,
-            "\\": CapitalizeBlock,
-            "t": MarkWord,
-            "l": MarkLine,
-            "s": SortBlock,
-            "p": PrintBlock,
-            "r": BlockRead,
-            "w": BlockWrite,
-            # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
-            **{str(n): PlaceMarker(n) for n in range(1, 10)},
-        }),
-        **_wordstar("ctrl+q", {
-            "b": MoveBlockStart,
-            "k": MoveBlockEnd,
-            "y": DeleteToEnd,
-            "l": Undo,
-            "d": InsertDate,
-            "t": InsertTime,
-            "f": StartSearch,
-            "a": Replace,
-            "r": ReverseSearch,
-            # ``^Q'['`` and ``^Q^]``, as the table has them, neither with the other's form.
-            "[": BracketPair,
-            **{str(n): GotoMarker(n) for n in range(1, 10)},
-            "m": SwitchDrawMode,
-            # ``^Q^M``: Ctrl+M is Enter on a terminal that cannot tell them apart.
-            "enter": SwitchDrawMode,
-        }),
-        "ctrl+q ctrl+]": BracketPair,
+        # What the freed keys do in every editor since: ``cmStartSearch``,
+        # ``cmReplace`` and ``cmGotoLineNumber`` (F7, Ctrl+F7 and Alt+G stay),
+        # and ``cmUndo`` (Alt+Backspace stays).  Ctrl+S, *Save*, is the
+        # editor window's, which owns ``SaveText``.
+        "ctrl+f": StartSearch,
+        "ctrl+r": Replace,
+        "ctrl+g": GotoLineNumber,
+        "ctrl+z": Undo,
     }
+
+    #: Every command :data:`WORDSTAR` binds, those no key above reaches among
+    #: them, listed so Key bindings -- and the WordStar presets -- can still
+    #: bind them, under the names they had (``unindent_block`` beside
+    #: ``unindent_block_stop``).  Most are on the Editor menu as well.
+    keyless_commands = tuple(WORDSTAR.values())
 
     #: What typing reaches: the command line's Enter, Home, End and Tab step
     #: aside while this holds the keyboard.  See ``Shell.enables``.

@@ -51,8 +51,10 @@ class KeyBindingsDialog(Dialog, _Component):
     unbind: Button    # key_bindings_dialog.nml:79
     restore: Button    # key_bindings_dialog.nml:88
     reset: Button    # key_bindings_dialog.nml:97
-    pick: Button    # key_bindings_dialog.nml:105
-    abandon: Button    # key_bindings_dialog.nml:113
+    store: Button    # key_bindings_dialog.nml:107
+    fetch: Button    # key_bindings_dialog.nml:118
+    pick: Button    # key_bindings_dialog.nml:126
+    abandon: Button    # key_bindings_dialog.nml:134
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -82,11 +84,19 @@ class KeyBindingsDialog(Dialog, _Component):
         """``reset`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_pick_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:105
+    async def on_store_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:107
+        """``store`` raised an event whose handler is ``on_click``."""
+        return False
+
+    async def on_fetch_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:118
+        """``fetch`` raised an event whose handler is ``on_click``."""
+        return False
+
+    async def on_pick_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:126
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:113
+    async def on_abandon_click(self, event: _Event) -> bool:    # key_bindings_dialog.nml:134
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -102,11 +112,13 @@ class KeyBindingsDialog(Dialog, _Component):
         self.unbind = Button(parent=self)    # key_bindings_dialog.nml:78
         self.restore = Button(parent=self)    # key_bindings_dialog.nml:87
         self.reset = Button(parent=self)    # key_bindings_dialog.nml:96
-        self.pick = Button(parent=self)    # key_bindings_dialog.nml:104
-        self.abandon = Button(parent=self)    # key_bindings_dialog.nml:112
+        self.store = Button(parent=self)    # key_bindings_dialog.nml:106
+        self.fetch = Button(parent=self)    # key_bindings_dialog.nml:117
+        self.pick = Button(parent=self)    # key_bindings_dialog.nml:125
+        self.abandon = Button(parent=self)    # key_bindings_dialog.nml:133
 
         self.modal_width = 78    # key_bindings_dialog.nml:13
-        self.modal_height = 22    # key_bindings_dialog.nml:14
+        self.modal_height = 23    # key_bindings_dialog.nml:14
         self.title = _bind(lambda _o: _tr('Key Bindings'), yielding=True)    # key_bindings_dialog.nml:15
 
         self.groups_caption.x = 2    # key_bindings_dialog.nml:19
@@ -122,7 +134,7 @@ class KeyBindingsDialog(Dialog, _Component):
         self.groups.x = 2    # key_bindings_dialog.nml:28
         self.groups.y = 3    # key_bindings_dialog.nml:29
         self.groups.width = 19    # key_bindings_dialog.nml:30
-        self.groups.height = 15    # key_bindings_dialog.nml:31
+        self.groups.height = 17    # key_bindings_dialog.nml:31
 
         self.bindings_caption.x = 22    # key_bindings_dialog.nml:35
         self.bindings_caption.y = 2    # key_bindings_dialog.nml:36
@@ -137,11 +149,11 @@ class KeyBindingsDialog(Dialog, _Component):
         self.bindings.x = 22    # key_bindings_dialog.nml:44
         self.bindings.y = 3    # key_bindings_dialog.nml:45
         self.bindings.width = 42    # key_bindings_dialog.nml:46
-        self.bindings.height = 15    # key_bindings_dialog.nml:47
+        self.bindings.height = 17    # key_bindings_dialog.nml:47
 
         self.detail.x = 2    # key_bindings_dialog.nml:53
-        self.detail.y = 18    # key_bindings_dialog.nml:54
-        self.detail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # key_bindings_dialog.nml:55
+        self.detail.y = 20    # key_bindings_dialog.nml:54
+        self.detail.width = 62    # key_bindings_dialog.nml:55
         self.detail.height = 2    # key_bindings_dialog.nml:56
 
         self.rebind.text = _bind(lambda _o: _tr('~R~ebind'), yielding=True)    # key_bindings_dialog.nml:61
@@ -173,23 +185,37 @@ class KeyBindingsDialog(Dialog, _Component):
         self.restore.height = 2    # key_bindings_dialog.nml:93
         self.restore.on_click = self.on_restore_click    # key_bindings_dialog.nml:88
 
-        self.reset.text = _bind(lambda _o: _tr('Re~s~et'), yielding=True)    # key_bindings_dialog.nml:98
+        self.reset.text = _bind(lambda _o: _tr('Rese~t~'), yielding=True)    # key_bindings_dialog.nml:98
         self.reset.x = 65    # key_bindings_dialog.nml:99
         self.reset.y = 11    # key_bindings_dialog.nml:100
         self.reset.width = 11    # key_bindings_dialog.nml:101
         self.reset.height = 2    # key_bindings_dialog.nml:102
         self.reset.on_click = self.on_reset_click    # key_bindings_dialog.nml:97
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # key_bindings_dialog.nml:106
-        self.pick.x = 65    # key_bindings_dialog.nml:107
-        self.pick.y = 13    # key_bindings_dialog.nml:108
-        self.pick.width = 11    # key_bindings_dialog.nml:109
-        self.pick.height = 2    # key_bindings_dialog.nml:110
-        self.pick.on_click = self.on_pick_click    # key_bindings_dialog.nml:105
+        self.store.text = _bind(lambda _o: _tr('~S~ave...'), yielding=True)    # key_bindings_dialog.nml:108
+        self.store.x = 65    # key_bindings_dialog.nml:109
+        self.store.y = 13    # key_bindings_dialog.nml:110
+        self.store.width = 11    # key_bindings_dialog.nml:111
+        self.store.height = 2    # key_bindings_dialog.nml:112
+        self.store.on_click = self.on_store_click    # key_bindings_dialog.nml:107
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # key_bindings_dialog.nml:114
-        self.abandon.x = 65    # key_bindings_dialog.nml:115
-        self.abandon.y = 15    # key_bindings_dialog.nml:116
-        self.abandon.width = 11    # key_bindings_dialog.nml:117
-        self.abandon.height = 2    # key_bindings_dialog.nml:118
-        self.abandon.on_click = self.on_abandon_click    # key_bindings_dialog.nml:113
+        self.fetch.text = _bind(lambda _o: _tr('L~o~ad...'), yielding=True)    # key_bindings_dialog.nml:119
+        self.fetch.x = 65    # key_bindings_dialog.nml:120
+        self.fetch.y = 15    # key_bindings_dialog.nml:121
+        self.fetch.width = 11    # key_bindings_dialog.nml:122
+        self.fetch.height = 2    # key_bindings_dialog.nml:123
+        self.fetch.on_click = self.on_fetch_click    # key_bindings_dialog.nml:118
+
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # key_bindings_dialog.nml:127
+        self.pick.x = 65    # key_bindings_dialog.nml:128
+        self.pick.y = 17    # key_bindings_dialog.nml:129
+        self.pick.width = 11    # key_bindings_dialog.nml:130
+        self.pick.height = 2    # key_bindings_dialog.nml:131
+        self.pick.on_click = self.on_pick_click    # key_bindings_dialog.nml:126
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # key_bindings_dialog.nml:135
+        self.abandon.x = 65    # key_bindings_dialog.nml:136
+        self.abandon.y = 19    # key_bindings_dialog.nml:137
+        self.abandon.width = 11    # key_bindings_dialog.nml:138
+        self.abandon.height = 2    # key_bindings_dialog.nml:139
+        self.abandon.on_click = self.on_abandon_click    # key_bindings_dialog.nml:134

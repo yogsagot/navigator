@@ -58,7 +58,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Every ^K/^Q
   command in the table is here.
-- **WordStar's ^K and ^Q** are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
+- **The defaults are modern, WordStar is a preset (departure, asked for).** `FileEditor.keys` binds no WordStar key:
+  not the Ctrl+E/S/D/A/F/R/W/Z diamond, not Ctrl+G/T, not the ^K/^Q/^B chords. The freed keys do what every editor
+  since does: Ctrl+F find, Ctrl+R replace, Ctrl+G go to line, Ctrl+Z undo, Ctrl+Up/Down scroll, and Ctrl+S save
+  (`EditWindow`'s, so the editor must not bind Ctrl+S). `WORDSTAR` (module level in `file_editor.py`) keeps DN's
+  keys as they were, `keyless_commands = tuple(WORDSTAR.values())` keeps every command listed (and named as before)
+  in Key bindings, and `navigator/assets/keymaps/keybindings_wordstar.ini` / `keybindings_dn151.ini` bind them back
+  -- `test_the_wordstar_sets_bind_dn_s_table` holds the files to `WORDSTAR`. A test that presses a WordStar key
+  takes conftest's `wordstar` fixture (`@pytest.mark.usefixtures("wordstar")`).
+- **WordStar's ^K and ^Q** (with the preset) are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`

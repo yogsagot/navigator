@@ -55,8 +55,11 @@ editor's phases.
   Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill);
   `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill)
 - `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
-  Options > Configuration > Key bindings; a line that will not parse warns and keeps its default
-  (`navigator-keybindings` skill)
+  Options > Configuration > Key bindings; a line that will not parse warns and keeps its default. That dialog's
+  Save/Load write and read whole sets in `keymaps/` beside it; default, WordStar, DN 1.51 and Emacs sets ship in
+  `navigator/assets/keymaps/` (`navigator-keybindings` skill). After adding, renaming or rebinding a command,
+  regenerate the default set: `./venv/bin/python tools/keymap_default.py`; `--check` exits 1 when it is stale (a test
+  runs it)
 - Options > Colors keeps the user's palette beside it as `palette.nss` (what differs from the theme, loaded after it);
   Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
 - Regenerate `highlight.ini`'s template (`navigator/assets/highlight.ini`) from the installed Pygments after upgrading

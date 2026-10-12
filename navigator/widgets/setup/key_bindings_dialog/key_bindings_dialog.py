@@ -8,10 +8,18 @@ command of the same table has it (and taken from that one), and when the
 application's own table has it, since that table is looked at first.  A key
 a table cannot take -- a chord whose first key is bound alone -- is refused
 with the reason.
+
+*Save* writes the keys as edited so far to a file of one's own, binding
+nothing, and *Load* puts a file's in place of every edit -- what it does not
+name at its default, as at a start -- for OK to bind: one's own, or a set
+Navigator ships (:func:`navigator.keybindings.presets_dir`).
 """
 
 from __future__ import annotations
 
+import asyncio
+import configparser
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from navkit.commands import KeyTableError, key_label
@@ -20,6 +28,7 @@ from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
+from navigator import keybindings
 from navigator.keybindings import Assignment, Entry, Section
 from navigator.widgets.setup.key_bindings_dialog.binding_list import keys_text
 
@@ -52,7 +61,7 @@ class KeyBindingsDialog(Dialog):
     @property
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.rebind, self.append, self.unbind, self.restore, self.reset,
-                self.pick, self.abandon)
+                self.store, self.fetch, self.pick, self.abandon)
 
     def accept(self) -> dict[str, Assignment]:
         return {name: dict(assignment) for name, assignment in self.assignments.items()}
@@ -207,6 +216,91 @@ class KeyBindingsDialog(Dialog):
             return
         self.assignments = {section.name: section.defaults() for section in self.sections}
         self._refresh()
+        self.bindings.focus()
+
+    # -- sets of keys in files ----------------------------------------------------------
+
+    #: How many of a loaded file's warnings are shown before *and N more*.
+    WARNINGS_SHOWN = 6
+
+    async def on_store_click(self, event: Event) -> bool:
+        self.spawn(self.save_file())
+        return True
+
+    async def save_file(self) -> None:
+        """*Save*: every category's keys as edited so far, written to a file
+        named in a file box opened on ``keymaps/`` beside ``navigator.ini``.
+        Binds nothing; a file that is there is asked about first."""
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        directory = keybindings.user_presets_dir()
+        try:
+            await asyncio.to_thread(directory.mkdir, parents=True, exist_ok=True)
+        except OSError as error:
+            await self._refuse(tr("Cannot make {path}: {error}").format(
+                path=directory, error=error.strerror or error))
+            return
+        name = await FileDialog(title=tr("Save Key Bindings"), label=tr("~F~ile name"),
+                                history_id="keybindings", directory=directory,
+                                wildcard="*.ini").execute(self.application)
+        if not name:
+            return
+        path = Path(name)
+        if not path.suffix:
+            path = path.with_suffix(".ini")
+        if await asyncio.to_thread(path.exists):
+            if not await self._ask(tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=path.name)):
+                return
+        try:
+            await asyncio.to_thread(keybindings.write, self.sections, self.accept(), path)
+        except OSError as error:
+            await self._refuse(tr("Cannot write {path}: {error}").format(
+                path=path, error=error.strerror or error))
+
+    async def on_fetch_click(self, event: Event) -> bool:
+        self.spawn(self.load_file())
+        return True
+
+    async def load_file(self) -> None:
+        """*Load*: a file picked in a file box -- one's own ``keymaps/`` when it
+        holds any, else the sets Navigator ships -- in place of every edit, a
+        command it does not name at its default.  Its warnings are said; one
+        that cannot be read changes nothing."""
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        def start() -> Path:
+            mine = keybindings.user_presets_dir()
+            return mine if any(mine.glob("*.ini")) else keybindings.presets_dir()
+
+        directory = await asyncio.to_thread(start)
+        name = await FileDialog(title=tr("Load Key Bindings"), label=tr("~F~ile name"),
+                                history_id="keybindings", directory=directory,
+                                wildcard="*.ini", ok_text=tr("~O~pen")).execute(self.application)
+        if not name:
+            return
+        path = Path(name)
+        try:
+            found, warnings = await asyncio.to_thread(keybindings.read, path, self.sections)
+        except (OSError, UnicodeError, configparser.Error) as error:
+            await self._refuse(tr("Cannot read {path}: {error}").format(
+                path=path, error=getattr(error, "strerror", None) or error))
+            return
+        self.assign({section.name: {**section.defaults(), **found.get(section.name, {})}
+                     for section in self.sections})
+        if warnings:
+            shown = [warning.removeprefix(f"{path}: ") for warning in warnings[:self.WARNINGS_SHOWN]]
+            if len(warnings) > len(shown):
+                shown.append(tr("and {count} more").format(count=len(warnings) - len(shown)))
+            await self._refuse(tr("Some of {name} was not loaded:\n{warnings}").format(
+                name=path.name, warnings="\n".join(shown)))
+
+    def assign(self, assignments: Mapping[str, Assignment]) -> None:
+        """*assignments* as every category's keys, in place of what was edited."""
+        self.assignments = {section.name: dict(assignments.get(section.name) or section.defaults())
+                            for section in self.sections}
+        cursor = self.bindings.cursor
+        self._refresh()
+        self.bindings.cursor = min(cursor, max(0, len(self.bindings.items) - 1))
         self.bindings.focus()
 
     async def on_pick_click(self, event: Event) -> bool:

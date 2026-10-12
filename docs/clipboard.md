@@ -65,7 +65,9 @@ There are three sets of keys because no single set works everywhere:
 
 > **Coming from DOS Navigator?** Its editor used Ctrl+C, Ctrl+X and Ctrl+V for Page Down, cursor down and the
 > insert/overwrite toggle (WordStar keys). Navigator uses them for the clipboard instead. PgDn, Down and Ins still do
-> those jobs, and the other WordStar keys (Ctrl+K…, Ctrl+Q…, Ctrl+E, Ctrl+S and so on) are unchanged.
+> those jobs. The other WordStar keys (Ctrl+K…, Ctrl+Q…, Ctrl+E, Ctrl+S and so on) are not bound by default either;
+> load `keybindings_wordstar.ini` from Options > Configuration > Key bindings > Load to get them back, or
+> `keybindings_dn151.ini` to get DN's Ctrl+C/X/V as well.
 
 ### In dialog input lines and on the command line
 

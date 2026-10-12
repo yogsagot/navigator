@@ -26,7 +26,18 @@ Navigator adds arrives bound), and a line that will not do -- an unknown
 name, a key that is not one, two commands on one key -- is a warning, as
 ``navigator.ini``'s are: the line, or for a clash the whole section, keeps
 its default.  Written whole on the first start (:func:`seed`) and by the
-dialog's OK (:func:`save`); comments written by hand are not kept.
+dialog's OK (:func:`write`); comments written by hand are not kept.
+
+**Sets.**  The same format, any name, is a set of keys the dialog's *Save*
+writes and *Load* reads -- ``keymaps/`` beside ``navigator.ini`` by default
+-- and Navigator ships four among its assets (:func:`presets_dir`):
+``keybindings_wordstar.ini``, ``keybindings_dn151.ini`` and
+``keybindings_emacs.ini``, each holding only what differs from the defaults,
+and ``keybindings_default.ini``, every command at its default
+(``tools/keymap_default.py`` writes it).
+A command a table handles but binds no key to by default is still a line,
+when its class lists it in ``keyless_commands`` (:func:`keyless`), so a set
+can bind it: the editor's WordStar commands are.
 
 The application's own class is passed in rather than imported, since
 ``navigator.__main__`` is ``__main__`` when Navigator runs and importing it
@@ -42,6 +53,7 @@ import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from functools import cached_property
+from importlib.resources import files
 from pathlib import Path
 
 from navkit.commands import (
@@ -65,6 +77,11 @@ from navigator.settings import (
 
 #: The file's name, in :func:`navigator.settings.config_dir`.
 FILE_NAME = "keybindings.ini"
+
+#: The directory of key binding sets, shipped and the user's own: what the
+#: Key bindings dialog's *Save* writes and *Load* reads, in
+#: :func:`navigator.settings.config_dir` and among Navigator's assets.
+PRESETS_NAME = "keymaps"
 
 #: Each table there is a section for, in the order the dialog lists them:
 #: the section's name, its title, and its class as ``module:Class`` -- None
@@ -128,7 +145,7 @@ class Section:
 
     @cached_property
     def entries(self) -> tuple[Entry, ...]:
-        return entries(default_keys(self.cls, self.base))
+        return entries(default_keys(self.cls, self.base), keyless(self.cls, self.base))
 
     def entry(self, name: str) -> Entry | None:
         return next((entry for entry in self.entries if entry.name == name), None)
@@ -206,21 +223,40 @@ def _suffix(value: object, field: str) -> str:
     return "_" + re.sub(r"\W+", "_", text).strip("_").lower()
 
 
-def entries(table: Mapping[str, Binding]) -> tuple[Entry, ...]:
+def keyless(cls: type, base: type) -> tuple[Binding, ...]:
+    """The ``keyless_commands`` the classes from *cls* up to *base*
+    (exclusive) declare: commands they handle that no key runs by default,
+    which a section still lists so the user -- or a preset -- can bind them."""
+    found: list[Binding] = []
+    for klass in cls.__mro__:
+        if klass is base:
+            break
+        found.extend(vars(klass).get("keyless_commands", ()))
+    return tuple(found)
+
+
+def entries(table: Mapping[str, Binding],
+            keyless: Iterable[Binding] = ()) -> tuple[Entry, ...]:
     """*table*'s commands, one entry each, in the order the table first
-    names them, every key that asks for one gathered under it.
+    names them, every key that asks for one gathered under it, and then
+    each of *keyless*'s that *table* does not bind, with no key.
 
     Two bindings are one command when they make equal commands, so
     ``StoreQuickDir(slot=1)`` under two keys is one entry.  A command's name
     is its class's in snake case; when the table binds the class more than
-    one way, each variant is told apart by the fields that differ between
-    them (``MoveLeft(extend=True)`` is ``move_left_extend``).
+    one way -- or *keyless* holds another of it -- each variant is told
+    apart by the fields that differ between them (``MoveLeft(extend=True)``
+    is ``move_left_extend``, ``PlaceMarker(3)`` ``place_marker_3``).
     """
     keys: dict[object, list[str]] = {}
     bindings: dict[object, Binding] = {}
     for key, binding in table.items():
         command = command_of(binding)
         keys.setdefault(command, []).append(key)
+        bindings.setdefault(command, binding)
+    for binding in keyless:
+        command = command_of(binding)
+        keys.setdefault(command, [])
         bindings.setdefault(command, binding)
     variants: dict[type, list[object]] = {}
     for command in keys:
@@ -247,6 +283,16 @@ def path() -> Path:
     return config_dir() / FILE_NAME
 
 
+def presets_dir() -> Path:
+    """The sets Navigator ships: ``keybindings_wordstar.ini`` and the rest."""
+    return Path(str(files("navigator.assets"))) / PRESETS_NAME
+
+
+def user_presets_dir() -> Path:
+    """Where *Save* puts a set by default, beside ``navigator.ini``."""
+    return config_dir() / PRESETS_NAME
+
+
 def format_keys(keys: Iterable[str]) -> str:
     """*keys* as a line of the file writes them.  A key that would start
     with a comment character after a blank is joined without one."""
@@ -264,15 +310,27 @@ def parse_keys(text: str) -> tuple[str, ...]:
     return tuple(parse_key(part) for part in text.split(",") if part.strip())
 
 
-def render(found: Iterable[Section], assignments: Mapping[str, Assignment]) -> str:
+#: What :func:`render` writes above the sections of ``keybindings.ini``.
+HEADER = (
+    "Navigator key bindings.",
+    "One line per command: its keys after the '=', separated by commas, a chord's",
+    "keys by a blank (ctrl+k b); nothing after the '=' leaves it without a key.",
+    "Modifiers are ctrl, alt and shift. Rewritten by Options > Configuration >",
+    "Key bindings, which keeps the values but not comments written here.",
+)
+
+
+def render(found: Iterable[Section], assignments: Mapping[str, Assignment],
+           header: Iterable[str] = HEADER) -> str:
     """The whole file: every section, every command, *assignments*' keys or
-    the defaults -- a line that is not its default saying what that is."""
+    the defaults -- a line that is not its default saying what that is --
+    under *header*'s comment lines."""
     coder = Coder("ini")
-    coder.comment(0, "Navigator key bindings.")
-    coder.comment(0, "One line per command: its keys after the '=', separated by commas, a chord's")
-    coder.comment(0, "keys by a blank (ctrl+k b); nothing after the '=' leaves it without a key.")
-    coder.comment(0, "Modifiers are ctrl, alt and shift. Rewritten by Options > Configuration >")
-    coder.comment(0, "Key bindings, which keeps the values but not comments written here.")
+    for line in header:
+        if line:
+            coder.comment(0, line)
+        else:
+            coder.add(0, "#")
     for section in found:
         assignment = assignments.get(section.name, {})
         coder.new_line()

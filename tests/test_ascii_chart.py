@@ -131,6 +131,7 @@ def test_a_hidden_command_line_takes_no_character(nav):
     assert seen == [False]
 
 
+@pytest.mark.usefixtures("wordstar")
 def test_in_an_editor_ctrl_b_is_still_the_column_block_chord(nav):
     from navigator.settings import SETTINGS
 
