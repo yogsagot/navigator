@@ -13,7 +13,12 @@ have to be navkit's, and a terminal application has two routes to a clipboard, n
 
 So **a copy goes both ways** (`Application.copy_to_clipboard`, the tool in an executor, never awaited), and **a paste
 tries the tool first and asks the terminal only if there is none** (`Application.request_clipboard`). Either answer
-becomes a `PasteEvent`. `InputParser` decodes the OSC 52 reply into one, so a paste the user asked Navigator for and
+becomes a `PasteEvent`. A terminal that does not answer within `CLIPBOARD_ANSWER_TIMEOUT` gets the application's own
+last copy pasted instead, and `clipboard_unavailable()` is called once a run. Found on X11 with no xclip installed in
+xfce4-terminal: Copy then Paste inside the editor did nothing, because the copy's only route out was OSC 52, which VTE
+ignores, and the paste's only route in was an OSC 52 query nobody answered -- the private copy was there all along.
+`PasteEvent.origin` tells the reply (`"answer"`) from a terminal's own paste, so a reply that arrives after the
+fallback is dropped rather than pasted twice. `InputParser` decodes the OSC 52 reply into one, so a paste the user asked Navigator for and
 a paste the terminal made itself take one path. Only `ESC ] 52 ;` is decoded as an OSC: `ESC ]` alone is also Alt+],
 and a partial head that never completes flushes back into Alt+] rather than into Escape. A clipboard reply still
 arriving is never taken for a lone ESC.

@@ -54,6 +54,14 @@ walks the focus path when `Application.on_paste` declines it. `Application.syste
 `request_clipboard` posts it back as a `PasteEvent`. The private copy is kept either way, so switching off still has
 the last copy. A paste the terminal makes on its own is the desktop's regardless.
 
+**No tool and no OSC 52 answer falls back to the private copy.** With the system clipboard on, `_read_clipboard`
+queries the terminal and waits `CLIPBOARD_ANSWER_TIMEOUT` (0.5 s); VTE and JediTerm never answer, so after it the
+private copy is pasted (`PasteEvent(origin="private")`) and `Application.clipboard_unavailable()` is called once a run,
+after that paste is dispatched (Navigator shows a box suggesting xclip/xsel/wl-clipboard). `PasteEvent.origin` is
+`"terminal"` (bracketed paste), `"answer"` (the parser's OSC 52 reply) or `"private"`; an `"answer"` arriving with no
+query pending is dropped, so a late one cannot paste a second time. Ghostty's `clipboard-read = ask` prompt is usually
+slower than the timeout -- `allow` gives the real answer.
+
 ## Manual checks
 
 For what a fake terminal cannot cover (raw mode, real escapes, `SIGWINCH`), run `python -m navigator` on a pty:

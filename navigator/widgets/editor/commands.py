@@ -43,7 +43,7 @@ class MoveUp(EditorMovement):
 
 @dataclass(frozen=True, slots=True)
 class MoveDown(EditorMovement):
-    """``cmMoveDown``: Down, ^X."""
+    """``cmMoveDown``: Down (DN's ^X is Cut here)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,7 +73,7 @@ class PageUp(EditorMovement):
 
 @dataclass(frozen=True, slots=True)
 class PageDown(EditorMovement):
-    """``cmPgDn``: PgDn, ^C."""
+    """``cmPgDn``: PgDn (DN's ^C is Copy here)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,11 +148,11 @@ class DeleteToEnd(Command):
 
 
 class SwitchInsert(Command):
-    """``cmSwitchIns``: Ins, ^V -- insert and overwrite."""
+    """``cmSwitchIns``: Ins -- insert and overwrite (DN's ^V is Paste here)."""
 
 
 class ClipboardCut(Command):
-    """``cmCut``: Shift+Del -- the block to the clipboard, and out of the text.
+    """``cmCut``: Shift+Del, Ctrl+X, Ctrl+Alt+X -- the block to the clipboard, and out of the text.
 
     Not ``Cut``/``Copy``/``Paste``: ``Copy`` is F5's, and a handler named
     ``on_copy`` or ``on_paste`` would answer that command or a paste event.
@@ -162,13 +162,13 @@ class ClipboardCut(Command):
 
 
 class ClipboardCopy(Command):
-    """``cmCopy``: Ctrl+Ins -- the block to the clipboard."""
+    """``cmCopy``: Ctrl+Ins, Ctrl+C, Ctrl+Alt+C -- the block to the clipboard."""
 
     title = "Copy"
 
 
 class ClipboardPaste(Command):
-    """``cmPaste``: Shift+Ins -- the clipboard at the cursor."""
+    """``cmPaste``: Shift+Ins, Ctrl+V, Ctrl+Alt+V -- the clipboard at the cursor."""
 
     title = "Paste"
 

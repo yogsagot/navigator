@@ -503,7 +503,7 @@ class InputParser:
             text = base64.b64decode(data, validate=False).decode("utf-8", "replace")
         except (ValueError, binascii.Error):
             text = ""
-        return end + size, PasteEvent(text) if text else None
+        return end + size, PasteEvent(text, origin="answer") if text else None
 
     def _csi(self, body: bytes, terminator: str) -> list[Event]:
         """Decode a non-mouse ``CSI`` sequence, legacy or kitty.

@@ -31,6 +31,7 @@ from navkit.commands import Command
 from navkit.database import DATABASE
 from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
+from navkit.i18n import tr
 from navkit.process import MARKER
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
@@ -362,6 +363,17 @@ class Navigator(Application):
         """The command line's command is done: posted from the pty's reader."""
         self.shell.command_finished(event.status, event.cwd)
         return True
+
+    def clipboard_unavailable(self) -> None:
+        """Say, once, that a paste had to use Navigator's own copy."""
+        from navml.widgets.dialog.dialog import Dialog
+
+        prompt = tr(
+            "The desktop's clipboard could not be read, so Navigator pasted its own last copy. "
+            "Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard "
+            "with other programs."
+        )
+        self.spawn(Dialog(title=tr("Clipboard"), prompt=prompt, buttons="ok").execute(self))
 
     async def on_paste(self, event: PasteEvent) -> bool:
         """A paste goes where typing would: the running program, or the command line.

@@ -289,9 +289,16 @@ class ResizeEvent(Event):
 
 @dataclass(frozen=True, slots=True)
 class PasteEvent(Event):
-    """Text pasted while bracketed paste mode was active."""
+    """Text pasted while bracketed paste mode was active.
+
+    *origin* is where it came from: ``"terminal"``, a paste the terminal made
+    on its own; ``"answer"``, the terminal's reply to an OSC 52 query; or
+    ``"private"``, the application's own copy, pasted because the desktop's
+    clipboard could not be read (:meth:`Application.request_clipboard`).
+    """
 
     text: str
+    origin: str = "terminal"
 
 
 @dataclass(frozen=True, slots=True)

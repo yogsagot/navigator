@@ -6,8 +6,8 @@ import base64
 
 import pytest
 
-from conftest import FakeTerminal, awaited, mounted, run_app, settle
-from navkit import clipboard
+from conftest import FakeTerminal, Until, awaited, mounted, run_app, settle
+from navkit import application, clipboard
 from navkit.application import Application
 from navkit.capabilities import TerminalInfo
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
@@ -30,12 +30,12 @@ def test_the_terminal_s_answer_is_a_paste_even_split_across_reads():
     parser = InputParser()
     assert parser.feed(reply[:6]) == []
     assert not parser.pending_escape  # a slow answer is not a lone ESC
-    assert parser.feed(reply[6:]) == [PasteEvent("two\nlines")]
+    assert parser.feed(reply[6:]) == [PasteEvent("two\nlines", origin="answer")]
 
 
 def test_an_answer_ended_by_st_is_read_too_and_what_follows_is_typed():
     events = InputParser().feed(b"\x1b]52;c;aGk=\x1b\\x")
-    assert events[0] == PasteEvent("hi")
+    assert events[0] == PasteEvent("hi", origin="answer")
     assert events[1].key == "x"
 
 
@@ -132,6 +132,75 @@ def test_a_copy_made_with_the_system_clipboard_is_there_once_it_is_off():
                   lambda a: a.request_clipboard()])
     assert app.terminal.clipboard == [("before", False)]
     assert field.value == "before"
+
+
+class Hinted(Application):
+    hints = 0
+
+    def clipboard_unavailable(self) -> None:
+        self.hints += 1
+
+
+def unanswered(monkeypatch, *, focus=True):
+    """An application whose terminal never answers, and a focused line."""
+    monkeypatch.setattr(application, "CLIPBOARD_ANSWER_TIMEOUT", 0.05)
+    root = Widget()
+    field = InputLine(parent=root)
+    app = Hinted(root, terminal=FakeTerminal())
+    field.focus()
+    return app, field
+
+
+def test_an_unanswered_query_pastes_the_private_copy_and_says_so_once(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    run_app(app, [lambda a: a.copy_to_clipboard("own"),
+                  lambda a: a.request_clipboard(),
+                  Until(lambda a: field.value == "own"),
+                  lambda a: a.request_clipboard(),
+                  Until(lambda a: field.value == "ownown")])
+    assert app.terminal.clipboard_queries == [False, False]
+    assert app.hints == 1
+
+
+def test_an_answer_in_time_is_pasted_once_and_the_private_copy_is_not(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    run_app(app, [lambda a: a.copy_to_clipboard("own"),
+                  lambda a: a.request_clipboard(),
+                  PasteEvent("theirs", origin="answer"),
+                  lambda a: None, lambda a: None, lambda a: None])  # past the timeout
+    assert field.value == "theirs"
+    assert app.hints == 0
+
+
+def test_an_answer_too_late_or_never_asked_for_is_dropped(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    run_app(app, [PasteEvent("unasked", origin="answer"),
+                  lambda a: a.copy_to_clipboard("own"),
+                  lambda a: a.request_clipboard(),
+                  Until(lambda a: field.value == "own"),
+                  PasteEvent("late", origin="answer")])
+    assert field.value == "own"
+
+
+def test_a_paste_the_terminal_made_itself_is_never_dropped(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    run_app(app, [PasteEvent("typed")])
+    assert field.value == "typed" and app.hints == 0
+
+
+def test_nothing_copied_and_no_answer_pastes_nothing_and_says_nothing(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    run_app(app, [lambda a: a.request_clipboard(),
+                  lambda a: None, lambda a: None, lambda a: None])
+    assert field.value == "" and app.hints == 0
+
+
+def test_without_osc_52_the_private_copy_is_pasted_at_once(monkeypatch):
+    app, field = unanswered(monkeypatch)
+    app.terminal.info = TerminalInfo(clipboard=False)
+    run_app(app, [lambda a: a.copy_to_clipboard("own"), lambda a: a.request_clipboard()])
+    assert app.terminal.clipboard_queries == []
+    assert field.value == "own" and app.hints == 1
 
 
 # -- the input line --------------------------------------------------------------

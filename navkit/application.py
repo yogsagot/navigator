@@ -64,6 +64,13 @@ ESCAPE_TIMEOUT = 0.05
 #: hand, which is the application's to state.
 DOUBLE_CLICK_TIMEOUT = 0.4
 
+#: How long a paste waits for the terminal to answer an OSC 52 query before it
+#: pastes the application's own copy instead.  A terminal that answers does so
+#: in milliseconds; one that is slower is asking its user first (Ghostty's
+#: ``clipboard-read = ask``), and one that never answers (VTE, JediTerm) is
+#: the case this is for.
+CLIPBOARD_ANSWER_TIMEOUT = 0.5
+
 
 _WAKE = WakeEvent()
 
@@ -287,6 +294,12 @@ class Application:
         #: whichever way :attr:`system_clipboard` is, so turning it off still
         #: has the last copy to paste.
         self._private_clipboard: dict[bool, str] = {False: "", True: ""}
+        #: Whether an OSC 52 query is waiting for the terminal's answer.  An
+        #: answer arriving while it is not -- after the private copy was
+        #: pasted instead, or never asked for -- is dropped.
+        self._clipboard_asked = False
+        #: Whether :meth:`clipboard_unavailable` has been called this run.
+        self._clipboard_hinted = False
         self.result: Any = None
 
         self._root: Widget | None = None
@@ -490,7 +503,10 @@ class Application:
         So a paste the user asked Navigator for -- Ctrl+V, a middle click --
         and one the terminal made on its own take the one path.  The desktop's
         tool is asked first, since it answers without a prompt; the terminal
-        only if there is none, and a terminal that refuses sends nothing.
+        only if there is none.  A terminal that does not answer within
+        :data:`CLIPBOARD_ANSWER_TIMEOUT` -- VTE and JediTerm never do -- gets
+        the application's own last copy pasted instead, and
+        :meth:`clipboard_unavailable` is called once to say so.
         """
         if self._loop is None:
             return
@@ -510,10 +526,31 @@ class Application:
             text = await self._loop.run_in_executor(
                 None, functools.partial(clipboard.paste, primary=primary)
             )
-        if text is None:
-            self.terminal.query_clipboard(primary=primary)
-        elif text:
+        if text:
             self.post_event(PasteEvent(text))
+            return
+        if text is None and self.terminal.info.clipboard:
+            self._clipboard_asked = True
+            self.terminal.query_clipboard(primary=primary)
+            await asyncio.sleep(CLIPBOARD_ANSWER_TIMEOUT)
+            if not self._clipboard_asked:
+                return  # answered, and pasted
+            self._clipboard_asked = False
+        if text is None:
+            private = self._private_clipboard[primary]
+            if private:
+                self.post_event(PasteEvent(private, origin="private"))
+
+    def clipboard_unavailable(self) -> None:
+        """A paste had to use the application's own copy; called once a run.
+
+        The desktop's clipboard could not be read -- no tool for it is
+        installed and the terminal did not answer OSC 52 -- so what was
+        pasted is the application's last copy, not what another program may
+        have copied since.  Nothing here; an application tells its user.
+        Called after the paste has been dispatched, so a dialog it opens
+        cannot catch the paste.
+        """
 
     def call_every(
         self, seconds: float, callback: Callable[[], Awaitable[Any]]
@@ -997,12 +1034,19 @@ class Application:
             elif isinstance(event, ResizeEvent):
                 await self.on_resize(event)
             elif isinstance(event, PasteEvent):
+                if event.origin == "answer":
+                    if not self._clipboard_asked:
+                        return  # too late: the private copy went instead
+                    self._clipboard_asked = False
                 # The application first, as with a key, and then where the
                 # keyboard is -- the modal's focused line, under a dialog.
                 if not await self.on_paste(event):
                     target = self.modal or self._root
                     if target is not None:
                         await target.dispatch_paste(event)
+                if event.origin == "private" and not self._clipboard_hinted:
+                    self._clipboard_hinted = True
+                    self.clipboard_unavailable()
             else:
                 # Anything posted that the four branches above do not know.
                 # It has no sender in the widget tree -- nobody emitted it --

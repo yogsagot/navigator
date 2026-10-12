@@ -1110,6 +1110,10 @@ name = "Latviešu"
 "Search Progress" = "Meklēšanas gaita"
 # navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
 "~S~earch for" = "~M~eklēt"
+# navigator/__main__.py:371
+"The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Darbvirsmas starpliktuvi nevarēja nolasīt, tāpēc Navigator ielīmēja savu pēdējo kopiju. Instalējiet xclip vai xsel (X11) vai wl-clipboard (Wayland), lai starpliktuve būtu kopīga ar citām programmām."
+# navigator/__main__.py:376
+"Clipboard" = "Starpliktuve"
 # navigator/about.py:117
 "Version {version}" = "Versija {version}"
 # navigator/about.py:119

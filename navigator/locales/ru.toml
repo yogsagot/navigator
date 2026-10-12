@@ -1110,6 +1110,10 @@ name = "Русский"
 "Search Progress" = "Ход поиска"
 # navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
 "~S~earch for" = "~И~скать текст"
+# navigator/__main__.py:371
+"The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Не удалось прочитать буфер обмена рабочего стола, поэтому Navigator вставил свою последнюю копию. Установите xclip или xsel (X11) либо wl-clipboard (Wayland), чтобы буфер обмена был общим с другими программами."
+# navigator/__main__.py:376
+"Clipboard" = "Буфер обмена"
 # navigator/about.py:117
 "Version {version}" = "Версия {version}"
 # navigator/about.py:119

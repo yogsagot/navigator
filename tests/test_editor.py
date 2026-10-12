@@ -672,6 +672,14 @@ def test_shift_delete_cuts_and_undo_brings_it_back(files):
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
 
 
+@pytest.mark.parametrize("alt", [False, True])
+def test_ctrl_x_and_ctrl_alt_x_cut_too(files, alt):
+    app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                         KeyEvent("x", ctrl=True, alt=alt))
+    assert app.terminal.clipboard == [("line\nsecond", False)]
+    assert editor.document.encode() == b"first \tline\r\n"
+
+
 def test_ctrl_delete_clears_without_touching_the_clipboard(files):
     app, editor = marked(files, KeyEvent("end", shift=True), KeyEvent("delete", ctrl=True))
     assert app.terminal.clipboard == []
@@ -683,6 +691,15 @@ def test_shift_insert_pastes_in_the_files_own_line_breaks(files):
     app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
                          KeyEvent("insert", ctrl=True), KeyEvent("pagedown", ctrl=True),
                          KeyEvent("insert", shift=True), lambda a: None)
+    assert editor.document.encode() == b"first line\r\nsecond\tline\r\nline\r\nsecond"
+
+
+@pytest.mark.parametrize("alt", [False, True])
+def test_ctrl_c_and_v_copy_and_paste_and_so_do_they_with_alt(files, alt):
+    SETTINGS.system.system_clipboard = False
+    app, editor = marked(files, *[KeyEvent("right")] * 6, KeyEvent("down", shift=True),
+                         KeyEvent("c", ctrl=True, alt=alt), KeyEvent("pagedown", ctrl=True),
+                         KeyEvent("v", ctrl=True, alt=alt), lambda a: None)
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\nline\r\nsecond"
 
 

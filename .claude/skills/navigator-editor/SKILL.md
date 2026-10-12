@@ -49,10 +49,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (the typing run before it goes on, `_blank_at`) --
   departures too; ^K I/U keep DN's one blank. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
-  `FileEditor::selected`. Ctrl+Ins (`ClipboardCopy`, `cmCopy`), Shift+Del (`ClipboardCut`), Shift+Ins
-  (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
+  `FileEditor::selected`. Ctrl+Ins/Ctrl+C/Ctrl+Alt+C (`ClipboardCopy`, `cmCopy`), Shift+Del/Ctrl+X/Ctrl+Alt+X (`ClipboardCut`),
+  Shift+Ins/Ctrl+V/Ctrl+Alt+V (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
   `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
-  F5's `Copy` and `on_paste` (the paste event) already own those handler names. Ctrl+C/Ctrl+V stay WordStar's.
+  F5's `Copy` and `on_paste` (the paste event) already own those handler names. **Departure:** Ctrl+X/C/V are the clipboard's, not WordStar's cursor down/PgDn/insert toggle as in DN (the user asked for
+  the keys every other editor uses; ^X still draws down in drawing mode). Ctrl+Alt+X/C/V exist because VTE keeps Ctrl+Ins
+  and Shift+Ins for itself.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Every ^K/^Q
   command in the table is here.

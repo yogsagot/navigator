@@ -276,7 +276,6 @@ class FileEditor(Widget):
         "ctrl+e": MoveUp,
         "shift+up": MoveUp(extend=True),
         "down": MoveDown,
-        "ctrl+x": MoveDown,
         "shift+down": MoveDown(extend=True),
         "ctrl+left": WordLeft,
         "ctrl+a": WordLeft,
@@ -292,7 +291,6 @@ class FileEditor(Widget):
         "ctrl+r": PageUp,
         "shift+pageup": PageUp(extend=True),
         "pagedown": PageDown,
-        "ctrl+c": PageDown,
         "shift+pagedown": PageDown(extend=True),
         "ctrl+home": ScreenTop,
         "ctrl+shift+home": ScreenTop(extend=True),
@@ -321,13 +319,24 @@ class FileEditor(Widget):
         "ctrl+t": DeleteWordRight,
         "ctrl+y": DeleteLine,
         "insert": SwitchInsert,
-        "ctrl+v": SwitchInsert,
         "alt+backspace": Undo,
         # ``cmCut``, ``cmCopy``, ``cmPaste`` and ``cmClear``: Turbo Vision's
-        # keys, since Ctrl+C and Ctrl+V are WordStar's here.
+        # keys, and two more sets that are not DN's.  Ctrl+X/C/V, which every
+        # other editor uses, were WordStar's cursor down, Page Down and insert
+        # toggle here; they are the clipboard's instead, and those three keep
+        # Down, PgDn and Ins (^X still draws down in drawing mode).  And VTE
+        # (xfce4-terminal, GNOME Terminal, Tilix) keeps Ctrl+Ins and Shift+Ins
+        # for its own copy and primary paste with no setting to give them
+        # back, so Ctrl+Alt+X/C/V reach the clipboard there too.
         "shift+delete": ClipboardCut,
+        "ctrl+x": ClipboardCut,
+        "ctrl+alt+x": ClipboardCut,
         "ctrl+insert": ClipboardCopy,
+        "ctrl+c": ClipboardCopy,
+        "ctrl+alt+c": ClipboardCopy,
         "shift+insert": ClipboardPaste,
+        "ctrl+v": ClipboardPaste,
+        "ctrl+alt+v": ClipboardPaste,
         "ctrl+delete": Clear,
         "alt+h": HideBlock,
         "alt+t": SortBlock,
