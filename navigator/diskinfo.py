@@ -51,6 +51,17 @@ class DiskFacts:
     info_lines: list[str] = field(default_factory=list)
 
 
+#: The octal escapes the kernel writes in a mounts field.
+_ESCAPES = {"\\040": " ", "\\011": "\t", "\\012": "\n", "\\134": "\\"}
+
+
+def unescape(field: str) -> str:
+    """A ``/proc/self/mounts`` field with its octal escapes undone."""
+    for escape, char in _ESCAPES.items():
+        field = field.replace(escape, char)
+    return field
+
+
 def mount_of(path: Path, mounts: str) -> tuple[str, str, str]:
     """``(mount point, device, type)`` of the longest mount holding *path*."""
     best = ("/", "", "")
@@ -59,14 +70,15 @@ def mount_of(path: Path, mounts: str) -> tuple[str, str, str]:
         parts = line.split()
         if len(parts) < 3:
             continue
-        point = parts[1].replace("\\040", " ")
+        point = unescape(parts[1])
         inside = target == point or target.startswith(point.rstrip("/") + "/")
         if inside and len(point) >= len(best[0]):
             best = (point, parts[0], parts[2])
     return best
 
 
-def _label_of(device: str, labels: Path = Path("/dev/disk/by-label")) -> str:
+def label_of(device: str, labels: Path = Path("/dev/disk/by-label")) -> str:
+    """*device*'s file system label, from ``/dev/disk/by-label``; empty if none."""
     try:
         resolved = os.path.realpath(device)
         for entry in labels.iterdir():
@@ -128,7 +140,7 @@ def gather(directory: Path, *, mounts: Path = Path("/proc/self/mounts"),
         text = ""
     facts.mount, facts.device, facts.fs_type = mount_of(Path(directory).resolve(), text)
     if facts.device.startswith("/dev/"):
-        facts.label = _label_of(facts.device)
+        facts.label = label_of(facts.device)
     try:
         facts.memory_total, facts.memory_available = _meminfo(meminfo.read_text())
     except OSError:

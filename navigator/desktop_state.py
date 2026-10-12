@@ -65,6 +65,7 @@ def _window(window: Any) -> dict[str, Any] | None:
     from navigator.widgets.manager.manager import Manager
     from navigator.widgets.shell.calculator_window import CalculatorWindow
     from navigator.widgets.shell.calendar_window import CalendarWindow
+    from navigator.widgets.shell.volumes_window import VolumesWindow
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.viewer.file_window import FileWindow
 
@@ -97,6 +98,8 @@ def _window(window: Any) -> dict[str, Any] | None:
         kept.update(kind="calculator", expression=window.line.value)
     elif isinstance(window, CalendarWindow):
         kept.update(kind="calendar")
+    elif isinstance(window, VolumesWindow):
+        kept.update(kind="volumes", all=bool(window.show_all))
     else:
         return None
     return kept
@@ -227,6 +230,10 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
         from navigator.widgets.shell.calendar_window import CalendarWindow
 
         return desktop.open(CalendarWindow())
+    if kind == "volumes":
+        from navigator.widgets.shell.volumes_window import VolumesWindow
+
+        return desktop.open(VolumesWindow(show_all=bool(kept.get("all"))))
     return None
 
 

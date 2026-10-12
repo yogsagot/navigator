@@ -94,6 +94,7 @@ _WIDGETS = {
     "StartupDialog": "setup.startup_dialog",
     "SystemSetupDialog": "setup.system_setup_dialog",
     "TreeWindow": "tree.tree_window",
+    "VolumesWindow": "shell.volumes_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
     "WriteWin": "file_ops.write_win",
 }
@@ -159,6 +160,7 @@ if TYPE_CHECKING:
     from navigator.widgets.manager.select_dialog import SelectDialog
     from navigator.widgets.shell.shell import Shell
     from navigator.widgets.tree.tree_window import TreeWindow
+    from navigator.widgets.shell.volumes_window import VolumesWindow
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
     from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog
     from navigator.widgets.setup.editor_defaults_dialog import EditorDefaultsDialog

@@ -171,7 +171,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `colours-themes-glyphs` | palconv and themes, palette pinning, glyph tiers, icons, file-type colours |
 | `console-command-line` | console/pyte/pty, subshell, Ctrl+O, the command line, completion, history, atuin |
 | `navigator-panels` | Manager and Panel: view modes, tagging, quick search, hidden files, hiding sides |
-| `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window |
+| `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `dn.mnu` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |

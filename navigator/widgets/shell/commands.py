@@ -100,6 +100,17 @@ class OpenTreeWindow(Command):
     title = "Tree"
 
 
+class OpenVolumesWindow(Command):
+    """Disk > Volumes: every mounted volume, its type, mount point and free space.
+
+    Not DOS Navigator's -- a departure, recorded in ``volumes_window.nml``.
+    It takes the place and the letter of DN's ``cmSetVolumeLabel``, *Volume
+    label*, which has no POSIX meaning.
+    """
+
+    title = "Volumes"
+
+
 class ToggleMarkBySpace(Command):
     """Space with the command line empty: :class:`ToggleMark`.
 
@@ -249,6 +260,7 @@ __all__ = [
     "CommandLineEnd",
     "NewManager",
     "OpenTreeWindow",
+    "OpenVolumesWindow",
     "ToggleMarkBySpace",
 ]
 

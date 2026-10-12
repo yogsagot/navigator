@@ -1,0 +1,70 @@
+from navigator.widgets.manager.commands import Rescan, ToggleHidden
+from navigator.widgets.shell.volume_list import VolumeList
+from navml.commands import CloseWindow
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import SelectNext, SelectPrevious
+from navml.widgets.window import Window
+
+#: Disk > Volumes: every mounted volume -- its name, type, mount point, free
+#: space and size -- a row each.  **Not DOS Navigator's**: a departure, asked
+#: for.  DN 1.51's drive chooser (``SelectDrive``, FILESCOL.PAS) listed bare
+#: drive letters, and only ``TDiskInfo`` (Ctrl+L) told a drive's size, free
+#: space and label -- of the current drive alone.  This is the two together:
+#: what ``TDiskInfo`` said, for every drive ``SelectDrive`` would offer, in
+#: the place and under the letter of DN's *Volume label*, which has no POSIX
+#: meaning.
+#:
+#: Laid out as the Directory Tree window is: the list without a frame of its
+#: own, one column into the window's, its scroll bar on the right edge; under
+#: it, a dialog's row: *Show all mounts* on the left, *Go* and *Close* on the
+#: right.  Enter in the list sends the file manager's active panel to the
+#: volume's mount point, as Enter in the tree window sends it to a directory,
+#: and the window stays; *Go* does the same and closes it.  Esc closes it;
+#: Ctrl+R and Alt+R read the mounts again, as they re-read a panel; *Show all
+#: mounts* -- or Ctrl+H, as it shows a panel's dot-files -- lists the kernel's
+#: own file systems as well.  Tab walks the controls, Alt and a marked letter
+#: takes one, as in a dialog.
+VolumesWindow(Window):
+    title: "Volumes"
+
+    keys:
+        escape: CloseWindow
+        ctrl+r: Rescan
+        alt+r: Rescan
+        ctrl+h: ToggleHidden
+        tab: SelectNext
+        shift+tab: SelectPrevious
+
+    VolumeList:
+        id: volumes
+        framed: False
+        x: 1
+        y: 1
+        width: max(0, parent.width - 1)
+        height: max(0, parent.height - 5)
+
+    CheckBoxes:
+        id: everything
+        x: 2
+        y: max(0, parent.height - 3)
+        width: 22
+        height: 1
+        items: ["~S~how all mounts"]
+
+    Button:
+        id: go_button
+        text: "~G~o"
+        default: True
+        x: max(0, parent.width - 25)
+        y: max(0, parent.height - 3)
+        width: 10
+        height: 2
+
+    Button:
+        id: close_button
+        text: "Close"
+        x: max(0, parent.width - 13)
+        y: max(0, parent.height - 3)
+        width: 10
+        height: 2

@@ -151,3 +151,23 @@ def test_directories_on_the_command_line_win_over_the_first_managers(place):
 
     run_app(third, [Until(lambda a: len(a.shell.desktop.windows()) == 3), lambda a: None, look])
     assert seen["paths"] == (place / "two", place / "two") and seen["mode"] == "detailed"
+
+
+def test_a_volumes_window_comes_back_showing_what_it_showed(place, monkeypatch):
+    from navigator import volumes
+    from navigator.widgets.shell.volumes_window import VolumesWindow
+
+    monkeypatch.setattr(volumes, "gather", lambda: [])
+    app = navigator(place)
+    seen = {}
+
+    async def round_trip(a):
+        a.shell.desktop.open(VolumesWindow(show_all=True))
+        data = desktop_state.snapshot(a.shell.desktop)
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        await desktop_state.restore(a.shell.desktop, data)
+        seen.update(kinds=kinds(a), all=a.shell.desktop.windows()[-1].show_all)
+
+    run_app(app, [lambda a: a.spawn(round_trip(a)), Until(lambda a: "kinds" in seen)])
+    assert seen == {"kinds": ["Manager", "VolumesWindow"], "all": True}

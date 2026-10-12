@@ -71,6 +71,7 @@ from navigator.widgets.shell.commands import (
     MenuFileEdit,
     NewManager,
     OpenTreeWindow,
+    OpenVolumesWindow,
     SetupConfirmation,
     StartupSetup,
     SystemSetup,
@@ -1987,18 +1988,31 @@ class Shell(DockLayout):
             self.desktop.open(TreeWindow(start=panel.path, hidden=panel.show_hidden))
         return True
 
-    async def on_chosen(self, event: Any) -> bool:
-        """Enter in a tree nobody nearer claimed: the file manager's panel goes there.
+    async def on_open_volumes_window(self, event: OpenVolumesWindow) -> bool:
+        """Disk > Volumes: the mounted volumes in a window."""
+        from navigator.widgets.shell.volumes_window import VolumesWindow
 
-        The tree window's, in practice -- the manager's own tree and a dialog's
-        both answer their tree themselves -- and this screen is the one thing
-        that knows where the file manager is.  The keyboard stays in the tree,
-        as ``SendLocated`` left it.
+        self.desktop.open(VolumesWindow())
+        return True
+
+    async def on_chosen(self, event: Any) -> bool:
+        """Enter in a tree or the volume list nobody nearer claimed: the file
+        manager's panel goes there.
+
+        The tree window's and the Volumes window's, in practice -- the
+        manager's own tree and a dialog's both answer their tree themselves --
+        and this screen is the one thing that knows where the file manager is.
+        The keyboard stays where it was, as ``SendLocated`` left it.
         """
+        from navigator.volumes import Volume
+
         manager = self.active_manager
         if manager is None or event.node is None:
             return False
-        manager.active_panel.path = Path(event.node.data)
+        if isinstance(event.node, Volume):
+            manager.active_panel.path = Path(event.node.mount)
+        else:
+            manager.active_panel.path = Path(event.node.data)
         return True
 
     async def on_desktop_opened(self, event: Event) -> bool:
