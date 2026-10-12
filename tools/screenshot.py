@@ -28,6 +28,11 @@ space under each panel, and the shell the console would otherwise fork.  This is
 About box (≡ > About) open over it -- so the picture carries the version, and
 a release makes ``--check`` stale until the screenshot is regenerated.
 
+The panels are drawn in the simple mode, not the shipped default
+(``[panel_defaults] view_mode = detailed``): a decision, so the picture keeps
+DN's classic two-column look -- a change of default panel mode does not
+change the screenshot.
+
 This is an asset pipeline, like ``palconv.py``: nothing under ``navigator/``
 imports it.
 """
@@ -131,6 +136,7 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty."""
     from navigator.__main__ import Navigator
     from navigator.scheme import load_scheme
+    from navigator.settings import SETTINGS
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.shell.clock import clock as clock_module
     from navigator.widgets.manager.panel import panel as panel_module
@@ -138,7 +144,9 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
 
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
     Console.start = lambda self, argv=None: None
-    panel_module.free_space_text = lambda path: "~412,316,860,416~ free bytes on ~/"
+    panel_module.free_space_of = lambda path: (412_316_860_416, "/")
+    # The simple mode, whatever the shipped default: see the module docstring.
+    SETTINGS.panel_defaults.view_mode = "simple"
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd
     # Font, and the icon gutter would be a column of replacement boxes.
     info = replace(FULL, palette=VGA_PALETTE, glyphs=GLYPHS_UNICODE)
