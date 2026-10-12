@@ -19,12 +19,20 @@ respects, each of which is the original's:
 * **Esc clears it and Ctrl+E / Ctrl+X walk the command history**, the keys
   ``CMDLINE.PAS`` answers to while the panel eats Up and Down.
 
+It also remembers when it last took a Backspace, so the panel can tell that a
+Backspace arriving once the line is empty belongs to the same held key or
+burst of taps that emptied it (:meth:`CommandLine.holds_backspace`) -- a
+departure: DN's ``fmoBackGoesBack`` went up on the very next repeat, and
+holding the key to clear a line climbed to the root.
+
 Enter is not here.  It runs the line only while there is something on it and
 belongs to the panel otherwise, which is a question about the line asked by a
 key table -- ``ExecuteCommandLine`` in ``navigator/widgets/shell/commands.py``.
 """
 
 from __future__ import annotations
+
+from time import monotonic
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import reactive
@@ -39,6 +47,12 @@ HISTORY_ID = "command"
 #: What ends a word for ``cmInsertName``: ``CMDLINE.PAS``'s ``Separators``,
 #: less ``\\``, DOS's path separator and a POSIX shell's escape.
 _SEPARATORS = set(":.,/[]+><|; ")
+
+#: How long after the line took a Backspace another one still counts as the
+#: same run of them, in seconds.  Longer than a terminal's auto-repeat delay
+#: (250-600 ms is usual), so holding the key over a one-character line is
+#: covered too; each Backspace swallowed starts the wait again.
+BACKSPACE_RUN = 0.6
 
 
 class CommandLine(InputLine):
@@ -63,6 +77,8 @@ class CommandLine(InputLine):
         #: Where Ctrl+E / Ctrl+X have got to in the history, or -1 for the
         #: line the user is typing.
         self._recalled = -1
+        #: When the line last took a plain Backspace, by ``monotonic()``.
+        self._backspaced_at = float("-inf")
 
     @property
     def _keep(self) -> int:
@@ -154,7 +170,23 @@ class CommandLine(InputLine):
         taken = await super().on_key(event)
         if taken:
             self._recalled = -1
+            if event.matches("backspace"):
+                self._backspaced_at = monotonic()
         return taken
+
+    def holds_backspace(self) -> bool:
+        """Whether a Backspace now is still the run that went to this line.
+
+        Asked by the panel before Backspace goes to the parent directory: True
+        while the key keeps coming within :data:`BACKSPACE_RUN` of the last
+        one the line took or swallowed, and each such call starts the wait
+        again, so a held key stays swallowed however long it is held.
+        """
+        now = monotonic()
+        if now - self._backspaced_at >= BACKSPACE_RUN:
+            return False
+        self._backspaced_at = now
+        return True
 
     def _recall(self, step: int) -> bool:
         """Ctrl+E goes back a command, Ctrl+X forward, and past the newest clears."""

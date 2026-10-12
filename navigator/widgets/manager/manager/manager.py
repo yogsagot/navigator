@@ -1130,22 +1130,32 @@ class Manager(Window):
             return self.active_panel.show_hidden
         return super().checks(command)
 
-    def _command_line_has_text(self) -> bool:
-        """Whether the command line of the screen this window is on holds
-        anything -- a blank included, as for Space.  ``False`` with none."""
+    def _command_line(self) -> Any:
+        """The command line of the screen this window is on, or None."""
         widget = self.parent
         while widget is not None:
             line = getattr(widget, "command_line", None)
             if line is not None:
-                return bool(line.value)
+                return line
             widget = widget.parent
-        return False
+        return None
+
+    def _command_line_has_text(self) -> bool:
+        """Whether the command line of the screen this window is on holds
+        anything -- a blank included, as for Space.  ``False`` with none."""
+        line = self._command_line()
+        return line is not None and bool(line.value)
 
     async def on_scroll_names(self, event: ScrollNames) -> bool:
         self.active_panel.scroll_names(event.step)
         return True
 
     async def on_go_parent(self, event: GoParent) -> bool:
+        line = self._command_line()
+        if event.by_key and line is not None and line.holds_backspace():
+            # The Backspace held (or tapped on) to clear the line: swallowed,
+            # not a climb up the tree with every repeat.
+            return True
         self.active_panel.go_up()
         return True
 

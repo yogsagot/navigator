@@ -1857,6 +1857,38 @@ def test_backspace_edits_the_command_line_once_it_has_text(tree):
     assert app.manager.left.path == tree
 
 
+def test_backspace_held_to_clear_the_command_line_does_not_go_up(tree):
+    """The repeats that keep coming once the line is empty are swallowed."""
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
+        lambda a: [a.post_event(KeyEvent(c, c)) for c in "ls"],
+        lambda a: [a.post_event(KeyEvent("backspace")) for _ in range(6)],
+    ])
+    assert app.shell.command_line.value == ""
+    assert app.manager.left.path == tree / "alpha"
+
+
+def test_backspace_goes_up_again_once_the_run_that_cleared_the_line_is_over(tree, monkeypatch):
+    from navigator.widgets.shell.command_line import command_line
+
+    clock = [100.0]
+    monkeypatch.setattr(command_line, "monotonic", lambda: clock[0])
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
+        lambda a: a.post_event(KeyEvent("l", "l")),
+        lambda a: a.post_event(KeyEvent("backspace")),
+        lambda a: clock.__setitem__(0, 100.3),
+        lambda a: a.post_event(KeyEvent("backspace")),
+        lambda a: clock.__setitem__(0, 100.3 + command_line.BACKSPACE_RUN - 0.01),
+        lambda a: a.post_event(KeyEvent("backspace")),
+        lambda a: clock.__setitem__(0, 105.0),
+        lambda a: a.post_event(KeyEvent("backspace")),
+    ])
+    assert app.manager.left.path == tree
+
+
 def test_shift_backspace_goes_up_whatever_the_command_line_holds(tree):
     app = navigator_with(tree, GLYPHS_UNICODE)
     run_app(app, [
