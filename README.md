@@ -74,3 +74,6 @@ It consists of three parts:
 
 Run `nav --help` for the options; `--theme NAME` picks one of the eleven colour schemes, and `--list-themes`
 names them.
+
+Copy and paste depend on your terminal and on a small clipboard tool being installed; [docs/clipboard.md](docs/clipboard.md)
+explains the keys and how to set them up.
