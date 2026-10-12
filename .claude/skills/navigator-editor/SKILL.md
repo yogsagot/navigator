@@ -51,7 +51,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins/Ctrl+C/Ctrl+Alt+C (`ClipboardCopy`, `cmCopy`), Shift+Del/Ctrl+X/Ctrl+Alt+X (`ClipboardCut`),
   Shift+Ins/Ctrl+V/Ctrl+Alt+V (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
-  `cmClear`); also Editor > Edit. Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
+  `cmClear`); also at the top of the Editor menu itself (DN's *Edit* submenu, flattened: a departure, asked for -- *Paragraph*, *Options* and *File type* gave up P, O and T for it). Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. **Departure:** Ctrl+X/C/V are the clipboard's, not WordStar's cursor down/PgDn/insert toggle as in DN (the user asked for
   the keys every other editor uses; ^X still draws down in drawing mode). Ctrl+Alt+X/C/V exist because VTE keeps Ctrl+Ins
   and Shift+Ins for itself.
@@ -72,7 +72,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
   `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
   end, ^Q L undoes.
-- **^K R / ^K W are DN's `BlockRead`/`BlockWrite`** (`MICROED.PAS`), also Editor > Edit's *Paste from...*/*Copy
+- **^K R / ^K W are DN's `BlockRead`/`BlockWrite`** (`MICROED.PAS`), also the Editor menu's *Paste from...*/*Copy
   to...*, handled by `EditWindow` (dialogs and I/O; `FileEditor.block_file_text`/`read_block` are the text). The name
   comes from navml's `FileDialog` (`GetFileNameDialog`: titles *Copy block to*/*Paste from File*, labels *File
   ~N~ame*/*~P~aste from*, the shared `hsEditPasteFrom` history `edit_paste_from`), listing the active panel's

@@ -50,7 +50,6 @@ class EditWindow(Window, _Component):
     options: OptionStrip
     edit_menu: SubMenu
     edit_menu_file: SubMenu
-    edit_menu_edit: SubMenu
     edit_menu_search: SubMenu
     edit_menu_paragraph: SubMenu
     edit_menu_block: SubMenu

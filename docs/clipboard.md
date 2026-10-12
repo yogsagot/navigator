@@ -52,7 +52,7 @@ The keys depend on where you are in Navigator.
 | Paste                                      | **Ctrl+V**, Shift+Ins or Ctrl+Alt+V |
 | Delete the marked block without copying it | Ctrl+Del                            |
 
-All four are also on the editor's **Edit** menu.
+All four are also at the top of the **Editor** menu (on the menu bar while an editor is active).
 
 Copy and Cut work on the marked block. To mark a block, hold Shift while moving the cursor, or drag with the mouse.
 

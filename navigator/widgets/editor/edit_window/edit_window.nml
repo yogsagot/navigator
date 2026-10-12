@@ -119,8 +119,9 @@ EditWindow(Window):
     #: active one, rather than as a bar of its own inside the window
     #: (``TEditWindow.Init``).  Its seven menus would not fit beside the main
     #: bar's, and *File*, *Options* and four of its letters are the main bar's
-    #: already, so they are submenus here.  *Main menu* (F10) is left out: the
-    #: menu it would open is the one it is in.
+    #: already, so they are submenus here -- all but *Edit*, whose entries are
+    #: the menu's own (below).  *Main menu* (F10) is left out: the menu it
+    #: would open is the one it is in.
     #:
     #: An entry names a command once the editor can do it and is greyed until
     #: then, as in ``main_menu.nml``.  DN showed each option's ``Off``/``On``
@@ -131,6 +132,39 @@ EditWindow(Window):
         id: edit_menu
         text: '~E~ditor'
         after: 'File'
+        #: *Edit*'s entries on the *Editor* menu itself rather than a submenu
+        #: of it -- a departure, asked for: they are what the menu is opened
+        #: for most.  Its letters are theirs, so *Paragraph*, *Options* and
+        #: *File type* give up ``P``, ``O`` and ``T``.
+        MenuItem:
+            text: '~U~ndo'
+            command: Undo
+            key: 'Alt-BkSp'
+        MenuLine:
+        MenuItem:
+            text: 'Cu~t~'
+            command: ClipboardCut
+            key: 'Shift-Del'
+        MenuItem:
+            text: '~C~opy'
+            command: ClipboardCopy
+            key: 'Ctrl-Ins'
+        MenuItem:
+            text: '~P~aste'
+            command: ClipboardPaste
+            key: 'Shift-Ins'
+        MenuItem:
+            text: 'C~o~py to...'
+            command: BlockWrite
+        MenuItem:
+            text: 'P~a~ste from...'
+            command: BlockRead
+        MenuLine:
+        MenuItem:
+            text: 'C~l~ear'
+            command: Clear
+            key: 'Ctrl-Del'
+        MenuLine:
         SubMenu:
             id: edit_menu_file
             text: '~F~ile'
@@ -165,37 +199,6 @@ EditWindow(Window):
                 command: CloseWindow
                 key: 'Ctrl-F4'
         SubMenu:
-            id: edit_menu_edit
-            text: '~E~dit'
-            MenuItem:
-                text: '~U~ndo'
-                command: Undo
-                key: 'Alt-BkSp'
-            MenuLine:
-            MenuItem:
-                text: 'Cu~t~'
-                command: ClipboardCut
-                key: 'Shift-Del'
-            MenuItem:
-                text: '~C~opy'
-                command: ClipboardCopy
-                key: 'Ctrl-Ins'
-            MenuItem:
-                text: '~P~aste'
-                command: ClipboardPaste
-                key: 'Shift-Ins'
-            MenuItem:
-                text: 'C~o~py to...'
-                command: BlockWrite
-            MenuItem:
-                text: 'P~a~ste from...'
-                command: BlockRead
-            MenuLine:
-            MenuItem:
-                text: 'C~l~ear'
-                command: Clear
-                key: 'Ctrl-Del'
-        SubMenu:
             id: edit_menu_search
             text: '~S~earch'
             MenuItem:
@@ -220,7 +223,7 @@ EditWindow(Window):
                 key: 'Alt-G'
         SubMenu:
             id: edit_menu_paragraph
-            text: '~P~aragraph'
+            text: 'Pa~r~agraph'
             MenuItem:
                 text: '~J~ustify'
                 command: FJustify
@@ -353,7 +356,7 @@ EditWindow(Window):
                     key: 'Ctrl K \\'
         SubMenu:
             id: edit_menu_options
-            text: '~O~ptions'
+            text: 'Optio~n~s'
             MenuItem:
                 text: '~B~ackspace indents'
                 command: SwitchBack
@@ -390,8 +393,9 @@ EditWindow(Window):
                 command: SwitchHiddenChars
         #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.  On the
         #: *Editor* menu itself rather than under *Options*, so it is one step
-        #: away, as the viewer's is on *View*; ``T`` because *File* has ``F``.
+        #: away, as the viewer's is on *View*; ``Y`` because *File* has ``F`` and
+        #: *Cut* ``T``.
         SubMenu:
             id: edit_menu_file_type
-            text: 'File ~t~ype'
+            text: 'File t~y~pe'
             key_command: ChooseFileType
