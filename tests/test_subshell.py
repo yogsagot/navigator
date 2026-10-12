@@ -177,6 +177,32 @@ def test_a_mark_with_the_wrong_nonce_is_only_output():
     assert subshell.busy
 
 
+@pytest.mark.parametrize("shell", SHELLS)
+def test_a_prefix_added_to_the_prompt_is_kept(shell, home, tmp_path):
+    # What a venv's activate does: the PS1 it prefixes is the wrapped one.
+    rc(home, bash="PS1='p> '", zsh="PS1='p> '")
+    own = f"{tmp_path}>" if shell == "sh" else "p> "
+    prompts = []
+    screen, _, _ = run(session(
+        shell, [('PS1="(venv) $PS1"', tmp_path), ("true", tmp_path)], prompts))
+    assert "".join(char for char, _ in prompt_cells(prompts[-1][0])) == f"(venv) {own}"
+    # Nothing of it is left in the output before the prompt.
+    assert text(screen) == [f'{own}PS1="(venv) $PS1"', f"(venv) {own}true"]
+
+
+@pytest.mark.parametrize("shell", SHELLS)
+def test_a_prompt_put_back_loses_its_prefix(shell, home, tmp_path):
+    # What deactivate does: the wrapped PS1 saved before the prefix comes back.
+    rc(home, bash="PS1='p> '", zsh="PS1='p> '")
+    own = f"{tmp_path}>" if shell == "sh" else "p> "
+    prompts = []
+    run(session(shell, [
+        ("old=$PS1", tmp_path), ('PS1="(venv) $PS1"', tmp_path),
+        ("PS1=$old", tmp_path), ("true", tmp_path),
+    ], prompts))
+    assert "".join(char for char, _ in prompt_cells(prompts[-1][0])) == own
+
+
 HOOKED = [param for param in SHELLS if param.values[0] != "sh"]
 
 
@@ -200,6 +226,8 @@ def test_the_prompt_keeps_its_colours(shell, home, tmp_path):
     cells = prompt_cells(prompts[-1][0])
     assert "".join(char for char, _ in cells) == "ok> "
     assert [style.fg for _, style in cells] == [2, 2, None, None]
+
+
 
 
 def test_a_prompt_a_prompt_command_rebuilds_is_followed(home, tmp_path):

@@ -298,9 +298,15 @@ __nav_prompt() {{
     # The user's own prompt, bracketed rather than replaced: whatever set it
     # -- the rc, or a prompt command that rebuilds it every time -- left
     # something other than what we set last, and that is the one to keep.
-    [[ $PS1 != "$__nav_wrapped" ]] && __nav_ps1=$PS1
+    # It may be built on ours -- a venv's activate prefixes "(venv) ", its
+    # deactivate puts back an older one -- so our marks come out of it first.
+    local a="\\[{mark};A\\007\\]" b="\\[{mark};B\\007\\]"
+    if [[ $PS1 != "$__nav_wrapped" ]]; then
+        __nav_ps1=${{PS1//"$a"/}}
+        __nav_ps1=${{__nav_ps1//"$b"/}}
+    fi
     local own=${{__nav_ps1:-$p>}}
-    __nav_wrapped="\\[{mark};A\\007\\]$own\\[{mark};B\\007\\]"
+    __nav_wrapped="$a$own$b"
     PS1=$__nav_wrapped
     PS2=''
 }}
@@ -345,8 +351,12 @@ unset NAV_USER_ZDOTDIR __nav_zdotdir
 __nav_status() {{ __nav_s=$? }}
 __nav_prompt() {{
     printf '{mark};D;%s;%s\\a' "$__nav_s" "$PWD"
-    [[ $PS1 != "$__nav_wrapped" ]] && __nav_ps1=$PS1
-    __nav_wrapped=$'%{{{mark};A\\a%}}'"${{__nav_ps1:-%/>}}"$'%{{{mark};B\\a%}}'
+    local a=$'%{{{mark};A\\a%}}' b=$'%{{{mark};B\\a%}}'
+    if [[ $PS1 != "$__nav_wrapped" ]]; then
+        __nav_ps1=${{PS1//"$a"/}}
+        __nav_ps1=${{__nav_ps1//"$b"/}}
+    fi
+    __nav_wrapped=$a${{__nav_ps1:-%/>}}$b
     PS1=$__nav_wrapped
     PS2='' RPS1='' RPROMPT=''
 }}
@@ -356,14 +366,17 @@ setopt HIST_IGNORE_SPACE
 
 
 def _sh_rc(nonce: str) -> str:
-    # No prompt hook in a POSIX shell, so the mark lives in PS1 itself, which
-    # every shell here expands parameters in.  One that does not reports a
-    # status that is not a number and a directory that is not absolute, and
-    # both are ignored rather than trusted.
+    # No prompt hook in a POSIX shell, so PS1 is the hook: dash and busybox
+    # ash expand a command substitution in it before writing any of it, and
+    # one that writes the D and A marks to stderr -- where the prompt goes --
+    # puts them ahead of the prompt.  Whatever is put in front of our PS1 --
+    # a venv's activate prefixes "(venv) " -- then lands inside the prompt
+    # rather than in the output before it.
     esc, bel = "\033", "\007"
-    mark = f"{esc}]{MARK};{nonce}"
+    mark = f"\\033]{MARK};{nonce}"
     return (
-        f"PS1='{mark};D;$?;$PWD{bel}{mark};A{bel}$PWD>{mark};B{bel}'\n"
+        f"__nav_marks() {{ printf '{mark};D;%s;%s\\007{mark};A\\007' \"$1\" \"$PWD\" >&2; }}\n"
+        f"PS1='$(__nav_marks $?)$PWD>{esc}]{MARK};{nonce};B{bel}'\n"
         "PS2=''\n"
     )
 

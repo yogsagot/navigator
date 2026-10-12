@@ -68,6 +68,11 @@ position, command finished, and `$PWD`; other marks: `C` (completion), `H` (hist
 choice), `O` (reveal output).
 
 - **The shell's own prompt is held back** and painted only when a command is sent, so the log reads `prompt$ cmd`, the shape DN's `/dir>cmd` echo had.
+  The hook wraps the user's `PS1` between the A and B marks and adopts any `PS1` that differs from its wrapper with
+  the marks stripped out, because what changed it may have built on the wrapper: a venv's `activate` prefixes
+  `(venv) ` to it, `deactivate` puts an older wrapper back. The `sh` fallback has no hook, so its PS1 starts with
+  `$(__nav_marks $?)`, which writes the D and A marks to stderr while the prompt is expanded, ahead of any literal
+  prefix (dash and busybox ash expand command substitution in PS1).
 - The panel's directory reaches the shell by a **silent `cd`** (leading space, output swallowed) only when they differ;
   `Subshell.sync` sends it whenever the active panel moves while idle. A `cd` typed on the line moves the active panel
   when the command finishes (`CommandFinished`, posted from the pty reader to `Navigator.on_command_finished`).
