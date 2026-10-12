@@ -78,23 +78,55 @@ def test_the_rectangle_stays_on_the_screen_and_ctrl_takes_big_steps(app):
     assert app.copied == []
 
 
-def test_a_left_drag_spans_the_rectangle_and_enter_copies_it(app):
+
+def test_a_left_drag_spans_the_rectangle_and_letting_go_copies_it(app):
+    from navkit.events import MouseClickEvent
+
+    seen = {}
+
+    def look(a):
+        buffer = screen(a)
+        seen.update(text="\n".join(row(buffer, y, 30, 80) for y in range(8, 24)))
+
+    run_app(app, [
+        KeyEvent("insert", alt=True, shift=True), Until(lambda a: a.modal is not None), KeyEvent("enter"),
+        Until(grabbing),
+        MouseClickEvent(30, 8, "left", "press"), MouseClickEvent(25, 10, "left", "move"),
+        lambda a: seen.update(dragging=a.modal.area),
+        MouseClickEvent(20, 12, "left", "move"), MouseClickEvent(90, 30, "left", "move"),
+        lambda a: seen.update(past_the_edge=a.modal.area), look,
+        MouseClickEvent(90, 30, "left", "release"), Until(lambda a: not grabbing(a)),
+    ])
+    assert seen["dragging"] == (25, 8, 31, 11)  # from the press back up to the pointer, both cells in
+    assert seen["past_the_edge"] == (30, 8, 80, 24)  # clamped to the screen
+    assert app.copied == [seen["text"]]  # released where it last moved: still copied
+    assert grabber._last == [30, 8, 80, 24]
+
+
+def test_a_click_that_does_not_move_only_places_the_rectangle(app):
     from navkit.events import MouseClickEvent
 
     seen = {}
     run_app(app, [
         KeyEvent("insert", alt=True, shift=True), Until(lambda a: a.modal is not None), KeyEvent("enter"),
         Until(grabbing),
-        MouseClickEvent(30, 8, "left", "press"), MouseClickEvent(25, 10, "left", "move"),
-        lambda a: seen.update(dragging=a.modal.area),
-        MouseClickEvent(20, 12, "left", "move"), MouseClickEvent(90, 30, "left", "release"),
-        lambda a: seen.update(past_the_edge=a.modal.area),
-        MouseClickEvent(5, 3, "none", "move"), lambda a: seen.update(after=a.modal.area),
-        KeyEvent("left", shift=True), lambda a: seen.update(sized=a.modal.area),
-        lambda a: seen.update(text=list(a.modal.text)), KeyEvent("enter"), lambda a: None,
+        MouseClickEvent(40, 6, "left", "press"), MouseClickEvent(40, 6, "left", "release"), lambda a: None,
+        MouseClickEvent(5, 3, "none", "move"), lambda a: None,
+        lambda a: seen.update(placed=a.modal.area, open=grabbing(a)),
+        KeyEvent("right", shift=True), lambda a: seen.update(sized=a.modal.area), KeyEvent("enter"), lambda a: None,
     ])
-    assert seen["dragging"] == (25, 8, 31, 11)  # from the press back up to the pointer, both cells in
-    assert seen["past_the_edge"] == (30, 8, 80, 24)  # clamped to the screen
-    assert seen["after"] == seen["past_the_edge"]  # a move with no button held changes nothing
-    assert seen["sized"] == (30, 8, 79, 24)  # and the keys go on from there
-    assert app.copied == ["\n".join(seen["text"])]
+    assert seen["open"] and seen["placed"] == (40, 6, 41, 7)
+    assert seen["sized"] == (40, 6, 42, 7)  # the keys go on from there
+    assert len(app.copied) == 1
+
+
+def test_a_right_click_leaves_without_copying_even_mid_drag(app):
+    from navkit.events import MouseClickEvent
+
+    run_app(app, [
+        KeyEvent("insert", alt=True, shift=True), Until(lambda a: a.modal is not None), KeyEvent("enter"),
+        Until(grabbing),
+        MouseClickEvent(30, 8, "left", "press"), MouseClickEvent(40, 10, "left", "move"),
+        MouseClickEvent(40, 10, "right", "press"), Until(lambda a: not grabbing(a)),
+    ])
+    assert app.copied == []

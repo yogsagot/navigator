@@ -13,8 +13,10 @@ clipboard was DN's own, synced out with *Use system clipboard*; here it is
 the application's (``copy_to_clipboard``), which that setting steers.
 
 A departure: DN's grabber took no mouse.  Here a left drag spans the
-rectangle from the cell pressed to the cell under the pointer, the way a
-terminal selects, and the keys go on from there; Enter still copies.
+rectangle from the cell pressed to the cell under the pointer, and letting
+go copies it, the way a terminal selects.  A click that does not move puts a
+one-cell rectangle there for the keys to go on from.  A right click leaves,
+as Esc does.
 """
 
 from __future__ import annotations
@@ -53,9 +55,14 @@ class ScreenGrabber(Widget):
         self._done: asyncio.Future[Any] | None = None
         #: The cell a left press landed on while a drag is spanning the rectangle.
         self._anchor: tuple[int, int] | None = None
+        #: Whether the pointer has left the pressed cell during this drag.
+        self._dragged = False
+        #: Set by a release that ends a drag: the next paint takes the text and
+        #: ends, since only a paint knows what is under the new rectangle.
+        self._take = False
 
     async def execute(self, app: Any) -> list[str] | None:
-        """Show it; the rows taken with Enter, or None for Esc."""
+        """Show it; the rows taken with Enter or a drag, or None for Esc."""
         self._done = asyncio.get_running_loop().create_future()
         app.overlay(self)
         self.focus()
@@ -114,21 +121,29 @@ class ScreenGrabber(Widget):
         self._fit(min(x0, x1), min(y0, y1), max(x0, x1) + 1, max(y0, y1) + 1)
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        """A left drag spans the rectangle (the departure the module notes)."""
+        """A left drag spans the rectangle and its release copies it; a right
+        press leaves, as Esc does (the departure the module notes)."""
+        if event.button == "right" and event.action == "press":
+            self._end(None)
+            return True
         if event.button != "left" and not (event.action != "press" and self._anchor is not None):
             return True
         x = min(max(event.x, 0), self.width - 1)
         y = min(max(event.y, 0), self.height - 1)
         if event.action == "press":
             self._anchor = (x, y)
+            self._dragged = False
             app = self.application
             if app is not None:
                 app.capture_mouse(self)
         elif self._anchor is None:
             return True
+        self._dragged = self._dragged or (x, y) != self._anchor
         self.span(*self._anchor, x, y)
         if event.action == "release":
             self._anchor = None
+            self._take = self._dragged
+            self.invalidate()  # a paint even when the release moved nothing
         return True
 
     # -- painting -----------------------------------------------------------------------
@@ -146,3 +161,6 @@ class ScreenGrabber(Widget):
                     surface.set_cell(x, y, char, style.derive(reverse=not style.reverse))
             rows.append("".join(text))
         self.text = rows
+        if self._take:
+            self._take = False
+            self._end(list(rows))

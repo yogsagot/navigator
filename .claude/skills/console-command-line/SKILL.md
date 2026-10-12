@@ -179,7 +179,10 @@ right, PgUp/PgDn/Home/End to the edges, clamped on screen and at least a cell. E
 newlines through `app.copy_to_clipboard`; Esc nothing. The rectangle is remembered (`grabber._last`, DN's
 `Top`/`Bot`). Departures: the screen under it is live, not a frozen copy; and a left drag spans the rectangle
 from the pressed cell to the pointer (`ScreenGrabber.on_mouse_click`, mouse captured, clamped on screen) -- DN's
-grabber took no mouse. Release only leaves the rectangle; Enter still copies, the keys still adjust it.
+grabber took no mouse. Releasing a drag copies and closes: the release sets `_take` and invalidates, and the next
+`render` (the only thing that knows what is under the new rectangle) ends with its rows. A click that never leaves its
+cell only places a one-cell rectangle; the keys and Enter work as before. A right press leaves like Esc, mid-drag
+included.
 
 ## The calculator (Ctrl+F6)
 
