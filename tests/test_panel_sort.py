@@ -11,7 +11,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.settings import SETTINGS
+from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.panel import DirEntry, order_entries
 from navml.widgets.menu.popup_menu import PopupMenu
 
@@ -149,3 +149,23 @@ def test_escape_leaves_the_order_alone(place):
     run_app(app, [KeyEvent("b", alt=True), lambda a: None, KeyEvent("escape"), lambda a: None,
                   lambda a: seen.update(mode=a.manager.left.sort_mode)])
     assert seen["mode"] == "name"
+
+
+def test_a_new_panel_takes_the_new_manager_defaults_mode(place):
+    assert PanelDefaultsData().view_mode == "detailed"
+    SETTINGS.panel_defaults.view_mode = "list"
+    app = navigator(place)
+    seen = {}
+    run_app(app, [lambda a: seen.update(left=a.manager.left.view_mode, right=a.manager.right.view_mode,
+                                        header=a.manager.left.header)])
+    assert seen == {"left": "list", "right": "list", "header": 1}
+
+
+def test_the_new_manager_defaults_dialog_reads_and_answers_the_mode():
+    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+
+    SETTINGS.panel_defaults.view_mode = "detailed"
+    dialog = FMDefaultsDialog()
+    assert dialog.view_mode.value == 1
+    dialog.view_mode.value = 2
+    assert dialog.accept()["view_mode"] == "list"

@@ -506,6 +506,8 @@ class PanelDefaultsData(Section):
     )
     #: DN's first choice was *Drive*, a panel of files; there are no drives here.
     LEFT_PANEL: ClassVar[tuple[str, ...]] = ("files", "info", "tree", "absent")
+    #: ``Panel.VIEW_MODES``, the order Ctrl+Y steps through.
+    VIEW_MODE: ClassVar[tuple[str, ...]] = ("simple", "detailed", "list")
 
     #: DN's default was the extension; Navigator's panels sort by name.
     sort_by: str = Setting(
@@ -523,6 +525,10 @@ class PanelDefaultsData(Section):
     left_panel: str = Setting(
         "files", choices=LEFT_PANEL, aliases={"drive": "files"},
         doc="Left panel in a new Manager",
+    )
+    #: Not DN's: its panels took their mode from the saved ``ShowFlags``.
+    view_mode: str = Setting(
+        "detailed", choices=VIEW_MODE, doc="A new panel's mode (Ctrl+Y changes one panel's)",
     )
 
 

@@ -301,12 +301,16 @@ def _default_settings(monkeypatch, tmp_path):
     ``SETTINGS`` is shared like ``HISTORY``, and a setup dialog's OK saves to
     ``config_path()`` -- which ``XDG_CONFIG_HOME`` here points into the test's
     own temporary directory.
+
+    Panels start in the simple mode, which the panel tests were written
+    against; the shipped default, *Detailed*, is tested where it is chosen.
     """
     from navigator import filetypes
     from navigator.settings import SETTINGS
 
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     SETTINGS.reset()
+    SETTINGS.panel_defaults.view_mode = "simple"
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()

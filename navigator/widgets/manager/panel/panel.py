@@ -669,6 +669,7 @@ class Panel(ListViewer):
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
+        self.view_mode = SETTINGS.panel_defaults.view_mode
         self.columns = SETTINGS.column_defaults.columns(False)
         if path is not None:
             self.path = path

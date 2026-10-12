@@ -10,9 +10,10 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: wider than DN's 48; Help is left out, having nothing to show yet.
 #: Two captions depart from DN's: *Group* is *Type*, since on POSIX a group
 #: is the file's owner group, and the left panel's *Drive* is *Files*.
+#: *Panel mode* is not DN's: Ctrl+Y's three modes, for a new panel.
 FMDefaultsDialog(Dialog):
     modal_width: 52
-    modal_height: 18
+    modal_height: 21
     title: "Panel Defaults"
 
     Label:
@@ -65,3 +66,20 @@ FMDefaultsDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 1
         items: ["Files", "~I~nfo", "T~r~ee", "A~b~sent"]
+
+    Label:
+        id: mode_caption
+        x: 2
+        y: 14
+        width: 12
+        height: 1
+        text: "Panel mode"
+        link: view_mode
+
+    RadioButtons:
+        id: view_mode
+        x: 2
+        y: 15
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["Si~m~ple", "~D~etailed", "List"]

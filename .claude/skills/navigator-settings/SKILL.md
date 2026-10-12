@@ -193,6 +193,7 @@ note:
 | `uucode.*` | What UU Encode and UU Decode open on and run with (`navigator-file-ops`); `line_ends` defaults to `lf` (a departure: DN's was DOS's CR+LF) |
 | `highlight_groups.*` | The five custom file-type masks (`filetypes.use_masks`, from `Shell._use_highlight_groups`): row colours and *Group* order; a change re-reads every panel. The lines are named after Navigator's groups, not DN's *Custom 1*..*5*; a mask is kept with blanks and empty patterns dropped (`DelSpaces`) |
 | `panel_defaults.sort_by` | Seeds each new panel's `sort_mode` (Alt+B changes one panel's) |
+| `panel_defaults.view_mode` | Seeds each new panel's `view_mode`: `simple`, `detailed` (the default) or `list` (Ctrl+Y changes one panel's). Not DN's -- *Panel mode* closes *New Manager defaults*. `conftest`'s `_default_settings` pins `simple`, which the panel tests were written against |
 | `panel_defaults.executables_first` / `archives_first` | Read at each panel read (`Panel._rescan`, untracked): those files lead by name, extension and type |
 | `panel_defaults.files_highlight` | File-type row colours (`Panel.row_style`) |
 | `panel_defaults.current_file` / `selected_files` | What the panel's info line (its footer) may show; neither, it is empty |

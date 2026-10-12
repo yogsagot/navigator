@@ -20,5 +20,7 @@ class FMDefaultsDialog(Dialog, _Component):
     display: CheckBoxes
     left_caption: Label
     left_panel: RadioButtons
+    mode_caption: Label
+    view_mode: RadioButtons
     def __init__(self, section: PanelDefaultsData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...
