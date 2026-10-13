@@ -2725,10 +2725,10 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     last two rows to the info divider and the free-space line, pinned here to
     a number that does not depend on the disk the suite runs on.  And once
     more when a zoomed window kept its resize grip: the bottom-right corner's
-    last two cells took the icon colour, and nothing else moved.
-    a number that does not depend on the disk the suite runs on.  And once
+    last two cells took the icon colour, and nothing else moved.  And once
     more when that line was shortened as ``df -h`` does: ``977K``, not
-    every digit.
+    every digit.  And once more when the info divider joined the frame,
+    ``├``/``┤`` (``╟``/``╢`` in the double one) at its ends.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_of",
@@ -3036,7 +3036,7 @@ ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
               "  E Attr  Z Zoom")
 CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  L Info"
                "  T Tree  Q Preview  Y Show")
-SHIFT_STATUS = " F1 Arc  F2 Ext  F4 Edit...  F5 SymLnk  F8 Del"
+SHIFT_STATUS = " F1 Arc  F2 Ext  F4 Edit...  F5 SymLnk  F6 Ren  F8 Del"
 
 
 @pytest.mark.parametrize(
@@ -3395,6 +3395,26 @@ def test_the_shell_s_own_prompt_is_painted_with_its_colours(tree, quiet_console)
     # What the shell left uncoloured is the line's own colour, not the terminal's.
     assert buffer.get(2, 22)[1].fg == app.shell.command_line.style.fg
     assert app.shell.command_line.cursor_position() == (len("me$ ls"), 0)
+
+
+def test_the_prompt_is_hidden_while_a_command_runs(tree, quiet_console):
+    # A terminal shows no prompt until the command is done: its return is
+    # the sign that it has.
+    app = navigator(tree)
+    seen = []
+
+    def busy(a, value):
+        a.shell.console.subshell.busy = value
+        settle()
+        line = a.shell.command_line
+        seen.append((line.prompt, line.prompt_cells != ()))
+
+    run_app(app, [
+        lambda a: shell_prompt(a, tree),
+        lambda a: busy(a, True),
+        lambda a: busy(a, False),
+    ])
+    assert seen == [("", False), (f"{tree}$", True)]
 
 
 def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console):

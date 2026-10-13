@@ -53,7 +53,7 @@ def test_free_space_takes_a_line_under_a_divider_and_totals_another(place):
     panel = panel_at(place)
     rows = rows_of(panel)
     assert panel.info_height == 3 and panel.rows == panel.height - 2 - 3
-    assert rows[-4].strip("║│ ").startswith("─")
+    assert rows[-4][0] in "├╟" and rows[-4][-1] in "┤╢" and rows[-4][1] == "─"
     assert rows[-3].strip("║│ ") == "Total: 2 files with 5 bytes"
     assert rows[-2].strip("║│ ") == "1,000 free bytes on /"
 
