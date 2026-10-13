@@ -804,8 +804,11 @@ class Shell(DockLayout):
         panel's directory here, so the prompt says that one.  With no file
         manager open it is where the shell last was.  Shown only until the
         shell's own prompt arrives (:attr:`command_prompt_cells`).  It ends in
-        a POSIX shell's ``$``, not DOS's ``PROMPT $P$G`` ``>``.
+        a POSIX shell's ``$``, not DOS's ``PROMPT $P$G`` ``>``.  Blank while a
+        command runs, as :attr:`command_prompt_cells` is.
         """
+        if self.console.running:
+            return ""
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
@@ -822,8 +825,16 @@ class Shell(DockLayout):
         the shell cannot get there, ``<dir>>`` stands in.  With no file
         manager open, the shell is where the command would run, and its
         prompt is always right.
+
+        **None while a command runs** -- a departure: DN's line stayed under
+        the program's output.  A terminal shows no prompt until the command
+        has finished, so its coming back is the sign that it has, and an
+        empty row says the program is still going.  The row itself stays:
+        giving it to the console would resize the pty under the program.
         """
         console = self.console
+        if console.running:
+            return ()
         where = self._front_directory()
         if where is not None and console.prompt_cwd != where:
             # Read so the next prompt re-decides, whatever it says.

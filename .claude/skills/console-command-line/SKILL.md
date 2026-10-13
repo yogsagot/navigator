@@ -97,6 +97,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   panel's directory; `Shell.command_prompt_cells` compares `Console.prompt_cwd`). The hook *brackets* whatever `PS1` the
   rc left; `prompt_cells()` decodes the held-back bytes on a one-row `ConsoleScreen`, so a multi-line prompt shows its
   last line.
+- **The prompt is blank while a command runs** (a departure): `Subshell.busy` is a property that calls `on_busy`,
+  mirrored as the reactive `Console.running`, and `Shell.command_prompt`/`command_prompt_cells` are empty while it is
+  set -- the prompt coming back is the sign the command finished, as in a terminal. The row stays (giving it to the
+  console would resize the pty under the program). atuin's search, being `busy` too, also blanks it.
 - **It never holds the keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which types it there
   (DN's `ofPostProcess`); `Shell.cursor_position` puts the caret on the line.
 - Enter, Home, End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the application's table, **disabled

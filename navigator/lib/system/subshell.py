@@ -423,7 +423,7 @@ class Subshell:
     command line sent is done; *on_exit* when the shell itself goes, after
     which the next command starts another.  *on_prompt* is called with every
     prompt the shell prints, held back as it is, and the directory it was
-    printed in.
+    printed in.  *on_busy* is called with :attr:`busy` whenever it changes.
     """
 
     def __init__(
@@ -435,6 +435,7 @@ class Subshell:
         on_finished: Callable[[int, Path | None], None] | None = None,
         on_exit: Callable[[int], None] | None = None,
         on_prompt: Callable[[bytes, Path | None], None] | None = None,
+        on_busy: Callable[[bool], None] | None = None,
     ):
         self.screen = screen
         self.shell = shell or os.environ.get("SHELL") or "/bin/sh"
@@ -442,13 +443,13 @@ class Subshell:
         self.on_finished = on_finished
         self.on_exit = on_exit
         self.on_prompt = on_prompt
+        self.on_busy = on_busy
+        self._busy = False
         self.process: PtyProcess | None = None
         #: Where the shell last said it was, or None before its first prompt.
         self.cwd: Path | None = None
         #: The status of the last command, as the shell reported it.
         self.status = 0
-        #: A command the command line sent is running.
-        self.busy = False
         self._nonce = ""
         self._marks: re.Pattern[bytes] | None = None
         #: The bytes every mark of this shell's begins with.
@@ -740,6 +741,18 @@ class Subshell:
             # editor; pasted, the line is taken as written.
             data = b"\x1b[200~" + data + b"\x1b[201~"
         self.process.write(data + b"\r")
+
+    @property
+    def busy(self) -> bool:
+        """A command the command line sent is running."""
+        return self._busy
+
+    @busy.setter
+    def busy(self, value: bool) -> None:
+        if value != self._busy:
+            self._busy = value
+            if self.on_busy is not None:
+                self.on_busy(value)
 
     # -- output ----------------------------------------------------------------
 

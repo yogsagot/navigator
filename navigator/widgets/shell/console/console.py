@@ -72,6 +72,10 @@ class Console(Widget):
     #: named are then somewhere else.
     selection: Any = reactive(None)
 
+    #: A command the command line sent is running: ``Subshell.busy``, which
+    #: is a plain field, mirrored where the reactive layer can see it.
+    running: bool = reactive(False)
+
     #: The shell has the real terminal (``Shell.relay_terminal``): its pty is
     #: then the whole terminal's size, not this widget's.
     relayed: bool = reactive(False)
@@ -95,7 +99,8 @@ class Console(Widget):
         #: and prompt callbacks are set here; what a finished command means is
         #: ``Shell``'s.
         self.subshell = Subshell(
-            self.screen, on_output=self._changed, on_prompt=self._prompted
+            self.screen, on_output=self._changed, on_prompt=self._prompted,
+            on_busy=self._busy_changed,
         )
         self.seeded = False
         #: Where a left-button drag started, while one is selecting.
@@ -157,6 +162,9 @@ class Console(Widget):
     def _changed(self) -> None:
         self.revision += 1
         self.clear_selection()
+
+    def _busy_changed(self, busy: bool) -> None:
+        self.running = busy
 
     def _prompted(self, data: bytes, cwd: Path | None) -> None:
         self.prompt = prompt_cells(data)

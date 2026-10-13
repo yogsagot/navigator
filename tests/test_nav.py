@@ -3394,6 +3394,26 @@ def test_the_shell_s_own_prompt_is_painted_with_its_colours(tree, quiet_console)
     assert app.shell.command_line.cursor_position() == (len("me$ ls"), 0)
 
 
+def test_the_prompt_is_hidden_while_a_command_runs(tree, quiet_console):
+    # A terminal shows no prompt until the command is done: its return is
+    # the sign that it has.
+    app = navigator(tree)
+    seen = []
+
+    def busy(a, value):
+        a.shell.console.subshell.busy = value
+        settle()
+        line = a.shell.command_line
+        seen.append((line.prompt, line.prompt_cells != ()))
+
+    run_app(app, [
+        lambda a: shell_prompt(a, tree),
+        lambda a: busy(a, True),
+        lambda a: busy(a, False),
+    ])
+    assert seen == [("", False), (f"{tree}$", True)]
+
+
 def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console):
     app = navigator(tree)
     run_app(app, [
