@@ -213,6 +213,17 @@ class FastRename(Command):
     title = "Ren"
 
 
+class QuickRename(Command):
+    """Shift+F6, File > Quick rename: one entry's new name, asked in a box.
+
+    A departure, asked for: Alt+F6's rename without the in-place line, for
+    the menu -- and none of F6's *Rename/Move* (targets, masks, modes).
+    Enabled while the selection is one entry.
+    """
+
+    title = "Ren"
+
+
 class FindFile(Command):
     """Alt+F7, ``cmFindFile``."""
 
@@ -515,6 +526,7 @@ __all__ = [
     "PanelSetup",
     "MakeList",
     "FastRename",
+    "QuickRename",
     "FindFile",
     "Calculator",
     "PrintFile",

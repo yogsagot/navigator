@@ -49,6 +49,7 @@ from navigator.widgets.manager.commands import (
     MakeLink,
     MoveSeparator,
     PrintFile,
+    QuickRename,
     QuickView,
     RenameMove,
     Rescan,
@@ -711,7 +712,6 @@ class Manager(Window):
         file under its new name, a tag goes with it, and Up or Down ending
         the line is then the panel's (``PutEvent``).
         """
-        from navigator.widgets.editor.edit_window.edit_window import FileSaved
         from navigator.widgets.manager.fast_rename import FastRenameLine
 
         app = self.application
@@ -723,39 +723,82 @@ class Manager(Window):
         old = entry.name
         new, key = await FastRenameLine(old, ox + panel.x + x, oy + panel.y + y, width).execute(app)
         if new and new != old:
-            here = Path(entry.directory if entry.directory is not None else panel.path)
-
-            taken = "a file of that name is already there"
-
-            def rename() -> None:
-                target = here / new
-                if os.path.lexists(target) and not os.path.samefile(here / old, target):
-                    raise FileExistsError(errno.EEXIST, taken)
-                os.rename(here / old, target)
-
-            try:
-                await asyncio.to_thread(rename)
-            except OSError as error:
-                reason = (tr("a file of that name is already there") if error.strerror == taken
-                          else error.strerror or error)
-                await Dialog(title=tr("Error"),
-                             prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
-                                 old=old, new=new, reason=reason),
-                             buttons="ok").execute(app)
-            else:
-                old_key = entry.key
-                renamed = DirEntry(new, entry.is_dir, entry.size, directory=entry.directory)
-                if panel.found is not None:
-                    # The listing knows its files by name: tell it the new one.
-                    for found in panel.found.entries:
-                        if found.key == old_key:
-                            found.name = new
-                if old_key in panel.marked:
-                    panel.marked = (panel.marked - {old_key}) | {renamed.key}
-                await self.emit(FileSaved(here / new))
-                panel.reload(key=renamed.key)
+            await self._rename_entry(panel, entry, new)
         if key is not None:
             app.post_event(key)
+
+    async def on_quick_rename(self, event: QuickRename) -> bool:
+        self.spawn(self.quick_rename(self.active_panel))
+        return True
+
+    def _rename_candidate(self, panel: Panel) -> Any:
+        """The one entry Quick rename would rename: the one tagged, else the
+        one at the cursor -- None for ``..``, nothing, or more than one."""
+        if panel.marked:
+            marked = panel.marked_entries
+            return marked[0] if len(marked) == 1 else None
+        entry = panel.selected
+        return None if entry is None or entry.name == ".." else entry
+
+    async def quick_rename(self, panel: Panel) -> None:
+        """File > Quick rename: Alt+F6's rename, the new name asked in a box."""
+        from navigator.widgets.file_ops.rename_dialog import RenameDialog
+
+        app = self.application
+        entry = self._rename_candidate(panel)
+        if app is None or entry is None:
+            return
+        new = await RenameDialog(name=entry.name, is_dir=entry.is_dir).execute(app)
+        if new and new != entry.name:
+            await self._rename_entry(panel, entry, new)
+
+    async def _rename_entry(self, panel: Panel, entry: Any, new: str) -> None:
+        """*entry* renamed to *new* beside itself, on a thread.
+
+        A name already taken is refused, as DOS's rename refused it where
+        POSIX's would replace it; a ``/`` is no name.  The cursor goes to the
+        file under its new name, and a tag goes with it.
+        """
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+
+        app = self.application
+        old = entry.name
+        here = Path(entry.directory if entry.directory is not None else panel.path)
+        if "/" in new:
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
+                             old=old, new=new, reason=tr("a name cannot hold a /")),
+                         buttons="ok").execute(app)
+            return
+        taken = "a file of that name is already there"
+
+        def rename() -> None:
+            target = here / new
+            if os.path.lexists(target) and not os.path.samefile(here / old, target):
+                raise FileExistsError(errno.EEXIST, taken)
+            os.rename(here / old, target)
+
+        try:
+            await asyncio.to_thread(rename)
+        except OSError as error:
+            reason = (tr("a file of that name is already there") if error.strerror == taken
+                      else error.strerror or error)
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
+                             old=old, new=new, reason=reason),
+                         buttons="ok").execute(app)
+        else:
+            old_key = entry.key
+            renamed = DirEntry(new, entry.is_dir, entry.size, directory=entry.directory)
+            if panel.found is not None:
+                # The listing knows its files by name: tell it the new one.
+                for found in panel.found.entries:
+                    if found.key == old_key:
+                        found.name = new
+            if old_key in panel.marked:
+                panel.marked = (panel.marked - {old_key}) | {renamed.key}
+            await self.emit(FileSaved(here / new))
+            panel.reload(key=renamed.key)
 
     #: *Make List File*'s boxes as last left, for the session (DN kept
     #: ``MakeListFileOptions`` in its configuration).
@@ -1104,6 +1147,9 @@ class Manager(Window):
         if isinstance(command, ChangeInactive):
             entry = self.active_panel.selected
             return self.active_panel.found is not None and entry is not None and entry.name != ".."
+        if isinstance(command, QuickRename):
+            # One entry: the one tagged, else the cursor's.
+            return self._rename_candidate(self.active_panel) is not None
         if isinstance(command, (UuEncode, UuDecode)):
             # DN's ``PF^.Attr and Directory = 0``: the file at the cursor.
             entry = self.active_panel.selected

@@ -29,6 +29,13 @@ operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as 
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
 stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows.
 
+## Quick rename (Shift+F6)
+
+A departure, asked for: `QuickRename` (Shift+F6, Midnight Commander's rename key; Ctrl+F6 stays DN's Calculator), `Manager.quick_rename` -> `RenameDialog` (`file_ops/rename_dialog`),
+the old name in the line, its stem selected (`os.path.splitext`; a directory whole), so typing keeps the extension. Enabled only when the selection is one entry (`_rename_candidate`: the one
+tagged, else the cursor's, never `..`). The rename itself is `Manager._rename_entry`, shared with Alt+F6's in-place
+`fast_rename`: beside itself only (a `/` is refused, no moving), a taken name refused, on a thread, cursor and tag follow.
+
 ## Symlinks (Shift+F5)
 
 *File > Create symlink…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is

@@ -1,0 +1,34 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > Quick rename: one name in a box, OK and Cancel.  A departure --
+#: DN renamed a single file in place (Alt+F6, ``CM_RenameSingle``) or through
+#: F6's *Rename/Move* dialog; this is the in-place line's job put in a box,
+#: for the menu, where there is no panel cell to lay a line over.
+RenameDialog(Dialog):
+    #: The caption over the line, naming the file.
+    property caption: ""
+
+    modal_width: 60
+    modal_height: 9
+    title: "Quick rename"
+    close_on_outside_click: True
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.caption
+        link: line.entry
+
+    Field:
+        id: line
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
