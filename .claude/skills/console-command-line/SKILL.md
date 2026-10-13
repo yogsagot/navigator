@@ -83,6 +83,9 @@ choice), `O` (reveal output).
   refuses to start under it -- so `nav` typed inside Navigator says so and exits 1, while another terminal is
   unaffected (no lock file). `--help`, `--version` and `--list-themes` still work; `NAVIGATOR= nav` forces a nested copy.
 - Queries are answered in order -- `Subshell._completions` is a queue (two keys in one read send two queries).
+- **A mark can span many reads**: an `H` (history) or `C` (completion) answer is one base64 mark of up to a few
+  hundred KB. `_on_output` carries an unended mark of ours (`_mark_start`) up to `_MARK_LIMIT`; anyone else's unended
+  OSC is let go after 4K. With the old 4K cap for everything, a real-sized history was dropped and Up did nothing.
 
 ## The command line
 

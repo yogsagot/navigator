@@ -71,6 +71,11 @@ from navigator.lib.system.tempdir import temp_root as _temp_root
 #: The OSC number the marks are carried under.  Private: no terminal assigns it.
 MARK = 6973
 
+#: How long one of our own marks may grow while it waits for its end.  A
+#: history or completion answer is a single mark of base64 and can run to a
+#: few hundred kilobytes, arriving over many reads.
+_MARK_LIMIT = 4 * 1024 * 1024
+
 #: Bracketed paste on and off, as the shell's line editor announces them.
 _PASTE_ON = b"\x1b[?2004h"
 _PASTE_OFF = b"\x1b[?2004l"
@@ -446,6 +451,8 @@ class Subshell:
         self.busy = False
         self._nonce = ""
         self._marks: re.Pattern[bytes] | None = None
+        #: The bytes every mark of this shell's begins with.
+        self._mark_start: bytes | None = None
         self._directory: str | None = None
         #: Bytes that may be the start of a mark, kept for the next read.
         self._tail = b""
@@ -523,6 +530,7 @@ class Subshell:
             rb"\x1b\]%d;%s;([ABCDHORU])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
             % (MARK, self._nonce.encode())
         )
+        self._mark_start = b"\x1b]%d;%s;" % (MARK, self._nonce.encode())
         self._directory = tempfile.mkdtemp(prefix="navigator-shell-", dir=_temp_root())
         argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce)
         self._zle = Path(argv[0]).name == "zsh"
@@ -740,11 +748,18 @@ class Subshell:
             self._paste = data.rfind(_PASTE_ON) > data.rfind(_PASTE_OFF)
         data = self._tail + data
         self._tail = b""
-        # A mark cut off by the end of the read is kept for the next one.
+        # A mark cut off by the end of the read is kept for the next one.  A
+        # program's own unended OSC is let go after 4K, so it cannot hold the
+        # output back; ours always ends, however many reads it takes.
         cut = data.rfind(b"\x1b]")
         if cut != -1 and self._marks is not None:
             rest = data[cut:]
-            if b"\x07" not in rest and b"\x1b\\" not in rest and len(rest) < 4096:
+            ours = self._mark_start is not None and rest.startswith(self._mark_start)
+            if (
+                b"\x07" not in rest
+                and b"\x1b\\" not in rest
+                and len(rest) < (_MARK_LIMIT if ours else 4096)
+            ):
                 data, self._tail = data[:cut], rest
         position = 0
         if self._marks is not None:
