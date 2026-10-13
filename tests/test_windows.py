@@ -203,6 +203,20 @@ def test_dragging_the_grip_resizes_down_to_the_minimum(desk):
     assert (win.width, win.height) == (win.min_width, win.min_height)
 
 
+def test_a_zoomed_window_keeps_its_grip_and_dragging_it_unzooms(desk):
+    app, desktop = desk
+    win = desktop.open(window(10, 5, 30, 10))
+    win.toggle_zoom()
+    assert win.chrome_hit(79, 21) == "resize"
+    # The desktop starts at screen row 1, so its bottom-right is (79, 22).
+    handle(app, press(79, 22), release(79, 22))
+    assert win.zoomed
+    handle(app, press(79, 22), move(60, 15), release(60, 15))
+    assert not win.zoomed
+    assert (win.x, win.y, win.width, win.height) == (0, 0, 61, 15)
+    assert app.mouse_capture is None
+
+
 def test_zoom_fills_the_desktop_and_restore_puts_it_back(desk):
     app, desktop = desk
     win = desktop.open(window(10, 5, 30, 10))
