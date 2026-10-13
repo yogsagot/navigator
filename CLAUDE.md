@@ -44,7 +44,7 @@ editor's phases.
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
-  recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn scrolls
+  recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn (Shift+Up/Down a line; idle, PgUp/PgDn and Home/End) scroll
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
   terminal's font is assumed to draw, `--no-dim-modal` stops what is behind a dialog being painted faint

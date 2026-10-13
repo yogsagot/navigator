@@ -383,6 +383,43 @@ class ConsoleScreen:
         self.screen.next_page()
         self._synced = False
 
+    def scroll(self, lines: int) -> None:
+        """Scroll *lines* rows: back into history when negative, forward when positive.
+
+        pyte only pages, by ``history.ratio`` of the screen, so the ratio is
+        set for the one step to a fraction that rounds up to exactly *lines*
+        (pyte takes the ceiling) and put back afterwards.
+        """
+        count = min(abs(lines), self.lines)
+        if not count:
+            return
+        screen = self.screen
+        ratio = screen.history.ratio
+        screen.history = screen.history._replace(ratio=(count - 0.5) / self.lines)
+        try:
+            if lines < 0:
+                screen.prev_page()
+            else:
+                screen.next_page()
+        finally:
+            screen.history = screen.history._replace(ratio=ratio)
+        self._synced = False
+
+    def scroll_to_top(self) -> None:
+        """Scroll back to the oldest line history keeps."""
+        self._scroll_all(-self.lines)
+
+    def scroll_to_bottom(self) -> None:
+        """Scroll forward to the live screen."""
+        self._scroll_all(self.lines)
+
+    def _scroll_all(self, step: int) -> None:
+        while True:
+            position = self.screen.history.position
+            self.scroll(step)
+            if self.screen.history.position == position:
+                return
+
     @property
     def scrolled_back(self) -> bool:
         """True when the view is somewhere above the live screen."""

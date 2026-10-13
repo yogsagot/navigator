@@ -1571,6 +1571,39 @@ def test_shift_pageup_scrolls_the_console_back(tree, quiet_console):
     assert app.shell.console.screen.scrolled_back is True
 
 
+def test_console_scroll_keys_while_the_shell_is_idle(tree, quiet_console):
+    app = navigator(tree)
+    lines = b"".join(b"line%d\r\n" % n for n in range(200))
+    seen = {}
+
+    def top(name):
+        def look(a):
+            seen[name] = a.shell.console.screen.screen.history.position
+        return look
+
+    run_app(app, [
+        KeyEvent("o", ctrl=True),
+        lambda a: a.shell.console._on_output(lines),
+        top("live"),
+        KeyEvent("up", shift=True), top("line"),
+        KeyEvent("pageup"), top("page"),
+        KeyEvent("pageup", shift=True), top("half"),
+        KeyEvent("home"), top("home"),
+        KeyEvent("down", shift=True), top("down"),
+        KeyEvent("end"), top("end"),
+    ])
+    rows = app.shell.console.screen.lines
+    assert seen["line"] == seen["live"] - 1
+    assert seen["page"] == seen["line"] - rows
+    assert seen["half"] == seen["page"] - (rows + 1) // 2
+    assert seen["home"] < seen["half"]
+    assert seen["down"] == seen["home"] + 1
+    assert seen["end"] == seen["live"]
+    # None of it reached the command line or the panels.
+    assert app.shell.command_line.value == ""
+    assert app.manager.left.cursor == 0
+
+
 def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
     app = navigator(tree)
     lines = b"".join(b"line%d\r\n" % n for n in range(60))
@@ -2472,7 +2505,7 @@ def test_the_console_reports_no_cursor_while_it_is_scrolled_back(tree, quiet_con
         console._on_output(b"\r\n".join(b"line %d" % n for n in range(60)))
 
     seen = []
-    run_app(app, [show, lambda a: console.scroll_back(),
+    run_app(app, [show, lambda a: console.scroll_lines(-3),
                   lambda a: seen.append((console.cursor_position(), a._cursor()))])
     assert console.screen.scrolled_back is True
     # The rows on screen are history; the live cursor means nothing among

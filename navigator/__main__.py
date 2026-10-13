@@ -63,6 +63,7 @@ from navigator.widgets.shell.commands import (
     OpenCalendar,
     ViewHistory,
 )
+from navigator.widgets.shell.console.console import WHEEL_LINES
 from navigator.widgets.shell.shell import Shell
 
 
@@ -416,10 +417,7 @@ class Navigator(Application):
             return False
         if not console.contains(event.x, event.y):
             return False
-        if event.button == "wheel_up":
-            console.scroll_back()
-        else:
-            console.scroll_forward()
+        console.scroll_lines(-WHEEL_LINES if event.button == "wheel_up" else WHEEL_LINES)
         return True
 
 

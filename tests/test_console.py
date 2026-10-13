@@ -171,6 +171,26 @@ def test_output_scrolled_off_the_top_can_be_paged_back_to():
     assert not console.scrolled_back
 
 
+def test_the_view_scrolls_by_lines_and_to_either_end():
+    console = ConsoleScreen(20, 3, history=50)
+    console.feed(b"".join(b"line%d\r\n" % n for n in range(12)))
+    top = text_of(console, 0)
+    assert top == "line10"
+
+    console.scroll(-1)
+    assert text_of(console, 0) == "line9"
+    console.scroll(-3)
+    assert text_of(console, 0) == "line6"
+    console.scroll(2)
+    assert text_of(console, 0) == "line8"
+
+    console.scroll_to_top()
+    assert text_of(console, 0) == "line0"
+    console.scroll_to_bottom()
+    assert not console.scrolled_back
+    assert text_of(console, 0) == top
+
+
 def test_new_output_snaps_the_view_back_to_the_bottom():
     console = ConsoleScreen(20, 3, history=50)
     console.feed(b"".join(b"line%d\r\n" % n for n in range(12)))

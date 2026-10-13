@@ -27,7 +27,10 @@ The `Console` covers the band between the bars behind the desktop. Ctrl+O hides 
 `visible` binding); menu and key bars stay painted -- DN's Ctrl+O, not mc's. `toggle_console` hands the console the
 keyboard **in the same call that flips the flag, never from an effect** (an effect runs after the batch, so Ctrl+O and
 the next key would be routed by a stale focus); hiding it re-activates the top window. `Console.can_focus` is set in
-`__init__`. The console reports the child's cursor through `cursor_position()`. Shift+PgUp/PgDn scroll back.
+`__init__`. The console reports the child's cursor through `cursor_position()`. Scrollback (`ConsoleScreen.scroll`/`scroll_to_top`/`scroll_to_bottom`, pyte's paging with
+`history.ratio` set per step): Shift+PgUp/PgDn half a page and Shift+Up/Down a line always (a busy full-screen program on the
+alternate screen gets Shift+Up/Down instead); idle only, PgUp/PgDn a page and Home/End to either end (Home/End only
+with the command line empty, its table takes them first); the wheel `WHEEL_LINES` (3).
 `Console.on_key` keeps the scrollback and sends the rest to the child.
 
 - **An idle console takes no keys** (it holds them only while a command the line sent runs, `Console.busy`); typing

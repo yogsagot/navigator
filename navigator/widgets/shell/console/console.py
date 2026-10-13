@@ -23,6 +23,9 @@ from navigator.lib.system.subshell import Subshell
 #: wraps onto is the one the typing happens on.
 PROMPT_COLUMNS = 256
 
+#: Rows one notch of the wheel scrolls the console, as most terminals do.
+WHEEL_LINES = 3
+
 
 def prompt_cells(data: bytes) -> tuple[Cell, ...]:
     """The row a prompt leaves the cursor on, as cells: what the user types after.
@@ -294,20 +297,44 @@ class Console(Widget):
     async def on_key(self, event: KeyEvent) -> bool:
         """Everything typed while the console has the keyboard.
 
-        The two scrollback bindings are kept back.  **While a command runs the
-        rest is the program's**, swallowed whether or not there is a child to
-        send it to, so a keystroke aimed at ``vim`` never lands on the panels
-        underneath.  While the shell is idle the console is only showing
-        output, and a key goes on up to the shell's command line -- which is
-        the prompt the user is looking at.
+        The scrollback keys are kept back: Shift+PgUp/PgDn half a page and
+        Shift+Up/Down a line (both what xfce4-terminal binds for itself, so
+        they reach here only where the terminal leaves them), and while the
+        shell is idle the bare PgUp/PgDn a page and Home/End all the way --
+        Home and End only with the command line empty, since its table takes
+        them first otherwise.  A full-screen program on the alternate screen
+        has no scrollback and gets Shift+Up/Down, which editors select with.
+
+        **While a command runs the rest is the program's**, swallowed whether
+        or not there is a child to send it to, so a keystroke aimed at ``vim``
+        never lands on the panels underneath.  While the shell is idle the
+        console is only showing output, and a key goes on up to the shell's
+        command line -- which is the prompt the user is looking at.
 
         The way out is not here.  Ctrl+O and quit are the application's, and
         the application sees every key before the tree does.
         """
+        page = self.screen.lines
+        idle = not self.busy
+        half = (page + 1) // 2
         if event.matches("shift+pageup"):
-            self.scroll_back()
+            self.scroll_lines(-half)
         elif event.matches("shift+pagedown"):
-            self.scroll_forward()
+            self.scroll_lines(half)
+        elif idle and event.matches("pageup"):
+            self.scroll_lines(-page)
+        elif idle and event.matches("pagedown"):
+            self.scroll_lines(page)
+        elif event.matches("shift+up") and not (self.busy and self.screen.alternate):
+            self.scroll_lines(-1)
+        elif event.matches("shift+down") and not (self.busy and self.screen.alternate):
+            self.scroll_lines(1)
+        elif idle and event.matches("home"):
+            self.screen.scroll_to_top()
+            self._changed()
+        elif idle and event.matches("end"):
+            self.screen.scroll_to_bottom()
+            self._changed()
         elif self.copy_key(event):
             pass
         elif event.matches("escape") and self.selection is not None and not self.busy:
@@ -318,12 +345,9 @@ class Console(Widget):
             return False
         return True
 
-    def scroll_back(self) -> None:
-        self.screen.prev_page()
-        self._changed()
-
-    def scroll_forward(self) -> None:
-        self.screen.next_page()
+    def scroll_lines(self, lines: int) -> None:
+        """*lines* rows back (negative) or forward (positive) through the scrollback."""
+        self.screen.scroll(lines)
         self._changed()
 
     # -- painting ------------------------------------------------------------
