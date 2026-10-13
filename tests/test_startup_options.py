@@ -12,6 +12,7 @@ from conftest import FakeTerminal, Until, run_app
 
 from navigator.__main__ import Navigator, clear_histories
 from navigator.models.view_record import ViewRecord
+from navigator.lib.config.usermenu import global_menu
 from navigator.settings import SETTINGS
 from navml.history import HISTORY
 
@@ -34,7 +35,7 @@ def test_auto_run_user_menu_opens_it_at_the_start(place):
     seen = {}
     run_app(navigator(place / "one"), [Until(lambda a: getattr(a.modal, "title", None) == "Error"),
                                        lambda a: seen.update(prompt=a.modal.prompt)])
-    assert seen["prompt"] == "File dn.mnu not found"
+    assert seen["prompt"] == f"File {global_menu()} not found"
 
     SETTINGS.startup.auto_user_menu = False
     run_app(navigator(place / "one"), [lambda a: None, lambda a: seen.update(modal=a.modal)])

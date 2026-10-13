@@ -1,4 +1,4 @@
-"""F2's user menu: ``dn.mnu`` (USERMENU.PAS), its macros, and running an item."""
+"""F2's user menu: ``menu.ini`` (DN's USERMENU.PAS), its macros, and running an item."""
 
 from __future__ import annotations
 
@@ -18,36 +18,55 @@ from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.popup_menu import PopupMenu
 
 SAMPLE = """\
-; DN's example, and then some
->1 ~W~indows
-    win
->1
->1 ~F~ormat
-  >2 1.4~4~ Mb
-    format a: /f:1440
-  >2 ~D~efine...
-    <Format what
+; an example, and then some
+# either comment
+~W~indows = win
+-
+[~F~ormat]
+1.4~4~ Mb = format a: /f:1440
+~D~efine... = <Format what
     <=format a:
     %3 %4
->>1 F5 ~E~dit !.!
-    ; open it
+[/]
+F5 ~E~dit !.! = ; open it
     vi !\\!.!
-
     cp %1 $\\ %%3 $$HOME
 """
 
 
-def test_items_nest_by_level_and_a_bare_level_is_a_line():
+def test_sections_are_submenus_placed_where_their_header_falls():
     menu = parse(SAMPLE)
     top = menu.items
     assert [e.caption for e in top] == ["~W~indows", "", "~F~ormat", "F5 ~E~dit !.!"]
     assert top[1].is_line and not top[0].is_line
     assert [e.caption for e in top[2].children] == ["1.4~4~ Mb", "~D~efine..."]
     assert top[3].fkey == "f5" and top[0].fkey is None
-    assert parse(">x nothing\n>0 nor this\n>2 deep\n").items[0].caption == "deep"
 
 
-def test_an_items_lines_run_to_the_next_item_and_say_whether_to_ask():
+def test_a_header_makes_its_ancestors_and_naming_it_again_adds_to_it():
+    menu = parse("[A/B]\nb = 1\n[A]\na = 2\n[A/B]\nc = 3\n[/]\ntop = 4\n")
+    a, top = menu.items
+    assert a.caption == "A" and top.caption == "top"
+    assert [e.caption for e in a.children] == ["B", "a"]
+    assert [e.caption for e in a.children[0].children] == ["b", "c"]
+
+
+def test_a_submenu_with_no_item_is_dropped():
+    menu = parse("x = 1\n[Empty]\n-\n[Empty/Deeper]\n[Full]\ny = 2\n")
+    assert [e.caption for e in menu.items] == ["x", "Full"]
+
+
+def test_a_line_that_is_none_of_the_forms_is_a_value_error_naming_it():
+    with pytest.raises(ValueError, match="line 2"):
+        parse("x = 1\njust words\n")
+    with pytest.raises(ValueError, match="line 1"):
+        parse("[open\n")
+    # An indented line after a blank one belongs to no item.
+    with pytest.raises(ValueError, match="line 3"):
+        parse("x = 1\n\n    more\n")
+
+
+def test_an_items_lines_are_its_value_and_say_whether_to_ask():
     menu = parse(SAMPLE)
     windows, _, fmt, edit = menu.items
     assert menu.commands(windows).lines == ["win"] and not menu.commands(windows).asks
@@ -55,10 +74,19 @@ def test_an_items_lines_run_to_the_next_item_and_say_whether_to_ask():
     define = menu.commands(fmt.children[1])
     assert define.asks and define.title == "Format what" and define.default == "format a:"
     assert define.lines == ["%3 %4"]
-    # Comments and blank lines go; %%3 is a literal, not a parameter.
+    # Comments go; %%3 is a literal, not a parameter.
     assert menu.commands(edit).lines == ["vi !\\!.!", "cp %1 $\\ %%3 $$HOME"]
     assert not menu.commands(edit).asks
-    assert parse(">1 x\n  echo %3\n").commands(parse(">1 x\n  echo %3\n").items[0]).asks
+    assert parse("x = echo %3\n").items[0].commands.asks
+    assert parse("x =\n").items[0].commands.lines == []
+
+
+def test_the_shipped_menu_reads_with_submenus():
+    from navigator.lib.config.associations import MENU, TEMPLATES
+
+    menu = parse(TEMPLATES[MENU])
+    assert any(entry.children for entry in menu.items)
+    assert all(entry.commands is not None for entry in menu.walk() if not entry.children and not entry.is_line)
 
 
 ACTIVE = Side.of(Path("/home/me/my dir"), "read me.txt", "/tmp/a.lst")
@@ -74,7 +102,7 @@ def test_the_macros_are_dns_and_quoted_only_where_a_name_needs_it():
     assert expand("$$HOME !! %%", ACTIVE, PASSIVE) == "$HOME ! %"
     assert expand("%0 %1 %2 %3 %4 %5", ACTIVE, PASSIVE, script="/s.sh", params="a b") == \
         "/s.sh /tmp/a.lst - a b "
-    assert caption(parse(">1 Edit !.! in $/").items[0], ACTIVE, PASSIVE) == "Edit read me.txt in /"
+    assert caption(parse("Edit !.! in $/ = x").items[0], ACTIVE, PASSIVE) == "Edit read me.txt in /"
 
 
 def test_what_a_macro_puts_in_is_never_read_as_another():
@@ -95,10 +123,12 @@ def test_the_local_menu_is_the_nearest_above_else_the_global_one(tmp_path, monke
     deep.mkdir(parents=True)
     assert find_menu(deep) is None
     (tmp_path / "config" / "navigator").mkdir(parents=True)
-    (tmp_path / "config" / "navigator" / "dn.mnu").write_text(">1 g\n")
-    assert find_menu(deep) == (tmp_path / "config" / "navigator" / "dn.mnu", True)
-    (tmp_path / "a" / "dn.mnu").write_text(">1 l\n")
-    assert find_menu(deep) == (tmp_path / "a" / "dn.mnu", False)
+    (tmp_path / "config" / "navigator" / "menu.ini").write_text("g = true\n")
+    assert find_menu(deep) == (tmp_path / "config" / "navigator" / "menu.ini", True)
+    (tmp_path / "a" / "menu.ini").write_text("not = local\n")
+    assert find_menu(deep)[1] is True
+    (tmp_path / "a" / ".navigator-menu.ini").write_text("l = true\n")
+    assert find_menu(deep) == (tmp_path / "a" / ".navigator-menu.ini", False)
     assert find_menu(deep, want_global=True)[1] is True
 
 
@@ -127,7 +157,7 @@ def place(tmp_path, monkeypatch):
     work.mkdir()
     for name in ("a.txt", "b.txt"):
         (work / name).write_text(name)
-    (work / "dn.mnu").write_text(SAMPLE + ">1 ~L~ist\n    cat %1\n")
+    (work / ".navigator-menu.ini").write_text(SAMPLE + "~L~ist = cat %1\n")
     return work
 
 
@@ -220,8 +250,8 @@ def test_a_captions_f_key_chooses_its_item(place):
 def test_f2_in_the_box_changes_to_the_global_menu_and_f4_edits_it(place):
     from navigator.widgets.editor.edit_window import EditWindow
 
-    global_menu = place.parent / "config" / "navigator" / "dn.mnu"
-    global_menu.write_text(">1 ~G~lobal thing\n    true\n")
+    global_menu = place.parent / "config" / "navigator" / "menu.ini"
+    global_menu.write_text("~G~lobal thing = true\n")
     app = navigator(place)
     seen = {}
     run_app(app, [KeyEvent("f2"), Until(lambda a: popup(a) is not None), KeyEvent("f2"),
@@ -233,12 +263,12 @@ def test_f2_in_the_box_changes_to_the_global_menu_and_f4_edits_it(place):
 
 
 def test_no_menu_anywhere_says_so(place):
-    (place / "dn.mnu").unlink()
+    (place / ".navigator-menu.ini").unlink()
     app = navigator(place)
     seen = {}
     run_app(app, [KeyEvent("f2"), Until(lambda a: a.modal is not None),
                   lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("enter")])
-    assert seen["prompt"] == "File dn.mnu not found"
+    assert seen["prompt"] == f"File {place.parent / 'config' / 'navigator' / 'menu.ini'} not found"
 
 
 def test_escape_runs_nothing(place):

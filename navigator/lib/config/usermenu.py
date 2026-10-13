@@ -1,30 +1,41 @@
-"""F2's user menu: DOS Navigator's ``dn.mnu`` (USERMENU.PAS), read for POSIX.
+"""F2's user menu: ``menu.ini``, what was DOS Navigator's ``dn.mnu`` (USERMENU.PAS).
 
-**The file.**  An item is a line ``>N Caption``, *N* its depth from 1; the
-lines under it, up to the next ``>`` line, are what choosing it runs.  An item
-with deeper ones under it is a submenu instead.  ``>N`` with no caption is a
-separator.  A caption may mark its letter with ``~``, and one starting
-``F1 `` .. ``F12 `` is chosen by that key from anywhere in the menu
-(``CheckFKeys``).  In an item's lines, ``<Title`` titles the box asking for
-parameters and ``<=text`` fills it in; either, or a ``%3`` .. ``%9``, has the
-box asked.  ``>>N`` was DN's *run through COMMAND.COM's int 2Eh*, and is read
-as ``>N``.
+**The file** is ``.ini``-shaped, as ``extensions.ini`` and its siblings are
+(:mod:`navigator.lib.config.associations`), though read line by line here
+since a menu keeps separators, repeated captions and its own order:
 
-**Where it is** (``ExecUserMenu``): F2 looks for ``dn.mnu`` in the active
-panel's directory and then in each one above it -- the *local* menu -- and
-uses the *global* one, ``dn.mnu`` beside ``navigator.ini``, when there is
-none.  F2 in the box changes between the two, F4 edits the one shown.
+- ``Caption = command`` is an item; indented lines under it are more of its
+  commands, up to a blank line or the next item.  ``Caption =`` runs nothing.
+- ``[Archive]`` starts a submenu, ``[Archive/Compress]`` one inside it --
+  ancestors not seen yet are made on the way.  Items before any header are the
+  top menu, and ``[/]`` goes back to it.  A submenu sits in its parent where
+  its header first appears; naming it again goes on adding to it.  A path's
+  parts are compared as written, ``~`` and all; a submenu left empty is
+  dropped.
+- A line of only ``-`` is a separator.
+- A line starting ``#`` or ``;`` is a comment.
+
+A caption may mark its letter with ``~``, and one starting ``F1 `` .. ``F12 ``
+is chosen by that key from anywhere in the menu (``CheckFKeys``).  In an
+item's commands, ``<Title`` titles the box asking for parameters and
+``<=text`` fills it in; either, or a ``%3`` .. ``%9``, has the box asked.
+
+**Where it is** (``ExecUserMenu``): F2 looks for ``.navigator-menu.ini`` in
+the active panel's directory and then in each one above it -- the *local*
+menu -- and uses the *global* one, ``menu.ini`` beside ``navigator.ini``,
+when there is none.  F2 in the box changes between the two, F4 edits the one
+shown.  The global one is written from ``navigator/assets/menu.ini`` the first
+time Navigator starts without it.
 
 **The macros** (``MakeString``), in captions and in what runs: ``!`` the
 active panel's file without its extension, ``.!`` its extension with the dot,
 ``!\\`` its directory ending in ``/``, ``!/`` the same without the ``/``,
-``!:`` its drive -- nothing, on POSIX; ``$``, ``.$``, ``$\\``, ``$/`` and
-``$:`` the passive panel's; ``!!`` and ``$$`` a ``!`` and a ``$``.  So
-``!.!`` is the file's name, and ``!\\!.!`` its whole path.  What runs also
-has DOS's batch parameters, which COMMAND.COM put in as text and Navigator
-puts in the same way: ``%1`` a file listing the active panel's tagged names
-(or the one at the cursor), ``%2`` the passive panel's, ``%3`` .. ``%9`` the
-words typed as parameters, ``%0`` the script, ``%%`` a ``%``.
+``!:`` nothing (DN's drive); ``$``, ``.$``, ``$\\``, ``$/`` and ``$:`` the
+passive panel's; ``!!`` and ``$$`` a ``!`` and a ``$``.  So ``!.!`` is the
+file's name, and ``!\\!.!`` its whole path.  What runs also has numbered
+parameters: ``%1`` a file listing the active panel's tagged names (or the one
+at the cursor), ``%2`` the passive panel's, ``%3`` .. ``%9`` the words typed
+as parameters, ``%0`` the script, ``%%`` a ``%``.
 
 Departures, each for the shell rather than COMMAND.COM:
 
@@ -35,8 +46,8 @@ Departures, each for the shell rather than COMMAND.COM:
 - **Names keep their case**; DN lowered them, as DOS's were all one case.
 - **The lines run in the console's own shell**, sourced, as though typed:
   they are that shell's language, a ``cd`` among them stays, and ``$`` has
-  to be written ``$$`` to reach the shell, as it had in DN.  A line starting
-  ``;`` is a comment, and a blank one is dropped.
+  to be written ``$$`` to reach the shell, as it had in DN.  A command line
+  starting ``;`` is dropped, as is a blank one.
 """
 
 from __future__ import annotations
@@ -49,14 +60,19 @@ from pathlib import Path
 
 from navigator.settings import config_dir
 
-#: The file's name, local and global alike, as DN's was.
-MENU_NAME = "dn.mnu"
+#: The global menu's name, beside ``navigator.ini``.
+GLOBAL_NAME = "menu.ini"
+#: A local menu's name, in a directory the panel shows or one above it.
+LOCAL_NAME = ".navigator-menu.ini"
 
 #: Every macro and batch parameter, longest first where two share a start.
 _TOKEN = re.compile(r"\$\$|!!|\.!|\.\$|[!$][:\\/]|[!$]|%[0-9%]")
 
 #: A caption's function key: ``F1 `` .. ``F12 `` at its start.
 _FKEY = re.compile(r"^f(1[0-2]|[1-9]) ", re.IGNORECASE)
+
+#: A separator: a line of dashes.
+_LINE = re.compile(r"-+")
 
 
 @dataclass(frozen=True)
@@ -84,18 +100,24 @@ def _split(name: str) -> tuple[str, str]:
     return name[:dot], name[dot:]
 
 
+@dataclass(frozen=True)
+class Commands:
+    """An item's lines, and whether and how to ask for parameters first."""
+
+    lines: list[str]
+    asks: bool = False
+    title: str = ""
+    default: str = ""
+
+
 @dataclass
 class Entry:
-    """A ``>N`` line: its depth, its caption, and where it is in the file."""
+    """An item, a submenu (with *children*) or a separator (*is_line*)."""
 
-    level: int
-    caption: str
-    line: int
+    caption: str = ""
+    commands: Commands | None = None
     children: list["Entry"] = field(default_factory=list)
-
-    @property
-    def is_line(self) -> bool:
-        return not self.caption and not self.children
+    is_line: bool = False
 
     @property
     def fkey(self) -> str | None:
@@ -106,11 +128,10 @@ class Entry:
 
 @dataclass
 class Menu:
-    """A read ``dn.mnu``: its lines, and its items as a tree."""
+    """A read ``menu.ini``: its items as a tree."""
 
     path: Path
     is_global: bool
-    lines: list[str]
     items: list[Entry]
 
     def walk(self) -> list[Entry]:
@@ -125,24 +146,9 @@ class Menu:
         visit(self.items)
         return found
 
-    def commands(self, entry: Entry) -> "Commands":
-        """What choosing *entry* runs: its lines, up to the next ``>`` line."""
-        body: list[str] = []
-        for raw in self.lines[entry.line + 1:]:
-            if raw.strip().startswith(">"):
-                break
-            body.append(raw)
-        return commands_of(body)
-
-
-@dataclass(frozen=True)
-class Commands:
-    """An item's lines, and whether and how to ask for parameters first."""
-
-    lines: list[str]
-    asks: bool = False
-    title: str = ""
-    default: str = ""
+    def commands(self, entry: Entry) -> Commands:
+        """What choosing *entry* runs."""
+        return entry.commands or Commands([])
 
 
 def commands_of(body: Iterable[str]) -> Commands:
@@ -169,42 +175,80 @@ def commands_of(body: Iterable[str]) -> Commands:
     return Commands(lines, asks, title, default)
 
 
-def parse(text: str, path: Path = Path(MENU_NAME), is_global: bool = False) -> Menu:
-    """*text* as a menu: every ``>N`` line, nested by *N*."""
-    lines = text.splitlines()
+def parse(text: str, path: Path = Path(GLOBAL_NAME), is_global: bool = False) -> Menu:
+    """*text* as a menu, or ``ValueError`` naming the line that is neither an
+    item, a header, a separator nor a comment."""
     root: list[Entry] = []
-    stack: list[Entry] = []
-    for index, raw in enumerate(lines):
-        text_line = raw.strip()
-        if not text_line.startswith(">"):
+    #: Each submenu made so far, by its path from the top.
+    menus: dict[tuple[str, ...], Entry] = {}
+    into = root
+    #: The item whose commands an indented line goes on, and its lines so far.
+    item: Entry | None = None
+    body: list[str] = []
+
+    def close() -> None:
+        nonlocal item
+        if item is not None:
+            item.commands = commands_of(body)
+            item = None
+
+    for number, raw in enumerate(text.splitlines(), 1):
+        line = raw.strip()
+        if not line:
+            close()
             continue
-        rest = text_line[1:]
-        if rest.startswith(">"):
-            rest = rest[1:]
-        number, _, caption = rest.partition(" ")
-        try:
-            level = int(number)
-        except ValueError:
+        if raw[0].isspace() and item is not None:
+            body.append(line)
             continue
-        if level <= 0:
+        close()
+        if line[0] in "#;":
             continue
-        entry = Entry(level, caption, index)
-        while stack and stack[-1].level >= level:
-            stack.pop()
-        (stack[-1].children if stack else root).append(entry)
-        stack.append(entry)
-    return Menu(path, is_global, lines, root)
+        if line.startswith("["):
+            if not line.endswith("]"):
+                raise ValueError(f"line {number}: a header must end with ']'")
+            parts = tuple(part.strip() for part in line[1:-1].split("/") if part.strip())
+            into = root
+            for depth in range(1, len(parts) + 1):
+                submenu = menus.get(parts[:depth])
+                if submenu is None:
+                    submenu = menus[parts[:depth]] = Entry(parts[depth - 1])
+                    into.append(submenu)
+                into = submenu.children
+            continue
+        if _LINE.fullmatch(line):
+            into.append(Entry(is_line=True))
+            continue
+        caption, equals, command = line.partition("=")
+        if not equals:
+            raise ValueError(f"line {number}: expected 'Caption = command'")
+        item = Entry(caption.strip())
+        body = [command]
+        into.append(item)
+    close()
+    return Menu(path, is_global, _prune(root))
+
+
+def _prune(entries: list[Entry]) -> list[Entry]:
+    """*entries* without the submenus that came to hold no item."""
+    kept = []
+    for entry in entries:
+        if entry.commands is None and not entry.is_line:
+            entry.children = _prune(entry.children)
+            if not any(not child.is_line for child in entry.children):
+                continue
+        kept.append(entry)
+    return kept
 
 
 def global_menu() -> Path:
-    """The global ``dn.mnu``: beside ``navigator.ini``, where DN's was beside DN."""
-    return config_dir() / MENU_NAME
+    """The global ``menu.ini``: beside ``navigator.ini``."""
+    return config_dir() / GLOBAL_NAME
 
 
 def local_menu(start: Path) -> Path | None:
-    """The nearest ``dn.mnu`` in *start* or a directory above it, or None."""
+    """The nearest ``.navigator-menu.ini`` in *start* or a directory above it, or None."""
     for directory in (start, *start.parents):
-        candidate = directory / MENU_NAME
+        candidate = directory / LOCAL_NAME
         if candidate.is_file():
             return candidate
     return None

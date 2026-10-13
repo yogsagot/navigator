@@ -1,21 +1,28 @@
 ---
 name: navigator-user-menu
-description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/lib/config/usermenu.py (parse, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/lib/system/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/lib/config/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN; highlight.ini (DN.HGL) is seeded here too but belongs to navigator-editor. Use when changing the user menu, the .ini associations, or how their commands run.
+description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/lib/config/usermenu.py (the ini-shaped parse, the shipped navigator/assets/menu.ini, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/lib/system/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/lib/config/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN; highlight.ini (DN.HGL) is seeded here too but belongs to navigator-editor. Use when changing the user menu, the .ini associations, or how their commands run.
 ---
 
 # The user menu (F2)
 
 - **F2** (`UserMenu`, bound in `manager.nml`; also Utilities > User menu) is handled by `Shell.on_user_menu` ->
-  `user_menu()`: `find_menu` on a thread -- `dn.mnu` in the active panel's directory or the nearest above it (*local*),
-  else `config_dir()/dn.mnu` (*global*, beside `navigator.ini`, not moved by `--config`); neither says DN's
-  *File dn.mnu not found*. The menu is a `PopupMenu` centred on the screen, nested by `>N` (submenus open beside their
-  entry). In the box **F2 switches local/global, F4 edits the menu shown**; a caption starting `F1 `..`F12 ` is chosen
-  by that key from any depth and outranks both (TV's menu took keys before the status line).
-- **Options > Global menu definition / Local menu definition** (`MenuFileEdit`, `LocalMenuFileEdit`) open the global
-  file, or `dn.mnu` in the active panel's directory, with `open_editor(..., new=True)`.
-- **The format and macros** are `navigator/lib/config/usermenu.py`'s docstring: `>N Caption`, `>>N` read as `>N`, a bare `>N` a
-  line, `<Title` / `<=default` and any `%3`..`%9` ask *Menu Parameters* (`MenuParamsDialog`, history `menu_params`;
-  Cancel runs nothing), `;` lines and blank lines dropped. `! .! !\ !/ !:` and the `$` forms; `!!`/`$$` literal;
+  `user_menu()`: `find_menu` on a thread -- `.navigator-menu.ini` in the active panel's directory or the nearest above
+  it (*local*), else `config_dir()/menu.ini` (*global*, beside `navigator.ini`, not moved by `--config`); neither says
+  *File <global path> not found*, and a file that will not parse says *Cannot read ...* with its line. The menu is a
+  `PopupMenu` centred on the screen (submenus open beside their entry). In the box **F2 switches local/global, F4
+  edits the menu shown**; a caption starting `F1 `..`F12 ` is chosen by that key from any depth and outranks both
+  (TV's menu took keys before the status line).
+- **Seeded**: `menu.ini` is `associations.MENU` in `associations.TEMPLATES`, its text `navigator/assets/menu.ini` (a
+  Linux menu: Files, Archive, Git, Search, System), so `seed_all()` writes it at first start and Options > Global
+  menu definition (`MenuFileEdit` -> `edit_associations(MENU)`) re-seeds it if gone. Options > Local menu definition
+  (`LocalMenuFileEdit`) opens `.navigator-menu.ini` in the active panel's directory with `open_editor(..., new=True)`.
+- **Departure, by request**: DN's `dn.mnu` notation (`>N Caption`, `>>N`) and name are gone; the contents shipped
+  are Linux's, not DN's. The format is `.ini`-shaped but parsed line by line in `usermenu.parse` (configparser loses
+  separators, repeated captions and order): `Caption = command` with indented continuation lines (a blank line ends
+  them), `[A/B]` a submenu path (ancestors made, placed where the header first falls, repeating it adds to it, `[/]`
+  the top), `-` a separator, `#`/`;` comments, empty submenus pruned. `Entry` carries its own `commands`.
+- **The format and macros** are `navigator/lib/config/usermenu.py`'s docstring: `<Title` / `<=default` and any `%3`..`%9` ask *Menu Parameters*
+  (`MenuParamsDialog`, history `menu_params`; Cancel runs nothing), `;` lines and blank lines dropped. `! .! !\ !/ !:` and the `$` forms; `!!`/`$$` literal;
   `%0` script, `%1`/`%2` list files, `%3`..`%9` parameter words, `%%` -- **one regex pass**, so what a macro puts in
   is never re-read.
 - **Departures**: in what runs, every value is `shlex.quote`d where it needs it (so a macro wants no quotes round it);

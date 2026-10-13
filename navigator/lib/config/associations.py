@@ -28,7 +28,9 @@ Shift+Enter variant (``( )``) has no key and so no place.
 
 A fifth, :data:`HIGHLIGHT` (``highlight.ini``, DN's ``DN.HGL``), lives
 beside them and is seeded with them, but says which lexer colours a file
-rather than what runs: :mod:`navigator.lib.highlight` reads it.
+rather than what runs: :mod:`navigator.lib.highlight` reads it.  A sixth,
+:data:`MENU` (``menu.ini``), is F2's user menu, read by
+:mod:`navigator.lib.config.usermenu`; it is only seeded here.
 
 The files are only ever read whole, on a thread: :func:`read`.  Each is
 written from its template the first time Navigator starts without it
@@ -45,7 +47,7 @@ from pathlib import Path
 
 from navigator.lib.appearance.filetypes import patterns
 from navigator.settings import config_dir
-from navigator.lib.config.usermenu import Commands, commands_of
+from navigator.lib.config.usermenu import GLOBAL_NAME, Commands, commands_of
 
 #: Enter on a file that is not to be run itself: DN's ``DN.EXT``.
 EXTENSIONS = "extensions.ini"
@@ -58,6 +60,8 @@ QUICK_RUN = "quickrun.ini"
 #: Which lexer colours which file: DN's ``DN.HGL``.  Its own format, read by
 #: :mod:`navigator.lib.highlight`; only its place and template are kept here.
 HIGHLIGHT = "highlight.ini"
+#: F2's user menu, DN's ``DN.MNU``: :mod:`navigator.lib.config.usermenu` reads it.
+MENU = GLOBAL_NAME
 
 
 @dataclass(frozen=True)
@@ -182,6 +186,8 @@ Disk usage = du -sh !\\*
 """,
     # Every language Pygments knows, written out by tools/highlight_ini.py.
     HIGHLIGHT: files("navigator.assets").joinpath("highlight.ini").read_text(encoding="utf-8"),
+    # A user menu for a Linux desktop, to change or replace.
+    MENU: files("navigator.assets").joinpath("menu.ini").read_text(encoding="utf-8"),
 }
 
 

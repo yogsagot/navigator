@@ -56,6 +56,7 @@ editor's phases.
   flag wins over the file for that session and is never written back
 - `extensions.ini`, `viewers.ini`, `editors.ini` and `quickrun.ini` sit beside it too: what Enter, F3/F4 (or
   Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill);
+  `menu.ini` is F2's user menu (a `.navigator-menu.ini` in a panel's directory or above wins there);
   `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill)
 - `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
   Options > Configuration > Key bindings; a line that will not parse warns and keeps its default. That dialog's
@@ -176,7 +177,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-panels` | Manager and Panel: view modes, tagging, quick search, hidden files, hiding sides |
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
-| `navigator-user-menu` | F2's `dn.mnu` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
+| `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |

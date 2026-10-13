@@ -1203,15 +1203,15 @@ class Shell(DockLayout):
         return True
 
     async def on_menu_file_edit(self, event: MenuFileEdit) -> bool:
-        from navigator.lib.config.usermenu import global_menu
+        from navigator.lib.config.associations import MENU
 
-        self.spawn(self.edit_menu_file(global_menu()))
+        self.spawn(self.edit_associations(MENU))
         return True
 
     async def on_local_menu_file_edit(self, event: LocalMenuFileEdit) -> bool:
-        from navigator.lib.config.usermenu import MENU_NAME
+        from navigator.lib.config.usermenu import LOCAL_NAME
 
-        self.spawn(self.edit_menu_file(self._menu_directory() / MENU_NAME))
+        self.spawn(self.edit_menu_file(self._menu_directory() / LOCAL_NAME))
         return True
 
     def _menu_directory(self) -> Path:
@@ -1240,7 +1240,7 @@ class Shell(DockLayout):
         return Side.of(path.parent, entry.name, list_file)
 
     async def edit_menu_file(self, path: Path) -> None:
-        """A ``dn.mnu`` in an editor, made by saving if it is not there yet."""
+        """A menu or ``.ini`` file in an editor, made by saving if it is not there yet."""
         from navigator.lib.config.file_history import open_editor
 
         if self.console_visible:
@@ -1255,8 +1255,8 @@ class Shell(DockLayout):
         """``ExecUserMenu``: the menu in a box in the middle of the screen, and
         the item chosen run in the console.
 
-        The local ``dn.mnu`` -- the active panel's directory's, or the nearest
-        above it -- else the global one; F2 in the box changes between them,
+        The local ``.navigator-menu.ini`` -- the active panel's directory's, or
+        the nearest above it -- else the global ``menu.ini``; F2 in the box changes between them,
         F4 edits the one shown, and a caption's own F-key, which outranks
         both, chooses its item.  Neither file: ``dlMNUNotFound``.
         """
@@ -1265,7 +1265,7 @@ class Shell(DockLayout):
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
-        from navigator.lib.config.usermenu import MENU_NAME, caption, find_menu, parse
+        from navigator.lib.config.usermenu import caption, find_menu, global_menu, parse
 
         app = self.application
         if app is None:
@@ -1273,17 +1273,18 @@ class Shell(DockLayout):
         while True:
             found = await asyncio.to_thread(find_menu, self._menu_directory(), want_global)
             if found is None:
-                await Dialog(title=tr("Error"), prompt=tr("File {name} not found").format(name=MENU_NAME),
+                await Dialog(title=tr("Error"), prompt=tr("File {name} not found").format(name=global_menu()),
                              buttons="ok").execute(app)
                 return
             path, is_global = found
             try:
                 text = await asyncio.to_thread(path.read_text, encoding="utf-8", errors="replace")
-            except OSError as error:
-                await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(path=path, error=error.strerror or error),
+                menu = parse(text, path, is_global)
+            except (OSError, ValueError) as error:
+                reason = error.strerror if isinstance(error, OSError) and error.strerror else error
+                await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(path=path, error=reason),
                              buttons="ok").execute(app)
                 return
-            menu = parse(text, path, is_global)
             active, passive = (self._menu_side(panel) for panel in self._menu_panels())
             box_menu = SubMenu()
             items: dict[int, Any] = {}

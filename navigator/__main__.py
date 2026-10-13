@@ -597,8 +597,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     load_settings(args.config)
-    # extensions.ini, viewers.ini, editors.ini and quickrun.ini beside it,
-    # written from their templates when missing, as navigator.ini is.
+    # extensions.ini, viewers.ini, editors.ini, quickrun.ini, highlight.ini and
+    # menu.ini beside it, written from their templates when missing, as
+    # navigator.ini is.
     for problem in seed_associations():
         print(f"nav: {problem}", file=sys.stderr)
     load_keybindings()

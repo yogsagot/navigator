@@ -59,7 +59,7 @@ def test_seed_all_writes_the_missing_files_and_leaves_the_users_alone():
     mine.write_text("[*.png]\nMine = feh !.!\n", encoding="utf-8")
     assert associations.seed_all() == []
     assert mine.read_text(encoding="utf-8") == "[*.png]\nMine = feh !.!\n"
-    for file_name in (EXTENSIONS, EDITORS, QUICK_RUN):
+    for file_name in (EXTENSIONS, EDITORS, QUICK_RUN, associations.MENU):
         assert associations.path_of(file_name).read_text(encoding="utf-8") == TEMPLATES[file_name]
     assert associations.seed(EXTENSIONS) is False
 
