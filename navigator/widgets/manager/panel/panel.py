@@ -528,6 +528,20 @@ def free_space_of(path: Path) -> tuple[int, str] | None:
     return free, diskinfo.mount_of(path.resolve(), mounts)[0]
 
 
+def human_size(size: int) -> str:
+    """*size* bytes as ``df -h`` puts them: ``977K``, ``9.5G``, ``384G`` --
+    one decimal below ten, the size column's K/M/G/T, powers of 1024.  Bytes
+    under a kilobyte keep their digits."""
+    value = float(size)
+    for unit in ("", "K", "M", "G", "T"):
+        if value < 1023.5 or unit == "T":
+            break
+        value /= 1024
+    if not unit:
+        return f"{size:,}"
+    return f"{value:.1f}{unit}" if value < 9.95 else f"{value:.0f}{unit}"
+
+
 class ScanJob:
     """What stops a read's counting: Esc while it shows *Reading directory...*,
     or the panel moving on (DN's ``Abort``)."""
@@ -1589,8 +1603,14 @@ class Panel(ListViewer):
             lines.append((text, "totals"))
         if self.shows("free_space") and self.found is None and self.free_space:
             free, mount = self.free_space
-            lines.append((tr_n("~{n:,}~ free byte on ~{mount}", "~{n:,}~ free bytes on ~{mount}", free,
-                               mount=mount), "free-space"))
+            # Shortened as ``df -h`` does (a departure: DN gave every digit),
+            # which a panel's width has room for; a kilobyte and under keeps
+            # its bytes.
+            if free < 1024:
+                text = tr_n("~{n:,}~ free byte on ~{mount}", "~{n:,}~ free bytes on ~{mount}", free, mount=mount)
+            else:
+                text = tr("~{size}~ free on ~{mount}").format(size=human_size(free), mount=mount)
+            lines.append((text, "free-space"))
         return tuple(lines)
 
     @computed

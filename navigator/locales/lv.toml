@@ -576,17 +576,17 @@ name = "Latviešu"
 "Column Defaults" = "Kolonnu noklusējumi"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:23
 "~D~isk Drive" = "~D~isks"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1781 ...
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1801 ...
 "Size" = "Izmērs"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/manager/manager.py:1775
 "Attributes" = "Atribūti"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1783
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1803
 "Owner" = "Īpašnieks"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1784 ...
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1804 ...
 "Date" = "Datums"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:40
 "~F~ile find" = "~M~eklēšana"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1785
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1805
 "Path" = "Ceļš"
 # navigator/widgets/setup/confirmations_dialog/confirmations_dialog.nml:12, navigator/widgets/shell/commands.py:303
 "Confirmations" = "Apstiprinājumi"
@@ -1146,7 +1146,7 @@ name = "Latviešu"
 "SmartPad" = "SmartPad"
 # navigator/commands.py:80
 "Print" = "Drukāt"
-# navigator/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1586
+# navigator/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1600
 "~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
 # navigator/diskinfo.py:160
 "Current directory:" = "Pašreizējā direktorija:"
@@ -1158,7 +1158,7 @@ name = "Latviešu"
 "~{n:,}~ byte memory for user" = ["Pieejams lietotājam: ~{n:,}~ baits", "Pieejams lietotājam: ~{n:,}~ baiti", "Pieejams lietotājam: ~{n:,}~ baitu"]
 # navigator/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Navigator izmanto: ~{n:,}~ baits", "Navigator izmanto: ~{n:,}~ baiti", "Navigator izmanto: ~{n:,}~ baitu"]
-# navigator/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1582
+# navigator/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1596
 "No files in this directory" = "Šajā direktorijā nav failu"
 # navigator/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ fails, {total}", "~{n:,}~ faili, {total}", "~{n:,}~ failu, {total}"]
@@ -1492,7 +1492,7 @@ name = "Latviešu"
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:86
 "{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99, navigator/widgets/manager/panel/panel.py:1543, navigator/widgets/tree/directory_tree/directory_tree.py:148
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99, navigator/widgets/manager/panel/panel.py:1557, navigator/widgets/tree/directory_tree/directory_tree.py:148
 "{n:,} byte" = ["{n:,} baits", "{n:,} baiti", "{n:,} baitu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:79
 "File ~{name}~" = "Fails ~{name}~"
@@ -1600,7 +1600,7 @@ name = "Latviešu"
 "Ren" = "Pārdēv"
 # navigator/widgets/manager/commands.py:75
 "SymLnk" = "Saite"
-# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:1782
+# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:1802
 "Attr" = "Atrib."
 # navigator/widgets/manager/commands.py:91
 "MkDir" = "JaunDir"
@@ -1692,19 +1692,21 @@ name = "Latviešu"
 "UP--DIR" = "AUGŠUP"
 # navigator/widgets/manager/panel/panel.py:135
 "DIR" = "MAPE"
-# navigator/widgets/manager/panel/panel.py:1176
+# navigator/widgets/manager/panel/panel.py:1190
 "Search:" = "Meklēt:"
-# navigator/widgets/manager/panel/panel.py:1587
+# navigator/widgets/manager/panel/panel.py:1601
 "Total: ~{n:,}~ file with {total}" = ["Kopā: ~{n:,}~ fails, {total}", "Kopā: ~{n:,}~ faili, {total}", "Kopā: ~{n:,}~ failu, {total}"]
-# navigator/widgets/manager/panel/panel.py:1752
-"Reading directory..." = "Lasa direktoriju..."
-# navigator/widgets/manager/panel/panel.py:1780, navigator/widgets/shell/volume_list/volume_list.py:96
-"Name" = "Vārds"
-# navigator/widgets/manager/panel/panel.py:1544
-"{total} in {n} selected file" = ["{total} {n} atlasītā failā", "{total} {n} atlasītos failos", "{total} {n} atlasītos failos"]
-# navigator/widgets/manager/panel/panel.py:1592
+# navigator/widgets/manager/panel/panel.py:1610
 "~{n:,}~ free byte on ~{mount}" = ["Brīvs: ~{n:,}~ baits uz ~{mount}", "Brīvs: ~{n:,}~ baiti uz ~{mount}", "Brīvs: ~{n:,}~ baitu uz ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1551
+# navigator/widgets/manager/panel/panel.py:1772
+"Reading directory..." = "Lasa direktoriju..."
+# navigator/widgets/manager/panel/panel.py:1800, navigator/widgets/shell/volume_list/volume_list.py:96
+"Name" = "Vārds"
+# navigator/widgets/manager/panel/panel.py:1558
+"{total} in {n} selected file" = ["{total} {n} atlasītā failā", "{total} {n} atlasītos failos", "{total} {n} atlasītos failos"]
+# navigator/widgets/manager/panel/panel.py:1612
+"~{size}~ free on ~{mount}" = "Brīvs: ~{size}~ uz ~{mount}"
+# navigator/widgets/manager/panel/panel.py:1565
 "{n} item" = ["{n} elements", "{n} elementi", "{n} elementu"]
 # navigator/widgets/setup/interface_dialog/interface_dialog.py:24
 "Automatic" = "Automātiski"

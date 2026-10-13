@@ -2723,7 +2723,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     the key bar's styles the only line that moved.  And once more when the
     *New Manager defaults*' *Free space* was honoured: each panel gave its
     last two rows to the info divider and the free-space line, pinned here to
-    a number that does not depend on the disk the suite runs on.
+    a number that does not depend on the disk the suite runs on.  And once
+    more when that line was shortened as ``df -h`` does: ``977K``, not
+    every digit.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_of",

@@ -576,17 +576,17 @@ name = "Русский"
 "Column Defaults" = "Установки колонок"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:23
 "~D~isk Drive" = "~Д~иск"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1781 ...
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1801 ...
 "Size" = "Размер"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/manager/manager.py:1775
 "Attributes" = "Атрибуты"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1783
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1803
 "Owner" = "Владелец"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1784 ...
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1804 ...
 "Date" = "Дата"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:40
 "~F~ile find" = "~П~оиск"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1785
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1805
 "Path" = "Путь"
 # navigator/widgets/setup/confirmations_dialog/confirmations_dialog.nml:12, navigator/widgets/shell/commands.py:303
 "Confirmations" = "Подтверждения"
@@ -1146,7 +1146,7 @@ name = "Русский"
 "SmartPad" = "SmartPad"
 # navigator/commands.py:80
 "Print" = "Печать"
-# navigator/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1586
+# navigator/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1600
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
 # navigator/diskinfo.py:160
 "Current directory:" = "Текущий каталог:"
@@ -1158,7 +1158,7 @@ name = "Русский"
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
 # navigator/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1582
+# navigator/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1596
 "No files in this directory" = "В этом каталоге файлов нет"
 # navigator/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
@@ -1492,7 +1492,7 @@ name = "Русский"
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:86
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99, navigator/widgets/manager/panel/panel.py:1543, navigator/widgets/tree/directory_tree/directory_tree.py:148
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99, navigator/widgets/manager/panel/panel.py:1557, navigator/widgets/tree/directory_tree/directory_tree.py:148
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:79
 "File ~{name}~" = "Файл ~{name}~"
@@ -1600,7 +1600,7 @@ name = "Русский"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:75
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:1782
+# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:1802
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:91
 "MkDir" = "Каталог"
@@ -1692,19 +1692,21 @@ name = "Русский"
 "UP--DIR" = "НАВЕРХ"
 # navigator/widgets/manager/panel/panel.py:135
 "DIR" = "КАТАЛОГ"
-# navigator/widgets/manager/panel/panel.py:1176
+# navigator/widgets/manager/panel/panel.py:1190
 "Search:" = "Поиск:"
-# navigator/widgets/manager/panel/panel.py:1587
+# navigator/widgets/manager/panel/panel.py:1601
 "Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
-# navigator/widgets/manager/panel/panel.py:1752
-"Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:1780, navigator/widgets/shell/volume_list/volume_list.py:96
-"Name" = "Имя"
-# navigator/widgets/manager/panel/panel.py:1544
-"{total} in {n} selected file" = ["{total} в {n} отмеченном файле", "{total} в {n} отмеченных файлах", "{total} в {n} отмеченных файлах"]
-# navigator/widgets/manager/panel/panel.py:1592
+# navigator/widgets/manager/panel/panel.py:1610
 "~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1551
+# navigator/widgets/manager/panel/panel.py:1772
+"Reading directory..." = "Читается каталог..."
+# navigator/widgets/manager/panel/panel.py:1800, navigator/widgets/shell/volume_list/volume_list.py:96
+"Name" = "Имя"
+# navigator/widgets/manager/panel/panel.py:1558
+"{total} in {n} selected file" = ["{total} в {n} отмеченном файле", "{total} в {n} отмеченных файлах", "{total} в {n} отмеченных файлах"]
+# navigator/widgets/manager/panel/panel.py:1612
+"~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
+# navigator/widgets/manager/panel/panel.py:1565
 "{n} item" = ["{n} элемент", "{n} элемента", "{n} элементов"]
 # navigator/widgets/setup/interface_dialog/interface_dialog.py:24
 "Automatic" = "Автоматически"

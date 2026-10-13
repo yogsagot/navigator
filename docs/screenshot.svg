@@ -153,18 +153,15 @@
 <text x="380" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">O</text>
 <text x="390" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">K</text>
 <text x="430" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">◀</text>
-<text x="40" y="415" textLength="120" lengthAdjust="spacingAndGlyphs" fill="#ffffff">412,316,860,</text>
-<text x="160" y="415" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">416</text>
-<text x="200" y="415" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">free</text>
-<text x="250" y="415" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#555555">bytes</text>
-<text x="310" y="415" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">on</text>
-<text x="340" y="415" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">/</text>
-<text x="440" y="415" textLength="150" lengthAdjust="spacingAndGlyphs" fill="#555555">412,316,860,416</text>
-<text x="600" y="415" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">free</text>
-<text x="650" y="415" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">byt</text>
-<text x="680" y="415" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aaaaaa">es</text>
-<text x="710" y="415" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aaaaaa">on</text>
-<text x="740" y="415" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">/</text>
+<text x="130" y="415" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">384</text>
+<text x="160" y="415" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">G</text>
+<text x="180" y="415" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">free</text>
+<text x="230" y="415" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">on</text>
+<text x="260" y="415" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">/</text>
+<text x="530" y="415" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">384G</text>
+<text x="580" y="415" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">free</text>
+<text x="630" y="415" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">on</text>
+<text x="660" y="415" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">/</text>
 <text x="180" y="435" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">bin</text>
 <text x="590" y="435" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#d8d8d8">..</text>
 <text x="0" y="455" textLength="150" lengthAdjust="spacingAndGlyphs" fill="#55ff55" font-weight="bold">juris@juris-dev</text>

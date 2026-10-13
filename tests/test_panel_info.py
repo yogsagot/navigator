@@ -66,6 +66,11 @@ def test_free_space_takes_a_line_under_a_divider_and_totals_another(place):
     assert panel.info_height == 0 and panel.rows == panel.height - 2
 
 
+def test_free_space_over_a_kilobyte_is_shortened_as_df_h_does(place, monkeypatch):
+    monkeypatch.setattr(panel_module, "free_space_of", lambda path: (71_123_906_560, "/"))
+    assert rows_of(panel_at(place))[-2].strip("║│ ") == "66G free on /"
+
+
 def test_a_column_divider_meets_the_info_divider_in_a_tee_and_not_the_frame(place):
     panel = panel_at(place, width=120)
     panel.cycle_view_mode()
