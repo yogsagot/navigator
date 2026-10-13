@@ -49,7 +49,8 @@ class VolumesWindow(Window, _Component):
     and the window stays; *Go* does the same and closes it.  Esc closes it;
     Ctrl+R and Alt+R read the mounts again, as they re-read a panel; *Show all
     mounts* -- or Ctrl+H, as it shows a panel's dot-files -- lists the kernel's
-    own file systems as well.  Tab walks the controls, Alt and a marked letter
+    own file systems as well; *Show free %* turns the *Use %* column, ``df``'s,
+    into *Free %*.  Tab walks the controls, Alt and a marked letter
     takes one, as in a dialog.
     """
 
@@ -57,20 +58,21 @@ class VolumesWindow(Window, _Component):
     __navml_source__ = "volumes_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # volumes_window.nml:31
-        'escape': CloseWindow,    # volumes_window.nml:32
-        'ctrl+r': Rescan,    # volumes_window.nml:33
-        'alt+r': Rescan,    # volumes_window.nml:34
-        'ctrl+h': ToggleHidden,    # volumes_window.nml:35
-        'tab': SelectNext,    # volumes_window.nml:36
-        'shift+tab': SelectPrevious,    # volumes_window.nml:37
+    keys = {    # volumes_window.nml:32
+        'escape': CloseWindow,    # volumes_window.nml:33
+        'ctrl+r': Rescan,    # volumes_window.nml:34
+        'alt+r': Rescan,    # volumes_window.nml:35
+        'ctrl+h': ToggleHidden,    # volumes_window.nml:36
+        'tab': SelectNext,    # volumes_window.nml:37
+        'shift+tab': SelectPrevious,    # volumes_window.nml:38
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    volumes: VolumeList    # volumes_window.nml:40
-    everything: CheckBoxes    # volumes_window.nml:48
-    go_button: Button    # volumes_window.nml:56
-    close_button: Button    # volumes_window.nml:65
+    volumes: VolumeList    # volumes_window.nml:41
+    everything: CheckBoxes    # volumes_window.nml:49
+    free_box: CheckBoxes    # volumes_window.nml:57
+    go_button: Button    # volumes_window.nml:65
+    close_button: Button    # volumes_window.nml:74
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -80,54 +82,64 @@ class VolumesWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_volumes_chosen(self, event: _Event) -> bool:    # volumes_window.nml:40
+    async def on_volumes_chosen(self, event: _Event) -> bool:    # volumes_window.nml:41
         """``volumes`` raised an event whose handler is ``on_chosen``."""
         return False
 
-    async def on_go_button_click(self, event: _Event) -> bool:    # volumes_window.nml:56
+    async def on_go_button_click(self, event: _Event) -> bool:    # volumes_window.nml:65
         """``go_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_close_button_click(self, event: _Event) -> bool:    # volumes_window.nml:65
+    async def on_close_button_click(self, event: _Event) -> bool:    # volumes_window.nml:74
         """``close_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.volumes = VolumeList(parent=self)    # volumes_window.nml:39
-        self.everything = CheckBoxes(parent=self)    # volumes_window.nml:47
-        self.go_button = Button(parent=self)    # volumes_window.nml:55
-        self.close_button = Button(parent=self)    # volumes_window.nml:64
+        self.volumes = VolumeList(parent=self)    # volumes_window.nml:40
+        self.everything = CheckBoxes(parent=self)    # volumes_window.nml:48
+        self.free_box = CheckBoxes(parent=self)    # volumes_window.nml:56
+        self.go_button = Button(parent=self)    # volumes_window.nml:64
+        self.close_button = Button(parent=self)    # volumes_window.nml:73
 
-        self.title = _bind(lambda _o: _tr('Volumes'), yielding=True)    # volumes_window.nml:29
+        self.title = _bind(lambda _o: _tr('Volumes'), yielding=True)    # volumes_window.nml:30
 
-        self.volumes.framed = False    # volumes_window.nml:41
-        self.volumes.x = 1    # volumes_window.nml:42
-        self.volumes.y = 1    # volumes_window.nml:43
-        self.volumes.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # volumes_window.nml:44
-        self.volumes.height = _bind(lambda _o: max(0, _o.parent.height - 5))    # volumes_window.nml:45
-        self.volumes.on_chosen = self.on_volumes_chosen    # volumes_window.nml:40
+        self.volumes.framed = False    # volumes_window.nml:42
+        self.volumes.x = 1    # volumes_window.nml:43
+        self.volumes.y = 1    # volumes_window.nml:44
+        self.volumes.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # volumes_window.nml:45
+        self.volumes.height = _bind(lambda _o: max(0, _o.parent.height - 5))    # volumes_window.nml:46
+        self.volumes.on_chosen = self.on_volumes_chosen    # volumes_window.nml:41
 
-        self.everything.x = 2    # volumes_window.nml:49
-        self.everything.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:50
-        self.everything.width = 22    # volumes_window.nml:51
-        self.everything.height = 1    # volumes_window.nml:52
-        self.everything.items = _bind(    # volumes_window.nml:53
+        self.everything.x = 2    # volumes_window.nml:50
+        self.everything.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:51
+        self.everything.width = 22    # volumes_window.nml:52
+        self.everything.height = 1    # volumes_window.nml:53
+        self.everything.items = _bind(    # volumes_window.nml:54
             lambda _o: [_tr('~S~how all mounts')],
             yielding=True,
         )
 
-        self.go_button.text = _bind(lambda _o: _tr('~G~o'), yielding=True)    # volumes_window.nml:57
-        self.go_button.default = True    # volumes_window.nml:58
-        self.go_button.x = _bind(lambda _o: max(0, _o.parent.width - 25))    # volumes_window.nml:59
-        self.go_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:60
-        self.go_button.width = 10    # volumes_window.nml:61
-        self.go_button.height = 2    # volumes_window.nml:62
-        self.go_button.on_click = self.on_go_button_click    # volumes_window.nml:56
+        self.free_box.x = 2    # volumes_window.nml:58
+        self.free_box.y = _bind(lambda _o: max(0, _o.parent.height - 2))    # volumes_window.nml:59
+        self.free_box.width = 22    # volumes_window.nml:60
+        self.free_box.height = 1    # volumes_window.nml:61
+        self.free_box.items = _bind(    # volumes_window.nml:62
+            lambda _o: [_tr('Show ~f~ree %')],
+            yielding=True,
+        )
 
-        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # volumes_window.nml:66
-        self.close_button.x = _bind(lambda _o: max(0, _o.parent.width - 13))    # volumes_window.nml:67
-        self.close_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:68
-        self.close_button.width = 10    # volumes_window.nml:69
-        self.close_button.height = 2    # volumes_window.nml:70
-        self.close_button.on_click = self.on_close_button_click    # volumes_window.nml:65
+        self.go_button.text = _bind(lambda _o: _tr('~G~o'), yielding=True)    # volumes_window.nml:66
+        self.go_button.default = True    # volumes_window.nml:67
+        self.go_button.x = _bind(lambda _o: max(0, _o.parent.width - 25))    # volumes_window.nml:68
+        self.go_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:69
+        self.go_button.width = 10    # volumes_window.nml:70
+        self.go_button.height = 2    # volumes_window.nml:71
+        self.go_button.on_click = self.on_go_button_click    # volumes_window.nml:65
+
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # volumes_window.nml:75
+        self.close_button.x = _bind(lambda _o: max(0, _o.parent.width - 13))    # volumes_window.nml:76
+        self.close_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # volumes_window.nml:77
+        self.close_button.width = 10    # volumes_window.nml:78
+        self.close_button.height = 2    # volumes_window.nml:79
+        self.close_button.on_click = self.on_close_button_click    # volumes_window.nml:74

@@ -138,7 +138,7 @@ Manager:
 ```
 
 The four import lines name a package that **now exists**: `navigator/widgets/`, one module per screen, with
-`navigator/scheme.py` beside it holding the sheet those screens resolve against. They used to live in
+`navigator/lib/appearance/scheme.py` beside it holding the sheet those screens resolve against. They used to live in
 `navigator/__main__.py`, and while `from navigator.__main__ import Panel` would have resolved, it would have resolved
 to a *second* copy of the module `python -m navigator` is already running as `__main__` — so moving them out was the
 prerequisite for any of this compiling, and it is done. The move also turned one implicit rule into a stated one:

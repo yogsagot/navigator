@@ -6,7 +6,7 @@ the four bits means anything on Linux. Here it edits the twelve mode bits, the o
 Midnight Commander's *Advanced chown*), and DN's own modification time. `CM_SetAttributes` itself is not in the 1.51
 dump, so what DN's loop did is read off its two dialogs and their help.
 
-- **`navigator/fileattr.py`** is the model:
+- **`navigator/lib/file_ops/fileattr.py`** is the model:
   - `survey(paths)` works out what a selection has in common: the bits every file has, the bits they disagree on
     (`mixed`), and the owner, group and mtime where they agree.
   - `AttrRequest` holds `set_bits`/`clear_bits`, where a bit in neither is left alone. The owner, group and mtime

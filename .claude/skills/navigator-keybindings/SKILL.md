@@ -1,6 +1,6 @@
 ---
 name: navigator-keybindings
-description: User key bindings -- navigator/keybindings.py (TABLES, Section, Entry, ini names, render/read/load/seed/apply/write), keybindings.ini beside navigator.ini, navkit's run-time overrides (override_keys, restore_keys, default_keys, own_keys, check_table in navkit/commands.py), Options > Configuration > Key bindings (KeyBindingsSetup, Shell.key_bindings, KeyBindingsDialog with BindingList, KeyCaptureDialog with KeyCatcher). Use when adding a key table, renaming a command a table binds, or changing how keys are rebound.
+description: User key bindings -- navigator/lib/config/keybindings.py (TABLES, Section, Entry, ini names, render/read/load/seed/apply/write), keybindings.ini beside navigator.ini, navkit's run-time overrides (override_keys, restore_keys, default_keys, own_keys, check_table in navkit/commands.py), Options > Configuration > Key bindings (KeyBindingsSetup, Shell.key_bindings, KeyBindingsDialog with BindingList, KeyCaptureDialog with KeyCatcher). Use when adding a key table, renaming a command a table binds, or changing how keys are rebound.
 ---
 
 # Key bindings and keybindings.ini
@@ -28,7 +28,7 @@ movement, typing) are not covered: move one into a table to make it rebindable.
   once.
 - `tests/conftest.py`'s autouse `_default_keys` calls `restore_keys()` around every test.
 
-## The model (`navigator/keybindings.py`)
+## The model (`navigator/lib/config/keybindings.py`)
 
 **Sections.** `TABLES` lists `(name, title, "module:Class")` in the dialog's order.
 - `global` has None for its class. The caller passes the application class (`Navigator`), because importing

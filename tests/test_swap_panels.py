@@ -14,7 +14,7 @@ from navigator.__main__ import Navigator
 
 @pytest.fixture
 def sides(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for side in ("west", "east"):
         (tmp_path / side).mkdir()
         for name in ("a.txt", "b.txt", "c.txt"):

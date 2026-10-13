@@ -15,9 +15,9 @@ from navkit.events import KeyEvent
 
 from navml.history import HISTORY
 
-from navigator import filelink
+from navigator.lib.file_ops import filelink
 from navigator.widgets.manager.commands import MakeLink
-from navigator.filelink import LinkRequest, link_path, make_link
+from navigator.lib.file_ops.filelink import LinkRequest, link_path, make_link
 from navigator.widgets.file_ops.link_dialog import LinkDialog
 from navigator.widgets.file_ops.link_dialog import link_dialog as link_dialog_module
 from navigator.widgets.file_ops.link_dialog.link_dialog import RELATIVE, prompt_for

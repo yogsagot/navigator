@@ -11,12 +11,12 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.dirlength import count_dir_length
+from navigator.lib.file_ops.dirlength import count_dir_length
 
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "big" / "deep").mkdir(parents=True)
     (tmp_path / "big" / "one").write_bytes(b"x" * 1000)
     (tmp_path / "big" / ".hidden").write_bytes(b"x" * 24)

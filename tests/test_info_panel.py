@@ -10,7 +10,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.diskinfo import DiskFacts, _info_file, _meminfo, mount_of, gather, lines
+from navigator.lib.system.diskinfo import DiskFacts, _info_file, _meminfo, mount_of, gather, lines
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel.panel import DirEntry
 
@@ -70,7 +70,7 @@ def test_the_lines_are_dns_each_behind_its_box():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "sub").mkdir()
     (tmp_path / "a.txt").write_text("x" * 100)
     (tmp_path / "sub" / "DirInfo").write_text("inside")

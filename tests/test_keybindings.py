@@ -7,7 +7,7 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.commands import command_of, key_table
 from navkit.events import KeyEvent
-from navigator import keybindings
+from navigator.lib.config import keybindings
 from navigator.__main__ import Navigator
 from navigator.widgets.editor.commands import (
     BlockStart,
@@ -250,7 +250,7 @@ def test_a_shipped_set_binds_through_load(tmp_path):
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     return Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 25))
 
 

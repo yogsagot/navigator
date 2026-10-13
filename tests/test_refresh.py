@@ -9,7 +9,7 @@ from navigator.commands import Refresh
 
 
 def test_refresh_sends_every_cell_again_where_a_frame_would_send_nothing(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     seen = {}
 
@@ -29,9 +29,9 @@ def test_refresh_sends_every_cell_again_where_a_frame_would_send_nothing(tmp_pat
 def test_alt_f5_shows_the_console_until_a_key_which_goes_nowhere(tmp_path, monkeypatch):
     from navkit.events import KeyEvent
 
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     written = []
-    monkeypatch.setattr("navigator.subshell.Subshell.write", lambda self, data: written.append(data))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.write", lambda self, data: written.append(data))
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     seen = {}
     run_app(app, [KeyEvent("f5", alt=True), lambda a: None,

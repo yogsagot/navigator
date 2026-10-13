@@ -10,7 +10,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.advfilter import combine, extensions
+from navigator.lib.file_ops.advfilter import combine, extensions
 from navigator.widgets.manager.panel.panel import DirEntry
 
 
@@ -37,7 +37,7 @@ def test_show_and_hide_fold_into_the_mask(mask, chosen, show, result):
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a.c", "b.c", "x.bak", "y.txt"):
         (tmp_path / name).write_text(name)
     (tmp_path / "sub").mkdir()

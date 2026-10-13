@@ -10,7 +10,7 @@ from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
 from navkit import glyphs
-from navigator.sysinfo import SystemFacts, lines
+from navigator.lib.system.sysinfo import SystemFacts, lines
 
 
 class SystemInfoDialog(Dialog, _Component):

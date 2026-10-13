@@ -16,7 +16,7 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.fileerase import EraseRequest
+from navigator.lib.file_ops.fileerase import EraseRequest
 
 #: The *Recursive delete* box as the last accepted dialog left it.
 _session = {"recursive": False}

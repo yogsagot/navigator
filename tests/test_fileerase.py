@@ -1,4 +1,4 @@
-"""F8's model: ``navigator/fileerase.py``, DOS Navigator's ``ERASER.PAS``, with no widgets."""
+"""F8's model: ``navigator/lib/file_ops/fileerase.py``, DOS Navigator's ``ERASER.PAS``, with no widgets."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from navigator.filecopy import Failure
-from navigator.fileerase import (
+from navigator.lib.file_ops.filecopy import Failure
+from navigator.lib.file_ops.fileerase import (
     ALL,
     NO,
     YES,

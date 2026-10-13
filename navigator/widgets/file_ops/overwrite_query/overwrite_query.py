@@ -1,6 +1,6 @@
 """What the *Confirm* query says, and what each of its buttons answers.
 
-The answer is a :class:`~navigator.filecopy.OverwriteAnswer`, or ``None`` for
+The answer is a :class:`~navigator.lib.file_ops.filecopy.OverwriteAnswer`, or ``None`` for
 Cancel, which stops the whole copy as DN's ``cmCancel`` did.  *Rename* asks
 for the new name in a second box before it answers -- DN's ``InputBox``,
 ``Rename file`` / ``~N~ew name`` -- and a rename abandoned there puts this
@@ -18,7 +18,7 @@ from navkit.i18n import tr, tr_n
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.filecopy import Overwrite, OverwriteAnswer
+from navigator.lib.file_ops.filecopy import Overwrite, OverwriteAnswer
 
 
 def stamp(mtime: float) -> str:

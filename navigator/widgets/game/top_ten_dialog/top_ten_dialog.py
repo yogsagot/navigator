@@ -7,9 +7,7 @@ from typing import Any
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
 
-from navigator import tetris
-
-
+from navigator.lib.utilities import tetris
 class TopTenDialog(Dialog):
     """*Tetris Top Ten* or *Pentix Top Ten*."""
 

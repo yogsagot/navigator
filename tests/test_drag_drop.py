@@ -19,7 +19,7 @@ from navigator.widgets.manager.panel.drag import DragLabel
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a", "b"):
         (tmp_path / name).mkdir()
     for name in ("f1.txt", "f2.txt"):

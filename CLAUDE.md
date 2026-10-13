@@ -21,10 +21,13 @@ layered in three parts, each depending only on the one below:
   windows, trees, history).
 - **`navigator/`** (command `nav`) -- the file manager. `navigator/__main__.py` is the command line and the `Navigator`
   application; `navigator/widgets/` the screens, grouped by purpose (`shell/`, `manager/`, `file_ops/`, `tree/`,
-  `viewer/`, `editor/`, `about_dialog/`); `navigator/scheme.py` the stylesheet loader; `navigator/styles/` the `.nss`
-  assets. Models sit beside them (`viewer.py`, `editor/`, `filecopy.py`, `fileerase.py`, `fileattr.py`, `filelink.py`,
-  `job.py`, `subshell.py`, `filetypes.py`, `about.py`, `settings.py`, `highlight.py` and `lexers.py` -- syntax
-  highlighting and the `.nml`/`.nss` lexers).
+  `viewer/`, `editor/`, `about_dialog/`); `navigator/styles/` the `.nss` assets. `settings.py` and `commands.py` sit
+  beside `__main__.py`; every model lives under `navigator/lib/`, grouped by purpose: `viewer/` (F3's model,
+  `dbf.py`), `editor/` (F4's model), `highlight/` (syntax highlighting, the `.nml`/`.nss` lexers),
+  `file_ops/` (copy, erase, attributes, links, UU, find, compare), `system/` (`subshell.py`, `job.py`, `progress.py`,
+  disks, memory, printing), `config/` (key bindings, associations, user menu, bookmarks, desktop, file history,
+  language), `appearance/` (`scheme.py` the stylesheet loader, palette, file types, icons, savers) and `utilities/`
+  (calculator, SmartPad, the game, About).
 
 **The widgets are not in `__main__.py`** because that module is already in `sys.modules` as `__main__`, and
 `from navigator.__main__ import Panel` would import a second copy with a second `Panel` class. A widget a document
@@ -37,7 +40,7 @@ editor's phases.
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
 - Two run-time dependencies, both load-bearing: `pyte`, the VT emulator behind `navkit/console.py`, which is what
-  makes Ctrl+O possible at all, and `pygments`, the lexers behind syntax highlighting (`navigator/highlight.py`) —
+  makes Ctrl+O possible at all, and `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
@@ -53,6 +56,7 @@ editor's phases.
   flag wins over the file for that session and is never written back
 - `extensions.ini`, `viewers.ini`, `editors.ini` and `quickrun.ini` sit beside it too: what Enter, F3/F4 (or
   Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill);
+  `menu.ini` is F2's user menu (a `.navigator-menu.ini` in a panel's directory or above wins there);
   `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill)
 - `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
   Options > Configuration > Key bindings; a line that will not parse warns and keeps its default. That dialog's
@@ -131,7 +135,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **The application's own `on_key`/`on_mouse_click` step aside while `app.modal` is set.**
 - **Focus moves in the same call that changes what is shown, never from an effect** (an effect runs after the batch).
 - **Nothing that can wait on a disk runs on the loop.** Read or write on a thread through
-  `navigator.progress.run_with_progress` (with a box) or `navml.background.Background` (a widget's small read); the
+  `navigator.lib.system.progress.run_with_progress` (with a box) or `navml.background.Background` (a widget's small read); the
   thread shares plain fields and a stop flag, never anything reactive. Single syscalls on a path just named stay
   (`navigator-file-ops` lists them).
 - **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
@@ -173,7 +177,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-panels` | Manager and Panel: view modes, tagging, quick search, hidden files, hiding sides |
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
-| `navigator-user-menu` | F2's `dn.mnu` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
+| `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |

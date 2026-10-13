@@ -21,8 +21,8 @@ from navkit.commands import KeyTableError, key_label
 from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import effect
-from navigator import keybindings
-from navigator.keybindings import Assignment, Entry, Section
+from navigator.lib.config import keybindings
+from navigator.lib.config.keybindings import Assignment, Entry, Section
 from navigator.widgets.setup.key_bindings_dialog.binding_list import keys_text
 
 

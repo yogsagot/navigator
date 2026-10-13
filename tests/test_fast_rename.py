@@ -15,7 +15,7 @@ from navigator.widgets.manager.fast_rename import FastRenameLine
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a.txt", "b.txt", "c.txt"):
         (tmp_path / name).write_text(name)
     return tmp_path

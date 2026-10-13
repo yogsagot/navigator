@@ -11,9 +11,9 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import associations
+from navigator.lib.config import associations
 from navigator.__main__ import Navigator
-from navigator.associations import EDITORS, EXTENSIONS, QUICK_RUN, TEMPLATES, VIEWERS, for_file, for_key, parse
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, QUICK_RUN, TEMPLATES, VIEWERS, for_file, for_key, parse
 from navigator.settings import SETTINGS
 from navigator.widgets.shell.commands import ExtFileEdit
 from navml.widgets.dialog.control.control import parse_shortcut
@@ -59,7 +59,7 @@ def test_seed_all_writes_the_missing_files_and_leaves_the_users_alone():
     mine.write_text("[*.png]\nMine = feh !.!\n", encoding="utf-8")
     assert associations.seed_all() == []
     assert mine.read_text(encoding="utf-8") == "[*.png]\nMine = feh !.!\n"
-    for file_name in (EXTENSIONS, EDITORS, QUICK_RUN):
+    for file_name in (EXTENSIONS, EDITORS, QUICK_RUN, associations.MENU):
         assert associations.path_of(file_name).read_text(encoding="utf-8") == TEMPLATES[file_name]
     assert associations.seed(EXTENSIONS) is False
 
@@ -73,7 +73,7 @@ def test_every_template_reads_as_what_it_says():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     SETTINGS.system.temp_dir = str(tmp_path / "tmp")
     (tmp_path / "tmp").mkdir()
     work = tmp_path / "work"

@@ -1,11 +1,11 @@
 ---
 name: navigator-desktop
-description: Saving and restoring the desktop -- Options > Save desktop / Load desktop (DN's cmSaveDesk/cmLoadDesk, SaveDesktop/RetrieveDesktop), navigator/desktop_state.py (snapshot, save, load, restore), the SavedDesktop model, and Startup's Autosave desktop (save on exit in Navigator.on_stop, restore in on_start, the command line's directories winning). Use when changing what a saved desktop keeps or when it comes back.
+description: Saving and restoring the desktop -- Options > Save desktop / Load desktop (DN's cmSaveDesk/cmLoadDesk, SaveDesktop/RetrieveDesktop), navigator/lib/config/desktop_state.py (snapshot, save, load, restore), the SavedDesktop model, and Startup's Autosave desktop (save on exit in Navigator.on_stop, restore in on_start, the command line's directories winning). Use when changing what a saved desktop keeps or when it comes back.
 ---
 
 # The saved desktop
 
-- **What it is**: DN streamed every window to `DN.DSK`; here `navigator/desktop_state.py` makes a dict --
+- **What it is**: DN streamed every window to `DN.DSK`; here `navigator/lib/config/desktop_state.py` makes a dict --
   `{"version", "windows": [...bottom to top], "front": index}` -- kept as JSON in the `SavedDesktop` model
   (`desktops` table, one row a name, `default`). A `version` other than `VERSION` is not read.
 - **What a window keeps** (`_window`): its rectangle (`file_history.window_values`, put back by `place_window`), and

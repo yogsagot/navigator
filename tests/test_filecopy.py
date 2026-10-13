@@ -1,4 +1,4 @@
-"""The copy engine behind F5 and F6: ``navigator/filecopy.py``.
+"""The copy engine behind F5 and F6: ``navigator/lib/file_ops/filecopy.py``.
 
 Driven on a thread-free path: a :class:`CopyJob` given an ``asker`` answers
 its questions in the worker's own call, so every rule can be exercised on
@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from navigator import filecopy
-from navigator.filecopy import (
+from navigator.lib.file_ops import filecopy
+from navigator.lib.file_ops.filecopy import (
     APPEND, ASK, CHECK_FREE, FOLLOW_LINKS, MOVE, OVERWRITE, PRESERVE, REFRESH, SKIP,
     CopyJob, CopyRequest, CreateDirectory, Failure, NoRoom, Overwrite, OverwriteAnswer,
     apply_mask, resolve_target, run,

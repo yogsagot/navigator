@@ -12,11 +12,11 @@ from navkit.events import KeyEvent
 from navkit.stylesheet import parse, variables_in
 
 from navigator.__main__ import Navigator
-from navigator.palette import (
+from navigator.lib.appearance.palette import (
     DERIVED, ENTRIES, NAVIGATOR_GROUP, differences, entry_values, groups, palette_path, read_palette,
     render_palette, save_palette, user_themes,
 )
-from navigator.scheme import load_scheme, theme_names, theme_path, user_scheme
+from navigator.lib.appearance.scheme import load_scheme, theme_names, theme_path, user_scheme
 from navigator.widgets.shell.commands import ChangeColors, LoadColors, StoreColors
 
 
@@ -68,7 +68,7 @@ def test_a_stored_theme_is_one_by_name_and_wins_over_a_shipped_one():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     return tmp_path
 
 

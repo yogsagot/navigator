@@ -7,7 +7,7 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import filetypes
+from navigator.lib.appearance import filetypes
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navigator.widgets.setup.highlight_dialog.highlight_dialog import tidy
@@ -28,7 +28,7 @@ def test_a_mask_is_kept_as_dn_kept_it():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "x.foo").write_text("x")
     (tmp_path / "y.py").write_text("y")
     return tmp_path

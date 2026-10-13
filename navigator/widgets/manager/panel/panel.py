@@ -40,10 +40,10 @@ from navml.widgets.dialog.list_viewer import ListViewer
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few
 # lines apart meaning a module and a keyword is a trap rather than a saving.
-from navigator import filetypes
-from navigator import icons as icon_glyphs
-from navigator.bookmarks import bookmarked_paths
-from navigator.fileattr import group_name, user_name
+from navigator.lib.appearance import filetypes
+from navigator.lib.appearance import icons as icon_glyphs
+from navigator.lib.config.bookmarks import bookmarked_paths
+from navigator.lib.file_ops.fileattr import group_name, user_name
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
 
@@ -453,7 +453,7 @@ def scan_directory(
     """*path*'s entries, ``..`` first and in *sort*'s order
     (:func:`order_entries`), and why not if it cannot be read.
 
-    A file *mask* (:func:`navigator.filetypes.in_filter`) leaves out the files
+    A file *mask* (:func:`navigator.lib.appearance.filetypes.in_filter`) leaves out the files
     it does not let through; every directory is listed whatever it says, as
     DN's ``GetDirectory`` listed them.
 
@@ -496,9 +496,9 @@ def scan_directory(
 
 
 def count_lengths(path: Path, entries: list[DirEntry], job: Any = None) -> None:
-    """Each directory among *entries* given its bytes (:mod:`navigator.dirlength`),
+    """Each directory among *entries* given its bytes (:mod:`navigator.lib.file_ops.dirlength`),
     ``..`` the bytes of *path* itself; nothing more once *job* is stopped."""
-    from navigator.dirlength import count_dir_length
+    from navigator.lib.file_ops.dirlength import count_dir_length
 
     for entry in entries:
         if not entry.is_dir:
@@ -515,8 +515,7 @@ def free_space_of(path: Path) -> tuple[int, str] | None:
     drive.  ``None`` when it cannot be told.  A thread runs it."""
     import shutil
 
-    from navigator import diskinfo
-
+    from navigator.lib.system import diskinfo
     try:
         free = shutil.disk_usage(path).free
     except OSError:
@@ -614,11 +613,11 @@ class Panel(ListViewer):
     #: ``PanelFlags``).  Ask :meth:`shows`.
     display: Any = reactive(None)
     #: Which files are listed (DN's ``FileMask``): ``;``-separated patterns,
-    #: ``-`` to leave out (:func:`navigator.filetypes.in_filter`).  Per panel,
+    #: ``-`` to leave out (:func:`navigator.lib.appearance.filetypes.in_filter`).  Per panel,
     #: set by Alt+S; directories are always listed.
     file_mask: str = reactive(filetypes.ALL_FILES)
     #: A *Find:* listing shown in place of the directory (Alt+F7, DN's
-    #: ``TFindDrive``, :class:`navigator.filefind.FindListing`), or None.  It
+    #: ``TFindDrive``, :class:`navigator.lib.file_ops.filefind.FindListing`), or None.  It
     #: belongs to the directory it was shown at: going anywhere else drops it.
     found: Any = reactive(None)
     #: The detailed mode's columns this panel shows over a directory

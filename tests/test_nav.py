@@ -24,8 +24,8 @@ from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
 from conftest import FakeTerminal, awaited, mounted, run_app, settle
-from navigator import filetypes
-from navigator import icons
+from navigator.lib.appearance import filetypes
+from navigator.lib.appearance import icons
 from navigator import __version__
 from navkit.application import Application
 from navigator.__main__ import Navigator, main, version_banner
@@ -33,7 +33,7 @@ from navigator.widgets.manager.manager import Manager
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navml.widgets import InputLine
 from navigator.settings import SETTINGS
-from navigator.scheme import THEMES, default_scheme, load_scheme, theme_names
+from navigator.lib.appearance.scheme import THEMES, default_scheme, load_scheme, theme_names
 from navigator.widgets import Clock, DirEntry, Manager, Panel, Shell
 from navigator.widgets.manager.panel.panel import fit_text, skip_cells, window_text
 from navigator.widgets.shell.clock import clock as clock_module
@@ -1371,7 +1371,7 @@ def test_a_scheme_parses_without_the_caller_importing_anything_first():
     is inside ``load_scheme`` so that no caller has to know.
     """
     assert _in_a_fresh_process(
-        "from navigator.scheme import default_scheme\n"
+        "from navigator.lib.appearance.scheme import default_scheme\n"
         "print(len(default_scheme().rules))\n"
     )[0].isdigit()
 
@@ -1463,7 +1463,7 @@ def quiet_console(monkeypatch):
     ``test_the_console_runs_a_real_child`` covers the other half.  A command
     run with no shell finishes at once, with 127, as a failed start does.
     """
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
 
 
 def running(app) -> None:
@@ -2195,7 +2195,7 @@ def test_a_bookmark_beats_the_type_and_the_hidden_folder(name, is_dir, mark, exp
     ],
 )
 def test_a_bookmarked_directory_has_a_gutter_glyph_of_its_own(tmp_path, tier, bookmarked, plain):
-    from navigator.bookmarks import add_bookmark
+    from navigator.lib.config.bookmarks import add_bookmark
 
     for name in ("marked", "plain", ".hidden"):
         (tmp_path / name).mkdir()
@@ -2220,7 +2220,7 @@ def test_a_bookmarked_directory_has_a_gutter_glyph_of_its_own(tmp_path, tier, bo
 
 
 def test_a_tag_still_wins_over_the_bookmark_glyph(tmp_path):
-    from navigator.bookmarks import add_bookmark
+    from navigator.lib.config.bookmarks import add_bookmark
 
     (tmp_path / "marked").mkdir()
     add_bookmark(tmp_path / "marked")
@@ -2630,7 +2630,7 @@ def test_every_part_the_sheet_names_is_one_a_widget_paints():
     """
     import navigator.widgets
     from navkit.stylesheet import parts_of
-    from navigator.scheme import default_scheme
+    from navigator.lib.appearance.scheme import default_scheme
 
     widgets = {name: getattr(navigator.widgets, name) for name in navigator.widgets.__all__}
     checked = 0
@@ -2723,6 +2723,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     the key bar's styles the only line that moved.  And once more when the
     *New Manager defaults*' *Free space* was honoured: each panel gave its
     last two rows to the info divider and the free-space line, pinned here to
+    a number that does not depend on the disk the suite runs on.  And once
+    more when a zoomed window kept its resize grip: the bottom-right corner's
+    last two cells took the icon colour, and nothing else moved.
     a number that does not depend on the disk the suite runs on.  And once
     more when that line was shortened as ``df -h`` does: ``977K``, not
     every digit.

@@ -8,7 +8,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.calculator import CalcError, decimal, evaluate, exponent, radix, shown
+from navigator.lib.utilities.calculator import CalcError, decimal, evaluate, exponent, radix, shown
 from navml.history import HISTORY
 
 
@@ -48,7 +48,7 @@ def test_the_forms_the_indicator_shows():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     return tmp_path
 
 

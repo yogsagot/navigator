@@ -11,7 +11,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
-from navigator.viewer import ViewSearch
+from navigator.lib.viewer import ViewSearch
 
 
 class ViewerFindDialog(Dialog, _Component):

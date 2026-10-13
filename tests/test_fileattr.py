@@ -8,9 +8,9 @@ import time
 
 import pytest
 
-from navigator import fileattr
-from navigator.fileattr import AttrJob, AttrRequest
-from navigator.filecopy import Failure
+from navigator.lib.file_ops import fileattr
+from navigator.lib.file_ops.fileattr import AttrJob, AttrRequest
+from navigator.lib.file_ops.filecopy import Failure
 
 
 def mode_of(path) -> int:

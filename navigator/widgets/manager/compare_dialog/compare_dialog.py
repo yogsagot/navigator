@@ -1,4 +1,4 @@
-"""What OK means in *Compare directories*: a :class:`~navigator.dircompare.CompareRequest`."""
+"""What OK means in *Compare directories*: a :class:`~navigator.lib.file_ops.dircompare.CompareRequest`."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.dircompare import CompareRequest
+from navigator.lib.file_ops.dircompare import CompareRequest
 
 
 class CompareDialog(Dialog):

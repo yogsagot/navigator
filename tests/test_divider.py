@@ -10,14 +10,14 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent, MouseClickEvent
 
-from navigator import desktop_state
+from navigator.lib.config import desktop_state
 from navigator.__main__ import Navigator
 from navigator.widgets.manager.manager import Manager
 
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "long").mkdir()
     (tmp_path / "short").mkdir()
     for n in range(60):

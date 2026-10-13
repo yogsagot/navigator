@@ -237,10 +237,9 @@ class Window(Widget):
         return icons
 
     def _has_grip(self) -> bool:
-        return (
-            self.active and self.resizable and not self.zoomed
-            and self.width >= 4 and self.height >= 2
-        )
+        # Shown zoomed too: dragging it is how a zoomed window is resized,
+        # starting from the desktop-sized rectangle it has.
+        return self.active and self.resizable and self.width >= 4 and self.height >= 2
 
     def chrome_hit(self, x: int, y: int) -> str | None:
         """What the chrome at *x*, *y* does: close, zoom, move, resize or nothing."""
@@ -406,6 +405,11 @@ class Window(Widget):
             elif kind == "move":
                 self.move_to(self.x + event.x - dx, self.y + event.y - dy)
             else:
+                if self.zoomed:
+                    # The first move of a grip drag on a zoomed window: it
+                    # stops being zoomed but keeps the rectangle it has, and
+                    # the drag sizes that.  A press alone leaves it zoomed.
+                    self.zoomed = False
                 self.resize_to(event.x + dx, event.y + dy)
         return True
 

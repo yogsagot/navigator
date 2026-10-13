@@ -1,6 +1,6 @@
 ---
 name: console-command-line
-description: The console and the command line -- navkit/console.py (pyte, ConsoleScreen, alternate screen, query answers), navkit/process.py (PtyProcess), navigator/subshell.py (persistent $SHELL, OSC 6973 marks, silent cd, held-back prompt, completion, history, atuin), the Console widget and Ctrl+O, the CommandLine (TCommandLine), Tab completion and CompletionList, running a program with every key, executing a file, Ctrl+Enter insert name, console selection. Use when touching anything that runs a command or shows its output.
+description: The console and the command line -- navkit/console.py (pyte, ConsoleScreen, alternate screen, query answers), navkit/process.py (PtyProcess), navigator/lib/system/subshell.py (persistent $SHELL, OSC 6973 marks, silent cd, held-back prompt, completion, history, atuin), the Console widget and Ctrl+O, the CommandLine (TCommandLine), Tab completion and CompletionList, running a program with every key, executing a file, Ctrl+Enter insert name, console selection. Use when touching anything that runs a command or shows its output.
 ---
 
 # The console and the command line
@@ -83,6 +83,9 @@ choice), `O` (reveal output).
   refuses to start under it -- so `nav` typed inside Navigator says so and exits 1, while another terminal is
   unaffected (no lock file). `--help`, `--version` and `--list-themes` still work; `NAVIGATOR= nav` forces a nested copy.
 - Queries are answered in order -- `Subshell._completions` is a queue (two keys in one read send two queries).
+- **A mark can span many reads**: an `H` (history) or `C` (completion) answer is one base64 mark of up to a few
+  hundred KB. `_on_output` carries an unended mark of ours (`_mark_start`) up to `_MARK_LIMIT`; anyone else's unended
+  OSC is let go after 4K. With the old 4K cap for everything, a real-sized history was dropped and Up did nothing.
 
 ## The command line
 
@@ -94,6 +97,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   panel's directory; `Shell.command_prompt_cells` compares `Console.prompt_cwd`). The hook *brackets* whatever `PS1` the
   rc left; `prompt_cells()` decodes the held-back bytes on a one-row `ConsoleScreen`, so a multi-line prompt shows its
   last line.
+- **The prompt is blank while a command runs** (a departure): `Subshell.busy` is a property that calls `on_busy`,
+  mirrored as the reactive `Console.running`, and `Shell.command_prompt`/`command_prompt_cells` are empty while it is
+  set -- the prompt coming back is the sign the command finished, as in a terminal. The row stays (giving it to the
+  console would resize the pty under the program). atuin's search, being `busy` too, also blanks it.
 - **It never holds the keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which types it there
   (DN's `ofPostProcess`); `Shell.cursor_position` puts the caret on the line.
 - Enter, Home, End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the application's table, **disabled
@@ -145,7 +152,7 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 
 ## System Information (Utilities)
 
-`SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/sysinfo.gather` on a
+`SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/lib/system/sysinfo.py`'s `gather` on a
 thread, from files under a root (`/`; tests pass a fake tree), then `SystemInfoDialog` with DN's four `ofFramed` boxes -- navml's `GroupBox`, titled on
 the frame -- read for Linux -- *Main board* (DMI vendor+product, CPU model and max MHz, CPUs where DN had the co-processor), *Disk drives*
 (`/sys/block` less loop/ram/zram/dm/md/sr/fd: size, model, removable), *Memory* (total, available, swap), *Other*
@@ -199,7 +206,7 @@ binds Esc/Enter/Tab/Shift+Tab to navml's `Cancel`/`Default`/`SelectNext`/`Select
 binary, octal, exponent; *Error*; *Overflow*) follow the line through an effect. Enter evaluates: the line becomes
 the value, selected, and `CalcLine` lets a digit replace it and anything else carry on from it. *Copy* puts *Copy
 As*'s form through `app.copy_to_clipboard`. Esc/*Close* record the line in history `calc`. The sums are
-`navigator/calculator.py` (`PAR.PAS`'s numbers, operators and functions; **arithmetic precedence, a departure** --
+`navigator/lib/utilities/calculator.py` (`PAR.PAS`'s numbers, operators and functions; **arithmetic precedence, a departure** --
 DN's put `^` below `*`; integer forms 64-bit where DN's were 32). Button ids must not shadow methods (`evaluate`).
 
 ## Read when

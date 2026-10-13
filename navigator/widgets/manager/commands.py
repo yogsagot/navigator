@@ -177,7 +177,7 @@ class SortBy(Command):
 class ChangeDrive(Command):
     """Alt+C, ``cmChangeDrive``: the bookmarks, for the active panel.
 
-    DOS Navigator's drive letters; ``navigator/bookmarks.py`` has the
+    DOS Navigator's drive letters; ``navigator/lib/config/bookmarks.py`` has the
     departure.
     """
 
@@ -209,6 +209,17 @@ class MakeList(Command):
 
 class FastRename(Command):
     """Alt+F6, ``cmFastRename``."""
+
+    title = "Ren"
+
+
+class QuickRename(Command):
+    """Shift+F6, File > Quick rename: one entry's new name, asked in a box.
+
+    A departure, asked for: Alt+F6's rename without the in-place line, for
+    the menu -- and none of F6's *Rename/Move* (targets, masks, modes).
+    Enabled while the selection is one entry.
+    """
 
     title = "Ren"
 
@@ -515,6 +526,7 @@ __all__ = [
     "PanelSetup",
     "MakeList",
     "FastRename",
+    "QuickRename",
     "FindFile",
     "Calculator",
     "PrintFile",

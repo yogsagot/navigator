@@ -9,9 +9,10 @@ import pytest
 
 from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
-from navigator import __version__, about
+from navigator import __version__
+from navigator.lib.utilities import about
 from navigator.__main__ import Navigator
-from navigator.about import ProjectInfo, about_text, project_info
+from navigator.lib.utilities.about import ProjectInfo, about_text, project_info
 from navigator.widgets.about_dialog import AboutDialog
 
 

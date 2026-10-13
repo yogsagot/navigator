@@ -23,7 +23,8 @@ from navml.widgets.window import Window
 #: and the window stays; *Go* does the same and closes it.  Esc closes it;
 #: Ctrl+R and Alt+R read the mounts again, as they re-read a panel; *Show all
 #: mounts* -- or Ctrl+H, as it shows a panel's dot-files -- lists the kernel's
-#: own file systems as well.  Tab walks the controls, Alt and a marked letter
+#: own file systems as well; *Show free %* turns the *Use %* column, ``df``'s,
+#: into *Free %*.  Tab walks the controls, Alt and a marked letter
 #: takes one, as in a dialog.
 VolumesWindow(Window):
     title: "Volumes"
@@ -51,6 +52,14 @@ VolumesWindow(Window):
         width: 22
         height: 1
         items: ["~S~how all mounts"]
+
+    CheckBoxes:
+        id: free_box
+        x: 2
+        y: max(0, parent.height - 2)
+        width: 22
+        height: 1
+        items: ["Show ~f~ree %"]
 
     Button:
         id: go_button

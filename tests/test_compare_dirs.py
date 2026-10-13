@@ -11,7 +11,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.dircompare import CompareRequest, differing, tagged
+from navigator.lib.file_ops.dircompare import CompareRequest, differing, tagged
 from navigator.widgets.manager.compare_dialog import CompareDialog
 from navigator.widgets.manager.panel.panel import DirEntry
 
@@ -56,7 +56,7 @@ def test_the_dialog_opens_on_size_and_time_and_select():
 
 @pytest.fixture
 def sides(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     layout = {
         "west": {"a": (b"1", 100), "b": (b"2", 300), "c": (b"3", 100), "d": (b"44", 100)},
         "east": {"a": (b"1", 100), "b": (b"2", 100), "d": (b"4", 100), "e": (b"5", 100)},

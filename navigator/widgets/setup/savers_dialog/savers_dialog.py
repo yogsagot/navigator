@@ -2,7 +2,7 @@
 ``Awaken`` and ``GetData``.
 
 The available savers are DN's four, then the programs in ``savers/``
-(:func:`navigator.savers.external`, read once as the dialog opens -- one
+(:func:`navigator.lib.appearance.savers.external`, read once as the dialog opens -- one
 directory's names, as DN's ``FindFirst`` read ``SSAVERS``).  *Add* puts the
 one at the available list's cursor among the selected, once; *Remove* takes
 the one at the selected list's cursor out.
@@ -16,7 +16,7 @@ from navkit.events import Event
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator import savers
+from navigator.lib.appearance import savers
 from navigator.settings import SETTINGS, SaversData
 
 

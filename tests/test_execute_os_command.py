@@ -13,7 +13,7 @@ from navigator.widgets.shell.commands import ExecuteOsCommand
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "my tool.sh").write_text("#!/bin/sh\n")
     (tmp_path / "my tool.sh").chmod(0o755)
     (tmp_path / "notes.txt").write_text("x")

@@ -9,7 +9,7 @@ import pytest
 from conftest import IDLE, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
-from navigator import smartpad
+from navigator.lib.utilities import smartpad
 from navigator.__main__ import Navigator
 from navigator.models.edit_record import EditRecord
 
@@ -20,7 +20,7 @@ STAMP = "──────< 04-10-2026 09:05:07 >" + "─" * 36
 @pytest.fixture
 def pad(tmp_path, monkeypatch):
     """A file manager over *tmp_path*, SmartPad's directory beside it, the clock fixed."""
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     notes = tmp_path / "notes"
     monkeypatch.setenv("SMARTPAD", str(notes))

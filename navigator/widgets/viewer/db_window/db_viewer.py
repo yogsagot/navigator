@@ -16,7 +16,7 @@ from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
-from navigator.dbf import DBFile
+from navigator.lib.viewer.dbf import DBFile
 
 
 class DBViewer(Widget):

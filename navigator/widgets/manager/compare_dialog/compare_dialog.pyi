@@ -10,7 +10,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
-from navigator.dircompare import CompareRequest
+from navigator.lib.file_ops.dircompare import CompareRequest
 
 
 class CompareDialog(Dialog, _Component):

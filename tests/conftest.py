@@ -287,7 +287,7 @@ def wordstar():
     """The editor's WordStar keys, as ``keybindings_wordstar.ini`` binds them
     -- DN's ^K, ^Q and ^B commands and its Ctrl diamond -- for a test that
     presses them.  ``_default_keys`` takes them away again afterwards."""
-    from navigator import keybindings
+    from navigator.lib.config import keybindings
     from navigator.__main__ import Navigator
 
     file = keybindings.presets_dir() / "keybindings_wordstar.ini"
@@ -305,7 +305,7 @@ def _default_settings(monkeypatch, tmp_path):
     Panels start in the simple mode, which the panel tests were written
     against; the shipped default, *Detailed*, is tested where it is chosen.
     """
-    from navigator import filetypes
+    from navigator.lib.appearance import filetypes
     from navigator.settings import SETTINGS
 
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))

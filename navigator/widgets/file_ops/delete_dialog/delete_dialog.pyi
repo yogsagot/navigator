@@ -14,7 +14,7 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
-from navigator.fileerase import EraseRequest
+from navigator.lib.file_ops.fileerase import EraseRequest
 
 
 class DeleteDialog(Dialog, _Component):

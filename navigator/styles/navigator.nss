@@ -80,7 +80,7 @@ Panel:focused::title { fg: $active-title-fg; bg: $active-title-bg; bold: $active
    would carry that one property across from the loser. */
 Panel::row.directory { fg: $directory-fg; bg: $directory-bg; bold: $directory-bold; dim: $directory-dim; italic: $directory-italic; underline: $directory-underline; reverse: $directory-reverse }
 
-/* What kind of file a row is (`navigator/filetypes.py'): DOS Navigator's
+/* What kind of file a row is (`navigator/lib/appearance/filetypes.py'): DOS Navigator's
    categories by mask and Midnight Commander's classes by type, a row taking
    at most one and the type winning.  All tie with `.directory' and the two
    rules after them, so they sit between: a link to a directory is coloured a
@@ -447,7 +447,7 @@ FileEditor::current_line                       { fg: $editor-highlight-current-l
 FileEditor::current_line_selected              { fg: $editor-highlight-current-line-selected-fg; bg: $editor-highlight-current-line-selected-bg; bold: $editor-highlight-current-line-selected-bold; dim: $editor-highlight-current-line-selected-dim; italic: $editor-highlight-current-line-selected-italic; underline: $editor-highlight-current-line-selected-underline; reverse: $editor-highlight-current-line-selected-reverse }
 FileEditor::current_column                     { fg: $editor-highlight-current-column-fg;        bg: $editor-highlight-current-column-bg; bold: $editor-highlight-current-column-bold; dim: $editor-highlight-current-column-dim; italic: $editor-highlight-current-column-italic; underline: $editor-highlight-current-column-underline; reverse: $editor-highlight-current-column-reverse }
 /* Syntax highlight: a token's classes are its Pygments type's pieces
-   (navigator/highlight.py), so `::token.string' takes every string and
+   (navigator/lib/highlight/), so `::token.string' takes every string and
    `::token.literal.string.doc' docstrings alone.  DN's four: comments in
    their own colour [164] ([184] on the current line); symbols [189],
    strings [190] and numbers [191] only their foreground, over the normal or

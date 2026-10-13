@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, RenameMove, SwapPanels, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import About, Game, SaversSetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -45,9 +45,9 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: they mean here: *ASCII Table* is *Character table*, and *Edit DOS
 #: Environment* is *Edit environment*.  *Change drive left/right* are
 #: *Bookmarks left/right*: the box they open lists bookmarked directories
-#: where DN's listed drive letters (``navigator/bookmarks.py``).  Disk's
+#: where DN's listed drive letters (``navigator/lib/config/bookmarks.py``).  Disk's
 #: *Volumes* is not DN's: it stands where *Volume label* stood, under its
-#: letter, and lists every mounted volume (``navigator/volumes.py``).
+#: letter, and lists every mounted volume (``navigator/lib/system/volumes.py``).
 MainMenu(MenuBar):
     SubMenu:
         id: system
@@ -138,6 +138,12 @@ MainMenu(MenuBar):
             text: '~R~ename/Move...'
             command: RenameMove
             key: 'F6'
+        #: Not in ``dlgMainMenu``: a departure, asked for -- one entry renamed
+        #: in a box, without *Rename/Move*'s targets and modes.
+        MenuItem:
+            text: '~Q~uick rename...'
+            command: QuickRename
+            key: 'Shift-F6'
         MenuItem:
             text: 'Cop~y~ to archive...'
             key: 'Shift-F1'

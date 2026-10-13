@@ -10,7 +10,7 @@ from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
-from navigator.tetris import SHI, VIS, Game, colour_of
+from navigator.lib.utilities.tetris import SHI, VIS, Game, colour_of
 
 #: A cell's character, ``#219``, drawn twice across.
 BLOCK = "█"

@@ -10,9 +10,9 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import viewer as model
+from navigator.lib import viewer as model
 from navigator.__main__ import Navigator
-from navigator.viewer import ViewSource, byte_table, compile_search, hex_row
+from navigator.lib.viewer import ViewSource, byte_table, compile_search, hex_row
 from navml.widgets.dialog.file_dialog import FileDialog
 from navml.widgets.menu.popup_menu import PopupMenu
 
@@ -51,7 +51,7 @@ def test_save_as_writes_the_file_in_utf8(tmp_path):
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "ru.txt").write_bytes(RUSSIAN.encode("cp866"))
     return tmp_path
 

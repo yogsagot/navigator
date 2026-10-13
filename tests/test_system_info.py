@@ -9,7 +9,7 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 
 from navigator.__main__ import Navigator
-from navigator.sysinfo import SystemFacts, gather, lines, size_text
+from navigator.lib.system.sysinfo import SystemFacts, gather, lines, size_text
 
 
 @pytest.fixture
@@ -65,8 +65,8 @@ def test_a_missing_root_reads_as_little_as_there_is(tmp_path):
 def test_the_menu_opens_the_dialog_on_what_was_read(tmp_path, monkeypatch, root):
     from navigator.widgets.shell.commands import SystemInfo
 
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
-    monkeypatch.setattr("navigator.sysinfo.gather", lambda: gather(root))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.sysinfo.gather", lambda: gather(root))
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 25))
     seen = {}
     run_app(app, [lambda a: a.spawn(a.run_command(SystemInfo)), Until(lambda a: a.modal is not None),

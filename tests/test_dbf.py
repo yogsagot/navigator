@@ -11,7 +11,7 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import dbf
+from navigator.lib.viewer import dbf
 from navigator.__main__ import Navigator
 from navigator.widgets.manager.commands import ViewAsDataBase
 from navigator.widgets.viewer.db_list_dialog import DBListDialog
@@ -79,7 +79,7 @@ def test_search_and_the_values_typed_back(tmp_path):
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     write_dbf(tmp_path / "people.dbf")
     (tmp_path / "fake.dbf").write_text("not a database\n")
     write_dbf(tmp_path / "empty.dbf", rows=())

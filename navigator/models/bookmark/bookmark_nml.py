@@ -19,7 +19,7 @@ class Bookmark(Model):    # bookmark.nml:7
     """A directory the panels can be sent to from Alt+F1, Alt+F2 or Alt+C.
 
     What stands where DOS Navigator's ``SelectDrive`` listed the drive
-    letters; ``navigator/bookmarks.py`` has why, and the first set.
+    letters; ``navigator/lib/config/bookmarks.py`` has why, and the first set.
     """
 
     #: The document this class was generated from.

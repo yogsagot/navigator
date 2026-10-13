@@ -29,13 +29,13 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
-from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import Game, OpenCalendar, ToggleTrashCan, SaversSetup, ScreenRest, About, ChangeColors, DriveInfoSetup, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, FileManagerDefaults, EnvEdit, ExecuteOsCommand, LoadColors, LoadDesktop, SaveDesktop, StoreColors, SystemInfo, FileManagerSetup, HistoryList, InsertName, InsertPath, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
-from navigator import filetypes
-from navigator.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
-from navigator.scheme import DEFAULT_THEME, default_scheme
+from navigator.lib.appearance import filetypes
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
+from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
 

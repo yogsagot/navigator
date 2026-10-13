@@ -16,7 +16,7 @@ from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
 from navml.widgets.dialog.control import escape_caption
-from navigator.filecopy import Overwrite, OverwriteAnswer
+from navigator.lib.file_ops.filecopy import Overwrite, OverwriteAnswer
 
 
 class OverwriteQuery(Dialog, _Component):

@@ -144,7 +144,7 @@ from pathlib import Path
 #: The repository's root, so ``navigator`` imports when this is run as a script.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from navigator.palette import DERIVED, DOS_COLORS, ENTRIES  # noqa: E402 -- the tables the app reads too
+from navigator.lib.appearance.palette import DERIVED, DOS_COLORS, ENTRIES  # noqa: E402 -- the tables the app reads too
 
 #: The IBM default DAC, as the six-bit values a ``.PAL`` stores.  A palette
 #: matching this one is emitted as colour names, and a name still carries these

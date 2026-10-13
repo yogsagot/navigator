@@ -7,7 +7,7 @@ from typing import Any
 from navml.history import HISTORY
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.makelist import DEFAULT_NAME
+from navigator.lib.file_ops.makelist import DEFAULT_NAME
 
 
 class MakeListDialog(Dialog):

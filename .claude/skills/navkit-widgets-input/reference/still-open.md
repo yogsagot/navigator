@@ -67,7 +67,7 @@
   **A Nerd Font improves on none of them.** Every shape is box-drawing, block-element or geometric-shape, all of
   which `GLYPHS_UNICODE` already guarantees; the Private Use Area carries icons, and an icon is a *replacement* for
   one of these rather than a better version — the one real candidate, a single-glyph check box, is refused because it
-  collapses three cells into one and moves every caption in the cluster. `navigator/icons.py` remains the project's
+  collapses three cells into one and moves every caption in the cluster. `navigator/lib/appearance/icons.py` remains the project's
   one deliberate departure and this is not a second.
 
 ### What the widget library needs first

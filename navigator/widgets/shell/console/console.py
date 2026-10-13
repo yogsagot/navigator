@@ -17,7 +17,7 @@ from navkit.screen import Cell, Surface
 from navkit.terminal import encode_key, encode_mouse
 from navkit.widget import Widget
 
-from navigator.subshell import Subshell
+from navigator.lib.system.subshell import Subshell
 
 #: Wider than any row a prompt is typed on; a longer one wraps, and the row it
 #: wraps onto is the one the typing happens on.
@@ -46,7 +46,7 @@ class Console(Widget):
     output behind its panels because in DOS there was one screen and the
     output was still in it; a terminal will not give its cells back, so the
     only way to have them is to have received them.  The command line's
-    shell (:class:`~navigator.subshell.Subshell`) runs on a pty this widget
+    shell (:class:`~navigator.lib.system.subshell.Subshell`) runs on a pty this widget
     owns, its output goes through
     :class:`~navkit.console.ConsoleScreen`, and what arrives is a grid of
     cells like any other -- which is why the menu bar and the key bar can
@@ -72,6 +72,10 @@ class Console(Widget):
     #: named are then somewhere else.
     selection: Any = reactive(None)
 
+    #: A command the command line sent is running: ``Subshell.busy``, which
+    #: is a plain field, mirrored where the reactive layer can see it.
+    running: bool = reactive(False)
+
     #: The shell has the real terminal (``Shell.relay_terminal``): its pty is
     #: then the whole terminal's size, not this widget's.
     relayed: bool = reactive(False)
@@ -95,7 +99,8 @@ class Console(Widget):
         #: and prompt callbacks are set here; what a finished command means is
         #: ``Shell``'s.
         self.subshell = Subshell(
-            self.screen, on_output=self._changed, on_prompt=self._prompted
+            self.screen, on_output=self._changed, on_prompt=self._prompted,
+            on_busy=self._busy_changed,
         )
         self.seeded = False
         #: Where a left-button drag started, while one is selecting.
@@ -157,6 +162,9 @@ class Console(Widget):
     def _changed(self) -> None:
         self.revision += 1
         self.clear_selection()
+
+    def _busy_changed(self, busy: bool) -> None:
+        self.running = busy
 
     def _prompted(self, data: bytes, cwd: Path | None) -> None:
         self.prompt = prompt_cells(data)

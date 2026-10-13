@@ -1,5 +1,5 @@
 """The dBase viewer's behaviour: the indicator, and F2, F3, F4 and F7
-(:mod:`navigator.dbf` reads and writes the file)."""
+(:mod:`navigator.lib.viewer.dbf` reads and writes the file)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.window import Window
 
-from navigator import dbf
+from navigator.lib.viewer import dbf
 from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchAgain, SearchFor, ShowFields, ShowMemo
 
 
@@ -187,7 +187,7 @@ def _wrapped(text: str, width: int) -> list[str]:
 
 
 def _type_names() -> dict[str, str]:
-    """:data:`navigator.dbf.TYPES` as the structure box shows them."""
+    """:data:`navigator.lib.viewer.dbf.TYPES` as the structure box shows them."""
     return {"N": tr("Numeric"), "C": tr("Character"), "M": tr("Memo"), "L": tr("Logical"), "D": tr("Date"),
             "F": tr("Float"), "P": tr("Picture")}
 

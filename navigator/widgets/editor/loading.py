@@ -3,9 +3,9 @@
 DN's ``ReadBlock`` and ``SaveFile``, each behind ``WriteMsg``.
 
 The file is read and split into lines on a thread
-(:func:`navigator.editor.document.read_document`), so the screen keeps
+(:func:`navigator.lib.editor.document.read_document`), so the screen keeps
 painting and the keyboard keeps answering however large it is.  One that is
-still being read after :data:`~navigator.progress.SLOW_PROGRESS_DELAY` puts up
+still being read after :data:`~navigator.lib.system.progress.SLOW_PROGRESS_DELAY` puts up
 *Reading file*, whose *Cancel* -- and Esc -- stops the read where it is.  One
 too large for the memory there is is refused with DN's own message before it
 is read, or as soon as its lines say it will not fit.
@@ -20,10 +20,10 @@ from typing import Any
 
 from navkit.i18n import tr
 
-from navigator.editor.document import Document, read_document
-from navigator.job import Job, Stopped
-from navigator.memory import NotEnoughMemory, edit_budget, out_of_memory
-from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+from navigator.lib.editor.document import Document, read_document
+from navigator.lib.system.job import Job, Stopped
+from navigator.lib.system.memory import NotEnoughMemory, edit_budget, out_of_memory
+from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
 
 
 class FileJob(Job):

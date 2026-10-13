@@ -1,7 +1,7 @@
 """What the Colors dialog edits, and what OK means: every entry's variables.
 
 The dialog holds a ``{variable: value}`` dict of every entry's seven -- the
-two colours and :data:`~navigator.palette.ATTRIBUTES` -- as the palette now
+two colours and :data:`~navigator.lib.appearance.palette.ATTRIBUTES` -- as the palette now
 gives them, and each change goes into it and out to *apply*, so the screen
 (the dialog among it) repaints in the palette being made, as DN's
 ``ExecuteDialog(D, Application^.GetPalette)`` edited the palette in place.
@@ -26,7 +26,7 @@ from navkit.stylesheet import StylesheetError, parse_value
 from navml.widgets.dialog.color_selector import COLORS
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.palette import ATTRIBUTES, groups
+from navigator.lib.appearance.palette import ATTRIBUTES, groups
 
 #: Every attribute box may come back to ``[?]``: ``inherit``.
 ALL_BOXES = (1 << len(ATTRIBUTES)) - 1

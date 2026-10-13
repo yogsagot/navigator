@@ -3,7 +3,7 @@
 A departure, as the strip is: DN showed these options only as the ``On``/``Off``
 of the Editor menu's key column.  Switches are spelled by the glyph tier the
 window may draw with -- a word on a plain terminal, a symbol on a Unicode one, a
-Font Awesome icon on a Nerd Font (:mod:`navigator.icons`) -- and values (the
+Font Awesome icon on a Nerd Font (:mod:`navigator.lib.appearance.icons`) -- and values (the
 viewer's mode, the encoding, the file type) are always words.  The symbols were
 chosen from what JetBrainsMono Nerd Font carries, so none falls back to another
 font: ``⎀`` and ``↵`` gave way to ``⌶`` and ``↩`` for that reason.
@@ -17,8 +17,10 @@ from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.i18n import tr
 from navml.widgets.option_strip import OptionItem
 
-from navigator import highlight, icons
-from navigator import viewer as viewer_model
+from navigator.lib import highlight
+
+from navigator.lib.appearance import icons
+from navigator.lib import viewer as viewer_model
 from navigator.widgets.editor.commands import (
     ChooseFileType,
     SwitchBlock,

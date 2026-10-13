@@ -2,7 +2,7 @@
 
 The three numbers as they stand, each one that does not read as a number
 left as it was (``Val`` failing kept the old value), then put right as
-:func:`navigator.editor.paragraph.fix_margins` says.  The answer is
+:func:`navigator.lib.editor.paragraph.fix_margins` says.  The answer is
 ``(left, right, indent)``, or None for Cancel.
 """
 
@@ -14,7 +14,7 @@ from navkit.events import Event
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.editor.paragraph import fix_margins
+from navigator.lib.editor.paragraph import fix_margins
 
 
 class MarginsDialog(Dialog):

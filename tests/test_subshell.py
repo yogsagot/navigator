@@ -9,6 +9,7 @@ one that is not is skipped rather than faked.
 from __future__ import annotations
 
 import asyncio
+import base64
 import os
 import re
 import shutil
@@ -17,7 +18,7 @@ from pathlib import Path
 import pytest
 
 from navkit.console import ConsoleScreen
-from navigator.subshell import MARK, Subshell
+from navigator.lib.system.subshell import MARK, Subshell
 from navigator.widgets.shell.console.console import prompt_cells
 
 SHELLS = [
@@ -151,8 +152,9 @@ def detached(finished: list) -> Subshell:
     subshell = Subshell(ConsoleScreen(40, 5),
                         on_finished=lambda s, c: finished.append((s, c)))
     subshell._marks = re.compile(
-        rb"\x1b\]%d;n;([ABD])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)" % MARK
+        rb"\x1b\]%d;n;([ABDH])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)" % MARK
     )
+    subshell._mark_start = b"\x1b]%d;n;" % MARK
     subshell.busy = True
     return subshell
 
@@ -167,6 +169,28 @@ def test_a_mark_split_across_two_reads_is_still_a_mark():
     subshell._on_output(mark[9:])
     assert finished == [(0, Path("/tmp"))]
     assert text(screen) == ["out"]
+
+
+def test_a_long_mark_split_over_many_reads_is_still_a_mark():
+    # A history answer is one mark of a hundred kilobytes or so; it arrives
+    # over many reads and must not be let go as output halfway.
+    subshell = detached([])
+    entries = [f"echo a fairly long command number {n} --flag=/some/path/{n}" for n in range(2000)]
+    answers = []
+    subshell._histories.append(answers.append)
+    payload = base64.b64encode("\0".join(entries).encode())
+    mark = b"\x1b]%d;n;H;%s\x07" % (MARK, payload)
+    assert len(mark) > 100_000
+    for start in range(0, len(mark), 4096):
+        subshell._on_output(mark[start : start + 4096])
+    assert answers == [entries]
+    assert text(subshell.screen) == []
+
+
+def test_another_program_s_unended_osc_is_not_held_back():
+    subshell = detached([])
+    subshell._on_output(b"\x1b]0;" + b"x" * 5000)
+    assert subshell._tail == b""
 
 
 def test_a_mark_with_the_wrong_nonce_is_only_output():

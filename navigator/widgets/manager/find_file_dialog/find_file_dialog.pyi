@@ -15,7 +15,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
 from navkit.events import Event
-from navigator import filefind
+from navigator.lib.file_ops import filefind
 
 
 class FindFileDialog(Dialog, _Component):

@@ -1,6 +1,6 @@
 """The handlers behind ``attr_dialog.nml``: what it opens on, and what OK means.
 
-The dialog opens on :func:`navigator.fileattr.survey` of the selection: the
+The dialog opens on :func:`navigator.lib.file_ops.fileattr.survey` of the selection: the
 bits every file has ticked, the bits they disagree on ``[?]``, and the owner,
 group and time where they all agree -- blank where they do not.  Blank, and a
 ``[?]`` nobody moved, are *leave it as it is*.
@@ -58,8 +58,7 @@ from navkit.reactive import effect, untracked
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator import fileattr
-
+from navigator.lib.file_ops import fileattr
 #: The grid's twelve items.
 ALL_ITEMS = (1 << len(fileattr.BITS)) - 1
 

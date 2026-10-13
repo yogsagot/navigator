@@ -10,7 +10,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.makelist import AUTO_PATHS, STORE_PATHS, make_lines, templates
+from navigator.lib.file_ops.makelist import AUTO_PATHS, STORE_PATHS, make_lines, templates
 from navml.history import HISTORY
 
 FILES = [Path("/w/a b.txt"), Path("/w/README")]
@@ -36,7 +36,7 @@ def test_each_template_is_a_line_and_autodetermine_puts_the_directory_in():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a.txt", "b.txt", "c.c"):
         (tmp_path / name).write_text(name)
     return tmp_path

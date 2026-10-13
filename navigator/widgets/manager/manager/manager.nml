@@ -2,7 +2,7 @@ from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Adv
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import PrintFile, QuickView, ReadFileList, RenameMove, Rescan
+from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
 from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
@@ -74,6 +74,7 @@ Manager(Window):
         alt+s: PanelSetup
         alt+l: MakeList
         alt+f6: FastRename
+        shift+f6: QuickRename
         alt+f7: FindFile
         alt+r: Rescan
         alt+t: ChangeDirectory

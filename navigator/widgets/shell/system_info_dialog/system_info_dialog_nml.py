@@ -31,7 +31,7 @@ class SystemInfoDialog(Dialog, _Component):
     Its 70 by 22 and its four ``ofFramed`` boxes, each titled on its frame --
     *Main board* across the top, *Disk drives* under it, *Memory* and *Other*
     side by side at the foot -- filled with Linux's answers
-    (:mod:`navigator.sysinfo`); OK alone, centred.
+    (:mod:`navigator.lib.system.sysinfo`); OK alone, centred.
     """
 
     #: The document this class was generated from.

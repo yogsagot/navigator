@@ -15,7 +15,7 @@ from typing import Any
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
-from navigator import dbf
+from navigator.lib.viewer import dbf
 
 
 class DBWindow(Window, _Component):

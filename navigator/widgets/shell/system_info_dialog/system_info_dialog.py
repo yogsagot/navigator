@@ -1,4 +1,4 @@
-"""The boxes' text, from what :func:`navigator.sysinfo.gather` read."""
+"""The boxes' text, from what :func:`navigator.lib.system.sysinfo.gather` read."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from navkit import glyphs
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.sysinfo import SystemFacts, lines
+from navigator.lib.system.sysinfo import SystemFacts, lines
 
 
 class SystemInfoDialog(Dialog):

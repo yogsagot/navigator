@@ -5,7 +5,7 @@ from typing import Any as _Any
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog
-from navigator.about import about_text, project_info
+from navigator.lib.utilities.about import about_text, project_info
 
 from typing import Any
 

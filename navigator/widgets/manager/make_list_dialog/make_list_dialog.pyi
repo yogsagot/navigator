@@ -10,7 +10,7 @@ from navml.widgets.dialog.field import Field
 
 from typing import Any
 from navml.history import HISTORY
-from navigator.makelist import DEFAULT_NAME
+from navigator.lib.file_ops.makelist import DEFAULT_NAME
 
 
 class MakeListDialog(Dialog, _Component):

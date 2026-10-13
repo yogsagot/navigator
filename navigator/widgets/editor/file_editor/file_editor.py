@@ -1,4 +1,4 @@
-"""F4's text: DOS Navigator's ``TFileEditor``, editing what ``navigator.editor`` holds.
+"""F4's text: DOS Navigator's ``TFileEditor``, editing what ``navigator.lib.editor`` holds.
 
 **Written in Python alone**, as ``FileViewer`` is: everything it shows is
 painted, and the window around it, ``EditWindow``, is the half with markup.
@@ -125,17 +125,17 @@ from navigator.widgets.editor.commands import (
     WordLeft,
     WordRight,
 )
-from navigator.editor import columns
-from navigator.editor.buffer import EditBuffer
-from navigator.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
-from navigator.editor import lock
-from navigator.editor.save import write_file
-from navigator.editor import search
-from navigator.editor.search import BREAK_CHARS, SearchData
-from navigator.fileattr import DATE_FORMAT, TIME_FORMAT
-from navigator import highlight
+from navigator.lib.editor import columns
+from navigator.lib.editor.buffer import EditBuffer
+from navigator.lib.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
+from navigator.lib.editor import lock
+from navigator.lib.editor.save import write_file
+from navigator.lib.editor import search
+from navigator.lib.editor.search import BREAK_CHARS, SearchData
+from navigator.lib.file_ops.fileattr import DATE_FORMAT, TIME_FORMAT
+from navigator.lib import highlight
 from navigator.settings import SETTINGS
-from navigator.viewer import HIDDEN_MARKS
+from navigator.lib.viewer import HIDDEN_MARKS
 
 
 #: How many lines one wheel notch moves the view.
@@ -321,7 +321,7 @@ class FileEditor(Widget):
     #: ``CFileEditor``'s ten colours, by what they paint.  Its comments,
     #: symbols, strings and numbers -- and comments on the current line --
     #: are all ``token``, told apart by the token's classes and the
-    #: ``current_line`` state (:mod:`navigator.highlight`).
+    #: ``current_line`` state (:mod:`navigator.lib.highlight`).
     parts = (
         "selected",
         "token",
@@ -490,11 +490,11 @@ class FileEditor(Widget):
     highlight_line: bool = reactive(False)
     highlight_column: bool = reactive(False)
 
-    #: ``HiLite``: the text coloured by syntax (:mod:`navigator.highlight`).
+    #: ``HiLite``: the text coloured by syntax (:mod:`navigator.lib.highlight`).
     #: Seeded from the setting, switched by Editor > Options.
     syntax_highlight: bool = reactive(True)
     #: *File type*: the lexer chosen from the menu, ``none``, or empty for
-    #: ``highlight.ini``'s choice (:func:`navigator.highlight.lexer_for`).
+    #: ``highlight.ini``'s choice (:func:`navigator.lib.highlight.lexer_for`).
     file_type: str = reactive("")
 
     #: ``AutoIndent``: Enter indents the new line; ``BackIndent``: Backspace on
@@ -1576,7 +1576,7 @@ class FileEditor(Widget):
         either way the cursor then moves, a line added below the last, and the
         pen remembers the side it came in by.
         """
-        from navigator.editor import linedraw
+        from navigator.lib.editor import linedraw
 
         line, col = self.line, self.col
         double = self.draw_mode == 2
@@ -1947,7 +1947,7 @@ class FileEditor(Widget):
 
     def _wrap(self) -> None:
         """``SplitString``: the cursor's line split at the margin, an undo step of its own."""
-        from navigator.editor.paragraph import wrap_line
+        from navigator.lib.editor.paragraph import wrap_line
 
         left, right, _ = self.margins
         text = self._text()
@@ -2603,13 +2603,13 @@ class FileEditor(Widget):
 
     def format_block(self, mode: str) -> None:
         """``FormatBlock``: the stream block's whole lines as one paragraph, laid out
-        between this editor's margins (:mod:`navigator.editor.paragraph`).
+        between this editor's margins (:mod:`navigator.lib.editor.paragraph`).
 
         The lines go in one undo step; the block then covers the new lines,
         from the start of the first to the start of the line after them, and
         the cursor is at its start.
         """
-        from navigator.editor.paragraph import format_lines
+        from navigator.lib.editor.paragraph import format_lines
 
         if self.block is None or self.block_hidden:
             return
@@ -2664,7 +2664,7 @@ class FileEditor(Widget):
         name (Save as), or ``highlight.ini`` saved.
 
         The text's lexer is chosen on the thread each time it lexes, from the
-        file's name and first line (:func:`navigator.highlight.lexer_for`), so
+        file's name and first line (:func:`navigator.lib.highlight.lexer_for`), so
         nothing more is needed for a change of either to count.
         """
         stop = getattr(self, "_lex_stop", None)

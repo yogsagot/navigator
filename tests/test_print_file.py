@@ -9,13 +9,13 @@ import pytest
 from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
-from navigator import printing
+from navigator.lib.system import printing
 from navigator.__main__ import Navigator
 
 
 @pytest.fixture
 def tree(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "sub").mkdir()
     (tmp_path / "a.txt").write_text("a")
     (tmp_path / "b.txt").write_text("b")

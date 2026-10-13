@@ -11,7 +11,7 @@ from navml.widgets.dialog.masked_field import MaskedField
 
 from typing import Any
 from navkit.i18n import languages, tr
-from navigator.language import AUTOMATIC
+from navigator.lib.config.language import AUTOMATIC
 from navigator.settings import SETTINGS, InterfaceData
 
 

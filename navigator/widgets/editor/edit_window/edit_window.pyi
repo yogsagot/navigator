@@ -29,10 +29,10 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import bind
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
-from navigator.editor.document import Document, encode, encode_lines, read_text
-from navigator.editor.lock import refuse_if_locked
-from navigator.editor.save import write_file
-from navigator.file_history import place_window, window_values
+from navigator.lib.editor.document import Document, encode, encode_lines, read_text
+from navigator.lib.editor.lock import refuse_if_locked
+from navigator.lib.editor.save import write_file
+from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseFileType, SetFileType
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
