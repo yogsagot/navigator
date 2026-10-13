@@ -3414,7 +3414,7 @@ def test_a_prompt_printed_in_another_directory_is_not_shown(tree, quiet_console)
 
 
 def test_the_last_prompt_stays_while_the_shell_follows_the_panel(tree, quiet_console, monkeypatch):
-    from navigator.subshell import Subshell
+    from navigator.lib.system.subshell import Subshell
     catching_up = [True]
     monkeypatch.setattr(Subshell, "catching_up", property(lambda self: catching_up[0]))
     app = navigator(tree)
@@ -3437,7 +3437,7 @@ def test_the_last_prompt_stays_while_the_shell_follows_the_panel(tree, quiet_con
 
 def test_the_idle_shell_follows_the_active_panel(tree, quiet_console, monkeypatch):
     asked = []
-    monkeypatch.setattr("navigator.subshell.Subshell.sync",
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.sync",
                         lambda self, cwd: asked.append(cwd))
     app = navigator(tree)
     run_app(app, [
@@ -3569,7 +3569,7 @@ def test_a_real_cd_moves_the_panel(tree, monkeypatch):
 @pytest.fixture
 def program(monkeypatch, quiet_console):
     """A command running on the console, whose input is collected rather than sent."""
-    from navigator.subshell import Subshell
+    from navigator.lib.system.subshell import Subshell
 
     typed: list[bytes] = []
     monkeypatch.setattr(Subshell, "is_running", property(lambda self: True))
@@ -3691,8 +3691,8 @@ def test_a_program_that_tracks_the_mouse_keeps_it(tree, quiet_console, monkeypat
     app = navigator(tree)
     console = console_with(app, b"text")
     monkeypatch.setattr(type(console), "tracks_mouse", property(lambda self: True))
-    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
-    monkeypatch.setattr("navigator.subshell.Subshell.write", lambda self, data: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.write", lambda self, data: None)
     drag(console, (0, 0), (3, 0))
     assert console.selection is None
 
@@ -3715,8 +3715,8 @@ def completing(monkeypatch):
         callback(Answer.start, [c for c in Answer.candidates if c.startswith(word)])
         return True
 
-    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
-    monkeypatch.setattr("navigator.subshell.Subshell.complete", complete)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.complete", complete)
     real_init = Subshell.__init__
 
     def init(self, *args, **kwargs):
@@ -3724,12 +3724,12 @@ def completing(monkeypatch):
         self.can_complete = True
 
     monkeypatch.setattr(Subshell, "__init__", init)
-    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.sync", lambda self, cwd: None)
     Answer.asked = asked
     return Answer
 
 
-from navigator.subshell import Subshell  # noqa: E402
+from navigator.lib.system.subshell import Subshell  # noqa: E402
 
 
 def test_tab_on_an_empty_line_still_switches_panels(tree, quiet_console, completing):
@@ -3787,7 +3787,7 @@ def test_candidates_that_do_not_agree_are_listed(tree, quiet_console, completing
 
 
 def test_an_answer_to_a_line_that_moved_on_is_dropped(tree, quiet_console):
-    from navigator.subshell import CompletionsReady
+    from navigator.lib.system.subshell import CompletionsReady
 
     app = navigator(tree)
     run_app(app, [*typed("ls x")])
@@ -3871,10 +3871,10 @@ def shell_history(monkeypatch):
         self.up_binding, self.search_binding = State.up_binding, State.search_binding
 
     monkeypatch.setattr(Subshell, "__init__", init)
-    monkeypatch.setattr("navigator.subshell.Subshell.is_running", property(lambda self: True))
-    monkeypatch.setattr("navigator.subshell.Subshell.history", history)
-    monkeypatch.setattr("navigator.subshell.Subshell.search_history", search_history)
-    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.history", history)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.search_history", search_history)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.sync", lambda self, cwd: None)
     State.searches = []
     return State
 
@@ -3933,7 +3933,7 @@ def test_the_console_keeps_the_panel_that_was_active(tree, quiet_console, monkey
     # Right panel active, then Ctrl+O: the console has the keyboard now, and
     # a command still runs where the right panel is -- not back in the left.
     synced = []
-    monkeypatch.setattr("navigator.subshell.Subshell.sync", lambda self, cwd: synced.append(cwd))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.sync", lambda self, cwd: synced.append(cwd))
     app = Navigator(tree, tree / "alpha", terminal=FakeTerminal(80, 24))
     seen = []
     run_app(app, [

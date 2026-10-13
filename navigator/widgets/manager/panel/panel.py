@@ -1642,6 +1642,15 @@ class Panel(ListViewer):
                 for index, (_, x, span) in enumerate(spans[:-1]):
                     if x + span < left + width:
                         surface.draw_text(x + span, y, tee, divider, 1)
+            if self.framed:
+                # Joined to the frame at both ends, ``├``/``┤`` (``╟``/``╢``
+                # on a double one), in the frame's colour.
+                vertical = self.box_charset()[5]
+                left_tee, right_tee = self.box_joins()[:2]
+                for edge, tee in ((left - 1, left_tee), (left + width, right_tee)):
+                    char, style = surface.get(edge, y)
+                    if char == vertical:
+                        surface.set_cell(edge, y, tee, style)
             y += 1
         for text, part in self.info_lines:
             plain = text.replace("~", "")
