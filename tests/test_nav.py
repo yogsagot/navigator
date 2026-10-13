@@ -3033,7 +3033,7 @@ ALT_STATUS = (" F6 Ren  F7 Find  B Sort  C Drive  S Setup  L List  R Re-read"
               "  E Attr  Z Zoom")
 CTRL_STATUS = (" F3 New Manager  F4 Close  F6 Calc  F9 Print  L Info"
                "  T Tree  Q Preview  Y Show")
-SHIFT_STATUS = " F1 Arc  F2 Ext  F4 Edit...  F5 SymLnk  F8 Del"
+SHIFT_STATUS = " F1 Arc  F2 Ext  F4 Edit...  F5 SymLnk  F6 Ren  F8 Del"
 
 
 @pytest.mark.parametrize(
