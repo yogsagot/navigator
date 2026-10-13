@@ -17,7 +17,7 @@ from navml.widgets.menu.popup_menu import PopupMenu
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("one", "two"):
         (tmp_path / name).mkdir()
     return tmp_path
@@ -79,7 +79,7 @@ def test_without_track_directories_it_says_to_turn_it_on(place):
 
 
 def test_place_bookmark_moves_or_inserts_at_a_position(place):
-    from navigator.bookmarks import add_bookmark, bookmarks, place_bookmark
+    from navigator.lib.config.bookmarks import add_bookmark, bookmarks, place_bookmark
 
     for name in ("a", "b", "c"):
         add_bookmark(place / name)
@@ -92,7 +92,7 @@ def test_place_bookmark_moves_or_inserts_at_a_position(place):
 
 
 def test_alt_shift_n_bookmarks_at_n_alt_n_goes_and_alt_shift_0_opens_the_box(place):
-    from navigator.bookmarks import add_bookmark, bookmarks
+    from navigator.lib.config.bookmarks import add_bookmark, bookmarks
 
     add_bookmark(place / "two")
     app = navigator(place)

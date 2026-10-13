@@ -48,8 +48,7 @@ from typing import Any, ClassVar
 from navkit.reactive import Reactive
 from navml.coder import Coder
 
-from navigator import filetypes
-
+from navigator.lib.appearance import filetypes
 #: The file's name, in the directory :func:`config_dir` names.
 FILE_NAME = "navigator.ini"
 

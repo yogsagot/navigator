@@ -834,7 +834,7 @@ name = "Русский"
 "~T~emporary directory" = "~В~ременный каталог"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "Таблица ASCII"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
 "Calculator" = "Калькулятор"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:40
 "Ex~p~ression" = "~В~ыражение"
@@ -1136,9 +1136,9 @@ name = "Русский"
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Не удалось прочитать буфер обмена рабочего стола, поэтому Navigator вставил свою последнюю копию. Установите xclip или xsel (X11) либо wl-clipboard (Wayland), чтобы буфер обмена был общим с другими программами."
 # navigator/__main__.py:376
 "Clipboard" = "Буфер обмена"
-# navigator/about.py:117
+# navigator/lib/utilities/about.py:117
 "Version {version}" = "Версия {version}"
-# navigator/about.py:119
+# navigator/lib/utilities/about.py:119
 "License: {license}" = "Лицензия: {license}"
 # navigator/commands.py:66
 "Character table" = "Таблица символов"
@@ -1146,67 +1146,67 @@ name = "Русский"
 "SmartPad" = "SmartPad"
 # navigator/commands.py:80
 "Print" = "Печать"
-# navigator/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1586
+# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1586
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
-# navigator/diskinfo.py:160
+# navigator/lib/system/diskinfo.py:160
 "Current directory:" = "Текущий каталог:"
-# navigator/diskinfo.py:173
+# navigator/lib/system/diskinfo.py:173
 "~{n:,}~ total byte on ~{mount}~" = ["Всего ~{n:,}~ байт на ~{mount}~", "Всего ~{n:,}~ байта на ~{mount}~", "Всего ~{n:,}~ байт на ~{mount}~"]
-# navigator/diskinfo.py:176
+# navigator/lib/system/diskinfo.py:176
 "~{n:,}~ free byte on ~{mount}~" = ["Свободно ~{n:,}~ байт на ~{mount}~", "Свободно ~{n:,}~ байта на ~{mount}~", "Свободно ~{n:,}~ байт на ~{mount}~"]
-# navigator/diskinfo.py:190
+# navigator/lib/system/diskinfo.py:190
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
-# navigator/diskinfo.py:193
+# navigator/lib/system/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1582
+# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1582
 "No files in this directory" = "В этом каталоге файлов нет"
-# navigator/diskinfo.py:168
+# navigator/lib/system/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
-# navigator/diskinfo.py:188
+# navigator/lib/system/diskinfo.py:188
 "~{n:,}~K bytes total memory" = "Всего памяти: ~{n:,}~ КБ"
-# navigator/diskinfo.py:180
+# navigator/lib/system/diskinfo.py:180
 "Volume label on ~{mount}: {label}~" = "Метка тома на ~{mount}: {label}~"
-# navigator/file_history.py:118, navigator/widgets/editor/loading.py:69
+# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:69
 "Reading file" = "Чтение файла"
-# navigator/fileattr.py:242
+# navigator/lib/file_ops/fileattr.py:242
 "There is no user {name}" = "Нет пользователя {name}"
-# navigator/fileattr.py:247
+# navigator/lib/file_ops/fileattr.py:247
 "There is no group {name}" = "Нет группы {name}"
-# navigator/fileattr.py:287
+# navigator/lib/file_ops/fileattr.py:287
 "Give both a date and a time" = "Укажите и дату, и время"
-# navigator/fileattr.py:290, navigator/fileattr.py:307, navigator/fileattr.py:305
+# navigator/lib/file_ops/fileattr.py:290, navigator/lib/file_ops/fileattr.py:307, navigator/lib/file_ops/fileattr.py:305
 "{text} is not a valid date" = "{text} - неверная дата"
-# navigator/fileattr.py:296
+# navigator/lib/file_ops/fileattr.py:296
 "{text} is not a valid time" = "{text} - неверное время"
-# navigator/fileattr.py:120
+# navigator/lib/file_ops/fileattr.py:120
 "{text} is not an octal mode" = "{text} - не восьмеричный режим"
-# navigator/filecopy.py:358
+# navigator/lib/file_ops/filecopy.py:358
 "{name} is not a regular file" = "{name} - не обычный файл"
-# navigator/filecopy.py:372
+# navigator/lib/file_ops/filecopy.py:372
 "Cannot copy directory {name} into itself" = "Нельзя копировать каталог {name} в себя"
-# navigator/filecopy.py:375
+# navigator/lib/file_ops/filecopy.py:375
 "{where} loops back on itself" = "{where} ссылается сам на себя"
-# navigator/filecopy.py:377
+# navigator/lib/file_ops/filecopy.py:377
 "Can not overwrite {name} with a directory" = "Нельзя заменить {name} каталогом"
-# navigator/filecopy.py:525, navigator/filecopy.py:435
+# navigator/lib/file_ops/filecopy.py:525, navigator/lib/file_ops/filecopy.py:435
 "{name} can not be copied to itself" = "{name}: нельзя копировать в себя"
-# navigator/filecopy.py:440
+# navigator/lib/file_ops/filecopy.py:440
 "Can not append to {name}: it is a link" = "Нельзя дописать в {name}: это ссылка"
-# navigator/filecopy.py:497
+# navigator/lib/file_ops/filecopy.py:497
 "Can not overwrite directory {name}" = "Невозможно переписать каталог {name}"
-# navigator/highlight.py:271, navigator/highlight.py:276
+# navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "текст"
-# navigator/highlight.py:275
+# navigator/lib/highlight/__init__.py:275
 "auto" = "авто"
-# navigator/memory.py:75
+# navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "Недостаточно памяти для выполнения операции."
-# navigator/savers.py:34
+# navigator/lib/appearance/savers.py:34
 "∙ Star flight" = "∙ Звёздный полёт"
-# navigator/savers.py:35
+# navigator/lib/appearance/savers.py:35
 "∙ Flash-light" = "∙ Фонарик"
-# navigator/savers.py:36
+# navigator/lib/appearance/savers.py:36
 "∙ Clock" = "∙ Часы"
-# navigator/savers.py:37
+# navigator/lib/appearance/savers.py:37
 "∙ Blackness" = "∙ Темнота"
 # navigator/settings.py:232
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
@@ -1238,63 +1238,63 @@ name = "Русский"
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
 # navigator/settings.py:666
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/sysinfo.py:146
+# navigator/lib/system/sysinfo.py:146
 "Machine type" = "Тип машины"
-# navigator/sysinfo.py:147
+# navigator/lib/system/sysinfo.py:147
 "CPU" = "ЦП"
-# navigator/sysinfo.py:148
+# navigator/lib/system/sysinfo.py:148
 "CPUs" = "Ядер ЦП"
-# navigator/sysinfo.py:149
+# navigator/lib/system/sysinfo.py:149
 "Total" = "Всего"
-# navigator/sysinfo.py:150
+# navigator/lib/system/sysinfo.py:150
 "Available" = "Доступно"
-# navigator/sysinfo.py:151
+# navigator/lib/system/sysinfo.py:151
 "Swap" = "Подкачка"
-# navigator/sysinfo.py:152
+# navigator/lib/system/sysinfo.py:152
 "OS" = "ОС"
-# navigator/sysinfo.py:153
+# navigator/lib/system/sysinfo.py:153
 "Kernel" = "Ядро"
-# navigator/sysinfo.py:154
+# navigator/lib/system/sysinfo.py:154
 "Host" = "Хост"
-# navigator/sysinfo.py:155
+# navigator/lib/system/sysinfo.py:155
 "Up" = "Работает"
-# navigator/sysinfo.py:163
+# navigator/lib/system/sysinfo.py:163
 "None" = "Нет"
-# navigator/uucode.py:528
+# navigator/lib/file_ops/uucode.py:528
 "Duplicate section {number} of file {name}" = "Повторение секции {number} файла {name}"
-# navigator/uucode.py:654
+# navigator/lib/file_ops/uucode.py:654
 "Can not interpret CheckSum format" = "Неизвестный формат контрольных сумм (CheckSum)"
-# navigator/uucode.py:749
+# navigator/lib/file_ops/uucode.py:749
 "There is no UUCode stuff in this file" = "UU-блоки в файле не обнаружены"
-# navigator/uucode.py:563
+# navigator/lib/file_ops/uucode.py:563
 "Can not interpret section header" = "Неизвестный формат заголовка секции"
-# navigator/uucode.py:600
+# navigator/lib/file_ops/uucode.py:600
 "File name expected" = "Отсутствует имя файла"
-# navigator/uucode.py:624
+# navigator/lib/file_ops/uucode.py:624
 "Unexpected \"end\" encountered" = "Неожиданный \"end\""
-# navigator/uucode.py:683
+# navigator/lib/file_ops/uucode.py:683
 "Section {ranges} of file {name} ({total}) is absent" = ["Отсутствует секция {ranges} файла {name} ({total})", "Отсутствуют секции {ranges} файла {name} ({total})", "Отсутствуют секции {ranges} файла {name} ({total})"]
-# navigator/uucode.py:686
+# navigator/lib/file_ops/uucode.py:686
 "Failed to decode completely {name}" = "{name} раскодирован неполностью"
-# navigator/uucode.py:489
+# navigator/lib/file_ops/uucode.py:489
 "Failed to decode {name}" = "Не удалось декодировать {name}"
-# navigator/uucode.py:572
+# navigator/lib/file_ops/uucode.py:572
 "Maximal section number mismatch" = "Неизвестно количество секций"
-# navigator/uucode.py:590
+# navigator/lib/file_ops/uucode.py:590
 "Invalid filetime number" = "Неправильное время создания файла"
-# navigator/uucode.py:607
+# navigator/lib/file_ops/uucode.py:607
 "Filenames of \"section\" and \"begin\" mismatch" = "Несовпадение имени файла в разделах \"section\" и \"begin\""
-# navigator/uucode.py:662
+# navigator/lib/file_ops/uucode.py:662
 "CRC error - {name}, Section {number}" = "Ошибка CRC - {name}, секция {number}"
-# navigator/uucode.py:664
+# navigator/lib/file_ops/uucode.py:664
 "Size mismatch - {name}, Section {number}" = "Несовпадение размера - {name}, секция {number}"
-# navigator/uucode.py:688
+# navigator/lib/file_ops/uucode.py:688
 "File is not terminated ({name})" = "Файл не закончен ({name})"
-# navigator/uucode.py:693
+# navigator/lib/file_ops/uucode.py:693
 "Size mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Несовпадение размера файла {name}, указано={listed}, вычислено={calculated}"
-# navigator/uucode.py:704
+# navigator/lib/file_ops/uucode.py:704
 "Can not create {name}: {reason}" = "Не могу создать {name}: {reason}"
-# navigator/uucode.py:696
+# navigator/lib/file_ops/uucode.py:696
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Несовпадение CRC файла {name}, указано={listed}, вычислено={calculated}"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Дубль"
@@ -1574,7 +1574,7 @@ name = "Русский"
 "Game over\n\nFinal score - {score}" = "Конец игры\n\nИтоговый счёт - {score}"
 # navigator/widgets/game/game_window/info.py:66, navigator/widgets/game/winner_dialog/winner_dialog.py:19
 "Anonymous" = "Аноним"
-# navigator/widgets/game/game_window/info.py:51, navigator/widgets/manager/commands.py:231, navigator/palette.py ...
+# navigator/widgets/game/game_window/info.py:51, navigator/widgets/manager/commands.py:231, navigator/lib/appearance/palette.py ...
 "Info" = "Инфо"
 # navigator/widgets/game/game_window/info.py:52
 "Score: ~{score}~" = "Очки: ~{score}~"
@@ -1874,255 +1874,255 @@ name = "Русский"
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
 # navigator/widgets/viewer/file_window/file_window.py:83
 "View - {path}" = "Просмотр - {path}"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Timer" = "Таймер"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Color" = "Цвет"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Menus" = "Меню"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Normal" = "Нормально"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Disabled" = "Не активно"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Shortcut" = "Подсветка"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected" = "Отмечено"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected disabled" = "Отмечено, не активно"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Shortcut selected" = "Подсветка отметки"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Dialogs" = "Диалоги"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Frame/background" = "Рамка/фон"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Frame icons" = "Пиктограммы окна"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Scroll bar page" = "Бегунок прокрутки"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Scroll bar icons" = "Кнопки прокрутки"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Static text" = "Статический текст"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Label normal" = "Метка нормальная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Label selected" = "Метка отмеченная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Label shortcut" = "Метка подсвеченная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button normal" = "Кнопка нормальная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button default" = "Кнопка по умолчанию"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button selected" = "Кнопка отмеченная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button disabled" = "Кнопка не активная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button shortcut" = "Кнопка подсвеченная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Shortcut default" = "Подсветка умолчания"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Button shadow" = "Тень кнопки"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Cluster normal" = "Поле нормальное"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Cluster selected" = "Поле отмеченное"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Cluster shortcut" = "Поле подсвеченное"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Input normal" = "Строка ввода нормальная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Input selected" = "Строка ввода отмеченная"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Input arrow" = "Стрелка ввода"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "History button" = "Кнопка истории ввода"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "History sides" = "Список истории ввода"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "History bar page" = "Бегунок прокрутки истории"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "History bar icons" = "Кнопки прокрутки истории"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "List normal" = "Список нормальный"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "List focused" = "Текущий элемент"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "List selected" = "Отмеченный элемент"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "List divider" = "Разделитель списка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Information pane" = "Информационная панель"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Normal tree" = "Нормальное дерево"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Normal nodes" = "Нормальный узел"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected node" = "Отмеченный узел"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Default node" = "Предопределенный узел"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected default" = "Отмеченный предопр."
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected passive" = "Отмеченный пассивный"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Selected def. passive" = "Отмеч. пассив. предопр."
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "File Manager" = "Менеджер файлов"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Frame passive" = "Рамка пассивная"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Frame active" = "Рамка активная"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "File Panel" = "Файловая панель"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Normal text" = "Нормальный текст"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Selected text" = "Отмеченный текст"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Normal cursor" = "Нормальный курсор"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Selected cursor" = "Отмеченный курсор"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Directory active" = "Активный каталог"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Directory passive" = "Пассивный каталог"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Column title" = "Оглавление колонки"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "Подсветка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Directories" = "Каталоги"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Executables" = "Исполняемые"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Archives" = "Архивы"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Custom 1" = "Группа 1"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Custom 2" = "Группа 2"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Custom 3" = "Группа 3"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Custom 4" = "Группа 4"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Custom 5" = "Группа 5"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Drive Line" = "Линия дисков"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Drive letters" = "Буквы дисков"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Drive selected" = "Выбранный диск"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Frame" = "Рамка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Current file" = "Текущий файл"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Selected numbers" = "Количество отмеченных"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Totals text" = "Всего - текст"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Totals numbers" = "Всего - цифры"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Free space text" = "Свободно - текст"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Free space numbers" = "Свободно - цифры"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Info box" = "Окно информации"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Quick View" = "Быстрый просмотр"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Disk Info" = "Информация по диску"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Highlighted text" = "Подсвеченный текст"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "File Viewer" = "Просмотр файла"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Editor/Spreadsheet" = "Редактор"
-# navigator/palette.py, navigator/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py
 "Frame title" = "Заголовок рамки"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Comments" = "Комментарий"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Symbols" = "Символы"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Strings" = "Строки"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Numbers" = "Числа"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Current line" = "Текущая строка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Cur. line comments" = "Тек. строка, комментарий"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Current line selected" = "Тек. строка в блоке"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Current column" = "Текущая колонка"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Disk Fixer" = "Диск редактор"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Sector title" = "Заголовок сектора"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Edit line" = "Строка редактора"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Terminal" = "Терминал"
-# navigator/palette.py, navigator/palette.py, navigator/palette.py ...
+# navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "dBase viewer" = "Просмотр DBF"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Fields titles" = "Заголовок поля"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Cursor" = "Курсор"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Navigator" = "Навигатор"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Images" = "Изображения"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Audio and video" = "Аудио и видео"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Documents" = "Документы"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Broken link" = "Битая ссылка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Source code" = "Исходный код"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Symbolic link" = "Символическая ссылка"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Device" = "Устройство"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Socket or FIFO" = "Сокет или FIFO"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Temporary file" = "Временный файл"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Title as root" = "Заголовок (root)"
-# navigator/palette.py
+# navigator/lib/appearance/palette.py
 "Keywords" = "Ключевые слова"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Global" = "Глобальные"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Windows" = "Окна"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "File panels" = "Файловые панели"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Tree window" = "Окно дерева"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Volumes window" = "Окно томов"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Trees" = "Деревья"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Editor" = "Редактор"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Editor window" = "Окно редактора"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Viewer" = "Просмотрщик"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Database viewer" = "Просмотр баз данных"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Copy dialog" = "Диалог копирования"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Link dialog" = "Диалог ссылки"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "UU encode dialog" = "Диалог UU-кодирования"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "UU decode dialog" = "Диалог UU-декодирования"
-# navigator/keybindings.py
+# navigator/lib/config/keybindings.py
 "Game" = "Игра"

@@ -9,9 +9,9 @@ def strings():
     --names``, and the key tables' titles head ``keybindings.ini`` sections.
     ``python -m navml extract`` asks for them, as ``(key, where)`` pairs.
     """
-    from navigator import keybindings, palette
-
-    where = "navigator/palette.py"
+    from navigator.lib.config import keybindings
+    from navigator.lib.appearance import palette
+    where = "navigator/lib/appearance/palette.py"
     for _, _, group, item in palette.ENTRIES:
         yield group, where
         yield item, where
@@ -19,4 +19,4 @@ def strings():
     for item in palette.DERIVED_ITEMS.values():
         yield item, where
     for _, title, _ in keybindings.TABLES:
-        yield title, "navigator/keybindings.py"
+        yield title, "navigator/lib/config/keybindings.py"

@@ -21,7 +21,7 @@ from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.history import HISTORY
 from navml.widgets.dialog.control.control import Control
-from navigator import calculator
+from navigator.lib.utilities import calculator
 
 
 class CalculatorWindow(Window, _Component):

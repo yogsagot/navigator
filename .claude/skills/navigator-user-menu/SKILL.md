@@ -1,6 +1,6 @@
 ---
 name: navigator-user-menu
-description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/usermenu.py (parse, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN; highlight.ini (DN.HGL) is seeded here too but belongs to navigator-editor. Use when changing the user menu, the .ini associations, or how their commands run.
+description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu): navigator/lib/config/usermenu.py (parse, find_menu local/global, the ! $ macros and %0-%9, quoting, script_text), Shell.user_menu/run_menu_item/edit_menu_file, the Menu Parameters box, F2/F4 inside the box, Options > Global/Local menu definition, navigator/lib/system/tempdir.py (system.temp_dir, the private directory) and nested PopupMenu boxes; also navigator/lib/config/associations.py -- extensions.ini (Enter on a file), viewers.ini/editors.ini (F3/F4, Alt+F3/Alt+F4) and quickrun.ini (Ctrl+Shift+F1..F10), DN's DN.EXT/DN.VWR/DN.EDT/DN.XRN; highlight.ini (DN.HGL) is seeded here too but belongs to navigator-editor. Use when changing the user menu, the .ini associations, or how their commands run.
 ---
 
 # The user menu (F2)
@@ -13,7 +13,7 @@ description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu
   by that key from any depth and outranks both (TV's menu took keys before the status line).
 - **Options > Global menu definition / Local menu definition** (`MenuFileEdit`, `LocalMenuFileEdit`) open the global
   file, or `dn.mnu` in the active panel's directory, with `open_editor(..., new=True)`.
-- **The format and macros** are `navigator/usermenu.py`'s docstring: `>N Caption`, `>>N` read as `>N`, a bare `>N` a
+- **The format and macros** are `navigator/lib/config/usermenu.py`'s docstring: `>N Caption`, `>>N` read as `>N`, a bare `>N` a
   line, `<Title` / `<=default` and any `%3`..`%9` ask *Menu Parameters* (`MenuParamsDialog`, history `menu_params`;
   Cancel runs nothing), `;` lines and blank lines dropped. `! .! !\ !/ !:` and the `$` forms; `!!`/`$$` literal;
   `%0` script, `%1`/`%2` list files, `%3`..`%9` parameter words, `%%` -- **one regex pass**, so what a macro puts in
@@ -29,7 +29,7 @@ description: F2's user menu -- DOS Navigator's dn.mnu (USERMENU.PAS ExecUserMenu
 
 ## extensions.ini, viewers.ini, editors.ini, quickrun.ini
 
-`navigator/associations.py` (its docstring has the format): DN's `DN.EXT`, `DN.VWR`, `DN.EDT` and `DN.XRN` as **`.ini`
+`navigator/lib/config/associations.py` (its docstring has the format): DN's `DN.EXT`, `DN.VWR`, `DN.EDT` and `DN.XRN` as **`.ini`
 files of Navigator's own design, beside `navigator.ini`** -- a departure the user asked for, DN's formats not kept. A
 section is a mask (`;`-separated patterns, case aside, first match wins) or a key (`[F1]`..`[F10]`); each key in it
 is a caption, its value the commands (indented continuation lines), read by **`usermenu.commands_of`** so `<Title`,

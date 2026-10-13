@@ -18,7 +18,7 @@ from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
-from navigator import tetris
+from navigator.lib.utilities import tetris
 from navigator.settings import SETTINGS
 
 

@@ -477,7 +477,7 @@ class _Pty:
 
 def _relayable_subshell():
     from navkit.console import ConsoleScreen
-    from navigator.subshell import Subshell
+    from navigator.lib.system.subshell import Subshell
 
     shell = Subshell(ConsoleScreen(80, 24))
     shell.process = _Pty()

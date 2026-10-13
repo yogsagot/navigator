@@ -21,7 +21,7 @@ def keys_text(keys: tuple[str, ...]) -> str:
 
 
 class BindingList(ListViewer):
-    """``(entry, keys)`` rows: :class:`navigator.keybindings.Entry` and its keys."""
+    """``(entry, keys)`` rows: :class:`navigator.lib.config.keybindings.Entry` and its keys."""
 
     def keys_width(self) -> int:
         """The right column's width: half the row."""

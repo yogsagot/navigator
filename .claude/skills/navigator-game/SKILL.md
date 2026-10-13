@@ -1,11 +1,11 @@
 ---
 name: navigator-game
-description: ≡ > Game (Alt+F9), DOS Navigator's TETRIS.PAS "Navigator's game" -- navigator/tetris.py (Game: the glass, the 27 figures, rotation, scoring, levels; the Top Ten helpers), the TetrisScore model, the [tetris] settings section, and navigator/widgets/game/ (GameWindow with Glass and GameInfo, GameSetupDialog, TopTenDialog, WinnerDialog). Use when changing the game.
+description: ≡ > Game (Alt+F9), DOS Navigator's TETRIS.PAS "Navigator's game" -- navigator/lib/utilities/tetris.py (Game: the glass, the 27 figures, rotation, scoring, levels; the Top Ten helpers), the TetrisScore model, the [tetris] settings section, and navigator/widgets/game/ (GameWindow with Glass and GameInfo, GameSetupDialog, TopTenDialog, WinnerDialog). Use when changing the game.
 ---
 
 # The game (≡ > Game, Alt+F9)
 
-- **The rules are `navigator/tetris.py`'s `Game`, transcribed from TETRIS.PAS**: the glass `SHI` 12 by `VIS` 19 with
+- **The rules are `navigator/lib/utilities/tetris.py`'s `Game`, transcribed from TETRIS.PAS**: the glass `SHI` 12 by `VIS` 19 with
   walls and a floor (a dict keyed `(row, col)`, columns from 1, rows -2 above it empty); `FIGURES` (the first seven
   Tetris's, all 27 Pentix's), `TURNS` (`CRot`, the square a figure turns in), `colour_of` (`15 - n mod 7`, a VGA
   index), `DELAYS` (hundredths a row, `LevelDelay`); the score for a figure set down, for each line, for an empty

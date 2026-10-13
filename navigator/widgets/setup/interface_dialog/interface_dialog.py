@@ -7,7 +7,7 @@ from typing import Any
 from navkit.i18n import languages, tr
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.language import AUTOMATIC
+from navigator.lib.config.language import AUTOMATIC
 from navigator.settings import SETTINGS, InterfaceData
 
 

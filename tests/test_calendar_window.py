@@ -14,7 +14,7 @@ from navigator.__main__ import Navigator
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     return Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
 
 

@@ -1,4 +1,4 @@
-"""F3: the file viewer -- the model in ``navigator/viewer.py`` and the window around it."""
+"""F3: the file viewer -- the model in ``navigator/lib/viewer/__init__.py`` and the window around it."""
 
 from __future__ import annotations
 
@@ -10,9 +10,9 @@ from conftest import FakeTerminal, run_app, settle
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
-import navigator.viewer as viewer_model
+import navigator.lib.viewer as viewer_model
 from navigator.__main__ import Navigator
-from navigator.viewer import (
+from navigator.lib.viewer import (
     CHUNK,
     LINE_LIMIT,
     ViewSearch,
@@ -182,7 +182,7 @@ def test_nothing_found_is_none(make):
 
 @pytest.fixture
 def quiet_console(monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
 
 
 @pytest.fixture
@@ -495,7 +495,7 @@ def test_ctrl_t_swaps_the_quick_view_for_the_tree_in_the_same_place(files):
 
 
 def test_a_stopped_job_ends_the_search(make):
-    from navigator.viewer import SearchJob
+    from navigator.lib.viewer import SearchJob
 
     job = SearchJob()
     job.stop()

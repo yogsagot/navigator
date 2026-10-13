@@ -1,7 +1,7 @@
 """The list inside Disk > Volumes: a row per mounted volume, under column titles.
 
 A :class:`~navml.widgets.dialog.list_viewer.ListViewer` over
-:class:`navigator.volumes.Volume` items, laid out as a detailed file panel is:
+:class:`navigator.lib.system.volumes.Volume` items, laid out as a detailed file panel is:
 the titles centred in the band under the top edge, a ``│`` between columns
 from the titles down to the last row, the cursor bar across them.  *Name*,
 *Type*, *Free* and *Size* keep their widths; *Mount point* takes what is left
@@ -20,7 +20,7 @@ from navkit.screen import Surface
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
 
-from navigator.sysinfo import size_text
+from navigator.lib.system.sysinfo import size_text
 from navigator.widgets.manager.panel.panel import fit_text
 
 #: The fixed columns' widths; the mount point has the rest.

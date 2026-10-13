@@ -11,7 +11,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import MouseClickEvent
 from navkit.screen import ScreenBuffer
 
-from navigator import desktop_state
+from navigator.lib.config import desktop_state
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.delete_dialog import DeleteDialog
@@ -20,7 +20,7 @@ from navigator.widgets.shell.commands import ToggleTrashCan
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a.txt", "b.txt"):
         (tmp_path / name).write_text(name)
     (tmp_path / "full").mkdir()

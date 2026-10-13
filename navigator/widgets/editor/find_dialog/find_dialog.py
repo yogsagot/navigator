@@ -1,6 +1,6 @@
 """What OK and *Change all* mean in *Find* and *Replace*: ``StartSearch``'s ``ExecResource``.
 
-The dialog opens on :data:`navigator.editor.search.SEARCH` -- what the last
+The dialog opens on :data:`navigator.lib.editor.search.SEARCH` -- what the last
 one was set to -- with the text to find replaced by the word at the cursor,
 as ``StartSearch`` put it there.  OK writes the record back and answers
 ``"ok"``; *Change all* (``cmYes``) answers ``"all"``; Cancel, None.
@@ -14,8 +14,8 @@ from navkit.events import Event
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.editor import search
-from navigator.editor.search import SearchData
+from navigator.lib.editor import search
+from navigator.lib.editor.search import SearchData
 
 
 class FindDialog(Dialog):

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from navigator.editor.paragraph import fix_margins, format_lines
+from navigator.lib.editor.paragraph import fix_margins, format_lines
 
 LINES = ["The quick brown fox  jumps over", "", "the lazy dog and keeps running far away."]
 
@@ -45,7 +45,7 @@ def test_impossible_margins_are_put_right_as_set_format_did():
 # -- SplitString: autowrap -------------------------------------------------------------------------
 
 
-from navigator.editor.paragraph import wrap_line  # noqa: E402
+from navigator.lib.editor.paragraph import wrap_line  # noqa: E402
 
 
 def test_a_line_past_the_margin_is_cut_after_its_last_break_before_it():

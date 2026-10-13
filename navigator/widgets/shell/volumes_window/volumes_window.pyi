@@ -19,7 +19,7 @@ from navkit.events import Event, KeyEvent
 from navkit.reactive import effect, peek
 from navml.background import Background, Outcome
 from navml.widgets.dialog.list_viewer import ListViewer
-from navigator import volumes
+from navigator.lib.system import volumes
 
 
 class VolumesWindow(Window, _Component):

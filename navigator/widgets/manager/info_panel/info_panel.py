@@ -1,7 +1,7 @@
 """Ctrl+L: what DOS Navigator's ``TDiskInfo`` showed in the passive panel's place.
 
-The lines are :func:`navigator.diskinfo.lines`; the disk and the machine are
-read on a thread (:func:`navigator.diskinfo.gather`) whenever the directory
+The lines are :func:`navigator.lib.system.diskinfo.lines`; the disk and the machine are
+read on a thread (:func:`navigator.lib.system.diskinfo.gather`) whenever the directory
 it describes changes or is re-read (``cmRereadInfo``), and what was read last
 stays up meanwhile.  A line is centred, as ``Wrt`` centred it, but for the
 information file's, which start at the left; ``~`` runs are drawn in the
@@ -23,7 +23,7 @@ from navkit.widget import Widget
 
 from navml.background import Background, Outcome
 
-from navigator import diskinfo
+from navigator.lib.system import diskinfo
 from navigator.settings import SETTINGS
 
 #: Where a box charset keeps its horizontal line.
@@ -42,7 +42,7 @@ class InfoPanel(Widget):
     #: The directory described, and the entries it lists (for the totals).
     directory: Any = reactive(None)
     entries: Any = reactive(())
-    #: What the last read found (:class:`navigator.diskinfo.DiskFacts`).
+    #: What the last read found (:class:`navigator.lib.system.diskinfo.DiskFacts`).
     facts: Any = reactive(None)
 
     def __init__(self, **kwargs: Any) -> None:

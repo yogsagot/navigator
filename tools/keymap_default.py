@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from navigator import keybindings  # noqa: E402
+from navigator.lib.config import keybindings  # noqa: E402
 from navigator.__main__ import Navigator  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "navigator" / "assets" / "keymaps" / "keybindings_default.ini"

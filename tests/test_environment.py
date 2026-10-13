@@ -10,8 +10,8 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.environ import apply, changes, valid_name
-from navigator.subshell import Subshell
+from navigator.lib.system.environ import apply, changes, valid_name
+from navigator.lib.system.subshell import Subshell
 from navkit.console import ConsoleScreen
 
 
@@ -46,7 +46,7 @@ def test_a_shell_without_the_hook_is_not_told(monkeypatch):
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     saved = dict(os.environ)
     os.environ["NAV_TEST_KEEP"] = "old"
     os.environ["NAV_TEST_GONE"] = "bye"

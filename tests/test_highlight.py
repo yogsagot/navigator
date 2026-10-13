@@ -12,9 +12,11 @@ from navkit.events import KeyEvent
 from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.screen import ScreenBuffer
 
-from navigator import associations, highlight
+from navigator.lib.config import associations
+
+from navigator.lib import highlight
 from navigator.__main__ import Navigator
-from navigator.editor.document import Pos
+from navigator.lib.editor.document import Pos
 from navigator.settings import SETTINGS
 
 
@@ -194,7 +196,7 @@ def test_spans_follow_an_edit():
 
 @pytest.fixture
 def quiet_console(monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
 
 
 @pytest.fixture
@@ -264,7 +266,7 @@ def test_the_editor_paints_comments_strings_numbers_and_symbols(files):
 
 
 def test_keywords_are_yellow_in_the_default_theme_and_plain_in_another(files):
-    from navigator.scheme import load_scheme
+    from navigator.lib.appearance.scheme import load_scheme
 
     editor, cell = painted(files, "code.py", b"if x and None:\n    pass\n", "f4")
     yellow = token(editor, "keyword")
@@ -380,7 +382,7 @@ def test_every_document_in_the_tree_lexes_whole_and_without_an_error(pattern):
 
     from pygments.token import Error
 
-    from navigator.lexers import NmlLexer, NssLexer
+    from navigator.lib.highlight.lexers import NmlLexer, NssLexer
 
     root = Path(__file__).resolve().parent.parent
     paths = sorted(root.glob(pattern))
@@ -400,7 +402,7 @@ def test_the_template_gives_nml_and_nss_their_own_lexers():
 def test_a_stylesheet_reads_variables_selectors_and_literals():
     from pygments.token import Comment, Keyword, Name, Number
 
-    from navigator.lexers import NssLexer
+    from navigator.lib.highlight.lexers import NssLexer
 
     tokens = [pair for pair in tokens_of(NssLexer(), (
         "$panel-fg: #d8d8d8; /* c */\n"
@@ -418,7 +420,7 @@ def test_a_stylesheet_reads_variables_selectors_and_literals():
 def test_markup_reads_heads_directives_blocks_and_python():
     from pygments.token import Comment, Keyword, Name, Number, String
 
-    from navigator.lexers import NmlLexer
+    from navigator.lib.highlight.lexers import NmlLexer
 
     tokens = [pair for pair in tokens_of(NmlLexer(), (
         "from navml.widgets.dialog.label import Label\n"
@@ -488,7 +490,7 @@ def test_the_file_type_menu_has_automatic_four_groups_and_none():
 
 def test_the_file_type_menu_shows_each_language_s_icon_at_the_nerd_tier():
     from navml.widgets.menu.sub_menu import SubMenu
-    from navigator import icons
+    from navigator.lib.appearance import icons
     from navigator.widgets.editor.commands import SetFileType
     from navigator.widgets.editor.file_type_menu import fill_file_types
 

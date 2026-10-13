@@ -13,7 +13,7 @@ from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
-from navigator.scheme import default_scheme
+from navigator.lib.appearance.scheme import default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets import Panel
 from navigator.widgets.manager.panel import panel as panel_module
@@ -25,7 +25,7 @@ FREE = (1000, "/")
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setattr(panel_module, "free_space_of", lambda path: FREE)
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "x").write_text("x" * 10)

@@ -4,7 +4,7 @@ F4 is DOS Navigator's internal editor: `TEditWindow` holding `TXFileEditor` (`MI
 built in phases, and everything DN's editor had is the target. This section records what is written and what each
 decision cost. It has the viewer's three layers:
 
-- **`navigator/editor/`**, the model. It is a package rather than one module, and it imports no widget.
+- **`navigator/lib/editor/`**, the model. It is a package rather than one module, and it imports no widget.
 - **`FileEditor`**, a Python-only widget that paints the text and answers the keys.
 - **`EditWindow`**, markup plus handlers: the frame, the scroll bars, the info line, saving and closing.
 

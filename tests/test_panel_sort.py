@@ -74,7 +74,7 @@ def test_unsorted_keeps_the_directory_order_after_up():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     # By name a, b, c; by size b, c, a; by time (newest first) c, b, a.
     for name, size, age in (("a.txt", 1, 30), ("b.txt", 300, 20), ("c.txt", 20, 10)):
         path = tmp_path / name

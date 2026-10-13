@@ -1,6 +1,6 @@
 ---
 name: console-command-line
-description: The console and the command line -- navkit/console.py (pyte, ConsoleScreen, alternate screen, query answers), navkit/process.py (PtyProcess), navigator/subshell.py (persistent $SHELL, OSC 6973 marks, silent cd, held-back prompt, completion, history, atuin), the Console widget and Ctrl+O, the CommandLine (TCommandLine), Tab completion and CompletionList, running a program with every key, executing a file, Ctrl+Enter insert name, console selection. Use when touching anything that runs a command or shows its output.
+description: The console and the command line -- navkit/console.py (pyte, ConsoleScreen, alternate screen, query answers), navkit/process.py (PtyProcess), navigator/lib/system/subshell.py (persistent $SHELL, OSC 6973 marks, silent cd, held-back prompt, completion, history, atuin), the Console widget and Ctrl+O, the CommandLine (TCommandLine), Tab completion and CompletionList, running a program with every key, executing a file, Ctrl+Enter insert name, console selection. Use when touching anything that runs a command or shows its output.
 ---
 
 # The console and the command line
@@ -145,7 +145,7 @@ Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^
 
 ## System Information (Utilities)
 
-`SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/sysinfo.gather` on a
+`SystemInfo`, `Shell.system_info`, DN's `cmSystemInfo` -> `SystemInfo` (MEMINFO.PAS): `navigator/lib/system/sysinfo.py`'s `gather` on a
 thread, from files under a root (`/`; tests pass a fake tree), then `SystemInfoDialog` with DN's four `ofFramed` boxes -- navml's `GroupBox`, titled on
 the frame -- read for Linux -- *Main board* (DMI vendor+product, CPU model and max MHz, CPUs where DN had the co-processor), *Disk drives*
 (`/sys/block` less loop/ram/zram/dm/md/sr/fd: size, model, removable), *Memory* (total, available, swap), *Other*
@@ -199,7 +199,7 @@ binds Esc/Enter/Tab/Shift+Tab to navml's `Cancel`/`Default`/`SelectNext`/`Select
 binary, octal, exponent; *Error*; *Overflow*) follow the line through an effect. Enter evaluates: the line becomes
 the value, selected, and `CalcLine` lets a digit replace it and anything else carry on from it. *Copy* puts *Copy
 As*'s form through `app.copy_to_clipboard`. Esc/*Close* record the line in history `calc`. The sums are
-`navigator/calculator.py` (`PAR.PAS`'s numbers, operators and functions; **arithmetic precedence, a departure** --
+`navigator/lib/utilities/calculator.py` (`PAR.PAS`'s numbers, operators and functions; **arithmetic precedence, a departure** --
 DN's put `^` below `*`; integer forms 64-bit where DN's were 32). Button ids must not shadow methods (`evaluate`).
 
 ## Read when

@@ -3,7 +3,7 @@
 Shift+F5, *File > Create symlink…*, is a **departure**: DOS had no links, so DOS Navigator had no such command.
 It borrows everything it can from Copy.
 
-- **`navigator/filelink.py`** is the model: `LinkRequest`, `link_path` and `make_link`. The target line is read by
+- **`navigator/lib/file_ops/filelink.py`** is the model: `LinkRequest`, `link_path` and `make_link`. The target line is read by
   `filecopy.resolve_target`, so a directory, a name ending in `/`, a `MkName` mask and a single new name mean what
   they mean to F5. A link is one system call, so there is no thread, no job and no progress box.
 - **`LinkDialog`** (`navigator/widgets/file_ops/link_dialog/`) is the Copy dialog cut down. It has the same prompt shape

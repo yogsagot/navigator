@@ -1,6 +1,6 @@
 """File View History and File Edit History: a file opens again as it was left.
 
-``navigator/file_history.py``, the ``ViewRecord``/``EditRecord`` models, the
+``navigator/lib/config/file_history.py``, the ``ViewRecord``/``EditRecord`` models, the
 windows' ``remember_history``/``recall_history`` and the Alt+PgDn / Alt+PgUp
 dialog -- DOS Navigator's ``HISTRIES.PAS``.
 """
@@ -15,7 +15,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.file_history import scaled
+from navigator.lib.config.file_history import scaled
 from navigator.models.edit_record import EditRecord
 from navigator.models.view_record import ViewRecord
 from navigator.settings import SETTINGS
@@ -23,7 +23,7 @@ from navigator.settings import SETTINGS
 
 @pytest.fixture
 def files(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "dir").mkdir()
     (tmp_path / "text.txt").write_text("".join(f"line {n:03}\n" for n in range(200)))
     return tmp_path

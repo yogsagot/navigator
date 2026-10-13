@@ -9,7 +9,7 @@ from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.environ import valid_name
+from navigator.lib.system.environ import valid_name
 
 
 class EnvironmentDialog(Dialog):

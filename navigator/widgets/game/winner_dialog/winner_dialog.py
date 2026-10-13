@@ -7,7 +7,7 @@ from typing import Any
 from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.tetris import ANONYMOUS
+from navigator.lib.utilities.tetris import ANONYMOUS
 
 
 class WinnerDialog(Dialog):

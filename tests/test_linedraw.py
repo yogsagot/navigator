@@ -8,7 +8,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.editor.linedraw import DOWN, LEFT, RIGHT, drawn, without_arm
+from navigator.lib.editor.linedraw import DOWN, LEFT, RIGHT, drawn, without_arm
 from navigator.settings import SETTINGS
 
 # -- the model ---------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ def test_erasing_takes_an_arm_off_a_junction_and_leaves_a_line_alone():
 
 @pytest.fixture
 def blank(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     SETTINGS.interface.store_editor_position = False
     (tmp_path / "dir").mkdir()
     (tmp_path / "text.txt").write_bytes(b"\n")

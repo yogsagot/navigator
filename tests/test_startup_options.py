@@ -18,7 +18,7 @@ from navml.history import HISTORY
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.delenv("DNIDLE", raising=False)
     for name in ("one", "two", "start"):
         (tmp_path / name).mkdir()

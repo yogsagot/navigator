@@ -18,7 +18,7 @@ from navkit.screen import ScreenBuffer
 from navml.history import HISTORY
 from navml.widgets.dialog.check_boxes import CheckBoxes
 
-from navigator import fileattr
+from navigator.lib.file_ops import fileattr
 from navigator.widgets.manager.commands import ChangeAttributes
 from navigator.widgets.file_ops.attr_dialog import AttrDialog
 from navigator.widgets.file_ops.attr_dialog.attr_dialog import info_for, name_for

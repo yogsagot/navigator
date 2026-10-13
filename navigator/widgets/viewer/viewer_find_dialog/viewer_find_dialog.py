@@ -1,4 +1,4 @@
-"""What OK means in *Find*: a :class:`~navigator.viewer.ViewSearch`, or nothing."""
+"""What OK means in *Find*: a :class:`~navigator.lib.viewer.ViewSearch`, or nothing."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.viewer import ViewSearch
+from navigator.lib.viewer import ViewSearch
 
 
 class ViewerFindDialog(Dialog):

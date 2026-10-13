@@ -19,7 +19,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
-import navigator.viewer as viewer_model
+import navigator.lib.viewer as viewer_model
 from navigator.widgets.viewer.commands import (
     AddFilter,
     ChooseEncoding,
@@ -38,10 +38,10 @@ from navigator.widgets.viewer.commands import (
 from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 from navigator.widgets.editor.option_items import viewer_items
-from navigator.file_history import place_window, window_values
+from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
-from navigator.progress import run_with_progress
-from navigator.viewer import SearchJob, ViewSearch
+from navigator.lib.system.progress import run_with_progress
+from navigator.lib.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
@@ -371,7 +371,7 @@ class FileWindow(Window):
 
         Run on a thread, because a gigabyte is not searched between two frames;
         the loop keeps painting -- the clock keeps ticking -- while it looks.
-        A search still going after ``navigator.progress.PROGRESS_DELAY`` puts up *Search
+        A search still going after ``navigator.lib.system.progress.PROGRESS_DELAY`` puts up *Search
         Progress*, and *Stop* in it ends the search where it is.
         """
         viewer = self.viewer

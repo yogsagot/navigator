@@ -13,11 +13,11 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import uucode
+from navigator.lib.file_ops import uucode
 from navigator.__main__ import Navigator
-from navigator.job import Job, Stopped
+from navigator.lib.system.job import Job, Stopped
 from navigator.settings import SETTINGS
-from navigator.uucode import (
+from navigator.lib.file_ops.uucode import (
     CHECKSUMS, DecodeError, EncodeRequest, FileExists, decode, encode, encode_line, plan, sum_r,
     target_names,
 )
@@ -198,7 +198,7 @@ def test_nothing_encoded_says_so(tmp_path):
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a", "b"):
         (tmp_path / name).mkdir()
     (tmp_path / "a" / "blob.bin").write_bytes(DATA)

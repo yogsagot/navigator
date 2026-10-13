@@ -1,4 +1,4 @@
-"""What OK means in *Find File*: a :class:`~navigator.filefind.FindRequest`.
+"""What OK means in *Find File*: a :class:`~navigator.lib.file_ops.filefind.FindRequest`.
 
 The dialog opens as it was last left -- DN kept ``FindRec`` and
 ``AdvanceSearchData`` in its configuration; here they last the session.
@@ -11,8 +11,7 @@ from typing import Any
 from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator import filefind
-
+from navigator.lib.file_ops import filefind
 #: The last answers: the four boxes as bits, the scope, and *Advanced
 #: search*'s lines and kinds, as typed.
 _session: dict[str, Any] = {

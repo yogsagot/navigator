@@ -18,7 +18,7 @@ __all__ = ["SavedDesktop"]
 class SavedDesktop(Model):    # saved_desktop.nml:7
     """A desktop saved: what DOS Navigator wrote to ``DN.DSK`` (``SaveDesktop``),
 
-    the windows and their state, as JSON (``navigator.desktop_state``).  One
+    the windows and their state, as JSON (``navigator.lib.config.desktop_state``).  One
     row a name; Navigator writes ``default``, as DN wrote ``DN`` and
     ``$DNDSK``.
     """
@@ -45,5 +45,5 @@ class SavedDesktop(Model):    # saved_desktop.nml:7
     id: int | None
     name: str    # saved_desktop.nml:9
 
-    #: ``navigator.desktop_state.snapshot``'s dict, as JSON.
+    #: ``navigator.lib.config.desktop_state.snapshot``'s dict, as JSON.
     data: str    # saved_desktop.nml:11

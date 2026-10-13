@@ -15,8 +15,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
 from navkit.events import Event
-from navigator.editor import search
-from navigator.editor.search import SearchData
+from navigator.lib.editor import search
+from navigator.lib.editor.search import SearchData
 
 
 class FindDialog(Dialog, _Component):

@@ -17,7 +17,7 @@ from navigator.widgets.manager.panel import panel as panel_module
 
 @pytest.fixture
 def tree(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "slow").mkdir()
     (tmp_path / "slow" / "inside.txt").write_text("x")
     (tmp_path / "slow" / "deeper").mkdir()

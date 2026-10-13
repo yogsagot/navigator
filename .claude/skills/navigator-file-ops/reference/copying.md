@@ -2,7 +2,7 @@
 
 F5 and F6 are DOS Navigator's copy (`FILECOPY.PAS`). There are three layers, the viewer's and the editor's again:
 
-- **`navigator/filecopy.py`** is the model. It imports no widget, and `run(request, job, cwd)` is the worker.
+- **`navigator/lib/file_ops/filecopy.py`** is the model. It imports no widget, and `run(request, job, cwd)` is the worker.
 - **`CopyDialog`** (`navigator/widgets/file_ops/copy_dialog/`) is `dlgCopyDialog` and `dlgRenameDialog` in one document,
   titled by `move`, as `SelectDialog` is two resources in one.
 - **`Manager.copy_files`** asks, runs the worker through `asyncio.to_thread`, and puts up `CopyProgress` (DN's

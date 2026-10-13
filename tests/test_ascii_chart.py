@@ -82,7 +82,7 @@ def test_the_next_chart_opens_on_the_character_last_taken():
 
 @pytest.fixture
 def nav(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     (tmp_path / "text.txt").write_text("abc\n")
     return tmp_path

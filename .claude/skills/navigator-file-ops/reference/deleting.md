@@ -3,12 +3,12 @@
 F8 and Del, *File > Delete*, port DOS Navigator's erase (`ERASER.PAS`, reached through `CM_EraseFiles`). The
 three layers are Copy's.
 
-- **The worker plumbing is shared.** `navigator/job.py`'s `Job` is what `CopyJob` used to be below its progress
+- **The worker plumbing is shared.** `navigator/lib/system/job.py`'s `Job` is what `CopyJob` used to be below its progress
   fields: the Stop `Event`, the pause `Event` that *Abort operation?* clears, one question at a time as a
   `Future`, and the `asker=` hook tests answer through. `CopyJob` and `EraseJob` add only the fields their boxes
   read, and `filecopy` still exports `Stopped` and `POLL`. On the loop side, `Manager._watch_job` is the old
   `_watch_copy` with the box, its refresh and the question answerer passed in. `_watch_copy` is now a call to it.
-- **`navigator/fileerase.py`** is the model: `EraseRequest(sources, recursive)`, `EraseJob`, and `run` on a thread.
+- **`navigator/lib/file_ops/fileerase.py`** is the model: `EraseRequest(sources, recursive)`, `EraseJob`, and `run` on a thread.
   It counts the entries first for the gauge, then removes depth first and never follows a link. A link to a
   directory is unlinked.
 - **DN's rules are kept.**

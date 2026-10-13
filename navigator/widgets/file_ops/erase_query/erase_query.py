@@ -1,6 +1,6 @@
 """What the delete's *Confirm* box says, and what each of its buttons answers.
 
-The answer is :data:`~navigator.fileerase.NO`, ``YES`` or ``ALL``, or ``None``
+The answer is :data:`~navigator.lib.file_ops.fileerase.NO`, ``YES`` or ``ALL``, or ``None``
 for Cancel and Esc, which stops the whole delete as DN's ``Abort`` did.
 """
 
@@ -14,7 +14,7 @@ from navkit.i18n import tr
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.fileerase import ALL, NO, YES, NotEmpty, ReadOnly
+from navigator.lib.file_ops.fileerase import ALL, NO, YES, NotEmpty, ReadOnly
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
 
 #: Each button's width, and the columns between two.

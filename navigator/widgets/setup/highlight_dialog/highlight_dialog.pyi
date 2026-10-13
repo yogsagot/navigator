@@ -8,7 +8,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
 from typing import Any
-from navigator.filetypes import CUSTOM
+from navigator.lib.appearance.filetypes import CUSTOM
 from navigator.settings import SETTINGS, HighlightGroupsData
 
 

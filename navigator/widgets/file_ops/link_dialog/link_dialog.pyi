@@ -19,7 +19,7 @@ from navkit.events import Event
 from navkit.i18n import tr, tr_n
 from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
-from navigator.filelink import LinkRequest
+from navigator.lib.file_ops.filelink import LinkRequest
 from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line, target_for
 
 

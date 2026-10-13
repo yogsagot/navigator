@@ -14,7 +14,7 @@ from navigator.widgets.shell import grabber
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setattr(grabber, "_last", [10, 5, 21, 6])
     from navigator.widgets.shell.shell.shell import Shell
     monkeypatch.setattr(Shell, "_grabber_told", False)

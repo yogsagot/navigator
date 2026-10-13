@@ -1,4 +1,4 @@
-"""F3's view: DOS Navigator's ``TFileViewer``, painting what ``navigator.viewer`` reads.
+"""F3's view: DOS Navigator's ``TFileViewer``, painting what ``navigator.lib.viewer`` reads.
 
 **Written in Python alone**, because everything it shows is painted -- rows of
 a file, in one of three modes -- and it declares nothing a document would place.
@@ -32,9 +32,9 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 from navml.background import Background, Outcome
 
-from navigator import highlight
+from navigator.lib import highlight
 from navigator.settings import SETTINGS
-from navigator.viewer import (
+from navigator.lib.viewer import (
     DUMP_CHARS_AT,
     FILTER_TAGS,
     HEX_PAIRS_AT,
@@ -108,7 +108,7 @@ class FileViewer(Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
 
     #: A search hit, drawn in *Selected text* [118]; a syntax token
-    #: (:mod:`navigator.highlight`), by its classes.
+    #: (:mod:`navigator.lib.highlight`), by its classes.
     parts = ("selected", "token")
 
     #: The file, once :meth:`open` has read it.  Reactive so that the window's
@@ -141,7 +141,7 @@ class FileViewer(Widget):
     #: viewer had none.  Seeded from the setting, switched by View.
     syntax_highlight: bool = reactive(True)
     #: View > *File type*: the lexer chosen, ``none``, or empty for
-    #: ``highlight.ini``'s choice (:func:`navigator.highlight.lexer_for`).
+    #: ``highlight.ini``'s choice (:func:`navigator.lib.highlight.lexer_for`).
     file_type: str = reactive("")
     #: Spaces, tabs and each line's ending drawn faintly in text mode: a
     #: departure, as the editor's.  Seeded from ``[viewer] show_hidden``.

@@ -1,6 +1,6 @@
 ---
 name: navigator-bookmarks
-description: Bookmarks -- Alt+F1/Alt+F2 (cmChangeLeft/cmChangeRight) and Alt+C (cmChangeDrive) opening a box of bookmarked directories where DOS Navigator's SelectDrive listed drive letters; navigator/bookmarks.py (first set, seeding once, add/remove), the Bookmark and Marker models, navml's PopupMenu, Manager.choose_bookmark/bring_side/bookmark_menu, and System > Bookmarks left/right. Use when changing bookmarks or the box they are chosen from.
+description: Bookmarks -- Alt+F1/Alt+F2 (cmChangeLeft/cmChangeRight) and Alt+C (cmChangeDrive) opening a box of bookmarked directories where DOS Navigator's SelectDrive listed drive letters; navigator/lib/config/bookmarks.py (first set, seeding once, add/remove), the Bookmark and Marker models, navml's PopupMenu, Manager.choose_bookmark/bring_side/bookmark_menu, and System > Bookmarks left/right. Use when changing bookmarks or the box they are chosen from.
 ---
 
 # Bookmarks
@@ -12,7 +12,7 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
 
 ## Pieces
 
-- **`navigator/bookmarks.py`**: `default_bookmarks()` (pure: takes home, config home, `/mnt`, `/media`, user),
+- **`navigator/lib/config/bookmarks.py`**: `default_bookmarks()` (pure: takes home, config home, `/mnt`, `/media`, user),
   `seed_bookmarks()`, `bookmarks()`, `find_bookmark`/`add_bookmark`/`remove_bookmark`/`move_bookmark`/`label_bookmark`, `mounted_places()`. A path is stored absolute, case
   and all (`key_of`, as the file histories do). Added ones go last (`seq`).
 - **The first set**: `~`; the desktop folders that exist, named by `$XDG_CONFIG_HOME/user-dirs.dirs` when it names them
@@ -48,7 +48,7 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   continuing, stored nowhere -- an unplugged drive just goes. They are only places to go: Del, F2 and Ctrl+Up/Down
   pass them by (they act only on `selected < len(rows)`), and *Add this folder* from one bookmarks it.
   `choose_bookmark` maps an entry to its path through `places`, parallel to the entries. **App tests must pin
-  `navigator.bookmarks.mounted_places`** (the `places` fixture does), or the machine's own drives join the box.
+  `navigator.lib.config.bookmarks.mounted_places`** (the `places` fixture does), or the machine's own drives join the box.
 - **The panels mark bookmarked directories** in the gutter (`Panel.is_bookmarked`, glyphs in
   `colours-themes-glyphs`), asking `bookmarked_paths()` for every directory row it paints. That set is cached with the
   connection it was read from (so a test's fresh database never sees another's), cleared by add/remove/seed and

@@ -9,7 +9,7 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import desktop_state
+from navigator.lib.config import desktop_state
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
@@ -17,7 +17,7 @@ from navigator.widgets.manager.manager import Manager
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     SETTINGS.interface.store_editor_position = False
     for name in ("one", "two"):
         (tmp_path / name).mkdir()
@@ -88,7 +88,7 @@ def test_an_editor_comes_back_on_its_file(place):
     from navigator.widgets.editor.edit_window import EditWindow
 
     async def open_one(a):
-        from navigator.file_history import open_editor
+        from navigator.lib.config.file_history import open_editor
 
         await open_editor(a.shell.desktop, place / "one" / "a.txt")
 
@@ -154,7 +154,7 @@ def test_directories_on_the_command_line_win_over_the_first_managers(place):
 
 
 def test_a_volumes_window_comes_back_showing_what_it_showed(place, monkeypatch):
-    from navigator import volumes
+    from navigator.lib.system import volumes
     from navigator.widgets.shell.volumes_window import VolumesWindow
 
     monkeypatch.setattr(volumes, "gather", lambda: [])

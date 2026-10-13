@@ -1,6 +1,6 @@
 """Bookmarks: Alt+F1, Alt+F2 and Alt+C, where DOS Navigator chose a drive.
 
-``navigator/bookmarks.py`` (the first set, seeding once, adding and removing),
+``navigator/lib/config/bookmarks.py`` (the first set, seeding once, adding and removing),
 navml's ``PopupMenu`` and the Manager's ``choose_bookmark``.
 """
 
@@ -14,7 +14,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.bookmarks import (
+from navigator.lib.config.bookmarks import (
     add_bookmark,
     bookmarked_paths,
     bookmarks,
@@ -33,9 +33,9 @@ from navml.widgets.menu.popup_menu import PopupMenu
 
 @pytest.fixture
 def places(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     # The machine's own drives stay out of the box; a test that wants some sets this.
-    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: [])
+    monkeypatch.setattr("navigator.lib.config.bookmarks.mounted_places", lambda: [])
     for name in ("start", "first", "second", "gone"):
         (tmp_path / name).mkdir()
     return tmp_path
@@ -425,7 +425,7 @@ def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, mo
     for name in ("usb", "disk"):
         (places / name).mkdir()
     mounted = [places / "disk", places / "first", places / "usb"]
-    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: mounted)
+    monkeypatch.setattr("navigator.lib.config.bookmarks.mounted_places", lambda: mounted)
     add_bookmark(places / "first")
     app = navigator(places / "start")
     seen = {}
@@ -460,7 +460,7 @@ def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, mo
 
 def test_the_box_opens_on_the_mount_the_panel_is_at_and_add_bookmarks_it(places, monkeypatch):
     (places / "usb").mkdir()
-    monkeypatch.setattr("navigator.bookmarks.mounted_places", lambda: [places / "usb"])
+    monkeypatch.setattr("navigator.lib.config.bookmarks.mounted_places", lambda: [places / "usb"])
     add_bookmark(places / "first")
     app = navigator(places / "usb")
     seen = {}

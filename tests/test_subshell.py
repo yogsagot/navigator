@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 from navkit.console import ConsoleScreen
-from navigator.subshell import MARK, Subshell
+from navigator.lib.system.subshell import MARK, Subshell
 from navigator.widgets.shell.console.console import prompt_cells
 
 SHELLS = [

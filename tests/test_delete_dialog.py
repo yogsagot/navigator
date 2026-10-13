@@ -14,9 +14,9 @@ from navkit.application import Application
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
-from navigator import fileerase
+from navigator.lib.file_ops import fileerase
 from navigator.widgets.manager.commands import Delete, DeleteSingle
-from navigator.fileerase import EraseRequest, NotEmpty, ReadOnly
+from navigator.lib.file_ops.fileerase import EraseRequest, NotEmpty, ReadOnly
 from navigator.widgets.file_ops.delete_dialog import DeleteDialog
 from navigator.widgets.file_ops.delete_dialog import delete_dialog as delete_dialog_module
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import RECURSIVE, cut, prompt_for

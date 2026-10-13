@@ -13,7 +13,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.screen import ScreenBuffer
 
-from navigator import savers
+from navigator.lib.appearance import savers
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navigator.widgets.setup.savers_dialog import SaversDialog
@@ -23,7 +23,7 @@ from navigator.widgets.shell.screen_saver import KINDS, ScreenSaver
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "hello.txt").write_text("hello\n")
     return tmp_path
 

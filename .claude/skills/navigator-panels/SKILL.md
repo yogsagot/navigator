@@ -179,7 +179,7 @@ directory change and losing the keyboard. While it runs `edits_text` is True. Ma
 `FindFile`, `Manager.find_file`, DN's `FindFile`/`FindFiles` (also Disk > Find...): `FindFileDialog` (`dlgFileFind`,
 own OK / *Advanced...* / Cancel row, session-kept answers, opening on *Recursive* + *Current directory*) and
 `AdvancedSearchDialog` (`dlgAdvanceSearch`: ISO dates, sizes, POSIX kinds, *Clear all*) give a `FindRequest`;
-`navigator/filefind.search` walks on a thread (mask via `in_filter`, text by chunked regex, never through a symlink,
+`navigator/lib/file_ops/filefind.py`'s `search` walks on a thread (mask via `in_filter`, text by chunked regex, never through a symlink,
 one file system for *Entire disk* / *All drives*) under `FindProgress` through `_watch_job(..., abort="Cancel
 search?")`. **Results are a `FindListing` in `Panel.found`** (DN's `TFindDrive`): the panel lists its entries -- live
 while searching, re-`stat`ed by `restat_found` on a re-read, gone ones dropped -- under a `..` that leads back
@@ -209,7 +209,7 @@ its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole 
 `SelectDialog` first; then `MakeListDialog` (`dlgMakeList`: file name, history `make_list`, opened on its last entry
 or `makelist.DEFAULT_NAME` `dnlist.txt` -- DN's `DNLIST.BAT` -- and *Action*, history `command`, opened on the last
 command run; *Store path names* / *Autodetermine*, kept for the session in `Manager.make_list_options`, where DN kept
-them in its configuration). `navigator/makelist.py`: one line per file, or per file per `;` template (`;;` a `;`) with
+them in its configuration). `navigator/lib/file_ops/makelist.py`: one line per file, or per file per `;` template (`;;` a `;`) with
 `! .! !\ !/ !: !!`, values shell-quoted, a template without macros followed by the quoted file; *Autodetermine* adds
 paths for files outside the list's directory and puts `!\` before a bare name macro. An existing file asks Yes /
 A~p~pend / Cancel. Written files are untagged and `FileSaved` re-reads the panels showing the list's directory.
@@ -238,7 +238,7 @@ title, `/src [*;-*.bak]` (`title_text`; the path is cut first) -- a departure: D
 
 `CountLength`, `Manager.count_length`, DN's `cmCountLen` (also Panel > Count directory length): the directory at the
 cursor (`..` counts the one listed) and every tagged directory get the bytes beneath them, counted on a thread by
-`navigator/dirlength.py` (`CountDirLen`: dot-files count, symlinks count as themselves and are never followed, unreadable
+`navigator/lib/file_ops/dirlength.py` (`CountDirLen`: dot-files count, symlinks count as themselves and are never followed, unreadable
 directories count as nothing) under `run_with_progress`'s *Counting directory length* box; Esc keeps what was counted.
 The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows the size where `DIR` was, the tagged
 total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
@@ -250,7 +250,7 @@ directory at each read, `fmiDirLen`) is not written yet.
 (`manager/info_panel`, Python-only, framed like the quick view, `::highlight` for DN's `~` runs) takes the passive
 panel's place as the tree and quick view do. `Manager._info_follows_panel` (an effect on the active panel's path,
 items and `reload_token`; not while it shows a *Find:* listing) calls `InfoPanel.show`, which reads the disk and the
-machine on a thread (`navigator/diskinfo.gather`: `disk_usage`, the longest mount in `/proc/self/mounts`, a
+machine on a thread (`navigator/lib/system/diskinfo.py`'s `gather`: `disk_usage`, the longest mount in `/proc/self/mounts`, a
 `/dev/disk/by-label` label, `/proc/meminfo`, the resident set, `DirInfo` else `File_ID.DIZ` in any case) and keeps
 the last answer up meanwhile. `diskinfo.lines` lays them out as `TDiskInfo.Draw`, each behind a `[drive_info]` box;
 totals come from the listing (entries counted as `CountDirLen` counted them, bytes the files'). DN's EMS/XMS lines
@@ -261,7 +261,7 @@ are left out; its memory three are read for POSIX.
 `CompareDir`, `Manager.compare_directories`, DN's `cmCompareDir` -> `CM_CompareDirs`, from Panel > Compare directories
 only -- DN's Ctrl+C is left unbound, kept for a clipboard copy still to be designed:
 `CompareDialog` (`dlgCompareDirs`: size, time, attributes, contents; Select/Unselect; opens on size+time+Select every
-time, as `DT` was reset) then `navigator/dircompare.py` on each panel against the other. A file matches one of the
+time, as `DT` was reset) then `navigator/lib/file_ops/dircompare.py` on each panel against the other. A file matches one of the
 same name (exact case) passing every check: same size, **this one no newer** (to the second), same permission bits,
 same bytes. *Select* tags exactly what has no match (directories never), *Unselect* only untags it -- so Select tags
 what a copy across would bring up to date. Only *contents* reads the disk, on a thread under *Comparing files*; Esc

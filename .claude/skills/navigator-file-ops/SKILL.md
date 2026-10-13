@@ -1,17 +1,17 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
 
 All live under `navigator/widgets/file_ops/` (dialogs, progress boxes, queries; commands in its `commands.py`), with
-models in `navigator/`. Operations run on a thread through **`navigator/job.py`'s `Job`**, the worker contract
+models in `navigator/`. Operations run on a thread through **`navigator/lib/system/job.py`'s `Job`**, the worker contract
 `CopyJob`, `EraseJob` and `AttrJob` share; **`Manager._watch_job`** is the loop that watches one. Progress boxes are
 DN's `TWhileView` with the library's `ProgressBar`. Copied/erased entries are untagged and both panels re-read.
 
 **Nothing that can wait on a disk runs on the loop.** A job that asks questions goes through `_watch_job`; one that
-only reads or writes goes through **`navigator/progress.py`'s `run_with_progress(app, func, job, make_box, refresh)`**
+only reads or writes goes through **`navigator/lib/system/progress.py`'s `run_with_progress(app, func, job, make_box, refresh)`**
 (the viewer's search, the editor's reads and saves, F3's open, Alt+E's survey): the box after a delay
 (`PROGRESS_DELAY`, or `SLOW_PROGRESS_DELAY` for file reads and writes, which use `WriteWin`), and the job stopped if the
 task ends unfinished. Small reads a widget paints from (tree probes and counts, the quick view, the file dialog) use
@@ -21,7 +21,7 @@ a path the user has just named, where a thread hop would only reorder the dialog
 
 ## Copy and move (F5, F6)
 
-DN's `FILECOPY.PAS`. `navigator/filecopy.py` is the model (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy
+DN's `FILECOPY.PAS`. `navigator/lib/file_ops/filecopy.py` is the model (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy
 modes, `MkName` masks, rename-first moves with an `EXDEV` fallback, `resolve_target`). `CopyDialog` is
 `dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory, F10/*Tree* picking it from
 a tree, mode and options remembered for the session. `Manager.copy_files` puts up `CopyProgress` (*Stop* asks *Abort
@@ -32,13 +32,13 @@ stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows.
 ## Symlinks (Shift+F5)
 
 *File > Create symlink…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is
-dropped. `navigator/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
+dropped. `navigator/lib/file_ops/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
 dialog cut down, with one session-remembered *Relative link* box. `Manager.make_links` works with no worker thread and
 shares Copy's *Skip* box.
 
 ## Erase (F8, Del)
 
-DN's `ERASER.PAS`. `navigator/fileerase.py` (`EraseRequest`, `EraseJob`, `run` on a thread, depth first, **never through
+DN's `ERASER.PAS`. `navigator/lib/file_ops/fileerase.py` (`EraseRequest`, `EraseJob`, `run` on a thread, depth first, **never through
 a link**). `DeleteDialog` asks `Do you wish to delete` with a **Recursive delete** box (a departure, off by default,
 remembered for the session). `EraseQuery` puts DN's *not empty* (No/Yes/All/Cancel) and *read-only* -- meaning not
 writable -- (Yes/No/All) questions. `DeleteProgress` has a gauge and *Cancel*, which asks *Abort operation?*. Del and
@@ -49,7 +49,7 @@ cursor's entry whatever is tagged.
 
 DN's `cmSetFAttr` read for Linux (a departure: DN edited four DOS bits). What the dialog shows is gathered first on a
 thread (`attr_dialog.gather`: every `stat`, and the user/group lists NSS may fetch from a directory server), under
-*Reading file attributes* if slow, and passed in as `facts`. `navigator/fileattr.py` (`survey`,
+*Reading file attributes* if slow, and passed in as `facts`. `navigator/lib/file_ops/fileattr.py` (`survey`,
 `AttrRequest`, `AttrJob`/`run` on a thread, never through a link under recursion). `AttrDialog` is one dialog over every
 tagged file, as `dlgFilesAttr` was: a twelve-bit grid with an octal line (a base-8 `MaskedField`, each digit setting its
 three boxes), *User*/*Group* `ChoiceField`s, DN's *Date*/*Time* (`DateField`/`TimeField`), and *Recurse*. DN's Set/Clear
@@ -65,13 +65,13 @@ The first dialog wired into the application; `Field(history_id="mkdir")`.
 `Manager.print_files`, DN's `CM_Print` -> `PrintFiles` (`FLTOOLS.PAS`, `GAUGES.PAS`): the selection
 (`Manager.selection`, DN's `GetSelection`) less its directories -- nothing at all if that leaves nothing -- after
 DN's *Print file NAME?* / *Print N files?* (N counting the directories, as DN's did). Each file goes to the spooler by
-name (`navigator/printing.spool_file`: `lp`, else `lpr`, given the absolute path), standing for DN's print manager,
+name (`navigator/lib/system/printing.py`'s `spool_file`: `lp`, else `lpr`, given the absolute path), standing for DN's print manager,
 and is untagged once queued (`cmCopyUnselect`); a refusal stops the run, says why, and leaves the rest tagged.
 `PrintFile` is the editor's F8 command too, so it lives in `navigator/commands.py`. File > Print sends it.
 
 ## UU Encode / UU Decode (Ctrl+F7, Ctrl+F8)
 
-`navigator/uucode.py`, DN's `UUCODE.PAS`/`UUE2INC.ASM`, on the file at the cursor (`UuEncode`/`UuDecode`, enabled on
+`navigator/lib/file_ops/uucode.py`, DN's `UUCODE.PAS`/`UUE2INC.ASM`, on the file at the cursor (`UuEncode`/`UuDecode`, enabled on
 a file only); `Manager.uu_encode`/`uu_decode` -> `_run_uucode` (a `FileJob` under `WriteWin`, `_watch_job`, questions
 by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* boxes).
 - **Encode** is transcribed: `plan()` is `CalcLSsize`; one file a section (`NAME.uue`, else `.uu1`.. `.u10`.. `.100`);

@@ -58,7 +58,7 @@ HEAD = """\
 # -- Navigator's own ---------------------------------------------------------
 
 # navml's markup and navkit's style sheets: Navigator's own lexers
-# (navigator/lexers.py), which Pygments does not have.
+# (navigator/lib/highlight/lexers.py), which Pygments does not have.
 [*.nml]
 lexer = nml
 

@@ -8,7 +8,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
 
 from typing import Any
-from navigator import tetris
+from navigator.lib.utilities import tetris
 
 
 class TopTenDialog(Dialog, _Component):

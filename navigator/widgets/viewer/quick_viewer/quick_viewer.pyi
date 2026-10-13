@@ -16,7 +16,7 @@ from navkit.glyphs import BOX_CHARSETS
 from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent
-from navigator.viewer import ViewSource
+from navigator.lib.viewer import ViewSource
 
 
 class QuickViewer(_Component):

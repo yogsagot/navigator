@@ -27,10 +27,10 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
-from navigator.editor.document import Document, encode, encode_lines, read_text
-from navigator.editor.lock import refuse_if_locked
-from navigator.editor.save import write_file
-from navigator.file_history import place_window, window_values
+from navigator.lib.editor.document import Document, encode, encode_lines, read_text
+from navigator.lib.editor.lock import refuse_if_locked
+from navigator.lib.editor.save import write_file
+from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
@@ -83,7 +83,7 @@ class EditWindow(Window):
         smartpad: bool = False, **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
-        #: SmartPad's window (``navigator.smartpad``): its own title, no edit
+        #: SmartPad's window (``navigator.lib.utilities.smartpad``): its own title, no edit
         #: history, and saved without a question on the way out.
         self.smartpad = smartpad
         #: One save at a time: a second F2, or *Yes* to *Save?* while one is
@@ -434,8 +434,8 @@ class EditWindow(Window):
         *Entire scope* starts from the text's start, or its end searching
         backward, and the cursor goes back where it was if nothing is found.
         """
-        from navigator.editor import search
-        from navigator.editor.document import Pos
+        from navigator.lib.editor import search
+        from navigator.lib.editor.document import Pos
         from navigator.widgets.editor.find_dialog import FindDialog
 
         editor = self.editor
@@ -458,7 +458,7 @@ class EditWindow(Window):
         goes on only for *Change all*.  Nothing found says so; replacements made
         unasked are counted.  True when something was found.
         """
-        from navigator.editor import search
+        from navigator.lib.editor import search
         from navigator.widgets.editor.replace_query import ReplaceQuery
 
         data, editor = search.SEARCH, self.editor
@@ -588,12 +588,12 @@ class EditWindow(Window):
     async def print_lines(self, lines: list[str]) -> None:
         """``Print``: *Print N lines?* (``dlED_PrintQuery``), then *lines* to the printer.
 
-        The spooler stands for DN's print manager (:mod:`navigator.printing`);
+        The spooler stands for DN's print manager (:mod:`navigator.lib.system.printing`);
         a line ends in LF rather than DN's CR LF, which is what it expects.
         A spooler that refuses -- no printer, no default destination -- says
         why.
         """
-        from navigator.printing import spool
+        from navigator.lib.system.printing import spool
 
         if not lines:
             return

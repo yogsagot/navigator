@@ -10,10 +10,10 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import tetris
+from navigator.lib.utilities import tetris
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.tetris import SHI, VIS, Game
+from navigator.lib.utilities.tetris import SHI, VIS, Game
 from navigator.widgets.game.game_setup_dialog import GameSetupDialog
 from navigator.widgets.game.game_window import GameWindow
 from navigator.widgets.game.top_ten_dialog import TopTenDialog
@@ -120,7 +120,7 @@ def test_the_top_ten_keeps_ten_best_first_and_a_tie_after():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     return tmp_path
 
 

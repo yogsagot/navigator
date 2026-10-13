@@ -1,24 +1,24 @@
 ---
 name: navigator-editor
-description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Document, columns, EditBuffer with undo, save), FileEditor and EditWindow, byte-for-byte round-tripping, editor commands named after DN's cm*, closing with must_ask, the Editor menu, and syntax highlighting (navigator/highlight.py, Pygments, highlight.ini, the ::token part) for the editor and the viewer. Use when changing the editor or highlighting.
+description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/ (Document, columns, EditBuffer with undo, save), FileEditor and EditWindow, byte-for-byte round-tripping, editor commands named after DN's cm*, closing with must_ask, the Editor menu, and syntax highlighting (navigator/lib/highlight/__init__.py, Pygments, highlight.ini, the ::token part) for the editor and the viewer. Use when changing the editor or highlighting.
 ---
 
 # The editor
 
 - **F4 is DN's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had.
-  `navigator/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`); `FileEditor` is `TFileEditor`
+  `navigator/lib/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`); `FileEditor` is `TFileEditor`
   and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame.
 - **A file round-trips byte for byte** -- tabs, each line's own terminator, non-UTF-8 bytes (`surrogateescape`) -- a
   departure from DN's rewriting. Saving renames a new file over the old one.
 - **Reading and writing run on a thread, behind DN's `WriteMsg`** (`ReadBlock`, `SaveFile`). `read_document`
-  (`navigator/editor/document.py`) reads 4 MiB chunks through `LineReader`, which splits exactly as `from_bytes` does
+  (`navigator/lib/editor/document.py`) reads 4 MiB chunks through `LineReader`, which splits exactly as `from_bytes` does
   however the bytes are cut (a CR ending a chunk waits for the next -- DN's `ReadBlock` stepped back for it), in a few
   C calls per chunk so the loop keeps painting. `navigator/widgets/editor/loading.py` runs it through
-  `navigator.progress.run_with_progress`: `open_editor` is **async** and returns None when cancelled; F3 (`load_text`),
+  `navigator.lib.system.progress.run_with_progress`: `open_editor` is **async** and returns None when cancelled; F3 (`load_text`),
   ^K R and SmartPad go the same way. Saving snapshots the lists (`FileEditor.snapshot`), writes them as chunks on a
   thread (`encode_lines`, `write_file(path, chunks, job)`) under one `EditWindow._saving` lock, and marks the
   snapshot's save point (`EditBuffer.save_point`/`mark_saved(point)`) -- what is typed meanwhile leaves the text
-  changed. **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/memory.py`): against 75% of
+  changed. **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/lib/system/memory.py`): against 75% of
   `MemAvailable` before reading, then after every chunk projected from the lines so far (DN's
   `4*(LCount+50)+FFSize`). Departures: the box (`WriteWin`, `file_ops/write_win`) waits `SLOW_PROGRESS_DELAY` (1 s)
   before it appears, has a spinner, a gauge with a percentage and *Cancel* (DN's was a still message read past by Esc);
@@ -93,7 +93,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   stays Unindent. A stream block gets `dlED_VertNeed`.
 - **Print block, ^K P / Shift+F8** (`PrintBlock`, DN's `Print(On)` in `EDITOR.PAS`, also Editor > File > *Print
   block*): *Print N lines?* (`dlED_PrintQuery`), then the block's lines (`FileEditor.block_lines`, DN's
-  `GetSelection`) to `navigator/printing.py`, which hands them to `lp` (else `lpr`) in an executor -- the system
+  `GetSelection`) to `navigator/lib/system/printing.py`, which hands them to `lp` (else `lpr`) in an executor -- the system
   spooler standing for DN's `.PRN` file and print manager. LF line ends, no closing form feed. A refusal (no
   printer, no default destination) is shown as the spooler's own words.
 - **Print file, F8** (`PrintFile`, DN's `Print(Off)`, also Editor > File > *Print*): the whole text the editor holds,
@@ -127,7 +127,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   under 4 cells. Styled `EditWindow OptionStrip::item:checked { reverse }`, `:disabled { dim }`.
 - **Hidden characters** (`SwitchHiddenChars`, a departure: Editor > Options > *Show hidden characters*, View >
   *Hidden characters*, the strip's ¶; `show_hidden`, seeded from `[editor]`/`[viewer] show_hidden`, not kept in the
-  history): `navigator.viewer.HIDDEN_MARKS` -- `·` blank, `→` a tab's first column, and each line's own ending a cell
+  history): `navigator.lib.viewer.HIDDEN_MARKS` -- `·` blank, `→` a tab's first column, and each line's own ending a cell
   past its text, `↓` LF, `⏎` CRLF, `←` CR (ascii `. > $ $ <`), none on a last line without one. Painted in `render`
   over the cell's own colours (`derive(dim=True)`), so blocks and the current line show through; columns, cursor and
   bytes do not change. **Ctrl+Shift+8** on both windows' `keys` (Word's key for its ¶; kitty protocol only), so it is
@@ -153,7 +153,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   editor window, this one first and the rest front to back, saved as F2 saves, each failure said and the rest going
   on. A departure: only changed texts are written, where DN's `SaveFile` rewrote every one. The application's Ctrl+F2
   (Hide right) is disabled with no console showing a file manager, so the key reaches the editor window.
-- **SmartPad, Alt+Q** (`OpenSmartpad`, DN's `cmOpenSmartpad`, ≡ > *SmartPad (TM)*; `navigator/smartpad.py`): one
+- **SmartPad, Alt+Q** (`OpenSmartpad`, DN's `cmOpenSmartpad`, ≡ > *SmartPad (TM)*; `navigator/lib/utilities/smartpad.py`): one
   editor window on `settings.smartpad_path()` -- `SmartPad.DN` in `$SMARTPAD`, else beside the database (DN's fell
   back to its own directory). Each opening stamps the end, `InsertInfo`'s `──────< date time >──…` (`FileEditor.stamp`)
   with the cursor on an empty line under it; a stamp alone is not a change (a text already changed stays so). A second
@@ -163,7 +163,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   away first.
 - **Find and Replace** (`StartSearch` F7 / ^Q F, `Replace` Ctrl+F7 / ^Q A, `ContSearch` Shift+F7, `ReverseSearch`
   Alt+F7 / ^Q R; DN's `StartSearch` in `EDITOR.PAS` and `TFileEditor.Search` in `MICROED.PAS`). The model is
-  `navigator/editor/search.py` (`SearchData`, the record `SEARCH` kept between searches as DN's typed constant was --
+  `navigator/lib/editor/search.py` (`SearchData`, the record `SEARCH` kept between searches as DN's typed constant was --
   look it up as `search.SEARCH` at call time; `find`/`find_in_line`; `BREAK_CHARS` now lives there). Line by line:
   forward from a place, backward a match ending at or before it; *Case sensitive* off ignores case, *Whole words only*
   wants `BREAK_CHARS` or a line's edge round it, *Selected text* searches only the block's part of each line
@@ -178,7 +178,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   replacements made unasked end with *N replaces made*. Shift+F7 repeats the last search, replacement included, from
   the cursor. Departure: the query box is centred, where DN put it clear of the line found.
 - **Paragraph formatting, Alt+J/R/L/C** (`FJustify`/`FRight`/`FLeft`/`FCenter`, DN's `cmF*` and `FormatBlock`; also
-  ^B^J/R/L/C and Editor > Paragraph): `navigator/editor/paragraph.py`. The stream block's whole lines (one ending at a
+  ^B^J/R/L/C and Editor > Paragraph): `navigator/lib/editor/paragraph.py`. The stream block's whole lines (one ending at a
   line's start leaves that line out) are one paragraph -- blank lines are no break, runs of blanks one -- laid out
   between `FileEditor.margins` (`LeftSide`, `RightSide`, `InSide`): a line takes a word while `length + word + blank`
   stays under its room; right ends against the right margin, center sits midway, justify widens every line but the
@@ -212,7 +212,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   of the nearest line above with text and a narrower indent, the blanks before the cursor becoming that many spaces;
   no such line, a plain Backspace. Departure from DN, which expanded tabs: a leading tab is indentation by its width.
 - **Line drawing, F4 / ^Q^M** (`SwitchDrawMode`, DN's `cmSwitchDrawMode` and `DrawLine`; also Editor > Misc > *Line
-  Drawing*; `navigator/editor/linedraw.py`): F4 cycles `FileEditor.draw_mode` off, single, double; the info line shows
+  Drawing*; `navigator/lib/editor/linedraw.py`): F4 cycles `FileEditor.draw_mode` off, single, double; the info line shows
   `{┼}`/`{╬}` where the block's kind was, and the pen is lifted. While on, the arrows (and ^E ^D ^X ^S) are
   `DrawLine`'s before any key table -- `FileEditor._run_key` looks at the raw key, since a command does not carry the
   modifier that decides: Shift draws, Ctrl erases, neither only moves a cell. Drawing picks the cell's character from
@@ -245,7 +245,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
 - **Syntax highlight** (`FileEditor.syntax_highlight`, DN's `HiLite`; `editor.syntax_highlight` in `navigator.ini`,
   on by default, no checkbox since `dlgEditorDefaults` had none; switched by Editor > Options > *Syntax highlight*,
   `SwitchHighLight`/`cmSwitchHighLight`, ticked; kept in `EditRecord.highlight`). **Pygments lexes**, in token mode
-  (`navigator/highlight.py`), where DN had `DoHighlite` and `DN.HGL` -- a departure: multi-line comments and strings
+  (`navigator/lib/highlight/__init__.py`), where DN had `DoHighlite` and `DN.HGL` -- a departure: multi-line comments and strings
   come out whole. **`highlight.ini`** beside `navigator.ini` is `DN.HGL` (seeded through `associations.TEMPLATES`,
   Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer = <Pygments alias>`, `none`,
   or `auto` (Pygments' guess by name and first line, even under `[*] lexer = none`), first match wins. **Its template
@@ -253,7 +253,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   (`--check`; rerun after upgrading Pygments): Navigator's own head (`*.nml` -> `nml`, `*.nss` -> `nss`, `*.log` none), then a pattern
   two lexers can claim (case folded: `*.c`/`*.C`) in an `auto` section naming the candidates, then one section per
   lexer, and a hand-kept `[#!]` of ~35 interpreters. `test_the_template_lexes_every_pattern_as_pygments_would` holds
-  it to Pygments' own choice for each pattern. `default_rules()` parses it lazily (~70 ms). **`navigator/lexers.py` is Navigator's own two lexers**:
+  it to Pygments' own choice for each pattern. `default_rules()` parses it lazily (~70 ms). **`navigator/lib/highlight/lexers.py` is Navigator's own two lexers**:
   `NssLexer` (a `RegexLexer`; colour names and `Style` fields read from `navkit.stylesheet`, so they cannot drift) and
   `NmlLexer` (line by line, since indentation decides what a line is: heads, directives, `id`, `on_*` handlers,
   properties whose values go to Pygments' `PythonLexer` and run on while a bracket is open, `keys:` lines, and
@@ -337,7 +337,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/editor/ (Do
   hand; this one is shaped as F7's.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.file_history.open_editor`**, awaited from a spawned task. DN's
+  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task. DN's
   block, auto-indent and margins get columns when the editor has them: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus

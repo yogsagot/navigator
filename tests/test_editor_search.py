@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from navigator.editor.document import Pos
-from navigator.editor.search import SearchData, find, find_in_line
+from navigator.lib.editor.document import Pos
+from navigator.lib.editor.search import SearchData, find, find_in_line
 
 LINES = ["the cat", "scatter cat", "Cat dog"]
 

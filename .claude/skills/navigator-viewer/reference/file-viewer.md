@@ -2,7 +2,7 @@
 
 F3 is DOS Navigator 1.51's internal viewer, `FVIEWER.PAS`, in three places:
 
-- `navigator/viewer.py` is the model: `Seek`, `MakeLines`, `CountUp`, `CountDown` and `SearchFileStr`, with no
+- `navigator/lib/viewer/__init__.py` is the model: `Seek`, `MakeLines`, `CountUp`, `CountDown` and `SearchFileStr`, with no
   widget in it.
 - `navigator/widgets/viewer/file_viewer/` is `TFileViewer`, Python-only because everything it shows is painted.
 - `navigator/widgets/viewer/file_window/` is `TFileWindow`. It is markup: the viewer inside the frame, `TViewScroll` as

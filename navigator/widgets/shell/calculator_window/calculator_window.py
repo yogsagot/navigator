@@ -1,5 +1,5 @@
 """The calculator's behaviour: the indicator, *Evaluate*, *Copy*, and a
-dialog's keys in a window (:mod:`navigator.calculator` does the sums)."""
+dialog's keys in a window (:mod:`navigator.lib.utilities.calculator` does the sums)."""
 
 from __future__ import annotations
 
@@ -13,8 +13,7 @@ from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPre
 from navml.widgets.dialog.control.control import Control
 from navml.widgets.window import Window
 
-from navigator import calculator
-
+from navigator.lib.utilities import calculator
 #: The window's size and place, as ``dlgCalculator`` and ``R.Move(10, 5)``.
 WIDTH, HEIGHT = 49, 15
 X, Y = 10, 5

@@ -14,7 +14,7 @@ from navigator.__main__ import Navigator
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "deep" / "er").mkdir(parents=True)
     (tmp_path / "deep" / "er" / "x.txt").write_text("x")
     (tmp_path / "a.txt").write_text("a")

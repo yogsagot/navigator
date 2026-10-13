@@ -70,9 +70,9 @@ class MainMenu(MenuBar, _Component):
     they mean here: *ASCII Table* is *Character table*, and *Edit DOS
     Environment* is *Edit environment*.  *Change drive left/right* are
     *Bookmarks left/right*: the box they open lists bookmarked directories
-    where DN's listed drive letters (``navigator/bookmarks.py``).  Disk's
+    where DN's listed drive letters (``navigator/lib/config/bookmarks.py``).  Disk's
     *Volumes* is not DN's: it stands where *Volume label* stood, under its
-    letter, and lists every mounted volume (``navigator/volumes.py``).
+    letter, and lists every mounted volume (``navigator/lib/system/volumes.py``).
     """
 
     #: The document this class was generated from.

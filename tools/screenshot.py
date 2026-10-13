@@ -135,7 +135,7 @@ def populate(directory: Path) -> None:
 def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalInfo]:
     """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty."""
     from navigator.__main__ import Navigator
-    from navigator.scheme import load_scheme
+    from navigator.lib.appearance.scheme import load_scheme
     from navigator.settings import SETTINGS
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.shell.clock import clock as clock_module

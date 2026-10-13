@@ -12,7 +12,7 @@ from navml.widgets.dialog.field import Field
 
 from typing import Any
 from navkit.events import Event
-from navigator.editor.paragraph import fix_margins
+from navigator.lib.editor.paragraph import fix_margins
 
 
 class MarginsDialog(Dialog, _Component):

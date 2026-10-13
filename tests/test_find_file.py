@@ -11,7 +11,7 @@ from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.filefind import (
+from navigator.lib.file_ops.filefind import (
     Advanced, FindJob, FindRequest, holds, mount_point, parse_size, parse_time, roots, search,
     text_pattern,
 )
@@ -55,7 +55,7 @@ def test_text_is_looked_for_in_files_only_with_case_and_whole_words(tree):
 
 
 def test_a_match_spanning_two_chunks_is_found(tmp_path, monkeypatch):
-    import navigator.filefind as filefind
+    import navigator.lib.file_ops.filefind as filefind
 
     monkeypatch.setattr(filefind, "CHUNK", 8)
     path = tmp_path / "f"
@@ -95,7 +95,7 @@ def test_a_stopped_search_ends(tree):
 
 @pytest.fixture
 def place(tree, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tree / "b" / "loop").unlink()
     return tree
 
@@ -236,7 +236,7 @@ def test_alt_f6_renames_a_found_file_in_its_own_directory(place):
 
 
 def test_read_list_takes_names_paths_and_masks_once_each(place):
-    from navigator.filefind import read_list
+    from navigator.lib.file_ops.filefind import read_list
     from navigator.widgets.manager.panel.panel import entry_at
 
     (place / "my list.lst").write_text(

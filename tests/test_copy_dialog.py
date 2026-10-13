@@ -16,8 +16,8 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.control import caption_runs, escape_caption, parse_shortcut
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
-from navigator import filecopy
-from navigator.filecopy import ASK, CHECK_FREE, MOVE, OVERWRITE, PRESERVE, CopyRequest
+from navigator.lib.file_ops import filecopy
+from navigator.lib.file_ops.filecopy import ASK, CHECK_FREE, MOVE, OVERWRITE, PRESERVE, CopyRequest
 from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.copy_dialog import CopyDialog
 from navigator.widgets.file_ops.copy_dialog import copy_dialog as copy_dialog_module
@@ -390,7 +390,7 @@ def test_the_gauge_is_drawn_in_label_normal():
     """
     from navml.widgets.dialog.label import Label
 
-    from navigator.scheme import load_scheme
+    from navigator.lib.appearance.scheme import load_scheme
     from navigator.widgets.file_ops.copy_progress import CopyProgress
 
     box = CopyProgress(total=100, done=50)

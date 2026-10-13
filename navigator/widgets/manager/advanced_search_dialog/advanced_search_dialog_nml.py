@@ -34,7 +34,7 @@ class AdvancedSearchDialog(Dialog, _Component):
     Its four lines and its kinds, and OK, *Clear all* and Cancel -- along the
     bottom, where this library puts a dialog's buttons, rather than down the
     right.  Dates are ``YYYY-MM-DD`` with an optional ``HH:MM``; the kinds are
-    POSIX's, where DN's were the four DOS attributes (:mod:`navigator.filefind`).
+    POSIX's, where DN's were the four DOS attributes (:mod:`navigator.lib.file_ops.filefind`).
     """
 
     #: The document this class was generated from.

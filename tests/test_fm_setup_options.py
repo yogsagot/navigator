@@ -17,7 +17,7 @@ from navigator.widgets.file_ops.copy_dialog import CopyDialog
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     for name in ("a", "b"):
         (tmp_path / name).mkdir()
     for index in range(5):

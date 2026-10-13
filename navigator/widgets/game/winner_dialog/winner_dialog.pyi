@@ -9,7 +9,7 @@ from navml.widgets.dialog.field import Field
 
 from typing import Any
 from navkit.i18n import tr
-from navigator.tetris import ANONYMOUS
+from navigator.lib.utilities.tetris import ANONYMOUS
 
 
 class WinnerDialog(Dialog, _Component):

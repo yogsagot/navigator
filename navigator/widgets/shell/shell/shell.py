@@ -28,7 +28,7 @@ from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
-from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     Game,
@@ -81,9 +81,9 @@ from navigator.widgets.shell.commands import (
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.layout.dock_layout import DockLayout
 
-from navigator import filetypes
-from navigator.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
-from navigator.scheme import DEFAULT_THEME, default_scheme
+from navigator.lib.appearance import filetypes
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
+from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
 
@@ -182,9 +182,8 @@ class Shell(DockLayout):
         self.manager = self.desktop.open(Manager(left, right))
 
     async def on_save_desktop(self, event: SaveDesktop) -> bool:
-        """Options > Save desktop: ``SaveRealDsk`` (``navigator.desktop_state``)."""
-        from navigator import desktop_state
-
+        """Options > Save desktop: ``SaveRealDsk`` (``navigator.lib.config.desktop_state``)."""
+        from navigator.lib.config import desktop_state
         desktop_state.save(self.desktop)
         return True
 
@@ -196,8 +195,7 @@ class Shell(DockLayout):
         """Options > Load desktop: ``RetrieveDesktop`` -- every window closed,
         asked as Close all asks, and the saved ones put in their place.  A
         Cancel keeps the desktop as it is; none saved says so."""
-        from navigator import desktop_state
-
+        from navigator.lib.config import desktop_state
         data = desktop_state.load()
         if data is None:
             await Dialog(title=tr("Error"), prompt=tr("No desktop has been saved"), buttons="ok"
@@ -216,8 +214,8 @@ class Shell(DockLayout):
         from.  None, said so, if the theme cannot be read."""
         import asyncio
 
-        from navigator.palette import entry_values
-        from navigator.scheme import scheme_from, theme_sources
+        from navigator.lib.appearance.palette import entry_values
+        from navigator.lib.appearance.scheme import scheme_from, theme_sources
 
         try:
             sources = await asyncio.to_thread(theme_sources, self.theme)
@@ -234,8 +232,8 @@ class Shell(DockLayout):
         ``palette.nss`` -- DN's ``cmUpdateConfig`` after its palette changed."""
         import asyncio
 
-        from navigator.palette import render_palette, save_palette
-        from navigator.scheme import palette_source, scheme_from
+        from navigator.lib.appearance.palette import render_palette, save_palette
+        from navigator.lib.appearance.scheme import palette_source, scheme_from
 
         self.stylesheet = scheme_from(sources, palette_source(render_palette(palette, "palette")))
         try:
@@ -251,8 +249,8 @@ class Shell(DockLayout):
         """Options > Colors: ``ChangeColors`` -- the dialog over the palette as
         it is, every change painted as it is made; OK keeps it, Cancel puts
         the screen back as it was."""
-        from navigator.palette import differences, entry_values, render_palette
-        from navigator.scheme import palette_source, scheme_from
+        from navigator.lib.appearance.palette import differences, entry_values, render_palette
+        from navigator.lib.appearance.scheme import palette_source, scheme_from
         from navigator.widgets.setup.colors_dialog import ColorsDialog
 
         base = await self._palette_base()
@@ -287,7 +285,7 @@ class Shell(DockLayout):
 
         from navml.widgets.dialog.file_dialog import FileDialog
 
-        from navigator.palette import entry_values, render_palette, user_themes, write_sheet
+        from navigator.lib.appearance.palette import entry_values, render_palette, user_themes, write_sheet
 
         directory = user_themes()
         try:
@@ -328,8 +326,8 @@ class Shell(DockLayout):
 
         from navml.widgets.dialog.file_dialog import FileDialog
 
-        from navigator.palette import differences, entry_values, user_themes
-        from navigator.scheme import THEMES, scheme_from
+        from navigator.lib.appearance.palette import differences, entry_values, user_themes
+        from navigator.lib.appearance.scheme import THEMES, scheme_from
 
         def start() -> Path:
             mine = user_themes()
@@ -388,10 +386,10 @@ class Shell(DockLayout):
 
     async def system_info(self) -> None:
         """Utilities > System Information: the machine read on a thread
-        (:func:`navigator.sysinfo.gather`), then DN's dialog."""
+        (:func:`navigator.lib.system.sysinfo.gather`), then DN's dialog."""
         import asyncio
 
-        from navigator.sysinfo import gather
+        from navigator.lib.system.sysinfo import gather
         from navigator.widgets.shell.system_info_dialog import SystemInfoDialog
 
         facts = await asyncio.to_thread(gather)
@@ -403,11 +401,11 @@ class Shell(DockLayout):
 
     async def edit_environment(self) -> None:
         """Utilities > Edit environment: ``EditDOSEvironment`` over Navigator's
-        own variables; OK makes what changed so there (``navigator.environ``)
+        own variables; OK makes what changed so there (``navigator.lib.system.environ``)
         and in the console's shell, unseen (``Subshell.set_environment``)."""
         import os
 
-        from navigator.environ import apply, changes
+        from navigator.lib.system.environ import apply, changes
         from navigator.widgets.shell.environment_dialog import EnvironmentDialog
 
         before = dict(os.environ)
@@ -933,7 +931,7 @@ class Shell(DockLayout):
 
         ``highlight.ini`` saved colours every open text again by its new rules.
         """
-        from navigator import associations
+        from navigator.lib.config import associations
         from navigator.widgets.editor.file_editor import FileEditor
         from navigator.widgets.viewer.file_viewer import FileViewer
 
@@ -1144,8 +1142,8 @@ class Shell(DockLayout):
         return True
 
     async def on_open_smartpad(self, event: OpenSmartpad) -> bool:
-        """Alt+Q, ≡ > *SmartPad (TM)*: ``OpenSmartpad`` (``navigator.smartpad``)."""
-        from navigator.smartpad import open_smartpad
+        """Alt+Q, ≡ > *SmartPad (TM)*: ``OpenSmartpad`` (``navigator.lib.utilities.smartpad``)."""
+        from navigator.lib.utilities.smartpad import open_smartpad
 
         if self.console_visible:
             self.toggle_console()
@@ -1197,7 +1195,7 @@ class Shell(DockLayout):
         window.take_keyboard()
         return True
 
-    # -- F2: the user menu (navigator.usermenu) ------------------------------------
+    # -- F2: the user menu (navigator.lib.config.usermenu) ------------------------------------
 
     async def on_user_menu(self, event: UserMenu) -> bool:
         """F2, Utilities > *User menu*: ``cmUserMenu``, DN's ``ExecUserMenu``."""
@@ -1205,13 +1203,13 @@ class Shell(DockLayout):
         return True
 
     async def on_menu_file_edit(self, event: MenuFileEdit) -> bool:
-        from navigator.usermenu import global_menu
+        from navigator.lib.config.usermenu import global_menu
 
         self.spawn(self.edit_menu_file(global_menu()))
         return True
 
     async def on_local_menu_file_edit(self, event: LocalMenuFileEdit) -> bool:
-        from navigator.usermenu import MENU_NAME
+        from navigator.lib.config.usermenu import MENU_NAME
 
         self.spawn(self.edit_menu_file(self._menu_directory() / MENU_NAME))
         return True
@@ -1230,7 +1228,7 @@ class Shell(DockLayout):
 
     @staticmethod
     def _menu_side(panel: Any, list_file: str = "-") -> Any:
-        from navigator.usermenu import Side
+        from navigator.lib.config.usermenu import Side
 
         if panel is None:
             return Side()
@@ -1243,7 +1241,7 @@ class Shell(DockLayout):
 
     async def edit_menu_file(self, path: Path) -> None:
         """A ``dn.mnu`` in an editor, made by saving if it is not there yet."""
-        from navigator.file_history import open_editor
+        from navigator.lib.config.file_history import open_editor
 
         if self.console_visible:
             self.toggle_console()
@@ -1267,7 +1265,7 @@ class Shell(DockLayout):
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
-        from navigator.usermenu import MENU_NAME, caption, find_menu, parse
+        from navigator.lib.config.usermenu import MENU_NAME, caption, find_menu, parse
 
         app = self.application
         if app is None:
@@ -1333,20 +1331,20 @@ class Shell(DockLayout):
 
     async def run_commands(self, commands: Any) -> None:
         """A user menu item's lines -- or an ``.ini`` entry's
-        (:mod:`navigator.associations`) -- its parameters asked first if it
+        (:mod:`navigator.lib.config.associations`) -- its parameters asked first if it
         wants them, run in the console as a script the shell sources.
 
         ``%1`` and ``%2`` are files listing each panel's tagged names, or the
         one at its cursor (``GetUserParams``); they, and the script, are kept
         under fixed names in Navigator's own temporary directory
-        (:func:`navigator.tempdir.private_dir`), as DN's ``$DN$.BAT`` and
+        (:func:`navigator.lib.system.tempdir.private_dir`), as DN's ``$DN$.BAT`` and
         ``$$$DN$$.LST`` were in its swap directory.
         """
         import asyncio
         import shlex
 
-        from navigator.tempdir import private_dir
-        from navigator.usermenu import script_text
+        from navigator.lib.system.tempdir import private_dir
+        from navigator.lib.config.usermenu import script_text
         from navigator.widgets.shell.menu_params_dialog import MenuParamsDialog
 
         app = self.application
@@ -1414,7 +1412,7 @@ class Shell(DockLayout):
 
     async def run_associated(self, file_name: str, name: str | None = None, *,
                              key: str | None = None) -> bool:
-        """Run what *file_name* (one of :mod:`navigator.associations`' four)
+        """Run what *file_name* (one of :mod:`navigator.lib.config.associations`' four)
         has for the file called *name*, or for *key*; False when it has
         nothing, so the caller does what it did without one.
 
@@ -1425,8 +1423,7 @@ class Shell(DockLayout):
         """
         import asyncio
 
-        from navigator import associations
-
+        from navigator.lib.config import associations
         app = self.application
         if app is None:
             return False
@@ -1454,7 +1451,7 @@ class Shell(DockLayout):
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
-        from navigator.usermenu import expand
+        from navigator.lib.config.usermenu import expand
 
         app = self.application
         active, passive = (self._menu_side(panel) for panel in self._menu_panels())
@@ -1490,12 +1487,11 @@ class Shell(DockLayout):
     async def edit_associations(self, file_name: str) -> None:
         """Options > Quick run file edit, Extension file edit, Viewers or
         Editors: the file in an editor, written first from its template
-        (:func:`navigator.associations.seed`) should it have gone since
+        (:func:`navigator.lib.config.associations.seed`) should it have gone since
         Navigator started."""
         import asyncio
 
-        from navigator import associations
-
+        from navigator.lib.config import associations
         path = associations.path_of(file_name)
         try:
             await asyncio.to_thread(associations.seed, file_name)
@@ -1736,7 +1732,7 @@ class Shell(DockLayout):
         return True
 
     async def _interface_setup(self) -> None:
-        from navigator import language
+        from navigator.lib.config import language
         from navigator.widgets.setup.interface_dialog import InterfaceDialog
 
         before = SETTINGS.interface.language
@@ -1758,7 +1754,7 @@ class Shell(DockLayout):
         said so, and the keys stay bound for this session."""
         import asyncio
 
-        from navigator import keybindings
+        from navigator.lib.config import keybindings
         from navigator.widgets.setup.key_bindings_dialog import KeyBindingsDialog
 
         app = self.application
@@ -1859,7 +1855,7 @@ class Shell(DockLayout):
         """
         import shlex
 
-        from navigator import savers
+        from navigator.lib.appearance import savers
         from navigator.widgets.shell.screen_saver import KINDS, ScreenSaver
 
         app = self.application
@@ -1942,7 +1938,7 @@ class Shell(DockLayout):
         """
         from navml.widgets.dialog.dialog import Dialog
 
-        from navigator.file_history import open_editor, open_viewer
+        from navigator.lib.config.file_history import open_editor, open_viewer
         from navigator.models.edit_record import EditRecord
         from navigator.models.view_record import ViewRecord
         from navigator.widgets.shell.file_history_dialog import FileHistoryDialog
@@ -2004,7 +2000,7 @@ class Shell(DockLayout):
         and this screen is the one thing that knows where the file manager is.
         The keyboard stays where it was, as ``SendLocated`` left it.
         """
-        from navigator.volumes import Volume
+        from navigator.lib.system.volumes import Volume
 
         manager = self.active_manager
         if manager is None or event.node is None:

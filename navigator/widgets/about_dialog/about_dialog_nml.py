@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog    # about_dialog.nml:1
-from navigator.about import about_text, project_info    # about_dialog.nml:3
+from navigator.lib.utilities.about import about_text, project_info    # about_dialog.nml:3
 
 __navml_component__ = "AboutDialog"
 
@@ -30,7 +30,7 @@ class AboutDialog(Dialog, _Component):
     The original was a message box -- centred static text and an OK -- and so
     is this, built out of what ``Dialog`` already is: its ``message`` carries
     the text and ``buttons: "ok"`` hides the Cancel.  What the text says is
-    ``pyproject.toml``'s, through :func:`navigator.about.project_info`, so the
+    ``pyproject.toml``'s, through :func:`navigator.lib.utilities.about.project_info`, so the
     version, the licence and the author are written in one place.
     """
 

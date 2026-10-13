@@ -40,7 +40,7 @@ and no better arrow, shade or tee.  The one case with a real candidate is a
 check box, where ``nf-fa-check_square`` is a single glyph -- and it is refused
 because it collapses three cells into one and would move every caption in a
 cluster.  Icons remain the application's vocabulary, and
-``navigator/icons.py`` records why they are the project's one deliberate
+``navigator/lib/appearance/icons.py`` records why they are the project's one deliberate
 departure rather than a licence for more.
 """
 

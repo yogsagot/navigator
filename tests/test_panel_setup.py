@@ -10,7 +10,7 @@ from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.filetypes import in_filter
+from navigator.lib.appearance.filetypes import in_filter
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel.panel import scan_directory
 
@@ -26,7 +26,7 @@ def test_the_mask_is_dns_infilter_the_last_pattern_that_matches_decides():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "sub.txt").mkdir()
     (tmp_path / "keep.c").write_text("c")
     (tmp_path / "big.txt").write_text("x" * 100)

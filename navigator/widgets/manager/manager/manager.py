@@ -89,8 +89,8 @@ from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
 from navigator.widgets.manager.panel.drag import Dropped
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
-from navigator.file_history import open_editor, open_viewer
-from navigator.associations import EDITORS, VIEWERS
+from navigator.lib.config.file_history import open_editor, open_viewer
+from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.settings import SETTINGS
 
 
@@ -254,14 +254,14 @@ class Manager(Window):
         """Alt+G: ``CountLen``, each directory's bytes into its size column.
 
         The directory at the cursor -- ``..`` standing for the one listed --
-        and every tagged one, counted on a thread (:mod:`navigator.dirlength`)
+        and every tagged one, counted on a thread (:mod:`navigator.lib.file_ops.dirlength`)
         under *Counting directory length* if it takes a while.  Nothing is
         done with the cursor on a file and nothing tagged.  Esc there stops
         it: what was counted before keeps its count, and the rest stays
         ``DIR``, as DN's ``Abort`` left them.
         """
-        from navigator.dirlength import count_dir_length
-        from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.lib.file_ops.dirlength import count_dir_length
+        from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
 
         app = self.application
@@ -300,7 +300,7 @@ class Manager(Window):
             # new list is what it sees.
             panel.items = list(panel.items)
 
-    # -- UU Encode and UU Decode (navigator.uucode) ---------------------------------
+    # -- UU Encode and UU Decode (navigator.lib.file_ops.uucode) ---------------------------------
 
     async def on_uu_encode(self, event: UuEncode) -> bool:
         self.spawn(self.uu_encode(self.active_panel))
@@ -313,7 +313,7 @@ class Manager(Window):
     async def uu_encode(self, panel: Panel) -> None:
         """Ctrl+F7: ``UuEncode`` -- *UU Encode* asks where and how, and the
         file at the cursor is encoded on a thread, into one file a section."""
-        from navigator import uucode
+        from navigator.lib.file_ops import uucode
         from navigator.widgets.file_ops.uu_encode_dialog import UUEncodeDialog
 
         app = self.application
@@ -337,7 +337,7 @@ class Manager(Window):
     async def uu_decode(self, panel: Panel) -> None:
         """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
         and every file the one at the cursor holds is decoded on a thread."""
-        from navigator import uucode
+        from navigator.lib.file_ops import uucode
         from navigator.widgets.file_ops.uu_decode_dialog import UUDecodeDialog
 
         app = self.application
@@ -391,8 +391,8 @@ class Manager(Window):
         questions answered, its failure said, and the panels read again.
         *Beep after copy* rings for one that took longer than *beep_after*
         seconds, as DN's timer did."""
-        from navigator import uucode
-        from navigator.job import Stopped
+        from navigator.lib.file_ops import uucode
+        from navigator.lib.system.job import Stopped
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
 
         app = self.application
@@ -426,7 +426,7 @@ class Manager(Window):
             app.bell()
 
     async def _answer_uu_question(self, question: Any) -> Any:
-        from navigator import uucode
+        from navigator.lib.file_ops import uucode
         from navigator.widgets.file_ops.exists_query import ExistsQuery
 
         app = self.application
@@ -453,10 +453,10 @@ class Manager(Window):
 
     async def read_file_list(self, panel: Panel) -> None:
         """Alt+V: ``cmPanelMakeList`` -- the list file at the cursor read on a
-        thread (:func:`navigator.filefind.read_list`) into a listing titled
+        thread (:func:`navigator.lib.file_ops.filefind.read_list`) into a listing titled
         with its name (``TFindDrive.InitList``), ``..`` leading back.  None of
         its files there: *No files found*, as ``ReadList`` said."""
-        from navigator.filefind import FindListing, read_list
+        from navigator.lib.file_ops.filefind import FindListing, read_list
         from navigator.widgets.manager.panel.panel import entry_at
 
         app = self.application
@@ -485,7 +485,7 @@ class Manager(Window):
     async def find_file(self, panel: Panel) -> None:
         """Alt+F7: ``FindFile``, what *Find File* asks for found into *panel*.
 
-        The search runs on a thread (:func:`navigator.filefind.search`) under
+        The search runs on a thread (:func:`navigator.lib.file_ops.filefind.search`) under
         *Search* -- the directory it is in and the count -- whose Cancel asks
         DN's *Cancel search?*.  The panel becomes a *Find:* listing with the
         first file found and fills as the rest are (``cmInsertFile``); nothing
@@ -537,12 +537,12 @@ class Manager(Window):
             await self._go_to(panel, place)
 
     # The quick directories are the bookmarks: DN's nine ``DirsToChange``
-    # slots and its drive letters' box became one list (``navigator.bookmarks``).
+    # slots and its drive letters' box became one list (``navigator.lib.config.bookmarks``).
 
     async def on_quick_change(self, event: QuickChange) -> bool:
         """Alt+*N*: ``DoChange(DirsToChange[N])`` -- the *N*-th bookmark, with no
         box between; there being none that far, nothing is done."""
-        from navigator.bookmarks import bookmarks
+        from navigator.lib.config.bookmarks import bookmarks
 
         rows = bookmarks()
         if 0 < event.slot <= len(rows):
@@ -556,7 +556,7 @@ class Manager(Window):
     async def store_quick_dir(self, panel: Panel, slot: int) -> None:
         """Alt+Shift+*N*: DN's ``dlPromptForQDir``, then the panel's directory
         bookmarked at place *N* (``place_bookmark``), so Alt+*N* comes back to it."""
-        from navigator.bookmarks import place_bookmark
+        from navigator.lib.config.bookmarks import place_bookmark
 
         prompt = tr("Store this directory\nas bookmark {slot}?").format(slot=slot)
         if await self._ask_yes_no(prompt, tr("Confirm")) is not True:
@@ -576,10 +576,10 @@ class Manager(Window):
     async def advanced_filter(self, panel: Panel) -> None:
         """Alt+Del: ``CM_AdvancedFilter`` -- the *Filter* box over *panel*'s
         extensions, again after each *Show* or *Hide*, on the mask it was on,
-        until *Close* (:mod:`navigator.advfilter`).  The extensions are the
+        until *Close* (:mod:`navigator.lib.file_ops.advfilter`).  The extensions are the
         directory's whatever the mask hides, read on a thread -- or a
         listing's own; none at all, and there is nothing to ask."""
-        from navigator.advfilter import combine, extensions
+        from navigator.lib.file_ops.advfilter import combine, extensions
         from navigator.widgets.manager.filter_dialog import FilterDialog
         from navigator.widgets.manager.panel.panel import scan_directory
 
@@ -638,7 +638,7 @@ class Manager(Window):
         directory and every one below it, directories left out, as a listing
         titled ``Branch:`` and the directory (DN's ``dlBranch``).  Searched as
         Alt+F7 searches, so a long walk shows its box and Esc stops it."""
-        from navigator.filefind import FindRequest
+        from navigator.lib.file_ops.filefind import FindRequest
 
         if panel.found is not None:
             return  # ``CM_Branch`` acted on a disk alone
@@ -648,8 +648,8 @@ class Manager(Window):
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
         """*request* searched from *panel*'s directory into a listing titled
         *title*, filling as it is found; nothing found says so."""
-        from navigator.bookmarks import mounted_places
-        from navigator.filefind import FindJob, FindListing, search
+        from navigator.lib.config.bookmarks import mounted_places
+        from navigator.lib.file_ops.filefind import FindJob, FindListing, search
         from navigator.widgets.manager.find_progress import FindProgress
         from navigator.widgets.manager.panel.panel import make_entry
 
@@ -775,7 +775,7 @@ class Manager(Window):
         panel showing the list's directory re-reads (``RereadDirectory``).
         The relative name is the active panel's directory's, DN's current one.
         """
-        from navigator.makelist import make_lines
+        from navigator.lib.file_ops.makelist import make_lines
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
         from navigator.widgets.manager.make_list_dialog import MakeListDialog
         from navigator.widgets.manager.select_dialog import SelectDialog
@@ -849,13 +849,13 @@ class Manager(Window):
 
         *Compare directories* asks what to compare and whether to select or
         unselect; then each panel's files are compared with the other's
-        (:mod:`navigator.dircompare`) and its tags set from what differs.
+        (:mod:`navigator.lib.file_ops.dircompare`) and its tags set from what differs.
         Reading the files' contents goes on a thread, under *Comparing
         files* if it takes a while (DN's ``dlComparing``), and Esc there
         leaves the tags as they were; the rest is the listings alone.  A
         panel that has moved on by the time it is done is left alone.
         """
-        from navigator.dircompare import differing, tagged
+        from navigator.lib.file_ops.dircompare import differing, tagged
         from navigator.widgets.manager.compare_dialog import CompareDialog
 
         app = self.application
@@ -874,7 +874,7 @@ class Manager(Window):
             return None if second is None else (first, second)
 
         if request.contents:
-            from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+            from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
             from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
 
             job = FileJob()
@@ -956,7 +956,7 @@ class Manager(Window):
         """
         from navml.widgets.menu.popup_menu import PopupMenu
 
-        from navigator.bookmarks import (
+        from navigator.lib.config.bookmarks import (
             add_bookmark, bookmarks, find_bookmark, key_of, label_bookmark, mounted_places,
             move_bookmark, remove_bookmark,
         )
@@ -1312,10 +1312,10 @@ class Manager(Window):
         Directories are passed over, and a selection of nothing else prints
         nothing.  The question is DN's *Print file NAME?* or *Print N files?*,
         N counting what was selected, directories included, as DN's did.  The
-        spooler (:mod:`navigator.printing`) stands for DN's print manager; one
+        spooler (:mod:`navigator.lib.system.printing`) stands for DN's print manager; one
         that refuses stops the run and says why.
         """
-        from navigator.printing import spool_file
+        from navigator.lib.system.printing import spool_file
 
         panel = self.active_panel
         entries = self.selection(panel)
@@ -1399,7 +1399,7 @@ class Manager(Window):
         """*entries* of *panel* copied (or moved) to *target*: the Copy dialog
         first when *ask*, else at once in the dialog's session mode and
         options; then *panel* and *others* look again."""
-        from navigator import filecopy
+        from navigator.lib.file_ops import filecopy
         from navigator.widgets.file_ops import copy_dialog
         from navigator.widgets.file_ops.copy_dialog import CopyDialog
 
@@ -1472,7 +1472,7 @@ class Manager(Window):
         The box closing -- its button, or Esc -- holds the worker and asks
         ``dlQueryAbort`` before anything stops.
         """
-        from navigator.progress import PROGRESS_DELAY, PROGRESS_TICK
+        from navigator.lib.system.progress import PROGRESS_DELAY, PROGRESS_TICK
 
         app = self.application
         loop = asyncio.get_running_loop()
@@ -1533,7 +1533,7 @@ class Manager(Window):
         """Put one of the worker's questions to the user, and answer as it expects."""
         from navml.widgets.dialog.control import escape_caption
 
-        from navigator import filecopy
+        from navigator.lib.file_ops import filecopy
         from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
 
         app = self.application
@@ -1602,7 +1602,7 @@ class Manager(Window):
         """*entries* of *panel* erased, as F8 erases them -- or, *quiet*, as
         the trash can did with ``Confirms := 0``: no dialog, and Yes to the
         questions on the way."""
-        from navigator import fileerase
+        from navigator.lib.file_ops import fileerase
         from navigator.widgets.file_ops.delete_dialog import DeleteDialog
         from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
@@ -1644,7 +1644,7 @@ class Manager(Window):
 
     async def _answer_erase_question(self, question: Any, *, quiet: bool = False) -> Any:
         """Put one of the eraser's questions to the user, and answer as it expects."""
-        from navigator import fileerase, filecopy
+        from navigator.lib.file_ops import fileerase, filecopy
         from navigator.widgets.file_ops.erase_query import EraseQuery
 
         if quiet and isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
@@ -1681,7 +1681,7 @@ class Manager(Window):
         """
         from navml.widgets.dialog.control import escape_caption
 
-        from navigator import filecopy, filelink
+        from navigator.lib.file_ops import filecopy, filelink
         from navigator.widgets.file_ops.link_dialog import LinkDialog
 
         app = self.application
@@ -1738,7 +1738,7 @@ class Manager(Window):
         and each failure put as Copy's *Skip* / *Cancel*.  What was changed
         without a failure is untagged.
         """
-        from navigator import fileattr
+        from navigator.lib.file_ops import fileattr
         from navigator.widgets.file_ops.attr_dialog import AttrDialog
         from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
@@ -1747,7 +1747,7 @@ class Manager(Window):
         entries = self.selection(panel)
         if app is None or not entries:
             return
-        from navigator.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
         from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
 
@@ -1859,7 +1859,7 @@ class Manager(Window):
         if mode == "database" or (mode is None and path.suffix.lower() == ".dbf"):
             # ``ViewFile``'s ``XT = '.DBF'``, and *As DataBase*: the dBase
             # viewer -- F3 on a ``.dbf`` that is not one falls back to text.
-            from navigator.dbf import DBFError
+            from navigator.lib.viewer.dbf import DBFError
             from navigator.widgets.viewer.db_window.db_window import open_database
 
             try:
@@ -2513,8 +2513,7 @@ def sort_captions() -> tuple[str, ...]:
 def action_caption(action: str) -> str:
     """A worker's ``action`` -- one of the English words the erase and
     attribute jobs set on their thread -- in the current language."""
-    from navigator import fileattr, fileerase
-
+    from navigator.lib.file_ops import fileattr, fileerase
     return {
         fileerase.ERASING_FILE: tr("Erasing the file"),
         fileerase.ERASING_DIRECTORY: tr("Erasing the directory"),

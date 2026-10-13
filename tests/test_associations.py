@@ -11,9 +11,9 @@ import pytest
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
-from navigator import associations
+from navigator.lib.config import associations
 from navigator.__main__ import Navigator
-from navigator.associations import EDITORS, EXTENSIONS, QUICK_RUN, TEMPLATES, VIEWERS, for_file, for_key, parse
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, QUICK_RUN, TEMPLATES, VIEWERS, for_file, for_key, parse
 from navigator.settings import SETTINGS
 from navigator.widgets.shell.commands import ExtFileEdit
 from navml.widgets.dialog.control.control import parse_shortcut
@@ -73,7 +73,7 @@ def test_every_template_reads_as_what_it_says():
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     SETTINGS.system.temp_dir = str(tmp_path / "tmp")
     (tmp_path / "tmp").mkdir()
     work = tmp_path / "work"

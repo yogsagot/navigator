@@ -17,7 +17,7 @@ from navkit.screen import Cell, Surface
 from navkit.terminal import encode_key, encode_mouse
 from navkit.widget import Widget
 
-from navigator.subshell import Subshell
+from navigator.lib.system.subshell import Subshell
 
 #: Wider than any row a prompt is typed on; a longer one wraps, and the row it
 #: wraps onto is the one the typing happens on.
@@ -46,7 +46,7 @@ class Console(Widget):
     output behind its panels because in DOS there was one screen and the
     output was still in it; a terminal will not give its cells back, so the
     only way to have them is to have received them.  The command line's
-    shell (:class:`~navigator.subshell.Subshell`) runs on a pty this widget
+    shell (:class:`~navigator.lib.system.subshell.Subshell`) runs on a pty this widget
     owns, its output goes through
     :class:`~navkit.console.ConsoleScreen`, and what arrives is a grid of
     cells like any other -- which is why the menu bar and the key bar can

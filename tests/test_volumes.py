@@ -12,8 +12,8 @@ from navkit.events import KeyEvent
 
 from conftest import Until, run_app
 
-from navigator import volumes
-from navigator.volumes import Volume, is_real, parse_mounts
+from navigator.lib.system import volumes
+from navigator.lib.system.volumes import Volume, is_real, parse_mounts
 
 
 MOUNTS = """\

@@ -82,7 +82,7 @@ doing: `shell/` (the root `Shell`, `Console`, `KeyBar`, `MainMenu`, `Clock`, `Co
 `manager/` (`Manager`, `Panel`, `SelectDialog`), `file_ops/` (copy, move, link, mkdir and erase: dialogs, progress
 boxes and queries), `tree/`, `viewer/` and `editor/`, with `about_dialog/` alone at the top. `shell` and `manager`
 have a central component of the group's name; the other four, like `menu/`, do not. The group names do not collide
-with the model packages `navigator.viewer` and `navigator.editor`, because every import is absolute.
+with the model packages `navigator.lib.viewer` and `navigator.lib.editor`, because every import is absolute.
 
 `Window`, `Desktop`, `Timer` and `Spacer` belong to neither group and stay at the top. The import names one level deeper —
 `from navml.widgets.layout.horizontal_layout import HorizontalLayout` — while `from navml.widgets import

@@ -1,5 +1,5 @@
 """Translated text: ``navkit/i18n.py``, the generator's live captions, and
-Navigator's choice of language (``navigator/language.py``)."""
+Navigator's choice of language (``navigator/lib/config/language.py``)."""
 
 from __future__ import annotations
 
@@ -211,8 +211,7 @@ def test_generated_captions_follow_the_language(latvian):
 
 
 def test_the_environment_picks_a_known_language(latvian, monkeypatch):
-    from navigator import language
-
+    from navigator.lib.config import language
     monkeypatch.delenv("LC_ALL", raising=False)
     monkeypatch.delenv("LC_MESSAGES", raising=False)
     monkeypatch.setenv("LANG", "lv_LV.UTF-8")

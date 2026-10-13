@@ -1,7 +1,7 @@
 """The grid inside *ASCII Chart*: DOS Navigator's ``TTable`` (``ASCIITAB.PAS``).
 
 All 256 characters of code page 437, 32 to a row and eight rows, each drawn as
-a VGA drew it (:func:`navigator.viewer.cp437`).  The block cursor stands on
+a VGA drew it (:func:`navigator.lib.viewer.cp437`).  The block cursor stands on
 the character in hand, :attr:`CharTable.code`; the arrows move it a cell,
 Home and End to the first and the last, and a press or a drag puts it under
 the pointer.  A double click is Enter's (``ChosenEvent``), as ``TTable`` put
@@ -19,7 +19,7 @@ from navkit.widget import Widget
 
 from navml.widgets.dialog.tree_view import ChosenEvent
 
-from navigator.viewer import cp437
+from navigator.lib.viewer import cp437
 
 #: Characters to a row, and rows.
 COLUMNS, ROWS = 32, 8

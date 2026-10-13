@@ -6,7 +6,7 @@ from typing import Any
 
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.filetypes import CUSTOM
+from navigator.lib.appearance.filetypes import CUSTOM
 from navigator.settings import SETTINGS, HighlightGroupsData
 
 

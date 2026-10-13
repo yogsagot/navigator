@@ -1,13 +1,13 @@
 """The *File type* submenu the editor's and the viewer's menus share.
 
-Built from :data:`navigator.highlight.FILE_TYPES` rather than written out in
+Built from :data:`navigator.lib.highlight.FILE_TYPES` rather than written out in
 both windows' markup: *Automatic* (``highlight.ini``'s choice), a submenu per
 group, and *None*, each asking for :class:`SetFileType` -- in a window's
 menu, or on its own in a box by Ctrl+Shift+H (:func:`choose_file_type`).  The captions are
 bound as the generator binds a markup caption, so they follow a change of
 language; the languages' own names are names and stay as they are.  At the
 Nerd tier each language's caption starts with the icon the option strip shows
-for it (:mod:`navigator.icons`).
+for it (:mod:`navigator.lib.appearance.icons`).
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ from navkit.i18n import tr
 from navkit.reactive import bind
 from navml.widgets.menu.sub_menu import SubMenu
 
-from navigator import icons
-from navigator.highlight import FILE_TYPES, NONE, file_type_masks
+from navigator.lib.appearance import icons
+from navigator.lib.highlight import FILE_TYPES, NONE, file_type_masks
 from navigator.widgets.editor.commands import SetFileType
 
 #: Each group's caption, by its name in ``FILE_TYPES``.

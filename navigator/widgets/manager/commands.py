@@ -177,7 +177,7 @@ class SortBy(Command):
 class ChangeDrive(Command):
     """Alt+C, ``cmChangeDrive``: the bookmarks, for the active panel.
 
-    DOS Navigator's drive letters; ``navigator/bookmarks.py`` has the
+    DOS Navigator's drive letters; ``navigator/lib/config/bookmarks.py`` has the
     departure.
     """
 

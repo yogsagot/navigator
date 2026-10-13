@@ -1,11 +1,11 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
 ---
 
 # The file viewer
 
-- **F3 is DN's internal viewer** (`FVIEWER.PAS`). `navigator/viewer.py` is the model: `ViewSource` uses `pread` into
+- **F3 is DN's internal viewer** (`FVIEWER.PAS`). `navigator/lib/viewer/__init__.py` is the model: `ViewSource` uses `pread` into
   cached chunks, **never `mmap`**, so a truncated log cannot `SIGBUS` Navigator. `FileViewer` inside `FileWindow` is
   `TFileViewer` inside `TFileWindow`; it opens zoomed on the desktop with the scroll bar on the frame and `TViewInfo` over
   the bottom edge.
@@ -42,7 +42,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   to, close) -- see `navml-windows-menus` for how a window's menu joins the bar.
 - A search still running after two ticks shows DN's *Search Progress* box (`TWhileView`: gauge, percentage, Stop), fed
   through a `SearchJob` the thread writes and the loop reads. It uses the library's `ProgressBar`. It runs through
-  `navigator.progress.run_with_progress`, which **stops the job whenever the task ends with the work unfinished** --
+  `navigator.lib.system.progress.run_with_progress`, which **stops the job whenever the task ends with the work unfinished** --
   a viewer closed or Navigator quitting mid-search used to leave the thread reading to EOF, and `asyncio.run` waited.
 - **Opening is on a thread too**: `open_viewer` is async, building the `ViewSource` (stat, open, `/proc`'s
   read-whole) through `run_with_progress` and handing it to `FileWindow(source=...)`/`FileViewer.open(source=...)`;
@@ -54,12 +54,12 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/viewer
   `AdjustToDesktopSize` did), mode, wrap, filter, `top`, `x_delta` and hex `cursor` are written to the `ViewRecord`
   model. That happens when a viewer opens on a file with no record, and when it closes by any route, Alt+X included
   (`Navigator.on_stop`). The record is restored by `FileWindow.recall_history()` once the window is on its desktop.
-  **Open viewers through `navigator.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
+  **Open viewers through `navigator.lib.config.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
   restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*; the rectangle, `top`, `x_delta` and `cursor` come
   back only under *Store viewer position* as well.
   The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The Ctrl+Q quick viewer records nothing.
 - **The dBase viewer** (File > View > As DataBase, `ViewAsDataBase`; F3 on a `.dbf`, DN's `ViewFile` `XT = '.DBF'`):
-  `navigator/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
+  `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
   cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As
   DataBase says so). `DBWindow`/`DBViewer` (`viewer/db_window/`) are `TDBWindow`/`TDBViewer`: field names over the
   records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates

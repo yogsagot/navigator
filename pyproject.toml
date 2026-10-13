@@ -59,7 +59,7 @@ classifiers = [
 # The two run-time dependencies, and the reasons for them: pyte is the
 # terminal emulator behind `navkit.console` -- the screen a child program
 # paints on so that Ctrl+O can show its output -- and Pygments the lexers
-# behind the editor's and viewer's syntax highlighting (`navigator.highlight`),
+# behind the editor's and viewer's syntax highlighting (`navigator.lib.highlight`),
 # where DN had DN.HGL.  Both are pure Python.  Everything else is stdlib.  Test
 # tooling lives in requirements-dev.txt and in the `dev` extra below, which
 # mirrors it.
@@ -68,8 +68,8 @@ dependencies = ["pyte>=0.8.2", "pygments>=2.21"]
 # Navigator's own two languages, made Pygments' own once installed
 # (`pygmentize -l nml'); Navigator finds them without this, from a checkout too.
 [project.entry-points."pygments.lexers"]
-nml = "navigator.lexers:NmlLexer"
-nss = "navigator.lexers:NssLexer"
+nml = "navigator.lib.highlight.lexers:NmlLexer"
+nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "build>=1.0"]

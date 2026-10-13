@@ -13,7 +13,7 @@ from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.usermenu import Side, caption, expand, find_menu, parse, script_text
+from navigator.lib.config.usermenu import Side, caption, expand, find_menu, parse, script_text
 from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.popup_menu import PopupMenu
 
@@ -103,7 +103,7 @@ def test_the_local_menu_is_the_nearest_above_else_the_global_one(tmp_path, monke
 
 
 def test_the_private_directory_is_this_users_alone(tmp_path):
-    from navigator.tempdir import private_dir
+    from navigator.lib.system.tempdir import private_dir
 
     SETTINGS.system.temp_dir = str(tmp_path)
     made = private_dir()
@@ -118,7 +118,7 @@ def test_the_private_directory_is_this_users_alone(tmp_path):
 
 @pytest.fixture
 def place(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     (tmp_path / "config" / "navigator").mkdir(parents=True)
     SETTINGS.system.temp_dir = str(tmp_path / "tmp")

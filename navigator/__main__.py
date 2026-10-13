@@ -6,7 +6,7 @@ command line, the terminal it hands to navkit, and the application hooks that
 hold the keys meaning the same thing wherever the focus is.
 
 Everything it paints lives in :mod:`navigator.widgets`, one module per screen,
-and the sheet those screens resolve against in :mod:`navigator.scheme`.  The
+and the sheet those screens resolve against in :mod:`navigator.lib.appearance.scheme`.  The
 split is not tidiness: this module is what the command runs, so it is already
 in ``sys.modules`` as ``__main__`` and importing a widget *from* it would build
 a second copy of everything in it.  A widget a document names has to be
@@ -37,16 +37,16 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
-from navigator import keybindings, language
-from navigator.associations import seed_all as seed_associations
-from navigator.bookmarks import seed_bookmarks
+from navigator.lib.config import keybindings, language
+from navigator.lib.config.associations import seed_all as seed_associations
+from navigator.lib.config.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navml.widgets.menu.commands import OpenMenu
-from navigator.scheme import (
+from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
-from navigator.file_history import remember_windows
+from navigator.lib.config.file_history import remember_windows
 from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
@@ -117,8 +117,7 @@ class Navigator(Application):
         """Startup's *Autosave desktop*: the desktop saved on the way out last
         time, in place of the file manager this one opened with -- DN read
         ``DN.DSK`` at every start; here only while the box is ticked."""
-        from navigator import desktop_state
-
+        from navigator.lib.config import desktop_state
         if not SETTINGS.startup.autosave_desktop:
             return
         data = desktop_state.load()
@@ -146,7 +145,7 @@ class Navigator(Application):
         right corner (``EventError``) -- and none while it rests in the
         bottom right.  Not while a command runs on the console, which DN
         was not running to notice."""
-        from navigator.savers import DELAYS
+        from navigator.lib.appearance.savers import DELAYS
 
         shell, savers = self.shell, SETTINGS.savers
         if shell.resting or shell.console.busy or not savers.names():
@@ -195,8 +194,7 @@ class Navigator(Application):
     async def on_stop(self) -> None:
         # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
         if SETTINGS.startup.autosave_desktop:
-            from navigator import desktop_state
-
+            from navigator.lib.config import desktop_state
             desktop_state.save(self.shell.desktop)
         # Every viewer and editor still open is recorded, as ``cmQuit`` went
         # through each window's ``Valid`` -- whatever way Navigator is left.

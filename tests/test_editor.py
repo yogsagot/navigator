@@ -1,4 +1,4 @@
-"""F4: the editor -- the model in ``navigator/editor/`` and the window around it."""
+"""F4: the editor -- the model in ``navigator/lib/editor/`` and the window around it."""
 
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from navkit.events import KeyEvent, MouseClickEvent, PasteEvent
 from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
-from navigator.editor import columns
-from navigator.editor.buffer import EditBuffer
-from navigator.editor.document import Document, Pos
-from navigator.editor.save import write_file
+from navigator.lib.editor import columns
+from navigator.lib.editor.buffer import EditBuffer
+from navigator.lib.editor.document import Document, Pos
+from navigator.lib.editor.save import write_file
 from navigator.settings import SETTINGS
 
 
@@ -170,7 +170,7 @@ def test_without_backup_or_an_old_file_none_is_made(tmp_path):
 
 
 def test_a_stopped_write_leaves_the_old_backup(tmp_path):
-    from navigator.job import Stopped
+    from navigator.lib.system.job import Stopped
 
     class Job:
         stopped = True
@@ -207,7 +207,7 @@ def test_a_backup_that_cannot_be_made_does_not_stop_the_save(tmp_path):
 
 @pytest.fixture
 def quiet_console(monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
 
 
 @pytest.fixture
@@ -641,7 +641,7 @@ def test_shift_f4_on_a_directory_is_refused(files):
 
 
 def test_a_place_shifts_with_an_insert_or_delete_around_it():
-    from navigator.editor.document import shifted
+    from navigator.lib.editor.document import shifted
 
     at = Pos(1, 4)
     assert shifted(at, "insert", Pos(0, 2), Pos(0, 5)) == at            # a line above, no break
@@ -1482,8 +1482,7 @@ def spooler(monkeypatch):
     """``lp`` stood in for: what it was given, and what it answers."""
     import subprocess
 
-    from navigator import printing
-
+    from navigator.lib.system import printing
     jobs = []
     answer = {"code": 0, "stderr": b""}
 
@@ -1532,7 +1531,7 @@ def test_print_block_waits_for_a_block(files, spooler):
 
 
 def test_lpr_stands_in_where_there_is_no_lp():
-    from navigator.printing import print_command
+    from navigator.lib.system.printing import print_command
 
     assert print_command(lambda name: "/bin/lp" if name == "lp" else None) == ["lp"]
     assert print_command(lambda name: "/bin/lpr" if name == "lpr" else None) == ["lpr"]
@@ -1831,7 +1830,7 @@ def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
 
     def open_editor_on(name):
         def action(a):
-            from navigator.file_history import open_editor
+            from navigator.lib.config.file_history import open_editor
             a.spawn(open_editor(a.shell.desktop, files / name))
         return action
 
@@ -1858,7 +1857,7 @@ def test_ctrl_f2_in_an_editor_is_not_hide_right(files):
 @pytest.fixture
 def fresh_search(monkeypatch):
     """A search record of DN's defaults for each test, as a new session has."""
-    from navigator.editor import search
+    from navigator.lib.editor import search
 
     data = search.SearchData()
     monkeypatch.setattr(search, "SEARCH", data)
@@ -2258,7 +2257,7 @@ def test_one_undo_takes_the_change_back(files):
 
 
 def test_optimal_fill_makes_blanks_reaching_a_tab_stop_tabs():
-    from navigator.editor.columns import optimal_fill
+    from navigator.lib.editor.columns import optimal_fill
 
     assert optimal_fill("        x") == "\tx"
     assert optimal_fill("  a     b") == "  a\tb"
@@ -2295,7 +2294,7 @@ def locks():
     """Another program's locks, as a descriptor of their own; all let go after."""
     import fcntl
 
-    from navigator.editor import lock
+    from navigator.lib.editor import lock
 
     held = []
 
@@ -2328,7 +2327,7 @@ def lockable(path) -> bool:
 
 
 def test_a_lock_is_shared_within_the_program_and_the_last_release_frees_it(tmp_path, locks):
-    from navigator.editor import lock
+    from navigator.lib.editor import lock
 
     path = tmp_path / "a.txt"
     path.write_bytes(b"x")
@@ -2343,7 +2342,7 @@ def test_a_lock_is_shared_within_the_program_and_the_last_release_frees_it(tmp_p
 
 
 def test_a_file_another_program_holds_is_not_written(tmp_path, locks):
-    from navigator.editor import lock
+    from navigator.lib.editor import lock
 
     path = tmp_path / "a.txt"
     path.write_bytes(b"old")
@@ -2544,7 +2543,7 @@ def test_the_strip_spells_each_option_for_the_glyph_tier(files, tier, expected):
 
 def test_every_strip_symbol_is_one_cell_wide():
     from navkit.screen import char_width
-    from navigator.viewer import HIDDEN_MARKS
+    from navigator.lib.viewer import HIDDEN_MARKS
     from navigator.widgets.editor import option_items
 
     symbols = [option_items.STREAM_BLOCKS, option_items.COLUMN_BLOCKS, option_items.INSERT, option_items.INDENT, option_items.WRAP, option_items.BRACKETS,
@@ -2620,7 +2619,7 @@ def test_the_strip_s_file_type_icon_follows_the_chosen_type(tmp_path, quiet_cons
     from dataclasses import replace
 
     from navkit.capabilities import FULL
-    from navigator import icons
+    from navigator.lib.appearance import icons
     from navigator.widgets.editor.commands import ChooseFileType
 
     (tmp_path / "dir").mkdir()
@@ -2640,7 +2639,7 @@ def test_the_file_type_menu_wears_icons_once_the_window_is_on_a_nerd_desktop(tmp
     from dataclasses import replace
 
     from navkit.capabilities import FULL
-    from navigator import icons
+    from navigator.lib.appearance import icons
     from navigator.widgets.editor.commands import SetFileType
 
     (tmp_path / "dir").mkdir()

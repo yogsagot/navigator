@@ -1,6 +1,6 @@
 """The handlers behind ``volumes_window.nml``.
 
-The mounts are read on a thread (:func:`navigator.volumes.gather`) -- a
+The mounts are read on a thread (:func:`navigator.lib.system.volumes.gather`) -- a
 network mount whose server has gone can hold ``statvfs`` for as long as it
 likes -- and what was read last stays listed meanwhile.  Everything is read,
 real or not; *Show all mounts* only changes which are shown, so it needs no
@@ -20,7 +20,7 @@ from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
-from navigator import volumes
+from navigator.lib.system import volumes
 from navigator.widgets.manager.commands import Rescan, ToggleHidden
 
 #: Where the window reads the mounts.

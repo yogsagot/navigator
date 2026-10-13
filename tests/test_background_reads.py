@@ -17,7 +17,7 @@ from navigator.widgets.editor import loading
 
 @pytest.fixture
 def files(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "alpha").mkdir()
     (tmp_path / "alpha" / "inner.txt").write_text("12345")
     (tmp_path / "one.txt").write_text("one\n")
@@ -60,11 +60,11 @@ def writewin(app):
 
 
 def test_a_slow_viewer_open_shows_the_box_and_cancel_opens_nothing(files, monkeypatch):
-    import navigator.viewer as viewer_model
+    import navigator.lib.viewer as viewer_model
 
     release = held(monkeypatch, viewer_model.ViewSource, "__init__")
     monkeypatch.setattr(loading, "SLOW_PROGRESS_DELAY", 0.05)
-    monkeypatch.setattr("navigator.progress.SLOW_PROGRESS_DELAY", 0.05)
+    monkeypatch.setattr("navigator.lib.system.progress.SLOW_PROGRESS_DELAY", 0.05)
     app = navigator(files)
     seen = []
 
@@ -150,10 +150,9 @@ def test_a_slow_probe_shows_a_branch_until_it_answers(files, monkeypatch):
 
 
 def test_a_slow_attributes_survey_shows_the_box(files, monkeypatch):
-    from navigator import fileattr
-
+    from navigator.lib.file_ops import fileattr
     release = held(monkeypatch, fileattr, "survey")
-    monkeypatch.setattr("navigator.progress.SLOW_PROGRESS_DELAY", 0.05)
+    monkeypatch.setattr("navigator.lib.system.progress.SLOW_PROGRESS_DELAY", 0.05)
     app = navigator(files)
     seen = []
     run_app(app, [go_to("one.txt"), KeyEvent("e", alt=True), Until(writewin),

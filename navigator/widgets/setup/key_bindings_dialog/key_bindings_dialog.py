@@ -1,7 +1,7 @@
 """What the Key bindings dialog edits, and what OK means: every section's keys.
 
 The dialog holds ``{section: {command: keys}}`` for every section of
-:mod:`navigator.keybindings`, as bound when it opened, and changes only that
+:mod:`navigator.lib.config.keybindings`, as bound when it opened, and changes only that
 copy; OK answers it and Cancel answers None, so nothing is bound until the
 dialog is done.  A key moved onto a command is asked about when another
 command of the same table has it (and taken from that one), and when the
@@ -12,7 +12,7 @@ with the reason.
 *Save* writes the keys as edited so far to a file of one's own, binding
 nothing, and *Load* puts a file's in place of every edit -- what it does not
 name at its default, as at a start -- for OK to bind: one's own, or a set
-Navigator ships (:func:`navigator.keybindings.presets_dir`).
+Navigator ships (:func:`navigator.lib.config.keybindings.presets_dir`).
 """
 
 from __future__ import annotations
@@ -28,8 +28,8 @@ from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator import keybindings
-from navigator.keybindings import Assignment, Entry, Section
+from navigator.lib.config import keybindings
+from navigator.lib.config.keybindings import Assignment, Entry, Section
 from navigator.widgets.setup.key_bindings_dialog.binding_list import keys_text
 
 

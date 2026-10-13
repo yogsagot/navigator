@@ -42,8 +42,8 @@ from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
-from navigator.file_history import open_editor, open_viewer
-from navigator.associations import EDITORS, VIEWERS
+from navigator.lib.config.file_history import open_editor, open_viewer
+from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.settings import SETTINGS
 
 

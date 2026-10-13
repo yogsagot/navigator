@@ -1,6 +1,6 @@
 ---
 name: i18n
-description: Translating Navigator -- navkit/i18n.py (tr, tr_n, tr_plain, LOCALE, catalogues, plural rules), the generator's live captions (`_tr` and yielding bindings for text/title/label_text/items/prompt literals), navigator/language.py (--language, [interface] language, $LANG, the user's locales/ beside navigator.ini), Options > Interface's Language choice, and tools/i18n.py extract/check. Use when adding user-visible text, adding a language, or when a caption does not follow a language change.
+description: Translating Navigator -- navkit/i18n.py (tr, tr_n, tr_plain, LOCALE, catalogues, plural rules), the generator's live captions (`_tr` and yielding bindings for text/title/label_text/items/prompt literals), navigator/lib/config/language.py (--language, [interface] language, $LANG, the user's locales/ beside navigator.ini), Options > Interface's Language choice, and tools/i18n.py extract/check. Use when adding user-visible text, adding a language, or when a caption does not follow a language change.
 ---
 
 # Translation
@@ -20,7 +20,7 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
   A plural entry is a list of forms in the language's rule order (lv: one, other, zero -- `1 fails`, `2 faili`,
   `10 failu`).
-- **`navigator/language.py`**: `install(config_dir)` registers the three places; `resolve(code)` takes a code, its
+- **`navigator/lib/config/language.py`**: `install(config_dir)` registers the three places; `resolve(code)` takes a code, its
   bare language (`lv_LV` to `lv`), or English; empty means the environment (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`).
   Precedence: `--language`, `[interface] language`, environment, English. `main()` applies it before the app starts.
 - **Options > Interface** has a *Language* `ChoiceField`; `Shell._interface_setup` applies a *changed* choice live

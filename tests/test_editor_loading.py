@@ -20,12 +20,14 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE, spinner
 
-from navigator import memory, smartpad
+from navigator.lib.system import memory
+
+from navigator.lib.utilities import smartpad
 from navigator.__main__ import Navigator
-from navigator.editor import document as document_module
-from navigator.editor.document import Document, LineReader, decode, read_document, read_text
-from navigator.job import Job, Stopped
-from navigator.memory import NOT_ENOUGH_MEMORY, NotEnoughMemory, parse_meminfo
+from navigator.lib.editor import document as document_module
+from navigator.lib.editor.document import Document, LineReader, decode, read_document, read_text
+from navigator.lib.system.job import Job, Stopped
+from navigator.lib.system.memory import NOT_ENOUGH_MEMORY, NotEnoughMemory, parse_meminfo
 from navigator.settings import SETTINGS
 from navigator.widgets.editor import loading
 
@@ -173,7 +175,7 @@ def test_without_proc_the_free_pages_are_asked(monkeypatch):
 
 @pytest.fixture
 def files(tmp_path, monkeypatch):
-    monkeypatch.setattr("navigator.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     (tmp_path / "text.txt").write_bytes(b"first line\nsecond line\n")
     return tmp_path
 
@@ -351,7 +353,7 @@ def test_a_spinner_turns_only_while_mounted():
 @pytest.fixture
 def slow_write(monkeypatch):
     """Saves that wait before their first byte until released -- or stopped."""
-    from navigator.editor import save as save_module
+    from navigator.lib.editor import save as save_module
     from navigator.widgets.editor.edit_window import edit_window
 
     release = threading.Event()
@@ -387,8 +389,8 @@ def test_encode_lines_gives_the_documents_bytes_whatever_the_step():
 
 
 def test_a_save_point_undone_while_it_was_written_saves_nothing():
-    from navigator.editor.buffer import EditBuffer
-    from navigator.editor.document import Pos
+    from navigator.lib.editor.buffer import EditBuffer
+    from navigator.lib.editor.document import Pos
 
     buffer = EditBuffer(Document.from_bytes(b"abc"))
     buffer.insert(Pos(0, 0), "x")

@@ -9,7 +9,7 @@ from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
-from navigator.tetris import ANONYMOUS, FIGURES, Game, colour_of
+from navigator.lib.utilities.tetris import ANONYMOUS, FIGURES, Game, colour_of
 
 #: A preview cell, as the glass draws one.
 BLOCK = "█"
