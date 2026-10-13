@@ -1074,6 +1074,8 @@ name = "Русский"
 "Volumes" = "Тома"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:53
 "~S~how all mounts" = "Показать ~в~се монтирования"
+# navigator/widgets/shell/volumes_window/volumes_window.nml:62
+"Show ~f~ree %" = "Показать ~с~вободно %"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:57
 "~G~o" = "~П~ерейти"
 # navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:25
@@ -1698,7 +1700,7 @@ name = "Русский"
 "Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
 # navigator/widgets/manager/panel/panel.py:1752
 "Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:1780, navigator/widgets/shell/volume_list/volume_list.py:96
+# navigator/widgets/manager/panel/panel.py:1780, navigator/widgets/shell/volume_list/volume_list.py:112
 "Name" = "Имя"
 # navigator/widgets/manager/panel/panel.py:1544
 "{total} in {n} selected file" = ["{total} в {n} отмеченном файле", "{total} в {n} отмеченных файлах", "{total} в {n} отмеченных файлах"]
@@ -1812,11 +1814,15 @@ name = "Русский"
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
-# navigator/widgets/shell/volume_list/volume_list.py:96
+# navigator/widgets/shell/volume_list/volume_list.py:112
 "Type" = "Тип"
-# navigator/widgets/shell/volume_list/volume_list.py:96
+# navigator/widgets/shell/volume_list/volume_list.py:112
 "Mount point" = "Точка монтирования"
-# navigator/widgets/shell/volume_list/volume_list.py:96
+# navigator/widgets/shell/volume_list/volume_list.py:111
+"Use %" = "Занято %"
+# navigator/widgets/shell/volume_list/volume_list.py:111
+"Free %" = "Свободно %"
+# navigator/widgets/shell/volume_list/volume_list.py:112
 "Free" = "Свободно"
 # navigator/widgets/tree/directory_tree/directory_tree.py:149
 "{n} file with {total}" = ["{n} файл, {total}", "{n} файла, {total}", "{n} файлов, {total}"]

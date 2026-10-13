@@ -4,10 +4,11 @@ A :class:`~navml.widgets.dialog.list_viewer.ListViewer` over
 :class:`navigator.lib.system.volumes.Volume` items, laid out as a detailed file panel is:
 the titles centred in the band under the top edge, a ``│`` between columns
 from the titles down to the last row, the cursor bar across them.  *Name*,
-*Type*, *Free* and *Size* keep their widths; *Mount point* takes what is left
+*Type*, *Use %* (or *Free %*), *Free* and *Size* keep their widths; *Mount point* takes what is left
 and is cut at its start, so the end of the path -- the part that tells two
 mounts apart -- stays in sight.  Sizes are ``sysinfo.size_text``'s, as System
-Information gives a disk's.
+Information gives a disk's.  The share column is ``df``'s *Use%* unless
+:attr:`VolumeList.show_free` turns it into the free share.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from typing import Any
 
 from navkit import glyphs as glyphs_module
 from navkit.i18n import tr
+from navkit.reactive import reactive
 from navkit.screen import Surface
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
@@ -27,14 +29,27 @@ from navigator.widgets.manager.panel.panel import fit_text
 NAME_WIDTH = 14
 TYPE_WIDTH = 12
 SIZE_WIDTH = 9
+PERCENT_WIDTH = 7
 
 
 def _size(value: int | None) -> str:
     return size_text(value) if value is not None else "?"
 
 
+def _percent(free: int | None, total: int | None, show_free: bool) -> str:
+    """The used share of *total* (the free one if *show_free*), as a whole
+    percentage; ``?`` when either is unknown."""
+    if free is None or not total:
+        return "?"
+    share = free if show_free else total - free
+    return f"{round(share * 100 / total)}%"
+
+
 class VolumeList(ListViewer):
-    """Mounted volumes: name, type, mount point, free space and size."""
+    """Mounted volumes: name, type, mount point, used (or free) share, free space and size."""
+
+    #: The share column shows the free share instead of the used one.
+    show_free: bool = reactive(False)
 
     #: Enter or a double click, carrying the volume as its ``node``: the
     #: tree's event, as Window > List's is, since a row was chosen and that is
@@ -58,7 +73,7 @@ class VolumeList(ListViewer):
 
     def columns(self) -> list[tuple[int, int]]:
         """``(x, width)`` of each column, a divider's cell between two."""
-        fixed = (NAME_WIDTH, TYPE_WIDTH, None, SIZE_WIDTH, SIZE_WIDTH)
+        fixed = (NAME_WIDTH, TYPE_WIDTH, None, PERCENT_WIDTH, SIZE_WIDTH, SIZE_WIDTH)
         rest = max(0, self.inner_width - sum(width for width in fixed if width) - (len(fixed) - 1))
         spans: list[tuple[int, int]] = []
         x = self.inset
@@ -72,7 +87,7 @@ class VolumeList(ListViewer):
         """*item*'s text in each column, and whether it is right-aligned."""
         return [
             (item.name, False), (item.fs_type, False), (item.mount, False),
-            (_size(item.free), True), (_size(item.total), True),
+            (_percent(item.free, item.total, self.show_free), True), (_size(item.free), True), (_size(item.total), True),
         ]
 
     def row_text(self, index: int, item: Any) -> str:
@@ -93,7 +108,8 @@ class VolumeList(ListViewer):
         Drawn before the rows, so the cursor bar covers a divider it crosses,
         as a panel's does.
         """
-        titles = (tr("Name"), tr("Type"), tr("Mount point"), tr("Free"), tr("Size"))
+        share = tr("Free %") if self.show_free else tr("Use %")
+        titles = (tr("Name"), tr("Type"), tr("Mount point"), share, tr("Free"), tr("Size"))
         top = self.inset
         bottom = top + self.header + self.rows
         right = self.inset + self.inner_width

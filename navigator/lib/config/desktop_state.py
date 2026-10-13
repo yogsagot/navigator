@@ -99,7 +99,7 @@ def _window(window: Any) -> dict[str, Any] | None:
     elif isinstance(window, CalendarWindow):
         kept.update(kind="calendar")
     elif isinstance(window, VolumesWindow):
-        kept.update(kind="volumes", all=bool(window.show_all))
+        kept.update(kind="volumes", all=bool(window.show_all), free=bool(window.show_free))
     else:
         return None
     return kept
@@ -233,7 +233,7 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
     if kind == "volumes":
         from navigator.widgets.shell.volumes_window import VolumesWindow
 
-        return desktop.open(VolumesWindow(show_all=bool(kept.get("all"))))
+        return desktop.open(VolumesWindow(show_all=bool(kept.get("all")), show_free=bool(kept.get("free"))))
     return None
 
 

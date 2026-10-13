@@ -138,18 +138,18 @@ def test_alt_s_ticks_show_all_mounts(tmp_path, monkeypatch):
     assert seen == [["/", str(tmp_path), "/proc"]]
 
 
-def test_tab_walks_the_list_the_box_and_the_buttons(tmp_path, monkeypatch):
+def test_tab_walks_the_list_the_boxes_and_the_buttons(tmp_path, monkeypatch):
     seen = []
 
     def look(a):
         window = a.shell.desktop.active_window
         names = {id(window.volumes): "list", id(window.everything): "box",
-                 id(window.go_button): "go", id(window.close_button): "close"}
+                 id(window.free_box): "free", id(window.go_button): "go", id(window.close_button): "close"}
         seen.append(names.get(id(a.focused)))
 
     tab = KeyEvent("tab")
-    volumes_run(tmp_path, monkeypatch, tab, look, tab, look, tab, look, tab, look)
-    assert seen == ["box", "go", "close", "list"]
+    volumes_run(tmp_path, monkeypatch, tab, look, tab, look, tab, look, tab, look, tab, look)
+    assert seen == ["box", "free", "go", "close", "list"]
 
 
 def test_enter_sends_the_active_panel_to_the_mount_point(tmp_path, monkeypatch):
@@ -201,5 +201,23 @@ def test_the_rows_show_the_columns_in_short_units(tmp_path, monkeypatch):
         rows.extend(listing.cells(item) for item in listing.items)
 
     volumes_run(tmp_path, monkeypatch, look)
-    assert rows[0] == [("sda2", False), ("ext4", False), ("/", False), ("40G", True), ("100G", True)]
-    assert rows[1][3:] == [("3,072K", True), ("8,192M", True)]
+    assert rows[0] == [("sda2", False), ("ext4", False), ("/", False), ("60%", True), ("40G", True), ("100G", True)]
+    assert rows[1][3:] == [("100%", True), ("3,072K", True), ("8,192M", True)]
+
+
+def test_a_share_of_nothing_is_unknown():
+    from navigator.widgets.shell.volume_list.volume_list import _percent
+
+    assert _percent(0, 0, False) == _percent(None, 100, True) == "?"
+
+
+def test_show_free_turns_the_use_column_into_the_free_one(tmp_path, monkeypatch):
+    seen = []
+
+    def look(a):
+        listing = a.shell.desktop.active_window.volumes
+        seen.append((listing.show_free, listing.cells(listing.items[0])[3]))
+
+    volumes_run(tmp_path, monkeypatch, look, KeyEvent("f", alt=True), lambda a: None, look,
+                KeyEvent("f", alt=True), lambda a: None, look)
+    assert seen == [(False, ("60%", True)), (True, ("40%", True)), (False, ("60%", True))]

@@ -25,7 +25,7 @@ Slots `[94-101]`, `[104-110]`.
   window was a choice.
 - **Disk > Volumes is not DN's** (a departure, in the place and letter of its *Volume label*): `VolumesWindow`
   (`navigator/widgets/shell/volumes_window/`) is laid out as the tree window, its `VolumeList` a `ListViewer` with
-  column titles in its `header` band (Name, Type, Mount point, Free, Size; sizes by `sysinfo.size_text`). The mounts
+  column titles in its `header` band (Name, Type, Mount point, Use %, Free, Size; sizes by `sysinfo.size_text`; the *Show free %* box under *Show all mounts* makes Use % -- `df`'s -- Free %, `VolumeList.show_free`). The mounts
   are `navigator/lib/system/volumes.py`'s `gather()` over `/proc/self/mounts`, read on a thread (`Background`) from `mounted()`,
   never `__init__` -- a stale network mount holds `statvfs`, and one that raises is skipped. Only *real* volumes show
   (`is_real`: a `/dev` device not a loop, a network or user FUSE mount); the *Show all mounts* box under the list (or
@@ -33,7 +33,7 @@ Slots `[94-101]`, `[104-110]`.
   peeks the list so a cursor move does not wake it. Enter's `ChosenEvent` carries the `Volume` up to
   `Shell.on_chosen`, which sends the active panel to its mount point, and the window stays; *Go* (default, Alt+G) does
   the same and closes it; *Close* closes. Tab walks the controls and Alt+letter takes one, as the calculator
-  window does. The window is kept by a saved desktop (`kind="volumes"`, with the box).
+  window does. The window is kept by a saved desktop (`kind="volumes"`, with both boxes).
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a

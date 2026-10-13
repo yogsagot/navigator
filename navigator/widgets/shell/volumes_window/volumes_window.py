@@ -30,10 +30,12 @@ _READER = Background("nav-volumes", workers=1)
 class VolumesWindow(Window):
     """The mounted volumes in a window of their own."""
 
-    def __init__(self, show_all: bool = False, **kwargs: Any) -> None:
-        """*show_all* ticks *Show all mounts*: the kernel's own file systems too."""
+    def __init__(self, show_all: bool = False, show_free: bool = False, **kwargs: Any) -> None:
+        """*show_all* ticks *Show all mounts*: the kernel's own file systems too;
+        *show_free* ticks *Show free %*: the free share instead of the used one."""
         super().__init__(**kwargs)
         self.show_all = show_all
+        self.show_free = show_free
         self._found: list[volumes.Volume] = []
         self._reads = 0
 
@@ -46,9 +48,19 @@ class VolumesWindow(Window):
     def show_all(self, value: bool) -> None:
         self.everything.value = 1 if value else 0
 
+    @property
+    def show_free(self) -> bool:
+        """Whether *Show free %* is ticked."""
+        return bool(self.free_box.value & 1)
+
+    @show_free.setter
+    def show_free(self, value: bool) -> None:
+        self.free_box.value = 1 if value else 0
+
     def mounted(self) -> None:
         super().mounted()
         effect(self, VolumesWindow._follow_box)
+        effect(self, VolumesWindow._follow_free_box)
         # Not from ``__init__``: until the window is on the desktop it has no
         # application, and ``Background`` would read on the loop instead.
         self.reload()
@@ -57,6 +69,10 @@ class VolumesWindow(Window):
         """The box ticked or cleared, by a key, a click or Ctrl+H: list again."""
         self.everything.value  # noqa: B018 -- what this effect follows
         self._show()
+
+    def _follow_free_box(self) -> None:
+        """*Show free %* ticked or cleared: the share column follows."""
+        self.volumes.show_free = self.show_free
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
@@ -138,7 +154,7 @@ class VolumesWindow(Window):
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():
-            for control in (self.everything, self.go_button, self.close_button):
+            for control in (self.everything, self.free_box, self.go_button, self.close_button):
                 if control.shortcut_match(event.key):
                     return await control.activate(event.key)
         return await super().on_key(event)

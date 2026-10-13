@@ -162,12 +162,13 @@ def test_a_volumes_window_comes_back_showing_what_it_showed(place, monkeypatch):
     seen = {}
 
     async def round_trip(a):
-        a.shell.desktop.open(VolumesWindow(show_all=True))
+        a.shell.desktop.open(VolumesWindow(show_all=True, show_free=True))
         data = desktop_state.snapshot(a.shell.desktop)
         for window in list(a.shell.desktop.windows()):
             window.close()
         await desktop_state.restore(a.shell.desktop, data)
-        seen.update(kinds=kinds(a), all=a.shell.desktop.windows()[-1].show_all)
+        window = a.shell.desktop.windows()[-1]
+        seen.update(kinds=kinds(a), all=window.show_all, free=window.show_free)
 
     run_app(app, [lambda a: a.spawn(round_trip(a)), Until(lambda a: "kinds" in seen)])
-    assert seen == {"kinds": ["Manager", "VolumesWindow"], "all": True}
+    assert seen == {"kinds": ["Manager", "VolumesWindow"], "all": True, "free": True}
