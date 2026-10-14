@@ -62,6 +62,15 @@ after that paste is dispatched (Navigator shows a box suggesting xclip/xsel/wl-c
 query pending is dropped, so a late one cannot paste a second time. Ghostty's `clipboard-read = ask` prompt is usually
 slower than the timeout -- `allow` gives the real answer.
 
+## Window title
+
+`Terminal.set_title()` writes OSC 0, and the first one of a run pushes the terminal's own title first (`TITLE_PUSH`,
+xterm's `CSI 22;0 t`); `stop()` pops it (`TITLE_POP`), so the shell's title (an ssh session's `user@host /dir`) comes
+back on exit. The title cannot be read instead -- `CSI 21 t` is refused nearly everywhere. Repeating the title last sent
+writes nothing. `Application.title` is a property: assigned while running, it is written and flushed at once, since a
+frame flushes only when a cell changed. Navigator's title is `navigator/lib/system/title.py`'s `user@host ~/dir —
+Navigator`, kept on the prompt's directory by `Shell._name_window` (an effect, beside `_follow_panel`).
+
 ## Manual checks
 
 For what a fake terminal cannot cover (raw mode, real escapes, `SIGWINCH`), run `python -m navigator` on a pty:

@@ -100,6 +100,8 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   panel's directory; `Shell.command_prompt_cells` compares `Console.prompt_cwd`). The hook *brackets* whatever `PS1` the
   rc left; `prompt_cells()` decodes the held-back bytes on a one-row `ConsoleScreen`, so a multi-line prompt shows its
   last line.
+- **The terminal's title follows the same directory** as `Shell.command_prompt` (`Shell._name_window`,
+  `user@host ~/dir — Navigator`; `navkit-terminal` skill, *Window title*).
 - **The prompt is blank while a command runs** (a departure): `Subshell.busy` is a property that calls `on_busy`,
   mirrored as the reactive `Console.running`, and `Shell.command_prompt`/`command_prompt_cells` are empty while it is
   set -- the prompt coming back is the sign the command finished, as in a terminal. The row stays (giving it to the

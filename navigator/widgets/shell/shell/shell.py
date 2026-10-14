@@ -29,6 +29,7 @@ from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     Game,
@@ -742,6 +743,7 @@ class Shell(DockLayout):
     def mounted(self) -> None:
         super().mounted()
         effect(self, Shell._follow_panel)
+        effect(self, Shell._name_window)
         effect(self, Shell._size_histories)
         effect(self, Shell._choose_clipboard)
         effect(self, Shell._use_highlight_groups)
@@ -794,6 +796,16 @@ class Shell(DockLayout):
         where = self._front_directory()
         if where is not None:
             self.console.subshell.sync(where)
+
+    def _name_window(self) -> None:
+        """Keep the terminal's title on the directory the prompt names."""
+        where = self._front_directory()
+        if where is None:
+            where = self.console.subshell.cwd or self.console.cwd
+        title = window_title(Path(where) if where is not None else None)
+        application = self.application
+        if application is not None:
+            application.title = title
 
     @computed
     def command_prompt(self) -> str:

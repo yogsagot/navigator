@@ -290,7 +290,7 @@ class Application:
         self.terminal = terminal or Terminal(
             mouse=mouse, palette=palette, reprogram_palette=reprogram_palette
         )
-        self.title = title
+        self._title = title
         self._background = background
         #: Whether what lies beneath the top modal is painted dimmed.  Off by
         #: default and experimental -- see :meth:`_painting_modal`.
@@ -486,6 +486,19 @@ class Application:
         if self._failure is not None:
             raise self._failure
         return self.result
+
+    @property
+    def title(self) -> str | None:
+        """What the terminal's window or tab is called while this runs."""
+        return self._title
+
+    @title.setter
+    def title(self, title: str | None) -> None:
+        self._title = title
+        if title and self._running:
+            # Out at once: a frame flushes only when a cell changed.
+            self.terminal.set_title(title)
+            self.terminal.flush()
 
     def exit(self, result: Any = None) -> None:
         """Ask the event loop to stop after the current batch of events."""

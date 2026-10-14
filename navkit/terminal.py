@@ -49,6 +49,9 @@ CURSOR_SHAPES = {
 CURSOR_SHAPE_RESET = "\x1b[0 q"
 AUTOWRAP_OFF = "\x1b[?7l"
 AUTOWRAP_ON = "\x1b[?7h"
+#: Save and restore the window title, icon name included (xterm's window ops).
+TITLE_PUSH = "\x1b[22;0t"
+TITLE_POP = "\x1b[23;0t"
 def place_cursor(x: int, y: int, shape: str = "default") -> str:
     """Put the terminal's own cursor at *x*, *y* and show it.
 
@@ -876,6 +879,10 @@ class Terminal:
         #: and its modes given back.
         self.suspended = False
         self._pending: list[str] = []
+        #: The title last sent, and whether the one before Navigator's own
+        #: was pushed onto the terminal's title stack to be popped at the end.
+        self._title: str | None = None
+        self._title_pushed = False
 
     @property
     def input_fd(self) -> int:
@@ -912,6 +919,13 @@ class Terminal:
         if not self.suspended:
             self._leave_modes()
         self.suspended = False
+        if self._title_pushed:
+            # The title the shell had set comes back, where the terminal
+            # keeps a stack of them; the others ignore a CSI t they lack.
+            self.write(TITLE_POP)
+            self.flush()
+            self._title_pushed = False
+            self._title = None
         if self._saved_attrs is not None:
             termios.tcsetattr(self.input_fd, termios.TCSADRAIN, self._saved_attrs)
             self._saved_attrs = None
@@ -988,8 +1002,21 @@ class Terminal:
             self.flush()
 
     def set_title(self, title: str) -> None:
-        if self.info.title:
-            self.write(f"\x1b]0;{title}\x07")
+        """Name the terminal's window or tab *title*, from the next :meth:`flush`.
+
+        The first one of a run pushes whatever the title was (xterm's
+        ``CSI 22;0 t``, which VTE, kitty, Ghostty, foot and WezTerm keep too),
+        so :meth:`stop` can give it back.  The title cannot be read instead:
+        ``CSI 21 t`` is refused by nearly every terminal, being a way for
+        anything printed to type into the shell.
+        """
+        if not self.info.title or title == self._title:
+            return
+        if not self._title_pushed:
+            self.write(TITLE_PUSH)
+            self._title_pushed = True
+        self._title = title
+        self.write(f"\x1b]0;{title}\x07")
 
     def bell(self) -> None:
         """Queue the terminal's bell, BEL, for the next :meth:`flush`."""

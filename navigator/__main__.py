@@ -42,6 +42,7 @@ from navigator.lib.config.associations import seed_all as seed_associations
 from navigator.lib.config.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.title import window_title
 from navml.widgets.menu.commands import OpenMenu
 from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
@@ -95,7 +96,7 @@ class Navigator(Application):
         self._last_input = 0.0
         #: Whether the pointer was in the top right corner at the last look.
         self._in_corner = False
-        kwargs.setdefault("title", "Navigator")
+        kwargs.setdefault("title", window_title(Path(left).absolute()))
         self.shell = Shell(left, right, scheme)
         self.shell.theme = theme
         super().__init__(root=self.shell, **kwargs)
