@@ -2131,6 +2131,10 @@ name = "Latviešu"
 # navigator/lib/appearance/palette.py
 "Title as root" = "Virsraksts kā saknei"
 # navigator/lib/appearance/palette.py
+"Error box" = "Kļūdas logs"
+# navigator/lib/appearance/palette.py
+"Error box icons" = "Kļūdas loga ikonas"
+# navigator/lib/appearance/palette.py
 "Keywords" = "Atslēgvārdi"
 # navigator/lib/config/keybindings.py
 "Global" = "Globāli"

@@ -2131,6 +2131,10 @@ name = "Русский"
 # navigator/lib/appearance/palette.py
 "Title as root" = "Заголовок (root)"
 # navigator/lib/appearance/palette.py
+"Error box" = "Окно ошибки"
+# navigator/lib/appearance/palette.py
+"Error box icons" = "Значки окна ошибки"
+# navigator/lib/appearance/palette.py
 "Keywords" = "Ключевые слова"
 # navigator/lib/config/keybindings.py
 "Global" = "Глобальные"

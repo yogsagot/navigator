@@ -239,6 +239,20 @@ Button StaticText::shortcut         { fg: $dialog-button-shortcut-fg; bold: $dia
 Button:am_default StaticText::shortcut { fg: $dialog-shortcut-default-fg; bold: $dialog-shortcut-default-bold; dim: $dialog-shortcut-default-dim; italic: $dialog-shortcut-default-italic; underline: $dialog-shortcut-default-underline; reverse: $dialog-shortcut-default-reverse }
 Button:focused StaticText::shortcut { fg: $dialog-shortcut-selected-fg; bold: $dialog-shortcut-selected-bold; dim: $dialog-shortcut-selected-dim; italic: $dialog-shortcut-selected-italic; underline: $dialog-shortcut-selected-underline; reverse: $dialog-shortcut-selected-reverse }
 
+/* The error box (ErrorDialog) is red: `$error-dialog', a departure -- DN's
+   `mfError' box kept the grey dialog palette and only said *Error* in its
+   title.  Its frame, title and text are white on red, the frame icons
+   yellow; the buttons keep a dialog's own colours, their shadows falling on
+   the red.  The two texts are named by id, so a button's caption -- also a
+   StaticText -- keeps its rule above.  The traceback is styled further down
+   with the editor's highlighting. */
+ErrorDialog,
+ErrorDialog::title,
+ErrorDialog StaticText#summary,
+ErrorDialog StaticText#logged  { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
+ErrorDialog::icon              { fg: $error-dialog-icons-fg; bg: $error-dialog-icons-bg; bold: $error-dialog-icons-bold; dim: $error-dialog-icons-dim; italic: $error-dialog-icons-italic; underline: $error-dialog-icons-underline; reverse: $error-dialog-icons-reverse }
+ErrorDialog Button::shadow     { fg: $dialog-button-shadow-fg; bg: $error-dialog-bg; bold: $dialog-button-shadow-bold; dim: $dialog-button-shadow-dim; italic: $dialog-button-shadow-italic; underline: $dialog-button-shadow-underline; reverse: $dialog-button-shadow-reverse }
+
 InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-normal-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
 InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
 InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }

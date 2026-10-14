@@ -36,6 +36,9 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   `default`). The ten other themes were given palconv's two alias lines by hand, as palconv would write them.
 - Variables Navigator needs and DN had no slot for are the **`DERIVED`** table, each an alias of a slot, with
   palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
+  `root-title`, `error-dialog` (white on red) and `error-dialog-icons` (yellow on red) are colour pairs, not aliases.
+  They colour the error box (`ErrorDialog`), which departs from DN, whose `mfError` box kept the grey dialog palette.
+  The eleven themes got their four lines by hand, spelled the way each theme spells `root-title`.
 - **The tables live in `navigator/lib/appearance/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because
   Options > Colors reads them too: its groups are `ENTRIES`' runs of one group name (so *Tree* and *Menu* come twice,
   as in DN) and a last *Navigator* group of `DERIVED` (`DERIVED_ITEMS` names them).

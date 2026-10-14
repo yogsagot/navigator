@@ -382,6 +382,10 @@ $temp-fg: $panel-fg;                  /*  backups and temporaries -- MC's class,
 $temp-bg: $panel-bg;
 $root-title-fg: $dn-white;            /*  a title while running as root -- no slot */
 $root-title-bg: $dn-red;
+$error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no slot: DN's error boxes were grey */
+$error-dialog-bg: $dn-red;
+$error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
+$error-dialog-icons-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
 

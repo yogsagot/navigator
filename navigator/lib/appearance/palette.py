@@ -209,7 +209,10 @@ ENTRIES = (
 #: Where no slot fits, the entry carries a DOS colour pair ``(fg, bg)`` instead
 #: of a slot, written as colours rather than as an alias.  ``root-title`` is
 #: one: the titles of a session running as root, white on dark red, which no
-#: DN palette draws anywhere because DOS had no root to warn about.
+#: DN palette draws anywhere because DOS had no root to warn about.  The
+#: ``error-dialog`` pair are others: the box an unexpected exception opens,
+#: white on red with yellow icons, where DN's ``mfError`` box kept the grey
+#: dialog palette and only said *Error* in its title.
 DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "image": (175, "images -- DN's Custom 1"),
     "media": (176, "audio and video -- DN's Custom 2"),
@@ -221,6 +224,8 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "special": (177, "a socket or a FIFO -- MC's class, on Custom 3"),
     "temp": (85, "backups and temporaries -- MC's class, on Normal text"),
     "root-title": ((15, 4), "a title while running as root -- no slot"),
+    "error-dialog": ((15, 4), "the error box, frame and text -- no slot: DN's error boxes were grey"),
+    "error-dialog-icons": ((14, 4), "the error box's frame icons -- no slot"),
     "keyword": (76, "the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text"),
 }
 
@@ -257,6 +262,8 @@ DERIVED_ITEMS = {
     "special": "Socket or FIFO",
     "temp": "Temporary file",
     "root-title": "Title as root",
+    "error-dialog": "Error box",
+    "error-dialog-icons": "Error box icons",
     "keyword": "Keywords",
 }
 

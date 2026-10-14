@@ -21,6 +21,7 @@ ErrorDialog(Dialog):
 
     StaticText:
         id: summary
+        name: "summary"
         x: 2
         y: 1
         width: max(0, parent.width - 4)
@@ -39,6 +40,7 @@ ErrorDialog(Dialog):
 
     StaticText:
         id: logged
+        name: "logged"
         x: 2
         y: max(0, parent.height - 6)
         width: max(0, parent.width - 4)

@@ -212,4 +212,6 @@ $device-bold: inherit; $device-dim: inherit; $device-italic: inherit; $device-un
 $special-bold: inherit; $special-dim: inherit; $special-italic: inherit; $special-underline: inherit; $special-reverse: inherit;
 $temp-bold: inherit; $temp-dim: inherit; $temp-italic: inherit; $temp-underline: inherit; $temp-reverse: inherit;
 $root-title-bold: inherit; $root-title-dim: inherit; $root-title-italic: inherit; $root-title-underline: inherit; $root-title-reverse: inherit;
+$error-dialog-bold: inherit; $error-dialog-dim: inherit; $error-dialog-italic: inherit; $error-dialog-underline: inherit; $error-dialog-reverse: inherit;
+$error-dialog-icons-bold: inherit; $error-dialog-icons-dim: inherit; $error-dialog-icons-italic: inherit; $error-dialog-icons-underline: inherit; $error-dialog-icons-reverse: inherit;
 $keyword-bold: inherit; $keyword-dim: inherit; $keyword-italic: inherit; $keyword-underline: inherit; $keyword-reverse: inherit;

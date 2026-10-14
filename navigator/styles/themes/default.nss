@@ -373,6 +373,10 @@ $temp-fg: black;                      /*  backups and temporaries -- MC's class,
 $temp-bg: $panel-bg;
 $root-title-fg: white;                /*  a title while running as root -- no slot */
 $root-title-bg: red;
+$error-dialog-fg: white;              /*  the error box, frame and text -- no slot: DN's error boxes were grey */
+$error-dialog-bg: red;
+$error-dialog-icons-fg: yellow;       /*  the error box's frame icons -- no slot */
+$error-dialog-icons-bg: red;
 $keyword-fg: yellow;                  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] -- Navigator: yellow keywords, which DN left plain */
 $keyword-bg: $editor-normal-text-bg;
 
