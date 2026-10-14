@@ -47,6 +47,7 @@ from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
 from navigator.lib.config.file_history import remember_windows
+from navigator.lib.system import errorlog
 from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
@@ -72,13 +73,21 @@ class Navigator(Application):
 
     def __init__(
         self, left: Path, right: Path, scheme: Stylesheet | None = None, *,
-        given: bool = False, theme: str = DEFAULT_THEME, **kwargs
+        given: bool = False, theme: str = DEFAULT_THEME, on_error: str | None = None,
+        **kwargs
     ):
         """*given*: *left* and *right* came from the command line, so a desktop
         restored at the start puts its first file manager there.  *theme*
         names the theme *scheme* was loaded from, which Options > Colors
-        loads again under the palette it edits."""
+        loads again under the palette it edits.  *on_error* is
+        ``--on-error``'s word, winning over System Setup's for the session."""
         scheme = scheme or default_scheme()
+        self._on_error = on_error
+        #: Whether the error box is up: a failure while it is ends Navigator.
+        self._error_shown = False
+        #: The last failure written to ``errors.log``, so the one *Quit*
+        #: stops on is not written twice.
+        self._last_logged: BaseException | None = None
         self._given = (left, right) if given else None
         #: The directory Navigator started in, DOS's current one at the start.
         self._start = left
@@ -191,6 +200,41 @@ class Navigator(Application):
             shell.run_command(command, typed=False)
         else:
             self.exit()
+
+    # -- failures -------------------------------------------------------------
+
+    @property
+    def on_error(self) -> str:
+        """``dialog`` or ``crash``: the flag's, else System Setup's."""
+        return self._on_error or SETTINGS.system.on_error
+
+    def log_error(self, error: BaseException) -> None:
+        if error is not self._last_logged:
+            self._last_logged = error
+            errorlog.append(error)
+
+    def report_error(self, error: BaseException) -> bool:
+        """The error box, unless *On error* says quit -- or the box is
+        already up, when a second failure means the first left things broken."""
+        if self.on_error != "dialog" or self._error_shown or self.root is None:
+            return False
+        self._error_shown = True
+        self.spawn(self._show_error(error))
+        return True
+
+    async def _show_error(self, error: BaseException) -> None:
+        from navigator.widgets.shell.error_dialog import ErrorDialog
+
+        try:
+            answer = await ErrorDialog(error, errorlog.PATH).execute(self)
+        except Exception as during:
+            # The box itself failed: no way left to show it, so stop on it.
+            self.log_error(during)
+            answer = "quit"
+        finally:
+            self._error_shown = False
+        if answer == "quit":
+            self.fail(error, fatal=True)
 
     async def on_stop(self) -> None:
         # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
@@ -569,6 +613,12 @@ def main(argv: list[str] | None = None) -> int:
              "(default: the settings file's, else on; experimental)",
     )
     parser.add_argument(
+        "--on-error", choices=("dialog", "crash"), default=None,
+        help="what an unexpected error does: show a box with its traceback, "
+             "or quit printing it (default: the settings file's, else dialog); "
+             "either way it is appended to errors.log beside the database",
+    )
+    parser.add_argument(
         "--config", metavar="PATH", type=Path, default=None,
         help=f"the settings file to read and save (default: {config_path()})",
     )
@@ -595,6 +645,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     load_settings(args.config)
+    # First, so a failure from here on -- and a hard crash, through
+    # faulthandler -- leaves a record even when the screen it was on is gone.
+    errorlog.open_log()
     # extensions.ini, viewers.ini, editors.ini, quickrun.ini, highlight.ini and
     # menu.ini beside it, written from their templates when missing, as
     # navigator.ini is.
@@ -662,7 +715,7 @@ def main(argv: list[str] | None = None) -> int:
     right = Path(args.right).expanduser().resolve() if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
     Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
-              given=bool(args.left), theme=theme).run()
+              given=bool(args.left), theme=theme, on_error=args.on_error).run()
     return 0
 
 

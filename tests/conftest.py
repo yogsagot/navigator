@@ -311,6 +311,9 @@ def _default_settings(monkeypatch, tmp_path):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     SETTINGS.reset()
     SETTINGS.panel_defaults.view_mode = "simple"
+    # A failure fails the test rather than opening a box nobody answers; the
+    # box is tested where it is chosen.
+    SETTINGS.system.on_error = "crash"
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()

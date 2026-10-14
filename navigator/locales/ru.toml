@@ -344,7 +344,7 @@ name = "Русский"
 "Classic ~t~etris" = "~Т~етрис"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "~П~ентикс"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:27, navigator/widgets/shell/main_menu/main_menu.nml:276
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:31, navigator/widgets/shell/main_menu/main_menu.nml:276
 "~O~ptions" = "~Н~астройки"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~С~лед. фигура"
@@ -820,22 +820,28 @@ name = "Русский"
 "Autosave ~D~esktop" = "Автозапись ~с~остояния"
 # navigator/widgets/setup/startup_dialog/startup_dialog.nml:49
 "~P~reserve directory" = "Запоминать ка~т~алог"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:19, navigator/widgets/shell/commands.py:277
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:23, navigator/widgets/shell/commands.py:277
 "System Setup" = "Системные установки"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Internal ~e~ditor" = "Встроенный ~р~едактор"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Internal ~v~iewer" = "Встроенный пр~о~смотр"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "~U~se system clipboard" = "Бу~ф~ер обмена ОС"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "~S~how hidden files" = "Показывать ~с~крытые"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "S~y~nc after copying" = "Sync после ~к~опирования"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Use internal te~r~minal" = "Встроенный ~т~ерминал"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:44
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:48
 "~T~emporary directory" = "~В~ременный каталог"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:66
+"Unexpected ~f~ailures" = "Не~п~редвиденные ошибки"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:75
+"Show a ~m~essage" = "Показать сооб~щ~ение"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:75
+"~Q~uit with a traceback" = "~З~авершить с трассировкой"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "Таблица ASCII"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
@@ -882,6 +888,12 @@ name = "Русский"
 "~A~ppend" = "~Д~обавить"
 # navigator/widgets/shell/environment_dialog/environment_dialog.nml:76, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~D~elete" = "~У~далить"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:45
+"~C~ontinue" = "~П~родолжить"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:54
+"C~o~py" = "~К~опировать"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:62
+"~Q~uit" = "~В~ыход"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:14, navigator/commands.py:32
 "Exit" = "Выход"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:24
@@ -1140,9 +1152,9 @@ name = "Русский"
 "Search Progress" = "Ход поиска"
 # navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
 "~S~earch for" = "~И~скать текст"
-# navigator/__main__.py:370
+# navigator/__main__.py:414
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Не удалось прочитать буфер обмена рабочего стола, поэтому Navigator вставил свою последнюю копию. Установите xclip или xsel (X11) либо wl-clipboard (Wayland), чтобы буфер обмена был общим с другими программами."
-# navigator/__main__.py:375
+# navigator/__main__.py:419
 "Clipboard" = "Буфер обмена"
 # navigator/commands.py:66
 "Character table" = "Таблица символов"
@@ -1276,33 +1288,33 @@ name = "Русский"
 "License: {license}" = "Лицензия: {license}"
 # navigator/settings.py:231
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
-# navigator/settings.py:249
+# navigator/settings.py:253
 "Options > Configuration > System Setup (DN's dlgSystemSetup)" = "Параметры > Конфигурация > Система (dlgSystemSetup в DN)"
-# navigator/settings.py:279
+# navigator/settings.py:290
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Параметры > Конфигурация > Запуск (dlgStartupSetup в DN)"
-# navigator/settings.py:305
+# navigator/settings.py:316
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Параметры > Конфигурация > Интерфейс (dlgInterfaceSetup в DN)"
-# navigator/settings.py:356
+# navigator/settings.py:367
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Параметры > Конфигурация > Подтверждения (dlgConfirmations в DN)"
-# navigator/settings.py:376
+# navigator/settings.py:387
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
-# navigator/settings.py:441
+# navigator/settings.py:452
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:464
+# navigator/settings.py:475
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:497
+# navigator/settings.py:508
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:544
+# navigator/settings.py:555
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:577
+# navigator/settings.py:588
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:613
+# navigator/settings.py:624
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:628
+# navigator/settings.py:639
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:650
+# navigator/settings.py:661
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:665
+# navigator/settings.py:676
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Дубль"
@@ -1786,6 +1798,12 @@ name = "Русский"
 "Rename variable \"{name}\"" = "Переименование переменной \"{name}\""
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:129
 "OK to delete the Environment\nvariable \"{name}\"" = "Удалить переменную\n\"{name}\"?"
+# navigator/widgets/shell/error_dialog/error_dialog.py:32
+"Not logged to a file this session" = "В этом сеансе в файл не записывается"
+# navigator/widgets/shell/error_dialog/error_dialog.py:51
+"Copied" = "Скопировано"
+# navigator/widgets/shell/error_dialog/error_dialog.py:31
+"Also written to {path}" = "Также записано в {path}"
 # navigator/widgets/shell/shell/shell.py:376
 "Execute OS Command" = "Выполнить команду ОС"
 # navigator/widgets/shell/shell/shell.py:1971

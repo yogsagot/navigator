@@ -1,0 +1,70 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.shell.error_dialog.trace_list import TraceList
+
+#: An exception escaped Navigator's code: what it was, and where.
+#:
+#: Not DOS Navigator's -- a failure there was Turbo Pascal's ``Runtime error
+#: NNN at XXXX:YYYY`` and the end of the program.  Options > Configuration >
+#: System Setup's *On error* picks this box or that ending (the traceback
+#: printed once the terminal is given back); a failure is never silent either
+#: way, and is appended to ``errors.log`` as well.  *Continue* carries on,
+#: *Copy* puts the whole traceback on the clipboard, *Quit* ends Navigator
+#: printing it.
+ErrorDialog(Dialog):
+    #: Most of the screen, less room for the shadow: a traceback is wide and
+    #: long, and the box is the only thing worth looking at while it is up.
+    modal_width: max(60, parent.width - 4) if parent is not None else 76
+    modal_height: max(16, parent.height - 2) if parent is not None else 20
+    title: "Error"
+
+    StaticText:
+        id: summary
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 2
+        wrap: True
+
+    #: The traceback as Python prints it, innermost call last, each line
+    #: folded to the width (and again when the box is resized), coloured by
+    #: Pygments' traceback lexer as the editor colours code.
+    TraceList:
+        id: trace
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: max(1, parent.height - 9)
+
+    StaticText:
+        id: logged
+        x: 2
+        y: max(0, parent.height - 6)
+        width: max(0, parent.width - 4)
+        height: 1
+
+    Button:
+        id: resume
+        text: "~C~ontinue"
+        default: True
+        x: max(0, parent.width // 2 - 22)
+        y: max(0, parent.height - 4)
+        width: 14
+        height: 2
+
+    Button:
+        id: copy
+        text: "C~o~py"
+        x: max(0, parent.width // 2 - 7)
+        y: max(0, parent.height - 4)
+        width: 14
+        height: 2
+
+    Button:
+        id: quit
+        text: "~Q~uit"
+        x: max(0, parent.width // 2 + 8)
+        y: max(0, parent.height - 4)
+        width: 14
+        height: 2

@@ -344,7 +344,7 @@ name = "Latviešu"
 "Classic ~t~etris" = "Klasiskais ~t~etris"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "Penti~x~"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:27, navigator/widgets/shell/main_menu/main_menu.nml:276
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:31, navigator/widgets/shell/main_menu/main_menu.nml:276
 "~O~ptions" = "~I~estatījumi"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~N~ākamā figūra"
@@ -820,22 +820,28 @@ name = "Latviešu"
 "Autosave ~D~esktop" = "Saglabāt ~d~arbvirsmu"
 # navigator/widgets/setup/startup_dialog/startup_dialog.nml:49
 "~P~reserve directory" = "Saglabāt di~r~ektoriju"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:19, navigator/widgets/shell/commands.py:277
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:23, navigator/widgets/shell/commands.py:277
 "System Setup" = "Sistēmas iestatīšana"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Internal ~e~ditor" = "Iekšējais ~r~edaktors"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Internal ~v~iewer" = "Iekšējais s~k~atītājs"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "~U~se system clipboard" = "Sistēmas starp~l~iktuve"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "~S~how hidden files" = "Rādīt ~s~lēptos failus"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "S~y~nc after copying" = "Sin~h~r. pēc kopēšanas"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:36
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:40
 "Use internal te~r~minal" = "Iekšējais ~t~erminālis"
-# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:44
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:48
 "~T~emporary directory" = "~P~agaidu direktorija"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:66
+"Unexpected ~f~ailures" = "~N~egaidītas kļūdas"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:75
+"Show a ~m~essage" = "Rādīt ~z~iņojumu"
+# navigator/widgets/setup/system_setup_dialog/system_setup_dialog.nml:75
+"~Q~uit with a traceback" = "~B~eigt ar izsekojumu"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "ASCII tabula"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
@@ -882,6 +888,12 @@ name = "Latviešu"
 "~A~ppend" = "Pievie~n~ot"
 # navigator/widgets/shell/environment_dialog/environment_dialog.nml:76, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~D~elete" = "D~z~ēst"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:45
+"~C~ontinue" = "~T~urpināt"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:54
+"C~o~py" = "K~o~pēt"
+# navigator/widgets/shell/error_dialog/error_dialog.nml:62
+"~Q~uit" = "~I~ziet"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:14, navigator/commands.py:32
 "Exit" = "Iziet"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:24
@@ -1140,9 +1152,9 @@ name = "Latviešu"
 "Search Progress" = "Meklēšanas gaita"
 # navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
 "~S~earch for" = "~M~eklēt"
-# navigator/__main__.py:370
+# navigator/__main__.py:414
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Darbvirsmas starpliktuvi nevarēja nolasīt, tāpēc Navigator ielīmēja savu pēdējo kopiju. Instalējiet xclip vai xsel (X11) vai wl-clipboard (Wayland), lai starpliktuve būtu kopīga ar citām programmām."
-# navigator/__main__.py:375
+# navigator/__main__.py:419
 "Clipboard" = "Starpliktuve"
 # navigator/commands.py:66
 "Character table" = "Simboli"
@@ -1276,33 +1288,33 @@ name = "Latviešu"
 "License: {license}" = "Licence: {license}"
 # navigator/settings.py:231
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
-# navigator/settings.py:249
+# navigator/settings.py:253
 "Options > Configuration > System Setup (DN's dlgSystemSetup)" = "Iestatījumi > Konfigurācija > Sistēmas iestatīšana (DN dlgSystemSetup)"
-# navigator/settings.py:279
+# navigator/settings.py:290
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Iestatījumi > Konfigurācija > Startēšana (DN dlgStartupSetup)"
-# navigator/settings.py:305
+# navigator/settings.py:316
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Iestatījumi > Konfigurācija > Saskarne (DN dlgInterfaceSetup)"
-# navigator/settings.py:356
+# navigator/settings.py:367
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Iestatījumi > Konfigurācija > Apstiprinājumi (DN dlgConfirmations)"
-# navigator/settings.py:376
+# navigator/settings.py:387
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- redaktors (DN dlgEditorDefaults)"
-# navigator/settings.py:441
+# navigator/settings.py:452
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- skatītājs (DN dlgEditorDefaults)"
-# navigator/settings.py:464
+# navigator/settings.py:475
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Iestatījumi > Failu pārvaldnieks > Iestatīšana (DN dlgFMSetup)"
-# navigator/settings.py:497
+# navigator/settings.py:508
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
-# navigator/settings.py:544
+# navigator/settings.py:555
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:577
+# navigator/settings.py:588
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:613
+# navigator/settings.py:624
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:628
+# navigator/settings.py:639
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:650
+# navigator/settings.py:661
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:665
+# navigator/settings.py:676
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Dublēt"
@@ -1786,6 +1798,12 @@ name = "Latviešu"
 "Rename variable \"{name}\"" = "Pārdēvēt mainīgo \"{name}\""
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:129
 "OK to delete the Environment\nvariable \"{name}\"" = "Dzēst vides\nmainīgo \"{name}\"?"
+# navigator/widgets/shell/error_dialog/error_dialog.py:32
+"Not logged to a file this session" = "Šajā sesijā failā netiek rakstīts"
+# navigator/widgets/shell/error_dialog/error_dialog.py:51
+"Copied" = "Nokopēts"
+# navigator/widgets/shell/error_dialog/error_dialog.py:31
+"Also written to {path}" = "Ierakstīts arī {path}"
 # navigator/widgets/shell/shell/shell.py:376
 "Execute OS Command" = "Izpildīt OS komandu"
 # navigator/widgets/shell/shell/shell.py:1971

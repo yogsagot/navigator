@@ -1455,8 +1455,8 @@ class Manager(Window):
         first when *ask*, else at once in the dialog's session mode and
         options; then *panel* and *others* look again."""
         from navigator.lib.file_ops import filecopy
-        from navigator.widgets.file_ops import copy_dialog
         from navigator.widgets.file_ops.copy_dialog import CopyDialog
+        from navigator.widgets.file_ops.copy_dialog import copy_dialog
 
         app = self.application
         if app is None or not entries:

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import TYPE_CHECKING, Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping
 
 from navkit import commands
 from navkit import glyphs as glyphs_module
@@ -597,10 +597,38 @@ class Widget:
             app._painting_modal(self)
         if self.shadow:
             self._paint_shadow(surface)
-        self.render(own)
+        self._guarded(self.render, own)
         for child in self.children:
             child.render_tree(own)
-        self.render_after(own)
+        self._guarded(self.render_after, own)
+
+    def _guarded(self, paint: Callable[[Surface], None], surface: Surface) -> None:
+        """Run *paint*; a failure is the application's to report, once.
+
+        **A widget whose paint fails does not take the frame with it.**  What
+        it managed to paint stays, its siblings and children still paint, and
+        the failure goes to :meth:`Application.fail` -- which shows it, or
+        stops the application -- the first time it happens.  It is tried
+        again every frame, so a widget whose state recovers paints again; a
+        failure that repeats (the same type and message) is not re-reported,
+        which is what keeps one broken window from being a box per frame.
+        Without an application there is nobody to tell, and it is raised.
+        """
+        # One memory per paint method: render_after succeeding says nothing
+        # about whether render still fails.
+        slot = f"_failed_{paint.__name__}"
+        try:
+            paint(surface)
+        except Exception as error:
+            app = self.application
+            if app is None:
+                raise
+            key = (type(error), str(error))
+            if self.__dict__.get(slot) != key:
+                self.__dict__[slot] = key
+                app.fail(error)
+        else:
+            self.__dict__.pop(slot, None)
 
     def _paint_shadow(self, surface: Surface) -> None:
         """This widget's shadow, into its parent's *surface*, over what is there.

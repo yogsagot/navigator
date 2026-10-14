@@ -2,6 +2,7 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: Options > Configuration > System Setup: DOS Navigator's ``dlgSystemSetup``.
 #:
@@ -13,9 +14,12 @@ from navml.widgets.dialog.label import Label
 #: kept as what it means on POSIX: syncing what a copy wrote.  Help is left out, having nothing to show yet.
 #: *Use internal terminal* is not DN's but a departure: whether Ctrl+O shows
 #: the console in Navigator, or hands the real terminal over as mc does.
+#: *Unexpected errors* is another: DN had Turbo Pascal's ``Runtime error``
+#: and no choice, where this picks a box with the traceback or quitting
+#: with it printed -- never nothing (``SystemData.on_error``).
 SystemSetupDialog(Dialog):
     modal_width: 60
-    modal_height: 13
+    modal_height: 16
     title: "System Setup"
 
     Label:
@@ -52,3 +56,20 @@ SystemSetupDialog(Dialog):
         height: 1
         label_text: ""
         label_width: 0
+
+    Label:
+        id: on_error_caption
+        x: 3
+        y: 9
+        width: 24
+        height: 1
+        text: "Unexpected ~f~ailures"
+        link: on_error
+
+    RadioButtons:
+        id: on_error
+        x: 3
+        y: 10
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["Show a ~m~essage", "~Q~uit with a traceback"]

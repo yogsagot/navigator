@@ -363,6 +363,24 @@ def lex_lines(lexer: Any, lines: Sequence[str], until_line: int,
     return spans
 
 
+def lex_text(name: str, lines: Sequence[str]) -> list[list[Span]]:
+    """Every one of *lines* lexed by the Pygments lexer *name*, at once and
+    on the caller's thread -- for a few lines already in memory, such as a
+    traceback; a file goes through :func:`lex_lines` on a thread.  No spans at
+    all (one empty list a line) when there is no such lexer or it fails."""
+    plain: list[list[Span]] = [[] for _ in lines]
+    lexer = _lexer_named(name)
+    if lexer is None or not lines:
+        return plain
+    try:
+        # With a line break after the last line too, as a file ends: a lexer
+        # whose rules each end in one (`pytb') leaves a last line without it
+        # plain.  The empty line it makes is not one of *lines*.
+        return (lex_lines(lexer, [*lines, ""], len(lines)) or [*plain, []])[:-1]
+    except Exception:  # a lexer that chokes on this text: plain
+        return plain
+
+
 def lex_bytes(lexer: Any, data: bytes, base: int, codec: str = "utf-8",
               stop: threading.Event | None = None) -> list[Span] | None:
     """The coloured spans of *data*, which starts at byte *base* of the file,

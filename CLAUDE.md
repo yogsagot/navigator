@@ -51,6 +51,10 @@ editor's phases.
 - Histories and bookmarks (and later positions) live in one SQLite database,
   `$XDG_STATE_HOME/navigator/navigator.db` (else `~/.local/state/navigator/navigator.db`); `--database PATH` uses
   another file for the session. Tables are declared as model documents in `.nml` (`navkit-database` skill)
+- An unexpected exception is never silent. System Setup's *Unexpected failures* (`[system] on_error`, or
+  `--on-error {dialog,crash}`) either shows a box with the traceback and Continue/Copy/Quit, or quits printing it with
+  status 1. Either way it is appended to `errors.log` beside the database, and `faulthandler` writes hard crashes
+  there too (`navkit-widgets-input` skill, *Failures*)
 - Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
   defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
   flag wins over the file for that session and is never written back

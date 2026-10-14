@@ -19,6 +19,25 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `render(surface)` paints; `layout(width, height)` is called on the root at every resize and steps around any size
   that carries a binding (no `self.x +` arithmetic anywhere).
 
+## Failures: never silent
+
+- **Every exception escaping application code goes through `Application.fail(error, fatal=False)`**: handlers
+  (`_handle`), ticks, effects (`_flush_effects`), a widget's `render`/`render_after` (`Widget._guarded`), spawned tasks
+  (`_finished`), loop callbacks (`loop.set_exception_handler`, installed by `run_async`) and raw threads
+  (`threading.excepthook`). Before this, a spawned task's failure was re-raised inside a done-callback: asyncio printed
+  it into the alternate screen, which was then wiped, and `run()` returned 0.
+- `fail` calls `log_error(error)` (does nothing in navkit) every time, then offers `report_error(error)`. If that
+  returns True, the application carries on. Otherwise the error is kept, `exit()` is called, and **`run_async` raises it
+  after `terminal.stop()`**, so the traceback reaches a normal screen. The default `report_error` returns False, which
+  keeps tests strict.
+- It always stops when `fatal` is true (`on_start`, `on_stop`, the frame machinery in `_paint`), when the loop is not
+  running, when a failure occurs inside `report_error`, or after more than `ERROR_STORM_LIMIT` (5) failures in
+  `ERROR_STORM_WINDOW` (10 s).
+- **A widget whose paint fails does not take the frame down.** It is retried every frame and reported only when its
+  `(type, message)` changes, so one broken window is one box, not one per frame.
+- An effect that fails puts the rest of its batch back on the queue (`Scheduler.flush`), and `_flush_effects` runs
+  them in the same turn.
+
 ## Focus and keys
 
 - `Application.focused` holds the widget keys go to; `Widget.can_focus` (False by default) says who may; `focus()` takes

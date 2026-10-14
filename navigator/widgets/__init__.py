@@ -65,6 +65,7 @@ _WIDGETS = {
     "EditFileDialog": "editor.edit_file_dialog",
     "EditWindow": "editor.edit_window",
     "EraseQuery": "file_ops.erase_query",
+    "ErrorDialog": "shell.error_dialog",
     "ExitDialog": "shell.exit_dialog",
     "FileEditor": "editor.file_editor",
     "FindDialog": "editor.find_dialog",
@@ -169,4 +170,5 @@ if TYPE_CHECKING:
     from navigator.widgets.setup.interface_dialog import InterfaceDialog
     from navigator.widgets.setup.startup_dialog import StartupDialog
     from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    from navigator.widgets.shell.error_dialog import ErrorDialog
     from navigator.widgets.shell.exit_dialog import ExitDialog

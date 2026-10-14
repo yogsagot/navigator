@@ -474,6 +474,26 @@ FileViewer::token.number                       { fg: $editor-highlight-numbers-f
 FileViewer::token.keyword,
 FileViewer::token.operator.word                { fg: $keyword-fg }
 
+/* The error box's traceback (ErrorDialog, TraceList) is code, so it is shown
+   as the editor shows code: the editor's text and current line, and its
+   highlight colours, which a dialog list's own cyan would swallow.  Pygments'
+   `pytb' adds the frame's file name (`name.builtin', a string), the header
+   (`generic.traceback', as a comment) and the exception (`generic.error', as
+   a keyword).  `:selected' first, so the classes' foregrounds win. */
+ErrorDialog TraceList                          { fg: $editor-normal-text-fg; bg: $editor-normal-text-bg; bold: $editor-normal-text-bold; dim: $editor-normal-text-dim; italic: $editor-normal-text-italic; underline: $editor-normal-text-underline; reverse: $editor-normal-text-reverse }
+ErrorDialog TraceList::row:selected,
+ErrorDialog TraceList::token:selected          { fg: $editor-highlight-current-line-fg; bg: $editor-highlight-current-line-bg; bold: $editor-highlight-current-line-bold; dim: $editor-highlight-current-line-dim; italic: $editor-highlight-current-line-italic; underline: $editor-highlight-current-line-underline; reverse: $editor-highlight-current-line-reverse }
+ErrorDialog TraceList::token.comment,
+ErrorDialog TraceList::token.generic.traceback { fg: $editor-highlight-comments-fg }
+ErrorDialog TraceList::token.operator,
+ErrorDialog TraceList::token.punctuation       { fg: $editor-highlight-symbols-fg }
+ErrorDialog TraceList::token.string,
+ErrorDialog TraceList::token.name.builtin      { fg: $editor-highlight-strings-fg }
+ErrorDialog TraceList::token.number            { fg: $editor-highlight-numbers-fg }
+ErrorDialog TraceList::token.keyword,
+ErrorDialog TraceList::token.operator.word,
+ErrorDialog TraceList::token.generic.error     { fg: $keyword-fg; bold: $keyword-bold; dim: $keyword-dim; italic: $keyword-italic; underline: $keyword-underline; reverse: $keyword-reverse }
+
 /* A tree in a dialog: the Dialogs group's Tree, [104] to [110].  The path
    line under it (TDTreeInfoView in Choose Directory) is the Information
    pane, [61]. */

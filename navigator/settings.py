@@ -242,6 +242,10 @@ class AppearanceData(Section):
     dim_modal: bool = Setting(True, doc="Paint what lies behind a dialog faint")
 
 
+#: What an unexpected exception does: a box, or quitting with a traceback.
+ON_ERROR = ("dialog", "crash")
+
+
 class SystemData(Section):
     """``dlgSystemSetup`` / ``TSystemData``."""
 
@@ -270,6 +274,13 @@ class SystemData(Section):
     )
     #: DN's ``SwpDir``: where the shell's rc files and the user menu's script go.
     temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR")
+    #: Not DN's, whose failures were Pascal's ``Runtime error NNN at``: what an
+    #: exception escaping Navigator's code does.  Never nothing -- either
+    #: way it is appended to ``errors.log`` beside ``navigator.db`` as well.
+    on_error: str = Setting(
+        "dialog", choices=ON_ERROR,
+        doc="An unexpected error shows a box with its traceback, or quits printing it",
+    )
 
 
 class StartupData(Section):

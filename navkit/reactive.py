@@ -437,10 +437,18 @@ class Scheduler:
             if not self._pending:
                 return
             batch, self._pending = sorted(self._pending), []
-            for _, reference in batch:
+            for index, (_, reference) in enumerate(batch):
                 reaction = reference()
                 if reaction is not None and reaction.scheduled:
-                    reaction.run()
+                    try:
+                        reaction.run()
+                    except BaseException:
+                        # The rest of the batch is still marked scheduled,
+                        # so it would never be queued again: put it back,
+                        # for an application that reports the failure and
+                        # carries on to flush it next turn.
+                        self._pending.extend(batch[index + 1:])
+                        raise
         raise CycleError(
             "effects kept rescheduling each other; one of them is probably "
             "assigning something it also reads"

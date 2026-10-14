@@ -28,6 +28,7 @@ import functools
 import inspect
 import math
 import signal
+import threading
 import time
 from collections.abc import Awaitable, Callable, Coroutine
 from dataclasses import dataclass
@@ -71,6 +72,13 @@ DOUBLE_CLICK_TIMEOUT = 0.4
 #: the case this is for.
 CLIPBOARD_ANSWER_TIMEOUT = 0.5
 
+#: How many failures :meth:`Application.report_error` may be offered inside
+#: :data:`ERROR_STORM_WINDOW` seconds before the next one stops the
+#: application regardless: an effect or a timer that fails every turn would
+#: otherwise bury the user in error boxes.
+ERROR_STORM_LIMIT = 5
+ERROR_STORM_WINDOW = 10.0
+
 
 _WAKE = WakeEvent()
 
@@ -82,7 +90,8 @@ class Repeat:
     from :meth:`Widget.unmounting`, which is the hook that exists for exactly
     this.  Every tick is delivered **through the event queue**, so the callback
     runs inside a batch like any handler: its effects are flushed and one frame
-    is painted after it, and an exception it raises stops the application.
+    is painted after it, and an exception it raises goes to
+    :meth:`Application.fail`, as a handler's does.
     See *Timers: through the queue* in ``navkit/DESIGN.md``.
     """
 
@@ -330,6 +339,15 @@ class Application:
         self._reader_fd: int | None = None
         #: Who the terminal is lent to by :meth:`release_terminal`, or None.
         self._released: Callable[[bytes], bytes] | None = None
+        #: The failure that stops the application, raised out of
+        #: :meth:`run_async` once the terminal is given back.  See
+        #: :meth:`fail`.
+        self._failure: BaseException | None = None
+        #: When the recent failures happened, for the storm guard.
+        self._failure_times: list[float] = []
+        #: True while :meth:`report_error` runs, so a failure inside it is
+        #: not offered to it again.
+        self._reporting = False
         # An observable, so its write asks for a frame -- which needs the
         # loop state above to exist already.
         self.stylesheet = stylesheet
@@ -408,14 +426,30 @@ class Application:
         return asyncio.run(self.run_async())
 
     async def run_async(self) -> Any:
-        """Run the application on the current asyncio loop."""
+        """Run the application on the current asyncio loop.
+
+        **Never ends silently on a failure.**  Whatever stopped it -- a
+        handler, an effect, a spawned task, a loop callback, a thread -- is
+        raised from here once the terminal has been given back, so it reaches
+        a normal screen the way any Python program's traceback does.  See
+        :meth:`fail`.
+        """
         self._loop = asyncio.get_running_loop()
         self._running = True
+        self._failure = None
+        self._failure_times = []
         self.terminal.start()
         # A Backspace that is 0x7F leaves 0x08 to mean Ctrl+H.
         self._parser.ctrl_h = getattr(self.terminal, "erase", None) == 0x7F
         if self.title:
             self.terminal.set_title(self.title)
+        # Both would otherwise print into the alternate screen, which is
+        # wiped on the way out: the asyncio default writes a callback's or an
+        # unretrieved task's exception to stderr, and so does threading's.
+        previous_handler = self._loop.get_exception_handler()
+        self._loop.set_exception_handler(self._loop_exception)
+        previous_excepthook = threading.excepthook
+        threading.excepthook = self._thread_exception
         try:
             # An effect queued from outside a dispatch -- a timer callback, or
             # a write to something that is not a widget -- has to be able to
@@ -425,7 +459,12 @@ class Application:
             for repeat in self._repeats:
                 repeat._arm(self._loop)
             self._resize(*self.terminal.size)
-            await self.on_start()
+            try:
+                await self.on_start()
+            except Exception as error:
+                # Nothing to continue into: the desktop is half built.
+                self.fail(error, fatal=True)
+                raise
             await self._main_loop()
         finally:
             self._running = False
@@ -434,10 +473,18 @@ class Application:
             for repeat in list(self._repeats):
                 repeat.cancel()
             self._detach_input()
-            with contextlib.suppress(Exception):
+            try:
                 await self.on_stop()
+            except Exception as error:
+                # Too late for a box: reported, and raised below if nothing
+                # else already is.
+                self.fail(error, fatal=True)
             self.terminal.stop()
+            self._loop.set_exception_handler(previous_handler)
+            threading.excepthook = previous_excepthook
             self._loop = None
+        if self._failure is not None:
+            raise self._failure
         return self.result
 
     def exit(self, result: Any = None) -> None:
@@ -579,15 +626,96 @@ class Application:
     def _finished(self, task: asyncio.Task[Any]) -> None:
         """Forget a finished task, and let its failure out.
 
-        A task that raised would otherwise be reported by asyncio long
-        afterwards, as "exception was never retrieved", with the loop still
-        running and the screen unchanged.  Failing the way a handler does --
-        stop, then re-raise -- keeps one rule for both.
+        Through :meth:`fail`, as a handler's is.  It used to be re-raised
+        here, inside a done-callback, where asyncio's default handler printed
+        it into the alternate screen just before that was wiped -- and the
+        application exited without a word.
         """
         self._tasks.discard(task)
         if not task.cancelled() and task.exception() is not None:
-            self.exit()
-            raise task.exception()  # type: ignore[misc]
+            self.fail(task.exception())  # type: ignore[arg-type]
+
+    # -- failures --------------------------------------------------------------
+
+    def fail(self, error: BaseException, *, fatal: bool = False) -> bool:
+        """*error* escaped the application's code: report it, or stop.
+
+        **The one funnel every failure goes through**, wherever it was raised:
+        a handler, a tick, an effect, a widget's ``render``, a spawned task, a
+        loop callback or a thread.  :meth:`log_error` is told first, always.
+        Then :meth:`report_error` is offered it, and True from there means the
+        application has shown it and carries on.  Otherwise -- *fatal*, no
+        loop running, a failure while one is being reported, or too many in
+        a row (:data:`ERROR_STORM_LIMIT`) -- the error is kept and the
+        application stops, and :meth:`run_async` raises it once the terminal
+        is given back.  Returns whether the application carries on.
+
+        The first fatal failure wins; a later one is logged and dropped,
+        because the first is the cause and the rest are usually its echo.
+        """
+        if error is self._failure:
+            return False
+        with contextlib.suppress(Exception):
+            self.log_error(error)
+        if not fatal and self._running and self._loop is not None and not self._reporting:
+            now = self._loop.time()
+            recent = [t for t in self._failure_times if now - t < ERROR_STORM_WINDOW]
+            recent.append(now)
+            self._failure_times = recent
+            if len(recent) <= ERROR_STORM_LIMIT:
+                self._reporting = True
+                try:
+                    if self.report_error(error):
+                        return True
+                except Exception as during:
+                    with contextlib.suppress(Exception):
+                        self.log_error(during)
+                finally:
+                    self._reporting = False
+        if self._failure is None:
+            self._failure = error
+        self.exit()
+        return False
+
+    def report_error(self, error: BaseException) -> bool:
+        """Show *error* to the user and return True to carry on, or False to stop.
+
+        Called from :meth:`fail`, synchronously and possibly from inside a
+        frame's paint, so it must not wait for anything: an application that
+        shows a box starts it with ``spawn``.  The default returns False -- stop, and
+        let :meth:`run_async` raise it -- which is what a test wants too.
+        """
+        return False
+
+    def log_error(self, error: BaseException) -> None:
+        """Record *error* somewhere that outlives the screen.  Nothing by default.
+
+        Called for every failure :meth:`fail` sees, whether it is then shown,
+        stopped on, or dropped as an echo.  Must not raise and must not wait.
+        """
+
+    def _loop_exception(self, loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
+        """asyncio's exception handler: a callback or a task nobody awaited failed.
+
+        A context without an exception is a warning -- a task destroyed while
+        pending -- and goes to asyncio's own handler, as before.
+        """
+        error = context.get("exception")
+        if isinstance(error, Exception):
+            self.fail(error)
+        else:
+            loop.default_exception_handler(context)
+
+    def _thread_exception(self, args: threading.ExceptHookArgs) -> None:
+        """A thread died of *args*: fail on the loop, where the box can open."""
+        if not isinstance(args.exc_value, Exception):
+            return
+        loop = self._loop
+        if loop is None:
+            self.fail(args.exc_value)
+            return
+        with contextlib.suppress(RuntimeError):
+            loop.call_soon_threadsafe(self.fail, args.exc_value)
 
     async def _cancel_tasks(self) -> None:
         """Stop everything :meth:`spawn` started, on the way out."""
@@ -924,7 +1052,7 @@ class Application:
 
     async def _main_loop(self) -> None:
         self._flush_effects()
-        await self._render()
+        await self._paint()
         while self._running:
             event = await self._events.get()
             await self._handle(event)
@@ -938,21 +1066,40 @@ class Application:
             if self._running:
                 self._flush_effects()
             if self._running and self._dirty:
-                await self._render()
+                await self._paint()
+
+    async def _paint(self) -> None:
+        """:meth:`_render`, where a failure always stops the application.
+
+        A widget's own ``render`` failing is caught in
+        :meth:`Widget.render_tree` and reported without stopping anything; what
+        reaches here is the frame machinery itself, and a box could not be
+        painted over it.
+        """
+        try:
+            await self._render()
+        except Exception as error:
+            self.fail(error, fatal=True)
+            raise
 
     def _flush_effects(self) -> None:
         """Run the reactions this batch of events queued, before painting.
 
         Effects assign reactive attributes, so they belong here rather than
         inside :meth:`_render`: whatever they change is part of the frame that
-        is about to be composed.  A failing reaction takes the application
-        down the same way a failing event handler does.
+        is about to be composed.  A failing reaction goes to :meth:`fail`
+        the same way a failing event handler does.
         """
-        try:
-            flush_effects()
-        except Exception:
-            self.exit()
-            raise
+        # Again after a failure that was reported: the effects queued behind
+        # the one that failed are owed this frame too.  Each pass consumes the
+        # failing one, and the storm guard ends a run of them.
+        while True:
+            try:
+                flush_effects()
+                return
+            except Exception as error:
+                if not self.fail(error):
+                    raise
 
     async def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):
@@ -1058,9 +1205,9 @@ class Application:
                 # when the names are.
                 if handler is not None and handler != self.on_event:
                     await _call(self, event, handler)
-        except Exception:
-            self.exit()
-            raise
+        except Exception as error:
+            if not self.fail(error):
+                raise
         finally:
             self._dispatching = dispatching
 
@@ -1075,9 +1222,9 @@ class Application:
         dispatching, self._dispatching = self._dispatching, True
         try:
             await repeat.callback()
-        except Exception:
-            self.exit()
-            raise
+        except Exception as error:
+            if not self.fail(error):
+                raise
         finally:
             self._dispatching = dispatching
 

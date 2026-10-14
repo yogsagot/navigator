@@ -276,6 +276,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   span widens it) and drop `_lexed` to the edited line; an answer keeps only the lines before any edit made while it
   ran, and `render` asks again. Over `LEX_LIMIT` (2 M characters; Pygments lexes about 0.5 M a second) a text stays plain. Use `lex_lines` and the
   `get_tokens_unprocessed` it walks -- never `get_tokens`, which strips and expands and so moves indices.
+- **A few lines in memory** are lexed with `highlight.lex_text(name, lines)`, synchronously on the caller's thread,
+  and come back plain when there is no such lexer or it fails. It lexes with a line break after the last line, because
+  `pytb`'s rules each end in one and would otherwise leave the exception line plain. Its one user is the error box's
+  traceback (`ErrorDialog`, `pytb`). `TraceList`, a `ListViewer` with a parallel `spans` list, paints the spans through
+  `ErrorDialog TraceList::token`. `navigator.nss` gives it the editor's text, current line and highlight colours,
+  because a dialog list's cyan swallows them. It also styles `name.builtin` (the frame's file) as a string,
+  `generic.traceback` as a comment and `generic.error` (the exception) as a keyword. `error_dialog.fold` wraps by
+  offsets, so each row takes its piece of its line's spans.
 - **File type** (Editor > *File ~t~ype* -- on the *Editor* menu itself, not under *Options*, so it is one step away
   as on the viewer's *View* -- and View > *File type* in the viewer; `SetFileType(file_type)`, a
   departure -- DN chose a `DN.HGL` section by mask alone): *Automatic* (`""`, `highlight.ini`'s choice), a submenu
