@@ -604,6 +604,10 @@ class Panel(ListViewer):
     #: Whether names starting with ``.`` are listed.  Ctrl+H flips it, per
     #: panel like ``view_mode``; ``..`` is always listed.
     show_hidden: bool = reactive(True)
+    #: Whether the footer -- the *Info divider* and the *Totals* and *Free
+    #: space* lines under the listing -- is shown.  Alt+I flips it, per panel;
+    #: a departure, DN had only the *Display* boxes for it.
+    show_info: bool = reactive(True)
     #: How the listing is ordered, one of :data:`SORT_MODES`: DN's ``SortMode``,
     #: per panel, seeded from the *New Manager defaults* and changed by Alt+B.
     sort_mode: str = reactive("name")
@@ -1122,6 +1126,11 @@ class Panel(ListViewer):
             self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.show_hidden = not self.show_hidden
 
+    def toggle_info(self) -> None:
+        """Alt+I: hide the footer under the listing, or show it again; the
+        listing takes the rows it gives up."""
+        self.show_info = not self.show_info
+
     # -- quick search --------------------------------------------------------
 
     @property
@@ -1586,7 +1595,7 @@ class Panel(ListViewer):
         not counted.  Free space is not shown over a *Find:* listing, as it
         was not over DN's find drive.
         """
-        if not self.framed or self.error is not None:
+        if not self.framed or self.error is not None or not self.show_info:
             return ()
         lines = []
         if self.shows("totals"):

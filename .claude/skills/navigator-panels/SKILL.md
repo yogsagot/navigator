@@ -71,6 +71,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   divider*: `Panel.rows` is computed less `info_height`, so the list, scroll bar and list-mode columns shrink, and the
   column rules end in `┴` on the divider rather than on the frame. Tests that pin a listing down to the frame turn
   `free_space` off; anything painting a real directory headless pins `free_space_text` (the golden test, screenshot).
+  **Alt+I hides that footer** -- divider and lines -- per panel (`ToggleInfoLines`, `Panel.show_info`/`toggle_info`,
+  *Panel > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
+  The command has no `title`, so the Alt key bar keeps *Z Zoom*.
 - Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or one cell of mc's type mark
   (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). A bookmarked directory (`Panel.is_bookmarked`) gets its own glyph in
   either -- see `colours-themes-glyphs` -- and a tag still wins over both. Rows are coloured by file type -- see `colours-themes-glyphs`.

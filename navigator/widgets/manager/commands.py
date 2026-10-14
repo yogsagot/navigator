@@ -458,6 +458,16 @@ class ToggleHidden(Command):
     title = "Hidden"
 
 
+class ToggleInfoLines(Command):
+    """Alt+I: show or hide the active panel's footer -- the *Info divider*
+    and the *Totals* and *Free space* lines under the listing.
+
+    Ours, per panel as Ctrl+H is: DN changed them only through the
+    *Display* boxes of Panel Options and New Manager defaults.  No title,
+    so the Alt key bar keeps its room for the keys DN put there.
+    """
+
+
 class ArchiveFiles(Command):
     """Shift+F1, ``cmPanelArcFiles``."""
 
@@ -541,6 +551,7 @@ __all__ = [
     "InvertSelection",
     "ToggleShowMode",
     "ToggleHidden",
+    "ToggleInfoLines",
     "ArchiveFiles",
     "ExtractArchive",
     "EditNamed",

@@ -51,6 +51,7 @@ def _panel(panel: Any) -> dict[str, Any]:
         "view_mode": panel.view_mode,
         "sort_mode": panel.sort_mode,
         "show_hidden": bool(panel.show_hidden),
+        "show_info": bool(panel.show_info),
         "file_mask": panel.file_mask,
         "columns": sorted(panel.columns),
         "display": sorted(panel.display) if panel.display is not None else None,
@@ -165,6 +166,7 @@ def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
     if kept.get("sort_mode") in SORT_MODES:
         panel.sort_mode = kept["sort_mode"]
     panel.show_hidden = bool(kept.get("show_hidden", panel.show_hidden))
+    panel.show_info = bool(kept.get("show_info", panel.show_info))
     panel.file_mask = kept.get("file_mask") or panel.file_mask
     if isinstance(kept.get("columns"), list):
         panel.columns = frozenset(kept["columns"])

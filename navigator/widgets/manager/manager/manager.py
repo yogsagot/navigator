@@ -73,6 +73,7 @@ from navigator.widgets.manager.commands import (
     SortBy,
     SwapPanels,
     ToggleHidden,
+    ToggleInfoLines,
     ToggleMark,
     ToggleShowMode,
     ToggleTree,
@@ -1171,9 +1172,12 @@ class Manager(Window):
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
-        """Ctrl+H is ticked in the menu while the active panel shows its dot-files."""
+        """Ctrl+H is ticked in the menu while the active panel shows its
+        dot-files, Alt+I while it shows its footer."""
         if isinstance(command, ToggleHidden):
             return self.active_panel.show_hidden
+        if isinstance(command, ToggleInfoLines):
+            return self.active_panel.show_info
         return super().checks(command)
 
     def _command_line(self) -> Any:
@@ -1274,6 +1278,11 @@ class Manager(Window):
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
         self.active_panel.toggle_hidden()
+        return True
+
+    async def on_toggle_info_lines(self, event: ToggleInfoLines) -> bool:
+        """Alt+I: the active panel's footer, hidden or shown."""
+        self.active_panel.toggle_info()
         return True
 
     async def on_quick_search(self, event: QuickSearch) -> bool:

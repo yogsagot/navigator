@@ -66,6 +66,33 @@ def test_free_space_takes_a_line_under_a_divider_and_totals_another(place):
     assert panel.info_height == 0 and panel.rows == panel.height - 2
 
 
+def test_alt_i_hides_the_footer_and_gives_its_rows_to_the_listing(place):
+    panel = panel_at(place)
+    assert panel.info_height == 2
+    panel.toggle_info()
+    settle()
+    rows = rows_of(panel)
+    assert panel.info_height == 0 and panel.rows == panel.height - 2
+    assert not any("free" in row for row in rows)
+    panel.toggle_info()
+    settle()
+    assert panel.info_height == 2 and rows_of(panel)[-2].strip("║│ ") == "1,000 free bytes on /"
+
+
+def test_alt_i_toggles_the_active_panel_s_footer_and_ticks_the_menu(place):
+    from navigator.widgets.manager.commands import ToggleInfoLines
+    seen = []
+
+    def look(a):
+        manager = manager_of(a)
+        seen.append((manager.active_panel.show_info, manager.passive_panel.show_info,
+                     manager.checks(ToggleInfoLines())))
+
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    run_app(app, [lambda a: None, look, lambda a: a.post_event(KeyEvent("alt+i")), look])
+    assert seen == [(True, True, True), (False, True, False)]
+
+
 def test_free_space_over_a_kilobyte_is_shortened_as_df_h_does(place, monkeypatch):
     monkeypatch.setattr(panel_module, "free_space_of", lambda path: (71_123_906_560, "/"))
     assert rows_of(panel_at(place))[-2].strip("║│ ") == "66G free on /"

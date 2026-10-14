@@ -4,7 +4,7 @@ from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRe
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
-from navigator.widgets.manager.commands import ToggleHidden, ToggleMark, ToggleShowMode, ToggleTree
+from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
 from navml.widgets.dialog.commands import QuickSearch
@@ -96,6 +96,7 @@ Manager(Window):
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
         ctrl+h: ToggleHidden
+        alt+i: ToggleInfoLines
         ctrl+r: Rescan
         ctrl+s: QuickSearch
         shift+f1: ArchiveFiles
@@ -188,6 +189,10 @@ Manager(Window):
             text: 'Show/hide h~i~dden files'
             command: ToggleHidden
             key: 'Ctrl-H'
+        MenuItem:
+            text: 'Show/hide ~f~ooter'
+            command: ToggleInfoLines
+            key: 'Alt-I'
         MenuLine:
         MenuItem:
             text: 'Director~y~ tree'
