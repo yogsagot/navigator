@@ -28,6 +28,8 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   on a full-screen modal layer, run like a dialog -- `await PopupMenu(menu, x, y, current=, behind=).execute(app)`
   returns the `MenuItem` chosen or None, so it is **spawned, never awaited in a handler**. Its `PopupBox` treats an
   item with no command as a choice (enabled unless `disabled`), unlike a bar's box, which greys it as unwritten.
+  It is titled *Bookmarks* (`title=`, centred in the top frame; a departure, SelectDrive's box had none) -- pass
+  the same title to `PopupMenu.measure` so the box is placed at the width it is shown.
 - **`Manager`**: `on_change_left/right` call `bring_side(side)` first -- a side hidden by Ctrl+F1/F2 is shown, and the
   tree or quick view standing in its place gives way (`switch_view`) -- then spawn `choose_bookmark(panel)`.
   `on_change_drive` uses `active_panel`. `bookmark_menu(rows, bookmarked)` builds the entries: keys `1`-`9`, `0`, then

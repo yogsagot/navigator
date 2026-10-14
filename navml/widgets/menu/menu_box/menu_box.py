@@ -17,6 +17,10 @@ Every measurement here is ``MENUS.PAS``'s:
 * **Width is the widest entry plus six**, plus the key and two spaces, or plus
   three for a submenu's arrow; never under ten.  Height is one row per entry
   and two for the frame.
+* **A box can carry a title** centred in its top frame, `` Bookmarks ``, as a
+  dialog's is -- a departure: Turbo Vision's boxes had none, but a popup
+  standing alone (the bookmarks' box) has no bar entry to say what it is.
+  The box is widened to hold it.
 
 **A box opened shorter than that scrolls** -- a departure: Turbo Vision's
 boxes never had more entries than the screen had rows, but a popup listing
@@ -68,10 +72,13 @@ class MenuBox(Widget):
     #: Which entry is selected, as an index into :meth:`entries`; -1 for none.
     current: int = reactive(-1)
 
-    def __init__(self, menu: SubMenu | None = None, **kwargs: Any) -> None:
+    def __init__(self, menu: SubMenu | None = None, *, title: str = "",
+                 **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: The submenu this box shows.
         self.menu = menu
+        #: The caption centred in the top frame; empty for none.
+        self.title = title
         #: The widget whose point of view decides what is enabled -- the one
         #: that had the keyboard before the menu took it.  Set by whoever
         #: opens the box; None asks from wherever the focus is.
@@ -94,9 +101,10 @@ class MenuBox(Widget):
 
     @staticmethod
     def measure(menu: SubMenu, app: Application | None = None,
-                behind: Widget | None = None) -> tuple[int, int]:
-        """The ``(width, height)`` a box for *menu* takes, as ``TMenuBox.Init``."""
-        width, height = 10, 2
+                behind: Widget | None = None, title: str = "") -> tuple[int, int]:
+        """The ``(width, height)`` a box for *menu* takes, as ``TMenuBox.Init``,
+        widened to hold *title* between the frame's corners."""
+        width, height = max(10, len(title) + 8 if title else 0), 2
         for entry in menu.entries():
             height += 1
             if isinstance(entry, MenuLine):
@@ -215,6 +223,9 @@ class MenuBox(Widget):
         entries = self.entries()
         top, rows = self.scroll(), self.rows()
         frame_line(0, (tl, tr), horizontal, normal)
+        if self.title and width >= 8:
+            label = f" {self.title} "[: width - 6]
+            surface.draw_text((width - len(label)) // 2, 0, label, normal)
         for index in range(top, min(len(entries), top + rows)):
             entry = entries[index]
             y = index - top + 1

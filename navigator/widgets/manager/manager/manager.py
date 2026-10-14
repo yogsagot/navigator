@@ -1035,11 +1035,12 @@ class Manager(Window):
             # The layout settles in this batch's effects; a side just brought
             # back has to be where it will be before the box is placed by it.
             self.panels.arrange()
-            width, _ = PopupMenu.measure(menu, app, self)
+            title = tr("Bookmarks")
+            width, _ = PopupMenu.measure(menu, app, self, title)
             ox, oy = panel.offset()
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
-            box = PopupMenu(menu, x, y, current=current, behind=self,
+            box = PopupMenu(menu, x, y, current=current, behind=self, title=title,
                             keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
             chosen = await box.execute(app)
             if box.pressed == DELETE_BOOKMARK_KEY:

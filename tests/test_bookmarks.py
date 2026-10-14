@@ -12,6 +12,7 @@ import pytest
 
 from conftest import FakeTerminal, run_app
 from navkit.events import KeyEvent
+from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
 from navigator.lib.config.bookmarks import (
@@ -526,3 +527,18 @@ def test_adding_from_the_box_marks_the_row_in_the_other_panel_at_once(places):
         lambda a: seen.update(after=gutter(a)),
     ])
     assert (seen["before"], seen["after"]) == ("/", left.BOOKMARK_MARK)
+
+
+def test_the_box_is_titled_bookmarks_in_its_top_frame(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = []
+
+    def top_row(a):
+        box = popup(a).box
+        buffer = ScreenBuffer(box.width, box.height)
+        box.render_tree(buffer.view(-box.x, -box.y, box.width + box.x, box.height + box.y))
+        seen.append("".join(buffer.get(x, 0)[0] or " " for x in range(box.width)))
+
+    run_app(app, [KeyEvent("f1", alt=True), lambda a: None, top_row, KeyEvent("escape")])
+    assert " Bookmarks " in seen[0]

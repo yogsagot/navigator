@@ -28,6 +28,10 @@ answering with the entry selected in the top box, enabled or not, and :attr:`Pop
 names the key -- so the caller can act on that entry and open the box again,
 as the bookmarks' box does to move one.
 
+**The first box can carry a title** (``title="Bookmarks"``), centred in its
+top frame; :meth:`measure` takes the same title so the caller places a box as
+wide as the one shown.
+
 **An entry need not ask for a command.**  A bar's item without one is greyed
 until its feature exists; a popup's entries are usually choices its caller
 reads off the answer, so here an item is enabled unless it is ``disabled``,
@@ -68,9 +72,11 @@ class PopupMenu(Widget):
 
     def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
                  current: int = -1, behind: Widget | None = None,
-                 keys: tuple[str, ...] = (), **kwargs: Any) -> None:
+                 keys: tuple[str, ...] = (), title: str = "", **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.menu = menu if menu is not None else SubMenu()
+        #: The caption in the first box's top frame; empty for none.
+        self.title = title
         #: Where the box's top left corner goes, in screen coordinates; it is
         #: moved back onto the screen if it would not fit.
         self.at = (x, y)
@@ -105,9 +111,9 @@ class PopupMenu(Widget):
 
     @staticmethod
     def measure(menu: SubMenu, app: Application | None = None,
-                behind: Widget | None = None) -> tuple[int, int]:
-        """The ``(width, height)`` the box for *menu* takes."""
-        return MenuBox.measure(menu, app, behind)
+                behind: Widget | None = None, title: str = "") -> tuple[int, int]:
+        """The ``(width, height)`` the box for *menu* takes, titled *title*."""
+        return MenuBox.measure(menu, app, behind, title)
 
     # -- running ----------------------------------------------------------------------
 
@@ -140,16 +146,17 @@ class PopupMenu(Widget):
             self.parent.remove(self)
 
     def _open(self) -> None:
-        self.box = self._drop(self.menu, *self.at, self.start)
+        self.box = self._drop(self.menu, *self.at, self.start, self.title)
 
-    def _drop(self, menu: SubMenu, x: int, y: int, current: int = -1) -> PopupBox:
+    def _drop(self, menu: SubMenu, x: int, y: int, current: int = -1,
+              title: str = "") -> PopupBox:
         """A box for *menu* with its corner at *x*, *y*, kept on the screen."""
-        width, height = self.measure(menu, self.application, self.behind)
+        width, height = self.measure(menu, self.application, self.behind, title)
         width = min(width, max(10, self.width))
         height = min(height, max(3, self.height))
         x = max(0, min(x, self.width - width))
         y = max(0, min(y, self.height - height))
-        box = PopupBox(menu, x=x, y=y, width=width, height=height)
+        box = PopupBox(menu, title=title, x=x, y=y, width=width, height=height)
         box.behind = self.behind
         self.add(box)
         if box.selectable(current):
