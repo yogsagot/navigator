@@ -1266,11 +1266,13 @@ class Manager(Window):
 
         menu = SubMenu()
         items = [menu.add_item(caption) for caption in sort_captions()]
-        width, height = PopupMenu.measure(menu, self.application, self)
+        title = tr("Sort by")
+        width, height = PopupMenu.measure(menu, self.application, self, title)
         ox, oy = panel.offset()
         x = ox + panel.x + (panel.width - width) // 2
         y = oy + panel.y + (panel.height - height) // 2
-        box = PopupMenu(menu, x, y, current=SORT_MODES.index(panel.sort_mode), behind=self)
+        box = PopupMenu(menu, x, y, current=SORT_MODES.index(panel.sort_mode), behind=self,
+                        title=title)
         chosen = await box.execute(self.application)
         if chosen is None:
             return

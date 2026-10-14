@@ -266,7 +266,7 @@ name = "Русский"
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:55, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:63, navigator/widgets/manager/manager/manager.py:1626
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:63, navigator/widgets/manager/manager/manager.py:1628
 "~S~kip" = "П~р~опуск"
 # navigator/widgets/file_ops/rename_dialog/rename_dialog.nml:15
 "Quick rename" = "Быстрое переименование"
@@ -518,13 +518,13 @@ name = "Русский"
 "History of directories..." = "История каталогов..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "Установки панели"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:25
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:25, navigator/widgets/manager/manager/manager.py:1269
 "Sort by" = "Сортировка"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2566
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2568
 "~E~xtension" = "Ра~с~ширение"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2566
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2568
 "T~y~pe" = "~Т~ип"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2566
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:33, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:34, navigator/widgets/manager/manager/manager.py:2568
 "~U~nsorted" = "~Н~е сортировать"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:41, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:42, navigator/widgets/setup/fm_setup_dialog/fm_setup_dialog.nml:44
 "Display" = "Внешний вид"
@@ -582,7 +582,7 @@ name = "Русский"
 "~D~isk Drive" = "~Д~иск"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1818 ...
 "Size" = "Размер"
-# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/manager/manager.py:1831
+# navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/manager/manager.py:1833
 "Attributes" = "Атрибуты"
 # navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:32, navigator/widgets/setup/column_defaults_dialog/column_defaults_dialog.nml:49, navigator/widgets/manager/panel/panel.py:1820
 "Owner" = "Владелец"
@@ -1378,7 +1378,7 @@ name = "Русский"
 "Current column highlight" = "Подсветка колонки"
 # navigator/widgets/editor/commands.py:379
 "Syntax highlight" = "Подсветка синтаксиса"
-# navigator/widgets/editor/commands.py:394
+# navigator/widgets/editor/commands.py:394, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "Тип файла"
 # navigator/widgets/editor/commands.py:411
 "AutoBrackets" = "АвтоСкобки"
@@ -1446,15 +1446,15 @@ name = "Русский"
 "~P~aste from" = "~В~ставить из"
 # navigator/widgets/editor/edit_window/edit_window.py:661
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:695, navigator/widgets/viewer/file_window/file_window.py:311
+# navigator/widgets/editor/edit_window/edit_window.py:695, navigator/widgets/viewer/file_window/file_window.py:313
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:695, navigator/widgets/viewer/file_window/file_window.py:311
+# navigator/widgets/editor/edit_window/edit_window.py:695, navigator/widgets/viewer/file_window/file_window.py:313
 "~S~ave File As" = "~З~аписать в"
 # navigator/widgets/editor/edit_window/edit_window.py:103
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:311, navigator/widgets/manager/manager/manager.py:849, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:252 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
-# navigator/widgets/editor/edit_window/edit_window.py:602, navigator/widgets/manager/manager/manager.py:1386
+# navigator/widgets/editor/edit_window/edit_window.py:602, navigator/widgets/manager/manager/manager.py:1388
 "Confirmation" = "Подтверждение"
 # navigator/widgets/editor/edit_window/edit_window.py:603
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
@@ -1464,7 +1464,7 @@ name = "Русский"
 "Cannot write {path}: {error}" = "Не удаётся записать {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:404, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:285, navigator/widgets/shell/shell/shell.py:346 ...
 "Cannot read {path}: {error}" = "Не удаётся прочитать {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:505, navigator/widgets/viewer/db_window/db_window.py:178, navigator/widgets/viewer/file_window/file_window.py:410
+# navigator/widgets/editor/edit_window/edit_window.py:505, navigator/widgets/viewer/db_window/db_window.py:178, navigator/widgets/viewer/file_window/file_window.py:412
 "Search string not found" = "Не могу найти строку"
 # navigator/widgets/editor/edit_window/edit_window.py:511, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:86 ...
 "Information" = "Информация"
@@ -1644,29 +1644,29 @@ name = "Русский"
 "Edit..." = "Ред..."
 # navigator/widgets/manager/manager/manager.py:1038
 "Bookmarks" = "Закладки"
-# navigator/widgets/manager/manager/manager.py:1384
+# navigator/widgets/manager/manager/manager.py:1386
 "Print {n} file?" = ["Печатать {n} файл?", "Печатать {n} файла?", "Печатать {n} файлов?"]
-# navigator/widgets/manager/manager/manager.py:2013
+# navigator/widgets/manager/manager/manager.py:2015
 "Is a directory" = "Это каталог"
-# navigator/widgets/manager/manager/manager.py:2617
+# navigator/widgets/manager/manager/manager.py:2619
 "~R~emove this folder" = "~У~брать этот каталог"
-# navigator/widgets/manager/manager/manager.py:2617
+# navigator/widgets/manager/manager/manager.py:2619
 "~A~dd this folder" = "~Д~обавить этот каталог"
 # navigator/widgets/manager/manager/manager.py:563
 "Store this directory\nas bookmark {slot}?" = "Запомнить этот каталог\nкак закладку {slot}?"
-# navigator/widgets/manager/manager/manager.py:2015
+# navigator/widgets/manager/manager/manager.py:2017
 "No such directory" = "Нет такого каталога"
-# navigator/widgets/manager/manager/manager.py:2574
-"Erasing the file" = "Удаляется файл"
-# navigator/widgets/manager/manager/manager.py:2575
-"Erasing the directory" = "Удаляется каталог"
 # navigator/widgets/manager/manager/manager.py:2576
+"Erasing the file" = "Удаляется файл"
+# navigator/widgets/manager/manager/manager.py:2577
+"Erasing the directory" = "Удаляется каталог"
+# navigator/widgets/manager/manager/manager.py:2578
 "Changing attributes of" = "Меняются атрибуты"
 # navigator/widgets/manager/manager/manager.py:415
 "The input file is too small to UU-Encode." = "Файл слишком мал для UU-кодирования."
 # navigator/widgets/manager/manager/manager.py:785
 "a file of that name is already there" = "файл с таким именем уже есть"
-# navigator/widgets/manager/manager/manager.py:1382
+# navigator/widgets/manager/manager/manager.py:1384
 "Print file {name}?" = "Печатать файл {name}?"
 # navigator/widgets/manager/manager/manager.py:295
 "Counting directory length" = "Подсчёт размера каталога"
@@ -1680,21 +1680,21 @@ name = "Русский"
 "Branch: {path}" = "Ветвь: {path}"
 # navigator/widgets/manager/manager/manager.py:688
 "Cancel search?" = "Прекратить поиск?"
-# navigator/widgets/manager/manager/manager.py:1816
+# navigator/widgets/manager/manager/manager.py:1818
 "Reading file attributes" = "Читаются атрибуты файлов"
 # navigator/widgets/manager/manager/manager.py:926
 "Comparing files" = "Сравниваются файлы"
 # navigator/widgets/manager/manager/manager.py:532
 "Set the interface option\n\"Track directories\" ON first" = "Должна быть включена установка интерфейса\n\"История смены каталогов\""
-# navigator/widgets/manager/manager/manager.py:1604, navigator/widgets/manager/manager/manager.py:1759
+# navigator/widgets/manager/manager/manager.py:1606, navigator/widgets/manager/manager/manager.py:1761
 "Would you like to create directory {path}?" = "Хотите создать каталог {path}?"
-# navigator/widgets/manager/manager/manager.py:1609
+# navigator/widgets/manager/manager/manager.py:1611
 "There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
-# navigator/widgets/manager/manager/manager.py:2028, navigator/widgets/manager/manager/manager.py:2049, navigator/widgets/shell/shell/shell.py:1994
+# navigator/widgets/manager/manager/manager.py:2030, navigator/widgets/manager/manager/manager.py:2051, navigator/widgets/shell/shell/shell.py:1997
 "Cannot edit file" = "Невозможно редактировать файл"
-# navigator/widgets/manager/manager/manager.py:1338, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:87
+# navigator/widgets/manager/manager/manager.py:1340, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:87
 "Cannot make directory" = "Невозможно создать каталог"
-# navigator/widgets/manager/manager/manager.py:1939, navigator/widgets/manager/manager/manager.py:1931, navigator/widgets/manager/manager/manager.py:1926 ...
+# navigator/widgets/manager/manager/manager.py:1941, navigator/widgets/manager/manager/manager.py:1933, navigator/widgets/manager/manager/manager.py:1928 ...
 "Cannot view file" = "Невозможно просмотреть файл"
 # navigator/widgets/manager/manager/manager.py:512
 "Directory {place} is not there" = "Каталога {place} нет"
@@ -1702,15 +1702,15 @@ name = "Русский"
 "Could not rename {old}\nto {new}: {reason}" = "Невозможно переименовать {old}\nв {new}: {reason}"
 # navigator/widgets/manager/manager/manager.py:771
 "a name cannot hold a /" = "имя не может содержать /"
-# navigator/widgets/manager/manager/manager.py:1563
+# navigator/widgets/manager/manager/manager.py:1565
 "Abort operation?" = "Прервать операцию?"
 # navigator/widgets/manager/manager/manager.py:475
 "Cannot read {path}: {reason}" = "Невозможно прочитать {path}: {reason}"
 # navigator/widgets/manager/manager/manager.py:868
 "Cannot open {path}: {reason}" = "Невозможно открыть {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:1395
+# navigator/widgets/manager/manager/manager.py:1397
 "Cannot print {name}: {reason}" = "Невозможно печатать {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:1927
+# navigator/widgets/manager/manager/manager.py:1929
 "{name}: not a dBase file" = "{name}: не файл dBase"
 # navigator/widgets/manager/panel/drag.py:73
 "{n} selected file" = ["{n} отмеченный файл", "{n} отмеченных файла", "{n} отмеченных файлов"]
@@ -1808,15 +1808,19 @@ name = "Русский"
 "Also written to {path}" = "Также записано в {path}"
 # navigator/widgets/shell/shell/shell.py:377
 "Execute OS Command" = "Выполнить команду ОС"
-# navigator/widgets/shell/shell/shell.py:1983
+# navigator/widgets/shell/shell/shell.py:1487
+"Choose action" = "Выберите действие"
+# navigator/widgets/shell/shell/shell.py:1330
+"User menu" = "Меню пользователя"
+# navigator/widgets/shell/shell/shell.py:1986
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:1983
+# navigator/widgets/shell/shell/shell.py:1986
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:376
 "~C~ommand" = "~К~оманда"
-# navigator/widgets/shell/shell/shell.py:1973
+# navigator/widgets/shell/shell/shell.py:1976
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:1973
+# navigator/widgets/shell/shell/shell.py:1976
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:297
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -1832,17 +1836,17 @@ name = "Русский"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:458
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:1976
+# navigator/widgets/shell/shell/shell.py:1979
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1274
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
 # navigator/widgets/shell/shell/shell.py:1299
 "File {name} not found" = "Файл {name} не найден"
-# navigator/widgets/shell/shell/shell.py:1416
+# navigator/widgets/shell/shell/shell.py:1418
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:1797
+# navigator/widgets/shell/shell/shell.py:1800
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:1940
+# navigator/widgets/shell/shell/shell.py:1943
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
@@ -1910,6 +1914,8 @@ name = "Русский"
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:256
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
+# navigator/widgets/viewer/file_window/file_window.py:287
+"Encoding" = "Кодировка"
 # navigator/widgets/viewer/file_window/file_window.py:83
 "View - {path}" = "Просмотр - {path}"
 # navigator/lib/appearance/palette.py

@@ -1327,8 +1327,10 @@ class Shell(DockLayout):
             fill(box_menu, menu.items)
             if not items:
                 return
-            box = PopupMenu(box_menu, behind=self, keys=tuple(dict.fromkeys([*fkeys, "f2", "f4"])))
-            width, height = PopupMenu.measure(box_menu, app, self)
+            title = tr("User menu")
+            box = PopupMenu(box_menu, behind=self, keys=tuple(dict.fromkeys([*fkeys, "f2", "f4"])),
+                            title=title)
+            width, height = PopupMenu.measure(box_menu, app, self, title)
             box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
             chosen = await box.execute(app)
             pressed = box.pressed
@@ -1482,8 +1484,9 @@ class Shell(DockLayout):
         box_menu = SubMenu()
         chosen_of = {id(box_menu.add_item(expand(action.caption, active, passive, quote=False))): action
                      for action in actions}
-        box = PopupMenu(box_menu, behind=self)
-        width, height = PopupMenu.measure(box_menu, app, self)
+        title = tr("Choose action")
+        box = PopupMenu(box_menu, behind=self, title=title)
+        width, height = PopupMenu.measure(box_menu, app, self, title)
         box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
         chosen = await box.execute(app)
         return chosen_of.get(id(chosen)) if chosen is not None else None

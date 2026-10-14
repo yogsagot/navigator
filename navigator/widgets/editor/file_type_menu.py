@@ -83,11 +83,12 @@ async def choose_file_type(window: Any) -> str | None:
     menu = SubMenu()
     fill_file_types(menu, window)
     app = window.application
-    width, height = PopupMenu.measure(menu, app, window)
+    title = tr("File type")
+    width, height = PopupMenu.measure(menu, app, window, title)
     ox, oy = window.offset()
     x = ox + window.x + max(0, (window.width - width) // 2)
     y = oy + window.y + max(0, (window.height - height) // 2)
-    chosen = await PopupMenu(menu, x, y, current=0, behind=window).execute(app)
+    chosen = await PopupMenu(menu, x, y, current=0, behind=window, title=title).execute(app)
     if chosen is None or not isinstance(chosen.command, SetFileType):
         return None
     return chosen.command.file_type

@@ -196,8 +196,8 @@ def test_f2_shows_the_local_menu_centred_and_enter_runs_the_item(place):
 
     def look(a):
         box = popup(a)
-        width, height = PopupMenu.measure(box.menu, a, a.shell)
-        seen.update(captions=captions(box.box), at=box.at,
+        width, height = PopupMenu.measure(box.menu, a, a.shell, "User menu")
+        seen.update(captions=captions(box.box), at=box.at, title=box.box.title,
                     centre=((a.root.width - width) // 2, (a.root.height - height) // 2))
 
     run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("f2"),
@@ -205,7 +205,7 @@ def test_f2_shows_the_local_menu_centred_and_enter_runs_the_item(place):
                   KeyEvent("end"), KeyEvent("up"), KeyEvent("enter"),
                   Until(lambda a: ran)])
     assert seen["captions"] == ["Windows", "-", "Format", "F5 Edit a.txt", "List"]
-    assert seen["at"] == seen["centre"]
+    assert seen["at"] == seen["centre"] and seen["title"] == "User menu"
     assert script_of(ran) == f"vi {place}/a.txt\ncp {place.parent}/tmp/navigator-{os.getuid()}/active.lst " \
                              f"{place}/ %3 $HOME\n"
 

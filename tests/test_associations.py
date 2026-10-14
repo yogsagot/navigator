@@ -137,10 +137,11 @@ def test_several_entries_are_offered_in_a_menu_with_their_macros_in(place):
 
     def look(a):
         seen["captions"] = [parse_shortcut(entry.text)[0] for entry in popup(a).box.entries()]
+        seen["title"] = popup(a).box.title
 
     run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("enter"), Until(lambda a: popup(a) is not None),
                   look, KeyEvent("down"), KeyEvent("enter"), Until(lambda a: ran)])
-    assert seen["captions"] == ["Show a.txt", "Count"]
+    assert seen["captions"] == ["Show a.txt", "Count"] and seen["title"] == "Choose action"
     assert script_of(ran) == "wc a.txt\n"
 
 

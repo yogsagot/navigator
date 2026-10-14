@@ -74,6 +74,7 @@ def test_shift_f6_chooses_the_encoding_from_a_box(place):
     def choose_cp866(a):
         box = next(w for w in a.root.children if isinstance(w, PopupMenu))
         seen["current"] = box.box.current
+        seen["title"] = box.box.title
         for _ in range(4):
             a.post_event(KeyEvent("down"))
         a.post_event(KeyEvent("enter"))
@@ -83,7 +84,7 @@ def test_shift_f6_chooses_the_encoding_from_a_box(place):
                   choose_cp866, lambda a: None, lambda a: None,
                   lambda a: seen.update(encoding=viewer_of(a).encoding, info=viewer_of(a).info_text,
                                         row="".join(c for c, _ in viewer_of(a).source.line(0).cells))])
-    assert seen["current"] == 0
+    assert seen["current"] == 0 and seen["title"] == "Encoding"
     assert seen["encoding"] == "cp866" and seen["info"].endswith("{CP866}")
     assert seen["row"] == RUSSIAN.rstrip("\n")
 

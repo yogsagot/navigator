@@ -2607,10 +2607,11 @@ def test_the_strip_names_the_lexer_and_a_click_offers_file_types(tmp_path, quiet
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: screen(a),
                   lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3]),
                   click_option(ChooseFileType), lambda a: None,
-                  lambda a: seen.update(popup=isinstance(a.modal, PopupMenu)),
+                  lambda a: seen.update(popup=isinstance(a.modal, PopupMenu),
+                                        title=getattr(getattr(a.modal, "box", None), "title", None)),
                   KeyEvent("escape")])
     assert seen["label"].endswith("python")
-    assert seen["popup"]
+    assert seen["popup"] and seen["title"] == "File type"
 
 
 @pytest.mark.parametrize("file_type, extension", [("", "py"), ("rust", "rs"), ("bash", "sh"), ("java", "java"), ("kotlin", "kt"),

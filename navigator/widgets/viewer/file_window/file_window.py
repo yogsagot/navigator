@@ -284,11 +284,13 @@ class FileWindow(Window):
         codecs = [codec for codec, _ in viewer_model.ENCODINGS]
         menu = SubMenu()
         items = [menu.add_item(caption) for _, caption in viewer_model.ENCODINGS]
-        width, height = PopupMenu.measure(menu, self.application, self)
+        title = tr("Encoding")
+        width, height = PopupMenu.measure(menu, self.application, self, title)
         ox, oy = self.offset()
         x = ox + self.x + max(0, (self.width - width) // 2)
         y = oy + self.y + max(0, (self.height - height) // 2)
-        box = PopupMenu(menu, x, y, current=codecs.index(viewer.encoding), behind=self)
+        box = PopupMenu(menu, x, y, current=codecs.index(viewer.encoding), behind=self,
+                        title=title)
         chosen = await box.execute(self.application)
         if chosen is not None:
             viewer.set_encoding(codecs[items.index(chosen)])

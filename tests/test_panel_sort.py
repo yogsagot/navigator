@@ -129,12 +129,14 @@ def test_alt_b_opens_centred_on_the_panels_mode_and_a_choice_re_sorts_that_panel
         lambda a: seen.update(current=popup(a).box.current, at=popup(a).at,
                               panel=(a.manager.left.offset(), a.manager.left.x, a.manager.left.y,
                                      a.manager.left.width, a.manager.left.height),
-                              size=PopupMenu.measure(popup(a).menu, a, a.manager)),
+                              size=PopupMenu.measure(popup(a).menu, a, a.manager, "Sort by"),
+                              title=popup(a).box.title),
         KeyEvent("s", "s"), lambda a: None,
         lambda a: seen.update(left=listed(a.manager.left), right=listed(a.manager.right),
                               mode=a.manager.left.sort_mode, box=popup(a)),
     ])
     assert seen["current"] == 0  # Name
+    assert seen["title"] == "Sort by"
     (ox, oy), x, y, width, height = seen["panel"]
     box_width, box_height = seen["size"]
     assert seen["at"] == (ox + x + (width - box_width) // 2, oy + y + (height - box_height) // 2)
