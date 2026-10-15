@@ -1643,13 +1643,9 @@ class Manager(Window):
 
     async def _ask_skip(self, message: str) -> bool:
         """An error with *Skip* and *Cancel*: True to go on without this file."""
-        from navkit.reactive import unbind
-
-        from navml.widgets.dialog.button import Button
         from navml.widgets.dialog.control import escape_caption
 
         box = Dialog(title=tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
-        unbind(box.ok, Button.text)
         box.ok.text = tr("~S~kip")
         return await box.execute(self.application) is True
 

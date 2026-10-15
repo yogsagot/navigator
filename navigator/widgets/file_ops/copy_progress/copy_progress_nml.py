@@ -67,7 +67,8 @@ class CopyProgress(Dialog, _Component):
         self.modal_width = 60    # copy_progress.nml:13
         self.modal_height = 13    # copy_progress.nml:14
         self.title = _bind(    # copy_progress.nml:15
-            lambda _o: _tr('Rename/move') if self.move else _tr('Copy')
+            lambda _o: _tr('Rename/move') if self.move else _tr('Copy'),
+            yielding=True,
         )
         self.buttons = 'ok'    # copy_progress.nml:16
         self.closable = False    # copy_progress.nml:17

@@ -35,7 +35,10 @@ with no letter is left alone. A target that is not reactive gets `_tr('...')` on
 
 **A yielding binding** (`bind(..., yielding=True)`, `navkit/reactive.py`) is a default: a plain assignment replaces
 it instead of raising. That is what lets hand-written code keep setting `self.ok.text = tr("~Y~es")` over a markup
-caption. An ordinary binding still refuses.
+caption. A binding that reads properties only to *choose* between caption literals (a conditional whose branches,
+or an `or` whose operands, are all literals -- Dialog's `"~Y~es" if root.buttons ... else "O~K~"`) yields too
+(`_captions_only` in `navml/expression.py`); without that every progress box's `self.ok.text = ...` raised. An
+ordinary binding still refuses.
 
 An explicit `tr(...)` in a markup expression makes the line a binding too (it reads the language).
 

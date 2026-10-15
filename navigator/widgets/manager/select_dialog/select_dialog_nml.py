@@ -57,7 +57,8 @@ class SelectDialog(Dialog, _Component):
         self.modal_width = 30    # select_dialog.nml:17
         self.modal_height = 10    # select_dialog.nml:18
         self.title = _bind(    # select_dialog.nml:19
-            lambda _o: _tr('Select') if self.select else _tr('Unselect')
+            lambda _o: _tr('Select') if self.select else _tr('Unselect'),
+            yielding=True,
         )
 
         self.mask_caption.x = 2    # select_dialog.nml:23

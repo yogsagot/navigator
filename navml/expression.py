@@ -94,8 +94,9 @@ class Compiled:
     #: Whether a literal was wrapped in :data:`TRANSLATE`, which the generated
     #: module then has to import.
     translated: bool = False
-    #: Whether the only thing followed is the language, so the binding is a
-    #: default an assignment may replace (``bind(..., yielding=True)``).
+    #: Whether the binding is a default an assignment may replace
+    #: (``bind(..., yielding=True)``): the only thing it follows is the
+    #: language, or all it does is choose between caption literals.
     yielding: bool = False
 
     @property
@@ -285,6 +286,8 @@ def compile_expression(
     """
     tree = _parse(source, line, filename, mode="eval")
     constant = isinstance(tree.body, ast.Constant)
+    # Before translate(), which rewrites the literals in place.
+    captions = translate and _captions_only(tree.body)
     scope = _Scope(_owner(owner, line, filename), own, ids)
     body = scope.visit(scope.translate(tree.body) if translate else tree.body)
     return Compiled(
@@ -292,8 +295,27 @@ def compile_expression(
         rewritten=scope.rewrote or scope.reads_language,
         constant=constant and not scope.translated,
         translated=scope.translated,
-        yielding=scope.reads_language and not scope.rewrote,
+        yielding=scope.reads_language
+        and (not scope.rewrote or captions),
     )
+
+
+def _captions_only(node: ast.expr) -> bool:
+    """Whether every value *node* can produce is a string literal.
+
+    ``"~Y~es" if root.buttons == "yes-no" else "O~K~"`` reads a property, but
+    only to pick a caption: it is as much a default as ``"O~K~"`` alone, and a
+    derived dialog's ``self.ok.text = tr("~S~top")`` must replace it the same
+    way.  A conditional's test may read anything; its branches, and every
+    operand of an ``or``, must be captions themselves.
+    """
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, str)
+    if isinstance(node, ast.IfExp):
+        return _captions_only(node.body) and _captions_only(node.orelse)
+    if isinstance(node, ast.BoolOp):
+        return all(_captions_only(value) for value in node.values)
+    return False
 
 
 def compile_handler(

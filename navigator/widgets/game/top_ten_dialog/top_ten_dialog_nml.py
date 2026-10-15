@@ -47,7 +47,8 @@ class TopTenDialog(Dialog, _Component):
         self.modal_width = 59    # top_ten_dialog.nml:8
         self.modal_height = 19    # top_ten_dialog.nml:9
         self.title = _bind(    # top_ten_dialog.nml:10
-            lambda _o: _tr('Pentix Top Ten') if self.game_style == 'pentix' else _tr('Tetris Top Ten')
+            lambda _o: _tr('Pentix Top Ten') if self.game_style == 'pentix' else _tr('Tetris Top Ten'),
+            yielding=True,
         )
         self.buttons = 'ok'    # top_ten_dialog.nml:11
 

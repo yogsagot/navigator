@@ -102,7 +102,8 @@ class CopyDialog(Dialog, _Component):
         self.modal_width = 61    # copy_dialog.nml:22
         self.modal_height = 17    # copy_dialog.nml:23
         self.title = _bind(    # copy_dialog.nml:24
-            lambda _o: _tr('Rename/move') if self.move else _tr('Copy')
+            lambda _o: _tr('Rename/move') if self.move else _tr('Copy'),
+            yielding=True,
         )
 
         self.prompt_caption.x = 2    # copy_dialog.nml:34

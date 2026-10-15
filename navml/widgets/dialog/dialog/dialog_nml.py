@@ -123,7 +123,8 @@ class Dialog(Modal, _Component):
         self.row.justify = 'center'    # dialog.nml:62
 
         self.ok.text = _bind(    # dialog.nml:66
-            lambda _o: _tr('~Y~es') if self.buttons in ('yes-no-cancel', 'yes-no') else _tr('O~K~')
+            lambda _o: _tr('~Y~es') if self.buttons in ('yes-no-cancel', 'yes-no') else _tr('O~K~'),
+            yielding=True,
         )
         self.ok.default = True    # dialog.nml:67
         self.ok.inline_style = 'basis: 11; grow: 0'    # dialog.nml:68

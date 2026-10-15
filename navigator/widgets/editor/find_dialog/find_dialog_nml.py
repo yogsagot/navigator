@@ -104,7 +104,8 @@ class FindDialog(Dialog, _Component):
         self.modal_width = 55    # find_dialog.nml:16
         self.modal_height = _bind(lambda _o: 18 if self.replace else 15)    # find_dialog.nml:17
         self.title = _bind(    # find_dialog.nml:18
-            lambda _o: _tr('Replace') if self.replace else _tr('Find')
+            lambda _o: _tr('Replace') if self.replace else _tr('Find'),
+            yielding=True,
         )
 
         self.text.x = 3    # find_dialog.nml:22

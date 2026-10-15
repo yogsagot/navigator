@@ -169,7 +169,37 @@ def test_every_caption_of_a_list_and_a_conditional_is_wrapped():
     compiled = compile_expression('["~Y~es", "~N~o"]', translate=True)
     assert compiled.expression == "[_tr('~Y~es'), _tr('~N~o')]"
     compiled = compile_expression('"Move" if self.move else "Copy"', translate=True)
-    assert compiled.value == "_bind(lambda _o: _tr('Move') if _o.move else _tr('Copy'))"
+    assert compiled.value == "_bind(lambda _o: _tr('Move') if _o.move else _tr('Copy'), yielding=True)"
+
+
+def test_a_choice_between_captions_yields_but_a_property_in_the_value_does_not():
+    # Dialog's OK reads ``buttons`` only to pick a caption; a derived box's
+    # ``self.ok.text = tr("~S~top")`` replaces it (FindProgress raised before).
+    assert compile_expression('"Yes" if self.n == 2 else "OK"', translate=True).yielding
+    assert compile_expression('self.name or "Untitled"', translate=True).yielding is False
+    assert compile_expression('"Yes" if self.n else self.name', translate=True).yielding is False
+    assert compile_expression('["Yes", self.name]', translate=True).yielding is False
+
+
+@pytest.mark.parametrize("module, name, caption", [
+    ("navigator.widgets.manager.find_progress.find_progress", "FindProgress", "Cancel"),
+    ("navigator.widgets.viewer.search_progress.search_progress", "SearchProgress", "~S~top"),
+    ("navigator.widgets.file_ops.write_win.write_win", "WriteWin", "~C~ancel"),
+    ("navigator.widgets.file_ops.delete_dialog.delete_dialog", "DeleteDialog", "~Y~es"),
+    ("navigator.widgets.file_ops.count_progress.count_progress", "CountProgress", "~C~ancel"),
+    ("navigator.widgets.file_ops.delete_progress.delete_progress", "DeleteProgress", "~C~ancel"),
+    ("navigator.widgets.file_ops.copy_progress.copy_progress", "CopyProgress", "~S~top"),
+])
+def test_a_box_that_renames_its_ok_button_can_be_built(module, name, caption):
+    """Dialog's OK caption reads ``buttons``; it must still yield to these.
+
+    A progress box is only built once a job outlasts ``PROGRESS_DELAY``, so a
+    suite on a fast disk never saw one raise -- a slow CI runner did.
+    """
+    import importlib
+
+    box = getattr(importlib.import_module(module), name)()
+    assert box.ok.text == caption
 
 
 def test_a_fragment_or_a_letterless_literal_is_not():
