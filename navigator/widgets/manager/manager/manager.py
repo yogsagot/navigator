@@ -1272,23 +1272,36 @@ class Manager(Window):
         corner, over the first names rather than the middle of the listing
         the eye is on.  DN's *Group* is *Type* here, as in the *New Manager
         defaults*, and so its hot key is Y.
+
+        Each mode is offered twice, a departure (DN had no descending order):
+        its own direction first -- what the hot key picks, and plain -- then
+        reversed, with the arrow of the way it then runs where a menu shows a
+        key (:func:`sort_orders`), as Alt+S's captions have with *Reverse
+        order* ticked.
+        The order the panel has is ticked, and the box opens on it.
         """
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
         menu = SubMenu()
-        items = [menu.add_item(caption) for caption in sort_captions()]
+        orders = sort_orders()
+        here = (panel.sort_mode, panel.sort_reverse)
+        items = []
+        for (mode, reverse), caption in zip(orders, sort_order_captions()):
+            item = menu.add_item(caption, key=panel.direction_arrow(mode, True) if reverse else "")
+            item.ticked = (mode, reverse) == here
+            items.append(item)
         title = tr("Sort by")
         width, height = PopupMenu.measure(menu, self.application, self, title)
         ox, oy = panel.offset()
         x = ox + panel.x + (panel.width - width) // 2
         y = oy + panel.y + (panel.height - height) // 2
-        box = PopupMenu(menu, x, y, current=SORT_MODES.index(panel.sort_mode), behind=self,
+        box = PopupMenu(menu, x, y, current=orders.index(here) if here in orders else 0, behind=self,
                         title=title)
         chosen = await box.execute(self.application)
         if chosen is None:
             return
-        panel.sort_by(SORT_MODES[items.index(chosen)])
+        panel.sort_by(*orders[items.index(chosen)])
 
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
@@ -2577,7 +2590,34 @@ DELETE_BOOKMARK_KEY = "delete"
 def sort_captions() -> tuple[str, ...]:
     """``dlSortName`` .. ``dlSortUnsorted``, in :data:`SORT_MODES`' order --
     DN's menu order, *Group* named *Type*."""
-    return (tr("~N~ame"), tr("~E~xtension"), tr("~S~ize"), tr("~T~ime"), tr("T~y~pe"), tr("~U~nsorted"))
+    return (tr("~N~ame"), tr("~E~xtension"), tr("~S~ize"), tr("~T~ime"), tr("~A~ttributes"), tr("~O~wner"), tr("T~y~pe"), tr("~U~nsorted"))
+
+
+def sort_radio_captions(reverse: bool, glyphs: int) -> list[str]:
+    """*Sort by*'s radio captions in Alt+S and *New Manager defaults*: plain
+    in each mode's own direction; with *Reverse order* ticked (*reverse*),
+    each but *Unsorted*'s followed by the way it runs then."""
+    from navigator.widgets.manager.panel.panel import direction_arrow
+
+    if not reverse:
+        return list(sort_captions())
+    return [f"{caption} {arrow}" if (arrow := direction_arrow(mode, True, glyphs)) else caption
+            for mode, caption in zip(SORT_MODES, sort_captions())]
+
+
+def sort_orders() -> list[tuple[str, bool]]:
+    """Alt+B's entries as ``(mode, reverse)``: each of :data:`SORT_MODES` in
+    its own direction and then reversed, *Unsorted* once (it has none)."""
+    return [(mode, reverse) for mode in SORT_MODES
+            for reverse in ((False,) if mode == "unsorted" else (False, True))]
+
+
+def sort_order_captions() -> list[str]:
+    """:func:`sort_captions` for :func:`sort_orders`: a reversed entry's caption
+    without its hot key, so the letter chooses the mode's own direction."""
+    captions = dict(zip(SORT_MODES, sort_captions()))
+    return [captions[mode].replace("~", "") if reverse else captions[mode]
+            for mode, reverse in sort_orders()]
 
 
 def action_caption(action: str) -> str:

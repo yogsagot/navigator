@@ -206,22 +206,29 @@ def heading_row(app) -> str:
 
 def test_clicking_a_title_sorts_by_its_column_and_again_reverses_it(place):
     SETTINGS.panel_defaults.view_mode = "detailed"
+    (place / "c.txt").chmod(0o600)
+    (place / "a.txt").chmod(0o644)
+    (place / "b.txt").chmod(0o644)
     app = Navigator(place, place, terminal=FakeTerminal(160, 24))  # wide enough for Attr
     seen = []
 
     def note(a):
-        seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse, listed(a.manager.left)))
+        seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse, listed(a.manager.left),
+                     heading_row(a)))
 
     run_app(app, [
         lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
         lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
         lambda a: a.post_event(heading_click(a, "attributes")), lambda a: None, note,
+        lambda a: a.post_event(heading_click(a, "attributes")), lambda a: None, note,
     ])
-    assert seen == [
+    assert [row[:3] for row in seen] == [
         ("size", False, ["sub", "b.txt", "c.txt", "a.txt"]),
         ("size", True, ["sub", "a.txt", "c.txt", "b.txt"]),
-        ("size", True, ["sub", "a.txt", "c.txt", "b.txt"]),  # Attr sorts nothing
+        ("attributes", False, ["sub", "c.txt", "a.txt", "b.txt"]),  # rw------- first
+        ("attributes", True, ["sub", "b.txt", "a.txt", "c.txt"]),
     ]
+    assert "Attr↑" in seen[2][3] and "Attr↓" in seen[3][3]
 
 
 def test_clicking_name_steps_through_name_and_extension_each_way(place):
@@ -272,3 +279,91 @@ def test_alt_b_drops_the_reverse():
     assert (panel.sort_mode, panel.sort_reverse) == ("size", True)
     panel.sort_by("name")
     assert (panel.sort_mode, panel.sort_reverse) == ("name", False)
+
+
+def owned(name: str, uid: int, mode: int = FILE) -> DirEntry:
+    return DirEntry(name, mode == DIR, 0, mode, 0.0, uid=uid, gid=uid)
+
+
+def test_owner_sorts_by_user_and_group_then_name_directories_first():
+    # 99999 has no name, so it shows (and sorts) as the number, before "root".
+    entries = [owned("b", 0), owned("a", 0), owned("c", 99999), owned("d", 0, DIR), owned("e", 99999, DIR)]
+    assert names(order_entries(entries, "owner")) == ["e", "d", "c", "a", "b"]
+    assert names(order_entries(entries, "owner", reverse=True)) == ["d", "e", "b", "a", "c"]
+
+
+def test_clicking_owner_sorts_by_it_ascending_and_marks_it(place):
+    SETTINGS.panel_defaults.view_mode = "detailed"
+    app = Navigator(place, place, terminal=FakeTerminal(160, 24))  # wide enough for Owner
+    seen = []
+    note = lambda a: seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse, heading_row(a)))
+    click = lambda a: a.post_event(heading_click(a, "owner"))
+    run_app(app, [click, lambda a: None, note, click, lambda a: None, note])
+    assert [(mode, reverse) for mode, reverse, _ in seen] == [("owner", False), ("owner", True)]
+    assert "Owner↑" in seen[0][2] and "Owner↓" in seen[1][2]
+
+
+def test_attributes_sort_by_the_permission_bits_then_name_directories_first():
+    entries = [entry("b", 0o100755), entry("a", 0o100644), entry("c", 0o100600),
+               DirEntry("d", True, 0, 0o040700), entry("e", DIR)]
+    assert names(order_entries(entries, "attributes")) == ["d", "e", "c", "a", "b"]
+    assert names(order_entries(entries, "attributes", reverse=True)) == ["e", "d", "b", "a", "c"]
+
+
+def painted_box(box) -> list[str]:
+    from navkit.screen import ScreenBuffer
+
+    inner = box.box
+    buffer = ScreenBuffer(inner.width, inner.height)
+    inner.render(buffer.view(0, 0, inner.width, inner.height))
+    return ["".join(buffer.get(x, y)[0] or " " for x in range(inner.width)) for y in range(inner.height)]
+
+
+def test_alt_b_offers_each_order_both_ways_ticking_the_panels_own(place):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 30))  # the whole box, unscrolled
+    seen = {}
+    run_app(app, [
+        lambda a: a.manager.left.sort_by("size", reverse=True), lambda a: None,
+        KeyEvent("b", alt=True), lambda a: None,
+        lambda a: seen.update(rows=painted_box(popup(a)), current=popup(a).box.current),
+        KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"), lambda a: None,   # Time ↓
+        lambda a: seen.update(after=(a.manager.left.sort_mode, a.manager.left.sort_reverse)),
+        KeyEvent("b", alt=True), lambda a: None, KeyEvent("n", "n"), lambda a: None,
+        lambda a: seen.update(letter=(a.manager.left.sort_mode, a.manager.left.sort_reverse)),
+    ])
+    rows = [row[2:].rstrip(" │") for row in seen["rows"][1:-1]]
+    assert [row.split()[0] for row in rows] == [
+        "Name", "Name", "Extension", "Extension", "Size", "√Size", "Time", "Time",
+        "Attributes", "Attributes", "Owner", "Owner", "Type", "Type", "Unsorted"]
+    arrows = ["↓", "↓", "↑", "↑", "↓", "↓", "↓"]                      # the reversed entries' only
+    assert [row[-1] for row in rows[1:-1:2]] == arrows
+    assert not any(arrow in row for row in rows[0:-1:2] for arrow in "↑↓")  # own direction: plain
+    assert rows[5].startswith("√Size") and rows[5].endswith("↑")   # size reversed: smallest first
+    assert sum("√" in row for row in rows) == 1
+    assert rows[-1] == " Unsorted"                                    # no direction
+    assert seen["current"] == 5
+    assert seen["after"] == ("time", True)
+    assert seen["letter"] == ("name", False)                          # the letter picks the own direction
+
+
+def test_the_new_manager_defaults_dialog_reads_and_answers_the_direction():
+    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+
+    SETTINGS.panel_defaults.sort_by = "time"
+    SETTINGS.panel_defaults.sort_reverse = True
+    dialog = FMDefaultsDialog()
+    assert dialog.reverse.value == 1
+    assert dialog.sort_by.items[3] == "~T~ime ↑" and dialog.sort_by.items[-1] == "~U~nsorted"
+    dialog.reverse.value = 0
+    assert dialog.sort_by.items[3] == "~T~ime"
+    assert dialog.accept()["sort_reverse"] is False
+
+
+def test_a_new_panel_takes_the_new_manager_defaults_direction(place):
+    SETTINGS.panel_defaults.sort_by = "size"
+    SETTINGS.panel_defaults.sort_reverse = True
+    app = navigator(place)
+    seen = {}
+    run_app(app, [lambda a: seen.update(order=(a.manager.left.sort_mode, a.manager.left.sort_reverse),
+                                        names=listed(a.manager.left))])
+    assert seen == {"order": ("size", True), "names": ["sub", "a.txt", "c.txt", "b.txt"]}

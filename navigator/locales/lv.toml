@@ -405,7 +405,7 @@ name = "Latviešu"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~A~ttributes" = "~A~tribūti"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
-"~O~wner" = "Ī~p~ašnieks"
+"~O~wner" = "Īpašni~e~ks"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~C~eļš"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:38
@@ -547,6 +547,7 @@ name = "Latviešu"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:50, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:51
 "~A~rchives first" = "A~r~hīvi vispirms"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:58
+"~R~everse order" = "Apgriezta se~c~ība"
 "File ~m~ask" = "Faila ~m~aska"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:19
 "Select" = "Atlasīt"

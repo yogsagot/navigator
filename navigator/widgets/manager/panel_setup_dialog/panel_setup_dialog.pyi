@@ -11,15 +11,18 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
+from navkit.reactive import bind
 from navigator.settings import PanelDefaultsData
+from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 
 class PanelSetupDialog(Dialog, _Component):
     sort_caption: Label
+    reverse: CheckBoxes
     sort_by: RadioButtons
     display_caption: Label
     display: CheckBoxes
     mask_caption: Label
     mask: Field
     def __init__(self, panel: Any = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> tuple[str, frozenset[str], str]: ...
+    def accept(self) -> tuple[str, frozenset[str], str, bool]: ...

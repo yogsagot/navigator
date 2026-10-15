@@ -166,7 +166,7 @@ def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
         panel.view_mode = kept["view_mode"]
     if kept.get("sort_mode") in SORT_MODES:
         panel.sort_mode = kept["sort_mode"]
-    panel.sort_reverse = bool(kept.get("sort_reverse", False)) and panel.sort_mode != "unsorted"
+    panel.sort_reverse = bool(kept.get("sort_reverse", panel.sort_reverse)) and panel.sort_mode != "unsorted"
     panel.show_hidden = bool(kept.get("show_hidden", panel.show_hidden))
     panel.show_info = bool(kept.get("show_info", panel.show_info))
     panel.file_mask = kept.get("file_mask") or panel.file_mask

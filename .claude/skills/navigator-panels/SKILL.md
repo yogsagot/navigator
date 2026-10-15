@@ -131,24 +131,35 @@ directory tree follows it (see `navigator-trees`). Ctrl+H decoding: `navkit-term
 
 ## Sorting (Alt+B)
 
-`Panel.sort_mode`, one of `SORT_MODES` (name, extension, size, time, type, unsorted -- `PanelDefaultsData.SORT_BY`), is
+`Panel.sort_mode`, one of `SORT_MODES` (name, extension, size, time, attributes, owner, type, unsorted -- `PanelDefaultsData.SORT_BY`), is
 DN's per-panel `SortMode`, seeded from *New Manager defaults* > *Sort by*. `order_entries` is `TFilesCollection.Compare`
 and runs on the scan thread: `..` first; directories first except by *Type* (DN's *Group*: directory, executable,
 archive, the `filetypes.CATEGORIES` after it, the rest -- `filetypes.GROUPS`); size and time largest/newest first;
-names case-folded. *Executables first*/*Archives first* lead the files except by size and time, read at each read (not
+*Attributes* by the permission bits (`S_IMODE`, fewest first) and *Owner* by `display_owner` case-folded, both
+then name (departures: DN sorted by neither);
+names case-folded. *Executables first*/*Archives first* lead the files except by size, time, attributes and owner, read at each read (not
 followed). *Unsorted* is `scandir`'s order, without the two flags (DN's compare was no order there). Alt+B and *Panel >
-Sort by* are `Manager.choose_sort`: `CM_SortBy`'s `PopupMenu`, centred on the panel (DN put it at the panel's top left), on the current mode, captions
-`SORT_CAPTIONS` (*Type* is T~y~pe). `Panel.sort_by(mode, reverse=False)` re-reads keeping the cursor on its entry.
+Sort by* are `Manager.choose_sort`: `CM_SortBy`'s `PopupMenu`, centred on the panel (DN put it at the panel's top left), on the current order, captions
+`sort_captions()` (*Type* is T~y~pe). **Each mode is in it twice** (`sort_orders()`: its own direction, then reversed;
+*Unsorted* once), the own direction plain and the reversed one with its arrow in the key column
+(`Panel.direction_arrow`, as Alt+S's captions with *Reverse order* ticked), the reversed caption without its hot key
+(`sort_order_captions()`) so the letter picks the own direction, and the panel's order ticked (`MenuItem.ticked`). *Sort by*'s radio group in Alt+S and *New Manager defaults* is three rows of
+three columns, so the Russian and Latvian captions fit 52 columns. `Panel.sort_by(mode, reverse=False)` re-reads keeping the cursor on its entry.
 
 **Clicking a column title sorts by it** (a departure: DN had no descending order nor clickable titles):
 `Panel.heading_at` finds the column on the heading row and `sort_by_column` steps through its `COLUMN_SORTS` modes,
 each up then reversed (`Panel.sort_reverse`), wrapping: Name is name ↑ → name ↓ → extension ↑ → extension ↓ (there
-being no extension column), Size and Date (time) just flip; the others sort nothing. From another column's order a
+being no extension column), Size, Attr, Owner and Date (time) just flip; the others sort nothing. From another column's order a
 click starts at the first step.
 `order_entries(reverse=True)` turns only the order *within* each group: `..`, directories before files and the
 *Executables/Archives first* flags stay put; *Unsorted* ignores it. The sorted column's title ends in `↑` (ascending)
 or `↓` (`^`/`v` at the ASCII tier), Name's with a `.` before it while the extension sorts (`Name.↑`) -- `Panel.sort_arrow`, with `SORT_ASCENDS` saying size and time run descending
-unreversed. An Alt+B choice is always unreversed; Alt+S drops the reverse only when it changes the mode. `sort_reverse` is kept with the desktop.
+unreversed. Alt+S's *Panel Options* has *Reverse order* (`PanelSetupDialog.reverse`, on the *Sort by* caption's row): ticked,
+each order's caption ends in the arrow of the way it then runs, unticked they are plain (`sort_radio_captions()`,
+bound to that box); *New Manager defaults*
+has the same box and arrows, as `[panel_defaults] sort_reverse`, which seeds `Panel.sort_reverse` with `sort_by`; both
+dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those arrows in Russian and Latvian.
+`set_options` takes the direction with the mode; `direction_arrow()` and `SORT_ASCENDS` are module-level in panel.py. `sort_reverse` is kept with the desktop.
 
 ## Tagging
 

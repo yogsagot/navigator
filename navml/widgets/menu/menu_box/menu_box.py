@@ -13,7 +13,8 @@ Every measurement here is ``MENUS.PAS``'s:
 * **A toggle that is on is ticked** in the column between the frame and the
   caption -- ``√``, or ``+`` with no Unicode -- which Turbo Vision left blank,
   so a tick costs no width.  Whether it is on is the command's to say, through
-  :meth:`navkit.widget.Widget.checks`.
+  :meth:`navkit.widget.Widget.checks` -- or the item's own ``ticked``, for a
+  popup's choice that has no command.
 * **Width is the widest entry plus six**, plus the key and two spaces, or plus
   three for a submenu's arrow; never under ten.  Height is one row per entry
   and two for the frame.
@@ -136,7 +137,9 @@ class MenuBox(Widget):
         return app is not None and app.command_enabled(entry.command, self.behind)
 
     def checked(self, entry: MenuNode) -> bool:
-        """Whether *entry* is a toggle that is on now."""
+        """Whether *entry* is a toggle that is on now, or ticked by hand."""
+        if isinstance(entry, MenuItem) and entry.ticked:
+            return True
         if not isinstance(entry, MenuItem) or entry.command is None:
             return False
         app = self.application

@@ -405,7 +405,7 @@ name = "Русский"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~A~ttributes" = "~А~трибуты"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
-"~O~wner" = "~В~ладелец"
+"~O~wner" = "В~л~аделец"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~П~уть"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:38
@@ -547,6 +547,7 @@ name = "Русский"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:50, navigator/widgets/setup/fm_defaults_dialog/fm_defaults_dialog.nml:51
 "~A~rchives first" = "~А~рхивы в начало"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:58
+"~R~everse order" = "Об~р~атный порядок"
 "File ~m~ask" = "Мас~к~а файлов"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:19
 "Select" = "Пометить"

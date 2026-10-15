@@ -54,7 +54,8 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   TV's submenus had none. Display only; choosing the entry still opens the submenu.
 - **A menu tick** is navkit's `Widget.checks(command)` (True/False/None), asked of the same widget `enables` is
   (`Application.command_checked`); `MenuBox` paints `√` (`+` in ASCII) in the blank column left of the caption, so a
-  tick costs no width.
+  tick costs no width. A `MenuItem` with `ticked` set is ticked whatever its command says -- for a popup's choices,
+  which have no command to ask (Alt+B's current order).
 - **A window's own menu joins the bar while it is in use**: `SubMenu` children of a window join through
   `MenuBar.context`, which `shell.nml` binds to the desktop's active window, each placing itself with `before:`/`after:`.
   The viewer's *View* and the editor's *Editor* menus go after *File*.

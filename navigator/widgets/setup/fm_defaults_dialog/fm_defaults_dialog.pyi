@@ -10,11 +10,13 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
+from navkit.reactive import bind
 from navigator.settings import SETTINGS, PanelDefaultsData
 
 
 class FMDefaultsDialog(Dialog, _Component):
     sort_caption: Label
+    reverse: CheckBoxes
     sort_by: RadioButtons
     display_caption: Label
     display: CheckBoxes

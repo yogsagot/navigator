@@ -54,3 +54,6 @@ class MenuItem(MenuNode):
     #: own caption for it.  A key that *is* bound is read off the binding
     #: instead, so the menu cannot claim a key that does something else.
     key: str = reactive("")
+    #: Ticked whatever its command says: for a popup's choice, which has no
+    #: command to ask, the one the box opens on (Alt+B's current order).
+    ticked: bool = reactive(False)

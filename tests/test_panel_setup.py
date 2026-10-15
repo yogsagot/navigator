@@ -108,3 +108,27 @@ def test_an_empty_mask_is_every_file(place):
     run_app(app, [KeyEvent("s", alt=True), lambda a: None, answer, KeyEvent("enter"), lambda a: None,
                   lambda a: seen.update(mask=a.manager.left.file_mask, count=len(names(a.manager.left.items)))])
     assert seen == {"mask": "*", "count": 4}
+
+
+def test_reverse_order_opens_on_the_panels_direction_flips_the_arrows_and_is_answered(place):
+    app = navigator(place)
+    seen = {}
+
+    def look(key):
+        return lambda a: seen.update({key: (a.modal.reverse.value, list(a.modal.sort_by.items))})
+
+    run_app(app, [
+        lambda a: a.manager.left.sort_by("size", reverse=True), lambda a: None,
+        KeyEvent("s", alt=True), lambda a: None, look("open"),
+        KeyEvent("r", alt=True), lambda a: None, look("flipped"),
+        KeyEvent("r", alt=True), lambda a: None, KeyEvent("enter"), lambda a: None,
+        lambda a: seen.update(after=(a.manager.left.sort_mode, a.manager.left.sort_reverse,
+                                     names(a.manager.left.items))),
+    ])
+    reverse, items = seen["open"]
+    assert reverse == 1
+    assert items == ["~N~ame ↓", "~E~xtension ↓", "~S~ize ↑", "~T~ime ↑", "~A~ttributes ↓",
+                     "~O~wner ↓", "T~y~pe ↓", "~U~nsorted"]
+    assert seen["flipped"] == (0, ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "~A~ttributes",
+                                   "~O~wner", "T~y~pe", "~U~nsorted"])  # own direction: no arrow
+    assert seen["after"] == ("size", True, ["sub.txt", "note.txt", "keep.c", "big.txt"])  # ties by name, reversed too

@@ -508,8 +508,12 @@ class PanelDefaultsData(Section):
     title = "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)"
 
     #: DN's *Group* was the file-type group; "type" says so, where "group"
-    #: would read as the file's Unix group.
-    SORT_BY: ClassVar[tuple[str, ...]] = ("name", "extension", "size", "time", "type", "unsorted")
+    #: would read as the file's Unix group.  "attributes" and "owner" are
+    #: Navigator's (DN never sorted by attributes; DOS had no owners), after
+    #: DN's four by a property of the file.
+    SORT_BY: ClassVar[tuple[str, ...]] = (
+        "name", "extension", "size", "time", "attributes", "owner", "type", "unsorted",
+    )
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "directory_length", "current_file", "selected_files", "totals",
         "free_space", "files_highlight", "executables_first", "archives_first",
@@ -523,6 +527,8 @@ class PanelDefaultsData(Section):
     sort_by: str = Setting(
         "name", choices=SORT_BY, aliases={"group": "type"}, doc="A new panel's order (Alt+B changes one panel's)",
     )
+    #: Not DN's, which had no descending order: :attr:`sort_by` turned round.
+    sort_reverse: bool = Setting(False, doc="A new panel's order runs the other way (largest, newest, Z first...)")
     #: ``fmiDirLen``: each directory's bytes counted at every read (Esc stops it).
     directory_length: bool = Setting(False, doc="Count each directory's bytes into its size at every read")
     current_file: bool = Setting(True, doc="The info line names the current file")

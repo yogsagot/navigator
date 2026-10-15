@@ -295,6 +295,23 @@ class _ScanRequest:
 #: defaults* name them; "type" is DN's *Group*.
 SORT_MODES: tuple[str, ...] = PanelDefaultsData.SORT_BY
 
+#: Which way each sort mode runs unreversed: ``True`` ascending.  Size and
+#: time go largest and newest first (:func:`order_entries`); *Unsorted* has
+#: no direction.
+SORT_ASCENDS = {"name": True, "extension": True, "size": False, "time": False,
+                "attributes": True, "owner": True, "type": True}
+
+
+def direction_arrow(mode: str, reverse: bool, glyphs: int) -> str:
+    """``↑`` where *mode* (*reverse* or not) runs ascending, ``↓`` descending
+    -- ``^``/``v`` at the ASCII *glyphs* tier -- and nothing for *Unsorted*."""
+    if mode not in SORT_ASCENDS:
+        return ""
+    ascending = SORT_ASCENDS[mode] != reverse
+    if glyphs <= glyphs_module.GLYPHS_ASCII:
+        return "^" if ascending else "v"
+    return "\u2191" if ascending else "\u2193"
+
 
 def _extension(name: str) -> str:
     """What *Extension* sorts by: after the last dot, and none for a dot-file."""
@@ -320,7 +337,9 @@ def order_entries(
 
     ``..`` comes first whatever the mode.  *Name*, *Extension*, *Size* and
     *Time* put the directories before the files; size and time go largest
-    and newest first.  *Type* is DN's *Group*: directories, executables,
+    and newest first.  *Owner* (Navigator's: DOS had no owners) does too,
+    by ``user:group`` as the column shows it, then by name; so does
+    *Attributes* (Navigator's too), by the permission bits, fewest first.  *Type* is DN's *Group*: directories, executables,
     archives, the custom groups, then the rest, each by name.  Names compare
     without regard to case, as DOS's upper-cased ones did, the exact name
     breaking a tie.
@@ -341,7 +360,7 @@ def order_entries(
     rest = [entry for entry in entries if entry.name != ".."]
     if sort == "unsorted":
         return up + rest
-    kinds = sort not in ("size", "time")
+    kinds = sort not in ("size", "time", "attributes", "owner")
 
     def first(entry: DirEntry) -> tuple[bool, bool]:
         if not kinds or entry.is_dir:
@@ -363,6 +382,10 @@ def order_entries(
         value = lambda entry: (-entry.size, *by_name(entry))
     elif sort == "time":
         value = lambda entry: (-entry.mtime, *by_name(entry))
+    elif sort == "attributes":
+        value = lambda entry: (stat.S_IMODE(entry.mode), *by_name(entry))
+    elif sort == "owner":
+        value = lambda entry: (entry.display_owner.lower(), *by_name(entry))
     elif sort == "type":
         # The directories are *Group*'s first rank, so they lead as before.
         group = lambda entry: (not entry.is_dir,)
@@ -701,6 +724,7 @@ class Panel(ListViewer):
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
+        self.sort_reverse = SETTINGS.panel_defaults.sort_reverse and self.sort_mode != "unsorted"
         self.view_mode = SETTINGS.panel_defaults.view_mode
         self.columns = SETTINGS.column_defaults.columns(False)
         if path is not None:
@@ -1093,16 +1117,16 @@ class Panel(ListViewer):
             return bool(getattr(SETTINGS.panel_defaults, option))
         return option in display
 
-    def set_options(self, sort: str, display: frozenset[str], mask: str) -> None:
-        """Alt+S's answer (DN's ``Setup``): this panel's order, *Display*
-        boxes and file mask, and one re-read keeping the cursor on its entry."""
+    def set_options(self, sort: str, display: frozenset[str], mask: str, reverse: bool = False) -> None:
+        """Alt+S's answer (DN's ``Setup``): this panel's order and its
+        direction, *Display* boxes and file mask, and one re-read keeping the
+        cursor on its entry."""
         if sort not in SORT_MODES:
             raise ValueError(f"unknown sort mode {sort!r}")
         entry = self.selected
         if entry is not None:
             self._keep = (self.path, entry.key, self.cursor, self.scroll)
-        if sort != self.sort_mode:
-            self.sort_reverse = False
+        self.sort_reverse = reverse and sort != "unsorted"
         self.sort_mode = sort
         self.display = frozenset(display)
         self.file_mask = mask.strip() or filetypes.ALL_FILES
@@ -1139,10 +1163,7 @@ class Panel(ListViewer):
     #: The sort modes a click on a column's title steps through, each up and
     #: then reversed; the other columns sort nothing.  The name's title takes
     #: the extension too, there being no column of its own for it.
-    COLUMN_SORTS = {"name": ("name", "extension"), "size": ("size",), "date": ("time",)}
-    #: Which way each of those runs unreversed: ``True`` ascending.  Size and
-    #: time go largest and newest first (:func:`order_entries`).
-    SORT_ASCENDS = {"name": True, "extension": True, "size": False, "time": False}
+    COLUMN_SORTS = {"name": ("name", "extension"), "size": ("size",), "attributes": ("attributes",), "owner": ("owner",), "date": ("time",)}
 
     def heading_at(self, x: int, y: int) -> str | None:
         """The key of the column whose title is at *x*, *y*, or None."""
@@ -1176,12 +1197,11 @@ class Panel(ListViewer):
         mode = self.sort_mode
         if mode not in self.COLUMN_SORTS.get(key, ()):
             return ""
-        ascending = self.SORT_ASCENDS[mode] != self.sort_reverse
-        if self.glyphs <= glyphs_module.GLYPHS_ASCII:
-            arrow = "^" if ascending else "v"
-        else:
-            arrow = "\u2191" if ascending else "\u2193"
-        return ("." if mode == "extension" else "") + arrow
+        return ("." if mode == "extension" else "") + self.direction_arrow(mode, self.sort_reverse)
+
+    def direction_arrow(self, mode: str, reverse: bool) -> str:
+        """:func:`direction_arrow` at this panel's glyph tier."""
+        return direction_arrow(mode, reverse, self.glyphs)
 
     def toggle_hidden(self) -> None:
         """Ctrl+H: hide the dot-files, or show them again.
