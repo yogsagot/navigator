@@ -67,5 +67,7 @@ class Spinner(Widget):
     def render(self, surface: Surface) -> None:
         if self.width < 1 or self.height < 1:
             return
-        cells = spinner(self.frames, self.glyphs)
+        terminal = getattr(self.application, "terminal", None)
+        braille = True if terminal is None else terminal.info.braille
+        cells = spinner(self.frames, self.glyphs, braille)
         surface.fill(0, 0, self.width, self.height, cells[self.frame % len(cells)], self.style)

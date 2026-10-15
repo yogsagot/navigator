@@ -243,6 +243,15 @@ title, `/src [*;-*.bak]` (`title_text`; the path is cut first) -- a departure: D
 cursor (`..` counts the one listed) and every tagged directory get the bytes beneath them, counted on a thread by
 `navigator/lib/file_ops/dirlength.py` (`CountDirLen`: dot-files count, symlinks count as themselves and are never followed, unreadable
 directories count as nothing) under `run_with_progress`'s *Counting directory length* box; Esc keeps what was counted.
+That box is `navigator/widgets/file_ops/count_progress/` (`CountProgress`, a departure from DN's bare wait box): bytes,
+files and directories met so far, summed over every target through one `CountJob` that `count_dir_length` adds to
+(any other job, such as the panel scan's, only stops it). With more than one target it also names the directory being
+counted and shows a *This directory* column (`CountJob.here_*`, restarted per target) beside *Total*. The counts are
+one unwrapped `StaticText` (`CountProgress.counts`): columns as wide as their longest entry, the total against the right
+edge, so a size gaining a digit (99G -> 100G) widens its column instead of pushing past the frame. `modal_width` is
+bound to `box_width` -- the table's natural width plus the frame, at least 50 (one directory) or 60 (several) -- so the
+box grows, re-centred, as the counts gain digits, capped at `parent.width` (the screen, once overlaid); a row too long
+for that loses its label, never its end.
 The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows the size where `DIR` was, the tagged
 total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
 directory at each read, `fmiDirLen`) is not written yet.

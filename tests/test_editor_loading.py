@@ -324,14 +324,22 @@ def test_alt_q_twice_during_a_slow_read_opens_one_pad(files, slow_read, monkeypa
 def test_the_spinner_degrades_to_ascii():
     assert spinner("dos", GLYPHS_ASCII) == "|/-\\"
     assert spinner("braille", GLYPHS_UNICODE).startswith("⠋")
-    assert spinner("nonsense") == spinner("dos")
+    assert spinner("nonsense") == spinner("auto")
 
 
-def test_the_default_spinner_is_braille_with_a_nerd_font():
+def test_the_default_spinner_is_braille_wherever_the_font_draws_it():
     assert spinner("auto", GLYPHS_NERD).startswith("⠋")
-    assert spinner("auto", GLYPHS_UNICODE) == "▌▀▐▄"
+    assert spinner("auto", GLYPHS_UNICODE).startswith("⠋")
+    assert spinner("auto", GLYPHS_UNICODE, braille=False) == "▌▀▐▄"
     assert spinner("auto", GLYPHS_ASCII) == "|/-\\"
     assert spinner("dos", GLYPHS_NERD) == "▌▀▐▄"  # asked for by name, kept
+
+
+def test_only_the_linux_console_is_taken_to_have_no_braille():
+    from navkit.capabilities import TerminalInfo
+
+    assert TerminalInfo.detect({"TERM": "xterm-256color", "LANG": "en_US.UTF-8"}).braille
+    assert not TerminalInfo.detect({"TERM": "linux", "LANG": "en_US.UTF-8"}).braille
 
 
 def test_a_spinner_turns_only_while_mounted():

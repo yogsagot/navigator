@@ -247,6 +247,10 @@ class TerminalInfo:
     #: few bytes, which is why :mod:`navkit.clipboard` offers the copy to the
     #: desktop's own tools as well.
     clipboard: bool = True
+    #: Whether the font draws braille (U+2800), which a spinner turns through
+    #: at the Unicode tier.  Off on the Linux console, whose fonts have none
+    #: and which is otherwise UTF-8 like any terminal.
+    braille: bool = True
 
     @property
     def truecolor(self) -> bool:
@@ -362,6 +366,8 @@ class TerminalInfo:
         elif choice in ("off", "no", "0", "none"):
             clipboard = False
 
+        braille = env.get("TERM", "") != "linux"
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -372,6 +378,7 @@ class TerminalInfo:
             colors=colors,
             palette=palette,
             glyphs=glyphs,
+            braille=braille,
             alt_screen=not plain,
             mouse=not plain,
             bracketed_paste=not plain,

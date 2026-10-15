@@ -139,8 +139,9 @@ BRAILLE_SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 ASCII_SPINNER = "|/-\\"
 
 #: The sets a ``frames`` declaration may name on a spinner.  ``auto``, the
-#: default, is braille where the Nerd tier says the font is a full one -- every
-#: Nerd Font draws braille -- and the half blocks otherwise.
+#: default, is braille from the Unicode tier up -- the monospace fonts of any
+#: terminal emulator draw it -- and CP437's half blocks on a terminal whose
+#: font has none, the Linux console's.
 SPINNERS = {"auto": DOS_SPINNER, "dos": DOS_SPINNER, "braille": BRAILLE_SPINNER,
             "ascii": ASCII_SPINNER}
 DEFAULT_SPINNER = "auto"
@@ -195,15 +196,16 @@ def gauge(name: str, tier: int = GLYPHS_UNICODE) -> str:
     return ASCII_GAUGE if tier < GLYPHS_UNICODE else chars
 
 
-def spinner(name: str, tier: int = GLYPHS_UNICODE) -> str:
+def spinner(name: str, tier: int = GLYPHS_UNICODE, braille: bool = True) -> str:
     """The named spinner's frames, degraded to what *tier* can render.
 
-    ``auto`` -- and a name not known -- is braille at :data:`GLYPHS_NERD`.
+    ``auto`` -- and a name not known -- is braille, or the half blocks where
+    the font has no *braille*; ``braille`` asked for by name is kept.
     """
     if tier < GLYPHS_UNICODE:
         return ASCII_SPINNER
     if name not in SPINNERS or name == "auto":
-        return BRAILLE_SPINNER if tier >= GLYPHS_NERD else DOS_SPINNER
+        return BRAILLE_SPINNER if braille else DOS_SPINNER
     return SPINNERS[name]
 
 

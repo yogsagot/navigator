@@ -257,14 +257,16 @@ class Manager(Window):
 
         The directory at the cursor -- ``..`` standing for the one listed --
         and every tagged one, counted on a thread (:mod:`navigator.lib.file_ops.dirlength`)
-        under *Counting directory length* if it takes a while.  Nothing is
-        done with the cursor on a file and nothing tagged.  Esc there stops
+        under *Counting directory length* if it takes a while -- the bytes,
+        files and directories met so far, and when there are several, which
+        one and what is in it beside the total (``CountProgress``).  Nothing is done with the cursor on a
+        file and nothing tagged.  Esc there stops
         it: what was counted before keeps its count, and the rest stays
         ``DIR``, as DN's ``Abort`` left them.
         """
-        from navigator.lib.file_ops.dirlength import count_dir_length
+        from navigator.lib.file_ops.dirlength import CountJob, count_dir_length
         from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
-        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+        from navigator.widgets.file_ops.count_progress import CountProgress
 
         app = self.application
         here = Path(panel.path)
@@ -280,20 +282,30 @@ class Manager(Window):
             if not entries:
                 return
         targets = [(entry, here if entry.name == ".." else entry.path_in(here)) for entry in entries]
-        job = FileJob()
+        job = CountJob()
 
         def count() -> list[tuple[Any, int]]:
             done = []
             for entry, path in targets:
+                job.current = str(path)
                 size = count_dir_length(path, job)
                 if size is None:
                     break
                 done.append((entry, size))
             return done
 
+        def refresh(box: CountProgress) -> None:
+            box.directory = job.current
+            box.here_size = job.here_size
+            box.here_files = job.here_files
+            box.here_directories = job.here_directories
+            box.size = job.position
+            box.files = job.files
+            box.directories = job.directories
+
         counted = await run_with_progress(
-            app, count, job, lambda: progress_box(job, tr("Counting directory length")),
-            refresh_box(job), delay=SLOW_PROGRESS_DELAY,
+            app, count, job, lambda: CountProgress(several=len(targets) > 1),
+            refresh, delay=SLOW_PROGRESS_DELAY,
         )
         for entry, size in counted:
             entry.size, entry.counted = size, True

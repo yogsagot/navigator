@@ -1,0 +1,59 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.spinner import Spinner
+
+#: Directories being counted: Alt+G's ``CountLen``, which DN did behind a
+#: plain wait box.  A departure: what has been met so far -- bytes, files and
+#: directories -- so a long count is seen to be getting somewhere; when there
+#: are several, the one being counted now, with what is in it beside the total.
+#: *Cancel* says what Esc does.
+CountProgress(Dialog):
+    #: Wide enough for the counts, growing as they gain digits, but never
+    #: wider than the screen it is on.
+    modal_width: root.box_width(parent.width if parent is not None else 0, root.several, root.here_size, root.size, root.here_files, root.files, root.here_directories, root.directories)
+    modal_height: 12 if root.several else 11
+    title: "Counting directory length"
+    buttons: "ok"
+    closable: False
+
+    #: The directory being counted; shown only when there are *several*.
+    property directory: ""
+    property several: False
+    #: What has been met in the directory being counted now.
+    property here_size: 0
+    property here_files: 0
+    property here_directories: 0
+    #: What has been met across every directory counted so far.
+    property size: 0
+    property files: 0
+    property directories: 0
+
+    #: In the labels' column, the path after it.
+    Spinner:
+        id: spinner
+        x: 4
+        y: 1
+        width: 1
+        height: 1
+
+    StaticText:
+        id: directory_row
+        x: 6
+        y: 1
+        width: max(0, parent.width - 8)
+        height: 1
+        visible: root.several
+        text: root.fit(root.directory)
+
+    #: The counts, one row each under *This directory* and *Total* -- the
+    #: total alone for one directory -- the columns as wide as their longest
+    #: entry and the total against the right edge, the box widening to fit.
+    #: Never wrapped: a row too long still loses its label, not its end.
+    StaticText:
+        id: table
+        x: 4
+        y: 3
+        width: max(0, parent.width - 6)
+        height: 4
+        wrap: False
+        text: root.counts(self.width, root.several, root.here_size, root.size, root.here_files, root.files, root.here_directories, root.directories)

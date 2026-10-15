@@ -23,14 +23,37 @@ import os
 from pathlib import Path
 from typing import Any
 
+from navigator.lib.system.job import Job
+
+
+class CountJob(Job):
+    """Directories being counted, as their box shows them: which one is being
+    counted now, what has been met in it (``here_*``), and what has been met
+    so far across every one counted (``position``, ``files``, ``directories``)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.current = ""
+        self.here_size = 0
+        self.here_files = 0
+        self.here_directories = 0
+        self.position = 0
+        self.files = 0
+        self.directories = 0
+
 
 def count_dir_length(path: Path, job: Any = None) -> int | None:
     """The bytes in the files under *path*; None if *job* was stopped.
 
-    *job*, if given, is a :class:`navigator.widgets.editor.loading.FileJob`:
-    its ``position`` is kept at the bytes counted so far, for its box.
+    *job*, if given, is anything with ``stopped``.  A :class:`CountJob` has
+    its ``here_*`` started again for *path*, and what was met here added to
+    its totals, so one job can count several directories in turn.
     """
-    total = 0
+    counter = job if isinstance(job, CountJob) else None
+    total = files = directories = 0
+    if counter is not None:
+        base = (counter.position, counter.files, counter.directories)
+        counter.here_size = counter.here_files = counter.here_directories = 0
     pending = [os.fspath(path)]
     while pending:
         if job is not None and job.stopped:
@@ -45,10 +68,15 @@ def count_dir_length(path: Path, job: Any = None) -> int | None:
                 try:
                     if entry.is_dir(follow_symlinks=False):
                         pending.append(entry.path)
+                        directories += 1
                     else:
                         total += entry.stat(follow_symlinks=False).st_size
+                        files += 1
                 except OSError:
                     continue
-        if job is not None:
-            job.position = total
+        if counter is not None:
+            counter.here_size, counter.here_files, counter.here_directories = total, files, directories
+            counter.position = base[0] + total
+            counter.files = base[1] + files
+            counter.directories = base[2] + directories
     return total
