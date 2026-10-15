@@ -2020,7 +2020,15 @@ class FileEditor(Widget):
         the indent of the part kept -- of the whole line, if that part is blank
         -- and the cursor goes to it; without, it moves as it is and the cursor
         to its start.  A new line with nothing after its indent is left empty,
-        the cursor waiting at the indent, as DN's trimmed it once left.
+        the cursor waiting at the indent, as DN's trimmed it once left.  Tabs
+        count as blanks in the trimming, as they do in the indent: DN, which
+        expanded tabs, only ever had spaces to trim.
+
+        A departure: with *Autoindent*, a line of nothing but blanks gives the
+        cursor's column -- its own blanks up to the cursor, then the virtual
+        columns past its end -- so Enter after Enter stays at the indent, where
+        DN's had no text to take one from and went back to the start.  The new
+        line is still left empty.
 
         Inserting with the cursor in the block, the block goes first and the
         break takes its place, one undo step (:meth:`_cursor_in_block`, a
@@ -2041,21 +2049,24 @@ class FileEditor(Widget):
         else:
             self._block_off()
             self._begin()
-        index, _ = self._index()
+        index, past = self._index()
         text = self._text()
         line = self.line
         at = min(index, len(text))
-        kept = text[:at].rstrip(" ")
-        moved = text[at:].rstrip(" ")
+        kept = text[:at].rstrip(" \t")
+        moved = text[at:].rstrip(" \t")
         indent = ""
         lead = 0
         if self.auto_indent:
             lead = len(moved) - len(moved.lstrip(" \t"))
             moved = moved[lead:]
-            source = kept if kept.strip(" \t") else text
-            indent = source[:len(source) - len(source.lstrip(" \t"))]
+            if not text.strip(" \t"):
+                indent = text[:at] + " " * past
+            else:
+                source = kept if kept.strip(" \t") else text
+                indent = source[:len(source) - len(source.lstrip(" \t"))]
         # Right to left, so each edit leaves the places of the next alone.
-        end = len(text.rstrip(" "))
+        end = len(text.rstrip(" \t"))
         if end > at:
             self.buffer.delete(Pos(line, end), Pos(line, len(text)))
         else:

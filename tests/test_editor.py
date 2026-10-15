@@ -2152,6 +2152,12 @@ def test_enter_drops_the_moved_parts_blanks_and_the_lines_trailing_ones(files):
     assert (editor.line, editor.col) == (1, 4)
 
 
+def test_enter_trims_trailing_tabs_as_well_as_spaces(files):
+    _, editor = text_editor(files, b"  a \t \tb\t \n", *at(0, 5), KeyEvent("enter"))
+    assert editor.document.encode() == b"  a\n  b\n"
+    assert (editor.line, editor.col) == (1, 2)
+
+
 def test_without_autoindent_the_moved_part_keeps_its_blanks_and_the_cursor_starts_the_line(files):
     SETTINGS.editor.auto_indent = False
     _, editor = text_editor(files, b"  a  b\n", *at(0, 3), KeyEvent("enter"))
@@ -2200,6 +2206,32 @@ def test_autoindent_and_backspace_indents_switch_and_are_ticked(files):
                 lambda a: a.spawn(editor_window(a).editor.on_switch_back(SwitchBack())), lambda a: None,
                 look)
     assert seen == [(True, True), (False, False)]
+
+
+def test_enter_after_enter_keeps_the_indent(files):
+    _, editor = text_editor(files, b"    foo\n", KeyEvent("end"), KeyEvent("enter"), KeyEvent("enter"),
+                            KeyEvent("enter"))
+    assert editor.document.encode() == b"    foo\n\n\n\n"
+    assert (editor.line, editor.col) == (3, 4)
+
+
+def test_without_autoindent_enter_after_enter_stays_at_the_start(files):
+    SETTINGS.editor.auto_indent = False
+    _, editor = text_editor(files, b"    foo\n", KeyEvent("end"), KeyEvent("enter"), KeyEvent("enter"))
+    assert editor.document.encode() == b"    foo\n\n\n"
+    assert (editor.line, editor.col) == (2, 0)
+
+
+def test_enter_on_a_blank_line_follows_the_cursor(files):
+    _, editor = text_editor(files, b"    foo\n      \nbar\n", *at(1, 2), KeyEvent("enter"))
+    assert editor.document.encode() == b"    foo\n\n\nbar\n"
+    assert (editor.line, editor.col) == (2, 2)
+
+
+def test_enter_on_a_blank_line_keeps_its_tabs_up_to_the_cursor(files):
+    _, editor = text_editor(files, b"\t\t\n", KeyEvent("end"), KeyEvent("enter"))
+    assert editor.document.encode() == b"\n\n"
+    assert (editor.line, editor.col) == (1, 16)
 
 
 # -- F6: duplicate line -------------------------------------------------------------------------------

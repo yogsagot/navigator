@@ -204,10 +204,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   seeded from the setup's *Auto indent* and *Backspace unindents*, switched by Editor > Options *Autoindent*
   (`SwitchIndent`, `cmSwitchIndent`) and *Backspace indents* (`SwitchBack`, `cmSwitchBack`), ticked). **Enter**
   (`on_new_line`): in overwrite only to the next line's start (a line added past the last). Inserting, the part kept
-  loses its trailing blanks and the part moved the line's last ones; with Autoindent the moved part's leading blanks
-  give way to the indent of the part kept -- the whole line's if that part is blank -- the cursor at it, and a new line
-  with nothing after the indent is left empty with the cursor waiting there; without, it moves as it is, the cursor at
-  column 0. Edits go right to left so a block's ends follow. **Backspace** (`_unindent`): only on a line's first
+  loses its trailing blanks (tabs too, DN having had only spaces) and the part moved the line's last ones; with
+  Autoindent the moved part's leading blanks give way to the indent of the part kept -- the whole line's if that part
+  is blank -- the cursor at it, and a new line with nothing after the indent is left empty with the cursor waiting
+  there; without, it moves as it is, the cursor at column 0. A departure, part of Autoindent rather than a switch of
+  its own: a line of nothing but blanks gives the cursor's column -- its blanks up to the cursor plus `_index()`'s
+  virtual `past` -- so Enter after Enter stays at the indent, where DN's went back to column 0; the new line is still
+  left empty, the column living in the cursor alone. Edits go right to left so a block's ends follow. **Backspace** (`_unindent`): only on a line's first
   character (blanks before, none under) or anywhere on an all-blank line, never on the first line; back to the indent
   of the nearest line above with text and a narrower indent, the blanks before the cursor becoming that many spaces;
   no such line, a plain Backspace. Departure from DN, which expanded tabs: a leading tab is indentation by its width.
