@@ -573,6 +573,9 @@ class FileEditor(Widget):
         #: The cell the left button went down on, until the drag leaves it:
         #: terminals report motion inside that cell too, which is no drag.
         self._press_cell: tuple[int, int] | None = None
+        #: The word a double-click marked, ``(start, stop)`` as ``Pos``, while
+        #: the button stays down: the drag after it then marks whole words.
+        self._drag_word: tuple[Pos, Pos] | None = None
         #: Whether the movement under way drags the block along (Shift, or a
         #: mouse drag): a column block's corner may then go past a line's end.
         self._extending = False
@@ -2396,6 +2399,7 @@ class FileEditor(Widget):
             else:
                 self._unmark()
                 self._drag_from = here
+            self._drag_word = None
             self._press_cell = (event.x, event.y)
             if app is not None:
                 app.capture_mouse(self)
@@ -2409,9 +2413,13 @@ class FileEditor(Widget):
             elif event.y >= self.height and self.top < len(self.document) - 1:
                 self.top += 1
             self._point(event, extending=True)
-            self._mark_to(self._drag_from)
+            if self._drag_word is not None:
+                self._mark_words_to()
+            else:
+                self._mark_to(self._drag_from)
         elif event.action == "release" and self._drag_from is not None:
             self._drag_from = None
+            self._drag_word = None
             self._copy_primary()
         else:
             return False
@@ -2434,34 +2442,62 @@ class FileEditor(Widget):
         self._copy_block(primary=True)
 
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
-        """The word under the pointer, marked: the run between two ``BREAK_CHARS``."""
+        """The word under the pointer, marked: the run between two ``BREAK_CHARS``.
+
+        The button is still down and the mouse still captured from the press,
+        so a drag that follows goes on marking, a whole word at a time.
+        """
         if event.button != "left":
             return False
-        self._drag_from = None
         self._point(event)
+        at = self._mark_pos()
+        self._drag_word = self._word_at(at)
+        self._drag_from = at
         if self._mark_word():
             self._copy_primary()
         return True
 
-    def _mark_word(self) -> bool:
-        """Mark the word at the cursor, the run between two ``BREAK_CHARS``; False on none."""
-        at = self._mark_pos()
-        text = self._text()
+    def _word_at(self, at: Pos) -> tuple[Pos, Pos]:
+        """The word *at* lies in, ``(start, stop)``; *at* twice when it is on none."""
+        text = self._text(at.line)
         if at.index >= len(text) or text[at.index] in BREAK_CHARS:
-            return False
+            return at, at
         start, stop = at.index, at.index
         while start and text[start - 1] not in BREAK_CHARS:
             start -= 1
         while stop < len(text) and text[stop] not in BREAK_CHARS:
             stop += 1
-        if self.vertical_blocks:
-            tab = self.tab_size
-            self.column_block = ((self.line, columns.column_of(text, start, tab)),
-                                 (self.line, columns.column_of(text, stop, tab)))
-        else:
-            self.block = (Pos(self.line, start), Pos(self.line, stop))
-        self._go(Pos(self.line, stop))
+        return Pos(at.line, start), Pos(at.line, stop)
+
+    def _mark_word(self) -> bool:
+        """Mark the word at the cursor, the run between two ``BREAK_CHARS``; False on none."""
+        start, stop = self._word_at(self._mark_pos())
+        if start == stop:
+            return False
+        self._mark_span(start, stop)
+        self._go(stop)
         return True
+
+    def _mark_span(self, start: Pos, stop: Pos) -> None:
+        """Mark from *start* to *stop*, as the kind of block in force."""
+        if self.vertical_blocks:
+            self.block_hidden = False
+            self.column_block = ((start.line, self._column(start)), (stop.line, self._column(stop)))
+        else:
+            self._set_block(start, stop)
+
+    def _mark_words_to(self) -> None:
+        """A drag after a double-click: from the word it marked to the whole word
+        under the pointer, the cursor on the end that moves."""
+        first, last = self._drag_word
+        start, stop = self._word_at(self._mark_pos())
+        if start < first:
+            self._mark_span(start, last)
+            self._go(start)
+        else:
+            stop = max(stop, last)
+            self._mark_span(first, stop)
+            self._go(stop)
 
     # -- the info line -------------------------------------------------------------
 

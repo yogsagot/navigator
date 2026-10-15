@@ -335,7 +335,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured, and only once the
   pointer leaves the pressed cell -- terminals report motion inside it, `_press_cell`) marks from the press,
   scrolling a line at a time past the top or bottom row; Shift+click extends the block as Shift+movement does; a
-  double-click marks the word between `BREAK_CHARS`. A block marked by the mouse becomes the primary selection on
+  double-click marks the word between `BREAK_CHARS`, and a drag with the button still down after it marks whole
+  words (`_drag_word`; the press before the double-click already captured the mouse, so `on_double_click` must not
+  end the drag). A block marked by the mouse becomes the primary selection on
   release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and
   the input lines do. Ctrl+Ins still copies the block to the clipboard. Checked on a pty with SGR mouse bytes and
   `xclip -o`, not only with posted events.

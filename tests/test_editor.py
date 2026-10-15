@@ -815,6 +815,18 @@ def test_a_double_click_marks_the_word(files):
     assert app.terminal.clipboard == [("line", True)]
 
 
+def test_a_drag_after_a_double_click_marks_whole_words(files):
+    # The press, then the double-click it completed, then the button held down.
+    app, editor = mouse(files, (8, 0, "press", {}), (8, 0, "double", {}), (8, 0, "move", {}),
+                        (2, 1, "move", {}), (2, 1, "release", {}))
+    assert editor.block == (Pos(0, 6), Pos(1, 6)) and (editor.line, editor.col) == (1, 6)
+    assert app.terminal.clipboard[-1] == ("line\nsecond", True)
+    # Back before the word: the word under the pointer to the double-clicked one's end.
+    _, editor = mouse(files, (8, 0, "press", {}), (8, 0, "double", {}), (2, 0, "move", {}),
+                      (2, 0, "release", {}))
+    assert editor.block == (Pos(0, 0), Pos(0, 10)) and (editor.line, editor.col) == (0, 0)
+
+
 def test_a_middle_click_asks_for_the_primary_selection(files):
     app, _ = mouse(files, (0, 0, "press", {"button": "middle"}))
     assert app.terminal.clipboard_queries == [True]
