@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
@@ -52,6 +52,11 @@ def paths() -> list[str]:
 
 def popup(app) -> PopupMenu | None:
     return next((child for child in app.root.children if isinstance(child, PopupMenu)), None)
+
+
+# The box opens once the mounts have been read on a thread, which takes more
+# than a fixed step on a busy machine: Alt+F1, and every key that opens it again.
+BOX = Until(lambda app: popup(app) is not None)
 
 
 def captions(app) -> list[str]:
@@ -208,7 +213,7 @@ def test_alt_f1_sends_the_left_panel_where_the_bookmark_says(places):
     seen = {}
     run_app(app, [
         KeyEvent("tab"),
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: seen.update(captions=captions(a)),
         KeyEvent("2", char="2"), lambda a: None,
     ])
@@ -225,7 +230,7 @@ def test_alt_f2_and_escape_change_nothing(places):
     app = navigator(places / "start")
     opened = []
     run_app(app, [
-        KeyEvent("f2", alt=True), lambda a: None,
+        KeyEvent("f2", alt=True), BOX,
         lambda a: opened.append(popup(a) is not None),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -240,7 +245,7 @@ def test_the_box_opens_on_the_panels_own_bookmark(places):
     app = navigator(places / "start")
     current = []
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: current.append(popup(a).box.current),
         KeyEvent("escape"),
     ])
@@ -252,12 +257,12 @@ def test_add_bookmarks_the_panels_directory_and_remove_reopens_without_it(places
     app = navigator(places / "start")
     seen = {}
     run_app(app, [
-        KeyEvent("c", alt=True), lambda a: None,
+        KeyEvent("c", alt=True), BOX,
         KeyEvent("a", char="a"), lambda a: None,
         lambda a: seen.update(added=paths(), closed=popup(a) is None),
-        KeyEvent("c", alt=True), lambda a: None,
+        KeyEvent("c", alt=True), BOX,
         lambda a: seen.update(before=captions(a)),
-        KeyEvent("r", char="r"), lambda a: None,
+        KeyEvent("r", char="r"), BOX,
         lambda a: seen.update(after=captions(a)),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -273,7 +278,7 @@ def test_alt_f1_brings_a_hidden_left_side_back(places):
     app = navigator(places / "start")
     run_app(app, [
         KeyEvent("f1", ctrl=True),
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("1", char="1"), lambda a: None,
     ])
     manager = app.manager
@@ -287,7 +292,7 @@ def test_alt_f2_puts_the_panel_back_in_place_of_the_tree(places):
     app = navigator(places / "start")
     run_app(app, [
         KeyEvent("t", ctrl=True), lambda a: None,
-        KeyEvent("f2", alt=True), lambda a: None,
+        KeyEvent("f2", alt=True), BOX,
         KeyEvent("1", char="1"), lambda a: None,
     ])
     manager = app.manager
@@ -301,7 +306,7 @@ def test_a_greyed_bookmark_cannot_be_chosen(places):
     app = navigator(places / "start")
     still = []
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("1", char="1"), lambda a: None,
         lambda a: still.append(popup(a) is not None),
         KeyEvent("escape"),
@@ -316,13 +321,13 @@ def test_ctrl_up_and_down_move_the_selected_bookmark_and_keep_it_selected(places
     app = navigator(places / "start")
     seen = {}
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("down"), KeyEvent("down"), lambda a: None,
-        KeyEvent("up", ctrl=True), lambda a: None,
-        KeyEvent("up", ctrl=True), lambda a: None,
-        KeyEvent("up", ctrl=True), lambda a: None,
+        KeyEvent("up", ctrl=True), BOX,
+        KeyEvent("up", ctrl=True), BOX,
+        KeyEvent("up", ctrl=True), BOX,
         lambda a: seen.update(order=paths(), current=popup(a).box.current),
-        KeyEvent("down", ctrl=True), lambda a: None,
+        KeyEvent("down", ctrl=True), BOX,
         lambda a: seen.update(after=paths()),
         KeyEvent("enter"), lambda a: None,
     ])
@@ -337,9 +342,9 @@ def test_ctrl_down_on_add_moves_nothing_and_leaves_the_box_open(places):
     app = navigator(places / "start")
     seen = {}
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("end"), lambda a: None,
-        KeyEvent("down", ctrl=True), lambda a: None,
+        KeyEvent("down", ctrl=True), BOX,
         lambda a: seen.update(open=popup(a) is not None, current=popup(a).box.current),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -366,10 +371,10 @@ def test_f2_labels_the_selected_bookmark_and_the_box_comes_back(places):
         box.entry.value = "Two"
 
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("down"), KeyEvent("f2"), lambda a: None,
         type_label,
-        KeyEvent("enter"), lambda a: None,
+        KeyEvent("enter"), BOX,
         lambda a: seen.update(shown=captions(a), current=popup(a).box.current),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -384,13 +389,13 @@ def test_an_emptied_label_goes_and_cancel_keeps_it(places):
     app = navigator(places / "start")
     seen = {}
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         KeyEvent("f2"), lambda a: None,
-        KeyEvent("escape"), lambda a: None,
+        KeyEvent("escape"), BOX,
         lambda a: seen.update(kept=bookmarks()[0].label),
         KeyEvent("f2"), lambda a: None,
         lambda a: setattr(dialog(a).entry, "value", "  "),
-        KeyEvent("enter"), lambda a: None,
+        KeyEvent("enter"), BOX,
         KeyEvent("escape"), lambda a: None,
     ])
     assert seen["kept"] == "One"
@@ -403,14 +408,14 @@ def test_del_removes_the_selected_bookmark_and_selects_the_next(places):
     app = navigator(places / "start")
     seen = {}
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
-        KeyEvent("down"), KeyEvent("delete"), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
+        KeyEvent("down"), KeyEvent("delete"), BOX,
         lambda a: seen.update(middle=(paths(), popup(a).box.current)),
-        KeyEvent("delete"), lambda a: None,
+        KeyEvent("delete"), BOX,
         lambda a: seen.update(last=(paths(), popup(a).box.current)),
-        KeyEvent("delete"), lambda a: None,
+        KeyEvent("delete"), BOX,
         lambda a: seen.update(empty=(paths(), captions(a))),
-        KeyEvent("delete"), lambda a: None,
+        KeyEvent("delete"), BOX,
         lambda a: seen.update(on_add=(popup(a) is not None, captions(a))),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -435,17 +440,17 @@ def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, mo
         mounted.remove(places / "usb")
 
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: seen.update(shown=captions(a), lines=lines(a)),
         KeyEvent("3", char="3"), lambda a: None,
         lambda a: seen.update(went=a.manager.left.path),
         unplug,
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: seen.update(unplugged=captions(a)),
         KeyEvent("down"), lambda a: None,
-        KeyEvent("delete"), lambda a: None,
+        KeyEvent("delete"), BOX,
         KeyEvent("f2"), lambda a: None,
-        KeyEvent("up", ctrl=True), lambda a: None,
+        KeyEvent("up", ctrl=True), BOX,
         lambda a: seen.update(still=(captions(a), paths(), popup(a).box.current)),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -466,10 +471,10 @@ def test_the_box_opens_on_the_mount_the_panel_is_at_and_add_bookmarks_it(places,
     app = navigator(places / "usb")
     seen = {}
     run_app(app, [
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: seen.update(current=popup(a).box.current),
         KeyEvent("a", char="a"), lambda a: None,
-        KeyEvent("f1", alt=True), lambda a: None,
+        KeyEvent("f1", alt=True), BOX,
         lambda a: seen.update(shown=captions(a), lines=lines(a)),
         KeyEvent("escape"), lambda a: None,
     ])
@@ -522,7 +527,7 @@ def test_adding_from_the_box_marks_the_row_in_the_other_panel_at_once(places):
     run_app(app, [
         lambda a: setattr(a.manager.right, "path", places / "first"), lambda a: None,
         lambda a: seen.update(before=gutter(a)),
-        KeyEvent("f2", alt=True), lambda a: None,
+        KeyEvent("f2", alt=True), BOX,
         KeyEvent("a", char="a"), lambda a: None,
         lambda a: seen.update(after=gutter(a)),
     ])
@@ -540,5 +545,5 @@ def test_the_box_is_titled_bookmarks_in_its_top_frame(places):
         box.render_tree(buffer.view(-box.x, -box.y, box.width + box.x, box.height + box.y))
         seen.append("".join(buffer.get(x, 0)[0] or " " for x in range(box.width)))
 
-    run_app(app, [KeyEvent("f1", alt=True), lambda a: None, top_row, KeyEvent("escape")])
+    run_app(app, [KeyEvent("f1", alt=True), BOX, top_row, KeyEvent("escape")])
     assert " Bookmarks " in seen[0]

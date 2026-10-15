@@ -171,8 +171,18 @@ def run_app(
     """
 
     waited_out: list[Until] = []
+    failed: list[BaseException] = []
 
     async def drive() -> None:
+        # An action that raises would otherwise end this task unnoticed and
+        # leave the application running into the timeout, hiding the error.
+        try:
+            await actions_then_exit()
+        except Exception as error:
+            failed.append(error)
+            app.exit()
+
+    async def actions_then_exit() -> None:
         await asyncio.sleep(settle)
         for action in actions:
             if isinstance(action, Until):
@@ -201,6 +211,8 @@ def run_app(
             driver.cancel()
 
     result = asyncio.run(asyncio.wait_for(main(), timeout))
+    if failed:
+        raise failed[0]
     if waited_out:
         raise AssertionError(f"Until: still waiting after {waited_out[0].timeout}s")
     return result
