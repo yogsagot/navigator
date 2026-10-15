@@ -314,7 +314,7 @@ def _group_rank(entry: DirEntry) -> int:
 
 def order_entries(
     entries: list[DirEntry], sort: str = "name", *,
-    executables_first: bool = False, archives_first: bool = False,
+    executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
 ) -> list[DirEntry]:
     """*entries* in a panel's order: ``TFilesCollection.Compare``.
 
@@ -331,6 +331,11 @@ def order_entries(
     *Unsorted* is the directory's own order, and a departure in leaving the
     two flags out: DN's compare applied them to some pairs and not to
     others, which is no order at all.
+
+    *reverse* turns each mode's own order round -- a departure, DN had no
+    descending sort; it came with clicking a column title.  ``..``, the
+    directories before the files and the two flags stay where they were:
+    only the order within each of those groups turns.  *Unsorted* ignores it.
     """
     up = [entry for entry in entries if entry.name == ".."]
     rest = [entry for entry in entries if entry.name != ".."]
@@ -349,17 +354,24 @@ def order_entries(
     def by_name(entry: DirEntry) -> tuple[str, str]:
         return (entry.name.lower(), entry.name)
 
+    # Each mode is a group (what stays put) and a value (what *reverse*
+    # turns): two stable sorts, the value's first.
+    group = lambda entry: (not entry.is_dir, *first(entry))
     if sort == "extension":
-        key = lambda entry: (not entry.is_dir, *first(entry), _extension(entry.name), *by_name(entry))
+        value = lambda entry: (_extension(entry.name), *by_name(entry))
     elif sort == "size":
-        key = lambda entry: (not entry.is_dir, -entry.size, *by_name(entry))
+        value = lambda entry: (-entry.size, *by_name(entry))
     elif sort == "time":
-        key = lambda entry: (not entry.is_dir, -entry.mtime, *by_name(entry))
+        value = lambda entry: (-entry.mtime, *by_name(entry))
     elif sort == "type":
-        key = lambda entry: (_group_rank(entry), *first(entry), *by_name(entry))
+        # The directories are *Group*'s first rank, so they lead as before.
+        group = lambda entry: (not entry.is_dir,)
+        value = lambda entry: (_group_rank(entry), *first(entry), *by_name(entry))
     else:
-        key = lambda entry: (not entry.is_dir, *first(entry), *by_name(entry))
-    return up + sorted(rest, key=key)
+        value = by_name
+    rest.sort(key=value, reverse=reverse)
+    rest.sort(key=group)
+    return up + rest
 
 
 def command_line_text(widget: Any) -> str:
@@ -424,7 +436,7 @@ def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
 
 
 def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,
-                 executables_first: bool = False, archives_first: bool = False,
+                 executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
                  mask: str = filetypes.ALL_FILES) -> tuple[list[DirEntry], str | None]:
     """A *Find:* listing re-read (``DosReread``): each entry as it is now, the
     gone ones dropped, under a ``..`` that leads back.  A thread runs it."""
@@ -442,12 +454,12 @@ def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name",
             continue
         found.append(fresh)
     return order_entries(found, sort, executables_first=executables_first,
-                         archives_first=archives_first), None
+                         archives_first=archives_first, reverse=reverse), None
 
 
 def scan_directory(
     path: Path, show_hidden: bool, sort: str = "name", *,
-    executables_first: bool = False, archives_first: bool = False,
+    executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
     mask: str = filetypes.ALL_FILES, dir_length: bool = False, job: Any = None,
 ) -> tuple[list[DirEntry], str | None]:
     """*path*'s entries, ``..`` first and in *sort*'s order
@@ -491,7 +503,7 @@ def scan_directory(
     if dir_length and error is None:
         count_lengths(path, entries, job)
     entries = order_entries(entries, sort, executables_first=executables_first,
-                            archives_first=archives_first)
+                            archives_first=archives_first, reverse=reverse)
     return entries, error
 
 
@@ -611,6 +623,9 @@ class Panel(ListViewer):
     #: How the listing is ordered, one of :data:`SORT_MODES`: DN's ``SortMode``,
     #: per panel, seeded from the *New Manager defaults* and changed by Alt+B.
     sort_mode: str = reactive("name")
+    #: Whether :attr:`sort_mode`'s order is turned round (:func:`order_entries`'s
+    #: *reverse*): a second click on the sorted column's title.  A departure.
+    sort_reverse: bool = reactive(False)
     #: The *Display* boxes this panel has: ``PanelDefaultsData.DISPLAY``'s
     #: names that are on.  None while it follows the *New Manager defaults*,
     #: read live; Alt+S's *Panel Options* gives it its own (DN's per-panel
@@ -715,6 +730,7 @@ class Panel(ListViewer):
         path = self.path
         show_hidden = self.show_hidden
         sort = self.sort_mode
+        reverse = self.sort_reverse
         mask = self.file_mask
         found = self.found
         _ = self.display  # Alt+S re-reads, as DN's ``Setup`` did (``RereadDir``)
@@ -727,7 +743,7 @@ class Panel(ListViewer):
             # re-sorts a panel following them at its next read.
             flags = {"executables_first": self.shows("executables_first"),
                      "archives_first": self.shows("archives_first"),
-                     "mask": mask}
+                     "reverse": reverse, "mask": mask}
             dir_length = self.shows("directory_length")
             free = self.shows("free_space")
         if self._scan_job is not None:
@@ -750,7 +766,7 @@ class Panel(ListViewer):
             entries = [DirEntry("..", True, 0)] + [e for e in found.entries
                                                    if show_hidden or not e.name.startswith(".")]
             self._apply(request, order_entries(entries, sort, executables_first=flags["executables_first"],
-                                               archives_first=flags["archives_first"]), None)
+                                               archives_first=flags["archives_first"], reverse=reverse), None)
             return
         if found is not None:
             future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort, **flags)
@@ -1085,6 +1101,8 @@ class Panel(ListViewer):
         entry = self.selected
         if entry is not None:
             self._keep = (self.path, entry.key, self.cursor, self.scroll)
+        if sort != self.sort_mode:
+            self.sort_reverse = False
         self.sort_mode = sort
         self.display = frozenset(display)
         self.file_mask = mask.strip() or filetypes.ALL_FILES
@@ -1099,20 +1117,71 @@ class Panel(ListViewer):
             self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.file_mask = mask
 
-    def sort_by(self, mode: str) -> None:
-        """Order the listing by *mode*: what Alt+B's choice does (``CM_SortBy``).
+    def sort_by(self, mode: str, reverse: bool = False) -> None:
+        """Order the listing by *mode*: what Alt+B's choice does (``CM_SortBy``),
+        *reverse* turning it round (a column title's second click).
 
         A re-read, as DN's ``RereadDir`` was, keeping the cursor on its entry;
-        the mode it already has changes nothing.
+        the order it already has changes nothing.
         """
         if mode not in SORT_MODES:
             raise ValueError(f"unknown sort mode {mode!r}")
-        if mode == self.sort_mode:
+        if mode == "unsorted":
+            reverse = False
+        if (mode, reverse) == (self.sort_mode, self.sort_reverse):
             return
         entry = self.selected
         if entry is not None:
             self._keep = (self.path, entry.key, self.cursor, self.scroll)
         self.sort_mode = mode
+        self.sort_reverse = reverse
+
+    #: The sort modes a click on a column's title steps through, each up and
+    #: then reversed; the other columns sort nothing.  The name's title takes
+    #: the extension too, there being no column of its own for it.
+    COLUMN_SORTS = {"name": ("name", "extension"), "size": ("size",), "date": ("time",)}
+    #: Which way each of those runs unreversed: ``True`` ascending.  Size and
+    #: time go largest and newest first (:func:`order_entries`).
+    SORT_ASCENDS = {"name": True, "extension": True, "size": False, "time": False}
+
+    def heading_at(self, x: int, y: int) -> str | None:
+        """The key of the column whose title is at *x*, *y*, or None."""
+        if not self.header or self.view_mode == "simple" or self.error is not None or y != self.inset:
+            return None
+        if self.view_mode == "list":
+            return "name" if self.inset <= x < self.inset + self.inner_width else None
+        for key, left, width in self.detail_columns:
+            if left <= x < left + width:
+                return key
+        return None
+
+    def sort_by_column(self, key: str) -> bool:
+        """A click on column *key*'s title: the next of its orders -- each of
+        :data:`COLUMN_SORTS`' modes, then that reversed, wrapping -- or its
+        first when sorted by another column.  False for a column that sorts
+        nothing.  Name's: name, name reversed, extension, extension reversed."""
+        modes = self.COLUMN_SORTS.get(key)
+        if modes is None:
+            return False
+        steps = [(mode, reverse) for mode in modes for reverse in (False, True)]
+        here = (self.sort_mode, self.sort_reverse)
+        mode, reverse = steps[(steps.index(here) + 1) % len(steps)] if here in steps else steps[0]
+        self.sort_by(mode, reverse=reverse)
+        return True
+
+    def sort_arrow(self, key: str) -> str:
+        """What follows column *key*'s title: ``↑`` sorted by it ascending,
+        ``↓`` descending (``^``/``v`` in ASCII), else nothing; ``.`` before
+        the arrow on the name's when it is the extension that sorts."""
+        mode = self.sort_mode
+        if mode not in self.COLUMN_SORTS.get(key, ()):
+            return ""
+        ascending = self.SORT_ASCENDS[mode] != self.sort_reverse
+        if self.glyphs <= glyphs_module.GLYPHS_ASCII:
+            arrow = "^" if ascending else "v"
+        else:
+            arrow = "\u2191" if ascending else "\u2193"
+        return ("." if mode == "extension" else "") + arrow
 
     def toggle_hidden(self) -> None:
         """Ctrl+H: hide the dot-files, or show them again.
@@ -1212,6 +1281,11 @@ class Panel(ListViewer):
         if event.action == "press" and not event.is_wheel:
             self.quick_search = None
         taken = await super().on_mouse_click(event)
+        if (not taken and not self.inert and event.action == "press" and event.button == "left"
+                and not event.is_wheel):
+            key = self.heading_at(event.x, event.y)
+            if key is not None and self.sort_by_column(key):
+                return True
         if (taken and event.action == "press" and event.button == "left"
                 and SETTINGS.file_manager.drag_drop_columns):
             # File Manager Setup's *Drag-and-drop*: the press may be a drag's
@@ -1825,10 +1899,10 @@ class Panel(ListViewer):
     def _column_spans(self) -> list[tuple[str, int, int]]:
         """``(heading, x, width)`` for the columns of the current mode."""
         if self.view_mode == "detailed":
-            return [(self.heading(key), x, width) for key, x, width in self.detail_columns]
+            return [(self.heading(key) + self.sort_arrow(key), x, width) for key, x, width in self.detail_columns]
         if self.view_mode == "list":
             columns = self.list_columns
-            name = self.heading("name")
+            name = self.heading("name") + self.sort_arrow("name")
             if not columns:
                 return [(name, self.inset, self.inner_width)]
             return [(name, x, width) for _, x, width in columns]

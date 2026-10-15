@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from conftest import FakeTerminal, run_app
-from navkit.events import KeyEvent
+from navkit.events import KeyEvent, MouseClickEvent
 
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS, PanelDefaultsData
@@ -171,3 +171,104 @@ def test_the_new_manager_defaults_dialog_reads_and_answers_the_mode():
     assert dialog.view_mode.value == 1
     dialog.view_mode.value = 2
     assert dialog.accept()["view_mode"] == "list"
+
+
+# -- reversed, and clicking a column's title -------------------------------------------
+
+
+def test_reverse_turns_each_group_round_keeping_up_and_the_directories_first():
+    assert names(order_entries(ENTRIES, "name", reverse=True)) == \
+        ["..", "zdir", "adir", "run", "c.png", "b.txt", "A.zip"]
+    assert names(order_entries(ENTRIES, "size", reverse=True)) == \
+        ["..", "zdir", "adir", "run", "b.txt", "c.png", "A.zip"]
+    ordered = order_entries(ENTRIES, "name", executables_first=True, reverse=True)
+    assert names(ordered) == ["..", "zdir", "adir", "run", "c.png", "b.txt", "A.zip"]
+    assert names(order_entries(ENTRIES, "unsorted", reverse=True)) == \
+        names(order_entries(ENTRIES, "unsorted"))
+
+
+def heading_click(app, key: str) -> MouseClickEvent:
+    """A press on the left panel's title of column *key*, in screen cells."""
+    panel = app.manager.left
+    (ox, oy) = panel.offset()
+    _, x, width = next(column for column in panel.detail_columns if column[0] == key)
+    return MouseClickEvent(ox + panel.x + x + width // 2, oy + panel.y + panel.inset, "left", "press")
+
+
+def heading_row(app) -> str:
+    from navkit.screen import ScreenBuffer
+
+    panel = app.manager.left
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    return "".join(buffer.get(x, panel.inset)[0] or " " for x in range(panel.width))
+
+
+def test_clicking_a_title_sorts_by_its_column_and_again_reverses_it(place):
+    SETTINGS.panel_defaults.view_mode = "detailed"
+    app = Navigator(place, place, terminal=FakeTerminal(160, 24))  # wide enough for Attr
+    seen = []
+
+    def note(a):
+        seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse, listed(a.manager.left)))
+
+    run_app(app, [
+        lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
+        lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
+        lambda a: a.post_event(heading_click(a, "attributes")), lambda a: None, note,
+    ])
+    assert seen == [
+        ("size", False, ["sub", "b.txt", "c.txt", "a.txt"]),
+        ("size", True, ["sub", "a.txt", "c.txt", "b.txt"]),
+        ("size", True, ["sub", "a.txt", "c.txt", "b.txt"]),  # Attr sorts nothing
+    ]
+
+
+def test_clicking_name_steps_through_name_and_extension_each_way(place):
+    for name in ("a.log", "b.md"):
+        (place / name).write_bytes(b"")
+    SETTINGS.panel_defaults.view_mode = "detailed"
+    app = navigator(place)
+    seen = []
+    click = lambda a: a.post_event(heading_click(a, "name"))
+    note = lambda a: seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse,
+                                  listed(a.manager.left), heading_row(a)))
+    run_app(app, [lambda a: a.manager.left.sort_by("size"), lambda a: None,
+                  *[step for _ in range(5) for step in (click, lambda a: None, note)]])
+    assert [(mode, reverse, names) for mode, reverse, names, _ in seen] == [
+        ("name", False, ["sub", "a.log", "a.txt", "b.md", "b.txt", "c.txt"]),
+        ("name", True, ["sub", "c.txt", "b.txt", "b.md", "a.txt", "a.log"]),
+        ("extension", False, ["sub", "a.log", "b.md", "a.txt", "b.txt", "c.txt"]),
+        ("extension", True, ["sub", "c.txt", "b.txt", "a.txt", "b.md", "a.log"]),
+        ("name", False, ["sub", "a.log", "a.txt", "b.md", "b.txt", "c.txt"]),
+    ]
+    marks = ["Name↑", "Name↓", "Name.↑", "Name.↓", "Name↑"]
+    assert all(mark in row for (*_, row), mark in zip(seen, marks))
+
+
+def test_the_sorted_column_title_carries_an_arrow_for_its_direction(place):
+    SETTINGS.panel_defaults.view_mode = "detailed"
+    app = navigator(place)
+    seen = {}
+    run_app(app, [
+        lambda a: seen.update(name=heading_row(a)),
+        lambda a: a.manager.left.sort_by("time"), lambda a: None,
+        lambda a: seen.update(time=heading_row(a)),
+        lambda a: a.manager.left.sort_by("time", reverse=True), lambda a: None,
+        lambda a: seen.update(reversed=heading_row(a)),
+        lambda a: a.manager.left.sort_by("extension"), lambda a: None,
+        lambda a: seen.update(extension=heading_row(a)),
+    ])
+    assert "Name↑" in seen["name"] and "↓" not in seen["name"]
+    assert "Date↓" in seen["time"] and "Name↑" not in seen["time"]
+    assert "Date↑" in seen["reversed"]
+    assert "Name.↑" in seen["extension"]
+
+
+def test_alt_b_drops_the_reverse():
+    panel_cls = __import__("navigator.widgets.manager.panel.panel", fromlist=["Panel"]).Panel
+    panel = panel_cls()
+    panel.sort_by("size", reverse=True)
+    assert (panel.sort_mode, panel.sort_reverse) == ("size", True)
+    panel.sort_by("name")
+    assert (panel.sort_mode, panel.sort_reverse) == ("name", False)

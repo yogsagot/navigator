@@ -138,7 +138,17 @@ archive, the `filetypes.CATEGORIES` after it, the rest -- `filetypes.GROUPS`); s
 names case-folded. *Executables first*/*Archives first* lead the files except by size and time, read at each read (not
 followed). *Unsorted* is `scandir`'s order, without the two flags (DN's compare was no order there). Alt+B and *Panel >
 Sort by* are `Manager.choose_sort`: `CM_SortBy`'s `PopupMenu`, centred on the panel (DN put it at the panel's top left), on the current mode, captions
-`SORT_CAPTIONS` (*Type* is T~y~pe). `Panel.sort_by(mode)` re-reads keeping the cursor on its entry.
+`SORT_CAPTIONS` (*Type* is T~y~pe). `Panel.sort_by(mode, reverse=False)` re-reads keeping the cursor on its entry.
+
+**Clicking a column title sorts by it** (a departure: DN had no descending order nor clickable titles):
+`Panel.heading_at` finds the column on the heading row and `sort_by_column` steps through its `COLUMN_SORTS` modes,
+each up then reversed (`Panel.sort_reverse`), wrapping: Name is name ↑ → name ↓ → extension ↑ → extension ↓ (there
+being no extension column), Size and Date (time) just flip; the others sort nothing. From another column's order a
+click starts at the first step.
+`order_entries(reverse=True)` turns only the order *within* each group: `..`, directories before files and the
+*Executables/Archives first* flags stay put; *Unsorted* ignores it. The sorted column's title ends in `↑` (ascending)
+or `↓` (`^`/`v` at the ASCII tier), Name's with a `.` before it while the extension sorts (`Name.↑`) -- `Panel.sort_arrow`, with `SORT_ASCENDS` saying size and time run descending
+unreversed. An Alt+B choice is always unreversed; Alt+S drops the reverse only when it changes the mode. `sort_reverse` is kept with the desktop.
 
 ## Tagging
 

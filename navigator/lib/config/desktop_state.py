@@ -50,6 +50,7 @@ def _panel(panel: Any) -> dict[str, Any]:
         "path": str(found.origin if found is not None else panel.path),
         "view_mode": panel.view_mode,
         "sort_mode": panel.sort_mode,
+        "sort_reverse": bool(panel.sort_reverse),
         "show_hidden": bool(panel.show_hidden),
         "show_info": bool(panel.show_info),
         "file_mask": panel.file_mask,
@@ -165,6 +166,7 @@ def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
         panel.view_mode = kept["view_mode"]
     if kept.get("sort_mode") in SORT_MODES:
         panel.sort_mode = kept["sort_mode"]
+    panel.sort_reverse = bool(kept.get("sort_reverse", False)) and panel.sort_mode != "unsorted"
     panel.show_hidden = bool(kept.get("show_hidden", panel.show_hidden))
     panel.show_info = bool(kept.get("show_info", panel.show_info))
     panel.file_mask = kept.get("file_mask") or panel.file_mask
