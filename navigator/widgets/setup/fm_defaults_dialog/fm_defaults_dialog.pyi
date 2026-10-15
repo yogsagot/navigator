@@ -12,6 +12,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 from typing import Any
 from navkit.reactive import bind
 from navigator.settings import SETTINGS, PanelDefaultsData
+from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 
 class FMDefaultsDialog(Dialog, _Component):
