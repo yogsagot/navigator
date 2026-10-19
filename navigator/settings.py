@@ -488,7 +488,7 @@ class FMSetupData(Section):
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
         "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
     )
-    DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character")
+    DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character", "link_line")
 
     auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
     drag_drop_columns: bool = Setting(False, doc="Files can be dragged out of a panel with the mouse")
@@ -511,6 +511,9 @@ class FMSetupData(Section):
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")
+    #: Not DN's, which had no symlinks: a line under *Current file* as its
+    #: find panel gave a file's directory one.
+    link_line: bool = Setting(True, doc="A second info line shows where a symlink points")
     tag_sign: str = Setting("√", doc="Tag sign; empty means √")
     #: Not DN's choice to make: its right button always selected
     #: (``FLPANELX.PAS``), and Navigator's opens the context menu unless this

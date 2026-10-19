@@ -148,13 +148,14 @@ def test_enter_goes_to_the_file_and_up_comes_back(place):
     seen = {}
     run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
                   Until(finding), lambda a: None,
-                  lambda a: seen.update(footer=a.manager.left.footer_text()) if a.manager.left.cursor == 0 else None,
+                  lambda a: seen.update(where=a.manager.left.info_lines[1][0]) if a.manager.left.cursor == 0 else None,
                   to(str(place / "a" / "deep" / "note.txt")),
-                  lambda a: seen.update(footer=a.manager.left.footer_text()),
+                  lambda a: seen.update(where=a.manager.left.info_lines[1][0]),
                   KeyEvent("enter"), lambda a: None, lambda a: None,
                   lambda a: seen.update(path=a.manager.left.path, at=a.manager.left.selected.name,
                                         found=a.manager.left.found)])
-    assert seen["footer"].endswith("/a/deep/note.txt ")
+    # Too narrow a panel for the path column: the line under *Current file*.
+    assert seen["where"].endswith("/a/deep")
     assert seen["path"] == place / "a" / "deep" and seen["at"] == "note.txt" and seen["found"] is None
 
 
@@ -307,3 +308,22 @@ def test_the_progress_line_cuts_a_long_directory_from_its_start():
     assert FindProgress.fit(box, path) == "…" + path[-51:]
     box.glyphs = GLYPHS_ASCII
     assert FindProgress.fit(box, path) == "..." + path[-49:]
+
+
+def test_a_path_column_takes_the_directory_s_line_over(place):
+    app = navigator(place)
+    seen = {}
+
+    def look(key):
+        def take(a):
+            panel = a.manager.left
+            seen[key] = ([k for k, _, _ in panel.detail_columns], [text for text, _ in panel.info_lines])
+        return take
+
+    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
+                  Until(finding), lambda a: None, to(str(place / "a" / "deep" / "note.txt")), look("narrow"),
+                  lambda a: setattr(a.manager.left, "width", 150), lambda a: None, look("wide")])
+    columns, lines = seen["narrow"]
+    assert "path" not in columns and lines[1].endswith("/a/deep")
+    columns, lines = seen["wide"]
+    assert "path" in columns and lines[0].rstrip().endswith("/a/deep") and "/a/deep" not in lines[1]

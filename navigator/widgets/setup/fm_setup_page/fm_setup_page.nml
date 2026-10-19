@@ -14,7 +14,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
 #: than DN's 57; Help is left out, having nothing to show yet.  *Auto refresh
 #: panels* is not DN's (``[file_manager] auto_refresh``), nor is *Right
-#: button* (``[file_manager] right_button``): DN's always selected.
+#: button* (``[file_manager] right_button``): DN's always selected, nor *Link
+#: target line* (``[file_manager] link_line``): DN had no symlinks.
 FMSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -50,13 +51,13 @@ FMSetupPage:
         x: 37
         y: 2
         width: max(0, parent.width - 39)
-        height: 3
-        items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character"]
+        height: 4
+        items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character", "Li~n~k target line"]
 
     Field:
         id: tag_sign
         x: 37
-        y: 6
+        y: 7
         width: 16
         height: 1
         label_text: "Ta~g~ sign:"
@@ -65,7 +66,7 @@ FMSetupPage:
     Label:
         id: right_button_caption
         x: 37
-        y: 8
+        y: 9
         width: 14
         height: 1
         text: "Right button"
@@ -74,7 +75,8 @@ FMSetupPage:
     RadioButtons:
         id: right_button
         x: 37
-        y: 9
+        y: 10
         width: max(0, parent.width - 39)
         height: 2
         items: ["Conte~x~t menu", "Se~l~ect files"]
+

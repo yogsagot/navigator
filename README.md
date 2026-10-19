@@ -25,11 +25,11 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
 │             ║      https://github.com/yogsagot/navigator       ║             │
 │             ║                                                  ║             │
 │             ║                   ▶   OK   ◀▄                    ║             │
-│             ║                    ▀▀▀▀▀▀▀▀▀▀                    ║             │
-│             ║                                                  ║             │
-├─────────────╚══════════════════════════════════════════════════╝─────────────┤
+├─────────────║                    ▀▀▀▀▀▀▀▀▀▀                    ║─────────────┤
+│ bin         ║                                                  ║12-1999 23:59│
+│          No ╚══════════════════════════════════════════════════╝ed           │
 │            384G free on /            ││            384G free on /            │
-└──────────────── bin ─────────────────┘└───────────────── .. ─────────────────┘
+└──────────────────────────────────────┘└──────────────────────────────────────┘
 juris@juris-dev:~/development/navigator$
  F1 Help  F2 User  F3 View  F4 Edit  F5 Copy  F6 Ren  F7 MkDir  F8 Del  F10 Menu
 ```

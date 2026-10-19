@@ -116,7 +116,10 @@ Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold:
    A departure: DN drew them in `[86] List divider', which is left inert. */
 Panel::heading       { fg: $column-title-fg; bg: $column-title-bg; bold: $column-title-bold; dim: $column-title-dim; italic: $column-title-italic; underline: $column-title-underline; reverse: $column-title-reverse }
 Panel::divider       { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
-/* The info lines under the listing (TInfoView): [122]-[125]. */
+/* The info lines under the listing (TInfoView): [119]-[125]. */
+Panel::current-file           { fg: $info-current-file-fg; bg: $info-current-file-bg; bold: $info-current-file-bold; dim: $info-current-file-dim; italic: $info-current-file-italic; underline: $info-current-file-underline; reverse: $info-current-file-reverse }
+Panel::selected-files         { fg: $info-selected-text-fg; bg: $info-selected-text-bg; bold: $info-selected-text-bold; dim: $info-selected-text-dim; italic: $info-selected-text-italic; underline: $info-selected-text-underline; reverse: $info-selected-text-reverse }
+Panel::selected-files-numbers { fg: $info-selected-numbers-fg; bg: $info-selected-numbers-bg; bold: $info-selected-numbers-bold; dim: $info-selected-numbers-dim; italic: $info-selected-numbers-italic; underline: $info-selected-numbers-underline; reverse: $info-selected-numbers-reverse }
 Panel::totals             { fg: $info-totals-text-fg; bg: $info-totals-text-bg; bold: $info-totals-text-bold; dim: $info-totals-text-dim; italic: $info-totals-text-italic; underline: $info-totals-text-underline; reverse: $info-totals-text-reverse }
 Panel::totals-numbers     { fg: $info-totals-numbers-fg; bg: $info-totals-numbers-bg; bold: $info-totals-numbers-bold; dim: $info-totals-numbers-dim; italic: $info-totals-numbers-italic; underline: $info-totals-numbers-underline; reverse: $info-totals-numbers-reverse }
 Panel::free-space         { fg: $info-free-space-text-fg; bg: $info-free-space-text-bg; bold: $info-free-space-text-bold; dim: $info-free-space-text-dim; italic: $info-free-space-text-italic; underline: $info-free-space-text-underline; reverse: $info-free-space-text-reverse }

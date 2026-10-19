@@ -811,7 +811,7 @@ def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
     seen = []
 
     def look(a):
-        seen.append(_left(a).footer_text())
+        seen.append([(text.split()[0] if text else "", part) for text, part in _left(a).info_lines])
 
     def tag(a):
         panel = _left(a)
@@ -823,8 +823,10 @@ def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
         lambda a: setattr(SETTINGS.panel_defaults, "selected_files", False), look,
         lambda a: setattr(SETTINGS.panel_defaults, "current_file", False), look,
     ])
-    assert "selected file" in seen[0]
-    assert seen[1:] == [" plain ", ""]
+    # DN's: with *Selected files* off the selection takes *Current file*'s line.
+    assert seen[0][:2] == [("plain", "current-file"), ("~1", "selected-files")]
+    assert seen[1][0][1] == "selected-files" and all(part != "current-file" for _, part in seen[1][1:])
+    assert all(part not in ("current-file", "selected-files") for _, part in seen[2])
 
 
 def test_without_auto_indent_enter_starts_the_new_line_at_the_margin(listing):

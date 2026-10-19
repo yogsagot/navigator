@@ -130,6 +130,10 @@ def populate(directory: Path) -> None:
 
     fill(directory, TREE)
     fill(directory / "src", SUBTREE)
+    # Filling a directory moved its time again: the *Current file* line on
+    # ``src``'s ``..`` shows it.
+    for path in (directory / "src", directory):
+        os.utime(path, (PINNED_TIME, PINNED_TIME))
 
 
 def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalInfo]:

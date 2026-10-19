@@ -311,9 +311,9 @@ class Manager(Window):
         for entry, size in counted:
             entry.size, entry.counted = size, True
         if counted and counted[0][0] in panel.items:
-            # The same entries, changed, while the panel still lists them: a
-            # new list is what it sees.
-            panel.items = list(panel.items)
+            # The same entries, changed, while the panel still lists them:
+            # an equal list would be no change, so the sizes say they moved.
+            panel.sizes_token += 1
 
     # -- UU Encode and UU Decode (navigator.lib.file_ops.uucode) ---------------------------------
 

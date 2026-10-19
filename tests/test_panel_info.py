@@ -1,9 +1,14 @@
-"""The *New Manager defaults* still left: *Directory length*, *Totals*, *Free
-space* (DN's ``fmiDirLen``, ``fmiTotals``, ``fmiFree``, drawn by ``TInfoView``)
-with File Manager Setup's *Info divider*, and *Left panel in a new Manager*."""
+"""The *New Manager defaults* still left: *Directory length*, *Current file*,
+*Selected files*, *Totals*, *Free space* (DN's ``fmiDirLen``, ``fmiCurrent``,
+``fmiSelected``, ``fmiTotals``, ``fmiFree``, drawn by ``TInfoView``) with File
+Manager Setup's *Info divider* and *Current file* fields, and *Left panel in a
+new Manager*."""
 
 from __future__ import annotations
 
+import os
+import stat
+import time
 from pathlib import Path
 
 import pytest
@@ -52,23 +57,26 @@ def test_free_space_takes_a_line_under_a_divider_and_totals_another(place):
     SETTINGS.panel_defaults.totals = True
     panel = panel_at(place)
     rows = rows_of(panel)
-    assert panel.info_height == 3 and panel.rows == panel.height - 2 - 3
-    assert rows[-4][0] in "├╟" and rows[-4][-1] in "┤╢" and rows[-4][1] == "─"
+    assert panel.info_height == 5 and panel.rows == panel.height - 2 - 5
+    assert rows[-6][0] in "├╟" and rows[-6][-1] in "┤╢" and rows[-6][1] == "─"
+    assert rows[-5].strip("║│ ").startswith("..")
+    assert rows[-4].strip("║│ ") == "No files selected"
     assert rows[-3].strip("║│ ") == "Total: 2 files with 5 bytes"
     assert rows[-2].strip("║│ ") == "1,000 free bytes on /"
 
     SETTINGS.file_manager.info_divider = False
     settle()
-    assert panel.info_height == 2 and rows_of(panel)[-3].strip("║│ ") == "Total: 2 files with 5 bytes"
+    assert panel.info_height == 4 and rows_of(panel)[-3].strip("║│ ") == "Total: 2 files with 5 bytes"
 
     SETTINGS.panel_defaults.totals = SETTINGS.panel_defaults.free_space = False
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     settle()
     assert panel.info_height == 0 and panel.rows == panel.height - 2
 
 
 def test_alt_i_hides_the_footer_and_gives_its_rows_to_the_listing(place):
     panel = panel_at(place)
-    assert panel.info_height == 2
+    assert panel.info_height == 4
     panel.toggle_info()
     settle()
     rows = rows_of(panel)
@@ -76,7 +84,7 @@ def test_alt_i_hides_the_footer_and_gives_its_rows_to_the_listing(place):
     assert not any("free" in row for row in rows)
     panel.toggle_info()
     settle()
-    assert panel.info_height == 2 and rows_of(panel)[-2].strip("║│ ") == "1,000 free bytes on /"
+    assert panel.info_height == 4 and rows_of(panel)[-2].strip("║│ ") == "1,000 free bytes on /"
 
 
 def test_alt_i_toggles_the_active_panel_s_footer_and_ticks_the_menu(place):
@@ -170,3 +178,138 @@ def test_files_leaves_both_panels(place):
     run_app(app, [lambda a: None, lambda a: seen.update(
         state=(a.manager.replacement, a.manager.hidden_side, a.manager.left.focused))])
     assert seen["state"] == (None, None, True)
+
+
+# -- Current file and Selected files ---------------------------------------------
+
+def info_texts(panel: Panel) -> list[tuple[str, str]]:
+    return [(text.rstrip(), part) for text, part in panel.info_lines]
+
+
+def at(panel: Panel, name: str) -> Panel:
+    panel.cursor = next(i for i, item in enumerate(panel.items) if item.name == name)
+    settle()
+    return panel
+
+
+def stamp(path: Path, fmt: str) -> str:
+    return time.strftime(fmt, time.localtime(path.stat().st_mtime))
+
+
+def test_the_current_file_line_holds_the_detailed_columns_places(place):
+    panel = at(panel_at(place, width=80), "a")
+    text, part = panel.info_lines[0]
+    assert part == "current-file" and [key for key, _, _ in panel.detail_columns] == [
+        "name", "size", "attributes", "owner", "date"]
+    entry = panel.selected
+    for key, x, width in panel.detail_columns:
+        cells = text[x - panel.inset: x - panel.inset + width]
+        if key == "name":
+            assert cells[panel.gutter:].rstrip() == "a" and not cells[:panel.gutter].strip()
+        elif key == "size":
+            assert cells == "3".rjust(width)
+        else:
+            assert cells.rstrip() == getattr(entry, Panel.DETAIL_COLUMNS[key][2])
+        # A blank where the divider stands.
+        assert x - panel.inset - 1 < 0 or text[x - panel.inset - 1] == " "
+    assert stamp(place / "a", "%d-%m-%Y %H:%M") in text
+
+
+def test_a_directory_s_size_is_dn_s_sub_dir_and_dot_dot_up_dir(place):
+    panel = at(panel_at(place), "sub")
+    assert panel.info_lines[0][0].split()[1] == "SUB-DIR"
+    assert at(panel, "..").info_lines[0][0].split()[1] == "UP--DIR"
+    SETTINGS.panel_defaults.directory_length = True
+    panel = at(panel_at(place), "sub")
+    assert panel.info_lines[0][0].split()[1] == "15"
+
+
+def test_the_line_follows_columns_setup_in_every_mode(place):
+    panel = at(panel_at(place, width=80), "a")
+    assert panel.view_mode == "simple"
+    panel.columns = frozenset({"size"})
+    settle()
+    assert info_texts(panel)[0][0].split() == ["a", "3"]
+    panel.columns = frozenset({"date", "attributes"})
+    settle()
+    mode = os.stat(place / "a").st_mode
+    assert info_texts(panel)[0][0].split() == [
+        "a", stat.filemode(mode)[1:], stamp(place / "a", "%d-%m-%Y"), stamp(place / "a", "%H:%M")]
+    panel.columns = frozenset()
+    settle()
+    assert info_texts(panel)[0][0].strip() == "a"
+
+
+def test_a_narrow_panel_drops_the_columns_the_rows_drop_and_cuts_the_name(place):
+    (place / "a_rather_long_file_name.txt").write_text("12345")
+    panel = at(panel_at(place, width=30), "a_rather_long_file_name.txt")
+    text = panel.info_lines[0][0]
+    assert [key for key, _, _ in panel.detail_columns] == ["name", "size"]
+    assert len(text) == panel.inner_width == 28
+    name, size = text.split()
+    assert size == "5" and name.endswith(("…", "...")) and name.startswith("a_rather")
+
+
+def test_a_size_wider_than_its_column_takes_cells_from_the_name(place):
+    (place / "big").write_bytes(b"\0" * 1_234_567)
+    panel = at(panel_at(place, width=80), "big")
+    _, x, width = panel.detail_columns[1]
+    text = panel.info_lines[0][0]
+    end = x - panel.inset + width
+    assert text[:end].endswith(" 1,234,567") and text[:end].split() == ["big", "1,234,567"]
+    assert len("1,234,567") > width
+
+
+def test_the_selected_line_says_none_then_totals_the_tagged(place):
+    panel = at(panel_at(place), "a")
+    assert ("No files selected", "selected-files") in info_texts(panel)
+    panel.marked = frozenset({"a", "b"})
+    settle()
+    assert ("~5 bytes in 2~ selected files", "selected-files") in info_texts(panel)
+
+
+def test_without_selected_files_the_selection_takes_the_current_file_s_line(place):
+    SETTINGS.panel_defaults.selected_files = False
+    panel = at(panel_at(place), "a")
+    assert [part for _, part in panel.info_lines] == ["current-file", "free-space"]
+    panel.marked = frozenset({"b"})
+    settle()
+    assert info_texts(panel)[0] == ("~2 bytes in 1~ selected file", "selected-files")
+
+
+def test_a_symlink_gets_a_target_line_and_the_listing_keeps_its_height(place):
+    (place / "link").symlink_to("a")
+    panel = at(panel_at(place), "link")
+    assert info_texts(panel)[1] == ("-> a", "current-file")
+    rows = panel.rows
+    at(panel, "b")
+    assert info_texts(panel)[1] == ("", "current-file") and panel.rows == rows
+    SETTINGS.file_manager.link_line = False
+    settle()
+    assert [part for _, part in panel.info_lines] == ["current-file", "selected-files", "free-space"]
+
+
+def test_without_a_symlink_there_is_no_target_line(place):
+    panel = at(panel_at(place), "a")
+    assert [part for _, part in panel.info_lines] == ["current-file", "selected-files", "free-space"]
+
+
+def test_a_name_with_a_tilde_is_drawn_as_it_is(place):
+    (place / "~backup~").write_text("")
+    panel = at(panel_at(place), "~backup~")
+    assert rows_of(panel)[-4].strip("║│ ").startswith("~backup~ ")
+
+
+def test_the_frame_s_footer_is_left_to_the_quick_search(place):
+    panel = at(panel_at(place), "a")
+    assert panel.footer_text() == ""
+    panel.quick_search = "a"
+    assert panel.footer_text().endswith("a ")
+
+
+def test_the_setup_page_s_display_boxes_carry_the_link_line():
+    from navigator.widgets.setup.fm_setup_page import FMSetupPage
+    page = FMSetupPage()
+    assert page.display.value >> 3 & 1
+    page.display.value &= ~(1 << 3)
+    assert page.accept()["link_line"] is False

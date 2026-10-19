@@ -87,10 +87,26 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
 - Non-simple modes have a heading row in *Column title* `[165]` (`Panel::heading`) and single `│` rules in the frame's
   colours (`Panel::divider` on `$panel-fg`/`$panel-bg`, a departure from DN's `[86]`), meeting the frame in the tee
   `Widget.box_joins()` gives (`┬┴`/`╤╧`) wherever title/footer does not stand.
-- *Totals* and *Free space* (`navigator-settings`) are lines between the listing and the bottom frame, under the *Info
-  divider*: `Panel.rows` is computed less `info_height`, so the list, scroll bar and list-mode columns shrink, and the
-  column rules end in `┴` on the divider rather than on the frame. Tests that pin a listing down to the frame turn
-  `free_space` off; anything painting a real directory headless pins `free_space_text` (the golden test, screenshot).
+- **The info lines are DN's `TInfoView`**, between the listing and the bottom frame under the *Info divider*, in its
+  order, each behind its *Display* box (`Panel.info_lines`, `(text, part)`: the computed `_info_lines` with the
+  current file's text filled in as it is read, because the gutter it follows is not reactive):
+  - *Current file* (`::current-file`, `[119]`): **laid out on `detail_columns` in every mode** -- the columns *Columns
+    Setup* (Alt+K) shows, at their places and widths, a blank where each divider stands, the name past the rows'
+    gutter. DN's `GetDown` was always name, size, date, time; following the columns is Navigator's. The size is
+    `DirEntry.info_size` (every digit, or `UP--DIR`/`SUB-DIR`), right-aligned on its column's edge and taking cells
+    from the name where wider. Drawn as it is, never split on `~` (`PLAIN_INFO`).
+  - a second line under it: a *Find:* entry's directory (DN's find drive) unless the path column shows it, or
+    `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes). It is **kept while the listing could need it** -- always on a *Find:*
+    listing, while the listing holds a symlink otherwise -- so the listing never changes height as the cursor moves.
+  - *Selected files* (`::selected-files`, `[120]`/`[121]`): `No files selected`, or `~X bytes in N~ selected files`.
+    With files tagged and the box off, the selection takes *Current file*'s line, as DN's `Goto 1` did.
+  - *Totals* and *Free space* (`navigator-settings`), centred as the selection is.
+  The bottom frame carries only the quick search now. `Panel.rows` is computed less `info_height`, so the list, scroll
+  bar and list-mode columns shrink, and the column rules end in `┴` on the divider rather than on the frame. Tests
+  that pin a listing down to the frame turn `free_space`, `current_file` and `selected_files` off; anything painting a
+  real directory headless pins `free_space_of` and the date and time (the golden test, screenshot). An entry's size
+  changing where it stands (Alt+G) bumps `Panel.sizes_token`: the same list of the same entries is no change to
+  `items`.
   **Alt+I hides that footer** -- divider and lines -- per panel (`ToggleInfoLines`, `Panel.show_info`/`toggle_info`,
   *Panel > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
   The command has no `title`, so the Alt key bar keeps *Z Zoom*.
@@ -184,8 +200,8 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
 ## Tagging
 
 - **Insert tags** (`ToggleMark`, DN's `kbIns`): the entry joins `Panel.marked` (names, never `..`), cursor steps down,
-  the gutter shows `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; footer reads `N bytes in M
-  selected files`. A re-read keeps tags; a change of directory drops them. **Space tags too while the command line is
+  the gutter shows `√` (`+` in ASCII) in *Selected text* `[87]` / *Selected cursor* `[89]`; the *Selected files* info line
+  reads `N bytes in M selected files`. A re-read keeps tags; a change of directory drops them. **Space tags too while the command line is
   empty** (`ToggleMarkBySpace`, DN's `fmoSpaceToggle`, gated by `Shell`, which owns the line).
 - **Gray `+`/`-` are *Select*/*Unselect group*** (`SelectGroup`/`UnselectGroup`, `cmPanelSelect`, on Panel's menu):
   `SelectDialog` asks for a mask -- `;`-separated shell patterns matched as a POSIX glob (`filetypes.matches`: case
@@ -233,7 +249,7 @@ own OK / *Advanced...* / Cancel row, session-kept answers, opening on *Recursive
 one file system for *Entire disk* / *All drives*) under `FindProgress` through `_watch_job(..., abort="Cancel
 search?")`. **Results are a `FindListing` in `Panel.found`** (DN's `TFindDrive`): the panel lists its entries -- live
 while searching, re-`stat`ed by `restat_found` on a re-read, gone ones dropped -- under a `..` that leads back
-(`leave_found`, cursor where it was); title `Find: mask`, footer the entry's whole path. Enter / Ctrl+PgUp on `..`
+(`leave_found`, cursor where it was); title `Find: mask`, the info line under *Current file* the entry's directory. Enter / Ctrl+PgUp on `..`
 leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Enter `ChangeInactive` sends the other
 panel there. A listing belongs to the path it was shown at: going elsewhere drops it. Nothing found: *No files found*,
 the panel untouched. F7 and Compare are disabled in a listing.

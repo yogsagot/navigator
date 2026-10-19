@@ -708,6 +708,7 @@ def test_the_detailed_mode_draws_its_columns(tree, monkeypatch):
     # The owner column is as wide as the longest owner, so whoever runs the
     # suite would decide whether it fits (``runner:docker`` does not, at 62).
     monkeypatch.setattr(DirEntry, "display_owner", property(lambda self: "user:group"))
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     panel = Panel(tree, width=62, height=10)
     panel.stylesheet = default_scheme()
     panel = mounted(panel, size=(62, 10))
@@ -758,6 +759,7 @@ def test_a_narrow_detailed_panel_gives_up_owner_and_attributes_first(panel):
 
 def test_the_list_mode_lays_names_out_in_columns(tmp_path):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     many_files(tmp_path, 30)
     panel = Panel(tmp_path, width=40, height=10)
     panel.stylesheet = default_scheme()
@@ -779,6 +781,7 @@ def test_the_list_mode_lays_names_out_in_columns(tmp_path):
 
 def test_the_list_mode_draws_no_divider_after_the_last_column(tmp_path):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     many_files(tmp_path, 10)
     panel = Panel(tmp_path, width=60, height=10)
     panel.stylesheet = default_scheme()
@@ -818,6 +821,7 @@ def test_left_and_right_move_a_column_in_the_list_mode(tmp_path):
 
 
 def test_the_list_mode_scrolls_a_whole_column(tmp_path):
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     many_files(tmp_path, 100)
     panel = mounted(Panel(tmp_path, width=40, height=10), size=(40, 10))
     panel.cycle_view_mode()
@@ -861,6 +865,7 @@ def divider_columns(panel) -> list[int]:
 
 def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     app = navigator(tree, size=(200, 24))  # wide enough that the path leaves a divider clear
     run_app(app, [])
     for panel in (app.manager.left, app.manager.right):
@@ -881,6 +886,7 @@ def test_a_divider_meets_the_frame_in_a_tee_matching_the_frame(tree):
 
 def test_the_list_mode_has_no_tee_after_its_last_column(tmp_path):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     many_files(tmp_path, 10)
     panel = Panel(tmp_path, width=60, height=10)
     panel.stylesheet = default_scheme()
@@ -904,16 +910,17 @@ def test_a_tee_leaves_the_footer_standing_on_its_cell(tmp_path):
     panel = mounted(panel, size=(40, 10))
     panel.cycle_view_mode()
     settle()
-    panel.cursor = 1
+    panel.quick_search = name
     settle()
     buffer = painted_panel(panel)
     footer = row_of(buffer, panel.height - 1)
-    assert name in footer
+    assert f"Search: {name}"[:30] in footer
     assert "┴" not in footer and "╧" not in footer
 
 
 def test_an_ascii_terminal_joins_the_divider_with_a_plus(tree):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     app = navigator_with(tree, GLYPHS_ASCII)
     run_app(app, [])
     panel = app.manager.right
@@ -1818,22 +1825,22 @@ def test_tags_survive_a_reread_but_not_a_move(panel, tree):
     assert panel.marked == frozenset()
 
 
-def test_the_footer_sums_the_tagged_files(panel):
+def test_the_info_lines_sum_the_tagged_files(panel):
     panel.marked = frozenset({"one.txt", "two.txt"})
-    assert panel.footer_text() == " 2,058 bytes in 2 selected files "
+    assert ("~2,058 bytes in 2~ selected files", "selected-files") in panel.info_lines
 
 
-def test_the_footer_names_a_symlinks_target(panel, tree):
+def test_the_info_lines_name_a_symlinks_target(panel, tree):
     (tree / "link").symlink_to("one.txt")
     (tree / "stale").symlink_to("/nowhere/at/all")
     panel.reload()
     settle()
     panel.cursor = names(panel).index("link")
-    assert panel.footer_text() == " link -> one.txt "
+    assert panel.info_lines[0][0].lstrip().startswith("link ") and panel.info_lines[1][0] == "-> one.txt"
     panel.cursor = names(panel).index("stale")
-    assert panel.footer_text() == " stale -> /nowhere/at/all "
+    assert panel.info_lines[0][0].lstrip().startswith("stale ") and panel.info_lines[1][0] == "-> /nowhere/at/all"
     panel.cursor = names(panel).index("one.txt")
-    assert panel.footer_text() == " one.txt "
+    assert panel.info_lines[0][0].lstrip().startswith("one.txt ") and panel.info_lines[1][0] == ""
 
 
 def test_space_tags_while_the_command_line_is_empty(tree):
@@ -2767,9 +2774,14 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     last two cells took the icon colour, and nothing else moved.  And once
     more when that line was shortened as ``df -h`` does: ``977K``, not
     every digit.  And once more when the info divider joined the frame,
-    ``├``/``┤`` (``╟``/``╢`` in the double one) at its ends.
+    ``├``/``┤`` (``╟``/``╢`` in the double one) at its ends.  And once more
+    when *Current file* and *Selected files* left the bottom frame for info
+    lines of their own, as DN's ``TInfoView`` drew them: each panel gave two
+    more rows to them, the bottom frame lost the name, and the date and time
+    of ``alpha``, made as the test runs, are pinned here.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
+    monkeypatch.setattr(DirEntry, "display_date", property(lambda self: "01-01-2026 12:00"))
     monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_of",
                         lambda path: (1_000_000, "/"))
     (tmp_path / "alpha").mkdir()
@@ -2975,6 +2987,7 @@ def test_a_panel_that_fits_shows_no_scrollbar(panel):
 
 def test_a_long_listing_shows_the_scrollbar_on_the_right_frame(tmp_path):
     SETTINGS.panel_defaults.free_space = False  # the listing down to the frame
+    SETTINGS.panel_defaults.current_file = SETTINGS.panel_defaults.selected_files = False
     for n in range(60):
         (tmp_path / f"file{n:02}").touch()
     panel = Panel(tmp_path, width=40, height=20)

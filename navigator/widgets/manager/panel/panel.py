@@ -211,6 +211,15 @@ class DirEntry:
         """
         return time.strftime("%d-%m-%Y %H:%M", time.localtime(self.mtime))
 
+    @property
+    def info_size(self) -> str:
+        """The size as the *Current file* info line gives it (DN's
+        ``GetDown``): every digit -- a departure, where the column shortens
+        it -- or ``UP--DIR``/``SUB-DIR`` for a directory not counted."""
+        if self.is_dir and not self.counted:
+            return tr("UP--DIR") if self.name == ".." else tr("SUB-DIR")
+        return f"{self.size:,}"
+
 
 #: What ends a name cut short to fit its column, by default -- three dots, the
 #: ASCII tier's; a panel passes its own (``Panel.ellipsis``), ``…`` above it.
@@ -627,6 +636,9 @@ class Panel(ContextMenuHost, ListViewer):
     path: Path = reactive(Path("."))
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
+    #: Bumped when entries' sizes change where they stand (Alt+G's count):
+    #: the list is the same list of the same entries, so nothing else moves.
+    sizes_token: int = reactive(0)
     #: Set while a directory the panel has moved to is still being read on its
     #: thread, which takes a slow disk or a dead network mount longer than a
     #: frame: the rows say *Reading directory...* meanwhile.
@@ -699,7 +711,10 @@ class Panel(ContextMenuHost, ListViewer):
     VIEW_MODES = ("simple", "detailed", "list")
 
     #: ``heading`` is the column-titles row the detailed and list modes draw.
-    parts = ListViewer.parts + ("heading", "totals", "totals-numbers", "free-space", "free-space-numbers")
+    parts = ListViewer.parts + (
+        "heading", "current-file", "selected-files", "selected-files-numbers",
+        "totals", "totals-numbers", "free-space", "free-space-numbers",
+    )
 
     def __init__(self, path: Path | None = None, **kwargs: Any):
         """*path* is optional because a widget markup constructs must be.
@@ -1858,47 +1873,41 @@ class Panel(ContextMenuHost, ListViewer):
         return f" {title}{suffix} "
 
     def footer_text(self) -> str:
-        """The selected name, or an item count when there is nothing to name.
-
-        A symlink is named ``name -> target``, as ``ls -l`` shows it. While
-        searching, what the search has typed instead.
-        """
+        """What a search has typed, while it is searching; else nothing --
+        the current file and the selection are info lines, as DN's were."""
         if self.quick_search is not None:
             return f"{self.search_label}{self.quick_search} "
-        # *Selected files* and *Current file* say which of the two the line
-        # may show; with neither it is empty (:meth:`shows`).
-        marked = self.marked_entries if self.shows("selected_files") else []
-        if marked:
-            # DN's info line: ``dlBytesIn`` and ``dlSelectedFiles``.
-            size = sum(item.size for item in marked)
-            total = tr_n("{n:,} byte", "{n:,} bytes", size)
-            summary = " " + tr_n("{total} in {n} selected file", "{total} in {n} selected files", len(marked),
-                                 total=total) + " "
-        elif not self.shows("current_file"):
-            return ""
-        else:
-            entry = self.selected
-            if entry is None:
-                summary = " " + tr_n("{n} item", "{n} items", len(self.items)) + " "
-            elif entry.directory is not None:
-                # DN's find panel gave the file's directory a row of its own;
-                # here it is the whole path, its start cut as the title's is.
-                text = self._cut_start(str(entry.path_in(self.path)), max(4, self.width - 6))
-                summary = f" {text} "
-            elif entry.link_target is not None:
-                summary = f" {entry.name} -> {entry.link_target} "
-            else:
-                summary = f" {entry.name} "
-        room = max(1, self.width - 4)
-        return summary[: room - 1] + " " if len(summary) > room else summary
+        return ""
 
-    # -- the info lines: *Totals* and *Free space* ------------------------------
+    # -- the info lines: TInfoView ------------------------------------------------
 
-    @computed
+    #: The parts drawn as they are, from the left: a name may hold a ``~``.
+    PLAIN_INFO = frozenset({"current-file"})
+
+    @property
     def info_lines(self) -> tuple[tuple[str, str], ...]:
         """The lines under the listing, ``(text, part)``, ``~`` around what is
-        bright: ``TInfoView``'s *Totals* and *Free space*.  Its *Current file*
-        and *Selected files* are the footer's here.
+        bright: :attr:`_info_lines` with *Current file* laid out as it is
+        read, since the rows' gutter it follows is not reactive
+        (:attr:`Widget.glyphs`)."""
+        return tuple(
+            (self._current_file_text(self.selected) if text is None else text, part)
+            for text, part in self._info_lines
+        )
+
+    @computed
+    def _info_lines(self) -> tuple[tuple[str | None, str], ...]:
+        """``TInfoView``'s *Current file* (its text None here), *Selected
+        files*, *Totals* and *Free space*, in its order, each behind its
+        *Display* box.
+
+        With files tagged and *Selected files* off, the selection takes the
+        current file's line, as DN's did.  A *Find:* listing gives the
+        current file's directory a line of its own under it, as DN's find
+        drive did, and so does a symlink its target (Navigator's).  That line
+        is kept while the listing could need it -- always on a *Find:*
+        listing, while it holds a symlink otherwise -- so the listing does
+        not change height as the cursor moves.
 
         Totals is ``CalcTotalInfo``: the files and their bytes, directories
         not counted.  Free space is not shown over a *Find:* listing, as it
@@ -1907,6 +1916,19 @@ class Panel(ContextMenuHost, ListViewer):
         if not self.framed or self.error is not None or not self.show_info:
             return ()
         lines = []
+        _ = self.sizes_token  # read for the dependency: a counted directory's bytes
+        marked = self.marked_entries
+        selected_files = self.shows("selected_files")
+        if self.shows("current_file"):
+            if marked and not selected_files:
+                lines.append((self._selection_text(marked), "selected-files"))
+            else:
+                lines.append((None, "current-file"))
+            second = self._second_line(self.selected)
+            if second is not None:
+                lines.append((second, "current-file"))
+        if selected_files:
+            lines.append((self._selection_text(marked), "selected-files"))
         if self.shows("totals"):
             items = self.items
             if not any(item.name != ".." for item in items):
@@ -1930,11 +1952,81 @@ class Panel(ContextMenuHost, ListViewer):
             lines.append((text, "free-space"))
         return tuple(lines)
 
+    def _selection_text(self, marked: list[DirEntry]) -> str:
+        """*Selected files*: DN's ``dlBytesIn`` and ``dlSelectedFiles``, or
+        its ``No files selected``."""
+        if not marked:
+            return tr("No files selected")
+        size = sum(item.size for item in marked)
+        total = tr_n("{n:,} byte", "{n:,} bytes", size)
+        return tr_n("~{total} in {n}~ selected file", "~{total} in {n}~ selected files", len(marked), total=total)
+
+    def _current_file_text(self, entry: DirEntry | None) -> str:
+        """*Current file*: the entry laid out as a detailed row is, in every
+        mode -- :attr:`detail_columns`' columns at their places, a blank
+        where each divider stands.
+
+        DN's ``GetDown`` was name, size, date and time whatever the columns;
+        following *Columns Setup* is Navigator's.  The size has every digit,
+        right-aligned on the column's edge, and where that is wider than the
+        column it takes the cells before it from the name.  The name starts
+        where the rows' names do, the gutter left blank.
+        """
+        if entry is None:
+            return ""
+        inset = self.inset
+        pieces = []
+        name_x = name_width = 0
+        for key, x, width in self.detail_columns:
+            x -= inset
+            if key == "name":
+                # Under the rows' names, past the gutter their marks take.
+                gutter = min(self.gutter, max(0, width - 1))
+                name_x, name_width = x + gutter, width - gutter
+                continue
+            if key == "size":
+                text = entry.info_size
+                if text_width(text) > width:
+                    start = max(name_x + 2, x + width - text_width(text))
+                    name_width = min(name_width, start - name_x - 1)
+                    width = x + width - start
+                    x = start
+                text = fit_text(text, width, self.ellipsis)
+                text = " " * (width - text_width(text)) + text
+            elif key == "path":
+                text = self._cut_start(entry.display_path, width)
+            else:
+                text = fit_text(getattr(entry, self.DETAIL_COLUMNS[key][2]), width, self.ellipsis)
+            pieces.append((x, text))
+        line = fit_text(entry.name, max(1, name_width), self.ellipsis)
+        line = " " * name_x + line
+        for x, text in pieces:
+            line += " " * max(0, x - text_width(line)) + text
+        return line
+
+    def _second_line(self, entry: DirEntry | None) -> str | None:
+        """The line under *Current file*, or None where the listing needs
+        none: the directory of a *Find:* listing's file, unless the path
+        column shows it, ``-> target`` for a symlink, blank for anything else
+        while the line is kept."""
+        if self.found is not None:
+            if any(key == "path" for key, _, _ in self.detail_columns):
+                return None  # the path column already says it
+            if entry is None:
+                return ""
+            where = str(entry.directory) if entry.directory is not None else str(self.path)
+            return self._cut_start(where, self.inner_width)
+        if not SETTINGS.file_manager.link_line or not any(item.is_link for item in self.items):
+            return None
+        if entry is None or entry.link_target is None:
+            return ""
+        return fit_text(f"-> {entry.link_target}", self.inner_width, self.ellipsis)
+
     @computed
     def info_height(self) -> int:
         """The rows the info lines take, with File Manager Setup's *Info
         divider* above them (``fmsDivider``) -- none without a line to divide."""
-        lines = len(self.info_lines)
+        lines = len(self._info_lines)
         return lines + (1 if lines and SETTINGS.file_manager.info_divider else 0)
 
     @computed
@@ -1971,9 +2063,13 @@ class Panel(ContextMenuHost, ListViewer):
                         surface.set_cell(edge, y, tee, style)
             y += 1
         for text, part in self.info_lines:
-            plain = text.replace("~", "")
-            x = left + max(0, (width - len(plain)) // 2)
             surface.fill(left, y, width, 1, " ", self.part_style(part))
+            if part in self.PLAIN_INFO:
+                surface.draw_text(left, y, text, self.part_style(part), width)
+                y += 1
+                continue
+            plain = text.replace("~", "")
+            x = left + max(0, (width - text_width(plain)) // 2)
             bright = False
             for piece in text.split("~"):
                 room = left + width - x
