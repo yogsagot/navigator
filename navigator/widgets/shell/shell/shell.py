@@ -74,6 +74,7 @@ from navigator.widgets.shell.commands import (
     OpenTreeWindow,
     OpenVolumesWindow,
     SetupConfirmation,
+    Settings,
     StartupSetup,
     SystemSetup,
     ToggleMarkBySpace,
@@ -1742,28 +1743,31 @@ class Shell(DockLayout):
 
     # -- Options: the setup dialogs ------------------------------------------------
 
-    async def on_system_setup(self, event: SystemSetup) -> bool:
-        from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    async def on_settings(self, event: Settings) -> bool:
+        self.spawn(self.settings())
+        return True
 
-        self.spawn(self.setup(SystemSetupDialog(), "system"))
+    async def on_system_setup(self, event: SystemSetup) -> bool:
+        self.spawn(self.settings("system"))
         return True
 
     async def on_startup_setup(self, event: StartupSetup) -> bool:
-        from navigator.widgets.setup.startup_dialog import StartupDialog
-
-        self.spawn(self.setup(StartupDialog(), "startup"))
+        self.spawn(self.settings("startup"))
         return True
 
     async def on_interface_setup(self, event: InterfaceSetup) -> bool:
-        self.spawn(self._interface_setup())
+        self.spawn(self.settings("interface"))
         return True
 
-    async def _interface_setup(self) -> None:
+    async def settings(self, tab: str = "system") -> None:
+        """Options > Settings, opened on page *tab*: every section it shows
+        that OK changed is applied and saved, as :meth:`setup` does."""
         from navigator.lib.config import language
-        from navigator.widgets.setup.interface_dialog import InterfaceDialog
+        from navigator.widgets.setup.settings_dialog import SettingsDialog
+        from navigator.widgets.setup.settings_dialog.settings_dialog import SECTIONS
 
         before = SETTINGS.interface.language
-        await self.setup(InterfaceDialog(), "interface")
+        await self.setup(SettingsDialog(tab=tab), *SECTIONS)
         # Only a change: Cancel, or OK on the same choice, leaves a session's
         # --language standing.  Every caption bound to it follows this batch.
         if SETTINGS.interface.language != before:
@@ -1802,33 +1806,23 @@ class Shell(DockLayout):
             ).execute(app)
 
     async def on_setup_confirmation(self, event: SetupConfirmation) -> bool:
-        from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog
-
-        self.spawn(self.setup(ConfirmationsDialog(), "confirmations"))
+        self.spawn(self.settings("confirmations"))
         return True
 
     async def on_editor_defaults(self, event: EditorDefaults) -> bool:
-        from navigator.widgets.setup.editor_defaults_dialog import EditorDefaultsDialog
-
-        self.spawn(self.setup(EditorDefaultsDialog(), "editor", "viewer"))
+        self.spawn(self.settings("editor_viewer"))
         return True
 
     async def on_file_manager_setup(self, event: FileManagerSetup) -> bool:
-        from navigator.widgets.setup.fm_setup_dialog import FMSetupDialog
-
-        self.spawn(self.setup(FMSetupDialog(), "file_manager"))
+        self.spawn(self.settings("file_manager"))
         return True
 
     async def on_drive_info_setup(self, event: DriveInfoSetup) -> bool:
-        from navigator.widgets.setup.drive_info_dialog import DriveInfoDialog
-
-        self.spawn(self.setup(DriveInfoDialog(), "drive_info"))
+        self.spawn(self.settings("drive_info"))
         return True
 
     async def on_column_defaults(self, event: ColumnDefaults) -> bool:
-        from navigator.widgets.setup.column_defaults_dialog import ColumnDefaultsDialog
-
-        self.spawn(self.setup(ColumnDefaultsDialog(), "column_defaults"))
+        self.spawn(self.settings("column_defaults"))
         return True
 
     def checks(self, command: Command) -> bool | None:
@@ -1862,9 +1856,7 @@ class Shell(DockLayout):
         return True
 
     async def on_savers_setup(self, event: SaversSetup) -> bool:
-        from navigator.widgets.setup.savers_dialog import SaversDialog
-
-        self.spawn(self.setup(SaversDialog(), "savers"))
+        self.spawn(self.settings("savers"))
         return True
 
     async def on_screen_rest(self, event: ScreenRest) -> bool:
@@ -1904,15 +1896,11 @@ class Shell(DockLayout):
             self.resting = False
 
     async def on_highlight_groups(self, event: HighlightGroups) -> bool:
-        from navigator.widgets.setup.highlight_dialog import HighlightDialog
-
-        self.spawn(self.setup(HighlightDialog(), "highlight_groups"))
+        self.spawn(self.settings("highlight_groups"))
         return True
 
     async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:
-        from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
-
-        self.spawn(self.setup(FMDefaultsDialog(), "panel_defaults"))
+        self.spawn(self.settings("panel_defaults"))
         return True
 
     async def setup(self, dialog: Any, *sections: str) -> None:
@@ -1923,13 +1911,19 @@ class Shell(DockLayout):
         them, and each section is written back to ``navigator.ini`` -- that
         section alone, over whatever the file holds now.  A dialog over one
         section answers that section's values; over several, a dict of them
-        by section name.  A file that cannot be written is said so, and the
-        values stay applied for this session.
+        by section name, and of those only the sections whose values OK
+        changed are assigned and written.  A file that cannot be written is
+        said so, and the values stay applied for this session.
         """
         answer = await dialog.execute(self.application)
         if answer is None:
             return
         changes = answer if len(sections) > 1 else {sections[0]: answer}
+        if len(sections) > 1:
+            sections = tuple(
+                name for name in sections
+                if changes[name].items() - SETTINGS.section(name).values().items()
+            )
         for name in sections:
             SETTINGS.section(name).update(changes[name])
         try:

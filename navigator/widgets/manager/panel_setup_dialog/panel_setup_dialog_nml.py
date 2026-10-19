@@ -31,7 +31,7 @@ class PanelSetupDialog(Dialog, _Component):
     """Alt+S, Panel > Setup Panel: DOS Navigator's ``dlgPanelSetup``, *Panel Options*.
 
     *Panel Defaults* for one panel, with the file mask where that dialog has
-    the left panel's kind: laid out as ``FMDefaultsDialog`` is, so the two
+    the left panel's kind: laid out as ``FMDefaultsPage`` is, so the two
     read alike, with its captions -- *Group* is *Type* here too.  Help is left
     out, having nothing to show yet.  *Reverse order* is not DN's.
     """

@@ -80,6 +80,7 @@ _COMPONENTS = {
     "StackLayout": "layout.stack_layout",
     "StaticText": "dialog.static_text",
     "SubMenu": "menu.sub_menu",
+    "TabView": "dialog.tab_view",
     "TimeButton": "dialog.time_button",
     "TimeField": "dialog.time_field",
     "TimePicker": "dialog.time_button",
@@ -170,6 +171,7 @@ if TYPE_CHECKING:
     from navml.widgets.menu.menu_item import MenuItem
     from navml.widgets.menu.menu_line import MenuLine
     from navml.widgets.menu.sub_menu import SubMenu
+    from navml.widgets.dialog.tab_view import TabView
     from navml.widgets.dialog.modal import Modal
     from navml.widgets.menu.popup_menu import PopupMenu
     from navml.widgets.dialog.radio_buttons import RadioButtons

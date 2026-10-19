@@ -17,6 +17,9 @@ MaskedField(HorizontalLayout):
     #: Which digits a place takes, ``0`` to ``base - 1``.
     property base: 10
 
+    #: Whether PgUp and PgDn step the line by ten, or pass on outward.
+    property page_keys: True
+
     #: The text in the line.
     alias value: entry.value
 
@@ -31,3 +34,4 @@ MaskedField(HorizontalLayout):
         id: entry
         mask: parent.mask
         base: parent.base
+        page_keys: parent.page_keys

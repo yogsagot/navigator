@@ -100,10 +100,10 @@ def test_every_failure_is_logged_with_its_traceback(nav):
 
 
 def test_system_setup_chooses_what_a_failure_does():
-    from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    from navigator.widgets.setup.system_setup_page import SystemSetupPage
 
     SETTINGS.system.on_error = "dialog"
-    box = SystemSetupDialog()
+    box = SystemSetupPage()
     assert box.on_error.value == 0
     box.on_error.value = 1
     assert box.accept()["on_error"] == "crash"

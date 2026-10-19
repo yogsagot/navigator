@@ -250,7 +250,7 @@ cursor on it; `FileSaved` re-reads the other panels.
 ## Panel Options (Alt+S)
 
 `PanelSetup`, `Manager.panel_setup`, DN's `cmPanelSetup` -> `Setup` (also Panel > Setup Panel): `PanelSetupDialog`
-(`dlgPanelSetup`, laid out as `FMDefaultsDialog` plus *File mask*, history `file_mask`) opens on the panel's own
+(`dlgPanelSetup`, laid out as `FMDefaultsPage` plus *File mask*, history `file_mask`) opens on the panel's own
 values and OK is `Panel.set_options(sort, display, mask)`: one re-read keeping the cursor. **`Panel.display`** is None
 while the panel follows the *New Manager defaults* live and a frozenset of `PanelDefaultsData.DISPLAY` names once set;
 ask `Panel.shows(option)`, never `SETTINGS.panel_defaults` directly. **`Panel.file_mask`** (DN's `FileMask`, `*` for

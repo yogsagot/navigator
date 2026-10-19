@@ -363,6 +363,11 @@ class InterfaceData(Section):
         "", doc="The language captions and messages are in: a catalogue's code "
                 "(en, lv, ...), or empty to follow $LANG",
     )
+    #: Not DN's, which had no Options > Settings to put tabs in.
+    settings_tabs: str = Setting(
+        "top", choices=("top", "left"),
+        doc="Where Options > Settings shows its tabs: a row on top, or a column on the left",
+    )
 
 
 class ConfirmsData(Section):

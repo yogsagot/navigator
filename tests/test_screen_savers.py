@@ -16,7 +16,7 @@ from navkit.screen import ScreenBuffer
 from navigator.lib.appearance import savers
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.widgets.setup.savers_dialog import SaversDialog
+from navigator.widgets.setup.settings_dialog import SettingsDialog
 from navigator.widgets.shell.commands import SaversSetup, ScreenRest
 from navigator.widgets.shell.screen_saver import KINDS, ScreenSaver
 
@@ -140,19 +140,19 @@ def test_the_dialog_adds_and_removes_and_saves(place):
     seen = {}
 
     def work(a):
-        dialog = a.modal
+        dialog = a.modal.savers
         seen["available"] = list(dialog.offered.items)
         dialog.offered.cursor = 2  # Clock
         a.post_event(KeyEvent("a", alt=True))
 
     def more(a):
-        dialog = a.modal
+        dialog = a.modal.savers
         dialog.offered.cursor = 3  # Blackness
         a.post_event(KeyEvent("a", alt=True))
         a.post_event(KeyEvent("a", alt=True))  # once only
 
     def drop_first(a):
-        dialog = a.modal
+        dialog = a.modal.savers
         seen["both"] = list(dialog.chosen.items)
         dialog.chosen.cursor = 0
         a.post_event(KeyEvent("r", alt=True))
@@ -160,7 +160,7 @@ def test_the_dialog_adds_and_removes_and_saves(place):
         dialog.mouse.value = 1
 
     run_app(app, [lambda a: a.spawn(a.run_command(SaversSetup)),
-                  Until(lambda a: isinstance(a.modal, SaversDialog)), work, more, lambda a: None, drop_first,
+                  Until(lambda a: isinstance(a.modal, SettingsDialog)), work, more, lambda a: None, drop_first,
                   lambda a: None, KeyEvent("k", alt=True), Until(lambda a: a.modal is None)])
     assert seen["available"][:4] == ["∙ Star flight", "∙ Flash-light", "∙ Clock", "∙ Blackness"]
     assert seen["both"] == ["∙ Clock", "∙ Blackness"]

@@ -1,4 +1,4 @@
-"""The dialog group's commands: what ``Dialog`` and ``TreeView`` handle.
+"""The dialog group's commands: what ``Dialog``, ``TabView`` and ``TreeView`` handle.
 
 Turbo Vision's ``cmCancel`` and ``cmDefault``, and Tab and Shift+Tab, which
 are commands here where Turbo Vision had ``TGroup`` select the next view
@@ -32,6 +32,18 @@ class SelectPrevious(Command):
     """Move the keyboard to the previous control."""
 
 
+class NextTab(Command):
+    """Show the next page of a tabbed dialog."""
+
+    title = "Next tab"
+
+
+class PreviousTab(Command):
+    """Show the previous page of a tabbed dialog."""
+
+    title = "Previous tab"
+
+
 class QuickSearch(Command):
     """Ctrl+S: type the start of a name and the cursor jumps to it.
 
@@ -48,6 +60,8 @@ class QuickSearch(Command):
 __all__ = [
     "Cancel",
     "Default",
+    "NextTab",
+    "PreviousTab",
     "QuickSearch",
     "SelectNext",
     "SelectPrevious",

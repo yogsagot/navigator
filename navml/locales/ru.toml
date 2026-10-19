@@ -44,7 +44,11 @@ name = "Русский"
 " Text " = " Текст "
 # navml/widgets/dialog/commands.py:24
 "OK" = "OK"
-# navml/widgets/dialog/commands.py:45
+# navml/widgets/dialog/commands.py:38
+"Next tab" = "Следующая вкладка"
+# navml/widgets/dialog/commands.py:44
+"Previous tab" = "Предыдущая вкладка"
+# navml/widgets/dialog/commands.py:57
 "Search" = "Поиск"
 # navml/widgets/dialog/date_button/date_button.py:68
 "January" = "Январь"

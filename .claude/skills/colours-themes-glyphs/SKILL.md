@@ -78,7 +78,7 @@ still win. Executables [173] and Archives [174] are DN's slots; the rest are `DE
 [175-181]. `filetypes.matches` is also what *Select group* reads masks with.
 
 The five custom masks (`filetypes.CUSTOM`, everything but `archive`) are DN's `CustomMask1`..`5`: **Options > File
-Manager > Highlight groups** (`HighlightGroups`, `HighlightDialog`, `[highlight_groups]`) edits them, and
+Manager > Highlight groups** (`HighlightGroups`, `HighlightPage` in *Settings*, `[highlight_groups]`) edits them, and
 `Shell._use_highlight_groups` (an effect) hands them to `filetypes.use_masks`, which re-indexes and clears the
 `lru_cache`s, then re-reads every panel when they changed (DN's `cmPanelReread`): colour and *Group* order both come
 from them. `CATEGORIES` stays the defaults; the masks in force are module state, which conftest puts back.

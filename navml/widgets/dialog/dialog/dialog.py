@@ -153,7 +153,8 @@ class Dialog(Modal):
     # -- focus ---------------------------------------------------------------
 
     def focusable(self) -> list[Widget]:
-        """The tab order, with this dialog's own buttons last.
+        """The tab order, with this dialog's own buttons last -- but for a
+        widget saying ``focus_last``, which comes after them.
 
         A generated ``__init__`` calls ``super().__init__()`` first, so a
         *derived* dialog's controls are built after this one's buttons and
@@ -164,7 +165,11 @@ class Dialog(Modal):
         """
         order = super().focusable()
         mine = [w for w in self.buttons_row if w in order]
-        return [w for w in order if w not in mine] + mine
+        # And after them, what asks to come last: a tab strip, which the
+        # tree puts before the pages it holds, is reached past Cancel and
+        # left for the page's first control.
+        last = [w for w in order if w not in mine and getattr(w, "focus_last", False)]
+        return [w for w in order if w not in mine and w not in last] + mine + last
 
     async def activate_shortcut(self, letter: str) -> bool:
         """Alt+*letter* to the first control answering to it, this dialog's own

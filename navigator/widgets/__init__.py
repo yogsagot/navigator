@@ -51,7 +51,7 @@ _WIDGETS = {
     "BookmarkLabelDialog": "manager.bookmark_label_dialog",
     "ChangeDirDialog": "tree.change_dir_dialog",
     "Clock": "shell.clock",
-    "ConfirmationsDialog": "setup.confirmations_dialog",
+    "ConfirmationsPage": "setup.confirmations_page",
     "CopyDialog": "file_ops.copy_dialog",
     "CopyProgress": "file_ops.copy_progress",
     "CommandLine": "shell.command_line",
@@ -61,7 +61,7 @@ _WIDGETS = {
     "Console": "shell.console",
     "DirEntry": "manager.panel",
     "DirectoryTree": "tree.directory_tree",
-    "EditorDefaultsDialog": "setup.editor_defaults_dialog",
+    "EditorDefaultsPage": "setup.editor_defaults_page",
     "EditFileDialog": "editor.edit_file_dialog",
     "EditWindow": "editor.edit_window",
     "EraseQuery": "file_ops.erase_query",
@@ -77,10 +77,10 @@ _WIDGETS = {
     "FileRecordList": "shell.file_record_list",
     "FileViewer": "viewer.file_viewer",
     "FileWindow": "viewer.file_window",
-    "FMDefaultsDialog": "setup.fm_defaults_dialog",
-    "FMSetupDialog": "setup.fm_setup_dialog",
+    "FMDefaultsPage": "setup.fm_defaults_page",
+    "FMSetupPage": "setup.fm_setup_page",
     "GotoDialog": "viewer.goto_dialog",
-    "InterfaceDialog": "setup.interface_dialog",
+    "InterfacePage": "setup.interface_page",
     "KeyBar": "shell.keybar",
     "LinkDialog": "file_ops.link_dialog",
     "MainMenu": "shell.main_menu",
@@ -92,8 +92,8 @@ _WIDGETS = {
     "SearchProgress": "viewer.search_progress",
     "SelectDialog": "manager.select_dialog",
     "Shell": "shell.shell",
-    "StartupDialog": "setup.startup_dialog",
-    "SystemSetupDialog": "setup.system_setup_dialog",
+    "StartupPage": "setup.startup_page",
+    "SystemSetupPage": "setup.system_setup_page",
     "TreeWindow": "tree.tree_window",
     "VolumesWindow": "shell.volumes_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
@@ -163,12 +163,12 @@ if TYPE_CHECKING:
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.shell.volumes_window import VolumesWindow
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
-    from navigator.widgets.setup.confirmations_dialog import ConfirmationsDialog
-    from navigator.widgets.setup.editor_defaults_dialog import EditorDefaultsDialog
-    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
-    from navigator.widgets.setup.fm_setup_dialog import FMSetupDialog
-    from navigator.widgets.setup.interface_dialog import InterfaceDialog
-    from navigator.widgets.setup.startup_dialog import StartupDialog
-    from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    from navigator.widgets.setup.confirmations_page import ConfirmationsPage
+    from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage
+    from navigator.widgets.setup.fm_defaults_page import FMDefaultsPage
+    from navigator.widgets.setup.fm_setup_page import FMSetupPage
+    from navigator.widgets.setup.interface_page import InterfacePage
+    from navigator.widgets.setup.startup_page import StartupPage
+    from navigator.widgets.setup.system_setup_page import SystemSetupPage
     from navigator.widgets.shell.error_dialog import ErrorDialog
     from navigator.widgets.shell.exit_dialog import ExitDialog

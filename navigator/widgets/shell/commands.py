@@ -267,8 +267,18 @@ __all__ = [
 
 # -- Options > Configuration and Options > File Manager ---------------------------
 #
-# Each opens one setup dialog over a section of ``navigator.ini``
-# (:mod:`navigator.settings`) and saves that section when it is accepted.
+# Each opens *Settings* on its own page -- once a dialog of its own over a
+# section of ``navigator.ini`` (:mod:`navigator.settings`) -- and OK saves the
+# sections that changed.
+
+
+class Settings(Command):
+    """Options > Settings: every setup page behind one row of tabs.
+
+    Not DN's, which had a dialog to each; it opens on the first page.
+    """
+
+    title = "Settings"
 
 
 class SystemSetup(Command):

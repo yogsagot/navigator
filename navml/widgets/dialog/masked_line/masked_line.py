@@ -101,6 +101,10 @@ class MaskedLine(InputLine):
     #: Which digits a place takes, ``0`` to ``base - 1``, and what the plain
     #: stepping carries in.
     base: int = reactive(10)
+    #: Whether PgUp and PgDn step the place by ten.  Off, they pass on
+    #: outward, as an unbound key does: a number on a page of tabs gives them
+    #: to the tabs.  Up and Down still step it by one.
+    page_keys: bool = reactive(True)
 
     # -- the places ----------------------------------------------------------
 
@@ -204,6 +208,8 @@ class MaskedLine(InputLine):
         if event.alt or event.matches("tab", "shift+tab", "escape", "enter"):
             return False
         steps = {"up": 1, "down": -1, "pageup": 10, "pagedown": -10}
+        if event.name in ("pageup", "pagedown") and not self.page_keys:
+            return False
         if event.name in steps:
             self.step_place(steps[event.name])
             return True

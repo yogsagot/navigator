@@ -60,21 +60,21 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
   it seeds each new editor/viewer, which Editor > Options / View switch.
 - **Sections are named after DN's records**, the dialogs after DN's `dlg*` resources, and the commands after DN's `cm*`:
 
-| Section | Class (DN record) | Dialog (`navigator/widgets/setup/`) | Command |
+| Section | Class (DN record) | Page (`navigator/widgets/setup/`, DN's dialog) | Command (opens that page) |
 |---|---|---|---|
 | `[appearance]` | `AppearanceData` (the flags) | none | none |
-| `[system]` | `SystemData` | `SystemSetupDialog` (`dlgSystemSetup`) | `SystemSetup` |
-| `[startup]` | `StartupData` | `StartupDialog` (`dlgStartupSetup`) | `StartupSetup` (`cmStartup`) |
-| `[interface]` | `InterfaceData` | `InterfaceDialog` (`dlgInterfaceSetup`) | `InterfaceSetup` |
-| `[confirmations]` | `ConfirmsData` | `ConfirmationsDialog` (`dlgConfirmations`) | `SetupConfirmation` |
-| `[editor]` + `[viewer]` | `EditorDefaultsData`, `ViewerDefaultsData` | `EditorDefaultsDialog` (`dlgEditorDefaults`) | `EditorDefaults` |
-| `[file_manager]` | `FMSetupData` | `FMSetupDialog` (`dlgFMSetup`) | `FileManagerSetup` (`cmFMSetup`) |
-| `[panel_defaults]` | `PanelDefaultsData` | `FMDefaultsDialog` (`dlgFMDefaults`) | `FileManagerDefaults` (`cmFMDefaults`) |
-| `[drive_info]` | `DriveInfoData` | `DriveInfoDialog` (`dlgDriveInfoSetup`) | `DriveInfoSetup` |
-| `[column_defaults]` | `ColumnDefaultsData` (`ColumnsDefaults`) | `ColumnDefaultsDialog` (`dlgColumnsDefaults`) | `ColumnDefaults` (`cmColumnDefaults`) |
-| `[savers]` | `SaversData` (`TSaversData`) | `SaversDialog` (`TSaversDialog`, built in code in DN) | `SaversSetup` (`cmSaversSetup`); ≡ > Screen rest is `ScreenRest` |
+| `[system]` | `SystemData` | `SystemSetupPage` (`dlgSystemSetup`) | `SystemSetup` |
+| `[startup]` | `StartupData` | `StartupPage` (`dlgStartupSetup`) | `StartupSetup` (`cmStartup`) |
+| `[interface]` | `InterfaceData` | `InterfacePage` (`dlgInterfaceSetup`) | `InterfaceSetup` |
+| `[confirmations]` | `ConfirmsData` | `ConfirmationsPage` (`dlgConfirmations`) | `SetupConfirmation` |
+| `[editor]` + `[viewer]` | `EditorDefaultsData`, `ViewerDefaultsData` | `EditorDefaultsPage` (`dlgEditorDefaults`) | `EditorDefaults` |
+| `[file_manager]` | `FMSetupData` | `FMSetupPage` (`dlgFMSetup`) | `FileManagerSetup` (`cmFMSetup`) |
+| `[panel_defaults]` | `PanelDefaultsData` | `FMDefaultsPage` (`dlgFMDefaults`) | `FileManagerDefaults` (`cmFMDefaults`) |
+| `[drive_info]` | `DriveInfoData` | `DriveInfoPage` (`dlgDriveInfoSetup`) | `DriveInfoSetup` |
+| `[column_defaults]` | `ColumnDefaultsData` (`ColumnsDefaults`) | `ColumnDefaultsPage` (`dlgColumnsDefaults`) | `ColumnDefaults` (`cmColumnDefaults`) |
+| `[savers]` | `SaversData` (`TSaversData`) | `SaversPage` (`TSaversDialog`, built in code in DN) | `SaversSetup` (`cmSaversSetup`); ≡ > Screen rest is `ScreenRest` |
 | `[uucode]` | `UUCodeData` (`TUUEncodeData`, `UUDecodeOptions`) | `UUEncodeDialog`, `UUDecodeDialog` (`dlgUUEncode`, `dlgUUDecode`, under `file_ops/`) | `UuEncode`, `UuDecode` -- saved by `Manager._keep_uucode`, not `Shell.setup` |
-| `[highlight_groups]` | `HighlightGroupsData` (`CustomMask1`..`5`) | `HighlightDialog` (`dlgHighlightGroups`) | `HighlightGroups` (`cmHighlightGroups`) |
+| `[highlight_groups]` | `HighlightGroupsData` (`CustomMask1`..`5`) | `HighlightPage` (`dlgHighlightGroups`) | `HighlightGroups` (`cmHighlightGroups`) |
 
 `FMSetup` would be handled by `on_f_m_setup`, which is why those two commands are spelled out.
 
@@ -114,12 +114,31 @@ note:
 
 ## The dialogs
 
-- **What a dialog does.** Each is a two-half component. `__init__` seeds the controls from its section (an optional
-  section argument, else `SETTINGS.<name>`). `accept()` returns `{key: value}`. `EditorDefaultsDialog` covers two
-  sections and returns `{"editor": {...}, "viewer": {...}}`.
-- **What OK does.** `Shell.setup(dialog, *sections)` spawns the dialog, assigns the answer onto `SETTINGS` (reactive,
-  so bindings repaint), then calls `SETTINGS.save(section=...)`. An `OSError` shows an *Error* box, and the values stay
-  applied for the session.
+- **One dialog, a page per section.** Options > Settings (`SettingsDialog`, `navigator/widgets/setup/settings_dialog/`,
+  command `Settings`) holds the eleven setup pages behind navml's `TabView`. Each menu item under Options >
+  Configuration and Options > File Manager, and its command, still exists and opens it on its own page
+  (`Shell.settings(tab)`). This is a departure: DN had a resource to each. Colors and Key bindings stay dialogs of
+  their own.
+- **What a page does.** Each is a two-half component on a plain `Widget` (`*_page/`, `XPage`), laid out as the dialog
+  it was, from `y: 1` (row 0 is the tab rule). `__init__` seeds the controls from its section (an optional section
+  argument, else `SETTINGS.<name>`). `accept()` returns `{key: value}`. `EditorDefaultsPage` covers two sections and
+  returns `{"editor": {...}, "viewer": {...}}`. Its tab caption (`title`) is given by `settings_dialog.nml`, where a
+  literal is translated live.
+- **Pages by id.** `settings_dialog.PAGES` maps each page id (`interface`, `editor_viewer`, ...) to its sections, and
+  `SECTIONS` lists them all. Reach a page's controls as `dialog.interface.options` or `dialog.page("interface")`.
+- **Size.** It is 76 by 24, so it fits an 80x24 terminal: one scrolled row of tabs over the tallest page (*Panel
+  defaults*). With `interface.settings_tabs = left` it is 80 by 24: a column of at most 20 for the tabs, and 57 left
+  for a page, which every page fits (*File panels*' second column is the tightest). There the tabs' rule runs the
+  frame's whole height into its tees (`TabView.joins_frame`), and OK and Cancel are centred under the pages
+  (`SettingsDialog._buttons_under_pages`, the base's `row` rebound).
+  The Screen savers page keeps *Time* under its lists, as DN had it, with the lists three rows shorter to stay that
+  short.
+- **What OK does.** `Shell.setup(dialog, *sections)` spawns the dialog. For a multi-section answer it keeps only the
+  sections whose values changed. It assigns those onto `SETTINGS` (reactive, so bindings repaint), then calls
+  `SETTINGS.save(section=...)` for each. An `OSError` shows an *Error* box, and the values stay applied for the
+  session. A changed `interface.language` is applied after (`Shell.settings`).
+- **Tests.** Open the dialog with `lambda a: a.spawn(a.run_command(InterfaceSetup))`, then reach the page through
+  `a.modal.interface`. Build a page alone (`InterfacePage(section=...)`) to test its seeding and `accept()`.
 - **Numbers are three-digit `MaskedField`s.** Width is the label plus 5: three digits and the line's two columns.
 
 ## Reading a setting from a widget
@@ -162,6 +181,7 @@ note:
 | `startup.clear_history` | `main()` calls `clear_histories()` before the screen is taken: every unpinned input-line, command and directory history entry and view/edit record goes; pinned ones stay (`ClearHistories`) |
 | `startup.inactivity_exit` | An hour with no key, click or paste (`Navigator.idle_exit_after`, looked at every `idle_check_every`) exits without asking, or runs `$DNIDLE` instead when it is set (`ExecExit`). Not while a command runs on the console, and (a departure) not while an editor holds a changed text. Pointer motion alone does not count, as it never reaches `on_event` |
 | `startup.preserve_directory` | Off (DN's): after a command the active panel follows the shell's directory (`Shell._follow_shell`), and a restored desktop's topmost manager opens its active panel in the current directory -- the start one, or the panel's for Load desktop (`desktop_state.restore(here=)`). On: it keeps its own. DN decided at `Store`; here at restore, so the saved desktop loses nothing |
+| `interface.settings_tabs` | `top` (default) or `left`: where *Settings* puts its tabs (`TabView.side`), read as it opens. `left` widens the box to 80 (`settings_dialog.LEFT_WIDTH`) so a page keeps its width beside the column. Not DN's. Interface's *Settings tabs* radio buttons |
 | `interface.history_size` | 50 (a departure: DN fixed 20): entries kept per history list -- `HISTORY.limit` (set by `Shell._size_histories`) and `FileRecord.store`. A `MaskedField` under Interface Setup's boxes |
 | `confirmations.erase_single` / `erase_multiple` | Off: no Delete dialog, and so no *Recursive delete* |
 | `confirmations.erase_non_empty_dir` / `erase_read_only` | Off: the eraser's question is answered Yes |

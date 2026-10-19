@@ -115,10 +115,11 @@ def test_information_panel_setup_saves_its_boxes(place):
 
     def untick(a):
         seen["title"] = a.modal.title
-        a.modal.options.value &= ~1  # Directory Title
+        seen["shown"] = a.modal.drive_info.visible
+        a.modal.drive_info.options.value &= ~1  # Directory Title
 
     run_app(app, [lambda a: a.spawn(a.run_command(DriveInfoSetup)), lambda a: None, untick,
                   KeyEvent("enter"), lambda a: None])
-    assert seen["title"] == "Information Panel Setup"
+    assert seen["title"] == "Settings" and seen["shown"]
     assert SETTINGS.drive_info.directory_title is False and SETTINGS.drive_info.totals is True
     assert "directory_title = no" in SETTINGS.path.read_text()

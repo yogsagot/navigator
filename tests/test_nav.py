@@ -3263,7 +3263,8 @@ def test_a_nested_menu_shades_the_box_it_opened_from(tree):
         x, y = nested.x + nested.width, nested.y + 1
         seen.append((parent.contains(x, y), buffer.get(x, y)[1] == SHADOW))
 
-    run_app(app, [KeyEvent("o", "o", alt=True), KeyEvent("right"), look])
+    # Down past Settings... to Configuration, then Right opens it.
+    run_app(app, [KeyEvent("o", "o", alt=True), KeyEvent("down"), KeyEvent("right"), look])
     assert seen == [(True, True)]
 
 

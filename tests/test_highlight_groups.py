@@ -10,7 +10,7 @@ from navkit.events import KeyEvent
 from navigator.lib.appearance import filetypes
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.widgets.setup.highlight_dialog.highlight_dialog import tidy
+from navigator.widgets.setup.highlight_page.highlight_page import tidy
 from navigator.widgets.shell.commands import HighlightGroups
 
 
@@ -43,12 +43,13 @@ def test_ok_saves_the_masks_and_the_panels_take_them_at_once(place):
         return {item.name: filetypes.category_of(item.name, item.is_dir, item.type_mark) for item in panel.items}
 
     def edit(a):
-        seen["source"] = a.modal.source.value
-        a.modal.source.value = " *.foo ;"
+        page = a.modal.highlight_groups
+        seen["source"] = page.source.value
+        page.source.value = " *.foo ;"
 
     run_app(app, [lambda a: seen.update(before=classes(a)),
                   lambda a: a.spawn(a.run_command(HighlightGroups)),
-                  Until(lambda a: getattr(a.modal, "title", None) == "Highlight groups", timeout=5),
+                  Until(lambda a: getattr(a.modal, "title", None) == "Settings", timeout=5),
                   edit, KeyEvent("enter"), lambda a: None, lambda a: None,
                   lambda a: seen.update(after=classes(a), token=a.manager.left.reload_token)])
     assert seen["source"] == filetypes.CATEGORIES["source"]

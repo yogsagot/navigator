@@ -80,9 +80,9 @@ def test_no_watchdog_before_the_log_is_open(monkeypatch):
 
 def test_system_setup_sets_the_stall_threshold():
     from navigator.settings import SETTINGS
-    from navigator.widgets.setup.system_setup_dialog import SystemSetupDialog
+    from navigator.widgets.setup.system_setup_page import SystemSetupPage
 
-    box = SystemSetupDialog()
+    box = SystemSetupPage()
     assert box.stall_report.value == "002"
     box.stall_report.value = "010"
     assert box.accept()["stall_report"] == 10

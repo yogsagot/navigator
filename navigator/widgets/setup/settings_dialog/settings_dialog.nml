@@ -1,0 +1,77 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.tab_view import TabView
+from navigator.widgets.setup.column_defaults_page import ColumnDefaultsPage
+from navigator.widgets.setup.confirmations_page import ConfirmationsPage
+from navigator.widgets.setup.drive_info_page import DriveInfoPage
+from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage
+from navigator.widgets.setup.fm_defaults_page import FMDefaultsPage
+from navigator.widgets.setup.fm_setup_page import FMSetupPage
+from navigator.widgets.setup.highlight_page import HighlightPage
+from navigator.widgets.setup.interface_page import InterfacePage
+from navigator.widgets.setup.savers_page import SaversPage
+from navigator.widgets.setup.startup_page import StartupPage
+from navigator.widgets.setup.system_setup_page import SystemSetupPage
+
+#: Options > Settings: every ``navigator.ini`` section's setup in one box,
+#: a page to a tab.  **A departure**: DOS Navigator gave each its own
+#: resource (``dlgSystemSetup``, ``dlgInterfaceSetup``, ...), and each menu
+#: item under Options > Configuration and Options > File Manager still opens
+#: this one on its own page.  The ids are the pages' names, which
+#: :data:`PAGES` maps to the sections they answer for.
+#:
+#: Tall enough for the tallest page (*Panel defaults*) under the one row of
+#: tabs, scrolled between arrows, whose baseline is each page's first row:
+#: 24 rows, so an 80 by 24 terminal shows it whole.  Interface's *Settings
+#: tabs* puts them in a column down the left instead, and the Python half
+#: widens the box to 80 for that.
+SettingsDialog(Dialog):
+    modal_width: 76
+    modal_height: 24
+    title: "Settings"
+
+    #: On top, the whole width over the buttons: the baseline runs from the
+    #: frame's left edge to its right one and meets both.  Down the left, the
+    #: whole height: the rule runs from the frame's top edge to its bottom
+    #: one, and the buttons below the pages are left their clicks, which
+    #: neither the strip nor a page claims.
+    TabView:
+        id: tabs
+        x: 1 if self.side == "left" else 0
+        y: 0 if self.side == "left" else 1
+        width: max(0, parent.width - (2 if self.side == "left" else 0))
+        height: max(0, parent.height - (0 if self.side == "left" else 5))
+        joins_frame: True
+
+        SystemSetupPage:
+            id: system
+            title: "System"
+        StartupPage:
+            id: startup
+            title: "Startup"
+        InterfacePage:
+            id: interface
+            title: "Interface"
+        ConfirmationsPage:
+            id: confirmations
+            title: "Confirmations"
+        SaversPage:
+            id: savers
+            title: "Savers"
+        EditorDefaultsPage:
+            id: editor_viewer
+            title: "Editor/Viewer"
+        FMSetupPage:
+            id: file_manager
+            title: "File panels"
+        DriveInfoPage:
+            id: drive_info
+            title: "Info panel"
+        FMDefaultsPage:
+            id: panel_defaults
+            title: "Panel defaults"
+        ColumnDefaultsPage:
+            id: column_defaults
+            title: "Columns"
+        HighlightPage:
+            id: highlight_groups
+            title: "Highlight"

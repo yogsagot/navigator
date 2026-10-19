@@ -210,7 +210,8 @@ def test_interface_ok_applies_and_saves(tmp_path, quiet_console):
 
     def untick_clock(a):
         seen.append(a.modal)
-        a.modal.options.value = a.modal.options.value & ~1
+        page = a.modal.interface
+        page.options.value = page.options.value & ~1
 
     run_app(app, [
         lambda a: a.spawn(a.run_command(InterfaceSetup)),
@@ -221,7 +222,8 @@ def test_interface_ok_applies_and_saves(tmp_path, quiet_console):
         lambda a: seen.append(a.shell.clock.visible),
     ])
     dialog, clock_visible = seen
-    assert type(dialog).__name__ == "InterfaceDialog"
+    assert type(dialog).__name__ == "SettingsDialog"
+    assert dialog.interface.visible and not dialog.system.visible
     assert SETTINGS.interface.clock is False
     assert clock_visible is False
     assert "clock = no" in config_path().read_text(encoding="utf-8")
@@ -234,8 +236,8 @@ def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_pa
     seen = []
 
     def type_size(a):
-        seen.append(a.modal.history_size.value)
-        a.modal.history_size.value = "007"
+        seen.append(a.modal.interface.history_size.value)
+        a.modal.interface.history_size.value = "007"
 
     run_app(app, [
         lambda a: seen.append(HISTORY.limit),
@@ -251,11 +253,122 @@ def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_pa
     assert "history_size = 7" in config_path().read_text(encoding="utf-8")
 
 
+@pytest.mark.parametrize("command, tab", [
+    ("Settings", "system"),
+    ("SystemSetup", "system"),
+    ("StartupSetup", "startup"),
+    ("InterfaceSetup", "interface"),
+    ("SetupConfirmation", "confirmations"),
+    ("SaversSetup", "savers"),
+    ("EditorDefaults", "editor_viewer"),
+    ("FileManagerSetup", "file_manager"),
+    ("DriveInfoSetup", "drive_info"),
+    ("FileManagerDefaults", "panel_defaults"),
+    ("ColumnDefaults", "column_defaults"),
+    ("HighlightGroups", "highlight_groups"),
+])
+def test_every_setup_command_opens_settings_on_its_own_page(tmp_path, quiet_console, command, tab):
+    from navigator.widgets.shell import commands
+    from navigator.widgets.setup.settings_dialog.settings_dialog import PAGES
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        dialog = a.modal
+        seen.append([name for name in PAGES if dialog.page(name).visible])
+        seen.append(dialog.page(tab).focusable()[0] is a.focused)
+        seen.append((dialog.y >= 0, dialog.y + dialog.height <= 24))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(getattr(commands, command))), lambda a: None, look,
+                  KeyEvent("escape"), lambda a: None])
+    assert seen == [[tab], True, (True, True)]
+
+
+def test_ok_saves_only_the_sections_it_changed(tmp_path, quiet_console, monkeypatch):
+    saved = []
+    monkeypatch.setattr(SETTINGS, "save", lambda path=None, section=None: saved.append(section))
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def change(a):
+        a.modal.interface.options.value &= ~1  # Clock
+        a.modal.editor_viewer.tab_size.value = "004"
+
+    run_app(app, [lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, change,
+                  KeyEvent("enter"), lambda a: None])
+    assert saved == ["interface", "editor"]
+    assert SETTINGS.interface.clock is False and SETTINGS.editor.tab_size == 4
+
+
+def test_interface_chooses_where_settings_puts_its_tabs_the_next_time(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose_left(a):
+        seen.append((a.modal.tabs.side, a.modal.width))
+        a.modal.interface.settings_tabs.value = 1
+
+    def look(a):
+        dialog, tabs = a.modal, a.modal.tabs
+        seen.append((tabs.side, dialog.width, dialog.x))
+        # OK and Cancel centred under the pages, past the column of tabs.
+        seen.append((dialog.row.x, dialog.row.x + dialog.row.width) == (tabs.x + tabs.column + 1, tabs.x + tabs.width))
+        ok, cancel = dialog.ok, dialog.cancel
+        seen.append(ok.x == dialog.row.width - (cancel.x + cancel.width))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, choose_left,
+                  KeyEvent("enter"), lambda a: None,
+                  lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, look,
+                  KeyEvent("escape"), lambda a: None])
+    assert seen == [("top", 76), ("left", 80, 0), True, True]
+    assert SETTINGS.interface.settings_tabs == "left"
+    assert "settings_tabs = left" in config_path().read_text(encoding="utf-8")
+
+
+def test_pgdn_and_pgup_turn_the_pages_from_the_savers_lists_too(tmp_path, quiet_console):
+    from navigator.widgets.shell.commands import SaversSetup
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def where(a):
+        dialog = a.modal
+        seen.append((dialog.tabs.current, type(a.focused).__name__))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(SaversSetup)), lambda a: None, where,
+                  KeyEvent("pagedown"), lambda a: None, where,
+                  KeyEvent("pageup"), lambda a: None, where,
+                  KeyEvent("escape"), lambda a: None])
+    # Savers is the fifth page; it opens on its list, which gives the keys way.
+    assert seen == [(4, "ListViewer"), (5, "CheckBoxes"), (4, "ListViewer")]
+
+
+def test_pgdn_and_pgup_turn_the_pages_from_a_number_field_which_still_steps_with_the_arrows(
+        tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def onto_history_size(a):
+        a.modal.interface.history_size.entry.focus()
+
+    def where(a):
+        seen.append((a.modal.tabs.current, a.modal.interface.history_size.value))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, onto_history_size,
+                  KeyEvent("pagedown"), lambda a: None, where,
+                  KeyEvent("pageup"), lambda a: None, where,
+                  KeyEvent("up"), lambda a: None, where,
+                  KeyEvent("escape"), lambda a: None])
+    # Interface is the third page; the field keeps the keyboard coming back.
+    assert seen[0] == (3, "050") and seen[1] == (2, "050")
+    assert seen[2][0] == 2 and seen[2][1] != "050"
+
+
 def test_cancel_changes_nothing(tmp_path, quiet_console):
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
 
     def untick_everything(a):
-        a.modal.options.value = 0
+        a.modal.confirmations.options.value = 0
 
     run_app(app, [
         lambda a: a.spawn(a.run_command(SetupConfirmation)),
@@ -272,8 +385,8 @@ def test_editor_viewer_saves_both_its_sections(tmp_path, quiet_console):
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
 
     def change(a):
-        a.modal.tab_size.value = "004"
-        a.modal.viewer.value = 0b10  # Wrap lines
+        a.modal.editor_viewer.tab_size.value = "004"
+        a.modal.editor_viewer.viewer.value = 0b10  # Wrap lines
 
     run_app(app, [lambda a: a.spawn(a.run_command(EditorDefaults)), lambda a: None, change, KeyEvent("enter"), lambda a: None])
     assert SETTINGS.editor.tab_size == 4
@@ -292,8 +405,8 @@ def test_the_option_strips_are_on_by_default_and_their_checkboxes_come_last(tmp_
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
 
     def untick(a):
-        a.modal.editor.value &= ~(1 << len(EditorDefaultsData.OPTIONS) - 1)
-        a.modal.viewer.value = 0
+        a.modal.editor_viewer.editor.value &= ~(1 << len(EditorDefaultsData.OPTIONS) - 1)
+        a.modal.editor_viewer.viewer.value = 0
 
     run_app(app, [lambda a: a.spawn(a.run_command(EditorDefaults)), lambda a: None, untick,
                   KeyEvent("enter"), lambda a: None])

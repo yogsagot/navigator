@@ -7,7 +7,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: Alt+S, Panel > Setup Panel: DOS Navigator's ``dlgPanelSetup``, *Panel Options*.
 #:
 #: *Panel Defaults* for one panel, with the file mask where that dialog has
-#: the left panel's kind: laid out as ``FMDefaultsDialog`` is, so the two
+#: the left panel's kind: laid out as ``FMDefaultsPage`` is, so the two
 #: read alike, with its captions -- *Group* is *Type* here too.  Help is left
 #: out, having nothing to show yet.  *Reverse order* is not DN's.
 PanelSetupDialog(Dialog):
@@ -25,7 +25,7 @@ PanelSetupDialog(Dialog):
         link: sort_by
 
     #: Not DN's, which had no descending order: :attr:`Panel.sort_reverse`,
-    #: on the caption's row so the box keeps ``FMDefaultsDialog``'s height.
+    #: on the caption's row so the box keeps ``FMDefaultsPage``'s height.
     CheckBoxes:
         id: reverse
         x: max(0, parent.width - 24)

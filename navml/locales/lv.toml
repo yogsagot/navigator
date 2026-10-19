@@ -44,7 +44,11 @@ name = "Latviešu"
 " Text " = " Teksts "
 # navml/widgets/dialog/commands.py:24
 "OK" = "OK"
-# navml/widgets/dialog/commands.py:45
+# navml/widgets/dialog/commands.py:38
+"Next tab" = "Nākamā cilne"
+# navml/widgets/dialog/commands.py:44
+"Previous tab" = "Iepriekšējā cilne"
+# navml/widgets/dialog/commands.py:57
 "Search" = "Meklēt"
 # navml/widgets/dialog/date_button/date_button.py:68
 "January" = "Janvāris"

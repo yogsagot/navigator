@@ -77,6 +77,50 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   line -- a single frame (the sheet's `border`), `title` two cells in on the top edge with a blank either side (`~A~`
   in `::shortcut`), children placed inside in its own coordinates (the frame is the outer row and column). It never
   takes the keyboard. System Information's four boxes are the first users.
+- **`TabView`** (`navml/widgets/dialog/tab_view/`, Python alone, a `Layout`): pages behind a row of tabs -- not Turbo
+  Vision's, which had none. Every child is a page, its tab captioned by the page's `title`.
+  - **The look.** Each tab is a box drawn in the sheet's `border`, `┌───┐` over `│ Caption │`. The tabs stand on a
+    baseline across the whole width, closed off by `┴` feet. The current tab is double (`╔═╗`, `║`) with its foot
+    open (`╜   ╙`), so it stands raised and joins the page under it.
+  - **One row, scrolled.** When the tabs do not fit, a `◄` at the left edge and a `►` at the right appear, each only
+    while a tab is hidden that way (`can_scroll()`). A click on one, or on top a notch of the wheel anywhere over the
+    tabs, moves the row a tab along (`scroll()`) without changing the current tab. Down the left a notch of the wheel
+    over the column chooses the tab above or below instead, stopping at the ends. The row never ends short with tabs
+    hidden before it (`_start()`). An effect in `mounted()` (`_reveal`) moves `first` to bring the current tab into
+    view however it became current.
+  - **Pages.** `strip_rows` is 2 and **a page's row 0 is the baseline**, as a dialog's is its frame, so a former
+    dialog's layout from `y: 1` carries over unchanged. Pages that are not `current` are hidden, which takes them
+    out of the paint, the tab order and the Alt+letter walk. `select(index)` hides them and focuses the new page's
+    first control in the same call.
+  - **Keys.** The strip takes the keyboard, **last**: `focus_last` puts it after the dialog's own buttons in
+    `Dialog.focusable`, so a dialog still opens on the page's first control, Tab past Cancel reaches the strip, and
+    the next Tab goes into the page (`on_select_next`, taking `SelectNext` only while the strip has the keyboard, so
+    the key stays rebindable; Shift+Tab from the page's first control comes back). While it has the keyboard,
+    Left/Right and Up/Down (either side) step through the tabs, stopping at the ends, and Home/End go to them;
+    `select()` then leaves the keyboard on the strip. Its current caption is drawn `TabView:focused::selected` (a
+    focused button's colour). From anywhere on a page Ctrl+PgDn/Ctrl+PgUp (and Ctrl+Tab/Ctrl+Shift+Tab) are
+    `NextTab`/`PreviousTab` in its key table (`[tab_view]`), wrapping round, and so are plain PgDn/PgUp -- reached only
+    where the control with the keyboard does not take them first (a list pages, a `MaskedLine` steps by 10). A
+    `ListViewer`, `MaskedLine` or `MaskedField` with `page_keys: False` gives them way (the arrows still move it);
+    every list and number field on *Settings*' pages says so. `ListViewer` leaves Ctrl+PgDn to them as
+    it already did Ctrl+PgUp. **Each page remembers its control** that last had the keyboard (`_remember`, an effect on
+    `app.focused` that only records into a plain dict): Ctrl+PgDn/PgUp or a click back to a page returns there if it
+    can still take it, else to the page's first control (`enter_page`); so does Tab from the strip. A click on a tab selects it and moves the keyboard to its page: its top, its caption
+    or its foot on the baseline (`in_strip`). The baseline is the page's row 0, but a page leaves it empty, so the
+    click falls out to the `TabView`.
+  - **Down the left** (`side: "left"`). A tab a row in a `column` (the longest caption plus 3, at most `MAX_COLUMN`
+    20; a longer caption is cut with `glyphs.ellipsis`), an unbroken `│` rule beside it the whole height, and the
+    pages to its right. The current tab has a `►` before it and the selected caption colour. More tabs than rows
+    scroll between `▲` and `▼` in the column's top and bottom rows. With `joins_frame` the `TabView` spans its
+    parent's frame rows: the rule meets the frame in that frame's tees (`joins(parent.border)`: `╤` and `╧` on a
+    double frame), the tabs and pages keep to the rows between, and clicks on the frame rows, or right of the
+    column, fall through to what is behind (the dialog's title and buttons).
+  - **`joins_frame` on top** spans the frame's columns instead: the baseline meets the frame in `╟` and `╢`, the
+    rows above it leave the frame's bars alone, and the tabs, arrows and pages keep to the columns between. The same `first`, `scroll()`, `_reveal` and wheel serve both sides: a
+    tab's size along the strip is its width on top and one row on the left (`_sizes()`, `_length()`).
+  - **Parts.** `tab`, `selected` (a selected label's colour) and `arrow` (the frame icons').
+
+  Navigator's *Settings* is the first user.
 
 ## History
 

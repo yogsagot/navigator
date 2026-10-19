@@ -14,6 +14,7 @@ class MaskedField(HorizontalLayout, _Component):
     label_width: int
     mask: str
     base: int
+    page_keys: bool
     value: str
     caption: Label
     entry: MaskedLine

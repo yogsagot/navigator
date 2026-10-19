@@ -52,6 +52,11 @@ class ListViewer(Control):
     #: its view.
     framed: bool = reactive(True)
 
+    #: Whether PgUp and PgDn page the list.  Off, they pass on outward, as an
+    #: unbound key does: a list on a page of tabs gives them to the tabs.
+    #: The arrows, Home, End and the wheel still move it.
+    page_keys: bool = reactive(True)
+
     @computed
     def inset(self) -> int:
         """Where the rows begin: inside the frame, or at the edge without one."""
@@ -165,11 +170,14 @@ class ListViewer(Control):
             self.move_cursor(-1)
         elif event.key == "down":
             self.move_cursor(1)
+        elif event.key in ("pageup", "pagedown") and not event.ctrl and not self.page_keys:
+            return False
         elif event.key == "pageup" and not event.ctrl:
             # Not Ctrl+PgUp: a file panel's "parent directory", which a list
-            # taking it as PgUp would hide from every key table behind it.
+            # taking it as PgUp would hide from every key table behind it --
+            # and, with Ctrl+PgDn, a tabbed dialog's previous and next page.
             self.move_cursor(-self.page())
-        elif event.key == "pagedown":
+        elif event.key == "pagedown" and not event.ctrl:
             self.move_cursor(self.page())
         elif event.key == "home":
             self.move_cursor(-len(self.items))

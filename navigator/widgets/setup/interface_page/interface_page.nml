@@ -1,0 +1,64 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Options > Configuration > Interface: DOS Navigator's ``dlgInterfaceSetup``.
+#:
+#: The resource's twelve boxes in its two columns of six, at its width; Help
+#: is left out, having nothing to show yet.  *History size* below them is a
+#: departure: DN's lists were a fixed 20 long; so is *Language*, DN's being
+#: the resource set it was installed with.
+InterfacePage:
+    #: The caption on its tab, which *Settings* gives it.
+    property title: ""
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 6
+        items: ["~C~lock", "Hide ~m~enu bar", "Hide ~s~tatus line", "ESC for ~u~ser screen", "Hide Command ~L~ine", "~A~uto hide Command Line", "~B~lock Insert Cursor", "Store edi~t~or position", "Store vie~w~er position", "Track ~e~diting history", "Track ~v~iewing history", "Track ~d~irectories"]
+
+    MaskedField:
+        id: history_size
+        x: 2
+        y: 8
+        width: 20
+        height: 1
+        label_text: "~H~istory size"
+        label_width: 15
+        mask: "999"
+        #: PgUp and PgDn are the tabs' in *Settings*.
+        page_keys: False
+
+    #: Chosen from the catalogues found, never typed.
+    ChoiceField:
+        id: language
+        x: 2
+        y: 10
+        width: 40
+        height: 1
+        label_text: "~L~anguage"
+        label_width: 15
+
+    #: Not DN's: where *Settings* -- this box -- shows its tabs, the next
+    #: time it opens.
+    Label:
+        id: settings_tabs_caption
+        x: 2
+        y: 12
+        width: 15
+        height: 1
+        text: "Settin~g~s tabs"
+        link: settings_tabs
+
+    RadioButtons:
+        id: settings_tabs
+        x: 17
+        y: 12
+        width: 36
+        height: 1
+        items: ["~O~n top", "On the le~f~t"]

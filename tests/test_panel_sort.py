@@ -164,10 +164,10 @@ def test_a_new_panel_takes_the_new_manager_defaults_mode(place):
 
 
 def test_the_new_manager_defaults_dialog_reads_and_answers_the_mode():
-    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+    from navigator.widgets.setup.fm_defaults_page import FMDefaultsPage
 
     SETTINGS.panel_defaults.view_mode = "detailed"
-    dialog = FMDefaultsDialog()
+    dialog = FMDefaultsPage()
     assert dialog.view_mode.value == 1
     dialog.view_mode.value = 2
     assert dialog.accept()["view_mode"] == "list"
@@ -347,11 +347,11 @@ def test_alt_b_offers_each_order_both_ways_ticking_the_panels_own(place):
 
 
 def test_the_new_manager_defaults_dialog_reads_and_answers_the_direction():
-    from navigator.widgets.setup.fm_defaults_dialog import FMDefaultsDialog
+    from navigator.widgets.setup.fm_defaults_page import FMDefaultsPage
 
     SETTINGS.panel_defaults.sort_by = "time"
     SETTINGS.panel_defaults.sort_reverse = True
-    dialog = FMDefaultsDialog()
+    dialog = FMDefaultsPage()
     assert dialog.reverse.value == 1
     assert dialog.sort_by.items[3] == "~T~ime ↑" and dialog.sort_by.items[-1] == "~U~nsorted"
     dialog.reverse.value = 0

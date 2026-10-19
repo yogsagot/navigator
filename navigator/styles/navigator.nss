@@ -203,6 +203,15 @@ StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text
 GroupBox              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; border: single; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 GroupBox::title       { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg; bold: $dialog-label-normal-bold; dim: $dialog-label-normal-dim; italic: $dialog-label-normal-italic; underline: $dialog-label-normal-underline; reverse: $dialog-label-normal-reverse }
 GroupBox::shortcut    { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-shortcut-bg; bold: $dialog-label-shortcut-bold; dim: $dialog-label-shortcut-dim; italic: $dialog-label-shortcut-italic; underline: $dialog-label-shortcut-underline; reverse: $dialog-label-shortcut-reverse }
+/* A tabbed dialog's strip: the tabs' boxes and baseline are the frame's, a
+ * caption a label's and the current one a selected label's, the scrolling
+ * arrows the frame's icons -- no slot of DN's was ever a tab. */
+TabView               { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+TabView::tab          { fg: $dialog-label-normal-fg;     bg: $dialog-label-normal-bg; bold: $dialog-label-normal-bold; dim: $dialog-label-normal-dim; italic: $dialog-label-normal-italic; underline: $dialog-label-normal-underline; reverse: $dialog-label-normal-reverse }
+TabView::selected     { fg: $dialog-label-selected-fg;   bg: $dialog-label-selected-bg; bold: $dialog-label-selected-bold; dim: $dialog-label-selected-dim; italic: $dialog-label-selected-italic; underline: $dialog-label-selected-underline; reverse: $dialog-label-selected-reverse }
+/* The strip with the keyboard: its current tab as a focused button is. */
+TabView:focused::selected { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg; bold: $dialog-button-selected-bold; dim: $dialog-button-selected-dim; italic: $dialog-button-selected-italic; underline: $dialog-button-selected-underline; reverse: $dialog-button-selected-reverse }
+TabView::arrow        { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 
 /* A gauge in `TWhileView''s colour, which is its lines' colour: `GetColor(7)'
  * of `CDialog', and `CGrayDialog' maps entry 7 to [38] *Label normal*, not to

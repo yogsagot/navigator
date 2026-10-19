@@ -130,15 +130,16 @@ def test_the_column_defaults_dialog_saves_its_section(place):
     seen = {}
 
     def untick(a):
-        seen["title"] = a.modal.title
-        seen["before"] = (a.modal.disk.value, a.modal.find.value)
-        a.modal.disk.value = 0b1001
-        a.modal.find.value = 0b10000
+        page = a.modal.column_defaults
+        seen["title"] = page.title
+        seen["before"] = (page.disk.value, page.find.value)
+        page.disk.value = 0b1001
+        page.find.value = 0b10000
 
     run_app(app, [lambda a: a.spawn(a.run_command(ColumnDefaults)),
-                  Until(lambda a: getattr(a.modal, "title", None) == "Column Defaults", timeout=5),
+                  Until(lambda a: getattr(a.modal, "title", None) == "Settings", timeout=5),
                   untick, KeyEvent("enter"), lambda a: None])
-    assert seen["title"] == "Column Defaults" and seen["before"] == (0b1111, 0b11111)
+    assert seen["title"] == "Columns" and seen["before"] == (0b1111, 0b11111)
     assert SETTINGS.column_defaults.columns(False) == {"size", "date"}
     assert SETTINGS.column_defaults.columns(True) == {"path"}
     assert "disk_owner = no" in SETTINGS.path.read_text()

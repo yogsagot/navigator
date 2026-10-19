@@ -47,24 +47,28 @@ class MaskedField(HorizontalLayout, _Component):
     #: Which digits a place takes, ``0`` to ``base - 1``.
     base: int = _reactive(10)    # masked_field.nml:18
 
+    #: Whether PgUp and PgDn step the line by ten, or pass on outward.
+    page_keys: bool = _reactive(True)    # masked_field.nml:21
+
     #: The text in the line.
-    value: str = _Alias("entry", "value")    # masked_field.nml:21
+    value: str = _Alias("entry", "value")    # masked_field.nml:24
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # masked_field.nml:24
-    entry: MaskedLine    # masked_field.nml:31
+    caption: Label    # masked_field.nml:27
+    entry: MaskedLine    # masked_field.nml:34
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # masked_field.nml:23
-        self.entry = MaskedLine(parent=self)    # masked_field.nml:30
+        self.caption = Label(parent=self)    # masked_field.nml:26
+        self.entry = MaskedLine(parent=self)    # masked_field.nml:33
 
-        self.caption.inline_style = _bind(    # masked_field.nml:25
+        self.caption.inline_style = _bind(    # masked_field.nml:28
             lambda _o: 'basis: %d; grow: 0' % _o.parent.label_width
         )
-        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # masked_field.nml:26
-        self.caption.link = _bind(lambda _o: self.entry)    # masked_field.nml:27
-        self.caption.align = 'left'    # masked_field.nml:28
+        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # masked_field.nml:29
+        self.caption.link = _bind(lambda _o: self.entry)    # masked_field.nml:30
+        self.caption.align = 'left'    # masked_field.nml:31
 
-        self.entry.mask = _bind(lambda _o: _o.parent.mask)    # masked_field.nml:32
-        self.entry.base = _bind(lambda _o: _o.parent.base)    # masked_field.nml:33
+        self.entry.mask = _bind(lambda _o: _o.parent.mask)    # masked_field.nml:35
+        self.entry.base = _bind(lambda _o: _o.parent.base)    # masked_field.nml:36
+        self.entry.page_keys = _bind(lambda _o: _o.parent.page_keys)    # masked_field.nml:37

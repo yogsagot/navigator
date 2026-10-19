@@ -25,6 +25,7 @@ class ListViewer(Control, _Component):
     bar: ScrollBar
     error: str | None
     framed: bool
+    page_keys: bool
     parts: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
     inset: int
