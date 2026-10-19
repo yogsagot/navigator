@@ -33,6 +33,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
 from navkit.i18n import tr
 from navkit.process import MARKER
+from navkit.reactive import effect
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
@@ -86,6 +87,7 @@ class Navigator(Application):
         self._on_error = on_error
         #: Whether the error box is up: a failure while it is ends Navigator.
         self._error_shown = False
+        self._watchdog: errorlog.Watchdog | None = None
         #: The last failure written to ``errors.log``, so the one *Quit*
         #: stops on is not written twice.
         self._last_logged: BaseException | None = None
@@ -117,12 +119,22 @@ class Navigator(Application):
             # The start's own file manager, not one a desktop brought back.
             self.manager.apply_left_panel()
         self._last_input = self._now()
+        # System's *stall_report*: a freeze leaves its stacks in errors.log.
+        self._watchdog = errorlog.start_watchdog(self, SETTINGS.system.stall_report)
+        if self._watchdog is not None:
+            effect(self.shell, self._follow_stall_report)
         self.call_every(self.idle_check_every, self._check_idle)
         self.call_every(self.saver_check_every, self._check_saver)
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
         # once its desktop was in place (``RunMenu``).
         if SETTINGS.startup.auto_user_menu:
             self.shell.spawn(self.shell.user_menu())
+
+    def _follow_stall_report(self, _shell: Shell) -> None:
+        """System Setup's *Report a stall after* in force at once: the
+        watchdog's thread reads a plain number, never the setting."""
+        if self._watchdog is not None:
+            self._watchdog.threshold = SETTINGS.system.stall_report
 
     async def _restore_desktop(self) -> None:
         """Startup's *Autosave desktop*: the desktop saved on the way out last
@@ -238,6 +250,8 @@ class Navigator(Application):
             self.fail(error, fatal=True)
 
     async def on_stop(self) -> None:
+        if self._watchdog is not None:
+            self._watchdog.stop()
         # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
         if SETTINGS.startup.autosave_desktop:
             from navigator.lib.config import desktop_state

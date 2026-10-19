@@ -54,7 +54,8 @@ editor's phases.
 - An unexpected exception is never silent. System Setup's *Unexpected failures* (`[system] on_error`, or
   `--on-error {dialog,crash}`) either shows a box with the traceback and Continue/Copy/Quit, or quits printing it with
   status 1. Either way it is appended to `errors.log` beside the database, and `faulthandler` writes hard crashes
-  there too (`navkit-widgets-input` skill, *Failures*)
+  there too. A freeze longer than `[system] stall_report` seconds (default 2) is logged as `STALL`, with the input
+  before it and every stack; `kill -USR1 <pid>` dumps the stacks there by hand (`navkit-widgets-input` skill, *Failures*)
 - Settings live in `$XDG_CONFIG_HOME/navigator/navigator.ini` (else `~/.config/navigator/navigator.ini`), written with
   defaults on first start and rewritten by the Options setup dialogs; `--config PATH` uses another file. A command-line
   flag wins over the file for that session and is never written back

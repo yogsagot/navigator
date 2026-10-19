@@ -37,6 +37,14 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `(type, message)` changes, so one broken window is one box, not one per frame.
 - An effect that fails puts the rest of its batch back on the queue (`Scheduler.flush`), and `_flush_effects` runs
   them in the same turn.
+- **A stall is logged too, though nothing failed.** `_main_loop` sets `handling_since`/`handling` from taking a batch
+  until it is painted, and `_handle` keeps the last 64 input events in `recent_events` (`describe_event`: key names,
+  never paste text; no ticks or bare motion). Navigator's `errorlog.Watchdog`, a daemon thread, reads only those
+  plain fields. When a batch is older than `[system] stall_report` seconds (default 2, 0 off) it writes one `STALL`
+  entry to `errors.log`: the recent input, every thread's stack (faulthandler), and every task's stack, asked of the
+  loop with `call_soon_threadsafe`. When the loop does not answer within 1 s, the entry says the loop thread is
+  blocked (a syscall on the loop: look at the threads); when it answers, a handler is awaiting something (look at the
+  tasks). `STALL ENDED after N s` follows. `kill -USR1 <pid>` dumps every thread's stack there at any moment.
 
 ## Focus and keys
 

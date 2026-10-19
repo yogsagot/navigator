@@ -2,7 +2,9 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
 
 #: Options > Configuration > System Setup: DOS Navigator's ``dlgSystemSetup``.
 #:
@@ -16,10 +18,12 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: the console in Navigator, or hands the real terminal over as mc does.
 #: *Unexpected errors* is another: DN had Turbo Pascal's ``Runtime error``
 #: and no choice, where this picks a box with the traceback or quitting
-#: with it printed -- never nothing (``SystemData.on_error``).
+#: with it printed -- never nothing (``SystemData.on_error``).  *Report a
+#: stall after* is a third: how long Navigator may stop answering before
+#: ``errors.log`` records why (``SystemData.stall_report``).
 SystemSetupDialog(Dialog):
     modal_width: 60
-    modal_height: 16
+    modal_height: 18
     title: "System Setup"
 
     Label:
@@ -73,3 +77,21 @@ SystemSetupDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 1
         items: ["Show a ~m~essage", "~Q~uit with a traceback"]
+
+    MaskedField:
+        id: stall_report
+        x: 3
+        y: 12
+        width: 31
+        height: 1
+        label_text: "Report a ~s~tall after"
+        label_width: 26
+        mask: "999"
+
+    StaticText:
+        id: stall_unit
+        x: 35
+        y: 12
+        width: max(0, parent.width - 38)
+        height: 1
+        text: "seconds (0: never)"

@@ -30,6 +30,7 @@ import math
 import signal
 import threading
 import time
+from collections import deque
 from collections.abc import Awaitable, Callable, Coroutine
 from dataclasses import dataclass
 from typing import Any
@@ -219,6 +220,23 @@ def _is_plain_motion(event: MouseClickEvent) -> bool:
     return event.action == "move" and event.button == "none"
 
 
+def describe_event(event: Event) -> str:
+    """*event* in a few words for a log: a key by its name, a mouse action
+    with its cell, a paste by its length only -- never the text it carried."""
+    if isinstance(event, KeyEvent):
+        return f"key {event.name}"
+    if isinstance(event, MouseClickEvent):
+        return f"{type(event).__name__} {event.button} {event.action} at {event.x},{event.y}"
+    if isinstance(event, PasteEvent):
+        return f"paste of {len(event.text)} characters ({event.origin})"
+    if isinstance(event, ResizeEvent):
+        return f"resize to {event.width}x{event.height}"
+    if isinstance(event, _Tick):
+        callback = event.repeat.callback
+        return f"timer {getattr(callback, '__qualname__', repr(callback))}"
+    return type(event).__name__
+
+
 class Application:
     """Owns the event loop, the terminal and the root of the widget tree."""
 
@@ -335,6 +353,16 @@ class Application:
         #: True while a handler is running, which is what makes waiting for
         #: input from inside one a diagnosable error -- see :meth:`spawn`.
         self._dispatching = False
+        #: ``time.monotonic()`` when the frame loop took the batch it is still
+        #: handling or painting, None while it waits for input; and that
+        #: batch's first event, described.  Plain fields, so a watchdog on
+        #: another thread may read them to tell a stall from an idle loop.
+        self.handling_since: float | None = None
+        self.handling = ""
+        #: The last input events, ``(time.time(), description)``, oldest
+        #: first: what was done before a stall.  Timer ticks, wakes and bare
+        #: pointer motion are left out, and a paste is kept as its length.
+        self.recent_events: deque[tuple[float, str]] = deque(maxlen=64)
         self._signals: list[int] = []
         self._reader_fd: int | None = None
         #: Who the terminal is lent to by :meth:`release_terminal`, or None.
@@ -1068,6 +1096,7 @@ class Application:
         await self._paint()
         while self._running:
             event = await self._events.get()
+            self.handling_since, self.handling = time.monotonic(), describe_event(event)
             await self._handle(event)
             # Drain whatever else arrived in the meantime: a paste or a mouse
             # drag should cost one frame, not one frame per event.  A handler
@@ -1080,6 +1109,7 @@ class Application:
                 self._flush_effects()
             if self._running and self._dirty:
                 await self._paint()
+            self.handling_since = None
 
     async def _paint(self) -> None:
         """:meth:`_render`, where a failure always stops the application.
@@ -1117,6 +1147,10 @@ class Application:
     async def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):
             return
+        if not isinstance(event, _Tick | ModifiersEvent) and not (
+            isinstance(event, MouseClickEvent) and _is_plain_motion(event)
+        ):
+            self.recent_events.append((time.time(), describe_event(event)))
         if isinstance(event, _Tick):
             await self._tick(event.repeat)
             return

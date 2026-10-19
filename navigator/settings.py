@@ -281,6 +281,11 @@ class SystemData(Section):
         "dialog", choices=ON_ERROR,
         doc="An unexpected error shows a box with its traceback, or quits printing it",
     )
+    #: Not DN's: a frame loop busy this long is written to ``errors.log``
+    #: with the input before it and every stack (``errorlog.Watchdog``).
+    stall_report: int = Setting(
+        2, doc="Seconds Navigator may stop responding before errors.log records why; 0 never",
+    )
 
 
 class StartupData(Section):
