@@ -39,8 +39,9 @@ editor's phases.
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Two run-time dependencies, both load-bearing: `pyte`, the VT emulator behind `navkit/console.py`, which is what
-  makes Ctrl+O possible at all, and `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`) —
+- Three run-time dependencies, all load-bearing: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+  makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`), and
+  `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X

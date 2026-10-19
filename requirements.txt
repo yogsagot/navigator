@@ -10,3 +10,8 @@ pyte>=0.8.2
 # At least the release navigator/assets/highlight.ini was generated from
 # (tools/highlight_ini.py), so every lexer it names exists.
 pygments>=2.21
+# watchdog tells a panel that the directory it shows changed on disk
+# (`navigator.lib.system.dirwatch`, Options > File Manager > Setup's *Auto
+# refresh panels*): inotify on Linux through ctypes, FSEvents on macOS, kqueue
+# on the BSDs.  No dependencies of its own, and nothing compiled on Linux.
+watchdog>=6

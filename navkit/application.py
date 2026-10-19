@@ -903,6 +903,25 @@ class Application:
         """
         self._events.put_nowait(event)
 
+    def call_from_thread(self, callback: Callable[..., Any], *args: Any) -> None:
+        """Run *callback* on the loop, from any thread, then let it paint.
+
+        The one way for a thread that is not the loop's -- a file-system
+        watcher, say -- to reach the widgets: it queues the call and returns
+        at once.  Dropped while no loop is running, or once it has closed, so
+        a thread outliving the application has nothing to fail over.
+        """
+        loop = self._loop
+        if loop is None or not self._running:
+            return
+
+        def run() -> None:
+            callback(*args)
+            self.post_event(WakeEvent())
+
+        with contextlib.suppress(RuntimeError):  # the loop has closed
+            loop.call_soon_threadsafe(run)
+
     async def on_start(self) -> None:
         """Called once the terminal is ready, before the first frame.
 

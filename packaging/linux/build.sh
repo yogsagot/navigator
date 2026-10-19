@@ -120,7 +120,7 @@ fi
 # module publishing two names.  This is also the only place the finder meets
 # a real `pip install --target' tree rather than the checkout.
 "$PYTHON" -c "import sys; sys.path.insert(0, '$LIB')
-import navigator, navkit, pyte, pygments.lexers
+import navigator, navkit, pyte, pygments.lexers, watchdog.observers
 import navigator.lib.config.associations  # reads its highlight.ini template, a package asset
 from navml.widgets import Button, Field, Spacer
 from navigator.widgets import DirEntry, Manager, Panel" \

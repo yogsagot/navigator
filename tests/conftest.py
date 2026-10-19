@@ -294,6 +294,17 @@ def _default_keys():
     restore_keys()
 
 
+@pytest.fixture(autouse=True)
+def _no_directory_watches():
+    """Every panel a test mounted stops watching its directory: an application
+    a test leaves running unmounts nothing, and each watch holds an inotify
+    instance, of which a user gets 128."""
+    from navigator.lib.system import dirwatch
+
+    yield
+    dirwatch.shutdown()
+
+
 @pytest.fixture
 def wordstar():
     """The editor's WordStar keys, as ``keybindings_wordstar.ini`` binds them

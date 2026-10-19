@@ -486,7 +486,7 @@ class FMSetupData(Section):
 
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
-        "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir",
+        "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
     )
     DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character")
 
@@ -505,6 +505,9 @@ class FMSetupData(Section):
     bs_upper_dir: bool = Setting(
         True, doc="Backspace goes to the parent directory while the command line is empty",
     )
+    #: Not DN's: it re-read a panel only on ``cmRereadDir`` from whatever
+    #: changed the directory (navigator.lib.system.dirwatch).
+    auto_refresh: bool = Setting(True, doc="A panel re-reads its directory when it changes on disk")
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")

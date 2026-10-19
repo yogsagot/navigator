@@ -49,7 +49,7 @@ from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
 from navigator.lib.config.file_history import remember_windows
-from navigator.lib.system import errorlog
+from navigator.lib.system import dirwatch, errorlog
 from navigator.settings import SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
@@ -261,6 +261,8 @@ class Navigator(Application):
         remember_windows(self.shell.desktop)
         # The shell would otherwise outlive the terminal it was talking to.
         self.shell.console.stop()
+        # Auto refresh's observer: nothing is left to tell of a change.
+        dirwatch.shutdown()
 
     #: Only the keys that mean the same thing wherever the focus is.
     #:

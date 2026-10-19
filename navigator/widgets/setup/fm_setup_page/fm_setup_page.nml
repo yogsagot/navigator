@@ -11,7 +11,8 @@ from navml.widgets.dialog.label import Label
 #: the *Drive line*, and ``descript.ion`` descriptions (*Do not kill
 #: descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
 #: had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
-#: than DN's 57; Help is left out, having nothing to show yet.
+#: than DN's 57; Help is left out, having nothing to show yet.  *Auto refresh
+#: panels* is not DN's (``[file_manager] auto_refresh``).
 FMSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -30,8 +31,8 @@ FMSetupPage:
         x: 2
         y: 2
         width: 33
-        height: 8
-        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory"]
+        height: 9
+        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory", "Auto ~r~efresh panels"]
 
     Label:
         id: display_caption

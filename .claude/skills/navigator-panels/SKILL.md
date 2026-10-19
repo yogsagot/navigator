@@ -35,6 +35,25 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   of the last one the line took or swallowed; each swallowed one restarts the wait, so a held key never gets through.
 - **Enter on an executable runs it**; Ctrl+Enter inserts the name (see `console-command-line`).
 
+## Auto refresh (`[file_manager] auto_refresh`)
+
+- **A panel watches the directory it shows** and re-reads it when that changes on disk. It is on by default, and is the
+  ninth Behavior item in Options > File Manager > Setup. **A departure**: DN re-read a panel only on the `cmRereadDir`
+  that whatever changed the directory broadcast (`RereadDirectory`), so another program's file waited for Ctrl+R.
+- `navigator/lib/system/dirwatch.py` puts one `watchdog` observer behind the whole process, with one **non-recursive**
+  watch per directory however many panels show it (refcounted; the last `Watch.cancel()` unschedules). Only created,
+  deleted, moved and modified pass; watchdog's opened/closed are dropped, or F3 opening a file would re-read its panel.
+  A directory that cannot be watched (the inotify limit, a gone directory, a filesystem with no events) gets an inert
+  `Watch`, and its panel is what it was before.
+- **The notify runs on the observer's thread**, and only calls `Application.call_from_thread(panel._changed_on_disk)`,
+  which queues on the loop and wakes it, and drops the call while no loop runs. `_changed_on_disk` arms one
+  `call_later(REFRESH_DELAY)` (0.3 s), so a burst is a single re-read. `_refresh_now` calls `reload()`, which keeps the
+  cursor, tags and quick search, and it waits again while a slow read is `_pending`.
+- `Panel._watch_directory` is an effect on `path`, `found` and the setting: turning the setting off, or showing a
+  *Find:* listing, stops the watch. With no application it watches nothing, so model tests stay deterministic.
+  `Panel.unmounting()` cancels the watch, `Navigator.on_stop` calls `dirwatch.shutdown()`, and so does an autouse
+  fixture in `tests/conftest.py`, because each watch holds an inotify instance and a user gets 128 of them.
+
 ## View modes (Ctrl+Y, DN's `cmToggleShowMode`)
 
 Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu entry DN never had).

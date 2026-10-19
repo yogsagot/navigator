@@ -36,74 +36,75 @@ class FMSetupPage(_Component):
     the *Drive line*, and ``descript.ion`` descriptions (*Do not kill
     descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
     had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
-    than DN's 57; Help is left out, having nothing to show yet.
+    than DN's 57; Help is left out, having nothing to show yet.  *Auto refresh
+    panels* is not DN's (``[file_manager] auto_refresh``).
     """
 
     #: The document this class was generated from.
     __navml_source__ = "fm_setup_page.nml"
 
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # fm_setup_page.nml:17
+    title: str = _reactive('')    # fm_setup_page.nml:18
 
     #: Ids, annotated so the hand-written half completes them.
-    behavior_caption: Label    # fm_setup_page.nml:20
-    behavior: CheckBoxes    # fm_setup_page.nml:29
-    display_caption: Label    # fm_setup_page.nml:37
-    display: CheckBoxes    # fm_setup_page.nml:46
-    tag_sign: Field    # fm_setup_page.nml:54
+    behavior_caption: Label    # fm_setup_page.nml:21
+    behavior: CheckBoxes    # fm_setup_page.nml:30
+    display_caption: Label    # fm_setup_page.nml:38
+    display: CheckBoxes    # fm_setup_page.nml:47
+    tag_sign: Field    # fm_setup_page.nml:55
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.behavior_caption = Label(parent=self)    # fm_setup_page.nml:19
-        self.behavior = CheckBoxes(parent=self)    # fm_setup_page.nml:28
-        self.display_caption = Label(parent=self)    # fm_setup_page.nml:36
-        self.display = CheckBoxes(parent=self)    # fm_setup_page.nml:45
-        self.tag_sign = Field(parent=self)    # fm_setup_page.nml:53
+        self.behavior_caption = Label(parent=self)    # fm_setup_page.nml:20
+        self.behavior = CheckBoxes(parent=self)    # fm_setup_page.nml:29
+        self.display_caption = Label(parent=self)    # fm_setup_page.nml:37
+        self.display = CheckBoxes(parent=self)    # fm_setup_page.nml:46
+        self.tag_sign = Field(parent=self)    # fm_setup_page.nml:54
 
-        self.behavior_caption.x = 2    # fm_setup_page.nml:21
-        self.behavior_caption.y = 1    # fm_setup_page.nml:22
-        self.behavior_caption.width = 12    # fm_setup_page.nml:23
-        self.behavior_caption.height = 1    # fm_setup_page.nml:24
-        self.behavior_caption.text = _bind(    # fm_setup_page.nml:25
+        self.behavior_caption.x = 2    # fm_setup_page.nml:22
+        self.behavior_caption.y = 1    # fm_setup_page.nml:23
+        self.behavior_caption.width = 12    # fm_setup_page.nml:24
+        self.behavior_caption.height = 1    # fm_setup_page.nml:25
+        self.behavior_caption.text = _bind(    # fm_setup_page.nml:26
             lambda _o: _tr('Behavior'),
             yielding=True,
         )
-        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_page.nml:26
+        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_page.nml:27
 
-        self.behavior.x = 2    # fm_setup_page.nml:30
-        self.behavior.y = 2    # fm_setup_page.nml:31
-        self.behavior.width = 33    # fm_setup_page.nml:32
-        self.behavior.height = 8    # fm_setup_page.nml:33
-        self.behavior.items = _bind(    # fm_setup_page.nml:34
-            lambda _o: [_tr('Auto c~h~ange directory'), _tr('Drag~-~and~-~drop from columns'), _tr('~B~eep after copy'), _tr('~E~NTER opens archive'), _tr('~S~PACE toggles selection'), _tr('~D~EL erases file(s)'), _tr('Use ←/→ ~k~eys'), _tr('BS - go to ~u~pper directory')],
+        self.behavior.x = 2    # fm_setup_page.nml:31
+        self.behavior.y = 2    # fm_setup_page.nml:32
+        self.behavior.width = 33    # fm_setup_page.nml:33
+        self.behavior.height = 9    # fm_setup_page.nml:34
+        self.behavior.items = _bind(    # fm_setup_page.nml:35
+            lambda _o: [_tr('Auto c~h~ange directory'), _tr('Drag~-~and~-~drop from columns'), _tr('~B~eep after copy'), _tr('~E~NTER opens archive'), _tr('~S~PACE toggles selection'), _tr('~D~EL erases file(s)'), _tr('Use ←/→ ~k~eys'), _tr('BS - go to ~u~pper directory'), _tr('Auto ~r~efresh panels')],
             yielding=True,
         )
 
-        self.display_caption.x = 37    # fm_setup_page.nml:38
-        self.display_caption.y = 1    # fm_setup_page.nml:39
-        self.display_caption.width = 12    # fm_setup_page.nml:40
-        self.display_caption.height = 1    # fm_setup_page.nml:41
-        self.display_caption.text = _bind(    # fm_setup_page.nml:42
+        self.display_caption.x = 37    # fm_setup_page.nml:39
+        self.display_caption.y = 1    # fm_setup_page.nml:40
+        self.display_caption.width = 12    # fm_setup_page.nml:41
+        self.display_caption.height = 1    # fm_setup_page.nml:42
+        self.display_caption.text = _bind(    # fm_setup_page.nml:43
             lambda _o: _tr('Display'),
             yielding=True,
         )
-        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_page.nml:43
+        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_page.nml:44
 
-        self.display.x = 37    # fm_setup_page.nml:47
-        self.display.y = 2    # fm_setup_page.nml:48
-        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_page.nml:49
-        self.display.height = 3    # fm_setup_page.nml:50
-        self.display.items = _bind(    # fm_setup_page.nml:51
+        self.display.x = 37    # fm_setup_page.nml:48
+        self.display.y = 2    # fm_setup_page.nml:49
+        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_page.nml:50
+        self.display.height = 3    # fm_setup_page.nml:51
+        self.display.items = _bind(    # fm_setup_page.nml:52
             lambda _o: [_tr('Colu~m~n titles'), _tr('~I~nfo divider'), _tr('~T~ag character')],
             yielding=True,
         )
 
-        self.tag_sign.x = 37    # fm_setup_page.nml:55
-        self.tag_sign.y = 6    # fm_setup_page.nml:56
-        self.tag_sign.width = 16    # fm_setup_page.nml:57
-        self.tag_sign.height = 1    # fm_setup_page.nml:58
-        self.tag_sign.label_text = _bind(    # fm_setup_page.nml:59
+        self.tag_sign.x = 37    # fm_setup_page.nml:56
+        self.tag_sign.y = 6    # fm_setup_page.nml:57
+        self.tag_sign.width = 16    # fm_setup_page.nml:58
+        self.tag_sign.height = 1    # fm_setup_page.nml:59
+        self.tag_sign.label_text = _bind(    # fm_setup_page.nml:60
             lambda _o: _tr('Ta~g~ sign:'),
             yielding=True,
         )
-        self.tag_sign.label_width = 12    # fm_setup_page.nml:60
+        self.tag_sign.label_width = 12    # fm_setup_page.nml:61

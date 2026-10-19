@@ -44,6 +44,7 @@ from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons as icon_glyphs
 from navigator.lib.config.bookmarks import bookmarked_paths
 from navigator.lib.file_ops.fileattr import group_name, user_name
+from navigator.lib.system import dirwatch
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
 
@@ -277,6 +278,11 @@ SCAN_GRACE = 0.05
 #: The threads directories are read on.  More than one, so a read stuck on a
 #: dead mount does not hold up the other panel's.
 _SCANNER = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="nav-scan")
+
+#: How long a change on disk waits for the ones after it before the panel
+#: re-reads (*Auto refresh panels*): a copy of a thousand files is a handful
+#: of re-reads, not a thousand, and one file is still there at once.
+REFRESH_DELAY = 0.3
 
 
 @dataclass
@@ -721,6 +727,10 @@ class Panel(ListViewer):
         self._drag: dict[str, Any] | None = None
         #: What stops the read's directory counting (*Directory length*).
         self._scan_job: ScanJob | None = None
+        #: The directory being watched (*Auto refresh panels*), and the
+        #: re-read a change on it has asked for, waiting out REFRESH_DELAY.
+        self._watch: dirwatch.Watch | None = None
+        self._refresh: asyncio.TimerHandle | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
@@ -737,6 +747,57 @@ class Panel(ListViewer):
         super().mounted()
         effect(self, Panel._end_search_unfocused)
         effect(self, Panel._follow_column_titles)
+        effect(self, Panel._watch_directory)
+
+    def unmounting(self) -> None:
+        self._stop_watching()
+        super().unmounting()
+
+    # -- auto refresh --------------------------------------------------------
+
+    def _watch_directory(self) -> None:
+        """Watch the directory shown, while *Auto refresh panels* is on.
+
+        Not a *Find:* listing, whose entries are from anywhere.  With no
+        application there is no loop to hear a change on, and nothing is
+        watched: a test driving the model reads only when it says so.
+        """
+        path = self.path
+        wanted = SETTINGS.file_manager.auto_refresh and self.found is None
+        with untracked():
+            app = self.application
+            self._stop_watching()
+            if not wanted or app is None:
+                return
+            self._watch = dirwatch.watch(path.absolute(),
+                                         lambda: app.call_from_thread(self._changed_on_disk))
+
+    def _stop_watching(self) -> None:
+        if self._watch is not None:
+            self._watch.cancel()
+            self._watch = None
+        if self._refresh is not None:
+            self._refresh.cancel()
+            self._refresh = None
+
+    def _changed_on_disk(self) -> None:
+        """The watched directory changed: re-read it once the burst is over."""
+        if self._watch is None or self._refresh is not None:
+            return
+        self._refresh = asyncio.get_running_loop().call_later(REFRESH_DELAY, self._refresh_now)
+
+    def _refresh_now(self) -> None:
+        self._refresh = None
+        if self._watch is None:
+            return
+        if self._pending is not None:
+            # A slow directory is still being read: re-read after it, not over it.
+            self._refresh = asyncio.get_running_loop().call_later(REFRESH_DELAY, self._refresh_now)
+            return
+        self.reload()
+        app = self.application
+        if app is not None:
+            app.post_event(WakeEvent())
 
     # -- the listing ---------------------------------------------------------
 
