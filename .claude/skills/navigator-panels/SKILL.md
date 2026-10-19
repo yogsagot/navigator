@@ -326,6 +326,14 @@ same bytes. *Select* tags exactly what has no match (directories never), *Unsele
 what a copy across would bring up to date. Only *contents* reads the disk, on a thread under *Comparing files*; Esc
 leaves the tags. A panel that moved meanwhile is left alone.
 
+## Same directory in other panel (Alt+=)
+
+`EqualizePanels`, `Manager.equalize_panels`, Panel > Same directory in other panel: the passive panel goes to the
+active panel's directory, and the keyboard stays. **A departure**: DN 1.51 had no such command; it is Midnight
+Commander's *Sync panels*. MC's Alt+I is the footer here and every Alt+letter can be a menu-bar accelerator (Alt+O
+opens *Options*), hence Alt+=. The passive side is brought as Alt+F1/F2 bring theirs (`bring_side`: a hidden side is
+shown, the tree or quick view gives way) and leaves a *Find:* listing; greyed while the active panel is one.
+
 ## Swapping panels (Ctrl+U)
 
 `SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change

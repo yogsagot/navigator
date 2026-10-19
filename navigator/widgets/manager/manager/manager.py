@@ -72,6 +72,7 @@ from navigator.widgets.manager.commands import (
     PanelSetup,
     SortBy,
     SwapPanels,
+    EqualizePanels,
     ToggleHidden,
     ToggleInfoLines,
     ToggleMark,
@@ -946,6 +947,10 @@ class Manager(Window):
             if Path(side.path) == place:
                 side.marked = tagged(side.marked, names, request)
 
+    async def on_equalize_panels(self, event: EqualizePanels) -> bool:
+        self.equalize_panels()
+        return True
+
     async def on_swap_panels(self, event: SwapPanels) -> bool:
         self.swap_panels()
         return True
@@ -1091,6 +1096,19 @@ class Manager(Window):
             panel.focus()
             return
 
+    def equalize_panels(self) -> None:
+        """Alt+=: the passive panel on the active panel's directory -- shown,
+        if it was hidden or stood behind the tree or the quick view, as
+        Alt+F1/Alt+F2 bring theirs.  The keyboard stays where it was."""
+        panel = self.active_panel
+        if panel.found is not None:
+            return
+        side = "right" if panel is self.left else "left"
+        other = self.bring_side(side)
+        other.leave_found()
+        other.path = Path(panel.path)
+        panel.focus()
+
     async def change_directory(self) -> None:
         """Alt+T: *Choose Directory*, and the active panel goes where it says.
 
@@ -1158,6 +1176,9 @@ class Manager(Window):
         if isinstance(command, ReadFileList):
             entry = self.active_panel.selected
             return entry is not None and not entry.is_dir
+        if isinstance(command, EqualizePanels):
+            # A *Find:* listing has no one directory to send the other side to.
+            return self.active_panel.found is None
         if isinstance(command, ChangeInactive):
             entry = self.active_panel.selected
             return self.active_panel.found is not None and entry is not None and entry.name != ".."

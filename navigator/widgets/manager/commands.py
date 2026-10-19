@@ -145,6 +145,15 @@ class SwapPanels(Command):
     """
 
 
+class EqualizePanels(Command):
+    """Alt+=: the passive panel goes to the active panel's directory.
+
+    Not DOS Navigator's -- 1.51 had no such command, a departure; Midnight
+    Commander's ``Alt+I`` (*Sync panels*), on a free key since Alt+I is the
+    footer here.  Panel > Same directory in other panel.
+    """
+
+
 class HideInactive(Command):
     """Ctrl+P: hide the side without the keyboard, or show it again.
 

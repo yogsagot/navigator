@@ -3,7 +3,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan
-from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel
+from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -86,6 +86,7 @@ Manager(Window):
         ctrl+l: DiskInfo
         ctrl+p: HideInactive
         ctrl+u: SwapPanels
+        alt+=: EqualizePanels
         alt+g: CountLength
         shift+enter: ChangeInactive
         alt+v: ReadFileList
@@ -240,6 +241,10 @@ Manager(Window):
             text: '~R~e-read'
             command: Rescan
             key: 'Alt-R'
+        MenuItem:
+            text: 'S~a~me directory in other panel'
+            command: EqualizePanels
+            key: 'Alt-='
         MenuItem:
             text: '~Q~uick dirs...'
             command: ListOfDirs
