@@ -29,6 +29,7 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   `Navigator.on_mouse_click`, which returns False while `app.modal` is set.
 - **Backspace goes to the parent** (`GoParent(by_key=True)`, DN's `kbBack` under `fmoBackGoesBack`, `Panel.go_up`,
   cursor on the directory left) while the line is empty; Ctrl+PgUp (`_CtrlPgUp`) and Shift+Backspace whatever it holds.
+  A departure: at the root, where DN did nothing, all three move the cursor to the top, as Home does.
   A departure: the Backspace held or tapped to clear the line does not go on climbing once it is empty --
   `Manager.on_go_parent` swallows it while `CommandLine.holds_backspace()` says it is within `BACKSPACE_RUN` (0.6 s)
   of the last one the line took or swallowed; each swallowed one restarts the wait, so a held key never gets through.

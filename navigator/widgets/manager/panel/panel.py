@@ -971,13 +971,15 @@ class Panel(ListViewer):
         """Go to the parent directory, the cursor on the one just left.
 
         DN's ``_CtrlPgUp``: what choosing ``..`` does, from anywhere in the
-        listing.  At the root there is nowhere to go and nothing happens.
+        listing.  At the root there is nowhere to go, so the cursor goes to
+        the top as Home would -- a departure: DN did nothing there.
         """
         if self.found is not None:
             self.leave_found()
             return
         parent = (self.path / "..").resolve()
         if parent == self.path:
+            self.move_cursor(-len(self.items))
             return
         self._return_to = self.path.name
         self.path = parent

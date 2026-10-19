@@ -1861,12 +1861,15 @@ def test_go_up_lands_on_the_directory_it_left(panel, tree):
     assert panel.selected.name == "alpha"
 
 
-def test_go_up_at_the_root_stays(panel):
+def test_go_up_at_the_root_stays_and_goes_to_the_top(panel):
     panel.path = pathlib.Path("/")
+    settle()
+    panel.cursor = len(panel.items) - 1
     settle()
     panel.go_up()
     settle()
     assert panel.path == pathlib.Path("/")
+    assert panel.cursor == 0
 
 
 def test_backspace_goes_up_while_the_command_line_is_empty(tree):
