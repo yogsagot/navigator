@@ -36,6 +36,7 @@ from navkit.stylesheet import StyleProperty
 
 from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few
@@ -601,7 +602,7 @@ def read_listing(path: Path, show_hidden: bool, sort: str, *, free: bool,
     return entries, error, free_space_of(path) if free and error is None else None
 
 
-class Panel(ListViewer):
+class Panel(ContextMenuHost, ListViewer):
     """One side of the desktop: a directory, listed.
 
     The model is the one :class:`ListViewer` defines -- assign ``path`` and
@@ -725,6 +726,10 @@ class Panel(ListViewer):
         #: A press that may become a drag, or one under way: its row, its
         #: label once the pointer has moved, and the entries it carries.
         self._drag: dict[str, Any] | None = None
+        #: A right-button drag tagging rows, DN's way (*Right button* set to
+        #: select): what every row it passes gets -- tagged or not -- and the
+        #: row it last reached.
+        self._right_mark: tuple[bool, int] | None = None
         #: What stops the read's directory counting (*Directory length*).
         self._scan_job: ScanJob | None = None
         #: The directory being watched (*Auto refresh panels*), and the
@@ -1361,6 +1366,11 @@ class Panel(ListViewer):
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if self._drag is not None and event.action in ("move", "release"):
             return self._dragging(event)
+        if event.button == "right" or self._right_mark is not None:
+            if self._right_mark is not None or (
+                event.action == "press" and self._right_selects()
+            ):
+                return self._right_marking(event)
         if event.action == "press" and not event.is_wheel:
             self.quick_search = None
         taken = await super().on_mouse_click(event)
@@ -1379,6 +1389,148 @@ class Panel(ListViewer):
                 self._drag = {"index": index, "label": None, "entries": None}
                 app.capture_mouse(self)
         return taken
+
+    # -- the right button -----------------------------------------------------
+    #
+    # File Manager Setup's *Right button*: the context menu (the default; see
+    # ``ContextMenuHost``), or DOS Navigator's own use of it, which selected.
+
+    @staticmethod
+    def _right_selects() -> bool:
+        return SETTINGS.file_manager.right_button == "select"
+
+    def _right_marking(self, event: MouseClickEvent) -> bool:
+        """DN's right button: a press toggles the row's tag, and a drag gives
+        every row it passes the same one.
+
+        ``FLPANELX.PAS``: ``MSelect`` when the right button is down,
+        ``SelectFlag := not Selected`` from the row pressed, and the loop
+        applying it to each row the pointer crosses; past the top or the
+        bottom of the rows the list scrolls a row at a time, as it did.
+        ``..`` is never tagged.
+        """
+        app = self.application
+        if event.action == "press":
+            if self.inert:
+                return False
+            self.quick_search = None
+            index = self.index_at(event.x, event.y)
+            if index is None:
+                return True
+            entry = self.items[index]
+            self.cursor = index
+            flag = not self.is_marked(entry)
+            self._tag_rows(index, index, flag)
+            self._right_mark = (flag, index)
+            if app is not None:
+                app.capture_mouse(self)
+            return True
+        if self._right_mark is None:
+            return False
+        flag, last = self._right_mark
+        if event.action == "release":
+            self._right_mark = None
+            return True
+        if event.action != "move":
+            return True
+        index = self.index_at(event.x, event.y)
+        if index is None:
+            row = event.y - self.inset - self.header
+            if row < 0 and last > 0:
+                index = last - 1
+            elif row >= self.rows and last < len(self.items) - 1:
+                index = last + 1
+            else:
+                return True
+        if index != last:
+            step = 1 if index > last else -1
+            self._tag_rows(last + step, index, flag)
+            self.cursor = index
+            self._right_mark = (flag, index)
+        return True
+
+    def _tag_rows(self, first: int, last: int, flag: bool) -> None:
+        """Tag (*flag*) or untag every row from *first* to *last*, either way round."""
+        low, high = min(first, last), max(first, last)
+        keys = {item.key for item in self.items[low:high + 1] if item.name != ".."}
+        if keys:
+            self.marked = (self.marked | keys) if flag else (self.marked - keys)
+
+    # -- the context menu -------------------------------------------------------
+
+    async def on_context_menu(self, event: Any) -> bool:
+        """Declined while the right button selects, which the press did."""
+        if self._right_selects():
+            return False
+        return await super().on_context_menu(event)
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """The cursor to the row clicked, as a left click puts it; the tags
+        stay, and the menu acts on them when there are any."""
+        self.quick_search = None
+        index = self.index_at(x, y)
+        if index is not None:
+            self.cursor = index
+
+    def context_point(self) -> tuple[int, int]:
+        """Under the cursor's row, a little way in from its name."""
+        row = self.cursor - self.scroll + self.inset + self.header
+        if self.view_mode == "list":
+            for first, left, width in self.list_columns:
+                if first <= self.cursor < first + self.rows:
+                    return left + 2, self.cursor - first + self.inset + self.header + 1
+        return 3, min(max(row + 1, 0), max(0, self.height - 1))
+
+    def context_menu(self) -> ContextMenu:
+        """The File menu's everyday operations, for what the click is on.
+
+        What an operation acts on is DN's ``GetSelection``: the tagged
+        entries when there are any, else the one at the cursor.  So *View*
+        and *Edit* are offered for a file with nothing tagged, the copy, move,
+        link, erase and attribute operations for any selection, *Count
+        directory length* for a directory, and *Make directory* and the
+        selection's three always.  Whoever runs the File menu -- ``Manager``
+        -- runs these, from this panel, and greys what does not apply.
+        Built each time, so its captions follow the language.
+        """
+        from navigator.widgets.manager.commands import (
+            ChangeAttributes,
+            Copy,
+            CountLength,
+            Delete,
+            Edit,
+            InvertSelection,
+            MakeDirectory,
+            MakeLink,
+            RenameMove,
+            SelectGroup,
+            UnselectGroup,
+            View,
+        )
+
+        menu = ContextMenu()
+        entry = self.selected
+        tagged = bool(self.marked)
+        on_parent = entry is None or entry.name == ".."
+        if not tagged and not on_parent and not entry.is_dir:
+            menu.add_item(tr("~V~iew"), View)
+            menu.add_item(tr("~E~dit"), Edit)
+            menu.add_line()
+        if tagged or not on_parent:
+            menu.add_item(tr("~C~opy..."), Copy)
+            menu.add_item(tr("~R~ename/Move..."), RenameMove)
+            menu.add_item(tr("Create ~s~ymlink..."), MakeLink)
+            menu.add_item(tr("~D~elete"), Delete)
+            menu.add_item(tr("File ~A~ttributes..."), ChangeAttributes)
+            menu.add_line()
+        if entry is not None and entry.is_dir:
+            menu.add_item(tr("Count directory len~g~th"), CountLength)
+        menu.add_item(tr("~M~ake directory"), MakeDirectory)
+        menu.add_line()
+        menu.add_item(tr("Select grou~p~..."), SelectGroup)
+        menu.add_item(tr("~U~nselect group..."), UnselectGroup)
+        menu.add_item(tr("In~v~ert selection"), InvertSelection)
+        return menu
 
     def _dragging(self, event: MouseClickEvent) -> bool:
         """``DragMover``: the label follows the pointer, and the release drops."""

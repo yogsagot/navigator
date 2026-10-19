@@ -39,6 +39,7 @@ from navkit.widget import Widget
 
 from navml.background import Background, Outcome
 from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.widgets.editor.commands import (
     SwitchHiColumn,
@@ -96,6 +97,8 @@ from navigator.widgets.editor.commands import (
     ClipboardCopy,
     ClipboardCut,
     ClipboardPaste,
+    SaveText,
+    SelectAll,
     DeleteBack,
     DeleteChar,
     DeleteLine,
@@ -315,7 +318,7 @@ WORDSTAR = {
 }
 
 
-class FileEditor(Widget):
+class FileEditor(ContextMenuHost, Widget):
     """The inside of an editor window: a text, its cursor, and the keys that edit it."""
 
     #: ``CFileEditor``'s ten colours, by what they paint.  Its comments,
@@ -2304,6 +2307,9 @@ class FileEditor(Widget):
         if isinstance(command, UnindentBlock) and command.stop:
             # Shift+Tab: the cursor's line, when no block is there to take it.
             return True
+        if isinstance(command, SelectAll):
+            self.revision
+            return any(self.document.lines)
         if isinstance(command, (FJustify, FRight, FLeft, FCenter)):
             # ``not (ValidBlock and BlockVisible) or VertBlock``: a stream block only.
             return self.block is not None and not self.block_hidden
@@ -2352,6 +2358,65 @@ class FileEditor(Widget):
             self.revision += 1
             self._go_column(*before)
         return True
+
+    async def on_select_all(self, event: SelectAll) -> bool:
+        """The whole text as the block -- a departure: DN's editor had no
+        *Select all*, and the context menu offers it as every editor's does.
+        A column block, while vertical blocks are on, as wide as the widest
+        line."""
+        self._unmark()
+        lines = self.document.lines
+        last = len(lines) - 1
+        if self.vertical_blocks:
+            width = max(columns.width(text, self.tab_size) for text in lines)
+            if width:
+                self.column_block = ((0, 0), (last, width))
+        else:
+            self._set_block(Pos(0, 0), Pos(last, len(lines[last])))
+        return True
+
+    # -- the context menu ----------------------------------------------------------
+
+    def context_menu(self) -> ContextMenu:
+        """The Editor menu's first group, the block's most used, and Save.
+
+        Built each time it opens, so its captions follow the language.  Each
+        key is read off the key tables, so a rebinding shows here too.
+        """
+        menu = ContextMenu()
+        menu.add_item(tr("~U~ndo"), Undo)
+        menu.add_line()
+        menu.add_item(tr("Cu~t~"), ClipboardCut)
+        menu.add_item(tr("~C~opy"), ClipboardCopy)
+        menu.add_item(tr("~P~aste"), ClipboardPaste)
+        menu.add_item(tr("C~l~ear"), Clear)
+        menu.add_item(tr("Select ~a~ll"), SelectAll)
+        menu.add_line()
+        menu.add_item(tr("~F~ind..."), StartSearch)
+        menu.add_item(tr("~R~eplace..."), Replace)
+        menu.add_item(tr("~G~o to line..."), GotoLineNumber)
+        menu.add_line()
+        menu.add_item(tr("~I~ndent block"), IndentBlock)
+        menu.add_item(tr("U~n~indent block"), UnindentBlock)
+        case = menu.add_submenu(tr("Change ca~s~e"))
+        case.add_item(tr("~U~pper case"), UpcaseBlock)
+        case.add_item(tr("~L~ower case"), LowcaseBlock)
+        case.add_item(tr("~C~apitalize"), CapitalizeBlock)
+        menu.add_line()
+        menu.add_item(tr("Sa~v~e"), SaveText)
+        return menu
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """A right click outside the block puts the cursor there and drops
+        the block, as a left click does; one inside keeps both, so Cut and
+        Copy act on what was clicked."""
+        line = min(self.top + max(y, 0), len(self.document) - 1)
+        span = self._block_columns(line)
+        if span is not None and span[0] <= self.left + x < span[1]:
+            return
+        self._moved()
+        self._unmark()
+        self._move_to(line, self.left + max(0, x))
 
     # -- keys the table cannot name ------------------------------------------------
 

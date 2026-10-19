@@ -151,32 +151,17 @@ class SwitchInsert(Command):
     """``cmSwitchIns``: Ins -- insert and overwrite (DN's ^V is Paste here)."""
 
 
-class ClipboardCut(Command):
-    """``cmCut``: Shift+Del, Ctrl+X, Ctrl+Alt+X -- the block to the clipboard, and out of the text.
-
-    Not ``Cut``/``Copy``/``Paste``: ``Copy`` is F5's, and a handler named
-    ``on_copy`` or ``on_paste`` would answer that command or a paste event.
-    """
-
-    title = "Cut"
-
-
-class ClipboardCopy(Command):
-    """``cmCopy``: Ctrl+Ins, Ctrl+C, Ctrl+Alt+C -- the block to the clipboard."""
-
-    title = "Copy"
-
-
-class ClipboardPaste(Command):
-    """``cmPaste``: Shift+Ins, Ctrl+V, Ctrl+Alt+V -- the clipboard at the cursor."""
-
-    title = "Paste"
-
-
-class Clear(Command):
-    """``cmClear``: Ctrl+Del, ^K^Y -- the block out of the text, the clipboard untouched."""
-
-    title = "Clear"
+# ``cmCut``, ``cmCopy``, ``cmPaste`` and ``cmClear`` are the library's -- an
+# input line answers them too -- and are named here for the key table and the
+# menus that bind them.  ``SelectAll`` with them: a departure, since DN's
+# editor had no such command.
+from navml.widgets.dialog.commands import (  # noqa: E402 -- re-exported
+    Clear,
+    ClipboardCopy,
+    ClipboardCut,
+    ClipboardPaste,
+    SelectAll,
+)
 
 
 # -- the ^K and ^Q block commands ----------------------------------------------
@@ -582,6 +567,7 @@ __all__ = [
     "ClipboardCopy",
     "ClipboardCut",
     "ClipboardPaste",
+    "SelectAll",
     "EditorMovement",
     "SwitchHiColumn",
     "SwitchHiLine",

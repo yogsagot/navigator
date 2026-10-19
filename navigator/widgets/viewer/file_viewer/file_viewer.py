@@ -31,8 +31,18 @@ from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 from navml.background import Background, Outcome
+from navml.commands import CloseWindow
+from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.lib import highlight
+from navigator.widgets.viewer.commands import (
+    ChooseEncoding,
+    ContinueSearch,
+    GotoAddress,
+    SearchFor,
+    SetViewMode,
+    Unwrap,
+)
 from navigator.settings import SETTINGS
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
@@ -104,7 +114,7 @@ def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: i
     return highlight.lexer_label(lexer), None if spans is None else (start, end, spans)
 
 
-class FileViewer(Widget):
+class FileViewer(ContextMenuHost, Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
 
     #: A search hit, drawn in *Selected text* [118]; a syntax token
@@ -552,6 +562,30 @@ class FileViewer(Widget):
             key = "up" if event.y < self.height // 2 else "down"
         await self.on_key(KeyEvent(key))
         return True
+
+    # -- the context menu --------------------------------------------------------
+
+    def context_menu(self) -> ContextMenu | None:
+        """The View menu's most used entries.  Whoever holds the viewer runs
+        them -- the F3 window; a quick view, which has none of them, greys
+        them all."""
+        if self.source is None:
+            return None
+        menu = ContextMenu()
+        menu.add_item(tr("~T~ext"), SetViewMode("text"))
+        menu.add_item(tr("~H~ex"), SetViewMode("hex"))
+        menu.add_item(tr("~D~ump"), SetViewMode("dump"))
+        menu.add_line()
+        menu.add_item(tr("~W~rap lines"), Unwrap)
+        menu.add_line()
+        menu.add_item(tr("~S~earch..."), SearchFor)
+        menu.add_item(tr("Search a~g~ain"), ContinueSearch)
+        menu.add_item(tr("Go to add~r~ess..."), GotoAddress)
+        menu.add_line()
+        menu.add_item(tr("Encod~i~ng..."), ChooseEncoding)
+        menu.add_line()
+        menu.add_item(tr("~C~lose"), CloseWindow)
+        return menu
 
     # -- syntax highlight --------------------------------------------------------
 

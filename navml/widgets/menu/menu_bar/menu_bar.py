@@ -75,7 +75,7 @@ class MenuBar(MenuContainer, Widget):
         if context is None:
             return own
         for menu in context.children:
-            if not isinstance(menu, SubMenu) or menu.hidden:
+            if not isinstance(menu, SubMenu) or menu.hidden or _is_context(menu):
                 continue
             if menu.before and menu.after:
                 raise ValueError(
@@ -201,3 +201,13 @@ class MenuBar(MenuContainer, Widget):
         self.open(index, drop=True)
         return True
 
+
+def _is_context(menu: SubMenu) -> bool:
+    """Whether *menu* is a widget's context menu, which never joins the bar.
+
+    Imported here rather than at the top: the context menu's module imports
+    the popup, which imports this group's boxes.
+    """
+    from navml.widgets.menu.context_menu.context_menu import ContextMenu
+
+    return isinstance(menu, ContextMenu)

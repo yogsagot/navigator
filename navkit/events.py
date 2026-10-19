@@ -280,6 +280,36 @@ class ClickOutsideEvent(MouseClickEvent):
 
 
 @dataclass(frozen=True, slots=True)
+class ContextMenuEvent(MouseClickEvent):
+    """A right press, offered a second time as a request for a context menu.
+
+    Like :class:`DoubleClickEvent`, a statement about *input* raised after the
+    press it came from: the press is delivered first, as it always was, so a
+    widget that gives the right button a meaning of its own (DOS Navigator's
+    panels selected with it) still has it; then this follows the same route
+    under ``on_context_menu``.  A widget that took the press for itself
+    declines this one by not claiming it.  What a menu *is* belongs to the
+    widget library -- navkit only says where the user asked for one.
+
+    Not raised while a widget holds the mouse capture, nor for a press outside
+    the modal.
+    """
+
+    @classmethod
+    def of(cls, press: MouseClickEvent) -> ContextMenuEvent:
+        """The same press, re-raised as a request for the menu under it."""
+        return cls(
+            x=press.x,
+            y=press.y,
+            button=press.button,
+            action=press.action,
+            ctrl=press.ctrl,
+            alt=press.alt,
+            shift=press.shift,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class ResizeEvent(Event):
     """The terminal window changed size."""
 

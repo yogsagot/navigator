@@ -1443,6 +1443,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.tree.directory_tree",   # Ctrl+T, placed by the manager",
         "navigator.widgets.tree.directory_tree.directory_tree",
         "navigator.widgets.viewer",
+        "navigator.widgets.viewer.commands",   # what its context menu offers
         "navigator.widgets.viewer.file_viewer",
         "navigator.widgets.viewer.file_viewer.file_viewer",
         "navigator.widgets.viewer.quick_viewer",
@@ -2632,6 +2633,8 @@ def test_the_application_keeps_only_what_is_global():
         "enter", "home", "end", "tab",
         # Quick run: DN ran DN.XRN from anywhere on the desktop.
         *(f"ctrl+shift+f{number}" for number in range(1, 11)),
+        # The context menu of whatever holds the keyboard.
+        "menu", "shift+f10",
     }
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help

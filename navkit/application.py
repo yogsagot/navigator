@@ -37,6 +37,7 @@ from typing import Any
 
 from navkit.events import (
     ClickOutsideEvent,
+    ContextMenuEvent,
     DoubleClickEvent,
     Event,
     KeyEvent,
@@ -1217,11 +1218,11 @@ class Application:
                 # DoubleClickEvent is a conclusion *about* presses and is
                 # never counted as one, which bounds the recursion below at
                 # one level.
-                clicks = (
-                    0
-                    if isinstance(event, DoubleClickEvent)
-                    else self._clicks.press(event, self._now())
-                )
+                derived = isinstance(event, (DoubleClickEvent, ContextMenuEvent))
+                clicks = 0 if derived else self._clicks.press(event, self._now())
+                # Taken before delivery: a press that grabs the mouse (a
+                # drag starting) is not asking for a menu.
+                captured_before = self._capture is not None
                 # A press says where the pointer is as well, which keeps the
                 # hover right on a terminal that never reports plain motion.
                 if event.action == "press":
@@ -1234,6 +1235,17 @@ class Application:
                     # it in between.  Through `_handle' so `on_event' sees it,
                     # as it sees the escape key navkit manufactures.
                     await self._handle(DoubleClickEvent.of(event))
+                if (
+                    not derived
+                    and event.button == "right"
+                    and event.action == "press"
+                    and not captured_before
+                    and self._capture is None
+                ):
+                    # After the press and inline, as the double-click is:
+                    # whoever gives the right button a meaning of its own has
+                    # had it, and a press that took the capture declines.
+                    await self._handle(ContextMenuEvent.of(event))
             elif isinstance(event, KeyReleaseEvent):
                 # The focused widget alone, and no key table or walk up: a
                 # release means something only to whoever took the press.
@@ -1372,7 +1384,7 @@ class Application:
         elif (
             event.action == "press"
             and not event.is_wheel
-            and not isinstance(event, DoubleClickEvent)
+            and not isinstance(event, (DoubleClickEvent, ContextMenuEvent))
         ):
             outside = ClickOutsideEvent.of(local).translated(-modal.x, -modal.y)
             handler = getattr(modal, outside.handler, None)
@@ -1425,13 +1437,17 @@ class Application:
         binding = commands.key_table(type(self)).get(event.name)
         return binding is not None and await commands.run(self, binding)
 
-    async def run_command(self, binding: commands.Binding) -> bool:
+    async def run_command(
+        self, binding: commands.Binding, start: Widget | None = None
+    ) -> bool:
         """Ask for a command as if its key had been pressed.
 
         What a key bar button and a menu item call.  False if the command is
-        disabled or nobody claimed it.
+        disabled or nobody claimed it.  *start* asks from a widget other than
+        the focus -- a context menu runs its choice from the widget it was
+        opened over -- see :func:`navkit.commands.origin`.
         """
-        return await commands.run(self, binding)
+        return await commands.run(self, binding, start)
 
     def command_enabled(
         self, binding: commands.Binding, start: Widget | None = None

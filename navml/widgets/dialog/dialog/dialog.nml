@@ -3,6 +3,7 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.dialog.modal import Modal
+from navml.widgets.menu.commands import ShowContextMenu
 
 #: A modal window with an OK and a Cancel, and an answer.
 #:
@@ -39,6 +40,10 @@ Dialog(Modal):
         enter: Default
         tab: SelectNext
         shift+tab: SelectPrevious
+        #: The focused control's context menu, as the global table has it:
+        #: that table stands aside while a dialog is up.
+        menu: ShowContextMenu
+        shift+f10: ShowContextMenu
 
     StaticText:
         id: message

@@ -32,16 +32,35 @@ the primary selection, and a middle click pastes it, as in a terminal.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
+from navkit.commands import Command
+from navkit.events import (
+    ContextMenuEvent,
+    DoubleClickEvent,
+    KeyEvent,
+    MouseClickEvent,
+    PasteEvent,
+)
 from navkit.glyphs import DEFAULT_SCROLLBAR, SCROLLBARS, scrollbar
+from navkit.i18n import tr
 from navkit.reactive import effect, peek, reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.terminal import CURSOR_SHAPES
 
+from navml.widgets.dialog.commands import (
+    Clear,
+    ClipboardCopy,
+    ClipboardCut,
+    ClipboardPaste,
+    SelectAll,
+)
 from navml.widgets.dialog.control import Control
+from navml.widgets.menu.commands import ShowContextMenu
+
+if TYPE_CHECKING:
+    from navml.widgets.menu.context_menu.context_menu import ContextMenu
 
 
 class InputLine(Control):
@@ -172,8 +191,7 @@ class InputLine(Control):
         elif event.matches("shift+delete"):
             if not self.selected_text:
                 return False
-            self.copy(self.selected_text)
-            self._replace_selection("")
+            self.cut()
         elif event.matches("shift+insert", "ctrl+v"):
             self.request_paste()
         elif event.is_printable and event.char:
@@ -274,6 +292,11 @@ class InputLine(Control):
 
     # -- the clipboard -------------------------------------------------------
 
+    def cut(self) -> None:
+        """The selection to the clipboard, and out of the text."""
+        self.copy(self.selected_text)
+        self._replace_selection("")
+
     def copy(self, text: str) -> None:
         app = self.application
         if text and app is not None:
@@ -293,6 +316,94 @@ class InputLine(Control):
         if text:
             self._replace_selection(text)
         return True
+
+    # -- commands: the clipboard's, which the context menu offers ----------------
+    #
+    # The keys above stay in ``on_key``: an input line has no key table, so
+    # they do not appear in ``keybindings.ini``.  The commands are what the
+    # context menu runs, and what a dialog's own menu could.
+
+    def enables(self, command: Command) -> bool:
+        if isinstance(command, (ClipboardCut, Clear)):
+            return not self.inert and bool(self.selected_text)
+        if isinstance(command, ClipboardCopy):
+            # Ctrl+Ins copies the whole line when nothing is selected.
+            return bool(self.selected_text or self.value)
+        if isinstance(command, ClipboardPaste):
+            return not self.inert
+        if isinstance(command, SelectAll):
+            return bool(self.value) and self.selection != (0, len(self.value))
+        return super().enables(command)
+
+    async def on_clipboard_cut(self, command: ClipboardCut) -> bool:
+        self.cut()
+        return True
+
+    async def on_clipboard_copy(self, command: ClipboardCopy) -> bool:
+        self.copy(self.selected_text or self.value)
+        return True
+
+    async def on_clipboard_paste(self, command: ClipboardPaste) -> bool:
+        self.request_paste()
+        return True
+
+    async def on_clear(self, command: Clear) -> bool:
+        self._replace_selection("")
+        return True
+
+    async def on_select_all(self, command: SelectAll) -> bool:
+        self.select_all()
+        return True
+
+    # -- the context menu ---------------------------------------------------------
+    #
+    # ``ContextMenuHost``'s hooks and handlers, written out: a component's
+    # hand-written half has one base, its markup's, so the mixin cannot be
+    # listed beside ``Control``.  The menu's module is imported when a menu
+    # is asked for, so that importing a field does not load the menu group's
+    # components (``test_importing_one_component_does_not_load_the_library``).
+
+    def context_menu(self) -> ContextMenu | None:
+        """Cut, Copy, Paste, Clear and Select all, built each time it opens.
+
+        Built rather than kept: there is one input line in every field of
+        every dialog, and the captions follow a change of language.
+        """
+        from navml.widgets.menu.context_menu.context_menu import ContextMenu
+
+        if self.inert:
+            return None
+        menu = ContextMenu()
+        menu.add_item(tr("Cu~t~"), ClipboardCut, "Shift-Del")
+        menu.add_item(tr("~C~opy"), ClipboardCopy, "Ctrl-Ins")
+        menu.add_item(tr("~P~aste"), ClipboardPaste, "Shift-Ins")
+        menu.add_item(tr("C~l~ear"), Clear)
+        menu.add_line()
+        menu.add_item(tr("Select ~a~ll"), SelectAll)
+        return menu
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """A click outside the selection moves the caret there and drops it,
+        as a left click would; one inside keeps it for Cut and Copy."""
+        start, stop = self.selection
+        index = self._index_at(x)
+        if not start <= index < stop:
+            self._move(index, False)
+
+    def context_point(self) -> tuple[int, int]:
+        from navml.widgets.menu.context_menu.context_menu import default_point
+
+        return default_point(self)
+
+    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
+        from navml.widgets.menu.context_menu.context_menu import open_on_click
+
+        return open_on_click(self, event)
+
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
+        from navml.widgets.menu.context_menu.context_menu import open_on_key
+
+        return open_on_key(self)
 
     async def activate(self, letter: str = "") -> bool:
         """A shortcut aimed at a field means "type here", and selects it all."""

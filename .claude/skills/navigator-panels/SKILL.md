@@ -197,6 +197,12 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   instances that `Manager.enables` disables while the line has text; the menu's instances are unaffected. **The plain
   `+`, `-`, `*` are bound the same way** (mc's rule), because VTE and PyCharm send Gray `+` as bare `+`.
 
+- **The right button** follows File Manager Setup's *Right button* (`[file_manager] right_button`, a departure).
+  `menu`, the default, opens the panel's context menu (`Panel.context_menu`, built from DN's `GetSelection`). `select`
+  is DN's own (`FLPANELX.PAS`): a press toggles the row's tag and captures the mouse, and a drag gives every row it
+  passes the same tag, scrolling past either end (`Panel._right_marking`). The Menu key and Shift+F10 open the menu
+  under either setting.
+
 ## Quick search (Ctrl+S)
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first

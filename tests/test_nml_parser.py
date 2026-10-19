@@ -87,6 +87,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     assert [line.names for line in document.imports] == [
         ("Cancel", "Default", "SelectNext", "SelectPrevious"),
         ("Button",), ("HorizontalLayout",), ("StaticText",), ("Modal",),
+        ("ShowContextMenu",),
     ]
     assert [d.name for d in document.root.declarations] == ["buttons", "prompt", "close_on_outside_click"]
     assert [(b.key, b.command) for b in document.root.keys.bindings] == [
@@ -94,6 +95,8 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         ("enter", "Default"),
         ("tab", "SelectNext"),
         ("shift+tab", "SelectPrevious"),
+        ("menu", "ShowContextMenu"),
+        ("shift+f10", "ShowContextMenu"),
     ]
     assert list(document.ids()) == ["message", "row", "ok", "no", "cancel", "info"]
 
@@ -171,6 +174,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
         ("navml.widgets.layout.horizontal_layout",),
         ("navml.widgets.dialog.static_text",),
         ("navml.widgets.dialog.modal",),
+        ("navml.widgets.menu.commands",),
     ]
     assert [line.source for line in lines] == [
         "from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious",
@@ -178,6 +182,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
         "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
         "from navml.widgets.dialog.static_text import StaticText",
         "from navml.widgets.dialog.modal import Modal",
+        "from navml.widgets.menu.commands import ShowContextMenu",
     ]
 
 

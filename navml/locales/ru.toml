@@ -2,15 +2,15 @@
 name = "Русский"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:71
 "~Y~es" = "~Д~а"
-# navml/widgets/dialog/dialog/dialog.nml:66, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:75
+# navml/widgets/dialog/dialog/dialog.nml:80
 "~N~o" = "~Н~ет"
-# navml/widgets/dialog/dialog/dialog.nml:83
+# navml/widgets/dialog/dialog/dialog.nml:88
 "~C~ancel" = "~О~тмена"
-# navml/widgets/dialog/dialog/dialog.nml:96, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
 "~H~elp" = "~П~омощь"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:20
 "Open file" = "Открыть файл"
@@ -20,7 +20,7 @@ name = "Русский"
 "~F~iles" = "~Ф~айлы"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:60
 "~D~irectories" = "~К~аталоги"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:18
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:19
 "Cancel" = "Отмена"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "Менеджер окон"
@@ -42,14 +42,24 @@ name = "Русский"
 "Close all" = "Закрыть все"
 # navml/widgets/dialog/color_selector/color_selector.py:131
 " Text " = " Текст "
-# navml/widgets/dialog/commands.py:24
+# navml/widgets/dialog/commands.py:25
 "OK" = "OK"
-# navml/widgets/dialog/commands.py:38
+# navml/widgets/dialog/commands.py:39
 "Next tab" = "Следующая вкладка"
-# navml/widgets/dialog/commands.py:44
+# navml/widgets/dialog/commands.py:45
 "Previous tab" = "Предыдущая вкладка"
-# navml/widgets/dialog/commands.py:57
+# navml/widgets/dialog/commands.py:58
 "Search" = "Поиск"
+# navml/widgets/dialog/commands.py:76
+"Cut" = "Вырез."
+# navml/widgets/dialog/commands.py:82
+"Copy" = "Копия"
+# navml/widgets/dialog/commands.py:88
+"Paste" = "Встав."
+# navml/widgets/dialog/commands.py:94
+"Clear" = "Стереть"
+# navml/widgets/dialog/commands.py:104
+"Select all" = "Выделить всё"
 # navml/widgets/dialog/date_button/date_button.py:68
 "January" = "Январь"
 # navml/widgets/dialog/date_button/date_button.py:68
@@ -88,7 +98,7 @@ name = "Русский"
 "Sa" = "Сб"
 # navml/widgets/dialog/date_button/date_button.py:76
 "Su" = "Вс"
-# navml/widgets/dialog/dialog/dialog.py:307
+# navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."
 # navml/widgets/dialog/file_dialog/file_dialog.py:189
 "Invalid file name." = "Неверное имя файла."
@@ -100,5 +110,15 @@ name = "Русский"
 "Directory" = "Каталог"
 # navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:475 ...
 " Search: " = " Поиск: "
+# navml/widgets/dialog/input_line/input_line.py:377
+"Cu~t~" = "В~ы~резать"
+# navml/widgets/dialog/input_line/input_line.py:378
+"~C~opy" = "~К~опировать"
+# navml/widgets/dialog/input_line/input_line.py:379
+"~P~aste" = "~В~ставить"
+# navml/widgets/dialog/input_line/input_line.py:380
+"C~l~ear" = "О~ч~истить"
+# navml/widgets/dialog/input_line/input_line.py:382
+"Select ~a~ll" = "Вы~д~елить всё"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Меню"

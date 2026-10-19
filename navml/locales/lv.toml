@@ -2,15 +2,15 @@
 name = "Latviešu"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:71
 "~Y~es" = "~J~ā"
-# navml/widgets/dialog/dialog/dialog.nml:66, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:75
+# navml/widgets/dialog/dialog/dialog.nml:80
 "~N~o" = "~N~ē"
-# navml/widgets/dialog/dialog/dialog.nml:83
+# navml/widgets/dialog/dialog/dialog.nml:88
 "~C~ancel" = "~A~tcelt"
-# navml/widgets/dialog/dialog/dialog.nml:96, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
 "~H~elp" = "~P~alīdzība"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:20
 "Open file" = "Atvērt failu"
@@ -20,7 +20,7 @@ name = "Latviešu"
 "~F~iles" = "~F~aili"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:60
 "~D~irectories" = "~D~irektorijas"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:18
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:19
 "Cancel" = "Atcelt"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "Logu pārvaldnieks"
@@ -42,14 +42,24 @@ name = "Latviešu"
 "Close all" = "Aizvērt visus"
 # navml/widgets/dialog/color_selector/color_selector.py:131
 " Text " = " Teksts "
-# navml/widgets/dialog/commands.py:24
+# navml/widgets/dialog/commands.py:25
 "OK" = "OK"
-# navml/widgets/dialog/commands.py:38
+# navml/widgets/dialog/commands.py:39
 "Next tab" = "Nākamā cilne"
-# navml/widgets/dialog/commands.py:44
+# navml/widgets/dialog/commands.py:45
 "Previous tab" = "Iepriekšējā cilne"
-# navml/widgets/dialog/commands.py:57
+# navml/widgets/dialog/commands.py:58
 "Search" = "Meklēt"
+# navml/widgets/dialog/commands.py:76
+"Cut" = "Griezt"
+# navml/widgets/dialog/commands.py:82
+"Copy" = "Kopēt"
+# navml/widgets/dialog/commands.py:88
+"Paste" = "Ielīmēt"
+# navml/widgets/dialog/commands.py:94
+"Clear" = "Notīrīt"
+# navml/widgets/dialog/commands.py:104
+"Select all" = "Atlasīt visu"
 # navml/widgets/dialog/date_button/date_button.py:68
 "January" = "Janvāris"
 # navml/widgets/dialog/date_button/date_button.py:68
@@ -88,7 +98,7 @@ name = "Latviešu"
 "Sa" = "Se"
 # navml/widgets/dialog/date_button/date_button.py:76
 "Su" = "Sv"
-# navml/widgets/dialog/dialog/dialog.py:307
+# navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."
 # navml/widgets/dialog/file_dialog/file_dialog.py:189
 "Invalid file name." = "Nederīgs faila vārds."
@@ -100,5 +110,15 @@ name = "Latviešu"
 "Directory" = "Direktorija"
 # navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:475 ...
 " Search: " = " Meklēt: "
+# navml/widgets/dialog/input_line/input_line.py:377
+"Cu~t~" = "~I~zgriezt"
+# navml/widgets/dialog/input_line/input_line.py:378
+"~C~opy" = "~K~opēt"
+# navml/widgets/dialog/input_line/input_line.py:379
+"~P~aste" = "Ie~l~īmēt"
+# navml/widgets/dialog/input_line/input_line.py:380
+"C~l~ear" = "~T~īrīt"
+# navml/widgets/dialog/input_line/input_line.py:382
+"Select ~a~ll" = "Atlasīt ~v~isu"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"

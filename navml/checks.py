@@ -22,7 +22,7 @@ import inspect
 from typing import Iterable, Iterator
 
 from navkit.commands import Command
-from navkit.events import Event, emitted
+from navkit.events import Event, emitted, handler_name
 from navkit.reactive import Computed
 from navkit.stylesheet import (
     PropertySpec,
@@ -470,7 +470,12 @@ def _check_orphans(resolved: Resolved, sibling, component) -> None:
     nothing, and the widget silently dead.
     """
     ids = set(resolved.ids)
-    live = _live_handlers()
+    # The document's imports make its events live, but not the hand-written
+    # half's: a command the ``.py`` imports to answer -- ``ClipboardCopy``,
+    # whose handler ends in ``_copy`` -- is read here, not imported.
+    live = _live_handlers() | {
+        handler_name(name) for name in sibling.imports if name[:1].isupper()
+    }
     for name, method in component.methods.items():
         if name in live or not name.startswith("on_"):
             continue

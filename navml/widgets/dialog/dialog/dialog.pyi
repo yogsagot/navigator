@@ -11,6 +11,7 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.dialog.modal import Modal
+from navml.widgets.menu.commands import ShowContextMenu
 
 import asyncio
 from typing import Any

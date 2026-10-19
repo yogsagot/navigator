@@ -45,6 +45,7 @@ its heading is added here.
   - An open menu is a modal layer -- [`navml-windows-menus/menus.md`](../.claude/skills/navml-windows-menus/reference/menus.md)
   - Every menu has an id, and Python can change it -- [`navml-windows-menus/menus.md`](../.claude/skills/navml-windows-menus/reference/menus.md)
   - A window's own menu joins the bar while it is in use -- [`navml-windows-menus/menus.md`](../.claude/skills/navml-windows-menus/reference/menus.md)
+  - A widget's context menu opens where the user points -- [`navml-windows-menus/menus.md`](../.claude/skills/navml-windows-menus/reference/menus.md)
 - History -- [`navml-library/history.md`](../.claude/skills/navml-library/reference/history.md)
 - Trees -- [`navigator-trees/trees.md`](../.claude/skills/navigator-trees/reference/trees.md)
 - The file viewer -- [`navigator-viewer/file-viewer.md`](../.claude/skills/navigator-viewer/reference/file-viewer.md)

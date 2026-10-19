@@ -88,6 +88,10 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   because `Application._loop.time()` is the only clock event handling can reach; keyed on exact cell and button; counts upward
   (a triple click raises one); forgotten on wheel, resize or modal push/pop. `DOUBLE_CLICK_TIMEOUT` 0.4, overridable via
   `Application(double_click=...)`. Clockless by construction (told `now`).
+- **A right press is offered twice**: as itself, then inline as a `ContextMenuEvent` (`on_context_menu`) along the
+  same route. It is not raised when a widget held the capture before the press, when the press took it, or for a
+  press outside the modal. navkit says where a menu was asked for; navml's `ContextMenuHost` decides what it is
+  (`navml-windows-menus`). `run_command(binding, start=)` runs a command from a widget other than the focus.
 - **The one clock is `Application.call_every(seconds, async_callback)`**, returning a cancellable `Repeat`; callable
   before the loop runs; every tick is posted and awaited inside a dispatch.
 - Hover: a position the application keeps (`hovered` state). `Application.pointer` is the last reported `(x, y)` of

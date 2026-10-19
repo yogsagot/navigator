@@ -547,6 +547,7 @@ def test_importing_one_component_does_not_load_the_library(package):
     ).stdout.split()
     assert loaded == [
         "navml.widgets.dialog",           # the group, which imports nothing
+        "navml.widgets.dialog.commands",  # the clipboard's, the line answers
         "navml.widgets.dialog.control",   # the base both of Field's children
         "navml.widgets.dialog.control.control",  # derive from
         "navml.widgets.dialog.drop_down",  # the base of the list the
@@ -576,6 +577,8 @@ def test_importing_one_component_does_not_load_the_library(package):
         "navml.widgets.layout.horizontal_layout.horizontal_layout",
         "navml.widgets.layout.layout",    # and the base that derives from
         "navml.widgets.layout.layout.layout",
+        "navml.widgets.menu",             # a group again, for the command
+        "navml.widgets.menu.commands",    # that opens the line's context menu
     ]
 
 
@@ -598,7 +601,8 @@ def test_the_lazy_re_exports_are_transparent():
     assert navml.widgets.Spacer is Spacer
     assert "Spacer" in dir(navml.widgets)
     assert navml.widgets.__all__ == [
-        "Button", "Calendar", "CalendarView", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "ColorDisplay", "ColorSelector", "Control",
+        "Button", "Calendar", "CalendarView", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "ColorDisplay", "ColorSelector",
+        "ContextMenu", "ContextMenuHost", "Control",
         "DateButton", "DateField", "Desktop", "Dialog",
         "DockLayout", "DropDown", "Field", "FileDialog", "FileInfoPane", "FileList", "GridLayout", "GroupBox", "History", "HorizontalLayout",
         "InputLine",

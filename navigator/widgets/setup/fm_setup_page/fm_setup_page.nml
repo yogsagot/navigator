@@ -1,6 +1,7 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: Options > File Manager > Setup: DOS Navigator's ``dlgFMSetup``.
 #:
@@ -12,7 +13,8 @@ from navml.widgets.dialog.label import Label
 #: descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
 #: had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
 #: than DN's 57; Help is left out, having nothing to show yet.  *Auto refresh
-#: panels* is not DN's (``[file_manager] auto_refresh``).
+#: panels* is not DN's (``[file_manager] auto_refresh``), nor is *Right
+#: button* (``[file_manager] right_button``): DN's always selected.
 FMSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -59,3 +61,20 @@ FMSetupPage:
         height: 1
         label_text: "Ta~g~ sign:"
         label_width: 12
+
+    Label:
+        id: right_button_caption
+        x: 37
+        y: 8
+        width: 14
+        height: 1
+        text: "Right button"
+        link: right_button
+
+    RadioButtons:
+        id: right_button
+        x: 37
+        y: 9
+        width: max(0, parent.width - 39)
+        height: 2
+        items: ["Conte~x~t menu", "Se~l~ect files"]

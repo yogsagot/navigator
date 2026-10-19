@@ -141,3 +141,47 @@ What is not here yet: the status line has nothing to show while a menu is open, 
 menu's help-context hints. The menu's own key shortcuts are not bound either: `TMenuBar` answered every item's key
 itself, whereas here a key is a key table's, and the menu only reads it.
 
+
+### A widget's context menu opens where the user points
+
+A right click, the Menu key or Shift+F10 opens a box of what the widget under the pointer, or the one holding the
+keyboard, does most. **A departure: DOS Navigator had no context menu.** Its right button meant something different
+in each place. A panel selected with it (`FLPANELX.PAS`), and a dialog pressed its default button.
+
+- **navkit says where, and the library says what.** A right press is delivered as usual. Then, inline as a
+  double-click is, it is offered again as a `ContextMenuEvent`, under `on_context_menu`. It goes along the same
+  route, topmost child first and bubbling out. It is not raised:
+  - while a widget held the capture before the press;
+  - when the press took the capture (a drag starting);
+  - for a press outside the modal.
+
+  A widget that gives the right button a meaning of its own uses the press and declines the second delivery.
+- **`ContextMenuHost` is the mixin, and `context_menu()` its hook** (`navml/widgets/menu/context_menu/`). The mixin
+  answers `on_context_menu` and `ShowContextMenu`, the keyboard command. A host overrides:
+  - `context_menu()`: by default its first visible `ContextMenu` child; None means no menu, and the event bubbles on;
+  - `prepare_context(x, y)`: moves its cursor to the click (the panel's row, the editor's caret, an input line's caret
+    unless the click is inside the selection);
+  - `context_point()`: where the keyboard opens the box (by default one row under the caret).
+- **A component cannot take the mixin.** Its hand-written half has one base, its markup's. `InputLine` therefore
+  writes the hooks and the two handlers out, calling `open_on_click`/`open_on_key`. It imports the menu module only
+  when a menu is asked for, so a field still loads none of the menu group's components.
+- **The choice runs from the host**, through `app.run_command(item.command, start=host)`. It is greyed from there
+  too, because the box is opened with `behind=host`. A click on the passive panel focuses it first, so it becomes the
+  active one, and Copy copies its files.
+- **The opening click's release chooses nothing.** `PopupMenu(buttons=("left", "right"))` lets the right button
+  choose: a press or a drag onto an entry arms it, and the release chooses. The release of the click that opened the
+  box finds it unarmed.
+- **A `ContextMenu` never joins the bar**, even as a child of the window `MenuBar.context` names; `entries()` skips it.
+- **Keys.** `menu` and `shift+f10` are bound in the application's table and in `Dialog`'s, because the application's
+  table stands aside for a modal. The command bubbles from the focus to the nearest host. The global table is
+  disabled while a program holds the console, so the program gets Shift+F10. The command has no title, so it takes
+  no room on the key bar.
+- **Hosts and menus**, each built when it opens so its captions follow the language:
+
+  | Host | Entries |
+  |---|---|
+  | `InputLine` | Cut, Copy, Paste, Clear, Select all: the dialog group's clipboard commands, which the editor shares |
+  | `FileEditor` | Undo, the clipboard, Select all (a departure: DN's editor had none), Find, Replace, Go to line, Indent, Unindent, case, Save |
+  | `Panel` | DN's `GetSelection` decides the entries: View/Edit for a file with nothing tagged, the operations for any selection, *Count directory length* for a directory, then Make directory and the three selection entries |
+  | `FileViewer` | Text/Hex/Dump, Wrap, Search, Search again, Go to address, Encoding, Close |
+  | `Console` | Copy, Paste, Clear selection. It keeps the keyboard where it was (`context_focus = False`), and has no menu while a program has the mouse |

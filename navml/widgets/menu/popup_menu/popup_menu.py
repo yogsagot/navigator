@@ -23,6 +23,11 @@ columns in and one row under the entry, Esc or Left closes the top box, and
 the answer is the :class:`MenuItem` chosen at whatever depth.  :attr:`box`
 stays the first box; :attr:`boxes` is the open stack.
 
+**A caller can add buttons** (``buttons=("left", "right")``), as a context
+menu does: then a press with that button, a drag along the entries and a
+release on one chooses it.  The release of the click that opened the box does
+not choose, because the box may have opened under the pointer.
+
 **A caller can add keys** (``keys=("ctrl+up",)``): one of them closes the box
 answering with the entry selected in the top box, enabled or not, and :attr:`PopupMenu.pressed`
 names the key -- so the caller can act on that entry and open the box again,
@@ -72,7 +77,8 @@ class PopupMenu(Widget):
 
     def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
                  current: int = -1, behind: Widget | None = None,
-                 keys: tuple[str, ...] = (), title: str = "", **kwargs: Any) -> None:
+                 keys: tuple[str, ...] = (), title: str = "",
+                 buttons: tuple[str, ...] = ("left",), **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.menu = menu if menu is not None else SubMenu()
         #: The caption in the first box's top frame; empty for none.
@@ -87,6 +93,13 @@ class PopupMenu(Widget):
         self.behind = behind
         #: Keys that close the box on the entry selected; see the module.
         self.keys = keys
+        #: The mouse buttons that choose; a context menu adds ``right``.
+        self.buttons = buttons
+        #: Whether a button has pressed or moved onto an entry since the box
+        #: opened.  Until it has, its release chooses nothing:
+        #: the release of the right click that opened a context menu would
+        #: otherwise choose whatever the box put under the pointer.
+        self._dragged = False
         #: Which of :attr:`keys` closed it, or None if it was not one of them.
         self.pressed: str | None = None
         #: The index of the entry selected when the box closed.
@@ -236,7 +249,13 @@ class PopupMenu(Widget):
         if event.button in ("wheel_up", "wheel_down"):
             boxes[-1].move(-1 if event.button == "wheel_up" else 1)
             return True
-        if event.button != "left" or event.is_wheel:
+        if event.is_wheel or event.button == "none":
+            return True
+        if event.button not in self.buttons:
+            # Any other button pressed outside still closes, as a click does.
+            box = next((b for b in boxes if b.contains(event.x, event.y)), None)
+            if event.action == "press" and box is None:
+                self.close(None)
             return True
         box = next((b for b in reversed(boxes) if b.contains(event.x, event.y)), None)
         if box is not None:
@@ -247,8 +266,11 @@ class PopupMenu(Widget):
             inside = box.x + 2 <= event.x < box.x + box.width - 2
             if row >= 0 and inside and box.selectable(row):
                 if event.action == "release":
-                    self.choose(row, box)
+                    if event.button == "left" or self._dragged:
+                        self.choose(row, box)
                 else:
+                    # A press or a drag onto an entry, after the opening click.
+                    self._dragged = True
                     box.current = row
             return True
         if event.action == "press":

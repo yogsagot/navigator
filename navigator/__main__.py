@@ -44,7 +44,7 @@ from navigator.lib.config.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.lib.system.title import window_title
-from navml.widgets.menu.commands import OpenMenu
+from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
 from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
@@ -316,6 +316,12 @@ class Navigator(Application):
         "ctrl+f2": HideRight,
         "f1": Help,
         "f10": OpenMenu,
+        #: The context menu of whatever holds the keyboard -- the PC's Menu
+        #: key and Shift+F10.  Not DN's: it had no context menu, and its
+        #: Shift+F10 was defined (``kbShiftF10``) but bound to nothing.  A
+        #: dialog binds them too, since this table stands aside for one.
+        "menu": ShowContextMenu,
+        "shift+f10": ShowContextMenu,
         #: Utilities > *Character table*, DN's ``kbCtrlB``.  An editor's ^B^V
         #: chord keeps Ctrl+B for itself, as DN's editor table did.
         "ctrl+b": AsciiTable,

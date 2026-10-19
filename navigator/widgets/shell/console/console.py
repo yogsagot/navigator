@@ -15,7 +15,10 @@ from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.reactive import effect, reactive
 from navkit.screen import Cell, Surface
 from navkit.terminal import encode_key, encode_mouse
+from navkit.i18n import tr
 from navkit.widget import Widget
+from navml.widgets.dialog.commands import Clear, ClipboardCopy, ClipboardPaste
+from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.lib.system.subshell import Subshell
 
@@ -42,7 +45,7 @@ def prompt_cells(data: bytes) -> tuple[Cell, ...]:
     return tuple(surface.get(x, 0) for x in range(screen.screen.cursor.x))
 
 
-class Console(Widget):
+class Console(ContextMenuHost, Widget):
     """The screen a program Navigator started paints on.
 
     This is what Ctrl+O reveals.  DOS Navigator could show the last command's
@@ -278,6 +281,44 @@ class Console(Widget):
         if not text or app is None:
             return False
         app.copy_to_clipboard(text, primary=primary)
+        return True
+
+    # -- the context menu --------------------------------------------------------
+
+    #: The keyboard stays with the command line, as it does for a left click.
+    context_focus = False
+
+    def context_menu(self) -> ContextMenu | None:
+        """Copy, Paste and Clear selection -- or nothing while a program has
+        the mouse, which has the right click too."""
+        if self.tracks_mouse and self.subshell.is_running:
+            return None
+        menu = ContextMenu()
+        menu.add_item(tr("~C~opy"), ClipboardCopy, "Ctrl-Ins")
+        menu.add_item(tr("~P~aste"), ClipboardPaste)
+        menu.add_line()
+        menu.add_item(tr("C~l~ear selection"), Clear, "Esc")
+        return menu
+
+    def enables(self, command: Any) -> bool:
+        if isinstance(command, (ClipboardCopy, Clear)):
+            return self.selection is not None
+        return super().enables(command)
+
+    async def on_clipboard_copy(self, command: ClipboardCopy) -> bool:
+        self._copy_selection()
+        return True
+
+    async def on_clipboard_paste(self, command: ClipboardPaste) -> bool:
+        """Ask for the clipboard: it arrives as a paste, and goes wherever the
+        terminal's own paste would -- to the program, or the command line."""
+        app = self.application
+        if app is not None:
+            app.request_clipboard()
+        return True
+
+    async def on_clear(self, command: Clear) -> bool:
+        self.clear_selection()
         return True
 
     def copy_key(self, event: KeyEvent) -> bool:

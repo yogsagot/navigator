@@ -8,6 +8,7 @@ language in :mod:`navml` or about the file manager built on top of both.
 from navkit.application import Application
 from navkit.events import (
     ClickOutsideEvent,
+    ContextMenuEvent,
     DoubleClickEvent,
     Event,
     KeyEvent,
@@ -42,6 +43,7 @@ __all__ = [
     "Application",
     "Binding",
     "ClickOutsideEvent",
+    "ContextMenuEvent",
     "CycleError",
     "DEFAULT_STYLE",
     "Declaration",

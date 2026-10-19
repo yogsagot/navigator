@@ -512,6 +512,14 @@ class FMSetupData(Section):
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")
     tag_sign: str = Setting("√", doc="Tag sign; empty means √")
+    #: Not DN's choice to make: its right button always selected
+    #: (``FLPANELX.PAS``), and Navigator's opens the context menu unless this
+    #: says ``select``.  The keyboard's Menu key and Shift+F10 open the menu
+    #: either way.
+    right_button: str = Setting(
+        "menu", choices=("menu", "select"),
+        doc="The right mouse button in a panel: its context menu, or DN's selecting",
+    )
 
 
 class PanelDefaultsData(Section):
