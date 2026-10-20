@@ -52,6 +52,11 @@ def test_a_chunk_not_here_is_asked_for_and_said_when_it_lands(memory):
         with pytest.raises(NotYet):
             source.read(0, 100)
         assert landed.wait(2)
+        # Two fetchers: the read-ahead chunk 1 may land (and say so) before chunk 0.
+        for _ in range(100):
+            if source.ready(0, 20):
+                break
+            time.sleep(0.02)
         assert source.read(0, 20) == b"line 000000 of the l"
         # Read ahead: the chunks after the first were asked for with it.
         for _ in range(100):
