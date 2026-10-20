@@ -378,7 +378,7 @@ class ConfirmsData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "erase_single", "erase_multiple", "erase_non_empty_dir", "erase_read_only",
-        "create_dir", "drag_and_drop", "exit",
+        "create_dir", "drag_and_drop", "exit", "save",
     )
 
     erase_single: bool = Setting(True, doc="Ask before erasing a single file")
@@ -388,6 +388,8 @@ class ConfirmsData(Section):
     create_dir: bool = Setting(False, doc="Ask before creating a missing target directory")
     drag_and_drop: bool = Setting(False, doc="The Copy dialog before files dropped with the mouse are copied")
     exit: bool = Setting(True, doc="Ask before quitting Navigator")
+    #: A departure, asked for: DN's F2 wrote at once and had no such box.
+    save: bool = Setting(True, doc="Ask before the editor's F2 (Ctrl+S) saves a file")
 
 
 class EditorDefaultsData(Section):

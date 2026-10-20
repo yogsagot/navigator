@@ -180,8 +180,26 @@ class EditWindow(Window):
 
     async def on_save_text(self, event: SaveText) -> bool:
         """F2: ``cmSaveText``.  A failure is said, and the text stays changed."""
-        self.spawn(self.save())
+        self.spawn(self._confirm_save())
         return True
+
+    async def _confirm_save(self) -> None:
+        """*Confirm file save* first, under Confirmations' *Editor file save*.
+
+        A departure, asked for: DN's F2 wrote at once.  Only F2 (and Ctrl+S)
+        asks -- Save all, and the Yes of closing's *Save?*, have been asked
+        already.
+        """
+        if SETTINGS.confirmations.save:
+            path = self.editor.path
+            answer = await Dialog(
+                title=tr("Confirm file save"),
+                prompt=tr("Save file {name}?").format(name=path.name if path is not None else ""),
+                buttons="yes-no",
+            ).execute(self.application)
+            if answer is not True:
+                return
+        await self.save()
 
     async def save(self) -> bool:
         """Write the file; say why not if it cannot be.  True when written."""

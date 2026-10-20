@@ -274,6 +274,36 @@ def test_typing_edits_and_f2_writes_the_bytes_back(files):
     assert not editor_window(app).editor.modified
 
 
+def test_f2_asks_confirm_file_save_and_yes_writes(files):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.confirmations.save = True
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *typed("!"), lambda a: None, KeyEvent("f2"), lambda a: None,
+                  lambda a: seen.update(title=a.modal.title if a.modal else None,
+                                        prompt=a.modal.prompt if a.modal else "",
+                                        data=(files / "text.txt").read_bytes()),
+                  KeyEvent("y", alt=True), IDLE])
+    assert seen["title"] == "Confirm file save" and "text.txt" in seen["prompt"]
+    assert seen["data"] == b"first line\r\nsecond\tline\r\n"
+    assert (files / "text.txt").read_bytes() == b"!first line\r\nsecond\tline\r\n"
+    assert not editor_window(app).editor.modified
+
+
+def test_no_to_confirm_file_save_leaves_the_file_and_the_text_changed(files):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.confirmations.save = True
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+                  *typed("!"), lambda a: None, KeyEvent("s", ctrl=True), lambda a: None,
+                  KeyEvent("n", alt=True), IDLE])
+    assert (files / "text.txt").read_bytes() == b"first line\r\nsecond\tline\r\n"
+    assert editor_window(app).editor.modified
+
+
 def test_ctrl_s_saves_by_default(files):
     # A departure: Ctrl+S was WordStar's cursor left (keybindings_wordstar.ini).
     app = navigator(files)

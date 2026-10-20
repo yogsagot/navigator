@@ -149,6 +149,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   *Append* (a departure: appending the whole text elsewhere and then editing that file under its name lost what was on
   disk at the next F2), puts a read-only file's mode back, and the window takes the new name; `FileSaved` re-reads
   panels. `_check_for_over` is shared with ^K W, which keeps *Append*.
+- **Confirm file save** (a departure, asked for: DN's F2 wrote at once): F2 and Ctrl+S (`SaveText`) ask *Save file
+  NAME?* (Yes/No, `EditWindow._confirm_save`) under Options > Confirmations' *Editor file save*
+  (`[confirmations] save`, on by default). Save all and the Yes of closing's *Save?* do not ask again. conftest turns
+  it off so F2 writes at once in tests; a test of the box sets it back on.
 - **Save all, Ctrl+F2** (`SaveAll`, DN's `cmSaveAll`, a `GlobalMessage` of `cmSaveText`; also Editor > File): every
   editor window, this one first and the rest front to back, saved as F2 saves, each failure said and the rest going
   on. A departure: only changed texts are written, where DN's `SaveFile` rewrote every one. The application's Ctrl+F2

@@ -337,6 +337,9 @@ def _default_settings(monkeypatch, tmp_path):
     # A failure fails the test rather than opening a box nobody answers; the
     # box is tested where it is chosen.
     SETTINGS.system.on_error = "crash"
+    # F2 writes at once, as the editor tests were written against; *Confirm
+    # file save* is tested where it is chosen.
+    SETTINGS.confirmations.save = False
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()
