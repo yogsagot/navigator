@@ -37,6 +37,9 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
   tokens (`FileEditor::token`, `FileViewer::token`): their classes are the Pygments type's pieces, so
   `::token.keyword.constant` outranks `::token.keyword` by plain specificity. Resolve a part once per frame per
   class set, not per cell -- `part_style` walks the sheet's state names on every call.
+- A widget's own class or state may name only a part (`EditWindow.modified::title`, `Panel:active::row`): the part
+  cache (`Widget._part_styles`) follows `classes` as a dependency and puts the live states in its key, so either
+  restyles the part though the widget's own style never moves.
 - A widget may carry its own sheet in `stylesheet` (what an object brings, assigned); `effective_stylesheet` (derived)
   walks up to the nearest, ending at the application's. `Manager` uses this, so the desktop is styled with or without an
   application around it.

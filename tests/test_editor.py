@@ -304,6 +304,25 @@ def test_no_to_confirm_file_save_leaves_the_file_and_the_text_changed(files):
     assert editor_window(app).editor.modified
 
 
+def test_a_changed_text_marks_the_title_in_yellow_until_saved(files):
+    from navkit.stylesheet import COLOR_NAMES
+
+    app = navigator(files)
+    seen = []
+
+    def look(a):
+        window = editor_window(a)
+        seen.append((window.title, "modified" in window.classes, window.part_style("title").fg))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look,
+                  *typed("!"), lambda a: None, look, KeyEvent("f2"), IDLE, look])
+    name = f"Edit - {files / 'text.txt'}"
+    yellow = COLOR_NAMES["yellow"]
+    assert seen[0][:2] == (name, False) and seen[0][2] != yellow
+    assert seen[1][0] in (f"☼ {name}", f"* {name}") and seen[1][1:] == (True, yellow)
+    assert seen[2] == (name, False, seen[0][2])
+
+
 def test_ctrl_s_saves_by_default(files):
     # A departure: Ctrl+S was WordStar's cursor left (keybindings_wordstar.ini).
     app = navigator(files)

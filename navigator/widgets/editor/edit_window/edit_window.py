@@ -20,9 +20,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind
+from navkit.reactive import bind, effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
@@ -97,11 +98,33 @@ class EditWindow(Window):
         fill_file_types(self.edit_menu_file_type, self)
         self.options.items = editor_items(self.editor)
 
+    def mounted(self) -> None:
+        super().mounted()
+        effect(self, EditWindow._follow_modified)
+
+    def _follow_modified(self) -> None:
+        """``.modified`` while the text is changed, which ``EditWindow.modified::title`` turns yellow.
+
+        A departure, asked for: DN marked a changed text on the info line alone.
+        """
+        if self.editor.modified:
+            self.add_class("modified")
+        else:
+            self.remove_class("modified")
+
     def _title(self) -> str:
-        """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own."""
+        """``dlEditTitle`` -- ``Edit - `` and the whole name -- or SmartPad's own.
+
+        A changed text puts the info line's mark in front (a departure, asked
+        for, with the yellow title: DN's title never changed).
+        """
         if self.smartpad:
-            return tr("SmartPad(TM) - {path}").format(path=self.editor.path)
-        return tr("Edit - {path}").format(path=self.editor.path)
+            title = tr("SmartPad(TM) - {path}").format(path=self.editor.path)
+        else:
+            title = tr("Edit - {path}").format(path=self.editor.path)
+        if self.editor.modified:
+            title = ("☼ " if self.editor.glyphs >= GLYPHS_UNICODE else "* ") + title
+        return title
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,

@@ -405,6 +405,17 @@ def test_a_part_state_composes_with_the_owners_state():
     assert app.root.part_style("row", selected=True) == Style(fg=1)
 
 
+def test_a_class_naming_only_a_part_restyles_it():
+    # No ``Panel.wide`` rule, so the widget's own style never moves: the part
+    # cache has to follow the classes themselves.
+    app = Application(Panel(), stylesheet=parse("Panel.wide::row { fg: red }"))
+    assert app.root.part_style("row").fg is None
+    app.root.add_class("wide")
+    assert app.root.part_style("row").fg == 1
+    app.root.remove_class("wide")
+    assert app.root.part_style("row").fg is None
+
+
 # -- reactivity -------------------------------------------------------------
 
 

@@ -387,7 +387,11 @@ class Widget:
         nothing here would be marked stale when it flips.  The widget's live
         states therefore go into the cache *key* rather than being relied on as
         a dependency, so a stale entry cannot be returned in the first place.
+        A class naming only a part (``EditWindow.modified::title``) is the
+        same trap the other way round, and rarer, so the classes are read as a
+        dependency: a tag added or taken off rebuilds the resolver.
         """
+        self.classes  # noqa: B018 -- what the resolver also follows
         sheet, base = self.effective_stylesheet, self.style
         cache: dict[tuple[Any, ...], Style] = {}
 

@@ -451,6 +451,9 @@ EditWindow                                     { fg: $editor-frame-passive-fg; b
 EditWindow:active                              { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
 EditWindow::title                              { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
 EditWindow:active::title                       { fg: $editor-frame-title-fg;   bg: $editor-frame-title-bg; bold: $editor-frame-title-bold; dim: $editor-frame-title-dim; italic: $editor-frame-title-italic; underline: $editor-frame-title-underline; reverse: $editor-frame-title-reverse }
+/* A changed text writes the title in yellow (a departure, asked for: DN
+   marked it on the info line alone). */
+EditWindow.modified::title                     { fg: yellow }
 EditWindow::icon                               { fg: $editor-frame-icons-fg;   bg: $editor-frame-icons-bg; bold: $editor-frame-icons-bold; dim: $editor-frame-icons-dim; italic: $editor-frame-icons-italic; underline: $editor-frame-icons-underline; reverse: $editor-frame-icons-reverse }
 EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
 /* A departure: (↕) under Vertical blocks, the info line's colours reversed --

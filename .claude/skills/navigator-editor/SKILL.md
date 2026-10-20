@@ -149,6 +149,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   *Append* (a departure: appending the whole text elsewhere and then editing that file under its name lost what was on
   disk at the next F2), puts a read-only file's mode back, and the window takes the new name; `FileSaved` re-reads
   panels. `_check_for_over` is shared with ^K W, which keeps *Append*.
+- **A changed text shows in the title** (a departure, asked for: DN showed it on the info line alone): `_title()` puts
+  the info line's mark in front (`☼ `, `* ` in ascii), which Window > List shows too, and `_follow_modified` (an
+  effect from `mounted()`) tags the window `.modified`, so `EditWindow.modified::title { fg: yellow }` writes the title
+  in yellow.
 - **Confirm file save** (a departure, asked for: DN's F2 wrote at once): F2 and Ctrl+S (`SaveText`) ask *Save file
   NAME?* (Yes/No, `EditWindow._confirm_save`) under Options > Confirmations' *Editor file save*
   (`[confirmations] save`, on by default). Save all and the Yes of closing's *Save?* do not ask again. conftest turns

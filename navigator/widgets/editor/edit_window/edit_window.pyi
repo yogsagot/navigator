@@ -24,9 +24,10 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind
+from navkit.reactive import bind, effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navigator.lib.editor.document import Document, encode, encode_lines, read_text
@@ -62,6 +63,8 @@ class EditWindow(Window, _Component):
     emits: _Any
     _replace_all: _Any
     def __init__(self, path: Path | str, *, document: Document | None = ..., new: bool = ..., smartpad: bool = ..., **kwargs: Any) -> None: ...
+    def mounted(self) -> None: ...
+    def _follow_modified(self) -> None: ...
     def _title(self) -> str: ...
     def take_keyboard(self) -> None: ...
     def list_name(self) -> str: ...
