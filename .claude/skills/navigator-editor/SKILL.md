@@ -147,7 +147,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   while a query is set; `UnicodeGrid` (`shell/unicode_grid`, a `ListViewer` whose items are rows of codes, three
   columns a cell so wide glyphs fit; `column` + `cursor` → `index`/`code`; `show(codes, at)`); a two-row info line
   (U+, glyph, name; category, decimal, UTF-8, block); *Insert* (default), *Copy*, *Cancel*. The model is
-  `navigator/lib/utilities/unicode_table.py`: blocks from the shipped `assets/unicode/Blocks.txt`, at once; the
+  `navigator/lib/utilities/unicode_table.py`: blocks from the shipped `assets/unicode/Blocks.txt`, at once (pinned to
+  `tools/unicode_tables.py`'s `UNICODE`, the newest any supported Python has; a block this Python's `unicodedata`
+  has nothing in is left out, which is what lets one file pass `--check` on 3.12 and 3.13 alike); the
   general categories, Nerd sets (`nerdfont.txt`) and name search need `build_index`, run once per process on a
   `Background` thread (≈0.3 s), the grid saying *Reading the character names...* meanwhile; searches run there too,
   a stale answer dropped (`searched` is the query the shown results are for -- tests wait on it). Unassigned codes,

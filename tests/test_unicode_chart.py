@@ -54,6 +54,12 @@ def test_blocks_name_where_a_character_is():
     assert "Box Drawing" in names and not any("Private Use" in n or "Surrogate" in n for n in names)
 
 
+def test_a_block_newer_than_this_python_is_not_listed():
+    """One ``Blocks.txt`` ships to every supported Python: the newest one's.
+    On an older Python a block with nothing assigned yet stays out."""
+    assert all(unicode_table.characters(c, None) for c in unicode_table.block_categories())
+
+
 def test_a_block_lists_only_assigned_characters():
     latin = next(c for c in unicode_table.block_categories() if c.name == "Basic Latin")
     assert unicode_table.characters(latin, None) == list(range(0x80))

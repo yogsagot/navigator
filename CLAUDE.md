@@ -74,9 +74,10 @@ editor's phases.
   Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
 - Regenerate `highlight.ini`'s template (`navigator/assets/highlight.ini`) from the installed Pygments after upgrading
   it: `./venv/bin/python tools/highlight_ini.py`; `--check` exits 1 when it is stale (a test runs it)
-- Regenerate the character table's data (`navigator/assets/unicode/`: Unicode's `Blocks.txt` for the installed
-  `unicodedata`, nerd-fonts' glyph names) after a Python or nerd-fonts upgrade: `./venv/bin/python
-  tools/unicode_tables.py` (downloads both); `--check` exits 1 when they are stale, offline (a test runs it)
+- Regenerate the character table's data (`navigator/assets/unicode/`: Unicode's `Blocks.txt` for the pinned
+  `UNICODE`, the newest any supported Python has, and nerd-fonts' glyph names for `NERD_FONTS`) after raising either
+  pin: `./venv/bin/python tools/unicode_tables.py` (downloads both); `--check` exits 1 when they are stale or a
+  Python's `unicodedata` is newer than `UNICODE`, offline (a test runs it)
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead

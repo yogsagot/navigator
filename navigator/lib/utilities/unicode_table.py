@@ -12,8 +12,9 @@ command line can take any of them.
 
 - *Blocks*, the Unicode Character Database's ``Blocks.txt`` (shipped in
   ``navigator/assets/unicode/``, written by ``tools/unicode_tables.py`` for the
-  version :mod:`unicodedata` was built from).  Read at once: a block is a
-  range, and listing one asks :mod:`unicodedata` only about its own codes.
+  newest Unicode any supported Python has, so a block this Python's
+  :mod:`unicodedata` has nothing in yet is left out).  Read at once: a block
+  is a range, and listing one asks :mod:`unicodedata` only about its own codes.
 - *Categories*, the general categories (``Lu``, ``Sm``, ``So``...), which
   are not ranges, so each is a scan of the whole code space.
 - *Nerd Fonts*, in the Nerd glyph tier only: the sets of nerd-fonts'
@@ -150,6 +151,12 @@ def blocks() -> tuple[Block, ...]:
     return tuple(found)
 
 
+@lru_cache(maxsize=None)
+def _assigned(block: Block) -> bool:
+    """Whether this Python's :mod:`unicodedata` has anything in *block*."""
+    return any(unicodedata.category(chr(code)) != "Cn" for code in range(block.first, block.last + 1))
+
+
 @lru_cache(maxsize=1)
 def _block_starts() -> list[int]:
     return [block.first for block in blocks()]
@@ -227,10 +234,11 @@ def describe(code: int, nerd: dict[int, tuple[str, ...]] | None = None) -> tuple
 def block_categories() -> list[Category]:
     """Every block with something listed in it.  The Private Use Area's
     three and the surrogates' are left out, there being nothing in them
-    any font agrees about."""
+    any font agrees about, and so is a block newer than this Python's
+    :mod:`unicodedata`, which has nothing assigned in it."""
     found = []
     for block in blocks():
-        if "Private Use" in block.name or "Surrogate" in block.name:
+        if "Private Use" in block.name or "Surrogate" in block.name or not _assigned(block):
             continue
         found.append(Category("block", block.name, block.name, block.first, block.last))
     return found
