@@ -114,6 +114,12 @@ both for a directory on the bookmarks list, a link to one included. Icons stay F
 Design codepoints moved between Nerd Fonts 2 and 3. Without icons a bookmarked directory's type mark is
 `Panel.BOOKMARK_MARK` (`♦`, CP437 `$04`) instead of `/`; the ASCII tier keeps `/`.
 
+**The tier also picks the character table** (Ctrl+B / editor Ctrl+P, `pick_character` in `shell/unicode_chart`):
+ASCII gets DN's CP437 *ASCII Chart*, Unicode the *Character Table*, Nerd the same with a *Nerd Fonts* grouping. Its
+Nerd names and sets are `navigator/assets/unicode/nerdfont.txt`, generated from nerd-fonts `glyphnames.json` at
+`tools/unicode_tables.py`'s pinned `NERD_FONTS` tag (v3 codepoints); `navkit.screen.char_width` measures a cell
+holding a base plus combining marks (`◌́`) by its base, which is how the table shows a mark.
+
 ## Read when
 
 | Reference | Read when |

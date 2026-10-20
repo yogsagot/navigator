@@ -32,7 +32,7 @@ name = "Русский"
 "Print ~b~lock" = "Печатать ~б~лок"
 # navigator/widgets/editor/edit_window/edit_window.nml:198, navigator/widgets/shell/main_menu/main_menu.nml:190
 "E~x~it" = "В~ы~ход"
-# navigator/widgets/editor/edit_window/edit_window.nml:203
+# navigator/widgets/editor/edit_window/edit_window.nml:203, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~П~оиск"
 # navigator/widgets/editor/edit_window/edit_window.nml:205, navigator/widgets/shell/main_menu/main_menu.nml:130, navigator/widgets/editor/file_editor/file_editor.py:2395
 "~F~ind..." = "~И~скать..."
@@ -254,7 +254,7 @@ name = "Русский"
 "Accept choice for ~a~ll files" = "Применить ко ~в~сем файлам"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:38
 "~O~verwrite" = "~П~оверх"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:47, navigator/widgets/editor/edit_window/edit_window.py:333, navigator/widgets/manager/manager/manager.py:864
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:47, navigator/widgets/editor/edit_window/edit_window.py:356, navigator/widgets/manager/manager/manager.py:864
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:55, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
@@ -922,7 +922,7 @@ name = "Русский"
 "Navigator?" = "с Навигатором?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:42
 "~D~on't ask again" = "Не ~с~прашивать"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:679, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~О~ткрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:56
 "~A~bout..." = "~О~ программе..."
@@ -1110,6 +1110,12 @@ name = "Русский"
 "Memory" = "Память"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "Прочее"
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:27
+"Character Table" = "Таблица символов"
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:89
+"~I~nsert" = "~В~ставить"
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:99
+"Co~p~y" = "Копи~р~овать"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:30, navigator/widgets/shell/commands.py:111
 "Volumes" = "Тома"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:54
@@ -1178,11 +1184,11 @@ name = "Русский"
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Не удалось прочитать буфер обмена рабочего стола, поэтому Navigator вставил свою последнюю копию. Установите xclip или xsel (X11) либо wl-clipboard (Wayland), чтобы буфер обмена был общим с другими программами."
 # navigator/__main__.py:442
 "Clipboard" = "Буфер обмена"
-# navigator/commands.py:66
+# navigator/commands.py:67
 "Character table" = "Таблица символов"
-# navigator/commands.py:72
+# navigator/commands.py:73
 "SmartPad" = "SmartPad"
-# navigator/commands.py:80
+# navigator/commands.py:81
 "Print" = "Печать"
 # navigator/lib/appearance/savers.py:34
 "∙ Star flight" = "∙ Звёздный полёт"
@@ -1446,55 +1452,55 @@ name = "Русский"
 "Save all" = "Зап.все"
 # navigator/widgets/editor/commands.py:562
 "Save" = "Запись"
-# navigator/widgets/editor/edit_window/edit_window.py:748, navigator/widgets/editor/edit_window/edit_window.py:672
+# navigator/widgets/editor/edit_window/edit_window.py:771, navigator/widgets/editor/edit_window/edit_window.py:695
 "Untitled" = "Безымянный"
-# navigator/widgets/editor/edit_window/edit_window.py:104
-"Edit - {path}" = "Редактор - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:328, navigator/widgets/editor/edit_window/edit_window.py:750, navigator/widgets/editor/edit_window/edit_window.py:343 ...
+# navigator/widgets/editor/edit_window/edit_window.py:351, navigator/widgets/editor/edit_window/edit_window.py:773, navigator/widgets/editor/edit_window/edit_window.py:366 ...
 "Warning" = "Предупреждение"
-# navigator/widgets/editor/edit_window/edit_window.py:373
+# navigator/widgets/editor/edit_window/edit_window.py:396
 "Copy block to" = "Копировать блок в"
-# navigator/widgets/editor/edit_window/edit_window.py:373
+# navigator/widgets/editor/edit_window/edit_window.py:396
 "File ~N~ame" = "~И~мя файла"
-# navigator/widgets/editor/edit_window/edit_window.py:413
+# navigator/widgets/editor/edit_window/edit_window.py:436
 "Paste from File" = "Вставка текста из файла"
-# navigator/widgets/editor/edit_window/edit_window.py:413
+# navigator/widgets/editor/edit_window/edit_window.py:436
 "~P~aste from" = "~В~ставить из"
-# navigator/widgets/editor/edit_window/edit_window.py:679
+# navigator/widgets/editor/edit_window/edit_window.py:702
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:713, navigator/widgets/viewer/file_window/file_window.py:313
+# navigator/widgets/editor/edit_window/edit_window.py:736, navigator/widgets/viewer/file_window/file_window.py:313
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:713, navigator/widgets/viewer/file_window/file_window.py:313
+# navigator/widgets/editor/edit_window/edit_window.py:736, navigator/widgets/viewer/file_window/file_window.py:313
 "~S~ave File As" = "~З~аписать в"
-# navigator/widgets/editor/edit_window/edit_window.py:103
+# navigator/widgets/editor/edit_window/edit_window.py:122
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:329, navigator/widgets/manager/manager/manager.py:862, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:252 ...
+# navigator/widgets/editor/edit_window/edit_window.py:124
+"Edit - {path}" = "Редактор - {path}"
+# navigator/widgets/editor/edit_window/edit_window.py:352, navigator/widgets/manager/manager/manager.py:862, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:252 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
-# navigator/widgets/editor/edit_window/edit_window.py:620, navigator/widgets/manager/manager/manager.py:1434
+# navigator/widgets/editor/edit_window/edit_window.py:643, navigator/widgets/manager/manager/manager.py:1434
 "Confirmation" = "Подтверждение"
-# navigator/widgets/editor/edit_window/edit_window.py:621
+# navigator/widgets/editor/edit_window/edit_window.py:644
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
-# navigator/widgets/editor/edit_window/edit_window.py:629
+# navigator/widgets/editor/edit_window/edit_window.py:652
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:196
+# navigator/widgets/editor/edit_window/edit_window.py:219
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:395, navigator/widgets/editor/edit_window/edit_window.py:723, navigator/widgets/editor/edit_window/edit_window.py:353 ...
+# navigator/widgets/editor/edit_window/edit_window.py:418, navigator/widgets/editor/edit_window/edit_window.py:746, navigator/widgets/editor/edit_window/edit_window.py:376 ...
 "Cannot write {path}: {error}" = "Не удаётся записать {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:422, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:285, navigator/widgets/shell/shell/shell.py:347 ...
+# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:285, navigator/widgets/shell/shell/shell.py:347 ...
 "Cannot read {path}: {error}" = "Не удаётся прочитать {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:523, navigator/widgets/viewer/db_window/db_window.py:178, navigator/widgets/viewer/file_window/file_window.py:412
+# navigator/widgets/editor/edit_window/edit_window.py:546, navigator/widgets/viewer/db_window/db_window.py:178, navigator/widgets/viewer/file_window/file_window.py:412
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:529, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:86 ...
+# navigator/widgets/editor/edit_window/edit_window.py:552, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:86 ...
 "Information" = "Информация"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:552
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
-# navigator/widgets/editor/edit_window/edit_window.py:687
+# navigator/widgets/editor/edit_window/edit_window.py:710
 "Cannot open {path}: {error}" = "Не удаётся открыть {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:751, navigator/widgets/editor/edit_window/edit_window.py:674
+# navigator/widgets/editor/edit_window/edit_window.py:774, navigator/widgets/editor/edit_window/edit_window.py:697
 "File {name} was modified. Save?" = "Файл {name} изменён. Сохранить?"
-# navigator/widgets/editor/edit_window/edit_window.py:197
+# navigator/widgets/editor/edit_window/edit_window.py:220
 "Save file {name}?" = "Сохранить файл {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:344
+# navigator/widgets/editor/edit_window/edit_window.py:367
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
 # navigator/widgets/editor/file_editor/file_editor.py:2397
 "~G~o to line..." = "~П~ерейти к строке..."
@@ -1728,7 +1734,7 @@ name = "Русский"
 "Would you like to create directory {path}?" = "Хотите создать каталог {path}?"
 # navigator/widgets/manager/manager/manager.py:1657
 "There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
-# navigator/widgets/manager/manager/manager.py:2072, navigator/widgets/manager/manager/manager.py:2093, navigator/widgets/shell/shell/shell.py:1991
+# navigator/widgets/manager/manager/manager.py:2072, navigator/widgets/manager/manager/manager.py:2093, navigator/widgets/shell/shell/shell.py:1992
 "Cannot edit file" = "Невозможно редактировать файл"
 # navigator/widgets/manager/manager/manager.py:1386, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:87
 "Cannot make directory" = "Невозможно создать каталог"
@@ -1858,15 +1864,15 @@ name = "Русский"
 "Choose action" = "Выберите действие"
 # navigator/widgets/shell/shell/shell.py:1331
 "User menu" = "Меню пользователя"
-# navigator/widgets/shell/shell/shell.py:1980
+# navigator/widgets/shell/shell/shell.py:1981
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:1980
+# navigator/widgets/shell/shell/shell.py:1981
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:377
 "~C~ommand" = "~К~оманда"
-# navigator/widgets/shell/shell/shell.py:1970
+# navigator/widgets/shell/shell/shell.py:1971
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:1970
+# navigator/widgets/shell/shell/shell.py:1971
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:298
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -1882,7 +1888,7 @@ name = "Русский"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:459
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:1973
+# navigator/widgets/shell/shell/shell.py:1974
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1275
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -1890,12 +1896,30 @@ name = "Русский"
 "File {name} not found" = "Файл {name} не найден"
 # navigator/widgets/shell/shell/shell.py:1419
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:1804
+# navigator/widgets/shell/shell/shell.py:1805
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:1937
+# navigator/widgets/shell/shell/shell.py:1938
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:65
+"~B~locks" = "~Б~локи"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:65
+"~C~ategories" = "~К~атегории"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:122
+"Recent" = "Недавние"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:124
+"Search results" = "Результаты поиска"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:148, navigator/widgets/shell/unicode_chart/unicode_chart.py:207
+"Reading the character names..." = "Чтение названий символов..."
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:67
+"~N~erd Fonts" = "~Ш~рифты Nerd"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:151
+"Nothing taken yet" = "Ещё ничего не выбрано"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:151
+"Nothing found" = "Ничего не найдено"
+# navigator/widgets/shell/unicode_grid/unicode_grid.py:121
+"{at} of {count}" = "{at} из {count}"
 # navigator/widgets/shell/volume_list/volume_list.py:111
 "Free %" = "Свободно %"
 # navigator/widgets/shell/volume_list/volume_list.py:111

@@ -1,0 +1,14 @@
+from navkit.database import Model
+
+#: A character taken from the character table: its *Recent* category.
+#:
+#: One row a character, taken again moving it to the front; ``seq`` orders
+#: them newest first, and only the newest ``RECENT_LIMIT`` are kept
+#: (``navigator/lib/utilities/unicode_table.py``).
+RecentChar(Model):
+    table: "recent_chars"
+    #: The code point.
+    field code: int
+    #: Larger is newer; only the order means anything.
+    field seq: int
+    unique by_code: code

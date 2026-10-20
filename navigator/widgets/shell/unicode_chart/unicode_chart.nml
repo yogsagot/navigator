@@ -1,0 +1,111 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.history import History
+from navml.widgets.dialog.input_line import InputLine
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.shell.unicode_grid import UnicodeGrid
+
+#: Utilities > *Character table* (Ctrl+B) and the editor's Ctrl+P on a
+#: Unicode terminal: every character, found by name or by group.  Not DOS
+#: Navigator's, whose *ASCII Chart* (``AsciiChart``) charted code page 437 and
+#: is still what the ASCII glyph tier gets; a departure, by request.
+#:
+#: The search line across the top; down the left, how to group -- blocks,
+#: general categories, and in the Nerd tier the Nerd Font sets -- over the
+#: groups; the grid of the group chosen on the right; the character under its
+#: cursor described across the bottom, beside *Insert*, *Copy* and *Cancel*.
+#: Sized to the screen as *Choose Directory* is, never smaller than an
+#: 80 by 25 screen allows, every control placed against the dialog's edges.
+#: ``Dialog``'s own row of buttons and its message are not this layout, and
+#: the hand-written half hides them.
+UnicodeChart(Dialog):
+    modal_width: max(76, min(parent.width - 4, 120)) if parent is not None else 76
+    modal_height: max(22, min(parent.height - 2, 50)) if parent is not None else 22
+    title: "Character Table"
+
+    Label:
+        id: search_caption
+        x: 2
+        y: 2
+        width: 8
+        height: 1
+        text: "~S~earch"
+        link: search
+
+    InputLine:
+        id: search
+        x: 10
+        y: 2
+        width: max(1, parent.width - 16)
+        height: 1
+
+    History:
+        id: history
+        link: search
+        history_id: "charsearch"
+        x: max(0, parent.width - 5)
+        y: 2
+        width: 3
+        height: 1
+
+    #: Blocks, categories and, in the Nerd tier, the Nerd Font sets: the
+    #: items are the hand-written half's, which knows the tier.
+    RadioButtons:
+        id: grouping
+        x: 2
+        y: 4
+        width: 24
+        height: max(1, len(self.items))
+
+    ListViewer:
+        id: groups
+        x: 2
+        y: 5 + grouping.height
+        width: 24
+        height: max(3, parent.height - 10 - grouping.height)
+
+    UnicodeGrid:
+        id: grid
+        x: 27
+        y: 4
+        width: max(4, parent.width - 29)
+        height: max(3, parent.height - 9)
+
+    #: The character under the grid's cursor: its code, glyph and name, then
+    #: its category, block, decimal code and UTF-8 bytes.
+    StaticText:
+        id: info
+        name: "info"
+        x: 2
+        y: max(0, parent.height - 5)
+        width: max(0, parent.width - 4)
+        height: 2
+
+    Button:
+        id: insert_button
+        text: "~I~nsert"
+        default: True
+        x: max(0, parent.width - 41)
+        y: max(0, parent.height - 3)
+        width: 12
+        height: 2
+
+    #: The character to the clipboard instead of where the keyboard was.
+    Button:
+        id: copy_button
+        text: "Co~p~y"
+        x: max(0, parent.width - 28)
+        y: max(0, parent.height - 3)
+        width: 12
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: max(0, parent.width - 15)
+        y: max(0, parent.height - 3)
+        width: 12
+        height: 2

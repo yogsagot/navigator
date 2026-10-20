@@ -89,9 +89,15 @@ def nav(tmp_path, monkeypatch):
 
 
 def navigator(path):
+    """Navigator on a terminal in the ASCII glyph tier, the one that gets *ASCII Chart*."""
+    from dataclasses import replace
+
+    from navkit.capabilities import FULL
+    from navkit.glyphs import GLYPHS_ASCII
+
     from navigator.__main__ import Navigator
 
-    return Navigator(path, path, terminal=FakeTerminal(80, 24))
+    return Navigator(path, path, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=GLYPHS_ASCII)))
 
 
 def test_ctrl_b_puts_the_character_picked_on_the_command_line(nav):

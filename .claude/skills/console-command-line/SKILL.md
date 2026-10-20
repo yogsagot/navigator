@@ -134,8 +134,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
 ## The character table (Ctrl+B)
 
 Utilities > *Character table* (DN's *ASCII Table*, `cmASCIITable`, `kbCtrlB` in `Navigator.keys`): `Shell.ascii_table`
-opens `AsciiChart` (`shell/ascii_chart`) and puts the character picked -- its CP437 glyph, `│` for 179 -- on the
-command line with `CommandLine.insert`, where DN put it back as a key press the line took; code 0 is nothing.
+calls `pick_character(app, self.glyphs)` (`shell/unicode_chart`) and puts the character picked on the command line
+with `CommandLine.insert`, where DN put it back as a key press the line took; a NUL is nothing. In the ASCII glyph
+tier that is DN's `AsciiChart` (`shell/ascii_chart`, its CP437 glyph, `│` for 179); in any other it is the Unicode
+*Character Table* -- see the `navigator-editor` skill's Ctrl+P bullet for how it works.
 Disabled with *Hide command line*. Inside an editor Ctrl+B is the start of its ^B^V chord, so the editor keeps it
 (its own Ctrl+P opens the same chart for the text). Under tmux, Ctrl+B is tmux's prefix and never arrives.
 

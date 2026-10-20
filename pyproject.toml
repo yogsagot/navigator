@@ -102,8 +102,9 @@ include = ["navkit*", "navml*", "navigator*"]
 # Translations, found the same way (navkit/i18n.py).
 "navigator.locales" = ["*.toml"]
 # Generated templates of configuration files (tools/highlight_ini.py), and the
-# key binding sets Options > Configuration > Key bindings loads.
-"navigator.assets" = ["*.ini", "keymaps/*.ini"]
+# key binding sets Options > Configuration > Key bindings loads, and the
+# character table's Unicode blocks and Nerd Font names (tools/unicode_tables.py).
+"navigator.assets" = ["*.ini", "keymaps/*.ini", "unicode/*.txt"]
 "navml.locales" = ["*.toml"]
 "navml" = ["py.typed"]
 # A component's markup is shipped even though nothing at run time reads it:

@@ -1535,19 +1535,20 @@ class Shell(DockLayout):
         return True
 
     async def ascii_table(self) -> None:
-        """*ASCII Chart*, then the character picked on the command line.
+        """The character table, then the character picked on the command line.
 
+        *ASCII Chart* in the ASCII glyph tier, the *Character Table* in any
+        other (:func:`~navigator.widgets.shell.unicode_chart.pick_character`).
         DN put it back as a key press (``PutEvent``), which reached the
         command line wherever the panels had the keyboard; here it goes into
-        the line directly.  Code 0 is no key, and nothing.  The character is
+        the line directly.  A NUL is no key, and nothing.  The character is
         the one the chart shows (``│`` for 179), the line being Unicode.
         """
-        from navigator.widgets.shell.ascii_chart import AsciiChart
-        from navigator.widgets.shell.char_table.char_table import glyph
+        from navigator.widgets.shell.unicode_chart import pick_character
 
-        code = await AsciiChart().execute(self.application)
-        if code:
-            self.command_line.insert(glyph(code))
+        char = await pick_character(self.application, self.glyphs)
+        if char and char != "\x00":
+            self.command_line.insert(char)
 
     async def on_insert_name(self, event: InsertName) -> bool:
         self._insert_entry(whole=False)

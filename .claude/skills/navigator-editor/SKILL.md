@@ -140,6 +140,23 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   editor types what the chart shows -- the glyph, `│` for 179, the text being Unicode -- and a NUL for 0. Departure:
   centred, where DN reopened it where it was left. `AsciiTable` lives in `navigator/commands.py`: the shell answers
   it too (`console-command-line`), and an editor's ^B^V chord keeps Ctrl+B in the editor, as DN's table did.
+  **That chart is the ASCII glyph tier's only.** Both callers go through `pick_character(app, glyphs)`
+  (`shell/unicode_chart`), which in the Unicode and Nerd tiers opens `UnicodeChart`, *Character Table* (a departure,
+  by request): sized to the screen (at least 76×22); a search line (history `charsearch`); radio *Blocks* /
+  *Categories* / *Nerd Fonts* (Nerd tier only) over a list of groups, *Recent* always and *Search results* first
+  while a query is set; `UnicodeGrid` (`shell/unicode_grid`, a `ListViewer` whose items are rows of codes, three
+  columns a cell so wide glyphs fit; `column` + `cursor` → `index`/`code`; `show(codes, at)`); a two-row info line
+  (U+, glyph, name; category, decimal, UTF-8, block); *Insert* (default), *Copy*, *Cancel*. The model is
+  `navigator/lib/utilities/unicode_table.py`: blocks from the shipped `assets/unicode/Blocks.txt`, at once; the
+  general categories, Nerd sets (`nerdfont.txt`) and name search need `build_index`, run once per process on a
+  `Background` thread (≈0.3 s), the grid saying *Reading the character names...* meanwhile; searches run there too,
+  a stale answer dropped (`searched` is the query the shown results are for -- tests wait on it). Unassigned codes,
+  surrogates and private use outside the Nerd sets are never listed; `display()` draws controls as control pictures,
+  marks on `◌`, format characters as `⬚`. Typing anywhere goes to the search line (departure: DN took a typed key at
+  once); Enter/Ctrl+B/Ctrl+P/double click take, Ctrl+C/Ctrl+Ins or *Copy* copy (`copy_to_clipboard`) and take
+  nothing; both move the code to the front of *Recent* (`RecentChar` model, `recent_chars`, newest 64). It reopens on
+  the grouping, group and character last left (`_last`, `p` in Basic Latin at first). Block, category and Nerd set
+  names are the standards' and stay English.
 - **Open, F3, and Save as, Shift+F2** (`LoadText`/`SaveTextAs`, DN's `cmLoadText`/`cmSaveTextAs`, `OpenFile` and
   `SaveFileAs`; also Editor > File): the name from navml's `FileDialog` via `EditWindow._ask_file` -- *Open a File*,
   *~N~ame*, an *~O~pen* button (`fdOpenButton`), history `edit_open`; *Save File As*, *~S~ave File As*, OK,

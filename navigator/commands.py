@@ -58,7 +58,8 @@ class ScreenGrab(Command):
 
 
 class AsciiTable(Command):
-    """``cmASCIITable``: *ASCII Chart*, and the character picked typed where the
+    """``cmASCIITable``: *ASCII Chart* in the ASCII glyph tier, the Unicode
+    *Character Table* in any other, and the character picked typed where the
     keyboard is -- Ctrl+B and Utilities > *Character table* for the command line,
     Ctrl+P (and the info line's code, ``cmSpecChar``) in the editor, which
     answers it nearer the keyboard."""

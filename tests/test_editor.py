@@ -1781,7 +1781,15 @@ def test_a_click_on_the_info_lines_place_asks_for_a_line(files):
 
 @pytest.fixture
 def chart_on(monkeypatch):
+    """*ASCII Chart* opened on a code: the chart the ASCII glyph tier gets
+    (tests/test_unicode_chart.py has the other tiers')."""
+    from navkit.glyphs import GLYPHS_ASCII
+
+    from navigator.widgets.shell import unicode_chart
     from navigator.widgets.shell.ascii_chart import ascii_chart as module
+
+    real = unicode_chart.pick_character
+    monkeypatch.setattr(unicode_chart, "pick_character", lambda app, glyphs: real(app, GLYPHS_ASCII))
 
     def start(code):
         monkeypatch.setitem(module._last, "code", code)

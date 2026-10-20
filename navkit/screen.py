@@ -42,9 +42,15 @@ DOUBLE_BOX = glyphs.DOUBLE_BOX
 
 
 def char_width(char: str) -> int:
-    """Return how many terminal cells *char* occupies (0, 1 or 2)."""
+    """Return how many terminal cells *char* occupies (0, 1 or 2).
+
+    A cell may hold a base and the marks combined onto it (``◌́``), which
+    measures as its base does.
+    """
     if not char:
         return 0
+    if len(char) > 1:
+        return char_width(char[0])
     code = ord(char)
     if code < 0x20 or 0x7F <= code < 0xA0:
         return 0

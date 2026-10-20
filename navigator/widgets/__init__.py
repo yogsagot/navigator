@@ -46,6 +46,8 @@ navml.register(__name__)
 _WIDGETS = {
     "AsciiChart": "shell.ascii_chart",
     "CharTable": "shell.char_table",
+    "UnicodeChart": "shell.unicode_chart",
+    "UnicodeGrid": "shell.unicode_grid",
     "AboutDialog": "about_dialog",
     "AttrDialog": "file_ops.attr_dialog",
     "BookmarkLabelDialog": "manager.bookmark_label_dialog",
@@ -146,6 +148,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.file_record_list import FileRecordList
     from navigator.widgets.shell.ascii_chart import AsciiChart
     from navigator.widgets.shell.char_table import CharTable
+    from navigator.widgets.shell.unicode_chart import UnicodeChart
+    from navigator.widgets.shell.unicode_grid import UnicodeGrid
     from navigator.widgets.viewer.file_viewer import FileViewer
     from navigator.widgets.viewer.file_window import FileWindow
     from navigator.widgets.viewer.goto_dialog import GotoDialog

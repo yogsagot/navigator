@@ -590,18 +590,18 @@ class EditWindow(Window):
     async def ascii_table(self) -> None:
         """``ASCIITable``, then ``InputChar``: the character picked typed at the cursor.
 
-        Typed as the chart shows it -- the VGA's glyph, ``│`` for 179 and ``☺``
-        for 1 -- the text being Unicode where DN's was bytes; 0, whose glyph
-        is a blank, is a NUL.
+        *ASCII Chart* in the ASCII glyph tier, typed as it shows it -- the
+        VGA's glyph, ``│`` for 179 and ``☺`` for 1 -- the text being Unicode
+        where DN's was bytes; 0, whose glyph is a blank, is a NUL.  The
+        *Character Table* in any other tier, any character at all.
         """
-        from navigator.widgets.shell.ascii_chart import AsciiChart
-        from navigator.widgets.shell.char_table.char_table import glyph
+        from navigator.widgets.shell.unicode_chart import pick_character
 
-        code = await AsciiChart().execute(self.application)
-        if code is None:
+        char = await pick_character(self.application, self.editor.glyphs)
+        if char is None:
             return
         self.editor.focus()
-        self.editor.type_text("\x00" if code == 0 else glyph(code))
+        self.editor.type_text(char)
 
     # -- ^K P / Shift+F8 ------------------------------------------------------------
 
