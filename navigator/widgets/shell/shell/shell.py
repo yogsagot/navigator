@@ -36,6 +36,7 @@ from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, 
 from navigator.widgets.shell.commands import (
     EditLinks,
     Game,
+    S3Link,
     FtpLink,
     HangUp,
     NavyLink,
@@ -967,7 +968,7 @@ class Shell(DockLayout):
             from navigator.lib.drives import mounted
 
             return bool(mounted())
-        if isinstance(command, (NavyLink, FtpLink, SmbLink)):
+        if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link)):
             return self.active_manager is not None
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
@@ -1967,6 +1968,9 @@ class Shell(DockLayout):
     async def on_smb_link(self, event: SmbLink) -> bool:
         return self._link_command("smb")
 
+    async def on_s3_link(self, event: S3Link) -> bool:
+        return self._link_command("s3")
+
     def _link_command(self, scheme: str) -> bool:
         manager = self.active_manager
         if manager is not None:
@@ -1983,7 +1987,8 @@ class Shell(DockLayout):
         app = self.application
         if request is not None:
             scheme = request.scheme
-        family = ("ftp", "ftps") if scheme in ("ftp", "ftps") else (scheme,)
+        family = (("ftp", "ftps") if scheme in ("ftp", "ftps") else ("s3", "s3+http") if scheme in ("s3", "s3+http")
+                  else (scheme,))
         missing = sessions.available(scheme)
         request = await ConnectDialog(request, missing=missing, recent=recent.recent(family),
                                       scheme=scheme).execute(app)
@@ -2087,9 +2092,15 @@ class Shell(DockLayout):
                     answers.for_hop(unknown.hop).host_key = choice
                 except NeedPassword as needed:
                     can_keep = await asyncio.to_thread(credentials.keyring_available)
-                    prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
-                              else tr("{protocol} password for {who}:")).format(
-                        protocol=protocol, who=escape_caption(f"{needed.user}@{needed.host}"))
+                    if site.scheme in ("s3", "s3+http"):
+                        # S3's password is the access key's secret.
+                        prompt = (tr("Wrong secret key for {who}. Try again:") if needed.wrong
+                                  else tr("Secret key for {who}:")).format(
+                            who=escape_caption(f"{needed.user}@{needed.host}"))
+                    else:
+                        prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
+                                  else tr("{protocol} password for {who}:")).format(
+                            protocol=protocol, who=escape_caption(f"{needed.user}@{needed.host}"))
                     answer = await PasswordDialog(prompt, can_keep=can_keep).execute(app)
                     if answer is None:
                         return False

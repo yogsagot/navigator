@@ -42,11 +42,12 @@ def split_host(text: str) -> tuple[str, str, int]:
 def titles(scheme: str) -> tuple[str, str]:
     """The box's title for *scheme*, connecting and editing: always the
     protocol, never in doubt."""
-    family = "ftp" if scheme in ("ftp", "ftps") else scheme
+    family = "ftp" if scheme in ("ftp", "ftps") else "s3" if scheme in ("s3", "s3+http") else scheme
     return {
         "sftp": (tr("SSH link (SFTP)"), tr("Edit SSH link (SFTP)")),
         "ftp": (tr("FTP link"), tr("Edit FTP link")),
         "smb": (tr("SMB link (Windows share)"), tr("Edit SMB link (Windows share)")),
+        "s3": (tr("S3 link (Amazon S3)"), tr("Edit S3 link (Amazon S3)")),
     }.get(family, (scheme.upper(), scheme.upper()))
 
 
@@ -64,7 +65,10 @@ class ConnectDialog(Dialog):
         *editing* is F2 on a profile in the *Link* list: the same lines, kept
         under the name and nothing connected -- so *Keep* is not asked, and
         OK needs a name.  *scheme* is the protocol, a *request*'s if given:
-        FTP's box has *Encrypt with TLS*, SMB's directory starts with the share."""
+        FTP's box has *Encrypt with TLS*, SMB's directory starts with the share,
+        S3's host is its endpoint, its login an access key or a ``~/.aws``
+        profile (empty for the AWS chain), its directory starting with the
+        bucket, and *Encrypt with TLS* is HTTPS (``s3``) or not (``s3+http``)."""
         super().__init__(**kwargs)
         self.editing = editing
         if request is not None:
@@ -79,6 +83,17 @@ class ConnectDialog(Dialog):
             self.secure.value = 1 if scheme == "ftps" else 0
         if scheme == "smb":
             self.directory.label_text = tr("~S~hare/dir")
+        if scheme in ("s3", "s3+http"):
+            from navigator.lib.drives.s3 import AWS_HOST
+
+            self.host.label_text = tr("~E~ndpoint")
+            self.user.label_text = tr("~A~ccess key")
+            self.directory.label_text = tr("~B~ucket/dir")
+            self.secure.items = [tr("Encrypt with ~T~LS (HTTPS)")]
+            self.secure.visible = True
+            self.secure.value = 0 if scheme == "s3+http" else 1
+            if request is None:
+                self.host.value = AWS_HOST
         self._recent = list(recent)
         self.host.choices = [link.text() for link in self._recent]
         # The list's choice fills the one line it drops from; a connection is
@@ -103,7 +118,7 @@ class ConnectDialog(Dialog):
         self.port.value = str(link.port) if link.port else ""
         self.directory.value = link.path
         if self.secure.visible:
-            self.secure.value = 1 if link.scheme == "ftps" else 0
+            self.secure.value = 1 if link.scheme in ("ftps", "s3") else 0
         self.host.entry.select_all()
         self.host.entry.focus()
 
@@ -123,9 +138,11 @@ class ConnectDialog(Dialog):
         scheme = self.scheme
         if scheme in ("ftp", "ftps"):
             scheme = "ftps" if self.secure.value & 1 else "ftp"
+        if scheme in ("s3", "s3+http"):
+            scheme = "s3" if self.secure.value & 1 else "s3+http"
         directory = self.directory.value.strip()
-        if scheme == "smb" and directory and not directory.startswith("/"):
-            directory = "/" + directory  # the share is the first name
+        if scheme in ("smb", "s3", "s3+http") and directory and not directory.startswith("/"):
+            directory = "/" + directory  # the share, the bucket, is the first name
         return ConnectRequest(
             scheme, host, self.user.value.strip() or user, port, directory,
             name or (host if keep else ""), keep,

@@ -39,12 +39,16 @@ SCHEMES: dict[str, str] = {
     "ftp": "navigator.lib.drives.ftp",
     "ftps": "navigator.lib.drives.ftp",
     "smb": "navigator.lib.drives.smb",
+    "s3": "navigator.lib.drives.s3",
+    "s3+http": "navigator.lib.drives.s3",
 }
 
 #: What a menu says beside a scheme that is not there: the extra to install.
 EXTRA_HINT: dict[str, str] = {
     "sftp": "navigator-fm[sftp]",
     "smb": "navigator-fm[smb]",
+    "s3": "navigator-fm[s3]",
+    "s3+http": "navigator-fm[s3]",
 }
 
 #: What each scheme is called wherever a connection is named -- the menu, the
@@ -57,6 +61,8 @@ PROTOCOLS: dict[str, tuple[str, str]] = {
     "ftp": ("FTP", "FTP"),
     "ftps": ("FTPS", "FTPS (FTP over TLS)"),
     "smb": ("SMB", "SMB (Windows share)"),
+    "s3": ("S3", "S3 (Amazon S3 and compatible)"),
+    "s3+http": ("S3", "S3 over plain HTTP"),
 }
 
 

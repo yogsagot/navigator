@@ -8,7 +8,7 @@ description: Remote and virtual drives -- navigator/lib/drives/ (Location and Si
 DOS Navigator's panel held a **`TDrive`** (`DRIVES.PAS`): the disk, an archive (`TArcDrive`), a *Find:* listing
 (`TFindDrive`), `TEMP:` (`TTempDrive`), or the PC at the other end of a cable (`TLinkDrive`, `NAVYLINK.PAS`, *Navigator
 Link*, Alt+F11). `navigator/lib/drives/` is that object for a modern system. There are the disk, an in-memory drive
-(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB and archives (`ARCVIEW.PAS`). NFS is only
+(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3 and archives (`ARCVIEW.PAS`). NFS is only
 ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` has the plan and the phases.
 
 ## Rules
@@ -138,10 +138,28 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   the connection itself (not an `OSError`) is `DriveGone`; `LogonFailure`/`AccessDenied` on connecting is
   `NeedPassword`. No user is the guest, or Kerberos with a ticket. No chmod or owners (Windows ACLs). `smb.CLIENT`
   is the module spoken through -- a test puts a stand-in there. Title `SMB:host:/share/path`.
+- **`s3.py`** (`s3://[key@]endpoint[:port]/bucket/key`, `s3+http://` for plain HTTP; boto3, the
+  `navigator-fm[s3]` extra). **No new `Site` fields**: the scheme is the transport, the host the endpoint
+  (`s3.amazonaws.com` / `s3.REGION.amazonaws.com` is Amazon's -- virtual-hosted, a bucket's region learnt once from
+  `head_bucket`'s `x-amz-bucket-region` and a client per region; any other host an endpoint of its own by URL,
+  path-style, region `us-east-1` unless `~/.aws` says), the user who (empty: the AWS chain; a `~/.aws` profile's
+  name: that profile; else an access key ID whose secret is `NeedPassword`'s, keyring first). `connect` proves the
+  keys with `list_buckets` (a refused one on `answers.start`'s bucket with `head_bucket`); bad keys
+  (`InvalidAccessKeyId`, `SignatureDoesNotMatch`, ...) are a wrong password. **The first name is the bucket**; the
+  root lists the account's buckets plus those reached by name; F7 there makes a bucket, rmdir deletes an empty one.
+  **Directories are prefixes** (`list_objects_v2`, `/` delimiter, the `dir/` marker F7 leaves skipped). Writes are a
+  multipart upload as they come (`_Upload`, `PART_SIZE` 8 MiB, one `put_object` when smaller; its `__exit__`
+  aborts on an exception, so Stop or a failure leaves nothing); no append. A file's rename is a managed server-side
+  copy and a delete; a directory's is `EXDEV`, the copier then copying and deleting. `open_random` is ranged GETs
+  (F3 by chunks). No modes, owners, links or times. Unreachable after botocore's retries is `DriveGone`.
+  `make_client` is the hook a test replaces. Title `S3:endpoint:/bucket/dir`; `describe` adds `Region`.
 - **Each protocol is named and has its own entry**: Utilities > *SSH link (SFTP)...* (Alt+F11, `NavyLink`), *FTP
-  link...* (`FtpLink`), *SMB link (Windows share)...* (`SmbLink`), each `Shell.navy_link(panel, scheme=)`; the
+  link...* (`FtpLink`), *SMB link (Windows share)...* (`SmbLink`), *S3 link (Amazon S3)...* (`S3Link`), each
+  `Shell.navy_link(panel, scheme=)`; the
   `ConnectDialog(scheme=)` is that protocol's (`titles(scheme)`), FTP's with *Encrypt with TLS (FTPS)* (`secure`,
-  the scheme then `ftps`), SMB's *Directory* captioned *Share/dir* (a share typed without `/` is made `/share`).
+  the scheme then `ftps`), SMB's *Directory* captioned *Share/dir* (a share typed without `/` is made `/share`),
+  S3's *Endpoint* (opening on `s3.amazonaws.com`), *Access key* and *Bucket/dir*, its `secure` box *Encrypt with
+  TLS (HTTPS)* (unticked: `s3+http`); `reach()` asks S3's password as *Secret key for ...*.
   The recent list is the protocol's (`recent.recent(("ftp", "ftps"))` for FTP's box). The Link list has a *New ...
   link* per protocol (its mapping is the scheme), each greyed with its extra when missing. `sessions.PROTOCOLS`
   names them all.
@@ -290,7 +308,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   7-Zip and unrar listings parsed from captured output (everywhere), and a real 7z entered, written, made and
   tested -- skipped without 7-Zip (the official `7zz` tarball unpacked onto `PATH` is enough).
   `tests/test_dcerpc.py`: `NetrShareEnum` against a pipe answering in fragments; `tests/test_smb.py` puts that pipe
-  behind its stand-in `smbclient`.
+  behind its stand-in `smbclient`. `tests/test_s3.py` (skipped without boto3 and moto) runs moto's
+  `ThreadedMotoServer` once per module and reaches it as an endpoint of its own over `s3+http` (path-style, as a
+  MinIO); moto checks no keys, so a refused secret is a stand-in client (`s3.make_client`).
 - `tests/test_ftp.py` (skipped without pyftpdlib) against `tests/ftp_server.py` run **as a process of its own**
   (pyftpdlib's timers are per process: two servers in one trip over each other), with an MLSD and a LIST-only
   server (`[mlsd]`/`[list]`); `drop()` kills and restarts it on its port. `tests/test_smb.py` puts a stand-in

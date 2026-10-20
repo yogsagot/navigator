@@ -10,7 +10,7 @@ RemoteProfile(Model):
     table: "remote_profiles"
     #: What the user calls it; the profile's key.
     field name: str
-    #: The drive: ``sftp``, and later ``ftp``, ``smb``.
+    #: The drive: ``sftp``, ``ftp``/``ftps``, ``smb``, ``s3``/``s3+http``.
     field scheme: str
     field host: str
     #: 0 for the scheme's own (or ``~/.ssh/config``'s).

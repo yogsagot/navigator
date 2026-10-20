@@ -132,7 +132,7 @@ class LinksDialog(Dialog):
         # The protocols, as the *Link* list's *New* items name them.
         schemes = {id(menu.add_item(caption)): scheme for caption, scheme in (
             (tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
-            (tr("New S~M~B link (Windows share)..."), "smb"))}
+            (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3"))}
         ox, oy = self.append.offset()
         chosen = await PopupMenu(menu, ox + self.append.x, oy + self.append.y + self.append.height, current=0,
                                  behind=self, title=tr("New link")).execute(app)

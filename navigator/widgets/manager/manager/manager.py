@@ -3428,7 +3428,7 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
         link.add_line()
     # One *New* for each protocol, named: what the link is over is never hidden.
     for caption, scheme in ((tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
-                            (tr("New S~M~B link (Windows share)..."), "smb")):
+                            (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3")):
         new = link.add_item(caption)
         if sessions.available(scheme) is not None:
             new.disabled = True

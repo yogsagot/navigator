@@ -240,6 +240,7 @@ class ScreenRest(Command):
 __all__ = [
     "About",
     "EditLinks",
+    "S3Link",
     "SaversSetup",
     "ToggleTrashCan",
     "Game",
@@ -435,6 +436,15 @@ class FtpLink(Command):
 
     title = "FTP"
     scheme = "ftp"
+
+
+class S3Link(Command):
+    """Utilities > *S3 link (Amazon S3)*: a connection to Amazon S3 or an
+    endpoint that speaks its protocol (MinIO, Ceph, R2, ...), its buckets
+    listed, and the active panel sent there."""
+
+    title = "S3"
+    scheme = "s3"
 
 
 class SmbLink(Command):

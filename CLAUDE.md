@@ -33,8 +33,8 @@ layered in three parts, each depending only on the one below:
 `from navigator.__main__ import Panel` would import a second copy with a second `Panel` class. A widget a document
 names has to be importable by its own name.
 
-Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS or SMB
-(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link), inside a zip or tar (Enter on it), or in memory (the
+Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS, SMB or S3
+(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), inside a zip or tar (Enter on it), or in memory (the
 tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
 
 ## Environment and commands
@@ -44,11 +44,12 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`), and
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
-- Three optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
-  `navigator-fm[smb]` (smbprotocol) and `navigator-fm[keyring]` (*Save in keyring*); FTP is the standard library's.
-  `requirements-dev.txt` adds paramiko and pyftpdlib, so `tests/test_sftp.py` and `tests/test_ftp.py` run (else they
-  are skipped). `nav sftp://user@host/dir` (or `ftp://`, `smb://host/share`) opens a side there (`navigator-drives`
-  skill)
+- Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
+  `navigator-fm[smb]` (smbprotocol), `navigator-fm[s3]` (boto3) and `navigator-fm[keyring]` (*Save in keyring*); FTP
+  is the standard library's. `requirements-dev.txt` adds paramiko, pyftpdlib, boto3 and moto, so
+  `tests/test_sftp.py`, `tests/test_ftp.py` and `tests/test_s3.py` run (else they are skipped). `nav
+  sftp://user@host/dir` (or `ftp://`, `smb://host/share`, `s3://s3.amazonaws.com/bucket`) opens a side there
+  (`navigator-drives` skill)
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
   recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn (Shift+Up/Down a line; idle, PgUp/PgDn and Home/End) scroll

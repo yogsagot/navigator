@@ -56,7 +56,7 @@ class RemoteProfile(Model):    # remote_profile.nml:9
     #: What the user calls it; the profile's key.
     name: str    # remote_profile.nml:12
 
-    #: The drive: ``sftp``, and later ``ftp``, ``smb``.
+    #: The drive: ``sftp``, ``ftp``/``ftps``, ``smb``, ``s3``/``s3+http``.
     scheme: str    # remote_profile.nml:14
     host: str    # remote_profile.nml:15
 

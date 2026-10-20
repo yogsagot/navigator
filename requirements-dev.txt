@@ -5,3 +5,6 @@ pytest>=8.0
 paramiko>=3.4
 # The FTP drive's tests run against pyftpdlib's server (tests/ftp_server.py).
 pyftpdlib>=2.0
+# The S3 drive's tests run against moto's S3 server in a thread (tests/test_s3.py).
+boto3>=1.34
+moto[server]>=5

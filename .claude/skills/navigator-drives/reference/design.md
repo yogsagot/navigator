@@ -21,7 +21,7 @@ F5, F6 and F8 by answering a dozen methods.
 ## Decisions
 
 - Own drivers per protocol, each an optional extra (`navigator-fm[sftp]` → paramiko; FTP on stdlib `ftplib`; SMB on
-  `smbprotocol`), rather than fsspec (coarser cancel/progress, more dependencies) or FUSE mounts (external binaries).
+  `smbprotocol`; S3 on `boto3`, its SigV4, multipart and credential chain not worth writing again), rather than fsspec (coarser cancel/progress, more dependencies) or FUSE mounts (external binaries).
 - Credentials: ssh config, agent and keys first; a password box otherwise; the keyring only when installed and only
   when asked; nothing secret in `navigator.db`.
 - The local shell stays put when a panel is remote; Enter, associations, the user menu, `$PAGER`/`$EDITOR`, F3 and F4
@@ -58,3 +58,6 @@ F5, F6 and F8 by answering a dozen methods.
    chunks (a smaller window, read on the lexer's thread through `ChunkedSource.read_blocking`) and UU's *already
    exists* question for a remote target (`usefile.put_files`' `ask`). Done. **Refused on purpose**: a link from one
    drive to another -- a path means nothing across them.
+5. S3 (`s3.py` on boto3): Amazon and any S3-compatible endpoint, fitted into `Site`'s four fields (the transport
+   as the scheme, the endpoint as the host, the key or `~/.aws` profile as the user, the bucket as the first name),
+   buckets at the root, prefixes as directories, multipart writes, server-side renames of files. Done.
