@@ -8,6 +8,7 @@ run it against :class:`FakeTerminal` and post events directly with
 from __future__ import annotations
 
 import asyncio
+import faulthandler
 from pathlib import Path
 
 import pytest
@@ -210,7 +211,14 @@ def run_app(
         finally:
             driver.cancel()
 
-    result = asyncio.run(asyncio.wait_for(main(), timeout))
+    # A loop blocked on its own thread past the deadline is cancelled only once
+    # it lets go, wherever it next waits -- so the traceback says nothing.
+    # Every thread's stack at the deadline, into the test's captured stderr, does.
+    faulthandler.dump_traceback_later(timeout)
+    try:
+        result = asyncio.run(asyncio.wait_for(main(), timeout))
+    finally:
+        faulthandler.cancel_dump_traceback_later()
     if failed:
         raise failed[0]
     if waited_out:
