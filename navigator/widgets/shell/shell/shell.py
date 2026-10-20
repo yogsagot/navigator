@@ -34,6 +34,7 @@ from navigator.lib.system.subshell import CommandFinished, CompletionsReady, His
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
+    EditLinks,
     Game,
     FtpLink,
     HangUp,
@@ -2150,6 +2151,30 @@ class Shell(DockLayout):
                 future.set_result(None)
             if not isinstance(error, Exception):
                 raise
+
+    async def on_edit_links(self, event: EditLinks) -> bool:
+        manager = self.active_manager
+        self.spawn(self.edit_links(manager.active_panel if manager is not None else None))
+        return True
+
+    async def edit_links(self, panel: Any) -> None:
+        """Utilities > *Saved links*: the profiles read on a thread, edited in
+        one box, written back on OK in one transaction -- and, for *Connect*,
+        *panel* sent to the one chosen."""
+        from navigator.lib.drives import profiles
+        from navigator.widgets.drives.links_dialog import LinksDialog
+
+        entries = await asyncio.to_thread(profiles.entries)
+        answer = await LinksDialog(entries).execute(self.application)
+        if answer is None:
+            return
+        entries = answer[1]
+        await asyncio.to_thread(profiles.store, entries)
+        if answer[0] == "connect" and panel is not None:
+            chosen = entries[answer[2]]
+            row = await asyncio.to_thread(profiles.find, chosen.name)
+            if row is not None:
+                await self.go_remote(panel, profiles.location_of(row))
 
     async def on_hang_up(self, event: HangUp) -> bool:
         self.spawn(self.hang_up())

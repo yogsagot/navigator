@@ -164,6 +164,12 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `saved_password`/`save_password`/`forget_password` (service `navigator-fm`, account `str(site)`).
 - **`profiles.py`** over `navigator/models/remote_profile/` (`remote_profiles`: name unique, scheme, host, port, user,
   path, seq). `location_of(profile)`; a path of `.` (`profiles.HOME`) opens on the server's home (`drive.home`).
+  **Utilities > *Saved links*** (`EditLinks`, `Shell.edit_links`; also *Edit links...* at the foot of the *Link*
+  list, `link_section`'s `EDIT_LINKS`) is `widgets/drives/links_dialog`: the profiles copied in as
+  `profiles.Entry`s (`entries()`), edited -- F2/*Edit* and Ins/*Add* (a protocol menu first) in
+  `ConnectDialog(editing=True)`, Del/*Delete* asked, Ctrl+Up/Down moved (its `LinkList` lets those keys past the
+  list to the `links_dialog` key table) -- and written back on OK in one transaction (`profiles.store`: gone names
+  deleted, `seq` the list's order); Cancel changes nothing; *Connect* stores, then `go_remote`s the active panel.
 - **`recent.py`** over `navigator/models/recent_link/` (`recent_links`: scheme, host, user, port, path, seq; unique
   by scheme+host+user+port, the directory the last one used). The SSH link box's Host `▐↓▌` drops these as
   `choices`, not a `HistoryEntry` list: `ConnectDialog` replaces its `host.history.choose`, so a pick fills host,

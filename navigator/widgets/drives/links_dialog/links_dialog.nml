@@ -1,0 +1,96 @@
+from navigator.widgets.drives.commands import AddLink, DeleteLink, EditLink, MoveLinkDown, MoveLinkUp
+from navigator.widgets.drives.links_dialog.link_list import LinkList
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.static_text import StaticText
+
+#: Utilities > Saved links: the connection profiles in one box, to edit,
+#: add, delete, reorder -- and connect to.  Ours: DN's link was one cable,
+#: with nothing to keep.  Laid out as *Edit environment* is, the list on the
+#: left and the buttons down the right; what is done is kept on OK only.
+LinksDialog(Dialog):
+    modal_width: 70
+    modal_height: 19
+    title: "Saved links"
+
+    keys:
+        insert: AddLink
+        f2: EditLink
+        delete: DeleteLink
+        ctrl+up: MoveLinkUp
+        ctrl+down: MoveLinkDown
+
+    Label:
+        id: links_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~L~inks"
+        link: links
+
+    LinkList:
+        id: links
+        x: 2
+        y: 2
+        width: 52
+        height: 13
+
+    #: The keys the list takes, under it.
+    StaticText:
+        id: hint
+        x: 2
+        y: 16
+        width: 52
+        height: 1
+        text: ""
+
+    Button:
+        id: connect
+        text: "~C~onnect"
+        default: True
+        x: 56
+        y: 2
+        width: 12
+        height: 2
+
+    Button:
+        id: edit
+        text: "~E~dit..."
+        x: 56
+        y: 4
+        width: 12
+        height: 2
+
+    Button:
+        id: append
+        text: "~A~dd..."
+        x: 56
+        y: 6
+        width: 12
+        height: 2
+
+    Button:
+        id: delete
+        text: "~D~elete"
+        x: 56
+        y: 8
+        width: 12
+        height: 2
+
+    Button:
+        id: pick
+        text: "O~K~"
+        x: 56
+        y: 11
+        width: 12
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 56
+        y: 13
+        width: 12
+        height: 2

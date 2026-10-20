@@ -1474,7 +1474,9 @@ class Manager(Window):
                 profile = links[id(chosen)]
                 shell = getattr(self.application, "shell", None)
                 if shell is not None:
-                    if isinstance(profile, str):  # *New ... link*, for that protocol
+                    if profile == EDIT_LINKS:
+                        await shell.edit_links(panel)
+                    elif isinstance(profile, str):  # *New ... link*, for that protocol
                         await shell.navy_link(panel, scheme=profile)
                     else:
                         await shell.go_remote(panel, link_profiles.location_of(profile))
@@ -3432,7 +3434,15 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
             new.disabled = True
             new.key = sessions.EXTRA_HINT.get(scheme, "")
         found[id(new)] = scheme
+    if rows:
+        # *Saved links*, which the branch for a *New* opens for this mark.
+        link.add_line()
+        found[id(link.add_item(tr("~E~dit links...")))] = EDIT_LINKS
     return found
+
+
+#: What ``link_section`` maps its *Edit links* item to, in place of a scheme.
+EDIT_LINKS = "*edit*"
 
 
 #: A double vertical line's box characters, and the single ones the held

@@ -9,6 +9,7 @@ the directory to open on.  No password is ever among them.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import PurePosixPath
 
 from navkit.database import DATABASE
@@ -19,6 +20,19 @@ from navigator.models.remote_profile import RemoteProfile
 #: The path a location has before its drive says where home is: the panel
 #: opens on the server's home directory.
 HOME = PurePosixPath(".")
+
+
+@dataclass
+class Entry:
+    """A profile's fields, apart from its row: what *Saved links* edits
+    before OK writes the list back (:func:`store`)."""
+
+    name: str
+    scheme: str
+    host: str
+    user: str = ""
+    port: int = 0
+    path: str = ""
 
 
 def profiles() -> list[RemoteProfile]:
@@ -79,6 +93,30 @@ def replace(old: str, name: str, scheme: str, host: str, user: str = "", port: i
     return row
 
 
+def entries() -> list[Entry]:
+    """Every profile as an :class:`Entry`, in the user's order."""
+    return [Entry(row.name, row.scheme, row.host, row.user, row.port, row.path) for row in profiles()]
+
+
+def store(entries: list[Entry]) -> None:
+    """The profiles made *entries*, in their order, in one transaction: a
+    name no longer among them is gone, the rest updated or made."""
+    with DATABASE.transaction():
+        names = {entry.name for entry in entries}
+        for row in RemoteProfile.all():
+            if row.name not in names:
+                row.delete()
+        for seq, entry in enumerate(entries, 1):
+            row = find(entry.name)
+            if row is None:
+                RemoteProfile.create(name=entry.name, scheme=entry.scheme, host=entry.host, user=entry.user,
+                                     port=entry.port, path=entry.path, seq=seq)
+                continue
+            row.scheme, row.host, row.user, row.port, row.path, row.seq = (
+                entry.scheme, entry.host, entry.user, entry.port, entry.path, seq)
+            row.save()
+
+
 def move(name: str, by: int) -> bool:
     """*name* one place up (*by* -1) or down (1) the list; False at its end."""
     with DATABASE.transaction():
@@ -94,4 +132,5 @@ def move(name: str, by: int) -> bool:
     return True
 
 
-__all__ = ["HOME", "find", "location_of", "move", "profiles", "remove", "replace", "save", "site_of"]
+__all__ = ["Entry", "HOME", "entries", "find", "location_of", "move", "profiles", "remove", "replace", "save",
+           "site_of", "store"]

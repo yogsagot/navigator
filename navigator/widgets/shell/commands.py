@@ -239,6 +239,7 @@ class ScreenRest(Command):
 
 __all__ = [
     "About",
+    "EditLinks",
     "SaversSetup",
     "ToggleTrashCan",
     "Game",
@@ -410,6 +411,14 @@ class HangUp(Command):
     as ``cmCloseLinked`` sent them."""
 
     title = "Discon"
+
+
+class EditLinks(Command):
+    """Utilities > *Saved links*: the connection profiles in one box -- edited,
+    added, deleted, reordered, kept on OK -- and one connected to.
+
+    Ours: DN's link was one cable, with no list of places to keep.
+    """
 
 
 class SetupLink(Command):
