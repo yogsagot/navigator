@@ -178,6 +178,11 @@ because that is what `TListViewer` gives its bar. Working the bar raises a `Scro
 writer on the value `_follow_cursor` owns, and the two would fight. Binding `value` is legal because `ScrollBar`
 never assigns its own value: it emits and lets the owner decide.
 
+**The thumb drags**, as `TScrollBar` tracked `sbIndicator`: a press on it takes the mouse capture, and each move
+emits a `ScrollEvent` for `value_at(cell)` -- `thumb`'s inverse, rounded up so the thumb lands under the pointer --
+skipping a move that asks for the same value again. The bar does not move its own thumb during the drag either; it
+follows when the owner writes `value` back. A press with `maximum` 0 takes no capture.
+
 **A list that lays its items out other than one per row says so through four hooks**, which `Panel`'s list mode
 (Ctrl+Y) is the reason for: `capacity` (a computed, `rows` by default -- how many items are on show, which the
 bar's `visible` and `page()` read), `index_at(x, y)` (the hit-test, `row_at(y)` by default), `render_items(surface)`

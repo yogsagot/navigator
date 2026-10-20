@@ -995,3 +995,43 @@ def test_a_widget_markup_constructs_needs_no_constructor_argument():
     required positional argument is what keeps a widget out of a document."""
     for component in (Label, Button, Dialog, Modal, Window, StaticText, Spacer):
         assert component(parent=None) is not None
+
+
+def test_a_scroll_bars_thumb_drags():
+    """``TScrollBar`` tracked ``sbIndicator``: a press on the thumb holds the
+    mouse, and each move asks for the value under the pointer -- even once the
+    pointer has left the bar's column -- until the release."""
+    from navml.widgets.dialog.scroll_bar import ScrollBar, ScrollEvent
+
+    root = Widget()
+    bar = root.add(ScrollBar(maximum=100, page=10))
+    app = Application(root=root, terminal=FakeTerminal(80, 24))
+    asked = []
+
+    async def on_scroll(event):
+        asked.append(event.value)
+        return True
+
+    root.on_scroll = on_scroll
+    assert bar.track == 22 and bar.thumb == 0
+    assert awaited(bar.on_mouse_click(MouseClickEvent(0, 1, "left", "press"))) is True
+    assert app.mouse_capture is bar and asked == []
+    awaited(bar.on_mouse_click(MouseClickEvent(5, 5, "left", "move")))
+    awaited(bar.on_mouse_click(MouseClickEvent(5, 5, "left", "move")))
+    awaited(bar.on_mouse_click(MouseClickEvent(0, 40, "left", "move")))
+    assert asked == [20, 100]
+    bar.value = 20
+    assert bar.thumb == 4
+    awaited(bar.on_mouse_click(MouseClickEvent(0, 40, "none", "release")))
+    awaited(bar.on_mouse_click(MouseClickEvent(0, 1, "left", "move")))
+    assert asked == [20, 100]
+
+
+def test_a_scroll_bar_with_nothing_to_scroll_does_not_hold_the_mouse():
+    from navml.widgets.dialog.scroll_bar import ScrollBar
+
+    root = Widget()
+    bar = root.add(ScrollBar())
+    app = Application(root=root, terminal=FakeTerminal(80, 24))
+    assert awaited(bar.on_mouse_click(MouseClickEvent(0, 1, "left", "press"))) is True
+    assert app.mouse_capture is None

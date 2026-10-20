@@ -11,6 +11,11 @@ carries what just *happened*.
 
 It is not focusable.  Turbo Vision's is not either: a scrollbar is a mouse
 affordance beside a view that already has the keys.
+
+**The thumb drags**, as ``TScrollBar.HandleEvent`` tracked ``sbIndicator``:
+a press on it takes the mouse capture, and every move until the release asks
+for the value whose thumb sits under the pointer.  The capture is what keeps
+the drag alive once the pointer leaves the bar's one column sideways.
 """
 
 from __future__ import annotations
@@ -42,6 +47,9 @@ class ScrollBar(Widget):
 
     emits = (ScrollEvent,)
 
+    #: The value last asked for by a thumb drag in progress, or None.
+    _dragging: int | None = None
+
     #: Which characters the arrows, track and thumb are drawn from.
     chars = StyleProperty(DEFAULT_SCROLLBAR, values=tuple(SCROLLBARS))
 
@@ -72,6 +80,18 @@ class ScrollBar(Widget):
             return 0
         return min(self.track - 1, self.value * (self.track - 1) // self.maximum)
 
+    def value_at(self, cell: int) -> int:
+        """The value whose thumb sits at *cell* along the track.
+
+        :attr:`thumb`'s inverse, rounded up so that the thumb lands exactly
+        under the pointer whenever there are more values than cells.
+        """
+        span = self.track - 1
+        if self.maximum <= 0 or span < 1:
+            return self.value
+        cell = min(max(cell, 0), span)
+        return -(-cell * self.maximum // span)
+
     def _ask(self, value: int) -> int:
         return min(max(value, 0), max(0, self.maximum))
 
@@ -83,6 +103,13 @@ class ScrollBar(Widget):
         if event.is_wheel:
             step = -self.step if event.button == "wheel_up" else self.step
             return await self.scroll_to(self.value + step * 3)
+        if self._dragging is not None:
+            app = self.application
+            if app is not None and app.mouse_capture is self:
+                return await self._drag(event)
+            # The capture went elsewhere (a modal opened, the bar was put
+            # back) without a release reaching here.
+            self._dragging = None
         if event.action != "press" or event.button != "left":
             return False
         along = event.y if self.vertical else event.x
@@ -95,6 +122,25 @@ class ScrollBar(Widget):
             return await self.scroll_to(self.value - self.page)
         if cell > self.thumb:
             return await self.scroll_to(self.value + self.page)
+        app = self.application
+        if self.maximum > 0 and app is not None:
+            self._dragging = self.value
+            app.capture_mouse(self)
+        return True
+
+    async def _drag(self, event: MouseClickEvent) -> bool:
+        """A move or the release of a held thumb."""
+        if event.action == "release":
+            self._dragging = None
+            return True
+        if event.action != "move":
+            return True
+        along = event.y if self.vertical else event.x
+        value = self._ask(self.value_at(along - 1))
+        if value == self._dragging:
+            return True
+        self._dragging = value
+        await self.scroll_to(value)
         return True
 
     def render(self, surface: Surface) -> None:
