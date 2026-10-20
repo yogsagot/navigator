@@ -10,8 +10,11 @@ under it: a panel (its directory, or the directory row under the pointer) or
 a directory tree (the directory under the pointer).  Dropping on the panel
 dragged from counts only on one of its directory rows, as ``CM_Dropped``
 refused the rest.  The drop is the :class:`Dropped` event, which the source
-panel emits and its file manager answers by copying -- or moving, Shift held
-at the release, as ``ShiftState`` said.
+panel emits and its file manager answers with a menu at the drop: copy, move,
+or a symbolic link, absolute or relative.  A departure: ``CM_Dropped`` copied
+at once, or moved with Shift held at the release (``ShiftState``); here Shift
+only opens the menu on *Move*.  *Drag-and-drop* is on by default, another
+departure.
 """
 
 from __future__ import annotations
@@ -28,9 +31,10 @@ from navkit.widget import Widget
 
 @dataclass(frozen=True, slots=True)
 class Dropped(Event):
-    """*entries*, dragged out of *source*, dropped on *target*: copy them there
-    (``cmDropped``) -- or erase them, dropped on the trash can.  *panel* is
-    the panel dropped on, if it was one."""
+    """*entries*, dragged out of *source*, dropped on *target*: copy, move or
+    link them there (``cmDropped``) -- or erase them, dropped on the trash
+    can.  *panel* is the panel dropped on, if it was one; *move* says Shift
+    was held; *x*, *y* is where, on the screen."""
 
     source: Any
     entries: tuple[Any, ...]
@@ -39,6 +43,8 @@ class Dropped(Event):
     panel: Any = None
     #: Dropped on the trash can: erase them (``cmEraseGroup``), *target* None.
     trash: bool = False
+    x: int = 0
+    y: int = 0
 
 
 class DragLabel(Widget):

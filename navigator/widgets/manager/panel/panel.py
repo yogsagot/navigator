@@ -1594,7 +1594,8 @@ class Panel(ContextMenuHost, ListViewer):
             self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), None, False, trash=True)))
         elif where is not None:
             target, panel = where
-            self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), target, event.shift, panel)))
+            self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), target, event.shift, panel,
+                                           x=x, y=y)))
         return True
 
     def _drag_entries(self, index: int) -> list[DirEntry]:

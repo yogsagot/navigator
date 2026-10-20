@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,8 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.copy_dialog import CopyDialog
+from navml.widgets.menu.popup_menu import PopupMenu
+
 from navigator.widgets.manager.panel.drag import DragLabel
 
 
@@ -61,16 +64,25 @@ def drag(source, target, *, shift: bool = False, seen: dict | None = None) -> li
             lambda a: None]
 
 
+def menu_up(app) -> bool:
+    return isinstance(app.modal, PopupMenu)
+
+
+def choose(key: str) -> list:
+    """Wait for the drop menu, then answer it with *key*."""
+    return [Until(menu_up), KeyEvent(key, char=key if len(key) == 1 else None)]
+
+
 def test_a_file_dragged_onto_the_other_panel_is_copied_there(place):
     seen = {}
-    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right"), seen=seen),
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right"), seen=seen), *choose("enter"),
                                Until(lambda a: (place / "b" / "f1.txt").exists())])
     assert seen["label"] == " f1.txt "
     assert (place / "a" / "f1.txt").exists()
 
 
-def test_shift_at_the_release_moves(place):
-    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right"), shift=True),
+def test_shift_at_the_release_opens_the_menu_on_move(place):
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right"), shift=True), *choose("enter"),
                                Until(lambda a: (place / "b" / "f1.txt").exists()
                                      and not (place / "a" / "f1.txt").exists())])
 
@@ -81,16 +93,19 @@ def test_a_tagged_row_carries_every_tagged_file(place):
     def tag(a):
         a.manager.left.marked = frozenset({"f1.txt", "f2.txt"})
 
-    run_app(navigator(place), [tag, *drag(at("left", "f2.txt"), at("right"), seen=seen),
+    run_app(navigator(place), [tag, *drag(at("left", "f2.txt"), at("right"), seen=seen), *choose("enter"),
                                Until(lambda a: (place / "b" / "f2.txt").exists()
                                      and (place / "b" / "f1.txt").exists())])
     assert seen["label"] == " 2 selected files "
 
 
 def test_on_its_own_panel_only_a_directory_row_takes_a_drop(place):
-    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("left", "sub")),
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("left", "sub")), *choose("c"),
                                Until(lambda a: (place / "a" / "sub" / "f1.txt").exists())])
-    run_app(navigator(place), [*drag(at("left", "f2.txt"), at("left", "f1.txt")), lambda a: None])
+    seen = {}
+    run_app(navigator(place), [*drag(at("left", "f2.txt"), at("left", "f1.txt")),
+                               lambda a: seen.update(menu=menu_up(a))])
+    assert not seen["menu"]
     assert sorted(p.name for p in (place / "a").iterdir()) == ["f1.txt", "f2.txt", "sub"]
 
 
@@ -109,8 +124,51 @@ def test_without_the_box_a_press_and_move_drags_nothing(place):
 def test_the_confirmation_puts_up_the_copy_dialog_aimed_at_the_drop(place):
     SETTINGS.confirmations.drag_and_drop = True
     seen = {}
-    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")),
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), *choose("enter"),
                                Until(lambda a: isinstance(a.modal, CopyDialog)),
                                lambda a: seen.update(target=a.modal.target.value), KeyEvent("enter"),
                                Until(lambda a: (place / "b" / "f1.txt").exists())])
     assert seen["target"] == str(place / "b" / "f1.txt")  # one file: its name, as F5's
+
+
+def test_the_menu_makes_a_symlink(place):
+    link = place / "b" / "f1.txt"
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), *choose("s"),
+                               Until(lambda a: link.is_symlink())])
+    assert os.readlink(link) == str(place / "a" / "f1.txt")
+
+
+def test_the_menu_makes_a_relative_symlink(place):
+    link = place / "b" / "f1.txt"
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), *choose("r"),
+                               Until(lambda a: link.is_symlink())])
+    assert os.readlink(link) == "../a/f1.txt"
+    assert link.read_text() == "f1.txt"
+
+
+def test_escape_drops_nothing(place):
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), *choose("escape"),
+                               Until(lambda a: not menu_up(a))])
+    assert list((place / "b").iterdir()) == []
+
+
+def test_the_menu_names_the_files_and_where_they_go(place):
+    seen = {}
+
+    def look(a):
+        box = a.modal.box
+        seen.update(title=box.title, footer=box.footer)
+
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), Until(menu_up), look,
+                               KeyEvent("escape")])
+    assert seen["title"] == "f1.txt"
+    assert seen["footer"].endswith(str(place / "b")[-20:])
+    assert seen["footer"].startswith("To ")
+
+
+def test_the_destination_writes_home_as_a_tilde(place, monkeypatch):
+    monkeypatch.setenv("HOME", str(place))
+    seen = {}
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), Until(menu_up),
+                               lambda a: seen.update(footer=a.modal.box.footer), KeyEvent("escape")])
+    assert seen["footer"] == "To ~/b"

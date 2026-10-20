@@ -8,13 +8,15 @@ from pathlib import Path
 import pytest
 
 from conftest import FakeTerminal, Until, run_app
-from navkit.events import MouseClickEvent
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit.screen import ScreenBuffer
+
+from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.config import desktop_state
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+from navigator.widgets.file_ops.erase_query import EraseQuery
 from navigator.widgets.shell.commands import ToggleTrashCan
 
 
@@ -87,21 +89,33 @@ def drop_on_trash(name: str):
     return act
 
 
-def test_files_dropped_on_it_are_erased_without_a_question(place):
-    SETTINGS.file_manager.drag_drop_columns = True
+def asked(a) -> bool:
+    return type(a.modal) is Dialog
+
+
+def test_files_dropped_on_it_are_erased_once_yes_is_said(place):
     app = navigator(place)
-    run_app(app, [toggle, lambda a: None, drop_on_trash("a.txt"), Until(lambda a: not (place / "a.txt").exists()),
-                  drop_on_trash("full"), Until(lambda a: not (place / "full").exists())])
+    seen = {}
+    run_app(app, [toggle, lambda a: None, drop_on_trash("a.txt"), Until(asked),
+                  lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("y", "y", alt=True),
+                  Until(lambda a: not (place / "a.txt").exists()),
+                  drop_on_trash("full"), Until(asked), KeyEvent("y", "y", alt=True),
+                  Until(lambda a: not (place / "full").exists())])
+    assert seen["prompt"] == "Do you wish to delete a.txt?"
     assert (place / "b.txt").exists() and app.modal is None
 
 
-def test_the_drag_and_drop_confirmation_asks_first(place):
-    SETTINGS.file_manager.drag_drop_columns = True
-    SETTINGS.confirmations.drag_and_drop = True
-    app = navigator(place)
-    run_app(app, [toggle, lambda a: None, drop_on_trash("a.txt"),
-                  Until(lambda a: isinstance(a.modal, DeleteDialog))])
+def test_no_keeps_the_files(place):
+    run_app(navigator(place), [toggle, lambda a: None, drop_on_trash("a.txt"), Until(asked),
+                               KeyEvent("n", "n", alt=True), Until(lambda a: a.modal is None)])
     assert (place / "a.txt").exists()
+
+
+def test_the_drag_and_drop_confirmation_asks_on_the_way(place):
+    SETTINGS.confirmations.drag_and_drop = True
+    run_app(navigator(place), [toggle, lambda a: None, drop_on_trash("full"), Until(asked),
+                               KeyEvent("y", "y", alt=True), Until(lambda a: isinstance(a.modal, EraseQuery))])
+    assert (place / "full").exists()
 
 
 def test_the_desktop_keeps_it(place):

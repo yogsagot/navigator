@@ -49,9 +49,11 @@ class LinkDialog(Dialog):
         here: Path | None = None,
         other: Path | None = None,
         hidden: bool = True,
+        relative: bool | None = None,
         **kwargs: Any,
     ) -> None:
-        """*entries* are the panel's selection in *here*; *other* is the passive panel's directory."""
+        """*entries* are the panel's selection in *here*; *other* is the passive panel's directory.
+        *relative* ticks *Relative link* or not; None leaves it as the session had it."""
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
@@ -63,7 +65,9 @@ class LinkDialog(Dialog):
             HISTORY.add("link", str(other).rstrip("/") + "/")
         self.target.value = target_for(self._entries, self._here, other, move=False)
         self.target.entry.select_all()
-        self.options.value = RELATIVE if _session["relative"] else 0
+        if relative is None:
+            relative = _session["relative"]
+        self.options.value = RELATIVE if relative else 0
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

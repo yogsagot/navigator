@@ -17,6 +17,7 @@ import shlex
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 
+from navkit import glyphs as glyphs_module
 from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
@@ -90,7 +91,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
-from navigator.widgets.manager.panel.drag import Dropped
+from navigator.widgets.manager.panel.drag import Dropped, label_for
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
@@ -1476,27 +1477,82 @@ class Manager(Window):
         """Files dropped from one of this window's panels: ``CM_Dropped`` -- or
         on the trash can, which erases them.
 
-        Into *target* at once, unless Confirmations' *Drag and drop* asks
-        first (``cfMouseConfirm``), when the Copy dialog comes up with it
-        filled in.  A directory is never dropped into itself.
+        What to do with them is asked in a menu at the drop
+        (:meth:`_drop_menu`); a directory is never dropped into itself.
         """
         source = event.source
         if source not in (self.left, self.right):
             return False
         if event.trash:
-            # ``TTrashCan``: ``cmEraseGroup`` with every confirmation off,
-            # unless Confirmations' *Drag and drop* is ticked.
-            self.spawn(self.erase_entries(source, list(event.entries),
-                                          quiet=not SETTINGS.confirmations.drag_and_drop))
+            self.spawn(self._drop_on_trash(source, list(event.entries)))
             return True
         target = event.target.resolve() if event.target.exists() else event.target
         here = Path(source.path)
         if any(entry.is_dir and entry.path_in(here) in (target, *target.parents) for entry in event.entries):
             return True
         others = (event.panel,) if event.panel is not None and event.panel is not source else ()
-        self.spawn(self.copy_entries(source, list(event.entries), target, move=event.move,
-                                     others=others, ask=SETTINGS.confirmations.drag_and_drop))
+        self.spawn(self._drop_menu(event, target, others))
         return True
+
+    async def _drop_on_trash(self, source: Panel, entries: list[Any]) -> None:
+        """``TTrashCan``: ``cmEraseGroup`` once a Yes/No box agrees.
+
+        A departure: DN erased at once with every confirmation off.  The box
+        stands in for F8's Delete dialog; past it the non-empty and read-only
+        questions are answered Yes, as ``Confirms := 0`` did, unless
+        Confirmations' *Drag and drop* is ticked.
+        """
+        from navml.widgets.dialog.control import escape_caption
+
+        if len(entries) == 1:
+            prompt = tr("Do you wish to delete {name}?").format(name=escape_caption(entries[0].name))
+        else:
+            prompt = tr_n("Do you wish to delete {n} file?", "Do you wish to delete {n} files?", len(entries))
+        if await self._ask_yes_no(prompt, tr("Delete")) is not True:
+            return
+        await self.erase_entries(source, entries, quiet=not SETTINGS.confirmations.drag_and_drop, dialog=False)
+
+    async def _drop_menu(self, event: Dropped, target: Path, others: tuple[Any, ...]) -> None:
+        """Copy, move or link what was dropped, as chosen from a menu at the drop.
+
+        A departure: ``CM_Dropped`` copied at once, or moved with Shift held;
+        here Shift opens the menu on *Move*.  Then into *target* at once,
+        unless Confirmations' *Drag and drop* asks first (``cfMouseConfirm``),
+        when the Copy or Create symlink dialog comes up with it filled in.
+        """
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        app = self.application
+        if app is None:
+            return
+        menu = SubMenu()
+        copy = menu.add_item(tr("~C~opy here"))
+        move = menu.add_item(tr("~M~ove here"))
+        link = menu.add_item(tr("~S~ymlink here"))
+        relative = menu.add_item(tr("~R~elative symlink here"))
+        menu.add_line()
+        menu.add_item(tr("Cancel"), key="Esc")
+        title = label_for(list(event.entries))
+        from navigator.lib.system.title import tilde
+
+        # Where they go, in the bottom frame, home as ``~``: the path's start
+        # gives way to keep the box on the screen.
+        where = tr("To {path}")
+        room = max(8, (app.root.width if app.root is not None else 80) - 10 - len(where.format(path="")))
+        path = tilde(target)
+        if len(path) > room:
+            marker = glyphs_module.ellipsis(self.glyphs)
+            path = marker + path[-(room - len(marker)):]
+        chosen = await PopupMenu(menu, event.x, event.y, current=1 if event.move else 0, behind=self,
+                                 title=title, footer=where.format(path=path)).execute(app)
+        source, entries = event.source, list(event.entries)
+        ask = SETTINGS.confirmations.drag_and_drop
+        if chosen is copy or chosen is move:
+            await self.copy_entries(source, entries, target, move=chosen is move, others=others, ask=ask)
+        elif chosen is link or chosen is relative:
+            await self.link_entries(source, entries, target, relative=chosen is relative,
+                                    others=others, ask=ask)
 
     async def copy_entries(self, panel: Panel, entries: list[Any], target: Path, *, move: bool,
                            others: tuple[Any, ...] = (), ask: bool = True) -> None:
@@ -1698,10 +1754,12 @@ class Manager(Window):
             entries = self.selection(panel)
         await self.erase_entries(panel, entries)
 
-    async def erase_entries(self, panel: Panel, entries: list[Any], *, quiet: bool = False) -> None:
+    async def erase_entries(self, panel: Panel, entries: list[Any], *, quiet: bool = False,
+                            dialog: bool = True) -> None:
         """*entries* of *panel* erased, as F8 erases them -- or, *quiet*, as
         the trash can did with ``Confirms := 0``: no dialog, and Yes to the
-        questions on the way."""
+        questions on the way.  Without *dialog* the Delete dialog is left
+        out, the caller having asked already."""
         from navigator.lib.file_ops import fileerase
         from navigator.widgets.file_ops.delete_dialog import DeleteDialog
         from navigator.widgets.file_ops.delete_progress import DeleteProgress
@@ -1715,7 +1773,7 @@ class Manager(Window):
         # and so no *Recursive delete* either -- a non-empty directory is
         # then asked about below, if that is ticked.
         confirms = SETTINGS.confirmations
-        if not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
+        if dialog and not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
             request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
         else:
             request = fileerase.EraseRequest(
@@ -1779,20 +1837,37 @@ class Manager(Window):
         offers it, and a link that cannot be made puts Copy's *Skip* /
         *Cancel*.  What was linked is untagged.
         """
+        panel, other = self.active_panel, self.passive_panel
+        entries = self.selection(panel)
+        if entries:
+            await self.link_entries(panel, entries, Path(other.path), others=(other,))
+
+    async def link_entries(self, panel: Panel, entries: list[Any], target: Path, *,
+                           relative: bool | None = None, others: tuple[Any, ...] = (),
+                           ask: bool = True) -> None:
+        """Links to *entries* of *panel* made in *target*: the Create symlink
+        dialog first when *ask* (its *Relative link* box ticked as *relative*
+        says, or as the session left it for None), else at once; then *panel*
+        and *others* look again."""
         from navml.widgets.dialog.control import escape_caption
 
         from navigator.lib.file_ops import filecopy, filelink
         from navigator.widgets.file_ops.link_dialog import LinkDialog
 
         app = self.application
-        panel, other = self.active_panel, self.passive_panel
-        entries = self.selection(panel)
         if app is None or not entries:
             return
         here = Path(panel.path)
-        request = await LinkDialog(
-            entries=entries, here=here, other=Path(other.path), hidden=panel.show_hidden,
-        ).execute(app)
+        if ask:
+            request = await LinkDialog(
+                entries=entries, here=here, other=target, hidden=panel.show_hidden, relative=relative,
+            ).execute(app)
+        else:
+            request = filelink.LinkRequest(
+                sources=[entry.path_in(here) for entry in entries],
+                target=str(target).rstrip("/") + "/",
+                relative=bool(relative),
+            )
         if request is None:
             return
         destination = filecopy.resolve_target(request.target, request.sources, here)
@@ -1820,7 +1895,8 @@ class Manager(Window):
         finally:
             panel.untag_paths(linked)
             panel.reload()
-            other.reload()
+            for other in others:
+                other.reload()
 
     # -- attributes --------------------------------------------------------------
 

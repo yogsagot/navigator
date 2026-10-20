@@ -27,12 +27,17 @@ def user_host() -> str:
     return f"{user}@{host}"
 
 
-def window_title(where: Path | None) -> str:
-    """The title for a session whose active panel is in *where*, if anywhere."""
-    if where is None:
-        return f"{user_host()} — Navigator"
+def tilde(where: Path | str) -> str:
+    """*where* with the home directory at its start written ``~``, as a shell's prompt does."""
     shown = str(where)
     home = os.path.expanduser("~")
     if home != "/" and (shown == home or shown.startswith(home + os.sep)):
         shown = "~" + shown[len(home):]
-    return f"{user_host()} {shown} — Navigator"
+    return shown
+
+
+def window_title(where: Path | None) -> str:
+    """The title for a session whose active panel is in *where*, if anywhere."""
+    if where is None:
+        return f"{user_host()} — Navigator"
+    return f"{user_host()} {tilde(where)} — Navigator"

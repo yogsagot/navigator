@@ -69,18 +69,25 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title, footer path and path column cut their start with the
   same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
-- **Drag-and-drop** (File Manager Setup's box, `panel/drag.py`): a left press on a row captures the mouse; the first
+- **Drag-and-drop** (File Manager Setup's box, **on by default** -- a departure, DN's `fmoDragAndDrop` was off;
+  `panel/drag.py`): a left press on a row captures the mouse; the first
   move with the button held makes a `DragLabel` overlay (` name ` or ` N selected files `, `$30`, shadow) that follows
   it -- the tagged files if the row is tagged, else the row's own, never `..`. The release finds the target with
   `drop_target` (a panel's directory row or its directory, its own panel only on a directory row; a tree's node) and
-  the panel emits `Dropped`, which its `Manager.on_dropped` turns into `copy_entries` -- Shift at the release moves,
-  Confirmations' *Drag and drop* asks with the Copy dialog first, and a directory is never dropped into itself.
+  the panel emits `Dropped` (with the drop's screen `x`, `y`). `Manager.on_dropped` puts up `_drop_menu`, a
+  `PopupMenu` at the drop titled with the drag label and with `To <directory>` in its bottom frame (`footer`, home as `~` by `title.tilde`, the
+  path's start cut to keep the box on the screen): *Copy here* / *Move here* / *Symlink here* / *Relative symlink
+  here* / *Cancel*, into `copy_entries` or `link_entries` (Shift+F5's body, shared). A departure: DN copied at once
+  and Shift moved; here Shift only opens the menu on *Move*. Confirmations' *Drag and drop* puts up the Copy or Create
+  symlink dialog after the choice (`LinkDialog(relative=...)` ticks its box), and a directory is never dropped into
+  itself.
 - **The trash can** (≡ > Trashcan on/off, `ToggleTrashCan`, DN's `TTrashCan`/`cmHideShowTools`, ticked while shown):
   `widgets/shell/trash_can.py`, a `Shell` child over the desktop bound to the desktop's bottom right corner by
   `gap_x`/`gap_y` (so a resize keeps it there, `gfGrowAll`), dragged by the mouse, `TrashCan:dragging` in the frame
-  icons' colour. A drop on it is `Dropped(trash=True)` (`drag.TRASH`), and `Manager.erase_entries(quiet=...)` erases
-  -- *quiet* (no Delete dialog, Yes to non-empty and read-only) unless Confirmations' *Drag and drop* is ticked, as
-  DN set `Confirms := 0`. Shown and placed are saved with the desktop (`desktop_state`'s `trash`). DN's double click
+  icons' colour. A drop on it is `Dropped(trash=True)` (`drag.TRASH`): `Manager._drop_on_trash` asks a Yes/No
+  *Do you wish to delete NAME?* (a departure: DN erased at once), then `erase_entries(dialog=False, quiet=...)` --
+  *quiet* (Yes to non-empty and read-only) unless Confirmations' *Drag and drop* is ticked, as DN set
+  `Confirms := 0`. Shown and placed are saved with the desktop (`desktop_state`'s `trash`). DN's double click
   ran the *Reanimator* undelete, which has nothing to do here.
 - **Left, Right, Home and End go to a command line with text** under File Manager Setup's *Use arrows* (on, DN's
   default), and Shift+ them to the panel; off, the other way round (`Panel.arrows_to_line`, `Panel.LINE_KEYS`;

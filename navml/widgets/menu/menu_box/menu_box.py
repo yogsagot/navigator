@@ -21,7 +21,8 @@ Every measurement here is ``MENUS.PAS``'s:
 * **A box can carry a title** centred in its top frame, `` Bookmarks ``, as a
   dialog's is -- a departure: Turbo Vision's boxes had none, but a popup
   standing alone (the bookmarks' box) has no bar entry to say what it is.
-  The box is widened to hold it.
+  The box is widened to hold it.  A **footer** sits in the bottom frame the
+  same way (a drop menu's destination), widening the box too.
 
 **A box opened shorter than that scrolls** -- a departure: Turbo Vision's
 boxes never had more entries than the screen had rows, but a popup listing
@@ -73,13 +74,15 @@ class MenuBox(Widget):
     #: Which entry is selected, as an index into :meth:`entries`; -1 for none.
     current: int = reactive(-1)
 
-    def __init__(self, menu: SubMenu | None = None, *, title: str = "",
+    def __init__(self, menu: SubMenu | None = None, *, title: str = "", footer: str = "",
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: The submenu this box shows.
         self.menu = menu
         #: The caption centred in the top frame; empty for none.
         self.title = title
+        #: The caption centred in the bottom frame; empty for none.
+        self.footer = footer
         #: The widget whose point of view decides what is enabled -- the one
         #: that had the keyboard before the menu took it.  Set by whoever
         #: opens the box; None asks from wherever the focus is.
@@ -102,10 +105,12 @@ class MenuBox(Widget):
 
     @staticmethod
     def measure(menu: SubMenu, app: Application | None = None,
-                behind: Widget | None = None, title: str = "") -> tuple[int, int]:
+                behind: Widget | None = None, title: str = "",
+                footer: str = "") -> tuple[int, int]:
         """The ``(width, height)`` a box for *menu* takes, as ``TMenuBox.Init``,
-        widened to hold *title* between the frame's corners."""
-        width, height = max(10, len(title) + 8 if title else 0), 2
+        widened to hold *title* and *footer* between the frame's corners."""
+        width = max([10] + [len(text) + 8 for text in (title, footer) if text])
+        height = 2
         for entry in menu.entries():
             height += 1
             if isinstance(entry, MenuLine):
@@ -255,6 +260,9 @@ class MenuBox(Widget):
                 surface.draw_text(width - 3 - len(key), y, key, row)
         bottom = min(len(entries), rows) + 1
         frame_line(bottom, (bl, br), horizontal, normal)
+        if self.footer and width >= 8:
+            label = f" {self.footer} "[: width - 6]
+            surface.draw_text((width - len(label)) // 2, bottom, label, normal)
         if width >= 6:
             bars = SCROLLBARS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"]
             if top > 0:

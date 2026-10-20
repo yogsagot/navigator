@@ -501,7 +501,8 @@ class FMSetupData(Section):
     DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character", "link_line")
 
     auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
-    drag_drop_columns: bool = Setting(False, doc="Files can be dragged out of a panel with the mouse")
+    # On by default, a departure: DN's fmoDragAndDrop was off.
+    drag_drop_columns: bool = Setting(True, doc="Files can be dragged out of a panel with the mouse")
     beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy")
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
     space_toggles_selection: bool = Setting(
