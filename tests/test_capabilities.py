@@ -451,6 +451,26 @@ def test_a_caller_may_state_the_glyph_tier_outright(env, default, expected):
     assert TerminalInfo.detect(env, glyphs=default).glyphs == expected
 
 
+@pytest.mark.parametrize(
+    "env, default, expected",
+    [
+        # The caller's answer replaces the guess, downwards and upwards...
+        ({"TERM": "xterm-256color", "COLORTERM": "truecolor"}, ANSI_BRIGHT, ANSI_BRIGHT),
+        ({"TERM": "xterm"}, TRUECOLOR, TRUECOLOR),
+        # ...outranks NO_COLOR, which defers to user configuration...
+        ({"TERM": "xterm", "NO_COLOR": "1"}, EXTENDED, EXTENDED),
+        # ...but never colours a terminal that cannot be assumed to do anything,
+        ({"TERM": "dumb"}, TRUECOLOR, MONOCHROME),
+        # and the variable outranks it, as it does for the glyphs.
+        ({"TERM": "xterm", "NAVKIT_COLORS": "256"}, ANSI_BRIGHT, EXTENDED),
+        # Nothing stated: the guess stands.
+        ({"TERM": "xterm-256color"}, None, EXTENDED),
+    ],
+)
+def test_a_caller_may_state_the_colour_depth_outright(env, default, expected):
+    assert TerminalInfo.detect(env, colors=default).colors == expected
+
+
 def test_a_multiplexer_hides_the_terminal_underneath():
     """A documented limit rather than a defect.
 

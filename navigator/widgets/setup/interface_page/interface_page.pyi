@@ -14,7 +14,7 @@ from typing import Any
 from navkit.i18n import languages, tr
 from navkit.widget import Widget
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import SETTINGS, InterfaceData
+from navigator.settings import COLOR_DEPTHS, SETTINGS, AppearanceData, InterfaceData
 
 
 class InterfacePage(_Component):
@@ -24,5 +24,6 @@ class InterfacePage(_Component):
     language: ChoiceField
     settings_tabs_caption: Label
     settings_tabs: RadioButtons
-    def __init__(self, section: InterfaceData | None = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> dict[str, Any]: ...
+    colors: ChoiceField
+    def __init__(self, section: InterfaceData | None = ..., appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
+    def accept(self) -> dict[str, dict[str, Any]]: ...

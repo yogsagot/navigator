@@ -109,6 +109,22 @@ VGA_PALETTE = _ANSI_RGB
 _CUBE_LEVELS = (0, 95, 135, 175, 215, 255)
 
 
+def depth_named(name: str, default: int | None = None) -> int | None:
+    """The colour depth *name* stands for -- a name in ``_DEPTH_NAMES`` or a
+    plain number -- or *default* if it names nothing.
+
+    Ignoring an unreadable name rather than raising matches
+    :func:`navkit.glyphs.tier_named`, and for the same reason: it arrives from
+    an environment variable or a command line.
+    """
+    name = name.strip().lower()
+    if name in _DEPTH_NAMES:
+        return _DEPTH_NAMES[name]
+    if name.isdigit():
+        return int(name)
+    return default
+
+
 def _xterm_256() -> tuple[tuple[int, int, int], ...]:
     """The 256-colour palette: 16 system colours, a 6x6x6 cube, then greys."""
     colors = list(_ANSI_RGB)
@@ -276,6 +292,7 @@ class TerminalInfo:
         is_tty: bool = True,
         palette: tuple[tuple[int, int, int], ...] | None = None,
         glyphs: int | None = None,
+        colors: int | None = None,
     ) -> TerminalInfo:
         """Read the environment for what this terminal admits to.
 
@@ -298,6 +315,12 @@ class TerminalInfo:
         VGA registers, ``terminal`` (or ``none``, ``off``) hands the question
         back to the terminal's own theme.
 
+        *colors* is the caller's own answer to the depth: it replaces the
+        guess from ``COLORTERM``/``TERM`` and outranks ``NO_COLOR`` (which
+        defers to user configuration, as no-color.org asks), though not a
+        plain terminal, which stays monochrome; ``NAVKIT_COLORS`` still
+        overrides it.
+
         *glyphs* is the same arrangement for the character repertoire, and
         ``NAVKIT_GLYPHS`` (``ascii``, ``unicode``, ``nerd``) overrides it.  Left
         to itself the guess runs: a plain terminal gets ASCII, one of the
@@ -317,7 +340,7 @@ class TerminalInfo:
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
 
-        colors = ANSI_BRIGHT
+        stated, colors = colors, ANSI_BRIGHT
         if plain:
             colors = MONOCHROME
         elif env.get("COLORTERM", "").lower() in ("truecolor", "24bit"):
@@ -327,12 +350,9 @@ class TerminalInfo:
 
         if env.get("NO_COLOR"):
             colors = MONOCHROME
-        override = env.get("NAVKIT_COLORS", "").strip().lower()
-        if override:
-            if override in _DEPTH_NAMES:
-                colors = _DEPTH_NAMES[override]
-            elif override.isdigit():
-                colors = int(override)
+        if stated is not None and not plain:
+            colors = stated
+        colors = depth_named(env.get("NAVKIT_COLORS", ""), colors)
 
         if glyphs is None:
             if plain:

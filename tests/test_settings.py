@@ -253,6 +253,40 @@ def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_pa
     assert "history_size = 7" in config_path().read_text(encoding="utf-8")
 
 
+def test_colours_are_chosen_in_interface_setup_and_sent_at_once(tmp_path, quiet_console, monkeypatch):
+    from navkit.capabilities import ANSI_BRIGHT, TRUECOLOR
+
+    monkeypatch.setenv("TERM", "xterm-256color")
+    monkeypatch.setenv("COLORTERM", "truecolor")
+    monkeypatch.delenv("NAVKIT_COLORS", raising=False)
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    terminal = FakeTerminal(80, 24)
+    app = Navigator(tmp_path, tmp_path, terminal=terminal)
+    seen = []
+
+    def choose(a):
+        seen.append(a.modal.interface.colors.value)
+        a.modal.interface.colors.value = "16 colours"
+        # Weighed as a real terminal would be; a fake one is plain, and the
+        # loop has already decided not to read it.
+        terminal.is_tty = True
+
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append(terminal.info.colors),
+    ])
+    assert seen == ["Automatic", ANSI_BRIGHT]
+    assert SETTINGS.appearance.colors == "16"
+    assert "colors = 16" in config_path().read_text(encoding="utf-8")
+    # Back to automatic: detection's answer again.
+    app.use_color_depth("auto")
+    assert terminal.info.colors == TRUECOLOR
+
+
 @pytest.mark.parametrize("command, tab", [
     ("Settings", "system"),
     ("SystemSetup", "system"),

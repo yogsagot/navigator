@@ -220,6 +220,10 @@ class Section:
 # -- the sections ---------------------------------------------------------------
 
 
+#: What ``--colors`` and ``[appearance] colors`` accept: detect, or a depth.
+COLOR_DEPTHS = ("auto", "mono", "8", "16", "256", "truecolor")
+
+
 class AppearanceData(Section):
     """What the command line's flags set, which DN kept under *Colors*.
 
@@ -228,12 +232,16 @@ class AppearanceData(Section):
     """
 
     name = "appearance"
-    title = "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags"
+    title = "Appearance -- the --theme, --palette, --colors, --glyphs and --dim-modal flags"
 
     theme: str = Setting("default", doc="Colour scheme, one of `nav --list-themes`")
     palette: str = Setting(
         "dos", choices=("dos", "terminal"),
         doc="What a colour name means: DN's VGA value, or the terminal's own scheme",
+    )
+    colors: str = Setting(
+        "auto", choices=COLOR_DEPTHS,
+        doc="How many colours the terminal shows; auto reads COLORTERM and TERM",
     )
     glyphs: str = Setting(
         "auto", choices=("auto", "ascii", "unicode", "nerd"),

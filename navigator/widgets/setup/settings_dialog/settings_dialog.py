@@ -16,7 +16,7 @@ from navigator.settings import SETTINGS
 PAGES: dict[str, tuple[str, ...]] = {
     "system": ("system",),
     "startup": ("startup",),
-    "interface": ("interface",),
+    "interface": ("interface", "appearance"),
     "confirmations": ("confirmations",),
     "savers": ("savers",),
     "editor_viewer": ("editor", "viewer"),

@@ -9,7 +9,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: The resource's twelve boxes in its two columns of six, at its width; Help
 #: is left out, having nothing to show yet.  *History size* below them is a
 #: departure: DN's lists were a fixed 20 long; so is *Language*, DN's being
-#: the resource set it was installed with.
+#: the resource set it was installed with, and *Colours*, ``[appearance]``'s
+#: depth, where DN's was the video mode a DOS adapter was put in.
 InterfacePage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -62,3 +63,13 @@ InterfacePage:
         width: 36
         height: 1
         items: ["~O~n top", "On the le~f~t"]
+
+    #: Not DN's: how many colours the terminal is sent, at once.
+    ChoiceField:
+        id: colors
+        x: 2
+        y: 14
+        width: 40
+        height: 1
+        label_text: "Colou~r~s"
+        label_width: 15

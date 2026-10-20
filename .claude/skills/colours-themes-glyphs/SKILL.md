@@ -92,7 +92,9 @@ with `VGA_PALETTE` it means the DOS register value. `navigator` pins by default;
 back. **A child program's cells are never pinned** (`Style.terminal_palette`, per cell, not a sheet field, and `adapt_style` leaves their indices alone), so
 `ls --color` in the console matches the plain terminal. Pinning is a no-op below 256 colours; `--reprogram-palette`
 (OSC 4, reset with OSC 104) reaches those. `NAVKIT_PALETTE` (`dos`/`vga`, `terminal`/`none`/`off`) overrides;
-`--palette` outranks it.
+`--palette` outranks it. The depth itself is detected from `COLORTERM`/`TERM`; `[appearance] colors` replaces that guess,
+`NAVKIT_COLORS` overrides it and `--colors {auto,mono,8,16,256,truecolor}` outranks both (`depth_named()`). Forcing
+`16` therefore also turns pinning off.
 
 ## Glyphs
 

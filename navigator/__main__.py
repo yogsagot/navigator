@@ -26,7 +26,7 @@ from importlib import metadata
 from pathlib import Path
 
 from navkit.application import Application
-from navkit.capabilities import VGA_PALETTE, TerminalInfo
+from navkit.capabilities import VGA_PALETTE, TerminalInfo, depth_named
 from navkit.commands import Command
 from navkit.database import DATABASE
 from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
@@ -50,7 +50,7 @@ from navigator.lib.appearance.scheme import (
 )
 from navigator.lib.config.file_history import remember_windows
 from navigator.lib.system import dirwatch, errorlog
-from navigator.settings import SETTINGS, config_path, database_path
+from navigator.settings import COLOR_DEPTHS, SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
@@ -107,6 +107,16 @@ class Navigator(Application):
     def manager(self) -> Manager:
         """The file manager window, whether or not it is still open."""
         return self.shell.manager
+
+    def use_color_depth(self, name: str) -> None:
+        """Send the terminal *name*'s colour depth from the next frame, which
+        is painted whole -- Interface Setup's *Colours*, changed.  Weighed as
+        at the start, so ``NAVKIT_COLORS`` still wins and a plain terminal
+        stays monochrome; ``auto`` is detection's answer again."""
+        terminal = self.terminal
+        depth = TerminalInfo.detect(is_tty=terminal.is_tty, colors=depth_named(name)).colors
+        terminal.info = replace(terminal.info, colors=depth)
+        self.redraw()
 
     async def on_start(self) -> None:
         # Started now rather than on the first command, because its prompt
@@ -614,6 +624,12 @@ def main(argv: list[str] | None = None) -> int:
              "scheme paints for it (default: the settings file's)",
     )
     parser.add_argument(
+        "--colors", choices=COLOR_DEPTHS, default=None,
+        help="how many colours the terminal shows: `16' keeps to the ANSI "
+             "sixteen on a terminal that would take truecolor, `mono' drops "
+             "colour (default: the settings file's, else detect)",
+    )
+    parser.add_argument(
         "--glyphs", choices=("auto", "ascii", "unicode", "nerd"), default=None,
         help="which characters the terminal's font can draw: `ascii' for plain "
              "+-| frames, `unicode' for box drawing, `nerd' to add a Nerd Font "
@@ -722,6 +738,7 @@ def main(argv: list[str] | None = None) -> int:
         is_tty=is_a_tty(sys.stdin, sys.stdout),
         palette=VGA_PALETTE if appearance.palette == "dos" else None,
         glyphs=tier_named(appearance.glyphs),
+        colors=depth_named(appearance.colors),
     )
     if args.palette is not None:
         info = replace(
@@ -732,6 +749,9 @@ def main(argv: list[str] | None = None) -> int:
     # against what it found, so the flag is applied over that answer.
     if args.glyphs is not None and args.glyphs != "auto":
         info = replace(info, glyphs=tier_named(args.glyphs, info.glyphs))
+    # And for the colour depth, over NAVKIT_COLORS.
+    if args.colors is not None and args.colors != "auto":
+        info = replace(info, colors=depth_named(args.colors, info.colors))
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
     left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
