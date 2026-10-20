@@ -49,7 +49,7 @@ from navkit.events import (
     WakeEvent,
 )
 from navkit.reactive import SCHEDULER, flush_effects, reactive
-from navkit.screen import ScreenBuffer, render_diff
+from navkit.screen import ScreenBuffer, Surface, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
@@ -80,6 +80,11 @@ CLIPBOARD_ANSWER_TIMEOUT = 0.5
 #: otherwise bury the user in error boxes.
 ERROR_STORM_LIMIT = 5
 ERROR_STORM_WINDOW = 10.0
+
+#: How many dimmed styles :meth:`Application._painting_modal` remembers
+#: before starting over.  A frame holds a few dozen; this only bounds a
+#: session that paints an unbounded variety of colours behind a dialog.
+DIMMED_STYLES_LIMIT = 4096
 
 
 _WAKE = WakeEvent()
@@ -314,6 +319,26 @@ class Application:
         #: Whether what lies beneath the top modal is painted dimmed.  Off by
         #: default and experimental -- see :meth:`_painting_modal`.
         self.dim_modal = dim_modal
+        #: Each style painted behind a modal, and its dimmed twin.  Kept from
+        #: frame to frame so that an unchanged cell holds the *same* style
+        #: object as last time, which is what lets :func:`render_diff` rule a
+        #: row out in one comparison instead of comparing every cell's style
+        #: field by field -- the dim pass otherwise cost more than the frame.
+        self._dimmed: dict[Style, Style] = {}
+        #: The top modal and a copy of the frame as it stood just before that
+        #: modal painted -- everything beneath it, dimmed already.  See
+        #: :meth:`_render`: a frame whose every change is inside the modal
+        #: starts from this instead of painting the whole tree again.
+        self._underlay: tuple[Widget, ScreenBuffer] | None = None
+        #: Whether anything outside the top modal may have changed since the
+        #: last frame, which is what :attr:`_underlay` cannot be used across.
+        self._below_dirty = True
+        #: Set while :meth:`_render` paints the whole tree, which is the only
+        #: time :meth:`_painting_modal` may take an underlay.
+        self._composing = False
+        #: Set while :meth:`_render` paints over an underlay, which is dimmed
+        #: already and must not be dimmed or taken again.
+        self._reusing = False
         #: Whether a copy reaches the desktop's clipboard and a paste reads it
         #: (:meth:`copy_to_clipboard`).  Off, the clipboard is a private one
         #: inside the application, as Turbo Vision's was.
@@ -832,6 +857,7 @@ class Application:
 
     def _push_modal(self, widget: Widget) -> None:
         """Called by the mount walk.  Remembers what had the focus."""
+        self._below_dirty = True
         # Something else is under the pointer now, so a press before this and
         # one after it are not two clicks on one thing.
         self._clicks.reset()
@@ -847,6 +873,7 @@ class Application:
         whatever is still holding the input, not to the thing behind it.
         """
         self._clicks.reset()  # as `_push_modal': the cell changed meaning
+        self._below_dirty = True
         for index, (held, restore) in enumerate(self._modals):
             if held is not widget:
                 continue
@@ -938,8 +965,18 @@ class Application:
 
     # -- painting -----------------------------------------------------------
 
-    def invalidate(self) -> None:
-        """Request a repaint.  Cheap and safe to call many times per frame."""
+    def invalidate(self, widget: Widget | None = None) -> None:
+        """Request a repaint.  Cheap and safe to call many times per frame.
+
+        *widget* is what changed, when a widget is asking for itself
+        (:meth:`Widget.invalidate`).  A change inside the top modal leaves
+        what lies beneath it as it was, which lets :meth:`_render` reuse
+        that; anything else -- no widget named included -- does not.
+        """
+        if not self._below_dirty and (
+            widget is None or (modal := self.modal) is None or not modal._holds(widget)
+        ):
+            self._below_dirty = True
         if not self._dirty:
             self._dirty = True
             self._wake()
@@ -1021,9 +1058,38 @@ class Application:
             if overdue > 0:
                 await asyncio.sleep(overdue)
 
-        self._back.clear(self.background)
-        if self._root is not None:
-            self._root.render_tree(self._back)
+        modal = self.modal
+        underlay = self._underlay
+        if (
+            underlay is not None
+            and not self._below_dirty
+            and underlay[0] is modal
+            and modal is not None
+            and modal.parent is not None
+            and modal.visible
+            and underlay[1].width == self._back.width
+            and underlay[1].height == self._back.height
+        ):
+            # Only the modal changed: start from what lay beneath it last
+            # time and paint the modal and whatever stands above it.  A
+            # progress box ticking over a full desktop is otherwise the whole
+            # tree, every tick, for a few changed cells.
+            self._back.copy_from(underlay[1])
+            self._reusing = True
+            try:
+                self._render_above(modal)
+            finally:
+                self._reusing = False
+        else:
+            self._underlay = None
+            self._back.clear(self.background)
+            if self._root is not None:
+                self._composing = True
+                try:
+                    self._root.render_tree(self._back)
+                finally:
+                    self._composing = False
+        self._below_dirty = False
 
         output = render_diff(self._front, self._back, self.terminal.info)
         cursor = self._cursor()
@@ -1062,10 +1128,55 @@ class Application:
         only marks the cells ``dim``; what faint *looks* like is decided at the
         edge, in :meth:`TerminalInfo.adapt_style`, because SGR 2 alone is
         ignored for direct-RGB colours by VTE-based terminals.
+
+        It is also where the frame so far is kept as the modal's underlay,
+        which :meth:`_render` paints over instead of the whole tree while
+        nothing beneath the modal changes.
         """
-        if not self.dim_modal or widget is not self.modal or not widget.dims_behind:
+        if widget is not self.modal or self._reusing:
             return
-        self._back.restyle(lambda style: style.derive(dim=True))
+        if self.dim_modal and widget.dims_behind:
+            self._dim_behind()
+        if self._composing:
+            underlay = ScreenBuffer(self._back.width, self._back.height)
+            underlay.copy_from(self._back)
+            self._underlay = (widget, underlay)
+
+    def _dim_behind(self) -> None:
+        dimmed = self._dimmed
+
+        def dim(style: Style) -> Style:
+            twin = dimmed.get(style)
+            if twin is None:
+                if len(dimmed) >= DIMMED_STYLES_LIMIT:
+                    dimmed.clear()
+                twin = dimmed[style] = style.derive(dim=True)
+            return twin
+
+        self._back.restyle(dim)
+
+    def _render_above(self, modal: Widget) -> None:
+        """Paint *modal* and everything painted after it, over its underlay.
+
+        The tail of a whole-tree paint, in the same order: the modal's own
+        subtree, then -- walking up -- each ancestor's later children and its
+        :meth:`~Widget.render_after`.  What came before is the underlay.
+        """
+        path = [modal]
+        while path[-1].parent is not None:
+            path.append(path[-1].parent)
+        path.reverse()  # the root first
+        surfaces: list[Surface] = []
+        surface: Surface = self._back
+        for widget in path[:-1]:
+            surface = surface.view(widget.x, widget.y, widget.width, widget.height)
+            surfaces.append(surface)
+        modal.render_tree(surfaces[-1])
+        for depth in range(len(path) - 2, -1, -1):
+            parent, child, own = path[depth], path[depth + 1], surfaces[depth]
+            for later in parent.children[parent.children.index(child) + 1:]:
+                later.render_tree(own)
+            parent._guarded(parent.render_after, own)
 
     def _cursor(self) -> tuple[int, int, str] | None:
         """Screen position and shape of the terminal cursor, or None for none.
@@ -1103,6 +1214,7 @@ class Application:
 
     def _resize(self, width: int, height: int) -> None:
         self._clicks.reset()  # the layout moved out from under the pointer
+        self._below_dirty = True
         self._back.resize(width, height, self.background)
         self._front = None  # sizes differ -- force a full repaint
         if self._root is not None:
@@ -1167,6 +1279,12 @@ class Application:
     async def _handle(self, event: Event) -> None:
         if isinstance(event, WakeEvent):
             return
+        if not isinstance(event, _Tick):
+            # Input, or anything posted, may change what lies beneath the
+            # modal without a widget there asking: the focus path's key bar,
+            # a command enabled by a field.  Only a timer's tick is trusted to
+            # say through invalidate() what it changed.
+            self._below_dirty = True
         if not isinstance(event, _Tick | ModifiersEvent) and not (
             isinstance(event, MouseClickEvent) and _is_plain_motion(event)
         ):

@@ -14,7 +14,7 @@ from navkit.style import SHADOW, Style
 from navkit.stylesheet import parse
 from navkit.widget import Widget
 
-from conftest import FakeTerminal, RecordingWidget, awaited, run_app
+from conftest import FakeTerminal, RecordingWidget, Until, awaited, run_app
 
 
 def test_add_sets_the_parent():
@@ -948,6 +948,89 @@ def test_what_lies_behind_the_top_modal_is_painted_faint():
     # Painted after the modal, so above what it blocks: an overlay a control
     # inside the dialog opened stays at full strength outside the dialog.
     assert not app._front.get(32, 9)[1].dim
+
+
+def test_a_cell_dimmed_in_two_frames_keeps_one_style_object():
+    """What lets the diff rule an unchanged row out in one comparison: a
+    fresh dimmed style each frame made it compare every cell field by field."""
+    app, dialog = dimming_app(True)
+    seen = []
+    run_app(app, [lambda app: app.overlay(dialog),
+                  lambda app: seen.append(app._front.get(0, 0)[1]),
+                  lambda app: app.invalidate(),
+                  lambda app: seen.append(app._front.get(0, 0)[1])])
+    assert seen[0].dim and seen[0] is seen[1]
+
+
+class Counted(Filled):
+    def __init__(self, **kw) -> None:
+        super().__init__(**kw)
+        self.paints = 0
+
+    def render(self, surface) -> None:
+        self.paints += 1
+        super().render(surface)
+
+
+def ticking(app, moves, step):
+    """A timer moving *moves* one column each tick: a progress box's refresh."""
+    async def tick() -> None:
+        if step():
+            repeat.cancel()
+
+    repeat = app.call_every(0.01, tick)
+    return repeat
+
+
+def test_a_change_inside_the_top_modal_repaints_only_the_modal():
+    """A progress box ticking over the desktop: what lies beneath it is taken
+    from the last whole frame instead of painted again, dimmed already."""
+    root = Counted(width=40, height=10)
+    app = Application(root=root, terminal=FakeTerminal(), dim_modal=True)
+    dialog = Counted(x=10, y=3, width=20, height=4)
+    dialog.modal = True
+    seen = {}
+
+    def start(app):
+        seen["root"] = root.paints
+
+        def step():
+            dialog.x += 1
+            return dialog.x == 15
+
+        ticking(app, dialog, step)
+
+    run_app(app, [lambda app: app.overlay(dialog), start, Until(lambda app: dialog.x == 15),
+                  lambda app: None])
+    assert dialog.paints > 5
+    # The whole frames are the ones input asked for; not one per tick.
+    assert root.paints - seen["root"] <= 2
+    # Where the dialog was is the dimmed desktop again, not the dialog.
+    assert app._front.get(10, 3)[1].dim
+    assert not app._front.get(16, 4)[1].dim
+
+
+def test_a_change_beneath_the_modal_repaints_the_whole_frame():
+    root = Counted(width=40, height=10)
+    app = Application(root=root, terminal=FakeTerminal(), dim_modal=True)
+    below = root.add(Filled(x=0, y=0, width=4, height=1))
+    dialog = Filled(x=10, y=3, width=20, height=4)
+    dialog.modal = True
+    seen = {}
+
+    def start(app):
+        seen["root"] = root.paints
+
+        def step():
+            below.x += 1
+            return below.x == 3
+
+        ticking(app, below, step)
+
+    run_app(app, [lambda app: app.overlay(dialog), start, Until(lambda app: below.x == 3),
+                  lambda app: None])
+    assert root.paints - seen["root"] >= 3
+    assert app._front.get(5, 0)[1].dim
 
 
 def test_nothing_is_dimmed_unless_asked_for():

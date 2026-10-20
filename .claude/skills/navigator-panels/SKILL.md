@@ -46,7 +46,9 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   A directory that cannot be watched (the inotify limit, a gone directory, a filesystem with no events) gets an inert
   `Watch`, and its panel is what it was before.
 - **The notify runs on the observer's thread**, and only calls `Application.call_from_thread(panel._changed_on_disk)`,
-  which queues on the loop and wakes it, and drops the call while no loop runs. `_changed_on_disk` arms one
+  which queues on the loop and wakes it, and drops the call while no loop runs. **Only the first change after a
+  re-read is handed over** (`Panel._heard`, set on the thread, cleared by `_refresh_now` just before it reads): a copy
+  into the directory shown is a change per block written, and handing each one to the loop cost a quarter of a core. `_changed_on_disk` arms one
   `call_later(REFRESH_DELAY)` (0.3 s), so a burst is a single re-read. `_refresh_now` calls `reload()`, which keeps the
   cursor, tags and quick search, and it waits again while a slow read is `_pending`.
 - `Panel._watch_directory` is an effect on `path`, `found` and the setting: turning the setting off, or showing a

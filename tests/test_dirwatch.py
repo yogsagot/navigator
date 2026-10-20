@@ -191,6 +191,35 @@ def test_a_burst_of_changes_is_one_re_read(tree, monkeypatch):
     assert len(reads) <= 2
 
 
+def test_a_file_being_written_wakes_the_loop_once_per_re_read(tree, monkeypatch):
+    """A copy into the directory shown is a change per block written: the
+    watcher's thread hands the first to the loop and drops the rest until the
+    re-read, instead of costing the loop a wake-up per block."""
+    monkeypatch.setattr(panel_module, "REFRESH_DELAY", 0.5)
+    app = navigator(tree)
+    handed = []
+
+    def count(a):
+        real = a.call_from_thread
+        left = a.manager.left
+
+        def call_from_thread(callback, *args):
+            if getattr(callback, "__self__", None) is left:
+                handed.append(callback)
+            real(callback, *args)
+
+        monkeypatch.setattr(a, "call_from_thread", call_from_thread)
+
+    def write(a):
+        with open(tree / "big.bin", "wb") as f:
+            for _ in range(200):
+                f.write(b"x" * 4096)
+                f.flush()
+
+    run_app(app, [count, write, lists("big.bin")])
+    assert 1 <= len(handed) <= 2
+
+
 def test_the_application_stops_the_observer(tree):
     app = navigator(tree)
     run_app(app, [])

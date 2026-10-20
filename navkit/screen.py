@@ -420,14 +420,18 @@ class ScreenBuffer(Surface):
 
         *transform* is called once per distinct style rather than once per
         cell, since a frame holds a few dozen styles over thousands of cells.
+        Those are told apart by identity, not by value: hashing a style is a
+        Python-level walk over its fields, and doing that for every cell was
+        most of what this cost.  The entry keeps the style alive, so its id
+        cannot be reused by a style made later in the same pass.
         """
-        seen: dict[Style, Style] = {}
+        seen: dict[int, tuple[Style, Style]] = {}
         for row in self._rows:
             for x, (char, style) in enumerate(row):
-                new = seen.get(style)
-                if new is None:
-                    new = seen[style] = transform(style)
-                row[x] = (char, new)
+                entry = seen.get(id(style))
+                if entry is None:
+                    entry = seen[id(style)] = (style, transform(style))
+                row[x] = (char, entry[1])
 
     def copy_from(self, other: ScreenBuffer) -> None:
         """Make this buffer an independent copy of *other*."""

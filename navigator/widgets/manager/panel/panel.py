@@ -751,6 +751,11 @@ class Panel(ContextMenuHost, ListViewer):
         #: re-read a change on it has asked for, waiting out REFRESH_DELAY.
         self._watch: dirwatch.Watch | None = None
         self._refresh: asyncio.TimerHandle | None = None
+        #: Set on the watcher's thread by the first change after a re-read,
+        #: cleared on the loop when the next re-read starts: what keeps a copy
+        #: writing into this directory -- a change per block written -- from
+        #: costing the loop a wake-up per block.
+        self._heard = False
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
@@ -789,8 +794,14 @@ class Panel(ContextMenuHost, ListViewer):
             self._stop_watching()
             if not wanted or app is None:
                 return
-            self._watch = dirwatch.watch(path.absolute(),
-                                         lambda: app.call_from_thread(self._changed_on_disk))
+            self._watch = dirwatch.watch(path.absolute(), lambda: self._heard_change(app))
+
+    def _heard_change(self, app: Any) -> None:
+        """On the watcher's thread: tell the loop, unless it has been told already."""
+        if self._heard:
+            return
+        self._heard = True
+        app.call_from_thread(self._changed_on_disk)
 
     def _stop_watching(self) -> None:
         if self._watch is not None:
@@ -799,6 +810,7 @@ class Panel(ContextMenuHost, ListViewer):
         if self._refresh is not None:
             self._refresh.cancel()
             self._refresh = None
+        self._heard = False
 
     def _changed_on_disk(self) -> None:
         """The watched directory changed: re-read it once the burst is over."""
@@ -814,6 +826,8 @@ class Panel(ContextMenuHost, ListViewer):
             # A slow directory is still being read: re-read after it, not over it.
             self._refresh = asyncio.get_running_loop().call_later(REFRESH_DELAY, self._refresh_now)
             return
+        # Before the read, so a change made while it runs asks for another.
+        self._heard = False
         self.reload()
         app = self.application
         if app is not None:

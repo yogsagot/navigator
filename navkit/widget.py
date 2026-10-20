@@ -524,7 +524,7 @@ class Widget:
         """Ask for a repaint on the next turn of the event loop."""
         app = self.application
         if app is not None:
-            app.invalidate()
+            app.invalidate(self)
 
     def _reactive_changed(self, name: str) -> None:
         """An observable attribute really changed, so the screen is stale.
@@ -532,7 +532,10 @@ class Widget:
         Only assignments to *sources* arrive here, which is enough: every
         derived value that moved is downstream of one of them, and the
         application tracks dirtiness with a single flag.  Per-widget damage
-        tracking would have to look at the derived values as well.
+        tracking would have to look at the derived values as well -- which is
+        why the one refinement there is, a frame reusing what lies beneath
+        the top modal (:meth:`Application._render`), is taken only for a
+        batch of timer ticks, never for input.
         """
         self.invalidate()
 

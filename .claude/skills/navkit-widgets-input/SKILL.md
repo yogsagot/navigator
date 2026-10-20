@@ -75,6 +75,18 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
 - `Widget.modal` makes a widget take all input while mounted (the mount walks maintain `Application.modal`);
   `Application.overlay(widget)` puts one on top, closed with `app.root.remove(widget)`. Focus is confined and handed
   back. `Widget.dims_behind = False` keeps a modal layer from dimming (`--no-dim-modal` turns dimming off globally).
+  **The dimmed twin of a style is kept across frames** (`Application._dimmed`): `render_diff` rules out an unchanged
+  row with one list comparison only while its cells hold the *same* style objects as last frame, and a fresh twin
+  per frame made it compare every cell's style field by field -- tripling a frame's cost under a progress box.
+- **A frame reuses what lies beneath the top modal** (`Application._underlay`, taken in `_painting_modal` after the dim
+  while `_render` paints the whole tree) and paints only the modal and what stands above it (`_render_above`: the
+  modal's subtree, then each ancestor's later children and `render_after`). Only when nothing beneath can have
+  changed: `Widget.invalidate` passes itself to `Application.invalidate(widget)`, and anything outside the top modal,
+  an `invalidate()` naming no widget, a modal pushed or popped, a resize, or **any event but a timer's `_Tick`** sets
+  `_below_dirty`. Input is excluded because per-widget damage misses derived values (a key bar's enabled command
+  reading a field); a tick says through `invalidate` what it changed. What it buys: a progress box over the desktop
+  costs its own subtree per tick, not the whole tree. A widget beneath a modal that changes **plain** state on a tick
+  must call `invalidate()` itself -- nothing else repaints it now.
 - **Raising is a reorder**: `raise_child`/`lower_child`, never re-`add()` (that unmounts). `Widget.shadow` is painted by
   `render_tree` into the parent's surface.
 - `Widget.cursor_position()` says where the terminal cursor belongs; the application asks **the whole focus path,

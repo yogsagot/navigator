@@ -435,6 +435,15 @@ class Stylesheet:
 
     rules: tuple[Rule, ...] = ()
     variables: Mapping[str, str] = field(default_factory=dict)
+    _state_names: frozenset[str] = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "_state_names", frozenset(
+            state
+            for rule in self.rules
+            for compound in (rule.selector.subject, *(a for a, _ in rule.selector.ancestors))
+            for state in compound.state_names
+        ))
 
     @property
     def state_names(self) -> frozenset[str]:
@@ -445,13 +454,11 @@ class Stylesheet:
         :meth:`~navkit.widget.Widget.part_style`, where the answer has to go
         into a cache key because a state appearing only in a part rule never
         changes the widget's own style and so invalidates nothing.
+
+        Worked out once, when the sheet is made: ``part_style`` asks on every
+        call, and walking every rule each time was half of a frame's render.
         """
-        return frozenset(
-            state
-            for rule in self.rules
-            for compound in (rule.selector.subject, *(a for a, _ in rule.selector.ancestors))
-            for state in compound.state_names
-        )
+        return self._state_names
 
     def declarations_for(
         self, widget: Widget, request: PartRequest = _WIDGET
