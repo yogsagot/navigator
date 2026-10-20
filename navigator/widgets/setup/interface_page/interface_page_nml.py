@@ -48,18 +48,18 @@ class InterfacePage(_Component):
     options: CheckBoxes    # interface_page.nml:19
     history_size: MaskedField    # interface_page.nml:27
     language: ChoiceField    # interface_page.nml:40
-    settings_tabs_caption: Label    # interface_page.nml:51
-    settings_tabs: RadioButtons    # interface_page.nml:60
-    colors: ChoiceField    # interface_page.nml:69
+    colors: ChoiceField    # interface_page.nml:51
+    settings_tabs_caption: Label    # interface_page.nml:62
+    settings_tabs: RadioButtons    # interface_page.nml:71
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.options = CheckBoxes(parent=self)    # interface_page.nml:18
         self.history_size = MaskedField(parent=self)    # interface_page.nml:26
         self.language = ChoiceField(parent=self)    # interface_page.nml:39
-        self.settings_tabs_caption = Label(parent=self)    # interface_page.nml:50
-        self.settings_tabs = RadioButtons(parent=self)    # interface_page.nml:59
-        self.colors = ChoiceField(parent=self)    # interface_page.nml:68
+        self.colors = ChoiceField(parent=self)    # interface_page.nml:50
+        self.settings_tabs_caption = Label(parent=self)    # interface_page.nml:61
+        self.settings_tabs = RadioButtons(parent=self)    # interface_page.nml:70
 
         self.options.x = 2    # interface_page.nml:20
         self.options.y = 1    # interface_page.nml:21
@@ -92,31 +92,31 @@ class InterfacePage(_Component):
         )
         self.language.label_width = 15    # interface_page.nml:46
 
-        self.settings_tabs_caption.x = 2    # interface_page.nml:52
-        self.settings_tabs_caption.y = 12    # interface_page.nml:53
-        self.settings_tabs_caption.width = 15    # interface_page.nml:54
-        self.settings_tabs_caption.height = 1    # interface_page.nml:55
-        self.settings_tabs_caption.text = _bind(    # interface_page.nml:56
-            lambda _o: _tr('Settin~g~s tabs'),
-            yielding=True,
-        )
-        self.settings_tabs_caption.link = _bind(lambda _o: self.settings_tabs)    # interface_page.nml:57
-
-        self.settings_tabs.x = 17    # interface_page.nml:61
-        self.settings_tabs.y = 12    # interface_page.nml:62
-        self.settings_tabs.width = 36    # interface_page.nml:63
-        self.settings_tabs.height = 1    # interface_page.nml:64
-        self.settings_tabs.items = _bind(    # interface_page.nml:65
-            lambda _o: [_tr('~O~n top'), _tr('On the le~f~t')],
-            yielding=True,
-        )
-
-        self.colors.x = 2    # interface_page.nml:70
-        self.colors.y = 14    # interface_page.nml:71
-        self.colors.width = 40    # interface_page.nml:72
-        self.colors.height = 1    # interface_page.nml:73
-        self.colors.label_text = _bind(    # interface_page.nml:74
+        self.colors.x = 2    # interface_page.nml:52
+        self.colors.y = 12    # interface_page.nml:53
+        self.colors.width = 40    # interface_page.nml:54
+        self.colors.height = 1    # interface_page.nml:55
+        self.colors.label_text = _bind(    # interface_page.nml:56
             lambda _o: _tr('Colou~r~s'),
             yielding=True,
         )
-        self.colors.label_width = 15    # interface_page.nml:75
+        self.colors.label_width = 15    # interface_page.nml:57
+
+        self.settings_tabs_caption.x = 2    # interface_page.nml:63
+        self.settings_tabs_caption.y = 14    # interface_page.nml:64
+        self.settings_tabs_caption.width = 15    # interface_page.nml:65
+        self.settings_tabs_caption.height = 1    # interface_page.nml:66
+        self.settings_tabs_caption.text = _bind(    # interface_page.nml:67
+            lambda _o: _tr('Settin~g~s tabs'),
+            yielding=True,
+        )
+        self.settings_tabs_caption.link = _bind(lambda _o: self.settings_tabs)    # interface_page.nml:68
+
+        self.settings_tabs.x = 17    # interface_page.nml:72
+        self.settings_tabs.y = 14    # interface_page.nml:73
+        self.settings_tabs.width = 36    # interface_page.nml:74
+        self.settings_tabs.height = 1    # interface_page.nml:75
+        self.settings_tabs.items = _bind(    # interface_page.nml:76
+            lambda _o: [_tr('~O~n top'), _tr('On the le~f~t')],
+            yielding=True,
+        )

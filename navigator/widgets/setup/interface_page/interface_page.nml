@@ -45,12 +45,23 @@ InterfacePage:
         label_text: "~L~anguage"
         label_width: 15
 
+    #: Not DN's: how many colours the terminal is sent, at once.  Above
+    #: *Settings tabs*, so its list drops whole inside the box.
+    ChoiceField:
+        id: colors
+        x: 2
+        y: 12
+        width: 40
+        height: 1
+        label_text: "Colou~r~s"
+        label_width: 15
+
     #: Not DN's: where *Settings* -- this box -- shows its tabs, the next
     #: time it opens.
     Label:
         id: settings_tabs_caption
         x: 2
-        y: 12
+        y: 14
         width: 15
         height: 1
         text: "Settin~g~s tabs"
@@ -59,17 +70,7 @@ InterfacePage:
     RadioButtons:
         id: settings_tabs
         x: 17
-        y: 12
+        y: 14
         width: 36
         height: 1
         items: ["~O~n top", "On the le~f~t"]
-
-    #: Not DN's: how many colours the terminal is sent, at once.
-    ChoiceField:
-        id: colors
-        x: 2
-        y: 14
-        width: 40
-        height: 1
-        label_text: "Colou~r~s"
-        label_width: 15

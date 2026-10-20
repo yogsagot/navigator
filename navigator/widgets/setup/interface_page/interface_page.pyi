@@ -22,8 +22,8 @@ class InterfacePage(_Component):
     options: CheckBoxes
     history_size: MaskedField
     language: ChoiceField
+    colors: ChoiceField
     settings_tabs_caption: Label
     settings_tabs: RadioButtons
-    colors: ChoiceField
     def __init__(self, section: InterfaceData | None = ..., appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...
