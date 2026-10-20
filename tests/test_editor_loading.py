@@ -16,7 +16,7 @@ from collections import Counter
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE, spinner
 
@@ -284,7 +284,7 @@ def test_load_text_cancelled_keeps_the_text_and_the_title(files, slow_read):
         slow_read.clear()
 
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), Until(lambda a: editor_windows(a)),
-                  hold, KeyEvent("f3"), lambda a: None,
+                  hold, KeyEvent("f3"), Until(lambda a: a.modal is not None),
                   *[KeyEvent(c, c) for c in "other.txt"], KeyEvent("enter"),
                   Until(writewin), KeyEvent("escape"), Until(lambda a: a.modal is None),
                   lambda a: seen.update(title=editor_windows(a)[0].title,

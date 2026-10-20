@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -50,11 +50,11 @@ def test_a_viewer_opens_again_where_and_how_it_was_left(files):
         window.locate(3, 2, 50, 15)
 
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("pagedown"), KeyEvent("pagedown"), KeyEvent("f6"), unzoom,
         lambda a: seen.update(top=active(a).viewer.top),
         KeyEvent("escape"), lambda a: None,
-        KeyEvent("f3"), lambda a: None,
+        KeyEvent("f3"), IDLE,
         lambda a: seen.update(again=active(a)),
     ])
     window = seen["again"]
@@ -68,9 +68,9 @@ def test_the_mode_comes_back_unless_as_text_asks_for_one(files):
     app = navigator(files)
     modes = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f4"),
+        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("f4"),
         KeyEvent("escape"), lambda a: None,
-        KeyEvent("f3"), lambda a: None, lambda a: modes.append(active(a).viewer.mode),
+        KeyEvent("f3"), IDLE, lambda a: modes.append(active(a).viewer.mode),
         KeyEvent("escape"), lambda a: None,
         lambda a: a.manager.spawn(a.manager.view("text")), lambda a: None,
         lambda a: modes.append(active(a).viewer.mode),
@@ -83,14 +83,14 @@ def test_a_file_that_shrank_is_shown_from_its_start(files):
     ViewRecord.store(files / "text.txt", top=10**6, cursor=10**6)
     app = navigator(files)
     tops = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: tops.append(active(a).viewer.top)])
     assert tops == [0]
 
 
 def test_leaving_navigator_records_the_viewers_still_open(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f2")])
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("f2")])
     assert ViewRecord.find(files / "text.txt").wrap is True
 
 
@@ -99,7 +99,7 @@ def test_with_tracking_off_nothing_is_recorded_or_restored(files):
     ViewRecord.store(files / "text.txt", mode="hex")
     app = navigator(files)
     modes = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f2"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("f2"),
                   lambda a: modes.append(active(a).viewer.mode)])
     assert modes == ["text"]
     assert ViewRecord.find(files / "text.txt").wrap is False
@@ -111,7 +111,7 @@ def test_without_store_viewer_position_only_the_mode_comes_back(files):
                      desk_width=80, desk_height=22, mode="hex", top=512, cursor=600)
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: seen.update(window=active(a))])
     window = seen["window"]
     assert window.viewer.mode == "hex"
@@ -126,12 +126,12 @@ def test_an_editor_opens_again_with_its_cursor_and_insert_mode(files):
     app = navigator(files)
     seen = {}
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f4"), IDLE,
         KeyEvent("pagedown"), KeyEvent("pagedown"), KeyEvent("right"), KeyEvent("insert"),
         lambda a: seen.update(at=(active(a).editor.line, active(a).editor.col,
                                   active(a).editor.top)),
         KeyEvent("escape"), lambda a: None,
-        KeyEvent("f4"), lambda a: None,
+        KeyEvent("f4"), IDLE,
         lambda a: seen.update(again=active(a)),
     ])
     editor = seen["again"].editor
@@ -146,7 +146,7 @@ def test_without_store_editor_position_the_cursor_starts_at_the_top(files):
     EditRecord.store(files / "text.txt", line=120, col=3, top=110, overwrite=True)
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: seen.update(editor=active(a).editor)])
     editor = seen["editor"]
     assert (editor.line, editor.col, editor.top) == (0, 0, 0)

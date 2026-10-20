@@ -201,6 +201,12 @@ def run_app(
             else:
                 action(app)
             await asyncio.sleep(settle)
+            # What was posted handled and painted before the next step looks:
+            # on a loaded machine the sleep alone can end with it still queued.
+            loop = asyncio.get_running_loop()
+            deadline = loop.time() + 2.0
+            while app.is_running and app.busy and loop.time() < deadline:
+                await asyncio.sleep(0.002)
         if app.is_running:
             app.exit()
 

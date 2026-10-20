@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.application import Application
 from navkit.events import DoubleClickEvent, KeyEvent
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
@@ -257,7 +257,7 @@ def test_ctrl_p_types_the_character_found_in_the_editor(nav):
 
     SETTINGS.interface.store_editor_position = False
     app = navigator(nav)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, KeyEvent("p", ctrl=True), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("p", ctrl=True), lambda a: None,
                   *[KeyEvent(c, c) for c in "U+1F600"], SEARCHED, KeyEvent("enter"), lambda a: None])
     window = app.shell.desktop.active_window
     assert isinstance(window, EditWindow)

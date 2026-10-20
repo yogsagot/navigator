@@ -127,8 +127,10 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   need it. An autouse fixture clears the shared scheduler around every test so one test's queued work cannot leak into
   the next.
 
-Tests drive the loop through `Application.post_event()` and read `Application.is_running`; both exist so tests never
-have to reach into the private queue. Actions posted in a single callback land in one batch, which is how the "one frame
+Tests drive the loop through `Application.post_event()` and read `Application.is_running` and `Application.busy`
+(events queued or a batch being handled); they exist so tests never have to reach into the private queue. `run_app`
+waits out `busy` after every action, so the next step sees what the last one posted -- but not work an event only
+started (a file F4 reads on a thread): wait for that with an `Until` on its result, never a bare `lambda a: None`. Actions posted in a single callback land in one batch, which is how the "one frame
 per batch" behaviour is asserted.
 
 For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `python -m navigator` on a

@@ -23,7 +23,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import FakeTerminal, awaited, mounted, run_app, settle
+from conftest import IDLE, FakeTerminal, awaited, mounted, run_app, settle
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons
 from navigator import __version__
@@ -4155,7 +4155,7 @@ def test_panel_is_on_the_bar_only_while_a_file_manager_is_active(tree):
 
     run_app(app, [
         bar,
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None, bar,     # a viewer
+        KeyEvent("end"), KeyEvent("f3"), IDLE, bar,     # a viewer
         KeyEvent("escape"), lambda a: None,
         lambda a: a.shell.desktop.close_window(a.manager), lambda a: None,
         bar, new_enabled,                                          # an empty desktop

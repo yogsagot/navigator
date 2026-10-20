@@ -185,6 +185,58 @@ def test_is_running_tracks_the_loop(terminal):
     assert app.is_running is False
 
 
+def test_busy_lasts_until_a_posted_event_is_handled_and_run_app_waits_it_out(terminal):
+    class Slow(RecordingWidget):
+        async def on_key(self, event) -> bool:
+            # Longer than run_app's settle: the next step would look too soon.
+            await asyncio.sleep(0.1)
+            return await super().on_key(event)
+
+    root = Slow()
+    seen = {}
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: seen.update(idle=a.busy), KeyEvent("a", "a"),
+                  lambda a: seen.update(keys=list(root.keys), after=a.busy)])
+    assert seen == {"idle": False, "keys": ["a"], "after": False}
+
+
+def test_a_thread_started_while_running_does_not_keep_the_application(terminal):
+    import gc
+    import threading
+    import weakref
+
+    release = threading.Event()
+    app = Application(RecordingWidget(), terminal=terminal)
+    # A long-lived worker, as a shared pool's is: it keeps the excepthook it was made under.
+    run_app(app, [lambda a: threading.Thread(target=release.wait, daemon=True).start()])
+    gone = weakref.ref(app)
+    del app
+    gc.collect()
+    try:
+        assert gone() is None
+    finally:
+        release.set()
+
+
+def test_a_session_listener_does_not_keep_its_widget():
+    import gc
+    import weakref
+
+    from navigator.lib.drives.sessions import SessionManager
+
+    class Owner:
+        def heard(self, site, why):
+            pass
+
+    sessions, owner = SessionManager(), Owner()
+    sessions.add_listener(owner.heard)
+    gone = weakref.ref(owner)
+    del owner
+    gc.collect()
+    assert gone() is None
+    sessions._tell(None, "closed")  # a listener gone is passed over
+
+
 def test_the_background_style_fills_unpainted_cells(terminal):
     class Empty(RecordingWidget):
         def render(self, buffer):

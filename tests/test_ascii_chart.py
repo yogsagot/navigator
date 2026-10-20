@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, run_app
 from navkit.application import Application
 from navkit.events import DoubleClickEvent, KeyEvent
 from navkit.widget import Widget
@@ -149,6 +149,6 @@ def test_in_an_editor_ctrl_b_is_still_the_column_block_chord(nav):
         window = a.shell.desktop.active_window
         seen.append((a.modal is None, window.editor.vertical_blocks))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("b", ctrl=True), KeyEvent("v", "v"), lambda a: None, look])
     assert seen == [(True, True)]

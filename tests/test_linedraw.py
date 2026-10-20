@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -47,7 +47,7 @@ def blank(tmp_path, monkeypatch):
 def draw(path, *keys):
     app = Navigator(path, path, terminal=FakeTerminal(80, 24))
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys,
                   lambda a: seen.append(a.shell.desktop.active_window.editor)])
     return seen[0]
 

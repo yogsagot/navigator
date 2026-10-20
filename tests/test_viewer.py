@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from conftest import FakeTerminal, run_app, settle
+from conftest import IDLE, FakeTerminal, run_app, settle
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
@@ -219,7 +219,7 @@ def opened(app):
 def test_f3_opens_the_file_under_the_cursor_zoomed(files):
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: seen.update(buffer=screen(a))])
     window = opened(app)
     assert window is not None and window.zoomed
@@ -233,14 +233,14 @@ def test_f3_opens_the_file_under_the_cursor_zoomed(files):
 
 def test_f3_on_a_directory_opens_nothing(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("down"), KeyEvent("f3"), lambda a: None])
+    run_app(app, [KeyEvent("down"), KeyEvent("f3"), IDLE])
     assert opened(app) is None
 
 
 def test_the_key_bar_is_the_viewers_while_it_has_the_keyboard(files):
     app = navigator(files)
     shown = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: shown.extend((c.title, a.command_enabled(c))
                                          for _, c, _, _ in a.shell.keybar.items())])
     # ``StatusDef hcView`` was 81 columns wide, so at 80 F10 Menu fell off the
@@ -257,7 +257,7 @@ def test_keys_move_the_view_and_f4_cycles_the_modes(files):
     app = navigator(files)
     info = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("down"), KeyEvent("down"), KeyEvent("pagedown"),
         lambda a: info.append((opened(a).viewer.top, opened(a).viewer.info_text)),
         KeyEvent("pagedown", ctrl=True),
@@ -278,14 +278,14 @@ def test_keys_move_the_view_and_f4_cycles_the_modes(files):
 def test_f6_filters_and_the_info_line_says_so(files):
     app = navigator(files)
     info = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f6"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("f6"),
                   lambda a: info.append(opened(a).viewer.info_text)])
     assert info == ["[<=>][0% of 900 Bytes]{ASCII}"]
 
 
 def test_escape_closes_it_and_the_panel_has_the_keyboard_again(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   KeyEvent("escape"), lambda a: None])
     assert opened(app) is None
     assert app.focused is app.manager.active_panel
@@ -297,7 +297,7 @@ def test_closing_it_gives_the_keyboard_back_to_the_right_panel(files):
     # desktop had saved which panel the file manager had, so closing it
     # handed the keyboard to the left one.
     app = navigator(files)
-    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f3"), IDLE,
                   KeyEvent("escape"), lambda a: None])
     assert opened(app) is None
     assert app.focused is app.manager.right
@@ -305,9 +305,9 @@ def test_closing_it_gives_the_keyboard_back_to_the_right_panel(files):
 def test_f3_closes_it_again_as_midnight_commander_does(files):
     app = navigator(files)
     shown = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: shown.extend(c.title for _, c, _, _ in a.shell.keybar.items()),
-                  KeyEvent("f3"), lambda a: None])
+                  KeyEvent("f3"), IDLE])
     assert opened(app) is None
     assert app.focused is app.manager.active_panel
     # No caption: the status line stays ``StatusDef hcView``.
@@ -320,7 +320,7 @@ def test_a_search_again_finds_the_next_hit_and_marks_it(files, monkeypatch):
     hits = []
 
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f7", shift=True), lambda a: None, lambda a: None,
         lambda a: hits.append((opened(a).viewer.hit, opened(a).viewer.top)),
     ], settle=0.05)
@@ -334,7 +334,7 @@ def test_f7_asks_and_finds(files, monkeypatch):
     app = navigator(files)
     seen = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f7"), lambda a: None,
         lambda a: seen.append(isinstance(a.modal, ViewerFindDialog)),
         *[KeyEvent(c, c) for c in "line 042"], KeyEvent("enter"),
@@ -349,7 +349,7 @@ def test_f5_goes_to_a_hex_address(files):
     app = navigator(files)
     seen = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f4"), KeyEvent("f5"), lambda a: None,
         *[KeyEvent(c, c) for c in "1f"], KeyEvent("enter"),
         lambda a: None, lambda a: None,
@@ -401,7 +401,7 @@ def test_a_long_search_shows_its_progress_and_finds(files, slow_search):
         slow_search.set()
 
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f7", shift=True), lambda a: None, lambda a: None, lambda a: None,
         look, lambda a: None, lambda a: None,
         lambda a: seen.append((a.modal, opened(a).viewer.hit)),
@@ -414,7 +414,7 @@ def test_stop_ends_a_search_and_says_nothing(files, slow_search):
     app = navigator(files)
     seen = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f7", shift=True), lambda a: None, lambda a: None, lambda a: None,
         KeyEvent("escape"), lambda a: None, lambda a: None,
         lambda a: seen.append((a.modal, opened(a).viewer.hit)),
@@ -429,7 +429,7 @@ def test_quitting_during_a_search_stops_its_thread(files, slow_search):
     app = navigator(files)
     started = time.monotonic()
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("f7", shift=True), lambda a: None, lambda a: None,
         lambda a: a.exit(),
     ], settle=0.1, timeout=3)
@@ -535,7 +535,7 @@ def test_the_view_menu_is_on_the_bar_after_file_only_while_the_viewer_is_active(
     look = lambda a: seen.append("View" in bar_captions(a))   # noqa: E731
     run_app(app, [
         look,
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         lambda a: seen.append(bar_captions(a)[:4]),
         KeyEvent("f9"), look,                   # the file manager comes forward
         KeyEvent("f9"), look,                   # and the viewer again
@@ -560,7 +560,7 @@ def test_the_view_menu_switches_the_mode_and_ticks_the_one_in_force(files):
         seen["wrap"] = a.command_enabled(Unwrap, a.focused)
 
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("v", "v", alt=True), lambda a: seen.update(open=a.shell.menu.is_open),
         KeyEvent("h", "h"), lambda a: None, ask,
     ])
@@ -617,7 +617,7 @@ def test_the_viewer_strip_shows_mode_switches_encoding_and_type(files):
 
     app = Navigator(files, files, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=1)))
     # Painted once, so the lexing thread has said there is no lexer.
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, lambda a: screen(a)])
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, lambda a: screen(a)])
     window = opened(app)
     assert [span[3] for span in window.options.spans] == ["Text", "Wrap", "Hi", "Show", "UTF-8", "plain"]
     assert window.options.x + window.options.width == window.width - 3
@@ -639,7 +639,7 @@ def test_in_hex_mode_the_text_options_are_greyed(files):
         seen.update(label=strip_span(window, HexMode)[3], wrap=at(Unwrap), hidden=at(SwitchHiddenChars),
                     grey=strip.part_style("item", disabled=True))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, KeyEvent("f4"), look])
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("f4"), look])
     assert seen["label"] == "Hex"
     assert seen["wrap"] == seen["grey"] and seen["hidden"] == seen["grey"]
 
@@ -649,7 +649,7 @@ def test_clicks_on_the_viewer_strip_switch_wrap_and_the_mode(files):
 
     app = navigator(files)
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   click_option(Unwrap), lambda a: None, lambda a: seen.append(opened(a).viewer.wrap),
                   click_option(HexMode), lambda a: None, lambda a: seen.append(opened(a).viewer.mode)])
     assert seen == [True, "hex"]
@@ -660,7 +660,7 @@ def test_the_viewer_strip_follows_its_setting(files):
 
     SETTINGS.viewer.show_options = False
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None])
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE])
     assert not opened(app).options.visible
 
 
@@ -682,7 +682,7 @@ def test_the_viewer_marks_blanks_tabs_and_each_kind_of_ending(tmp_path, quiet_co
         seen["mark"] = buffer.get(ox + viewer.x + 1, oy + viewer.y)[1]
         seen["plain"] = viewer.style
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None, look])
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, look])
     assert seen["rows"] == ["a·b→    c··⏎", "x↓", "y←", "last"]
     assert seen["mark"] == seen["plain"].derive(dim=True)
 
@@ -692,7 +692,7 @@ def test_hidden_characters_switch_from_the_view_menu(files):
 
     app = navigator(files)
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: a.spawn(opened(a).viewer.emit(SwitchHiddenChars())), lambda a: None,
                   lambda a: seen.append(opened(a).viewer.show_hidden)])
     assert seen == [True]
@@ -701,7 +701,7 @@ def test_hidden_characters_switch_from_the_view_menu(files):
 def test_ctrl_shift_8_switches_hidden_characters_in_the_viewer(files):
     app = navigator(files)
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   KeyEvent("8", ctrl=True, shift=True),
                   lambda a: seen.append(opened(a).viewer.show_hidden)])
     assert seen == [True]

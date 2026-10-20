@@ -24,6 +24,7 @@ from __future__ import annotations
 import importlib
 import threading
 import time
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -181,16 +182,21 @@ class SessionManager:
     # -- listening -----------------------------------------------------------------------------
 
     def add_listener(self, listener: Listener) -> None:
+        """*listener* told of each connection closed.  A bound method is held
+        weakly: :data:`SESSIONS` outlives every widget, and must not keep one
+        -- and the application it is in -- alive (a shell that is never
+        unmounted, in a process that runs many)."""
+        held: Any = weakref.WeakMethod(listener) if hasattr(listener, "__self__") else (lambda: listener)
         with self._lock:
-            self._listeners.append(listener)
+            self._listeners.append(held)
 
     def remove_listener(self, listener: Listener) -> None:
         with self._lock:
-            self._listeners = [each for each in self._listeners if each is not listener]
+            self._listeners = [each for each in self._listeners if each() not in (None, listener)]
 
     def _tell(self, site: Site, why: str) -> None:
         with self._lock:
-            listeners = list(self._listeners)
+            listeners = [listener for listener in (each() for each in self._listeners) if listener is not None]
         for listener in listeners:
             try:
                 listener(site, why)

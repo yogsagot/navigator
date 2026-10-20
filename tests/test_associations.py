@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.config import associations
@@ -161,7 +161,7 @@ def test_f3_and_f4_use_the_ini_only_where_the_internal_one_is_not_chosen(place, 
 
     # Internal on: F3 opens the window; Alt+F3 runs viewers.ini's entry.
     app = navigator(place)
-    run_app(app, [lambda a: capture(a, ran), to("b.pdf"), KeyEvent("f3"), lambda a: None,
+    run_app(app, [lambda a: capture(a, ran), to("b.pdf"), KeyEvent("f3"), IDLE,
                   lambda a: seen.update(windows=len(a.shell.desktop.windows())), KeyEvent("escape"), lambda a: None,
                   KeyEvent("f3", alt=True), Until(lambda a: ran)])
     assert seen["windows"] == 2 and script_of(ran) == "zathura b.pdf\n"

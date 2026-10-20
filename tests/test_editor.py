@@ -247,7 +247,7 @@ def typed(text: str) -> list[KeyEvent]:
 def test_f4_opens_the_file_under_the_cursor_zoomed(files):
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: seen.update(buffer=screen(a))])
     window = editor_window(app)
     assert window is not None and window.zoomed
@@ -261,13 +261,13 @@ def test_f4_opens_the_file_under_the_cursor_zoomed(files):
 
 def test_f4_on_a_directory_opens_nothing(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("down"), KeyEvent("f4"), lambda a: None])
+    run_app(app, [KeyEvent("down"), KeyEvent("f4"), IDLE])
     assert editor_window(app) is None
 
 
 def test_typing_edits_and_f2_writes_the_bytes_back(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("end"), *typed("!"), KeyEvent("down"), KeyEvent("end"), KeyEvent("enter"),
                   *typed("x"), lambda a: None, KeyEvent("f2"), IDLE])
     assert (files / "text.txt").read_bytes() == b"first line!\r\nsecond\tline\r\nx\r\n"
@@ -280,7 +280,7 @@ def test_f2_asks_confirm_file_save_and_yes_writes(files):
     SETTINGS.confirmations.save = True
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *typed("!"), lambda a: None, KeyEvent("f2"), lambda a: None,
                   lambda a: seen.update(title=a.modal.title if a.modal else None,
                                         prompt=a.modal.prompt if a.modal else "",
@@ -297,7 +297,7 @@ def test_no_to_confirm_file_save_leaves_the_file_and_the_text_changed(files):
 
     SETTINGS.confirmations.save = True
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *typed("!"), lambda a: None, KeyEvent("s", ctrl=True), lambda a: None,
                   KeyEvent("n", alt=True), IDLE])
     assert (files / "text.txt").read_bytes() == b"first line\r\nsecond\tline\r\n"
@@ -314,7 +314,7 @@ def test_a_changed_text_marks_the_title_in_yellow_until_saved(files):
         window = editor_window(a)
         seen.append((window.title, "modified" in window.classes, window.part_style("title").fg))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, look,
                   *typed("!"), lambda a: None, look, KeyEvent("f2"), IDLE, look])
     name = f"Edit - {files / 'text.txt'}"
     yellow = COLOR_NAMES["yellow"]
@@ -326,7 +326,7 @@ def test_a_changed_text_marks_the_title_in_yellow_until_saved(files):
 def test_ctrl_s_saves_by_default(files):
     # A departure: Ctrl+S was WordStar's cursor left (keybindings_wordstar.ini).
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("end"), *typed("!"), lambda a: None, KeyEvent("s", ctrl=True), IDLE])
     assert (files / "text.txt").read_bytes() == b"first line!\r\nsecond\tline\r\n"
     assert not editor_window(app).editor.modified
@@ -335,7 +335,7 @@ def test_ctrl_s_saves_by_default(files):
 @pytest.mark.usefixtures("wordstar")
 def test_with_the_wordstar_keys_ctrl_s_moves_left(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("end"), KeyEvent("s", ctrl=True), *typed("!"), lambda a: None])
     editor = editor_window(app).editor
     assert editor.document.encode() == b"first lin!e\r\nsecond\tline\r\n"
@@ -344,7 +344,7 @@ def test_with_the_wordstar_keys_ctrl_s_moves_left(files):
 def test_the_info_line_marks_a_changed_text(files):
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("z"),
                   lambda a: seen.update(info=editor_window(a).editor.info_text)])
     assert seen["info"].startswith("☼══1:2") or seen["info"].startswith("*==1:2")
 
@@ -354,7 +354,7 @@ def test_escape_on_a_changed_text_asks_and_cancel_keeps_it_open(files):
 
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("z"),
                   KeyEvent("escape"), lambda a: None,
                   lambda a: seen.update(asked=isinstance(a.modal, Dialog),
                                         prompt=a.modal.prompt if a.modal else ""),
@@ -365,7 +365,7 @@ def test_escape_on_a_changed_text_asks_and_cancel_keeps_it_open(files):
 
 def test_no_closes_without_saving(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("z"),
                   KeyEvent("escape"), lambda a: None, KeyEvent("n", alt=True), lambda a: None])
     assert editor_window(app) is None
     assert (files / "text.txt").read_bytes() == b"first line\r\nsecond\tline\r\n"
@@ -373,7 +373,7 @@ def test_no_closes_without_saving(files):
 
 def test_yes_saves_and_closes(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("z"),
                   KeyEvent("escape"), lambda a: None, KeyEvent("y", alt=True), IDLE])
     assert editor_window(app) is None
     assert (files / "text.txt").read_bytes() == b"zfirst line\r\nsecond\tline\r\n"
@@ -381,7 +381,7 @@ def test_yes_saves_and_closes(files):
 
 def test_an_unchanged_text_closes_at_once(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, KeyEvent("escape")])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("escape")])
     assert editor_window(app) is None
 
 
@@ -391,14 +391,14 @@ def test_closing_it_gives_the_keyboard_back_to_the_right_panel(files):
     # desktop had saved which panel the file manager had, so closing it
     # handed the keyboard to the left one.
     app = navigator(files)
-    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("tab"), KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("escape"), lambda a: None])
     assert editor_window(app) is None
     assert app.focused is app.manager.right
 
 def test_undo_takes_back_a_word_typed(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("abc"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("abc"),
                   KeyEvent("backspace", alt=True)])
     editor = editor_window(app).editor
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
@@ -407,7 +407,7 @@ def test_undo_takes_back_a_word_typed(files):
 
 def test_ctrl_z_undoes_by_default(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("abc"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("abc"),
                   KeyEvent("z", ctrl=True)])
     editor = editor_window(app).editor
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
@@ -416,7 +416,7 @@ def test_ctrl_z_undoes_by_default(files):
 
 def test_enter_home_and_end_stay_the_editors_with_text_on_the_command_line(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: a.shell.command_line.insert("ls"),
                   KeyEvent("end"), KeyEvent("enter"), lambda a: None])
     editor = editor_window(app).editor
@@ -426,7 +426,7 @@ def test_enter_home_and_end_stay_the_editors_with_text_on_the_command_line(files
 
 def test_a_paste_brings_its_lines_in_the_files_own_breaks(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   PasteEvent("a\nb\n")])
     editor = editor_window(app).editor
     assert editor.document.encode().startswith(b"a\r\nb\r\nfirst line")
@@ -434,7 +434,7 @@ def test_a_paste_brings_its_lines_in_the_files_own_breaks(files):
 
 def test_saving_re_reads_the_panel_showing_the_directory(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("z"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("z"),
                   lambda a: (files / "new.txt").write_text(""),
                   KeyEvent("f2"),
                   Until(lambda a: "new.txt" in [e.name for e in a.shell.manager.left.items])])
@@ -444,7 +444,7 @@ def test_saving_re_reads_the_panel_showing_the_directory(files):
 
 def test_the_cursor_steps_over_a_tab_whole(files):
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, KeyEvent("down"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("down"),
                   *[KeyEvent("right")] * 7])
     editor = editor_window(app).editor
     assert editor.col == 8  # six letters of "second", then the tab to its stop
@@ -455,7 +455,7 @@ def moved(tmp_path, text, *keys):
     (tmp_path / "dir").mkdir(parents=True)
     (tmp_path / "text.txt").write_text(text)
     app = navigator(tmp_path)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys])
     editor = editor_window(app).editor
     return editor.line, editor.col
 
@@ -518,7 +518,7 @@ def test_the_editor_menu_is_on_the_bar_after_file_only_while_the_editor_is_activ
     look = lambda a: seen.append("Editor" in bar_captions(a))   # noqa: E731
     run_app(app, [
         look,
-        KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f4"), IDLE,
         lambda a: seen.append(bar_captions(a)[:4]),
         KeyEvent("f9"), look,
         KeyEvent("f9"), look,
@@ -530,7 +530,7 @@ def test_the_editor_menu_is_on_the_bar_after_file_only_while_the_editor_is_activ
 def test_editor_file_save_writes_and_edit_undo_undoes(files):
     app = navigator(files)
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f4"), lambda a: None, *typed("!"), lambda a: None,
+        KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("!"), lambda a: None,
         KeyEvent("e", "e", alt=True), KeyEvent("f", "f"), KeyEvent("s", "s"), lambda a: None,
         *typed("?"), lambda a: None,
         KeyEvent("e", "e", alt=True), KeyEvent("e", "e"), KeyEvent("u", "u"), lambda a: None,
@@ -556,7 +556,7 @@ def test_an_editor_feature_still_to_come_is_greyed(files):
         seen["save"] = probe.enabled(menu.entry("File").entry("Save"))
         a.root.remove(probe)
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, ask])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, ask])
     assert seen == {"justify": False, "save": True}
 
 
@@ -573,7 +573,7 @@ def backspaced(tmp_path, text: str, line: int, col: int, times: int = 1):
         editor = editor_window(a).editor
         editor.line, editor.col = line, col
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, place,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, place,
                   *[KeyEvent("backspace") for _ in range(times)]])
     editor = editor_window(app).editor
     return editor.document.encode().decode(), editor.col
@@ -607,7 +607,7 @@ def test_undo_takes_an_unindent_back_whole(tmp_path, quiet_console):
         editor = editor_window(a).editor
         editor.line, editor.col = 1, 8
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, place,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, place,
                   KeyEvent("backspace"), KeyEvent("backspace", alt=True)])
     assert editor_window(app).editor.document.encode() == b"a\n        b\n"
 
@@ -635,7 +635,7 @@ def test_enter_in_an_empty_file_types_the_line_divisor(tmp_path, quiet_console):
     (tmp_path / "dir").mkdir()
     (tmp_path / "text.txt").write_bytes(b"")
     app = navigator(tmp_path)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *typed("a"), KeyEvent("enter"), *typed("b")])
     assert editor_window(app).editor.document.encode() == b"a\r\nb"
 
@@ -717,7 +717,7 @@ def test_the_buffer_tells_its_listeners_of_undone_edits_too():
 def marked(files, *keys):
     """The editor on text.txt after *keys*: Shift+movements mark, the rest act."""
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys])
     return app, editor_window(app).editor
 
 
@@ -824,7 +824,7 @@ def mouse(files, *events):
                                  if kind is MouseClickEvent
                                  else editor_window(a).editor.on_double_click(kind(x=x, y=y, **kw)))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *[deliver(e) for e in events], lambda a: None])
     return app, editor_window(app).editor
 
@@ -1071,7 +1071,7 @@ def test_ctrl_b_v_switches_column_blocks_keeping_the_block_and_is_ticked(files):
         seen.append((editor.vertical_blocks, editor.checks(SwitchBlock()), editor.block,
                      editor.rectangle))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("right"), KeyEvent("right", shift=True), KeyEvent("right", shift=True),
                   KeyEvent("down", shift=True),
                   ctrl("b"), KeyEvent("v", "v"), look,
@@ -1123,7 +1123,7 @@ def test_the_info_line_shows_a_chord_waiting(files):
     seen = []
     (files / "text.txt").write_bytes(b"abc\n")
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, ctrl("k"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, ctrl("k"),
                   lambda a: seen.append(editor_window(a).editor.info_text),
                   KeyEvent("h", "h"), lambda a: seen.append(editor_window(a).editor.info_text)])
     assert seen[0].endswith(" ^K") and not seen[1].endswith("^K")
@@ -1148,7 +1148,7 @@ def test_ctrl_k_h_and_alt_h_hide_the_block_and_show_it_again(files):
         editor = editor_window(a).editor
         seen.append((editor.has_block, editor.marked, editor._block_columns(0)))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *[KeyEvent("right", shift=True)] * 2, look,
                   *chord("h"), look, KeyEvent("h", alt=True), look])
     assert seen == [(True, True, (0, 2)), (False, True, None), (True, True, (0, 2))]
@@ -1445,9 +1445,9 @@ def test_markers_come_back_with_the_edit_history(files):
     SETTINGS.interface.store_editor_position = False  # the markers come back regardless
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   *[KeyEvent("down")] * 4, *chord("9"), KeyEvent("escape"), lambda a: None,
-                  KeyEvent("f4"), lambda a: None, ctrl("q"), KeyEvent("9", "9"),
+                  KeyEvent("f4"), IDLE, ctrl("q"), KeyEvent("9", "9"),
                   lambda a: seen.update(at=(editor_window(a).editor.line, editor_window(a).editor.col))])
     assert seen["at"] == (4, 0)
     from navigator.models.edit_record import EditRecord
@@ -1685,7 +1685,7 @@ def test_a_click_on_the_block_indicator_switches_column_blocks(files):
         editor = editor_window(a).editor
         seen.append((editor.vertical_blocks, editor.rectangle))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("right", shift=True), KeyEvent("down", shift=True),
                   click_info(lambda e: e.block_indicator()[0] + 1), lambda a: None, look])
     assert seen == [(True, (0, 0, 1, 1))]  # the stream block, read as a rectangle
@@ -1708,7 +1708,7 @@ def test_the_block_indicator_stands_out_under_vertical_blocks(files, vertical):
         seen["plain"] = buffer.get(ox + info.x, oy + info.y)[1]
         seen["lit"] = info.part_style("column_block")
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, look])
     expected = seen["lit"] if vertical else seen["plain"]
     assert seen["lit"] != seen["plain"]
     assert seen["styles"] == [expected] * 3
@@ -1719,7 +1719,7 @@ def test_a_click_elsewhere_on_the_info_line_does_nothing(files):
     (files / "text.txt").write_bytes(b"abc\n")
     SETTINGS.interface.store_editor_position = False
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   click_info(lambda e: 4), lambda a: None,
                   lambda a: seen.append((editor_window(a).editor.vertical_blocks,
                                          editor_window(a).zoomed))])
@@ -1770,7 +1770,7 @@ def test_a_click_on_the_info_lines_place_asks_for_a_line(files):
     (files / "text.txt").write_bytes(lines(5))
     SETTINGS.interface.store_editor_position = False
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   click_info(lambda e: e.place_indicator()[0]), lambda a: None,
                   lambda a: seen.append(a.modal.title if a.modal else None)])
     assert seen == ["Goto Line"]
@@ -1815,7 +1815,7 @@ def test_a_click_on_the_info_lines_code_opens_the_chart(files, chart_on):
     (files / "text.txt").write_bytes(b"abc\n")
     SETTINGS.interface.store_editor_position = False
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   click_info(lambda e: e.code_indicator()[0] + 1), lambda a: None,
                   lambda a: seen.append(a.modal.title if a.modal else None)])
     assert seen == ["ASCII Chart"]
@@ -1835,7 +1835,7 @@ def test_the_code_indicator_is_the_bracketed_code():
 def test_f3_opens_another_file_into_the_window(files):
     (files / "other.txt").write_bytes(b"other text\n")
     seen = []
-    app, editor = text_editor(files, b"first\n", KeyEvent("f3"), lambda a: None,
+    app, editor = text_editor(files, b"first\n", KeyEvent("f3"), Until(lambda a: a.modal is not None),
                               lambda a: seen.append((a.modal.title, a.modal.pick.text) if a.modal else None),
                               *typed("other.txt"), KeyEvent("enter"), lambda a: None)
     assert seen == [("Open a File", "~O~pen")]
@@ -1846,7 +1846,7 @@ def test_f3_opens_another_file_into_the_window(files):
 
 def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
     asked = []
-    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f3"), lambda a: None,
+    _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f3"), Until(lambda a: a.modal is not None),
                             lambda a: asked.append(a.modal.prompt if a.modal else None),
                             KeyEvent("escape"), lambda a: None)
     assert asked == ["File text.txt was modified. Save?"]
@@ -1855,7 +1855,7 @@ def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
 
 def test_a_file_that_will_not_open_is_said_and_the_text_stays(files):
     said = []
-    _, editor = text_editor(files, b"first\n", KeyEvent("f3"), lambda a: None,
+    _, editor = text_editor(files, b"first\n", KeyEvent("f3"), Until(lambda a: a.modal is not None),
                             *typed("missing.txt"), KeyEvent("enter"), lambda a: None,
                             lambda a: said.append(a.modal.prompt if a.modal else None))
     assert said and said[0].startswith("Cannot open")
@@ -2460,7 +2460,7 @@ def test_with_lock_file_the_editor_holds_its_file_across_saves_until_closed(file
     path = files / "text.txt"
     path.write_bytes(b"first\n")
     run_app(navigator(files), [
-        KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: seen.update(opened=lockable(path)),
+        KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: seen.update(opened=lockable(path)),
         *typed("x"), KeyEvent("f2"), IDLE,
         lambda a: seen.update(saved=lockable(path)),
         KeyEvent("escape"), lambda a: None, lambda a: seen.update(closed=lockable(path)),
@@ -2531,7 +2531,7 @@ def editor_cells(files, text, *keys):
         seen["editor"] = editor
         seen["cell"] = lambda row, col: buffer.get(ox + editor.x + col, oy + editor.y + row)
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys, look])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys, look])
     return seen["editor"], seen["cell"]
 
 
@@ -2617,7 +2617,7 @@ def test_the_option_strip_sits_on_the_bottom_frame_before_the_corner(files):
     from navigator.widgets.editor.commands import ChooseFileType, SwitchBlock, SwitchInsert
 
     app = navigator(files)
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
     window = editor_window(app)
     strip, hbar = window.options, window.hbar
     assert strip.visible and strip.y == window.height - 1
@@ -2637,7 +2637,7 @@ def test_the_strip_spells_each_option_for_the_glyph_tier(files, tier, expected):
     from navkit.capabilities import FULL
 
     app = Navigator(files, files, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=tier)))
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
     labels = [span[3] for span in editor_window(app).options.spans]
     assert labels == expected
 
@@ -2670,7 +2670,7 @@ def test_an_option_switched_by_key_or_menu_lights_on_the_strip(files):
     def wrap_by_menu(a):
         a.spawn(editor_window(a).editor.emit(SwitchSave()))
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, look("before"),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, look("before"),
                   KeyEvent("insert"), wrap_by_menu, lambda a: None, look("after")])
     insert, wrap, plain, lit = seen["before"]
     assert lit != plain and insert == plain and wrap == plain
@@ -2689,7 +2689,8 @@ def test_a_click_on_the_strip_switches_the_option_and_leaves_the_window(files):
         seen["rect"] = (window.x, window.y, window.width, window.height)
         seen["indent"] = window.editor.auto_indent
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, before,
+    # F4 reads the file on a thread: the window comes when it is read.
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), Until(lambda a: editor_window(a) is not None), before,
                   click_option(SwitchIndent), click_option(SwitchInsert), lambda a: None])
     window = editor_window(app)
     assert window.editor.auto_indent is not seen["indent"]
@@ -2705,7 +2706,7 @@ def test_the_strip_names_the_lexer_and_a_click_offers_file_types(tmp_path, quiet
     (tmp_path / "script.py").write_text("import os\n")
     app = navigator(tmp_path)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: screen(a),
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: screen(a),
                   lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3]),
                   click_option(ChooseFileType), lambda a: None,
                   lambda a: seen.update(popup=isinstance(a.modal, PopupMenu),
@@ -2732,7 +2733,7 @@ def test_the_strip_s_file_type_icon_follows_the_chosen_type(tmp_path, quiet_cons
     def choose(a):
         editor_window(a).editor.file_type = file_type
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, choose, lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, choose, lambda a: None,
                   lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3])])
     assert seen["label"].startswith(icons.BY_EXTENSION[extension] + " ")
 
@@ -2748,7 +2749,7 @@ def test_the_file_type_menu_wears_icons_once_the_window_is_on_a_nerd_desktop(tmp
     (tmp_path / "script.py").write_text("import os\n")
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=3)))
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, lambda a: seen.update(
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: seen.update(
         text=editor_window(a).edit_menu_file_type.item_for(SetFileType("rust")).text)])
     assert seen["text"] == f"{icons.BY_EXTENSION['rs']} ~R~ust"
 
@@ -2760,7 +2761,7 @@ def test_the_strip_follows_its_setting_and_the_scroll_bar_takes_the_room_back(fi
     def off(a):
         SETTINGS.editor.show_options = False
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, off, lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, off, lambda a: None,
                   lambda a: seen.update(visible=editor_window(a).options.visible,
                                         hbar=editor_window(a).hbar.width,
                                         width=editor_window(a).width)])
@@ -2772,7 +2773,7 @@ def test_a_narrow_window_drops_the_last_items_and_the_scroll_bar(files):
     from navigator.widgets.editor.commands import ChooseFileType
 
     app = Navigator(files, files, terminal=FakeTerminal(40, 24))
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
     window = editor_window(app)
     commands = [span[2].command for span in window.options.spans]
     assert ChooseFileType not in commands and commands
@@ -2802,7 +2803,7 @@ def hidden_rows(tmp_path, data: bytes, *keys, tier=2):
         seen["cell"] = lambda row, col: buffer.get(ox + editor.x + col, oy + editor.y + row)
         seen["editor"] = editor
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None, *keys, look])
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys, look])
     return seen
 
 
@@ -2834,7 +2835,7 @@ def test_hidden_characters_switch_from_the_menu_and_the_strip(files):
 
     app = navigator(files)
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: a.spawn(editor_window(a).editor.emit(SwitchHiddenChars())), lambda a: None,
                   lambda a: seen.append(editor_window(a).editor.show_hidden),
                   click_option(SwitchHiddenChars), lambda a: None,
@@ -2845,7 +2846,7 @@ def test_hidden_characters_switch_from_the_menu_and_the_strip(files):
 def test_ctrl_shift_8_switches_hidden_characters(files):
     app = navigator(files)
     seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   KeyEvent("8", ctrl=True, shift=True),
                   lambda a: seen.append(editor_window(a).editor.show_hidden)])
     assert seen == [True]
@@ -2863,7 +2864,7 @@ def test_the_block_kind_moves_from_the_info_line_to_the_strip(files):
                     want=window.options.part_style("item", checked=True),
                     label=strip_span(window, SwitchBlock)[3])
 
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lambda a: None,
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   click_option(SwitchBlock), lambda a: None, look])
     assert "(" not in seen["info"]
     assert editor_window(app).editor.vertical_blocks

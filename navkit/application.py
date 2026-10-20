@@ -29,6 +29,7 @@ import inspect
 import math
 import signal
 import threading
+import weakref
 import time
 from collections import deque
 from collections.abc import Awaitable, Callable, Coroutine
@@ -147,6 +148,30 @@ class Repeat:
         if self._next <= now:
             self._next += math.floor((now - self._next) / self.seconds + 1) * self.seconds
         self._handle = loop.call_at(self._next, self._fire, loop)
+
+
+class _ThreadHook:
+    """``threading.excepthook`` while an application runs: a thread's death
+    goes to it (:meth:`Application._thread_exception`), and once it is gone,
+    to the hook that was there before.
+
+    Holds the application weakly.  A ``Thread`` keeps the hook in place when
+    it was made, so a long-lived worker -- a shared pool's -- started while an
+    application ran would otherwise keep that application, and everything it
+    built, alive as long as the worker: in a process that runs many (a test
+    suite), all of them.
+    """
+
+    def __init__(self, app: Application, previous: Callable[[threading.ExceptHookArgs], Any]) -> None:
+        self._app = weakref.ref(app)
+        self._previous = previous
+
+    def __call__(self, args: threading.ExceptHookArgs) -> None:
+        app = self._app()
+        if app is None or not app.is_running:
+            self._previous(args)
+            return
+        app._thread_exception(args)
 
 
 @dataclass(frozen=True, slots=True)
@@ -365,6 +390,9 @@ class Application:
         self._running = False
         self._dirty = True
         self._events: asyncio.Queue[Event] = asyncio.Queue()
+        #: The events :meth:`post_event` queued that are not yet handled and
+        #: painted, by ``id``: what :attr:`busy` waits on.
+        self._posted: set[int] = set()
         self._parser = InputParser()
         self._loop: asyncio.AbstractEventLoop | None = None
         self._escape_timer: asyncio.TimerHandle | None = None
@@ -475,6 +503,14 @@ class Application:
         """True between the first frame and :meth:`exit`."""
         return self._running
 
+    @property
+    def busy(self) -> bool:
+        """Whether an event :meth:`post_event` queued is still to be handled
+        and painted: what a driver waits out before it looks, so it sees what
+        the event did.  Timer ticks and terminal input do not count -- a fast
+        timer would keep the queue from ever being empty."""
+        return bool(self._posted)
+
     def run(self) -> Any:
         """Run the application until it exits, returning :attr:`result`."""
         return asyncio.run(self.run_async())
@@ -503,7 +539,7 @@ class Application:
         previous_handler = self._loop.get_exception_handler()
         self._loop.set_exception_handler(self._loop_exception)
         previous_excepthook = threading.excepthook
-        threading.excepthook = self._thread_exception
+        threading.excepthook = _ThreadHook(self, previous_excepthook)
         try:
             # An effect queued from outside a dispatch -- a timer callback, or
             # a write to something that is not a widget -- has to be able to
@@ -929,6 +965,8 @@ class Application:
         The event joins the current batch, so it is dispatched before the next
         frame rather than after it.
         """
+        if not isinstance(event, _Tick | WakeEvent):
+            self._posted.add(id(event))
         self._events.put_nowait(event)
 
     def call_from_thread(self, callback: Callable[..., Any], *args: Any) -> None:
@@ -1229,6 +1267,7 @@ class Application:
         while self._running:
             event = await self._events.get()
             self.handling_since, self.handling = time.monotonic(), describe_event(event)
+            batch = [id(event)]
             await self._handle(event)
             # Drain whatever else arrived in the meantime: a paste or a mouse
             # drag should cost one frame, not one frame per event.  A handler
@@ -1236,11 +1275,14 @@ class Application:
             # pty output, timers -- but cannot produce a frame, because
             # ``_render`` is only ever awaited from here.
             while self._running and not self._events.empty():
-                await self._handle(self._events.get_nowait())
+                event = self._events.get_nowait()
+                batch.append(id(event))
+                await self._handle(event)
             if self._running:
                 self._flush_effects()
             if self._running and self._dirty:
                 await self._paint()
+            self._posted.difference_update(batch)
             self.handling_since = None
 
     async def _paint(self) -> None:
