@@ -38,11 +38,14 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from navkit.i18n import tr, tr_n
 
 from navigator.lib.system.job import Job, Stopped
+
+if TYPE_CHECKING:
+    from navigator.lib.drives.location import Location
 
 #: ``UUxlt``: a six-bit value's character.  0 is a backquote, never a blank.
 UUXLT = "`!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
@@ -67,9 +70,44 @@ NO_STUFF = "There is no UUCode stuff in this file"
 @dataclass
 class FileExists:
     """``dlFileExist``: *path* is there already.  Answered ``"yes"``,
-    ``"all"``, ``"no"`` or ``"cancel"`` (None is Cancel)."""
+    ``"all"``, ``"no"`` or ``"cancel"`` (None is Cancel).  A Location
+    when the file is on another drive."""
 
-    path: Path
+    path: Path | Location
+
+
+def ask_over_encoded(existing: list[Location], job: Job) -> set[Location]:
+    """Encoded on another drive: ``dlFileExist`` for each section file there
+    already, as :func:`encode` asks of the disk -- until *All*; anything but
+    Yes or All abandons the encoding before a section goes up.  Answers the
+    files to leave alone: none."""
+    for target in existing:
+        answer = job.ask(FileExists(target))
+        if answer == "all":
+            break
+        if answer != "yes":
+            raise Stopped
+    return set()
+
+
+def ask_over_decoded(existing: list[Location], job: Job, check_existing: bool) -> set[Location]:
+    """Decoded onto another drive: ``CheckExist`` for each file there
+    already, as :meth:`_Decoder.open_file` asks of the disk -- No leaves
+    that one alone, Cancel it and every one after.  Answers those left."""
+    left: set[Location] = set()
+    asking = check_existing
+    for number, target in enumerate(existing):
+        if not asking:
+            break
+        answer = job.ask(FileExists(target))
+        if answer == "all":
+            asking = False
+        elif answer == "no":
+            left.add(target)
+        elif answer != "yes":
+            left.update(existing[number:])
+            break
+    return left
 
 
 @dataclass(eq=False)

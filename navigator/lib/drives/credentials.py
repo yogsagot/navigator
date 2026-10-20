@@ -44,6 +44,9 @@ class HostConfig:
     user: str
     identity_files: list[str] = field(default_factory=list)
     proxy_command: str | None = None
+    #: ``ProxyJump``'s hosts, first reached first: each one's connection
+    #: carries the next one's, and the last carries this host's.
+    jumps: list[Site] = field(default_factory=list)
 
 
 def host_config(site: Site) -> HostConfig:
@@ -64,13 +67,34 @@ def host_config(site: Site) -> HostConfig:
     hostname = found.get("hostname", site.host)
     proxy = found.get("proxycommand")
     jump = found.get("proxyjump")
+    jumps = []
     if proxy is None and jump and jump.lower() != "none":
-        # ``ProxyJump``: through the system's ``ssh``, which reaches the jump
-        # host with its own config, agent and keys -- as ``ssh -J`` does.
-        import shlex
+        # ``ProxyJump``: every host in the list, in its order, as ``ssh -J``
+        # goes -- here over channels of paramiko's own, so that what a jump
+        # host asks is asked in a box, not on the terminal.
+        jumps = [jump_site(each) for each in jump.split(",") if each.strip()]
+    return HostConfig(hostname, port, user, [path for path in files if os.path.isfile(path)], proxy, jumps)
 
-        proxy = f"ssh -W {shlex.quote(hostname)}:{port} {shlex.quote(jump.split(',')[0])}"
-    return HostConfig(hostname, port, user, [path for path in files if os.path.isfile(path)], proxy)
+
+def jump_site(text: str) -> Site:
+    """One ``ProxyJump`` host -- ``[user@]host[:port]``, or the
+    ``ssh://`` form of it -- as the SFTP site it is."""
+    text = text.strip()
+    if text.startswith("ssh://"):
+        text = text[len("ssh://"):].rstrip("/")
+    user, _, place = text.rpartition("@")
+    port = 0
+    if place.startswith("["):
+        host, _, rest = place[1:].partition("]")
+        if rest.startswith(":") and rest[1:].isdigit():
+            port = int(rest[1:])
+    else:
+        host, colon, number = place.rpartition(":")
+        if colon and number.isdigit() and ":" not in host:
+            port = int(number)
+        else:
+            host = place
+    return Site("sftp", user, host, port)
 
 
 def _local_user() -> str:

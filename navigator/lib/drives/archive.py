@@ -6,7 +6,8 @@ F5 took files out of it, F5 into it packed them (``ArchiveFiles``, by the
 target's sign), F8 erased in it, and ``..`` at its root (``ChangeUp``) went
 back to the drive below with the cursor on the archive.  :class:`ArchiveDrive`
 is that, over Python's own :mod:`zipfile` and :mod:`tarfile` -- where DN ran a
-packer for every step.
+packer for every step -- and over 7-Zip's command line for 7z and rar
+(:mod:`navigator.lib.drives.arctool`), where Python reads neither.
 
 A location in an archive has the archive's own location as its ``outer``
 (``Location.outer`` is DN's ``Prev``) and the path inside as its path; its
@@ -33,6 +34,7 @@ from __future__ import annotations
 
 import errno
 import io
+import lzma
 import os
 import shutil
 import stat
@@ -41,6 +43,7 @@ import tempfile
 import threading
 import time
 import zipfile
+import zlib
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import IO, Any
@@ -59,11 +62,20 @@ NEW_KINDS: tuple[tuple[str, str, str], ...] = (
     (".tar.bz2", "tar", "bz2"), (".tbz", "tar", "bz2"), (".tbz2", "tar", "bz2"),
     (".tar.xz", "tar", "xz"), (".txz", "tar", "xz"),
     (".tar", "tar", ""),
+    (".7z", "7z", ""),
 )
+
+#: The kinds read through an archiver's command line (``arctool``).
+TOOL_KINDS = ("7z", "rar")
 
 
 class NotAnArchive(Exception):
     """The file is not one this drive can read: Enter runs it instead."""
+
+
+class NeedsTool(NotAnArchive):
+    """An archive by its signature -- a 7z, a rar -- with nothing here to read
+    it: Enter says what to install rather than running it."""
 
 
 @dataclass
@@ -75,7 +87,10 @@ class _Member:
     mode: int = 0
     link: str | None = None
     owner: str | None = None
-    #: The ``ZipInfo`` or ``TarInfo`` in the archive as it is on disk; None
+    #: How many bytes it takes in the archive (DN's ``PSize``); None where
+    #: that is not known -- a tar's, a solid 7z block's, one written since.
+    packed: int | None = None
+    #: The ``ZipInfo``, ``TarInfo`` or ``ToolInfo`` in the archive as it is on disk; None
     #: for a directory only implied, or one made since.
     info: Any = None
     #: New bytes, written since the archive was read: the file they wait in.
@@ -144,7 +159,8 @@ def _compression_of(path: Path) -> str:
 
 
 class ArchiveDrive(Drive):
-    """One archive's files, read and rewritten through :mod:`zipfile` or :mod:`tarfile`."""
+    """One archive's files, read and rewritten through :mod:`zipfile` or
+    :mod:`tarfile`, or read (and a 7z rewritten) through 7-Zip."""
 
     capabilities = frozenset((WRITE, RENAME, CHMOD, SYMLINK))
     site = ARCHIVE_SITE
@@ -170,6 +186,9 @@ class ArchiveDrive(Drive):
         else:
             self.kind, self._archive = _open(local)
             self.compression = _compression_of(local) if self.kind == "tar" else ""
+        if self.kind == "rar":
+            # Nothing writes a rar but rar itself, which is not free.
+            self.capabilities = frozenset()
         self.root = _Member("", True)
         self._index()
 
@@ -208,7 +227,18 @@ class ArchiveDrive(Drive):
                 if stat.S_ISLNK(mode):
                     link = self._archive.read(info).decode("utf-8", "surrogateescape")
                 self._place(info.filename, _Member(info.filename, is_dir, info.file_size, mtime,
-                                                   stat.S_IMODE(mode), link, None, info))
+                                                   stat.S_IMODE(mode), link, None,
+                                                   None if is_dir else info.compress_size, info))
+        elif self.kind in TOOL_KINDS:
+            for info in self._archive.infolist():
+                link = None
+                if info.is_link:
+                    try:
+                        link = self._archive.read_link(info)
+                    except OSError:
+                        link = ""  # damaged: listed still, for Test to say so
+                self._place(info.path, _Member(info.path, info.is_dir, info.size, info.mtime, info.mode,
+                                               link, None, None if info.is_dir else info.packed, info))
         else:
             for info in self._archive.getmembers():
                 if not (info.isfile() or info.isdir() or info.issym()):
@@ -216,7 +246,7 @@ class ArchiveDrive(Drive):
                 owner = f"{info.uname or info.uid}:{info.gname or info.gid}"
                 link = info.linkname if info.issym() else None
                 self._place(info.name, _Member(info.name, info.isdir(), info.size, float(info.mtime),
-                                               info.mode, link, owner, info))
+                                               info.mode, link, owner, None, info))
 
     def _member(self, location: Location) -> _Member:
         node = self.root
@@ -281,6 +311,7 @@ class ArchiveDrive(Drive):
                 entry = DirEntry(name, stat.S_ISDIR(st.st_mode), st.st_size, st.st_mode, st.st_mtime,
                                  member.link is not None, member.link)
                 entry.owner = member.owner
+                entry.packed = None if member.staged is not None else member.packed
                 entries.append(entry)
         order = {key: options[key] for key in ("executables_first", "archives_first", "reverse")
                  if key in options}
@@ -330,7 +361,7 @@ class ArchiveDrive(Drive):
         if member.info is None or self._archive is None:
             raise _error(errno.ENOENT, location)
         with self._lock:
-            if self.kind == "zip":
+            if self.kind != "tar":
                 handle = self._archive.open(member.info)
             else:
                 handle = self._archive.extractfile(member.info)
@@ -465,6 +496,8 @@ class ArchiveDrive(Drive):
                 with self._lock:
                     if self.kind == "zip":
                         self._write_zip(new)
+                    elif self.kind == "7z":
+                        self._write_7z(new)
                     else:
                         self._write_tar(new)
                 if self.local.exists():
@@ -559,17 +592,57 @@ class ArchiveDrive(Drive):
                     with self._source(member) as reader:
                         out.addfile(info, reader)
 
+    def _write_7z(self, target: Path) -> None:
+        """The archive laid out as a directory -- the old one unpacked once,
+        not a member at a time, its solid blocks being whole -- and packed
+        anew by 7-Zip."""
+        from navigator.lib.drives import arctool
+
+        tree = Path(tempfile.mkdtemp(dir=self._stage().parent))
+        old = Path(tempfile.mkdtemp(dir=tree.parent))
+        try:
+            if self._archive is not None and any(
+                    member.staged is None and member.info is not None and not member.is_dir
+                    for _, member in self._walk(self.root)):
+                self._archive.extract_all(old)
+            directories = []
+            for path, member in self._walk(self.root):
+                place = tree / path
+                if member.is_dir:
+                    place.mkdir()
+                    directories.append((place, member))
+                    continue
+                if member.link is not None:
+                    os.symlink(member.link, place)
+                    continue
+                if member.staged is not None:
+                    shutil.copyfile(member.staged, place)
+                elif member.info is not None:
+                    os.replace(old / member.info.path, place)
+                else:
+                    place.touch()
+                os.chmod(place, member.mode & 0o7777 or 0o644)
+                os.utime(place, (member.mtime, member.mtime))
+            for place, member in reversed(directories):
+                os.chmod(place, member.mode & 0o7777 or 0o755)
+                os.utime(place, (member.mtime, member.mtime))
+            arctool.write_7z(target, tree)
+        finally:
+            shutil.rmtree(tree, ignore_errors=True)
+            shutil.rmtree(old, ignore_errors=True)
+
     def _source(self, member: _Member) -> IO[bytes]:
         """Where *member*'s bytes are: its staged file, or the archive as it was."""
         if member.staged is not None:
             return open(member.staged, "rb")
-        if self.kind == "zip":
+        if self.kind != "tar":
             return self._archive.open(member.info)
         handle = self._archive.extractfile(member.info)
         return handle if handle is not None else io.BytesIO(b"")
 
     def describe(self) -> list[tuple[str, str]]:
-        """``TArcDrive.GetDirInfo``: the archive, what kind, how many files."""
+        """``TArcDrive.GetDirInfo``: the archive, what kind, how many files,
+        and the packed and unpacked size totals."""
         with self._tree:
             members = sum(1 for _, member in self._walk(self.root) if not member.is_dir)
             unpacked = sum(member.stat().st_size for _, member in self._walk(self.root) if not member.is_dir)
@@ -580,6 +653,57 @@ class ArchiveDrive(Drive):
         kind = self.sign + (f" ({self.compression})" if self.compression else "")
         return [("Archive", str(self.outer)), ("Kind", kind), ("Files", f"{members:,}"),
                 ("Packed", f"{packed:,}"), ("Unpacked", f"{unpacked:,}")]
+
+    # -- testing -------------------------------------------------------------------------------
+
+    def test(self, job: Any, locations: list[Location] | None = None) -> list[tuple[str, str]]:
+        """DN's ``cmArcTest``: every member under *locations* (the whole
+        archive, for None) read through, its check -- a zip's CRC, a 7z's --
+        made on the way.  ``(path, why)`` for each that fails.  7z and rar are
+        tested whole by their tool (``7z t``), as DN's archivers were."""
+        from navigator.lib.system.job import Stopped
+
+        if self.kind in TOOL_KINDS and self._archive is not None:
+            with self._lock:
+                return self._archive.test()
+        with self._tree:
+            nodes = ([(str(location.path).lstrip("/"), self._member(location)) for location in locations]
+                     if locations else [("", self.root)])
+            members = []
+            for path, node in nodes:
+                if node.is_dir:
+                    prefix = f"{path}/" if path else ""
+                    members.extend(self._walk(node, prefix))
+                else:
+                    members.append((path, node))
+            members = [(path, member) for path, member in members
+                       if not member.is_dir and member.link is None and member.info is not None
+                       and member.staged is None]
+        job.total = sum(member.size for _, member in members)
+        job.position = 0
+        failures = []
+        for path, member in members:
+            if job.stopped:
+                raise Stopped
+            try:
+                with self._lock:
+                    reader = self._source(member)
+                with reader:
+                    while True:
+                        job.wait_while_paused()
+                        if job.stopped:
+                            raise Stopped
+                        with self._lock:
+                            chunk = reader.read(1 << 20)
+                        if not chunk:
+                            break
+                        job.position += len(chunk)
+            except Stopped:
+                raise
+            except (OSError, EOFError, zipfile.BadZipFile, tarfile.TarError, zlib.error,
+                    lzma.LZMAError, ValueError) as error:
+                failures.append((path, str(error) or type(error).__name__))
+        return failures
 
     # -- leaving -------------------------------------------------------------------------------
 
@@ -626,6 +750,16 @@ _UMASK = _read_umask()
 
 def _open(local: Path) -> tuple[str, Any]:
     """``(kind, archive)`` for *local*, by what is in it, not its name."""
+    from navigator.lib.drives import arctool
+
+    kind = arctool.kind_of(local)
+    if kind is not None:
+        try:
+            return kind, arctool.ToolArchive(local, kind)
+        except arctool.MissingTool as error:
+            raise NeedsTool(str(error)) from error
+        except OSError as error:
+            raise NotAnArchive(error.strerror or str(error)) from error
     try:
         if zipfile.is_zipfile(local):
             return "zip", zipfile.ZipFile(local)
@@ -758,5 +892,5 @@ def close_all() -> None:
     release_unused(set())
 
 
-__all__ = ["ARCHIVE_SITE", "ArchiveDrive", "NEW_KINDS", "NotAnArchive", "close_all", "find", "hold", "leave",
+__all__ = ["ARCHIVE_SITE", "ArchiveDrive", "NEW_KINDS", "NeedsTool", "NotAnArchive", "TOOL_KINDS", "close_all", "find", "hold", "leave",
            "new_kind", "open_archive", "release_unheld", "release_unused"]

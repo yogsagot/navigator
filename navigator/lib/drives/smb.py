@@ -5,10 +5,13 @@ Through `smbprotocol <https://github.com/jborean93/smbprotocol>`_'s
 :mod:`os`'s over ``\\\\host\\share\\path`` names; without it
 :func:`available` says what to install.
 
-**The first name of a path is the share.**  SMB has no listing of a server's
-shares to ask for without RPC, so the drive's root lists the ones it has been
-told -- the share the connection opened on, and any reached since -- and the
-link box asks for the share as the start of its *Directory*.
+**The first name of a path is the share.**  The drive's root lists the
+server's disk shares, asked once over RPC (``srvsvc``'s ``NetrShareEnum``,
+:mod:`navigator.lib.drives.dcerpc`, on the ``IPC$`` pipe), the
+administrative ``C$`` and ``ADMIN$`` left out -- with the ones it has been
+told besides: the share the connection opened on, and any reached since.  A
+server that will not say (a guest refused, RPC off) leaves only those, and
+the link box asks for the share as the start of its *Directory*.
 
 Each drive keeps its own connection cache, so two drives on one server with
 two users do not share a session.  ``smbclient`` is imported lazily, and
@@ -78,6 +81,8 @@ class SmbDrive(Drive):
         self._cache: dict[str, Any] = {}
         #: The shares the root lists: the one opened on, and those reached since.
         self.shares: list[str] = [share] if share else []
+        #: The server's own list of its disk shares, once asked; None before.
+        self._listed: list[str] | None = None
         self._lock = threading.Lock()
         self.on_lost: Any = None
         self.home = PurePosixPath(f"/{share}") if share else PurePosixPath("/")
@@ -107,6 +112,34 @@ class SmbDrive(Drive):
             # The connection's own failures: not a file's.
             raise DriveGone(self.site.host, f"{self.site.host}: {error}") from error
 
+    def _root_shares(self) -> list[str]:
+        """What the root lists: the server's disk shares, asked the first
+        time (:meth:`_ask_shares`), and those known besides."""
+        with self._lock:
+            listed = self._listed
+        if listed is None:
+            listed = self._ask_shares()
+            with self._lock:
+                self._listed = listed
+        with self._lock:
+            known = list(self.shares)
+        return listed + [share for share in known if share not in listed]
+
+    def _ask_shares(self) -> list[str]:
+        """``NetrShareEnum`` over ``\\\\host\\IPC$\\srvsvc``: the disk shares,
+        less the administrative ones -- or none, where the server will not
+        say, the root then listing only what is known."""
+        from navigator.lib.drives import dcerpc
+
+        client = _client()
+        path = "\\\\" + self.site.host + "\\IPC$\\srvsvc"
+        try:
+            with client.open_file(path, mode="r+b", buffering=0, file_type="pipe", **self._kw()) as pipe:
+                shares = dcerpc.share_enum(pipe, self.site.host)
+        except Exception:
+            return []
+        return [share.name for share in shares if share.is_disk and not share.is_special and share.name]
+
     def get_dir(self, location: Location) -> str:
         from navigator.lib.drives.sessions import protocol_sign
 
@@ -123,8 +156,7 @@ class SmbDrive(Drive):
         filtered = mask.strip() not in ("", filetypes.ALL_FILES)
         entries: list[DirEntry] = []
         if location.is_root:
-            # The shares known: SMB keeps its list of them behind RPC.
-            for share in list(self.shares):
+            for share in self._root_shares():
                 entries.append(DirEntry(share, True, 0, stat.S_IFDIR | 0o755))
             return order_entries(entries, sort), None, None
         entries.append(DirEntry("..", True, 0, stat.S_IFDIR | 0o755))
@@ -167,7 +199,7 @@ class SmbDrive(Drive):
 
     def children(self, location: Location) -> list[Child]:
         if location.is_root:
-            return [(share, FileStat(stat.S_IFDIR | 0o755)) for share in self.shares]
+            return [(share, FileStat(stat.S_IFDIR | 0o755)) for share in self._root_shares()]
         found: list[Child] = []
         for item in self._call("scandir", location):
             if item.name in (".", ".."):

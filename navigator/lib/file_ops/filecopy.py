@@ -64,6 +64,10 @@ class CopyRequest:
     #: System Setup's *Flush buffers*: each file written is synced to disk
     #: before it counts as copied -- and before a move deletes its source.
     flush: bool = False
+    #: *Extract* without path names (``dlgExtract``'s box unticked): every
+    #: file under a directory copied goes into the target itself, no
+    #: directory made for it.
+    flatten: bool = False
 
     @property
     def move(self) -> bool:
@@ -452,6 +456,8 @@ class _Copier:
         key = self._identity(source, st)
         if key in self._walking:
             return self._fail(source, lambda: tr("{where} loops back on itself"), where=shown(source))
+        if self.request.flatten:
+            return self._flattened(source, dest.parent, key)
         if dest_drive.is_link(dest) or (dest_drive.exists(dest) and not dest_drive.is_dir(dest)):
             return self._fail(dest, lambda: tr("Can not overwrite {name} with a directory"), name=dest.name)
         if self.move and not self._cross_device and not dest_drive.exists(dest):
@@ -498,6 +504,22 @@ class _Copier:
                     source_drive.rmdir(source)
                 except OSError as error:
                     return self._fail(source, error_message(error))
+            return complete
+        finally:
+            self._walking.discard(key)
+
+    def _flattened(self, source: Location, into: Location, key: tuple[Any, ...]) -> bool:
+        """What is in *source*, all the way down, straight into *into*."""
+        self._walking.add(key)
+        try:
+            try:
+                children = sorted(drive_of(source).names(source))
+            except OSError as error:
+                return self._fail(source, error_message(error))
+            complete = True
+            for name in children:
+                if not self._transfer(source / name, into / name):
+                    complete = False
             return complete
         finally:
             self._walking.discard(key)

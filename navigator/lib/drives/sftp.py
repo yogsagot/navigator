@@ -86,6 +86,9 @@ class _Connection:
         self.answers = answers
         self.client: Any = None
         self.transport: Any = None
+        #: The ``ProxyJump`` hosts' clients, first first, the server's
+        #: connection carried by the last's.
+        self.chain: list[Any] = []
         self.hostname = site.host
         self.port = site.port or 22
         self.user = site.user
@@ -110,6 +113,46 @@ class _Connection:
         site, answers = self.site, self.answers
         config = credentials.host_config(site)
         self.hostname, self.port, self.user = config.hostname, config.port, config.user
+        # ``ProxyJump``: each host on the way logged into in turn, the next
+        # one reached over a ``direct-tcpip`` channel of the one before --
+        # ``ssh -J``'s chain, its questions asked as the server's are.  The
+        # first may have a ``ProxyCommand`` of its own; a jump host's own
+        # ``ProxyJump`` is not followed.
+        hops = [credentials.host_config(jump) for jump in config.jumps]
+        first = hops[0] if hops else config
+        sock = paramiko.ProxyCommand(first.proxy_command) if first.proxy_command else None
+        chain: list[Any] = []
+        try:
+            for number, (jump, hop_config) in enumerate(zip(config.jumps, hops)):
+                hop = (hop_config.hostname, hop_config.port)
+                client = self._login(jump, hop_config, answers.for_hop(hop), sock, hop)
+                chain.append(client)
+                following = hops[number + 1] if number + 1 < len(hops) else config
+                sock = self._forward(client, hop_config.hostname, following.hostname, following.port)
+            client = self._login(site, config, answers, sock, None)
+        except BaseException:
+            for each in reversed(chain):
+                each.close()
+            raise
+        transport = client.get_transport()
+        if SETTINGS.remote.keepalive > 0:
+            for each in (*chain, client):
+                each.get_transport().set_keepalive(SETTINGS.remote.keepalive)
+        self.client, self.transport, self.chain = client, transport, chain
+        self._pool = queue.LifoQueue()
+        self._made = 0
+        threading.Thread(target=self._watch, args=(transport,), daemon=True,
+                         name=f"nav-sftp-watch-{config.hostname}").start()
+
+    def _login(self, site: Site, config: Any, answers: Answers, sock: Any, hop: Any) -> Any:
+        """An SSH client logged into *config*'s host -- the server, or the
+        jump host *hop* on the way to it -- over *sock*, or raising what the
+        user must answer."""
+        import paramiko
+
+        from navigator.lib.drives import credentials
+        from navigator.settings import SETTINGS
+
         if answers.password is None and not answers.tried_keyring:
             answers.tried_keyring = True
             answers.password = credentials.saved_password(site)
@@ -118,8 +161,7 @@ class _Connection:
             client.load_system_host_keys()
         except (OSError, paramiko.SSHException):
             pass
-        client.set_missing_host_key_policy(_AskPolicy(self))
-        sock = paramiko.ProxyCommand(config.proxy_command) if config.proxy_command else None
+        client.set_missing_host_key_policy(_AskPolicy(config.hostname, config.port, answers, hop))
         timeout = max(1, SETTINGS.remote.timeout)
         try:
             client.connect(
@@ -139,18 +181,20 @@ class _Connection:
                                  "Remove the old key from known_hosts to connect.") from error
         except paramiko.PasswordRequiredException as error:
             client.close()
-            raise NeedPassphrase(str(error) or "private key", wrong=answers.passphrase is not None) from error
+            raise NeedPassphrase(str(error) or "private key", wrong=answers.passphrase is not None,
+                                 hop=hop) from error
         except paramiko.AuthenticationException as error:
             if not self._interactively(client, config.user, error):
                 client.close()
-                raise NeedPassword(site, config.user, config.hostname, wrong=answers.password is not None) from error
+                raise NeedPassword(site, config.user, config.hostname, wrong=answers.password is not None,
+                                   hop=hop) from error
         except paramiko.SSHException as error:
             if answers.password is None and "authentication methods" in str(error):
                 # No key, no agent and no password to try: the server's own
                 # questions where it asks them, else a password.
                 if not self._interactively(client, config.user, error):
                     client.close()
-                    raise NeedPassword(site, config.user, config.hostname) from error
+                    raise NeedPassword(site, config.user, config.hostname, hop=hop) from error
             else:
                 client.close()
                 raise DriveGone(config.hostname, f"Cannot connect to {config.hostname}: {error}") from error
@@ -158,14 +202,27 @@ class _Connection:
             client.close()
             reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
             raise DriveGone(config.hostname, f"Cannot connect to {config.hostname}: {reason}") from error
-        transport = client.get_transport()
-        if SETTINGS.remote.keepalive > 0:
-            transport.set_keepalive(SETTINGS.remote.keepalive)
-        self.client, self.transport = client, transport
-        self._pool = queue.LifoQueue()
-        self._made = 0
-        threading.Thread(target=self._watch, args=(transport,), daemon=True,
-                         name=f"nav-sftp-watch-{config.hostname}").start()
+        if answers.save_password and answers.password and hop is not None:
+            # A jump host's password is kept once it worked; the server's is
+            # kept by :func:`connect`, once the drive answers.
+            credentials.save_password(site, answers.password)
+        return client
+
+    @staticmethod
+    def _forward(client: Any, via: str, hostname: str, port: int) -> Any:
+        """A channel from the jump host *client* is logged into on to
+        *hostname*:*port*: the socket the next connection is made over."""
+        import paramiko
+
+        from navigator.settings import SETTINGS
+
+        try:
+            return client.get_transport().open_channel(
+                "direct-tcpip", (hostname, port), ("127.0.0.1", 0), timeout=max(1, SETTINGS.remote.timeout))
+        except (paramiko.SSHException, OSError, EOFError) as error:
+            client.close()
+            reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
+            raise DriveGone(hostname, f"Cannot reach {hostname} through {via}: {reason}") from error
 
     def _watch(self, transport: Any) -> None:
         """Wait for *transport* to end -- paramiko's is a thread -- and then
@@ -237,11 +294,13 @@ class _Connection:
         if meant:
             self._closing = True
         client, self.client, self.transport = self.client, None, None
-        if client is not None:
-            try:
-                client.close()
-            except Exception:
-                pass
+        chain, self.chain = self.chain, []
+        for each in (client, *reversed(chain)):
+            if each is not None:
+                try:
+                    each.close()
+                except Exception:
+                    pass
 
     # -- channels ----------------------------------------------------------------------------------
 
@@ -313,21 +372,20 @@ def _handler(ask: Any) -> Any:
 class _AskPolicy:
     """paramiko's question about a host key it does not know, put to the user."""
 
-    def __init__(self, connection: _Connection) -> None:
-        self.connection = connection
+    def __init__(self, hostname: str, port: int, answers: Answers, hop: Any) -> None:
+        self.hostname, self.port, self.answers, self.hop = hostname, port, answers, hop
 
     def missing_host_key(self, client: Any, hostname: str, key: Any) -> None:
         from navigator.lib.drives import credentials
 
-        connection = self.connection
-        choice = connection.answers.host_key
+        choice = self.answers.host_key
         if choice is None:
-            raise UnknownHostKey(connection.hostname, connection.port, key.get_name(),
-                                 credentials.fingerprint(key), key)
+            raise UnknownHostKey(self.hostname, self.port, key.get_name(),
+                                 credentials.fingerprint(key), key, hop=self.hop)
         client.get_host_keys().add(hostname, key.get_name(), key)
         if choice == "save":
             try:
-                credentials.save_host_key(connection.hostname, connection.port, key)
+                credentials.save_host_key(self.hostname, self.port, key)
             except OSError:
                 pass
 

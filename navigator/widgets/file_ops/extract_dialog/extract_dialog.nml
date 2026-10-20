@@ -1,0 +1,74 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Panel > Extract to, and Shift+F2 on an archive: DOS Navigator's
+#: ``dlgExtract``.
+#:
+#: Where to, the two options, and OK / Cancel / Tree.  DN's *Password* line
+#: is left out: Python's zip reader knows only the old ZipCrypto, and 7-Zip
+#: is asked for none.  Help is left out, having nothing to show yet.  A row
+#: taller than DN's 49 by 12, for this library's buttons.
+ExtractDialog(Dialog):
+    modal_width: 49
+    modal_height: 11
+    title: "Extract files"
+
+    keys:
+        f10: ChooseTarget
+
+    Label:
+        id: target_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "E~x~tract to"
+        link: target.entry
+
+    #: DN's ``hsFileCopyName``: the Copy dialog's history.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "copy"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 2
+        items: ["Extract with ~p~ath names", "T~e~st only"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

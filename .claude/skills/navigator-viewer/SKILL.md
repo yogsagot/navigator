@@ -27,7 +27,9 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   *Syntax highlight* (the editor's `SwitchHighLight`, handled by `FileWindow`, ticked), `ViewRecord.highlight`.
   Nothing counts lines, so a thread reads and lexes a byte window, from the first whole line after `top - LEX_BACK`
   to `top + LEX_AHEAD` (256 KiB each way, `_lex_window`, its own `open` -- `ViewSource`'s chunk cache is not for
-  threads); cells carry byte offsets, so a row finds its spans by `bisect` and wrapped rows need nothing more.
+  threads). A file read across a network (`ChunkedSource`) is lexed too, a window of `REMOTE_LEX_BACK`/`AHEAD`
+  (128 KiB, two chunks) each way, read on the thread through `ChunkedSource.read_blocking` (one read at a time
+  with the fetchers, under the source's `_reader_lock`) and keyed on the origin's URL; cells carry byte offsets, so a row finds its spans by `bisect` and wrapped rows need nothing more.
   View > *File type* picks the lexer by hand (`SetFileType`, `FileViewer.file_type`, `ViewRecord.file_type`; the
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type

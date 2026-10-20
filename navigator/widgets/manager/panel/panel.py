@@ -306,6 +306,11 @@ class Panel(ContextMenuHost, ListViewer):
     #: with its own ``ShowFlags``: seeded from *File find* by each listing
     #: shown, and the only one of the two where ``path`` counts.
     find_columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date", "path")))
+    #: The same in an archive (DN's ``TArcDrive``, whose ``ShowFlags`` were
+    #: ``ColumnsDefaults.Arc``): seeded from *Archives* by each archive gone
+    #: into, and the only one where ``packed`` and ``ratio`` count.
+    archive_columns: frozenset[str] = reactive(
+        frozenset(("size", "packed", "ratio", "attributes", "owner", "date")))
     #: The names tagged with Insert -- DN's ``TFileRec.Selected``, held here
     #: rather than on the entry because a rescan builds new entries.  Kept
     #: across a re-read of the same directory, less the names that went, and
@@ -385,6 +390,7 @@ class Panel(ContextMenuHost, ListViewer):
         self.sort_reverse = SETTINGS.panel_defaults.sort_reverse and self.sort_mode != "unsorted"
         self.view_mode = SETTINGS.panel_defaults.view_mode
         self.columns = SETTINGS.column_defaults.columns(False)
+        self.archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
         if path is not None:
             self.location = Location.of(path)
 
@@ -441,6 +447,8 @@ class Panel(ContextMenuHost, ListViewer):
 
                 archive.hold(outer, self)
                 self._archive = outer
+                # ``TArcDrive.Init``: a new drive, *Archives*' columns.
+                self.archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
 
     def _let_go_of_archive(self) -> None:
         outer, self._archive = self._archive, None
@@ -703,13 +711,18 @@ class Panel(ContextMenuHost, ListViewer):
     @property
     def shown_columns(self) -> frozenset[str]:
         """The columns of what the panel lists now: :attr:`find_columns` over a
-        *Find:* listing, :attr:`columns` over a directory."""
-        return self.find_columns if self.found is not None else self.columns
+        *Find:* listing, :attr:`archive_columns` in an archive, :attr:`columns`
+        over a directory."""
+        if self.found is not None:
+            return self.find_columns
+        return self.archive_columns if self.location.outer is not None else self.columns
 
     @shown_columns.setter
     def shown_columns(self, columns: frozenset[str]) -> None:
         if self.found is not None:
             self.find_columns = columns
+        elif self.location.outer is not None:
+            self.archive_columns = columns
         else:
             self.columns = columns
 
@@ -1401,13 +1414,17 @@ class Panel(ContextMenuHost, ListViewer):
     #: off the listing (:meth:`_owner_width`).
     DETAIL_COLUMNS = {
         "size": ("Size", 8, "display_size"),
+        "packed": ("Packed", 8, "display_packed"),
+        "ratio": ("%", 4, "display_ratio"),
         "attributes": ("Attr", 9, "display_attributes"),
         "owner": ("Owner", None, "display_owner"),
         "date": ("Date", 16, "display_date"),
         "path": ("Path", None, "display_path"),
     }
-    DETAIL_ORDER = ("size", "attributes", "owner", "date", "path")
-    DROP_ORDER = ("owner", "attributes", "path", "date")
+    DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "owner", "date", "path")
+    DROP_ORDER = ("owner", "attributes", "ratio", "packed", "path", "date")
+    #: The columns only an archive's entries fill.
+    ARCHIVE_ONLY = frozenset(("packed", "ratio"))
     #: The widest the path column grows; a longer one starts with ``...``.
     MAX_PATH_WIDTH = 30
     #: The widest the owner column grows; a longer ``user:group`` ends in
@@ -1427,10 +1444,13 @@ class Panel(ContextMenuHost, ListViewer):
         the date.  The owner column is as wide as the longest owner listed.
         """
         inset, inner = self.inset, self.inner_width
-        # *Columns Setup*'s choice, the path only where entries are from elsewhere.
+        # *Columns Setup*'s choice, the path only where entries are from
+        # elsewhere, the packed size and ratio only in an archive.
         wanted, listing = self.shown_columns, self.found is not None
+        in_archive = self.location.outer is not None and not listing
         shown = [key for key in self.DETAIL_ORDER
-                 if key in wanted and (key != "path" or listing)]
+                 if key in wanted and (key != "path" or listing)
+                 and (key not in self.ARCHIVE_ONLY or in_archive)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
         widths["owner"] = self._owner_width()
         widths["path"] = self._path_width() if "path" in shown else 0
@@ -1991,6 +2011,8 @@ class Panel(ContextMenuHost, ListViewer):
         return {
             "name": tr("Name"),
             "size": tr("Size"),
+            "packed": tr("Packed"),
+            "ratio": tr("%"),
             "attributes": tr("Attr"),
             "owner": tr("Owner"),
             "date": tr("Date"),

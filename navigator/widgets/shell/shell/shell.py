@@ -2083,7 +2083,7 @@ class Shell(DockLayout):
                                                 unknown.fingerprint).execute(app)
                     if choice is None:
                         return False
-                    answers.host_key = choice
+                    answers.for_hop(unknown.hop).host_key = choice
                 except NeedPassword as needed:
                     can_keep = await asyncio.to_thread(credentials.keyring_available)
                     prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
@@ -2092,14 +2092,15 @@ class Shell(DockLayout):
                     answer = await PasswordDialog(prompt, can_keep=can_keep).execute(app)
                     if answer is None:
                         return False
-                    answers.password, answers.save_password = answer
+                    asked = answers.for_hop(needed.hop)
+                    asked.password, asked.save_password = answer
                 except NeedPassphrase as needed:
                     prompt = (tr("Wrong passphrase for {key}. Try again:") if needed.wrong
                               else tr("Passphrase for {key}:")).format(key=escape_caption(needed.key_file))
                     answer = await PasswordDialog(prompt).execute(app)
                     if answer is None:
                         return False
-                    answers.passphrase = answer[0]
+                    answers.for_hop(needed.hop).passphrase = answer[0]
                 except OSError as error:
                     if job.stopped:
                         return False

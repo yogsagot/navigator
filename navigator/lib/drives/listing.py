@@ -47,7 +47,7 @@ class DirEntry:
     """
 
     __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
-                 "counted", "directory", "owner")
+                 "counted", "directory", "owner", "packed")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
                  is_link: bool = False, link_target: str | None = None,
@@ -70,6 +70,9 @@ class DirEntry:
         #: ``user:group`` as the drive named them, for an entry on a drive
         #: whose ids mean nothing here (a server's); None to look the ids up.
         self.owner: str | None = None
+        #: What it takes in the archive it is in (DN's ``PSize``): the
+        #: *Packed* and *%* columns'; None off an archive, or not known.
+        self.packed: int | None = None
 
     @property
     def key(self) -> str:
@@ -104,6 +107,27 @@ class DirEntry:
                 return f"{self.size:>8}" if not unit else f"{size:>7.0f}{unit}"
             size /= 1024
         return f"{self.size:>8}"
+
+    @property
+    def display_packed(self) -> str:
+        """The *Packed* column (DN's ``PSize``): blank where it is not known."""
+        if self.is_dir or self.packed is None:
+            return ""
+        size = float(self.packed)
+        for unit in ("", "K", "M", "G", "T"):
+            if size < 1024 or unit == "T":
+                return f"{self.packed:>8}" if not unit else f"{size:>7.0f}{unit}"
+            size /= 1024
+        return f"{self.packed:>8}"
+
+    @property
+    def display_ratio(self) -> str:
+        """The *%* column: the packed size as a percentage of the original,
+        DN's ``Percent(Size, PSize)`` -- 100 for an empty file."""
+        if self.is_dir or self.packed is None:
+            return ""
+        ratio = 100 if self.size == 0 else round(self.packed * 100 / self.size)
+        return f"{min(ratio, 999):>3}%"
 
     @property
     def display_attributes(self) -> str:

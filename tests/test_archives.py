@@ -385,3 +385,125 @@ def test_an_archive_on_another_drive_written_into_goes_back_there(tmp_path):
     finally:
         archive.close_all()
         unmount(memory.site)
+
+
+# -- Extract to, Test, Extract archive -------------------------------------------------------------
+
+
+def corrupt_zip(path: Path) -> Path:
+    """*path*'s first member's bytes changed under its CRC."""
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_STORED) as zipped:
+        zipped.writestr("good.txt", "fine")
+        zipped.writestr("bad.txt", "damaged here")
+    data = path.read_bytes()
+    path.write_bytes(data.replace(b"damaged here", b"DAMAGED HERE"))
+    return path
+
+
+def test_test_reads_every_member_and_names_those_that_fail(tmp_path):
+    class Job:
+        stopped, position, total = False, 0, 0
+
+        def wait_while_paused(self):
+            pass
+
+    good = archive.open_archive(Location.of(make_zip(tmp_path / "a.zip")))
+    assert good.test(Job()) == []
+    assert good.test(Job(), [good.at("/src")]) == []
+    bad = archive.open_archive(Location.of(corrupt_zip(tmp_path / "bad.zip")))
+    failures = bad.test(Job())
+    assert [path for path, _ in failures] == ["bad.txt"] and "CRC" in failures[0][1]
+
+
+def test_extract_without_path_names_puts_every_file_in_the_target(tmp_path):
+    drive = archive.open_archive(Location.of(make_zip(tmp_path / "a.zip")))
+    out = tmp_path / "flat"
+    out.mkdir()
+    request = CopyRequest([drive.at("/src")], str(out) + "/", OVERWRITE, PRESERVE, flatten=True)
+    copy_run(request, CopyJob(), tmp_path)
+    assert sorted(path.name for path in out.iterdir()) == ["main.py", "x.txt"]
+
+
+def modal_is(name):
+    return lambda a: type(a.modal).__name__ == name
+
+
+def test_extract_to_and_test_are_the_archive_panel_s(desk):
+    from navigator.widgets.manager.commands import ArcTest, ExtractArchive, ExtractTo
+
+    app, here = desk
+    seen = {}
+
+    def enabled(key):
+        return lambda a: seen.update({key: {cls.__name__: a.manager.enables(cls())
+                                            for cls in (ArcTest, ExtractArchive, ExtractTo)}})
+
+    run_app(app, [
+        at("a.zip"), enabled("disk"),
+        KeyEvent("enter"), Until(lambda a: "README" in names(a)), enabled("inside"),
+    ])
+    assert seen["disk"] == {"ArcTest": False, "ExtractArchive": True, "ExtractTo": False}
+    assert seen["inside"] == {"ArcTest": True, "ExtractArchive": False, "ExtractTo": True}
+
+
+def test_extract_to_copies_the_selection_out_with_its_paths(desk):
+    from navigator.widgets.manager.commands import ExtractTo
+
+    app, here = desk
+    seen = {}
+    run_app(app, [
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("src"), lambda a: a.spawn(a.run_command(ExtractTo)), Until(modal_is("ExtractDialog")),
+        lambda a: seen.update(target=a.modal.target.value, options=a.modal.options.value),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "src" / "deep" / "x.txt").exists(), timeout=5),
+    ])
+    assert seen == {"target": f"{here / 'out'}/", "options": 1}
+    assert (here / "out" / "src" / "main.py").read_text() == "print('hi')\n"
+
+
+def test_shift_f2_extracts_an_archive_from_outside_it(desk):
+    app, here = desk
+    run_app(app, [
+        at("a.zip"), KeyEvent("f2", shift=True), Until(modal_is("ExtractDialog")),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "README").exists(), timeout=5),
+        Until(lambda a: archive.find(Location.of(here / "a.zip")) is None),
+    ])
+    assert (here / "out" / "src" / "deep" / "x.txt").read_text() == "x"
+    assert (here / "out" / "empty").is_dir()
+
+
+def test_test_archive_says_what_failed(desk):
+    from navigator.widgets.manager.commands import ArcTest
+
+    app, here = desk
+    corrupt_zip(here / "bad.zip")
+    seen = {}
+    run_app(app, [
+        lambda a: a.manager.left.reload(), Until(lambda a: "bad.zip" in names(a)),
+        at("bad.zip"), KeyEvent("enter"), Until(lambda a: "good.txt" in names(a)),
+        at(".."), lambda a: a.spawn(a.run_command(ArcTest)), Until(lambda a: type(a.modal).__name__ == "Dialog", timeout=5),
+        lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("enter"),
+    ])
+    assert "1 error found in bad.zip:" in seen["prompt"] and "bad.txt" in seen["prompt"]
+
+
+def test_an_archive_panel_has_its_own_columns_packed_and_ratio_among_them(desk):
+    app, here = desk
+    seen = {}
+
+    def keys(a):
+        return [key for key, _, _ in a.manager.left.detail_columns]
+
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "view_mode", "detailed"),
+        lambda a: seen.update(disk=keys(a)),
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("README"), lambda a: seen.update(inside=keys(a), entry=a.manager.left.selected,
+                                            wanted=a.manager.left.shown_columns),
+    ])
+    assert "packed" not in seen["disk"] and "ratio" not in seen["disk"]
+    assert seen["wanted"] == {"size", "packed", "ratio", "attributes", "owner", "date"}
+    # Half of 100 columns: the narrowest name gives up owner, attributes and ratio first.
+    assert seen["inside"] == ["name", "size", "packed", "date"]
+    entry = seen["entry"]
+    assert entry.packed is not None and entry.display_ratio == f"{round(entry.packed * 100 / entry.size):>3}%"

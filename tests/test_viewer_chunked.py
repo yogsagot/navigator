@@ -126,6 +126,9 @@ def test_f3_opens_at_once_and_ctrl_page_down_goes_to_the_end_once_it_is_here(des
         Until(lambda a: shown(a) is not None and shown(a).startswith("line 0599"), timeout=10),
         lambda a: seen.update(end=viewer_of(a).percent()),
         KeyEvent("pageup", ctrl=True), Until(lambda a: shown(a) == "line 000000 of the long file", timeout=5),
+        # The app exits without unmounting: closed here, or its queued
+        # fetches would run on into the next test.
+        lambda a: viewer_of(a).source.close(),
     ], timeout=30)
     assert seen["remote"] and seen["title"] == "mem://chunked/big.txt"
     assert seen["end"] == 100
@@ -186,3 +189,38 @@ def test_an_sftp_file_is_read_a_chunk_at_a_time(tmp_path, monkeypatch):
     finally:
         SESSIONS.close_all()
         served.stop()
+
+
+def test_a_file_on_another_drive_is_highlighted_a_window_at_a_time(desk):
+    from navigator.widgets.viewer.file_viewer import file_viewer
+
+    app, memory = desk
+    code = "".join(f"value_{number} = 'text {number}'  # note\n" for number in range(20_000))
+    memory.make("/code.py", code)
+    seen = {}
+
+    def on_code(a):
+        panel = a.manager.left
+        panel.cursor = [entry.name for entry in panel.items].index("code.py")
+
+    def spans(a):
+        viewer = viewer_of(a)
+        return viewer is not None and bool(viewer._spans)
+
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "location", memory.location("/")),
+        Until(lambda a: "code.py" in [e.name for e in a.manager.left.items]), on_code,
+        KeyEvent("f3"), Until(lambda a: viewer_of(a) is not None, timeout=5),
+        Until(spans, timeout=10),
+        lambda a: seen.update(lexer=viewer_of(a).lexer_name, covered=viewer_of(a)._covered,
+                              classes={span[2] for span in viewer_of(a)._spans}),
+        KeyEvent("pagedown", ctrl=True),
+        Until(lambda a: viewer_of(a)._covered[1] == len(code), timeout=10),
+        lambda a: seen.update(end=viewer_of(a)._covered),
+        lambda a: viewer_of(a).source.close(),
+    ], timeout=30)
+    assert seen["lexer"] == "python"
+    # Only a window, not the whole file: two chunks past the top.
+    assert seen["covered"][0] == 0 and seen["covered"][1] <= file_viewer.REMOTE_LEX_AHEAD
+    assert any("comment" in str(classes) for classes in seen["classes"])
+    assert seen["end"][0] > 0

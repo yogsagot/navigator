@@ -39,10 +39,12 @@ depends:
 # SSH (SFTP) and SMB links and *Save in keyring*: optional, and not vendored
 # -- paramiko and smbprotocol need `cryptography', which is compiled.  The launcher's -s keeps
 # the system's dist-packages on the path, so the distribution's own do.
+# 7-Zip's command line reads 7z and rar archives and writes 7z (arctool.py).
 suggests:
   - python3-paramiko
   - python3-smbprotocol
   - python3-keyring
+  - 7zip
 overrides:
   rpm:
     depends:
@@ -51,6 +53,7 @@ overrides:
       - python3-paramiko
       - python3-smbprotocol
       - python3-keyring
+      - 7zip
 
 contents:
   - src: build/root/usr/lib/navigator-fm

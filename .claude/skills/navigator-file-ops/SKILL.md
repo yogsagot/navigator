@@ -29,6 +29,10 @@ operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as 
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
 stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows.
 
+- **Without path names** (`CopyRequest.flatten`, *Extract files*' box unticked): a directory copied puts every file
+  under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it
+  (`navigator-drives`, *Extract to, Test, Shift+F2*).
+
 ## Quick rename (Shift+F6)
 
 A departure, asked for: `QuickRename` (Shift+F6, Midnight Commander's rename key; Ctrl+F6 stays DN's Calculator), `Manager.quick_rename` -> `RenameDialog` (`file_ops/rename_dialog`),
@@ -86,6 +90,9 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
   `begin 644`; `UUXLT` with a backquote for 0; checksum levels cumulative -- entire `sum -r/size`, per-section
   `sum -r/size` over the counted lines plus `\n`, a check character per line (`GetLnCrc`), DN's `crc64`
   (`CRC64_START`, add-and-rotate). Every answer is kept in `[uucode]` and saved when it changes.
+- **Onto another drive**: encoded or decoded into a staging directory, then up through `usefile.put_files`, whose
+  `ask` hook puts the same `FileExists` question (a `Location` then) of the files already there, before anything is
+  written (`ask_over_encoded`, `ask_over_decoded`; `navigator-drives` has it).
 - **Decode** reads one file holding any files and sections in any order (a state machine, not a transcription of DN's):
   section headers, `table`, `filetime`, `begin`/`end`, `sum -r/size` checked, anything else passed over. A severe
   error breaks a file, written only with *Save broken files*; *Check existing files* asks; *Display error messages*

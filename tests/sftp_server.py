@@ -25,8 +25,11 @@ CODE_PROMPT, CODE = "Verification code: ", "123456"
 
 
 class _Server(paramiko.ServerInterface):
-    def __init__(self, interactive: bool = False) -> None:
+    def __init__(self, interactive: bool = False, forwarding: bool = False) -> None:
         self.interactive = interactive
+        self.forwarding = forwarding
+        #: Where each ``direct-tcpip`` channel asked to go, by its id.
+        self.destinations: dict[int, tuple[str, int]] = {}
 
     def check_auth_password(self, username: str, password: str) -> int:
         if self.interactive:
@@ -48,6 +51,47 @@ class _Server(paramiko.ServerInterface):
         if kind == "session":
             return paramiko.OPEN_SUCCEEDED
         return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+
+    def check_channel_direct_tcpip_request(self, chanid: int, origin: Any, destination: Any) -> int:
+        if not self.forwarding:
+            return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+        self.destinations[chanid] = tuple(destination)
+        return paramiko.OPEN_SUCCEEDED
+
+
+def _pump(source: Any, sink: Any) -> None:
+    try:
+        while True:
+            data = source.recv(32768)
+            if not data:
+                break
+            sink.sendall(data)
+    except (OSError, EOFError):
+        pass
+    for end in (source, sink):
+        try:
+            end.close()
+        except (OSError, EOFError):
+            pass
+
+
+def _forward(transport: paramiko.Transport, server: _Server) -> None:
+    """A jump host's half of ``ProxyJump``: each ``direct-tcpip`` channel
+    joined to a socket to where it asked to go."""
+    while transport.is_active():
+        channel = transport.accept(0.5)
+        if channel is None:
+            continue
+        destination = server.destinations.pop(channel.get_id(), None)
+        if destination is None:
+            continue  # an SFTP session's: its subsystem has it
+        try:
+            sock = socket.create_connection(destination)
+        except OSError:
+            channel.close()
+            continue
+        threading.Thread(target=_pump, args=(channel, sock), daemon=True).start()
+        threading.Thread(target=_pump, args=(sock, channel), daemon=True).start()
 
 
 class _Handle(SFTPHandle):
@@ -193,11 +237,13 @@ def _interface(root: Path) -> type:
 
 class SftpServer:
     """Serving *root* on ``127.0.0.1``: :attr:`port`, :meth:`drop` to cut
-    every connection as a network would, :meth:`stop` for good."""
+    every connection as a network would, :meth:`stop` for good.  With
+    *forwarding* it is a jump host too, as ``ssh -J`` uses one."""
 
-    def __init__(self, root: Path, *, interactive: bool = False) -> None:
+    def __init__(self, root: Path, *, interactive: bool = False, forwarding: bool = False) -> None:
         self.root = root
         self.interactive = interactive
+        self.forwarding = forwarding
         self.host_key = paramiko.RSAKey.generate(2048)
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -220,10 +266,13 @@ class SftpServer:
             transport = paramiko.Transport(sock)
             transport.add_server_key(self.host_key)
             transport.set_subsystem_handler("sftp", SFTPServer, self._interface)
+            server = _Server(self.interactive, self.forwarding)
             try:
-                transport.start_server(server=_Server(self.interactive))
+                transport.start_server(server=server)
             except (paramiko.SSHException, EOFError, OSError):
                 continue
+            if self.forwarding:
+                threading.Thread(target=_forward, args=(transport, server), daemon=True).start()
             self.connections += 1
             self.transports.append(transport)
 

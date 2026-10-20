@@ -40,18 +40,21 @@ F5, F6 and F8 by answering a dozen methods.
 2. Archives (`ARCVIEW.PAS` `TArcDrive`): a zip/tar drive on `zipfile`/`tarfile`, `Location.outer` as `Prev`, Enter
    on an archive pushes it, `change_up` at its root returns `(outer.parent, outer.name)`; writing into one, erasing,
    renaming and making directories in one as a rewrite at `Drive.finish`, and a new archive made by naming it on a
-   copy's target line (DN's `ArchiveFiles`). Done. Still to come: the Archives menu (`HandleCommand`'s *Extract to*,
-   *Test*), *Archives* column defaults (DN kept a `ShowFlags` word for them), and 7z/rar through external tools.
+   copy's target line (DN's `ArchiveFiles`). Done. Then `HandleCommand`'s *Extract to* and *Test* (Panel menu, and
+   Shift+F2's `cmExtractArchive` outside one; F4/F6 keep Edit and Rename/Move rather than DN's archive key bar, and
+   `dlgExtract`'s *Password* is left out), *Archives* column defaults (`ColumnsDefaults.Arc`: packed size and
+   ratio), and 7z/rar through 7-Zip's command line (`arctool.py`; rar read-only). Done.
 3. FTP (`ftplib`: MLSD with LIST parsing as fallback, `ftps://` via `FTP_TLS`, a pool of control connections) and
    SMB (`smbclient`'s `scandir`/`open_file`/`stat`/`rename`, `smb://user@host/share/path`), each with its own
-   Utilities entry and link box. Done. SMB's root lists only the shares named so far; listing a server's shares
-   (srvsvc over RPC) is left.
+   Utilities entry and link box. Done. SMB's root lists the server's disk shares over `srvsvc`'s `NetrShareEnum`
+   (`dcerpc.py`, hand-written), falling back to the shares named so far. Done.
 4. Parity: background `TreeView` loading (remote Alt+T/Ctrl+T), Find and Branch over a drive walk, Alt+G, content
    compare by streams, attributes with owners by number, a polling refresh, Ctrl+Q on a fetched head, the
    information panel's `Drive.describe`, printing a fetched copy, the viewer's *Save as* to a URL or into an
-   archive, `ProxyJump`, keyboard-interactive auth. Done, and F3 reading a remote file a chunk at a time
+   archive, `ProxyJump` (every hop, chained over paramiko's own channels), keyboard-interactive auth. Done, and F3 reading a remote file a chunk at a time
    (`ChunkedSource`: a read of a missing chunk raises `NotYet`, the viewer's reading methods are retried once it
    lands, each reading before it changes anything). Then Shift+F4, symlinks on a drive that has them, list files,
-   UU and the dBase view off the disk: `Manager._LOCAL_ONLY` is empty. Still open: syntax highlighting of a file
-   read by chunks; a link from one drive to another (a path means nothing across them); UU's *already exists*
-   question for a remote target.
+   UU and the dBase view off the disk: `Manager._LOCAL_ONLY` is empty. Then syntax highlighting of a file read by
+   chunks (a smaller window, read on the lexer's thread through `ChunkedSource.read_blocking`) and UU's *already
+   exists* question for a remote target (`usefile.put_files`' `ask`). Done. **Refused on purpose**: a link from one
+   drive to another -- a path means nothing across them.

@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive, capabilities, zip and tar archives entered with Enter (DN's TArcDrive), drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive, capabilities, zip and tar archives (and 7z/rar through 7-Zip's command line) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -48,7 +48,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   own paths in it (`_make_list_elsewhere`); *Read file list* reads one there (`filefind.read_list_on_drive`: `/` the
   drive's top, a mask matched against a listing, `~` just a name). UU encode/decode (`Manager._staged`) fetch the
   input, write into a staging directory under `private_dir()`, and `usefile.put_files` the results up into the
-  directory asked for -- overwriting there without the *already exists* question, which only the disk asks. The
+  directory asked for -- its `ask` hook given those already there first, before anything is written:
+  `uucode.ask_over_encoded` (anything but Yes/All abandons, as `encode` asks of the disk) and `ask_over_decoded`
+  (*Check existing files*; No leaves one, Cancel it and the rest), `FileExists.path` then a `Location`. The
   dBase view fetches the file (`use_file.database_elsewhere`) and puts it back after every field edited.
 - **What works anywhere, and how** (Phase 4): Alt+G counts through `Drive.children`
   (`dirlength._count_on_drive`); *Auto refresh* polls a drive with `polled = True` (SFTP, FTP, SMB) every
@@ -124,8 +126,14 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `chmod` is `SITE CHMOD` (also after `STOR` for a new file), `utime` is `MFMT`; no symlinks. FTPS is explicit
   TLS (`AUTH TLS`, `PROT P`) checked against the system's certificates. Title `FTP:host:/path`.
 - **`smb.py`** (`smb://user@host/share/path`; `smbprotocol`'s `smbclient`, the `navigator-fm[smb]` extra). **The
-  first name of a path is the share**; the root lists the shares known (the one opened on -- `Answers.start`'s first
-  name -- and any reached since): SMB lists a server's shares only over RPC. Each drive has its own
+  first name of a path is the share**; the root lists the server's disk shares, asked once per drive over RPC
+  (`_ask_shares`: `smbclient.open_file("\\\\host\\IPC$\\srvsvc", mode="r+b", buffering=0, file_type="pipe")` and
+  **`dcerpc.share_enum`**, a hand-written bind + `NetrShareEnum` level 1 -- smbprotocol has no RPC, impacket is
+  large), `IPC$`, printers and the `$`-special ones left out, plus the shares known (the one opened on --
+  `Answers.start`'s first name -- and any reached since). Any failure (guest refused, RPC off) leaves only the
+  known ones, silently. `dcerpc.py` speaks to anything with `read`/`write`, keeps what one read brought past a
+  fragment (`_Fragments`), and was checked against impacket's NDR (bind byte-identical, the request so but for
+  referent ids, impacket's response decoded); no Samba was at hand to try it on. Each drive has its own
   `connection_cache` and passes `username`/`password`/`port` on every call; names are UNC (`_unc`). A failure of
   the connection itself (not an `OSError`) is `DriveGone`; `LogonFailure`/`AccessDenied` on connecting is
   `NeedPassword`. No user is the guest, or Kerberos with a ticket. No chmod or owners (Windows ACLs). `smb.CLIENT`
@@ -137,8 +145,15 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   The recent list is the protocol's (`recent.recent(("ftp", "ftps"))` for FTP's box). The Link list has a *New ...
   link* per protocol (its mapping is the scheme), each greyed with its extra when missing. `sessions.PROTOCOLS`
   names them all.
-- **SSH extras**: `ProxyJump` in `~/.ssh/config` becomes `ssh -W host:port jump` (the system's `ssh`, with its
-  own config, agent and keys for the jump host; the first hop of a list). **Keyboard-interactive** (a one-time
+- **SSH extras**: `ProxyJump` in `~/.ssh/config` (`a,b`, `user@host:port`, `ssh://` hops; `credentials.jump_site`)
+  is `HostConfig.jumps`, and `_Connection.open` chains them natively: each hop logged into by `_login` (its own
+  `host_config`; the first hop's own `ProxyCommand` honoured, a hop's own `ProxyJump` not followed), the next one
+  reached over its `direct-tcpip` channel (`_forward`), the server last. Every hop's host key, password and
+  passphrase are asked as the server's are, the question's `hop` naming it (`(host, port)`, None for the server)
+  and its answer kept in `Answers.for_hop(hop)`; a jump host's password is saved to the keyring at once, the
+  server's by `connect`. The hops' clients are `_Connection.chain`, closed after the server's in reverse; `_watch`
+  watches only the last transport (a dying hop ends it, and the one reconnect rebuilds the chain). An explicit
+  `ProxyCommand` still wins, through `paramiko.ProxyCommand`. **Keyboard-interactive** (a one-time
   code, a PIN): `Answers.interactive` -- set by `Shell.reach` (`_interactive_asker`) -- is called on the connecting
   thread with the server's prompts and waits while the loop shows a box per prompt (masked unless the server says
   echo), as a copy's worker waits for its questions; tried after a password fails or when there is nothing else to
@@ -155,7 +170,16 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   login, port and directory together. `Shell.navy_link` remembers a connection only once it worked. As long as
   Interface's *History size*.
 - **`archive.py`** DN's `TArcDrive` (`ARCVIEW.PAS`): `ArchiveDrive` over `zipfile`/`tarfile` (any compression
-  `tarfile.open` reads). A place in one is `Location(Site("arc"), inner, outer=<the archive's location>)` -- `outer`
+  `tarfile.open` reads), and over **`arctool.ToolArchive`** for 7z and rar, told by signature (`arctool.kind_of`):
+  7-Zip's command line (`7zz`, `7z`, `7za` -- no rar codec in `7za`; `unrar` for rar where no 7-Zip reads it),
+  listed with `7z l -slt -ba` (`parse_slt`; `unrar lta`, `parse_unrar`, untried against a real unrar), each member
+  read through a pipe from `7z x -so -spd --` (`-spd`: a name is never a wildcard; `_Piped` kills the tool on an
+  early close and turns its exit status into `OSError`), links' targets read as their contents. Nothing bundled:
+  no tool is **`NeedsTool`** (a `NotAnArchive`), which Enter says rather than running the file. A 7z is rewritten by
+  `_write_7z` -- the old one unpacked once into a tree (solid blocks are whole), the index laid out over it, packed
+  anew by `arctool.write_7z` (`7z a -snl`); `.7z` is in `NEW_KINDS`. A rar is read-only (`capabilities` empty on the
+  instance). `_Member.packed`/`DirEntry.packed` carry the packed size (a zip's `compress_size`, 7-Zip's *Packed
+  Size* -- blank for a solid block's later members; None for a tar). A place in one is `Location(Site("arc"), inner, outer=<the archive's location>)` -- `outer`
   is DN's `Prev` -- printing as `/dir/a.zip#/inner`; `Location.parse` reads that back when the name before `#/` is in
   the *archive* file type (`a.zip#//` is the root too), and so does the copy target line (`filecopy.target_location`).
   `drive_of` finds it by its `outer` (`archive.find`). `open_archive(outer, job, create=)` reads the whole index (a
@@ -179,10 +203,28 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **Entering**: Enter (`Panel.choose` → `_may_enter_archive`) with File Manager Setup's *Enter opens an archive*
   (`enter_opens_archive`, DN's `fmoEnterArchives`), on a file the *archive* file type names, from a panel not in an
   archive (DN opened none from inside another): `widgets/drives/archives.enter_archive` opens it under *Reading
-  archive*; `NotAnArchive` (a `.zip` that is not, a `.deb`, a `.7z`) runs it as a file instead, as `ArcViewer`
+  archive*; `NotAnArchive` (a `.zip` that is not, a `.deb`) runs it as a file instead, as `ArcViewer`
   failing fell through to `ExecFile`. The name test is a departure: DN tried every file by signature, which would
   take a `.docx` (a zip) in. Inside one, F5/F6/F8/F7/rename/F4 work as anywhere; no bookmark or quick directory is
   kept there, history skips it, and a saved desktop keeps the archive's directory with the cursor on it.
+- **Extract to, Test, Shift+F2** (`ARCVIEW.PAS` `HandleCommand`/`ExtractFiles`, `FLPANELX.PAS` `cmExtractArchive`):
+  Panel > *Extract to...* (`ExtractTo`, cmExtractTo) and *Test archive* (`ArcTest`, cmArcTest), enabled only in an
+  archive; Files > *Extract archive...* (`ExtractArchive`, Shift+F2) only outside one, on archive-type files.
+  `ExtractDialog` is `dlgExtract` (*Extract to* on the Copy history, *Extract with path names* ticked, *Test only*,
+  Tree) less *Password* (zipfile knows only ZipCrypto); an empty line is the archive's own directory. Extracting is
+  the copier (`Manager._extract` → `_run_copy`), the Copy dialog's session mode and options, without paths
+  `CopyRequest.flatten` (`_Copier._flattened`: every file under a directory into the target). Shift+F2 opens each
+  archive on a thread, extracts its root's children, then `release_unheld`. Test is **`ArchiveDrive.test(job,
+  locations)`**: every member read through (zip CRCs, tar reads; 7z/rar `7z t` whole), `(path, why)` per failure,
+  said in a box. **Departure, recorded**: DN put Extract/Test/Password on F4/F6/F7 of an archive panel's key bar
+  (`hcArchives`); here F4 and F6 stay Edit and Rename/Move, which work in an archive.
+- **Archive columns** (`TArcDrive.Init`'s `ColumnsDefaults.Arc`): `Panel.archive_columns`, seeded from *Column
+  defaults*' *Archives* (`[column_defaults] arc_*`) each time an archive is entered (`_hold_archive`), is
+  `shown_columns` in an archive; `packed` (*Packed*, `display_packed`) and `ratio` (*%*, `display_ratio`, DN's
+  `Percent(Size, PSize)`, 100 for an empty file) count only there (`Panel.ARCHIVE_ONLY`) and drop before the path
+  and date. Alt+K in an archive is `dlgArcParms`' boxes (`ColumnsDialog(archive=True)`); *Full* is `ALL_COLUMNS`.
+- **Not done, on purpose**: a symbolic link from one drive to another (Shift+F5 across drives is `EXDEV`) -- a path
+  on one drive means nothing on another, and DN had no such thing.
 - **`usefile.py`** DN's `UseFile`: `fetch(origins, job)` into `private_dir()/remote/<pid>/<site-hash>/<mkdtemp>/`,
   `changed`, `conflicts` (the original changed since), `upload` (written beside as `.name.nav-XXXXXX`, chmod, `replace`
   over), `discard`, `sweep` (dead processes' directories, at start, on a thread; nothing is made just to look).
@@ -238,7 +280,11 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `panel.mounted()` for its effects, then `settle()`), and the whole file manager over it (`desk` fixture: F5, F8, F3,
   F4+F2, greying). `UseFile` round trip.
 - `tests/test_archives.py`: zip and tar.gz built in the test, the drive, copying out, the panel in and out, an
-  archive on the in-memory drive.
+  archive on the in-memory drive, Extract to / Test / Shift+F2, the archive columns. `tests/test_arctool.py`: the
+  7-Zip and unrar listings parsed from captured output (everywhere), and a real 7z entered, written, made and
+  tested -- skipped without 7-Zip (the official `7zz` tarball unpacked onto `PATH` is enough).
+  `tests/test_dcerpc.py`: `NetrShareEnum` against a pipe answering in fragments; `tests/test_smb.py` puts that pipe
+  behind its stand-in `smbclient`.
 - `tests/test_ftp.py` (skipped without pyftpdlib) against `tests/ftp_server.py` run **as a process of its own**
   (pyftpdlib's timers are per process: two servers in one trip over each other), with an MLSD and a LIST-only
   server (`[mlsd]`/`[list]`); `drop()` kills and restarts it on its port. `tests/test_smb.py` puts a stand-in

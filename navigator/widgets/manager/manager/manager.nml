@@ -1,6 +1,6 @@
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
-from navigator.widgets.manager.commands import EditNamed, ExtractArchive, FastRename, FindFile, HideInactive
+from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels
@@ -169,6 +169,15 @@ Manager(Window):
         MenuItem:
             text: 'Directory Branc~h~'
             command: DirBranch
+        MenuLine:
+        #: DN's archive panel key bar, F4 and F6 (``hcArchives``): a menu's
+        #: here, F4 and F6 staying Edit and Rename/Move.
+        MenuItem:
+            text: 'E~x~tract to...'
+            command: ExtractTo
+        MenuItem:
+            text: 'Test archive'
+            command: ArcTest
         MenuLine:
         MenuItem:
             text: 'Setup c~o~lumns'

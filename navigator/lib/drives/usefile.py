@@ -27,7 +27,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.system.job import Stopped
@@ -125,17 +125,27 @@ def blank(origin: Location) -> UseSet:
     return use
 
 
-def put_files(files: list[Path], directory: Location, job: Any) -> list[Location]:
+def put_files(files: list[Path], directory: Location, job: Any,
+              ask: Callable[[list[Location]], set[Location]] | None = None) -> list[Location]:
     """Files made on the disk -- a staging directory's -- written into
     *directory* on its drive under their own names, each beside under a name
     of its own and renamed over: what a command that can only write to the
-    disk (UU encode and decode) leaves where it was asked to.  Answers the
-    places written."""
+    disk (UU encode and decode) leaves where it was asked to.  *ask* is
+    given those there already, before anything is written, and answers the
+    ones to leave alone (or raises ``Stopped``).  Answers the places written."""
     drive = drive_of(directory)
     drive.makedirs(directory)
+    keep: set[Location] = set()
+    if ask is not None:
+        existing = [directory / local.name for local in files]
+        existing = [target for target in existing if drive.exists(target)]
+        if existing:
+            keep = ask(existing)
     written = []
     for local in files:
         target = directory / local.name
+        if target in keep:
+            continue
         beside = directory / f".{local.name}.nav-{secrets.token_hex(3)}"
         replace = drive.can("rename")
         try:

@@ -617,13 +617,14 @@ class ColumnDefaultsData(Section):
 
     DN kept a ``ShowFlags`` word for each kind of drive -- *Disk Drive*,
     *File find*, *TEMP:*, *Archives* and *TDR View* -- and each new drive took
-    its kind's.  Two of them are listings here: a directory, and a *Find:*
-    listing (Alt+F7, Panel > Directory Branch, Read file list).  *TEMP:* and
-    *TDR View* only meant something on DOS; *Archives* comes with archive
-    handlers.  The boxes are *Columns Setup*'s (Alt+K), POSIX's size,
-    attributes, owner and date where DN's were size, date, time and
-    descriptions.  DN's defaults were 0, its brief panel; Navigator's panels
-    always showed every column, so every box defaults on.
+    its kind's.  Three of them are listings here: a directory, a *Find:*
+    listing (Alt+F7, Panel > Directory Branch, Read file list), and an
+    archive (``TArcDrive.Init``'s ``ColumnsDefaults.Arc``).  *TEMP:* and *TDR
+    View* only meant something on DOS.  The boxes are *Columns Setup*'s
+    (Alt+K), POSIX's size, attributes, owner and date where DN's were size,
+    date, time and descriptions; an archive adds DN's packed size and ratio.
+    DN's defaults were 0, its brief panel; Navigator's panels always showed
+    every column, so every box defaults on.
     """
 
     name = "column_defaults"
@@ -633,6 +634,9 @@ class ColumnDefaultsData(Section):
     DISK: ClassVar[tuple[str, ...]] = ("disk_size", "disk_attributes", "disk_owner", "disk_date")
     #: *File find*'s boxes, in their order.
     FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_owner", "find_date", "find_path")
+    #: *Archives*' boxes, in their order.
+    ARC: ClassVar[tuple[str, ...]] = ("arc_size", "arc_packed", "arc_ratio", "arc_attributes", "arc_owner",
+                                      "arc_date")
 
     disk_size: bool = Setting(True, doc="A directory shows the size")
     disk_attributes: bool = Setting(True, doc="A directory shows the attributes")
@@ -643,11 +647,17 @@ class ColumnDefaultsData(Section):
     find_owner: bool = Setting(True, doc="A Find: listing shows the owner")
     find_date: bool = Setting(True, doc="A Find: listing shows the date")
     find_path: bool = Setting(True, doc="A Find: listing shows each file's directory")
+    arc_size: bool = Setting(True, doc="An archive shows the original size")
+    arc_packed: bool = Setting(True, doc="An archive shows the packed size")
+    arc_ratio: bool = Setting(True, doc="An archive shows the packed size as a percentage of the original")
+    arc_attributes: bool = Setting(True, doc="An archive shows the attributes")
+    arc_owner: bool = Setting(True, doc="An archive shows the owner")
+    arc_date: bool = Setting(True, doc="An archive shows the date")
 
-    def columns(self, listing: bool) -> frozenset[str]:
-        """The columns a new directory (*listing* false) or *Find:* listing shows,
-        as ``Panel.columns`` names them."""
-        names = self.FIND if listing else self.DISK
+    def columns(self, listing: bool, *, archive: bool = False) -> frozenset[str]:
+        """The columns a new directory (*listing* false), *Find:* listing or
+        archive shows, as ``Panel.columns`` names them."""
+        names = self.ARC if archive else self.FIND if listing else self.DISK
         return frozenset(name.split("_", 1)[1] for name in names if getattr(self, name))
 
 

@@ -14,6 +14,7 @@ import asyncio
 import errno
 import os
 import shlex
+import stat
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Sequence
 
@@ -29,6 +30,7 @@ from navml.widgets.window import Window
 from navigator.widgets.manager.commands import (
     AlternateEdit,
     AlternateView,
+    ArcTest,
     ChangeAttributes,
     ChangeDirectory,
     ChangeDrive,
@@ -41,6 +43,8 @@ from navigator.widgets.manager.commands import (
     DiskInfo,
     Edit,
     EditNamed,
+    ExtractArchive,
+    ExtractTo,
     GoParent,
     HideInactive,
     HideLeft,
@@ -106,6 +110,14 @@ from navigator.settings import SETTINGS
 #: that cannot goes, until it is taught to.  What a drive cannot do at all is
 #: its capabilities' to grey (``enables``).
 _LOCAL_ONLY: tuple[type, ...] = ()
+
+
+def _is_archive(entry: Any) -> bool:
+    """An entry Shift+F2 extracts: a file the *archive* file type takes."""
+    from navigator.lib.appearance import filetypes
+
+    return (not entry.is_dir and entry.name != ".." and stat.S_ISREG(entry.mode)
+            and filetypes.group_of(entry.name) == "archive")
 
 
 class Manager(Window):
@@ -378,7 +390,8 @@ class Manager(Window):
                 return uucode.encode(request_for(local, str(dest.local)), job, dest.local.parent)
             return uucode.encode(request_for(local, str(staging / dest.name)), job, staging), dest.parent
 
-        await self._run_uucode(panel, self._staged(place, elsewhere), notice, beep_after=20)
+        await self._run_uucode(panel, self._staged(place, elsewhere, uucode.ask_over_encoded),
+                               notice, beep_after=20)
 
     async def uu_decode(self, panel: Panel) -> None:
         """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
@@ -416,10 +429,16 @@ class Manager(Window):
             out = target_location(text, place.parent) if text else place.parent
             if out.is_local:
                 return decode(local, out.local, job)
-            result = decode(local, staging, job)
+            # Asked on the target's drive as the files go up, the staging
+            # directory being empty.
+            result = uucode.decode(local, staging, job, check_existing=False,
+                                   display_errors=section.display_errors, save_broken=section.save_broken)
             return result, out
 
-        await self._run_uucode(panel, self._staged(place, elsewhere), notice, beep_after=5)
+        def ask(existing: list[Location], job: Any) -> set[Location]:
+            return uucode.ask_over_decoded(existing, job, section.check_existing)
+
+        await self._run_uucode(panel, self._staged(place, elsewhere, ask), notice, beep_after=5)
 
     @staticmethod
     def _uu_place(panel: Panel) -> Location | None:
@@ -429,11 +448,13 @@ class Manager(Window):
         return panel.entry_location(entry)
 
     @staticmethod
-    def _staged(place: Location, work: Callable[[Any, Path, Path], Any]) -> Callable[[Any], Any]:
+    def _staged(place: Location, work: Callable[[Any, Path, Path], Any],
+                ask: Callable[[list[Location], Any], set[Location]] | None = None) -> Callable[[Any], Any]:
         """UU on another drive -- or into one: *place* fetched, *work* run on
         the copy with a staging directory for what it makes; when it answers
         ``(result, directory)`` the staged files go up into that directory on
-        its drive.  The copy and the staging go after."""
+        its drive, *ask(existing, job)* asked first of those there already
+        (``usefile.put_files``).  The copy and the staging go after."""
         def run(job: Any) -> Any:
             import tempfile
 
@@ -452,7 +473,8 @@ class Manager(Window):
                 if isinstance(answer, tuple) and len(answer) == 2 and isinstance(answer[1], Location):
                     result, directory = answer
                     files = sorted(path for path in staging.iterdir() if path.is_file())
-                    usefile.put_files(files, directory, job)
+                    usefile.put_files(files, directory, job,
+                                      None if ask is None else lambda existing: ask(existing, job))
                     return result
                 return answer
             finally:
@@ -532,6 +554,172 @@ class Manager(Window):
             return await ExistsQuery(path=question.path).execute(app)
         if isinstance(question, uucode.DecodeError):
             await Dialog(title=tr("Error"), prompt=question.text, buttons="ok").execute(app)
+        return None
+
+    # -- archives: Extract to, Test, Extract archive (ARCVIEW.PAS) ---------------------------------
+
+    async def on_extract_to(self, event: ExtractTo) -> bool:
+        self.spawn(self.extract_files(self.active_panel))
+        return True
+
+    async def on_arc_test(self, event: ArcTest) -> bool:
+        self.spawn(self.test_archive(self.active_panel))
+        return True
+
+    async def on_extract_archive(self, event: ExtractArchive) -> bool:
+        self.spawn(self.extract_archives(self.active_panel))
+        return True
+
+    def _extract_target(self, panel: Panel) -> str | None:
+        """``cmPushFirstName``: the other panel's place, where it can be written."""
+        other = self.right if panel is self.left else self.left
+        try:
+            return str(shown(other.location)) if other.drive.can("write") else None
+        except DriveGone:
+            return None
+
+    async def _ask_extract(self, panel: Panel, outer: Location) -> dict[str, Any] | None:
+        from navigator.widgets.file_ops.extract_dialog import ExtractDialog
+
+        app = self.application
+        if app is None:
+            return None
+        return await ExtractDialog(here=outer.parent, other=self._extract_target(panel),
+                                   hidden=panel.show_hidden).execute(app)
+
+    async def extract_files(self, panel: Panel) -> None:
+        """``cmExtractTo``, ``TArcDrive.CopyFiles``' *Extract files*: what is
+        tagged in the archive, or at the cursor, copied out where the box
+        says -- with its path inside, or (*Extract with path names* off)
+        straight into the target -- or, with *Test only*, tested instead."""
+        outer = panel.location.outer
+        entries = self.selection(panel)
+        if outer is None or not entries:
+            return
+        answer = await self._ask_extract(panel, outer)
+        if answer is None:
+            return
+        sources = [panel.entry_location(entry) for entry in entries]
+        if answer["test"]:
+            await self.test_archive(panel, sources)
+            return
+        await self._extract(panel, sources, outer, answer)
+
+    async def _extract(self, panel: Panel, sources: list[Location], outer: Location,
+                       answer: dict[str, Any]) -> None:
+        """*sources* in the archive at *outer* copied out as *answer* says:
+        an empty target is the archive's own directory, as DN's empty
+        ``ExtrDir`` was."""
+        from navigator.lib.file_ops import filecopy
+        from navigator.widgets.file_ops.copy_dialog import copy_dialog
+
+        here = outer.parent
+        target = answer["target"] or str(shown(here))
+        session = copy_dialog._session
+        request = filecopy.CopyRequest(
+            sources=list(sources), target=target.rstrip("/") + "/", mode=session["mode"],
+            options=session["options"] & ~filecopy.MOVE, flush=SETTINGS.system.flush_buffers,
+            flatten=not answer["paths"],
+        )
+        other = self.right if panel is self.left else self.left
+        await self._run_copy(panel, request, here, move=False, others=(other,))
+
+    async def extract_archives(self, panel: Panel) -> None:
+        """Shift+F2, ``cmExtractArchive``: each archive tagged, or the one at
+        the cursor, opened on a thread and all that is in it extracted where
+        the one *Extract files* box says -- or tested."""
+        from navigator.lib.drives import archive
+        from navigator.lib.system.job import Stopped
+        from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+        from navml.widgets.dialog.control import escape_caption
+
+        app = self.application
+        archives = [panel.entry_location(entry) for entry in self.selection(panel) if _is_archive(entry)]
+        if app is None or not archives or panel.location.outer is not None:
+            return
+        answer = await self._ask_extract(panel, archives[0])
+        if answer is None:
+            return
+        for outer in archives:
+            job = FileJob()
+
+            def open_and_list(outer: Location = outer, job: FileJob = job) -> tuple[Any, list[Location]]:
+                drive = archive.open_archive(outer, job)
+                root = drive.at("/")
+                return drive, [root / name for name in drive.names(root)]
+
+            try:
+                drive, sources = await run_with_progress(
+                    app, open_and_list, job, lambda: progress_box(job, tr("Reading archive")),
+                    refresh_box(job), delay=SLOW_PROGRESS_DELAY)
+            except Stopped:
+                return
+            except (OSError, archive.NotAnArchive) as error:
+                await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(
+                    path=escape_caption(str(outer)), error=escape_caption(
+                        getattr(error, "strerror", None) or str(error))), buttons="ok").execute(app)
+                continue
+            try:
+                if answer["test"]:
+                    await self._test(drive, outer, None)
+                elif sources:
+                    await self._extract(panel, sources, outer, answer)
+            finally:
+                # Closed, on a thread, unless a panel went into it meanwhile.
+                await asyncio.to_thread(archive.release_unheld, outer)
+
+    async def test_archive(self, panel: Panel, sources: list[Location] | None = None) -> None:
+        """``cmArcTest``: what is tagged in the archive -- the whole of it at
+        ``..`` with nothing tagged -- read through on a thread, and what
+        failed its check said."""
+        outer = panel.location.outer
+        if outer is None:
+            return
+        if sources is None:
+            entries = self.selection(panel)
+            sources = [panel.entry_location(entry) for entry in entries] or None
+        try:
+            drive = panel.drive
+        except DriveGone:
+            return
+        await self._test(drive, outer, sources)
+
+    async def _test(self, drive: Any, outer: Location, sources: list[Location] | None) -> None:
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+        from navml.widgets.dialog.control import escape_caption
+
+        app = self.application
+        job = FileJob()
+        notice = tr("Testing {name}").format(name=outer.name)
+        work = asyncio.ensure_future(asyncio.to_thread(drive.test, job, sources))
+        try:
+            await self._watch_job(work, job, lambda: progress_box(job, notice), refresh_box(job),
+                                  self._no_question)
+            failures = await work
+        except Stopped:
+            return
+        except OSError as error:
+            failures = [("", error.strerror or str(error))]
+        finally:
+            if not work.done():
+                job.stop()
+        if app is None:
+            return
+        name = escape_caption(outer.name)
+        if not failures:
+            prompt = tr("No errors found in {name}").format(name=name)
+        else:
+            shown_lines = [escape_caption(f"{path}: {why}" if path else why) for path, why in failures[:8]]
+            if len(failures) > 8:
+                shown_lines.append(tr_n("and {n} more", "and {n} more", len(failures) - 8))
+            prompt = (tr_n("{n} error found in {name}:", "{n} errors found in {name}:", len(failures), name=name)
+                      + "\n" + "\n".join(shown_lines))
+        await Dialog(title=tr("Test archive"), prompt=prompt, buttons="ok").execute(app)
+
+    @staticmethod
+    async def _no_question(question: Any) -> Any:
         return None
 
     async def on_change_inactive(self, event: ChangeInactive) -> bool:
@@ -743,16 +931,17 @@ class Manager(Window):
         A choice is the panel's own, as ``ShowFlags`` was.
         """
         from navigator.widgets.manager.columns_dialog import ColumnsDialog
-        from navigator.widgets.manager.columns_dialog.columns_dialog import COLUMNS
+        from navigator.widgets.manager.columns_dialog.columns_dialog import ALL_COLUMNS
 
-        answer = await ColumnsDialog(panel.shown_columns, panel.found is not None).execute(self.application)
+        answer = await ColumnsDialog(panel.shown_columns, panel.found is not None,
+                                     archive=panel.location.outer is not None).execute(self.application)
         if answer is None:
             return
         if answer[0] == "brief":
             panel.view_mode = "list"
             return
         if answer[0] == "full":
-            panel.shown_columns = frozenset(COLUMNS)
+            panel.shown_columns = ALL_COLUMNS
             panel.view_mode = "detailed"
             return
         columns = answer[1]
@@ -1386,6 +1575,11 @@ class Manager(Window):
             if isinstance(command, (RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename)) \
                     and not drive.can("write"):
                 return False
+        if isinstance(command, (ExtractTo, ArcTest)):
+            return self.active_panel.location.outer is not None
+        if isinstance(command, ExtractArchive):
+            panel = self.active_panel
+            return panel.location.outer is None and any(_is_archive(entry) for entry in self.selection(panel))
         if isinstance(command, (Edit, AlternateEdit)) and not self.active_panel.location.is_local:
             # An editor's F2 puts the file back: not into a drive that takes nothing.
             try:
@@ -1884,6 +2078,15 @@ class Manager(Window):
             )
         if request is None:
             return
+        await self._run_copy(panel, request, here, move=move, others=others)
+
+    async def _run_copy(self, panel: Panel, request: Any, here: Any, *, move: bool,
+                        others: tuple[Any, ...] = ()) -> None:
+        """*request* run on a thread under the copy's box and questions; then
+        what went is untagged in *panel*, and it and *others* look again."""
+        from navigator.lib.file_ops import filecopy
+
+        app = self.application
         job = filecopy.CopyJob()
         work = asyncio.ensure_future(asyncio.to_thread(filecopy.run, request, job, here))
         try:
@@ -1898,7 +2101,7 @@ class Manager(Window):
         panel.reload()
         for other in others:
             other.reload()
-        if SETTINGS.file_manager.beep_after_copy and not job.stopped:
+        if SETTINGS.file_manager.beep_after_copy and not job.stopped and app is not None:
             # ``BeepAfterCopy``, after a copy that was not aborted.
             app.bell()
 

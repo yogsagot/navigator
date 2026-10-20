@@ -13,6 +13,7 @@ from navml.widgets.dialog.label import Label
 
 from typing import Any
 from navkit.events import Event
+from navkit.i18n import tr
 
 
 class ColumnsDialog(Dialog, _Component):
@@ -22,7 +23,7 @@ class ColumnsDialog(Dialog, _Component):
     full: Button
     pick: Button
     abandon: Button
-    def __init__(self, columns: frozenset[str] = ..., listing: bool = ..., **kwargs: Any) -> None: ...
+    def __init__(self, columns: frozenset[str] = ..., listing: bool = ..., archive: bool = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     buttons_row: tuple[Any, ...]
     def accept(self) -> tuple[str, frozenset[str]]: ...

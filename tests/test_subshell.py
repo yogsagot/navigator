@@ -62,7 +62,8 @@ async def session(
 
     Every prompt the shell prints is appended to *prompts*, if given.
     """
-    screen = ConsoleScreen(80, 24)
+    # Wide: an sh prompt is the whole tmp_path, and a long one would wrap.
+    screen = ConsoleScreen(400, 24)
     finished: list[tuple[int, Path | None]] = []
     done = asyncio.Event()
 

@@ -5,10 +5,17 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 
 #: The boxes' columns, in their order (``Panel.DETAIL_ORDER``).
 COLUMNS = ("size", "attributes", "owner", "date", "path")
+#: An archive's boxes: DN's ``dlgArcParms``, its original and packed sizes
+#: and ratio, then the rest less the path.
+ARCHIVE_COLUMNS = ("size", "packed", "ratio", "attributes", "owner", "date")
+#: Every column there is: what *Full* shows, each panel showing those of
+#: them its listing has.
+ALL_COLUMNS = frozenset(COLUMNS) | frozenset(ARCHIVE_COLUMNS)
 
 
 class ColumnsDialog(Dialog):
@@ -16,13 +23,20 @@ class ColumnsDialog(Dialog):
     ``("brief",)`` or ``("full",)``."""
 
     def __init__(self, columns: frozenset[str] = frozenset(COLUMNS), listing: bool = False,
-                 **kwargs: Any) -> None:
+                 archive: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
-        #: Whether the panel shows a *Find:* listing: only then is *Path* a box.
-        self.keys_shown = COLUMNS if listing else COLUMNS[:-1]
-        self.show.items = list(self.show.items)[: len(self.keys_shown)]
+        #: Whether the panel shows a *Find:* listing: only then is *Path* a
+        #: box; in an archive the boxes are ``dlgArcParms``'.
+        if archive and not listing:
+            self.keys_shown = ARCHIVE_COLUMNS
+            self.show.items = [tr("~O~riginal size"), tr("Pa~c~ked size"), tr("~R~atio"), tr("~A~ttributes"),
+                               tr("O~w~ner"), tr("~D~ate")]
+            self.show.height = len(ARCHIVE_COLUMNS)
+        else:
+            self.keys_shown = COLUMNS if listing else COLUMNS[:-1]
+            self.show.items = list(self.show.items)[: len(self.keys_shown)]
         self.show.value = sum(1 << index for index, key in enumerate(self.keys_shown) if key in columns)
         self._kept = frozenset(columns) - set(self.keys_shown)
 

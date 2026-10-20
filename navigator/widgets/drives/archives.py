@@ -30,6 +30,11 @@ async def enter_archive(panel: Any, origin: Location) -> bool:
             app, lambda: archive.open_archive(origin, job), job,
             lambda: progress_box(job, tr("Reading archive")), refresh_box(job), delay=SLOW_PROGRESS_DELAY,
         )
+    except archive.NeedsTool as error:
+        if app is not None:
+            await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(
+                path=escape_caption(str(origin)), error=escape_caption(str(error))), buttons="ok").execute(app)
+        return True
     except archive.NotAnArchive:
         return False
     except Stopped:

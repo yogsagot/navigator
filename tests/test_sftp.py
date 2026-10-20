@@ -264,12 +264,56 @@ def test_a_server_that_asks_its_own_questions_has_them_answered(tmp_path, isolat
         served.stop()
 
 
-def test_proxyjump_goes_through_the_systems_ssh(isolated):
+def test_proxyjump_names_every_host_on_the_way(isolated):
     from navigator.lib.drives.credentials import host_config
 
     ssh = isolated / ".ssh"
     ssh.mkdir()
-    (ssh / "config").write_text("Host inner\n  HostName 10.0.0.5\n  Port 2200\n  ProxyJump bastion,other\n")
+    (ssh / "config").write_text("Host inner\n  HostName 10.0.0.5\n  Port 2200\n"
+                                "  ProxyJump bastion,ops@other:2022,ssh://[fe80::1]:23\n")
     config = host_config(Site("sftp", "", "inner", 0))
     assert (config.hostname, config.port) == ("10.0.0.5", 2200)
-    assert config.proxy_command == "ssh -W 10.0.0.5:2200 bastion"
+    assert config.proxy_command is None
+    assert config.jumps == [Site("sftp", "", "bastion", 0), Site("sftp", "ops", "other", 2022),
+                            Site("sftp", "", "fe80::1", 23)]
+
+
+def test_proxyjump_goes_through_two_hosts_and_each_asks_its_own(tmp_path, isolated):
+    root = tmp_path / "served"
+    root.mkdir()
+    (root / "x.txt").write_text("x")
+    first, second = (SftpServer(tmp_path, forwarding=True) for _ in range(2))
+    target = SftpServer(root)
+    ssh = isolated / ".ssh"
+    ssh.mkdir()
+    (ssh / "config").write_text(
+        f"Host inner\n  HostName 127.0.0.1\n  Port {target.port}\n"
+        f"  ProxyJump tester@127.0.0.1:{first.port},tester@127.0.0.1:{second.port}\n")
+    site = Site("sftp", "tester", "inner", 0)
+    answers = Answers()
+    asked = []
+    try:
+        for _ in range(10):
+            try:
+                drive = SESSIONS.connect(site, answers)
+                break
+            except UnknownHostKey as unknown:
+                asked.append(("key", unknown.hop))
+                answers.for_hop(unknown.hop).host_key = "once"
+            except NeedPassword as needed:
+                asked.append(("password", needed.hop))
+                answers.for_hop(needed.hop).password = PASSWORD
+        assert drive.names(Location(site, PurePosixPath("/"))) == ["x.txt"]
+        hops = [("127.0.0.1", first.port), ("127.0.0.1", second.port)]
+        assert asked == [("key", hops[0]), ("password", hops[0]), ("key", hops[1]),
+                         ("password", hops[1]), ("key", None), ("password", None)]
+        connection = drive.connection
+        assert len(connection.chain) == 2
+        transports = [client.get_transport() for client in connection.chain]
+        SESSIONS.close_all()
+        # The jump hosts' connections go with the server's.
+        assert connection.chain == [] and not any(each.is_active() for each in transports)
+    finally:
+        SESSIONS.close_all()
+        for each in (first, second, target):
+            each.stop()

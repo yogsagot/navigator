@@ -3,11 +3,12 @@ from navml.widgets.dialog.label import Label
 
 #: Options > File Manager > Column defaults: DOS Navigator's ``dlgColumnsDefaults``.
 #:
-#: Its *Disk Drive* and *File find* groups, side by side as DN had them, the
-#: boxes *Columns Setup*'s (Alt+K) -- POSIX's size, attributes, owner and
-#: date where DN's were size, date, time and descriptions.  *TEMP:* and *TDR
-#: View* are left out, having only meant something on DOS, and *Archives*
-#: until there are archive handlers.  Help is left out, having nothing to show yet.
+#: Its *Disk Drive*, *File find* and *Archives* groups, side by side as DN had
+#: them, the boxes *Columns Setup*'s (Alt+K) -- POSIX's size, attributes,
+#: owner and date where DN's were size, date, time and descriptions, and an
+#: archive's packed size and ratio as DN's.  *TEMP:* and *TDR View* are left
+#: out, having only meant something on DOS.  Help is left out, having
+#: nothing to show yet.
 ColumnDefaultsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -45,3 +46,20 @@ ColumnDefaultsPage:
         width: 17
         height: 5
         items: ["Size", "Attributes", "Owner", "Date", "Path"]
+
+    Label:
+        id: arc_caption
+        x: 39
+        y: 1
+        width: 10
+        height: 1
+        text: "~A~rchives"
+        link: arc
+
+    CheckBoxes:
+        id: arc
+        x: 39
+        y: 2
+        width: 20
+        height: 6
+        items: ["Original size", "Packed size", "Ratio", "Attributes", "Owner", "Date"]

@@ -18,5 +18,7 @@ class ColumnDefaultsPage(_Component):
     disk: CheckBoxes
     find_caption: Label
     find: CheckBoxes
+    arc_caption: Label
+    arc: CheckBoxes
     def __init__(self, section: ColumnDefaultsData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...

@@ -80,6 +80,10 @@ _LEXER = Background("nav-view-lex", workers=1)
 #: ``LEX_BACK`` above the window is not known to be open.
 LEX_BACK = 256 * 1024
 LEX_AHEAD = 256 * 1024
+#: The same for a file read across a network (``ChunkedSource``), where
+#: every 64 KiB is a round trip: two chunks each way.
+REMOTE_LEX_BACK = 128 * 1024
+REMOTE_LEX_AHEAD = 128 * 1024
 
 #: How much of the file's start is read for its ``#!`` line.
 HEAD = 256
@@ -101,12 +105,15 @@ def _when_here(method: Any) -> Any:
 
 
 def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: int,
-                size: int, codec: str, stop: threading.Event) -> Any:
+                size: int, codec: str, stop: threading.Event, read: Any = None) -> Any:
     """On the thread: the lexer's name ("" for none) and the spans of the whole
     lines in ``[low, high)`` of the file, as ``(start, end, spans)`` -- False when
-    it has no lexer, None when stopped.  *data* is the whole file when the viewer holds it (``/proc``),
+    it has no lexer, None when stopped.  *data* is the whole file when the viewer holds it (``/proc``);
+    *read(offset, count)* reads a file on another drive, waiting (``ChunkedSource.read_blocking``);
     else it is read here."""
-    if data is None:
+    if read is not None:
+        head, window = read(0, HEAD), read(low, high - low)
+    elif data is None:
         with open(name, "rb") as stream:
             head = stream.read(HEAD)
             stream.seek(low)
@@ -674,10 +681,13 @@ class FileViewer(ContextMenuHost, Widget):
         """The spans to paint ``[top, bottom)`` with, or None for plain text;
         a window around *top* is asked for when they do not cover it."""
         source = self.source
-        if not self.syntax_highlight or source is None or self.size == 0 or self.remote:
-            # Across a network nothing is lexed: it would read the whole file.
+        if not self.syntax_highlight or source is None or self.size == 0:
             return None
-        key = (str(source.path), self.encoding, self.size, self.file_type)
+        # Across a network a smaller window, read through the source's own
+        # blocking read -- the chunk cache is the loop's -- on the thread.
+        remote = self.remote
+        where = str(source.origin) if remote else str(source.path)
+        key = (where, self.encoding, self.size, self.file_type)
         if key != self._lexed_for:
             self.rehighlight()
             self._lexed_for = key
@@ -685,14 +695,16 @@ class FileViewer(ContextMenuHost, Widget):
             return None
         start, end = self._covered
         if (top < start or (bottom > end and end < self.size)) and self._lex_stop is None:
-            low, high = max(0, top - LEX_BACK), min(self.size, top + LEX_AHEAD)
+            back, ahead = (REMOTE_LEX_BACK, REMOTE_LEX_AHEAD) if remote else (LEX_BACK, LEX_AHEAD)
+            low, high = max(0, top - back), min(self.size, top + ahead)
             if (low, high) == self._asked:
                 return self._spans
             self._asked = (low, high)
             stop = threading.Event()
             self._lex_stop = stop
-            _LEXER.run(self, _lex_window, key[0], self.file_type, source._data, low, high, self.size,
-                       self.encoding, stop, done=lambda outcome: self._lexed(outcome, stop))
+            _LEXER.run(self, _lex_window, str(source.path), self.file_type, source._data, low, high, self.size,
+                       self.encoding, stop, source.read_blocking if remote else None,
+                       done=lambda outcome: self._lexed(outcome, stop))
         return self._spans
 
     def _lexed(self, outcome: Outcome, stop: threading.Event) -> None:

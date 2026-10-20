@@ -25,7 +25,7 @@ import importlib
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from navigator.lib.drives import Drive, DriveGone, mount, mounted, unmount
@@ -71,29 +71,36 @@ def protocol_name(scheme: str) -> str:
     return name or sign
 
 
+#: Each question below has a *hop*: None when the server asked it, or the
+#: ``(host, port)`` of the ``ProxyJump`` host on the way that did -- whose
+#: answer goes in ``Answers.for_hop``.
+Hop = tuple[str, int] | None
+
+
 class NeedPassword(Exception):
     """The server wants a password, and none that was tried was right."""
 
-    def __init__(self, site: Site, user: str, host: str, *, wrong: bool = False) -> None:
+    def __init__(self, site: Site, user: str, host: str, *, wrong: bool = False, hop: Hop = None) -> None:
         super().__init__(f"password needed for {user}@{host}")
-        self.site, self.user, self.host, self.wrong = site, user, host, wrong
+        self.site, self.user, self.host, self.wrong, self.hop = site, user, host, wrong, hop
 
 
 class NeedPassphrase(Exception):
     """A private key is locked, and its passphrase was not given (or was wrong)."""
 
-    def __init__(self, key_file: str, *, wrong: bool = False) -> None:
+    def __init__(self, key_file: str, *, wrong: bool = False, hop: Hop = None) -> None:
         super().__init__(f"passphrase needed for {key_file}")
-        self.key_file, self.wrong = key_file, wrong
+        self.key_file, self.wrong, self.hop = key_file, wrong, hop
 
 
 class UnknownHostKey(Exception):
     """The server's host key is in no ``known_hosts``: accept it, or not."""
 
-    def __init__(self, hostname: str, port: int, key_type: str, fingerprint: str, key: Any) -> None:
+    def __init__(self, hostname: str, port: int, key_type: str, fingerprint: str, key: Any,
+                 *, hop: Hop = None) -> None:
         super().__init__(f"unknown host key for {hostname}")
-        self.hostname, self.port, self.key_type, self.fingerprint, self.key = (
-            hostname, port, key_type, fingerprint, key)
+        self.hostname, self.port, self.key_type, self.fingerprint, self.key, self.hop = (
+            hostname, port, key_type, fingerprint, key, hop)
 
 
 class HostKeyChanged(OSError):
@@ -121,6 +128,17 @@ class Answers:
     #: thread with ``(title, instructions, [(prompt, echo), ...])``, it waits
     #: for the user and answers the replies, or None to give up.
     interactive: Any = None
+    #: What was said for each ``ProxyJump`` host on the way, by ``(host, port)``.
+    hops: dict[tuple[str, int], Answers] = field(default_factory=dict)
+
+    def for_hop(self, hop: Hop) -> Answers:
+        """The answers for *hop* -- these, for None (the server itself)."""
+        if hop is None:
+            return self
+        answers = self.hops.get(hop)
+        if answers is None:
+            answers = self.hops[hop] = Answers(interactive=self.interactive)
+        return answers
 
 
 def scheme_module(scheme: str) -> Any:

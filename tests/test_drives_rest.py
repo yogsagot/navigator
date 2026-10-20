@@ -160,6 +160,60 @@ def test_uu_encode_and_decode_on_another_drive(desk):
     assert memory.read("/work/sub/blob.bin") == payload
 
 
+class Answering:
+    """A job whose ``dlFileExist`` questions are answered from *answers*."""
+
+    stopped, position, total = False, 0, 0
+
+    def __init__(self, *answers):
+        self.answers, self.asked = list(answers), []
+
+    def wait_while_paused(self):
+        pass
+
+    def ask(self, question):
+        self.asked.append(question.path)
+        return self.answers.pop(0)
+
+
+def test_uu_on_another_drive_asks_before_writing_over_a_file_there(desk):
+    from navigator.lib.file_ops import uucode
+    from navigator.lib.system.job import Stopped
+    from navigator.widgets.manager.manager import Manager
+
+    _, memory, _ = desk
+    memory.make("/work/blob.bin", b"x" * 300)
+    memory.make("/work/blob.uue", "old")
+    place = memory.location("/work/blob.bin")
+
+    def encode(job, local, staging):
+        request = uucode.EncodeRequest(local, str(staging / "blob.uue"), lines=100_000)
+        return uucode.encode(request, job, staging), place.parent
+
+    # No: the encoding is abandoned, the file there left as it was.
+    job = Answering("no")
+    with pytest.raises(Stopped):
+        Manager._staged(place, encode, uucode.ask_over_encoded)(job)
+    assert job.asked == [memory.location("/work/blob.uue")]
+    assert memory.read("/work/blob.uue") == b"old"
+    Manager._staged(place, encode, uucode.ask_over_encoded)(Answering("yes"))
+    assert b"begin 644 blob.bin" in memory.read("/work/blob.uue")
+
+    memory.make("/work/sub/blob.bin", "kept")
+
+    def decode(job, local, staging):
+        return uucode.decode(local, staging, job, check_existing=False), memory.location("/work/sub")
+
+    def ask(existing, job):
+        return uucode.ask_over_decoded(existing, job, True)
+
+    encoded = memory.location("/work/blob.uue")
+    Manager._staged(encoded, decode, ask)(Answering("no"))
+    assert memory.read("/work/sub/blob.bin") == b"kept"
+    Manager._staged(encoded, decode, ask)(Answering("all"))
+    assert memory.read("/work/sub/blob.bin") == b"x" * 300
+
+
 def dbf_bytes() -> bytes:
     """A dBase III file: one character field NAME(8), two records."""
     header_len, record_len = 32 + 32 + 1, 1 + 8

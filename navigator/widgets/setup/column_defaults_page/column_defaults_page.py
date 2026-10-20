@@ -18,7 +18,9 @@ class ColumnDefaultsPage(Widget):
         self.section = section or SETTINGS.column_defaults
         self.disk.value = self.section.to_bits(ColumnDefaultsData.DISK)
         self.find.value = self.section.to_bits(ColumnDefaultsData.FIND)
+        self.arc.value = self.section.to_bits(ColumnDefaultsData.ARC)
 
     def accept(self) -> dict[str, Any]:
         return {**ColumnDefaultsData.from_bits(ColumnDefaultsData.DISK, self.disk.value),
-                **ColumnDefaultsData.from_bits(ColumnDefaultsData.FIND, self.find.value)}
+                **ColumnDefaultsData.from_bits(ColumnDefaultsData.FIND, self.find.value),
+                **ColumnDefaultsData.from_bits(ColumnDefaultsData.ARC, self.arc.value)}

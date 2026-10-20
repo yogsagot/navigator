@@ -522,6 +522,9 @@ class ChunkedSource(ViewSource):
         self._eol_cache = None
         self.size = size
         self._reader = reader
+        #: One read at a time on *reader*: made here, not on first use, as
+        #: both fetchers can be first.
+        self._reader_lock = threading.Lock()
         self._lock = threading.Lock()
         self._landed: dict[int, bytes] = {}
         self._asked: set[int] = set()
@@ -562,7 +565,7 @@ class ChunkedSource(ViewSource):
         if self._closed:
             return
         try:
-            data = self._read_blocking(index * CHUNK, CHUNK)
+            data = self.read_blocking(index * CHUNK, CHUNK)
         except OSError as error:
             with self._lock:
                 self._failed = error
@@ -575,8 +578,10 @@ class ChunkedSource(ViewSource):
         if arrived is not None and not self._closed:
             arrived()
 
-    def _read_blocking(self, offset: int, count: int) -> bytes:
-        """Bytes straight from the drive, waiting: never on the loop."""
+    def read_blocking(self, offset: int, count: int) -> bytes:
+        """Bytes straight from the drive, waiting: never on the loop.  For
+        a thread -- search, the highlighter -- one read at a time with the
+        fetchers'."""
         offset = max(0, offset)
         count = max(0, min(count, self.size - offset))
         if count <= 0:
@@ -585,13 +590,6 @@ class ChunkedSource(ViewSource):
             if self._reader is None:
                 raise OSError(9, "The file is closed", str(self.origin))
             return self._reader.read_at(offset, count)
-
-    @property
-    def _reader_lock(self) -> threading.Lock:
-        lock = getattr(self, "_reading", None)
-        if lock is None:
-            lock = self._reading = threading.Lock()
-        return lock
 
     def ready(self, offset: int, count: int) -> bool:
         """Whether ``read(offset, count)`` would answer now; asks for what it lacks."""
@@ -604,7 +602,7 @@ class ChunkedSource(ViewSource):
     def find(self, pattern: re.Pattern[bytes], start: int, *, backward: bool = False,
              span: int = 64, job: SearchJob | None = None) -> tuple[int, int] | None:
         """:meth:`ViewSource.find`, on its thread, through the drive."""
-        return self._find(self._read_blocking, pattern, start, backward, span, job or SearchJob())
+        return self._find(self.read_blocking, pattern, start, backward, span, job or SearchJob())
 
     def stream(self) -> Any:
         """The whole file, from its drive: what *Save as* writes out."""

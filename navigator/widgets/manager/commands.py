@@ -484,9 +484,29 @@ class ArchiveFiles(Command):
 
 
 class ExtractArchive(Command):
-    """Shift+F2, ``cmExtractArchive``."""
+    """Shift+F2, ``cmExtractArchive``: the archives at the cursor or tagged,
+    outside them, extracted -- the *Extract files* box asking where."""
 
     title = "Ext"
+
+
+class ExtractTo(Command):
+    """``cmExtractTo``: in an archive, what is tagged (or at the cursor)
+    extracted through the *Extract files* box.
+
+    DN put it on F4 in an archive panel's key bar (``hcArchives``); here F4
+    stays Edit, which works in an archive, and this is Panel > *Extract
+    to*: a recorded departure.
+    """
+
+
+class ArcTest(Command):
+    """``cmArcTest``: in an archive, what is tagged (or the whole archive,
+    at ``..``) read through and its checks made.
+
+    DN's F6 in an archive panel; here Panel > *Test archive*, F6 staying
+    Rename/Move -- the same departure as :class:`ExtractTo`.
+    """
 
 
 class EditNamed(Command):

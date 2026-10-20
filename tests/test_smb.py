@@ -122,6 +122,42 @@ def test_names_go_as_unc_and_the_root_lists_the_shares_known(server):
     assert drive.get_dir(at("/public/docs")) == "SMB:nas:/public/docs"
 
 
+def test_the_root_lists_the_disk_shares_the_server_names_and_those_known(server, monkeypatch):
+    from test_dcerpc import SHARES, Pipe, bind_ack, response_stub, responses
+
+    plain = server.open_file
+    asked = []
+
+    def open_file(path, mode="rb", file_type="file", **kwargs):
+        if file_type == "pipe":
+            asked.append((path, mode, kwargs.get("password")))
+            return Pipe([bind_ack(), *responses(response_stub(SHARES), 2)])
+        return plain(path, mode=mode, **kwargs)
+
+    monkeypatch.setattr(server, "open_file", open_file)
+    drive = connected()
+    drive.scan(at("/private"), True, "name", free=False)  # reached by its name, listed or not
+    names = [e.name for e in drive.scan(at("/"), True, "name", free=False)[0]]
+    # Disk shares only: no IPC$, no administrative C$, no printer.
+    assert names == ["media", "private", "public"]
+    assert asked == [("\\\\nas\\IPC$\\srvsvc", "r+b", PASSWORD)]
+    drive.scan(at("/"), True, "name", free=False)
+    assert len(asked) == 1  # asked once a connection
+
+
+def test_a_server_that_will_not_list_its_shares_leaves_those_known(server, monkeypatch):
+    plain = server.open_file
+
+    def open_file(path, mode="rb", file_type="file", **kwargs):
+        if file_type == "pipe":
+            raise PermissionError(13, "STATUS_ACCESS_DENIED")
+        return plain(path, mode=mode, **kwargs)
+
+    monkeypatch.setattr(server, "open_file", open_file)
+    drive = connected()
+    assert [e.name for e in drive.scan(at("/"), True, "name", free=False)[0]] == ["public"]
+
+
 def test_copies_go_both_ways_and_an_erase_takes_a_tree(server, tmp_path):
     drive = connected()
     here = tmp_path / "here"
