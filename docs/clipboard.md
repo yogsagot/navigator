@@ -37,7 +37,8 @@ Navigator in another. This guide explains what works where, and how to set thing
    keybind = shift+insert=unbind
    ```
 
-That is all most people need. The rest of this guide is the detail behind it.
+That is all most people need. The rest of this guide is the detail behind it. Running Navigator on a server over
+ssh? See [On a remote server over ssh](#on-a-remote-server-over-ssh).
 
 ## Keys
 
@@ -209,17 +210,105 @@ Navigator still works without a clipboard tool installed:
 The catch is that Navigator's Paste may then paste what *you last copied in Navigator*, not what you copied in
 another program since.
 
-## Over ssh and in tmux
+## On a remote server over ssh
 
-When Navigator runs on another machine over ssh, there is no desktop there, so no clipboard tool can help. Navigator
-then asks your **local** terminal to do the copying (using a terminal feature called OSC 52). Whether that works
-depends on your terminal: Ghostty, kitty, WezTerm, Alacritty and foot accept copies; VTE terminals do not.
+When you run Navigator on another machine over ssh, Navigator runs *there*, but the clipboard you want is on *your*
+computer. A clipboard tool on the server cannot help by itself: the server has no desktop, so `xclip` there has
+nowhere to put the text. There are three ways to bridge the gap, and you can use more than one.
 
-Inside **tmux**, let tmux pass the requests on by adding this to `~/.tmux.conf`:
+**Copying and pasting inside Navigator always works**, whatever you set up. When the clipboard on your computer
+cannot be reached, Navigator pastes its own last copy.
+
+### Pasting in: your terminal's paste key
+
+Your terminal's own paste (usually **Ctrl+Shift+V**, or its menu) types your local clipboard into the ssh session.
+It needs no setup and is the fastest way to bring text in from your computer, since nothing has to travel back to
+fetch it. Navigator's own Paste keys are only needed for text you copied inside Navigator.
+
+### Copying out: your terminal (OSC 52)
+
+Navigator asks your local terminal to put copied text on your clipboard, using a terminal feature called OSC 52. The
+request travels down the ssh connection like any other output, so it needs nothing on the server. Whether it works
+depends on your **local** terminal:
+
+| Terminal                                  | Copy out                                         |
+|-------------------------------------------|--------------------------------------------------|
+| Ghostty, WezTerm, foot                    | Works                                            |
+| kitty                                     | Works (`clipboard_control` must allow `write-clipboard`, as it does by default) |
+| Alacritty                                 | Works (`osc52` in `[terminal]` must not be `Disabled`) |
+| xfce4-terminal, GNOME Terminal, Tilix     | Not supported; use X11 forwarding (below)        |
+| PyCharm and other JetBrains terminals     | Not supported                                    |
+
+To test your terminal without Navigator, run this on the server and then paste on your computer:
+
+```sh
+printf '\e]52;c;%s\a' "$(printf hello | base64)"
+```
+
+If `hello` arrives, copying out of Navigator works too. If it does not, your terminal ignores OSC 52.
+
+OSC 52 can also *read* the clipboard, but most terminals refuse or ask you first, so for pasting in, use the
+terminal's paste key.
+
+### Both ways: X11 forwarding
+
+ssh can carry X11 connections from the server back to your computer. The server then gets a `DISPLAY` that leads to
+your desktop, and Navigator's clipboard tool on the server reaches **your** clipboard, for copying and for pasting,
+whatever your terminal supports.
+
+You need:
+
+- **On your computer**: an X server. Any X11 desktop has one; on Wayland, XWayland does the job and shares the
+  clipboard with Wayland programs.
+- **On the server**: `xclip` (or `xsel`) and `xauth` (`sudo apt install xclip xauth`, or `sudo dnf install xclip
+  xorg-x11-xauth`), and `X11Forwarding yes` in `/etc/ssh/sshd_config`, which most distributions set already. Check
+  with `sudo sshd -T | grep -i x11forwarding`.
+
+Then connect with **`-Y`**:
+
+```sh
+ssh -Y user@server
+```
+
+The first time, you may see `/usr/bin/xauth: file /home/user/.Xauthority does not exist`. That is harmless: `xauth`
+creates the file and the message does not come back. To check that it works:
+
+```sh
+echo $DISPLAY                            # something like localhost:10.0
+echo hello | xclip -selection clipboard  # then paste on your computer
+```
+
+Start Navigator from that same session, with *Use system clipboard* on. To forward X11 every time you connect to
+that server, add this to `~/.ssh/config` on your computer:
+
+```
+Host server
+    ForwardX11 yes
+    ForwardX11Trusted yes
+```
+
+Things to know:
+
+- **Security.** `-Y` trusts the server with your X session: a program on it, or anyone with root there, can read your
+  keystrokes, your screen and your clipboard while you are connected. Use it only with servers you trust. Plain `-X`
+  restricts the server, but the restriction can also stop `xclip` from reading your clipboard, so pasting may not work.
+- **Pasting has a short delay.** Each Navigator paste starts `xclip` on the server, which fetches your clipboard over
+  the network. A few hundred milliseconds is normal over the internet. Your terminal's paste key avoids the round trip.
+  If fetching takes longer than 2 seconds, Navigator gives up and pastes its own last copy.
+- **A copy can vanish when you disconnect.** `xclip` keeps serving copied text from the server, so paste it somewhere
+  on your computer before you log out if you need it afterwards.
+
+### In tmux or screen
+
+Inside **tmux**, let tmux pass the OSC 52 copy requests on to your terminal by adding this to `~/.tmux.conf`:
 
 ```
 set -g set-clipboard on
 ```
+
+X11 forwarding works in tmux as long as the tmux session was started from an ssh session with forwarding. A session
+created earlier, or reattached from a new connection, keeps the old `DISPLAY`. Run `export DISPLAY=...` with the new
+value there, or start Navigator in a new tmux window.
 
 If a terminal prints garbage when you copy, you can switch the terminal route off by starting Navigator with
 `NAVKIT_CLIPBOARD=off nav`.
@@ -248,6 +337,14 @@ arrives:
 
 Press the key. If nothing is printed, the terminal kept it. Press `q` twice to quit. Use another of the keys listed
 above, or bind your own (next section).
+
+**Over ssh, copied text never reaches my computer.**
+The server has no desktop, and your local terminal ignores OSC 52. Use X11 forwarding (`ssh -Y`), or a terminal that
+supports OSC 52; see [On a remote server over ssh](#on-a-remote-server-over-ssh).
+
+**Over ssh, pasting takes a moment.**
+With X11 forwarding, each paste fetches your clipboard over the network. Use your terminal's paste key
+(Ctrl+Shift+V) for text from your computer; it doesn't need the round trip.
 
 **It works in one terminal and not in another.**
 That is expected. Check that terminal in [Terminal notes](#terminal-notes).
