@@ -20,3 +20,6 @@ def strings():
         yield item, where
     for _, title, _ in keybindings.TABLES:
         yield title, "navigator/lib/config/keybindings.py"
+    from navigator.lib.drives.base import DESCRIBED
+    for what in DESCRIBED:
+        yield what, "navigator/lib/drives/base.py"

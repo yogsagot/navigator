@@ -1,0 +1,24 @@
+from navkit.database import Model
+
+#: A connection made from the SSH link box (Utilities > *SSH link (SFTP)*),
+#: everything it was made with kept together: what the Host line's ``▐↓▌``
+#: drops, and choosing one fills every line again.
+#:
+#: Its own table, not a ``HistoryEntry`` list: a history keeps one string
+#: per row, and a connection is five.  Never a password
+#: (``navigator/lib/drives/credentials.py``).
+RecentLink(Model):
+    table: "recent_links"
+    #: The protocol: ``sftp``, and later ``ftp``, ``smb``.
+    field scheme: str
+    field host: str
+    #: Empty for the system's (or ``~/.ssh/config``'s).
+    field user: str
+    #: 0 for the scheme's own (or ``~/.ssh/config``'s).
+    field port: int
+    #: The directory it opened on; empty for the home directory there.
+    field path: str
+    #: Larger is newer: the list comes newest first.
+    field seq: int
+    unique by_place: scheme, host, user, port
+    index by_seq: seq

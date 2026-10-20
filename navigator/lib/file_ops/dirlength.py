@@ -54,6 +54,8 @@ def count_dir_length(path: Path, job: Any = None) -> int | None:
     if counter is not None:
         base = (counter.position, counter.files, counter.directories)
         counter.here_size = counter.here_files = counter.here_directories = 0
+    if not isinstance(path, (str, os.PathLike)):
+        return _count_on_drive(path, job, counter, base if counter is not None else (0, 0, 0))
     pending = [os.fspath(path)]
     while pending:
         if job is not None and job.stopped:
@@ -74,6 +76,41 @@ def count_dir_length(path: Path, job: Any = None) -> int | None:
                         files += 1
                 except OSError:
                     continue
+        if counter is not None:
+            counter.here_size, counter.here_files, counter.here_directories = total, files, directories
+            counter.position = base[0] + total
+            counter.files = base[1] + files
+            counter.directories = base[2] + directories
+    return total
+
+
+def _count_on_drive(location: Any, job: Any, counter: CountJob | None, base: tuple[int, int, int]) -> int | None:
+    """:func:`count_dir_length` on a drive other than the disk
+    (:mod:`navigator.lib.drives`): the same walk, each directory listed by
+    its drive -- a round trip each, which is why a thread runs it."""
+    import stat
+
+    from navigator.lib.drives import drive_of
+
+    total = files = directories = 0
+    pending = [location]
+    while pending:
+        if job is not None and job.stopped:
+            return None
+        directory = pending.pop()
+        try:
+            children = drive_of(directory).children(directory)
+        except OSError:
+            continue
+        for name, st in children:
+            if isinstance(st, OSError):
+                continue
+            if stat.S_ISDIR(st.st_mode):
+                pending.append(directory / name)
+                directories += 1
+            else:
+                total += st.st_size
+                files += 1
         if counter is not None:
             counter.here_size, counter.here_files, counter.here_directories = total, files, directories
             counter.position = base[0] + total

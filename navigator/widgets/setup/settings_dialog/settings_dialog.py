@@ -25,6 +25,7 @@ PAGES: dict[str, tuple[str, ...]] = {
     "panel_defaults": ("panel_defaults",),
     "column_defaults": ("column_defaults",),
     "highlight_groups": ("highlight_groups",),
+    "remote": ("remote",),
 }
 
 #: The dialog's width with its tabs down the left.

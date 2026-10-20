@@ -143,12 +143,12 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     from navigator.settings import SETTINGS
     from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.shell.clock import clock as clock_module
-    from navigator.widgets.manager.panel import panel as panel_module
+    from navigator.lib.drives import listing as listing_module
     from navigator.widgets.shell.console import Console
 
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
     Console.start = lambda self, argv=None: None
-    panel_module.free_space_of = lambda path: (412_316_860_416, "/")
+    listing_module.free_space_of = lambda path: (412_316_860_416, "/")
     # The simple mode, whatever the shipped default: see the module docstring.
     SETTINGS.panel_defaults.view_mode = "simple"
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd

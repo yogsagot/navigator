@@ -1,0 +1,106 @@
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+
+#: Options > Configuration > *Communications*: where DOS Navigator set up the
+#: modem and the cable its Navigator Link ran over (``cmSetupModem``) --
+#: here, connections to servers (``[remote]``, ``RemoteData``).  Nothing of
+#: DN's resource is left: a port, a speed and an init string have no meaning
+#: for SSH.
+CommunicationsPage:
+    #: The caption on its tab, which *Settings* gives it.
+    property title: ""
+
+    MaskedField:
+        id: keepalive
+        x: 3
+        y: 1
+        width: 33
+        height: 1
+        label_text: "~K~eep-alive every"
+        label_width: 28
+        mask: "999"
+        page_keys: False
+
+    StaticText:
+        id: keepalive_unit
+        x: 37
+        y: 1
+        width: max(0, parent.width - 40)
+        height: 1
+        text: "seconds (0: never)"
+
+    MaskedField:
+        id: timeout
+        x: 3
+        y: 2
+        width: 33
+        height: 1
+        label_text: "Connecting ~w~aits"
+        label_width: 28
+        mask: "999"
+        page_keys: False
+
+    StaticText:
+        id: timeout_unit
+        x: 37
+        y: 2
+        width: max(0, parent.width - 40)
+        height: 1
+        text: "seconds"
+
+    MaskedField:
+        id: idle_disconnect
+        x: 3
+        y: 3
+        width: 33
+        height: 1
+        label_text: "~C~lose an idle connection"
+        label_width: 28
+        mask: "999"
+        page_keys: False
+
+    StaticText:
+        id: idle_unit
+        x: 37
+        y: 3
+        width: max(0, parent.width - 40)
+        height: 1
+        text: "minutes on (0: never)"
+
+    MaskedField:
+        id: refresh
+        x: 3
+        y: 4
+        width: 33
+        height: 1
+        label_text: "~L~ook for changes every"
+        label_width: 28
+        mask: "999"
+        page_keys: False
+
+    StaticText:
+        id: refresh_unit
+        x: 37
+        y: 4
+        width: max(0, parent.width - 40)
+        height: 1
+        text: "seconds (0: never)"
+
+    Label:
+        id: upload_caption
+        x: 3
+        y: 6
+        width: 50
+        height: 1
+        text: "A fetched file a program changed goes ~b~ack"
+        link: upload_changed
+
+    RadioButtons:
+        id: upload_changed
+        x: 3
+        y: 7
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["~A~sk first", "Al~w~ays", "Ne~v~er"]

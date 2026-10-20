@@ -315,7 +315,7 @@ def test_a_panel_s_path_is_seeded_rather_than_bound(tree):
     is why the document declares nothing about these three.
     """
     manager = screen(tree, tree).manager
-    assert not is_bound(manager.left, Panel.path)
+    assert not is_bound(manager.left, Panel.location)
     settle()
     assert manager.left.path == tree
     manager.left.cursor = next(
@@ -2631,7 +2631,7 @@ def test_the_application_keeps_only_what_is_global():
         "alt+pageup", "alt+pagedown",
         # Utilities > Character table, for the command line; the SmartPad; ≡ > Game;
         # Utilities > Calendar.
-        "ctrl+b", "alt+q", "alt+f9", "ctrl+f12",
+        "ctrl+b", "alt+q", "alt+f9", "ctrl+f12", "alt+f11", "alt+h",
         # ≡ > User screen: a look at the console from anywhere; the screen grabber.
         "alt+f5", "alt+shift+insert",
         # Utilities > Commands History, the command line's.
@@ -2782,7 +2782,7 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     monkeypatch.setattr(DirEntry, "display_date", property(lambda self: "01-01-2026 12:00"))
-    monkeypatch.setattr("navigator.widgets.manager.panel.panel.free_space_of",
+    monkeypatch.setattr("navigator.lib.drives.listing.free_space_of",
                         lambda path: (1_000_000, "/"))
     (tmp_path / "alpha").mkdir()
     (tmp_path / "beta").mkdir()

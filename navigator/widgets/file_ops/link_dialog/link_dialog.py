@@ -19,6 +19,7 @@ from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.widgets.file_ops.commands import ChooseTarget
+from navigator.lib.file_ops.filecopy import shown
 from navigator.lib.file_ops.filelink import LinkRequest
 from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line, target_for
 
@@ -58,10 +59,12 @@ class LinkDialog(Dialog):
         self.row.visible = False
         self.message.visible = False
         self._entries = list(entries)
-        self._here = Path(here) if here is not None else Path.cwd()
+        from navigator.lib.drives import Location
+
+        self._here = Location.of(here if here is not None else Path.cwd())
         self._hidden = hidden
         self.prompt_caption.text = prompt_for(self._entries)
-        if other is not None and Path(other) != self._here:
+        if other is not None and Location.of(other) != self._here:
             HISTORY.add("link", str(other).rstrip("/") + "/")
         self.target.value = target_for(self._entries, self._here, other, move=False)
         self.target.entry.select_all()
@@ -81,7 +84,7 @@ class LinkDialog(Dialog):
         relative = bool(self.options.value & RELATIVE)
         _session["relative"] = relative
         return LinkRequest(
-            sources=[entry.path_in(self._here) for entry in self._entries],
+            sources=[shown(entry.path_in(self._here)) for entry in self._entries],
             target=target,
             relative=relative,
         )

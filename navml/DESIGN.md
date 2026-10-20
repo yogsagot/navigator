@@ -119,3 +119,4 @@ its heading is added here.
   - What the generator settled by being written -- [`navml-components/generator.md`](../.claude/skills/navml-components/reference/generator.md)
   - Still open -- [`navml-components/still-open.md`](../.claude/skills/navml-components/reference/still-open.md)
   - Appendix: the transformer -- [`navml-components/appendix-transformer.md`](../.claude/skills/navml-components/reference/appendix-transformer.md)
+- Remote and virtual drives: the design and its phases -- [`navigator-drives/design.md`](../.claude/skills/navigator-drives/reference/design.md)

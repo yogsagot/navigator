@@ -1,6 +1,7 @@
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.tab_view import TabView
 from navigator.widgets.setup.column_defaults_page import ColumnDefaultsPage
+from navigator.widgets.setup.communications_page import CommunicationsPage
 from navigator.widgets.setup.confirmations_page import ConfirmationsPage
 from navigator.widgets.setup.drive_info_page import DriveInfoPage
 from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage
@@ -75,3 +76,6 @@ SettingsDialog(Dialog):
         HighlightPage:
             id: highlight_groups
             title: "Highlight"
+        CommunicationsPage:
+            id: remote
+            title: "Communications"

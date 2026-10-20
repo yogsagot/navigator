@@ -163,6 +163,10 @@ class SubMenu(MenuContainer, MenuNode):
     #: while nothing binds it.
     key_command: Any = reactive(None)
     key: str = reactive("")
+    #: What the bottom frame of this submenu's box says when a
+    #: :class:`~navml.widgets.menu.popup_menu.PopupMenu` opens it -- the keys
+    #: the box takes, say.  A bar's boxes have no footer, and ignore it.
+    footer: str = reactive("")
 
 
 def _names(anchor: Anchor, entry: MenuNode) -> bool:

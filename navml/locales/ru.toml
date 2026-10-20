@@ -100,15 +100,15 @@ name = "Русский"
 "Su" = "Вс"
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."
-# navml/widgets/dialog/file_dialog/file_dialog.py:189
+# navml/widgets/dialog/file_dialog/file_dialog.py:200
 "Invalid file name." = "Неверное имя файла."
-# navml/widgets/dialog/file_dialog/file_dialog.py:180
+# navml/widgets/dialog/file_dialog/file_dialog.py:191
 "Invalid drive or directory." = "Неверный диск или каталог."
-# navml/widgets/dialog/file_dialog/file_dialog.py:215
+# navml/widgets/dialog/file_dialog/file_dialog.py:226
 "Error" = "Ошибка"
 # navml/widgets/dialog/file_list/file_list.py:189
 "Directory" = "Каталог"
-# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:475 ...
+# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Поиск: "
 # navml/widgets/dialog/input_line/input_line.py:377
 "Cu~t~" = "В~ы~резать"

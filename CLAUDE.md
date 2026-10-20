@@ -33,8 +33,9 @@ layered in three parts, each depending only on the one below:
 `from navigator.__main__ import Panel` would import a second copy with a second `Panel` class. A widget a document
 names has to be importable by its own name.
 
-Still to come (README sketches it): pluggable filesystem handlers (ssh, smb, archives), a plugin system, the rest of the
-editor's phases.
+Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS or SMB
+(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link), inside a zip or tar (Enter on it), or in memory (the
+tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
 
 ## Environment and commands
 
@@ -43,6 +44,11 @@ editor's phases.
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`), and
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
+- Three optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
+  `navigator-fm[smb]` (smbprotocol) and `navigator-fm[keyring]` (*Save in keyring*); FTP is the standard library's.
+  `requirements-dev.txt` adds paramiko and pyftpdlib, so `tests/test_sftp.py` and `tests/test_ftp.py` run (else they
+  are skipped). `nav sftp://user@host/dir` (or `ftp://`, `smb://host/share`) opens a side there (`navigator-drives`
+  skill)
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
   recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn (Shift+Up/Down a line; idle, PgUp/PgDn and Home/End) scroll
@@ -190,6 +196,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
+| `navigator-drives` | `Location`/`Drive`, SFTP, archives and the in-memory drive, sessions, credentials, `UseFile`, SSH link, Disconnect, the *Link* box, what still needs the disk |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |
 | `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |

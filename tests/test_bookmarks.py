@@ -348,7 +348,8 @@ def test_ctrl_down_on_add_moves_nothing_and_leaves_the_box_open(places):
         lambda a: seen.update(open=popup(a) is not None, current=popup(a).box.current),
         KeyEvent("escape"), lambda a: None,
     ])
-    assert seen["open"] and seen["current"] == 2
+    # The bookmark, a line, *Link*, a line, and *Add* last.
+    assert seen["open"] and seen["current"] == 4
     assert paths() == [str(places / "first")]
 
 
@@ -422,8 +423,8 @@ def test_del_removes_the_selected_bookmark_and_selects_the_next(places):
     first, gone = str(places / "first"), str(places / "gone")
     assert seen["middle"] == ([first, gone], 1)
     assert seen["last"] == ([first], 0)
-    assert seen["empty"] == ([], ["Add this folder"])
-    assert seen["on_add"] == (True, ["Add this folder"])
+    assert seen["empty"] == ([], ["Link", "Add this folder"])
+    assert seen["on_add"] == (True, ["Link", "Add this folder"])
     assert app.manager.left.path == places / "start"
 
 
@@ -455,11 +456,11 @@ def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, mo
         KeyEvent("escape"), lambda a: None,
     ])
     first, disk, usb = (str(places / n) for n in ("first", "disk", "usb"))
-    assert seen["shown"] == [f"1 {first}", f"2 {disk}", f"3 {usb}", "Add this folder"]
-    assert seen["lines"] == [1, 4]
+    assert seen["shown"] == [f"1 {first}", f"2 {disk}", f"3 {usb}", "Link", "Add this folder"]
+    assert seen["lines"] == [1, 4, 6]  # and the one above *Add*
     assert seen["went"] == places / "usb"
     # The panel stood at the drive, which is gone: the box opens on the first entry.
-    assert seen["unplugged"] == [f"1 {first}", f"2 {disk}", "Add this folder"]
+    assert seen["unplugged"] == [f"1 {first}", f"2 {disk}", "Link", "Add this folder"]
     # On a mount's entry Del, F2 and Ctrl+Up pass by: nothing stored, the box still open there.
     assert seen["still"] == (seen["unplugged"], [first], 2)
 
@@ -481,8 +482,8 @@ def test_the_box_opens_on_the_mount_the_panel_is_at_and_add_bookmarks_it(places,
     assert seen["current"] == 2
     usb = str(places / "usb")
     assert paths() == [str(places / "first"), usb]
-    assert seen["shown"] == [f"1 {places / 'first'}", f"2 {usb}", "Remove this folder"]
-    assert seen["lines"] == [2]
+    assert seen["shown"] == [f"1 {places / 'first'}", f"2 {usb}", "Link", "Remove this folder"]
+    assert seen["lines"] == [2, 4]
 
 
 def lines(app) -> list[int]:
@@ -547,3 +548,60 @@ def test_the_box_is_titled_bookmarks_in_its_top_frame(places):
 
     run_app(app, [KeyEvent("f1", alt=True), BOX, top_row, KeyEvent("escape")])
     assert " Bookmarks " in seen[0]
+
+
+# -- the Link list: profiles edited, removed and moved with the box's own keys -------------------------
+
+
+def link_names(app) -> list[str]:
+    """The entries of the open *Link* list."""
+    boxes = popup(app).boxes
+    return [parse_shortcut(entry.text)[0] for entry in boxes[-1].entries() if hasattr(entry, "text")]
+
+
+def into_link(app):
+    """The cursor onto *Link* and the list opened, as Right opens it."""
+    box = popup(app).boxes[0]
+    names = [getattr(entry, "text", "") for entry in box.entries()]
+    box.current = next(i for i, text in enumerate(names) if parse_shortcut(text)[0] == "Link")
+    popup(app).choose(box.current)
+
+
+def test_f2_edits_a_profile_del_removes_it_and_ctrl_down_moves_it(places):
+    from navigator.lib.drives import profiles
+    from navigator.widgets.drives.connect_dialog import ConnectDialog
+
+    profiles.save("alpha", "sftp", "a.example", "me", 2222, "/srv")
+    profiles.save("beta", "sftp", "b.example")
+    profiles.save("gamma", "sftp", "c.example")
+    app = navigator(places / "start")
+    seen = {}
+
+    def edit(a):
+        dialog = a.modal
+        seen["editing"] = (dialog.title, dialog.keep.visible, dialog.host.value, dialog.user.value,
+                           dialog.port.value, dialog.directory.value, dialog.label.value)
+        dialog.label.value = "alpha2"
+        dialog.host.value = "a2.example"
+
+    LINK_OPEN = Until(lambda a: popup(a) is not None and len(popup(a).boxes) == 2)
+    run_app(app, [
+        KeyEvent("f1", alt=True), BOX, into_link, LINK_OPEN,
+        lambda a: seen.update(footer=popup(a).boxes[-1].footer),
+        lambda a: None, lambda a: seen.update(painted=seen["footer"] in a.terminal.painted),
+        KeyEvent("f2"), Until(lambda a: isinstance(a.modal, ConnectDialog)), edit, KeyEvent("enter"),
+        LINK_OPEN, lambda a: seen.update(after_edit=link_names(a), at=popup(a).boxes[-1].current),
+        KeyEvent("down"), KeyEvent("delete"), LINK_OPEN,
+        lambda a: seen.update(after_delete=link_names(a)),
+        KeyEvent("up"), KeyEvent("down", ctrl=True), LINK_OPEN,
+        lambda a: seen.update(after_move=link_names(a), moved_to=popup(a).boxes[-1].current),
+        KeyEvent("escape"), KeyEvent("escape"), lambda a: None,
+    ])
+    assert seen["footer"] in ("F2 Edit  Del Delete  Ctrl+\u2191\u2193 Move", "F2 Edit  Del Delete  Ctrl+Up/Down Move")
+    assert seen["painted"]
+    assert seen["editing"] == ("Edit SSH link (SFTP)", False, "a.example", "me", "2222", "/srv", "alpha")
+    assert seen["after_edit"][:3] == ["alpha2", "beta", "gamma"] and seen["at"] == 0
+    assert seen["after_delete"][:2] == ["alpha2", "gamma"]
+    assert seen["after_move"][:2] == ["gamma", "alpha2"] and seen["moved_to"] == 1
+    assert [(row.name, row.host) for row in profiles.profiles()] == [("gamma", "c.example"),
+                                                                     ("alpha2", "a2.example")]

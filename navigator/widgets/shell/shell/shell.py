@@ -11,9 +11,10 @@ what a Python-only widget would say too, and it is the base the markup's
 
 from __future__ import annotations
 
+import asyncio
 import os
 import random
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 from navkit.commands import Command
@@ -28,11 +29,17 @@ from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
+from navigator.lib.drives import DriveGone, Location, Site, drive_of
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     Game,
+    FtpLink,
+    HangUp,
+    NavyLink,
+    SmbLink,
+    SetupLink,
     OpenCalendar,
     ToggleTrashCan,
     SaversSetup,
@@ -178,6 +185,14 @@ class Shell(DockLayout):
         #: Whether the real terminal was handed to the shell for a command
         #: rather than by Ctrl+O, and so is to be taken back when it is done.
         self._relayed_for_command = False
+        #: Files fetched from another drive for the command running
+        #: (``UseFile``), offered back once it is done; and the shell's
+        #: directory when it started, which tells a ``cd`` in it.
+        self._command_uses: list[Any] = []
+        self._command_started_in: Path | None = None
+        #: One lock per site being connected to, so two panels going to the
+        #: same server ask its questions once.
+        self._reaching: dict[Any, asyncio.Lock] = {}
         #: The file manager window.  Kept after it is closed, for whoever asks
         #: what it was; whether it is still on the desktop is
         #: ``manager.parent is not None``.
@@ -748,6 +763,15 @@ class Shell(DockLayout):
         effect(self, Shell._size_histories)
         effect(self, Shell._choose_clipboard)
         effect(self, Shell._use_highlight_groups)
+        from navigator.lib.drives.sessions import SESSIONS
+
+        SESSIONS.add_listener(self._heard_closed)
+
+    def unmounting(self) -> None:
+        from navigator.lib.drives.sessions import SESSIONS
+
+        SESSIONS.remove_listener(self._heard_closed)
+        super().unmounting()
 
     def _size_histories(self) -> None:
         """Interface's *History size* is how long every input-line list grows.
@@ -786,11 +810,32 @@ class Shell(DockLayout):
         if app is not None:
             app.system_clipboard = SETTINGS.system.system_clipboard
 
-    def _front_directory(self) -> Path | None:
-        """The active panel's directory in the file manager in front, if one is open."""
+    def _front_location(self) -> Location | None:
+        """Where the active panel is in the file manager in front, if one is open."""
         window = self.desktop.active_window
         manager = window if isinstance(window, Manager) else self.active_manager
-        return manager.active_panel.path if manager is not None else None
+        return manager.active_panel.location if manager is not None else None
+
+    def _front_directory(self) -> Path | None:
+        """The active panel's directory in the file manager in front, if one is
+        open and it is on the local disk: the shell cannot follow a panel onto
+        another drive, and stays in the last local directory it was in."""
+        where = self._front_location()
+        return where.local if where is not None and where.is_local else None
+
+    def _front_remote(self) -> Location | None:
+        """The active panel's place in front when it is on another drive."""
+        where = self._front_location()
+        return where if where is not None and not where.is_local else None
+
+    @staticmethod
+    def _remote_name(where: Location) -> str:
+        """What the prompt and the title call a place on another drive: its
+        drive's ``GetDir``."""
+        try:
+            return drive_of(where).get_dir(where)
+        except DriveGone:
+            return str(where)
 
     def _follow_panel(self) -> None:
         """Keep the idle shell where the panel is, so its prompt names that directory."""
@@ -800,6 +845,12 @@ class Shell(DockLayout):
 
     def _name_window(self) -> None:
         """Keep the terminal's title on the directory the prompt names."""
+        remote = self._front_remote()
+        if remote is not None:
+            application = self.application
+            if application is not None:
+                application.title = window_title(None).replace(" — ", f" {self._remote_name(remote)} — ", 1)
+            return
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
@@ -822,6 +873,11 @@ class Shell(DockLayout):
         """
         if self.console.running:
             return ""
+        remote = self._front_remote()
+        if remote is not None:
+            # The panel's place, though a command still runs in the last local
+            # directory: what the user is looking at is what the prompt names.
+            return f"{self._remote_name(remote)}$"
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
@@ -848,6 +904,10 @@ class Shell(DockLayout):
         console = self.console
         if console.running:
             return ()
+        if self._front_remote() is not None:
+            # The shell's own prompt names a local directory: the stand-in
+            # names the panel's place instead.
+            return ()
         where = self._front_directory()
         if where is not None and console.prompt_cwd != where:
             # Read so the next prompt re-decides, whatever it says.
@@ -858,8 +918,10 @@ class Shell(DockLayout):
         return console.prompt
 
     def _command_directory(self) -> Path | None:
+        """Where a command runs: the active panel's directory -- or, with the
+        panel on another drive, where the shell last was on the disk."""
         manager = self.active_manager
-        if manager is not None:
+        if manager is not None and manager.active_panel.location.is_local:
             return manager.active_panel.path
         return self.console.subshell.cwd or self.console.cwd
 
@@ -900,6 +962,12 @@ class Shell(DockLayout):
             return False
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
+        if isinstance(command, HangUp):
+            from navigator.lib.drives import mounted
+
+            return bool(mounted())
+        if isinstance(command, (NavyLink, FtpLink, SmbLink)):
+            return self.active_manager is not None
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
             # console, DN's user screen, and not from a viewer or an editor.
@@ -964,7 +1032,7 @@ class Shell(DockLayout):
         for window in self.desktop.windows():
             if isinstance(window, Manager):
                 for panel in (window.left, window.right):
-                    if panel.path == directory:
+                    if panel.location == Location.of(directory):
                         panel.reload()
         if rules:
             pending = [self.desktop]
@@ -1134,14 +1202,14 @@ class Shell(DockLayout):
 
     # -- the panel and the command line ----------------------------------------
 
-    def _panel_entry(self) -> tuple[Path, Any] | None:
+    def _panel_entry(self) -> tuple[Location, Any] | None:
         """The active panel's directory and the entry under its cursor, if any."""
         manager = self.active_manager
         if manager is None:
             return None
         panel = manager.active_panel
         entry = panel.selected
-        return (panel.path, entry) if entry is not None else None
+        return (panel.location, entry) if entry is not None else None
 
     def _insert_entry(self, *, whole: bool) -> None:
         """``_CtrlEnter``: the entry's name -- or path -- onto the command line.
@@ -1251,12 +1319,20 @@ class Shell(DockLayout):
         return manager.active_panel, (passive if passive.visible else None)
 
     @staticmethod
-    def _menu_side(panel: Any, list_file: str = "-") -> Any:
+    def _menu_side(panel: Any, list_file: str = "-", use: Any = None) -> Any:
+        """*panel* as the macros see it.  On another drive the directory is
+        the one its files were fetched into (*use*, ``UseFile``), or -- for a
+        caption, before anything is fetched -- the place's own name."""
         from navigator.lib.config.usermenu import Side
 
         if panel is None:
             return Side()
         entry = panel.selected
+        if not panel.location.is_local:
+            name = entry.name if entry is not None and not entry.is_dir else None
+            if use is not None:
+                return Side.of(use.directory, name, list_file)
+            return Side.of(str(panel.location), name, list_file)
         if entry is None:
             return Side.of(Path(panel.path), None, list_file)
         # A *Find:* listing's entry is in a directory of its own.
@@ -1294,8 +1370,10 @@ class Shell(DockLayout):
         app = self.application
         if app is None:
             return
+        # A panel on another drive has no local menu to look for.
+        remote = self._front_remote() is not None
         while True:
-            found = await asyncio.to_thread(find_menu, self._menu_directory(), want_global)
+            found = await asyncio.to_thread(find_menu, self._menu_directory(), want_global or remote)
             if found is None:
                 await Dialog(title=tr("Error"), prompt=tr("File {name} not found").format(name=global_menu()),
                              buttons="ok").execute(app)
@@ -1356,7 +1434,7 @@ class Shell(DockLayout):
         """An item's lines, run as :meth:`run_commands` runs them."""
         await self.run_commands(menu.commands(entry))
 
-    async def run_commands(self, commands: Any) -> None:
+    async def run_commands(self, commands: Any, *, cwd: Path | None = None, uses: list[Any] = ()) -> None:
         """A user menu item's lines -- or an ``.ini`` entry's
         (:mod:`navigator.lib.config.associations`) -- its parameters asked first if it
         wants them, run in the console as a script the shell sources.
@@ -1394,6 +1472,14 @@ class Shell(DockLayout):
             return [panel.selected.name] if panel.selected is not None else []
 
         lists = (names(active_panel), names(passive_panel))
+        given, uses = list(uses), []
+        for panel in (active_panel, passive_panel):
+            use = None
+            if panel is not None and not panel.location.is_local:
+                use = await self._use_panel_files(panel)
+                if use is False:
+                    return
+            uses.append(use)
 
         def write() -> Path:
             directory = private_dir()
@@ -1407,8 +1493,8 @@ class Shell(DockLayout):
                                   errors="surrogateescape")
                 files.append(str(target))
             script = directory / "usermenu.sh"
-            active = self._menu_side(active_panel, files[0])
-            passive = self._menu_side(passive_panel, files[1])
+            active = self._menu_side(active_panel, files[0], uses[0])
+            passive = self._menu_side(passive_panel, files[1], uses[1])
             script.write_text(script_text(commands, active, passive, str(script), params),
                               encoding="utf-8", errors="surrogateescape")
             return script
@@ -1419,16 +1505,50 @@ class Shell(DockLayout):
             await Dialog(title=tr("Error"), prompt=tr("Cannot write the menu's script: {error}").format(error=error.strerror or error),
                          buttons="ok").execute(app)
             return
-        self.run_command(f". {shlex.quote(str(script))}", typed=False)
+        fetched = [*given, *(use for use in uses if use is not None)]
+        if cwd is None and uses and uses[0] is not None:
+            cwd = uses[0].directory
+        elsewhere = {"cwd": cwd, "uses": fetched} if cwd is not None or fetched else {}
+        self.run_command(f". {shlex.quote(str(script))}", typed=False, **elsewhere)
+
+    async def _use_panel_files(self, panel: Any) -> Any:
+        """``UseFile`` for *panel* on another drive: its tagged files -- or
+        the one at its cursor -- fetched into a directory of their own.  None
+        with no file to fetch, False when the fetch failed or was stopped."""
+        from navigator.widgets.drives.use_file import materialize
+
+        entries = panel.marked_entries or ([panel.selected] if panel.selected is not None else [])
+        files = [panel.entry_location(entry) for entry in entries if not entry.is_dir]
+        if not files:
+            return None
+        use = await materialize(self.application, files)
+        return use if use is not None else False
 
     # -- extensions.ini, viewers.ini, editors.ini, quickrun.ini ----------------
 
     async def on_open_file(self, event: Any) -> bool:
         """Enter on a file that is not itself a program: ``ExecFile`` -- what
         ``extensions.ini`` says for its name (DN's ``DN.EXT``), else nothing."""
-        if not self.console.busy:
+        if self.console.busy:
+            return True
+        if isinstance(event.path, Location) and not event.path.is_local:
+            self.spawn(self._open_elsewhere(event.path))
+        else:
             self.spawn(self.run_associated(EXTENSIONS, event.path.name))
         return True
+
+    async def _open_elsewhere(self, origin: Location) -> None:
+        """Enter on a file on another drive: ``UseFile``, then what
+        ``extensions.ini`` says for it, run beside the local copy -- which
+        goes back up if the program changed it."""
+        from navigator.lib.drives import usefile
+        from navigator.widgets.drives.use_file import materialize
+
+        use = await materialize(self.application, [origin])
+        if use is None:
+            return
+        if not await self.run_associated(EXTENSIONS, origin.name, cwd=use.directory, uses=[use]):
+            await asyncio.to_thread(usefile.discard, use)
 
     async def on_quick_run(self, event: QuickRun) -> bool:
         """Ctrl+Shift+F1 .. F10: ``QuickExecExternal`` -- ``quickrun.ini``'s
@@ -1438,7 +1558,8 @@ class Shell(DockLayout):
         return True
 
     async def run_associated(self, file_name: str, name: str | None = None, *,
-                             key: str | None = None) -> bool:
+                             key: str | None = None, cwd: Path | None = None,
+                             uses: list[Any] = ()) -> bool:
         """Run what *file_name* (one of :mod:`navigator.lib.config.associations`' four)
         has for the file called *name*, or for *key*; False when it has
         nothing, so the caller does what it did without one.
@@ -1470,7 +1591,8 @@ class Shell(DockLayout):
             action = await self._choose_action(group.actions)
             if action is None:
                 return True
-        await self.run_commands(action.commands)
+        elsewhere = {"cwd": cwd, "uses": uses} if cwd is not None or uses else {}
+        await self.run_commands(action.commands, **elsewhere)
         return True
 
     async def _choose_action(self, actions: Any) -> Any:
@@ -1582,19 +1704,28 @@ class Shell(DockLayout):
         self.run_command(self.command_line.value)
         return True
 
-    def run_command(self, command: str, *, typed: bool = True) -> None:
+    def run_command(self, command: str, *, typed: bool = True, cwd: Path | None = None,
+                    uses: list[Any] = ()) -> None:
         """Run *command* as though it had been typed on the command line.
 
         *typed* off is for a command the line did not hold -- a user menu
-        item's -- which leaves the line and its history alone.
+        item's -- which leaves the line and its history alone.  *cwd* is where
+        it runs, the active panel's directory unless given; *uses* are the
+        files fetched from another drive for it (``UseFile``), offered back up
+        once it is done.
         """
         if not command.strip():
+            if uses:
+                self.spawn(self._put_back(list(uses)))
             return
         if typed:
             HISTORY.add(HISTORY_ID, command)
             self.command_line.clear()
             self._walk = None
-        cwd = self._command_directory()
+        if cwd is None:
+            cwd = self._command_directory()
+        self._command_uses = [*self._command_uses, *uses]
+        self._command_started_in = self.console.subshell.cwd
         if not self.console_visible and not SETTINGS.system.internal_terminal:
             # mc's way: the command runs on the real terminal, and Navigator
             # comes back when it is done.
@@ -1633,6 +1764,39 @@ class Shell(DockLayout):
             # Still up by Ctrl+O: the keys go back to the command line.
             self.console.focus()
         self._follow_shell(cwd)
+        if self._command_uses:
+            uses, self._command_uses = self._command_uses, []
+            self.spawn(self._put_back(uses))
+
+    async def _put_back(self, uses: list[Any]) -> None:
+        """What a command changed of the files fetched for it, offered back to
+        their drive; then the copies go."""
+        from navigator.lib.drives import usefile
+        from navigator.widgets.drives.use_file import put_back
+
+        for use in uses:
+            try:
+                await put_back(self.application, use)
+            finally:
+                await asyncio.to_thread(usefile.discard, use)
+        manager = self.active_manager
+        if manager is not None:
+            for panel in (manager.left, manager.right):
+                if not panel.location.is_local:
+                    panel.reload()
+
+    @staticmethod
+    def _is_use_directory(path: Path) -> bool:
+        """Whether *path* is one a command on fetched files ran in: the shell
+        coming back from there is not a ``cd`` for the panel to follow."""
+        from navigator.lib.drives.usefile import REMOTE
+        from navigator.lib.system.tempdir import temp_root
+
+        try:
+            path.relative_to(temp_root())
+        except ValueError:
+            return False
+        return REMOTE in path.parts
 
     def _follow_shell(self, cwd: Path | None) -> None:
         """Send the active panel wherever the shell went, and re-read both.
@@ -1645,8 +1809,16 @@ class Shell(DockLayout):
         if manager is None:
             return
         panel = manager.active_panel
-        if (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
-                and cwd.is_dir()):
+        started, self._command_started_in = self._command_started_in, None
+        if not panel.location.is_local:
+            # The shell never went where the panel is: only a ``cd`` typed in
+            # the command takes the panel back to the disk.
+            moved = cwd is not None and started is not None and cwd != started
+            if moved and not SETTINGS.startup.preserve_directory and not self._is_use_directory(cwd) \
+                    and cwd.is_dir():
+                panel.path = cwd
+        elif (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
+                and cwd.is_dir() and not self._is_use_directory(cwd)):
             panel.path = cwd
         for each in (manager.left, manager.right):
             each.reload()
@@ -1709,7 +1881,7 @@ class Shell(DockLayout):
         started, with none open.
         """
         current = self.active_manager
-        start = current.active_panel.path if current is not None else Path.cwd()
+        start = current.active_panel.location if current is not None else Path.cwd()
         self.desktop.open(Manager(start, start)).apply_left_panel()
         return True
 
@@ -1778,6 +1950,287 @@ class Shell(DockLayout):
         if SETTINGS.interface.language != before:
             language.apply(SETTINGS.interface.language)
             self.application.invalidate()
+
+    async def on_setup_link(self, event: SetupLink) -> bool:
+        self.spawn(self.settings("remote"))
+        return True
+
+    # -- other drives: Navigator Link ------------------------------------------
+
+    async def on_navy_link(self, event: NavyLink) -> bool:
+        return self._link_command("sftp")
+
+    async def on_ftp_link(self, event: FtpLink) -> bool:
+        return self._link_command("ftp")
+
+    async def on_smb_link(self, event: SmbLink) -> bool:
+        return self._link_command("smb")
+
+    def _link_command(self, scheme: str) -> bool:
+        manager = self.active_manager
+        if manager is not None:
+            self.spawn(self.navy_link(manager.active_panel, scheme=scheme))
+        return True
+
+    async def navy_link(self, panel: Any, request: Any = None, *, scheme: str = "sftp") -> bool:
+        """Utilities > *Navigator Link*: ``cmNavyLink`` -- where to connect,
+        asked; *panel* sent there once connected, and the place kept by name
+        if *Keep* was ticked.  True once the panel is there."""
+        from navigator.lib.drives import profiles, recent, sessions
+        from navigator.widgets.drives.connect_dialog import ConnectDialog
+
+        app = self.application
+        if request is not None:
+            scheme = request.scheme
+        family = ("ftp", "ftps") if scheme in ("ftp", "ftps") else (scheme,)
+        missing = sessions.available(scheme)
+        request = await ConnectDialog(request, missing=missing, recent=recent.recent(family),
+                                      scheme=scheme).execute(app)
+        if request is None:
+            return False
+        site = Site(request.scheme, request.user, request.host, request.port)
+        path = PurePosixPath(request.path) if request.path else profiles.HOME
+        if request.keep and request.name:
+            await asyncio.to_thread(profiles.save, request.name, request.scheme, request.host,
+                                    request.user, request.port, request.path)
+        if not await self.go_remote(panel, Location(site, path)):
+            return False
+        # Remembered once it worked, every line of it together: a mistyped
+        # host that never answered does not come back to be picked.
+        await asyncio.to_thread(recent.remember, recent.Recent(
+            request.scheme, request.host, request.user, request.port, request.path))
+        return True
+
+    async def go_remote(self, panel: Any, target: Location) -> bool:
+        """*panel* to *target* on another drive, connected first -- asking
+        what the connection needs.  A *target* whose path is ``.`` opens on
+        the home directory there.  True once the panel is there."""
+        from navigator.lib.drives import profiles
+
+        if not await self.reach(target):
+            return False
+        if target.path == profiles.HOME:
+            try:
+                home = getattr(drive_of(target), "home", PurePosixPath("/"))
+            except DriveGone:
+                return False
+            target = Location(target.site, home)
+        if panel.parent is None:
+            return False  # closed while it connected
+        panel.leave_found()
+        panel.location = target
+        return True
+
+    async def reach(self, target: Location) -> bool:
+        """*target*'s drive connected, if it is not already: the host key, a
+        password or a passphrase asked as the connection needs them, and
+        tried again with each answer.  False if it could not be, which is
+        said, or was cancelled."""
+        from navigator.lib.drives import credentials, sessions
+        from navigator.lib.drives.sessions import (
+            SESSIONS, Answers, NeedPassphrase, NeedPassword, UnknownHostKey,
+        )
+        from navigator.lib.system.job import Job
+        from navigator.lib.system.progress import run_with_progress
+        from navigator.widgets.drives.host_key_query import HostKeyQuery
+        from navigator.widgets.drives.password_dialog import PasswordDialog
+        from navigator.widgets.editor.loading import progress_box
+        from navml.widgets.dialog.control import escape_caption
+
+        site = target.site
+        if target.is_local or SESSIONS.is_open(site):
+            return True
+        app = self.application
+        if target.outer is not None:
+            # A place in an archive: the archive opened -- made, if named and
+            # not there -- on the drive it is on, reached first.
+            from navigator.lib.drives import archive
+
+            if not target.outer.is_local and not await self.reach(target.outer):
+                return False
+            try:
+                await asyncio.to_thread(archive.open_archive, target.outer, None, create=True)
+            except (OSError, archive.NotAnArchive) as error:
+                await Dialog(title=tr("Error"), prompt=tr("Cannot read {path}: {error}").format(
+                    path=str(target.outer), error=getattr(error, "strerror", None) or error),
+                    buttons="ok").execute(app)
+                return False
+            return True
+        protocol = sessions.protocol_name(site.scheme)
+        title = tr("{protocol} link").format(protocol=protocol)
+        reason = sessions.available(site.scheme)
+        if reason is not None:
+            await Dialog(title=title, prompt=escape_caption(reason), buttons="ok").execute(app)
+            return False
+        lock = self._reaching.setdefault(site, asyncio.Lock())
+        async with lock:
+            if SESSIONS.is_open(site):
+                return True
+            answers = Answers(start=str(target.path), interactive=self._interactive_asker(protocol))
+            while True:
+                job = Job()
+                job.position = job.total = 0
+                job.cancellable = True
+                try:
+                    await run_with_progress(
+                        app, lambda: SESSIONS.connect(site, answers), job,
+                        lambda: progress_box(job, tr("Connecting to {host} over {protocol}").format(
+                            host=site.host, protocol=protocol)),
+                    )
+                    return True
+                except UnknownHostKey as unknown:
+                    choice = await HostKeyQuery(unknown.hostname, unknown.key_type,
+                                                unknown.fingerprint).execute(app)
+                    if choice is None:
+                        return False
+                    answers.host_key = choice
+                except NeedPassword as needed:
+                    can_keep = await asyncio.to_thread(credentials.keyring_available)
+                    prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
+                              else tr("{protocol} password for {who}:")).format(
+                        protocol=protocol, who=escape_caption(f"{needed.user}@{needed.host}"))
+                    answer = await PasswordDialog(prompt, can_keep=can_keep).execute(app)
+                    if answer is None:
+                        return False
+                    answers.password, answers.save_password = answer
+                except NeedPassphrase as needed:
+                    prompt = (tr("Wrong passphrase for {key}. Try again:") if needed.wrong
+                              else tr("Passphrase for {key}:")).format(key=escape_caption(needed.key_file))
+                    answer = await PasswordDialog(prompt).execute(app)
+                    if answer is None:
+                        return False
+                    answers.passphrase = answer[0]
+                except OSError as error:
+                    if job.stopped:
+                        return False
+                    await Dialog(title=title,
+                                 prompt=escape_caption(error.strerror or str(error)),
+                                 buttons="ok").execute(app)
+                    return False
+
+    def _interactive_asker(self, protocol: str) -> Any:
+        """What a connecting thread calls with a server's own questions
+        (SSH's keyboard-interactive: a one-time code, a PIN): each put in a
+        box on the loop, the thread waiting for the replies -- None if one was
+        cancelled -- as a copy's worker waits for its questions."""
+        import concurrent.futures
+
+        loop = asyncio.get_running_loop()
+
+        def ask(title: str, instructions: str, prompts: list[tuple[str, bool]]) -> list[str] | None:
+            future: concurrent.futures.Future[Any] = concurrent.futures.Future()
+            loop.call_soon_threadsafe(
+                lambda: self.spawn(self._answer_prompts(protocol, title, instructions, prompts, future)))
+            return future.result()
+
+        return ask
+
+    async def _answer_prompts(self, protocol: str, title: str, instructions: str,
+                              prompts: list[tuple[str, bool]], future: Any) -> None:
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator.widgets.drives.password_dialog import PasswordDialog
+
+        replies: list[str] = []
+        try:
+            for prompt, echo in prompts:
+                text = f"{instructions.strip()}\n{prompt}" if instructions and instructions.strip() else prompt
+                box = PasswordDialog(escape_caption(text.strip()))
+                box.title = f"{protocol}: {title}" if title else protocol
+                box.entry.entry.password = not echo
+                answer = await box.execute(self.application)
+                if answer is None:
+                    future.set_result(None)
+                    return
+                replies.append(answer[0])
+            future.set_result(replies)
+        except BaseException as error:
+            if not future.done():
+                future.set_result(None)
+            if not isinstance(error, Exception):
+                raise
+
+    async def on_hang_up(self, event: HangUp) -> bool:
+        self.spawn(self.hang_up())
+        return True
+
+    async def hang_up(self) -> None:
+        """Utilities > *Disconnect*: ``cmHangUp`` -- the one connection closed
+        once agreed to, or one chosen of several (or all); its panels go back
+        to the disk (:meth:`close_linked`)."""
+        from navml.widgets.dialog.control import escape_caption
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.lib.drives import mounted, sessions
+        from navigator.lib.drives.sessions import SESSIONS
+
+        app = self.application
+        drives = [drive for drive in mounted() if drive.site.scheme in sessions.SCHEMES]
+        if not drives:
+            return
+        if len(drives) == 1:
+            site = drives[0].site
+            prompt = tr("Close the {protocol} connection to {host}?").format(
+                protocol=sessions.protocol_name(site.scheme), host=escape_caption(site.host))
+            if await Dialog(title=tr("Disconnect"), prompt=prompt, buttons="yes-no").execute(app) is True:
+                await asyncio.to_thread(SESSIONS.close, site)
+            return
+        menu = SubMenu()
+        items = {id(menu.add_item(escape_caption(str(drive.site)))): [drive.site] for drive in drives}
+        menu.add_line()
+        items[id(menu.add_item(tr("~A~ll")))] = [drive.site for drive in drives]
+        title = tr("Disconnect")
+        box = PopupMenu(menu, behind=self, title=title)
+        width, height = PopupMenu.measure(menu, app, self, title)
+        box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
+        chosen = await box.execute(app)
+        for site in items.get(id(chosen), []):
+            await asyncio.to_thread(SESSIONS.close, site)
+
+    def _heard_closed(self, site: Any, why: str) -> None:
+        """A connection closed, on whatever thread closed it: the loop told."""
+        app = self.application
+        if app is not None and app.is_running:
+            app.call_from_thread(lambda: self.close_linked(site, why))
+
+    def close_linked(self, site: Any, why: str = "closed") -> None:
+        """DN's ``cmCloseLinked``: every panel on *site* back on the disk, where
+        it last was there; *why* ``"lost"`` says so once."""
+        moved = False
+        for window in self.desktop.windows():
+            if isinstance(window, Manager):
+                for panel in (window.left, window.right):
+                    if panel.location.site == site:
+                        panel.leave_found()
+                        panel.location = panel.local_anchor
+                        moved = True
+        if why == "lost" and moved:
+            from navigator.lib.drives.sessions import protocol_name, protocol_sign
+
+            self.spawn(Dialog(
+                title=tr("{protocol} link").format(protocol=protocol_name(site.scheme)),
+                prompt=tr("Remote drive {name} is not accessible").format(
+                    name=f"{protocol_sign(site.scheme)}:{site.host}"),
+                buttons="ok").execute(self.application))
+
+    def connections_in_use(self) -> set[Any]:
+        """The sites some panel is on now: those no idle timer closes."""
+        used = set()
+        for window in self.desktop.windows():
+            if isinstance(window, Manager):
+                for panel in (window.left, window.right):
+                    if not panel.location.is_local:
+                        used.add(panel.location.site)
+        return used
+
+    async def reap_connections(self) -> None:
+        """*Communications*' *Close an idle connection after*, looked at once a minute."""
+        from navigator.lib.drives.sessions import SESSIONS
+
+        idle = SETTINGS.remote.idle_disconnect * 60
+        if idle > 0:
+            await asyncio.to_thread(SESSIONS.reap, self.connections_in_use(), idle)
 
     async def on_key_bindings_setup(self, event: KeyBindingsSetup) -> bool:
         self.spawn(self.key_bindings())
@@ -2007,7 +2460,8 @@ class Shell(DockLayout):
         if panel is None:
             self.desktop.open(TreeWindow())
         else:
-            self.desktop.open(TreeWindow(start=panel.path, hidden=panel.show_hidden))
+            start = panel.path if panel.location.is_local else None
+            self.desktop.open(TreeWindow(start=start, hidden=panel.show_hidden))
         return True
 
     async def on_open_volumes_window(self, event: OpenVolumesWindow) -> bool:

@@ -7,6 +7,7 @@ from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.tab_view import TabView
 from navigator.widgets.setup.column_defaults_page import ColumnDefaultsPage
+from navigator.widgets.setup.communications_page import CommunicationsPage
 from navigator.widgets.setup.confirmations_page import ConfirmationsPage
 from navigator.widgets.setup.drive_info_page import DriveInfoPage
 from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage
@@ -37,6 +38,7 @@ class SettingsDialog(Dialog, _Component):
     panel_defaults: FMDefaultsPage
     column_defaults: ColumnDefaultsPage
     highlight_groups: HighlightPage
+    remote: CommunicationsPage
     def __init__(self, tab: str = ..., side: str | None = ..., **kwargs: Any) -> None: ...
     def _buttons_under_pages(self) -> None: ...
     def page(self, tab: str) -> Widget: ...

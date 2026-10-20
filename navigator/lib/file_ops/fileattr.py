@@ -145,6 +145,46 @@ class Survey:
     link_target: str | None = None
 
 
+# -- the disk, or another drive -----------------------------------------------------
+#
+# Every call below goes through these, which are :mod:`os`'s on a path and the
+# drive's (:mod:`navigator.lib.drives`) on a location elsewhere: a server's
+# files have modes and times to change too.
+
+
+def _elsewhere(path: Any) -> bool:
+    return not isinstance(path, (str, os.PathLike)) and not path.is_local
+
+
+def _local(path: Any) -> Any:
+    return path if isinstance(path, (str, os.PathLike)) else path.local
+
+
+def _stat(path: Any, *, follow: bool = True) -> Any:
+    if _elsewhere(path):
+        from navigator.lib.drives import drive_of
+
+        drive = drive_of(path)
+        return drive.stat(path) if follow else drive.lstat(path)
+    return os.stat(_local(path), follow_symlinks=follow)
+
+
+def _children(path: Any) -> list[tuple[Any, Any]]:
+    """``(child, its lstat or the error)`` for each entry of *path*."""
+    if _elsewhere(path):
+        from navigator.lib.drives import drive_of
+
+        return [(path / name, st) for name, st in drive_of(path).children(path)]
+    found = []
+    with os.scandir(_local(path)) as entries:
+        for entry in entries:
+            try:
+                found.append((Path(entry.path), entry.stat(follow_symlinks=False)))
+            except OSError as error:
+                found.append((Path(entry.path), error))
+    return found
+
+
 def survey(paths: Sequence[Path]) -> Survey:
     """What every one of *paths* has, and what they disagree on.
 
@@ -159,10 +199,10 @@ def survey(paths: Sequence[Path]) -> Survey:
     on, off = 0, 0
     for path in paths:
         try:
-            st = os.stat(path)
+            st = _stat(path)
         except OSError:
             try:
-                st = os.lstat(path)
+                st = _stat(path, follow=False)
             except OSError:
                 continue
         mode = stat.S_IMODE(st.st_mode)
@@ -185,9 +225,16 @@ def survey(paths: Sequence[Path]) -> Survey:
     result.uid = uids.pop() if len(uids) == 1 else None
     result.gid = gids.pop() if len(gids) == 1 else None
     result.mtime = float(mtimes.pop()) if len(mtimes) == 1 else None
-    if result.single is not None and len(paths) == 1 and os.path.islink(paths[0]):
+    if result.single is not None and len(paths) == 1:
         try:
-            result.link_target = os.readlink(paths[0])
+            if _elsewhere(paths[0]):
+                from navigator.lib.drives import drive_of
+
+                drive = drive_of(paths[0])
+                if drive.is_link(paths[0]):
+                    result.link_target = drive.readlink(paths[0])
+            elif os.path.islink(paths[0]):
+                result.link_target = os.readlink(paths[0])
         except OSError:
             pass
     return result
@@ -358,6 +405,9 @@ class AttrJob(Job):
 
 def apply_one(path: Path, request: AttrRequest, *, follow: bool = True) -> None:
     """Change *path* as *request* says.  ``OSError`` as the calls raise it."""
+    if _elsewhere(path):
+        _apply_elsewhere(path, request, follow=follow)
+        return
     st = os.stat(path, follow_symlinks=follow)
     chowned = False
     uid = -1 if request.uid is None or request.uid == st.st_uid else request.uid
@@ -373,9 +423,33 @@ def apply_one(path: Path, request: AttrRequest, *, follow: bool = True) -> None:
         os.utime(path, (st.st_atime, request.mtime), follow_symlinks=follow)
 
 
+def _apply_elsewhere(location: Any, request: AttrRequest, *, follow: bool) -> None:
+    """:func:`apply_one` on another drive: what it can set (``Drive.chmod``,
+    ``chown``, ``utime``), and an ``OSError`` for what it cannot."""
+    from navigator.lib.drives import drive_of
+
+    drive = drive_of(location)
+    st = drive.stat(location) if follow else drive.lstat(location)
+    if stat.S_ISLNK(st.st_mode):
+        return  # a server sets a link's target's attributes, never its own
+    if (request.uid is not None and request.uid != st.st_uid) or (request.gid is not None and request.gid != st.st_gid):
+        drive.chown(location, st.st_uid if request.uid is None else request.uid,
+                    st.st_gid if request.gid is None else request.gid)
+    old = stat.S_IMODE(st.st_mode)
+    new = (old & ~request.clear_bits) | request.set_bits
+    if new != old:
+        drive.chmod(location, new)
+    if request.mtime is not None:
+        drive.utime(location, int(st.st_atime * 1e9), int(request.mtime * 1e9))
+
+
 def run(request: AttrRequest, job: AttrJob) -> list[Path]:
     """Change what *request* says; answer the sources changed without a failure."""
-    return _Changer(request, job).run()
+    from navigator.lib.file_ops.filecopy import finish_drives
+
+    done = _Changer(request, job).run()
+    finish_drives(list(request.sources), None)  # an archive changed is written anew
+    return done
 
 
 class _Changer:
@@ -424,16 +498,15 @@ class _Changer:
             return 1
         self._checkpoint()
         try:
-            if not stat.S_ISDIR(os.lstat(path).st_mode):
+            if not stat.S_ISDIR(_stat(path, follow=False).st_mode):
                 return 1
-            with os.scandir(path) as entries:
-                children = list(entries)
+            children = _children(path)
         except OSError:
             return 1
         count = 1
-        for child in children:
-            if child.is_dir(follow_symlinks=False):
-                count += self._measure(Path(child.path))
+        for child, st in children:
+            if not isinstance(st, OSError) and stat.S_ISDIR(st.st_mode):
+                count += self._measure(child)
             else:
                 count += 1
         return count
@@ -450,7 +523,7 @@ class _Changer:
     def _source(self, path: Path) -> bool:
         """A tagged entry: always changed, and recursed into if asked."""
         try:
-            is_dir = stat.S_ISDIR(os.lstat(path).st_mode)
+            is_dir = stat.S_ISDIR(_stat(path, follow=False).st_mode)
         except OSError as error:
             return self._fail(path, error)
         if not is_dir or self.request.recurse == NONE:
@@ -463,31 +536,28 @@ class _Changer:
         """*path*'s contents, depth first, and *path*; True if nothing failed."""
         mine = always or self._wants(True)
         whole = True
-        early = mine and not os.access(path, os.R_OK | os.X_OK)
+        early = mine and not _elsewhere(path) and not os.access(path, os.R_OK | os.X_OK)
         if early:
             whole = self._change(path, follow=False)
         try:
-            with os.scandir(path) as entries:
-                children = list(entries)
+            children = _children(path)
         except OSError as error:
             children = []
             whole = self._fail(path, error) and whole
-        for child in children:
+        for child, st in children:
             self._checkpoint()
-            try:
-                st = child.stat(follow_symlinks=False)
-            except FileNotFoundError:
+            if isinstance(st, FileNotFoundError):
                 continue
-            except OSError as error:
-                whole = self._fail(Path(child.path), error) and whole
+            if isinstance(st, OSError):
+                whole = self._fail(child, st) and whole
                 continue
             if stat.S_ISLNK(st.st_mode):
                 self.job.done += 1
             elif stat.S_ISDIR(st.st_mode):
-                whole = self._tree(Path(child.path), always=False) and whole
+                whole = self._tree(child, always=False) and whole
             else:
                 if self._wants(False):
-                    whole = self._change(Path(child.path), follow=False) and whole
+                    whole = self._change(child, follow=False) and whole
                 self.job.done += 1
         if mine and not early:
             whole = self._change(path, follow=False) and whole

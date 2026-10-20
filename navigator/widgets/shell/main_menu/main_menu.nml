@@ -1,6 +1,6 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
-from navigator.widgets.shell.commands import About, Game, SaversSetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
+from navigator.widgets.shell.commands import About, FtpLink, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -37,11 +37,13 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: modes*; *View as Spreadsheet* and *Unpack diskette images* (DN's own
 #: formats); *Format disk*, *Volume label*, *Reanimator* (FAT undelete) and
 #: *Disk editor* (sectors); *Memory Information* (conventional/XMS/EMS),
-#: *Phone Book*, *Open spreadsheet*, *CD Player*, and the modem's *Terminal*,
-#: *Navigator Link*, *Manual dial* and *Disconnect*; *Printer setup*,
-#: *Country support*, *Mouse*, *Communications* and *Terminal* under
-#: Configuration; and the seventeen DOS archivers under Archives, which a list
-#: of POSIX ones replaces once archives can be opened.  Two captions say what
+#: *Phone Book*, *Open spreadsheet*, *CD Player*, and the modem's *Terminal*
+#: and *Manual dial*; *Printer setup*, *Country support*, *Mouse* and
+#: *Terminal* under Configuration; and the seventeen DOS archivers under
+#: Archives, which a list of POSIX ones replaces once archives can be opened.
+#: *Navigator Link* (as *SSH link (SFTP)*, named for what is on the wire),
+#: *Disconnect* and *Communications* are back, for connections to servers
+#: (``navigator/lib/drives``) where DN's were to a PC on a cable.  Two captions say what
 #: they mean here: *ASCII Table* is *Character table*, and *Edit DOS
 #: Environment* is *Edit environment*.  *Change drive left/right* are
 #: *Bookmarks left/right*: the box they open lists bookmarked directories
@@ -220,6 +222,25 @@ MainMenu(MenuBar):
             command: AsciiTable
             key: 'Ctrl-B'
         MenuLine:
+        #: DN's modem group, less what a cable and a modem were for: the
+        #: *Terminal* and *Manual dial*.  The link is to a server now.
+        #: Named for its protocol, where DN's said *Navigator Link*: what is
+        #: on the wire is never in doubt.
+        MenuItem:
+            text: '~S~SH link (SFTP)...'
+            command: NavyLink
+            key: 'Alt-F11'
+        MenuItem:
+            text: '~F~TP link...'
+            command: FtpLink
+        MenuItem:
+            text: 'S~M~B link (Windows share)...'
+            command: SmbLink
+        MenuItem:
+            text: '~D~isconnect'
+            command: HangUp
+            key: 'Alt-H'
+        MenuLine:
         MenuItem:
             text: 'Edi~t~ environment'
             command: EnvEdit
@@ -299,6 +320,9 @@ MainMenu(MenuBar):
             MenuItem:
                 text: 'Screen sa~v~ers...'
                 command: SaversSetup
+            MenuItem:
+                text: 'Comm~u~nications...'
+                command: SetupLink
             MenuLine:
             MenuItem:
                 text: '~E~ditor/Viewer...'

@@ -25,6 +25,7 @@ the way it does in a terminal.
 from __future__ import annotations
 
 import contextlib
+import concurrent.futures
 import os
 import re
 import stat
@@ -33,6 +34,7 @@ import unicodedata
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from navkit.screen import char_width
 
@@ -145,16 +147,53 @@ def save_as(source: Path, target: Path, codec: str = "utf-8") -> None:
     so a failure leaves nothing half written.  A thread runs it."""
     import tempfile
 
-    target = Path(target)
+    from navigator.lib.drives import Location
+
+    if isinstance(target, Location) and not target.is_local:
+        _save_elsewhere(source, target, codec)
+        return
+    target = Path(target.local if isinstance(target, Location) else target)
     handle, temp = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.")
     try:
-        with os.fdopen(handle, "wb") as out, open(source, "rb") as data:
+        with os.fdopen(handle, "wb") as out, _opened(source) as data:
             while block := data.read(1 << 16):
                 out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
         os.replace(temp, target)
     except BaseException:
         with contextlib.suppress(OSError):
             os.unlink(temp)
+        raise
+
+
+def _opened(source: Any) -> Any:
+    """What *Save as* reads: a file on the disk, or a ``ChunkedSource``'s
+    whole file from its drive."""
+    stream = getattr(source, "stream", None)
+    return stream() if stream is not None else open(source, "rb")
+
+
+def _save_elsewhere(source: Path, target: Any, codec: str) -> None:
+    """:func:`save_as` to another drive: written beside the target under a
+    name of its own and renamed over it, as an upload is."""
+    import secrets
+
+    from navigator.lib.drives import drive_of
+
+    drive = drive_of(target)
+    beside = target.parent / f".{target.name}.nav-{secrets.token_hex(3)}"
+    replace = drive.can("rename")
+    written = beside if replace else target
+    try:
+        with drive.open_write(written) as out, _opened(source) as data:
+            while block := data.read(1 << 16):
+                out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
+        if replace:
+            drive.replace(beside, target)
+        drive.finish()
+    except BaseException:
+        if replace:
+            with contextlib.suppress(OSError):
+                drive.unlink(beside)
         raise
 
 
@@ -433,6 +472,156 @@ class ViewSource:
                 return lo - lead + found.start(), found.end() - found.start()
             pos = lo
         return None
+
+
+class NotYet(Exception):
+    """A chunk of a :class:`ChunkedSource` that is not here yet: asked for
+    already, and the source will say when it lands.  Whatever needed it is
+    done again then."""
+
+    def __init__(self, index: int) -> None:
+        super().__init__(f"chunk {index} is on its way")
+        self.index = index
+
+
+#: How many chunks a source read across a network keeps: a round trip is
+#: dear, memory is not -- 32 MiB at 64 KiB a chunk.
+REMOTE_CACHED_CHUNKS = 512
+
+#: How many chunks past the one asked for are asked for with it.
+READ_AHEAD = 3
+
+#: The threads chunks are fetched on: few, as every one is a round trip
+#: on one connection.
+_FETCHERS = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="nav-view-fetch")
+
+
+class ChunkedSource(ViewSource):
+    """A file on another drive, read a chunk at a time as it is looked at.
+
+    What F3 opens on a server, instead of fetching the whole file first. A
+    read that needs a chunk not here raises :class:`NotYet` after asking for
+    it -- and the few after it -- on a thread; *arrived*, set by the viewer,
+    is called (on that thread) when it lands, so the viewer can paint again
+    and do over what was interrupted.  Never blocks the loop.
+
+    *reader* is the drive's random-access handle (``Drive.open_random``):
+    ``read_at(offset, count)`` and ``close()``, one read at a time.  Search
+    runs on a thread of its own and reads through it directly, waiting.
+    """
+
+    remote = True
+
+    def __init__(self, origin: Any, size: int, reader: Any) -> None:
+        self.origin = origin
+        self.path = Path(origin.name)
+        self.table = None
+        self._fd = None
+        self._chunks: OrderedDict[int, bytes] = OrderedDict()
+        self._data = None
+        self._eol_cache = None
+        self.size = size
+        self._reader = reader
+        self._lock = threading.Lock()
+        self._landed: dict[int, bytes] = {}
+        self._asked: set[int] = set()
+        self._failed: OSError | None = None
+        self._closed = False
+        #: Called on the fetching thread once a chunk is in.
+        self.arrived: Any = None
+
+    def _chunk(self, index: int) -> bytes:
+        chunk = self._chunks.get(index)
+        if chunk is not None:
+            self._chunks.move_to_end(index)
+            return chunk
+        with self._lock:
+            chunk = self._landed.pop(index, None)
+            failed = self._failed
+        if chunk is not None:
+            self._chunks[index] = chunk
+            if len(self._chunks) > REMOTE_CACHED_CHUNKS:
+                self._chunks.popitem(last=False)
+            return chunk
+        if failed is not None:
+            raise failed
+        last = max(0, (self.size - 1) // CHUNK)
+        for wanted in range(index, min(last, index + READ_AHEAD) + 1):
+            if wanted not in self._chunks:
+                self._ask(wanted)
+        raise NotYet(index)
+
+    def _ask(self, index: int) -> None:
+        with self._lock:
+            if index in self._asked or index in self._landed:
+                return
+            self._asked.add(index)
+        _FETCHERS.submit(self._fetch, index)
+
+    def _fetch(self, index: int) -> None:
+        if self._closed:
+            return
+        try:
+            data = self._read_blocking(index * CHUNK, CHUNK)
+        except OSError as error:
+            with self._lock:
+                self._failed = error
+                self._asked.discard(index)
+        else:
+            with self._lock:
+                self._landed[index] = data
+                self._asked.discard(index)
+        arrived = self.arrived
+        if arrived is not None and not self._closed:
+            arrived()
+
+    def _read_blocking(self, offset: int, count: int) -> bytes:
+        """Bytes straight from the drive, waiting: never on the loop."""
+        offset = max(0, offset)
+        count = max(0, min(count, self.size - offset))
+        if count <= 0:
+            return b""
+        with self._reader_lock:
+            if self._reader is None:
+                raise OSError(9, "The file is closed", str(self.origin))
+            return self._reader.read_at(offset, count)
+
+    @property
+    def _reader_lock(self) -> threading.Lock:
+        lock = getattr(self, "_reading", None)
+        if lock is None:
+            lock = self._reading = threading.Lock()
+        return lock
+
+    def ready(self, offset: int, count: int) -> bool:
+        """Whether ``read(offset, count)`` would answer now; asks for what it lacks."""
+        try:
+            self.read(offset, count)
+        except NotYet:
+            return False
+        return True
+
+    def find(self, pattern: re.Pattern[bytes], start: int, *, backward: bool = False,
+             span: int = 64, job: SearchJob | None = None) -> tuple[int, int] | None:
+        """:meth:`ViewSource.find`, on its thread, through the drive."""
+        return self._find(self._read_blocking, pattern, start, backward, span, job or SearchJob())
+
+    def stream(self) -> Any:
+        """The whole file, from its drive: what *Save as* writes out."""
+        from navigator.lib.drives import drive_of
+
+        return drive_of(self.origin).open_read(self.origin)
+
+    def close(self) -> None:
+        """For good: the drive's handle let go, nothing more fetched or said."""
+        self._closed = True
+        with self._reader_lock:
+            reader, self._reader = self._reader, None
+        if reader is not None:
+            try:
+                reader.close()
+            except OSError:
+                pass
 
 
 class SearchJob:

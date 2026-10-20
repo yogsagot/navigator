@@ -20,6 +20,7 @@ in hex they move a *cursor* and the view follows it.
 from __future__ import annotations
 
 import bisect
+import functools
 import threading
 from pathlib import Path
 from typing import Any
@@ -58,6 +59,7 @@ from navigator.lib.viewer import (
     hex_chars_at,
     hex_row,
     hex_row_bytes,
+    NotYet,
 )
 
 #: The three modes F4 cycles through, in DN's order.
@@ -81,6 +83,21 @@ LEX_AHEAD = 256 * 1024
 
 #: How much of the file's start is read for its ``#!`` line.
 HEAD = 256
+
+
+def _when_here(method: Any) -> Any:
+    """For a file read across a network (``ChunkedSource``): a move that
+    needs a chunk not here yet does nothing now and is done again, as it was
+    asked, once the chunk lands.  Every method this wraps reads before it
+    changes anything, so doing it again is doing it once."""
+    @functools.wraps(method)
+    def call(self: Any, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return method(self, *args, **kwargs)
+        except NotYet:
+            self._again = lambda: call(self, *args, **kwargs)
+            return None
+    return call
 
 
 def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: int,
@@ -163,6 +180,7 @@ class FileViewer(ContextMenuHost, Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source: ViewSource | None = None
+        self._again: Any = None
         self.syntax_highlight = SETTINGS.viewer.syntax_highlight
         self.show_hidden = SETTINGS.viewer.show_hidden
         self.rehighlight()
@@ -174,12 +192,18 @@ class FileViewer(ContextMenuHost, Widget):
         """Show *path* from its start.  Raises ``OSError`` if it cannot be read.
 
         Given the *source*, opened already on a thread, nothing is read here.
+        A ``ChunkedSource`` -- a file on another drive -- says when a chunk
+        lands, and the viewer paints again and does what it had to leave.
         """
         if source is None:
             source = ViewSource(path)
         if self.source is not None:
             self.source.close()
         self.source = source
+        #: What a missing chunk interrupted, to do once it is in.
+        self._again: Any = None
+        if getattr(source, "remote", False):
+            source.arrived = self._chunk_arrived
         source.table = byte_table(self.encoding)
         self.rehighlight()
         self.path = source.path
@@ -197,6 +221,23 @@ class FileViewer(ContextMenuHost, Widget):
         self.size = 0
         self.top = self.x_delta = self.cursor = 0
         self.hit = None
+
+    def _chunk_arrived(self) -> None:
+        """On the fetching thread: tell the loop."""
+        app = self.application
+        if app is not None and app.is_running:
+            app.call_from_thread(self._chunk_landed)
+
+    def _chunk_landed(self) -> None:
+        again, self._again = self._again, None
+        if again is not None:
+            again()
+        self.invalidate()
+
+    @property
+    def remote(self) -> bool:
+        """Whether the file is read across a network, a chunk at a time."""
+        return bool(getattr(self.source, "remote", False))
 
     def unmounting(self) -> None:
         # Let the file go with the window.  A read reopens it, so a viewer
@@ -269,8 +310,11 @@ class FileViewer(ContextMenuHost, Widget):
 
     def percent(self) -> int:
         """How far into the file the view is: 100 once the end is showing."""
-        if self.size == 0 or self._end_showing():
-            return 100
+        try:
+            if self.size == 0 or self._end_showing():
+                return 100
+        except NotYet:
+            pass  # the end's rows not here yet: by the offset, then
         return self.top * 100 // self.size
 
     def _end_showing(self) -> bool:
@@ -281,6 +325,7 @@ class FileViewer(ContextMenuHost, Widget):
 
     # -- moving ----------------------------------------------------------------
 
+    @_when_here
     def seek(self, offset: int) -> None:
         """Show the row holding *offset* at the top, as far as the end allows.
 
@@ -298,6 +343,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.top = min(self.top, max(0, self._last_top()))
         self._keep_cursor()
 
+    @_when_here
     def scroll_rows(self, count: int) -> None:
         """Move the view *count* rows, down for positive; the ends stop it."""
         if self.source is None:
@@ -332,6 +378,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.top = self.x_delta = 0
         self.cursor = 0
 
+    @_when_here
     def to_end(self) -> None:
         """DN's ``SeekEOF``: the last screenful."""
         if self.mode == "text":
@@ -390,8 +437,15 @@ class FileViewer(ContextMenuHost, Widget):
         """F2.  The row on top stays on top, cut where the new width cuts it."""
         self.wrap = not self.wrap
         self.x_delta = 0
+        self._snap_top()
+
+    @_when_here
+    def _snap_top(self, clamp: bool = False) -> None:
+        """``top`` back on the start of the row holding it, in the widths in
+        force -- and, *clamp*, no further than the last screenful."""
         if self.source is not None and self.mode == "text":
-            self.top = self.source.line_start(self.top, self.wrap_width)
+            top = self.source.line_start(self.top, self.wrap_width)
+            self.top = min(top, self._last_top()) if clamp else top
 
     def cycle_filter(self) -> None:
         """F6: no filter, ``{ASCII}``, ``{Printable}``."""
@@ -405,8 +459,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.encoding = codec
         if self.source is not None:
             self.source.table = byte_table(codec)
-            if self.mode == "text":
-                self.top = min(self.source.line_start(self.top, self.wrap_width), self._last_top())
+            self._snap_top(clamp=True)
         self.invalidate()
 
     def set_filter(self, filter: int) -> None:
@@ -414,6 +467,7 @@ class FileViewer(ContextMenuHost, Widget):
             raise ValueError(f"{filter} is not a viewer filter; there are {len(FILTER_TAGS)}")
         self.filter = filter
 
+    @_when_here
     def show_hit(self, offset: int, length: int) -> None:
         """Put a search hit on screen and mark it.
 
@@ -484,12 +538,16 @@ class FileViewer(ContextMenuHost, Widget):
         elif name == "home":
             self.x_delta = 0
         elif name == "end":
-            # CM_END: far enough to show the end of the longest row showing.
-            longest = max((len(r.cells) for r in self._text_rows(self.height)), default=0)
-            self.x_delta = max(0, longest - self.width)
+            self._to_longest_end()
         else:
             return False
         return True
+
+    @_when_here
+    def _to_longest_end(self) -> None:
+        """CM_END: far enough to show the end of the longest row showing."""
+        longest = max((len(r.cells) for r in self._text_rows(self.height)), default=0)
+        self.x_delta = max(0, longest - self.width)
 
     def _hex_key(self, name: str, rows: int) -> bool:
         per = self.row_bytes()
@@ -616,7 +674,8 @@ class FileViewer(ContextMenuHost, Widget):
         """The spans to paint ``[top, bottom)`` with, or None for plain text;
         a window around *top* is asked for when they do not cover it."""
         source = self.source
-        if not self.syntax_highlight or source is None or self.size == 0:
+        if not self.syntax_highlight or source is None or self.size == 0 or self.remote:
+            # Across a network nothing is lexed: it would read the whole file.
             return None
         key = (str(source.path), self.encoding, self.size, self.file_type)
         if key != self._lexed_for:
@@ -677,10 +736,24 @@ class FileViewer(ContextMenuHost, Widget):
         surface.fill(0, 0, self.width, self.height, " ", style)
         if self.source is None:
             return
-        if self.mode == "text":
-            self._render_text(surface)
-        else:
-            self._render_hex(surface)
+        try:
+            if self.mode == "text":
+                self._render_text(surface)
+            else:
+                self._render_hex(surface)
+        except NotYet:
+            # A file across a network, its chunk on the way: painted again
+            # when it lands (``_chunk_landed``).
+            surface.fill(0, 0, self.width, self.height, " ", style)
+            self._say(surface, tr("Reading..."))
+        except OSError as error:
+            surface.fill(0, 0, self.width, self.height, " ", style)
+            self._say(surface, tr("Cannot read the file: {error}").format(error=error.strerror or error))
+
+    def _say(self, surface: Surface, text: str) -> None:
+        if self.height and self.width:
+            text = text[: self.width]
+            surface.draw_text(max(0, (self.width - len(text)) // 2), self.height // 2, text, self.style)
 
     def _hit_covers(self, offset: int) -> bool:
         hit = self.hit

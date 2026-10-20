@@ -44,5 +44,9 @@ class InputLine(Control, _Component):
     #: The longest text this line will accept, or 0 for no limit.
     max_length: int = _reactive(0)    # input_line.nml:18
 
+    #: A secret: every character painted as ``*``, and nothing of it copied --
+    #: not to the clipboard, not to the primary selection.  For a password.
+    password: bool = _reactive(False)    # input_line.nml:22
+
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

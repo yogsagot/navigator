@@ -504,7 +504,8 @@ class FMSetupData(Section):
     # On by default, a departure: DN's fmoDragAndDrop was off.
     drag_drop_columns: bool = Setting(True, doc="Files can be dragged out of a panel with the mouse")
     beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy")
-    enter_opens_archive: bool = Setting(True, doc="Enter opens an archive", honoured=False)
+    #: DN's ``fmoEnterArchives``: zip and tar (``navigator/lib/drives/archive.py``).
+    enter_opens_archive: bool = Setting(True, doc="Enter opens an archive (zip, tar) as a directory")
     space_toggles_selection: bool = Setting(
         True, doc="Space tags the cursor's file while the command line is empty",
     )
@@ -736,11 +737,37 @@ class UUCodeData(Section):
     save_broken: bool = Setting(False, doc="Decoding keeps a file it could not decode whole")
 
 
+class RemoteData(Section):
+    """Connections to other drives: Options > Configuration > *Communications*,
+    where DN set up the modem and the cable its Navigator Link ran over
+    (``cmSetupModem``).  What it holds is Navigator's own -- DN's link had
+    none of it to keep."""
+
+    name = "remote"
+    title = "Options > Configuration > Communications (DN's cmSetupModem)"
+
+    UPLOAD: ClassVar[tuple[str, ...]] = ("ask", "always", "never")
+
+    keepalive: int = Setting(30, doc="Seconds between keep-alive messages to a server; 0 sends none")
+    idle_disconnect: int = Setting(
+        0, doc="Minutes a connection nothing uses stays open before it is closed; 0 keeps it",
+    )
+    upload_changed: str = Setting(
+        "ask", choices=UPLOAD,
+        doc="A file from another drive that a program changed goes back: ask, always or never",
+    )
+    timeout: int = Setting(15, doc="Seconds to wait for a server to answer when connecting")
+    #: Not DN's: no server says when a directory changed, so *Auto refresh
+    #: panels* asks again this often.  Off by default, as every look is traffic.
+    refresh: int = Setting(0, doc="Seconds between looks at a server's directory for Auto refresh; 0 never")
+
+
 #: Every section, in the order the file lists them.
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, TetrisData, UUCodeData,
+    RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -774,6 +801,7 @@ class Settings:
     savers: SaversData
     tetris: TetrisData
     uucode: UUCodeData
+    remote: RemoteData
 
     def __init__(self) -> None:
         for cls in SECTIONS:

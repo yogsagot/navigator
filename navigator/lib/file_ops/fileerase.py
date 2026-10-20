@@ -30,13 +30,13 @@ What is DN's and what is not:
 
 from __future__ import annotations
 
-import os
 import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from navigator.lib.file_ops.filecopy import Failure, error_message
+from navigator.lib.drives import Location, drive_of
+from navigator.lib.file_ops.filecopy import Failure, error_message, finish_drives, shown
 from navigator.lib.system.job import Job, Stopped
 
 #: The answers :class:`NotEmpty` and :class:`ReadOnly` take; ``None`` is Cancel.
@@ -51,7 +51,7 @@ ERASING_DIRECTORY = "Erasing the directory"
 class EraseRequest:
     """What the Delete dialog was accepted with."""
 
-    sources: list[Path]
+    sources: list[Path | Location]
     #: *Recursive delete*: a non-empty directory goes without being asked about.
     recursive: bool = False
 
@@ -60,14 +60,14 @@ class EraseRequest:
 class NotEmpty:
     """``dlEraseDirNotEmpty``: *path* has something in it.  No, Yes, All or Cancel."""
 
-    path: Path
+    path: Path | Location
 
 
 @dataclass
 class ReadOnly:
     """``dlEraseRO``: the user cannot write *path*.  Yes, No, All or Cancel."""
 
-    path: Path
+    path: Path | Location
 
 
 class EraseJob(Job):
@@ -86,11 +86,12 @@ class EraseJob(Job):
         self.measuring = True
 
 
-def run(request: EraseRequest, job: EraseJob) -> list[Path]:
+def run(request: EraseRequest, job: EraseJob) -> list[Path | Location]:
     """Delete what *request* says; answer the sources that are gone.
 
     A source skipped, answered No, or with anything left inside it is not in
-    the answer -- the file manager untags only what went.
+    the answer -- the file manager untags only what went.  The sources may be
+    on any drive (:mod:`navigator.lib.drives`).
     """
     return _Eraser(request, job).run()
 
@@ -112,9 +113,9 @@ class _Eraser:
             raise Stopped
         return answer
 
-    def _fail(self, path: Path, message: str) -> bool:
+    def _fail(self, path: Location, message: str) -> bool:
         """Say what went wrong with *path*; False, as a skipped entry is, or stop."""
-        self._ask(Failure(path, message))
+        self._ask(Failure(shown(path), message))
         return False
 
     def _may(self, question: NotEmpty | ReadOnly) -> bool:
@@ -134,47 +135,50 @@ class _Eraser:
 
     # -- the whole ---------------------------------------------------------------
 
-    def run(self) -> list[Path]:
+    def run(self) -> list[Path | Location]:
         job = self.job
-        done: list[Path] = []
+        done: list[Path | Location] = []
         try:
-            counts = [self._measure(source) for source in self.request.sources]
+            counts = [self._measure(Location.of(source)) for source in self.request.sources]
             job.total = sum(counts)
             job.measuring = False
             for source, count in zip(self.request.sources, counts):
                 before = job.done
                 try:
-                    if self._source(source):
+                    if self._source(Location.of(source)):
                         done.append(source)
                 finally:
                     # Whatever was skipped inside it, the gauge has passed it.
                     job.done = before + count
+            finish_drives(list(self.request.sources), self._fail)
         except Stopped:
-            pass
+            # What went is gone, as it would be from a disk.
+            finish_drives(list(self.request.sources), None)
         return done
 
-    def _measure(self, path: Path) -> int:
+    def _measure(self, path: Location) -> int:
         """Entries at and under *path*, never through a link."""
         self._checkpoint()
+        drive = drive_of(path)
         try:
-            if not stat.S_ISDIR(os.lstat(path).st_mode):
+            if not stat.S_ISDIR(drive.lstat(path).st_mode):
                 return 1
-            with os.scandir(path) as entries:
-                children = list(entries)
+            children = drive.children(path)
         except OSError:
             return 1
         count = 1
-        for child in children:
-            if child.is_dir(follow_symlinks=False):
-                count += self._measure(Path(child.path))
+        for name, st in children:
+            if not isinstance(st, OSError) and stat.S_ISDIR(st.st_mode):
+                count += self._measure(path / name)
             else:
                 count += 1
         return count
 
-    def _source(self, path: Path) -> bool:
+    def _source(self, path: Location) -> bool:
         self._checkpoint()
+        drive = drive_of(path)
         try:
-            st = os.lstat(path)
+            st = drive.lstat(path)
         except FileNotFoundError:
             return True
         except OSError as error:
@@ -182,25 +186,25 @@ class _Eraser:
         if not stat.S_ISDIR(st.st_mode):
             return self._file(path, st)
         try:
-            with os.scandir(path) as entries:
-                empty = next(entries, None) is None
+            empty = not drive.names(path)
         except OSError as error:
             return self._fail(path, error_message(error))
-        if not empty and not self.request.recursive and not self._may(NotEmpty(path)):
+        if not empty and not self.request.recursive and not self._may(NotEmpty(shown(path))):
             return False
         return self._tree(path)
 
     # -- the parts ---------------------------------------------------------------
 
-    def _file(self, path: Path, st: os.stat_result) -> bool:
+    def _file(self, path: Location, st: Any) -> bool:
         job = self.job
+        drive = drive_of(path)
         job.action = ERASING_FILE
         job.path = str(path)
-        if not stat.S_ISLNK(st.st_mode) and not os.access(path, os.W_OK):
-            if not self._may(ReadOnly(path)):
+        if not stat.S_ISLNK(st.st_mode) and not drive.writable(path, st):
+            if not self._may(ReadOnly(shown(path))):
                 return False
         try:
-            os.unlink(path)
+            drive.unlink(path)
         except FileNotFoundError:
             pass
         except OSError as error:
@@ -208,34 +212,33 @@ class _Eraser:
         job.done += 1
         return True
 
-    def _tree(self, path: Path) -> bool:
+    def _tree(self, path: Location) -> bool:
         """*path*'s contents, depth first, and then *path*; True if it is gone."""
+        drive = drive_of(path)
         try:
-            with os.scandir(path) as entries:
-                children = list(entries)
+            children = drive.children(path)
         except OSError as error:
             return self._fail(path, error_message(error))
         whole = True
-        for child in children:
+        for name, st in children:
             self._checkpoint()
-            try:
-                st = child.stat(follow_symlinks=False)
-            except FileNotFoundError:
+            child = path / name
+            if isinstance(st, FileNotFoundError):
                 continue
-            except OSError as error:
-                whole = self._fail(Path(child.path), error_message(error)) and whole
+            if isinstance(st, OSError):
+                whole = self._fail(child, error_message(st)) and whole
                 continue
             if stat.S_ISDIR(st.st_mode):
-                whole = self._tree(Path(child.path)) and whole
+                whole = self._tree(child) and whole
             else:
-                whole = self._file(Path(child.path), st) and whole
+                whole = self._file(child, st) and whole
         if not whole:
             return False
         job = self.job
         job.action = ERASING_DIRECTORY
         job.path = str(path)
         try:
-            os.rmdir(path)
+            drive.rmdir(path)
         except FileNotFoundError:
             pass
         except OSError as error:

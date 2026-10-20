@@ -30,6 +30,7 @@ import os
 import re
 import shlex
 from pathlib import Path
+from typing import Any
 
 from navkit.database import DATABASE
 
@@ -51,8 +52,19 @@ USER_DIRS = (
 )
 
 
-def key_of(path: Path | str) -> str:
-    """The name a directory is bookmarked under: absolute, nothing else changed."""
+def key_of(path: Any) -> str:
+    """The name a directory is bookmarked under: absolute, nothing else changed.
+
+    A directory on another drive -- a :class:`~navigator.lib.drives.Location`
+    off the disk, or the URL it prints as -- is bookmarked under its URL.
+    """
+    from navigator.lib.drives import Location
+
+    if isinstance(path, Location):
+        return key_of(path.local) if path.is_local else str(path)
+    if isinstance(path, str) and "://" in path:
+        location = Location.parse(path)
+        return key_of(location.local) if location.is_local else str(location)
     return str(Path(path).absolute())
 
 

@@ -31,14 +31,14 @@ from __future__ import annotations
 
 import errno
 import os
-import shutil
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import IO, Any, Callable
 
 from navkit.i18n import tr
 
+from navigator.lib.drives import Location, drive_of
 from navigator.lib.system.job import POLL, Job, Stopped
 
 #: The copy modes, which are the dialog's radio buttons in order.
@@ -57,7 +57,7 @@ CHUNK = 1 << 20
 class CopyRequest:
     """What the Copy dialog answered."""
 
-    sources: list[Path]
+    sources: list[Path | Location]
     target: str
     mode: int = ASK
     options: int = PRESERVE
@@ -80,8 +80,8 @@ class Overwrite:
     Answered with an :class:`OverwriteAnswer`, or ``None`` for Cancel.
     """
 
-    source: Path
-    dest: Path
+    source: Path | Location
+    dest: Path | Location
     source_size: int
     source_mtime: float
     dest_size: int
@@ -102,7 +102,7 @@ class OverwriteAnswer:
 class NoRoom:
     """``erNotDiskSpace1``: *Copy other files?*  True skips this one, False stops."""
 
-    dest: Path
+    dest: Path | Location
     size: int
     free: int
 
@@ -116,7 +116,7 @@ class Failure:
     the language is read.
     """
 
-    path: Path
+    path: Path | Location
     reason: str | Callable[[], str]
     values: dict[str, Any] = field(default_factory=dict)
 
@@ -132,7 +132,7 @@ class Failure:
 class CreateDirectory:
     """``dlQueryCreateDir``: the target directory does not exist.  True makes it."""
 
-    path: Path
+    path: Path | Location
 
 
 # -- the shared state ------------------------------------------------------------
@@ -202,9 +202,13 @@ def apply_mask(name: str, mask: str) -> str:
 
 @dataclass
 class Destination:
-    """Where each source goes: into *directory*, named as :meth:`name_for` says."""
+    """Where each source goes: into *directory*, named as :meth:`name_for` says.
 
-    directory: Path
+    *directory* is a :class:`~pathlib.Path` on the disk and a
+    :class:`~navigator.lib.drives.Location` anywhere else.
+    """
+
+    directory: Path | Location
     #: The new name of a single source, or ``""`` to keep each source's own.
     name: str = ""
     #: A rename mask, or ``""``.
@@ -212,45 +216,84 @@ class Destination:
     #: True when *directory* does not exist yet and has to be made.
     create: bool = False
 
-    def name_for(self, source: Path) -> str:
+    def name_for(self, source: Path | Location) -> str:
         if self.name:
             return self.name
         if self.mask:
             return apply_mask(source.name, self.mask) or source.name
         return source.name
 
-    def path_for(self, source: Path) -> Path:
+    def path_for(self, source: Path | Location) -> Path | Location:
         return self.directory / self.name_for(source)
 
 
-def resolve_target(target: str, sources: list[Path], cwd: Path) -> Destination:
-    """Read the dialog's target line as DN's ``CopyDialog`` read it."""
-    text = os.path.expanduser(target.strip())
-    path = Path(text) if os.path.isabs(text) else cwd / text
-    if text.endswith("/") or path.is_dir():
-        return Destination(path, create=not path.is_dir())
-    parent = path.parent
-    if has_wildcards(path.name):
-        return Destination(parent, mask=path.name, create=not parent.is_dir())
+def shown(location: Path | Location) -> Path | Location:
+    """*location* as a question or an answer names it: the plain
+    :class:`~pathlib.Path` on the disk, so what reads one there reads what
+    it always did, and the location itself elsewhere.  A path is a path."""
+    if not isinstance(location, Location):
+        return location
+    return location.local if location.is_local else location
+
+
+def target_location(target: str, cwd: Path | Location) -> Location:
+    """The dialog's target line as a location: a URL is where it says, a
+    plain absolute path the disk -- as in DN only a prefix (``LINK:``) took
+    a copy off it -- and anything else is relative to *cwd*, on its drive.
+    ``~`` is the local home."""
+    text = target.strip()
+    archived = Location.parse(text)
+    if "://" in text or archived.outer is not None:
+        # A URL, or a place in an archive (``/dir/a.zip#/inside``).
+        return archived
+    if text.startswith("~"):
+        text = os.path.expanduser(text)
+    if os.path.isabs(text):
+        return Location.of(Path(text))
+    return Location.of(cwd) / text
+
+
+def resolve_target(target: str, sources: list[Path | Location], cwd: Path | Location) -> Destination:
+    """Read the dialog's target line as DN's ``CopyDialog`` read it.
+
+    Asks the drive whether directories are there, so a thread runs it once
+    the target may be remote.
+    """
+    location = target_location(target, cwd)
+    drive = drive_of(location)
+    if target.strip().endswith("/") or drive.is_dir(location):
+        return Destination(shown(location), create=not drive.is_dir(location))
+    parent = location.parent
+    if has_wildcards(location.name):
+        return Destination(shown(parent), mask=location.name, create=not drive.is_dir(parent))
     if len(sources) == 1:
-        return Destination(parent, name=path.name, create=not parent.is_dir())
-    return Destination(path, create=True)
+        return Destination(shown(parent), name=location.name, create=not drive.is_dir(parent))
+    return Destination(shown(location), create=True)
 
 
 # -- the work --------------------------------------------------------------------
 
 
-def run(request: CopyRequest, job: CopyJob, cwd: Path) -> list[Path]:
+def run(request: CopyRequest, job: CopyJob, cwd: Path | Location) -> list[Path | Location]:
     """Copy (or move) what *request* says; answer the sources done in full.
 
     A source skipped, or one that failed in part, is not in the answer -- the
     file manager untags only what went, as DN deselected a file as it copied.
+    The sources and the target may be on any drives
+    (:mod:`navigator.lib.drives`): the work is the same steps, asked of each
+    end's drive.
     """
     return _Copier(request, job, cwd).run()
 
 
+def _cross_device(location: Location) -> OSError:
+    """What a rename between two drives fails with: ``EXDEV``, as the kernel
+    says it between two file systems, so a move falls back the same way."""
+    return OSError(errno.EXDEV, os.strerror(errno.EXDEV), str(location))
+
+
 class _Copier:
-    def __init__(self, request: CopyRequest, job: CopyJob, cwd: Path) -> None:
+    def __init__(self, request: CopyRequest, job: CopyJob, cwd: Path | Location) -> None:
         self.request = request
         self.job = job
         self.cwd = cwd
@@ -264,7 +307,7 @@ class _Copier:
         self.is_root = hasattr(os, "geteuid") and os.geteuid() == 0
         #: The directories being copied, by identity: a loop through a
         #: followed link is refused rather than copied for ever.
-        self._walking: set[tuple[int, int]] = set()
+        self._walking: set[tuple[Any, ...]] = set()
         #: Set by the first ``EXDEV``: a move that has to copy stops trying to
         #: rename each directory under the one that could not be.
         self._cross_device = False
@@ -279,9 +322,9 @@ class _Copier:
             raise Stopped
         return answer
 
-    def _fail(self, path: Path, message: str | Callable[[], str], **values: Any) -> bool:
+    def _fail(self, path: Location, message: str | Callable[[], str], **values: Any) -> bool:
         """Say what went wrong with *path*; False, as a skipped source is, or stop."""
-        self._ask(Failure(path, message, values))
+        self._ask(Failure(shown(path), message, values))
         return False
 
     def _checkpoint(self) -> None:
@@ -289,52 +332,85 @@ class _Copier:
         if self.job.stopped:
             raise Stopped
 
+    # -- the drives --------------------------------------------------------------
+
+    def _stat(self, location: Location) -> Any:
+        drive = drive_of(location)
+        return drive.stat(location) if self.follow else drive.lstat(location)
+
+    @staticmethod
+    def _identity(location: Location, st: Any) -> tuple[Any, ...]:
+        """What tells one directory from another: its device and inode, or
+        on a drive without them its site and path."""
+        if st.st_ino:
+            return (location.site, st.st_dev, st.st_ino)
+        return (location.site, str(location.path))
+
+    @staticmethod
+    def _rename(source: Location, dest: Location, *, replace: bool) -> None:
+        """A rename on one drive; ``EXDEV`` between two."""
+        if source.site != dest.site or source.outer != dest.outer:
+            raise _cross_device(source)
+        drive = drive_of(source)
+        if replace:
+            drive.replace(source, dest)
+        else:
+            drive.rename(source, dest)
+
     # -- the whole ---------------------------------------------------------------
 
-    def run(self) -> list[Path]:
+    def run(self) -> list[Path | Location]:
         request, job = self.request, self.job
-        done: list[Path] = []
+        done: list[Path | Location] = []
+        opened = None
         try:
+            opened = _open_target_archive(target_location(request.target, self.cwd))
             destination = resolve_target(request.target, request.sources, self.cwd)
             if destination.create:
+                directory = Location.of(destination.directory)
                 self._ask(CreateDirectory(destination.directory))
                 try:
-                    destination.directory.mkdir(parents=True, exist_ok=True)
+                    drive_of(directory).makedirs(directory)
                 except OSError as error:
-                    self._fail(destination.directory, error_message(error))
+                    self._fail(directory, error_message(error))
                     return done
-            job.total_bytes = sum(self._measure(source) for source in request.sources)
+            job.total_bytes = sum(self._measure(Location.of(source)) for source in request.sources)
             job.measuring = False
             for source in request.sources:
                 self._checkpoint()
-                if self._transfer(source, destination.path_for(source)):
+                if self._transfer(Location.of(source), Location.of(destination.path_for(source))):
                     done.append(source)
+            finish_drives([*request.sources, destination.directory], self._fail)
         except Stopped:
-            pass
+            # What went in full stays, as it would on a disk.
+            finish_drives([*request.sources, Location.of(self.cwd)], None)
         finally:
             job.measuring = False
+            if opened is not None:
+                from navigator.lib.drives import archive
+
+                archive.release_unheld(opened)
         return done
 
-    def _measure(self, path: Path) -> int:
+    def _measure(self, path: Location) -> int:
         """Bytes in *path*, which the progress window's total gauge counts in."""
         total = 0
-        seen: set[tuple[int, int]] = set()
+        seen: set[tuple[Any, ...]] = set()
         stack = [path]
         while stack:
             self._checkpoint()
             current = stack.pop()
             try:
-                st = os.stat(current) if self.follow else os.lstat(current)
+                st = self._stat(current)
             except OSError:
                 continue
             if stat.S_ISDIR(st.st_mode):
-                key = (st.st_dev, st.st_ino)
+                key = self._identity(current, st)
                 if key in seen:
                     continue
                 seen.add(key)
                 try:
-                    with os.scandir(current) as it:
-                        stack.extend(Path(entry.path) for entry in it)
+                    stack.extend(current / name for name in drive_of(current).names(current))
                 except OSError:
                     continue
             elif stat.S_ISREG(st.st_mode):
@@ -343,10 +419,10 @@ class _Copier:
 
     # -- one entry ---------------------------------------------------------------
 
-    def _transfer(self, source: Path, dest: Path) -> bool:
+    def _transfer(self, source: Location, dest: Location) -> bool:
         self._checkpoint()
         try:
-            st = os.stat(source) if self.follow else os.lstat(source)
+            st = self._stat(source)
         except OSError as error:
             return self._fail(source, error_message(error))
         if stat.S_ISDIR(st.st_mode):
@@ -357,28 +433,31 @@ class _Copier:
             return self._file(source, dest, st)
         return self._fail(source, lambda: tr("{name} is not a regular file"), name=source.name)
 
-    def _same(self, source: Path, dest: Path) -> bool:
-        try:
-            return os.path.samefile(source, dest)
-        except OSError:
+    def _same(self, source: Location, dest: Location) -> bool:
+        if source.site != dest.site:
             return False
+        return drive_of(source).same_file(source, dest)
 
     # -- directories -------------------------------------------------------------
 
-    def _directory(self, source: Path, dest: Path, st: os.stat_result) -> bool:
-        real_source = source.resolve()
-        real_dest = dest.resolve() if dest.exists() else dest.parent.resolve() / dest.name
-        if real_dest == real_source or real_source in real_dest.parents:
-            return self._fail(source, lambda: tr("Cannot copy directory {name} into itself"), name=source.name)
-        key = (st.st_dev, st.st_ino)
+    def _directory(self, source: Location, dest: Location, st: Any) -> bool:
+        source_drive, dest_drive = drive_of(source), drive_of(dest)
+        if source.site == dest.site and source.outer == dest.outer:
+            real_source = source_drive.realpath(source)
+            real_dest = (dest_drive.realpath(dest) if dest_drive.exists(dest)
+                         else dest_drive.realpath(dest.parent) / dest.name)
+            if real_dest == real_source or real_source.path in real_dest.path.parents:
+                return self._fail(source, lambda: tr("Cannot copy directory {name} into itself"),
+                                  name=source.name)
+        key = self._identity(source, st)
         if key in self._walking:
-            return self._fail(source, lambda: tr("{where} loops back on itself"), where=source)
-        if dest.is_symlink() or (dest.exists() and not dest.is_dir()):
+            return self._fail(source, lambda: tr("{where} loops back on itself"), where=shown(source))
+        if dest_drive.is_link(dest) or (dest_drive.exists(dest) and not dest_drive.is_dir(dest)):
             return self._fail(dest, lambda: tr("Can not overwrite {name} with a directory"), name=dest.name)
-        if self.move and not self._cross_device and not dest.exists():
+        if self.move and not self._cross_device and not dest_drive.exists(dest):
             size = self._measure(source)
             try:
-                os.rename(source, dest)
+                self._rename(source, dest, replace=False)
                 self.job.done_bytes += size
                 return True
             except OSError as error:
@@ -390,16 +469,15 @@ class _Copier:
         try:
             made = False
             try:
-                if not dest.exists():
+                if not dest_drive.exists(dest):
                     # Writable by us whatever the source says, so the copy
                     # can fill it; the source's own mode comes after.
-                    os.mkdir(dest, (st.st_mode & 0o7777) | 0o700)
+                    dest_drive.mkdir(dest, (st.st_mode & 0o7777) | 0o700)
                     made = True
             except OSError as error:
                 return self._fail(dest, error_message(error))
             try:
-                with os.scandir(source) as it:
-                    children = sorted(entry.name for entry in it)
+                children = sorted(source_drive.names(source))
             except OSError as error:
                 return self._fail(source, error_message(error))
             complete = True
@@ -412,12 +490,12 @@ class _Copier:
                 # The owner's bits added above, taken back off: a plain copy
                 # of a directory has the source's mode less the umask, as cp's.
                 try:
-                    os.chmod(dest, st.st_mode & 0o7777 & ~_UMASK)
+                    dest_drive.chmod(dest, st.st_mode & 0o7777 & ~_UMASK)
                 except OSError:
                     pass
             if self.move and complete:
                 try:
-                    os.rmdir(source)
+                    source_drive.rmdir(source)
                 except OSError as error:
                     return self._fail(source, error_message(error))
             return complete
@@ -426,11 +504,12 @@ class _Copier:
 
     # -- links -------------------------------------------------------------------
 
-    def _link(self, source: Path, dest: Path, st: os.stat_result) -> bool:
+    def _link(self, source: Location, dest: Location, st: Any) -> bool:
         """A link recreated as a link, pointing where the original pointed."""
+        source_drive, dest_drive = drive_of(source), drive_of(dest)
         self.job.source, self.job.dest = str(source), str(dest)
         self.job.file_bytes = self.job.file_done = 0
-        if os.path.lexists(dest):
+        if dest_drive.lexists(dest):
             if self._same_link(source, dest):
                 return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
             action, dest = self._resolve_existing(source, dest, st)
@@ -440,54 +519,60 @@ class _Copier:
                 return self._fail(source, lambda: tr("Can not append to {name}: it is a link"), name=dest.name)
         if self.move:
             try:
-                os.replace(source, dest)
+                self._rename(source, dest, replace=True)
                 return True
             except OSError as error:
                 if error.errno != errno.EXDEV:
                     return self._fail(source, error_message(error))
         try:
-            target = os.readlink(source)
-            if os.path.lexists(dest):
-                os.unlink(dest)
-            os.symlink(target, dest)
+            target = source_drive.readlink(source)
+            if dest_drive.lexists(dest):
+                dest_drive.unlink(dest)
+            dest_drive.symlink(target, dest)
         except OSError as error:
             return self._fail(source, error_message(error))
         if self.preserve:
             try:
-                os.utime(dest, ns=(st.st_atime_ns, st.st_mtime_ns), follow_symlinks=False)
+                dest_drive.utime(dest, st.st_atime_ns, st.st_mtime_ns, follow=False)
             except (OSError, NotImplementedError):
                 pass
             if self.is_root:
                 try:
-                    os.lchown(dest, st.st_uid, st.st_gid)
+                    dest_drive.chown(dest, st.st_uid, st.st_gid, follow=False)
                 except OSError:
                     pass
         if self.move:
             try:
-                os.unlink(source)
+                source_drive.unlink(source)
             except OSError as error:
                 return self._fail(source, error_message(error))
         return True
 
-    def _same_link(self, source: Path, dest: Path) -> bool:
+    def _same_link(self, source: Location, dest: Location) -> bool:
+        if source.site != dest.site or source.outer != dest.outer:
+            return False
+        drive = drive_of(source)
         try:
-            a, b = os.lstat(source), os.lstat(dest)
+            a, b = drive.lstat(source), drive.lstat(dest)
         except OSError:
             return False
+        if not a.st_ino:
+            return source.normalized() == dest.normalized()
         return (a.st_dev, a.st_ino) == (b.st_dev, b.st_ino)
 
     # -- files -------------------------------------------------------------------
 
-    def _resolve_existing(self, source: Path, dest: Path, st: os.stat_result) -> tuple[str, Path]:
+    def _resolve_existing(self, source: Location, dest: Location, st: Any) -> tuple[str, Location]:
         """What to do about *dest* being there: the action, and where to.
 
         Loops while *Ask* is answered with a rename to a name that is taken
         too.  A directory in the way is refused rather than asked about, as
         DN's ``dlFCNotOverDir`` was.
         """
+        dest_drive = drive_of(dest)
         while True:
             try:
-                existing = os.lstat(dest)
+                existing = dest_drive.lstat(dest)
             except FileNotFoundError:
                 return "new", dest
             except OSError as error:
@@ -506,7 +591,7 @@ class _Copier:
             if mode == REFRESH:
                 return ("skip" if existing.st_mtime >= st.st_mtime else "overwrite"), dest
             answer = self._ask(Overwrite(
-                source, dest, st.st_size, st.st_mtime, existing.st_size, existing.st_mtime,
+                shown(source), shown(dest), st.st_size, st.st_mtime, existing.st_size, existing.st_mtime,
             ))
             if answer.action == "rename":
                 if answer.name:
@@ -516,11 +601,12 @@ class _Copier:
                 self.mode = {"overwrite": OVERWRITE, "append": APPEND, "skip": SKIP}[answer.action]
             return answer.action, dest
 
-    def _file(self, source: Path, dest: Path, st: os.stat_result) -> bool:
+    def _file(self, source: Location, dest: Location, st: Any) -> bool:
         job = self.job
+        source_drive, dest_drive = drive_of(source), drive_of(dest)
         job.source, job.dest = str(source), str(dest)
         job.file_bytes, job.file_done = st.st_size, 0
-        if os.path.lexists(dest) and self._same(source, dest):
+        if dest_drive.lexists(dest) and self._same(source, dest):
             job.done_bytes += st.st_size
             return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
         action, dest = self._resolve_existing(source, dest, st)
@@ -529,14 +615,14 @@ class _Copier:
             job.done_bytes += st.st_size
             return False
         if self.check_free:
-            free = _free_space(dest.parent)
+            free = dest_drive.free_bytes(dest.parent)
             if free is not None and free < st.st_size:
-                self._ask(NoRoom(dest, st.st_size, free))
+                self._ask(NoRoom(shown(dest), st.st_size, free))
                 job.done_bytes += st.st_size
                 return False
         if self.move and action != "append":
             try:
-                os.replace(source, dest)
+                self._rename(source, dest, replace=True)
                 job.done_bytes += st.st_size
                 job.file_done = st.st_size
                 return True
@@ -550,34 +636,23 @@ class _Copier:
             self._attributes(source, dest, st)
         if self.move:
             try:
-                os.unlink(source)
+                source_drive.unlink(source)
             except OSError as error:
                 return self._fail(source, error_message(error))
         return True
 
-    def _copy_bytes(self, source: Path, dest: Path, st: os.stat_result, *, append: bool) -> bool:
+    def _copy_bytes(self, source: Location, dest: Location, st: Any, *, append: bool) -> bool:
         job = self.job
+        source_drive, dest_drive = drive_of(source), drive_of(dest)
         start_done = job.done_bytes
-        flags = os.O_WRONLY | os.O_CREAT | (os.O_APPEND if append else os.O_TRUNC)
         created = False
         try:
-            with open(source, "rb") as reader:
-                created = not os.path.lexists(dest) or not append
-                fd = os.open(dest, flags, st.st_mode & 0o777)
-                with os.fdopen(fd, "wb") as writer:
-                    while True:
-                        job.wait_while_paused()
-                        if job.stopped:
-                            raise Stopped
-                        chunk = reader.read(CHUNK)
-                        if not chunk:
-                            break
-                        writer.write(chunk)
-                        job.file_done += len(chunk)
-                        job.done_bytes += len(chunk)
+            with source_drive.open_read(source) as reader:
+                created = not dest_drive.lexists(dest) or not append
+                with dest_drive.open_write(dest, append=append, mode=st.st_mode & 0o777) as writer:
+                    stream(reader, writer, job)
                     if self.flush:
-                        writer.flush()
-                        _sync(writer.fileno())
+                        dest_drive.sync(writer)
             return True
         except Stopped:
             # A half-written copy is worse than none, and nothing of a file
@@ -591,17 +666,70 @@ class _Copier:
             job.done_bytes = start_done + st.st_size
             return self._fail(source, error_message(error))
 
-    def _attributes(self, source: Path, dest: Path, st: os.stat_result) -> None:
+    def _attributes(self, source: Location, dest: Location, st: Any) -> None:
         """*Preserve attributes*: mode, times and, as root, the owner."""
-        try:
-            shutil.copystat(source, dest, follow_symlinks=self.follow)
-        except OSError:
-            pass
+        dest_drive = drive_of(dest)
+        dest_drive.copy_attributes(drive_of(source), source, dest, st, follow=self.follow)
         if self.is_root:
             try:
-                os.chown(dest, st.st_uid, st.st_gid)
+                dest_drive.chown(dest, st.st_uid, st.st_gid)
             except OSError:
                 pass
+
+
+def _open_target_archive(target: Location) -> Location | None:
+    """A copy into an archive not open yet: opened -- or, named but not there,
+    made empty (DN's ``ArchiveFiles``, packing by the target's name) -- for
+    the copy.  Its location, to let go of after; None for any other target."""
+    from navigator.lib.drives import archive
+
+    outer = target.outer
+    if outer is None or archive.find(outer) is not None:
+        return None
+    try:
+        archive.open_archive(outer, create=True)
+    except (archive.NotAnArchive, OSError):
+        return None  # said by the steps that fail
+    return outer
+
+
+def finish_drives(places: list[Any], fail: Callable[..., Any] | None) -> None:
+    """``Drive.finish`` once on each drive *places* are on: an archive
+    written into or erased in is written anew.  A failure is said through
+    *fail* (or passed over without one)."""
+    seen: set[int] = set()
+    for place in places:
+        try:
+            drive = drive_of(Location.of(place))
+        except OSError:
+            continue
+        if id(drive) in seen:
+            continue
+        seen.add(id(drive))
+        try:
+            drive.finish()
+        except OSError as error:
+            if fail is not None:
+                fail(Location.of(place), error_message(error))
+
+
+def stream(reader: IO[bytes], writer: IO[bytes], job: Any, chunk: int | None = None) -> None:
+    """*reader*'s bytes into *writer*, *chunk* at a time: the inner loop of
+    every copy, whichever drives its ends are on.  Counts into *job*'s
+    ``file_done`` and ``done_bytes``, and stops (:class:`Stopped`) between
+    chunks when *job* is paused or stopped.  *chunk* is :data:`CHUNK` unless
+    given, read at the call."""
+    chunk = chunk or CHUNK
+    while True:
+        job.wait_while_paused()
+        if job.stopped:
+            raise Stopped
+        data = reader.read(chunk)
+        if not data:
+            break
+        writer.write(data)
+        job.file_done += len(data)
+        job.done_bytes += len(data)
 
 
 def error_message(error: OSError) -> str:
@@ -611,30 +739,9 @@ def error_message(error: OSError) -> str:
     return f"{name}: {reason}" if name else reason
 
 
-def _free_space(directory: Path) -> int | None:
+def _remove_quietly(location: Location) -> None:
     try:
-        fs = os.statvfs(directory)
-    except OSError:
-        return None
-    return fs.f_bavail * fs.f_frsize
-
-
-def _sync(fd: int) -> None:
-    """``fsync`` *fd*; a write-back error raises, as a failed write would.
-
-    A file system that cannot sync at all (``EINVAL``, ``ENOTSUP``) has
-    nothing to flush, which is not a failure of the copy.
-    """
-    try:
-        os.fsync(fd)
-    except OSError as error:
-        if error.errno not in (errno.EINVAL, errno.ENOTSUP):
-            raise
-
-
-def _remove_quietly(path: Path) -> None:
-    try:
-        os.unlink(path)
+        drive_of(location).unlink(location)
     except OSError:
         pass
 
@@ -654,5 +761,6 @@ _UMASK = _read_umask()
 __all__ = [
     "APPEND", "ASK", "CHECK_FREE", "CopyJob", "CopyRequest", "CreateDirectory", "Destination",
     "FOLLOW_LINKS", "Failure", "MOVE", "NoRoom", "OVERWRITE", "Overwrite", "OverwriteAnswer",
-    "POLL", "PRESERVE", "REFRESH", "SKIP", "Stopped", "apply_mask", "resolve_target", "run",
+    "POLL", "PRESERVE", "REFRESH", "SKIP", "Stopped", "apply_mask", "resolve_target", "run", "shown",
+    "stream", "target_location",
 ]

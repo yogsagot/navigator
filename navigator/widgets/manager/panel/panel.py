@@ -19,9 +19,7 @@ import asyncio
 import concurrent.futures
 import os
 import stat
-import time
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -44,15 +42,14 @@ from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons as icon_glyphs
 from navigator.lib.config.bookmarks import bookmarked_paths
-from navigator.lib.file_ops.fileattr import group_name, user_name
+from navigator.lib.drives import Drive, DriveGone, Location, drive_of
+from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see listing's docstring
+    DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries,
+    read_listing, restat_found, scan_directory,
+)
 from navigator.lib.system import dirwatch
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
-
-# Asked once per id rather than once per row painted: the password and group
-# databases do not change under a running listing often enough to matter.
-_user_name = lru_cache(maxsize=None)(user_name)
-_group_name = lru_cache(maxsize=None)(group_name)
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,7 +62,7 @@ class ExecuteFile(Event):
     here "executable" is what the file system says.
     """
 
-    path: Path
+    path: Path | Location
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,151 +71,7 @@ class OpenFile(Event):
     to run, which ``Shell`` reads from ``extensions.ini`` -- DOS Navigator's
     ``_GotoExt``, ``cmExecFile`` and ``DN.EXT``."""
 
-    path: Path
-
-
-class DirEntry:
-    """One line in a panel: a name, whether it is a directory, its size, its
-    permission bits, when it was last modified, who owns it and whether it
-    is a symlink.
-
-    A directory's ``size`` is 0 until Alt+G counts it (``counted``, DN's
-    ``Attr or $80``): the bytes beneath it, shown in the size column in
-    place of ``DIR``.  A re-read makes new entries, and the count goes with
-    the old ones, as it did in DN.
-
-    ``mode`` is the link's *target*'s, except for a link pointing nowhere,
-    where there is no target to describe and it is the link's own.
-    ``link_target`` is what a link says it points at, as ``readlink`` gives
-    it, read with the directory so that painting it costs no system call.
-    """
-
-    __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
-                 "counted", "directory")
-
-    def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
-                 is_link: bool = False, link_target: str | None = None,
-                 uid: int | None = None, gid: int | None = None,
-                 directory: Path | None = None):
-        self.name = name
-        self.is_dir = is_dir
-        self.size = size
-        self.mode = mode
-        self.mtime = mtime
-        self.is_link = is_link
-        self.link_target = link_target
-        self.uid = uid
-        self.gid = gid
-        self.counted = False
-        #: Where the entry is, for one listed away from the panel's own
-        #: directory -- a *Find:* listing's (DN's per-file ``Owner``); None
-        #: for one in the directory the panel shows.
-        self.directory = directory
-
-    @property
-    def key(self) -> str:
-        """What tags and the cursor know the entry by: its name, or, for one
-        from elsewhere, its whole path -- a *Find:* listing may hold two
-        ``README``s."""
-        return self.name if self.directory is None else os.path.join(str(self.directory), self.name)
-
-    def path_in(self, here: Path) -> Path:
-        """The entry's path, in the panel showing *here*."""
-        return Path(self.directory if self.directory is not None else here) / self.name
-
-    @property
-    def is_executable(self) -> bool:
-        """A regular file someone may run: DN's ``ttExec``, read off the mode."""
-        return not self.is_dir and stat.S_ISREG(self.mode) and bool(self.mode & 0o111)
-
-    @property
-    def display_size(self) -> str:
-        if self.is_dir and not self.counted:
-            mark = tr("UP--DIR") if self.name == ".." else tr("DIR")
-            return f"{mark:>8.8}"
-        size = float(self.size)
-        for unit in ("", "K", "M", "G", "T"):
-            if size < 1024 or unit == "T":
-                return f"{self.size:>8}" if not unit else f"{size:>7.0f}{unit}"
-            size /= 1024
-        return f"{self.size:>8}"
-
-    @property
-    def display_attributes(self) -> str:
-        """``rwxr-xr-x``: ``ls -l``'s permission string, less the type letter.
-
-        DOS Navigator showed the four DOS attributes here; a POSIX file has
-        permissions instead, and the type is already the size column's.
-        """
-        return stat.filemode(self.mode)[1:]
-
-    @property
-    def display_path(self) -> str:
-        """Where an entry from elsewhere is: a *Find:* listing's path column."""
-        return str(self.directory) if self.directory is not None else ""
-
-    @property
-    def display_owner(self) -> str:
-        """``user:group``, as ``ls -l`` names them, a number where no name is
-        known, and blank for an entry that could not be read.
-
-        DOS had no owners, so DN had no such column; this is the detailed
-        mode's one addition beyond reading DN's columns for POSIX.
-        """
-        if self.uid is None or self.gid is None:
-            return ""
-        return f"{_user_name(self.uid)}:{_group_name(self.gid)}"
-
-    @property
-    def type_mark(self) -> str:
-        """Midnight Commander's one-character file type, for the gutter
-        without an icon: ``/`` directory, ``*`` executable, ``@`` symlink,
-        ``~`` symlink to a directory, ``!`` stale symlink, ``=`` socket, ``-``
-        character device, ``+`` block device, ``|`` FIFO, and a blank for a
-        plain file.
-
-        Read off the mode bits rather than ``os.access``, so painting a row
-        costs no system call.
-        """
-        mode = self.mode
-        if self.is_link:
-            if stat.S_ISLNK(mode):
-                return "!"
-            return "~" if self.is_dir else "@"
-        if self.is_dir:
-            return "/"
-        if stat.S_ISSOCK(mode):
-            return "="
-        if stat.S_ISCHR(mode):
-            return "-"
-        if stat.S_ISBLK(mode):
-            return "+"
-        if stat.S_ISFIFO(mode):
-            return "|"
-        if stat.S_ISREG(mode) and mode & 0o111:
-            return "*"
-        return " "
-
-    @property
-    def display_date(self) -> str:
-        """The modification time, ``DD-MM-YYYY hh:mm``.
-
-        DN's default country order, with a four-digit year -- a departure from
-        its ``YY``, which on DOS could not reach past 2107 anyway and here
-        would make 1999 and 2099 one.  Modification, not creation: a DOS
-        directory entry held one date, and Linux cannot report a creation time
-        portably.
-        """
-        return time.strftime("%d-%m-%Y %H:%M", time.localtime(self.mtime))
-
-    @property
-    def info_size(self) -> str:
-        """The size as the *Current file* info line gives it (DN's
-        ``GetDown``): every digit -- a departure, where the column shortens
-        it -- or ``UP--DIR``/``SUB-DIR`` for a directory not counted."""
-        if self.is_dir and not self.counted:
-            return tr("UP--DIR") if self.name == ".." else tr("SUB-DIR")
-        return f"{self.size:,}"
+    path: Path | Location
 
 
 #: What ends a name cut short to fit its column, by default -- three dots, the
@@ -289,6 +142,24 @@ SCAN_GRACE = 0.05
 #: dead mount does not hold up the other panel's.
 _SCANNER = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="nav-scan")
 
+#: The threads other drives are read on: their own, so a server that stops
+#: answering holds up none of the local panels' reads.
+_REMOTE_SCANNER = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="nav-scan-remote")
+
+
+def _scanner_for(location: Location) -> concurrent.futures.ThreadPoolExecutor:
+    return _SCANNER if location.is_local else _REMOTE_SCANNER
+
+
+def _read_location(location: Location, show_hidden: bool, sort: str, *, free: bool,
+                   **options: Any) -> tuple[list[DirEntry], str | None, tuple[int, str] | None]:
+    """A panel's read of *location*, on its thread: its drive's ``scan``,
+    and a drive gone or failing as the panel's error line."""
+    try:
+        return drive_of(location).scan(location, show_hidden, sort, free=free, **options)
+    except OSError as error:
+        return [], error.strerror or str(error), None
+
 #: How long a change on disk waits for the ones after it before the panel
 #: re-reads (*Auto refresh panels*): a copy of a thousand files is a handful
 #: of re-reads, not a thousand, and one file is still there at once.
@@ -299,9 +170,9 @@ REFRESH_DELAY = 0.3
 class _ScanRequest:
     """One read of a directory, and where its cursor is to go once it lands."""
 
-    path: Path
+    path: Location
     return_to: str | None
-    keep: tuple[Path, str, int, int] | None
+    keep: tuple[Location, str, int, int] | None
     #: What is listed: the path, or the *Find:* listing shown at it -- so a
     #: listing's own re-reads keep tags and cursor, and entering one does not.
     where: Any = None
@@ -329,90 +200,6 @@ def direction_arrow(mode: str, reverse: bool, glyphs: int) -> str:
     return "\u2191" if ascending else "\u2193"
 
 
-def _extension(name: str) -> str:
-    """What *Extension* sorts by: after the last dot, and none for a dot-file."""
-    stem, dot, extension = name.rpartition(".")
-    return extension.lower() if dot and stem else ""
-
-
-def _group_rank(entry: DirEntry) -> int:
-    """``GetFileType``'s number for *entry*, with no type (0) taken as 100."""
-    if entry.is_dir:
-        return 0
-    if entry.is_executable:
-        return 1
-    group = filetypes.group_of(entry.name)
-    return filetypes.GROUPS.index(group) if group is not None else 100
-
-
-def order_entries(
-    entries: list[DirEntry], sort: str = "name", *,
-    executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
-) -> list[DirEntry]:
-    """*entries* in a panel's order: ``TFilesCollection.Compare``.
-
-    ``..`` comes first whatever the mode.  *Name*, *Extension*, *Size* and
-    *Time* put the directories before the files; size and time go largest
-    and newest first.  *Owner* (Navigator's: DOS had no owners) does too,
-    by ``user:group`` as the column shows it, then by name; so does
-    *Attributes* (Navigator's too), by the permission bits, fewest first.  *Type* is DN's *Group*: directories, executables,
-    archives, the custom groups, then the rest, each by name.  Names compare
-    without regard to case, as DOS's upper-cased ones did, the exact name
-    breaking a tie.
-
-    *executables_first* and *archives_first* are the panel flags
-    (``fmiExeFirst``, ``fmiArchivesFirst``): among the files, those kinds
-    first, except when sorting by size or time, as DN skipped them there.
-    *Unsorted* is the directory's own order, and a departure in leaving the
-    two flags out: DN's compare applied them to some pairs and not to
-    others, which is no order at all.
-
-    *reverse* turns each mode's own order round -- a departure, DN had no
-    descending sort; it came with clicking a column title.  ``..``, the
-    directories before the files and the two flags stay where they were:
-    only the order within each of those groups turns.  *Unsorted* ignores it.
-    """
-    up = [entry for entry in entries if entry.name == ".."]
-    rest = [entry for entry in entries if entry.name != ".."]
-    if sort == "unsorted":
-        return up + rest
-    kinds = sort not in ("size", "time", "attributes", "owner")
-
-    def first(entry: DirEntry) -> tuple[bool, bool]:
-        if not kinds or entry.is_dir:
-            return (False, False)
-        return (
-            executables_first and not entry.is_executable,
-            archives_first and filetypes.group_of(entry.name) != "archive",
-        )
-
-    def by_name(entry: DirEntry) -> tuple[str, str]:
-        return (entry.name.lower(), entry.name)
-
-    # Each mode is a group (what stays put) and a value (what *reverse*
-    # turns): two stable sorts, the value's first.
-    group = lambda entry: (not entry.is_dir, *first(entry))
-    if sort == "extension":
-        value = lambda entry: (_extension(entry.name), *by_name(entry))
-    elif sort == "size":
-        value = lambda entry: (-entry.size, *by_name(entry))
-    elif sort == "time":
-        value = lambda entry: (-entry.mtime, *by_name(entry))
-    elif sort == "attributes":
-        value = lambda entry: (stat.S_IMODE(entry.mode), *by_name(entry))
-    elif sort == "owner":
-        value = lambda entry: (entry.display_owner.lower(), *by_name(entry))
-    elif sort == "type":
-        # The directories are *Group*'s first rank, so they lead as before.
-        group = lambda entry: (not entry.is_dir,)
-        value = lambda entry: (_group_rank(entry), *first(entry), *by_name(entry))
-    else:
-        value = by_name
-    rest.sort(key=value, reverse=reverse)
-    rest.sort(key=group)
-    return up + rest
-
-
 def command_line_text(widget: Any) -> str:
     """What the command line of the screen *widget* is on holds; ``""`` with none."""
     while widget is not None:
@@ -421,161 +208,6 @@ def command_line_text(widget: Any) -> str:
             return line.value
         widget = widget.parent
     return ""
-
-
-def make_entry(item: os.DirEntry[str], directory: Path | None = None) -> DirEntry:
-    """*item* as a :class:`DirEntry`: its target's facts, or a dangling
-    link's own, and what a link says it points at."""
-    try:
-        info = item.stat()
-    except OSError:
-        # A dangling link: describe the link itself.
-        try:
-            info = item.stat(follow_symlinks=False)
-        except OSError:
-            info = None
-    try:
-        is_link = item.is_symlink()
-    except OSError:
-        is_link = False
-    target = None
-    if is_link:
-        try:
-            target = os.readlink(item.path)
-        except OSError:
-            pass
-    if info is None:
-        return DirEntry(item.name, False, 0, is_link=is_link, link_target=target, directory=directory)
-    is_dir = stat.S_ISDIR(info.st_mode)
-    size = 0 if is_dir else info.st_size
-    return DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
-                    target, info.st_uid, info.st_gid, directory)
-
-
-def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
-    """The entry for *path* as it is now, or None if it is gone."""
-    try:
-        info = path.lstat()
-    except OSError:
-        return None
-    is_link = stat.S_ISLNK(info.st_mode)
-    target = None
-    if is_link:
-        try:
-            target = os.readlink(path)
-        except OSError:
-            pass
-        try:
-            info = path.stat()
-        except OSError:
-            pass
-    is_dir = stat.S_ISDIR(info.st_mode)
-    return DirEntry(path.name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
-                    is_link, target, info.st_uid, info.st_gid, directory)
-
-
-def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,
-                 executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
-                 mask: str = filetypes.ALL_FILES) -> tuple[list[DirEntry], str | None]:
-    """A *Find:* listing re-read (``DosReread``): each entry as it is now, the
-    gone ones dropped, under a ``..`` that leads back.  A thread runs it."""
-    filtered = mask.strip() not in ("", filetypes.ALL_FILES)
-    found: list[DirEntry] = [DirEntry("..", True, 0)]
-    for entry in entries:
-        if entry.name == "..":
-            continue
-        if not show_hidden and entry.name.startswith("."):
-            continue
-        fresh = entry_at(entry.path_in(Path("/")), entry.directory)
-        if fresh is None:
-            continue
-        if filtered and not fresh.is_dir and not filetypes.in_filter(fresh.name, mask):
-            continue
-        found.append(fresh)
-    return order_entries(found, sort, executables_first=executables_first,
-                         archives_first=archives_first, reverse=reverse), None
-
-
-def scan_directory(
-    path: Path, show_hidden: bool, sort: str = "name", *,
-    executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
-    mask: str = filetypes.ALL_FILES, dir_length: bool = False, job: Any = None,
-) -> tuple[list[DirEntry], str | None]:
-    """*path*'s entries, ``..`` first and in *sort*'s order
-    (:func:`order_entries`), and why not if it cannot be read.
-
-    A file *mask* (:func:`navigator.lib.appearance.filetypes.in_filter`) leaves out the files
-    it does not let through; every directory is listed whatever it says, as
-    DN's ``GetDirectory`` listed them.
-
-    *dir_length* is the *Display* box *Directory length* (``fmiDirLen``):
-    every directory's bytes counted into its size, ``..`` standing for the
-    one listed, as ``GetFilesColl`` called ``GetDirLen`` for each.  *job*'s
-    ``stopped`` ends the counting -- what is not counted yet stays ``DIR``.
-
-    Touches nothing but the file system, so a thread may run it.
-    """
-    entries: list[DirEntry] = []
-    error: str | None = None
-    filtered = mask.strip() not in ("", filetypes.ALL_FILES)
-    if path != path.parent:
-        try:
-            info = path.parent.stat()
-            entries.append(DirEntry("..", True, 0, info.st_mode, info.st_mtime,
-                                   uid=info.st_uid, gid=info.st_gid))
-        except OSError:
-            entries.append(DirEntry("..", True, 0))
-    try:
-        with os.scandir(path) as scan:
-            for item in scan:
-                if not show_hidden and item.name.startswith("."):
-                    continue
-                if filtered and not filetypes.in_filter(item.name, mask):
-                    try:
-                        if not item.is_dir():
-                            continue
-                    except OSError:
-                        continue
-                entries.append(make_entry(item))
-    except OSError as exc:
-        error = exc.strerror or str(exc)
-    if dir_length and error is None:
-        count_lengths(path, entries, job)
-    entries = order_entries(entries, sort, executables_first=executables_first,
-                            archives_first=archives_first, reverse=reverse)
-    return entries, error
-
-
-def count_lengths(path: Path, entries: list[DirEntry], job: Any = None) -> None:
-    """Each directory among *entries* given its bytes (:mod:`navigator.lib.file_ops.dirlength`),
-    ``..`` the bytes of *path* itself; nothing more once *job* is stopped."""
-    from navigator.lib.file_ops.dirlength import count_dir_length
-
-    for entry in entries:
-        if not entry.is_dir:
-            continue
-        size = count_dir_length(path if entry.name == ".." else entry.path_in(path), job)
-        if size is None:
-            return
-        entry.size, entry.counted = size, True
-
-
-def free_space_of(path: Path) -> tuple[int, str] | None:
-    """*Free space*'s figures, ``TDrive.GetFreeSpace``: the bytes free on the
-    file system holding *path*, and where it is mounted, as DN named the
-    drive.  ``None`` when it cannot be told.  A thread runs it."""
-    import shutil
-
-    from navigator.lib.system import diskinfo
-    try:
-        free = shutil.disk_usage(path).free
-    except OSError:
-        return None
-    try:
-        mounts = Path("/proc/self/mounts").read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        mounts = ""
-    return free, diskinfo.mount_of(path.resolve(), mounts)[0]
 
 
 def human_size(size: int) -> str:
@@ -590,25 +222,6 @@ def human_size(size: int) -> str:
     if not unit:
         return f"{size:,}"
     return f"{value:.1f}{unit}" if value < 9.95 else f"{value:.0f}{unit}"
-
-
-class ScanJob:
-    """What stops a read's counting: Esc while it shows *Reading directory...*,
-    or the panel moving on (DN's ``Abort``)."""
-
-    def __init__(self) -> None:
-        self.stopped = False
-
-    def stop(self) -> None:
-        self.stopped = True
-
-
-def read_listing(path: Path, show_hidden: bool, sort: str, *, free: bool,
-                 **options: Any) -> tuple[list[DirEntry], str | None, tuple[int, str] | None]:
-    """:func:`scan_directory` and, with *free*, :func:`free_space_of`: one
-    read on the panel's thread."""
-    entries, error = scan_directory(path, show_hidden, sort, **options)
-    return entries, error, free_space_of(path) if free and error is None else None
 
 
 class Panel(ContextMenuHost, ListViewer):
@@ -633,7 +246,11 @@ class Panel(ContextMenuHost, ListViewer):
     #: and knows nothing about icons.
     icons = StyleProperty("auto", values=("auto", "none"))
 
-    path: Path = reactive(Path("."))
+    #: Where the panel is: a directory on a drive (DN's ``Drive`` and its
+    #: ``CurDir``), what the panel navigates.  :attr:`path` is the same on
+    #: the local disk, as the :class:`~pathlib.Path` the code before drives
+    #: knew; it raises for a location elsewhere.
+    location: Location = reactive(Location.of(Path(".")))
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
     #: Bumped when entries' sizes change where they stand (Alt+G's count):
@@ -730,10 +347,16 @@ class Panel(ContextMenuHost, ListViewer):
         #: Set by :meth:`reload`: the directory, the entry under the cursor,
         #: the cursor and the scroll, for a re-read of *that* directory to put
         #: back.  Ignored if the panel has gone somewhere else meanwhile.
-        self._keep: tuple[Path, str, int, int] | None = None
+        self._keep: tuple[Location, str, int, int] | None = None
         #: The directory the last rescan read, which tells a re-read (keep
         #: the tags) from a move (drop them).
-        self._listed: Path | None = None
+        self._listed: Any = None
+        #: The archive the panel holds open (:meth:`_hold_archive`), by its
+        #: location, or None.
+        self._archive: Location | None = None
+        #: The last directory on the local disk the panel showed: where it
+        #: goes back to when the drive it is on closes (DN's ``cmCloseLinked``).
+        self.local_anchor: Location = Location.of(Path("."))
         #: Counts the reads started, so one that lands after a later one was
         #: asked for is dropped; and the read still on its thread, if any.
         self._generation = 0
@@ -763,7 +386,30 @@ class Panel(ContextMenuHost, ListViewer):
         self.view_mode = SETTINGS.panel_defaults.view_mode
         self.columns = SETTINGS.column_defaults.columns(False)
         if path is not None:
-            self.path = path
+            self.location = Location.of(path)
+
+    @property
+    def path(self) -> Path:
+        """The directory shown, on the local disk; :class:`RemoteLocation`
+        (a ``TypeError``) when the panel is on another drive -- code that
+        means to work anywhere reads :attr:`location`."""
+        return self.location.local
+
+    @path.setter
+    def path(self, value: Path | str | Location) -> None:
+        self.location = Location.of(value)
+
+    @property
+    def drive(self) -> Drive:
+        """The drive the panel is on (:func:`navigator.lib.drives.drive_of`);
+        :class:`~navigator.lib.drives.DriveGone` once it has closed."""
+        return drive_of(self.location)
+
+    def entry_location(self, entry: DirEntry) -> Location:
+        """Where *entry* is: in the directory shown, or a *Find:* entry's own."""
+        if entry.directory is not None:
+            return Location.of(entry.directory) / entry.name
+        return self.location / entry.name
 
     def mounted(self) -> None:
         # Before ListViewer's two, because a rescan replaces the very list
@@ -773,10 +419,42 @@ class Panel(ContextMenuHost, ListViewer):
         effect(self, Panel._end_search_unfocused)
         effect(self, Panel._follow_column_titles)
         effect(self, Panel._watch_directory)
+        effect(self, Panel._hold_archive)
 
     def unmounting(self) -> None:
         self._stop_watching()
+        self._let_go_of_archive()
         super().unmounting()
+
+    # -- the archive the panel is in -----------------------------------------
+
+    def _hold_archive(self) -> None:
+        """While the panel is in an archive it holds it open; the last panel
+        out closes it (DN's ``TArcDrive.Done`` once ``ChangeUp`` left it)."""
+        outer = self.location.outer
+        with untracked():
+            if outer == self._archive:
+                return
+            self._let_go_of_archive()
+            if outer is not None:
+                from navigator.lib.drives import archive
+
+                archive.hold(outer, self)
+                self._archive = outer
+
+    def _let_go_of_archive(self) -> None:
+        outer, self._archive = self._archive, None
+        if outer is None:
+            return
+        from navigator.lib.drives import archive
+
+        drive = archive.leave(outer, self)
+        if drive is not None:
+            try:
+                # A file fetched from a server goes with it: not on the loop.
+                asyncio.get_running_loop().run_in_executor(None, drive.close)
+            except RuntimeError:
+                drive.close()
 
     # -- auto refresh --------------------------------------------------------
 
@@ -787,14 +465,18 @@ class Panel(ContextMenuHost, ListViewer):
         application there is no loop to hear a change on, and nothing is
         watched: a test driving the model reads only when it says so.
         """
-        path = self.path
+        location = self.location
         wanted = SETTINGS.file_manager.auto_refresh and self.found is None
         with untracked():
             app = self.application
             self._stop_watching()
             if not wanted or app is None:
                 return
-            self._watch = dirwatch.watch(path.absolute(), lambda: self._heard_change(app))
+            try:
+                drive = drive_of(location)
+            except DriveGone:
+                return
+            self._watch = drive.watch(location, lambda: self._heard_change(app))
 
     def _heard_change(self, app: Any) -> None:
         """On the watcher's thread: tell the loop, unless it has been told already."""
@@ -846,14 +528,14 @@ class Panel(ContextMenuHost, ListViewer):
         running (a test driving the model), the read is waited for.
         """
         _ = self.reload_token  # read for the dependency; this is what Ctrl+R moves
-        path = self.path
+        path = self.location
         show_hidden = self.show_hidden
         sort = self.sort_mode
         reverse = self.sort_reverse
         mask = self.file_mask
         found = self.found
         _ = self.display  # Alt+S re-reads, as DN's ``Setup`` did (``RereadDir``)
-        if found is not None and found.origin != path:
+        if found is not None and Location.of(found.origin) != path:
             # The panel went somewhere: the *Find:* listing is left behind.
             with untracked():
                 self.found = found = None
@@ -891,8 +573,8 @@ class Panel(ContextMenuHost, ListViewer):
             future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort, **flags)
         else:
             job = self._scan_job = ScanJob() if dir_length else None
-            future = _SCANNER.submit(read_listing, path, show_hidden, sort, free=free,
-                                     dir_length=dir_length, job=job, **flags)
+            future = _scanner_for(path).submit(_read_location, path, show_hidden, sort, free=free,
+                                               dir_length=dir_length, job=job, **flags)
         with untracked():
             app = self.application
         if app is None or not app.is_running:
@@ -935,8 +617,11 @@ class Panel(ContextMenuHost, ListViewer):
         # Insert would re-read the directory.
         marked = peek(self, Panel.marked)
         where = request.where if request.where is not None else path
-        if where != self._listed and where == path and error is None:
-            # ``AddToDirectoryHistory``: a directory the panel has come to.
+        if path.is_local and error is None:
+            self.local_anchor = path
+        if where != self._listed and where == path and error is None and path.outer is None:
+            # ``AddToDirectoryHistory``: a directory the panel has come to --
+            # not one inside an archive, which is no place to come back to.
             self._remember_directory(path)
         if where != self._listed:
             marked = frozenset()
@@ -979,7 +664,7 @@ class Panel(ContextMenuHost, ListViewer):
         """
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, key or entry.key, self.cursor, self.scroll)
+            self._keep = (self.location, key or entry.key, self.cursor, self.scroll)
         self.reload_token += 1
 
     def name_cell(self) -> tuple[int, int, int] | None:
@@ -1043,7 +728,7 @@ class Panel(ContextMenuHost, ListViewer):
             return
         self._return_to = entry.name
         self.found = None
-        self.path = Path(entry.directory)
+        self.location = Location.of(entry.directory)
 
     def enter(self) -> None:
         """Descend into the selected directory -- or, in a *Find:* listing,
@@ -1059,8 +744,14 @@ class Panel(ContextMenuHost, ListViewer):
             return
         # The rescan is deferred, so the cursor we want afterwards has to be
         # left behind as a note rather than applied on the next line.
-        self._return_to = self.path.name if entry.name == ".." else None
-        self.path = (self.path / entry.name).resolve()
+        self._return_to = self.location.name if entry.name == ".." else None
+        if self.location.is_local:
+            self.path = (self.path / entry.name).resolve()
+        elif entry.name == ".." and self.location.is_root:
+            self.go_up()
+        else:
+            # Another drive's links are its own to follow: the name is enough.
+            self.location = (self.location / entry.name).normalized()
 
     def go_up(self) -> None:
         """Go to the parent directory, the cursor on the one just left.
@@ -1072,12 +763,33 @@ class Panel(ContextMenuHost, ListViewer):
         if self.found is not None:
             self.leave_found()
             return
+        if not self.location.is_local:
+            self._go_up_elsewhere()
+            return
         parent = (self.path / "..").resolve()
         if parent == self.path:
             self.move_cursor(-len(self.items))
             return
         self._return_to = self.path.name
         self.path = parent
+
+    def _go_up_elsewhere(self) -> None:
+        """:meth:`go_up` on a drive other than the disk: the parent by name,
+        and at the drive's root wherever its ``ChangeUp`` says -- an archive's
+        is back on the drive it was opened from, the cursor on its file."""
+        location = self.location
+        if not location.is_root:
+            self._return_to = location.name
+            self.location = location.parent
+            return
+        try:
+            up = drive_of(location).change_up(location)
+        except DriveGone:
+            up = None
+        if up is None:
+            self.move_cursor(-len(self.items))
+            return
+        self.location, self._return_to = up
 
     # -- tagging -------------------------------------------------------------
 
@@ -1087,9 +799,9 @@ class Panel(ContextMenuHost, ListViewer):
     def untag_paths(self, paths: Iterable[Path]) -> None:
         """Take the tags off the entries at *paths*: what a copy, a move or an
         erase leaves of the ones it finished."""
-        done = {Path(path) for path in paths}
+        done = {Location.of(path) for path in paths}
         if done:
-            self.untag(item for item in self.items if item.path_in(self.path) in done)
+            self.untag(item for item in self.items if self.entry_location(item) in done)
 
     def untag(self, entries: Iterable[DirEntry]) -> None:
         """Take *entries*' tags off: what an operation done on them leaves."""
@@ -1164,15 +876,46 @@ class Panel(ContextMenuHost, ListViewer):
         if self.found is not None:
             self.enter()
             return True
+        if entry is not None and not entry.is_dir and self._may_enter_archive(entry):
+            # Read on a thread: one that is no archive after all runs below.
+            self.spawn(self._enter_or_run(entry))
+            return True
         if entry is not None and not entry.is_dir:
-            path = entry.path_in(self.path)
-            if path.is_file() and os.access(path, os.X_OK):
-                await self.emit(ExecuteFile(path))
-            elif path.is_file():
-                await self.emit(OpenFile(path))
+            await self._run_file(entry)
             return True
         self.enter()
         return True
+
+    def _may_enter_archive(self, entry: DirEntry) -> bool:
+        """DN's ``fmoEnterArchives`` test: *Enter opens an archive* on, a file
+        whose name the *archive* file type takes, and the panel not in an
+        archive already -- DN opened none from inside another.  Whether it
+        is one is the file's to say (:func:`navigator.lib.drives.archive.open_archive`),
+        by what is in it, as ``ArcViewer`` read the signature."""
+        return (SETTINGS.file_manager.enter_opens_archive and self.location.outer is None
+                and stat.S_ISREG(entry.mode) and filetypes.group_of(entry.name) == "archive")
+
+    async def _enter_or_run(self, entry: DirEntry) -> None:
+        from navigator.widgets.drives.archives import enter_archive
+
+        if not await enter_archive(self, self.entry_location(entry)):
+            await self._run_file(entry)
+
+    async def _run_file(self, entry: DirEntry) -> None:
+        """Enter on a file: :class:`ExecuteFile` for one the user may run,
+        :class:`OpenFile` for any other."""
+        if not self.location.is_local:
+            # Nothing on another drive can be run from here, so an executable
+            # is opened as any file is: a departure DN never met, its link
+            # drive having no programs of its own to run.
+            if stat.S_ISREG(entry.mode):
+                await self.emit(OpenFile(self.entry_location(entry)))
+            return
+        path = entry.path_in(self.path)
+        if path.is_file() and os.access(path, os.X_OK):
+            await self.emit(ExecuteFile(path))
+        elif path.is_file():
+            await self.emit(OpenFile(path))
 
     async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Ctrl+double click is Ctrl+Enter, as in DOS Navigator; a plain one opens."""
@@ -1222,7 +965,7 @@ class Panel(ContextMenuHost, ListViewer):
             raise ValueError(f"unknown sort mode {sort!r}")
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.key, self.cursor, self.scroll)
+            self._keep = (self.location, entry.key, self.cursor, self.scroll)
         self.sort_reverse = reverse and sort != "unsorted"
         self.sort_mode = sort
         self.display = frozenset(display)
@@ -1235,7 +978,7 @@ class Panel(ContextMenuHost, ListViewer):
             return
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.key, self.cursor, self.scroll)
+            self._keep = (self.location, entry.key, self.cursor, self.scroll)
         self.file_mask = mask
 
     def sort_by(self, mode: str, reverse: bool = False) -> None:
@@ -1253,7 +996,7 @@ class Panel(ContextMenuHost, ListViewer):
             return
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.key, self.cursor, self.scroll)
+            self._keep = (self.location, entry.key, self.cursor, self.scroll)
         self.sort_mode = mode
         self.sort_reverse = reverse
 
@@ -1309,7 +1052,7 @@ class Panel(ContextMenuHost, ListViewer):
         """
         entry = self.selected
         if entry is not None:
-            self._keep = (self.path, entry.key, self.cursor, self.scroll)
+            self._keep = (self.location, entry.key, self.cursor, self.scroll)
         self.show_hidden = not self.show_hidden
 
     def toggle_info(self) -> None:
@@ -1862,6 +1605,18 @@ class Panel(ContextMenuHost, ListViewer):
         """
         return 2 if self.show_icons else 1
 
+    @property
+    def title_location(self) -> str:
+        """What the title names the directory by: its path on the disk, and
+        elsewhere what the drive calls it (``GetDir``)."""
+        location = self.location
+        if location.is_local:
+            return str(location.path)
+        try:
+            return drive_of(location).get_dir(location)
+        except DriveGone:
+            return str(location)
+
     @computed
     def name_width(self) -> int:
         """How much of a listing line is left once the size column is taken."""
@@ -1877,7 +1632,7 @@ class Panel(ContextMenuHost, ListViewer):
         reads as a directory that lacks them.  The path gives way first; the
         mask is cut only when the bracket alone would not fit.
         """
-        title = self.found.title if self.found is not None else str(self.path)
+        title = self.found.title if self.found is not None else self.title_location
         mask = self.file_mask.strip()
         suffix = f" [{mask}]" if mask not in ("", filetypes.ALL_FILES) else ""
         room = max(4, self.width - 4 - 2 * self.title_margin)
@@ -2029,7 +1784,7 @@ class Panel(ContextMenuHost, ListViewer):
                 return None  # the path column already says it
             if entry is None:
                 return ""
-            where = str(entry.directory) if entry.directory is not None else str(self.path)
+            where = str(entry.directory) if entry.directory is not None else str(self.location)
             return self._cut_start(where, self.inner_width)
         if not SETTINGS.file_manager.link_line or not any(item.is_link for item in self.items):
             return None
@@ -2139,7 +1894,7 @@ class Panel(ContextMenuHost, ListViewer):
         """Whether *item* is a directory on the Alt+F1/Alt+F2 list."""
         if not item.is_dir or item.name == "..":
             return False
-        return str(item.path_in(self.path)) in bookmarked_paths()
+        return str(self.entry_location(item)) in bookmarked_paths()
 
     @property
     def ellipsis(self) -> str:

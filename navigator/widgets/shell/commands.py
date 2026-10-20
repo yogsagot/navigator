@@ -392,3 +392,45 @@ class FileManagerDefaults(Command):
     """
 
     title = "Panel Defaults"
+
+
+class NavyLink(Command):
+    """Utilities > *SSH link (SFTP)*, Alt+F11: where DOS Navigator had
+    ``cmNavyLink``, *Navigator Link*, which linked two PCs over a cable --
+    here an SSH connection to a server, its files over SFTP, and the active
+    panel sent there (:mod:`navigator.lib.drives`).  Named for its protocol,
+    a departure: *Navigator Link* would not say what is on the wire."""
+
+    title = "SSH"
+
+
+class HangUp(Command):
+    """Utilities > *Disconnect*, Alt+H: DN's ``cmHangUp``.  Closes a connection
+    -- the one, or one chosen of several -- and its panels go back to the disk,
+    as ``cmCloseLinked`` sent them."""
+
+    title = "Discon"
+
+
+class SetupLink(Command):
+    """Options > Configuration > *Communications*: where DN had ``cmSetupModem``
+    -- the ``[remote]`` settings."""
+
+    title = "Comms"
+
+
+class FtpLink(Command):
+    """Utilities > *FTP link*: a connection to an FTP server -- FTPS when *Encrypt
+    with TLS* is ticked -- and the active panel sent there.  DN had none; its
+    link was the cable's (``cmNavyLink``)."""
+
+    title = "FTP"
+    scheme = "ftp"
+
+
+class SmbLink(Command):
+    """Utilities > *SMB link (Windows share)*: a connection to a Windows -- or
+    Samba -- share, and the active panel sent there."""
+
+    title = "SMB"
+    scheme = "smb"

@@ -17,6 +17,7 @@ panel's, whose status line DN kept showing while the quick view was up.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
@@ -32,6 +33,30 @@ from navigator.lib.viewer import ViewSource
 _OPENER = Background("nav-quick", workers=2)
 
 
+def _open_head(origin: Any) -> tuple[Any, ViewSource]:
+    """On the opener's thread: *origin*'s head fetched, and a source on it."""
+    from navigator.lib.drives import usefile
+
+    use = usefile.fetch_head(origin)
+    try:
+        return use, ViewSource(use.local_for(origin))
+    except BaseException:
+        usefile.discard(use)
+        raise
+
+
+def _discard_later(use: Any) -> None:
+    """A fetched head deleted, off the loop where there is one."""
+    import asyncio
+
+    from navigator.lib.drives import usefile
+
+    try:
+        asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+    except RuntimeError:
+        usefile.discard(use)
+
+
 class QuickViewer(Widget):
     """Ctrl+Q: a panel-shaped view of the file under the other panel's cursor."""
 
@@ -43,10 +68,23 @@ class QuickViewer(Widget):
     parts = ("title",)
 
     #: The file asked for last; an opening of any other lands on nothing.
-    _wanted: Path | None = None
+    _wanted: Any = None
+    #: What was fetched for the file on another drive showing now, if any.
+    _use: Any = None
 
-    def show(self, path: Path | None) -> None:
-        """Show *path*, unless it is already showing; nothing for anything but a file."""
+    def show(self, path: Any) -> None:
+        """Show *path*, unless it is already showing; nothing for anything but a file.
+
+        A :class:`~navigator.lib.drives.Location` on another drive has its
+        first megabyte fetched (``usefile.fetch_head``) and that shown."""
+        from navigator.lib.drives import Location
+
+        if isinstance(path, Location) and not path.is_local:
+            self._show_elsewhere(path)
+            return
+        if isinstance(path, Location):
+            path = path.local
+        self._let_go()
         viewer = self.viewer
         path = Path(path) if path is not None else None
         if path is not None and viewer.path == path and viewer.source is not None:
@@ -58,6 +96,37 @@ class QuickViewer(Widget):
             return
         _OPENER.run(self, ViewSource, path,
                     done=lambda outcome, path=path: self._opened(path, outcome))
+
+    def _show_elsewhere(self, origin: Any) -> None:
+        if self._wanted == origin and self.viewer.source is not None:
+            return
+        self._wanted = origin
+        _OPENER.run(self, _open_head, origin, done=lambda outcome, origin=origin: self._fetched(origin, outcome))
+
+    def _fetched(self, origin: Any, outcome: Outcome) -> None:
+        try:
+            use, source = outcome.result()
+        except OSError:
+            if self._wanted == origin:
+                self._let_go()
+                self.viewer.close_file()
+            return
+        if self._wanted != origin:
+            source.close()
+            _discard_later(use)
+            return
+        self._let_go()
+        self._use = use
+        self.viewer.open(use.local_for(origin), source=source)
+
+    def _let_go(self) -> None:
+        use, self._use = self._use, None
+        if use is not None:
+            _discard_later(use)
+
+    def unmounting(self) -> None:
+        self._let_go()
+        super().unmounting()
 
     def _opened(self, path: Path, outcome: Outcome) -> None:
         try:

@@ -21,6 +21,7 @@ from navigator.__main__ import Navigator
 from navigator.lib.appearance.scheme import default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets import Panel
+from navigator.lib.drives import listing as listing_module
 from navigator.widgets.manager.panel import panel as panel_module
 from navigator.widgets.manager.panel.panel import ScanJob, scan_directory
 from navigator.widgets.shell.commands import NewManager
@@ -31,7 +32,7 @@ FREE = (1000, "/")
 @pytest.fixture
 def place(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
-    monkeypatch.setattr(panel_module, "free_space_of", lambda path: FREE)
+    monkeypatch.setattr(listing_module, "free_space_of", lambda path: FREE)
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "x").write_text("x" * 10)
     (tmp_path / "sub" / "deeper").mkdir()
@@ -102,7 +103,7 @@ def test_alt_i_toggles_the_active_panel_s_footer_and_ticks_the_menu(place):
 
 
 def test_free_space_over_a_kilobyte_is_shortened_as_df_h_does(place, monkeypatch):
-    monkeypatch.setattr(panel_module, "free_space_of", lambda path: (71_123_906_560, "/"))
+    monkeypatch.setattr(listing_module, "free_space_of", lambda path: (71_123_906_560, "/"))
     assert rows_of(panel_at(place))[-2].strip("║│ ") == "66G free on /"
 
 

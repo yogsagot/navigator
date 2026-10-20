@@ -36,10 +36,21 @@ description: |
 # is the whole reason the dependency is vendored instead.
 depends:
   - python3 (>= 3.12)
+# SSH (SFTP) and SMB links and *Save in keyring*: optional, and not vendored
+# -- paramiko and smbprotocol need `cryptography', which is compiled.  The launcher's -s keeps
+# the system's dist-packages on the path, so the distribution's own do.
+suggests:
+  - python3-paramiko
+  - python3-smbprotocol
+  - python3-keyring
 overrides:
   rpm:
     depends:
       - python3 >= 3.12
+    suggests:
+      - python3-paramiko
+      - python3-smbprotocol
+      - python3-keyring
 
 contents:
   - src: build/root/usr/lib/navigator-fm

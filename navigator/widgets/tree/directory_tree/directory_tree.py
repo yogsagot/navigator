@@ -33,16 +33,45 @@ from navml.widgets.dialog.tree_view import TreeNode, TreeView
 #: waiting for it.
 _COUNTS = Background("nav-count", workers=2)
 
+#: Where a place on another drive is walked down to, for :func:`show_elsewhere`.
+_PATHS = Background("nav-tree-path", workers=1)
+
 
 def _listed(name: str, hidden: bool) -> bool:
     """Whether a directory called *name* is listed: a dot-directory only if *hidden*."""
     return hidden or not name.startswith(".")
 
 
+def _elsewhere(data: Any) -> bool:
+    """Whether a node's directory is on a drive other than the disk."""
+    from navigator.lib.drives import Location
+
+    return isinstance(data, Location) and not data.is_local
+
+
+def _drive_directories(location: Any, hidden: bool) -> list[str]:
+    """The directories in *location*, on its drive -- a round trip, so only
+    ever on a thread (:attr:`TreeView.load_in_background`)."""
+    import stat
+
+    from navigator.lib.drives import drive_of
+
+    found = []
+    for name, st in drive_of(location).children(location):
+        if isinstance(st, OSError) or not _listed(name, hidden):
+            continue
+        if stat.S_ISDIR(st.st_mode):
+            found.append(name)
+    return found
+
+
 def _subdirectories(node: TreeNode) -> list[TreeNode]:
     """A directory's subdirectories, in the panel's order: by name, case folded."""
-    path: Path = node.data
+    path: Any = node.data
     hidden: bool = node.show_hidden
+    if _elsewhere(path):
+        found = sorted(_drive_directories(path, hidden), key=str.lower)
+        return [directory_node(path / name, name, hidden=hidden) for name in found]
     found = []
     with os.scandir(path) as scan:
         for item in scan:
@@ -59,6 +88,8 @@ def _subdirectories(node: TreeNode) -> list[TreeNode]:
 
 def _has_subdirectory(node: TreeNode) -> bool:
     """Whether a directory holds any directory: reads only as far as the first."""
+    if _elsewhere(node.data):
+        return bool(_drive_directories(node.data, node.show_hidden))
     with os.scandir(node.data) as scan:
         for item in scan:
             if not _listed(item.name, node.show_hidden):
@@ -87,11 +118,58 @@ def directory_node(path: Path, name: str | None = None, *, hidden: bool = True) 
     return node
 
 
-def directory_root(hidden: bool = True) -> TreeNode:
-    """The filesystem from ``/``, its first level open and nothing yet read below."""
-    root = directory_node(Path("/"), "/", hidden=hidden)
+def directory_root(hidden: bool = True, at: Any = None) -> TreeNode:
+    """The filesystem from ``/``, its first level open and nothing yet read
+    below -- or, *at* a place on another drive, that drive from its top."""
+    if _elsewhere(at):
+        from pathlib import PurePosixPath
+
+        from navigator.lib.drives import Location
+
+        root = directory_node(Location(at.site, PurePosixPath("/"), at.outer), "/", hidden=hidden)
+    else:
+        root = directory_node(Path("/"), "/", hidden=hidden)
     root.expanded = True
     return root
+
+
+def show_elsewhere(tree: TreeView, location: Any) -> None:
+    """:func:`show_path` for a place on another drive: every directory on the
+    way down read on a thread, the branches opened once they are in."""
+    from navigator.lib.drives import Location
+
+    root = tree.root
+    if root is None:
+        return
+    names = [part for part in location.normalized().path.parts if part != "/"]
+    hidden = root.show_hidden
+
+    def read() -> list[list[TreeNode]]:
+        levels, here = [], root.data
+        for name in names:
+            levels.append(_subdirectories(directory_node(here, hidden=hidden)))
+            here = here / name
+        return levels
+
+    def landed(outcome: Outcome) -> None:
+        if tree.root is not root:
+            return  # another tree since
+        try:
+            levels = outcome.result()
+        except OSError:
+            levels = []
+        node = root
+        for name, children in zip(names, levels):
+            if not node.loaded:
+                node.set_children(children)
+            child = next((c for c in node.children() if c.name == name), None)
+            if child is None:
+                break
+            node = child
+        tree.refresh()
+        tree.select(node)
+
+    _PATHS.run(tree, read, done=landed)
 
 
 def show_path(tree: TreeView, path: Path) -> None:
@@ -105,6 +183,13 @@ def show_path(tree: TreeView, path: Path) -> None:
     node = tree.root
     if node is None:
         return
+    if _elsewhere(path):
+        show_elsewhere(tree, path)
+        return
+    from navigator.lib.drives import Location
+
+    if isinstance(path, Location):
+        path = path.local
     names = list(Path(path).resolve().parts)
     if names and names[0] == node.name:
         names = names[1:]
@@ -129,6 +214,19 @@ def count_files(path: Path) -> tuple[int, int]:
     only this directory's own -- not its subdirectories'.
     """
     files = size = 0
+    if _elsewhere(path):
+        import stat
+
+        from navigator.lib.drives import drive_of
+
+        try:
+            for _, st in drive_of(path).children(path):
+                if not isinstance(st, OSError) and not stat.S_ISDIR(st.st_mode):
+                    files += 1
+                    size += st.st_size
+        except OSError:
+            pass
+        return files, size
     try:
         with os.scandir(path) as scan:
             for item in scan:
@@ -181,20 +279,35 @@ class DirectoryTree(TreeView):
         return max(0, self.height - 2 * self.inset - self.header - self.INFO_ROWS)
 
     @computed
-    def selected_path(self) -> Path | None:
+    def selected_path(self) -> Any:
+        """The directory under the cursor: a ``Path``, or a ``Location`` on
+        another drive."""
         node = self.selected_node
         return node.data if node is not None else None
 
-    def show(self, path: Path) -> None:
-        """Put the cursor on *path*, opening every branch on the way down."""
+    def show(self, path: Any) -> None:
+        """Put the cursor on *path*, opening every branch on the way down --
+        on another drive, a tree of that drive, read on threads."""
+        self.use_drive_of(path)
         show_path(self, path)
+
+    def use_drive_of(self, path: Any) -> None:
+        """The tree rooted on *path*'s drive, if it is not already."""
+        here = self.root.data if self.root is not None else None
+        same = (_elsewhere(path) and _elsewhere(here) and here.site == path.site
+                and here.outer == path.outer) or (not _elsewhere(path) and not _elsewhere(here))
+        self.load_in_background = _elsewhere(path)
+        if not same:
+            self._counts.clear()
+            self._counting.clear()
+            self.root = directory_root(self.show_hidden, at=path)
 
     def reload(self) -> None:
         """Read the tree again: ``Reread``, keeping the cursor where it was."""
         here = self.selected_path
         self._counts.clear()
         self._counting.clear()
-        self.root = directory_root(self.show_hidden)
+        self.root = directory_root(self.show_hidden, at=here)
         if here is not None:
             self.show(here)
 

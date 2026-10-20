@@ -23,6 +23,10 @@ class DBWindow(Window):
         self.db = db
         self.viewer.db = db
         self._search: dict[str, Any] | None = None
+        #: The copy of a file from another drive this window shows, if it
+        #: does (``UseFile``): a field edited goes back there, the copy with
+        #: the window.
+        self.use_set: Any = None
         if db is not None:
             # ``TWindow.Init(R, FName, 0)`` -- ``cmGetName``'s *dBase View - *
             # is the window list's.
@@ -46,6 +50,13 @@ class DBWindow(Window):
         if self.db is not None:
             self.db.close()
         super().close()
+        if self.use_set is not None:
+            import asyncio
+
+            from navigator.lib.drives import usefile
+
+            use, self.use_set = self.use_set, None
+            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
 
     async def _say(self, prompt: str, title: str | None = None) -> None:
         await Dialog(title=tr("Error") if title is None else title, prompt=prompt, buttons="ok").execute(self.application)
@@ -104,7 +115,15 @@ class DBWindow(Window):
             return
         import os
 
-        if not os.access(db.path, os.W_OK):
+        writable = os.access(db.path, os.W_OK)
+        if self.use_set is not None:
+            from navigator.lib.drives import DriveGone, drive_of
+
+            try:
+                writable = drive_of(self.use_set.copies[0].origin).can("write")
+            except DriveGone:
+                writable = False
+        if not writable:
             await self._say(tr("Could not edit field - file is write-protected"))
             return
         value = db.raw(record, field)
@@ -131,6 +150,12 @@ class DBWindow(Window):
         except OSError as error:
             await self._say(tr("Could not edit field - {error}").format(error=error.strerror or error))
             return
+        if self.use_set is not None:
+            # From another drive: the field goes back there at once, as it
+            # went into the file on the disk.
+            from navigator.widgets.drives.use_file import put_back
+
+            await put_back(self.application, self.use_set, ask=False)
         viewer.invalidate()
 
     # -- F7, Shift+F7 ----------------------------------------------------------------

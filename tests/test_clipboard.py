@@ -299,3 +299,18 @@ def test_a_paste_reaches_the_focused_line_when_the_application_declines_it():
     field.focus()
     run_app(app, [PasteEvent("pasted")])
     assert field.value == "pasted"
+
+
+def test_a_password_line_shows_stars_and_copies_nothing():
+    from navkit.events import KeyEvent
+
+    root = Widget()
+    field = InputLine(parent=root, value="hunter2")
+    field.password = True
+    field.width = 20
+    app = Application(root, terminal=FakeTerminal())
+    field.focus()
+    run_app(app, [KeyEvent("insert", ctrl=True), lambda a: field.select_all()])
+    assert app.terminal.clipboard == []
+    painted = app.terminal.painted
+    assert "*******" in painted and "hunter2" not in painted

@@ -12,6 +12,7 @@ from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
+from navigator.lib.drives import listing as listing_module
 from navigator.widgets.manager.panel import panel as panel_module
 
 
@@ -30,14 +31,14 @@ def tree(tmp_path, monkeypatch):
 def slow_dir(tree, monkeypatch):
     """Reading ``slow`` waits until released, as a dead mount would."""
     release = threading.Event()
-    real = panel_module.scan_directory
+    real = listing_module.scan_directory
 
     def scan(path, show_hidden, *args, **kwargs):
         if Path(path).name == "slow":
             release.wait(5)
         return real(path, show_hidden, *args, **kwargs)
 
-    monkeypatch.setattr(panel_module, "scan_directory", scan)
+    monkeypatch.setattr(listing_module, "scan_directory", scan)
     monkeypatch.setattr(panel_module, "SCAN_GRACE", 0.01)
     return release
 

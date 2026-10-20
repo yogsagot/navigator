@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from navigator.lib.drives.local import LocalDrive
 from navigator.lib.file_ops import filecopy
 from navigator.lib.file_ops.filecopy import (
     APPEND, ASK, CHECK_FREE, FOLLOW_LINKS, MOVE, OVERWRITE, PRESERVE, REFRESH, SKIP,
@@ -346,7 +347,7 @@ def test_without_preserve_the_time_is_now(tree, tmp_path):
 
 def test_not_enough_room_asks(tree, tmp_path, monkeypatch):
     src, dst = tree
-    monkeypatch.setattr(filecopy, "_free_space", lambda directory: 2)
+    monkeypatch.setattr(LocalDrive, "free_bytes", lambda self, directory: 2)
     done, asked, _ = copy(
         [src / "a.txt", src / "b.txt"], dst, cwd=tmp_path, options=CHECK_FREE,
         answers=[True, False],
@@ -380,7 +381,7 @@ def test_stop_leaves_no_partial_file(tree, tmp_path, monkeypatch):
                 job.stop()
             return self.f.read(n)
 
-    monkeypatch.setattr(filecopy, "open", lambda p, m: Slow(real_open(p, m)), raising=False)
+    monkeypatch.setattr(LocalDrive, "open_read", lambda self, p: Slow(real_open(p.local, "rb")))
     done = run(CopyRequest([src / "big", src / "a.txt"], str(dst), OVERWRITE, 0), job, tmp_path)
     assert done == [] and not (dst / "big").exists() and not (dst / "a.txt").exists()
 

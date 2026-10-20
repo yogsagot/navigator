@@ -31,7 +31,10 @@ not choose, because the box may have opened under the pointer.
 **A caller can add keys** (``keys=("ctrl+up",)``): one of them closes the box
 answering with the entry selected in the top box, enabled or not, and :attr:`PopupMenu.pressed`
 names the key -- so the caller can act on that entry and open the box again,
-as the bookmarks' box does to move one.
+as the bookmarks' box does to move one.  In a submenu the entry is the
+submenu's, and **the box can open again with it dropped**
+(``submenu=(index, current)``: the first box's entry *index* opened, *current*
+selected in it), so a key acting on a submenu's entry keeps the user there.
 
 **The first box can carry a title** (``title="Bookmarks"``), centred in its
 top frame; :meth:`measure` takes the same title so the caller places a box as
@@ -79,8 +82,12 @@ class PopupMenu(Widget):
     def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
                  current: int = -1, behind: Widget | None = None,
                  keys: tuple[str, ...] = (), title: str = "", footer: str = "",
-                 buttons: tuple[str, ...] = ("left",), **kwargs: Any) -> None:
+                 buttons: tuple[str, ...] = ("left",), submenu: tuple[int, int] | None = None,
+                 **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        #: A submenu of the first box to open as the box opens, and the entry
+        #: to select in it: ``(index, current)``; see the module.
+        self.submenu = submenu
         self.menu = menu if menu is not None else SubMenu()
         #: The caption in the first box's top frame; empty for none.
         self.title = title
@@ -165,6 +172,14 @@ class PopupMenu(Widget):
 
     def _open(self) -> None:
         self.box = self._drop(self.menu, *self.at, self.start, self.title, self.footer)
+        if self.submenu is not None:
+            index, current = self.submenu
+            entries = self.box.entries()
+            if 0 <= index < len(entries) and isinstance(entries[index], SubMenu):
+                self.choose(index, self.box)
+                inner = self.boxes[-1]
+                if inner is not self.box and inner.selectable(current):
+                    inner.current = current
 
     def _drop(self, menu: SubMenu, x: int, y: int, current: int = -1,
               title: str = "", footer: str = "") -> PopupBox:
@@ -199,7 +214,7 @@ class PopupMenu(Widget):
         if isinstance(entry, SubMenu):
             for later in boxes[boxes.index(box) + 1:]:
                 self.remove(later)
-            self._drop(entry, box.x + 2, box.y + index - box.top + 2)
+            self._drop(entry, box.x + 2, box.y + index - box.top + 2, footer=entry.footer)
         elif isinstance(entry, MenuItem):
             self.close(entry)
 

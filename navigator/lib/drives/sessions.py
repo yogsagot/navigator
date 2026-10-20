@@ -1,0 +1,235 @@
+"""Connections to other drives: opening one, and what happens when it ends.
+
+DN's Navigator Link had one cable and one PC on the other end of it; here a
+connection is per :class:`~navigator.lib.drives.location.Site`, and
+:data:`SESSIONS` keeps them.  :meth:`SessionManager.connect` opens one --
+blocking, so a thread runs it -- and mounts its drive, so that
+:func:`~navigator.lib.drives.drive_of` finds it; when it cannot go on
+without the user it raises what it needs (:class:`NeedPassword`,
+:class:`NeedPassphrase`, :class:`UnknownHostKey`), and the caller asks on
+the loop and tries again with the :class:`Answers`.
+
+**Closing is DN's** ``cmCloseLinked``: every listener hears the site and why
+(``"closed"`` or ``"lost"``), and the shell sends each panel that was on it
+back to the disk.  Listeners are called on whatever thread closed it.
+
+Which protocol a scheme is, is :data:`SCHEMES`' business: each names the
+module that speaks it, imported only when a connection is made, so a
+missing optional package (``navigator-fm[sftp]``) costs nothing until then
+and says so through :func:`available`.
+"""
+
+from __future__ import annotations
+
+import importlib
+import threading
+import time
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+from navigator.lib.drives import Drive, DriveGone, mount, mounted, unmount
+from navigator.lib.drives.location import Site
+
+#: The schemes a connection can be made to, and the module that makes it.
+#: Each module has ``available() -> str | None`` (why not, or None) and
+#: ``connect(site, answers) -> Drive``.
+SCHEMES: dict[str, str] = {
+    "sftp": "navigator.lib.drives.sftp",
+    "ftp": "navigator.lib.drives.ftp",
+    "ftps": "navigator.lib.drives.ftp",
+    "smb": "navigator.lib.drives.smb",
+}
+
+#: What a menu says beside a scheme that is not there: the extra to install.
+EXTRA_HINT: dict[str, str] = {
+    "sftp": "navigator-fm[sftp]",
+    "smb": "navigator-fm[smb]",
+}
+
+#: What each scheme is called wherever a connection is named -- the menu, the
+#: boxes, the panel's title -- so it is never in doubt what is on the wire.
+#: The *sign* is DN's archive and link drives' ``GetSign`` (``ZIP:``,
+#: ``LINK:``), in front of the place in a panel's title.  Proper names, not
+#: translated.
+PROTOCOLS: dict[str, tuple[str, str]] = {
+    "sftp": ("SFTP", "SFTP (SSH)"),
+    "ftp": ("FTP", "FTP"),
+    "ftps": ("FTPS", "FTPS (FTP over TLS)"),
+    "smb": ("SMB", "SMB (Windows share)"),
+}
+
+
+def protocol_sign(scheme: str) -> str:
+    """``SFTP``: what a panel's title puts in front of the place."""
+    return PROTOCOLS.get(scheme, (scheme.upper(), ""))[0]
+
+
+def protocol_name(scheme: str) -> str:
+    """``SFTP (SSH)``: what the boxes call the protocol."""
+    sign, name = PROTOCOLS.get(scheme, (scheme.upper(), scheme.upper()))
+    return name or sign
+
+
+class NeedPassword(Exception):
+    """The server wants a password, and none that was tried was right."""
+
+    def __init__(self, site: Site, user: str, host: str, *, wrong: bool = False) -> None:
+        super().__init__(f"password needed for {user}@{host}")
+        self.site, self.user, self.host, self.wrong = site, user, host, wrong
+
+
+class NeedPassphrase(Exception):
+    """A private key is locked, and its passphrase was not given (or was wrong)."""
+
+    def __init__(self, key_file: str, *, wrong: bool = False) -> None:
+        super().__init__(f"passphrase needed for {key_file}")
+        self.key_file, self.wrong = key_file, wrong
+
+
+class UnknownHostKey(Exception):
+    """The server's host key is in no ``known_hosts``: accept it, or not."""
+
+    def __init__(self, hostname: str, port: int, key_type: str, fingerprint: str, key: Any) -> None:
+        super().__init__(f"unknown host key for {hostname}")
+        self.hostname, self.port, self.key_type, self.fingerprint, self.key = (
+            hostname, port, key_type, fingerprint, key)
+
+
+class HostKeyChanged(OSError):
+    """The server's host key is not the one ``known_hosts`` has for it."""
+
+
+@dataclass
+class Answers:
+    """What the user said so far, for one connection being made."""
+
+    password: str | None = None
+    passphrase: str | None = None
+    #: The host key: ``"once"`` for this connection, ``"save"`` into
+    #: ``known_hosts`` too, None not asked yet.
+    host_key: str | None = None
+    #: *Save in keyring* ticked: the password is kept once it has worked.
+    save_password: bool = False
+    #: Whether the keyring's password has been tried already.
+    tried_keyring: bool = False
+    #: Where on the drive the connection is being made to: the path of the
+    #: location asked for -- SMB's first name in it is the share.
+    start: str = ""
+    #: What answers a server's own questions mid-login (SSH's
+    #: keyboard-interactive: a one-time code, say): called on the connecting
+    #: thread with ``(title, instructions, [(prompt, echo), ...])``, it waits
+    #: for the user and answers the replies, or None to give up.
+    interactive: Any = None
+
+
+def scheme_module(scheme: str) -> Any:
+    name = SCHEMES.get(scheme)
+    if name is None:
+        raise DriveGone(scheme, f"No drive speaks {scheme}://")
+    return importlib.import_module(name)
+
+
+def available(scheme: str) -> str | None:
+    """Why *scheme* cannot be connected to here, or None if it can."""
+    name = SCHEMES.get(scheme)
+    if name is None:
+        return f"{scheme}:// is not supported"
+    try:
+        module = importlib.import_module(name)
+    except ImportError as error:
+        return str(error)
+    return module.available()
+
+
+Listener = Callable[[Site, str], None]
+
+
+class SessionManager:
+    """Every connection open, by site."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._listeners: list[Listener] = []
+        #: When each site's drive was last asked anything.
+        self._used: dict[Site, float] = {}
+
+    # -- listening -----------------------------------------------------------------------------
+
+    def add_listener(self, listener: Listener) -> None:
+        with self._lock:
+            self._listeners.append(listener)
+
+    def remove_listener(self, listener: Listener) -> None:
+        with self._lock:
+            self._listeners = [each for each in self._listeners if each is not listener]
+
+    def _tell(self, site: Site, why: str) -> None:
+        with self._lock:
+            listeners = list(self._listeners)
+        for listener in listeners:
+            try:
+                listener(site, why)
+            except Exception:
+                pass
+
+    # -- connecting ------------------------------------------------------------------------------
+
+    def is_open(self, site: Site) -> bool:
+        return any(drive.site == site for drive in mounted())
+
+    def connect(self, site: Site, answers: Answers | None = None) -> Drive:
+        """*site*'s drive, connected now if it is not already.  Blocks."""
+        for drive in mounted():
+            if drive.site == site:
+                return drive
+        drive = scheme_module(site.scheme).connect(site, answers or Answers())
+        drive.on_lost = lambda: self.close(site, "lost")
+        self.touch(site)
+        return mount(drive)
+
+    def touch(self, site: Site) -> None:
+        self._used[site] = time.monotonic()
+
+    def close(self, site: Site, why: str = "closed") -> bool:
+        """*site*'s connection closed, and everyone told; False if none was open."""
+        drive = unmount(site)
+        if drive is None:
+            return False
+        self._used.pop(site, None)
+        try:
+            drive.close()
+        except Exception:
+            pass
+        self._tell(site, why)
+        return True
+
+    def close_all(self) -> None:
+        for drive in mounted():
+            self.close(drive.site)
+
+    def reap(self, in_use: set[Site], idle: float) -> list[Site]:
+        """The connections nothing uses, idle for *idle* seconds, closed:
+        *Communications*' *Close an idle connection after*.  Answers them."""
+        if idle <= 0:
+            return []
+        now = time.monotonic()
+        closed = []
+        for drive in mounted():
+            site = drive.site
+            if site in in_use:
+                self.touch(site)
+                continue
+            if now - self._used.get(site, now) >= idle and self.close(site):
+                closed.append(site)
+        return closed
+
+
+#: The connections.
+SESSIONS = SessionManager()
+
+
+__all__ = [
+    "Answers", "HostKeyChanged", "NeedPassphrase", "NeedPassword", "SCHEMES", "SESSIONS",
+    "SessionManager", "UnknownHostKey", "available", "scheme_module",
+]

@@ -1,0 +1,25 @@
+from navkit.database import Model
+
+#: A place on another drive the user connects to by name: Utilities >
+#: *Navigator Link* and the *Link* part of the Alt+F1/Alt+F2 box, where DOS
+#: Navigator's ``SelectDrive`` listed the drives of the PC across the cable.
+#:
+#: Never a password: those are asked for, or kept in the desktop's keyring
+#: (``navigator/lib/drives/credentials.py``), never in the database.
+RemoteProfile(Model):
+    table: "remote_profiles"
+    #: What the user calls it; the profile's key.
+    field name: str
+    #: The drive: ``sftp``, and later ``ftp``, ``smb``.
+    field scheme: str
+    field host: str
+    #: 0 for the scheme's own (or ``~/.ssh/config``'s).
+    field port: int
+    #: Empty for the system's (or ``~/.ssh/config``'s).
+    field user: str
+    #: Where the panel opens; empty for the home directory there.
+    field path: str
+    #: Smaller first; a profile added goes after every other.
+    field seq: int
+    unique by_name: name
+    index by_seq: seq

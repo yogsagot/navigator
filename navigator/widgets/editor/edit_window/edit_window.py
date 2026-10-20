@@ -87,6 +87,10 @@ class EditWindow(Window):
         #: SmartPad's window (``navigator.lib.utilities.smartpad``): its own title, no edit
         #: history, and saved without a question on the way out.
         self.smartpad = smartpad
+        #: The file's copy fetched from another drive, for an editor opened on
+        #: one there (``UseFile``): F2 writes the copy and then puts it back,
+        #: the title names where it came from, and closing deletes it.
+        self.use_set: Any = None
         #: One save at a time: a second F2, or *Yes* to *Save?* while one is
         #: still writing, waits for it and then writes what the text is then.
         self._saving = asyncio.Lock()
@@ -120,6 +124,8 @@ class EditWindow(Window):
         """
         if self.smartpad:
             title = tr("SmartPad(TM) - {path}").format(path=self.editor.path)
+        elif self.use_set is not None:
+            title = tr("Edit - {path}").format(path=self.use_set.copies[0].origin)
         else:
             title = tr("Edit - {path}").format(path=self.editor.path)
         if self.editor.modified:
@@ -144,6 +150,8 @@ class EditWindow(Window):
         editor = self.editor
         if self.smartpad or not SETTINGS.interface.track_editing or editor.path is None:
             return
+        if self.use_set is not None:
+            return  # a temporary copy: no place to come back to
         EditRecord.store(
             editor.path,
             **window_values(self),
@@ -198,6 +206,11 @@ class EditWindow(Window):
             self.remember_history()
         self.editor.unlock_file()
         super().close()
+        if self.use_set is not None:
+            from navigator.lib.drives import usefile
+
+            use, self.use_set = self.use_set, None
+            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
 
     # -- saving ------------------------------------------------------------------
 
@@ -238,6 +251,12 @@ class EditWindow(Window):
                 buttons="ok",
             ).execute(self.application)
             return False
+        if written and self.use_set is not None:
+            # From another drive: the copy is written, and goes back now --
+            # an F2 is the asking.
+            from navigator.widgets.drives.use_file import put_back
+
+            return await put_back(self.application, self.use_set, ask=False) or written
         if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
             await self.emit(FileSaved(path))

@@ -263,7 +263,7 @@ class InputLine(Control):
             self.cursor = self._index_at(event.x)
         elif event.action == "release" and self._dragging:
             self._dragging = False
-            if self.selected_text and app is not None:
+            if self.selected_text and app is not None and not self.password:
                 app.copy_to_clipboard(self.selected_text, primary=True)
         else:
             return False
@@ -286,7 +286,7 @@ class InputLine(Control):
         self.anchor, self.cursor = start, stop
         self._dragging = False
         app = self.application
-        if self.selected_text and app is not None:
+        if self.selected_text and app is not None and not self.password:
             app.copy_to_clipboard(self.selected_text, primary=True)
         return True
 
@@ -299,7 +299,7 @@ class InputLine(Control):
 
     def copy(self, text: str) -> None:
         app = self.application
-        if text and app is not None:
+        if text and app is not None and not self.password:
             app.copy_to_clipboard(text)
 
     def request_paste(self, *, primary: bool = False) -> None:
@@ -426,12 +426,13 @@ class InputLine(Control):
         room = self.room
         if room < 1:
             return
-        shown = self.value[self.first : self.first + room]
+        value = "*" * len(self.value) if self.password else self.value
+        shown = value[self.first : self.first + room]
         surface.draw_text(1, 0, shown, style, room)
 
         start, stop = self.selection
         if start != stop:
-            run = self.value[max(start, self.first) : min(stop, self.first + room)]
+            run = value[max(start, self.first) : min(stop, self.first + room)]
             if run:
                 surface.draw_text(
                     1 + max(0, start - self.first), 0, run,

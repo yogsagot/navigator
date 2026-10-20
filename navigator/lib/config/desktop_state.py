@@ -43,11 +43,34 @@ VERSION = 1
 # -- what is kept --------------------------------------------------------------------------
 
 
+def _panel_values(panel: Any) -> dict[str, Any]:
+    """A panel's settings, wherever it is."""
+    return {
+        "view_mode": panel.view_mode,
+        "sort_mode": panel.sort_mode,
+        "sort_reverse": bool(panel.sort_reverse),
+        "show_hidden": bool(panel.show_hidden),
+        "show_info": bool(panel.show_info),
+        "file_mask": panel.file_mask,
+        "columns": sorted(panel.columns),
+        "display": sorted(panel.display) if panel.display is not None else None,
+    }
+
+
 def _panel(panel: Any) -> dict[str, Any]:
     entry = panel.selected
     found = panel.found
+    outer = panel.location.outer
+    if outer is not None:
+        # In an archive: kept as the directory it is in, the cursor on it --
+        # where ``..`` at its root would have gone.
+        return {**_panel_values(panel), "path": str(outer.parent), "cursor": outer.name,
+                "local": str(panel.local_anchor.local)}
     return {
-        "path": str(found.origin if found is not None else panel.path),
+        "path": str(found.origin if found is not None else panel.location),
+        # Where it falls back to, for a panel on another drive that is not
+        # there to go back to.
+        "local": str(panel.local_anchor.local) if not panel.location.is_local else None,
         "view_mode": panel.view_mode,
         "sort_mode": panel.sort_mode,
         "sort_reverse": bool(panel.sort_reverse),
@@ -155,8 +178,21 @@ def load(name: str = DEFAULT) -> dict[str, Any] | None:
 
 
 def _directory(text: Any) -> Path | None:
+    if isinstance(text, str) and "://" in text:
+        return None  # another drive's: see _remote
     path = Path(text) if text else None
     return path if path is not None and path.is_dir() else None
+
+
+def _remote(kept: dict[str, Any]) -> Any:
+    """The place on another drive a kept panel was on, or None."""
+    from navigator.lib.drives import Location
+
+    text = kept.get("path")
+    if not isinstance(text, str) or "://" not in text:
+        return None
+    location = Location.parse(text)
+    return None if location.is_local else location
 
 
 def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
@@ -181,9 +217,20 @@ def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
 def _manager(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | None) -> Any:
     from navigator.widgets.manager.manager import Manager
 
-    left = dirs[0] if dirs else _directory(kept.get("left", {}).get("path")) or Path.cwd()
-    right = dirs[1] if dirs else _directory(kept.get("right", {}).get("path")) or left
+    sides = {side: kept.get(side) or {} for side in ("left", "right")}
+    left = dirs[0] if dirs else (_directory(sides["left"].get("path"))
+                                 or _directory(sides["left"].get("local")) or Path.cwd())
+    right = dirs[1] if dirs else (_directory(sides["right"].get("path"))
+                                  or _directory(sides["right"].get("local")) or left)
     manager = Manager(left, right)
+    if not dirs:
+        # A panel kept on another drive opens on the disk, and goes back
+        # there once the shell has connected -- asking whatever it must.
+        shell = getattr(getattr(desktop, "application", None), "shell", None)
+        for side in ("left", "right"):
+            remote = _remote(sides[side])
+            if remote is not None and shell is not None and hasattr(shell, "go_remote"):
+                shell.spawn(shell.go_remote(getattr(manager, side), remote))
     for side in ("left", "right"):
         panel_kept = dict(kept.get(side) or {})
         if dirs:

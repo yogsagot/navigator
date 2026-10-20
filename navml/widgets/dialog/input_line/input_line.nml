@@ -16,3 +16,7 @@ InputLine(Control):
 
     #: The longest text this line will accept, or 0 for no limit.
     property max_length: 0
+
+    #: A secret: every character painted as ``*``, and nothing of it copied --
+    #: not to the clipboard, not to the primary selection.  For a password.
+    property password: False

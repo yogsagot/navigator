@@ -37,8 +37,12 @@ Slots `[94-101]`, `[104-110]`.
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a
-  running application both answer at once, as before. Opening a branch (`children()`) and `show_path` still read on the
-  loop: the panel has just listed the same directories, and a branch the user opens is one at a time.
+  running application both answer at once, as before. On the disk, opening a branch (`children()`) and `show_path`
+  still read on the loop: the panel has just listed the same directories, and a branch the user opens is one at a
+  time. **On another drive** (`navigator-drives`) every read is a round trip: the tree is rooted on that drive
+  (`DirectoryTree.use_drive_of`, `directory_root(at=)`), `TreeView.load_in_background` reads an opened branch on a
+  thread (`children_of`: open and empty until it lands), and `show_elsewhere` walks the path on a thread and opens
+  the branches when it is in. Alt+T's box sets the same on its plain `TreeView` (`ChangeDirDialog._show`).
 - **Hidden files**: Ctrl+T's tree tracks the active panel's `show_hidden` (`DirectoryTree.set_show_hidden`); Alt+T and
   the tree window take it when opened (`hidden=`). Nodes carry it as `TreeNode.show_hidden`, and `show_path` grafts in a
   dot-directory the path goes through, so a panel inside `~/.config` still has a tree that finds it.

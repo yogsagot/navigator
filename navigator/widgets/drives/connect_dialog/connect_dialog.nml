@@ -1,0 +1,93 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.static_text import StaticText
+
+#: Utilities > *SSH link (SFTP)* (Alt+F11, DN's ``cmNavyLink``), *FTP link* and
+#: *SMB link*, and the Link box's *New ... link*: where to connect, over which
+#: protocol -- the box is the protocol's, and says so -- and the name to keep
+#: it under.
+#:
+#: DN's Navigator Link had a cable to set up and nothing to ask; a server has
+#: a host, a user and a port.  ``~/.ssh/config``'s ``Host`` names work as the
+#: host, and what it says fills in a user and a port left empty.
+ConnectDialog(Dialog):
+    modal_width: 60
+    modal_height: 16
+    #: The protocol, always: ``ConnectDialog`` puts the scheme's name in.
+    title: "SSH link (SFTP)"
+
+    Field:
+        id: host
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~H~ost"
+        label_width: 12
+        #: Its ``▐↓▌`` drops the connections made before, whole
+        #: (``RecentLink``), not a history of host names: the hand-written half
+        #: fills them in as ``choices``, and choosing one fills every line.
+
+    Field:
+        id: user
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~L~ogin"
+        label_width: 12
+
+    Field:
+        id: port
+        x: 2
+        y: 4
+        width: 20
+        height: 1
+        label_text: "P~o~rt"
+        label_width: 12
+
+    Field:
+        id: directory
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~D~irectory"
+        label_width: 12
+
+    Field:
+        id: label
+        x: 2
+        y: 7
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~N~ame"
+        label_width: 12
+
+    CheckBoxes:
+        id: keep
+        x: 3
+        y: 9
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["~K~eep in the Link list"]
+
+    #: FTP's only: the session and the data under TLS, ``ftps://``.
+    CheckBoxes:
+        id: secure
+        x: 3
+        y: 10
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["~E~ncrypt with TLS (FTPS)"]
+        visible: False
+
+    #: Why a connection cannot be made here: the extra that is missing.
+    StaticText:
+        id: missing
+        x: 2
+        y: 11
+        width: max(0, parent.width - 4)
+        height: 1
+        text: ""

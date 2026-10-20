@@ -52,9 +52,23 @@ class InfoPanel(Widget):
         self.title_margin = 0
         self._wanted: Path | None = None
 
-    def show(self, directory: Path, entries: Any, *, reread: bool = True) -> None:
+    #: For a place on another drive: what its drive says of itself
+    #: (``Drive.describe``), shown in place of the disk's and the memory's.
+    described: Any = reactive(None)
+
+    def show(self, directory: Any, entries: Any, *, reread: bool = True) -> None:
         """Describe *directory*, listing *entries*; *reread* reads the disk
-        again even if it is the one already described."""
+        again even if it is the one already described.  A
+        :class:`~navigator.lib.drives.Location` on another drive is described
+        by its drive, on a thread."""
+        from navigator.lib.drives import Location
+
+        if isinstance(directory, Location) and not directory.is_local:
+            self._show_elsewhere(directory, entries)
+            return
+        if isinstance(directory, Location):
+            directory = directory.local
+        self.described = None
         directory = Path(directory)
         same = directory == self.directory
         self.entries = tuple(entries)
@@ -64,6 +78,27 @@ class InfoPanel(Widget):
         self._wanted = directory
         _READER.run(self, diskinfo.gather, directory,
                     done=lambda outcome, d=directory: self._read(d, outcome))
+
+    def _show_elsewhere(self, location: Any, entries: Any) -> None:
+        from navigator.lib.drives import drive_of
+
+        self.entries = tuple(entries)
+        self._wanted = location
+
+        def ask() -> tuple[str, list[tuple[str, str]]]:
+            drive = drive_of(location)
+            return drive.get_dir(location), drive.describe()
+
+        def answered(outcome: Outcome) -> None:
+            if self._wanted != location:
+                return
+            try:
+                name, described = outcome.result()
+            except OSError:
+                name, described = str(location), []
+            self.directory, self.facts, self.described = name, diskinfo.DiskFacts(), described
+
+        _READER.run(self, ask, done=answered)
 
     def _read(self, directory: Path, outcome: Outcome) -> None:
         if self._wanted != directory:
@@ -76,7 +111,11 @@ class InfoPanel(Widget):
     def lines(self) -> list[tuple[str, bool]]:
         if self.directory is None:
             return []
-        return diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info)
+        out = diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info)
+        if self.described:
+            out.append(("\0" + tr("Connection"), False))
+            out += [(f"{tr(what)}: ~{value}~", False) for what, value in self.described]
+        return out
 
     def render(self, surface: Surface) -> None:
         if self.width < 2 or self.height < 2:

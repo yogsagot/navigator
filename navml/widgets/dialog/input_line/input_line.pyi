@@ -22,6 +22,7 @@ from navml.widgets.menu.commands import ShowContextMenu
 class InputLine(Control, _Component):
     value: str
     max_length: int
+    password: bool
     history: Any
     cursor: int
     first: int

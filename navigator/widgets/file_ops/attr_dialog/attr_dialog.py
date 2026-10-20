@@ -47,6 +47,8 @@ them: there they step the date or time, carrying as a calendar does.
 
 from __future__ import annotations
 
+import os
+
 import stat
 from pathlib import Path
 from typing import Any, Sequence
@@ -131,6 +133,17 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
     (``Manager.change_attributes``), so the screen does not wait for them.
     """
     survey = fileattr.survey(paths)
+    if paths and not isinstance(paths[0], (str, os.PathLike)) and not paths[0].is_local:
+        # On another drive: its ids mean nothing in this system's passwd, so
+        # they are numbers, and changed only where the drive can.
+        from navigator.lib.drives import drive_of
+
+        can = drive_of(paths[0]).can("chown")
+        return {
+            "survey": survey,
+            "user": "" if survey.uid is None else str(survey.uid), "users": [], "can_chown_user": can,
+            "group": "" if survey.gid is None else str(survey.gid), "groups": [], "can_chown_group": can,
+        }
     return {
         "survey": survey,
         "user": "" if survey.uid is None else fileattr.user_name(survey.uid),
@@ -156,8 +169,11 @@ class AttrDialog(Dialog):
         super().__init__(**kwargs)
         self.message.visible = False
         self._entries = list(entries)
-        self._here = Path(here) if here is not None else Path.cwd()
-        self._paths = [entry.path_in(self._here) for entry in self._entries]
+        from navigator.lib.drives import Location
+        from navigator.lib.file_ops.filecopy import shown
+
+        self._here = Location.of(here if here is not None else Path.cwd())
+        self._paths = [shown(entry.path_in(self._here)) for entry in self._entries]
         if facts is None:
             facts = gather(self._paths)
         self.survey = facts["survey"]
@@ -182,6 +198,8 @@ class AttrDialog(Dialog):
         self.user.disabled = not facts["can_chown_user"]
         self.group.value = facts["group"]
         self.group.choices = with_current(facts["groups"], self.group.value)
+        if "can_chown_group" in facts:
+            self.group.disabled = not facts["can_chown_group"]
         self.date.value = fileattr.date_text(survey.mtime)
         self.clock.value = fileattr.time_text(survey.mtime)
 

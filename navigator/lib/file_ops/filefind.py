@@ -214,6 +214,10 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
     """
     pattern = text_pattern(request.text, case=request.case, words=request.words)
     limits = request.limits if request.advanced else Advanced()
+    if not isinstance(start, (str, os.PathLike)) and not start.is_local:
+        return _search_drive(request, start, job, pattern, limits, show_hidden)
+    if not isinstance(start, (str, os.PathLike)):
+        start = start.local
     one_device = request.scope != "directory"
     seen: set[tuple[int, int]] = set()
     for root in roots(start, request.scope, mounts):
@@ -262,6 +266,124 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     job.found.append(make_entry(directory, item, info))
             pending.extend(reversed(sorted(subdirectories)))
     return job.found
+
+
+def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, limits: Advanced,
+                  show_hidden: bool) -> list[Any]:
+    """:func:`search` on a drive other than the disk: the same walk, each
+    directory listed by its drive (``Drive.children``), a file's text read
+    through it.  Only *start* and below -- or the drive's top, for *disk*
+    and *all drives*: it has no mounts of its own.  Links are not followed."""
+    from pathlib import PurePosixPath
+
+    from navigator.lib.drives import Location, drive_of
+    from navigator.lib.drives.listing import DirEntry
+
+    if request.scope != "directory":
+        start = Location(start.site, PurePosixPath("/"), start.outer)
+    pending = [start]
+    while pending:
+        if job.stopped:
+            return job.found
+        directory = pending.pop()
+        job.directory = str(directory)
+        try:
+            drive = drive_of(directory)
+            children = drive.children(directory)
+        except OSError:
+            continue
+        subdirectories = []
+        for name, info in children:
+            if job.stopped:
+                return job.found
+            if isinstance(info, OSError) or (not show_hidden and name.startswith(".")):
+                continue
+            is_link = stat.S_ISLNK(info.st_mode)
+            is_dir = stat.S_ISDIR(info.st_mode)
+            if is_dir and request.recursive:
+                subdirectories.append(directory / name)
+            if is_dir and not request.directories:
+                continue
+            if not filetypes.in_filter(name, request.mask):
+                continue
+            if not _passes(name, info, is_link, limits):
+                continue
+            if pattern is not None:
+                if is_dir or not holds_on_drive(directory / name, pattern, job):
+                    continue
+            job.found.append(DirEntry(name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
+                                      is_link, directory=directory))
+        pending.extend(reversed(sorted(subdirectories, key=lambda place: place.name)))
+    return job.found
+
+
+def holds_on_drive(location: Any, pattern: re.Pattern[bytes], job: Any = None) -> bool:
+    """:func:`holds` for a file on another drive, read through it."""
+    from navigator.lib.drives import drive_of
+
+    overlap = max(0, len(pattern.pattern) * 4)
+    tail = b""
+    try:
+        with drive_of(location).open_read(location) as file:
+            while True:
+                if job is not None and job.stopped:
+                    return False
+                chunk = file.read(CHUNK)
+                if not chunk:
+                    return False
+                if pattern.search(tail + chunk):
+                    return True
+                tail = (tail + chunk)[-overlap:] if overlap else b""
+    except OSError:
+        return False
+
+
+def read_list_on_drive(list_file: Any, here: Any) -> list[Any]:
+    """:func:`read_list` for a list file on another drive, naming that drive's
+    files: relative to *here* there, ``/`` its top, a mask matched against a
+    directory's listing.  ``~`` means nothing there, and is a name.  A thread
+    runs it; raises ``OSError`` if the list cannot be read."""
+    import fnmatch
+    import posixpath
+    from pathlib import PurePosixPath
+
+    from navigator.lib.drives import drive_of
+    from navigator.lib.drives.listing import DirEntry
+
+    drive = drive_of(list_file)
+    with drive.open_read(list_file) as stream:
+        text = stream.read().decode("utf-8", "surrogateescape")
+    found: list[Any] = []
+    seen: set[str] = set()
+    for line in text.splitlines():
+        name = line.strip()
+        if not name:
+            continue
+        path = name if name.startswith("/") else posixpath.join(str(here.path), name)
+        path = posixpath.normpath(path)
+        place = here.__class__(here.site, PurePosixPath(path), here.outer)
+        if any(char in place.name for char in "*?["):
+            try:
+                names = [child for child, _ in drive.children(place.parent)]
+            except OSError:
+                continue
+            places = [place.parent / child for child in sorted(names) if fnmatch.fnmatchcase(child, place.name)]
+        else:
+            places = [place]
+        for each in places:
+            key = str(each.path)
+            if each.name in (".", "..", "") or key in seen:
+                continue
+            try:
+                own = drive.lstat(each)
+                info = drive.stat(each) if stat.S_ISLNK(own.st_mode) else own
+            except OSError:
+                continue
+            seen.add(key)
+            is_dir = stat.S_ISDIR(info.st_mode)
+            found.append(DirEntry(each.name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
+                                  stat.S_ISLNK(own.st_mode), directory=each.parent))
+    return found
 
 
 def _stat_or_lstat(item: os.DirEntry[str]) -> os.stat_result:

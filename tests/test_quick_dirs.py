@@ -13,6 +13,7 @@ from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
 from navml.history import HISTORY
 from navml.widgets.menu.popup_menu import PopupMenu
+from navigator.lib.drives import Location
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def into(name: str):
 
 def listed(path: Path) -> Until:
     """Until the left panel shows *path*'s listing, read on a thread."""
-    return Until(lambda a: a.manager.left._listed == path and not a.manager.left.scanning, timeout=5)
+    return Until(lambda a: a.manager.left._listed == Location.of(path) and not a.manager.left.scanning, timeout=5)
 
 
 def titled(title: str):

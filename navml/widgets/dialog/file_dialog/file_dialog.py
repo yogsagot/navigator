@@ -165,6 +165,15 @@ class FileDialog(Dialog):
 
     # -- OK ------------------------------------------------------------------------
 
+    #: A test for a name line that is not a path to make whole: what passes it
+    #: is answered as typed -- a place on another drive a program can reach,
+    #: which this dialog cannot list.  None takes every line as a path.
+    raw: Any = None
+
+    def _raw(self) -> bool:
+        text = self.target.value.strip()
+        return bool(text) and self.raw is not None and bool(self.raw(text))
+
     def file_name(self) -> Path:
         """``GetFileName``: the name line as a full path, relative to the directory listed."""
         text = self.target.value.strip()
@@ -173,6 +182,8 @@ class FileDialog(Dialog):
     def valid(self) -> bool:
         """``Valid(cmFileOpen)``: a file closes the dialog; a directory or a wildcard
         is listed instead, and the dialog stays up."""
+        if self._raw():
+            return True
         path = self.file_name()
         text = self.target.value.strip()
         if text and is_wild(path.name):
@@ -220,6 +231,8 @@ class FileDialog(Dialog):
             HISTORY.add(self.history_id, str(self.file_name()))
 
     def accept(self) -> str:
+        if self._raw():
+            return self.target.value.strip()
         return str(self.file_name())
 
     async def on_pick_click(self, event: Event) -> bool:

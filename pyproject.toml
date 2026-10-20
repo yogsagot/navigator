@@ -74,7 +74,17 @@ nml = "navigator.lib.highlight.lexers:NmlLexer"
 nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.0"]
+dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0"]
+# Utilities > Navigator Link to SSH servers (`navigator.lib.drives.sftp`).
+# Optional because it is the one dependency with compiled parts (through
+# `cryptography`); without it the Link entries say what to install.
+sftp = ["paramiko>=3.4"]
+# Utilities > SMB link, Windows and Samba shares (`navigator.lib.drives.smb`).
+# FTP needs nothing: it is the standard library's `ftplib`.
+smb = ["smbprotocol>=1.13"]
+# *Save in keyring* in the password box: passwords kept by the desktop's
+# keyring, never by Navigator (`navigator.lib.drives.credentials`).
+keyring = ["keyring>=24"]
 
 [project.urls]
 Homepage = "https://github.com/yogsagot/navigator"

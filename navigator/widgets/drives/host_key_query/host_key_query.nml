@@ -1,0 +1,12 @@
+from navml.widgets.dialog.dialog import Dialog
+
+#: A server whose host key ``known_hosts`` does not have: what ``ssh`` asks
+#: as *Are you sure you want to continue connecting?*, as a box.
+#:
+#: *Accept* trusts the key for this connection, *Save* writes it to
+#: ``~/.ssh/known_hosts`` too, and Cancel does not connect.
+HostKeyQuery(Dialog):
+    modal_width: 64
+    modal_height: 11
+    title: "Unknown SSH host"
+    buttons: "yes-no-cancel"

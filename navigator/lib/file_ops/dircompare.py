@@ -19,6 +19,7 @@ would bring up to date.  Directories are never compared, and never tagged.
 from __future__ import annotations
 
 import filecmp
+import os
 import stat
 from dataclasses import dataclass
 from pathlib import Path
@@ -70,11 +71,32 @@ def _matches(entry: Any, other: Any, request: CompareRequest,
     if request.contents:
         if here is None or there is None:
             raise ValueError("comparing contents needs both directories")
+        mine, theirs = entry.path_in(here), other.path_in(there)
         try:
-            return filecmp.cmp(entry.path_in(here), other.path_in(there), shallow=False)
+            if isinstance(mine, (str, os.PathLike)) and isinstance(theirs, (str, os.PathLike)):
+                return filecmp.cmp(mine, theirs, shallow=False)
+            return same_bytes(mine, theirs)
         except OSError:
             return False  # one that cannot be read is not shown to be the same
     return True
+
+
+def same_bytes(a: Any, b: Any, chunk: int = 1 << 16) -> bool:
+    """Whether the files at *a* and *b* -- either on any drive
+    (:mod:`navigator.lib.drives`) -- hold the same bytes, read side by side."""
+    from navigator.lib.drives import Location, drive_of
+
+    def opened(place: Any) -> Any:
+        place = Location.of(place)
+        return drive_of(place).open_read(place)
+
+    with opened(a) as first, opened(b) as second:
+        while True:
+            one, two = first.read(chunk), second.read(chunk)
+            if one != two:
+                return False
+            if not one:
+                return True
 
 
 def tagged(marked: frozenset[str], found: set[str], request: CompareRequest) -> frozenset[str]:

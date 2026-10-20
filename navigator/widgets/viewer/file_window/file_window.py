@@ -89,6 +89,8 @@ class FileWindow(Window):
         viewer = self.viewer
         if not SETTINGS.interface.track_viewing or viewer.path is None:
             return
+        if getattr(self, "use_set", None) is not None or viewer.remote:
+            return  # a file on another drive: no place here to come back to
         ViewRecord.store(
             viewer.path,
             **window_values(self),
@@ -113,7 +115,7 @@ class FileWindow(Window):
         asked for one -- the record's mode gives way.
         """
         viewer = self.viewer
-        if not SETTINGS.interface.track_viewing or viewer.path is None:
+        if not SETTINGS.interface.track_viewing or viewer.path is None or viewer.remote:
             return
         record = ViewRecord.find(viewer.path)
         if record is None:
@@ -141,6 +143,14 @@ class FileWindow(Window):
         if self.parent is not None:
             self.remember_history()
         super().close()
+        use = getattr(self, "use_set", None)
+        if use is not None:
+            import asyncio
+
+            from navigator.lib.drives import usefile
+
+            self.use_set = None
+            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
 
     async def on_close_viewer(self, event: CloseViewer) -> bool:
         """F3 again: Midnight Commander's way out, beside DN's Esc."""
@@ -309,26 +319,50 @@ class FileWindow(Window):
         app = self.application
         if source is None or viewer.path is None:
             return
-        name = await FileDialog(
+        dialog = FileDialog(
             title=tr("Save File As"), label=tr("~S~ave File As"), history_id="edit_save",
             directory=viewer.path.parent, hidden=SETTINGS.system.show_hidden,
-        ).execute(app)
+        )
+        # A URL, or a place in an archive, goes as typed: to that drive.
+        dialog.raw = lambda text: "://" in text or "#/" in text
+        name = await dialog.execute(app)
         if not name:
             return
-        target = Path(name)
-        if target.exists():
+        from navigator.lib.drives import Location, drive_of
+
+        place = Location.parse(name)
+        if not place.is_local:
+            reach = getattr(getattr(app, "shell", None), "reach", None)
+            if reach is None or not await reach(place):
+                return
+
+        def there() -> bool:
+            try:
+                return drive_of(place).lexists(place)
+            except OSError:
+                return False
+
+        target: Any = place.local if place.is_local else place
+        if await asyncio.to_thread(there):
             answer = await Dialog(title=tr("Warning"),
                                   prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
                                   buttons="yes-no").execute(app)
             if answer is not True:
                 return
         try:
-            await asyncio.to_thread(viewer_model.save_as, source.path, target, viewer.encoding)
+            # A file read across a network is written from its drive, whole.
+            data = source if viewer.remote else source.path
+            await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding)
         except OSError as error:
             await Dialog(title=tr("Error"),
                          prompt=tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error),
                          buttons="ok").execute(app)
             return
+        finally:
+            if place.outer is not None:
+                from navigator.lib.drives import archive
+
+                await asyncio.to_thread(archive.release_unheld, place.outer)
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
 
         await self.emit(FileSaved(target))

@@ -16,6 +16,8 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
+from navigator.lib.drives import Location
+from navigator.lib.file_ops.filecopy import shown
 from navigator.lib.file_ops.fileerase import EraseRequest
 
 #: The *Recursive delete* box as the last accepted dialog left it.
@@ -59,7 +61,7 @@ class DeleteDialog(Dialog):
         """*entries* are the panel's selection in *here*."""
         super().__init__(**kwargs)
         self._entries = list(entries)
-        self._here = Path(here) if here is not None else Path.cwd()
+        self._here = Location.of(here if here is not None else Path.cwd())
         self.message.visible = False
         # ``mfYesNoConfirm``: Yes and No, where No is Cancel's answer.
         unbind(self.ok, Button.text)
@@ -78,6 +80,6 @@ class DeleteDialog(Dialog):
         recursive = bool(self.options.value & RECURSIVE)
         _session["recursive"] = recursive
         return EraseRequest(
-            sources=[entry.path_in(self._here) for entry in self._entries],
+            sources=[shown(entry.path_in(self._here)) for entry in self._entries],
             recursive=recursive,
         )

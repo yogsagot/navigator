@@ -16,6 +16,7 @@ importable by its own name, which is what ``manager.nml`` will need.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import contextlib
 import configparser
 import os
@@ -24,6 +25,7 @@ import sys
 from dataclasses import replace
 from importlib import metadata
 from pathlib import Path
+from typing import Any
 
 from navkit.application import Application
 from navkit.capabilities import VGA_PALETTE, TerminalInfo, depth_named
@@ -38,6 +40,7 @@ from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
 
 from navigator import __version__
+from navigator.lib.drives import Location
 from navigator.lib.config import keybindings, language
 from navigator.lib.config.associations import seed_all as seed_associations
 from navigator.lib.config.bookmarks import seed_bookmarks
@@ -55,6 +58,8 @@ from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
     CommandLineEnd,
+    HangUp,
+    NavyLink,
     CommandLineHome,
     CompleteCommandLine,
     EditHistory,
@@ -84,6 +89,16 @@ class Navigator(Application):
         loads again under the palette it edits.  *on_error* is
         ``--on-error``'s word, winning over System Setup's for the session."""
         scheme = scheme or default_scheme()
+        #: A side given on the command line as a place on another drive: it
+        #: opens on the disk, and goes there once the shell has connected.
+        self._remote_start: dict[str, Location] = {}
+        for side, place in (("left", left), ("right", right)):
+            if isinstance(place, Location) and not place.is_local:
+                self._remote_start[side] = place
+        if isinstance(left, Location):
+            left = left.local if left.is_local else Path.cwd()
+        if isinstance(right, Location):
+            right = right.local if right.is_local else left
         self._on_error = on_error
         #: Whether the error box is up: a failure while it is ends Navigator.
         self._error_shown = False
@@ -128,12 +143,22 @@ class Navigator(Application):
         if self.manager.parent is not None:
             # The start's own file manager, not one a desktop brought back.
             self.manager.apply_left_panel()
+        go_remote = getattr(self.shell, "go_remote", None)
+        if go_remote is not None:
+            for side, place in self._remote_start.items():
+                self.shell.spawn(go_remote(getattr(self.manager, side), place))
+        # What a Navigator that is gone left of files fetched from other drives.
+        from navigator.lib.drives import usefile
+
+        self.shell.spawn(asyncio.to_thread(usefile.sweep))
         self._last_input = self._now()
         # System's *stall_report*: a freeze leaves its stacks in errors.log.
         self._watchdog = errorlog.start_watchdog(self, SETTINGS.system.stall_report)
         if self._watchdog is not None:
             effect(self.shell, self._follow_stall_report)
         self.call_every(self.idle_check_every, self._check_idle)
+        # *Communications*' *Close an idle connection after*.
+        self.call_every(60.0, self.shell.reap_connections)
         self.call_every(self.saver_check_every, self._check_saver)
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
         # once its desktop was in place (``RunMenu``).
@@ -273,6 +298,18 @@ class Navigator(Application):
         self.shell.console.stop()
         # Auto refresh's observer: nothing is left to tell of a change.
         dirwatch.shutdown()
+        # Every connection to another drive, closed -- on a thread, as a
+        # server that stopped answering takes its time to be let go of.
+        from navigator.lib.drives import mounted
+        from navigator.lib.drives.sessions import SESSIONS
+
+        if mounted():
+            with contextlib.suppress(asyncio.TimeoutError):
+                await asyncio.wait_for(asyncio.to_thread(SESSIONS.close_all), timeout=5)
+        # And every archive a panel was in, with what was fetched to open one.
+        from navigator.lib.drives import archive
+
+        await asyncio.to_thread(archive.close_all)
 
     #: Only the keys that mean the same thing wherever the focus is.
     #:
@@ -339,6 +376,10 @@ class Navigator(Application):
         "alt+q": OpenSmartpad,
         #: ≡ > *Game*, DN's ``kbAltF9`` -- *Navigator's game*, from anywhere.
         "alt+f9": Game,
+        #: Utilities > *Navigator Link* and *Disconnect*, DN's ``kbAltF11`` and
+        #: ``kbAltH``.  An editor keeps Alt+H for its block, as DN's did.
+        "alt+f11": NavyLink,
+        "alt+h": HangUp,
         #: Utilities > *Calendar*, TVDEMO's calendar -- a departure, so a key
         #: of its own rather than DN's: nothing in Navigator binds F12.
         "ctrl+f12": OpenCalendar,
@@ -754,12 +795,25 @@ def main(argv: list[str] | None = None) -> int:
         info = replace(info, colors=depth_named(args.colors, info.colors))
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
-    left = Path(args.left).expanduser().resolve() if args.left else Path.cwd()
-    right = Path(args.right).expanduser().resolve() if args.right else left
+    left = _start_directory(args.left) if args.left else Path.cwd()
+    right = _start_directory(args.right) if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
     Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
               given=bool(args.left), theme=theme, on_error=args.on_error).run()
     return 0
+
+
+def _start_directory(text: str) -> Any:
+    """A directory given on the command line: a path made absolute, or a
+    URL on another drive (``sftp://host/dir``), taken as it is."""
+    from navigator.lib.drives import Location
+
+    if "://" in text:
+        location = Location.parse(text)
+        if not location.is_local:
+            return location
+        return location.local.expanduser().resolve()
+    return Path(text).expanduser().resolve()
 
 
 if __name__ == "__main__":

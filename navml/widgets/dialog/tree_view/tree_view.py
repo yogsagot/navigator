@@ -182,6 +182,17 @@ class ChosenEvent(Event):
 #: Where unopened nodes are probed, for a tree that probes off the loop.
 _PROBES = Background("navml-probe", workers=4)
 
+#: Where opened nodes read their children, for a tree that reads off the loop.
+_LOADS = Background("navml-tree-load", workers=4)
+
+
+def _load(node: TreeNode) -> list[TreeNode]:
+    """*node*'s children, read on a thread -- not yet attached: the loop does that."""
+    try:
+        return list(node.loader(node)) if node.loader is not None else []
+    except OSError:
+        return []
+
 
 class TreeView(ListViewer):
     """The rows of a :class:`TreeNode` tree, with branches drawn between them."""
@@ -225,6 +236,12 @@ class TreeView(ListViewer):
     probe_in_background = False
     #: The nodes whose probe is on a thread now.
     _probing: set[TreeNode] | None = None
+    #: Whether an opened node's children are read on a thread too, for a tree
+    #: whose every read is a round trip -- a server's directories.  The branch
+    #: shows open and empty until they land, then fills in.
+    load_in_background = False
+    #: The nodes whose children are being read on a thread now.
+    _loading: set[TreeNode] | None = None
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
@@ -245,7 +262,7 @@ class TreeView(ListViewer):
             rows.append(TreeRow(node, level, more, rails))
             if collapsible and not node.expanded:
                 return
-            children = node.children()
+            children = self.children_of(node)
             inner = rails + ((more,) if level >= 1 else ())
             for index, child in enumerate(children):
                 walk(child, level + 1, index < len(children) - 1, inner)
@@ -258,6 +275,29 @@ class TreeView(ListViewer):
     def selected_node(self) -> TreeNode | None:
         row = self.selected
         return row.node if row is not None else None
+
+    def children_of(self, node: TreeNode) -> list[TreeNode]:
+        """*node*'s children as the rows show them: read now -- or, with
+        :attr:`load_in_background` and the loop running, asked for on a
+        thread and none until they are in."""
+        if node.loaded or not self.load_in_background or node.loader is None:
+            return node.children()
+        app = self.application
+        if app is None or not app.is_running:
+            return node.children()
+        if self._loading is None:
+            self._loading = set()
+        if node not in self._loading:
+            self._loading.add(node)
+            _LOADS.run(self, _load, node, done=lambda outcome, node=node: self._loaded(node, outcome))
+        return []
+
+    def _loaded(self, node: TreeNode, outcome: Outcome) -> None:
+        if self._loading is not None:
+            self._loading.discard(node)
+        if not node.loaded:
+            node.set_children(outcome.result())
+            self.refresh()
 
     def index_of(self, node: TreeNode) -> int:
         """The row showing *node*, or -1 while a closed branch hides it."""
@@ -297,12 +337,15 @@ class TreeView(ListViewer):
             self.collapse(node)
         elif node.has_children():
             self.expand(node)
-            if not node.children():
+            if not self.children_of(node) and node.loaded:
                 self.refresh()
 
     def descend(self, node: TreeNode) -> None:
         """Open *node* and put the cursor on its first child, or on the next
         row when it has none."""
+        if self.load_in_background and not node.loaded:
+            self.expand(node)  # its children read on a thread; the cursor stays
+            return
         children = node.children() if node.has_children() else []
         if children:
             self.select(children[0])

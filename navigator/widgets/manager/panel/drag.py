@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
+from navigator.lib.file_ops.filecopy import shown
 from navkit.i18n import tr_n
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -83,7 +84,7 @@ def label_for(entries: list[Any]) -> str:
 TRASH = "trash"
 
 
-def drop_target(app: Any, x: int, y: int, source: Any) -> tuple[Path, Any] | str | None:
+def drop_target(app: Any, x: int, y: int, source: Any) -> tuple[Any, Any] | str | None:
     """Where a drop at screen *x*, *y* puts the files, and the panel it is on.
 
     A panel takes them into the directory row under the pointer or else its
@@ -115,10 +116,16 @@ def drop_target(app: Any, x: int, y: int, source: Any) -> tuple[Path, Any] | str
     if widget.found is not None or widget.error is not None:
         return None
     entry = widget.items[index] if index is not None else None
+    here = widget.location
+    if not here.is_local:
+        try:
+            if not widget.drive.can("write"):
+                return None  # a drive that takes nothing in
+        except OSError:
+            return None
     if entry is not None and entry.is_dir:
-        here = Path(widget.path)
-        target = here.parent if entry.name == ".." else entry.path_in(here)
-        return target, widget
+        target = here.parent if entry.name == ".." else here / entry.name
+        return shown(target), widget
     if widget is source:
         return None
-    return Path(widget.path), widget
+    return shown(here), widget

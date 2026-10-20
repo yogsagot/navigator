@@ -14,6 +14,8 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
+from navigator.lib.drives import Location
+from navigator.lib.file_ops.filecopy import shown
 from navigator.lib.file_ops.fileerase import EraseRequest
 
 

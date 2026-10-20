@@ -1,3 +1,7 @@
 # Development-only dependencies.  Navigator's own run-time ones are in
 # requirements.txt.
 pytest>=8.0
+# The SFTP drive's tests run against paramiko's own server (tests/sftp_server.py).
+paramiko>=3.4
+# The FTP drive's tests run against pyftpdlib's server (tests/ftp_server.py).
+pyftpdlib>=2.0

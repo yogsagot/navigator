@@ -22,7 +22,8 @@ from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.widgets.file_ops.commands import ChooseTarget
-from navigator.lib.file_ops.filecopy import ASK, MOVE, PRESERVE, CopyRequest
+from navigator.lib.drives import Location
+from navigator.lib.file_ops.filecopy import ASK, MOVE, PRESERVE, CopyRequest, shown
 from navigator.settings import SETTINGS
 
 #: ``ccCopyMode`` and ``ccCopyOpt``: what the last accepted dialog said.  DN
@@ -63,7 +64,7 @@ def target_for(entries: Sequence[Any], here: Path, other: Path | None, move: boo
     bare name, which renames it in place.  Nothing at all otherwise, as DN
     left it.
     """
-    if other is not None and Path(other) != Path(here):
+    if other is not None and Location.of(other) != Location.of(here):
         text = str(other).rstrip("/") + "/"
         if len(entries) == 1 and not entries[0].is_dir:
             text += entries[0].name
@@ -93,12 +94,12 @@ class CopyDialog(Dialog):
         self.row.visible = False
         self.message.visible = False
         self._entries = list(entries)
-        self._here = Path(here) if here is not None else Path.cwd()
+        self._here = Location.of(here if here is not None else Path.cwd())
         self._hidden = hidden
         self.prompt_caption.text = prompt_for(self._entries, self.move)
         # ``cmPushName``: every panel somewhere else puts its directory in
         # the history, so the Down arrow offers it.
-        if other is not None and Path(other) != self._here:
+        if other is not None and Location.of(other) != self._here:
             HISTORY.add("copy", str(other).rstrip("/") + "/")
         self.target.value = target_for(self._entries, self._here, other, self.move)
         self.target.entry.select_all()
@@ -118,7 +119,7 @@ class CopyDialog(Dialog):
         _session["mode"] = self.mode.value
         _session["options"] = self.options.value
         return CopyRequest(
-            sources=[entry.path_in(self._here) for entry in self._entries],
+            sources=[shown(entry.path_in(self._here)) for entry in self._entries],
             target=target,
             mode=self.mode.value,
             options=self.options.value,
@@ -144,7 +145,7 @@ class CopyDialog(Dialog):
         await choose_target_line(self, self._here, self._hidden)
 
 
-async def choose_target_line(dialog: Any, here: Path, hidden: bool) -> None:
+async def choose_target_line(dialog: Any, here: Path | Location, hidden: bool) -> None:
     """``ExecTree``: *Choose Directory*, and *dialog*'s ``target`` line becomes where it points.
 
     The tree opens on the directory the line names, if there is one, and on
@@ -152,8 +153,12 @@ async def choose_target_line(dialog: Any, here: Path, hidden: bool) -> None:
     """
     from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
 
+    here = Location.of(here)
+    if not here.is_local or "://" in dialog.target.value:
+        # The tree is the disk's: off it, it starts where Navigator was started.
+        here = Location.of(Path.cwd())
     typed = Path(dialog.target.value.strip() or ".").expanduser()
-    start = typed if typed.is_absolute() else here / typed
+    start = typed if typed.is_absolute() else here.local / typed
     while not start.is_dir() and start != start.parent:
         start = start.parent
     chosen = await ChangeDirDialog(start=start, hidden=hidden).execute(dialog.application)

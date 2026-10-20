@@ -95,7 +95,17 @@ from navigator.widgets.manager.panel.drag import Dropped, label_for
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
+from navigator.lib.drives import DriveGone, Location, drive_of
+from navigator.lib.file_ops.filecopy import shown
 from navigator.settings import SETTINGS
+
+
+#: What works only on the local disk: greyed out while the active panel is on
+#: another drive (:mod:`navigator.lib.drives`).  Empty now -- every command
+#: asks the drive, or works on a fetched copy -- and the place a new command
+#: that cannot goes, until it is taught to.  What a drive cannot do at all is
+#: its capabilities' to grey (``enables``).
+_LOCAL_ONLY: tuple[type, ...] = ()
 
 
 class Manager(Window):
@@ -271,7 +281,7 @@ class Manager(Window):
         from navigator.widgets.file_ops.count_progress import CountProgress
 
         app = self.application
-        here = Path(panel.path)
+        here = panel.location
         entries = [entry for entry in panel.marked_entries if entry.is_dir]
         current = panel.selected
         if current is not None and current.is_dir and current not in entries:
@@ -283,7 +293,8 @@ class Manager(Window):
             entries = [entry for entry in entries if entry.name != ".."]
             if not entries:
                 return
-        targets = [(entry, here if entry.name == ".." else entry.path_in(here)) for entry in entries]
+        targets = [(entry, shown(here if entry.name == ".." else panel.entry_location(entry)))
+                   for entry in entries]
         job = CountJob()
 
         def count() -> list[tuple[Any, int]]:
@@ -333,22 +344,41 @@ class Manager(Window):
         from navigator.widgets.file_ops.uu_encode_dialog import UUEncodeDialog
 
         app = self.application
-        source = self._uu_source(panel)
-        if app is None or source is None:
+        place = self._uu_place(panel)
+        if app is None or place is None:
             return
+        source = place.local if place.is_local else Path(place.name)
         answer = await UUEncodeDialog(source=source, other=self._uu_other(panel),
                                       hidden=panel.show_hidden).execute(app)
         if answer is None:
             return
         self._keep_uucode(answer["uucode"])
         section = SETTINGS.uucode
-        request = uucode.EncodeRequest(
-            source, answer["target"], file_time=section.file_time, map_table=section.map_table,
-            statistics=section.statistics, checksum=section.checksum,
-            lines=section.lines_per_section, crlf=section.line_ends == "crlf",
-        )
-        await self._run_uucode(panel, lambda job: uucode.encode(request, job, source.parent),
-                               tr("Encoding {name}").format(name=source.name), beep_after=20)
+
+        def request_for(local: Path, target: str) -> Any:
+            return uucode.EncodeRequest(
+                local, target, file_time=section.file_time, map_table=section.map_table,
+                statistics=section.statistics, checksum=section.checksum,
+                lines=section.lines_per_section, crlf=section.line_ends == "crlf",
+            )
+
+        notice = tr("Encoding {name}").format(name=place.name)
+        target = answer["target"]
+        if place.is_local and "://" not in target and "#/" not in target:
+            request = request_for(source, target)
+            await self._run_uucode(panel, lambda job: uucode.encode(request, job, source.parent),
+                                   notice, beep_after=20)
+            return
+
+        def elsewhere(job: Any, local: Path, staging: Path) -> Any:
+            from navigator.lib.file_ops.filecopy import target_location
+
+            dest = target_location(target, place.parent)
+            if dest.is_local:
+                return uucode.encode(request_for(local, str(dest.local)), job, dest.local.parent)
+            return uucode.encode(request_for(local, str(staging / dest.name)), job, staging), dest.parent
+
+        await self._run_uucode(panel, self._staged(place, elsewhere), notice, beep_after=20)
 
     async def uu_decode(self, panel: Panel) -> None:
         """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
@@ -357,35 +387,87 @@ class Manager(Window):
         from navigator.widgets.file_ops.uu_decode_dialog import UUDecodeDialog
 
         app = self.application
-        source = self._uu_source(panel)
-        if app is None or source is None:
+        place = self._uu_place(panel)
+        if app is None or place is None:
             return
-        answer = await UUDecodeDialog(here=source.parent, other=self._uu_other(panel),
-                                      hidden=panel.show_hidden).execute(app)
+        answer = await UUDecodeDialog(here=place.parent.local if place.is_local else None,
+                                      other=self._uu_other(panel), hidden=panel.show_hidden).execute(app)
         if answer is None:
             return
         self._keep_uucode(answer["uucode"])
         section = SETTINGS.uucode
-        text = os.path.expanduser(answer["target"])
-        out = source.parent / text if text else source.parent
-        await self._run_uucode(
-            panel,
-            lambda job: uucode.decode(source, out, job, check_existing=section.check_existing,
-                                      display_errors=section.display_errors,
-                                      save_broken=section.save_broken),
-            tr("Decoding {name}").format(name=source.name), beep_after=5,
-        )
+        text = answer["target"].strip()
+
+        def decode(local: Path, out: Path, job: Any) -> Any:
+            return uucode.decode(local, out, job, check_existing=section.check_existing,
+                                 display_errors=section.display_errors, save_broken=section.save_broken)
+
+        notice = tr("Decoding {name}").format(name=place.name)
+        if place.is_local and "://" not in text and "#/" not in text:
+            source = place.local
+            expanded = os.path.expanduser(text)
+            out = source.parent / expanded if expanded else source.parent
+            await self._run_uucode(panel, lambda job: decode(source, out, job), notice, beep_after=5)
+            return
+
+        def elsewhere(job: Any, local: Path, staging: Path) -> Any:
+            from navigator.lib.file_ops.filecopy import target_location
+
+            out = target_location(text, place.parent) if text else place.parent
+            if out.is_local:
+                return decode(local, out.local, job)
+            result = decode(local, staging, job)
+            return result, out
+
+        await self._run_uucode(panel, self._staged(place, elsewhere), notice, beep_after=5)
 
     @staticmethod
-    def _uu_source(panel: Panel) -> Path | None:
+    def _uu_place(panel: Panel) -> Location | None:
         entry = panel.selected
         if entry is None or entry.is_dir:
             return None
-        return entry.path_in(Path(panel.path))
+        return panel.entry_location(entry)
+
+    @staticmethod
+    def _staged(place: Location, work: Callable[[Any, Path, Path], Any]) -> Callable[[Any], Any]:
+        """UU on another drive -- or into one: *place* fetched, *work* run on
+        the copy with a staging directory for what it makes; when it answers
+        ``(result, directory)`` the staged files go up into that directory on
+        its drive.  The copy and the staging go after."""
+        def run(job: Any) -> Any:
+            import tempfile
+
+            from navigator.lib.drives import usefile
+
+            if place.is_local:
+                use, local = None, place.local
+            else:
+                use = usefile.fetch([place], job)
+                local = use.local_for(place)
+            from navigator.lib.system.tempdir import private_dir
+
+            staging = Path(tempfile.mkdtemp(dir=private_dir()))
+            try:
+                answer = work(job, local, staging)
+                if isinstance(answer, tuple) and len(answer) == 2 and isinstance(answer[1], Location):
+                    result, directory = answer
+                    files = sorted(path for path in staging.iterdir() if path.is_file())
+                    usefile.put_files(files, directory, job)
+                    return result
+                return answer
+            finally:
+                import shutil
+
+                shutil.rmtree(staging, ignore_errors=True)
+                if use is not None:
+                    usefile.discard(use)
+        return run
 
     def _uu_other(self, panel: Panel) -> Path | None:
         """``cmPushFirstName``: the other panel's directory, while it shows."""
         other = self.right if panel is self.left else self.left
+        if not other.location.is_local:
+            return None
         return Path(other.path) if other.visible and other.found is None else None
 
     @staticmethod
@@ -479,6 +561,23 @@ class Manager(Window):
         entry = panel.selected
         if app is None or entry is None or entry.is_dir:
             return
+        if not panel.location.is_local and entry.directory is None:
+            from navigator.lib.file_ops.filefind import read_list_on_drive
+
+            here_place = panel.location
+            source = panel.entry_location(entry)
+            try:
+                entries = await asyncio.to_thread(read_list_on_drive, source, here_place)
+            except OSError as error:
+                await Dialog(title=tr("Error"),
+                             prompt=tr("Cannot read {path}: {reason}").format(path=source, reason=error.strerror or error),
+                             buttons="ok").execute(app)
+                return
+            if not entries:
+                await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
+                return
+            panel.show_found(FindListing(str(source), here_place, entries, return_to=entry.name))
+            return
         here = Path(panel.path)
         source = entry.path_in(here)
         try:
@@ -520,13 +619,29 @@ class Manager(Window):
     # -- where the panels have been, and the quick directories ----------------------
 
     async def _go_to(self, panel: Panel, place: str) -> None:
-        """*panel* to *place* (``cmChangeDirectory``), or why not."""
-        target = Path(place)
-        if not await asyncio.to_thread(target.is_dir):
+        """*panel* to *place* (``cmChangeDirectory``), or why not.
+
+        *place* is a directory's text as the histories keep it: a path, or a
+        URL on another drive -- which, not open yet, is connected first.
+        """
+        target = Location.parse(str(place))
+        if not target.is_local:
+            # Not open yet: the shell connects (and asks what it must).
+            reach = getattr(getattr(self.application, "shell", None), "reach", None)
+            if reach is None or not await reach(target):
+                return
+
+        def there() -> bool:
+            try:
+                return drive_of(target).is_dir(target)
+            except OSError:
+                return False
+
+        if not await asyncio.to_thread(there):
             await Dialog(title=tr("Error"), prompt=tr("Directory {place} is not there").format(place=place), buttons="ok"
                          ).execute(self.application)
             return
-        panel.path = target
+        panel.location = target
         panel.focus()
 
     async def on_dir_history(self, event: DirHistory) -> bool:
@@ -577,7 +692,7 @@ class Manager(Window):
         prompt = tr("Store this directory\nas bookmark {slot}?").format(slot=slot)
         if await self._ask_yes_no(prompt, tr("Confirm")) is not True:
             return
-        place_bookmark(panel.path, slot)
+        place_bookmark(panel.location, slot)
         panel.invalidate()
 
     async def on_list_of_dirs(self, event: ListOfDirs) -> bool:
@@ -659,7 +774,7 @@ class Manager(Window):
         if panel.found is not None:
             return  # ``CM_Branch`` acted on a disk alone
         request = FindRequest(recursive=True, scope="directory", directories=False)
-        await self._search_into(panel, request, tr("Branch: {path}").format(path=panel.path))
+        await self._search_into(panel, request, tr("Branch: {path}").format(path=panel.title_location))
 
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
         """*request* searched from *panel*'s directory into a listing titled
@@ -672,21 +787,21 @@ class Manager(Window):
         app = self.application
         if app is None:
             return
-        start, hidden = Path(panel.path), panel.show_hidden
+        start, hidden = shown(panel.location), panel.show_hidden
         current = panel.selected
         listing = FindListing(title, start, live=True,
                               return_to=current.name if current is not None else None)
         job = FindJob()
 
         def work() -> list[Any]:
-            mounts = mounted_places() if request.scope == "drives" else ()
+            mounts = mounted_places() if request.scope == "drives" and isinstance(start, Path) else ()
             return search(request, start, lambda directory, item, info: make_entry(item, directory),
                           job, show_hidden=hidden, mounts=mounts)
 
         def refresh(box: Any = None) -> None:
             if box is not None:
                 box.directory, box.count = job.directory, len(job.found)
-            if len(job.found) != len(listing.entries) and Path(panel.path) == start:
+            if len(job.found) != len(listing.entries) and panel.location == Location.of(start):
                 listing.entries = list(job.found)
                 if panel.found is not listing:
                     panel.show_found(listing)
@@ -778,7 +893,7 @@ class Manager(Window):
 
         app = self.application
         old = entry.name
-        here = Path(entry.directory if entry.directory is not None else panel.path)
+        here = Location.of(entry.directory) if entry.directory is not None else panel.location
         if "/" in new:
             await Dialog(title=tr("Error"),
                          prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
@@ -789,9 +904,11 @@ class Manager(Window):
 
         def rename() -> None:
             target = here / new
-            if os.path.lexists(target) and not os.path.samefile(here / old, target):
+            drive = drive_of(here)
+            if drive.lexists(target) and not drive.same_file(here / old, target):
                 raise FileExistsError(errno.EEXIST, taken)
-            os.rename(here / old, target)
+            drive.rename(here / old, target)
+            drive.finish()
 
         try:
             await asyncio.to_thread(rename)
@@ -812,7 +929,8 @@ class Manager(Window):
                         found.name = new
             if old_key in panel.marked:
                 panel.marked = (panel.marked - {old_key}) | {renamed.key}
-            await self.emit(FileSaved(here / new))
+            if here.is_local:
+                await self.emit(FileSaved(here.local / new))
             panel.reload(key=renamed.key)
 
     #: *Make List File*'s boxes as last left, for the session (DN kept
@@ -850,12 +968,15 @@ class Manager(Window):
         entries = panel.marked_entries
         if not entries:
             return
-        here = Path(panel.path)
         answer = await MakeListDialog(type(self).make_list_options).execute(app)
         if answer is None:
             return
         name, action, options = answer
         type(self).make_list_options = options
+        if not panel.location.is_local:
+            await self._make_list_elsewhere(panel, entries, name, action, options)
+            return
+        here = Path(panel.path)
         target = (here / Path(name).expanduser()).absolute()
         appending = False
         if await asyncio.to_thread(target.exists):
@@ -884,6 +1005,58 @@ class Manager(Window):
             return
         panel.untag(entries)
         await self.emit(FileSaved(target))
+
+    async def _make_list_elsewhere(self, panel: Panel, entries: list[Any], name: str, action: str,
+                                   options: int) -> None:
+        """Alt+L on another drive: the list written there, on its drive,
+        naming its files by that drive's own paths -- a list made on a server
+        is for use there."""
+        from navigator.lib.file_ops.filecopy import target_location
+        from navigator.lib.file_ops.makelist import make_lines
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+
+        app = self.application
+        target = target_location(name, panel.location)
+        if target.is_local:
+            # A list named on the disk from a panel elsewhere: the panel's paths.
+            local, list_dir = target.local.absolute(), target.local.absolute().parent
+        else:
+            local, list_dir = None, target.parent.path
+        files = [panel.entry_location(entry).path for entry in entries]
+
+        def there() -> bool:
+            try:
+                return drive_of(target).lexists(target)
+            except OSError:
+                return False
+
+        appending = False
+        if await asyncio.to_thread(there):
+            query = Dialog(title=tr("Warning"),
+                           prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
+                           buttons="yes-no-cancel")
+            query.no.text = tr("A~p~pend")
+            reply = await query.execute(app)
+            if reply is None:
+                return
+            appending = reply is False
+        lines = make_lines(files, action, list_dir, options)
+
+        def write() -> None:
+            drive = drive_of(target)
+            with drive.open_write(target, append=appending) as file:
+                file.write("".join(f"{text}\n" for text in lines).encode("utf-8", "surrogateescape"))
+            drive.finish()
+
+        try:
+            await asyncio.to_thread(write)
+        except OSError as error:
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Cannot open {path}: {reason}").format(path=target, reason=error.strerror or error),
+                         buttons="ok").execute(app)
+            return
+        panel.untag(entries)
+        await self.emit(FileSaved(local if local is not None else target))
 
     async def on_panel_setup(self, event: PanelSetup) -> bool:
         self.spawn(self.panel_setup(self.active_panel))
@@ -923,7 +1096,7 @@ class Manager(Window):
         request = await CompareDialog().execute(app)
         if request is None:
             return
-        here, there = Path(panel.path), Path(other.path)
+        here, there = shown(panel.location), shown(other.location)
         mine, theirs = list(panel.items), list(other.items)
 
         def compare(job: Any = None) -> tuple[set[str], set[str]] | None:
@@ -945,7 +1118,7 @@ class Manager(Window):
         if found is None:
             return
         for side, place, names in ((panel, here, found[0]), (other, there, found[1])):
-            if Path(side.path) == place:
+            if side.location == Location.of(place):
                 side.marked = tagged(side.marked, names, request)
 
     async def on_equalize_panels(self, event: EqualizePanels) -> bool:
@@ -1017,6 +1190,9 @@ class Manager(Window):
         only places to go, and the three keys pass them by.
         """
         from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.lib.drives import profiles as link_profiles
 
         from navigator.lib.config.bookmarks import (
             add_bookmark, bookmarks, find_bookmark, key_of, label_bookmark, mounted_places,
@@ -1028,6 +1204,8 @@ class Manager(Window):
         if app is None:
             return
         keep: int | None = None
+        #: Where in the *Link* list to open again, after a key acted on it.
+        reopen: int | None = None
         while True:
             rows = bookmarks()
             marked = {row.path for row in rows}
@@ -1037,17 +1215,24 @@ class Manager(Window):
                 # thread: a dead network mount answers ``is_dir`` in minutes.
                 mounts = mounted_places()
                 places = [row.path for row in rows] + [str(path) for path in mounts]
-                return mounts, {place for place in places if Path(place).is_dir()}
+                # A place on another drive is not looked for: that would
+                # connect to it, for a box only opened to choose.
+                return mounts, {place for place in places
+                                if "://" in place or Path(place).is_dir()}
 
             found, present = await asyncio.to_thread(look)
             mounts = [path for path in found if key_of(path) not in marked]
-            here = find_bookmark(panel.path)
+            here = find_bookmark(panel.location)
             menu, toggle = bookmark_menu(rows, here is not None, mounts, present)
+            links = link_section(menu, before=toggle, glyphs=self.glyphs)
+            # Nothing inside an archive is a place to come back to.
+            toggle.disabled = panel.location.outer is not None
+            link_menu = next(entry for entry in menu.entries() if isinstance(entry, SubMenu))
             # Entry by entry, where each one goes; None for a line and the toggle.
             places = [row.path for row in rows] + ([None] if rows and mounts else [])
             places += [key_of(path) for path in mounts]
             current = keep if keep is not None else next(
-                (index for index, place in enumerate(places) if place == key_of(panel.path)),
+                (index for index, place in enumerate(places) if place == key_of(panel.location)),
                 0,
             )
             # The layout settles in this batch's effects; a side just brought
@@ -1058,9 +1243,19 @@ class Manager(Window):
             ox, oy = panel.offset()
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
-            box = PopupMenu(menu, x, y, current=current, behind=self, title=title,
+            submenu = None
+            if reopen is not None:
+                submenu = (menu.entries().index(link_menu), min(reopen, max(0, len(link_menu.entries()) - 1)))
+            box = PopupMenu(menu, x, y, current=current, behind=self, title=title, submenu=submenu,
                             keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
             chosen = await box.execute(app)
+            reopen = None
+            if box.pressed is not None and id(chosen) in links:
+                # A key on the *Link* list: on its profile, and the box opens
+                # again on the list, where the key was pressed.
+                reopen = await self._profile_key(box.pressed, links[id(chosen)], chosen, link_menu)
+                keep = menu.entries().index(link_menu)
+                continue
             if box.pressed == DELETE_BOOKMARK_KEY:
                 keep = box.selected
                 if 0 <= keep < len(rows):
@@ -1086,16 +1281,60 @@ class Manager(Window):
                 continue
             if chosen is None:
                 return
+            if id(chosen) in links:
+                profile = links[id(chosen)]
+                shell = getattr(self.application, "shell", None)
+                if shell is not None:
+                    if isinstance(profile, str):  # *New ... link*, for that protocol
+                        await shell.navy_link(panel, scheme=profile)
+                    else:
+                        await shell.go_remote(panel, link_profiles.location_of(profile))
+                return
             if chosen is toggle:
                 if here is None:
-                    add_bookmark(panel.path)
+                    add_bookmark(panel.location)
                     return
-                remove_bookmark(panel.path)
+                remove_bookmark(panel.location)
                 keep = min(current, max(0, len(rows) - 2))
                 continue
-            panel.path = Path(places[menu.entries().index(chosen)])
+            place = places[menu.entries().index(chosen)]
+            if "://" in place:
+                await self._go_to(panel, place)
+                return
+            panel.path = Path(place)
             panel.focus()
             return
+
+    async def _profile_key(self, key: str, profile: Any, item: Any, link_menu: Any) -> int:
+        """One of the bookmarks' keys on an entry of the *Link* list: F2 edits
+        the profile (the SSH link box, saving rather than connecting), Del
+        removes it, unasked, as it removes a bookmark, and Ctrl+Up/Down move it.
+        *New connection* takes none of them.  Answers where in the list to
+        stand when the box opens again."""
+        from navigator.lib.drives import profiles
+
+        entries = link_menu.entries()
+        index = entries.index(item) if item in entries else 0
+        if profile is None or isinstance(profile, str):
+            return index  # a *New ... link* takes no keys
+        if key == DELETE_BOOKMARK_KEY:
+            await asyncio.to_thread(profiles.remove, profile.name)
+            return index
+        if key == LABEL_BOOKMARK_KEY:
+            from navigator.widgets.drives.connect_dialog import ConnectDialog, ConnectRequest
+
+            request = ConnectRequest(profile.scheme, profile.host, profile.user, profile.port, profile.path,
+                                     profile.name, True)
+            # Kept, not connected: no need of the protocol's package to edit one.
+            answer = await ConnectDialog(request, editing=True).execute(self.application)
+            if answer is not None:
+                await asyncio.to_thread(profiles.replace, profile.name, answer.name or profile.name,
+                                        answer.scheme, answer.host, answer.user, answer.port, answer.path)
+            return index
+        by = -1 if key == "ctrl+up" else 1
+        if await asyncio.to_thread(profiles.move, profile.name, by):
+            return index + by
+        return index
 
     def equalize_panels(self) -> None:
         """Alt+=: the passive panel on the active panel's directory -- shown,
@@ -1107,7 +1346,7 @@ class Manager(Window):
         side = "right" if panel is self.left else "left"
         other = self.bring_side(side)
         other.leave_found()
-        other.path = Path(panel.path)
+        other.location = panel.location
         panel.focus()
 
     async def change_directory(self) -> None:
@@ -1120,9 +1359,9 @@ class Manager(Window):
         from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
 
         panel = self.active_panel
-        chosen = await ChangeDirDialog(start=panel.path, hidden=panel.show_hidden).execute(self.application)
+        chosen = await ChangeDirDialog(start=shown(panel.location), hidden=panel.show_hidden).execute(self.application)
         if chosen is not None:
-            panel.path = Path(chosen)
+            panel.location = Location.of(chosen)
             panel.focus()
 
     def enables(self, command: Any) -> bool:
@@ -1130,6 +1369,29 @@ class Manager(Window):
         the tree or the quick view standing beside it has the keyboard -- those
         are not a listing.  Asked of a menu too, where neither has it and the
         panel is meant."""
+        if isinstance(command, _LOCAL_ONLY) and not self.active_panel.location.is_local:
+            return False
+        if isinstance(command, MakeLink) and not self.active_panel.location.is_local:
+            # A link on another drive is made there, where it can be.
+            try:
+                if not self.active_panel.drive.can("symlink"):
+                    return False
+            except DriveGone:
+                return False
+        if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename)):
+            try:
+                drive = self.active_panel.drive
+            except DriveGone:
+                return False
+            if isinstance(command, (RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename)) \
+                    and not drive.can("write"):
+                return False
+        if isinstance(command, (Edit, AlternateEdit)) and not self.active_panel.location.is_local:
+            # An editor's F2 puts the file back: not into a drive that takes nothing.
+            try:
+                return self.active_panel.drive.can("write")
+            except DriveGone:
+                return False
         if isinstance(
             command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, QuickSearch)
         ):
@@ -1165,8 +1427,9 @@ class Manager(Window):
                 self.selection(self.active_panel)
             )
         if isinstance(command, StoreQuickDir):
-            # ``Drive^.DriveType <> dtDisk``: a listing is not a directory to keep.
-            return self.active_panel.found is None
+            # ``Drive^.DriveType <> dtDisk``: a listing is not a directory to
+            # keep, nor is a place in an archive.
+            return self.active_panel.found is None and self.active_panel.location.outer is None
         if isinstance(command, DirBranch):
             # ``CM_Branch`` acted on a disk's directory alone.
             return self.active_panel.found is None
@@ -1355,7 +1618,7 @@ class Manager(Window):
 
     async def on_tree_chosen(self, event: Any) -> bool:
         """Enter in the tree: the panel goes there now, not after the pause."""
-        self.active_panel.path = event.node.data
+        self.active_panel.location = Location.of(event.node.data)
         return True
 
     async def on_make_directory(self, event: MakeDirectory) -> bool:
@@ -1381,7 +1644,18 @@ class Manager(Window):
         if not name:
             return
         try:
-            (panel.path / name).mkdir()
+            if panel.location.is_local:
+                (panel.path / name).mkdir()
+            else:
+                # Another drive is a round trip away: a thread makes it.
+                place = panel.location / name
+
+                def make() -> None:
+                    drive = drive_of(place)
+                    drive.mkdir(place)
+                    drive.finish()
+
+                await asyncio.to_thread(make)
         except OSError as error:
             await Dialog(
                 title=tr("Cannot make directory"),
@@ -1437,8 +1711,24 @@ class Manager(Window):
         if answer is not True:
             return
         loop = asyncio.get_running_loop()
+        elsewhere = not panel.location.is_local and panel.found is None
         for entry in files:
-            problem = await loop.run_in_executor(None, spool_file, entry.path_in(panel.path))
+            if elsewhere:
+                # A file on another drive is printed from a copy: ``lp`` spools
+                # what it is given at once, so the copy goes after.
+                from navigator.lib.drives import usefile
+                from navigator.widgets.drives.use_file import materialize
+
+                origin = panel.entry_location(entry)
+                use = await materialize(self.application, [origin])
+                if use is None:
+                    return
+                try:
+                    problem = await loop.run_in_executor(None, spool_file, use.local_for(origin))
+                finally:
+                    await asyncio.to_thread(usefile.discard, use)
+            else:
+                problem = await loop.run_in_executor(None, spool_file, entry.path_in(panel.path))
             if problem is not None:
                 await Dialog(
                     title=tr("Error"), prompt=tr("Cannot print {name}: {reason}").format(name=entry.name, reason=problem),
@@ -1471,7 +1761,13 @@ class Manager(Window):
         panel, other = self.active_panel, self.passive_panel
         entries = self.selection(panel)
         if entries:
-            await self.copy_entries(panel, entries, Path(other.path), move=move, others=(other,))
+            # ``cmPushFirstName``: the other panel's place -- unless nothing can
+            # be written there, when the line is empty.
+            try:
+                target = shown(other.location) if other.drive.can("write") else None
+            except DriveGone:
+                target = None
+            await self.copy_entries(panel, entries, target, move=move, others=(other,))
 
     async def on_dropped(self, event: Dropped) -> bool:
         """Files dropped from one of this window's panels: ``CM_Dropped`` -- or
@@ -1486,10 +1782,14 @@ class Manager(Window):
         if event.trash:
             self.spawn(self._drop_on_trash(source, list(event.entries)))
             return True
-        target = event.target.resolve() if event.target.exists() else event.target
-        here = Path(source.path)
-        if any(entry.is_dir and entry.path_in(here) in (target, *target.parents) for entry in event.entries):
+        target = Location.of(event.target)
+        if target.is_local and target.local.exists():
+            target = Location.of(target.local.resolve())
+        here = source.location
+        above = (target, *(Location(target.site, parent, target.outer) for parent in target.path.parents))
+        if any(entry.is_dir and source.entry_location(entry) in above for entry in event.entries):
             return True
+        target = shown(target)
         others = (event.panel,) if event.panel is not None and event.panel is not source else ()
         self.spawn(self._drop_menu(event, target, others))
         return True
@@ -1512,7 +1812,7 @@ class Manager(Window):
             return
         await self.erase_entries(source, entries, quiet=not SETTINGS.confirmations.drag_and_drop, dialog=False)
 
-    async def _drop_menu(self, event: Dropped, target: Path, others: tuple[Any, ...]) -> None:
+    async def _drop_menu(self, event: Dropped, target: Any, others: tuple[Any, ...]) -> None:
         """Copy, move or link what was dropped, as chosen from a menu at the drop.
 
         A departure: ``CM_Dropped`` copied at once, or moved with Shift held;
@@ -1540,7 +1840,7 @@ class Manager(Window):
         # gives way to keep the box on the screen.
         where = tr("To {path}")
         room = max(8, (app.root.width if app.root is not None else 80) - 10 - len(where.format(path="")))
-        path = tilde(target)
+        path = tilde(target) if isinstance(target, Path) else str(target)
         if len(path) > room:
             marker = glyphs_module.ellipsis(self.glyphs)
             path = marker + path[-(room - len(marker)):]
@@ -1554,7 +1854,7 @@ class Manager(Window):
             await self.link_entries(source, entries, target, relative=chosen is relative,
                                     others=others, ask=ask)
 
-    async def copy_entries(self, panel: Panel, entries: list[Any], target: Path, *, move: bool,
+    async def copy_entries(self, panel: Panel, entries: list[Any], target: Any, *, move: bool,
                            others: tuple[Any, ...] = (), ask: bool = True) -> None:
         """*entries* of *panel* copied (or moved) to *target*: the Copy dialog
         first when *ask*, else at once in the dialog's session mode and
@@ -1566,7 +1866,7 @@ class Manager(Window):
         app = self.application
         if app is None or not entries:
             return
-        here = Path(panel.path)
+        here = panel.location
         if ask:
             request = await CopyDialog(
                 entries=entries, here=here, other=target,
@@ -1576,7 +1876,7 @@ class Manager(Window):
             session = copy_dialog._session
             options = session["options"] & ~filecopy.MOVE
             request = filecopy.CopyRequest(
-                sources=[entry.path_in(here) for entry in entries],
+                sources=[shown(panel.entry_location(entry)) for entry in entries],
                 target=str(target).rstrip("/") + "/",
                 mode=session["mode"],
                 options=options | filecopy.MOVE if move else options,
@@ -1774,10 +2074,10 @@ class Manager(Window):
         # then asked about below, if that is ticked.
         confirms = SETTINGS.confirmations
         if dialog and not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
-            request = await DeleteDialog(entries=entries, here=Path(panel.path)).execute(app)
+            request = await DeleteDialog(entries=entries, here=panel.location).execute(app)
         else:
             request = fileerase.EraseRequest(
-                sources=[entry.path_in(Path(panel.path)) for entry in entries]
+                sources=[shown(panel.entry_location(entry)) for entry in entries]
             )
         if request is None:
             return
@@ -1840,7 +2140,7 @@ class Manager(Window):
         panel, other = self.active_panel, self.passive_panel
         entries = self.selection(panel)
         if entries:
-            await self.link_entries(panel, entries, Path(other.path), others=(other,))
+            await self.link_entries(panel, entries, shown(other.location), others=(other,))
 
     async def link_entries(self, panel: Panel, entries: list[Any], target: Path, *,
                            relative: bool | None = None, others: tuple[Any, ...] = (),
@@ -1857,21 +2157,27 @@ class Manager(Window):
         app = self.application
         if app is None or not entries:
             return
-        here = Path(panel.path)
+        here = panel.location
         if ask:
             request = await LinkDialog(
                 entries=entries, here=here, other=target, hidden=panel.show_hidden, relative=relative,
             ).execute(app)
         else:
             request = filelink.LinkRequest(
-                sources=[entry.path_in(here) for entry in entries],
+                sources=[shown(panel.entry_location(entry)) for entry in entries],
                 target=str(target).rstrip("/") + "/",
                 relative=bool(relative),
             )
         if request is None:
             return
-        destination = filecopy.resolve_target(request.target, request.sources, here)
-        linked: set[Path] = set()
+        # On another drive every step is a round trip: on a thread.
+        elsewhere = not here.is_local or "://" in request.target or "#/" in request.target
+
+        async def step(function: Any, *args: Any) -> Any:
+            return await asyncio.to_thread(function, *args) if elsewhere else function(*args)
+
+        destination = await step(filecopy.resolve_target, request.target, request.sources, shown(here))
+        linked: set[Any] = set()
         try:
             if destination.create:
                 if SETTINGS.confirmations.create_dir and await self._ask_yes_no(
@@ -1880,13 +2186,14 @@ class Manager(Window):
                 ) is not True:
                     return
                 try:
-                    destination.directory.mkdir(parents=True)
+                    place = Location.of(destination.directory)
+                    await step(lambda: drive_of(place).makedirs(place))
                 except OSError as error:
                     await self._ask_skip(filecopy.error_message(error))
                     return
             for source in request.sources:
                 try:
-                    filelink.make_link(source, destination.path_for(source), request.relative)
+                    await step(filelink.make_link, source, destination.path_for(source), request.relative)
                 except OSError as error:
                     if not await self._ask_skip(filecopy.error_message(error)):
                         break
@@ -1927,12 +2234,12 @@ class Manager(Window):
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
         from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
 
-        here = Path(panel.path)
+        here = panel.location
         # What the dialog shows is asked of the system on a thread: a stat per
         # entry, and user and group lists a directory server may be slow with.
         looking = FileJob()
         facts = await run_with_progress(
-            app, lambda: gather([entry.path_in(here) for entry in entries]), looking,
+            app, lambda: gather([shown(panel.entry_location(entry)) for entry in entries]), looking,
             lambda: progress_box(looking, tr("Reading file attributes")), refresh_box(looking),
             delay=SLOW_PROGRESS_DELAY,
         )
@@ -2002,9 +2309,29 @@ class Manager(Window):
     async def _run_associated(self, file_name: str) -> bool:
         """What *file_name* has for the selected file, run; False if nothing."""
         shell = getattr(self.application, "shell", None)
-        entry = self.active_panel.selected
+        panel = self.active_panel
+        entry = panel.selected
         if shell is None or entry is None or entry.is_dir:
             return False
+        if not panel.location.is_local and entry.directory is None:
+            # ``UseFile`` first -- only if the file has something to run --
+            # and the program run beside the copy.
+            from navigator.lib.config import associations
+            from navigator.lib.drives import usefile
+            from navigator.widgets.drives.use_file import materialize
+
+            try:
+                groups = await asyncio.to_thread(associations.read, file_name)
+            except (OSError, ValueError):
+                return await shell.run_associated(file_name, entry.name)  # says why
+            if associations.for_file(groups, entry.name) is None:
+                return False
+            use = await materialize(self.application, [panel.entry_location(entry)])
+            if use is None:
+                return True
+            if not await shell.run_associated(file_name, entry.name, cwd=use.directory, uses=[use]):
+                await asyncio.to_thread(usefile.discard, use)
+            return True
         return await shell.run_associated(file_name, entry.name)
 
     async def on_view_as_text(self, event: ViewAsText) -> bool:
@@ -2030,6 +2357,28 @@ class Manager(Window):
         entry = panel.selected
         desktop = self.desktop
         if entry is None or entry.is_dir or desktop is None:
+            return
+        if not panel.location.is_local and entry.directory is None:
+            from navigator.lib.viewer.dbf import DBFError
+            from navigator.widgets.drives.use_file import database_elsewhere, view_elsewhere
+
+            origin = panel.entry_location(entry)
+            try:
+                if mode == "database" or (mode is None and origin.name.lower().endswith(".dbf")):
+                    try:
+                        await database_elsewhere(desktop, origin)
+                        return
+                    except DBFError:
+                        if mode == "database":
+                            await Dialog(title=tr("Cannot view file"),
+                                         prompt=tr("{name}: not a dBase file").format(name=entry.name),
+                                         buttons="ok").execute(self.application)
+                            return
+                    mode = None
+                await view_elsewhere(desktop, origin, mode)
+            except OSError as error:
+                await Dialog(title=tr("Cannot view file"), prompt=f"{entry.name}: {error.strerror or error}",
+                             buttons="ok").execute(self.application)
             return
         path = entry.path_in(panel.path)
         if mode == "database" or (mode is None and path.suffix.lower() == ".dbf"):
@@ -2097,16 +2446,30 @@ class Manager(Window):
         console with the keyboard, and the panels look again when it is done.
         """
         shell = getattr(self.application, "shell", None)
+        program = os.environ.get(variable, "").strip() or fallback
         if path is None:
             panel = self.active_panel
             entry = panel.selected
             if entry is None or entry.is_dir:
                 return
+            if not panel.location.is_local and entry.directory is None:
+                if shell is not None:
+                    self.spawn(self._run_external_elsewhere(shell, program, panel.entry_location(entry)))
+                return
             path = entry.path_in(panel.path)
         if shell is None:
             return
-        program = os.environ.get(variable, "").strip() or fallback
         shell.run_command(f"{program} {shlex.quote(str(path))}")
+
+    async def _run_external_elsewhere(self, shell: Any, program: str, origin: Location) -> None:
+        """``$PAGER`` or ``$EDITOR`` on a file on another drive: on its
+        fetched copy, offered back once the program is done."""
+        from navigator.widgets.drives.use_file import materialize
+
+        use = await materialize(self.application, [origin])
+        if use is not None:
+            local = use.local_for(origin)
+            shell.run_command(f"{program} {shlex.quote(str(local))}", cwd=use.directory, uses=[use])
 
     async def on_edit_named(self, event: EditNamed) -> bool:
         """Shift+F4: ``cmXEditFile``, a file named in a dialog, new or not."""
@@ -2127,7 +2490,13 @@ class Manager(Window):
         name = await EditFileDialog().execute(self.application)
         if not name:
             return
-        path = panel.path / Path(name).expanduser()
+        from navigator.lib.file_ops.filecopy import target_location
+
+        place = target_location(name, panel.location)
+        if not place.is_local:
+            await self._edit_named_elsewhere(name, place)
+            return
+        path = place.local
         problem = None
         if path.is_dir():
             problem = tr("Is a directory")
@@ -2150,6 +2519,46 @@ class Manager(Window):
                 buttons="ok",
             ).execute(self.application)
 
+    async def _edit_named_elsewhere(self, name: str, place: Location) -> None:
+        """Shift+F4 on a name on another drive: connected to (or the archive
+        opened) first, then fetched and edited -- or, not there yet, an empty
+        file F2 makes there.  ``$EDITOR`` gets the fetched copy."""
+        from navigator.widgets.drives.use_file import edit_elsewhere
+
+        app = self.application
+        reach = getattr(getattr(app, "shell", None), "reach", None)
+        if reach is None or not await reach(place):
+            return
+
+        def look() -> tuple[str | None, bool]:
+            drive = drive_of(place)
+            if drive.is_dir(place):
+                return tr("Is a directory"), False
+            if not drive.is_dir(place.parent):
+                return tr("No such directory"), False
+            return None, drive.lexists(place)
+
+        try:
+            problem, there = await asyncio.to_thread(look)
+        except OSError as error:
+            problem, there = error.strerror or str(error), False
+        if problem is None and not SETTINGS.system.internal_editor:
+            shell = getattr(app, "shell", None)
+            if shell is not None:
+                if there:
+                    program = os.environ.get("EDITOR", "").strip() or "vi"
+                    await self._run_external_elsewhere(shell, program, place)
+                    return
+                problem = tr("$EDITOR edits a file on another drive only once it is there")
+        if problem is None and self.desktop is not None:
+            try:
+                await edit_elsewhere(self.desktop, place, new=not there)
+                return
+            except OSError as error:
+                problem = error.strerror or str(error)
+        if problem is not None:
+            await Dialog(title=tr("Cannot edit file"), prompt=f"{name}: {problem}", buttons="ok").execute(app)
+
     async def edit(self) -> None:
         """Open the selected file in an editor on this window's desktop.
 
@@ -2160,6 +2569,15 @@ class Manager(Window):
         entry = panel.selected
         desktop = self.desktop
         if entry is None or entry.is_dir or desktop is None:
+            return
+        if not panel.location.is_local and entry.directory is None:
+            from navigator.widgets.drives.use_file import edit_elsewhere
+
+            try:
+                await edit_elsewhere(desktop, panel.entry_location(entry))
+            except OSError as error:
+                await Dialog(title=tr("Cannot edit file"), prompt=f"{entry.name}: {error.strerror or error}",
+                             buttons="ok").execute(self.application)
             return
         path = entry.path_in(panel.path)
         try:
@@ -2223,8 +2641,8 @@ class Manager(Window):
             and not (app is not None and self._holds(app.focused))
             and saved in (self.left, self.right)
         ):
-            return str(saved.path)
-        return str(self.active_panel.path)
+            return str(saved.location)
+        return str(self.active_panel.location)
 
     def switch_panel(self) -> None:
         """Move the keyboard to the other panel, or between panel and tree."""
@@ -2590,7 +3008,7 @@ class Manager(Window):
         row.insert(row.index(passive), view)
         if view is self.tree:
             view.set_show_hidden(active.show_hidden)
-            view.show(active.path)
+            view.show(shown(active.location))
         passive.visible = False
         view.visible = True
         self.replaced, self.replacement = passive, view
@@ -2612,19 +3030,19 @@ class Manager(Window):
         if self.replacement is not self.info:
             return
         panel = self.active_panel
-        directory, entries, _ = panel.path, panel.items, panel.reload_token
+        location, entries, _ = panel.location, panel.items, panel.reload_token
         found = panel.found
         with untracked():
             if found is None:
-                self.info.show(directory, entries)
+                self.info.show(location, entries)
 
     def _quick_view_follows_panel(self) -> None:
         """The quick view shows whatever the active panel's cursor is on: ``SendLocated``."""
         if self.replacement is not self.quick:
             return
         panel = self.active_panel
-        entry, directory = panel.selected, panel.path
-        path = None if entry is None or entry.is_dir else entry.path_in(directory)
+        entry = panel.selected
+        path = None if entry is None or entry.is_dir else shown(panel.entry_location(entry))
         with untracked():
             self.quick.show(path)
 
@@ -2632,7 +3050,14 @@ class Manager(Window):
         """The tree's cursor goes wherever the active panel goes: ``cmChangeTree``."""
         if self.tree_replaces is None:
             return
-        path, hidden = self.active_panel.path, self.active_panel.show_hidden
+        location, hidden = self.active_panel.location, self.active_panel.show_hidden
+        if not location.is_local:
+            with untracked():
+                self.tree.set_show_hidden(hidden)
+                if self.tree.selected_path != location:
+                    self.tree.show(location)
+            return
+        path = location.local
         with untracked():
             self.tree.set_show_hidden(hidden)
             if self.tree.selected_path != Path(path).resolve():
@@ -2663,7 +3088,7 @@ class Manager(Window):
     async def _follow_later(self, path: Path) -> None:
         await asyncio.sleep(self.LOCATE_DELAY)
         if self.tree.focused and self.tree.selected_path == path:
-            self.active_panel.path = path
+            self.active_panel.location = Location.of(path)
 
 
 #: The marked keys the bookmarks are chosen by, in order: the digits as DN's
@@ -2763,6 +3188,48 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         menu.add_line()
     toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
     return menu, toggle
+
+
+def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.GLYPHS_UNICODE) -> dict[int, Any]:
+    """The box's *Link*: DN's ``SelectDrive`` listed the other PC's drives
+    under ``LINK``; here a submenu of the connection profiles, ticked where
+    connected, and a *New ... link* for each protocol.  Each item's id, to its
+    profile -- or, for a *New*, its scheme.  Greyed, with why, where the
+    protocol cannot be had.  The
+    bookmarks' own keys act on a profile in it (``choose_bookmark``)."""
+    from navml.widgets.dialog.control.control import escape_caption
+
+    from navigator.lib.drives import profiles, sessions
+    from navigator.lib.drives.sessions import SESSIONS
+
+    link = menu.add_submenu(tr("~L~ink"), before=before)
+    rows = profiles.profiles()
+    if rows:
+        # The keys ``_profile_key`` takes there, in the list's own frame.
+        arrows = "Up/Down" if glyphs <= glyphs_module.GLYPHS_ASCII else "\u2191\u2193"
+        link.footer = tr("{edit} Edit  {delete} Delete  {move} Move").format(
+            edit="F2", delete="Del", move=f"Ctrl+{arrows}")
+    menu.add_line(before=before)
+    found: dict[int, Any] = {}
+    for row in rows:
+        item = link.add_item(escape_caption(row.name))
+        location = profiles.location_of(row)
+        item.ticked = SESSIONS.is_open(location.site)
+        # The protocol before the place: what the link is over, never hidden.
+        item.key = f"{sessions.protocol_sign(row.scheme)} {row.user + '@' if row.user else ''}{row.host}"
+        item.disabled = sessions.available(row.scheme) is not None
+        found[id(item)] = row
+    if rows:
+        link.add_line()
+    # One *New* for each protocol, named: what the link is over is never hidden.
+    for caption, scheme in ((tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
+                            (tr("New S~M~B link (Windows share)..."), "smb")):
+        new = link.add_item(caption)
+        if sessions.available(scheme) is not None:
+            new.disabled = True
+            new.key = sessions.EXTRA_HINT.get(scheme, "")
+        found[id(new)] = scheme
+    return found
 
 
 #: A double vertical line's box characters, and the single ones the held

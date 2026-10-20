@@ -65,7 +65,9 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **A popup menu** is `PopupMenu` (`TMenuPopup`): one `MenuBox` anywhere, run like a dialog -- spawn
   `execute(app)`, which answers the `MenuItem` chosen or None; a command-less item is a choice, not greyed. `keys=`
   adds keys that close it on the selected entry (enabled or not), setting `pressed` and `selected`, for a caller that
-  acts and reopens. `title=`/`footer=` go centred in the first box's top/bottom frame, widening it (`measure`
+  acts and reopens -- in a nested box the entry is that box's; `submenu=(index, current)` reopens with the first
+  box's entry *index* dropped and *current* selected in it; a `SubMenu`'s own `footer` goes in the frame of the
+  nested box it opens (a bar's boxes ignore it). `title=`/`footer=` go centred in the first box's top/bottom frame, widening it (`measure`
   takes both). The bookmarks box is its first user (`navigator-bookmarks`). A `SubMenu` entry opens a nested
   box beside it (Enter/Right/click; Esc/Left closes the top one), `MenuSession`'s way; `box` stays the first box,
   `boxes` is the stack, and the answer is the item chosen at any depth (`navigator-user-menu`).
