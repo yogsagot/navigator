@@ -1,5 +1,5 @@
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchMarkdown, Unwrap
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
@@ -38,7 +38,7 @@ FileWindow(Window):
         f2: Unwrap
         f4: HexMode
         #: View > *Markdown*: a departure, DN bound nothing there.
-        shift+f4: SwitchMarkdown
+        shift+f4: SwitchRendered
         f5: GotoAddress
         f6: AddFilter
         f7: SearchFor
@@ -84,16 +84,16 @@ FileWindow(Window):
         height: 1
         text: viewer.info_text
 
-    #: A departure: ``{Markdown}`` after the info line, struck through while
+    #: A departure: ``{Markdown}`` or ``{HTML}`` after the info line, struck through while
     #: off; a click on it switches View > *Markdown*.
     StaticText:
         id: md_mark
         x: info.x + info.width
         y: max(0, parent.height - 1)
-        width: min(len(viewer.markdown_mark), max(0, parent.width - 3 - info.width))
+        width: min(len(viewer.render_mark), max(0, parent.width - 3 - info.width))
         height: 1
-        text: viewer.markdown_mark
-        classes: frozenset({'markdown'}) if viewer.markdown else frozenset({'markdown', 'off'})
+        text: viewer.render_mark
+        classes: frozenset({'rendered'}) if viewer.rendered else frozenset({'rendered', 'off'})
 
     #: A departure: DN had no such strip.  The viewer's options on the bottom
     #: frame, right-aligned before the corner, each lit while on and switched by
@@ -135,12 +135,13 @@ FileWindow(Window):
         MenuItem:
             text: '~W~rap lines'
             command: Unwrap
-        #: A departure: a Markdown file rendered, or its source.  Without
-        #: markdown-it-py its key column names the extra instead.
+        #: A departure: a Markdown or HTML file rendered, or its source.
+        #: Without markdown-it-py a Markdown file's key column names the
+        #: extra instead.
         MenuItem:
-            id: view_menu_markdown
-            text: '~M~arkdown'
-            command: SwitchMarkdown
+            id: view_menu_rendered
+            text: '~M~arkup view'
+            command: SwitchRendered
             key: 'Shift-F4'
         MenuItem:
             text: 'S~y~ntax highlight'

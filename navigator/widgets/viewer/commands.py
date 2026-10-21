@@ -26,12 +26,12 @@ class HexMode(Command):
     title = "Hex/Text/Dump"
 
 
-class SwitchMarkdown(Command):
-    """Shift+F4, View > *Markdown*: a Markdown file rendered -- headings,
-    lists, tables -- or its source.  A departure: DN's viewer had no such
-    reading.  Text mode only."""
+class SwitchRendered(Command):
+    """Shift+F4, View > *Markup view*: a Markdown or HTML file rendered --
+    headings, lists, tables -- or its source.  A departure: DN's viewer had no
+    such reading.  Text mode only."""
 
-    title = "Markdown"
+    title = "Rendered"
 
 
 @dataclass(frozen=True, slots=True)

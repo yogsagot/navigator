@@ -15,7 +15,7 @@ from navigator.__main__ import Navigator
 from navigator.lib.viewer import ViewSearch, markdown
 from navigator.lib.viewer.markdown import render
 from navigator.settings import SETTINGS
-from navigator.widgets.viewer.commands import SwitchMarkdown, Unwrap
+from navigator.widgets.viewer.commands import SwitchRendered, Unwrap
 
 
 def texts(source: str, width: int = 40, **kwargs) -> list[str]:
@@ -177,7 +177,7 @@ def test_f3_renders_a_markdown_file_and_shift_f4_shows_its_source(files):
         KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED,
         lambda a: seen.update(rendered=screen(a)),
         KeyEvent("pagedown"),
-        lambda a: seen.update(top=opened(a).viewer.top, row=opened(a).viewer.md_row),
+        lambda a: seen.update(top=opened(a).viewer.top, row=opened(a).viewer.render_row),
         KeyEvent("f4", shift=True), IDLE,
         lambda a: seen.update(source=screen(a), source_top=opened(a).viewer.top,
                               rendering=opened(a).viewer.rendering),
@@ -200,7 +200,7 @@ def test_the_view_menu_ticks_markdown_and_hex_greys_it_and_wrap(files):
 
     def look(a):
         window = opened(a)
-        seen.append((window.checks(SwitchMarkdown()), a.command_enabled(SwitchMarkdown()),
+        seen.append((window.checks(SwitchRendered()), a.command_enabled(SwitchRendered()),
                      a.command_enabled(Unwrap())))
 
     run_app(app, [
@@ -217,7 +217,7 @@ def test_the_setting_off_opens_the_source(files, monkeypatch):
     app = navigator(files)
     seen = []
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
-                  lambda a: seen.append((opened(a).viewer.markdown, inside(screen(a), 2)))])
+                  lambda a: seen.append((opened(a).viewer.rendered, inside(screen(a), 2)))])
     assert seen[0][0] is False and seen[0][1] == "# Title"
 
 
@@ -226,7 +226,7 @@ def test_without_markdown_it_the_switch_is_greyed(files, monkeypatch):
     app = navigator(files)
     seen = []
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
-                  lambda a: seen.append((a.command_enabled(SwitchMarkdown()), opened(a).viewer.rendering,
+                  lambda a: seen.append((a.command_enabled(SwitchRendered()), opened(a).viewer.rendering,
                                          inside(screen(a), 2)))])
     assert seen[0][:2] == (False, False) and seen[0][2] == "# Title"
 
@@ -238,8 +238,8 @@ def test_a_search_lands_on_the_rendered_block_and_marks_the_words(files, monkeyp
 
     def look(a):
         viewer = opened(a).viewer
-        seen.update(row=viewer.md_layout.rows[viewer.md_row].text,
-                    marks=viewer._md_marks(viewer.md_layout), layout=viewer.md_layout,
+        seen.update(row=viewer.render_layout.rows[viewer.render_row].text,
+                    marks=viewer._render_marks(viewer.render_layout), layout=viewer.render_layout,
                     hit=viewer.hit)
 
     run_app(app, [
@@ -264,9 +264,9 @@ def test_the_choice_is_kept_in_the_view_history(files):
         KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED,
         KeyEvent("f4", shift=True), IDLE, KeyEvent("escape"), IDLE,
         KeyEvent("f3"), IDLE,
-        lambda a: seen.append(opened(a).viewer.markdown),
+        lambda a: seen.append(opened(a).viewer.rendered),
     ])
-    assert ViewRecord.find(files / "readme.md").markdown == "off"
+    assert ViewRecord.find(files / "readme.md").rendered == "off"
     assert seen == [False]
 
 
@@ -276,7 +276,7 @@ def test_the_quick_view_renders_too(files):
     run_app(app, [
         KeyEvent("end"), KeyEvent("q", ctrl=True),
         Until(lambda a: a.manager.quick.viewer.rendering),
-        lambda a: seen.append(a.manager.quick.viewer.md_layout.rows[0].text),
+        lambda a: seen.append(a.manager.quick.viewer.render_layout.rows[0].text),
     ])
     assert seen == ["Title"]
 
@@ -318,7 +318,7 @@ def test_no_mark_for_a_file_the_masks_do_not_name(files):
     app = navigator(files)
     seen = []
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
-                  lambda a: seen.append((opened(a).viewer.markdown_mark, opened(a).md_mark.width))])
+                  lambda a: seen.append((opened(a).viewer.render_mark, opened(a).md_mark.width))])
     assert seen == [("", 0)]
 
 

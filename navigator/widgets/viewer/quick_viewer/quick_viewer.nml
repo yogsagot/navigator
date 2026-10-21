@@ -1,4 +1,4 @@
-from navigator.widgets.viewer.commands import SwitchMarkdown
+from navigator.widgets.viewer.commands import SwitchRendered
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.widgets.dialog.scroll_bar import ScrollBar
 
@@ -17,7 +17,7 @@ QuickViewer:
 
     #: View > *Markdown*'s key, as in the F3 window, while the keyboard is in here.
     keys:
-        shift+f4: SwitchMarkdown
+        shift+f4: SwitchRendered
 
     FileViewer:
         id: viewer

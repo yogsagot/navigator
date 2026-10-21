@@ -34,24 +34,33 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type
   (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
-- **Markdown**, a departure (DN's viewer had none): Shift+F4, View > *Markdown* (`SwitchMarkdown`, handled by
-  `FileWindow` and by `QuickViewer`, ticked; the strip's last item, `MD`, dropped first from a short frame) renders a
-  Markdown file rather than showing its source, in text mode only. `{Markdown}` follows the info line (`md_mark`,
-  `FileViewer.markdown_mark`): plain while on, struck through (`Style.strike`, SGR 9) while off for a file the masks
-  name, absent otherwise; a press on it switches (`FileWindow.on_mouse_click`). Styled by class
-  (`StaticText.markdown`, `.off` struck), in the info line's (`name: "info"`) frame colours. It is on at opening for a name in `[viewer]
-  markdown_masks` while `render_markdown` is on (no checkbox: the Editor/Viewer page has no row for one), and is
-  kept as `ViewRecord.markdown` (`on`/`off`, empty for the masks' say). `navigator/lib/viewer/markdown.py` is the model:
-  markdown-it-py (CommonMark plus GFM tables and strikethrough, the optional `navigator-fm[markdown]` extra --
-  without it the entry is greyed and its key column names the extra) parses the **whole** file, so one over
-  `MARKDOWN_LIMIT` (4 MiB) stays source. The layout is made on a thread (`_MARKDOWN`, `_lay_out`, reading
-  across a network through `read_blocking`), keyed on where, encoding, size, width and glyph tier, never asked for twice;
-  until one lands the source (first time) or the last layout is painted. **Rendered rows are not byte ranges**:
-  each carries `src`, the offset of its block's source line (a code or table row, its own line), and `block`.
-  `md_row` is the row on top and `top` follows it at that row's `src`, so the scroll bar, the view history and
-  switching back (`toggle_markdown`, `seek(top)`) keep their place by block. Paragraphs reflow to the width, so
-  Wrap and ¶ are greyed while it renders and nothing scrolls sideways. A search still runs over the source bytes;
-  `show_hit` goes to the block holding the hit, and `_md_marks` marks the hit's text found again (blanks run
+- **Markup view: Markdown and HTML rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
+  (`SwitchRendered`, handled by `FileWindow` and by `QuickViewer`, ticked; the strip's last item, `MD` or `HTML`,
+  dropped first from a short frame) renders the file rather than showing its source, in text mode only.
+  `FileViewer.rendered` is the switch; `format_by_name` says `html` (`[viewer] render_html` + `html_masks`) or
+  `markdown` (`render_markdown` + `markdown_masks`) or "", which seeds it in `open()`; `render_format` is that, else
+  `markdown` (a `.txt` switched on reads as Markdown). `{Markdown}`/`{HTML}` follows the info line (`md_mark`,
+  `render_mark`): plain while on, struck through (`Style.strike`, SGR 9) while off for a file the masks name, absent
+  otherwise; a press on it switches (`FileWindow.on_mouse_click`). Styled by class (`StaticText.rendered`, `.off`
+  struck), in the info line's (`name: "info"`) frame colours. No checkboxes (the Editor/Viewer page has no rows for
+  them). Kept as `ViewRecord.rendered` (`on`/`off`, empty for the masks' say).
+  **The model is three modules.** `navigator/lib/viewer/layout.py` is the format-free part: `Row`/`Layout`, `_wrap`,
+  and `Builder`, whose block methods (`heading`, `paragraph`, `code`, `table`, `rule`, `quote`, `push`/`pop`) make
+  the rows. `markdown.py` walks markdown-it-py's tokens into it (CommonMark plus GFM tables and strikethrough, the
+  optional `navigator-fm[markdown]` extra -- without it a Markdown file's entry is greyed and its key column names
+  the extra). `html.py` walks the stdlib `html.parser` into it, as `lynx -dump` reads a page: `<title>` first,
+  `head`/`script`/`style` hidden (`head` ends at the first body element, closed or not), blanks run together, lists
+  with unclosed `<li>`, `pre` coloured by its `language-*` class, tables gathered then drawn, `a href` as links, `img`
+  as `[alt]`; an end tag closes its own element wherever it is open, so broken HTML degrades. Either reads the
+  **whole** file, so one over `RENDER_LIMIT` (4 MiB) stays source. The layout is made on a thread (`_RENDERER`,
+  `_lay_out` dispatching through `RENDERERS`, reading across a network through `read_blocking`), keyed on where,
+  encoding, size, width, glyph tier and format, never asked for twice; until one lands the source (first time) or the
+  last layout is painted. **Rendered rows are not byte ranges**: each carries `src`, the offset of its block's source
+  line (a code or table row, its own line; in HTML, the line of the tag the block began at), and `block`.
+  `render_row` is the row on top and `top` follows it at that row's `src`, so the scroll bar, the view history and
+  switching back (`toggle_rendered`, `seek(top)`) keep their place by block. Paragraphs reflow to the width, so Wrap
+  and ¶ are greyed while it renders and nothing scrolls sideways. A search still runs over the source bytes;
+  `show_hit` goes to the block holding the hit, and `_render_marks` marks the hit's text found again (blanks run
   together, case aside) among that block's rows -- unmarked if the markup split it. Cells are classes on
   `FileViewer::md` (`heading h1..h6`, `strong`, `emph`, `strike`, `code`, `code block`, `link` with an OSC 8 URL,
   `image`, `bullet`, `quote`, `rule`, `table`, `th`, `html`), styled in `navigator.nss` from existing theme
@@ -59,7 +68,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   over `md.code`.
 - **The option strip and Hidden characters** -- see `navigator-editor`, which has both; the viewer's strip is
   `option_items.viewer_items`: the mode (`HexMode`, cycles), Wrap (`Unwrap`), Hi, ¶ (`SwitchHiddenChars`, handled
-  and ticked by `FileWindow`), the encoding (`ChooseEncoding`), the file type and MD (`SwitchMarkdown`); Wrap, Hi, ¶ and the type are text
+  and ticked by `FileWindow`), the encoding (`ChooseEncoding`), the file type and MD/HTML (`SwitchRendered`); Wrap, Hi, ¶ and the type are text
   mode only, greyed in hex/dump. *Hidden characters* (View, Ctrl+Shift+8; no menu hotkey -- every letter is taken) marks text mode only:
   `FileViewer._hidden_row` reads each row's shown bytes and its last two (the ending) at paint time; the decoders
   are untouched, and the filter's `·` is told from a blank's by being faint. `[viewer] show_options`/`show_hidden`.

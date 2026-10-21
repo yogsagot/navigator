@@ -486,13 +486,20 @@ class ViewerDefaultsData(Section):
     )
     #: A departure too, with no checkbox: View > Hidden characters switches it.
     show_hidden: bool = Setting(False, doc="F3 shows spaces, tabs and line ends")
-    #: A departure too, with no checkbox: View > Markdown switches it for a
+    #: A departure too, with no checkbox: View > Markup view switches it for a
     #: file.  Needs the navigator-fm[markdown] extra (markdown-it-py).
     render_markdown: bool = Setting(
         True, doc="F3 renders a Markdown file -- headings, lists, tables -- rather than showing its source",
     )
     markdown_masks: str = Setting(
         "*.md;*.markdown", doc="The files F3 renders as Markdown, as masks separated by ';'",
+    )
+    #: The same for HTML, through the standard library's parser: nothing to install.
+    render_html: bool = Setting(
+        True, doc="F3 renders an HTML file as a text browser would -- headings, lists, tables -- rather than its source",
+    )
+    html_masks: str = Setting(
+        "*.html;*.htm;*.xhtml", doc="The files F3 renders as HTML, as masks separated by ';'",
     )
 
 

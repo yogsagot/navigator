@@ -18,7 +18,7 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs    # file_window.nml:1
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchMarkdown, Unwrap    # file_window.nml:2
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap    # file_window.nml:2
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight    # file_window.nml:3
 from navigator.settings import SETTINGS    # file_window.nml:4
 from navigator.widgets.viewer.file_viewer import FileViewer    # file_window.nml:5
@@ -64,7 +64,7 @@ class FileWindow(Window, _Component):
         'f3': CloseViewer,    # file_window.nml:37
         'f2': Unwrap,    # file_window.nml:38
         'f4': HexMode,    # file_window.nml:39
-        'shift+f4': SwitchMarkdown,    # file_window.nml:41
+        'shift+f4': SwitchRendered,    # file_window.nml:41
         'f5': GotoAddress,    # file_window.nml:42
         'f6': AddFilter,    # file_window.nml:43
         'f7': SearchFor,    # file_window.nml:44
@@ -84,8 +84,8 @@ class FileWindow(Window, _Component):
     md_mark: StaticText    # file_window.nml:90
     options: OptionStrip    # file_window.nml:103
     view_menu: SubMenu    # file_window.nml:122
-    view_menu_markdown: MenuItem    # file_window.nml:141
-    view_menu_file_type: SubMenu    # file_window.nml:155
+    view_menu_rendered: MenuItem    # file_window.nml:142
+    view_menu_file_type: SubMenu    # file_window.nml:156
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -112,24 +112,24 @@ class FileWindow(Window, _Component):
         _w3 = MenuItem(parent=self.view_menu)    # file_window.nml:131
         _w4 = MenuLine(parent=self.view_menu)    # file_window.nml:134
         _w5 = MenuItem(parent=self.view_menu)    # file_window.nml:135
-        self.view_menu_markdown = MenuItem(parent=self.view_menu)    # file_window.nml:140
-        _w6 = MenuItem(parent=self.view_menu)    # file_window.nml:145
-        _w7 = MenuItem(parent=self.view_menu)    # file_window.nml:150
-        self.view_menu_file_type = SubMenu(parent=self.view_menu)    # file_window.nml:154
-        _w8 = MenuItem(parent=self.view_menu)    # file_window.nml:158
-        _w9 = MenuItem(parent=self.view_menu)    # file_window.nml:161
-        _w10 = MenuItem(parent=self.view_menu)    # file_window.nml:164
-        _w11 = MenuLine(parent=self.view_menu)    # file_window.nml:167
-        _w12 = MenuItem(parent=self.view_menu)    # file_window.nml:168
-        _w13 = MenuItem(parent=self.view_menu)    # file_window.nml:171
-        _w14 = MenuItem(parent=self.view_menu)    # file_window.nml:174
-        _w15 = MenuItem(parent=self.view_menu)    # file_window.nml:177
-        _w16 = MenuLine(parent=self.view_menu)    # file_window.nml:180
-        _w17 = MenuItem(parent=self.view_menu)    # file_window.nml:181
-        _w18 = MenuItem(parent=self.view_menu)    # file_window.nml:184
-        _w19 = MenuItem(parent=self.view_menu)    # file_window.nml:188
-        _w20 = MenuLine(parent=self.view_menu)    # file_window.nml:192
-        _w21 = MenuItem(parent=self.view_menu)    # file_window.nml:193
+        self.view_menu_rendered = MenuItem(parent=self.view_menu)    # file_window.nml:141
+        _w6 = MenuItem(parent=self.view_menu)    # file_window.nml:146
+        _w7 = MenuItem(parent=self.view_menu)    # file_window.nml:151
+        self.view_menu_file_type = SubMenu(parent=self.view_menu)    # file_window.nml:155
+        _w8 = MenuItem(parent=self.view_menu)    # file_window.nml:159
+        _w9 = MenuItem(parent=self.view_menu)    # file_window.nml:162
+        _w10 = MenuItem(parent=self.view_menu)    # file_window.nml:165
+        _w11 = MenuLine(parent=self.view_menu)    # file_window.nml:168
+        _w12 = MenuItem(parent=self.view_menu)    # file_window.nml:169
+        _w13 = MenuItem(parent=self.view_menu)    # file_window.nml:172
+        _w14 = MenuItem(parent=self.view_menu)    # file_window.nml:175
+        _w15 = MenuItem(parent=self.view_menu)    # file_window.nml:178
+        _w16 = MenuLine(parent=self.view_menu)    # file_window.nml:181
+        _w17 = MenuItem(parent=self.view_menu)    # file_window.nml:182
+        _w18 = MenuItem(parent=self.view_menu)    # file_window.nml:185
+        _w19 = MenuItem(parent=self.view_menu)    # file_window.nml:189
+        _w20 = MenuLine(parent=self.view_menu)    # file_window.nml:193
+        _w21 = MenuItem(parent=self.view_menu)    # file_window.nml:194
 
         self.zoomed = True    # file_window.nml:27
 
@@ -161,12 +161,12 @@ class FileWindow(Window, _Component):
         self.md_mark.x = _bind(lambda _o: self.info.x + self.info.width)    # file_window.nml:91
         self.md_mark.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # file_window.nml:92
         self.md_mark.width = _bind(    # file_window.nml:93
-            lambda _o: min(len(self.viewer.markdown_mark), max(0, _o.parent.width - 3 - self.info.width))
+            lambda _o: min(len(self.viewer.render_mark), max(0, _o.parent.width - 3 - self.info.width))
         )
         self.md_mark.height = 1    # file_window.nml:94
-        self.md_mark.text = _bind(lambda _o: self.viewer.markdown_mark)    # file_window.nml:95
+        self.md_mark.text = _bind(lambda _o: self.viewer.render_mark)    # file_window.nml:95
         self.md_mark.classes = _bind(    # file_window.nml:96
-            lambda _o: frozenset({'markdown'}) if self.viewer.markdown else frozenset({'markdown', 'off'})
+            lambda _o: frozenset({'rendered'}) if self.viewer.rendered else frozenset({'rendered', 'off'})
         )
 
         self.options.visible = _bind(    # file_window.nml:104
@@ -198,56 +198,56 @@ class FileWindow(Window, _Component):
         _w5.text = _bind(lambda _o: _tr('~W~rap lines'), yielding=True)    # file_window.nml:136
         _w5.command = Unwrap    # file_window.nml:137
 
-        self.view_menu_markdown.text = _bind(    # file_window.nml:142
-            lambda _o: _tr('~M~arkdown'),
+        self.view_menu_rendered.text = _bind(    # file_window.nml:143
+            lambda _o: _tr('~M~arkup view'),
             yielding=True,
         )
-        self.view_menu_markdown.command = SwitchMarkdown    # file_window.nml:143
-        self.view_menu_markdown.key = 'Shift-F4'    # file_window.nml:144
+        self.view_menu_rendered.command = SwitchRendered    # file_window.nml:144
+        self.view_menu_rendered.key = 'Shift-F4'    # file_window.nml:145
 
-        _w6.text = _bind(lambda _o: _tr('S~y~ntax highlight'), yielding=True)    # file_window.nml:146
-        _w6.command = SwitchHighLight    # file_window.nml:147
+        _w6.text = _bind(lambda _o: _tr('S~y~ntax highlight'), yielding=True)    # file_window.nml:147
+        _w6.command = SwitchHighLight    # file_window.nml:148
 
-        _w7.text = _bind(lambda _o: _tr('Hidden characters'), yielding=True)    # file_window.nml:151
-        _w7.command = SwitchHiddenChars    # file_window.nml:152
+        _w7.text = _bind(lambda _o: _tr('Hidden characters'), yielding=True)    # file_window.nml:152
+        _w7.command = SwitchHiddenChars    # file_window.nml:153
 
-        self.view_menu_file_type.text = _bind(    # file_window.nml:156
+        self.view_menu_file_type.text = _bind(    # file_window.nml:157
             lambda _o: _tr('~F~ile type'),
             yielding=True,
         )
-        self.view_menu_file_type.key_command = ChooseFileType    # file_window.nml:157
+        self.view_menu_file_type.key_command = ChooseFileType    # file_window.nml:158
 
-        _w8.text = _bind(lambda _o: _tr('~N~o filter'), yielding=True)    # file_window.nml:159
-        _w8.command = SetViewFilter(0)    # file_window.nml:160
+        _w8.text = _bind(lambda _o: _tr('~N~o filter'), yielding=True)    # file_window.nml:160
+        _w8.command = SetViewFilter(0)    # file_window.nml:161
 
-        _w9.text = _bind(lambda _o: _tr('~A~SCII filter'), yielding=True)    # file_window.nml:162
-        _w9.command = SetViewFilter(1)    # file_window.nml:163
+        _w9.text = _bind(lambda _o: _tr('~A~SCII filter'), yielding=True)    # file_window.nml:163
+        _w9.command = SetViewFilter(1)    # file_window.nml:164
 
-        _w10.text = _bind(lambda _o: _tr('~P~rintable filter'), yielding=True)    # file_window.nml:165
-        _w10.command = SetViewFilter(2)    # file_window.nml:166
+        _w10.text = _bind(lambda _o: _tr('~P~rintable filter'), yielding=True)    # file_window.nml:166
+        _w10.command = SetViewFilter(2)    # file_window.nml:167
 
-        _w12.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # file_window.nml:169
-        _w12.command = SearchFor    # file_window.nml:170
+        _w12.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # file_window.nml:170
+        _w12.command = SearchFor    # file_window.nml:171
 
-        _w13.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # file_window.nml:172
-        _w13.command = ContinueSearch    # file_window.nml:173
+        _w13.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # file_window.nml:173
+        _w13.command = ContinueSearch    # file_window.nml:174
 
-        _w14.text = _bind(lambda _o: _tr('Re~v~erse search'), yielding=True)    # file_window.nml:175
-        _w14.command = ReverseSearch    # file_window.nml:176
+        _w14.text = _bind(lambda _o: _tr('Re~v~erse search'), yielding=True)    # file_window.nml:176
+        _w14.command = ReverseSearch    # file_window.nml:177
 
-        _w15.text = _bind(lambda _o: _tr('Go to add~r~ess...'), yielding=True)    # file_window.nml:178
-        _w15.command = GotoAddress    # file_window.nml:179
+        _w15.text = _bind(lambda _o: _tr('Go to add~r~ess...'), yielding=True)    # file_window.nml:179
+        _w15.command = GotoAddress    # file_window.nml:180
 
-        _w17.text = _bind(lambda _o: _tr('St~o~re'), yielding=True)    # file_window.nml:182
-        _w17.key = 'Shift-F2'    # file_window.nml:183
+        _w17.text = _bind(lambda _o: _tr('St~o~re'), yielding=True)    # file_window.nml:183
+        _w17.key = 'Shift-F2'    # file_window.nml:184
 
-        _w18.text = _bind(lambda _o: _tr('Sav~e~ as...'), yielding=True)    # file_window.nml:185
-        _w18.command = SaveViewAs    # file_window.nml:186
-        _w18.key = 'Shift-F5'    # file_window.nml:187
+        _w18.text = _bind(lambda _o: _tr('Sav~e~ as...'), yielding=True)    # file_window.nml:186
+        _w18.command = SaveViewAs    # file_window.nml:187
+        _w18.key = 'Shift-F5'    # file_window.nml:188
 
-        _w19.text = _bind(lambda _o: _tr('Encod~i~ng...'), yielding=True)    # file_window.nml:189
-        _w19.command = ChooseEncoding    # file_window.nml:190
-        _w19.key = 'Shift-F6'    # file_window.nml:191
+        _w19.text = _bind(lambda _o: _tr('Encod~i~ng...'), yielding=True)    # file_window.nml:190
+        _w19.command = ChooseEncoding    # file_window.nml:191
+        _w19.key = 'Shift-F6'    # file_window.nml:192
 
-        _w21.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:194
-        _w21.command = CloseWindow    # file_window.nml:195
+        _w21.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:195
+        _w21.command = CloseWindow    # file_window.nml:196

@@ -418,10 +418,10 @@ FileWindow::title                              { fg: $viewer-frame-passive-fg; b
 FileWindow:active::title                       { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 FileWindow::icon                               { fg: $viewer-frame-icons-fg;   bg: $viewer-frame-icons-bg; bold: $viewer-frame-icons-bold; dim: $viewer-frame-icons-dim; italic: $viewer-frame-icons-italic; underline: $viewer-frame-icons-underline; reverse: $viewer-frame-icons-reverse }
 FileWindow StaticText#info,
-FileWindow StaticText.markdown                 { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
-/* A departure: View > Markdown's {Markdown} after the info line, struck
+FileWindow StaticText.rendered                 { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+/* A departure: View > Markup view's {Markdown} or {HTML} after the info line, struck
    through while it is off; in the info line's colours, above. */
-FileWindow StaticText.markdown.off             { strike: true }
+FileWindow StaticText.rendered.off             { strike: true }
 /* A departure: the option strip, as the editor's. */
 FileWindow OptionStrip                         { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 FileWindow OptionStrip::item:checked           { reverse: true }

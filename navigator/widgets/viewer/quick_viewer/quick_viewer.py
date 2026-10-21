@@ -27,7 +27,7 @@ from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 
-from navigator.widgets.viewer.commands import SwitchMarkdown
+from navigator.widgets.viewer.commands import SwitchRendered
 
 from navigator.lib.viewer import ViewSource
 
@@ -147,10 +147,10 @@ class QuickViewer(Widget):
         self.viewer.seek(event.value)
         return True
 
-    async def on_switch_markdown(self, event: SwitchMarkdown) -> bool:
-        """Shift+F4: a Markdown file rendered, or its source, as in F3."""
+    async def on_switch_rendered(self, event: SwitchRendered) -> bool:
+        """Shift+F4: a Markdown or HTML file rendered, or its source, as in F3."""
         if self.viewer.mode == "text" and self.viewer.can_render:
-            self.viewer.toggle_markdown()
+            self.viewer.toggle_rendered()
         return True
 
     def title_text(self) -> str:

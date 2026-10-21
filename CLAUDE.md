@@ -46,7 +46,7 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Five optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
   `navigator-fm[smb]` (smbprotocol), `navigator-fm[s3]` (boto3), `navigator-fm[keyring]` (*Save in keyring*) and
-  `navigator-fm[markdown]` (markdown-it-py, F3's View > *Markdown*); FTP is the standard library's.
+  `navigator-fm[markdown]` (markdown-it-py, F3's View > *Markup view* for Markdown; HTML needs nothing); FTP is the standard library's.
   `requirements-dev.txt` adds paramiko, pyftpdlib, boto3, moto and markdown-it-py, so `tests/test_sftp.py`,
   `tests/test_ftp.py`, `tests/test_s3.py` and `tests/test_viewer_markdown.py` run (else they are skipped). `nav
   sftp://user@host/dir` (or `ftp://`, `smb://host/share`, `s3://s3.amazonaws.com/bucket`) opens a side there

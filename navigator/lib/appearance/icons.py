@@ -141,6 +141,7 @@ OPTION_BRACKETS = "\uf121"   # nf-fa-code
 OPTION_HIGHLIGHT = "\uf1fc"  # nf-fa-paint_brush
 OPTION_HIDDEN = "\uf1dd"     # nf-fa-paragraph
 OPTION_MARKDOWN = "\uf48a"   # nf-oct-markdown, the .md files' own
+OPTION_HTML = "\uf13b"       # nf-fa-html5
 
 
 def icon_for(name: str, is_dir: bool, mark: str = " ", bookmarked: bool = False) -> str:

@@ -17,7 +17,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navigator.widgets.viewer.commands import SwitchMarkdown    # quick_viewer.nml:1
+from navigator.widgets.viewer.commands import SwitchRendered    # quick_viewer.nml:1
 from navigator.widgets.viewer.file_viewer import FileViewer    # quick_viewer.nml:2
 from navml.widgets.dialog.scroll_bar import ScrollBar    # quick_viewer.nml:3
 
@@ -43,7 +43,7 @@ class QuickViewer(_Component):
 
     #: View > *Markdown*'s key, as in the F3 window, while the keyboard is in here.
     keys = {    # quick_viewer.nml:19
-        'shift+f4': SwitchMarkdown,    # quick_viewer.nml:20
+        'shift+f4': SwitchRendered,    # quick_viewer.nml:20
     }
 
     #: Columns left clear at each end of the top frame for the window's icons,
