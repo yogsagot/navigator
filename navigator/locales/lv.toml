@@ -464,7 +464,7 @@ name = "Latviešu"
 "~L~abel" = "~V~ārds"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:16
 "Columns Setup" = "Kolonnu iestatīšana"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:98, navigator/widgets/editor/option_items.py:119 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:100, navigator/widgets/editor/option_items.py:131 ...
 "Show" = "Rādīt"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "~I~zmērs"
@@ -770,7 +770,7 @@ name = "Latviešu"
 "Viewer options" = "Skatītājs"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "He~x~ režīms"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:136, navigator/widgets/viewer/file_viewer/file_viewer.py:842
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:136, navigator/widgets/viewer/file_viewer/file_viewer.py:853
 "~W~rap lines" = "~P~ārnest rindas"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "Op~c~iju josla"
@@ -1228,7 +1228,7 @@ name = "Latviešu"
 "~N~ext" = "~N~ākamais"
 # navigator/widgets/shell/main_menu/main_menu.nml:430
 "~P~revious" = "~I~epriekšējais"
-# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:195, navigator/widgets/viewer/file_viewer/file_viewer.py:851
+# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:195, navigator/widgets/viewer/file_viewer/file_viewer.py:862
 "~C~lose" = "Ai~z~vērt"
 # navigator/widgets/shell/main_menu/main_menu.nml:439
 "~L~ist..." = "~S~araksts..."
@@ -1274,13 +1274,13 @@ name = "Latviešu"
 "~A~ll fields" = "~V~isos laukos"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~U~z priekšu"
-# navigator/widgets/viewer/file_window/file_window.nml:126, navigator/widgets/viewer/file_viewer/file_viewer.py:838
+# navigator/widgets/viewer/file_window/file_window.nml:126, navigator/widgets/viewer/file_viewer/file_viewer.py:849
 "~T~ext" = "~T~eksts"
-# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:839
+# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:850
 "~H~ex" = "~H~eks"
-# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:840
+# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:851
 "~D~ump" = "~D~amps"
-# navigator/widgets/viewer/file_window/file_window.nml:143, navigator/widgets/viewer/file_viewer/file_viewer.py:843
+# navigator/widgets/viewer/file_window/file_window.nml:143, navigator/widgets/viewer/file_viewer/file_viewer.py:854
 "~M~arkup view" = "Atveid~o~t marķējumu"
 # navigator/widgets/viewer/file_window/file_window.nml:147
 "S~y~ntax highlight" = "S~i~ntakses izcelšana"
@@ -1294,19 +1294,19 @@ name = "Latviešu"
 "~A~SCII filter" = "AS~C~II filtrs"
 # navigator/widgets/viewer/file_window/file_window.nml:166
 "~P~rintable filter" = "Drukā~j~amo filtrs"
-# navigator/widgets/viewer/file_window/file_window.nml:170, navigator/widgets/viewer/file_viewer/file_viewer.py:845
+# navigator/widgets/viewer/file_window/file_window.nml:170, navigator/widgets/viewer/file_viewer/file_viewer.py:856
 "~S~earch..." = "~M~eklēt..."
-# navigator/widgets/viewer/file_window/file_window.nml:173, navigator/widgets/viewer/file_viewer/file_viewer.py:846
+# navigator/widgets/viewer/file_window/file_window.nml:173, navigator/widgets/viewer/file_viewer/file_viewer.py:857
 "Search a~g~ain" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/viewer/file_window/file_window.nml:176
 "Re~v~erse search" = "Meklēt ~a~tpakaļ"
-# navigator/widgets/viewer/file_window/file_window.nml:179, navigator/widgets/viewer/file_viewer/file_viewer.py:847
+# navigator/widgets/viewer/file_window/file_window.nml:179, navigator/widgets/viewer/file_viewer/file_viewer.py:858
 "Go to add~r~ess..." = "Uz ad~r~esi..."
 # navigator/widgets/viewer/file_window/file_window.nml:183
 "St~o~re" = "~U~zglabāt"
 # navigator/widgets/viewer/file_window/file_window.nml:186
 "Sav~e~ as..." = "~S~aglabāt kā..."
-# navigator/widgets/viewer/file_window/file_window.nml:190, navigator/widgets/viewer/file_viewer/file_viewer.py:849
+# navigator/widgets/viewer/file_window/file_window.nml:190, navigator/widgets/viewer/file_viewer/file_viewer.py:860
 "Encod~i~ng..." = "~K~odējums..."
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Iet uz adresi"
@@ -1482,23 +1482,23 @@ name = "Latviešu"
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- redaktors (DN dlgEditorDefaults)"
 # navigator/settings.py:472
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- skatītājs (DN dlgEditorDefaults)"
-# navigator/settings.py:510
+# navigator/settings.py:517
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Iestatījumi > Failu pārvaldnieks > Iestatīšana (DN dlgFMSetup)"
-# navigator/settings.py:559
+# navigator/settings.py:566
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
-# navigator/settings.py:612
+# navigator/settings.py:619
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:646
+# navigator/settings.py:653
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:691
+# navigator/settings.py:698
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:706
+# navigator/settings.py:713
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:728
+# navigator/settings.py:735
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:743
+# navigator/settings.py:750
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:772
+# navigator/settings.py:779
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:31, navigator/widgets/manager/manager/manager.py:657
 "Reading archive" = "Lasa arhīvu"
@@ -1568,7 +1568,7 @@ name = "Latviešu"
 "Copy block" = "Kop.bl."
 # navigator/widgets/editor/commands.py:201
 "Move block" = "Pārv.bl"
-# navigator/widgets/editor/commands.py:211, navigator/widgets/editor/option_items.py:94
+# navigator/widgets/editor/commands.py:211, navigator/widgets/editor/option_items.py:96
 "Indent" = "Atkāpe"
 # navigator/widgets/editor/commands.py:223
 "Unindent" = "-Atkāpe"
@@ -1678,9 +1678,9 @@ name = "Latviešu"
 "~P~aste from" = "~I~elīmēt no"
 # navigator/widgets/editor/edit_window/edit_window.py:721
 "Open a File" = "Atvērt failu"
-# navigator/widgets/editor/edit_window/edit_window.py:755, navigator/widgets/viewer/file_window/file_window.py:354
+# navigator/widgets/editor/edit_window/edit_window.py:755, navigator/widgets/viewer/file_window/file_window.py:355
 "Save File As" = "Saglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:755, navigator/widgets/viewer/file_window/file_window.py:354
+# navigator/widgets/editor/edit_window/edit_window.py:755, navigator/widgets/viewer/file_window/file_window.py:355
 "~S~ave File As" = "~S~aglabāt failu kā"
 # navigator/widgets/editor/edit_window/edit_window.py:126
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -1696,7 +1696,7 @@ name = "Latviešu"
 "Cannot print: {error}" = "Nevar drukāt: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:232
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:203, navigator/widgets/viewer/file_window/file_window.py:477
+# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:203, navigator/widgets/viewer/file_window/file_window.py:478
 "Search string not found" = "Meklētā virkne nav atrasta"
 # navigator/widgets/editor/edit_window/edit_window.py:571, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:125 ...
 "Information" = "Informācija"
@@ -1738,25 +1738,27 @@ name = "Latviešu"
 "~A~utomatic" = "~A~utomātiski"
 # navigator/widgets/editor/loading.py:106
 "Writing file" = "Raksta failu"
-# navigator/widgets/editor/option_items.py:110
-"Text" = "Teksts"
-# navigator/widgets/editor/option_items.py:95, navigator/widgets/editor/option_items.py:117
-"Wrap" = "Pārnese"
-# navigator/widgets/editor/option_items.py:96
-"Brk" = "Iek"
-# navigator/widgets/editor/option_items.py:97, navigator/widgets/editor/option_items.py:118
-"Hi" = "Izc"
-# navigator/widgets/editor/option_items.py:92
-"Ovr" = "Pārr"
-# navigator/widgets/editor/option_items.py:92
-"Ins" = "Iesp"
-# navigator/widgets/editor/option_items.py:124, navigator/widgets/viewer/file_viewer/file_viewer.py:560
-"HTML" = "HTML"
-# navigator/widgets/editor/option_items.py:124
+# navigator/widgets/editor/option_items.py:112
 "MD" = "MD"
-# navigator/widgets/editor/option_items.py:110
+# navigator/widgets/editor/option_items.py:109, navigator/widgets/viewer/file_viewer/file_viewer.py:566
+"HTML" = "HTML"
+# navigator/widgets/editor/option_items.py:111
+"RST" = "RST"
+# navigator/widgets/editor/option_items.py:122
+"Text" = "Teksts"
+# navigator/widgets/editor/option_items.py:97, navigator/widgets/editor/option_items.py:129
+"Wrap" = "Pārnese"
+# navigator/widgets/editor/option_items.py:98
+"Brk" = "Iek"
+# navigator/widgets/editor/option_items.py:99, navigator/widgets/editor/option_items.py:130
+"Hi" = "Izc"
+# navigator/widgets/editor/option_items.py:94
+"Ovr" = "Pārr"
+# navigator/widgets/editor/option_items.py:94
+"Ins" = "Iesp"
+# navigator/widgets/editor/option_items.py:122
 "Hex" = "Hex"
-# navigator/widgets/editor/option_items.py:110
+# navigator/widgets/editor/option_items.py:122
 "Dump" = "Dump"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:98
 "directory" = "direktorija"
@@ -2316,17 +2318,19 @@ name = "Latviešu"
 "Memo view" = "Memo skats"
 # navigator/widgets/viewer/db_window/db_window.py:151
 "Could not edit field - {error}" = "Neizdevās rediģēt lauku - {error}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:560
+# navigator/widgets/viewer/file_viewer/file_viewer.py:569
 "Markdown" = "Markdown"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:353
+# navigator/widgets/viewer/file_viewer/file_viewer.py:568
+"reST" = "reST"
+# navigator/widgets/viewer/file_viewer/file_viewer.py:355
 "{percent}% of {size} Bytes" = "{percent}% no {size} baitiem"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:963
+# navigator/widgets/viewer/file_viewer/file_viewer.py:974
 "Reading..." = "Lasa..."
-# navigator/widgets/viewer/file_viewer/file_viewer.py:966
+# navigator/widgets/viewer/file_viewer/file_viewer.py:977
 "Cannot read the file: {error}" = "Nevar nolasīt failu: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:328
+# navigator/widgets/viewer/file_window/file_window.py:329
 "Encoding" = "Kodējums"
-# navigator/widgets/viewer/file_window/file_window.py:87
+# navigator/widgets/viewer/file_window/file_window.py:88
 "View - {path}" = "Skatīt - {path}"
 # navigator/lib/appearance/palette.py
 "Timer" = "Taimeris"

@@ -47,7 +47,7 @@ from navigator.widgets.viewer.commands import (
     Unwrap,
 )
 from navigator.settings import SETTINGS
-from navigator.lib.viewer import html, markdown
+from navigator.lib.viewer import html, markdown, rst
 from navigator.lib.viewer.layout import RENDER_LIMIT, Layout, decode
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
@@ -92,11 +92,11 @@ REMOTE_LEX_AHEAD = 128 * 1024
 #: How much of the file's start is read for its ``#!`` line.
 HEAD = 256
 
-#: The thread a Markdown or HTML file is read and laid out on.
+#: The thread a Markdown, reStructuredText or HTML file is read and laid out on.
 _RENDERER = Background("nav-view-render", workers=1)
 
 #: How each format a file can be rendered as is laid out.
-RENDERERS = {"markdown": markdown.render, "html": html.render}
+RENDERERS = {"markdown": markdown.render, "rst": rst.render, "html": html.render}
 
 
 def _when_here(method: Any) -> Any:
@@ -541,14 +541,16 @@ class FileViewer(ContextMenuHost, Widget):
 
     @staticmethod
     def format_by_name(path: Path | str | None) -> str:
-        """The format *path* is rendered in when it opens -- ``html`` or
-        ``markdown`` -- or "" for none: its name one of ``[viewer]``'s
-        ``html_masks`` or ``markdown_masks``, that format's switch on."""
+        """The format *path* is rendered in when it opens -- ``html``,
+        ``rst`` or ``markdown`` -- or "" for none: its name one of
+        ``[viewer]``'s ``html_masks``, ``rst_masks`` or ``markdown_masks``,
+        that format's switch on."""
         if path is None:
             return ""
         settings = SETTINGS.viewer
         name = Path(path).name.lower()
         for format, on, masks in (("html", settings.render_html, settings.html_masks),
+                                  ("rst", settings.render_rst, settings.rst_masks),
                                   ("markdown", settings.render_markdown, settings.markdown_masks)):
             if on and any(fnmatch.fnmatchcase(name, mask.strip().lower())
                           for mask in masks.split(";") if mask.strip()):
@@ -556,8 +558,13 @@ class FileViewer(ContextMenuHost, Widget):
         return ""
 
     def format_label(self) -> str:
-        """What the mark and the option strip call the format: *HTML*, *Markdown*."""
-        return tr("HTML") if self.render_format == "html" else tr("Markdown")
+        """What the mark calls the format: *HTML*, *reST*, *Markdown*."""
+        format = self.render_format
+        if format == "html":
+            return tr("HTML")
+        if format == "rst":
+            return tr("reST")
+        return tr("Markdown")
 
     @computed
     def render_format(self) -> str:
@@ -568,10 +575,8 @@ class FileViewer(ContextMenuHost, Widget):
     @property
     def can_render(self) -> bool:
         """Whether this file can be rendered at all: no bigger than
-        ``RENDER_LIMIT`` and, as Markdown, markdown-it-py there."""
-        if self.source is None or self.size > RENDER_LIMIT:
-            return False
-        return self.render_format != "markdown" or markdown.available()
+        ``RENDER_LIMIT``, since it is read and parsed whole."""
+        return self.source is not None and self.size <= RENDER_LIMIT
 
     @property
     def rendering(self) -> bool:

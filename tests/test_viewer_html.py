@@ -199,17 +199,6 @@ def test_the_html_setting_off_opens_the_source(files, monkeypatch):
     assert seen == [(False, "<!DOCTYPE html>")]
 
 
-def test_html_needs_no_markdown_it(files, monkeypatch):
-    from navigator.lib.viewer import markdown
-
-    monkeypatch.setattr(markdown, "available", lambda: False)
-    app = navigator(files)
-    seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED,
-                  lambda a: seen.append(opened(a).view_menu_rendered.key)])
-    assert seen == ["Shift-F4"]
-
-
 def test_the_strip_names_the_format(files):
     from dataclasses import replace
 

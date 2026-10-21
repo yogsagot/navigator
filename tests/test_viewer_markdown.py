@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-pytest.importorskip("markdown_it")
-
 from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
 import navigator.lib.viewer as viewer_model
 from navigator.__main__ import Navigator
-from navigator.lib.viewer import ViewSearch, markdown
+from navigator.lib.viewer import ViewSearch
 from navigator.lib.viewer.markdown import render
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.commands import SwitchRendered, Unwrap
@@ -219,16 +217,6 @@ def test_the_setting_off_opens_the_source(files, monkeypatch):
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
                   lambda a: seen.append((opened(a).viewer.rendered, inside(screen(a), 2)))])
     assert seen[0][0] is False and seen[0][1] == "# Title"
-
-
-def test_without_markdown_it_the_switch_is_greyed(files, monkeypatch):
-    monkeypatch.setattr(markdown, "available", lambda: False)
-    app = navigator(files)
-    seen = []
-    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
-                  lambda a: seen.append((a.command_enabled(SwitchRendered()), opened(a).viewer.rendering,
-                                         inside(screen(a), 2)))])
-    assert seen[0][:2] == (False, False) and seen[0][2] == "# Title"
 
 
 def test_a_search_lands_on_the_rendered_block_and_marks_the_words(files, monkeypatch):

@@ -487,14 +487,21 @@ class ViewerDefaultsData(Section):
     #: A departure too, with no checkbox: View > Hidden characters switches it.
     show_hidden: bool = Setting(False, doc="F3 shows spaces, tabs and line ends")
     #: A departure too, with no checkbox: View > Markup view switches it for a
-    #: file.  Needs the navigator-fm[markdown] extra (markdown-it-py).
+    #: file.  Read by markdown-it-py.
     render_markdown: bool = Setting(
         True, doc="F3 renders a Markdown file -- headings, lists, tables -- rather than showing its source",
     )
     markdown_masks: str = Setting(
         "*.md;*.markdown", doc="The files F3 renders as Markdown, as masks separated by ';'",
     )
-    #: The same for HTML, through the standard library's parser: nothing to install.
+    #: The same for reStructuredText, read by docutils.
+    render_rst: bool = Setting(
+        True, doc="F3 renders a reStructuredText file -- sections, lists, tables -- rather than its source",
+    )
+    rst_masks: str = Setting(
+        "*.rst;*.rest", doc="The files F3 renders as reStructuredText, as masks separated by ';'",
+    )
+    #: The same for HTML, read by the standard library's parser.
     render_html: bool = Setting(
         True, doc="F3 renders an HTML file as a text browser would -- headings, lists, tables -- rather than its source",
     )

@@ -56,16 +56,20 @@ classifiers = [
     "Topic :: Software Development :: User Interfaces",
     "Topic :: Terminals",
 ]
-# The three run-time dependencies, and the reasons for them: pyte is the
-# terminal emulator behind `navkit.console` -- the screen a child program
-# paints on so that Ctrl+O can show its output -- Pygments the lexers
-# behind the editor's and viewer's syntax highlighting (`navigator.lib.highlight`),
-# where DN had DN.HGL, and watchdog what tells a panel its directory changed
-# (`navigator.lib.system.dirwatch`, *Auto refresh panels*).  All are pure
-# Python.  Everything else is stdlib.  Test
+# The run-time dependencies, and the reasons for them: pyte is the terminal
+# emulator behind `navkit.console` -- the screen a child program paints on so
+# that Ctrl+O can show its output -- Pygments the lexers behind the editor's
+# and viewer's syntax highlighting (`navigator.lib.highlight`), where DN had
+# DN.HGL, and watchdog what tells a panel its directory changed
+# (`navigator.lib.system.dirwatch`, *Auto refresh panels*); markdown-it-py and
+# docutils read Markdown and reStructuredText for F3's *Markup view*, and boto3
+# is the S3 drive.  All are pure Python.  Everything else is stdlib.  Test
 # tooling lives in requirements-dev.txt and in the `dev` extra below, which
 # mirrors it.
-dependencies = ["pyte>=0.8.2", "pygments>=2.21", "watchdog>=6"]
+dependencies = [
+    "pyte>=0.8.2", "pygments>=2.21", "watchdog>=6",
+    "markdown-it-py>=3.0", "docutils>=0.18", "boto3>=1.34",
+]
 
 # Navigator's own two languages, made Pygments' own once installed
 # (`pygmentize -l nml'); Navigator finds them without this, from a checkout too.
@@ -74,7 +78,7 @@ nml = "navigator.lib.highlight.lexers:NmlLexer"
 nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "boto3>=1.34", "moto[server]>=5", "markdown-it-py>=3.0"]
+dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "moto[server]>=5"]
 # Utilities > Navigator Link to SSH servers (`navigator.lib.drives.sftp`).
 # Optional because it is the one dependency with compiled parts (through
 # `cryptography`); without it the Link entries say what to install.
@@ -82,15 +86,9 @@ sftp = ["paramiko>=3.4"]
 # Utilities > SMB link, Windows and Samba shares (`navigator.lib.drives.smb`).
 # FTP needs nothing: it is the standard library's `ftplib`.
 smb = ["smbprotocol>=1.13"]
-# Utilities > S3 link, Amazon S3 and S3-compatible endpoints
-# (`navigator.lib.drives.s3`).
-s3 = ["boto3>=1.34"]
 # *Save in keyring* in the password box: passwords kept by the desktop's
 # keyring, never by Navigator (`navigator.lib.drives.credentials`).
 keyring = ["keyring>=24"]
-# F3's View > Markdown, a Markdown file rendered (`navigator.lib.viewer.markdown`);
-# without it the entry is greyed and names this extra.
-markdown = ["markdown-it-py>=3.0"]
 
 [project.urls]
 Homepage = "https://github.com/yogsagot/navigator"

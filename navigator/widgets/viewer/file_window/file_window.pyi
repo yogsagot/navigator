@@ -34,7 +34,7 @@ from navigator.widgets.editor.option_items import viewer_items
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.lib.system.progress import run_with_progress
-from navigator.lib.viewer import SearchJob, ViewSearch, markdown
+from navigator.lib.viewer import SearchJob, ViewSearch
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
 
@@ -45,7 +45,6 @@ class FileWindow(Window, _Component):
     md_mark: StaticText
     options: OptionStrip
     view_menu: SubMenu
-    view_menu_rendered: MenuItem
     view_menu_file_type: SubMenu
     def __init__(self, path: Path | str, *, mode: str | None = ..., source: Any = ..., **kwargs: Any) -> None: ...
     def take_keyboard(self) -> None: ...

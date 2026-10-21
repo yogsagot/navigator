@@ -42,7 +42,7 @@ from navigator.widgets.editor.option_items import viewer_items
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.lib.system.progress import run_with_progress
-from navigator.lib.viewer import SearchJob, ViewSearch, markdown
+from navigator.lib.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
@@ -72,9 +72,6 @@ class FileWindow(Window):
         self.title = str(self.viewer.path)
         fill_file_types(self.view_menu_file_type, self)
         self.options.items = viewer_items(self.viewer)
-        if self.viewer.render_format == "markdown" and not markdown.available():
-            # Greyed by ``enables``; the key column says what to install.
-            self.view_menu_rendered.key = markdown.EXTRA
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -247,7 +244,7 @@ class FileWindow(Window):
     def enables(self, command: Command) -> bool:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them.
         *Markup view* is text only too, and wants a file no bigger than
-        ``RENDER_LIMIT`` (and markdown-it-py, for Markdown); while it renders, Wrap and Hidden
+        ``RENDER_LIMIT``; while it renders, Wrap and Hidden
         characters have nothing to act on."""
         if isinstance(command, GotoAddress):
             return self.viewer.mode != "text"

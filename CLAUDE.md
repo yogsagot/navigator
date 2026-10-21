@@ -40,15 +40,16 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Three run-time dependencies, all load-bearing: `pyte`, the VT emulator behind `navkit/console.py`, which is what
-  makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`), and
-  `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`) —
+- Six run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+  makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`),
+  `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`), `markdown-it-py`
+  and `docutils`, which read Markdown and reStructuredText for F3's View > *Markup view* (HTML is the stdlib's
+  `html.parser`), and `boto3`, the S3 drive —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
-- Five optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
-  `navigator-fm[smb]` (smbprotocol), `navigator-fm[s3]` (boto3), `navigator-fm[keyring]` (*Save in keyring*) and
-  `navigator-fm[markdown]` (markdown-it-py, F3's View > *Markup view* for Markdown; HTML needs nothing); FTP is the standard library's.
-  `requirements-dev.txt` adds paramiko, pyftpdlib, boto3, moto and markdown-it-py, so `tests/test_sftp.py`,
-  `tests/test_ftp.py`, `tests/test_s3.py` and `tests/test_viewer_markdown.py` run (else they are skipped). `nav
+- Three optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
+  `navigator-fm[smb]` (smbprotocol) -- both need the compiled `cryptography` -- and `navigator-fm[keyring]` (*Save in
+  keyring*); FTP is the standard library's. `requirements-dev.txt` adds paramiko, pyftpdlib and moto, so
+  `tests/test_sftp.py`, `tests/test_ftp.py` and `tests/test_s3.py` run (else they are skipped). `nav
   sftp://user@host/dir` (or `ftp://`, `smb://host/share`, `s3://s3.amazonaws.com/bucket`) opens a side there
   (`navigator-drives` skill)
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,

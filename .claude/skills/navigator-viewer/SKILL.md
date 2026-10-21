@@ -34,21 +34,25 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type
   (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
-- **Markup view: Markdown and HTML rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
-  (`SwitchRendered`, handled by `FileWindow` and by `QuickViewer`, ticked; the strip's last item, `MD` or `HTML`,
-  dropped first from a short frame) renders the file rather than showing its source, in text mode only.
-  `FileViewer.rendered` is the switch; `format_by_name` says `html` (`[viewer] render_html` + `html_masks`) or
-  `markdown` (`render_markdown` + `markdown_masks`) or "", which seeds it in `open()`; `render_format` is that, else
-  `markdown` (a `.txt` switched on reads as Markdown). `{Markdown}`/`{HTML}` follows the info line (`md_mark`,
+- **Markup view: Markdown, reStructuredText and HTML rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
+  (`SwitchRendered`, handled by `FileWindow` and by `QuickViewer`, ticked; the strip's last item,
+  `MD`, `RST` or `HTML` (`M↓`, `rST`, `</>` as symbols), dropped first from a short frame) renders the file rather than showing its source, in text mode only.
+  `FileViewer.rendered` is the switch; `format_by_name` says `html` (`[viewer] render_html` + `html_masks`), `rst`
+  (`render_rst` + `rst_masks`) or `markdown` (`render_markdown` + `markdown_masks`) or "", which seeds it in `open()`; `render_format` is that, else
+  `markdown` (a `.txt` switched on reads as Markdown). `{Markdown}`/`{reST}`/`{HTML}` follows the info line (`md_mark`,
   `render_mark`): plain while on, struck through (`Style.strike`, SGR 9) while off for a file the masks name, absent
   otherwise; a press on it switches (`FileWindow.on_mouse_click`). Styled by class (`StaticText.rendered`, `.off`
   struck), in the info line's (`name: "info"`) frame colours. No checkboxes (the Editor/Viewer page has no rows for
   them). Kept as `ViewRecord.rendered` (`on`/`off`, empty for the masks' say).
-  **The model is three modules.** `navigator/lib/viewer/layout.py` is the format-free part: `Row`/`Layout`, `_wrap`,
+  **The model is four modules.** `navigator/lib/viewer/layout.py` is the format-free part: `Row`/`Layout`, `_wrap`,
   and `Builder`, whose block methods (`heading`, `paragraph`, `code`, `table`, `rule`, `quote`, `push`/`pop`) make
-  the rows. `markdown.py` walks markdown-it-py's tokens into it (CommonMark plus GFM tables and strikethrough, the
-  optional `navigator-fm[markdown]` extra -- without it a Markdown file's entry is greyed and its key column names
-  the extra). `html.py` walks the stdlib `html.parser` into it, as `lynx -dump` reads a page: `<title>` first,
+  the rows. `markdown.py` walks markdown-it-py's tokens into it (CommonMark plus GFM tables and strikethrough).
+  `rst.py` walks docutils' document tree into it: sections as headings by depth (a
+  title's `line` is its underline's, so one back), lists of every enumerator kind, admonitions as a quote under their
+  name, definition and field lists indented, grid and simple tables, `code-block`s lexed here (`syntax_highlight:
+  none`) -- docutils puts a directive's `line` after it, so `code_line` finds the first line's text near it.
+  `include` and `raw` are off and every warning is quiet (`report_level`/`halt_level` 5): nothing outside the file is
+  read, and a document with errors renders what it can. `html.py` walks the stdlib `html.parser` into it, as `lynx -dump` reads a page: `<title>` first,
   `head`/`script`/`style` hidden (`head` ends at the first body element, closed or not), blanks run together, lists
   with unclosed `<li>`, `pre` coloured by its `language-*` class, tables gathered then drawn, `a href` as links, `img`
   as `[alt]`; an end tag closes its own element wherever it is open, so broken HTML degrades. Either reads the

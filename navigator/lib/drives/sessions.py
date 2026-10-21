@@ -48,8 +48,6 @@ SCHEMES: dict[str, str] = {
 EXTRA_HINT: dict[str, str] = {
     "sftp": "navigator-fm[sftp]",
     "smb": "navigator-fm[smb]",
-    "s3": "navigator-fm[s3]",
-    "s3+http": "navigator-fm[s3]",
 }
 
 #: What each scheme is called wherever a connection is named -- the menu, the

@@ -138,8 +138,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   the connection itself (not an `OSError`) is `DriveGone`; `LogonFailure`/`AccessDenied` on connecting is
   `NeedPassword`. No user is the guest, or Kerberos with a ticket. No chmod or owners (Windows ACLs). `smb.CLIENT`
   is the module spoken through -- a test puts a stand-in there. Title `SMB:host:/share/path`.
-- **`s3.py`** (`s3://[key@]endpoint[:port]/bucket/key`, `s3+http://` for plain HTTP; boto3, the
-  `navigator-fm[s3]` extra). **No new `Site` fields**: the scheme is the transport, the host the endpoint
+- **`s3.py`** (`s3://[key@]endpoint[:port]/bucket/key`, `s3+http://` for plain HTTP; boto3, one of
+  Navigator's own dependencies). **No new `Site` fields**: the scheme is the transport, the host the endpoint
   (`s3.amazonaws.com` / `s3.REGION.amazonaws.com` is Amazon's -- virtual-hosted, a bucket's region learnt once from
   `head_bucket`'s `x-amz-bucket-region` and a client per region; any other host an endpoint of its own by URL,
   path-style, region `us-east-1` unless `~/.aws` says), the user who (empty: the AWS chain; a `~/.aws` profile's
@@ -308,7 +308,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   7-Zip and unrar listings parsed from captured output (everywhere), and a real 7z entered, written, made and
   tested -- skipped without 7-Zip (the official `7zz` tarball unpacked onto `PATH` is enough).
   `tests/test_dcerpc.py`: `NetrShareEnum` against a pipe answering in fragments; `tests/test_smb.py` puts that pipe
-  behind its stand-in `smbclient`. `tests/test_s3.py` (skipped without boto3 and moto) runs moto's
+  behind its stand-in `smbclient`. `tests/test_s3.py` (skipped without moto) runs moto's
   `ThreadedMotoServer` once per module and reaches it as an endpoint of its own over `s3+http` (path-style, as a
   MinIO); moto checks no keys, so a refused secret is a stand-in client (`s3.make_client`).
 - `tests/test_ftp.py` (skipped without pyftpdlib) against `tests/ftp_server.py` run **as a process of its own**

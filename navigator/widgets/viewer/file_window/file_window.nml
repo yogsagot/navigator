@@ -135,11 +135,9 @@ FileWindow(Window):
         MenuItem:
             text: '~W~rap lines'
             command: Unwrap
-        #: A departure: a Markdown or HTML file rendered, or its source.
-        #: Without markdown-it-py a Markdown file's key column names the
-        #: extra instead.
+        #: A departure: a Markdown, reStructuredText or HTML file rendered,
+        #: or its source.
         MenuItem:
-            id: view_menu_rendered
             text: '~M~arkup view'
             command: SwitchRendered
             key: 'Shift-F4'

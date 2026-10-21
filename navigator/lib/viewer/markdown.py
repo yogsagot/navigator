@@ -7,14 +7,11 @@ wrapped, lists, quotes, tables drawn in box characters, rules, and code blocks
 coloured by :mod:`navigator.lib.highlight`.  The markup itself is not shown.
 
 Nothing here knows of widgets or threads: the viewer reads the file and calls
-:func:`render` on its own thread.  markdown-it-py is the optional
-``navigator-fm[markdown]`` extra; :func:`available` says whether it is there.
+:func:`render` on its own thread.
 """
 
 from __future__ import annotations
 
-import functools
-import importlib.util
 import re
 from typing import Any
 
@@ -31,21 +28,12 @@ from navigator.lib.viewer.layout import (
     line_starts,
 )
 
-__all__ = ["EXTRA", "MARKDOWN_LIMIT", "Layout", "available", "decode", "render"]
-
-#: The extra that brings markdown-it-py.
-EXTRA = "navigator-fm[markdown]"
+__all__ = ["MARKDOWN_LIMIT", "Layout", "decode", "render"]
 
 #: The most a Markdown file may hold to be rendered: the layout's limit.
 MARKDOWN_LIMIT = RENDER_LIMIT
 
 _TASK = re.compile(r"\[([ xX])\] ")
-
-
-@functools.cache
-def available() -> bool:
-    """Whether markdown-it-py can be imported."""
-    return importlib.util.find_spec("markdown_it") is not None
 
 
 class _Renderer(Builder):

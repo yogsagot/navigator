@@ -11,7 +11,6 @@ from pathlib import PurePosixPath
 
 import pytest
 
-pytest.importorskip("boto3")
 moto_server = pytest.importorskip("moto.server")
 
 from conftest import FakeTerminal, Until, run_app  # noqa: E402
@@ -167,16 +166,6 @@ def test_a_file_renames_on_the_server_and_a_directory_moves_by_copying(drive, tm
     with pytest.raises(OSError) as busy:
         drive.rmdir(at(drive, f"/{bucket}"))
     assert busy.value.errno == errno.ENOTEMPTY
-
-
-def test_without_boto3_the_link_says_what_to_install(monkeypatch):
-    import importlib.util
-
-    from navigator.lib.drives import sessions
-
-    real = importlib.util.find_spec
-    monkeypatch.setattr(importlib.util, "find_spec", lambda name, *a: None if name == "boto3" else real(name, *a))
-    assert sessions.available("s3") == "S3 needs boto3: pip install navigator-fm[s3]"
 
 
 def test_utilities_s3_link_sends_the_panel_into_a_bucket(endpoint, isolated, tmp_path, monkeypatch):

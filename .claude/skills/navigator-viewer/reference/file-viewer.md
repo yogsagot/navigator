@@ -82,11 +82,11 @@ in the passive panel's place, and it works exactly as Ctrl+T does, because both 
   like a panel, with the file's name as its title. That title is Navigator's: DN's view sat inside the double
   window's frame and had none.
 
-**Markup view (Shift+F4, View > *Markup view*), Markdown and HTML,** is a departure, and the one mode that does not fit the byte-offset
+**Markup view (Shift+F4, View > *Markup view*), Markdown, reStructuredText and HTML,** is a departure, and the one mode that does not fit the byte-offset
 model. A rendered document reflows its paragraphs and hides its markup, so a screen row no longer is a contiguous
 run of the file's bytes, and nothing can be read a row at a time from `top`. These are the choices made:
 
-- **The whole file is parsed**, on a thread, with markdown-it-py or `html.parser`, under a 4 MiB cap (`RENDER_LIMIT`). A README is
+- **The whole file is parsed**, on a thread, with markdown-it-py, docutils or `html.parser`, under a 4 MiB cap (`RENDER_LIMIT`). A README is
   far below it. Anything above it stays source, where text mode's byte windows still serve.
 - **The layout is a list of rows made for one width.** Each row keeps the offset of the source line its block
   starts on. `render_row` is a row index, and `top` is kept at that row's offset. Everything outside the rendering
@@ -96,11 +96,18 @@ run of the file's bytes, and nothing can be read a row at a time from `top`. The
 - **Searching stays on the bytes.** A search over the rendered text would have to be a second search engine. The
   hit is found in the source as ever. Its block is shown, and its text is matched again in that block's rows to
   mark it.
-- **markdown-it-py is an optional extra**, as paramiko is, rather than a fourth run-time dependency, because the
-  viewer is whole without it. A hand-written parser was rejected: CommonMark's edge cases (lazy continuation, list
+- **markdown-it-py is a run-time dependency.** It started as an optional extra, as paramiko is, but an extra only
+  left `.md` files showing source until someone found it. paramiko is optional because it is compiled; this is
+  small and pure Python. A hand-written parser was rejected: CommonMark's edge cases (lazy continuation, list
   tightness, tables) are where a small parser goes wrong.
 - **Not a fourth F4 mode.** It is a toggle inside text mode, beside Wrap, so F4 still cycles DN's three. It is seeded
   per file by `markdown_masks`, so a `.md` opens rendered and a `.txt` does not.
+
+**reStructuredText is read by docutils**, the reference parser, whose tree is the one Sphinx and PyPI render. It is a
+run-time dependency, as markdown-it-py is. A hand-written reader would get titles by underline, simple tables and
+nested directives wrong. Two of docutils' habits are switched off:
+- **Reading outside the file.** `include` and `raw` would read other files or pass markup through, so both are off.
+- **Reporting.** Warnings and errors are kept quiet and never fatal, so a broken document still renders what it can.
 
 **HTML is read the way a text browser dumps a page.** The parser is the standard library's `html.parser`, so
 there is nothing to install. Its forgiving model suits pages as they are written: unclosed `<p>`, `<li>` and

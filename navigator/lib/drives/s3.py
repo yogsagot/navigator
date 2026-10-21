@@ -1,8 +1,8 @@
 """Amazon S3 -- and any endpoint that speaks its protocol (MinIO, Ceph, R2,
 B2, Wasabi, Spaces) -- as a drive: ``s3://[key@]endpoint[:port]/bucket/key``.
 
-Through `boto3 <https://boto3.amazonaws.com/>`_, the ``navigator-fm[s3]``
-extra; without it :func:`available` says what to install.
+Through `boto3 <https://boto3.amazonaws.com/>`_, one of Navigator's own
+dependencies.
 
 **A link is the four things every other is** (``Site``'s scheme, user,
 host and port), so S3's own fit into them, as SMB's share fits into its path:
@@ -35,7 +35,6 @@ retries, and an endpoint that cannot be reached after that is ``DriveGone``.
 from __future__ import annotations
 
 import errno
-import importlib.util
 import io
 import re
 import stat
@@ -46,9 +45,6 @@ from typing import IO, Any
 from navigator.lib.drives.base import RENAME, WRITE, Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.sessions import Answers, NeedPassword
-
-#: What the drive cannot be without.
-EXTRA = "navigator-fm[s3]"
 
 #: Amazon's own endpoint: any other host is an endpoint of its own.
 AWS_HOST = "s3.amazonaws.com"
@@ -78,8 +74,8 @@ _BAD_KEYS = ("InvalidAccessKeyId", "SignatureDoesNotMatch", "InvalidClientTokenI
 
 
 def available() -> str | None:
-    if importlib.util.find_spec("boto3") is None:
-        return f"S3 needs boto3: pip install {EXTRA}"
+    """Always there: boto3 is one of Navigator's dependencies.  Every drive
+    module answers this (``sessions.available``)."""
     return None
 
 

@@ -44,7 +44,6 @@ suggests:
   - python3-paramiko
   - python3-smbprotocol
   - python3-keyring
-  - python3-boto3
   - 7zip
 overrides:
   rpm:
@@ -54,7 +53,6 @@ overrides:
       - python3-paramiko
       - python3-smbprotocol
       - python3-keyring
-      - python3-boto3
       - 7zip
 
 contents:
