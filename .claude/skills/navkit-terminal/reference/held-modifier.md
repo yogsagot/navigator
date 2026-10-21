@@ -9,7 +9,7 @@ rejected, because it is a modern invention that shows a row nobody is holding.
 
 - **Pushed without asking.** `Terminal.start` writes `CSI > 31 u` and `stop` writes `CSI < u`. The flags are 1, 2, 4,
   8 and 16: 4 and 16 are there so text keys still arrive with the character they type. Pushing onto the terminal's
-  own stack means `run_on_terminal`'s stop/start hands a child a legacy terminal. A terminal that does not know the
+  own stack means `Terminal.suspend` (the relay's `release_terminal`) hands a child a legacy terminal. A terminal that does not know the
   sequence ignores it, which is also Neovim's bet. A query would cost a round trip and an input path for its reply,
   and would learn nothing the parser does not learn from the first kitty-form key. `NAVKIT_KEYBOARD=legacy` is the
   way out, and `TerminalInfo.kitty_keyboard` is the flag.

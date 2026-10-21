@@ -8,11 +8,12 @@ end we hold, so its output can be kept, painted behind the panels, and
 scrolled back through.
 
 There is a cost, and it is worth stating plainly: a program only ever talks
-to what :mod:`navkit.console` can emulate.  For the line-oriented output a
-file manager runs -- listings, compilers, version control -- that is
-everything.  A full-screen program wanting the terminal to itself is better
-served by :func:`run_on_terminal`, which hands it the real one and accepts
-that its output cannot then be captured.
+to what :mod:`navkit.console` can emulate.  That is the line-oriented output
+a file manager runs -- listings, compilers, version control -- and, with the
+console's own alternate screen, query answers, cursor-key modes and mouse
+reports, the full-screen programs too.  What it cannot show (an image drawn
+with a graphics protocol) needs the real terminal, which is the
+application's to lend (``Application.release_terminal``), not this module's.
 """
 
 from __future__ import annotations
@@ -22,7 +23,6 @@ import os
 import pty
 import signal
 import struct
-import subprocess
 import termios
 from asyncio import AbstractEventLoop, get_running_loop
 from typing import Callable, Mapping, Sequence
@@ -195,21 +195,3 @@ class PtyProcess:
             self.status = status
         if self.on_exit is not None:
             self.on_exit(self.status or 0)
-
-
-def run_on_terminal(
-    terminal, argv: Sequence[str], *, cwd: str | os.PathLike[str] | None = None
-) -> int:
-    """Run *argv* on the real terminal, with the application stood down.
-
-    The escape hatch for a program that wants the terminal to itself.  Its
-    output goes to the terminal rather than into a console screen, so it
-    cannot afterwards be shown behind the panels -- which is precisely the
-    limitation Ctrl+O exists to avoid, and the reason this is the exception
-    rather than the rule.
-    """
-    terminal.stop()
-    try:
-        return subprocess.call(list(argv), cwd=cwd)
-    finally:
-        terminal.start()

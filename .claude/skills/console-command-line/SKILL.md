@@ -18,7 +18,8 @@ dependency and it is load-bearing.
   `CSI ? Pm r`) or misread (`CSI > 4;2 m`), and a parser rebuilt if pyte raises anyway (its parser is a generator one
   exception closes for good).
 - `navkit/process.py`'s `PtyProcess` runs a child on a pty via `loop.add_reader`, sized with `TIOCSWINSZ` on the master
-  (the kernel signals the child). `run_on_terminal` is the escape hatch whose output is *not* captured.
+  (the kernel signals the child). A program that needs the real terminal goes through the relay (below), never a
+  blocking call with the terminal stopped.
 - **A console screen is not reactive**: `Console.revision` stands in; anything mutating it behind the widget must bump it.
 
 ## The Console widget and Ctrl+O

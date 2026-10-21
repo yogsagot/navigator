@@ -81,12 +81,15 @@ edge of the screen, and it is why the fast path can be a slice with two fixups r
 
 ### What owning the pty costs
 
-A child only ever talks to what the emulator implements, and pyte does not implement `?1049` — a program that switches
-to its own alternate screen draws over the same buffer. For the line-oriented output a file manager runs, that is
-everything; for a full-screen program it is wrong, and `run_on_terminal` is the escape hatch that hands over the real
-terminal and accepts that the output then cannot be captured. The two are genuinely exclusive: either the pty is owned
-and the emulation has to be good enough, or the child gets the terminal and the cells are gone. There is no third
-option, which is the whole finding above.
+A child only ever talks to what the emulator implements. pyte stores `?1049` without obeying it, so a program that
+switched to its own alternate screen drew over the shell's output; `_Screen` now keeps an alternate buffer of its own
+(47/1047/1049), and with query answers, DECCKM and mouse reports that makes full-screen programs part of the rule
+rather than the exception. The two ways out remain genuinely exclusive: either the pty is owned and the emulation has
+to be good enough, or the child gets the terminal and the cells are gone. There is no third option, which is the whole
+finding above. A program the emulation cannot show (kitty or sixel images) would get the real terminal through
+`Application.release_terminal`, the relay *Use internal terminal* off already uses, which keeps the loop running.
+A blocking `subprocess.call` with the terminal stopped (the deleted `run_on_terminal`) stalls the subshell's reader,
+the timers and resizes, and leaves the application unaware it lost the screen.
 
 **`set_winsize` on the master is the whole of resize handling.** The kernel carries the size to the slave and raises
 `SIGWINCH` on the foreground process group itself, so nothing signals the child by hand. **EOF on the master is the

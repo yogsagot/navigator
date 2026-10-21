@@ -1,11 +1,10 @@
 ## Still open
 
-- Whether the cell test should ever gain a tolerance. Two presses must land in the *same* cell today, which fails by
-  missing a double-click rather than by inventing one, and that is the right way round where the consequence is
-  opening something. But a cell is a large target next to the pixel slop a GUI toolkit allows, and what counts as "the
-  same thing" is arguably the widget's to say — a row, a cell, a word — which navkit has no way to ask. The day
-  something asks, the answer is probably a widget-supplied granularity rather than a constant, and it should not be
-  guessed at before then.
+- ~~Whether the cell test should ever gain a tolerance.~~ **Answered: no.** Two presses must land in the *same* cell;
+  a second press on a different cell is not a double-click but two single clicks. That fails by missing a
+  double-click rather than by inventing one, which is the right way round where the consequence is opening something,
+  and a cell is already a coarser target than the pixel slop a GUI toolkit allows. No tolerance, and no
+  widget-supplied granularity either.
 
 - ~~What `Application.background` becomes.~~ **Answered: it is derived from the root widget's resolved style.** The
   duplication was never the second *paint* — `Manager.render` filling its own area is what lets the desktop be painted
@@ -32,9 +31,13 @@
   `emitted()` does, and `part_style()` refuses a name its widget never declared. A test loads the shipped sheet with
   the widgets imported and asks the same question of every `::part` in it, which is the parse-time check spelled the
   only way it can be.
-- What a full-screen child does. `run_on_terminal` hands over the real terminal and loses the output, which is the one
-  thing the console exists to keep. The alternative is teaching the console an alternate buffer of its own — pyte stores
-  `?1049` without obeying it — and that is worth doing only once something actually launches an editor.
+- ~~What a full-screen child does.~~ **Answered: it runs in the console, like everything else.** The console was
+  taught an alternate buffer of its own (`_Screen` in `navkit/console.py` obeys 47/1047/1049, where pyte only stored
+  them), along with query answers, DECCKM and mouse reports, so `htop`, `mc` and `nano` run on the owned pty and the
+  main screen's output survives them. `run_on_terminal`, the escape hatch that handed over the real terminal and lost
+  the output, never gained a caller and is deleted. A program the emulator truly cannot show (graphics-protocol
+  images) would go through the relay `Application.release_terminal` already does for *Use internal terminal* off,
+  which keeps the loop running; never a blocking `subprocess.call`.
 - ~~Where the console's key routing belongs.~~ **Answered by focus, as predicted, and it took three methods instead
   of one.** `Navigator.on_key` keeps only what means the same thing wherever the focus is — Ctrl+O, and F10/Ctrl+Q —
   (since superseded twice: it is `Navigator.keys` now, a key table, and F10 is DOS Navigator's menu, not Quit)
