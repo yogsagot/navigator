@@ -68,6 +68,9 @@ from navigator.widgets.manager.commands import (
     FindFile,
     MakeList,
     ReadFileList,
+    Panelize,
+    MultiRename,
+    UndoMultiRename,
     SetupColumns,
     AdvancedFilter,
     DirHistory,
@@ -781,6 +784,93 @@ class Manager(Window):
             return
         panel.show_found(FindListing(str(source), here, entries, return_to=entry.name))
 
+    async def on_panelize(self, event: Panelize) -> bool:
+        self.spawn(self.panelize(self.active_panel))
+        return True
+
+    #: The last command panelized, offered again in the box (the session's).
+    last_panelized = ""
+
+    async def panelize(self, panel: Panel, command: str | None = None) -> None:
+        """Alt+O: what *command* prints, run in *panel*'s directory on a
+        thread, as a listing titled with it (:mod:`navigator.lib.file_ops.panelize`);
+        asked for first when not given.  Its box shows once the command has
+        taken a moment, and *Cancel* ends it.  A departure: MC's *External
+        panelize*."""
+        from navigator.lib.file_ops.filefind import FindListing, list_from_lines
+        from navigator.lib.file_ops.panelize import PanelizeJob, capture, lines_of
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.manager.find_progress import FindProgress
+        from navigator.widgets.manager.panel.panel import entry_at
+        from navigator.widgets.manager.panelize_dialog import PanelizeDialog
+
+        app = self.application
+        if app is None:
+            return
+        if command is None:
+            command = await PanelizeDialog(Manager.last_panelized).execute(app)
+            if not command:
+                return
+        if not panel.location.is_local:
+            await Dialog(title=tr("Error"), prompt=tr("A command's output can be panelized on this machine's disk only"),
+                         buttons="ok").execute(app)
+            return
+        Manager.last_panelized = command
+        here = Path(panel.path)
+        current = panel.selected
+        job = PanelizeJob()
+
+        def work() -> list[Any]:
+            capture(command, here, job)
+            return list_from_lines(lines_of(job.output), here, lambda path: entry_at(path, path.parent))
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Panelize")
+            box.count_row.visible = False
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = command
+
+        async def no_questions(question: Any) -> None:
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(work))
+        try:
+            await self._watch_job(running, job, make_box, refresh, no_questions,
+                                  abort=tr("Stop the command?"))
+            entries = await running
+        except Stopped:
+            return
+        except OSError as error:
+            await Dialog(title=tr("Error"), prompt=tr("Cannot run {command}: {reason}").format(
+                command=command, reason=error.strerror or error), buttons="ok").execute(app)
+            return
+        finally:
+            if not running.done():
+                job.stop()
+        if panel.location != Location.of(here):
+            return  # the panel went elsewhere meanwhile
+        if not entries:
+            reason = job.errors.strip().splitlines()[0] if job.status and job.errors.strip() else ""
+            prompt = tr("No files found") if not reason else tr("No files found\n{reason}").format(reason=reason)
+            await Dialog(title=tr("Error"), prompt=prompt, buttons="ok").execute(app)
+            return
+        again = panel.found is not None and panel.found.command == command
+        if again:
+            # Ctrl+R: the same listing read anew, its columns and cursor kept.
+            columns, back = panel.find_columns, panel.found.return_to
+        else:
+            back = current.name if current is not None and panel.found is None else None
+        panel.show_found(FindListing(tr("Panel: {command}").format(command=command), here, entries,
+                                     return_to=back, command=command))
+        if again:
+            panel.find_columns = columns
+            if current is not None:
+                panel.reload(key=current.key)
+        panel.focus()
+
     async def on_find_file(self, event: FindFile) -> bool:
         self.spawn(self.find_file(self.active_panel))
         return True
@@ -1078,8 +1168,6 @@ class Manager(Window):
         POSIX's would replace it; a ``/`` is no name.  The cursor goes to the
         file under its new name, and a tag goes with it.
         """
-        from navigator.widgets.editor.edit_window.edit_window import FileSaved
-
         app = self.application
         old = entry.name
         here = Location.of(entry.directory) if entry.directory is not None else panel.location
@@ -1109,18 +1197,146 @@ class Manager(Window):
                              old=old, new=new, reason=reason),
                          buttons="ok").execute(app)
         else:
-            old_key = entry.key
-            renamed = DirEntry(new, entry.is_dir, entry.size, directory=entry.directory)
-            if panel.found is not None:
-                # The listing knows its files by name: tell it the new one.
-                for found in panel.found.entries:
-                    if found.key == old_key:
-                        found.name = new
-            if old_key in panel.marked:
-                panel.marked = (panel.marked - {old_key}) | {renamed.key}
-            if here.is_local:
-                await self.emit(FileSaved(here.local / new))
-            panel.reload(key=renamed.key)
+            await self._after_renames(panel, [(here, old, new)], at=(here, new))
+
+    async def _after_renames(self, panel: Panel, renamed: Sequence[tuple[Location, str, str]],
+                             at: tuple[Location, str] | None = None) -> None:
+        """What *panel* knows of files renamed, ``(place, old, new)`` each: a
+        listing's entries and the tags take the new names, an editor holding
+        one hears of it, and the panel -- the cursor on *at* if given -- and
+        the other one showing the same place are read again."""
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+
+        names = {(place, old): new for place, old, new in renamed}
+        here = panel.location
+
+        def key(directory: Any, name: str) -> str:
+            return name if directory is None else os.path.join(str(directory), name)
+
+        marked = set(panel.marked)
+        cursor_key = None
+        if panel.found is not None:
+            # The listing knows its files by name: tell it the new ones.
+            for found in panel.found.entries:
+                place = Location.of(found.directory) if found.directory is not None else here
+                new = names.get((place, found.name))
+                if new is None:
+                    continue
+                old_key = found.key
+                found.name = new
+                if old_key in marked:
+                    marked = (marked - {old_key}) | {found.key}
+                if at == (place, new):
+                    cursor_key = found.key
+        else:
+            for (place, old), new in names.items():
+                if place == here and old in marked:
+                    marked = (marked - {old}) | {new}
+            if at is not None and at[0] == here:
+                cursor_key = key(None, at[1])
+        if marked != panel.marked:
+            panel.marked = frozenset(marked)
+        for place, _old, new in renamed:
+            if place.is_local:
+                await self.emit(FileSaved(place.local / new))
+        panel.reload(key=cursor_key)
+        other = self.passive_panel
+        if other is not panel and other.found is None and other.location in {place for place, _, _ in renamed}:
+            other.reload()
+
+    async def on_multi_rename(self, event: MultiRename) -> bool:
+        self.spawn(self.multi_rename(self.active_panel))
+        return True
+
+    #: The last batch Multi-rename did, for *Undo multi-rename* (the session's).
+    last_renames: Any = None
+
+    async def multi_rename(self, panel: Panel) -> None:
+        """Alt+A: the tagged files -- or the one at the cursor -- renamed by
+        a pattern, every new name previewed first
+        (:mod:`navigator.lib.file_ops.multirename`), then renamed on a thread.
+        A departure: Total Commander's *Multi-Rename Tool*."""
+        from navigator.lib.file_ops import multirename
+        from navigator.widgets.file_ops.multi_rename_dialog import MultiRenameDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        here = panel.location
+        items = []
+        for entry in entries:
+            place = Location.of(entry.directory) if entry.directory is not None else here
+            items.append(multirename.Item(entry.name, place, entry.is_dir, entry.mtime,
+                                          place.name if not place.is_root else ""))
+        places = {item.place for item in items}
+
+        def taken() -> dict[Any, set[str]]:
+            names: dict[Any, set[str]] = {}
+            for place in places:
+                try:
+                    names[place] = {name for name, _ in drive_of(place).children(place)}
+                except OSError:
+                    pass
+            return names
+
+        known = await asyncio.to_thread(taken)
+        rows = await MultiRenameDialog(items, known).execute(app)
+        if not rows:
+            return
+        pairs = [(row.item.place, row.item.name, row.new) for row in rows]
+        done = await self._run_renames(pairs)
+        if done:
+            Manager.last_renames = multirename.Batch(done)
+            place, _old, new = done[0]
+            await self._after_renames(panel, done, at=(place, new) if len(done) == 1 else None)
+
+    async def on_undo_multi_rename(self, event: UndoMultiRename) -> bool:
+        self.spawn(self.undo_multi_rename(self.active_panel))
+        return True
+
+    async def undo_multi_rename(self, panel: Panel) -> None:
+        """Panel > Undo multi-rename: the last batch's files given their old names back."""
+        batch, Manager.last_renames = Manager.last_renames, None
+        if batch is None or not batch.done:
+            return
+        done = await self._run_renames(batch.undo_pairs())
+        if done:
+            await self._after_renames(panel, done)
+
+    async def _run_renames(self, pairs: Sequence[tuple[Location, str, str]]) -> list[tuple[Location, str, str]]:
+        """*pairs* renamed on a thread (:func:`navigator.lib.file_ops.multirename.run`),
+        a box showing how far it is once it takes a moment; what was done."""
+        from navigator.lib.file_ops import filecopy, multirename
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.manager.find_progress import FindProgress
+
+        job = multirename.RenameJob()
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Rename")
+            box.count_row.visible = False
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = f"{job.count}/{job.total}  {job.current}"
+
+        async def answer(question: Any) -> Any:
+            if isinstance(question, filecopy.Failure):
+                return await self._ask_skip(question.message)
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(multirename.run, list(pairs), job, drive_of))
+        try:
+            await self._watch_job(running, job, make_box, refresh, answer)
+            await running
+        except Stopped:
+            pass
+        finally:
+            if not running.done():
+                job.stop()
+        return list(job.done)
 
     #: *Make List File*'s boxes as last left, for the session (DN kept
     #: ``MakeListFileOptions`` in its configuration).
@@ -1323,8 +1539,12 @@ class Manager(Window):
         return True
 
     async def on_rescan(self, event: Rescan) -> bool:
+        found = self.active_panel.found
         if self.tree.focused:
             self.tree.reload()
+        elif found is not None and found.command is not None:
+            # A panelized command's listing is read again by running it again.
+            self.spawn(self.panelize(self.active_panel, found.command))
         else:
             self.active_panel.reload()
         return True
@@ -1569,7 +1789,8 @@ class Manager(Window):
                     return False
             except DriveGone:
                 return False
-        if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename)):
+        if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename,
+                                MultiRename)):
             try:
                 drive = self.active_panel.drive
             except DriveGone:
@@ -1633,6 +1854,12 @@ class Manager(Window):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.
             return self.active_panel.found is None
+        if isinstance(command, Panelize):
+            return self.active_panel.location.is_local
+        if isinstance(command, MultiRename):
+            return not (self.tree.focused or self.quick.focused) and bool(self.selection(self.active_panel))
+        if isinstance(command, UndoMultiRename):
+            return Manager.last_renames is not None
         if isinstance(command, ReadFileList):
             entry = self.active_panel.selected
             return entry is not None and not entry.is_dir

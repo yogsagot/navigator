@@ -148,6 +148,9 @@ class FindListing:
     live: bool = False
     #: The entry the cursor was on when the search began, to go back to.
     return_to: str | None = None
+    #: The shell command whose output this is, for a panelized one: Ctrl+R
+    #: runs it again rather than asking about each entry.
+    command: str | None = None
 
 
 def roots(start: Path, scope: str, mounts: Iterable[Path] = ()) -> list[Path]:
@@ -405,12 +408,19 @@ def read_list(list_file: Path, here: Path, make_entry: Any) -> list[Any]:
     POSIX name may, so the whole line is the name.  Raises ``OSError`` if
     the list cannot be read.  A thread runs it.
     """
+    text = Path(list_file).read_text(encoding="utf-8", errors="surrogateescape")
+    return list_from_lines(text.splitlines(), here, make_entry)
+
+
+def list_from_lines(lines: Iterable[str], here: Path, make_entry: Any) -> list[Any]:
+    """:func:`read_list`'s reading of *lines*, wherever they came from -- a
+    list file, or what a panelized command printed
+    (:mod:`navigator.lib.file_ops.panelize`)."""
     import glob
 
-    text = Path(list_file).read_text(encoding="utf-8", errors="surrogateescape")
     found: list[Any] = []
     seen: set[str] = set()
-    for line in text.splitlines():
+    for line in lines:
         name = line.strip()
         if not name:
             continue

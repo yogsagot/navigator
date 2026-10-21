@@ -274,6 +274,16 @@ blanks included: a departure, DN cut at the first blank), relative to the panel'
 globbed as a shell does (no dot-files for `*`), missing names skipped, each file once -- into a `FindListing` titled
 with the list's path. Nothing there: *No files found*. Enabled on a file only.
 
+**Alt+Y, Panel > Panelize command** (`Panelize`, `Manager.panelize`; a departure, MC's *External panelize*):
+`PanelizeDialog` (history `panelize`, seeded with `Manager.last_panelized`), then `navigator/lib/file_ops/panelize.py`'s
+`capture` runs `$SHELL -c command` in the panel's directory on a thread -- off the console's pty, stdin `/dev/null`,
+its own session so *Cancel* (`FindProgress` retitled, the count row hidden) kills the group -- and
+`filefind.list_from_lines` (Alt+V's reading, split out of `read_list`) turns the lines (NUL-split when the output has
+a NUL: `find -print0`) into a `FindListing(command=...)` titled `Panel: <command>`. Nothing listed: *No files found*,
+with the first stderr line when the command failed. **Ctrl+R in such a listing runs the command again** (`on_rescan`),
+columns and cursor kept. Enabled only on the local disk. Two more ways in: a command line starting `|`
+(`console-command-line`) and a user-menu item with a `<|` line (`navigator-user-menu`).
+
 **Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
 its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,
 `marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`.

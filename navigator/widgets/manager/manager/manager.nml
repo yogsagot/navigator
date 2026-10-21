@@ -2,7 +2,7 @@ from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Adv
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan
+from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
@@ -90,6 +90,8 @@ Manager(Window):
         alt+g: CountLength
         shift+enter: ChangeInactive
         alt+v: ReadFileList
+        alt+y: Panelize
+        alt+a: MultiRename
         alt+k: SetupColumns
         alt+delete: AdvancedFilter
         alt+backspace: DirHistory
@@ -159,6 +161,11 @@ Manager(Window):
             text: 'Read file ~l~ist'
             command: ReadFileList
             key: 'Alt-V'
+        #: A departure: MC's *External panelize* (Panelize's docstring).
+        MenuItem:
+            text: 'Paneli~z~e command...'
+            command: Panelize
+            key: 'Alt-Y'
         MenuItem:
             text: '~C~ompare directories'
             command: CompareDir
@@ -169,6 +176,15 @@ Manager(Window):
         MenuItem:
             text: 'Directory Branc~h~'
             command: DirBranch
+        MenuLine:
+        #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's docstring).
+        MenuItem:
+            text: 'Multi-rename...'
+            command: MultiRename
+            key: 'Alt-A'
+        MenuItem:
+            text: 'Undo multi-rename'
+            command: UndoMultiRename
         MenuLine:
         #: DN's archive panel key bar, F4 and F6 (``hcArchives``): a menu's
         #: here, F4 and F6 staying Edit and Rename/Move.

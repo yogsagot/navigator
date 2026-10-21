@@ -1,0 +1,31 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Panel > Panelize command (Alt+O): the command whose output becomes the
+#: panel's listing.  A departure -- Midnight Commander's *External panelize*,
+#: which DOS Navigator never had (:mod:`navigator.lib.file_ops.panelize`).
+PanelizeDialog(Dialog):
+    modal_width: 64
+    modal_height: 9
+    title: "Panelize command"
+    close_on_outside_click: True
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: "~C~ommand (one file name a line)"
+        link: line.entry
+
+    Field:
+        id: line
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "panelize"

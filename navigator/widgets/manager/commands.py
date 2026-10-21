@@ -435,6 +435,30 @@ class ReadFileList(Command):
     """
 
 
+class Panelize(Command):
+    """Alt+O, Panel > Panelize command: what a command prints, as a listing.
+
+    A departure: Midnight Commander's *External panelize*; DOS Navigator had
+    no command of its own for it (:mod:`navigator.lib.file_ops.panelize`).
+    """
+
+
+class MultiRename(Command):
+    """Alt+M, Panel > Multi-rename: the tagged files renamed by a pattern.
+
+    A departure: Total Commander's *Multi-Rename Tool* (its Ctrl+M is Enter
+    in a terminal); DOS Navigator's group rename was F6's ``*``/``?`` mask
+    (:mod:`navigator.lib.file_ops.multirename`).
+    """
+
+
+class UndoMultiRename(Command):
+    """Panel > Undo multi-rename: the last batch's names put back.
+
+    A departure, with :class:`MultiRename`; kept for the session only.
+    """
+
+
 class ChangeInactive(Command):
     """Shift+Enter in a *Find:* listing: the other panel goes to the file.
 
@@ -551,6 +575,9 @@ __all__ = [
     "CompareDir",
     "ChangeInactive",
     "ReadFileList",
+    "Panelize",
+    "MultiRename",
+    "UndoMultiRename",
     "DirBranch",
     "SetupColumns",
     "AdvancedFilter",

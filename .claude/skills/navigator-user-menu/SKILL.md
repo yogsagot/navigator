@@ -24,7 +24,9 @@ description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navi
 - **The format and macros** are `navigator/lib/config/usermenu.py`'s docstring: `<Title` / `<=default` and any `%3`..`%9` ask *Menu Parameters*
   (`MenuParamsDialog`, history `menu_params`; Cancel runs nothing), `;` lines and blank lines dropped. `! .! !\ !/ !:` and the `$` forms; `!!`/`$$` literal;
   `%0` script, `%1`/`%2` list files, `%3`..`%9` parameter words, `%%` -- **one regex pass**, so what a macro puts in
-  is never re-read.
+  is never re-read. A line of only `<|` (`Commands.panelize`) has `Shell.run_commands` hand the sourced script to
+  `Shell._panelize` -> `Manager.panelize` instead of the console: what it prints is the active panel's listing (a
+  departure; `navigator-panels`, *Panelize command*). It works in the `.ini` associations too.
 - **Departures**: in what runs, every value is `shlex.quote`d where it needs it (so a macro wants no quotes round it);
   names keep their case; the lines are written to `usermenu.sh` and **sourced** (`. script`) in the console's shell
   through `Shell.run_command(..., typed=False)` (no history, the line kept), so they are that shell's language and a

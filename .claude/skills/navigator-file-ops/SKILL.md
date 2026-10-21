@@ -40,6 +40,27 @@ the old name in the line, its stem selected (`os.path.splitext`; a directory who
 tagged, else the cursor's, never `..`). The rename itself is `Manager._rename_entry`, shared with Alt+F6's in-place
 `fast_rename`: beside itself only (a `/` is refused, no moving), a taken name refused, on a thread, cursor and tag follow.
 
+## Multi-rename (Alt+A)
+
+A departure, asked for: Total Commander's *Multi-Rename Tool* (its Ctrl+M is Enter in a terminal, and Alt+M/Alt+O
+are the menu bar's *Manager*/*Options*, so Alt+A); DN's group rename stays F6's `*`/`?` mask (`apply_mask`).
+`MultiRename` -> `Manager.multi_rename`: the selection (tags, else the cursor's; works in a *Find:* listing, each
+entry in its own directory) as `multirename.Item`s, the names already in each place read on a thread, then
+`MultiRenameDialog` (`file_ops/multi_rename_dialog`; masks, search/replace, case, counter, the rule kept for the
+session) whose `_follow_rule` effect re-plans on every change into the `RenamePreview` list (`!` marks a row that
+cannot be done, the footer says why). OK is refused (`valid()`) while the rule does not read, nothing changes or a row
+has a problem.
+- **The language and checks are `navigator/lib/file_ops/multirename.py`'s docstring** -- pure, no I/O:
+  `new_names`, `plan` (empty, `/`, `.`/`..`, two rows one name, a name taken by a file not renamed away).
+- **Order** (`steps`): a row whose new name is another row's old one goes through `.navrename-<n>-<old>` first, so
+  swaps and cycles work. `run` (a `RenameJob` on a thread, through `_run_renames` -> `_watch_job`) re-checks
+  `lexists` before each rename (never replaces), asks `filecopy.Failure` -> Skip/Cancel on an error, puts a stranded
+  temporary back **only if its old name is still free**, else leaves it and says so.
+- **Bookkeeping** is `Manager._after_renames(panel, [(place, old, new)], at=)`, shared with `_rename_entry` (Alt+F6,
+  Shift+F6): listing entries renamed, tags follow, `FileSaved`, reload, the other panel re-read if it shows the place.
+- **Undo multi-rename** (Panel menu, no key) reverses `Manager.last_renames` (`multirename.Batch`, session only, one
+  batch) through the same `run`; disabled when there is none.
+
 ## Symlinks (Shift+F5)
 
 *File > Create symlink…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is

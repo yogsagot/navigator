@@ -19,6 +19,9 @@ A caption may mark its letter with ``~``, and one starting ``F1 `` .. ``F12 ``
 is chosen by that key from anywhere in the menu (``CheckFKeys``).  In an
 item's commands, ``<Title`` titles the box asking for parameters and
 ``<=text`` fills it in; either, or a ``%3`` .. ``%9``, has the box asked.
+A line of only ``<|`` panelizes the item: what it prints becomes the active
+panel's listing, a name a line, rather than being shown in the console (a
+departure, :mod:`navigator.lib.file_ops.panelize`).
 
 **Where it is** (``ExecUserMenu``): F2 looks for ``.navigator-menu.ini`` in
 the active panel's directory and then in each one above it -- the *local*
@@ -108,6 +111,8 @@ class Commands:
     asks: bool = False
     title: str = ""
     default: str = ""
+    #: A ``<|`` line: the output is the active panel's listing.
+    panelize: bool = False
 
 
 @dataclass
@@ -154,13 +159,17 @@ class Menu:
 def commands_of(body: Iterable[str]) -> Commands:
     """An item's lines as what runs: ``<Title`` and ``<=text`` taken out for
     the parameters box, ``;`` lines and blank ones dropped, and whether a
-    ``%3`` .. ``%9`` among them asks for parameters too."""
+    ``%3`` .. ``%9`` among them asks for parameters too; a ``<|`` line
+    panelizes it."""
     lines: list[str] = []
     title = default = ""
-    asks = False
+    asks = panelize = False
     for raw in body:
         text = raw.strip()
         if not text or text.startswith(";"):
+            continue
+        if text == "<|":
+            panelize = True
             continue
         if text.startswith("<"):
             asks = True
@@ -172,7 +181,7 @@ def commands_of(body: Iterable[str]) -> Commands:
             continue
         lines.append(text)
         asks = asks or bool(re.search(r"(?<!%)%[3-9]", text))
-    return Commands(lines, asks, title, default)
+    return Commands(lines, asks, title, default, panelize)
 
 
 def parse(text: str, path: Path = Path(GLOBAL_NAME), is_global: bool = False) -> Menu:

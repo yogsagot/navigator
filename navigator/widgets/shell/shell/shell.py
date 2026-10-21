@@ -1510,6 +1510,10 @@ class Shell(DockLayout):
         fetched = [*given, *(use for use in uses if use is not None)]
         if cwd is None and uses and uses[0] is not None:
             cwd = uses[0].directory
+        if commands.panelize:
+            # ``<|``: the script's output is the active panel's listing.
+            await self._panelize(f". {shlex.quote(str(script))}", fetched)
+            return
         elsewhere = {"cwd": cwd, "uses": fetched} if cwd is not None or fetched else {}
         self.run_command(f". {shlex.quote(str(script))}", typed=False, **elsewhere)
 
@@ -1724,6 +1728,12 @@ class Shell(DockLayout):
             HISTORY.add(HISTORY_ID, command)
             self.command_line.clear()
             self._walk = None
+            if command.lstrip().startswith("|"):
+                # ``|cmd``: its output panelized rather than shown (a
+                # departure, :mod:`navigator.lib.file_ops.panelize`); a line
+                # starting with a pipe is no shell command.
+                self.spawn(self._panelize(command.lstrip()[1:].strip(), uses))
+                return
         if cwd is None:
             cwd = self._command_directory()
         self._command_uses = [*self._command_uses, *uses]
@@ -1740,6 +1750,22 @@ class Shell(DockLayout):
             self.toggle_console()
         self.console.focus()
         self.console.run(command, cwd)
+
+    async def _panelize(self, command: str, uses: list[Any] = ()) -> None:
+        """*command*'s output as the active panel's listing
+        (:meth:`Manager.panelize`); with no file manager open, says so."""
+        manager = self.active_manager
+        try:
+            if not command:
+                return
+            if manager is None:
+                await Dialog(title=tr("Error"), prompt=tr("No file manager is open to panelize into"),
+                             buttons="ok").execute(self.application)
+                return
+            await manager.panelize(manager.active_panel, command)
+        finally:
+            if uses:
+                await self._put_back(list(uses))
 
     def _command_finished(self, status: int, cwd: Path | None) -> None:
         """The shell is back at its prompt: finish in a batch, not in the pty's reader."""

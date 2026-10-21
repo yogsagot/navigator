@@ -125,6 +125,9 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   choice back in an `R` mark, `__atuin_accept__:` runs it). Such a line is sent in the queue's **`"reveal"` mode**:
   hidden until its `O` mark, holding keys (`busy`), finishing no command. With panels up, Up is the panel's and Ctrl+R
   re-reads.
+- **A line starting `|` is panelized, not run** (a departure): `Shell.run_command` (typed) records it in the history,
+  clears the line and hands the rest to `Shell._panelize` -> `Manager.panelize`, whose capture runs off the pty
+  (`navigator-panels`, *Panelize command*). A leading pipe is a shell syntax error, so no command is lost to it.
 - **Enter on an executable runs it** (`Panel.choose` emits `ExecuteFile`; `Shell.on_execute_file` runs `./name`); a plain
   file is left alone.
 - **Ctrl+Enter puts the entry's name on the line** (`InsertName`, DN's `cmInsertName`: a space after, one before if the
