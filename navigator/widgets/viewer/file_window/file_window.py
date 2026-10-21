@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.commands import Command
-from navkit.events import DoubleClickEvent
+from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
@@ -33,6 +33,7 @@ from navigator.widgets.viewer.commands import (
     SearchFor,
     SetViewFilter,
     SetViewMode,
+    SwitchMarkdown,
     Unwrap,
 )
 from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
@@ -41,7 +42,7 @@ from navigator.widgets.editor.option_items import viewer_items
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.lib.system.progress import run_with_progress
-from navigator.lib.viewer import SearchJob, ViewSearch
+from navigator.lib.viewer import SearchJob, ViewSearch, markdown
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
@@ -71,6 +72,9 @@ class FileWindow(Window):
         self.title = str(self.viewer.path)
         fill_file_types(self.view_menu_file_type, self)
         self.options.items = viewer_items(self.viewer)
+        if not markdown.available():
+            # Greyed by ``enables``; the key column says what to install.
+            self.view_menu_markdown.key = markdown.EXTRA
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -99,6 +103,7 @@ class FileWindow(Window):
             filter=viewer.filter,
             highlight=viewer.syntax_highlight,
             file_type=viewer.file_type,
+            markdown="on" if viewer.markdown else "off",
             top=viewer.top,
             x_delta=viewer.x_delta,
             cursor=viewer.cursor,
@@ -126,6 +131,8 @@ class FileWindow(Window):
         viewer.wrap = record.wrap
         viewer.syntax_highlight = record.highlight
         viewer.file_type = record.file_type
+        if record.markdown in ("on", "off"):
+            viewer.markdown = record.markdown == "on"
         if 0 <= record.filter < len(FILTER_TAGS):
             viewer.filter = record.filter
         # *Store viewer position*: without it the file opens from the top, in
@@ -167,6 +174,11 @@ class FileWindow(Window):
         """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
         DN's viewer did not have."""
         self.viewer.syntax_highlight = not self.viewer.syntax_highlight
+        return True
+
+    async def on_switch_markdown(self, event: SwitchMarkdown) -> bool:
+        """Shift+F4, View > *Markdown*: a departure, DN's viewer had none."""
+        self.viewer.toggle_markdown()
         return True
 
     async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool:
@@ -226,14 +238,23 @@ class FileWindow(Window):
             return self.viewer.syntax_highlight
         if isinstance(command, SwitchHiddenChars):
             return self.viewer.show_hidden
+        if isinstance(command, SwitchMarkdown):
+            return self.viewer.markdown
         if isinstance(command, SetFileType):
             return self.viewer.file_type == command.file_type
         return super().checks(command)
 
     def enables(self, command: Command) -> bool:
-        """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them."""
+        """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them.
+        *Markdown* is text only too, and wants markdown-it-py and a file no
+        bigger than ``MARKDOWN_LIMIT``; while it renders, Wrap and Hidden
+        characters have nothing to act on."""
         if isinstance(command, GotoAddress):
             return self.viewer.mode != "text"
+        if isinstance(command, SwitchMarkdown):
+            return self.viewer.mode == "text" and self.viewer.can_render
+        if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.rendering:
+            return False
         if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):
             return self.viewer.mode == "text"
         if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
@@ -244,6 +265,16 @@ class FileWindow(Window):
         """The scroll bar was worked: its value is a byte offset, snapped to a row."""
         self.viewer.seek(event.value)
         return True
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """A press on ``{Markdown}`` after the info line switches it."""
+        mark = self.md_mark
+        if (event.action == "press" and event.button == "left" and mark.width
+                and event.y == mark.y and mark.x <= event.x < mark.x + mark.width
+                and self.enables(SwitchMarkdown())):
+            self.viewer.toggle_markdown()
+            return True
+        return await super().on_mouse_click(event)
 
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
         """A double click on the ``[<=>]`` at the info line's start toggles wrap."""

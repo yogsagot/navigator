@@ -30,6 +30,9 @@ ViewRecord(FileRecord):
     #: View > *File type*: the lexer chosen, ``none``, or empty for
     #: ``highlight.ini``'s choice.
     field file_type: str = ""
+    #: View > *Markdown*, which DN's viewer had not: ``on``, ``off``, or
+    #: empty for ``[viewer] markdown_masks``' choice.
+    field markdown: str = ""
     #: The byte offset on top.
     field top: int
     field x_delta: int

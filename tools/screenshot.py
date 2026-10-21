@@ -359,11 +359,12 @@ def as_svg(buffer: ScreenBuffer, info: TerminalInfo) -> str:
         def close_run(cells_each: int = 1) -> None:
             if not run:
                 return
-            fg, bold, italic, underline = run_key
+            fg, bold, italic, underline, strike = run_key
             attributes = f' fill="{fg}"'
             attributes += ' font-weight="bold"' if bold else ""
             attributes += ' font-style="italic"' if italic else ""
-            attributes += ' text-decoration="underline"' if underline else ""
+            decoration = " ".join(name for name, on in (("underline", underline), ("line-through", strike)) if on)
+            attributes += f' text-decoration="{decoration}"' if decoration else ""
             # One <text> per word, each placed on its own cell: a renderer
             # that collapses spaces then has none to collapse, and
             # textLength pins every word to exactly the cells it covers.
@@ -381,7 +382,7 @@ def as_svg(buffer: ScreenBuffer, info: TerminalInfo) -> str:
             span = 2 if x + 1 < buffer.width and cells[x + 1][0] == "" else 1
             arms = box_arms(char)
             vector = arms is not None or char in _SHADES or char in _HALVES
-            key = (fg, style.bold, style.italic, style.underline)
+            key = (fg, style.bold, style.italic, style.underline, style.strike)
             if vector or key != run_key or span == 2:
                 close_run()
                 # A drawn cell is no part of any run, so the next one starts

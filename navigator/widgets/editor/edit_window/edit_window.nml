@@ -91,6 +91,8 @@ EditWindow(Window):
     #: ``TInfoLine``: over the bottom frame, two columns in, as wide as it says.
     InfoLine:
         id: info
+        #: Named, so the sheet can give it the frame's colours.
+        name: "info"
         visible: root.active
         x: 2
         y: max(0, parent.height - 1)

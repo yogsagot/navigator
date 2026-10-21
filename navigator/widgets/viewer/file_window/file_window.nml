@@ -1,5 +1,5 @@
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchMarkdown, Unwrap
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
@@ -37,6 +37,8 @@ FileWindow(Window):
         f3: CloseViewer
         f2: Unwrap
         f4: HexMode
+        #: View > *Markdown*: a departure, DN bound nothing there.
+        shift+f4: SwitchMarkdown
         f5: GotoAddress
         f6: AddFilter
         f7: SearchFor
@@ -73,11 +75,25 @@ FileWindow(Window):
     #: ``TViewInfo``: over the bottom frame, a column in, as wide as it says.
     StaticText:
         id: info
+        #: Named, so the sheet can give it the frame's colours: an id is
+        #: not a name, and ``#info`` matches only this.
+        name: "info"
         x: 1
         y: max(0, parent.height - 1)
         width: min(len(viewer.info_text), max(0, parent.width - 3))
         height: 1
         text: viewer.info_text
+
+    #: A departure: ``{Markdown}`` after the info line, struck through while
+    #: off; a click on it switches View > *Markdown*.
+    StaticText:
+        id: md_mark
+        x: info.x + info.width
+        y: max(0, parent.height - 1)
+        width: min(len(viewer.markdown_mark), max(0, parent.width - 3 - info.width))
+        height: 1
+        text: viewer.markdown_mark
+        classes: frozenset({'markdown'}) if viewer.markdown else frozenset({'markdown', 'off'})
 
     #: A departure: DN had no such strip.  The viewer's options on the bottom
     #: frame, right-aligned before the corner, each lit while on and switched by
@@ -87,7 +103,7 @@ FileWindow(Window):
         id: options
         visible: root.active and SETTINGS.viewer.show_options
         target: viewer
-        room: max(0, parent.width - 3 - (info.x + info.width) - 1)
+        room: max(0, parent.width - 3 - (md_mark.x + md_mark.width) - 1)
         width: self.used_width
         x: max(0, parent.width - 3 - self.width)
         y: max(0, parent.height - 1)
@@ -119,6 +135,13 @@ FileWindow(Window):
         MenuItem:
             text: '~W~rap lines'
             command: Unwrap
+        #: A departure: a Markdown file rendered, or its source.  Without
+        #: markdown-it-py its key column names the extra instead.
+        MenuItem:
+            id: view_menu_markdown
+            text: '~M~arkdown'
+            command: SwitchMarkdown
+            key: 'Shift-F4'
         MenuItem:
             text: 'S~y~ntax highlight'
             command: SwitchHighLight

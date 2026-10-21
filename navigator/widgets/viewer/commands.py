@@ -26,6 +26,14 @@ class HexMode(Command):
     title = "Hex/Text/Dump"
 
 
+class SwitchMarkdown(Command):
+    """Shift+F4, View > *Markdown*: a Markdown file rendered -- headings,
+    lists, tables -- or its source.  A departure: DN's viewer had no such
+    reading.  Text mode only."""
+
+    title = "Markdown"
+
+
 @dataclass(frozen=True, slots=True)
 class SetViewMode(Command):
     """View > Text, Hex or Dump: one of the modes F4 cycles through, by name.

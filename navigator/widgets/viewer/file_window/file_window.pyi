@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, Unwrap
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchMarkdown, Unwrap
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
@@ -23,7 +23,7 @@ from navml.widgets.window import Window
 from pathlib import Path
 from typing import Any
 from navkit.commands import Command
-from navkit.events import DoubleClickEvent
+from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
@@ -34,7 +34,7 @@ from navigator.widgets.editor.option_items import viewer_items
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.lib.system.progress import run_with_progress
-from navigator.lib.viewer import SearchJob, ViewSearch
+from navigator.lib.viewer import SearchJob, ViewSearch, markdown
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
 
@@ -42,8 +42,10 @@ class FileWindow(Window, _Component):
     viewer: FileViewer
     bar: ScrollBar
     info: StaticText
+    md_mark: StaticText
     options: OptionStrip
     view_menu: SubMenu
+    view_menu_markdown: MenuItem
     view_menu_file_type: SubMenu
     def __init__(self, path: Path | str, *, mode: str | None = ..., source: Any = ..., **kwargs: Any) -> None: ...
     def take_keyboard(self) -> None: ...
@@ -54,6 +56,7 @@ class FileWindow(Window, _Component):
     async def on_close_viewer(self, event: CloseViewer) -> bool: ...
     async def on_unwrap(self, event: Unwrap) -> bool: ...
     async def on_switch_high_light(self, event: SwitchHighLight) -> bool: ...
+    async def on_switch_markdown(self, event: SwitchMarkdown) -> bool: ...
     async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool: ...
     async def on_set_file_type(self, event: SetFileType) -> bool: ...
     async def on_choose_file_type(self, event: ChooseFileType) -> bool: ...
@@ -66,6 +69,7 @@ class FileWindow(Window, _Component):
     def checks(self, command: Command) -> bool | None: ...
     def enables(self, command: Command) -> bool: ...
     async def on_bar_scroll(self, event: ScrollEvent) -> bool: ...
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool: ...
     async def on_double_click(self, event: DoubleClickEvent) -> bool: ...
     async def on_goto_address(self, event: GotoAddress) -> bool: ...
     async def goto_address(self) -> None: ...

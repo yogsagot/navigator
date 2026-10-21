@@ -4187,3 +4187,27 @@ def test_the_panel_menu_holds_the_tree_info_and_quick_view_and_manager_does_not(
     assert seen["manager"][0] == "New"
     # Alt+P, then the entry's letter: the menu runs Ctrl+T's command.
     assert seen["tree"] is True
+
+
+def test_every_name_selector_in_the_sheet_has_a_widget_named_so():
+    """``#name`` matches a widget's ``name``, never its ``.nml`` id, which has no
+    run-time existence: a rule for ``#info`` on a widget given only ``id: info``
+    matches nothing, and the info lines of F3 and F4 went uncoloured that way."""
+    import re
+    from pathlib import Path
+
+    from navigator.lib.appearance.scheme import load_scheme
+
+    wanted = set()
+    for rule in load_scheme("default").rules:
+        selector = rule.selector
+        for compound in (selector.subject, *selector.ancestors):
+            compound = getattr(compound, "compound", compound)
+            if getattr(compound, "name", None):
+                wanted.add(compound.name)
+    root = Path(__file__).resolve().parent.parent
+    named = set()
+    for document in [*(root / "navigator").rglob("*.nml"), *(root / "navml").rglob("*.nml")]:
+        named.update(re.findall(r"^\s*name:\s*[\"']([^\"']+)[\"']", document.read_text(), re.M))
+    assert wanted, "no #name selectors found: the test no longer reads the sheet"
+    assert wanted <= named, f"named in the sheet, by no widget: {sorted(wanted - named)}"

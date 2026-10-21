@@ -32,6 +32,8 @@ DBWindow(Window):
 
     StaticText:
         id: indicator
+        #: Named, so the sheet can give it the frame's colours.
+        name: "indicator"
         x: 10
         y: max(0, parent.height - 1)
         width: min(len(self.text), max(0, parent.width - 12))

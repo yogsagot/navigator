@@ -43,23 +43,24 @@ class ViewRecord(FileRecord):    # view_record.nml:9
         _Field("filter", int, 0),    # view_record.nml:27
         _Field("highlight", bool, True),    # view_record.nml:29
         _Field("file_type", str, ''),    # view_record.nml:32
-        _Field("top", int, 0),    # view_record.nml:34
-        _Field("x_delta", int, 0),    # view_record.nml:35
-        _Field("cursor", int, 0),    # view_record.nml:36
+        _Field("markdown", str, ''),    # view_record.nml:35
+        _Field("top", int, 0),    # view_record.nml:37
+        _Field("x_delta", int, 0),    # view_record.nml:38
+        _Field("cursor", int, 0),    # view_record.nml:39
     )
     __indexes__ = (
-        _Index("by_path", ('path',), unique=True),    # view_record.nml:37
-        _Index("by_seq", ('seq',)),    # view_record.nml:38
+        _Index("by_path", ('path',), unique=True),    # view_record.nml:40
+        _Index("by_seq", ('seq',)),    # view_record.nml:41
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "view_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "mode" TEXT NOT NULL DEFAULT \'text\', "wrap" INTEGER NOT NULL DEFAULT 0, "filter" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "top" INTEGER NOT NULL DEFAULT 0, "x_delta" INTEGER NOT NULL DEFAULT 0, "cursor" INTEGER NOT NULL DEFAULT 0)',
+        'CREATE TABLE "view_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "mode" TEXT NOT NULL DEFAULT \'text\', "wrap" INTEGER NOT NULL DEFAULT 0, "filter" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "markdown" TEXT NOT NULL DEFAULT \'\', "top" INTEGER NOT NULL DEFAULT 0, "x_delta" INTEGER NOT NULL DEFAULT 0, "cursor" INTEGER NOT NULL DEFAULT 0)',
         'CREATE UNIQUE INDEX "view_history_by_path" ON "view_history" ("path")',
         'CREATE INDEX "view_history_by_seq" ON "view_history" ("seq")',
     )
-    __schema__ = "89dd55b06149ad1a"
+    __schema__ = "ec0dd64d34d006a4"
 
     id: int | None
 
@@ -91,7 +92,11 @@ class ViewRecord(FileRecord):    # view_record.nml:9
     #: ``highlight.ini``'s choice.
     file_type: str    # view_record.nml:32
 
+    #: View > *Markdown*, which DN's viewer had not: ``on``, ``off``, or
+    #: empty for ``[viewer] markdown_masks``' choice.
+    markdown: str    # view_record.nml:35
+
     #: The byte offset on top.
-    top: int    # view_record.nml:34
-    x_delta: int    # view_record.nml:35
-    cursor: int    # view_record.nml:36
+    top: int    # view_record.nml:37
+    x_delta: int    # view_record.nml:38
+    cursor: int    # view_record.nml:39

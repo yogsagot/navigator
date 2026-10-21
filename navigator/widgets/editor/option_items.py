@@ -31,7 +31,7 @@ from navigator.widgets.editor.commands import (
     SwitchInsert,
     SwitchSave,
 )
-from navigator.widgets.viewer.commands import ChooseEncoding, HexMode, Unwrap
+from navigator.widgets.viewer.commands import ChooseEncoding, HexMode, SwitchMarkdown, Unwrap
 
 #: Each switch's spelling at the Unicode and the Nerd tier; the word for a
 #: plain terminal is the caller's, so the catalogue extraction finds it.
@@ -43,6 +43,8 @@ WRAP = ("↩", icons.OPTION_WRAP)
 BRACKETS = ("()", icons.OPTION_BRACKETS)
 HIGHLIGHT = ("§", icons.OPTION_HIGHLIGHT)
 HIDDEN = ("¶", icons.OPTION_HIDDEN)
+#: The Markdown mark, ``M↓``.
+MARKDOWN = ("M↓", icons.OPTION_MARKDOWN)
 
 
 def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
@@ -100,7 +102,7 @@ def editor_items(editor: Any) -> tuple[OptionItem, ...]:
 
 def viewer_items(viewer: Any) -> tuple[OptionItem, ...]:
     """The viewer's: the mode, Wrap, Syntax highlight, Hidden characters, the
-    encoding and the file type."""
+    encoding, the file type and Markdown."""
     def switch(command: Any, word: Any, spellings: tuple[str, str]) -> OptionItem:
         return OptionItem(command, lambda: option_label(word(), spellings, viewer.glyphs))
 
@@ -117,4 +119,7 @@ def viewer_items(viewer: Any) -> tuple[OptionItem, ...]:
         switch(SwitchHiddenChars, lambda: tr("Show"), HIDDEN),
         OptionItem(ChooseEncoding, encoding, lit=lambda: False),
         OptionItem(ChooseFileType, lambda: _type_label(viewer), lit=lambda: False),
+        # Last, so a short frame -- hex mode's long info line -- drops it
+        # first: it is greyed there anyway.
+        switch(SwitchMarkdown, lambda: tr("MD"), MARKDOWN),
     )

@@ -113,7 +113,8 @@ def color_of(name: str) -> Color | None:
 
 @lru_cache(maxsize=256)
 def _style(
-    fg: str, bg: str, bold: bool, italics: bool, underscore: bool, reverse: bool
+    fg: str, bg: str, bold: bool, italics: bool, underscore: bool, reverse: bool,
+    strikethrough: bool = False,
 ) -> Style:
     return Style(
         fg=color_of(fg),
@@ -122,6 +123,7 @@ def _style(
         italic=italics,
         underline=underscore,
         reverse=reverse,
+        strike=strikethrough,
         # The program asked for the terminal's colours, not DOS Navigator's.
         terminal_palette=True,
     )
@@ -136,12 +138,12 @@ def style_of(char: Char) -> Style:
     of program output has thousands of cells and a handful of appearances
     between them, which is the ratio worth exploiting.
 
-    pyte's ``blink`` and ``strikethrough`` have nowhere to go -- ``Style``
-    carries the seven attributes a DOS Navigator cell could have, and those
-    are not among them.
+    pyte's ``blink`` has nowhere to go -- DOS Navigator's cells had no
+    blinking either; ``strikethrough`` is ``Style.strike``.
     """
     return _style(
-        char.fg, char.bg, char.bold, char.italics, char.underscore, char.reverse
+        char.fg, char.bg, char.bold, char.italics, char.underscore, char.reverse,
+        char.strikethrough,
     )
 
 

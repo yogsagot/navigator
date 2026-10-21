@@ -44,10 +44,11 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`), and
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
-- Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
-  `navigator-fm[smb]` (smbprotocol), `navigator-fm[s3]` (boto3) and `navigator-fm[keyring]` (*Save in keyring*); FTP
-  is the standard library's. `requirements-dev.txt` adds paramiko, pyftpdlib, boto3 and moto, so
-  `tests/test_sftp.py`, `tests/test_ftp.py` and `tests/test_s3.py` run (else they are skipped). `nav
+- Five optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
+  `navigator-fm[smb]` (smbprotocol), `navigator-fm[s3]` (boto3), `navigator-fm[keyring]` (*Save in keyring*) and
+  `navigator-fm[markdown]` (markdown-it-py, F3's View > *Markdown*); FTP is the standard library's.
+  `requirements-dev.txt` adds paramiko, pyftpdlib, boto3, moto and markdown-it-py, so `tests/test_sftp.py`,
+  `tests/test_ftp.py`, `tests/test_s3.py` and `tests/test_viewer_markdown.py` run (else they are skipped). `nav
   sftp://user@host/dir` (or `ftp://`, `smb://host/share`, `s3://s3.amazonaws.com/bucket`) opens a side there
   (`navigator-drives` skill)
 - Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,

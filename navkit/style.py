@@ -58,6 +58,9 @@ class Style:
     italic: bool = False
     underline: bool = False
     reverse: bool = False
+    #: Struck through, SGR 9 ("crossed out").  A terminal without it -- the
+    #: Linux console -- draws the text plain, which loses nothing but the line.
+    strike: bool = False
     #: The URL this cell is a hyperlink to (OSC 8), or ``None``.  Not an
     #: appearance -- :meth:`sgr` ignores it, and no sheet can declare it (see
     #: ``navkit.stylesheet.STYLE_FIELDS``) -- but it rides here because it is
@@ -97,6 +100,8 @@ class Style:
             params.append("4")
         if self.reverse:
             params.append("7")
+        if self.strike:
+            params.append("9")
         if self.fg is not None:
             params.append(_color_sgr(self.fg, background=False))
         if self.bg is not None:

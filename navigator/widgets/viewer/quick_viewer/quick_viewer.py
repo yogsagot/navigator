@@ -27,6 +27,8 @@ from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 
+from navigator.widgets.viewer.commands import SwitchMarkdown
+
 from navigator.lib.viewer import ViewSource
 
 #: Where the quick view opens its files.
@@ -143,6 +145,12 @@ class QuickViewer(Widget):
 
     async def on_bar_scroll(self, event: ScrollEvent) -> bool:
         self.viewer.seek(event.value)
+        return True
+
+    async def on_switch_markdown(self, event: SwitchMarkdown) -> bool:
+        """Shift+F4: a Markdown file rendered, or its source, as in F3."""
+        if self.viewer.mode == "text" and self.viewer.can_render:
+            self.viewer.toggle_markdown()
         return True
 
     def title_text(self) -> str:

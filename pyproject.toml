@@ -74,7 +74,7 @@ nml = "navigator.lib.highlight.lexers:NmlLexer"
 nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "boto3>=1.34", "moto[server]>=5"]
+dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "boto3>=1.34", "moto[server]>=5", "markdown-it-py>=3.0"]
 # Utilities > Navigator Link to SSH servers (`navigator.lib.drives.sftp`).
 # Optional because it is the one dependency with compiled parts (through
 # `cryptography`); without it the Link entries say what to install.
@@ -88,6 +88,9 @@ s3 = ["boto3>=1.34"]
 # *Save in keyring* in the password box: passwords kept by the desktop's
 # keyring, never by Navigator (`navigator.lib.drives.credentials`).
 keyring = ["keyring>=24"]
+# F3's View > Markdown, a Markdown file rendered (`navigator.lib.viewer.markdown`);
+# without it the entry is greyed and names this extra.
+markdown = ["markdown-it-py>=3.0"]
 
 [project.urls]
 Homepage = "https://github.com/yogsagot/navigator"

@@ -82,6 +82,26 @@ in the passive panel's place, and it works exactly as Ctrl+T does, because both 
   like a panel, with the file's name as its title. That title is Navigator's: DN's view sat inside the double
   window's frame and had none.
 
+**Markdown (Shift+F4, View > *Markdown*)** is a departure, and the one mode that does not fit the byte-offset
+model. A rendered document reflows its paragraphs and hides its markup, so a screen row no longer is a contiguous
+run of the file's bytes, and nothing can be read a row at a time from `top`. These are the choices made:
+
+- **The whole file is parsed**, on a thread, with markdown-it-py, under a 4 MiB cap (`MARKDOWN_LIMIT`). A README is
+  far below it. Anything above it stays source, where text mode's byte windows still serve.
+- **The layout is a list of rows made for one width.** Each row keeps the offset of the source line its block
+  starts on. `md_row` is a row index, and `top` is kept at that row's offset. Everything outside the rendering
+  that speaks in offsets -- the scroll bar, the view history, the switch back to source, a search -- therefore
+  lands on the block, not on the row inside it. A resize or a change of encoding asks for a new layout, and the old
+  one is painted until it lands.
+- **Searching stays on the bytes.** A search over the rendered text would have to be a second search engine. The
+  hit is found in the source as ever. Its block is shown, and its text is matched again in that block's rows to
+  mark it.
+- **markdown-it-py is an optional extra**, as paramiko is, rather than a fourth run-time dependency, because the
+  viewer is whole without it. A hand-written parser was rejected: CommonMark's edge cases (lazy continuation, list
+  tightness, tables) are where a small parser goes wrong.
+- **Not a fourth F4 mode.** It is a toggle inside text mode, beside Wrap, so F4 still cycles DN's three. It is seeded
+  per file by `markdown_masks`, so a `.md` opens rendered and a `.txt` does not.
+
 Left for later, in the order DN's status line lists them:
 
 - hex editing, with Tab between the columns, Shift+F2 *Store* and Shift+F5 *Save as*

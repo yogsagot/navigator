@@ -67,9 +67,10 @@ class DBWindow(Window, _Component):
         self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # db_window.nml:30
         self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # db_window.nml:31
 
-        self.indicator.x = 10    # db_window.nml:35
-        self.indicator.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # db_window.nml:36
-        self.indicator.width = _bind(    # db_window.nml:37
+        self.indicator.name = 'indicator'    # db_window.nml:36
+        self.indicator.x = 10    # db_window.nml:37
+        self.indicator.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # db_window.nml:38
+        self.indicator.width = _bind(    # db_window.nml:39
             lambda _o: min(len(_o.text), max(0, _o.parent.width - 12))
         )
-        self.indicator.height = 1    # db_window.nml:38
+        self.indicator.height = 1    # db_window.nml:40

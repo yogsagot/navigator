@@ -619,7 +619,7 @@ def test_the_viewer_strip_shows_mode_switches_encoding_and_type(files):
     # Painted once, so the lexing thread has said there is no lexer.
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, lambda a: screen(a)])
     window = opened(app)
-    assert [span[3] for span in window.options.spans] == ["Text", "Wrap", "Hi", "Show", "UTF-8", "plain"]
+    assert [span[3] for span in window.options.spans] == ["Text", "Wrap", "Hi", "Show", "UTF-8", "plain", "MD"]
     assert window.options.x + window.options.width == window.width - 3
 
 

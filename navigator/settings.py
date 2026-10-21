@@ -486,6 +486,14 @@ class ViewerDefaultsData(Section):
     )
     #: A departure too, with no checkbox: View > Hidden characters switches it.
     show_hidden: bool = Setting(False, doc="F3 shows spaces, tabs and line ends")
+    #: A departure too, with no checkbox: View > Markdown switches it for a
+    #: file.  Needs the navigator-fm[markdown] extra (markdown-it-py).
+    render_markdown: bool = Setting(
+        True, doc="F3 renders a Markdown file -- headings, lists, tables -- rather than showing its source",
+    )
+    markdown_masks: str = Setting(
+        "*.md;*.markdown", doc="The files F3 renders as Markdown, as masks separated by ';'",
+    )
 
 
 class FMSetupData(Section):

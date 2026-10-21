@@ -417,7 +417,11 @@ FileWindow:active                              { fg: $viewer-frame-active-fg;  b
 FileWindow::title                              { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg; bold: $viewer-frame-passive-bold; dim: $viewer-frame-passive-dim; italic: $viewer-frame-passive-italic; underline: $viewer-frame-passive-underline; reverse: $viewer-frame-passive-reverse }
 FileWindow:active::title                       { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 FileWindow::icon                               { fg: $viewer-frame-icons-fg;   bg: $viewer-frame-icons-bg; bold: $viewer-frame-icons-bold; dim: $viewer-frame-icons-dim; italic: $viewer-frame-icons-italic; underline: $viewer-frame-icons-underline; reverse: $viewer-frame-icons-reverse }
-FileWindow StaticText#info                     { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+FileWindow StaticText#info,
+FileWindow StaticText.markdown                 { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+/* A departure: View > Markdown's {Markdown} after the info line, struck
+   through while it is off; in the info line's colours, above. */
+FileWindow StaticText.markdown.off             { strike: true }
 /* A departure: the option strip, as the editor's. */
 FileWindow OptionStrip                         { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 FileWindow OptionStrip::item:checked           { reverse: true }
@@ -502,6 +506,25 @@ FileViewer::token.string                       { fg: $editor-highlight-strings-f
 FileViewer::token.number                       { fg: $editor-highlight-numbers-fg }
 FileViewer::token.keyword,
 FileViewer::token.operator.word                { fg: $keyword-fg }
+/* A departure too, DN's viewer had no Markdown reading (View > Markdown):
+   headings in the keywords' colour, emphasis by attribute, code in the
+   strings' colour (a block's in the text's, its tokens the highlight's), the
+   furniture -- rules, tables, quote gutters -- in the comments'.  The
+   theme's own variables only, so every theme has them. */
+FileViewer::md.heading                         { fg: $keyword-fg; bold: true }
+FileViewer::md.strong                          { fg: $editor-highlight-symbols-fg; bold: true }
+FileViewer::md.emph                            { italic: true }
+FileViewer::md.strike                          { dim: true }
+FileViewer::md.code                            { fg: $editor-highlight-strings-fg }
+FileViewer::md.code.block                      { fg: $viewer-normal-text-fg }
+FileViewer::md.link                            { fg: $viewer-frame-icons-fg; underline: true }
+FileViewer::md.image                           { fg: $editor-highlight-numbers-fg }
+FileViewer::md.bullet                          { fg: $viewer-frame-icons-fg }
+FileViewer::md.quote                           { fg: $editor-highlight-comments-fg; italic: true }
+FileViewer::md.rule,
+FileViewer::md.table,
+FileViewer::md.html                            { fg: $editor-highlight-comments-fg }
+FileViewer::md.th                              { bold: true }
 
 /* The error box's traceback (ErrorDialog, TraceList) is code, so it is shown
    as the editor shows code: the editor's text and current line, and its

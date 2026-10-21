@@ -14,6 +14,10 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
 - Selectors: `Panel` (by class *name*, subclasses included), `.tag`, `:state` (any truthy attribute, including navkit's
   `focused`, `focus_within`, `hovered`, `inert`), `:not(compound)`, `#name`, `Panel::part`, descendant and child
   combinators. Specificity is CSS's `(names, classes + states, types)`, ties break on source order, no `!important`.
+- **`#name` matches `Widget.name`, never an `.nml` `id`** (compile-time only): a widget a rule names needs
+  `name: "info"` beside its `id: info`, or the rule silently matches nothing -- F3's and F4's info lines and the dBase
+  indicator went uncoloured for that. `test_every_name_selector_in_the_sheet_has_a_widget_named_so` (`test_nav.py`)
+  checks every `#name` in the sheet is declared by some document.
 - **`Component { }` matches every markup-built widget** and no hand-written one (type selectors match by name).
 - `navigator/styles/navigator.nss` holds the rules and defines no variable (it does not parse alone); a theme is always
   loaded after it. The command line's `$0F`/`$07` and a panel drag's `DragLabel` (`$30`) and `ScreenSaver` (`$07`) are its only literal-colour rules: DN hard-coded them.

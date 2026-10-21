@@ -20,6 +20,7 @@ in hex they move a *cursor* and the view follows it.
 from __future__ import annotations
 
 import bisect
+import fnmatch
 import functools
 import threading
 from pathlib import Path
@@ -42,9 +43,11 @@ from navigator.widgets.viewer.commands import (
     GotoAddress,
     SearchFor,
     SetViewMode,
+    SwitchMarkdown,
     Unwrap,
 )
 from navigator.settings import SETTINGS
+from navigator.lib.viewer import markdown
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
     FILTER_TAGS,
@@ -87,6 +90,9 @@ REMOTE_LEX_AHEAD = 128 * 1024
 
 #: How much of the file's start is read for its ``#!`` line.
 HEAD = 256
+
+#: The thread a Markdown file is read and laid out on.
+_MARKDOWN = Background("nav-view-markdown", workers=1)
 
 
 def _when_here(method: Any) -> Any:
@@ -138,12 +144,26 @@ def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: i
     return highlight.lexer_label(lexer), None if spans is None else (start, end, spans)
 
 
+def _lay_out(name: str, data: bytes | None, size: int, codec: str, width: int, unicode: bool,
+             read: Any = None) -> markdown.Layout:
+    """On the thread: the whole file read -- held already (*data*), across a
+    network (*read*), or here -- and laid out as Markdown, *width* wide."""
+    if read is not None:
+        data = read(0, size)
+    elif data is None:
+        with open(name, "rb") as stream:
+            data = stream.read(size)
+    return markdown.render(data[:size], width, codec=codec, unicode=unicode)
+
+
 class FileViewer(ContextMenuHost, Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
 
     #: A search hit, drawn in *Selected text* [118]; a syntax token
     #: (:mod:`navigator.lib.highlight`), by its classes.
-    parts = ("selected", "token")
+    #: A Markdown file's rendering, by what its cells are (``heading``,
+    #: ``code``, ``link`` and the rest: :mod:`navigator.lib.viewer.markdown`).
+    parts = ("selected", "token", "md")
 
     #: The file, once :meth:`open` has read it.  Reactive so that the window's
     #: title can follow it; assigned only by :meth:`open`.
@@ -183,6 +203,16 @@ class FileViewer(ContextMenuHost, Widget):
     #: The name of the lexer colouring the text, "" for none, None until the
     #: lexing thread has said: what the option strip shows as the file type.
     lexer_name: str | None = reactive(None)
+    #: View > *Markdown*: a Markdown file rendered rather than its source, in
+    #: text mode -- a departure.  Seeded by :meth:`open` from ``[viewer]
+    #: render_markdown`` and ``markdown_masks``.
+    markdown: bool = reactive(False)
+    #: The rendered row on top, while rendering; ``top`` follows it, at the
+    #: offset of the source line that row's block starts on.
+    md_row: int = reactive(0)
+    #: The file laid out as Markdown, for the width it was asked at; None
+    #: until the thread has done it.
+    md_layout: Any = reactive(None)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -191,6 +221,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.syntax_highlight = SETTINGS.viewer.syntax_highlight
         self.show_hidden = SETTINGS.viewer.show_hidden
         self.rehighlight()
+        self._forget_layout()
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -213,9 +244,11 @@ class FileViewer(ContextMenuHost, Widget):
             source.arrived = self._chunk_arrived
         source.table = byte_table(self.encoding)
         self.rehighlight()
+        self._forget_layout()
+        self.markdown = self.markdown_by_name(source.path)
         self.path = source.path
         self.size = source.size
-        self.top = self.x_delta = self.cursor = 0
+        self.top = self.x_delta = self.cursor = self.md_row = 0
         self.hit = None
 
     def close_file(self) -> None:
@@ -224,9 +257,10 @@ class FileViewer(ContextMenuHost, Widget):
             self.source.close()
         self.source = None
         self.rehighlight()
+        self._forget_layout()
         self.path = None
         self.size = 0
-        self.top = self.x_delta = self.cursor = 0
+        self.top = self.x_delta = self.cursor = self.md_row = 0
         self.hit = None
 
     def _chunk_arrived(self) -> None:
@@ -315,8 +349,23 @@ class FileViewer(ContextMenuHost, Widget):
         tag = "" if self.encoding == "utf-8" else "{" + dict(ENCODINGS)[self.encoding].split()[0] + "}"
         return text + "]" + FILTER_TAGS[self.filter] + tag
 
+    @computed
+    def markdown_mark(self) -> str:
+        """``{Markdown}`` after the info line, which a click switches: while
+        *Markdown* is on, and -- struck through by the window -- while it is
+        off for a file ``markdown_masks`` names.  Empty where it cannot render."""
+        if self.mode != "text" or not self.can_render:
+            return ""
+        if self.markdown or self.markdown_by_name(self.path):
+            return "{" + tr("Markdown") + "}"
+        return ""
+
     def percent(self) -> int:
         """How far into the file the view is: 100 once the end is showing."""
+        layout = self.md_layout if self.rendering else None
+        if layout is not None:
+            last = self._md_last_row()
+            return 100 if self.md_row >= last else self.md_row * 100 // max(1, len(layout.rows))
         try:
             if self.size == 0 or self._end_showing():
                 return 100
@@ -342,6 +391,9 @@ class FileViewer(ContextMenuHost, Widget):
         if self.source is None:
             return
         offset = max(0, min(offset, self.size))
+        if self.rendering:
+            self._md_go(self.md_layout.row_for(offset))
+            return
         if self.mode == "text":
             self.top = min(self.source.line_start(offset, self.wrap_width), self._last_top())
             return
@@ -354,6 +406,9 @@ class FileViewer(ContextMenuHost, Widget):
     def scroll_rows(self, count: int) -> None:
         """Move the view *count* rows, down for positive; the ends stop it."""
         if self.source is None:
+            return
+        if self.rendering:
+            self._md_go(self.md_row + count)
             return
         if self.mode != "text":
             per = self.row_bytes()
@@ -382,13 +437,15 @@ class FileViewer(ContextMenuHost, Widget):
         self.top = top
 
     def to_start(self) -> None:
-        self.top = self.x_delta = 0
+        self.top = self.x_delta = self.md_row = 0
         self.cursor = 0
 
     @_when_here
     def to_end(self) -> None:
         """DN's ``SeekEOF``: the last screenful."""
-        if self.mode == "text":
+        if self.rendering:
+            self._md_go(self._md_last_row())
+        elif self.mode == "text":
             self.top = self._last_top()
         else:
             self.top = self._last_top()
@@ -474,6 +531,104 @@ class FileViewer(ContextMenuHost, Widget):
             raise ValueError(f"{filter} is not a viewer filter; there are {len(FILTER_TAGS)}")
         self.filter = filter
 
+    # -- Markdown --------------------------------------------------------------
+
+    @staticmethod
+    def markdown_by_name(path: Path | str | None) -> bool:
+        """Whether *path* is rendered as Markdown when it opens: ``[viewer]
+        render_markdown`` on and its name one of ``markdown_masks``."""
+        settings = SETTINGS.viewer
+        if path is None or not settings.render_markdown:
+            return False
+        name = Path(path).name.lower()
+        return any(fnmatch.fnmatchcase(name, mask.strip().lower())
+                   for mask in settings.markdown_masks.split(";") if mask.strip())
+
+    @property
+    def can_render(self) -> bool:
+        """Whether this file can be rendered as Markdown at all: markdown-it-py
+        is there and the file no bigger than ``MARKDOWN_LIMIT``."""
+        return (self.source is not None and self.size <= markdown.MARKDOWN_LIMIT
+                and markdown.available())
+
+    @property
+    def rendering(self) -> bool:
+        """Whether the rows painted are the Markdown rendering's: text mode,
+        *Markdown* on, and the layout in."""
+        return self.mode == "text" and self.markdown and self.md_layout is not None and self.can_render
+
+    def toggle_markdown(self) -> None:
+        """View > *Markdown*.  The block on top stays on top: the rendering
+        starts at the source line on top, the source at the block's line."""
+        self.markdown = not self.markdown
+        self.hit = None
+        if self.rendering:
+            self._md_go(self.md_layout.row_for(self.top))
+        elif self.mode == "text":
+            self.x_delta = 0
+            self.seek(self.top)
+
+    def _forget_layout(self) -> None:
+        stop = getattr(self, "_md_stop", None)
+        if stop is not None:
+            stop.set()
+        #: What the layout was asked for -- where, encoding, size, width, glyphs --
+        #: and what it was made for: never asked twice, so a failure cannot loop.
+        self._md_asked: Any = None
+        self._md_for: Any = None
+        self._md_stop: threading.Event | None = None
+        if self.md_layout is not None:
+            self.md_layout = None
+
+    def _md_last_row(self) -> int:
+        layout = self.md_layout
+        return max(0, len(layout.rows) - max(1, self.height)) if layout is not None else 0
+
+    def _md_go(self, row: int) -> None:
+        """The rendered row *row* on top, as far as the ends allow, and ``top`` at its line."""
+        layout = self.md_layout
+        row = max(0, min(row, self._md_last_row()))
+        self.md_row = row
+        self.top = layout.rows[row].src if layout.rows else 0
+
+    def _want_layout(self) -> None:
+        """Ask the thread for a layout at the width and glyphs in force, unless
+        one is in or on its way.  Until it lands, the one there is painted --
+        or the source, the first time."""
+        source = self.source
+        if source is None or not self.markdown or self.mode != "text" or not self.can_render:
+            return
+        remote = self.remote
+        unicode = self.glyphs >= GLYPHS_UNICODE
+        where = str(source.origin) if remote else str(source.path)
+        key = (where, self.encoding, self.size, max(1, self.width), unicode)
+        if key in (self._md_for, self._md_asked):
+            return
+        self._md_asked = key
+        stop = threading.Event()
+        self._md_stop = stop
+        _MARKDOWN.run(self, _lay_out, str(source.path), source._data, self.size, self.encoding,
+                      max(1, self.width), unicode, source.read_blocking if remote else None,
+                      done=lambda outcome: self._laid_out(outcome, key, stop))
+
+    def _laid_out(self, outcome: Outcome, key: Any, stop: threading.Event) -> None:
+        if stop is not self._md_stop or stop.is_set():
+            return  # another file, or forgotten meanwhile
+        self._md_stop = None
+        try:
+            layout = outcome.result()
+        except Exception:
+            # Unreadable now, or text markdown-it cannot take: the source.
+            self._md_for = key
+            return
+        self._md_for = key
+        rendering = self.rendering
+        self.md_layout = layout
+        if self.mode == "text" and self.markdown:
+            if not rendering:
+                self.hit = None
+            self._md_go(layout.row_for(self.top))
+
     @_when_here
     def show_hit(self, offset: int, length: int) -> None:
         """Put a search hit on screen and mark it.
@@ -484,6 +639,11 @@ class FileViewer(ContextMenuHost, Widget):
         """
         self.hit = (offset, length)
         if self.source is None:
+            return
+        if self.rendering:
+            row = self.md_layout.row_for(offset)
+            if not self.md_row <= row < self.md_row + max(1, self.height):
+                self._md_go(row)
             return
         if self.mode != "text":
             self.cursor = offset
@@ -512,6 +672,8 @@ class FileViewer(ContextMenuHost, Widget):
             self.to_start()
         elif name in ("ctrl+pagedown",):
             self.to_end()
+        elif self.rendering:
+            return self._markdown_key(name, rows)
         elif self.mode == "text":
             return self._text_key(name, rows)
         else:
@@ -547,6 +709,19 @@ class FileViewer(ContextMenuHost, Widget):
         elif name == "end":
             self._to_longest_end()
         else:
+            return False
+        return True
+
+    def _markdown_key(self, name: str, rows: int) -> bool:
+        """The rendering's keys: rows up and down; nothing is off its side."""
+        moves = {"up": -1, "down": 1, "pageup": -rows, "pagedown": rows}
+        if name in moves:
+            self.scroll_rows(moves[name])
+        elif name in ("ctrl+home", "home"):
+            self.to_start()
+        elif name in ("ctrl+end", "end"):
+            self.to_end()
+        elif name not in ("left", "right", "ctrl+left", "ctrl+right"):
             return False
         return True
 
@@ -642,6 +817,7 @@ class FileViewer(ContextMenuHost, Widget):
         menu.add_item(tr("~D~ump"), SetViewMode("dump"))
         menu.add_line()
         menu.add_item(tr("~W~rap lines"), Unwrap)
+        menu.add_item(tr("~M~arkdown"), SwitchMarkdown)
         menu.add_line()
         menu.add_item(tr("~S~earch..."), SearchFor)
         menu.add_item(tr("Search a~g~ain"), ContinueSearch)
@@ -750,7 +926,11 @@ class FileViewer(ContextMenuHost, Widget):
             return
         try:
             if self.mode == "text":
-                self._render_text(surface)
+                self._want_layout()
+                if self.rendering:
+                    self._render_markdown(surface)
+                else:
+                    self._render_text(surface)
             else:
                 self._render_hex(surface)
         except NotYet:
@@ -822,6 +1002,84 @@ class FileViewer(ContextMenuHost, Widget):
                         surface.set_cell(x, y, HIDDEN_MARKS[chr(byte)][tier], look.derive(dim=True))
                         continue
                 surface.set_cell(x, y, char, look)
+
+    def _render_markdown(self, surface: Surface) -> None:
+        """The rows of the rendering from ``md_row``.  A cell's look is its
+        classes' under ``FileViewer::md``; a code token's foreground is the
+        editor highlight's (``::token``) over the code's background."""
+        layout = self.md_layout
+        selected = self.part_style("selected")
+        looks: dict[Any, Any] = {}
+        marks = self._md_marks(layout)
+        width = self.width
+        for y in range(self.height):
+            index = self.md_row + y
+            if index >= len(layout.rows):
+                break
+            cells = layout.rows[index].cells
+            for x, (char, classes, link) in enumerate(cells[:width]):
+                if (index, x) in marks:
+                    look = selected
+                else:
+                    look = looks.get((classes, link))
+                    if look is None:
+                        look = looks[classes, link] = self._md_look(classes, link)
+                if char == "":
+                    if x == 0:
+                        surface.set_cell(x, y, " ", look)
+                    continue
+                if x == width - 1 and x + 1 < len(cells) and cells[x + 1][0] == "":
+                    surface.set_cell(x, y, " ", look)
+                    continue
+                surface.set_cell(x, y, char, look)
+
+    def _md_look(self, classes: tuple[str, ...], link: str | None) -> Any:
+        if "token" in classes:
+            cut = classes.index("token")
+            look = self.part_style("md", classes=classes[:cut])
+            token = self.part_style("token", classes=classes[cut + 1:])
+            if token.fg is not None:
+                look = look.derive(fg=token.fg)
+        elif classes:
+            look = self.part_style("md", classes=classes)
+        else:
+            look = self.style
+        return look.derive(link=link) if link else look
+
+    def _md_marks(self, layout: Any) -> frozenset[tuple[int, int]]:
+        """The ``(row, column)`` cells of the rendering the search hit is in:
+        its text looked for, blanks run together and case aside, in the rows
+        of the block holding its offset.  None when the markup split it."""
+        hit = self.hit
+        if hit is None or self.source is None or not layout.rows:
+            return frozenset()
+        cached = getattr(self, "_md_marked", None)
+        if cached is not None and cached[0] == (hit, id(layout)):
+            return cached[1]
+        marks: frozenset[tuple[int, int]] = frozenset()
+        try:
+            needle = " ".join(markdown.decode(self.source.read(hit[0], hit[1]), self.encoding).split()).casefold()
+        except (NotYet, OSError):
+            return marks
+        if needle:
+            text: list[str] = []
+            where: list[tuple[int, int]] = []
+            for index in layout.block_rows(layout.row_for(hit[0])):
+                for column, (char, _, _) in enumerate(layout.rows[index].cells):
+                    if char == "" or (char.isspace() and (not text or text[-1] == " ")):
+                        continue
+                    for piece in " " if char.isspace() else char.casefold():
+                        text.append(piece)
+                        where.append((index, column))
+                if text and text[-1] != " ":
+                    # A row's end is a blank between its words and the next row's.
+                    text.append(" ")
+                    where.append((-1, -1))
+            found = "".join(text).find(needle)
+            if found >= 0:
+                marks = frozenset(cell for cell in where[found:found + len(needle)] if cell[0] >= 0)
+        self._md_marked = ((hit, id(layout)), marks)
+        return marks
 
     def _hidden_row(self, surface: Surface, y: int, row: Any, x_delta: int, tier: int) -> bytes:
         """*Hidden characters* on one text row: the mark of the ending that closes
