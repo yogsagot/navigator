@@ -2706,7 +2706,9 @@ def test_the_strip_names_the_lexer_and_a_click_offers_file_types(tmp_path, quiet
     (tmp_path / "script.py").write_text("import os\n")
     app = navigator(tmp_path)
     seen = {}
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: screen(a),
+    # The lexer is found on a thread IDLE does not wait for: wait for its answer.
+    lexed = Until(lambda a: editor_window(a) is not None and editor_window(a).editor.lexer_name is not None)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), lexed,
                   lambda a: seen.update(label=strip_span(editor_window(a), ChooseFileType)[3]),
                   click_option(ChooseFileType), lambda a: None,
                   lambda a: seen.update(popup=isinstance(a.modal, PopupMenu),
