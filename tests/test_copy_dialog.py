@@ -383,6 +383,44 @@ def test_the_copy_gauges_follow_the_box():
     assert bar_row(box.total_bar).count("█") == 26
 
 
+def test_rate_follows_the_last_seconds():
+    from navigator.lib.system.progress import Rate, duration_text
+
+    rate = Rate(window=5.0)
+    assert rate.speed() is None and rate.left(100) is None
+    rate.add(0.0, 0)
+    rate.add(1.0, 1000)
+    assert rate.speed() == 1000 and rate.left(5000) == 4
+    # A long stall behind a question, then copying again: the stall leaves the window.
+    rate.add(20.0, 1000)
+    rate.add(21.0, 3000)
+    assert rate.speed() == 2000
+    rate.add(22.0, 3000)
+    assert rate.left(3000) == 0
+    assert [duration_text(s) for s in (0, 41.2, 725, 3723)] == ["0:00", "0:42", "12:05", "1:02:03"]
+
+
+def test_the_copy_box_says_speed_and_time_left():
+    from navigator.widgets.file_ops.copy_progress import CopyProgress
+
+    box = CopyProgress(total=100, done=50)
+    box.modal_width = 60
+    mounted(box, size=(80, 24))
+    settle()
+    assert box.pace_row.text == ""
+    assert box.count(512, 50) == "512 bytes (50%)"
+    assert box.count(372_244_480, 8) == "372,244,480 bytes (355MB, 8%)"
+    assert box.total_count.text == "Total 50 bytes (50%)"
+    box.speed, box.left = 9.5 * 1024 * 1024, 42.0
+    settle()
+    assert box.pace_row.text == "Speed 9.5MB/s, 0:42 left"
+    box.left = -1.0
+    settle()
+    assert box.pace_row.text == "Speed 9.5MB/s"
+    # Its own row, between the total's count and the Stop button.
+    assert box.total_count.y < box.pace_row.y < box.ok.parent.y - 1
+
+
 def test_the_gauge_is_drawn_in_label_normal():
     """``TWhileView.Draw``'s ``GetColor(7)``: slot [38], black on light grey in ``default``.
 

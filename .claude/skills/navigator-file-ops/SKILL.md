@@ -28,6 +28,12 @@ a tree, mode and options remembered for the session. `Manager.copy_files` puts u
 operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as the worker asks. **The check boxes are a
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
 stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows.
+**So is `CopyProgress`' speed row** (*Speed 9.5MB/s, 0:42 left*, the box 14 rows where DN's was 13): `_watch_copy`
+feeds `navigator.lib.system.progress.Rate` the job's `done_bytes` every tick, and the speed is the growth over the last
+`RATE_WINDOW` (5 s), so a pause behind a question drops out; the time left is the bytes still to go at that speed.
+`DeleteProgress` has the same row in entries a second (*Speed 1,200 files/s, 0:42 left*, 11 rows where it was 10),
+fed by the erase's refresh; the time left waits for `EraseJob.measuring` to end. *File attributes* shares the box and
+leaves the row blank.
 
 - **Without path names** (`CopyRequest.flatten`, *Extract files*' box unticked): a directory copied puts every file
   under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it

@@ -2,16 +2,20 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar
 
-#: A copy under way: the ``TWhileView`` ``FILECOPY.PAS`` opened 40 by 13.
+#: A copy under way: the ``TWhileView`` ``FILECOPY.PAS`` opened 40 by 13 (14 here, for the speed row).
 #:
 #: DN's rows were the file being read and its gauge, then the file being
 #: written and its; a copy here reads and writes in one pass, so the rows are
 #: the file and where it goes, the file's gauge, and the whole copy's gauge
 #: with its count -- DN's ``Total N bytes``, which it wrote on the frame.
 #: One *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
+#:
+#: The row under the total gauge, the speed and the time left, is a
+#: departure: DN never said how fast a copy went.  ``speed`` is bytes a
+#: second and ``left`` seconds, each negative while not known yet.
 CopyProgress(Dialog):
     modal_width: 60
-    modal_height: 13
+    modal_height: 14
     title: "Rename/move" if root.move else "Copy"
     buttons: "ok"
     closable: False
@@ -23,6 +27,8 @@ CopyProgress(Dialog):
     property file_bytes: 0
     property done: 0
     property total: 0
+    property speed: -1.0
+    property left: -1.0
 
     StaticText:
         id: source_row
@@ -76,3 +82,12 @@ CopyProgress(Dialog):
         height: 1
         align: "center"
         text: "Total " + root.count(root.done, total_bar.percent)
+
+    StaticText:
+        id: pace_row
+        x: 2
+        y: 8
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.pace(root.speed, root.left)

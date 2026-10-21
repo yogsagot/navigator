@@ -13,6 +13,8 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
+from navigator.lib.system.progress import duration_text
+from navigator.widgets.manager.panel.panel import human_size
 
 
 class CopyProgress(Dialog, _Component):
@@ -23,13 +25,17 @@ class CopyProgress(Dialog, _Component):
     file_bytes: int
     done: int
     total: int
+    speed: float
+    left: float
     source_row: StaticText
     dest_row: StaticText
     file_bar: ProgressBar
     file_count: StaticText
     total_bar: ProgressBar
     total_count: StaticText
+    pace_row: StaticText
     def __init__(self, **kwargs: Any) -> None: ...
     def fit(self, label: str, path: str) -> str: ...
     def count(self, done: int, percent: int) -> str: ...
+    def pace(self, speed: float, left: float) -> str: ...
     def accept(self) -> Any: ...

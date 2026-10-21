@@ -8,9 +8,13 @@ from navml.widgets.progress_bar import ProgressBar
 #: the name -- and then what DN did not have, a gauge over the entries
 #: counted before the first went, with its count.  One *Cancel* where DN's
 #: said *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
+#:
+#: The row under the count, the speed and the time left, is a departure too,
+#: as in *Copy*: ``speed`` is entries a second and ``left`` seconds, each
+#: negative while not known (and always, under *File attributes*).
 DeleteProgress(Dialog):
     modal_width: 50
-    modal_height: 10
+    modal_height: 11
     title: "Erase"
     buttons: "ok"
     closable: False
@@ -19,6 +23,8 @@ DeleteProgress(Dialog):
     property path: ""
     property done: 0
     property total: 0
+    property speed: -1.0
+    property left: -1.0
 
     StaticText:
         id: action_row
@@ -56,3 +62,12 @@ DeleteProgress(Dialog):
         height: 1
         align: "center"
         text: root.count(root.done, root.total, bar.percent)
+
+    StaticText:
+        id: pace_row
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.pace(root.speed, root.left)

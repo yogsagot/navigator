@@ -15,6 +15,7 @@ questions on the way and pause behind *Abort operation?*.
 from __future__ import annotations
 
 import asyncio
+from collections import deque
 from typing import Any, Callable, TypeVar
 
 T = TypeVar("T")
@@ -31,6 +32,54 @@ PROGRESS_TICK = 0.1
 #: on a floppy took long enough to read it; a box that flashes for every small
 #: file read from a page cache is only noise.
 SLOW_PROGRESS_DELAY = 1.0
+
+#: How far back :class:`Rate` looks: long enough to smooth one slow file out,
+#: short enough to follow a copy that moves from a disk to a network.
+RATE_WINDOW = 5.0
+
+
+class Rate:
+    """How fast a count grows, over the last :data:`RATE_WINDOW` seconds.
+
+    A departure: DN's progress boxes showed bytes and a gauge, never a
+    speed.  :meth:`add` takes the count at a moment (``loop.time()``);
+    the speed is the growth between the oldest sample in the window and
+    the newest, so time spent behind a question drops out once it is
+    older than the window.
+    """
+
+    def __init__(self, window: float = RATE_WINDOW) -> None:
+        self.window = window
+        self.samples: deque[tuple[float, int]] = deque()
+
+    def add(self, now: float, done: int) -> None:
+        self.samples.append((now, done))
+        while len(self.samples) > 2 and now - self.samples[0][0] > self.window:
+            self.samples.popleft()
+
+    def speed(self) -> float | None:
+        """Units a second, or None before there is anything to go by."""
+        if len(self.samples) < 2:
+            return None
+        (began, first), (now, last) = self.samples[0], self.samples[-1]
+        if now - began < PROGRESS_TICK / 2:
+            return None
+        return max(0, last - first) / (now - began)
+
+    def left(self, total: int) -> float | None:
+        """Seconds until the count reaches *total* at :meth:`speed`; None if it is not moving."""
+        speed = self.speed()
+        if not speed or not self.samples:
+            return None
+        return max(0, total - self.samples[-1][1]) / speed
+
+
+def duration_text(seconds: float) -> str:
+    """``0:42``, ``12:05``, ``1:02:03``: *seconds* rounded up, as a clock shows them."""
+    whole = int(-(-seconds // 1))
+    hours, rest = divmod(whole, 3600)
+    minutes, secs = divmod(rest, 60)
+    return f"{hours}:{minutes:02}:{secs:02}" if hours else f"{minutes}:{secs:02}"
 
 
 async def run_with_progress(

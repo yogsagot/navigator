@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
+from navigator.lib.system.progress import duration_text
 from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path
 
 
@@ -34,6 +35,16 @@ class DeleteProgress(Dialog):
         if not total:
             return ""
         return tr("{done:,} of {total:,} ({percent}%)").format(done=done, total=total, percent=percent)
+
+    def pace(self, speed: float, left: float) -> str:
+        """``Speed 1,200 files/s, 0:42 left``; the speed alone while still counting, nothing before either."""
+        if speed < 0:
+            return ""
+        n = round(speed)
+        if left < 0:
+            return tr_n("Speed {n:,} file/s", "Speed {n:,} files/s", n)
+        return tr_n("Speed {n:,} file/s, {time} left", "Speed {n:,} files/s, {time} left", n,
+                    time=duration_text(left))
 
     def accept(self) -> Any:
         """*Cancel* answers what Esc does."""

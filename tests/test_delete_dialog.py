@@ -92,6 +92,44 @@ def test_the_progress_box_counts_and_cancels():
     assert box.accept() is None
 
 
+def test_the_progress_box_says_speed_and_time_left():
+    box = DeleteProgress()
+    assert box.pace(-1.0, -1.0) == ""
+    assert box.pace(1200.4, -1.0) == "Speed 1,200 files/s"
+    assert box.pace(1.0, 75.0) == "Speed 1 file/s, 1:15 left"
+
+
+def test_the_erase_box_shows_the_speed_as_it_goes(two, monkeypatch):
+    a, b = two
+
+    def slow(request, job):
+        job.total, job.measuring = 100_000, False
+        job.action, job.path = fileerase.ERASING_FILE, str(request.sources[0])
+        while not job.stopped and job.done < job.total:
+            job.wait_while_paused()
+            job.done += 100
+            time.sleep(0.01)
+        return []
+
+    monkeypatch.setattr(fileerase, "run", slow)
+
+    async def steps(app, shell):
+        put_cursor(shell.manager.left, "one.txt")
+        app.post_event(KeyEvent("f8"))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.6)
+        text = app.modal.pace_row.text
+        app.modal.close(None)
+        await asyncio.sleep(0.1)
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.2)
+        return text
+
+    text = run_shell(a, b, steps)
+    assert text.startswith("Speed ") and "files/s, " in text and text.endswith(" left")
+
+
 # -- end to end ----------------------------------------------------------------------
 
 

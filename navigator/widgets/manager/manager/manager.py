@@ -2336,12 +2336,21 @@ class Manager(Window):
 
     async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
         """The copy's progress box, *Stop*, and the worker's questions, until *work* ends."""
+        from navigator.lib.system.progress import Rate
         from navigator.widgets.file_ops.copy_progress import CopyProgress
+
+        rate = Rate()
+        loop = asyncio.get_running_loop()
 
         def refresh(box: Any) -> None:
             box.source, box.dest = job.source, job.dest
             box.file_done, box.file_bytes = job.file_done, job.file_bytes
             box.done, box.total = job.done_bytes, job.total_bytes
+            rate.add(loop.time(), job.done_bytes)
+            speed = rate.speed()
+            left = rate.left(job.total_bytes) if job.total_bytes else None
+            box.speed = -1.0 if speed is None else speed
+            box.left = -1.0 if left is None else left
 
         await self._watch_job(
             work, job, lambda: CopyProgress(move=move), refresh, self._answer_copy_question
@@ -2494,6 +2503,7 @@ class Manager(Window):
         out, the caller having asked already."""
         from navigator.lib.file_ops import fileerase
         from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+        from navigator.lib.system.progress import Rate
         from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
         app = self.application
@@ -2515,10 +2525,17 @@ class Manager(Window):
             return
         job = fileerase.EraseJob()
         work = asyncio.ensure_future(asyncio.to_thread(fileerase.run, request, job))
+        rate = Rate()
+        loop = asyncio.get_running_loop()
 
         def refresh(box: Any) -> None:
             box.action, box.path = action_caption(job.action), job.path
             box.done, box.total = job.done, job.total
+            rate.add(loop.time(), job.done)
+            speed = rate.speed()
+            left = None if job.measuring or not job.total else rate.left(job.total)
+            box.speed = -1.0 if speed is None else speed
+            box.left = -1.0 if left is None else left
 
         done: list[Path] = []
         try:
