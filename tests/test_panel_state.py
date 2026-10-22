@@ -54,3 +54,27 @@ def test_with_nothing_kept_the_system_setting_decides(place):
     SETTINGS.system.show_hidden = False
     manager = Manager(place / "one", place / "two")
     assert not manager.left.show_hidden and manager.left.show_info
+
+
+def test_the_view_mode_and_the_order_come_back_too(place):
+    from navkit.events import KeyEvent
+
+    def sort(a):
+        a.manager.right.sort_by("size", reverse=True)
+
+    run_app(navigator(place), [KeyEvent("ctrl+y"), sort, lambda a: None])
+    seen = {}
+    run_app(navigator(place), [lambda a: seen.update(
+        left=(a.manager.left.view_mode, a.manager.left.sort_mode),
+        right=(a.manager.right.view_mode, a.manager.right.sort_mode, a.manager.right.sort_reverse))])
+    default = SETTINGS.panel_defaults.view_mode
+    modes = Manager(place / "one", place / "two").left.VIEW_MODES
+    assert seen["left"] == (modes[(modes.index(default) + 1) % len(modes)], SETTINGS.panel_defaults.sort_by)
+    assert seen["right"] == (default, "size", True)
+
+
+def test_opening_a_file_manager_keeps_nothing(place):
+    from navigator.models.panel_state import PanelState
+
+    run_app(navigator(place), [lambda a: None])
+    assert PanelState.query().count() == 0

@@ -1,7 +1,7 @@
 from navkit.database import Model
 
-#: What a side of the file manager was left showing: Ctrl+H's hidden files and
-#: Alt+I's footer, written at each switch and seeded into each new file
+#: What a side of the file manager was left showing: Ctrl+H's hidden files,
+#: Alt+I's footer, Ctrl+Y's view mode and Alt+B's order, written at each change and seeded into each new file
 #: manager's panel on that side (``navigator.lib.config.panel_state``).  One
 #: row a side, ``left`` or ``right``.  A departure: DN's ``ossShowHidden`` was
 #: a system option and it had no footer to hide.
@@ -10,4 +10,9 @@ PanelState(Model):
     field side: str
     field show_hidden: bool = True
     field show_info: bool = True
+    #: ``Panel.VIEW_MODES``' one; empty for *New Manager defaults*'.
+    field view_mode: str = ""
+    #: ``SORT_MODES``' one; empty for *New Manager defaults*'.
+    field sort_mode: str = ""
+    field sort_reverse: bool = False
     unique by_side: side

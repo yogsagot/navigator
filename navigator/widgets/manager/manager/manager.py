@@ -248,15 +248,33 @@ class Manager(Window):
         #: While the divider is held: the column the pointer took it at,
         #: counted from the right side's left edge (DN's ``B``).
         self._divider: int | None = None
+        #: What each side last showed of what ``panel_state`` keeps; None
+        #: until the first look, which only records it.
+        self._kept_state: dict[str, dict[str, Any]] | None = None
 
     def mounted(self) -> None:
         super().mounted()
         effect(self, Manager.place_divider)
         effect(self, Manager._remember_panel)
+        effect(self, Manager._keep_panel_state)
         effect(self, Manager._tree_follows_panel)
         effect(self, Manager._panel_follows_tree)
         effect(self, Manager._quick_view_follows_panel)
         effect(self, Manager._info_follows_panel)
+
+    def _keep_panel_state(self) -> None:
+        """Hidden files, the footer, the view mode and the order, kept for the
+        next file manager on that side (``panel_state``) as each changes --
+        by key, menu, dialog, a column title or Ctrl+U.  The first run only
+        notes them, so opening a file manager writes nothing."""
+        kept = {side: panel_state.kept_values(getattr(self, side)) for side in ("left", "right")}
+        last, self._kept_state = self._kept_state, kept
+        if last is None:
+            return
+        with untracked():
+            for side, values in kept.items():
+                if values != last[side]:
+                    panel_state.remember(self, side)
 
     # -- commands ------------------------------------------------------------
     #
@@ -2117,13 +2135,11 @@ class Manager(Window):
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
         self.active_panel.toggle_hidden()
-        panel_state.remember(self, "left" if self.active_panel is self.left else "right")
         return True
 
     async def on_toggle_info_lines(self, event: ToggleInfoLines) -> bool:
         """Alt+I: the active panel's footer, hidden or shown."""
         self.active_panel.toggle_info()
-        panel_state.remember(self, "left" if self.active_panel is self.left else "right")
         return True
 
     async def on_quick_search(self, event: QuickSearch) -> bool:
