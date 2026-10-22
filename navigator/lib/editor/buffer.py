@@ -13,7 +13,10 @@ and cleared ``Modified`` when undo brought the count back to zero; here
 is modified whenever another one is.  An undo past the save point followed by a
 new edit makes the saved state unreachable, and says so.
 
-There is no redo, as there was none in DN.
+**Redo** puts back what undo took, group by group, until a new edit is made:
+recording a change empties :attr:`EditBuffer.redo_stack`.  A departure -- DN
+had no redo; Borland's IDE did, on Shift+Alt+Backspace.  Redoing up to the
+save point leaves the text unmodified again.
 """
 
 from __future__ import annotations
@@ -54,6 +57,8 @@ class EditBuffer:
     def __init__(self, document: Document | None = None):
         self.document = document if document is not None else Document()
         self.undo_stack: list[Group] = []
+        #: Groups undone, the last undone on top; any new change empties it.
+        self.redo_stack: list[Group] = []
         self._open: Group | None = None
         self._saved: object = None  # the top group when last saved; None: empty stack
         #: Called after every primitive change, undo's included, with
@@ -118,6 +123,7 @@ class EditBuffer:
             listener(kind, start, end)
 
     def _record(self, change: Change) -> None:
+        self.redo_stack.clear()
         if self._open is None:
             self._open = Group((change.at.line, 0))
             self.undo_stack.append(self._open)
@@ -146,9 +152,32 @@ class EditBuffer:
             else:
                 end = document.insert(change.at, change.text)
                 self._tell("insert", change.at, end)
-        if self._saved is group:
-            self._saved = _LOST
+        self.redo_stack.append(group)
         return group.before
+
+    @property
+    def can_redo(self) -> bool:
+        return bool(self.redo_stack)
+
+    def redo(self) -> Pos | None:
+        """Make the last group undone again; return where its last change ended, or None."""
+        self.seal()
+        if not self.redo_stack:
+            return None
+        group = self.redo_stack.pop()
+        document = self.document
+        at = group.changes[0].at
+        for change in group.changes:
+            if change.kind == "insert":
+                at = document.insert(change.at, change.text)
+                self._tell("insert", change.at, at)
+            else:
+                end = _end_of(change.at, change.text)
+                document.delete(change.at, end)
+                self._tell("delete", change.at, end)
+                at = change.at
+        self.undo_stack.append(group)
+        return at
 
     # -- saving ------------------------------------------------------------------
 
@@ -170,11 +199,13 @@ class EditBuffer:
         """The text as it was at *point* -- by default, now -- is what is on disk.
 
         A *point* undone while its save ran is no state the text can come
-        back to by editing forward, so nothing then counts as saved.
+        back to but by redoing it, so it stays the point only while redo still
+        holds it.
         """
         if point is _NOW:
             point = self.save_point()
-        elif point is not None and not any(group is point for group in self.undo_stack):
+        elif point is not None and not any(
+                group is point for group in (*self.undo_stack, *self.redo_stack)):
             point = _LOST
         self._saved = point
 

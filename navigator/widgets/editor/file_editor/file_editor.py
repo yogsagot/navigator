@@ -124,6 +124,7 @@ from navigator.widgets.editor.commands import (
     TextEnd,
     TextStart,
     Undo,
+    Redo,
     SwitchBlock,
     WordLeft,
     WordRight,
@@ -391,6 +392,7 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+y": DeleteLine,
         "insert": SwitchInsert,
         "alt+backspace": Undo,
+        "alt+shift+backspace": Redo,
         # ``cmCut``, ``cmCopy``, ``cmPaste`` and ``cmClear``: Turbo Vision's
         # keys, and two more sets that are not DN's.  Ctrl+X/C/V, which every
         # other editor uses, were WordStar's cursor down, Page Down and insert
@@ -440,6 +442,7 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+r": Replace,
         "ctrl+g": GotoLineNumber,
         "ctrl+z": Undo,
+        "ctrl+shift+z": Redo,
     }
 
     #: Every command :data:`WORDSTAR` binds, those no key above reaches among
@@ -2302,6 +2305,9 @@ class FileEditor(ContextMenuHost, Widget):
         if isinstance(command, Undo):
             self.revision
             return self.buffer.can_undo
+        if isinstance(command, Redo):
+            self.revision
+            return self.buffer.can_redo
         if isinstance(command, HideBlock):
             return self.marked
         if isinstance(command, UnindentBlock) and command.stop:
@@ -2359,6 +2365,14 @@ class FileEditor(ContextMenuHost, Widget):
             self._go_column(*before)
         return True
 
+    async def on_redo(self, event: Redo) -> bool:
+        """The cursor where the group redone ended, as other editors leave it."""
+        after = self.buffer.redo()
+        if after is not None:
+            self.revision += 1
+            self._go(after)
+        return True
+
     async def on_select_all(self, event: SelectAll) -> bool:
         """The whole text as the block -- a departure: DN's editor had no
         *Select all*, and the context menu offers it as every editor's does.
@@ -2385,6 +2399,7 @@ class FileEditor(ContextMenuHost, Widget):
         """
         menu = ContextMenu()
         menu.add_item(tr("~U~ndo"), Undo)
+        menu.add_item(tr("R~e~do"), Redo)
         menu.add_line()
         menu.add_item(tr("Cu~t~"), ClipboardCut)
         menu.add_item(tr("~C~opy"), ClipboardCopy)

@@ -368,6 +368,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and
   the input lines do. Ctrl+Ins still copies the block to the clipboard. Checked on a pty with SGR mouse bytes and
   `xclip -o`, not only with posted events.
+- **Redo, Shift+Alt+Backspace / Ctrl+Shift+Z** (`Redo`, a departure: DN had none; Borland's IDE had these keys;
+  also Editor > *Redo* and the context menu): `EditBuffer.redo_stack` holds the groups undone, any new change
+  (`_record`) empties it. `redo()` replays a group forward through the listeners and returns where its last change
+  ended, where `on_redo` puts the cursor. Undoing the saved group no longer loses the save point: redoing back to it
+  leaves the text unmodified, and `mark_saved` accepts a point redo still holds. Both keys need the kitty protocol.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a

@@ -125,6 +125,35 @@ def test_a_multi_line_delete_undoes_to_the_same_bytes():
     assert buffer.document.encode() == data
 
 
+def test_redo_puts_back_what_undo_took_and_reaches_the_save_point_again():
+    buffer = EditBuffer(Document.from_bytes(b"one\ntwo"))
+    buffer.begin((0, 0))
+    buffer.delete(Pos(0, 1), Pos(1, 1))
+    buffer.insert(Pos(0, 1), "X\nY")
+    buffer.end()
+    buffer.mark_saved()
+    edited = buffer.document.encode()
+    buffer.undo()
+    assert buffer.document.encode() == b"one\ntwo" and buffer.modified
+    assert buffer.can_redo
+    assert buffer.redo() == Pos(1, 1)
+    assert buffer.document.encode() == edited and not buffer.modified
+    assert not buffer.can_redo and buffer.redo() is None
+
+
+def test_a_new_edit_after_undo_drops_what_redo_held():
+    buffer = EditBuffer(Document.from_bytes(b""))
+    buffer.begin((0, 0))
+    buffer.insert(Pos(0, 0), "a")
+    buffer.end()
+    buffer.undo()
+    buffer.begin((0, 0))
+    buffer.insert(Pos(0, 0), "b")
+    buffer.end()
+    assert not buffer.can_redo
+    assert buffer.document.encode() == b"b"
+
+
 # -- saving ------------------------------------------------------------------------
 
 
@@ -412,6 +441,20 @@ def test_ctrl_z_undoes_by_default(files):
     editor = editor_window(app).editor
     assert editor.document.encode() == b"first line\r\nsecond\tline\r\n"
     assert not editor.modified
+
+
+def test_ctrl_shift_z_and_shift_alt_backspace_redo(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("abc"),
+                  KeyEvent("z", ctrl=True), KeyEvent("z", ctrl=True, shift=True)])
+    editor = editor_window(app).editor
+    assert editor.document.encode() == b"abcfirst line\r\nsecond\tline\r\n"
+    assert editor.col == 3 and editor.modified
+    app = navigator(files)  # opens where the first left off, after "fir"
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("abc"),
+                  KeyEvent("backspace", alt=True),
+                  KeyEvent("backspace", alt=True, shift=True)])
+    assert editor_window(app).editor.document.encode() == b"firabcst line\r\nsecond\tline\r\n"
 
 
 def test_enter_home_and_end_stay_the_editors_with_text_on_the_command_line(files):

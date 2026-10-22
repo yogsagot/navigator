@@ -538,6 +538,13 @@ class Undo(Command):
     title = "Undo"
 
 
+class Redo(Command):
+    """Shift+Alt+Backspace, Ctrl+Shift+Z: what undo took back, made again -- a
+    departure, DN having had no redo (Borland's IDE had it on these keys)."""
+
+    title = "Redo"
+
+
 class LoadText(Command):
     """``cmLoadText``: F3, Editor > File > *Open...* -- another file into this window."""
 
@@ -655,5 +662,6 @@ __all__ = [
     "DeleteToEnd",
     "SwitchInsert",
     "Undo",
+    "Redo",
     "SaveText",
 ]

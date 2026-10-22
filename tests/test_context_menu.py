@@ -263,8 +263,8 @@ def test_the_editor_offers_select_all_and_a_right_click_inside_the_block_keeps_i
                   lambda a: seen.update(block=editor(a).block),
                   right(3, 3), OPEN,
                   lambda a: seen.update(after=editor(a).block, enabled=enabled(a))])
-    assert seen["captions"][:7] == [
-        "Undo", "Cut", "Copy", "Paste", "Clear", "Select all", "Find...",
+    assert seen["captions"][:8] == [
+        "Undo", "Redo", "Cut", "Copy", "Paste", "Clear", "Select all", "Find...",
     ]
     assert seen["block"] is not None
     assert seen["after"] == seen["block"]
