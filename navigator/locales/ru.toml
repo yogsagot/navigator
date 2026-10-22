@@ -282,7 +282,7 @@ name = "Русский"
 "~T~ree" = "Д~е~рево"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Подсчёт размера каталога"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/manager/manager.py:3774 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/manager/manager.py:3779 ...
 "Delete" = "Удаление"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to delete" = "Вы хотите удалить"
@@ -342,11 +342,11 @@ name = "Русский"
 "Accept choice for ~a~ll files" = "Применить ко ~в~сем файлам"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:38
 "~O~verwrite" = "~П~оверх"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:47, navigator/widgets/editor/edit_window/edit_window.py:375, navigator/widgets/manager/manager/manager.py:1441 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:47, navigator/widgets/editor/edit_window/edit_window.py:375, navigator/widgets/manager/manager/manager.py:1444 ...
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:55, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:63, navigator/widgets/manager/manager/manager.py:2567
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:63, navigator/widgets/manager/manager/manager.py:2572
 "~S~kip" = "П~р~опуск"
 # navigator/widgets/file_ops/rename_dialog/rename_dialog.nml:15
 "Quick rename" = "Быстрое переименование"
@@ -488,9 +488,9 @@ name = "Русский"
 "Show" = "Показ"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "Ра~з~мер"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:3660
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:3665
 "~A~ttributes" = "~А~трибуты"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:3660
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:3665
 "~O~wner" = "В~л~аделец"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~П~уть"
@@ -550,7 +550,7 @@ name = "Русский"
 "~A~ll drives" = "Все ~д~иски"
 # navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:87
 "Ad~v~anced..." = "~У~словия..."
-# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:907, navigator/widgets/manager/manager/manager.py:833 ...
+# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:910, navigator/widgets/manager/manager/manager.py:836 ...
 "No files found" = "Файлы не найдены"
 # navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:13
 "Make List File" = "Создать список файлов"
@@ -570,7 +570,7 @@ name = "Русский"
 "Paneli~z~e command..." = "Фа~й~лы из вывода команды..."
 # navigator/widgets/manager/manager/manager.nml:170
 "~C~ompare directories" = "Ср~а~внить каталоги"
-# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1343
+# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1366
 "Count directory len~g~th" = "В~ы~числить размер каталога"
 # navigator/widgets/manager/manager/manager.nml:177
 "Directory Branc~h~" = "~В~етвь каталога"
@@ -578,9 +578,9 @@ name = "Русский"
 "Multi-rename..." = "Групповое переименование..."
 # navigator/widgets/manager/manager/manager.nml:186
 "Undo multi-rename" = "Отменить групповое переименование"
-# navigator/widgets/manager/manager/manager.nml:194, navigator/widgets/manager/panel/panel.py:1336
+# navigator/widgets/manager/manager/manager.nml:194, navigator/widgets/manager/panel/panel.py:1359
 "E~x~tract to..." = "Извле~ч~ь в..."
-# navigator/widgets/manager/manager/manager.nml:198, navigator/widgets/manager/manager/manager.py:767
+# navigator/widgets/manager/manager/manager.nml:198, navigator/widgets/manager/manager/manager.py:770
 "Test archive" = "Проверить архив"
 # navigator/widgets/manager/manager/manager.nml:202
 "Setup c~o~lumns" = "Установки ~к~олонок"
@@ -604,11 +604,11 @@ name = "Русский"
 "I~n~fo" = "И~н~формация"
 # navigator/widgets/manager/manager/manager.nml:245
 "Quic~k~ view" = "Быстрый ~п~росмотр"
-# navigator/widgets/manager/manager/manager.nml:250, navigator/widgets/manager/panel/panel.py:1348
+# navigator/widgets/manager/manager/manager.nml:250, navigator/widgets/manager/panel/panel.py:1371
 "Select grou~p~..." = "Пометить ~г~руппу..."
-# navigator/widgets/manager/manager/manager.nml:254, navigator/widgets/manager/panel/panel.py:1349
+# navigator/widgets/manager/manager/manager.nml:254, navigator/widgets/manager/panel/panel.py:1372
 "~U~nselect group..." = "Снять пометку по ~ш~аблону..."
-# navigator/widgets/manager/manager/manager.nml:258, navigator/widgets/manager/panel/panel.py:1350
+# navigator/widgets/manager/manager/manager.nml:258, navigator/widgets/manager/panel/panel.py:1373
 "In~v~ert selection" = "~И~нвертировать пометку"
 # navigator/widgets/manager/manager/manager.nml:262
 "Advanced filter..." = "Расширенный фильтр..."
@@ -616,7 +616,7 @@ name = "Русский"
 "Change ~d~rive" = "См~е~нить диск"
 # navigator/widgets/manager/manager/manager.nml:271
 "Change direc~t~ory" = "Сменить ката~л~ог"
-# navigator/widgets/manager/manager/manager.nml:275, navigator/widgets/tree/tree_window/tree_window.nml:51, navigator/widgets/manager/manager/manager.py:1601 ...
+# navigator/widgets/manager/manager/manager.nml:275, navigator/widgets/tree/tree_window/tree_window.nml:51, navigator/widgets/manager/manager/manager.py:1604 ...
 "Quick s~e~arch" = "Быст~р~ый поиск"
 # navigator/widgets/manager/manager/manager.nml:279, navigator/widgets/shell/volumes_window/volumes_window.nml:93, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71 ...
 "~R~e-read" = "~О~бновить"
@@ -630,21 +630,21 @@ name = "Русский"
 "History of directories..." = "История каталогов..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "Установки панели"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2102
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2105
 "Sort by" = "Сортировка"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:35, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:36
 "Re~v~erse order" = "Обратн~ы~й порядок"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3660 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3665 ...
 "~E~xtension" = "Ра~с~ширение"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "Атрибуты"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
 "O~w~ner" = "В~л~аделец"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3681
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3686
 "Ty~p~e" = "~Т~ип"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3660 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:3665 ...
 "~U~nsorted" = "~Н~е сортировать"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:51, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:52, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:46
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:51, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:52, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:48
 "Display" = "Внешний вид"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:60, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:61
 "Director~y~ length" = "Размер катало~г~ов"
@@ -706,7 +706,7 @@ name = "Русский"
 "Date" = "Дата"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~П~оиск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2061
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2084
 "Path" = "Путь"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~А~рхивы"
@@ -832,41 +832,43 @@ name = "Русский"
 "Si~m~ple" = "~К~раткий"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:95
 "~D~etailed" = "Под~р~обный"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:29
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:31
 "Behavior" = "Поведение"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "Auto c~h~ange directory" = "Авто~с~мена каталога"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "Drag~-~and~-~drop from columns" = "Пере~т~аскивание из колонок"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "~B~eep after copy" = "Гуд~о~к после копирования"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "~E~NTER opens archive" = "~В~ход в архив по ENTER"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "~S~PACE toggles selection" = "Отметка ~п~о SPACE"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "~D~EL erases file(s)" = "DEL ~у~даляет файл(ы)"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "Use ←/→ ~k~eys" = "~К~лавиши ←/→"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "BS - go to ~u~pper directory" = "BS - в ~р~одительский каталог"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:38
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:40
 "Auto ~r~efresh panels" = "~А~втообновление панелей"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:55
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
 "Colu~m~n titles" = "~З~аголовки колонок"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:55
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
 "~I~nfo divider" = "Раз~д~елитель"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:55
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
 "~T~ag character" = "Си~м~вол отметки"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:55
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
 "Li~n~k target line" = "Строка ~ц~ели ссылки"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:63
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
+"Option ~f~lags" = "Ф~л~аги опций"
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:65
 "Ta~g~ sign:" = "З~н~ак:"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:72
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:74
 "Right button" = "Правая кнопка"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:81
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:83
 "Conte~x~t menu" = "Контекстно~е~ меню"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:81
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:83
 "Se~l~ect files" = "Выделять ~ф~айлы"
 # navigator/widgets/setup/highlight_page/highlight_page.nml:20
 "~I~mages" = "~И~зображения"
@@ -1122,9 +1124,9 @@ name = "Русский"
 "~A~lternate edit" = "~В~строенный редактор"
 # navigator/widgets/shell/main_menu/main_menu.nml:128
 "Edit ~n~ew file..." = "~Н~овый файл..."
-# navigator/widgets/shell/main_menu/main_menu.nml:136, navigator/widgets/manager/panel/panel.py:1326
+# navigator/widgets/shell/main_menu/main_menu.nml:136, navigator/widgets/manager/panel/panel.py:1349
 "~C~opy..." = "~К~опировать..."
-# navigator/widgets/shell/main_menu/main_menu.nml:140, navigator/widgets/manager/panel/panel.py:1327
+# navigator/widgets/shell/main_menu/main_menu.nml:140, navigator/widgets/manager/panel/panel.py:1350
 "~R~ename/Move..." = "Пе~р~еименовать/перенести..."
 # navigator/widgets/shell/main_menu/main_menu.nml:146
 "~Q~uick rename..." = "~Б~ыстро переименовать..."
@@ -1132,11 +1134,11 @@ name = "Русский"
 "Cop~y~ to archive..." = "К~о~пировать в архив..."
 # navigator/widgets/shell/main_menu/main_menu.nml:154
 "Ex~t~ract archive..." = "Из~в~лечь из архива..."
-# navigator/widgets/shell/main_menu/main_menu.nml:158, navigator/widgets/manager/panel/panel.py:1328
+# navigator/widgets/shell/main_menu/main_menu.nml:158, navigator/widgets/manager/panel/panel.py:1351
 "Create ~s~ymlink..." = "Си~м~вол. ссылка..."
-# navigator/widgets/shell/main_menu/main_menu.nml:166, navigator/widgets/manager/panel/panel.py:1344
+# navigator/widgets/shell/main_menu/main_menu.nml:166, navigator/widgets/manager/panel/panel.py:1367
 "~M~ake directory" = "Создать ка~т~алог"
-# navigator/widgets/shell/main_menu/main_menu.nml:174, navigator/widgets/manager/panel/panel.py:1330
+# navigator/widgets/shell/main_menu/main_menu.nml:174, navigator/widgets/manager/panel/panel.py:1353
 "File ~A~ttributes..." = "~А~трибуты файла..."
 # navigator/widgets/shell/main_menu/main_menu.nml:178
 "UU E~n~code..." = "UU-ко~д~ирование..."
@@ -1422,11 +1424,11 @@ name = "Русский"
 "A [ is never closed" = "[ не закрыта"
 # navigator/lib/file_ops/multirename.py:137, navigator/lib/file_ops/multirename.py:182, navigator/lib/file_ops/multirename.py:184 ...
 "[{token}] is not a placeholder" = "[{token}] — не подстановка"
-# navigator/lib/file_ops/multirename.py:380, navigator/widgets/manager/manager/manager.py:1243
+# navigator/lib/file_ops/multirename.py:380, navigator/widgets/manager/manager/manager.py:1246
 "a file of that name is already there" = "файл с таким именем уже есть"
 # navigator/lib/file_ops/multirename.py:233
 "Not a regular expression: {reason}" = "Не регулярное выражение: {reason}"
-# navigator/lib/file_ops/multirename.py:395, navigator/widgets/manager/manager/manager.py:1226, navigator/widgets/manager/manager/manager.py:1246
+# navigator/lib/file_ops/multirename.py:395, navigator/widgets/manager/manager/manager.py:1229, navigator/widgets/manager/manager/manager.py:1249
 "Could not rename {old}\nto {new}: {reason}" = "Невозможно переименовать {old}\nв {new}: {reason}"
 # navigator/lib/file_ops/multirename.py:239
 "Cannot replace with {text}: {reason}" = "Нельзя заменить на {text}: {reason}"
@@ -1472,7 +1474,7 @@ name = "Русский"
 "plain" = "текст"
 # navigator/lib/highlight/__init__.py:275
 "auto" = "авто"
-# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1771
+# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1794
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
 # navigator/lib/system/diskinfo.py:160
 "Current directory:" = "Текущий каталог:"
@@ -1484,7 +1486,7 @@ name = "Русский"
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
 # navigator/lib/system/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1767
+# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1790
 "No files in this directory" = "В этом каталоге файлов нет"
 # navigator/lib/system/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
@@ -1538,23 +1540,23 @@ name = "Русский"
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
 # navigator/settings.py:526
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:575
+# navigator/settings.py:581
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:628
+# navigator/settings.py:634
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:662
+# navigator/settings.py:668
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:707
+# navigator/settings.py:713
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:722
+# navigator/settings.py:728
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:744
+# navigator/settings.py:750
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:759
+# navigator/settings.py:765
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:788
+# navigator/settings.py:794
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
-# navigator/widgets/drives/archives.py:31, navigator/widgets/manager/manager/manager.py:702
+# navigator/widgets/drives/archives.py:31, navigator/widgets/manager/manager/manager.py:705
 "Reading archive" = "Чтение архива"
 # navigator/widgets/drives/archives.py:35, navigator/widgets/drives/archives.py:44, navigator/widgets/drives/use_file.py:38 ...
 "Cannot read {path}: {error}" = "Не удаётся прочитать {path}: {error}"
@@ -1588,15 +1590,15 @@ name = "Русский"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Подлинность сервера {host} не может быть установлена.\nОтпечаток ключа {type}:\n{fingerprint}"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44
 "Add" = "Добавить"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/commands.py:51, navigator/widgets/manager/manager/manager.py:3774 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/commands.py:51, navigator/widgets/manager/manager/manager.py:3779 ...
 "Edit" = "Правка"
-# navigator/widgets/drives/links_dialog/links_dialog.py:137, navigator/widgets/manager/manager/manager.py:3788
+# navigator/widgets/drives/links_dialog/links_dialog.py:137, navigator/widgets/manager/manager/manager.py:3793
 "~N~ew SSH link (SFTP)..." = "~Н~овая связь по SSH (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:137, navigator/widgets/manager/manager/manager.py:3788
+# navigator/widgets/drives/links_dialog/links_dialog.py:137, navigator/widgets/manager/manager/manager.py:3793
 "New ~F~TP link..." = "Новая связь по ~F~TP..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:138, navigator/widgets/manager/manager/manager.py:3789
+# navigator/widgets/drives/links_dialog/links_dialog.py:138, navigator/widgets/manager/manager/manager.py:3794
 "New S~M~B link (Windows share)..." = "Новая связь по S~M~B (общая папка Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:138, navigator/widgets/manager/manager/manager.py:3789
+# navigator/widgets/drives/links_dialog/links_dialog.py:138, navigator/widgets/manager/manager/manager.py:3794
 "New S~3~ link (Amazon S3)..." = "Новая связь по S~3~ (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:141
 "New link" = "Новая ссылка"
@@ -1744,9 +1746,9 @@ name = "Русский"
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:128, navigator/widgets/editor/edit_window/edit_window.py:130
 "Edit - {path}" = "Редактор - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:371, navigator/widgets/manager/manager/manager.py:1439, navigator/widgets/manager/manager/manager.py:1491 ...
+# navigator/widgets/editor/edit_window/edit_window.py:371, navigator/widgets/manager/manager/manager.py:1442, navigator/widgets/manager/manager/manager.py:1494 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
-# navigator/widgets/editor/edit_window/edit_window.py:662, navigator/widgets/manager/manager/manager.py:2232
+# navigator/widgets/editor/edit_window/edit_window.py:662, navigator/widgets/manager/manager/manager.py:2237
 "Confirmation" = "Подтверждение"
 # navigator/widgets/editor/edit_window/edit_window.py:663
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
@@ -1826,7 +1828,7 @@ name = "Русский"
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:87
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100, navigator/widgets/manager/panel/panel.py:1793, navigator/widgets/tree/directory_tree/directory_tree.py:247
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100, navigator/widgets/manager/panel/panel.py:1816, navigator/widgets/tree/directory_tree/directory_tree.py:247
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:80
 "File ~{name}~" = "Файл ~{name}~"
@@ -1944,7 +1946,7 @@ name = "Русский"
 "Game over\n\nFinal score - {score}" = "Конец игры\n\nИтоговый счёт - {score}"
 # navigator/widgets/game/game_window/info.py:66, navigator/widgets/game/winner_dialog/winner_dialog.py:19
 "Anonymous" = "Аноним"
-# navigator/widgets/game/game_window/info.py:51, navigator/widgets/manager/commands.py:259, navigator/lib/appearance/palette.py ...
+# navigator/widgets/game/game_window/info.py:51, navigator/widgets/manager/commands.py:259, navigator/widgets/manager/panel/option_items.py:51 ...
 "Info" = "Инфо"
 # navigator/widgets/game/game_window/info.py:52
 "Score: ~{score}~" = "Очки: ~{score}~"
@@ -1972,7 +1974,7 @@ name = "Русский"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:75
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2058
+# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2081
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:91
 "MkDir" = "Каталог"
@@ -1998,155 +2000,161 @@ name = "Русский"
 "Edit..." = "Ред..."
 # navigator/widgets/manager/info_panel/info_panel.py:116
 "Connection" = "Соединение"
-# navigator/widgets/manager/manager/manager.py:2364
+# navigator/widgets/manager/manager/manager.py:2369
 "To {path}" = "Куда: {path}"
-# navigator/widgets/manager/manager/manager.py:3660
+# navigator/widgets/manager/manager/manager.py:3665
 "T~y~pe" = "~Т~ип"
-# navigator/widgets/manager/manager/manager.py:3770
+# navigator/widgets/manager/manager/manager.py:3775
 "~L~ink" = "~С~вязь"
-# navigator/widgets/manager/manager/manager.py:879
+# navigator/widgets/manager/manager/manager.py:882
 "Panelize" = "Вывод в панель"
-# navigator/widgets/manager/manager/manager.py:1368
+# navigator/widgets/manager/manager/manager.py:1371
 "Rename" = "Переименование"
-# navigator/widgets/manager/manager/manager.py:1599
+# navigator/widgets/manager/manager/manager.py:1602
 "~G~o to directory" = "~П~ерейти в каталог"
-# navigator/widgets/manager/manager/manager.py:1603
+# navigator/widgets/manager/manager/manager.py:1606
 "~C~lose tree" = "~З~акрыть дерево"
-# navigator/widgets/manager/manager/manager.py:1721
-"Bookmarks" = "Закладки"
-# navigator/widgets/manager/manager/manager.py:2230
-"Print {n} file?" = ["Печатать {n} файл?", "Печатать {n} файла?", "Печатать {n} файлов?"]
-# navigator/widgets/manager/manager/manager.py:2333
-"Do you wish to delete {n} file?" = ["Удалить {n} файл?", "Удалить {n} файла?", "Удалить {n} файлов?"]
-# navigator/widgets/manager/manager/manager.py:2353
-"~C~opy here" = "~К~опировать сюда"
-# navigator/widgets/manager/manager/manager.py:2354
-"~M~ove here" = "~П~еренести сюда"
-# navigator/widgets/manager/manager/manager.py:2355
-"~S~ymlink here" = "~С~имвольная ссылка"
-# navigator/widgets/manager/manager/manager.py:2356
-"~R~elative symlink here" = "~О~тносительная ссылка"
-# navigator/widgets/manager/manager/manager.py:3051, navigator/widgets/manager/manager/manager.py:3085
-"Is a directory" = "Это каталог"
-# navigator/widgets/manager/manager/manager.py:3748
-"~R~emove this folder" = "~У~брать этот каталог"
-# navigator/widgets/manager/manager/manager.py:3748
-"~A~dd this folder" = "~Д~обавить этот каталог"
-# navigator/widgets/manager/manager/manager.py:384
-"Encoding {name}" = "Кодируется {name}"
-# navigator/widgets/manager/manager/manager.py:425
-"Decoding {name}" = "Декодируется {name}"
-# navigator/widgets/manager/manager/manager.py:743
-"Testing {name}" = "Проверка {name}"
-# navigator/widgets/manager/manager/manager.py:1020
-"Store this directory\nas bookmark {slot}?" = "Запомнить этот каталог\nкак закладку {slot}?"
-# navigator/widgets/manager/manager/manager.py:3053, navigator/widgets/manager/manager/manager.py:3087
-"No such directory" = "Нет такого каталога"
-# navigator/widgets/manager/manager/manager.py:3101
-"$EDITOR edits a file on another drive only once it is there" = "$EDITOR правит файл на другом диске, только когда он там уже есть"
-# navigator/widgets/manager/manager/manager.py:3705
-"Erasing the file" = "Удаляется файл"
-# navigator/widgets/manager/manager/manager.py:3706
-"Erasing the directory" = "Удаляется каталог"
-# navigator/widgets/manager/manager/manager.py:3707
-"Changing attributes of" = "Меняются атрибуты"
-# navigator/widgets/manager/manager/manager.py:540
-"The input file is too small to UU-Encode." = "Файл слишком мал для UU-кодирования."
-# navigator/widgets/manager/manager/manager.py:760
-"No errors found in {name}" = "Ошибок в {name} не найдено"
-# navigator/widgets/manager/manager/manager.py:764
-"and {n} more" = ["и ещё {n}", "и ещё {n}", "и ещё {n}"]
-# navigator/widgets/manager/manager/manager.py:765
-"{n} error found in {name}:" = ["{n} ошибка в {name}:", "{n} ошибки в {name}:", "{n} ошибок в {name}:"]
-# navigator/widgets/manager/manager/manager.py:2228
-"Print file {name}?" = "Печатать файл {name}?"
-# navigator/widgets/manager/manager/manager.py:2331
-"Do you wish to delete {name}?" = "Удалить {name}?"
-# navigator/widgets/manager/manager/manager.py:3798
-"~E~dit links..." = "~И~зменить ссылки..."
-# navigator/widgets/manager/manager/manager.py:892
-"Stop the command?" = "Остановить команду?"
-# navigator/widgets/manager/manager/manager.py:907
-"No files found\n{reason}" = "Файлы не найдены\n{reason}"
-# navigator/widgets/manager/manager/manager.py:916
-"Panel: {command}" = "Панель: {command}"
-# navigator/widgets/manager/manager/manager.py:945
-"Find: {mask}" = "Поиск: {mask}"
-# navigator/widgets/manager/manager/manager.py:1106
-"Branch: {path}" = "Ветвь: {path}"
-# navigator/widgets/manager/manager/manager.py:1146
-"Cancel search?" = "Прекратить поиск?"
 # navigator/widgets/manager/manager/manager.py:1724
+"Bookmarks" = "Закладки"
+# navigator/widgets/manager/manager/manager.py:2235
+"Print {n} file?" = ["Печатать {n} файл?", "Печатать {n} файла?", "Печатать {n} файлов?"]
+# navigator/widgets/manager/manager/manager.py:2338
+"Do you wish to delete {n} file?" = ["Удалить {n} файл?", "Удалить {n} файла?", "Удалить {n} файлов?"]
+# navigator/widgets/manager/manager/manager.py:2358
+"~C~opy here" = "~К~опировать сюда"
+# navigator/widgets/manager/manager/manager.py:2359
+"~M~ove here" = "~П~еренести сюда"
+# navigator/widgets/manager/manager/manager.py:2360
+"~S~ymlink here" = "~С~имвольная ссылка"
+# navigator/widgets/manager/manager/manager.py:2361
+"~R~elative symlink here" = "~О~тносительная ссылка"
+# navigator/widgets/manager/manager/manager.py:3056, navigator/widgets/manager/manager/manager.py:3090
+"Is a directory" = "Это каталог"
+# navigator/widgets/manager/manager/manager.py:3753
+"~R~emove this folder" = "~У~брать этот каталог"
+# navigator/widgets/manager/manager/manager.py:3753
+"~A~dd this folder" = "~Д~обавить этот каталог"
+# navigator/widgets/manager/manager/manager.py:387
+"Encoding {name}" = "Кодируется {name}"
+# navigator/widgets/manager/manager/manager.py:428
+"Decoding {name}" = "Декодируется {name}"
+# navigator/widgets/manager/manager/manager.py:746
+"Testing {name}" = "Проверка {name}"
+# navigator/widgets/manager/manager/manager.py:1023
+"Store this directory\nas bookmark {slot}?" = "Запомнить этот каталог\nкак закладку {slot}?"
+# navigator/widgets/manager/manager/manager.py:3058, navigator/widgets/manager/manager/manager.py:3092
+"No such directory" = "Нет такого каталога"
+# navigator/widgets/manager/manager/manager.py:3106
+"$EDITOR edits a file on another drive only once it is there" = "$EDITOR правит файл на другом диске, только когда он там уже есть"
+# navigator/widgets/manager/manager/manager.py:3710
+"Erasing the file" = "Удаляется файл"
+# navigator/widgets/manager/manager/manager.py:3711
+"Erasing the directory" = "Удаляется каталог"
+# navigator/widgets/manager/manager/manager.py:3712
+"Changing attributes of" = "Меняются атрибуты"
+# navigator/widgets/manager/manager/manager.py:543
+"The input file is too small to UU-Encode." = "Файл слишком мал для UU-кодирования."
+# navigator/widgets/manager/manager/manager.py:763
+"No errors found in {name}" = "Ошибок в {name} не найдено"
+# navigator/widgets/manager/manager/manager.py:767
+"and {n} more" = ["и ещё {n}", "и ещё {n}", "и ещё {n}"]
+# navigator/widgets/manager/manager/manager.py:768
+"{n} error found in {name}:" = ["{n} ошибка в {name}:", "{n} ошибки в {name}:", "{n} ошибок в {name}:"]
+# navigator/widgets/manager/manager/manager.py:2233
+"Print file {name}?" = "Печатать файл {name}?"
+# navigator/widgets/manager/manager/manager.py:2336
+"Do you wish to delete {name}?" = "Удалить {name}?"
+# navigator/widgets/manager/manager/manager.py:3803
+"~E~dit links..." = "~И~зменить ссылки..."
+# navigator/widgets/manager/manager/manager.py:895
+"Stop the command?" = "Остановить команду?"
+# navigator/widgets/manager/manager/manager.py:910
+"No files found\n{reason}" = "Файлы не найдены\n{reason}"
+# navigator/widgets/manager/manager/manager.py:919
+"Panel: {command}" = "Панель: {command}"
+# navigator/widgets/manager/manager/manager.py:948
+"Find: {mask}" = "Поиск: {mask}"
+# navigator/widgets/manager/manager/manager.py:1109
+"Branch: {path}" = "Ветвь: {path}"
+# navigator/widgets/manager/manager/manager.py:1149
+"Cancel search?" = "Прекратить поиск?"
+# navigator/widgets/manager/manager/manager.py:1727
 "Label" = "Метка"
-# navigator/widgets/manager/manager/manager.py:2792
+# navigator/widgets/manager/manager/manager.py:2797
 "Reading file attributes" = "Читаются атрибуты файлов"
-# navigator/widgets/manager/manager/manager.py:1568
+# navigator/widgets/manager/manager/manager.py:1571
 "Comparing files" = "Сравниваются файлы"
-# navigator/widgets/manager/manager/manager.py:865
+# navigator/widgets/manager/manager/manager.py:868
 "A command's output can be panelized on this machine's disk only" = "Вывод команды можно показать в панели только на диске этого компьютера"
-# navigator/widgets/manager/manager/manager.py:989
+# navigator/widgets/manager/manager/manager.py:992
 "Set the interface option\n\"Track directories\" ON first" = "Должна быть включена установка интерфейса\n\"История смены каталогов\""
-# navigator/widgets/manager/manager/manager.py:2549, navigator/widgets/manager/manager/manager.py:2733
+# navigator/widgets/manager/manager/manager.py:2554, navigator/widgets/manager/manager/manager.py:2738
 "Would you like to create directory {path}?" = "Хотите создать каталог {path}?"
-# navigator/widgets/manager/manager/manager.py:2554
+# navigator/widgets/manager/manager/manager.py:2559
 "There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
-# navigator/widgets/manager/manager/manager.py:3066, navigator/widgets/manager/manager/manager.py:3109, navigator/widgets/manager/manager/manager.py:3136 ...
+# navigator/widgets/manager/manager/manager.py:3071, navigator/widgets/manager/manager/manager.py:3114, navigator/widgets/manager/manager/manager.py:3141 ...
 "Cannot edit file" = "Невозможно редактировать файл"
-# navigator/widgets/manager/manager/manager.py:2184, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
+# navigator/widgets/manager/manager/manager.py:2189, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
 "Cannot make directory" = "Невозможно создать каталог"
-# navigator/widgets/manager/manager/manager.py:2957, navigator/widgets/manager/manager/manager.py:2929, navigator/widgets/manager/manager/manager.py:2949 ...
+# navigator/widgets/manager/manager/manager.py:2962, navigator/widgets/manager/manager/manager.py:2934, navigator/widgets/manager/manager/manager.py:2954 ...
 "Cannot view file" = "Невозможно просмотреть файл"
-# navigator/widgets/manager/manager/manager.py:969
+# navigator/widgets/manager/manager/manager.py:972
 "Directory {place} is not there" = "Каталога {place} нет"
-# navigator/widgets/manager/manager/manager.py:1227
+# navigator/widgets/manager/manager/manager.py:1230
 "a name cannot hold a /" = "имя не может содержать /"
-# navigator/widgets/manager/manager/manager.py:2508
+# navigator/widgets/manager/manager/manager.py:2513
 "Abort operation?" = "Прервать операцию?"
-# navigator/widgets/manager/manager/manager.py:829, navigator/widgets/manager/manager/manager.py:814
+# navigator/widgets/manager/manager/manager.py:832, navigator/widgets/manager/manager/manager.py:817
 "Cannot read {path}: {reason}" = "Невозможно прочитать {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:897
+# navigator/widgets/manager/manager/manager.py:900
 "Cannot run {command}: {reason}" = "Не удалось запустить {command}: {reason}"
-# navigator/widgets/manager/manager/manager.py:1458, navigator/widgets/manager/manager/manager.py:1510
+# navigator/widgets/manager/manager/manager.py:1461, navigator/widgets/manager/manager/manager.py:1513
 "Cannot open {path}: {reason}" = "Невозможно открыть {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2257
+# navigator/widgets/manager/manager/manager.py:2262
 "Cannot print {name}: {reason}" = "Невозможно печатать {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2945, navigator/widgets/manager/manager/manager.py:2923
+# navigator/widgets/manager/manager/manager.py:2950, navigator/widgets/manager/manager/manager.py:2928
 "{name}: not a dBase file" = "{name}: не файл dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} отмеченный файл", "{n} отмеченных файла", "{n} отмеченных файлов"]
-# navigator/widgets/manager/panel/panel.py:1794
+# navigator/widgets/manager/panel/option_items.py:30
+"Simple" = "Краткий"
+# navigator/widgets/manager/panel/option_items.py:50
+"Hid" = "Скр"
+# navigator/widgets/manager/panel/option_items.py:30
+"Detailed" = "Подробный"
+# navigator/widgets/manager/panel/panel.py:1817
 "~{total} in {n}~ selected file" = ["~{total} в {n}~ отмеченном файле", "~{total} в {n}~ отмеченных файлах", "~{total} в {n}~ отмеченных файлах"]
-# navigator/widgets/manager/panel/panel.py:1354
+# navigator/widgets/manager/panel/panel.py:1377
 "~I~nsert name" = "~В~ставить имя"
-# navigator/widgets/manager/panel/panel.py:1355
+# navigator/widgets/manager/panel/panel.py:1378
 "Insert pa~t~h" = "Вставить по~л~ный путь"
-# navigator/widgets/manager/panel/panel.py:1791
+# navigator/widgets/manager/panel/panel.py:1814
 "No files selected" = "Нет отмеченных файлов"
-# navigator/widgets/manager/panel/panel.py:1148
+# navigator/widgets/manager/panel/panel.py:1171
 "Search:" = "Поиск:"
-# navigator/widgets/manager/panel/panel.py:1317
-"Go to ~f~ile" = "Перейти к ~ф~айлу"
-# navigator/widgets/manager/panel/panel.py:1318
-"Show in ~o~ther panel" = "Показать в ~д~ругой панели"
-# navigator/widgets/manager/panel/panel.py:1322
-"Vie~w~" = "~С~мотреть"
-# navigator/widgets/manager/panel/panel.py:1337
-"Test arc~h~ive" = "Проверить ар~х~ив"
-# navigator/widgets/manager/panel/panel.py:1772
-"Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
-# navigator/widgets/manager/panel/panel.py:1781
-"~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:2026
-"Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:2054, navigator/widgets/shell/volume_list/volume_list.py:112
-"Name" = "Имя"
-# navigator/widgets/manager/panel/panel.py:2056, navigator/lib/drives/base.py
-"Packed" = "Сжато"
-# navigator/widgets/manager/panel/panel.py:2057
-"%" = "%"
 # navigator/widgets/manager/panel/panel.py:1340
+"Go to ~f~ile" = "Перейти к ~ф~айлу"
+# navigator/widgets/manager/panel/panel.py:1341
+"Show in ~o~ther panel" = "Показать в ~д~ругой панели"
+# navigator/widgets/manager/panel/panel.py:1345
+"Vie~w~" = "~С~мотреть"
+# navigator/widgets/manager/panel/panel.py:1360
+"Test arc~h~ive" = "Проверить ар~х~ив"
+# navigator/widgets/manager/panel/panel.py:1795
+"Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
+# navigator/widgets/manager/panel/panel.py:1804
+"~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
+# navigator/widgets/manager/panel/panel.py:2049
+"Reading directory..." = "Читается каталог..."
+# navigator/widgets/manager/panel/panel.py:2077, navigator/widgets/shell/volume_list/volume_list.py:112
+"Name" = "Имя"
+# navigator/widgets/manager/panel/panel.py:2079, navigator/lib/drives/base.py
+"Packed" = "Сжато"
+# navigator/widgets/manager/panel/panel.py:2080
+"%" = "%"
+# navigator/widgets/manager/panel/panel.py:1363
 "E~x~tract archive..." = "Извле~ч~ь из архива..."
-# navigator/widgets/manager/panel/panel.py:1783
+# navigator/widgets/manager/panel/panel.py:1806
 "~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
 # navigator/widgets/setup/interface_page/interface_page.py:31, navigator/widgets/setup/interface_page/interface_page.py:42
 "Automatic" = "Автоматически"

@@ -144,6 +144,9 @@ OPTION_MARKDOWN = "\uf48a"   # nf-oct-markdown, the .md files' own
 OPTION_HTML = "\uf13b"       # nf-fa-html5
 OPTION_RST = "\uf15c"        # nf-fa-file_text
 OPTION_PDF = "\uf1c1"        # nf-fa-file_pdf_o
+#: The panel's (``navigator.widgets.manager.panel.option_items``).
+OPTION_HIDDEN_FILES = "\uf06e"  # nf-fa-eye
+OPTION_FOOTER = "\uf2d1"        # nf-fa-window_minimize
 
 
 def icon_for(name: str, is_dir: bool, mark: str = " ", bookmarked: bool = False) -> str:

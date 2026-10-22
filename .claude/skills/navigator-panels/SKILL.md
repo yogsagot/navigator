@@ -119,6 +119,15 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   **Alt+I hides that footer** -- divider and lines -- per panel (`ToggleInfoLines`, `Panel.show_info`/`toggle_info`,
   *Panel > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
   The command has no `title`, so the Alt key bar keeps *Z Zoom*.
+- **The option strip** (a departure, as the editor's and viewer's): each panel's bottom frame carries navml's
+  `OptionStrip` (`Panel.options`, added in Python in `Panel.__init__` -- Panel has no markup), right-aligned 3 cells
+  before the corner: `[Hid]` (Ctrl+H) and `[Info]` (Alt+I) lit while on, then the view mode and the order
+  (`Name↑`), never lit, a click doing Ctrl+Y / Alt+B (`panel/option_items.py`'s `panel_items`; word / symbol / Nerd
+  icon by `option_label`). **Lit is read off the strip's own panel** (`lit=`), not `Manager.checks`, which answers
+  for the active panel. `PanelOptionStrip` focuses its panel on a press before running the command, so Manager's
+  handlers -- which act on `active_panel` -- switch the panel clicked. A quick search's centred label wins: the strip's
+  `room` ends before it (`Panel._options_room`) and items drop from the last. File Manager Setup's *Option flags*
+  (`[file_manager] show_options`) shows it. The golden desktop fixture and the README screenshot carry it.
 - Every mode keeps a gutter left of the name: the Nerd tier's two-cell icon, or one cell of mc's type mark
   (`DirEntry.type_mark`: `/ * @ ~ ! = - + |`). A bookmarked directory (`Panel.is_bookmarked`) gets its own glyph in
   either -- see `colours-themes-glyphs` -- and a tag still wins over both. Rows are coloured by file type -- see `colours-themes-glyphs`.

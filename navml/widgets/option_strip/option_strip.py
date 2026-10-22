@@ -35,6 +35,7 @@ from typing import Any, Callable
 from navkit import commands
 from navkit.commands import Binding
 from navkit.events import MouseClickEvent
+from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface, char_width
 from navkit.widget import Widget
@@ -53,6 +54,17 @@ class OptionItem:
     command: Binding
     label: Callable[[], str]
     lit: Callable[[], bool] | None = None
+
+
+def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
+    """*word*, or the symbol *glyphs* -- a ``GLYPHS_*`` tier -- can draw
+    instead: *spellings* is ``(unicode, nerd)``."""
+    unicode, nerd = spellings
+    if glyphs >= GLYPHS_NERD:
+        return nerd
+    if glyphs >= GLYPHS_UNICODE:
+        return unicode
+    return word
 
 
 def text_width(text: str) -> int:

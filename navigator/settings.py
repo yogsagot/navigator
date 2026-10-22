@@ -529,7 +529,9 @@ class FMSetupData(Section):
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
         "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
     )
-    DISPLAY: ClassVar[tuple[str, ...]] = ("column_titles", "info_divider", "tag_character", "link_line")
+    DISPLAY: ClassVar[tuple[str, ...]] = (
+        "column_titles", "info_divider", "tag_character", "link_line", "show_options",
+    )
 
     auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
     # On by default, a departure: DN's fmoDragAndDrop was off.
@@ -557,6 +559,10 @@ class FMSetupData(Section):
     #: Not DN's, which had no symlinks: a line under *Current file* as its
     #: find panel gave a file's directory one.
     link_line: bool = Setting(True, doc="A second info line shows where a symlink points")
+    #: Not DN's either, as the editor's and viewer's strips are not.
+    show_options: bool = Setting(
+        True, doc="A panel's bottom frame shows its options, lit while on; a click switches one",
+    )
     tag_sign: str = Setting("√", doc="Tag sign; empty means √")
     #: Not DN's choice to make: its right button always selected
     #: (``FLPANELX.PAS``), and Navigator's opens the context menu unless this

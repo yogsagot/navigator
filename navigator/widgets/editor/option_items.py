@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
+from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr
-from navml.widgets.option_strip import OptionItem
+from navml.widgets.option_strip import OptionItem, option_label
 
 from navigator.lib import highlight
 
@@ -48,16 +48,6 @@ MARKDOWN = ("M↓", icons.OPTION_MARKDOWN)
 HTML = ("</>", icons.OPTION_HTML)
 RST = ("rST", icons.OPTION_RST)
 PDF = ("PDF", icons.OPTION_PDF)
-
-
-def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
-    """*word*, or the symbol *glyphs* -- a ``GLYPHS_*`` tier -- can draw instead."""
-    unicode, nerd = spellings
-    if glyphs >= GLYPHS_NERD:
-        return nerd
-    if glyphs >= GLYPHS_UNICODE:
-        return unicode
-    return word
 
 
 def _type_label(widget: Any) -> str:

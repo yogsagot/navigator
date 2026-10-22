@@ -28,7 +28,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr, tr_n
-from navkit.reactive import computed, effect, peek, reactive, untracked
+from navkit.reactive import bind, computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -51,6 +51,7 @@ from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see lis
 from navigator.lib.system import dirwatch
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
+from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
 
 
 @dataclass(frozen=True, slots=True)
@@ -401,6 +402,28 @@ class Panel(ContextMenuHost, ListViewer):
         self.archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
         if path is not None:
             self.location = Location.of(path)
+        #: A departure: the panel's options on its bottom frame, right-aligned
+        #: before the corner as the editor's are, each lit while on and
+        #: switched by a click (``option_items.panel_items``); File Manager
+        #: Setup's *Option flags* shows them.  A quick search's label, centred
+        #: on the same row, comes first: the strip drops items to keep clear.
+        self.options = self.add(PanelOptionStrip(name="options"))
+        self.options.target = self
+        self.options.items = panel_items(self)
+        self.options.room = bind(lambda s: s.parent._options_room())
+        self.options.width = bind(lambda s: s.used_width)
+        self.options.height = 1
+        self.options.x = bind(lambda s: max(0, s.parent.width - 3 - s.width))
+        self.options.y = bind(lambda s: max(0, s.parent.height - 1))
+        self.options.visible = bind(lambda s: s.parent.framed and s.parent.error is None
+                                    and SETTINGS.file_manager.show_options)
+
+    def _options_room(self) -> int:
+        """The columns the option strip may take: up to the quick search's
+        label while one runs, else the bottom frame less its corners."""
+        footer = self.footer_text()
+        start = self.label_x(footer) + len(footer) + 1 if footer else 1
+        return max(0, self.width - 3 - start)
 
     @property
     def path(self) -> Path:

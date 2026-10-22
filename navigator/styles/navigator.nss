@@ -66,6 +66,12 @@ GameWindow::icon               { fg: $dialog-frame-icons-fg; bg: $dialog-frame-i
    and the fill inherit -- as in the original, where the frame and the interior
    of a file panel share a background and differ only in intensity. */
 Panel               { fg: $panel-fg; bg: $panel-bg; border: single; icons: auto; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+/* A departure: the option strip on each panel's bottom frame (OptionStrip),
+   as the editor's -- in the frame's colours, an option that is on reversed,
+   one that cannot run now faint. */
+Panel OptionStrip   { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+Panel OptionStrip::item:checked  { reverse: true }
+Panel OptionStrip::item:disabled { dim: true }
 Panel:focused       { border: double }
 
 /* The path across the top frame. `TTopView.Draw' picks between these two on

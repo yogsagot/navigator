@@ -151,6 +151,9 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     listing_module.free_space_of = lambda path: (412_316_860_416, "/")
     # The simple mode, whatever the shipped default: see the module docstring.
     SETTINGS.panel_defaults.view_mode = "simple"
+    # No option strips on the panels' bottom frames: the picture is of the
+    # file manager DN drew, not of the switches Navigator added to it.
+    SETTINGS.file_manager.show_options = False
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd
     # Font, and the icon gutter would be a column of replacement boxes.
     info = replace(FULL, palette=VGA_PALETTE, glyphs=GLYPHS_UNICODE)
