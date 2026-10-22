@@ -221,3 +221,34 @@ def test_show_free_turns_the_use_column_into_the_free_one(tmp_path, monkeypatch)
     volumes_run(tmp_path, monkeypatch, look, KeyEvent("f", alt=True), lambda a: None, look,
                 KeyEvent("f", alt=True), lambda a: None, look)
     assert seen == [(False, ("60%", True)), (True, ("40%", True)), (False, ("60%", True))]
+
+
+def test_the_volumes_menu_ticks_show_all_mounts_and_a_right_click_offers_it(tmp_path, monkeypatch):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navigator.widgets.manager.commands import ToggleHidden
+
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def look(name):
+        def action(a):
+            window = a.shell.desktop.active_window
+            seen[name] = a.command_checked(ToggleHidden, a.focused)
+            seen["keys"] = [key_caption(e, a, a.focused) for e in window.volumes_menu.entries()
+                            if hasattr(e, "command")]
+            seen["bar"] = [parse_shortcut(e.text)[0] for e in a.shell.menu.entries()]
+        return action
+
+    volumes_run(tmp_path, monkeypatch, look("off"), KeyEvent("h", ctrl=True), look("on"),
+                KeyEvent("f10", shift=True), Until(lambda a: popup(a) is not None),
+                lambda a: seen.update(items=[parse_shortcut(e.text)[0] for e in popup(a).box.entries()
+                                             if hasattr(e, "command")]),
+                KeyEvent("s", "s"), Until(lambda a: popup(a) is None), look("again"))
+    assert "Volumes" in seen["bar"]
+    assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "Esc"]
+    assert (seen["off"], seen["on"], seen["again"]) == (False, True, False)
+    assert seen["items"] == ["Re-read", "Show all mounts", "Close"]

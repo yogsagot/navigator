@@ -23,3 +23,8 @@ description: ≡ > Game (Alt+F9), DOS Navigator's TETRIS.PAS "Navigator's game" 
 - **Setup game** (`GameSetupDialog`, `dlgGameSetup`) answers the `[tetris]` section (`TetrisData`: `level`, `style`,
   `preview`), saved, and starts a new game. Alt+F9 is the application's key with no caption, as DN's status line had
   none.
+- **The window has its own *~G~ame* menu** on the bar after *File* while it is active (a departure, asked for: DN had
+  its status line, whose `~+~ Level` and `~*~ Preview` -- `TETRIS.PAS` 854-855 -- our key bar of function keys does
+  not show): *New* F2, *Pause* F3, *Top 10* F4, *Setup* F5, *Level up* Gray +, *Preview* Gray *, *Close*; *Pause* and
+  *Preview* ticked while on (`GameWindow.checks`). The same entries are its right-click menu, `ContextMenuHost`'s
+  hooks written out on the window. The glass's own keys (arrows, Home, PgUp, Space) stay off it, as they were off DN's.

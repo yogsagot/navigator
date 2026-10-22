@@ -187,3 +187,41 @@ def test_setup_starts_a_new_game_and_keeps_the_answer(place):
     game_now = window_of(app).game
     assert game_now.pentix and game_now.preview and game_now.level == 1
     assert SETTINGS.tetris.style == "pentix" and "style = pentix" in SETTINGS.path.read_text()
+
+
+def test_the_game_menu_shows_every_key_ticks_pause_and_preview_and_right_click_offers_it(place):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navigator.widgets.game.commands import PauseGame, TogglePreview
+
+    app = Navigator(place, place, terminal=FakeTerminal(80, 25))
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def look(name):
+        def action(a):
+            window = window_of(a)
+            seen[name] = (a.command_checked(PauseGame, a.focused), a.command_checked(TogglePreview, a.focused))
+            seen["level_before"] = window.game.level
+            seen["keys"] = [key_caption(e, a, a.focused) for e in window.game_menu.entries()
+                            if hasattr(e, "command")]
+            seen["bar"] = [parse_shortcut(e.text)[0] for e in a.shell.menu.entries()]
+        return action
+
+    run_app(app, [KeyEvent("f9", alt=True), Until(lambda a: window_of(a) is not None), look("start"),
+                  KeyEvent("f3"), KeyEvent("kp_multiply"), look("toggled"),
+                  KeyEvent("f10", shift=True), Until(lambda a: popup(a) is not None),
+                  lambda a: seen.update(items=[parse_shortcut(e.text)[0] for e in popup(a).box.entries()
+                                               if hasattr(e, "command")]),
+                  KeyEvent("l", "l"), Until(lambda a: popup(a) is None),
+                  lambda a: seen.update(level=window_of(a).game.level)])
+    assert "Game" in seen["bar"]
+    assert seen["keys"] == ["F2", "F3", "F4", "F5", 'Gray "+"', 'Gray "*"', "Esc"]
+    preview = seen["start"][1]
+    assert seen["start"][0] is False
+    assert seen["toggled"] == (True, not preview)
+    assert seen["items"] == ["New", "Pause", "Top 10", "Setup", "Level up", "Preview", "Close"]
+    assert seen["level"] == min(10, seen["level_before"] + 1)

@@ -1,6 +1,10 @@
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.commands import ChooseMonth, ChooseYear, GoToToday, NextMonth, NextYear, PreviousMonth, PreviousYear
 from navml.widgets.dialog.date_button import CalendarView
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: Utilities > Calendar: Turbo Vision's ``TCalendarWindow`` (TVDEMO), not DOS
@@ -35,3 +39,47 @@ CalendarWindow(Window):
         y: 10
         width: 23
         height: 2
+
+    #: The window's own menu on the bar after *File* while it is active, as
+    #: the Directory Tree window's -- a departure, asked for: TVDEMO's had
+    #: none, and its paging and picking keys showed nowhere.  Each key is the
+    #: view's table's; written here too for when the button has the keyboard,
+    #: where the view's table is not on the way out.  Also its right-click menu.
+    SubMenu:
+        id: calendar_menu
+        text: '~C~alendar'
+        after: 'File'
+        MenuItem:
+            text: '~P~revious month'
+            command: PreviousMonth
+            key: 'PgUp'
+        MenuItem:
+            text: '~N~ext month'
+            command: NextMonth
+            key: 'PgDn'
+        MenuItem:
+            text: 'P~r~evious year'
+            command: PreviousYear
+            key: 'Ctrl-PgUp'
+        MenuItem:
+            text: 'Ne~x~t year'
+            command: NextYear
+            key: 'Ctrl-PgDn'
+        MenuLine:
+        MenuItem:
+            text: 'Choose ~m~onth...'
+            command: ChooseMonth
+            key: 'M'
+        MenuItem:
+            text: 'Choose ~y~ear...'
+            command: ChooseYear
+            key: 'Y'
+        MenuLine:
+        MenuItem:
+            text: 'Go to current ~d~ate'
+            command: GoToToday
+            key: 'T'
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

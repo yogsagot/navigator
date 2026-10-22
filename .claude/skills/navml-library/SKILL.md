@@ -50,6 +50,13 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   (its frame) and `picked()` choosing; the view alone (`inset = 0`) answers `False` for keys it does not use, so Esc
   reaches its window. Styles name `CalendarView`, which matches both. Utilities > Calendar (`CalendarWindow`,
   TVDEMO's `TCalendarWindow`, a departure: DN 1.51 had no calendar) is one in a window.
+  **Its paging and picking are commands in a key table** (`navml/widgets/dialog/commands.py`: `PreviousMonth` PgUp,
+  `NextMonth` PgDn, `PreviousYear`/`NextYear` Ctrl+PgUp/PgDn, `ChooseMonth` M, `ChooseYear` Y, `GoToToday` T, each
+  letter with Shift too), Key bindings' *Calendar* section, so both the drop-down and the window have them; the
+  arrows, Home/End, Enter and Tab mean something per section and stay `on_key`'s. Off an application no key table
+  is consulted, so a test driving the view by `on_key` emits these instead. The window shows them on its *~C~alendar*
+  bar menu and its right-click menu (a click on a day moves there first), and hands them on to the view when the
+  button holds the keyboard (`CalendarWindow._month`); the menu's static `key:`s are for that case.
 - **`ChoiceField`** is a `ChoiceLine` (an `InputLine` never typed into: every key but Tab/Shift+Tab/Esc/Alt+letter/
   Up/Down drops its list, Enter included; Up/Down step between the dialog's lines) over **`History.choices`**, a fixed
   list that records nothing and that typing quick-searches by the panel's rule.

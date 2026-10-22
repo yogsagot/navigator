@@ -93,6 +93,7 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("tree_window", "Tree window", "navigator.widgets.tree.tree_window:TreeWindow"),
     ("volumes_window", "Volumes window", "navigator.widgets.shell.volumes_window:VolumesWindow"),
     ("tree_view", "Trees", "navml.widgets.dialog.tree_view:TreeView"),
+    ("calendar_view", "Calendar", "navml.widgets.dialog.date_button:CalendarView"),
     ("editor", "Editor", "navigator.widgets.editor.file_editor:FileEditor"),
     ("edit_window", "Editor window", "navigator.widgets.editor.edit_window:EditWindow"),
     ("viewer", "Viewer", "navigator.widgets.viewer.file_window:FileWindow"),

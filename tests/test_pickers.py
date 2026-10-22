@@ -44,20 +44,42 @@ def test_a_month_on_keeps_the_day_or_the_last_there_is():
     assert add_months(datetime.date(2026, 1, 15), -1) == datetime.date(2025, 12, 15)
 
 
+def run_commands(widget, *commands):
+    """Each command handled as its key would have it, off an application,
+    which consults no key table."""
+    for command in commands:
+        assert asyncio.run(widget.emit(command)) is True
+
+
 def test_the_calendar_keys_move_by_day_week_month_and_year():
+    from navml.widgets.dialog.commands import GoToToday, NextMonth, PreviousYear
+
     calendar = Calendar(None, datetime.date(2026, 10, 1))
     keys(calendar, KeyEvent("right"), KeyEvent("down"))
     assert calendar.day == datetime.date(2026, 10, 9)
-    keys(calendar, KeyEvent("pagedown"))
+    run_commands(calendar, NextMonth())
     assert calendar.day == datetime.date(2026, 11, 9)
-    keys(calendar, KeyEvent("pageup", ctrl=True))
+    run_commands(calendar, PreviousYear())
     assert calendar.day == datetime.date(2025, 11, 9)
     keys(calendar, KeyEvent("end"))
     assert calendar.day == datetime.date(2025, 11, 30)
     keys(calendar, KeyEvent("home"), KeyEvent("left"))
     assert calendar.day == datetime.date(2025, 10, 31)
-    keys(calendar, KeyEvent("t", "t"))
+    run_commands(calendar, GoToToday())
     assert calendar.day == datetime.date.today()
+
+
+def test_the_calendar_binds_its_paging_and_picking_keys_as_commands():
+    from navkit.commands import key_table
+    from navml.widgets.dialog import commands
+
+    table = key_table(Calendar)
+    assert {key: type(table[key]) if not isinstance(table[key], type) else table[key]
+            for key in ("pageup", "pagedown", "ctrl+pageup", "ctrl+pagedown", "m", "y", "t")} == {
+        "pageup": commands.PreviousMonth, "pagedown": commands.NextMonth,
+        "ctrl+pageup": commands.PreviousYear, "ctrl+pagedown": commands.NextYear,
+        "m": commands.ChooseMonth, "y": commands.ChooseYear, "t": commands.GoToToday,
+    }
 
 
 def test_weeks_start_on_monday_and_the_month_fills_six_rows():

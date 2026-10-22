@@ -13,7 +13,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.events import ContextMenuEvent
+from navkit.i18n import tr
 from navkit.screen import Surface
+from navml.commands import CloseWindow
+from navml.widgets.dialog.commands import QuickSearch
+from navml.widgets.menu.commands import ShowContextMenu
+from navml.widgets.menu.context_menu import ContextMenu
+from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 
 from navml.widgets.window import Window
 
@@ -40,6 +47,39 @@ class TreeWindow(Window):
     async def on_rescan(self, event: Rescan) -> bool:
         self.tree.reload()
         return True
+
+    async def on_quick_search(self, event: QuickSearch) -> bool:
+        """The *Tree* menu's, or the right-click menu's: the tree's own Ctrl+S."""
+        return await self.tree.on_quick_search(event)
+
+    # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
+    # ``InputLine``'s are -- this half has one base, its markup's.
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """A right click on a row puts the tree's cursor there."""
+        index = self.tree.row_at(y - self.tree.y)
+        if index is not None and self.tree.x <= x < self.tree.x + self.tree.width:
+            self.tree.cursor = index
+
+    def context_menu(self) -> ContextMenu:
+        """The *Tree* menu's entries, built each time so its captions follow the language."""
+        menu = ContextMenu()
+        menu.add_item(tr("~R~e-read"), Rescan)
+        menu.add_item(tr("Quick s~e~arch"), QuickSearch)
+        menu.add_line()
+        menu.add_item(tr("~C~lose"), CloseWindow)
+        return menu
+
+    def context_point(self) -> tuple[int, int]:
+        """Under the tree's cursor row."""
+        view = self.tree
+        return view.x + 2, view.y + view.inset + view.header + max(0, view.cursor - view.scroll) + 1
+
+    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
+        return open_on_click(self, event)
+
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
+        return open_on_key(self)
 
     def _search_label(self) -> tuple[int, str] | None:
         """Where the tree's search label sits on the bottom frame, and its text.

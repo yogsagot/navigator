@@ -13,7 +13,7 @@ from navkit.screen import ScreenBuffer
 
 from navml.widgets.dialog.tree_view import ChosenEvent, TreeNode, TreeView
 
-from conftest import FakeTerminal, run_app, settle
+from conftest import FakeTerminal, Until, run_app, settle
 
 
 def node(name, *children, expanded=False):
@@ -831,3 +831,44 @@ def test_the_tree_window_shows_the_search_on_its_bottom_frame(places):
     assert y == height - 1 and row[x - len(" Search: /"):x] == " Search: /"
     row, _, window_caret, _ = seen[1]
     assert "Search" not in row and window_caret is None   # Esc ended it
+
+
+def test_the_tree_menu_joins_the_bar_and_a_right_click_offers_it_on_the_row_clicked(places):
+    from navkit.events import MouseClickEvent
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        seen["bar"] = [parse_shortcut(e.text)[0] for e in a.shell.menu.entries()]
+        seen["keys"] = [key_caption(e, a, a.focused) for e in window.tree_menu.entries()
+                        if hasattr(e, "command")]
+
+    def click_second_row(a):
+        window = a.shell.desktop.active_window
+        tree = window.tree
+        seen["before"] = tree.cursor
+        ox, oy = window.offset()
+        y = tree.y + tree.inset + tree.header + 1
+        a.post_event(MouseClickEvent(x=ox + window.x + tree.x + 3, y=oy + window.y + y,
+                                     button="right", action="press"))
+
+    def after(a):
+        tree = a.shell.desktop.active_window.tree
+        seen["cursor"] = tree.cursor - tree.scroll
+        seen["items"] = [parse_shortcut(e.text)[0] for e in popup(a).box.entries() if hasattr(e, "command")]
+
+    tree_window_run(places, look, click_second_row, Until(lambda a: popup(a) is not None), after,
+                    KeyEvent("e", "e"), Until(lambda a: popup(a) is None),
+                    lambda a: seen.update(search=a.shell.desktop.active_window.tree.search is not None))
+    assert "Tree" in seen["bar"]
+    assert seen["keys"] == ["Ctrl-R", "Ctrl-S", "Esc"]
+    assert seen["cursor"] == 1
+    assert seen["items"] == ["Re-read", "Quick search", "Close"]
+    assert seen["search"]

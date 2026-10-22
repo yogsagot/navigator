@@ -12,6 +12,7 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
@@ -19,7 +20,10 @@ from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, Searc
 from navigator.widgets.viewer.db_window.db_viewer import DBViewer    # db_window.nml:2
 from navml.commands import CloseWindow    # db_window.nml:3
 from navml.widgets.dialog.static_text import StaticText    # db_window.nml:4
-from navml.widgets.window import Window    # db_window.nml:5
+from navml.widgets.menu.menu_item import MenuItem    # db_window.nml:5
+from navml.widgets.menu.menu_line import MenuLine    # db_window.nml:6
+from navml.widgets.menu.sub_menu import SubMenu    # db_window.nml:7
+from navml.widgets.window import Window    # db_window.nml:8
 
 __navml_component__ = "DBWindow"
 
@@ -41,36 +45,67 @@ class DBWindow(Window, _Component):
     __navml_source__ = "db_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # db_window.nml:17
-        'escape': CloseWindow,    # db_window.nml:18
-        'f2': ShowFields,    # db_window.nml:19
-        'f3': ShowMemo,    # db_window.nml:20
-        'f4': EditDbField,    # db_window.nml:21
-        'f7': SearchFor,    # db_window.nml:22
-        'shift+f7': ContinueSearch,    # db_window.nml:23
-        'ctrl+l': SearchAgain,    # db_window.nml:24
+    keys = {    # db_window.nml:20
+        'escape': CloseWindow,    # db_window.nml:21
+        'f2': ShowFields,    # db_window.nml:22
+        'f3': ShowMemo,    # db_window.nml:23
+        'f4': EditDbField,    # db_window.nml:24
+        'f7': SearchFor,    # db_window.nml:25
+        'shift+f7': ContinueSearch,    # db_window.nml:26
+        'ctrl+l': SearchAgain,    # db_window.nml:27
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    viewer: DBViewer    # db_window.nml:27
-    indicator: StaticText    # db_window.nml:34
+    viewer: DBViewer    # db_window.nml:30
+    indicator: StaticText    # db_window.nml:37
+    view_menu: SubMenu    # db_window.nml:50
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.viewer = DBViewer(parent=self)    # db_window.nml:26
-        self.indicator = StaticText(parent=self)    # db_window.nml:33
+        self.viewer = DBViewer(parent=self)    # db_window.nml:29
+        self.indicator = StaticText(parent=self)    # db_window.nml:36
+        self.view_menu = SubMenu(parent=self)    # db_window.nml:49
+        _w1 = MenuItem(parent=self.view_menu)    # db_window.nml:53
+        _w2 = MenuItem(parent=self.view_menu)    # db_window.nml:56
+        _w3 = MenuItem(parent=self.view_menu)    # db_window.nml:59
+        _w4 = MenuLine(parent=self.view_menu)    # db_window.nml:62
+        _w5 = MenuItem(parent=self.view_menu)    # db_window.nml:63
+        _w6 = MenuItem(parent=self.view_menu)    # db_window.nml:66
+        _w7 = MenuLine(parent=self.view_menu)    # db_window.nml:69
+        _w8 = MenuItem(parent=self.view_menu)    # db_window.nml:70
 
-        self.zoomed = True    # db_window.nml:15
+        self.zoomed = True    # db_window.nml:18
 
-        self.viewer.x = 1    # db_window.nml:28
-        self.viewer.y = 1    # db_window.nml:29
-        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # db_window.nml:30
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # db_window.nml:31
+        self.viewer.x = 1    # db_window.nml:31
+        self.viewer.y = 1    # db_window.nml:32
+        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # db_window.nml:33
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # db_window.nml:34
 
-        self.indicator.name = 'indicator'    # db_window.nml:36
-        self.indicator.x = 10    # db_window.nml:37
-        self.indicator.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # db_window.nml:38
-        self.indicator.width = _bind(    # db_window.nml:39
+        self.indicator.name = 'indicator'    # db_window.nml:39
+        self.indicator.x = 10    # db_window.nml:40
+        self.indicator.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # db_window.nml:41
+        self.indicator.width = _bind(    # db_window.nml:42
             lambda _o: min(len(_o.text), max(0, _o.parent.width - 12))
         )
-        self.indicator.height = 1    # db_window.nml:40
+        self.indicator.height = 1    # db_window.nml:43
+
+        self.view_menu.text = _bind(lambda _o: _tr('~V~iew'), yielding=True)    # db_window.nml:51
+        self.view_menu.after = 'File'    # db_window.nml:52
+
+        _w1.text = _bind(lambda _o: _tr('~F~ields...'), yielding=True)    # db_window.nml:54
+        _w1.command = ShowFields    # db_window.nml:55
+
+        _w2.text = _bind(lambda _o: _tr('~M~emo view'), yielding=True)    # db_window.nml:57
+        _w2.command = ShowMemo    # db_window.nml:58
+
+        _w3.text = _bind(lambda _o: _tr('~E~dit field...'), yielding=True)    # db_window.nml:60
+        _w3.command = EditDbField    # db_window.nml:61
+
+        _w5.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # db_window.nml:64
+        _w5.command = SearchFor    # db_window.nml:65
+
+        _w6.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # db_window.nml:67
+        _w6.command = ContinueSearch    # db_window.nml:68
+
+        _w8.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:71
+        _w8.command = CloseWindow    # db_window.nml:72

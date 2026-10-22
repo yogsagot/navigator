@@ -117,3 +117,65 @@ def test_ctrl_f12_opens_the_calendar_from_anywhere_and_the_menu_shows_it(app):
     run_app(app, [caption, KeyEvent("f12", ctrl=True), Until(lambda a: calendar(a) is not None),
                   lambda a: seen.update(open=True)])
     assert seen["open"] and seen["key"] == "Ctrl-F12"
+
+
+def test_the_calendar_menu_shows_the_keys_and_works_from_the_button(app):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.dialog.commands import NextYear
+
+    seen = {}
+
+    def look(a):
+        w = calendar(a)
+        seen["bar"] = [parse_shortcut(e.text)[0] for e in a.shell.menu.entries()]
+        seen["keys"] = [key_caption(e, a, a.focused) for e in w.calendar_menu.entries() if hasattr(e, "command")]
+
+    def from_the_button(a):
+        w = calendar(a)
+        w.today_button.focus()
+        a.spawn(a.run_command(NextYear(), start=w.today_button))
+
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), look, from_the_button,
+                  lambda a: None,
+                  lambda a: seen.update(day=calendar(a).month.day, focused=a.focused is calendar(a).month)])
+    assert "Calendar" in seen["bar"]
+    assert seen["keys"] == ["PgUp", "PgDn", "Ctrl-PgUp", "Ctrl-PgDn", "M", "Y", "T", "Esc"]
+    today = datetime.date.today()
+    assert seen["day"].year == today.year + 1 and seen["day"].month == today.month
+    assert seen["focused"]
+
+
+def test_a_right_click_on_a_day_moves_there_and_offers_the_menu(app):
+    from navkit.events import MouseClickEvent
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def click_a_day(a):
+        w = calendar(a)
+        month = w.month
+        target = next(d for week in month.weeks() for d in week if d is not None and d != month.day)
+        seen["target"] = target
+        row = next(i for i, week in enumerate(month.weeks()) if target in week)
+        column = month.weeks()[row].index(target)
+        ox, oy = w.offset()
+        x = ox + w.x + month.x + month.inset + 3 * column + 1
+        y = oy + w.y + month.y + month.inset + 2 + row
+        a.post_event(MouseClickEvent(x=x, y=y, button="right", action="press"))
+
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), click_a_day,
+                  Until(lambda a: popup(a) is not None),
+                  lambda a: seen.update(day=calendar(a).month.day,
+                                        items=[parse_shortcut(e.text)[0] for e in popup(a).box.entries()
+                                               if hasattr(e, "command")]),
+                  KeyEvent("d", "d"), Until(lambda a: popup(a) is None),
+                  lambda a: seen.update(after=calendar(a).month.day)])
+    assert seen["day"] == seen["target"]
+    assert seen["items"] == ["Previous month", "Next month", "Previous year", "Next year",
+                             "Choose month...", "Choose year...", "Go to current date", "Close"]
+    assert seen["after"] == datetime.date.today()

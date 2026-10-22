@@ -12,14 +12,16 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.lib.viewer.dbf import DBFile
 
 
-class DBViewer(Widget):
+class DBViewer(ContextMenuHost, Widget):
     """The records, a cell at a time."""
 
     parts = ("titles", "cursor")
@@ -130,6 +132,62 @@ class DBViewer(Widget):
     async def _wheel(self, event: MouseClickEvent) -> bool:
         self.go(record=self.record + (-3 if event.button == "wheel_up" else 3))
         return True
+
+    # -- the context menu ---------------------------------------------------------
+
+    def cell_at(self, x: int, y: int) -> tuple[int, int] | None:
+        """The field and record of the cell at *x*, *y*, or None off every cell."""
+        db = self.db
+        if db is None or y < 1:
+            return None
+        record = self.top + y - 1
+        if record >= db.count:
+            return None
+        left = 1
+        for index in self.shown_fields():
+            width = db.fields[index].width
+            if left <= x < left + width:
+                return index, record
+            left += width + 1
+        return None
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """A right click on a cell makes it the cursor's, so *Memo view* and
+        *Edit field* act on what was clicked."""
+        cell = self.cell_at(x, y)
+        if cell is not None:
+            self.go(*cell)
+
+    def context_point(self) -> tuple[int, int]:
+        """Under the cursor's cell, so the box does not cover it."""
+        db, x = self.db, 1
+        if db is not None:
+            for index in self.shown_fields():
+                if index == self.field:
+                    break
+                x += db.fields[index].width + 1
+        return x, min(self.record - self.top + 2, max(0, self.height - 1))
+
+    def context_menu(self) -> ContextMenu | None:
+        """The window's *View* menu -- a departure, asked for, as that menu is.
+        ``DBWindow`` runs them, and greys *Memo view* off a memo field.  Built
+        each time, so its captions follow the language."""
+        from navml.commands import CloseWindow
+
+        from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchFor, ShowFields, ShowMemo
+
+        if self.db is None:
+            return None
+        menu = ContextMenu()
+        menu.add_item(tr("~F~ields..."), ShowFields)
+        menu.add_item(tr("~M~emo view"), ShowMemo)
+        menu.add_item(tr("~E~dit field..."), EditDbField)
+        menu.add_line()
+        menu.add_item(tr("~S~earch..."), SearchFor)
+        menu.add_item(tr("Search a~g~ain"), ContinueSearch)
+        menu.add_line()
+        menu.add_item(tr("~C~lose"), CloseWindow)
+        return menu
 
     # -- painting -----------------------------------------------------------------
 

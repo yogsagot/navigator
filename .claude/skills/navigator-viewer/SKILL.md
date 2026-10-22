@@ -106,6 +106,10 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   history `edit_dbf`; L flips T/F; refused write-protected), F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked
   at one field a record by a slip, every one in scope is looked at here), Shift+F7/Ctrl+L again. A file with no
   records shows *Empty database* and opens nothing. Colours are the dBase group [166]-[171]. Not kept in a desktop.
+  Its own *View* menu joins the bar after *File* while it is active (a departure, asked for: DN's had the key bar
+  alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
+  *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a
+  right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
 - Commands: `navigator/widgets/viewer/commands.py`.
 
 - **Every bound key is on the View menu** (a departure, asked for): F4 and F6, which cycle, are *He~x~/Text/Dump*

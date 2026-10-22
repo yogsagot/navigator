@@ -60,43 +60,57 @@ name = "Русский"
 "Clear" = "Стереть"
 # navml/widgets/dialog/commands.py:104
 "Select all" = "Выделить всё"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/commands.py:117
+"Previous month" = "Предыдущий месяц"
+# navml/widgets/dialog/commands.py:123
+"Next month" = "Следующий месяц"
+# navml/widgets/dialog/commands.py:129
+"Previous year" = "Предыдущий год"
+# navml/widgets/dialog/commands.py:135
+"Next year" = "Следующий год"
+# navml/widgets/dialog/commands.py:141
+"Choose month" = "Выбрать месяц"
+# navml/widgets/dialog/commands.py:147
+"Choose year" = "Выбрать год"
+# navml/widgets/dialog/commands.py:153
+"Go to current date" = "Текущая дата"
+# navml/widgets/dialog/date_button/date_button.py:77
 "January" = "Январь"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "February" = "Февраль"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "March" = "Март"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "April" = "Апрель"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "May" = "Май"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "June" = "Июнь"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "July" = "Июль"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "August" = "Август"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "September" = "Сентябрь"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "October" = "Октябрь"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "November" = "Ноябрь"
-# navml/widgets/dialog/date_button/date_button.py:70
+# navml/widgets/dialog/date_button/date_button.py:79
 "December" = "Декабрь"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Mo" = "Пн"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Tu" = "Вт"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "We" = "Ср"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Th" = "Чт"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Fr" = "Пт"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Sa" = "Сб"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Su" = "Вс"
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."

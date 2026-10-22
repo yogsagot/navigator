@@ -5,10 +5,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
+from navkit.events import ContextMenuEvent, Event
 from navkit.i18n import tr
 from navkit.reactive import effect
+from navml.commands import CloseWindow
 from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.menu.commands import ShowContextMenu
+from navml.widgets.menu.context_menu import ContextMenu
+from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
 from navigator.lib.utilities import tetris
@@ -170,6 +174,43 @@ class GameWindow(Window):
         self.game.preview = not self.game.preview
         self._redraw()
         return True
+
+    def checks(self, command: Any) -> bool | None:
+        """The *Game* menu ticks *Pause* while paused and *Preview* while shown."""
+        if isinstance(command, PauseGame):
+            return self.game.stopped and not self.game.over
+        if isinstance(command, TogglePreview):
+            return self.game.preview
+        return super().checks(command)
+
+    # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
+    # ``InputLine``'s are -- this half has one base, its markup's.
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """Nothing to move to: the menu is the window's."""
+
+    def context_menu(self) -> ContextMenu:
+        """The *Game* menu's entries, built each time so its captions follow the language."""
+        menu = ContextMenu()
+        menu.add_item(tr("~N~ew"), NewGame)
+        menu.add_item(tr("~P~ause"), PauseGame)
+        menu.add_item(tr("~T~op 10"), ShowTopTen)
+        menu.add_item(tr("~S~etup"), GameSetup)
+        menu.add_line()
+        menu.add_item(tr("~L~evel up"), LevelUp)
+        menu.add_item(tr("Pre~v~iew"), TogglePreview)
+        menu.add_line()
+        menu.add_item(tr("~C~lose"), CloseWindow)
+        return menu
+
+    def context_point(self) -> tuple[int, int]:
+        return self.glass.x + 2, self.glass.y + 1
+
+    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
+        return open_on_click(self, event)
+
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
+        return open_on_key(self)
 
     async def on_new_button_click(self, event: Event) -> bool:
         return await self.on_new_game(NewGame())

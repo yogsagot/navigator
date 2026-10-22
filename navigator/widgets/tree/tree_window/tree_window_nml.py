@@ -20,7 +20,11 @@ from navml.component import Component as _Component
 from navigator.widgets.manager.commands import Rescan    # tree_window.nml:1
 from navigator.widgets.tree.directory_tree import DirectoryTree    # tree_window.nml:2
 from navml.commands import CloseWindow    # tree_window.nml:3
-from navml.widgets.window import Window    # tree_window.nml:4
+from navml.widgets.dialog.commands import QuickSearch    # tree_window.nml:4
+from navml.widgets.menu.menu_item import MenuItem    # tree_window.nml:5
+from navml.widgets.menu.menu_line import MenuLine    # tree_window.nml:6
+from navml.widgets.menu.sub_menu import SubMenu    # tree_window.nml:7
+from navml.widgets.window import Window    # tree_window.nml:8
 
 __navml_component__ = "TreeWindow"
 
@@ -46,14 +50,15 @@ class TreeWindow(Window, _Component):
 
     #: ``TTreeWindow.HandleEvent``: Esc closes it.  Ctrl+R and Alt+R re-read
     #: the tree, as they re-read a panel.
-    keys = {    # tree_window.nml:22
-        'escape': CloseWindow,    # tree_window.nml:23
-        'ctrl+r': Rescan,    # tree_window.nml:24
-        'alt+r': Rescan,    # tree_window.nml:25
+    keys = {    # tree_window.nml:26
+        'escape': CloseWindow,    # tree_window.nml:27
+        'ctrl+r': Rescan,    # tree_window.nml:28
+        'alt+r': Rescan,    # tree_window.nml:29
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    tree: DirectoryTree    # tree_window.nml:28
+    tree: DirectoryTree    # tree_window.nml:32
+    tree_menu: SubMenu    # tree_window.nml:44
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -63,19 +68,36 @@ class TreeWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # tree_window.nml:28
+    async def on_tree_chosen(self, event: _Event) -> bool:    # tree_window.nml:32
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.tree = DirectoryTree(parent=self)    # tree_window.nml:27
+        self.tree = DirectoryTree(parent=self)    # tree_window.nml:31
+        self.tree_menu = SubMenu(parent=self)    # tree_window.nml:43
+        _w1 = MenuItem(parent=self.tree_menu)    # tree_window.nml:47
+        _w2 = MenuItem(parent=self.tree_menu)    # tree_window.nml:50
+        _w3 = MenuLine(parent=self.tree_menu)    # tree_window.nml:53
+        _w4 = MenuItem(parent=self.tree_menu)    # tree_window.nml:54
 
-        self.title = _bind(lambda _o: _tr('Directory Tree'), yielding=True)    # tree_window.nml:18
+        self.title = _bind(lambda _o: _tr('Directory Tree'), yielding=True)    # tree_window.nml:22
 
-        self.tree.framed = False    # tree_window.nml:29
-        self.tree.x = 1    # tree_window.nml:30
-        self.tree.y = 1    # tree_window.nml:31
-        self.tree.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # tree_window.nml:32
-        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # tree_window.nml:33
-        self.tree.on_chosen = self.on_tree_chosen    # tree_window.nml:28
+        self.tree.framed = False    # tree_window.nml:33
+        self.tree.x = 1    # tree_window.nml:34
+        self.tree.y = 1    # tree_window.nml:35
+        self.tree.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # tree_window.nml:36
+        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # tree_window.nml:37
+        self.tree.on_chosen = self.on_tree_chosen    # tree_window.nml:32
+
+        self.tree_menu.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # tree_window.nml:45
+        self.tree_menu.after = 'File'    # tree_window.nml:46
+
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # tree_window.nml:48
+        _w1.command = Rescan    # tree_window.nml:49
+
+        _w2.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # tree_window.nml:51
+        _w2.command = QuickSearch    # tree_window.nml:52
+
+        _w4.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # tree_window.nml:55
+        _w4.command = CloseWindow    # tree_window.nml:56

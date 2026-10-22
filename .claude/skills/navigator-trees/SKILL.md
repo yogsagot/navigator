@@ -47,6 +47,13 @@ Slots `[94-101]`, `[104-110]`.
   the tree window take it when opened (`hidden=`). Nodes carry it as `TreeNode.show_hidden`, and `show_path` grafts in a
   dot-directory the path goes through, so a panel inside `~/.config` still has a tree that finds it.
 
+- **Each window has its own menu** (departures, asked for: DN's had none, and the Panel menu holding *Re-read* is off
+  the bar while either is active). Disk > Directory tree's *~T~ree* (`tree_menu`): *Re-read* Ctrl+R, *Quick search*
+  Ctrl+S (`TreeWindow.on_quick_search` hands it to the tree), *Close*. Disk > Volumes' *~V~olumes* (`volumes_menu`):
+  *Re-read*, *Show all mounts* Ctrl+H (ticked, `VolumesWindow.checks`), *Close*. Both windows are also their own
+  right-click host -- `ContextMenuHost`'s hooks written out, as `InputLine`'s, a component's half having one base --
+  a click on a row first moving the cursor there (`prepare_context`, `row_at`).
+
 ## Read when
 
 | Reference | Read when |

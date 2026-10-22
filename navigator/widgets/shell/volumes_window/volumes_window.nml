@@ -4,6 +4,9 @@ from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.commands import SelectNext, SelectPrevious
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: Disk > Volumes: every mounted volume -- its name, type, mount point, free
@@ -77,3 +80,22 @@ VolumesWindow(Window):
         y: max(0, parent.height - 3)
         width: 10
         height: 2
+
+    #: The window's own menu on the bar after *File* while it is active, as
+    #: the Directory Tree window's -- a departure, asked for, so Ctrl+R and
+    #: Ctrl+H show somewhere.  *Show all mounts* is ticked while on.  Also its
+    #: right-click menu.
+    SubMenu:
+        id: volumes_menu
+        text: '~V~olumes'
+        after: 'File'
+        MenuItem:
+            text: '~R~e-read'
+            command: Rescan
+        MenuItem:
+            text: '~S~how all mounts'
+            command: ToggleHidden
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

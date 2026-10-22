@@ -149,3 +149,64 @@ def test_an_empty_database_shows_its_structure_and_opens_no_window(place):
                   lambda a: seen.update(title=a.modal.title), KeyEvent("enter"), Until(lambda a: a.modal is None),
                   lambda a: seen.update(window=type(window_of(a)).__name__)])
     assert seen["title"] == "Empty database empty.dbf" and seen["window"] == "Manager"
+
+
+def test_the_view_menu_joins_the_bar_shows_the_keys_and_greys_memo_off_a_memo(place):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def look(name):
+        def action(a):
+            window = window_of(a)
+            menu = window.view_menu
+            seen[name] = {caption: (key_caption(menu.entry(caption), a, a.focused),
+                                    a.command_enabled(menu.entry(caption).command, a.focused))
+                          for caption in ("Fields...", "Memo view", "Edit field...", "Search...")}
+            seen["bar"] = [str(e.text).replace("~", "") for e in a.shell.menu.entries()]
+        return action
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  look("name"), KeyEvent("end"), look("memo"),
+                  KeyEvent("v", "v", alt=True), KeyEvent("f", "f"), Until(lambda a: isinstance(a.modal, DBListDialog)),
+                  lambda a: seen.update(fields=a.modal.title)])
+    assert "View" in seen["bar"]
+    assert seen["name"] == {"Fields...": ("F2", True), "Memo view": ("F3", False),
+                            "Edit field...": ("F4", True), "Search...": ("F7", True)}
+    assert seen["memo"]["Memo view"] == ("F3", True)
+    assert seen["fields"] == "Structure of people.dbf"
+
+
+def test_a_right_click_on_a_memo_cell_moves_there_and_offers_memo_view(place):
+    from navkit.events import MouseClickEvent
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def click_memo(a):
+        viewer = window_of(a).viewer
+        x = 1 + sum(viewer.db.fields[i].width + 1 for i in range(4))
+        ox, oy = viewer.offset()
+        a.post_event(MouseClickEvent(x=ox + viewer.x + x, y=oy + viewer.y + 1, button="right", action="press"))
+
+    def look(a):
+        box = popup(a).box
+        seen["enabled"] = {parse_shortcut(e.text)[0]: box.enabled(e)
+                           for e in box.entries() if hasattr(e, "command")}
+        seen["cell"] = (window_of(a).viewer.field, window_of(a).viewer.record)
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  click_memo, Until(lambda a: popup(a) is not None), look,
+                  KeyEvent("m", "m"), Until(lambda a: isinstance(a.modal, DBListDialog)),
+                  lambda a: seen.update(memo=list(a.modal.lines.items))])
+    assert seen["cell"] == (4, 0)
+    assert list(seen["enabled"]) == ["Fields...", "Memo view", "Edit field...", "Search...",
+                                     "Search again", "Close"]
+    assert seen["enabled"]["Memo view"]
+    assert seen["memo"] == ["Hello", "memo"]

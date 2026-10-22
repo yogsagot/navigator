@@ -103,18 +103,75 @@ class SelectAll(Command):
 
     title = "Select all"
 
+# -- the calendar ----------------------------------------------------------------
+#
+# What ``CalendarView`` -- a date field's drop-down and the *Calendar* window --
+# does besides moving its cursor: keys TVDEMO's ``TCalendarView`` matched in
+# ``HandleEvent``, made commands so a menu can show them and Key bindings can
+# rebind them.
+
+
+class PreviousMonth(Command):
+    """PgUp: the month before."""
+
+    title = "Previous month"
+
+
+class NextMonth(Command):
+    """PgDn: the month after."""
+
+    title = "Next month"
+
+
+class PreviousYear(Command):
+    """Ctrl+PgUp: the same month a year before."""
+
+    title = "Previous year"
+
+
+class NextYear(Command):
+    """Ctrl+PgDn: the same month a year after."""
+
+    title = "Next year"
+
+
+class ChooseMonth(Command):
+    """M: the list of months dropped under the month's name."""
+
+    title = "Choose month"
+
+
+class ChooseYear(Command):
+    """Y: the list of years dropped under the year."""
+
+    title = "Choose year"
+
+
+class GoToToday(Command):
+    """T: today under the cursor, and the keys back on the days."""
+
+    title = "Go to current date"
+
 
 __all__ = [
     "Cancel",
+    "ChooseMonth",
+    "ChooseYear",
     "Clear",
     "ClipboardCopy",
     "ClipboardCut",
     "ClipboardPaste",
     "Default",
+    "GoToToday",
+    "NextMonth",
     "NextTab",
+    "NextYear",
+    "PreviousMonth",
     "PreviousTab",
+    "PreviousYear",
     "QuickSearch",
     "SelectAll",
     "SelectNext",
     "SelectPrevious",
 ]
+

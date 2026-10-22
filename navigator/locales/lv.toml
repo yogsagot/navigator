@@ -428,16 +428,24 @@ name = "Latviešu"
 "~O~ptions" = "~I~estatījumi"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~N~ākamā figūra"
-# navigator/widgets/game/game_window/game_window.nml:16
+# navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "Navigator spēle"
-# navigator/widgets/game/game_window/game_window.nml:49, navigator/widgets/shell/main_menu/main_menu.nml:274
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:91, navigator/widgets/shell/main_menu/main_menu.nml:274 ...
 "~N~ew" = "~J~auns"
-# navigator/widgets/game/game_window/game_window.nml:57
+# navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:100, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "~I~estatīt"
-# navigator/widgets/game/game_window/game_window.nml:65
+# navigator/widgets/game/game_window/game_window.nml:68, navigator/widgets/game/game_window/game_window.nml:97, navigator/widgets/game/game_window/game_window.py:197
 "~T~op 10" = "~T~op 10"
-# navigator/widgets/game/game_window/game_window.nml:73
+# navigator/widgets/game/game_window/game_window.nml:76, navigator/widgets/game/game_window/game_window.nml:94, navigator/widgets/game/game_window/game_window.py:196
 "~P~ause" = "~P~auze"
+# navigator/widgets/game/game_window/game_window.nml:88, navigator/widgets/shell/main_menu/main_menu.nml:88
+"~G~ame" = "~S~pēle"
+# navigator/widgets/game/game_window/game_window.nml:104, navigator/widgets/game/game_window/game_window.py:200
+"~L~evel up" = "~L~īmenis augstāk"
+# navigator/widgets/game/game_window/game_window.nml:107, navigator/widgets/game/game_window/game_window.py:201
+"Pre~v~iew" = "~R~ādīt nākamo"
+# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:84, navigator/widgets/shell/main_menu/main_menu.nml:434 ...
+"~C~lose" = "Ai~z~vērt"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix Top 10"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
@@ -602,9 +610,9 @@ name = "Latviešu"
 "Change ~d~rive" = "~M~ainīt disku"
 # navigator/widgets/manager/manager/manager.nml:268
 "Change direc~t~ory" = "Mainīt direktorij~u~"
-# navigator/widgets/manager/manager/manager.nml:272
+# navigator/widgets/manager/manager/manager.nml:272, navigator/widgets/tree/tree_window/tree_window.nml:51, navigator/widgets/tree/tree_window/tree_window.py:68
 "Quick s~e~arch" = "Ā~t~rā meklēšana"
-# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71
+# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/shell/volumes_window/volumes_window.nml:93, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71 ...
 "~R~e-read" = "~P~ārlasīt"
 # navigator/widgets/manager/manager/manager.nml:280
 "S~a~me directory in other panel" = "Sin~h~ronizēt paneļus"
@@ -1020,10 +1028,24 @@ name = "Latviešu"
 "~E~XP" = "~E~XP"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:125
 "E~v~aluate" = "~A~prēķināt"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:16, navigator/widgets/shell/commands.py:184
+# navigator/widgets/shell/calendar_window/calendar_window.nml:20, navigator/widgets/shell/commands.py:184, navigator/lib/config/keybindings.py
 "Calendar" = "Kalendārs"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:33
+# navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.py:103
 "Go to current ~d~ate" = "Uz šodienas ~d~atumu"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:50
+"~C~alendar" = "K~a~lendārs"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:53, navigator/widgets/shell/calendar_window/calendar_window.py:95
+"~P~revious month" = "~I~epriekšējais mēnesis"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:57, navigator/widgets/shell/calendar_window/calendar_window.py:96
+"~N~ext month" = "~N~ākamais mēnesis"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:61, navigator/widgets/shell/calendar_window/calendar_window.py:97
+"P~r~evious year" = "Iepriekšējais ~g~ads"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:65, navigator/widgets/shell/calendar_window/calendar_window.py:98
+"Ne~x~t year" = "Nāk~a~mais gads"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:70, navigator/widgets/shell/calendar_window/calendar_window.py:100
+"Choose ~m~onth..." = "Izvēlēties ~m~ēnesi..."
+# navigator/widgets/shell/calendar_window/calendar_window.nml:74, navigator/widgets/shell/calendar_window/calendar_window.py:101
+"Choose ~y~ear..." = "Izvēlēties gad~u~..."
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "Komandu vēsture"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:25
@@ -1076,9 +1098,7 @@ name = "Latviešu"
 "S~m~artPad (TM)" = "S~m~artPad (TM)"
 # navigator/widgets/shell/main_menu/main_menu.nml:84
 "~T~rashcan on/off" = "Atk~r~itne iesl./izsl."
-# navigator/widgets/shell/main_menu/main_menu.nml:88
-"~G~ame" = "~S~pēle"
-# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/file_window/file_window.nml:123
+# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/db_window/db_window.nml:51, navigator/widgets/viewer/file_window/file_window.nml:123
 "~V~iew" = "~S~katīt"
 # navigator/widgets/shell/main_menu/main_menu.nml:98
 "~A~s is" = "~K~ā ir"
@@ -1122,7 +1142,7 @@ name = "Latviešu"
 "~D~isk" = "~D~isks"
 # navigator/widgets/shell/main_menu/main_menu.nml:200
 "~D~irectory tree" = "~D~irektoriju koks"
-# navigator/widgets/shell/main_menu/main_menu.nml:203
+# navigator/widgets/shell/main_menu/main_menu.nml:203, navigator/widgets/shell/volumes_window/volumes_window.nml:90
 "~V~olumes" = "Sē~j~umi"
 # navigator/widgets/shell/main_menu/main_menu.nml:207
 "~U~tilities" = "Rī~k~i"
@@ -1244,8 +1264,6 @@ name = "Latviešu"
 "~N~ext" = "~N~ākamais"
 # navigator/widgets/shell/main_menu/main_menu.nml:430
 "~P~revious" = "~I~epriekšējais"
-# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:202, navigator/widgets/viewer/file_viewer/file_viewer.py:860
-"~C~lose" = "Ai~z~vērt"
 # navigator/widgets/shell/main_menu/main_menu.nml:439
 "~L~ist..." = "~S~araksts..."
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
@@ -1266,13 +1284,13 @@ name = "Latviešu"
 "~I~nsert" = "~I~evietot"
 # navigator/widgets/shell/unicode_chart/unicode_chart.nml:99
 "Co~p~y" = "Ko~p~ēt"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:30, navigator/widgets/shell/commands.py:111
+# navigator/widgets/shell/volumes_window/volumes_window.nml:33, navigator/widgets/shell/commands.py:111
 "Volumes" = "Sējumi"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:54
+# navigator/widgets/shell/volumes_window/volumes_window.nml:57, navigator/widgets/shell/volumes_window/volumes_window.nml:96, navigator/widgets/shell/volumes_window/volumes_window.py:152
 "~S~how all mounts" = "Rādīt ~v~isus montējumus"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:62
+# navigator/widgets/shell/volumes_window/volumes_window.nml:65
 "Show ~f~ree %" = "Rādīt ~b~rīvo %"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:66
+# navigator/widgets/shell/volumes_window/volumes_window.nml:69
 "~G~o" = "~P~āriet"
 # navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:25
 "Choose Directory" = "Izvēlēties direktoriju"
@@ -1280,7 +1298,7 @@ name = "Latviešu"
 "~D~rive..." = "~D~isks..."
 # navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:79
 "~M~kDir" = "~J~auna dir."
-# navigator/widgets/tree/tree_window/tree_window.nml:18
+# navigator/widgets/tree/tree_window/tree_window.nml:22
 "Directory Tree" = "Direktoriju koks"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:23
 "~T~ext to search" = "~T~eksts meklēšanai"
@@ -1290,6 +1308,16 @@ name = "Latviešu"
 "~A~ll fields" = "~V~isos laukos"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~U~z priekšu"
+# navigator/widgets/viewer/db_window/db_window.nml:54, navigator/widgets/viewer/db_window/db_viewer.py:182
+"~F~ields..." = "~L~auki..."
+# navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/db_window/db_viewer.py:183
+"~M~emo view" = "~A~pskatīt memo"
+# navigator/widgets/viewer/db_window/db_window.nml:60, navigator/widgets/viewer/db_window/db_viewer.py:184
+"~E~dit field..." = "~R~ediģēt lauku..."
+# navigator/widgets/viewer/db_window/db_window.nml:64, navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+"~S~earch..." = "~M~eklēt..."
+# navigator/widgets/viewer/db_window/db_window.nml:67, navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/db_window/db_viewer.py:187 ...
+"Search a~g~ain" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/viewer/file_window/file_window.nml:128, navigator/widgets/viewer/file_viewer/file_viewer.py:845
 "He~x~/Text/Dump" = "He~x~/Teksts/Dump"
 # navigator/widgets/viewer/file_window/file_window.nml:131, navigator/widgets/viewer/file_viewer/file_viewer.py:846
@@ -1314,10 +1342,6 @@ name = "Latviešu"
 "~A~SCII filter" = "AS~C~II filtrs"
 # navigator/widgets/viewer/file_window/file_window.nml:173
 "~P~rintable filter" = "Drukā~j~amo filtrs"
-# navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/file_viewer/file_viewer.py:854
-"~S~earch..." = "~M~eklēt..."
-# navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/file_viewer/file_viewer.py:855
-"Search a~g~ain" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/viewer/file_window/file_window.nml:183
 "Re~v~erse search" = "Meklēt ~a~tpakaļ"
 # navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/file_viewer/file_viewer.py:856
@@ -1720,9 +1744,9 @@ name = "Latviešu"
 "Cannot print: {error}" = "Nevar drukāt: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:232
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:203, navigator/widgets/viewer/file_window/file_window.py:474
+# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:210, navigator/widgets/viewer/file_window/file_window.py:474
 "Search string not found" = "Meklētā virkne nav atrasta"
-# navigator/widgets/editor/edit_window/edit_window.py:571, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:125 ...
+# navigator/widgets/editor/edit_window/edit_window.py:571, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:125 ...
 "Information" = "Informācija"
 # navigator/widgets/editor/edit_window/edit_window.py:571
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
@@ -1902,7 +1926,7 @@ name = "Latviešu"
 "Setup" = "Iestat."
 # navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:257
 "Preview" = "Apskate"
-# navigator/widgets/game/game_window/game_window.py:95
+# navigator/widgets/game/game_window/game_window.py:99
 "Game over\n\nFinal score - {score}" = "Spēle beigusies\n\nGala punkti - {score}"
 # navigator/widgets/game/game_window/info.py:66, navigator/widgets/game/winner_dialog/winner_dialog.py:19
 "Anonymous" = "Anonīms"
@@ -2316,37 +2340,37 @@ name = "Latviešu"
 "View Memo" = "Memo"
 # navigator/widgets/viewer/commands.py:116
 "Edit Field" = "LabLauk"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Numeric" = "Skaitlis"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Character" = "Rakstzīmes"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Memo" = "Memo"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Logical" = "Loģisks"
-# navigator/widgets/viewer/db_window/db_window.py:217
+# navigator/widgets/viewer/db_window/db_window.py:224
 "Float" = "Peldošs"
-# navigator/widgets/viewer/db_window/db_window.py:217
+# navigator/widgets/viewer/db_window/db_window.py:224
 "Picture" = "Attēls"
-# navigator/widgets/viewer/db_window/db_window.py:135
+# navigator/widgets/viewer/db_window/db_window.py:142
 "Edit field" = "Rediģēt lauku"
 # navigator/widgets/viewer/db_window/db_window.py:47
 "dBase View - {path}" = "dBase skats - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:67
+# navigator/widgets/viewer/db_window/db_window.py:74
 "Structure of {name}" = "{name} struktūra"
-# navigator/widgets/viewer/db_window/db_window.py:243
+# navigator/widgets/viewer/db_window/db_window.py:250
 "Empty database {name}" = "Tukša datubāze {name}"
-# navigator/widgets/viewer/db_window/db_window.py:127
-"Could not edit field - file is write-protected" = "Neizdevās rediģēt lauku - fails ir aizsargāts pret rakstīšanu"
 # navigator/widgets/viewer/db_window/db_window.py:134
+"Could not edit field - file is write-protected" = "Neizdevās rediģēt lauku - fails ir aizsargāts pret rakstīšanu"
+# navigator/widgets/viewer/db_window/db_window.py:141
 "~V~alue" = "~V~ērtība"
-# navigator/widgets/viewer/db_window/db_window.py:86
+# navigator/widgets/viewer/db_window/db_window.py:93
 "Could not find MEMO file" = "Neizdevās atrast MEMO failu"
-# navigator/widgets/viewer/db_window/db_window.py:230
+# navigator/widgets/viewer/db_window/db_window.py:237
 "Name          Type       Length   Decimals" = "Vārds         Tips       Garums   Decimāļi"
-# navigator/widgets/viewer/db_window/db_window.py:94
+# navigator/widgets/viewer/db_window/db_window.py:101
 "Memo view" = "Memo skats"
-# navigator/widgets/viewer/db_window/db_window.py:151
+# navigator/widgets/viewer/db_window/db_window.py:158
 "Could not edit field - {error}" = "Neizdevās rediģēt lauku - {error}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:569
 "Markdown" = "Markdown"

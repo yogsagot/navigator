@@ -60,43 +60,57 @@ name = "Latviešu"
 "Clear" = "Notīrīt"
 # navml/widgets/dialog/commands.py:104
 "Select all" = "Atlasīt visu"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/commands.py:117
+"Previous month" = "Iepriekšējais mēnesis"
+# navml/widgets/dialog/commands.py:123
+"Next month" = "Nākamais mēnesis"
+# navml/widgets/dialog/commands.py:129
+"Previous year" = "Iepriekšējais gads"
+# navml/widgets/dialog/commands.py:135
+"Next year" = "Nākamais gads"
+# navml/widgets/dialog/commands.py:141
+"Choose month" = "Izvēlēties mēnesi"
+# navml/widgets/dialog/commands.py:147
+"Choose year" = "Izvēlēties gadu"
+# navml/widgets/dialog/commands.py:153
+"Go to current date" = "Uz šodienas datumu"
+# navml/widgets/dialog/date_button/date_button.py:77
 "January" = "Janvāris"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "February" = "Februāris"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "March" = "Marts"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "April" = "Aprīlis"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "May" = "Maijs"
-# navml/widgets/dialog/date_button/date_button.py:68
+# navml/widgets/dialog/date_button/date_button.py:77
 "June" = "Jūnijs"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "July" = "Jūlijs"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "August" = "Augusts"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "September" = "Septembris"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "October" = "Oktobris"
-# navml/widgets/dialog/date_button/date_button.py:69
+# navml/widgets/dialog/date_button/date_button.py:78
 "November" = "Novembris"
-# navml/widgets/dialog/date_button/date_button.py:70
+# navml/widgets/dialog/date_button/date_button.py:79
 "December" = "Decembris"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Mo" = "Pr"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Tu" = "Ot"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "We" = "Tr"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Th" = "Ce"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Fr" = "Pk"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Sa" = "Se"
-# navml/widgets/dialog/date_button/date_button.py:76
+# navml/widgets/dialog/date_button/date_button.py:85
 "Su" = "Sv"
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."

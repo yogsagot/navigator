@@ -3,6 +3,9 @@ from navigator.widgets.game.game_window.glass import Glass
 from navigator.widgets.game.game_window.info import GameInfo
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: ≡ > Game: DOS Navigator's ``TGameWindow``, *Navigator's game*.
@@ -75,3 +78,35 @@ GameWindow(Window):
         y: 19
         width: 11
         height: 2
+
+    #: The window's own menu on the bar after *File* while it is active -- a
+    #: departure, asked for: DN had its status line, whose ``~+~ Level`` and
+    #: ``~*~ Preview`` our key bar of function keys does not show.  *Pause*
+    #: and *Preview* are ticked while on.  Also its right-click menu.
+    SubMenu:
+        id: game_menu
+        text: '~G~ame'
+        after: 'File'
+        MenuItem:
+            text: '~N~ew'
+            command: NewGame
+        MenuItem:
+            text: '~P~ause'
+            command: PauseGame
+        MenuItem:
+            text: '~T~op 10'
+            command: ShowTopTen
+        MenuItem:
+            text: '~S~etup'
+            command: GameSetup
+        MenuLine:
+        MenuItem:
+            text: '~L~evel up'
+            command: LevelUp
+        MenuItem:
+            text: 'Pre~v~iew'
+            command: TogglePreview
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

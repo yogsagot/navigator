@@ -279,7 +279,7 @@ name = "Русский"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:69
 "Remove so~u~rce files" = "~У~далять исходные"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:92, navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:70, navigator/widgets/file_ops/link_dialog/link_dialog.nml:69 ...
-"~T~ree" = "~Д~ерево"
+"~T~ree" = "Д~е~рево"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Подсчёт размера каталога"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/manager/manager/manager.py:2234
@@ -428,16 +428,24 @@ name = "Русский"
 "~O~ptions" = "~Н~астройки"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~С~лед. фигура"
-# navigator/widgets/game/game_window/game_window.nml:16
+# navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "Игра Навигатора"
-# navigator/widgets/game/game_window/game_window.nml:49, navigator/widgets/shell/main_menu/main_menu.nml:274
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:91, navigator/widgets/shell/main_menu/main_menu.nml:274 ...
 "~N~ew" = "~Н~овый"
-# navigator/widgets/game/game_window/game_window.nml:57
+# navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:100, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "~О~пции"
-# navigator/widgets/game/game_window/game_window.nml:65
+# navigator/widgets/game/game_window/game_window.nml:68, navigator/widgets/game/game_window/game_window.nml:97, navigator/widgets/game/game_window/game_window.py:197
 "~T~op 10" = "~Р~екорды"
-# navigator/widgets/game/game_window/game_window.nml:73
+# navigator/widgets/game/game_window/game_window.nml:76, navigator/widgets/game/game_window/game_window.nml:94, navigator/widgets/game/game_window/game_window.py:196
 "~P~ause" = "~П~ауза"
+# navigator/widgets/game/game_window/game_window.nml:88, navigator/widgets/shell/main_menu/main_menu.nml:88
+"~G~ame" = "~И~гра"
+# navigator/widgets/game/game_window/game_window.nml:104, navigator/widgets/game/game_window/game_window.py:200
+"~L~evel up" = "~У~ровень выше"
+# navigator/widgets/game/game_window/game_window.nml:107, navigator/widgets/game/game_window/game_window.py:201
+"Pre~v~iew" = "~С~ледующая фигура"
+# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:84, navigator/widgets/shell/main_menu/main_menu.nml:434 ...
+"~C~lose" = "~З~акрыть"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Рекорды Пентикса"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
@@ -602,9 +610,9 @@ name = "Русский"
 "Change ~d~rive" = "См~е~нить диск"
 # navigator/widgets/manager/manager/manager.nml:268
 "Change direc~t~ory" = "Сменить ката~л~ог"
-# navigator/widgets/manager/manager/manager.nml:272
+# navigator/widgets/manager/manager/manager.nml:272, navigator/widgets/tree/tree_window/tree_window.nml:51, navigator/widgets/tree/tree_window/tree_window.py:68
 "Quick s~e~arch" = "Быст~р~ый поиск"
-# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71
+# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/shell/volumes_window/volumes_window.nml:93, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71 ...
 "~R~e-read" = "~О~бновить"
 # navigator/widgets/manager/manager/manager.nml:280
 "S~a~me directory in other panel" = "Син~х~ронизировать панели"
@@ -1020,10 +1028,24 @@ name = "Русский"
 "~E~XP" = "~E~XP"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:125
 "E~v~aluate" = "Вы~ч~ислить"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:16, navigator/widgets/shell/commands.py:184
+# navigator/widgets/shell/calendar_window/calendar_window.nml:20, navigator/widgets/shell/commands.py:184, navigator/lib/config/keybindings.py
 "Calendar" = "Календарь"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:33
+# navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.py:103
 "Go to current ~d~ate" = "~Т~екущая дата"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:50
+"~C~alendar" = "~К~алендарь"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:53, navigator/widgets/shell/calendar_window/calendar_window.py:95
+"~P~revious month" = "~П~редыдущий месяц"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:57, navigator/widgets/shell/calendar_window/calendar_window.py:96
+"~N~ext month" = "~С~ледующий месяц"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:61, navigator/widgets/shell/calendar_window/calendar_window.py:97
+"P~r~evious year" = "Пр~е~дыдущий год"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:65, navigator/widgets/shell/calendar_window/calendar_window.py:98
+"Ne~x~t year" = "С~л~едующий год"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:70, navigator/widgets/shell/calendar_window/calendar_window.py:100
+"Choose ~m~onth..." = "Выбрать ~м~есяц..."
+# navigator/widgets/shell/calendar_window/calendar_window.nml:74, navigator/widgets/shell/calendar_window/calendar_window.py:101
+"Choose ~y~ear..." = "Выбрать ~г~од..."
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "История команд"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:25
@@ -1076,9 +1098,7 @@ name = "Русский"
 "S~m~artPad (TM)" = "Записная ~к~нижка"
 # navigator/widgets/shell/main_menu/main_menu.nml:84
 "~T~rashcan on/off" = "Ко~р~зина вкл/выкл"
-# navigator/widgets/shell/main_menu/main_menu.nml:88
-"~G~ame" = "~И~гра"
-# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/file_window/file_window.nml:123
+# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/db_window/db_window.nml:51, navigator/widgets/viewer/file_window/file_window.nml:123
 "~V~iew" = "~С~мотреть"
 # navigator/widgets/shell/main_menu/main_menu.nml:98
 "~A~s is" = "~К~ак есть"
@@ -1122,7 +1142,7 @@ name = "Русский"
 "~D~isk" = "~Д~иск"
 # navigator/widgets/shell/main_menu/main_menu.nml:200
 "~D~irectory tree" = "~Д~ерево каталогов"
-# navigator/widgets/shell/main_menu/main_menu.nml:203
+# navigator/widgets/shell/main_menu/main_menu.nml:203, navigator/widgets/shell/volumes_window/volumes_window.nml:90
 "~V~olumes" = "~Т~ома"
 # navigator/widgets/shell/main_menu/main_menu.nml:207
 "~U~tilities" = "~У~тилиты"
@@ -1244,8 +1264,6 @@ name = "Русский"
 "~N~ext" = "~С~ледующее"
 # navigator/widgets/shell/main_menu/main_menu.nml:430
 "~P~revious" = "~П~редыдущее"
-# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:202, navigator/widgets/viewer/file_viewer/file_viewer.py:860
-"~C~lose" = "~З~акрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:439
 "~L~ist..." = "Сп~и~сок..."
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
@@ -1266,13 +1284,13 @@ name = "Русский"
 "~I~nsert" = "~В~ставить"
 # navigator/widgets/shell/unicode_chart/unicode_chart.nml:99
 "Co~p~y" = "Копи~р~овать"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:30, navigator/widgets/shell/commands.py:111
+# navigator/widgets/shell/volumes_window/volumes_window.nml:33, navigator/widgets/shell/commands.py:111
 "Volumes" = "Тома"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:54
+# navigator/widgets/shell/volumes_window/volumes_window.nml:57, navigator/widgets/shell/volumes_window/volumes_window.nml:96, navigator/widgets/shell/volumes_window/volumes_window.py:152
 "~S~how all mounts" = "Показать ~в~се монтирования"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:62
+# navigator/widgets/shell/volumes_window/volumes_window.nml:65
 "Show ~f~ree %" = "Показать ~с~вободно %"
-# navigator/widgets/shell/volumes_window/volumes_window.nml:66
+# navigator/widgets/shell/volumes_window/volumes_window.nml:69
 "~G~o" = "~П~ерейти"
 # navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:25
 "Choose Directory" = "Выбор каталога"
@@ -1280,7 +1298,7 @@ name = "Русский"
 "~D~rive..." = "~Д~иск..."
 # navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:79
 "~M~kDir" = "~С~оздать"
-# navigator/widgets/tree/tree_window/tree_window.nml:18
+# navigator/widgets/tree/tree_window/tree_window.nml:22
 "Directory Tree" = "Дерево каталогов"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:23
 "~T~ext to search" = "Искать ~т~екст"
@@ -1290,6 +1308,16 @@ name = "Русский"
 "~A~ll fields" = "~П~о всем полям"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~В~перёд"
+# navigator/widgets/viewer/db_window/db_window.nml:54, navigator/widgets/viewer/db_window/db_viewer.py:182
+"~F~ields..." = "~П~оля..."
+# navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/db_window/db_viewer.py:183
+"~M~emo view" = "Просмотр ~м~емо"
+# navigator/widgets/viewer/db_window/db_window.nml:60, navigator/widgets/viewer/db_window/db_viewer.py:184
+"~E~dit field..." = "~Р~едактировать поле..."
+# navigator/widgets/viewer/db_window/db_window.nml:64, navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+"~S~earch..." = "~И~скать..."
+# navigator/widgets/viewer/db_window/db_window.nml:67, navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/db_window/db_viewer.py:187 ...
+"Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/file_window/file_window.nml:128, navigator/widgets/viewer/file_viewer/file_viewer.py:845
 "He~x~/Text/Dump" = "Hex/Тек~с~т/Дамп"
 # navigator/widgets/viewer/file_window/file_window.nml:131, navigator/widgets/viewer/file_viewer/file_viewer.py:846
@@ -1314,10 +1342,6 @@ name = "Русский"
 "~A~SCII filter" = "~Ф~ильтр ASCII"
 # navigator/widgets/viewer/file_window/file_window.nml:173
 "~P~rintable filter" = "Фильтр ~в~идимых"
-# navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/file_viewer/file_viewer.py:854
-"~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/file_viewer/file_viewer.py:855
-"Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/file_window/file_window.nml:183
 "Re~v~erse search" = "Поиск ~н~азад"
 # navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/file_viewer/file_viewer.py:856
@@ -1720,9 +1744,9 @@ name = "Русский"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:232
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:203, navigator/widgets/viewer/file_window/file_window.py:474
+# navigator/widgets/editor/edit_window/edit_window.py:565, navigator/widgets/viewer/db_window/db_window.py:210, navigator/widgets/viewer/file_window/file_window.py:474
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:571, navigator/widgets/game/game_window/game_window.py:95, navigator/widgets/manager/info_panel/info_panel.py:125 ...
+# navigator/widgets/editor/edit_window/edit_window.py:571, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:125 ...
 "Information" = "Информация"
 # navigator/widgets/editor/edit_window/edit_window.py:571
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
@@ -1902,7 +1926,7 @@ name = "Русский"
 "Setup" = "Настр."
 # navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:257
 "Preview" = "Показ"
-# navigator/widgets/game/game_window/game_window.py:95
+# navigator/widgets/game/game_window/game_window.py:99
 "Game over\n\nFinal score - {score}" = "Конец игры\n\nИтоговый счёт - {score}"
 # navigator/widgets/game/game_window/info.py:66, navigator/widgets/game/winner_dialog/winner_dialog.py:19
 "Anonymous" = "Аноним"
@@ -2316,37 +2340,37 @@ name = "Русский"
 "View Memo" = "Мемо"
 # navigator/widgets/viewer/commands.py:116
 "Edit Field" = "Правка"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Numeric" = "Число"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Character" = "Символ"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Memo" = "Мемо"
-# navigator/widgets/viewer/db_window/db_window.py:216
+# navigator/widgets/viewer/db_window/db_window.py:223
 "Logical" = "Логический"
-# navigator/widgets/viewer/db_window/db_window.py:217
+# navigator/widgets/viewer/db_window/db_window.py:224
 "Float" = "С запятой"
-# navigator/widgets/viewer/db_window/db_window.py:217
+# navigator/widgets/viewer/db_window/db_window.py:224
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:135
+# navigator/widgets/viewer/db_window/db_window.py:142
 "Edit field" = "Редактирование поля"
 # navigator/widgets/viewer/db_window/db_window.py:47
 "dBase View - {path}" = "Просмотр dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:67
+# navigator/widgets/viewer/db_window/db_window.py:74
 "Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:243
+# navigator/widgets/viewer/db_window/db_window.py:250
 "Empty database {name}" = "Пустая база данных {name}"
-# navigator/widgets/viewer/db_window/db_window.py:127
-"Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
 # navigator/widgets/viewer/db_window/db_window.py:134
+"Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
+# navigator/widgets/viewer/db_window/db_window.py:141
 "~V~alue" = "~З~начение"
-# navigator/widgets/viewer/db_window/db_window.py:86
+# navigator/widgets/viewer/db_window/db_window.py:93
 "Could not find MEMO file" = "Не найден файл MEMO"
-# navigator/widgets/viewer/db_window/db_window.py:230
+# navigator/widgets/viewer/db_window/db_window.py:237
 "Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"
-# navigator/widgets/viewer/db_window/db_window.py:94
+# navigator/widgets/viewer/db_window/db_window.py:101
 "Memo view" = "Просмотр мемо"
-# navigator/widgets/viewer/db_window/db_window.py:151
+# navigator/widgets/viewer/db_window/db_window.py:158
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:569
 "Markdown" = "Markdown"

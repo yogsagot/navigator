@@ -47,6 +47,15 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navml.component import take_declared
+from navml.widgets.dialog.commands import (
+    ChooseMonth,
+    ChooseYear,
+    GoToToday,
+    NextMonth,
+    NextYear,
+    PreviousMonth,
+    PreviousYear,
+)
 from navml.widgets.dialog.drop_down import DropDown
 from navml.widgets.dialog.history import History, HistoryList
 from navml.widgets.dialog.masked_line.masked_line import spans
@@ -120,6 +129,23 @@ class CalendarView(Widget):
     first_weekday: int = reactive(0)
     #: Where the keys are: the ``days``, or the top row's ``month`` or ``year``.
     section: str = reactive("days")
+
+    #: What pages and picks, wherever the keys are: commands, so the *Calendar*
+    #: window's menu shows them and Key bindings rebinds them.  The arrows,
+    #: Home, End, Enter and Tab mean something different in each section and
+    #: stay :meth:`on_key`'s.
+    keys = {
+        "pageup": PreviousMonth,
+        "pagedown": NextMonth,
+        "ctrl+pageup": PreviousYear,
+        "ctrl+pagedown": NextYear,
+        "m": ChooseMonth,
+        "shift+m": ChooseMonth,
+        "y": ChooseYear,
+        "shift+y": ChooseYear,
+        "t": GoToToday,
+        "shift+t": GoToToday,
+    }
 
     def __init__(self, day: datetime.date | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -217,10 +243,6 @@ class CalendarView(Widget):
         if event.matches("tab", "shift+tab"):
             step = -1 if event.shift else 1
             self.section = SECTIONS[(SECTIONS.index(section) + step) % len(SECTIONS)]
-        elif event.char in ("m", "M"):
-            self.drop("month")
-        elif event.char in ("y", "Y"):
-            self.drop("year")
         elif section != "days":
             # The month or the year: stepped, or its list dropped.
             months = 1 if section == "month" else 12
@@ -248,22 +270,41 @@ class CalendarView(Widget):
             self.move(-7)
         elif event.matches("down"):
             self.move(7)
-        elif event.matches("pageup"):
-            self.turn(-1)
-        elif event.matches("pagedown"):
-            self.turn(1)
-        elif event.matches("ctrl+pageup"):
-            self.turn(-12)
-        elif event.matches("ctrl+pagedown"):
-            self.turn(12)
         elif event.matches("home"):
             self.day = day.replace(day=1)
         elif event.matches("end"):
             self.day = day.replace(day=_calendar.monthrange(day.year, day.month)[1])
-        elif event.char in ("t", "T"):
-            self.day = datetime.date.today()
         else:
             return False
+        return True
+
+    async def on_previous_month(self, command: PreviousMonth) -> bool:
+        self.turn(-1)
+        return True
+
+    async def on_next_month(self, command: NextMonth) -> bool:
+        self.turn(1)
+        return True
+
+    async def on_previous_year(self, command: PreviousYear) -> bool:
+        self.turn(-12)
+        return True
+
+    async def on_next_year(self, command: NextYear) -> bool:
+        self.turn(12)
+        return True
+
+    async def on_choose_month(self, command: ChooseMonth) -> bool:
+        self.drop("month")
+        return True
+
+    async def on_choose_year(self, command: ChooseYear) -> bool:
+        self.drop("year")
+        return True
+
+    async def on_go_to_today(self, command: GoToToday) -> bool:
+        self.day = datetime.date.today()
+        self.section = "days"
         return True
 
     def day_at(self, x: int, y: int) -> datetime.date | None:
