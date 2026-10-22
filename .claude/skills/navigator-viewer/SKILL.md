@@ -34,7 +34,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type
   (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
-- **Markup view: Markdown, reStructuredText and HTML rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
+- **Markup view: Markdown, reStructuredText, HTML and PDF rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
   (`SwitchRendered`, handled by `FileWindow` and by `QuickViewer`, ticked; the strip's last item,
   `MD`, `RST` or `HTML` (`M↓`, `rST`, `</>` as symbols), dropped first from a short frame) renders the file rather than showing its source, in text mode only.
   `FileViewer.rendered` is the switch; `format_by_name` says `html` (`[viewer] render_html` + `html_masks`), `rst`
@@ -44,7 +44,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   otherwise; a press on it switches (`FileWindow.on_mouse_click`). Styled by class (`StaticText.rendered`, `.off`
   struck), in the info line's (`name: "info"`) frame colours. No checkboxes (the Editor/Viewer page has no rows for
   them). Kept as `ViewRecord.rendered` (`on`/`off`, empty for the masks' say).
-  **The model is four modules.** `navigator/lib/viewer/layout.py` is the format-free part: `Row`/`Layout`, `_wrap`,
+  **The model is five modules.** `navigator/lib/viewer/layout.py` is the format-free part: `Row`/`Layout`, `_wrap`,
   and `Builder`, whose block methods (`heading`, `paragraph`, `code`, `table`, `rule`, `quote`, `push`/`pop`) make
   the rows. `markdown.py` walks markdown-it-py's tokens into it (CommonMark plus GFM tables and strikethrough).
   `rst.py` walks docutils' document tree into it: sections as headings by depth (a
@@ -55,7 +55,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   read, and a document with errors renders what it can. `html.py` walks the stdlib `html.parser` into it, as `lynx -dump` reads a page: `<title>` first,
   `head`/`script`/`style` hidden (`head` ends at the first body element, closed or not), blanks run together, lists
   with unclosed `<li>`, `pre` coloured by its `language-*` class, tables gathered then drawn, `a href` as links, `img`
-  as `[alt]`; an end tag closes its own element wherever it is open, so broken HTML degrades. Either reads the
+  as `[alt]`; an end tag closes its own element wherever it is open, so broken HTML degrades. `pdf.py` reads a PDF
+  with pypdf (`[viewer] render_pdf` + `pdf_masks`, `{PDF}`): each page a `Page N of M` heading, its `extract_text()`
+  in paragraphs (lines joined between blank lines, reflowed), a rule between pages; pictures are not shown, a
+  password other than the empty one raises (source shown). Its rows' `src` are **synthetic** -- each page an even
+  share of the file, its paragraphs spread across it -- since the text sits in compressed streams; so F7, which
+  searches the source bytes, does not find rendered PDF text. Its limit is `PDF_LIMIT` (64 MiB), not
+  `RENDER_LIMIT`. Every reader reads the
   **whole** file, so one over `RENDER_LIMIT` (4 MiB) stays source. The layout is made on a thread (`_RENDERER`,
   `_lay_out` dispatching through `RENDERERS`, reading across a network through `read_blocking`), keyed on where,
   encoding, size, width, glyph tier and format, never asked for twice; until one lands the source (first time) or the

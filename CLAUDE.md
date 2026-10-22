@@ -40,11 +40,11 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Six run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+- Seven run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`),
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`), `markdown-it-py`
   and `docutils`, which read Markdown and reStructuredText for F3's View > *Markup view* (HTML is the stdlib's
-  `html.parser`), and `boto3`, the S3 drive —
+  `html.parser`), `pypdf`, which reads a PDF's text for the same view, and `boto3`, the S3 drive —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - Three optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
   `navigator-fm[smb]` (smbprotocol) -- both need the compiled `cryptography` -- and `navigator-fm[keyring]` (*Save in

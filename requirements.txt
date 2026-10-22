@@ -21,3 +21,6 @@ boto3>=1.34
 markdown-it-py>=3.0
 # ... and reStructuredText (tests/test_viewer_rst.py).
 docutils>=0.18
+# ... and a PDF's text (tests/test_viewer_pdf.py).  Pure Python; only an
+# AES-encrypted PDF would want `cryptography', and without it shows its source.
+pypdf>=4

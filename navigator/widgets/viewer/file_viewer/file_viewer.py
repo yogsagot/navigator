@@ -49,7 +49,7 @@ from navigator.widgets.viewer.commands import (
     Unwrap,
 )
 from navigator.settings import SETTINGS
-from navigator.lib.viewer import html, markdown, rst
+from navigator.lib.viewer import html, markdown, pdf, rst
 from navigator.lib.viewer.layout import RENDER_LIMIT, Layout, decode
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
@@ -94,11 +94,11 @@ REMOTE_LEX_AHEAD = 128 * 1024
 #: How much of the file's start is read for its ``#!`` line.
 HEAD = 256
 
-#: The thread a Markdown, reStructuredText or HTML file is read and laid out on.
+#: The thread a Markdown, reStructuredText, HTML or PDF file is read and laid out on.
 _RENDERER = Background("nav-view-render", workers=1)
 
 #: How each format a file can be rendered as is laid out.
-RENDERERS = {"markdown": markdown.render, "rst": rst.render, "html": html.render}
+RENDERERS = {"markdown": markdown.render, "rst": rst.render, "html": html.render, "pdf": pdf.render}
 
 
 def _when_here(method: Any) -> Any:
@@ -209,7 +209,7 @@ class FileViewer(ContextMenuHost, Widget):
     #: The name of the lexer colouring the text, "" for none, None until the
     #: lexing thread has said: what the option strip shows as the file type.
     lexer_name: str | None = reactive(None)
-    #: View > *Markup view*: a Markdown or HTML file rendered rather than its
+    #: View > *Markup view*: a Markdown, reST, HTML or PDF file rendered rather than its
     #: source, in text mode -- a departure.  Seeded by :meth:`open` from
     #: ``[viewer]``'s ``render_markdown``/``markdown_masks`` and
     #: ``render_html``/``html_masks``.
@@ -539,19 +539,20 @@ class FileViewer(ContextMenuHost, Widget):
             raise ValueError(f"{filter} is not a viewer filter; there are {len(FILTER_TAGS)}")
         self.filter = filter
 
-    # -- Markup view: Markdown and HTML rendered -------------------------------
+    # -- Markup view: Markdown, reST, HTML and PDF rendered ---------------------
 
     @staticmethod
     def format_by_name(path: Path | str | None) -> str:
-        """The format *path* is rendered in when it opens -- ``html``,
-        ``rst`` or ``markdown`` -- or "" for none: its name one of
-        ``[viewer]``'s ``html_masks``, ``rst_masks`` or ``markdown_masks``,
-        that format's switch on."""
+        """The format *path* is rendered in when it opens -- ``pdf``,
+        ``html``, ``rst`` or ``markdown`` -- or "" for none: its name one of
+        ``[viewer]``'s ``pdf_masks``, ``html_masks``, ``rst_masks`` or
+        ``markdown_masks``, that format's switch on."""
         if path is None:
             return ""
         settings = SETTINGS.viewer
         name = Path(path).name.lower()
-        for format, on, masks in (("html", settings.render_html, settings.html_masks),
+        for format, on, masks in (("pdf", settings.render_pdf, settings.pdf_masks),
+                                  ("html", settings.render_html, settings.html_masks),
                                   ("rst", settings.render_rst, settings.rst_masks),
                                   ("markdown", settings.render_markdown, settings.markdown_masks)):
             if on and any(fnmatch.fnmatchcase(name, mask.strip().lower())
@@ -560,8 +561,10 @@ class FileViewer(ContextMenuHost, Widget):
         return ""
 
     def format_label(self) -> str:
-        """What the mark calls the format: *HTML*, *reST*, *Markdown*."""
+        """What the mark calls the format: *PDF*, *HTML*, *reST*, *Markdown*."""
         format = self.render_format
+        if format == "pdf":
+            return tr("PDF")
         if format == "html":
             return tr("HTML")
         if format == "rst":
@@ -577,8 +580,9 @@ class FileViewer(ContextMenuHost, Widget):
     @property
     def can_render(self) -> bool:
         """Whether this file can be rendered at all: no bigger than
-        ``RENDER_LIMIT``, since it is read and parsed whole."""
-        return self.source is not None and self.size <= RENDER_LIMIT
+        ``RENDER_LIMIT`` (a PDF, ``PDF_LIMIT``), since it is read and parsed whole."""
+        limit = pdf.PDF_LIMIT if self.render_format == "pdf" else RENDER_LIMIT
+        return self.source is not None and self.size <= limit
 
     @property
     def rendering(self) -> bool:

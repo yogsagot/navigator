@@ -27,7 +27,7 @@ class HexMode(Command):
 
 
 class SwitchRendered(Command):
-    """Shift+F4, View > *Markup view*: a Markdown or HTML file rendered --
+    """Shift+F4, View > *Markup view*: a Markdown, reST, HTML or PDF file rendered --
     headings, lists, tables -- or its source.  A departure: DN's viewer had no
     such reading.  Text mode only."""
 

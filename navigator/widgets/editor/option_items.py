@@ -43,10 +43,11 @@ WRAP = ("↩", icons.OPTION_WRAP)
 BRACKETS = ("()", icons.OPTION_BRACKETS)
 HIGHLIGHT = ("§", icons.OPTION_HIGHLIGHT)
 HIDDEN = ("¶", icons.OPTION_HIDDEN)
-#: The Markdown mark, ``M↓``, a tag for HTML, and ``rST``.
+#: The Markdown mark, ``M↓``, a tag for HTML, ``rST`` and ``PDF``.
 MARKDOWN = ("M↓", icons.OPTION_MARKDOWN)
 HTML = ("</>", icons.OPTION_HTML)
 RST = ("rST", icons.OPTION_RST)
+PDF = ("PDF", icons.OPTION_PDF)
 
 
 def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
@@ -105,6 +106,8 @@ def editor_items(editor: Any) -> tuple[OptionItem, ...]:
 def _format_label(viewer: Any) -> str:
     """Markup view's switch, spelled for the format it renders."""
     format = viewer.render_format
+    if format == "pdf":
+        return option_label(tr("PDF"), PDF, viewer.glyphs)
     if format == "html":
         return option_label(tr("HTML"), HTML, viewer.glyphs)
     if format == "rst":

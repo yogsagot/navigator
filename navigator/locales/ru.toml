@@ -484,7 +484,7 @@ name = "Русский"
 "~L~abel" = "~М~етка"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:16
 "Columns Setup" = "Установки колонок"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:100, navigator/widgets/editor/option_items.py:131 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:101, navigator/widgets/editor/option_items.py:134 ...
 "Show" = "Показ"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "Ра~з~мер"
@@ -804,7 +804,7 @@ name = "Русский"
 "Viewer options" = "Опции просмотра"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "Hex-ре~ж~им"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:141, navigator/widgets/viewer/file_viewer/file_viewer.py:850
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:141, navigator/widgets/viewer/file_viewer/file_viewer.py:854
 "~W~rap lines" = "Перен~о~с строк"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "Полоса опци~й~"
@@ -1326,15 +1326,15 @@ name = "Русский"
 "~S~earch..." = "~И~скать..."
 # navigator/widgets/viewer/db_window/db_window.nml:67, navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/db_window/db_viewer.py:187 ...
 "Search a~g~ain" = "Искать ~е~щё"
-# navigator/widgets/viewer/file_window/file_window.nml:128, navigator/widgets/viewer/file_viewer/file_viewer.py:845
+# navigator/widgets/viewer/file_window/file_window.nml:128, navigator/widgets/viewer/file_viewer/file_viewer.py:849
 "He~x~/Text/Dump" = "Hex/Текст/Да~м~п"
-# navigator/widgets/viewer/file_window/file_window.nml:131, navigator/widgets/viewer/file_viewer/file_viewer.py:846
+# navigator/widgets/viewer/file_window/file_window.nml:131, navigator/widgets/viewer/file_viewer/file_viewer.py:850
 "~T~ext" = "~Т~екст"
-# navigator/widgets/viewer/file_window/file_window.nml:134, navigator/widgets/viewer/file_viewer/file_viewer.py:847
+# navigator/widgets/viewer/file_window/file_window.nml:134, navigator/widgets/viewer/file_viewer/file_viewer.py:851
 "~H~ex" = "~Ш~естнадцатеричный"
-# navigator/widgets/viewer/file_window/file_window.nml:137, navigator/widgets/viewer/file_viewer/file_viewer.py:848
+# navigator/widgets/viewer/file_window/file_window.nml:137, navigator/widgets/viewer/file_viewer/file_viewer.py:852
 "~D~ump" = "~Д~амп"
-# navigator/widgets/viewer/file_window/file_window.nml:146, navigator/widgets/viewer/file_viewer/file_viewer.py:851, navigator/widgets/viewer/quick_viewer/quick_viewer.py:100
+# navigator/widgets/viewer/file_window/file_window.nml:146, navigator/widgets/viewer/file_viewer/file_viewer.py:855, navigator/widgets/viewer/quick_viewer/quick_viewer.py:100
 "~M~arkup view" = "Просмотр ~р~азметки"
 # navigator/widgets/viewer/file_window/file_window.nml:150
 "S~y~ntax highlight" = "~П~одсветка синтаксиса"
@@ -1342,7 +1342,7 @@ name = "Русский"
 "Sh~o~w hidden characters" = "Показывать скр~ы~тые символы"
 # navigator/widgets/viewer/file_window/file_window.nml:160
 "~F~ile type" = "Тип фай~л~а"
-# navigator/widgets/viewer/file_window/file_window.nml:164, navigator/widgets/viewer/file_viewer/file_viewer.py:852
+# navigator/widgets/viewer/file_window/file_window.nml:164, navigator/widgets/viewer/file_viewer/file_viewer.py:856
 "Fi~l~ter" = "Фил~ь~тр"
 # navigator/widgets/viewer/file_window/file_window.nml:167
 "~N~o filter" = "~Б~ез фильтра"
@@ -1352,13 +1352,13 @@ name = "Русский"
 "~P~rintable filter" = "Фильтр ~в~идимых"
 # navigator/widgets/viewer/file_window/file_window.nml:183
 "Re~v~erse search" = "Поиск ~н~азад"
-# navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/file_viewer/file_viewer.py:856
+# navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/file_viewer/file_viewer.py:860
 "Go to add~r~ess..." = "Перейти по ~а~дресу..."
 # navigator/widgets/viewer/file_window/file_window.nml:192
 "Store" = "Запомнить"
 # navigator/widgets/viewer/file_window/file_window.nml:195
 "Sav~e~ as..." = "~С~охранить как..."
-# navigator/widgets/viewer/file_window/file_window.nml:199, navigator/widgets/viewer/file_viewer/file_viewer.py:858
+# navigator/widgets/viewer/file_window/file_window.nml:199, navigator/widgets/viewer/file_viewer/file_viewer.py:862
 "Encod~i~ng..." = "~К~одировка..."
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Переход на адрес"
@@ -1520,6 +1520,8 @@ name = "Русский"
 "Version {version}" = "Версия {version}"
 # navigator/lib/utilities/about.py:118
 "License: {license}" = "Лицензия: {license}"
+# navigator/lib/viewer/pdf.py:70
+"Page {page} of {pages}" = "Страница {page} из {pages}"
 # navigator/settings.py:235
 "Appearance -- the --theme, --palette, --colors, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --colors, --glyphs и --dim-modal"
 # navigator/settings.py:261
@@ -1534,23 +1536,23 @@ name = "Русский"
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
 # navigator/settings.py:474
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:519
+# navigator/settings.py:526
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:568
+# navigator/settings.py:575
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:621
+# navigator/settings.py:628
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:655
+# navigator/settings.py:662
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:700
+# navigator/settings.py:707
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:715
+# navigator/settings.py:722
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:737
+# navigator/settings.py:744
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:752
+# navigator/settings.py:759
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:781
+# navigator/settings.py:788
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:31, navigator/widgets/manager/manager/manager.py:702
 "Reading archive" = "Чтение архива"
@@ -1622,7 +1624,7 @@ name = "Русский"
 "Copy block" = "Копир. блок"
 # navigator/widgets/editor/commands.py:201
 "Move block" = "Перен. блок"
-# navigator/widgets/editor/commands.py:211, navigator/widgets/editor/option_items.py:96
+# navigator/widgets/editor/commands.py:211, navigator/widgets/editor/option_items.py:97
 "Indent" = "Отступ"
 # navigator/widgets/editor/commands.py:223
 "Unindent" = "Выступ"
@@ -1794,27 +1796,29 @@ name = "Русский"
 "~A~utomatic" = "~А~втоматически"
 # navigator/widgets/editor/loading.py:106
 "Writing file" = "Запись файла"
-# navigator/widgets/editor/option_items.py:112
+# navigator/widgets/editor/option_items.py:115
 "MD" = "MD"
-# navigator/widgets/editor/option_items.py:109, navigator/widgets/viewer/file_viewer/file_viewer.py:566
+# navigator/widgets/editor/option_items.py:110, navigator/widgets/viewer/file_viewer/file_viewer.py:567
+"PDF" = "PDF"
+# navigator/widgets/editor/option_items.py:112, navigator/widgets/viewer/file_viewer/file_viewer.py:569
 "HTML" = "HTML"
-# navigator/widgets/editor/option_items.py:111
+# navigator/widgets/editor/option_items.py:114
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:122
+# navigator/widgets/editor/option_items.py:125
 "Text" = "Текст"
-# navigator/widgets/editor/option_items.py:97, navigator/widgets/editor/option_items.py:129
+# navigator/widgets/editor/option_items.py:98, navigator/widgets/editor/option_items.py:132
 "Wrap" = "Перенос"
-# navigator/widgets/editor/option_items.py:98
+# navigator/widgets/editor/option_items.py:99
 "Brk" = "Скоб"
-# navigator/widgets/editor/option_items.py:99, navigator/widgets/editor/option_items.py:130
+# navigator/widgets/editor/option_items.py:100, navigator/widgets/editor/option_items.py:133
 "Hi" = "Подсв"
-# navigator/widgets/editor/option_items.py:94
+# navigator/widgets/editor/option_items.py:95
 "Ovr" = "Зам"
-# navigator/widgets/editor/option_items.py:94
+# navigator/widgets/editor/option_items.py:95
 "Ins" = "Вст"
-# navigator/widgets/editor/option_items.py:122
+# navigator/widgets/editor/option_items.py:125
 "Hex" = "Hex"
-# navigator/widgets/editor/option_items.py:122
+# navigator/widgets/editor/option_items.py:125
 "Dump" = "Дамп"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:98
 "directory" = "каталог"
@@ -2406,15 +2410,15 @@ name = "Русский"
 "Memo view" = "Просмотр мемо"
 # navigator/widgets/viewer/db_window/db_window.py:158
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:569
+# navigator/widgets/viewer/file_viewer/file_viewer.py:572
 "Markdown" = "Markdown"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:568
+# navigator/widgets/viewer/file_viewer/file_viewer.py:571
 "reST" = "reST"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:355
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:972
+# navigator/widgets/viewer/file_viewer/file_viewer.py:976
 "Reading..." = "Чтение..."
-# navigator/widgets/viewer/file_viewer/file_viewer.py:975
+# navigator/widgets/viewer/file_viewer/file_viewer.py:979
 "Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
 # navigator/widgets/viewer/file_window/file_window.py:325
 "Encoding" = "Кодировка"

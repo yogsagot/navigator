@@ -510,6 +510,13 @@ class ViewerDefaultsData(Section):
     html_masks: str = Setting(
         "*.html;*.htm;*.xhtml", doc="The files F3 renders as HTML, as masks separated by ';'",
     )
+    #: The same for PDF, its text read by pypdf.
+    render_pdf: bool = Setting(
+        True, doc="F3 shows a PDF file's text, page by page, rather than its source",
+    )
+    pdf_masks: str = Setting(
+        "*.pdf", doc="The files F3 renders as PDF, as masks separated by ';'",
+    )
 
 
 class FMSetupData(Section):

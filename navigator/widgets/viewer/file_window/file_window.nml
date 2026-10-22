@@ -140,7 +140,7 @@ FileWindow(Window):
         MenuItem:
             text: '~W~rap lines'
             command: Unwrap
-        #: A departure: a Markdown, reStructuredText or HTML file rendered,
+        #: A departure: a Markdown, reStructuredText, HTML or PDF file rendered,
         #: or its source.
         MenuItem:
             text: '~M~arkup view'
