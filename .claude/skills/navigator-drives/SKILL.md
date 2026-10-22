@@ -270,7 +270,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   there (`_profile_key`): F2 edits it (`ConnectDialog(editing=True)`: saved through `profiles.replace`, never
   connected, no paramiko needed), Del removes it unasked, Ctrl+Up/Down `profiles.move` it; the box opens again
   with *Link* dropped on the same row (navml `PopupMenu(submenu=(index, current))`); with any profile there, the
-  list's bottom frame says *F2 Edit  Del Delete  Ctrl+↑↓ Move* (`SubMenu.footer`; `Up/Down` in the ASCII tier); `_go_to` connects a URL through
+  key bar says *F2 Edit*, *Del Delete*, *Ctrl+↑↓ Move* while the list is open (`SubMenu.hints`; `Up/Down` in the ASCII tier); `_go_to` connects a URL through
   `app.shell.reach`; F3/F4/Alt+F3/Alt+F4/`$PAGER`/`$EDITOR` fetch first. `EditWindow.use_set`: F2 writes the copy and
   `put_back(ask=False)`; the title names the origin; no edit record; closing discards. `FileWindow.use_set` the same.
 - **Commands** `NavyLink` (Utilities > *SSH link (SFTP)...*, Alt+F11 -- DN's *Navigator Link*, renamed for its

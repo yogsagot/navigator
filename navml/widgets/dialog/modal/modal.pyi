@@ -16,7 +16,6 @@ from navml.widgets.dialog.control import Control
 
 class Modal(_Component):
     title: str
-    footer: str
     closable: bool
     modal_width: int
     modal_height: int

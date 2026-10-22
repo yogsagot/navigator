@@ -1704,15 +1704,12 @@ class Panel(ContextMenuHost, ListViewer):
         """What a search has typed, while it is searching; else nothing --
         the current file and the selection are info lines, as DN's were."""
         if self.quick_search is not None:
-            label = f"{self.search_label}{self.quick_search} "
-            if self.quick_search:
-                # Ctrl+S again finds the next -- said where it fits whole, after
-                # the text so the caret stays put (a departure, asked for).
-                hinted = f"{label} {tr('Ctrl-S next')} "
-                if len(hinted) <= self.width - 4:
-                    return hinted
-            return label
+            return f"{self.search_label}{self.quick_search} "
         return ""
+
+    def key_hints(self) -> list[tuple[str, str]]:
+        """While searching, Ctrl+S again finds the next -- for the key bar."""
+        return [("Ctrl+S", tr("Next"))] if self.quick_search else []
 
     # -- the info lines: TInfoView ------------------------------------------------
 

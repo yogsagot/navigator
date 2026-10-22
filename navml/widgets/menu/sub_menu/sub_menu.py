@@ -167,6 +167,9 @@ class SubMenu(MenuContainer, MenuNode):
     #: :class:`~navml.widgets.menu.popup_menu.PopupMenu` opens it -- the keys
     #: the box takes, say.  A bar's boxes have no footer, and ignore it.
     footer: str = reactive("")
+    #: The keys this submenu's box takes, as ``(label, caption)`` for the key
+    #: bar, when a popup opens it -- never in its frame.
+    hints: tuple[tuple[str, str], ...] = ()
 
 
 def _names(anchor: Anchor, entry: MenuNode) -> bool:

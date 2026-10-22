@@ -87,7 +87,7 @@ class TreeWindow(Window):
         Centred as the Ctrl+T tree's footer is, and kept clear of the resize
         grip in the corner.  None while there is no search, or no frame.
         """
-        label = self.tree.search_label(room=max(0, self.width - 4))
+        label = self.tree.search_label()
         if not label or not self.framed or self.height < 2:
             return None
         label = label[: max(0, self.width - 4)]
@@ -108,6 +108,5 @@ class TreeWindow(Window):
         if placed is None:
             return None
         x, label = placed
-        # After what is typed -- before any hint that follows it.
-        typed = len(tr(" Search: ")) + len(self.tree.search_path)
-        return min(x + typed, self.width - 3), self.height - 1
+        # Before the label's closing blank, as the panel's caret is.
+        return min(x + len(label) - 1, self.width - 3), self.height - 1

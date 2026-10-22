@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, run_app, key_bar_hints
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -247,7 +247,7 @@ def test_an_empty_history_shows_nothing(files):
     assert seen["modal"] is None
 
 
-def test_the_bottom_frame_names_the_list_s_own_keys(files):
+def test_the_key_bar_names_the_list_s_own_keys_and_the_frame_does_not(files):
     ViewRecord.store(files / "text.txt")
     app = navigator(files)
     seen = {}
@@ -257,6 +257,8 @@ def test_the_bottom_frame_names_the_list_s_own_keys(files):
         ox, oy = modal.offset()
         y = oy + modal.y + modal.height - 1
         seen["row"] = "".join(a._front.get(x, y)[0] or " " for x in range(ox + modal.x, ox + modal.x + modal.width))
+        seen["hints"] = key_bar_hints(a)
 
     run_app(app, [KeyEvent("pagedown", alt=True), lambda a: None, lambda a: None, bottom, KeyEvent("escape")])
-    assert " Space pin  Shift+↑↓ move  ←→ pinned " in seen["row"]
+    assert seen["hints"] == [("Space", "Pin"), ("Shift+↑↓", "Move"), ("←→", "Pinned")]
+    assert "Space" not in seen["row"]

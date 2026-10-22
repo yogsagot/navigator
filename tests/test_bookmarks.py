@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import FakeTerminal, Until, run_app, key_bar_hints
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
@@ -559,19 +559,24 @@ def frame_rows(a) -> tuple[str, str]:
     return row(0), row(box.height - 1)
 
 
-def test_the_bottom_frame_names_the_bookmark_keys_while_there_are_bookmarks(places):
+def test_the_key_bar_names_the_bookmark_keys_and_the_frame_does_not(places):
     add_bookmark(places / "first")
     app = navigator(places / "start")
-    seen = []
-    run_app(app, [KeyEvent("f1", alt=True), BOX, lambda a: seen.append(frame_rows(a)[1]), KeyEvent("escape")])
-    assert " F2 Label  Del Delete  Ctrl+\u2191\u2193 Move " in seen[0]
+    seen = {}
+    run_app(app, [KeyEvent("f1", alt=True), BOX,
+                  lambda a: seen.update(hints=key_bar_hints(a), bottom=frame_rows(a)[1]), KeyEvent("escape"),
+                  lambda a: None, lambda a: seen.update(after=key_bar_hints(a))])
+    # The keys no function key stands for lead; F2's takes F2's own place.
+    assert seen["hints"] == [("Del", "Delete"), ("Ctrl+\u2191\u2193", "Move"), ("F2", "Label")]
+    assert "Label" not in seen["bottom"]
+    assert seen["after"] == []  # the box gone, its keys gone from the bar
 
 
-def test_with_no_bookmarks_the_bottom_frame_is_plain(places):
+def test_with_no_bookmarks_the_key_bar_names_no_bookmark_keys(places):
     app = navigator(places / "start")
     seen = []
-    run_app(app, [KeyEvent("f1", alt=True), BOX, lambda a: seen.append(frame_rows(a)[1]), KeyEvent("escape")])
-    assert "Label" not in seen[0]
+    run_app(app, [KeyEvent("f1", alt=True), BOX, lambda a: seen.append(key_bar_hints(a)), KeyEvent("escape")])
+    assert ("F2", "Label") not in seen[0]
 
 
 # -- the Link list: profiles edited, removed and moved with the box's own keys -------------------------
@@ -611,8 +616,7 @@ def test_f2_edits_a_profile_del_removes_it_and_ctrl_down_moves_it(places):
     LINK_OPEN = Until(lambda a: popup(a) is not None and len(popup(a).boxes) == 2)
     run_app(app, [
         KeyEvent("f1", alt=True), BOX, into_link, LINK_OPEN,
-        lambda a: seen.update(footer=popup(a).boxes[-1].footer),
-        lambda a: None, lambda a: seen.update(painted=seen["footer"] in a.terminal.painted),
+        lambda a: seen.update(hints=key_bar_hints(a)),
         KeyEvent("f2"), Until(lambda a: isinstance(a.modal, ConnectDialog)), edit, KeyEvent("enter"),
         LINK_OPEN, lambda a: seen.update(after_edit=link_names(a), at=popup(a).boxes[-1].current),
         KeyEvent("down"), KeyEvent("delete"), LINK_OPEN,
@@ -621,8 +625,8 @@ def test_f2_edits_a_profile_del_removes_it_and_ctrl_down_moves_it(places):
         lambda a: seen.update(after_move=link_names(a), moved_to=popup(a).boxes[-1].current),
         KeyEvent("escape"), KeyEvent("escape"), lambda a: None,
     ])
-    assert seen["footer"] in ("F2 Edit  Del Delete  Ctrl+\u2191\u2193 Move", "F2 Edit  Del Delete  Ctrl+Up/Down Move")
-    assert seen["painted"]
+    # The *Link* list's keys are on the key bar while it is open.
+    assert ("Del", "Delete") in seen["hints"] and ("F2", "Edit") in seen["hints"]
     assert seen["editing"] == ("Edit SSH link (SFTP)", False, "a.example", "me", "2222", "/srv", "alpha")
     assert seen["after_edit"][:3] == ["alpha2", "beta", "gamma"] and seen["at"] == 0
     assert seen["after_delete"][:2] == ["alpha2", "gamma"]

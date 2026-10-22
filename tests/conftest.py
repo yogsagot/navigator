@@ -416,3 +416,11 @@ def mounted(widget, *, size=(80, 24), stylesheet=None):
         application.stylesheet = stylesheet
     settle()
     return widget
+
+
+def key_bar_hints(app) -> list[tuple[str, str]]:
+    """The key bar's hints as ``(label, caption)``: the keys widgets name
+    through ``key_hints()``, in the order the bar shows them."""
+    from navigator.widgets.shell.keybar.keybar import Hint
+
+    return [(key, item.title) for key, item, _, _ in app.shell.keybar.items() if isinstance(item, Hint)]

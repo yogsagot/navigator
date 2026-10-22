@@ -120,12 +120,6 @@ class Modal(Widget):
                 max(1, (self.width - len(label)) // 2), 0, label,
                 self.part_style("title"),
             )
-        if self.footer:
-            label = f" {self.footer} "[: max(0, self.width - 4)]
-            surface.draw_text(
-                max(2, (self.width - len(label)) // 2), self.height - 1, label,
-                self.part_style("title"),
-            )
         if self.closable and self.width >= 8:
             icon = CLOSE_ICON if self.glyphs > 1 else ASCII_CLOSE_ICON
             surface.draw_text(self.width - 5, 0, icon, self.part_style("icon"))

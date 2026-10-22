@@ -48,6 +48,7 @@ a number steps); a click on a tab selects it.
 from __future__ import annotations
 
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.i18n import tr
 from navkit.glyphs import BOX_CHARSETS, GLYPHS_UNICODE, charset, ellipsis, joins, scrollbar
 from navkit.reactive import effect, peek, reactive
 from navkit.screen import Surface
@@ -118,6 +119,12 @@ class TabView(Layout):
         #: Each page's control that last had the keyboard.  Plain, not
         #: reactive: nothing is drawn from it.
         self._last_focus: dict[Widget, Widget] = {}
+
+    def key_hints(self) -> list[tuple[str, str]]:
+        """Ctrl+PgUp/PgDn change pages, which a tab's title cannot say: its
+        Alt+letter would be a page control's.  For the key bar, while the
+        keyboard is anywhere in here."""
+        return [("Ctrl-PgUp/PgDn", tr("Tabs"))]
 
     def mounted(self) -> None:
         super().mounted()

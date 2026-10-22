@@ -11,7 +11,6 @@ from navigator.widgets.drives.links_dialog.link_list import LinkList
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
-from navml.widgets.dialog.static_text import StaticText
 
 from dataclasses import replace
 from typing import Any
@@ -24,7 +23,6 @@ from navigator.lib.drives.profiles import Entry
 class LinksDialog(Dialog, _Component):
     links_caption: Label
     links: LinkList
-    hint: StaticText
     connect: Button
     edit: Button
     append: Button
@@ -33,6 +31,7 @@ class LinksDialog(Dialog, _Component):
     abandon: Button
     def __init__(self, entries: list[Entry] | None = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
+    def key_hints(self) -> list[tuple[str, str]]: ...
     buttons_row: tuple[Any, ...]
     def row_text(entry: Entry) -> str: ...
     def _refresh(self, cursor: int) -> None: ...

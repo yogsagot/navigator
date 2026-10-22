@@ -10,7 +10,7 @@ description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navi
   it (*local*), else `config_dir()/menu.ini` (*global*, beside `navigator.ini`, not moved by `--config`); neither says
   *File <global path> not found*, and a file that will not parse says *Cannot read ...* with its line. The menu is a
   `PopupMenu` centred on the screen (submenus open beside their entry). In the box **F2 switches local/global, F4
-  edits the menu shown**, said in its bottom frame as DN's status line said it (`hcLUserMenu`/`hcGUserMenu`), its
+  edits the menu shown**, said on the key bar as DN's status line said it (`hcLUserMenu`/`hcGUserMenu`, `PopupMenu(hints=)`), its
   title *User menu (local)*/*(global)* (a departure, asked for); a caption starting `F1 `..`F12 ` is chosen by that key from any depth and outranks both
   (TV's menu took keys before the status line).
 - **Seeded**: `menu.ini` is `associations.MENU` in `associations.TEMPLATES`, its text `navigator/assets/menu.ini` (a

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import FakeTerminal, Until, run_app, key_bar_hints
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -74,8 +74,11 @@ def bottom_row(a) -> str:
     return "".join(a._front.get(x, y)[0] or " " for x in range(ox + modal.x, ox + modal.x + modal.width))
 
 
-def test_the_bottom_frame_names_the_list_s_own_keys(app):
+def test_the_key_bar_names_the_list_s_own_keys_and_the_frame_does_not(app):
     seen = {}
     run_app(app, [KeyEvent("f8", alt=True), Until(listing), lambda a: None,
-                  lambda a: seen.update(row=bottom_row(a)), KeyEvent("escape")])
-    assert " Space keep  ←→ next kept " in seen["row"]
+                  lambda a: seen.update(hints=key_bar_hints(a), row=bottom_row(a)), KeyEvent("escape"),
+                  lambda a: None, lambda a: seen.update(after=key_bar_hints(a))])
+    assert seen["hints"] == [("Space", "Keep"), ("←→", "Next kept")]
+    assert "Space" not in seen["row"]
+    assert seen["after"] == []

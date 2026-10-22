@@ -232,9 +232,8 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first
 name from it that begins so (case folded, `*`/`?`, `..` never found); a character naming nothing is refused, Backspace
-drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret, and with text
-typed ` Search: …  Ctrl-S next ` where that fits whole (`footer_text`; a departure, asked for) -- after the text, so the
-caret, worked out from the text's end, stays put. Esc ends it;
+drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret; with text
+typed the key bar leads with *Ctrl+S Next* (`Panel.key_hints`; a departure, asked for). Esc ends it;
 any other key ends it and does its job -- Enter descends into (or runs) what was found in one press -- as do a click, a
 directory change and losing the keyboard. While it runs `edits_text` is True. Matching rules: `navml/quick_search.py`.
 

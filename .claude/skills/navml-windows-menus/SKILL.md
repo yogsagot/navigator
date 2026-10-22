@@ -28,9 +28,8 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
   (`OpenedEvent`) hides the console again -- no command that opens one checks `console_visible` itself.
 - **Size/Move (Ctrl+F5) is `Window.begin_move`**, TV's `dmDragMove`: the window takes the keyboard, arrows move,
   Shift+arrows size, Enter keeps, Esc puts it back, every other key swallowed (`Window.on_key`, no key table). **While
-  it lasts the bottom edge says so** (`move_hint`, painted in `render_after` so an info line or strip gives way; a
-  departure, asked for: TV said nothing, and the key bar shows only key tables). A subclass's `render_after` must call
-  `super()` (`Manager`'s does).
+  it lasts the key bar names those keys** (`Window.key_hints`; a departure, asked for: TV said nothing). A subclass's
+  `render_after` must call `super()` (`Manager`'s does).
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through.
 - **Window > List (Alt+0) is DN's *Windows Manager*** (`cmWindowManager`, `dlgWindowManager`;

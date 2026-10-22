@@ -36,9 +36,12 @@ class LinksDialog(Dialog):
         self.message.visible = False
         #: The links as they stand in the box, the list's order.
         self.entries: list[Entry] = [replace(entry) for entry in entries or ()]
-        self.hint.text = tr("{add} Add  {edit} Edit  {delete} Delete  {move} Move").format(
-            add="Ins", edit="F2", delete="Del", move="Ctrl+↑↓")
         self._refresh(0)
+
+    def key_hints(self) -> list[tuple[str, str]]:
+        """The list's keys (this dialog's table), for the key bar, which shows a
+        table's function keys alone."""
+        return [("Ins", tr("Add")), ("F2", tr("Edit")), ("Del", tr("Delete")), ("Ctrl+\u2191\u2193", tr("Move"))]
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

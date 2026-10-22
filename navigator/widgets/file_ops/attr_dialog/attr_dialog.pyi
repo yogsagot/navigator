@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, Sequence
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, effect, untracked
+from navkit.reactive import effect, untracked
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.file_ops import fileattr
 
@@ -40,6 +40,7 @@ class AttrDialog(Dialog, _Component):
     recurse: RadioButtons
     def __init__(self, entries: Sequence[Any] = ..., here: Path | None = ..., facts: dict[str, Any] | None = ..., **kwargs: Any) -> None: ...
     def mounted(self) -> None: ...
+    def key_hints(self) -> list[tuple[str, str]]: ...
     lines: tuple[Any, ...]
     async def on_key(self, event: KeyEvent) -> bool: ...
     async def _on_symbolic_click(self, event: MouseClickEvent) -> bool: ...

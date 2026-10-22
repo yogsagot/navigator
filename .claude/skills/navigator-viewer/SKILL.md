@@ -100,8 +100,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   **Open viewers through `navigator.lib.config.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
   restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*; the rectangle, `top`, `x_delta` and `cursor` come
   back only under *Store viewer position* as well.
-  The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). Its bottom frame names the list's own keys,
-  *Space pin  Shift+↑↓ move  ←→ pinned* (`Modal.footer`; a departure, asked for). The Ctrl+Q quick viewer records nothing.
+  The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The key bar names the list's own keys,
+  *Space Pin*, *Shift+↑↓ Move*, *←→ Pinned* (`FileHistoryDialog.key_hints`; a departure, asked for). The Ctrl+Q quick viewer records nothing.
 - **The dBase viewer** (File > View > As DataBase, `ViewAsDataBase`; F3 on a `.dbf`, DN's `ViewFile` `XT = '.DBF'`):
   `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
   cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As

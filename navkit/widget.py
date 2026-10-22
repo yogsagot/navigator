@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping, Sequence
 
 from navkit import commands
 from navkit import glyphs as glyphs_module
@@ -988,6 +988,16 @@ class Widget:
         showing the command greys it out by itself.
         """
         return True
+
+    def key_hints(self) -> Sequence[tuple[str, str]]:
+        """The keys this widget takes that no key table names, as
+        ``(label, caption)`` pairs already spelled for show and translated --
+        ``("Space", "Keep")``, ``("F2", "Edit")`` -- for whatever shows key
+        hints: Navigator's key bar, which asks every widget from the focus out.
+        A key a table binds shows by itself and needs none.  Read state here
+        as :meth:`enables` does: a hint can come and go with a mode.
+        """
+        return ()
 
     def checks(self, command: commands.Command) -> bool | None:
         """Whether *command* is a toggle that is on (True) or off (False) here,

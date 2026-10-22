@@ -58,9 +58,9 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   paths are resolved, so a bookmark through a symlinked path (`$HOME` via a link) is not marked.
 - **Del** (`DELETE_BOOKMARK_KEY`) removes the selected bookmark, unasked as *Remove this folder* is, and the box opens
   again on the entry that took its place (the one before, for the last). On *Add*/*Remove* it does nothing.
-- **The box's bottom frame names those keys** -- `F2 Label  Del Delete  Ctrl+↑↓ Move` (`Up/Down` at the ASCII tier,
-  `manager._move_keys`, shared with the *Link* list's own footer) -- while there are bookmarks; a departure, asked
-  for, as SelectDrive's box had no such keys. Pass the same footer to `PopupMenu.measure`.
+- **The key bar names those keys** while there are bookmarks -- *Del Delete*, *Ctrl+↑↓ Move*, *F2 Label*
+  (`PopupMenu(hints=)`; `Up/Down` at the ASCII tier, `manager._move_keys`, shared with the *Link* list's `SubMenu.hints`)
+  -- a departure, asked for, as SelectDrive's box had no such keys. Never in the box's frame: key hints are the key bar's.
 
 ## Gotchas
 

@@ -1408,17 +1408,16 @@ class Shell(DockLayout):
             fill(box_menu, menu.items)
             if not items:
                 return
-            # Which menu this is, and DN's two status items for the box
-            # (``hcLUserMenu``/``hcGUserMenu``) in its bottom frame: the key
-            # bar cannot show keys the box takes itself.  The title's word is
-            # a departure, asked for: DN told the two apart by the status line.
+            # Which menu this is -- a departure, asked for: DN told the two
+            # apart by its status line -- and that status line's two items
+            # (``hcLUserMenu``/``hcGUserMenu``) on the key bar.
             if is_global:
-                title, footer = tr("User menu (global)"), tr("F2 Local menu  F4 Edit")
+                title, other = tr("User menu (global)"), tr("Local menu")
             else:
-                title, footer = tr("User menu (local)"), tr("F2 Global menu  F4 Edit")
+                title, other = tr("User menu (local)"), tr("Global menu")
             box = PopupMenu(box_menu, behind=self, keys=tuple(dict.fromkeys([*fkeys, "f2", "f4"])),
-                            title=title, footer=footer)
-            width, height = PopupMenu.measure(box_menu, app, self, title, footer)
+                            title=title, hints=(("F2", other), ("F4", tr("Edit"))))
+            width, height = PopupMenu.measure(box_menu, app, self, title)
             box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
             chosen = await box.execute(app)
             pressed = box.pressed

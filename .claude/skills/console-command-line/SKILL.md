@@ -188,8 +188,8 @@ Names keep their case (DN upper-cased them).
 the oldest at the top and the cursor on the newest. Space marks a command -- DN's `+` flag is navml's *pinned*,
 synced to the store as the box closes or acts -- Left/Right go to the marked one before/after, Del or *Kill* forgets
 one (a marked one is refused, where DN beeped), *Edit* reworks it in `EditLineDialog` (`InputBox`, *Edit History*,
-history `edit_history`; it comes back as the newest, keeping its mark); the box's bottom frame says *Space keep  ←→
-next kept* (`Modal.footer`, a departure, asked for). *Run* (Enter, double click) is
+history `edit_history`; it comes back as the newest, keeping its mark); the key bar says *Space Keep*, *←→ Next kept*
+(`CommandHistoryDialog.key_hints`, a departure, asked for). *Run* (Enter, double click) is
 `Shell.run_command`; *Drop* puts it on the line (`set_text`). DN's Shift+Up/Down reordering is not here: the store
 keeps its lists by when.
 

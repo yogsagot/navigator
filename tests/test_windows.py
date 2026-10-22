@@ -337,27 +337,22 @@ def test_keyboard_move_mode_moves_resizes_and_escape_undoes(desk):
     assert win.x == 9 and app.focused is win.inner
 
 
-def test_the_bottom_edge_names_the_move_keys_while_moving_and_over_what_sits_there(desk):
+def test_move_mode_names_its_keys_for_the_key_bar_and_leaves_the_frame_alone(desk):
     app, desktop = desk
     win = desktop.open(window(0, 0, 70, 10))
-    # Something on the bottom edge, as an editor's info line is: the hint goes over it.
-    strip = Widget(parent=win, x=1, y=9, width=68, height=1)
-    strip.render = lambda surface: surface.draw_text(0, 0, "i" * 68, strip.style)
 
     def bottom() -> str:
         buffer = ScreenBuffer(70, 10)
         win.render_tree(buffer)
         return "".join(buffer.get(x, 9)[0] or " " for x in range(70))
 
-    assert win.move_hint() is None and "Arrows" not in bottom()
+    assert win.key_hints() == []
     handle(app, KeyEvent("f5", ctrl=True))
-    assert " Arrows move  Shift+arrows size  Enter keep  Esc undo " in bottom()
+    labels = [label for label, _ in win.key_hints()]
+    assert labels[2:] == ["Enter", "Esc"] and labels[1].startswith("Shift+")
+    assert "Move" not in bottom() and "Enter" not in bottom()  # key hints are the key bar's, never the frame's
     handle(app, KeyEvent("enter"))
-    assert win.move_hint() is None and "Arrows" not in bottom()
-    narrow = desktop.open(window(0, 0, 20, 6))
-    handle(app, KeyEvent("f5", ctrl=True))
-    x, label = narrow.move_hint()
-    assert x + len(label) <= narrow.width - 2  # cut to the frame, the corner kept
+    assert win.key_hints() == []
 
 
 def test_a_window_with_nothing_to_focus_holds_the_keyboard_itself(desk):
@@ -527,19 +522,3 @@ def test_tile_cascade_and_close_all_need_a_window_that_consents(desk):
     assert [desktop.enables(c) for c in commands] == [False, False, False]
     desktop.open(window(5, 5, 30, 10))
     assert [desktop.enables(c) for c in commands] == [True, True, True]
-
-
-def test_a_modal_paints_its_footer_centred_on_the_bottom_edge_and_cut_to_it():
-    root = Widget(width=40, height=10)
-    modal = Modal(parent=root, modal_width=30, modal_height=5, footer="F2 Do  F4 That")
-    settle()
-    buffer = ScreenBuffer(30, 5)
-    modal.render(buffer.view(0, 0, 30, 5))
-    bottom = "".join(buffer.get(x, 4)[0] or " " for x in range(30))
-    assert " F2 Do  F4 That " in bottom
-    assert bottom.index(" F2") == (30 - len(" F2 Do  F4 That ")) // 2
-    modal.footer = "x" * 60
-    buffer = ScreenBuffer(30, 5)
-    modal.render(buffer.view(0, 0, 30, 5))
-    bottom = "".join(buffer.get(x, 4)[0] or " " for x in range(30))
-    assert bottom[0] != "x" and bottom[1] != "x" and bottom[-1] != "x" and bottom[-2] != "x"

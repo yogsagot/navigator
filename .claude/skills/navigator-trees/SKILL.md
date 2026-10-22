@@ -54,9 +54,7 @@ Slots `[94-101]`, `[104-110]`.
   right-click host -- `ContextMenuHost`'s hooks written out, as `InputLine`'s, a component's half having one base --
   a click on a row first moving the cursor there (`prepare_context`, `row_at`).
 
-- **A tree's search label says *Ctrl-S next*** once text is typed and it fits (`TreeView.search_label(room=)`, the tree
-  window passing its frame's room); the tree window's caret is worked out from the prefix and `search_path`, not the
-  label's end, so the hint after the text does not move it.
+- **While a tree searches, the key bar says *Ctrl+S Next*** (`TreeView.key_hints`); its search label is the search alone.
 
 - **The Ctrl+T tree's right-click menu** (a departure, asked for): `DirectoryTree` is a `ContextMenuHost` whose
   `menu` its holder sets -- `Manager._tree_menu` for Ctrl+T's: *~G~o to directory* (Enter, `GoToTreeDirectory` ->

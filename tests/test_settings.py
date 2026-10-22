@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, run_app, key_bar_hints
 from navkit.events import KeyEvent
 from navigator import __main__ as entry
 from navigator.__main__ import Navigator, load_settings
@@ -892,7 +892,7 @@ def test_use_system_clipboard_switches_the_applications(tmp_path, quiet_console)
 
 
 @pytest.mark.parametrize("side", ["top", "left"])
-def test_the_bottom_frame_says_how_to_change_tabs(tmp_path, quiet_console, side):
+def test_the_key_bar_says_how_to_change_tabs_and_the_frame_does_not(tmp_path, quiet_console, side):
     from navigator.widgets.shell.commands import Settings
 
     SETTINGS.interface.settings_tabs = side
@@ -905,8 +905,9 @@ def test_the_bottom_frame_says_how_to_change_tabs(tmp_path, quiet_console, side)
         buffer = a._front
         y = oy + dialog.y + dialog.height - 1
         seen["bottom"] = "".join(buffer.get(x, y)[0] or " " for x in range(ox + dialog.x, ox + dialog.x + dialog.width))
+        seen["hints"] = key_bar_hints(a)
 
     run_app(app, [lambda a: a.spawn(a.run_command(Settings)), lambda a: None, lambda a: None, look,
                   KeyEvent("escape")])
-    assert " Ctrl-PgUp/PgDn: tabs " in seen["bottom"]
-    assert seen["bottom"].rstrip()[-1] not in " "  # the corner is still there
+    assert ("Ctrl-PgUp/PgDn", "Tabs") in seen["hints"]
+    assert "PgDn" not in seen["bottom"]

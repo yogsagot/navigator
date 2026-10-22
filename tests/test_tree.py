@@ -13,7 +13,7 @@ from navkit.screen import ScreenBuffer
 
 from navml.widgets.dialog.tree_view import ChosenEvent, TreeNode, TreeView
 
-from conftest import FakeTerminal, Until, run_app, settle
+from conftest import FakeTerminal, Until, run_app, settle, key_bar_hints
 
 
 def node(name, *children, expanded=False):
@@ -874,22 +874,17 @@ def test_the_tree_menu_joins_the_bar_and_a_right_click_offers_it_on_the_row_clic
     assert seen["search"]
 
 
-def test_a_tree_s_search_label_names_ctrl_s_next_when_it_fits_and_the_window_caret_stays_after_the_text(places):
+def test_a_tree_s_search_names_ctrl_s_on_the_key_bar_and_its_label_stays_the_search(places):
     seen = {}
 
     def look(a):
         window = a.shell.desktop.active_window
-        tree = window.tree
-        seen["label"] = tree.search_label(room=60)
-        seen["tight"] = tree.search_label(room=len(tree.search_label(room=0)))
-        x, label = window._search_label()
-        seen["caret"] = window.cursor_position()[0] - x
-        seen["typed"] = len(" Search: ") + len(tree.search_path)
+        seen["label"] = window.tree.search_label()
+        seen["hints"] = key_bar_hints(a)
 
     tree_window_run(places, KeyEvent("s", ctrl=True), KeyEvent("o", "o"), look)
-    assert seen["label"].endswith("  Ctrl-S next ")
-    assert "Ctrl-S" not in seen["tight"]
-    assert seen["caret"] == seen["typed"]
+    assert "Ctrl-S" not in seen["label"] and seen["label"].startswith(" Search: ")
+    assert ("Ctrl+S", "Next") in seen["hints"]
 
 
 def test_the_ctrl_t_tree_s_right_click_menu_goes_there_and_closes_it(places):

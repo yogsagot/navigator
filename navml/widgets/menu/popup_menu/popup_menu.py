@@ -50,7 +50,7 @@ and only one that does name a command is asked whether it would run.
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import bind
@@ -83,7 +83,7 @@ class PopupMenu(Widget):
                  current: int = -1, behind: Widget | None = None,
                  keys: tuple[str, ...] = (), title: str = "", footer: str = "",
                  buttons: tuple[str, ...] = ("left",), submenu: tuple[int, int] | None = None,
-                 **kwargs: Any) -> None:
+                 hints: Sequence[tuple[str, str]] = (), **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: A submenu of the first box to open as the box opens, and the entry
         #: to select in it: ``(index, current)``; see the module.
@@ -93,6 +93,10 @@ class PopupMenu(Widget):
         self.title = title
         #: The caption in the first box's bottom frame; empty for none.
         self.footer = footer
+        #: What the key bar says while the first box is up: the *keys* it
+        #: takes, as ``(label, caption)`` -- a submenu's own
+        #: :attr:`~navml.widgets.menu.sub_menu.SubMenu.hints` while it is open.
+        self.hints = tuple(hints)
         #: Where the box's top left corner goes, in screen coordinates; it is
         #: moved back onto the screen if it would not fit.
         self.at = (x, y)
@@ -131,6 +135,14 @@ class PopupMenu(Widget):
     def boxes(self) -> list[PopupBox]:
         """The open boxes, the first one first and the one taking keys last."""
         return [child for child in self.children if isinstance(child, PopupBox)]
+
+    def key_hints(self) -> Sequence[tuple[str, str]]:
+        """The keys the box taking keys takes: its submenu's hints, if it has
+        any, else the popup's own (:attr:`hints`)."""
+        for box in reversed(self.boxes):
+            if box is not getattr(self, "box", None) and getattr(box.menu, "hints", ()):
+                return box.menu.hints
+        return self.hints
 
     @staticmethod
     def measure(menu: SubMenu, app: Application | None = None,

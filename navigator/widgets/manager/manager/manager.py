@@ -1717,18 +1717,17 @@ class Manager(Window):
             # back has to be where it will be before the box is placed by it.
             self.panels.arrange()
             title = tr("Bookmarks")
-            # The keys the box takes on a bookmark, in its own frame, as the
-            # *Link* list says its own -- a departure, asked for.
-            footer = tr("{label} Label  {delete} Delete  {move} Move").format(
-                label="F2", delete="Del", move=_move_keys(self.glyphs)) if rows else ""
-            width, _ = PopupMenu.measure(menu, app, self, title, footer)
+            # The keys the box takes on a bookmark, for the key bar, as the
+            # *Link* list gives its own -- a departure, asked for.
+            hints = (("F2", tr("Label")), ("Del", tr("Delete")), (_move_keys(self.glyphs), tr("Move"))) if rows else ()
+            width, _ = PopupMenu.measure(menu, app, self, title)
             ox, oy = panel.offset()
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
             submenu = None
             if reopen is not None:
                 submenu = (menu.entries().index(link_menu), min(reopen, max(0, len(link_menu.entries()) - 1)))
-            box = PopupMenu(menu, x, y, current=current, behind=self, title=title, footer=footer, submenu=submenu,
+            box = PopupMenu(menu, x, y, current=current, behind=self, title=title, hints=hints, submenu=submenu,
                             keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
             chosen = await box.execute(app)
             reopen = None
@@ -3728,7 +3727,7 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
 
 
 def _move_keys(glyphs: int) -> str:
-    """Ctrl+Up/Ctrl+Down as a box's footer says them: arrows, or words in ASCII."""
+    """Ctrl+Up/Ctrl+Down as the key bar says them: arrows, or words in ASCII."""
     arrows = "Up/Down" if glyphs <= glyphs_module.GLYPHS_ASCII else "\u2191\u2193"
     return f"Ctrl+{arrows}"
 
@@ -3748,9 +3747,8 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
     link = menu.add_submenu(tr("~L~ink"), before=before)
     rows = profiles.profiles()
     if rows:
-        # The keys ``_profile_key`` takes there, in the list's own frame.
-        link.footer = tr("{edit} Edit  {delete} Delete  {move} Move").format(
-            edit="F2", delete="Del", move=_move_keys(glyphs))
+        # The keys ``_profile_key`` takes there, for the key bar.
+        link.hints = (("F2", tr("Edit")), ("Del", tr("Delete")), (_move_keys(glyphs), tr("Move")))
     menu.add_line(before=before)
     found: dict[int, Any] = {}
     for row in rows:

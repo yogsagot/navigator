@@ -122,7 +122,7 @@ name = "Latviešu"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:189
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:522 ...
+# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Meklēt: "
 # navml/widgets/dialog/input_line/input_line.py:377
 "Cu~t~" = "~I~zgriezt"
@@ -134,9 +134,22 @@ name = "Latviešu"
 "C~l~ear" = "~T~īrīt"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Atlasīt ~v~isu"
-# navml/widgets/dialog/tree_view/tree_view.py:524
-"Ctrl-S next" = "Ctrl-S nākamais"
+# navml/widgets/dialog/tab_view/tab_view.py:127
+"Tabs" = "Cilnes"
+# navml/widgets/dialog/tree_view/tree_view.py:522
+"Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
-# navml/widgets/window/window.py:284
+# navml/widgets/window/window.py:282
+"Move" = "Pārvietot"
+# navml/widgets/window/window.py:282
+"Size" = "Izmērs"
+# navml/widgets/window/window.py:282
+"Keep" = "Paturēt"
+# navml/widgets/window/window.py:282
+"Undo" = "Atsaukt"
+
+# No longer shown anywhere; kept so nothing written is lost.
+[unused]
+"Ctrl-S next" = "Ctrl-S nākamais"
 "Arrows move  Shift+arrows size  Enter keep  Esc undo" = "Bultas: pārvietot  Shift+bultas: izmērs  Enter: paturēt  Esc: atcelt"

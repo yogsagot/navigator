@@ -23,7 +23,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import IDLE, FakeTerminal, awaited, mounted, run_app, settle
+from conftest import IDLE, FakeTerminal, awaited, mounted, run_app, settle, key_bar_hints
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons
 from navigator import __version__
@@ -1171,29 +1171,14 @@ def test_the_search_shows_on_the_footer_with_the_caret_after_it(tree):
     def look(a):
         panel = a.manager.left
         footer = panel.footer_text()
-        seen.append((footer, panel.cursor_position(), panel.label_x(footer)))
+        seen.append((footer, panel.cursor_position(), panel.label_x(footer), key_bar_hints(a)))
 
-    run_app(app, [KeyEvent("s", ctrl=True), *keys("tw"), look])
-    footer, caret, x = seen[0]
-    # Ctrl+S again finds the next: said after the text, which the caret stays at.
-    assert footer == " Search: tw  Ctrl-S next "
+    run_app(app, [KeyEvent("s", ctrl=True), look, *keys("tw"), look, KeyEvent("escape"), look])
+    (_, _, _, empty), (footer, caret, x, typed), (_, _, _, ended) = seen
+    assert footer == " Search: tw "
     assert caret == (x + len(" Search: tw"), app.manager.left.height - 1)
-
-
-def test_the_search_hint_goes_where_the_footer_has_no_room_for_it(tree):
-    app = navigator(tree)
-    seen = []
-
-    def narrow(a):
-        panel = a.manager.left
-        panel.quick_search = ""
-        seen.append(panel.footer_text())
-        panel.quick_search = "x" * (panel.width - 16)
-        seen.append(panel.footer_text())
-
-    run_app(app, [KeyEvent("s", ctrl=True), narrow])
-    assert seen[0] == " Search:  "  # nothing typed: nothing to find next
-    assert "Ctrl-S" not in seen[1] and seen[1].endswith("x ")
+    # Ctrl+S again finds the next: said on the key bar once there is text to find.
+    assert empty == [] and typed == [("Ctrl+S", "Next")] and ended == []
 
 
 def test_the_panel_menu_carries_ctrl_h(tree):
@@ -4228,3 +4213,21 @@ def test_every_name_selector_in_the_sheet_has_a_widget_named_so():
         named.update(re.findall(r"^\s*name:\s*[\"']([^\"']+)[\"']", document.read_text(), re.M))
     assert wanted, "no #name selectors found: the test no longer reads the sheet"
     assert wanted <= named, f"named in the sheet, by no widget: {sorted(wanted - named)}"
+
+
+def test_the_key_bar_leads_with_hints_puts_an_f_key_s_in_its_place_and_the_nearer_wins(tree, monkeypatch):
+    from navigator.widgets.manager.manager import Manager
+    from navigator.widgets.manager.panel import Panel
+    from navigator.widgets.shell.keybar.keybar import Hint
+
+    monkeypatch.setattr(Panel, "key_hints", lambda self: [("Space", "Near"), ("F2", "Hinted")])
+    monkeypatch.setattr(Manager, "key_hints", lambda self: [("Space", "Far"), ("Ins", "Outer")])
+    app = navigator(tree)
+    seen = []
+    run_app(app, [lambda a: seen.append([(key, item.title, isinstance(item, Hint))
+                                         for key, item, _, _ in a.shell.keybar.items()])])
+    row = seen[0]
+    assert row[:2] == [("Space", "Near", True), ("Ins", "Outer", True)]  # the nearer Space; hints lead
+    assert ("F2", "Hinted", True) in row  # F2's hint in F2's place, not the bound command
+    labels = [key for key, _, _ in row]
+    assert labels[labels.index("f1") + 1] == "F2"  # between F1 and F3, where F2 stands

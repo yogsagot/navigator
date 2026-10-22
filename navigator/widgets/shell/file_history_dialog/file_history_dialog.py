@@ -15,7 +15,6 @@ from typing import Any
 from navkit.events import Event
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
-from navkit.reactive import bind
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -27,11 +26,13 @@ class FileHistoryDialog(Dialog):
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
-        # The list's own keys, which no button shows (DN's ``TTHistList``).
-        self.footer = bind(lambda o: tr("Space pin  Shift+{rows} move  {sides} pinned").format(
-            rows="\u2191\u2193" if o.glyphs >= GLYPHS_UNICODE else "Up/Down",
-            sides="\u2190\u2192" if o.glyphs >= GLYPHS_UNICODE else "Left/Right"), yielding=True)
         self.records.show(model)
+
+    def key_hints(self) -> list[tuple[str, str]]:
+        """The list's own keys, which no button shows (DN's ``TTHistList``)."""
+        unicode = self.glyphs >= GLYPHS_UNICODE
+        rows, sides = ("\u2191\u2193", "\u2190\u2192") if unicode else ("Up/Down", "Left/Right")
+        return [("Space", tr("Pin")), (f"Shift+{rows}", tr("Move")), (sides, tr("Pinned"))]
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

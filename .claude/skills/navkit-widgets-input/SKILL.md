@@ -141,6 +141,12 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   click runs the command. While Alt/Ctrl/Shift is held it shows that modifier's row (`StatusDef hcFilePanel`'s `-`/`+`/`:` items, bound in
   `manager.nml`) (`Application.modifiers`, needs the
   kitty protocol -- see `navkit-terminal`).
+- **Every key hint goes on the key bar, never in a frame** (the user's rule). Keys a widget takes that no key table
+  names -- a list's Space, a mode's arrows, a popup's `keys=` -- are `Widget.key_hints()`: `(label, caption)` pairs,
+  translated, read from state. The bar (`navigator/widgets/shell/keybar/keybar.py`) asks every widget from the focus
+  out, the nearest winning a label; a hint labelled `F2` takes F2's slot, the rest lead before the function keys
+  (they say what the keyboard does now; a panel's ten F-keys fill 80 columns, so the last give way). Hints are
+  `Hint` items: never greyed, a click does nothing. Tests read them with conftest's `key_bar_hints(app)`.
 
 ## Read when
 
