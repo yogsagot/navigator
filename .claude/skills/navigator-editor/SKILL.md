@@ -373,6 +373,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`_record`) empties it. `redo()` replays a group forward through the listeners and returns where its last change
   ended, where `on_redo` puts the cursor. Undoing the saved group no longer loses the save point: redoing back to it
   leaves the text unmodified, and `mark_saved` accepts a point redo still holds. Both keys need the kitty protocol.
+- **Every bound key is on a menu** (departures, asked for): Editor > *Delete line* (Ctrl+Y, also the context menu),
+  *Delete word left* (Ctrl+Backspace, also the context menu), *Insert line* (Ctrl+N), Search > *Matching bracket*
+  (Alt+Left/Right), Block > *Hide/show block* (Alt+H). And the commands DN reached by ^K/^Q chords alone have modern
+  defaults, so their menu items show a key that works: Alt+Shift+V move, K copy, I indent, U/L/C upper/lower/
+  capitalise block, D/T insert date/time (Alt+Shift+letter arrives from any terminal; the WordStar presets replace
+  them with the chords). `menu_box.key_caption` shows the live binding and falls back to the `.nml`'s static `key:`,
+  so a static key must be one the default set binds. Left off the menus on purpose: movement, Enter/Tab/Backspace/
+  Del, Ctrl+Up/Down scrolling, Insert (the option strip shows it).
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a

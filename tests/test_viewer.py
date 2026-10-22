@@ -687,6 +687,26 @@ def test_the_viewer_marks_blanks_tabs_and_each_kind_of_ending(tmp_path, quiet_co
     assert seen["mark"] == seen["plain"].derive(dim=True)
 
 
+def test_the_view_menu_shows_f4_f6_and_hidden_characters_has_a_hotkey(files):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        menu = opened(a).view_menu
+        for caption in ("Hex/Text/Dump", "Filter", "Show hidden characters"):
+            seen[caption] = key_caption(menu.entry(caption), a, a.focused)
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, look,
+                  KeyEvent("v", "v", alt=True), KeyEvent("o", "o"), lambda a: None,
+                  lambda a: seen.update(hidden=opened(a).viewer.show_hidden),
+                  KeyEvent("v", "v", alt=True), KeyEvent("x", "x"), lambda a: None,
+                  lambda a: seen.update(mode=opened(a).viewer.mode)])
+    assert seen == {"Hex/Text/Dump": "F4", "Filter": "F6",
+                    "Show hidden characters": "Ctrl-Shift-8", "hidden": True, "mode": "hex"}
+
+
 def test_hidden_characters_switch_from_the_view_menu(files):
     from navigator.widgets.editor.commands import SwitchHiddenChars
 

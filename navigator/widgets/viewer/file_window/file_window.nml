@@ -122,6 +122,11 @@ FileWindow(Window):
         id: view_menu
         text: '~V~iew'
         after: 'File'
+        #: F4 had no entry while the three below stood for it -- a departure,
+        #: asked for, so every bound key shows on the menu.
+        MenuItem:
+            text: 'He~x~/Text/Dump'
+            command: HexMode
         MenuItem:
             text: '~T~ext'
             command: SetViewMode('text')
@@ -144,16 +149,20 @@ FileWindow(Window):
         MenuItem:
             text: 'S~y~ntax highlight'
             command: SwitchHighLight
-        #: A departure: DN had no such option.  No hotkey: every letter of its
-        #: caption is another entry's already.
+        #: A departure: DN had no such option.  The editor's caption, whose ``o``
+        #: is the only letter no other entry has.
         MenuItem:
-            text: 'Hidden characters'
+            text: 'Sh~o~w hidden characters'
             command: SwitchHiddenChars
         #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
         SubMenu:
             id: view_menu_file_type
             text: '~F~ile type'
             key_command: ChooseFileType
+        #: F6, as F4 above.
+        MenuItem:
+            text: 'Fi~l~ter'
+            command: AddFilter
         MenuItem:
             text: '~N~o filter'
             command: SetViewFilter(0)

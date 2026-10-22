@@ -1,6 +1,6 @@
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
-from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive
+from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
 from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels
@@ -219,6 +219,16 @@ Manager(Window):
             text: 'Show/hide ~f~ooter'
             command: ToggleInfoLines
             key: 'Alt-I'
+        #: Not on DN's menu, where Alt+Left/Right moved the ``TSeparator`` with
+        #: no ``cm*`` -- a departure, asked for.  No hotkeys: only ``j`` is free.
+        MenuItem:
+            text: 'Move divider left'
+            command: MoveSeparator(step=-1)
+            key: 'Alt-Left'
+        MenuItem:
+            text: 'Move divider right'
+            command: MoveSeparator(step=1)
+            key: 'Alt-Right'
         MenuLine:
         MenuItem:
             text: 'Director~y~ tree'

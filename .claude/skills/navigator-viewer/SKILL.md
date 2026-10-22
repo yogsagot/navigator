@@ -73,7 +73,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 - **The option strip and Hidden characters** -- see `navigator-editor`, which has both; the viewer's strip is
   `option_items.viewer_items`: the mode (`HexMode`, cycles), Wrap (`Unwrap`), Hi, ¶ (`SwitchHiddenChars`, handled
   and ticked by `FileWindow`), the encoding (`ChooseEncoding`), the file type and MD/HTML (`SwitchRendered`); Wrap, Hi, ¶ and the type are text
-  mode only, greyed in hex/dump. *Hidden characters* (View, Ctrl+Shift+8; no menu hotkey -- every letter is taken) marks text mode only:
+  mode only, greyed in hex/dump. *Hidden characters* (View > *Sh~o~w hidden characters*, the editor's caption, its `o` the one letter free; Ctrl+Shift+8) marks text mode only:
   `FileViewer._hidden_row` reads each row's shown bytes and its last two (the ending) at paint time; the decoders
   are untouched, and the filter's `·` is told from a blank's by being faint. `[viewer] show_options`/`show_hidden`.
 - **While a viewer window is active the bar has a *View* menu after *File*** (modes, filters and wrap ticked, search, go
@@ -107,6 +107,10 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   at one field a record by a slip, every one in scope is looked at here), Shift+F7/Ctrl+L again. A file with no
   records shows *Empty database* and opens nothing. Colours are the dBase group [166]-[171]. Not kept in a desktop.
 - Commands: `navigator/widgets/viewer/commands.py`.
+
+- **Every bound key is on the View menu** (a departure, asked for): F4 and F6, which cycle, are *He~x~/Text/Dump*
+  (`HexMode`) and *Fi~l~ter* (`AddFilter`) above the entries that pick one mode or filter, on the context menu too.
+  Only Ctrl+L (`SearchAgain`, *Search again*'s second key) and F3 (`CloseViewer`) stay uncaptioned, as DN and MC had them.
 
 ## Read when
 

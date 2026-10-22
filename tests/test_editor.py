@@ -603,6 +603,39 @@ def test_an_editor_feature_still_to_come_is_greyed(files):
     assert seen == {"justify": False, "save": True}
 
 
+def test_the_editor_menu_shows_a_working_key_for_every_block_command(files):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        menu = editor_window(a).edit_menu
+        for path in (("Block", "Move"), ("Block", "Copy"), ("Block", "Indent"),
+                     ("Block", "Hide/show block"), ("Block", "Uppercase"),
+                     ("Search", "Matching bracket"), ("Misc", "Insert date"),
+                     ("Delete word left",), ("Insert line",)):
+            entry = menu
+            for caption in path:
+                entry = entry.entry(caption)
+            seen[path[-1]] = key_caption(entry, a, a.focused)
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, look])
+    assert seen == {
+        "Move": "Alt-Shift-V", "Copy": "Alt-Shift-K", "Indent": "Alt-Shift-I",
+        "Hide/show block": "Alt-H", "Uppercase": "Alt-Shift-U",
+        "Matching bracket": "Alt-Left", "Insert date": "Alt-Shift-D",
+        "Delete word left": "Ctrl-BkSp", "Insert line": "Ctrl-N",
+    }
+
+
+def test_alt_shift_u_uppercases_the_block(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("end", shift=True),
+                  KeyEvent("u", "U", alt=True, shift=True)])
+    assert editor_window(app).editor.document.encode() == b"FIRST LINE\r\nsecond\tline\r\n"
+
+
 # -- Backspace unindents ----------------------------------------------------------------
 
 

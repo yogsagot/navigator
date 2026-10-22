@@ -74,8 +74,14 @@ def test_a_right_click_on_a_file_moves_the_cursor_and_offers_its_operations(tree
     assert seen["captions"] == [
         "View", "Edit", "Copy...", "Rename/Move...", "Create symlink...", "Delete",
         "File Attributes...", "Make directory", "Select group...", "Unselect group...",
-        "Invert selection",
+        "Invert selection", "Insert name", "Insert path",
     ]
+
+
+def test_insert_name_from_the_menu_types_it_on_the_command_line(tree):
+    app = navigator(tree)
+    run_app(app, [right(5, 5), OPEN, KeyEvent("i", "i"), SHUT])
+    assert app.shell.command_line.value.strip() == "one.txt"
 
 
 def test_a_directory_offers_no_view_but_its_length(tree):
@@ -93,7 +99,7 @@ def test_the_parent_entry_offers_only_what_needs_no_selection(tree):
     run_app(app, [right(5, 2), OPEN, lambda a: seen.update(captions=captions(a))])
     assert seen["captions"] == [
         "Count directory length", "Make directory", "Select group...",
-        "Unselect group...", "Invert selection",
+        "Unselect group...", "Invert selection", "Insert name", "Insert path",
     ]
 
 
@@ -263,9 +269,9 @@ def test_the_editor_offers_select_all_and_a_right_click_inside_the_block_keeps_i
                   lambda a: seen.update(block=editor(a).block),
                   right(3, 3), OPEN,
                   lambda a: seen.update(after=editor(a).block, enabled=enabled(a))])
-    assert seen["captions"][:9] == [
-        "Undo", "Redo", "Cut", "Copy", "Paste", "Clear", "Delete line", "Select all",
-        "Find...",
+    assert seen["captions"][:10] == [
+        "Undo", "Redo", "Cut", "Copy", "Paste", "Clear", "Delete line", "Delete word left",
+        "Select all", "Find...",
     ]
     assert seen["block"] is not None
     assert seen["after"] == seen["block"]

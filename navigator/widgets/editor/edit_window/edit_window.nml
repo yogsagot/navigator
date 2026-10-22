@@ -1,5 +1,5 @@
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
@@ -145,7 +145,7 @@ EditWindow(Window):
         MenuItem:
             text: 'R~e~do'
             command: Redo
-            key: 'Shift-Alt-BkSp'
+            key: 'Alt-Shift-BkSp'
         MenuLine:
         MenuItem:
             text: 'Cu~t~'
@@ -175,6 +175,15 @@ EditWindow(Window):
             text: '~D~elete line'
             command: DeleteLine
             key: 'Ctrl-Y'
+        #: Ctrl+Backspace and Ctrl+N had no menu entry in DN either.
+        MenuItem:
+            text: 'Delete ~w~ord left'
+            command: DeleteWordLeft
+            key: 'Ctrl-BkSp'
+        MenuItem:
+            text: 'Insert l~i~ne'
+            command: InsertLine
+            key: 'Ctrl-N'
         MenuLine:
         SubMenu:
             id: edit_menu_file
@@ -232,6 +241,11 @@ EditWindow(Window):
                 text: '~G~o to line number...'
                 command: GotoLineNumber
                 key: 'Alt-G'
+            #: ^Q[ / ^Q] had no menu entry in DN -- a departure, asked for.
+            MenuItem:
+                text: '~M~atching bracket'
+                command: BracketPair
+                key: 'Alt-Left'
         SubMenu:
             id: edit_menu_paragraph
             text: 'Pa~r~agraph'
@@ -261,32 +275,37 @@ EditWindow(Window):
             MenuItem:
                 text: '~M~ove'
                 command: MoveBlock
-                key: 'Ctrl K V'
+                key: 'Alt-Shift-V'
             MenuItem:
                 text: '~C~opy'
                 command: CopyBlock
-                key: 'Ctrl K C'
+                key: 'Alt-Shift-K'
             MenuItem:
                 text: '~I~ndent'
                 command: IndentBlock
-                key: 'Ctrl K I'
+                key: 'Alt-Shift-I'
             MenuItem:
                 text: '~U~nindent'
                 command: UnindentBlock
-                key: 'Ctrl K U'
+                key: 'Shift-Tab'
+            #: ^K H had no menu entry in DN -- a departure, asked for.
+            MenuItem:
+                text: '~H~ide/show block'
+                command: HideBlock
+                key: 'Alt-H'
             MenuLine:
             MenuItem:
                 text: 'U~p~percase'
                 command: UpcaseBlock
-                key: 'Ctrl K ['
+                key: 'Alt-Shift-U'
             MenuItem:
                 text: '~L~owercase'
                 command: LowcaseBlock
-                key: 'Ctrl K ]'
+                key: 'Alt-Shift-L'
             MenuItem:
                 text: 'Capi~t~alize'
                 command: CapitalizeBlock
-                key: 'Ctrl K \\'
+                key: 'Alt-Shift-C'
             MenuLine:
             MenuItem:
                 text: '~S~ort'
@@ -302,11 +321,11 @@ EditWindow(Window):
             MenuItem:
                 text: 'Insert ~d~ate'
                 command: InsertDate
-                key: 'Ctrl Q D'
+                key: 'Alt-Shift-D'
             MenuItem:
                 text: 'Insert ~t~ime'
                 command: InsertTime
-                key: 'Ctrl Q T'
+                key: 'Alt-Shift-T'
             MenuItem:
                 text: 'Du~p~licate line'
                 command: DuplicateLine
@@ -334,7 +353,7 @@ EditWindow(Window):
                 MenuItem:
                     text: '~B~lock'
                     command: UpcaseBlock
-                    key: 'Ctrl K ['
+                    key: 'Alt-Shift-U'
             SubMenu:
                 id: edit_menu_misc_lowercase
                 text: '~L~owercase'
@@ -349,7 +368,7 @@ EditWindow(Window):
                 MenuItem:
                     text: '~B~lock'
                     command: LowcaseBlock
-                    key: 'Ctrl K ]'
+                    key: 'Alt-Shift-L'
             SubMenu:
                 id: edit_menu_misc_capitalize
                 text: '~C~apitalize'
@@ -364,7 +383,7 @@ EditWindow(Window):
                 MenuItem:
                     text: '~B~lock'
                     command: CapitalizeBlock
-                    key: 'Ctrl K \\'
+                    key: 'Alt-Shift-C'
         SubMenu:
             id: edit_menu_options
             text: 'Optio~n~s'

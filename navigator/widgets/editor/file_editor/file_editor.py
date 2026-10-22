@@ -413,6 +413,19 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+delete": Clear,
         "alt+h": HideBlock,
         "alt+t": SortBlock,
+        # Keys for what DN reached by ^K and ^Q chords alone, which the
+        # WordStar presets bind back -- a departure, asked for, so the Block
+        # and Misc menus show a key that works.  Alt+Shift+letter arrives as
+        # Esc and the capital from any terminal, and the editor answers before
+        # the menu bar's Alt+letter does, as for Alt+C.
+        "alt+shift+v": MoveBlock,
+        "alt+shift+k": CopyBlock,
+        "alt+shift+i": IndentBlock,
+        "alt+shift+u": UpcaseBlock,
+        "alt+shift+l": LowcaseBlock,
+        "alt+shift+c": CapitalizeBlock,
+        "alt+shift+d": InsertDate,
+        "alt+shift+t": InsertTime,
         "alt+insert": CalcBlock,
         "alt+g": GotoLineNumber,
         "f4": SwitchDrawMode,
@@ -2406,6 +2419,7 @@ class FileEditor(ContextMenuHost, Widget):
         menu.add_item(tr("~P~aste"), ClipboardPaste)
         menu.add_item(tr("C~l~ear"), Clear)
         menu.add_item(tr("~D~elete line"), DeleteLine)
+        menu.add_item(tr("Delete ~w~ord left"), DeleteWordLeft)
         menu.add_item(tr("Select ~a~ll"), SelectAll)
         menu.add_line()
         menu.add_item(tr("~F~ind..."), StartSearch)

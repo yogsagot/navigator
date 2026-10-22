@@ -38,9 +38,11 @@ from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.lib import highlight
 from navigator.widgets.viewer.commands import (
+    AddFilter,
     ChooseEncoding,
     ContinueSearch,
     GotoAddress,
+    HexMode,
     SearchFor,
     SetViewMode,
     SwitchRendered,
@@ -840,12 +842,14 @@ class FileViewer(ContextMenuHost, Widget):
         if self.source is None:
             return None
         menu = ContextMenu()
+        menu.add_item(tr("He~x~/Text/Dump"), HexMode)
         menu.add_item(tr("~T~ext"), SetViewMode("text"))
         menu.add_item(tr("~H~ex"), SetViewMode("hex"))
         menu.add_item(tr("~D~ump"), SetViewMode("dump"))
         menu.add_line()
         menu.add_item(tr("~W~rap lines"), Unwrap)
         menu.add_item(tr("~M~arkup view"), SwitchRendered)
+        menu.add_item(tr("Fi~l~ter"), AddFilter)
         menu.add_line()
         menu.add_item(tr("~S~earch..."), SearchFor)
         menu.add_item(tr("Search a~g~ain"), ContinueSearch)

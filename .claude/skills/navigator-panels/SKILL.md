@@ -406,6 +406,13 @@ divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltR
   take them.
 - A saved desktop keeps `split` (`desktop_state`).
 
+- **Every feature key is on a menu** (departures, asked for): Panel > *Move divider left/right* (`MoveSeparator(step=∓1)`,
+  Alt+Left/Right; no hotkeys, `j` being the only free letter), and the panel's right-click menu ends with *Insert name*
+  / *Insert path* (`InsertName`/`InsertPath`, Ctrl+Enter / Ctrl+Shift+Enter, answered by the shell). Left off on
+  purpose: Alt+1..9 / Alt+Shift+1..9 (the bookmarks box has them), Alt+F6 (*Quick rename* is its menu form),
+  Shift+Enter (a *Find:* listing's), Ctrl+Shift+F1..F10 (user-defined), and navigation. Shift+F1 (`ArchiveFiles`)
+  and F1 (`Help`) are bound but have no handler yet.
+
 ## Read when
 
 No DESIGN reference of its own; panel-related library notes are in

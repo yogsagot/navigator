@@ -209,3 +209,23 @@ def test_a_double_click_on_the_divider_puts_it_back_in_the_middle(place):
     assert seen["dragged"] == (25, 55)
     assert seen["after"] == (40, 40) and seen["split"] is None
     assert seen["held"] is None and seen["capture"] is None
+
+
+def test_the_panel_menu_moves_it_and_shows_alt_arrows(place):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(place / "long", place / "short")
+    seen = {}
+
+    def look(a):
+        entries = {parse_shortcut(e.text)[0]: e for e in a.manager.panel_menu.entries()
+                   if hasattr(e, "command")}
+        left, right = entries["Move divider left"], entries["Move divider right"]
+        seen["keys"] = (key_caption(left, a, a.manager.left), key_caption(right, a, a.manager.left))
+        seen["before"] = widths(a)
+        a.spawn(a.manager.left.emit(left.command))
+
+    run_app(app, [look, lambda a: None, lambda a: seen.update(after=widths(a))])
+    assert seen["keys"] == ("Alt-Left", "Alt-Right")
+    assert seen["after"][0] == seen["before"][0] - 1

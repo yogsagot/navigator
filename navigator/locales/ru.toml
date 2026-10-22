@@ -44,119 +44,127 @@ name = "Русский"
 "~F~ile name" = "~И~мя файла"
 # navigator/widgets/editor/edit_window/edit_window.nml:135
 "~E~ditor" = "~Р~едактор"
-# navigator/widgets/editor/edit_window/edit_window.nml:142, navigator/widgets/editor/file_editor/file_editor.py:2401
+# navigator/widgets/editor/edit_window/edit_window.nml:142, navigator/widgets/editor/file_editor/file_editor.py:2414
 "~U~ndo" = "~О~тменить"
-# navigator/widgets/editor/edit_window/edit_window.nml:146, navigator/widgets/editor/file_editor/file_editor.py:2402
+# navigator/widgets/editor/edit_window/edit_window.nml:146, navigator/widgets/editor/file_editor/file_editor.py:2415
 "R~e~do" = "В~е~рнуть"
 # navigator/widgets/editor/edit_window/edit_window.nml:163
 "C~o~py to..." = "Копировать в фа~й~л..."
 # navigator/widgets/editor/edit_window/edit_window.nml:166
 "P~a~ste from..." = "Вставить из ф~а~йла..."
-# navigator/widgets/editor/edit_window/edit_window.nml:175, navigator/widgets/editor/file_editor/file_editor.py:2408
+# navigator/widgets/editor/edit_window/edit_window.nml:175, navigator/widgets/editor/file_editor/file_editor.py:2421
 "~D~elete line" = "~У~далить строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:181, navigator/widgets/shell/main_menu/main_menu.nml:93
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:2422
+"Delete ~w~ord left" = "Удалить слово перед курсоро~м~"
+# navigator/widgets/editor/edit_window/edit_window.nml:184
+"Insert l~i~ne" = "Вставить ст~р~оку"
+# navigator/widgets/editor/edit_window/edit_window.nml:190, navigator/widgets/shell/main_menu/main_menu.nml:93
 "~F~ile" = "~Ф~айл"
-# navigator/widgets/editor/edit_window/edit_window.nml:183
+# navigator/widgets/editor/edit_window/edit_window.nml:192
 "~O~pen..." = "~О~ткрыть..."
-# navigator/widgets/editor/edit_window/edit_window.nml:187, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:196, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~С~охранить"
-# navigator/widgets/editor/edit_window/edit_window.nml:191
+# navigator/widgets/editor/edit_window/edit_window.nml:200
 "Save ~a~s..." = "Сохранить ~к~ак..."
-# navigator/widgets/editor/edit_window/edit_window.nml:195
-"Save a~l~l..." = "Сохранить ~в~се..."
-# navigator/widgets/editor/edit_window/edit_window.nml:200, navigator/widgets/shell/main_menu/main_menu.nml:161
-"~P~rint" = "~Н~апечатать"
 # navigator/widgets/editor/edit_window/edit_window.nml:204
+"Save a~l~l..." = "Сохранить ~в~се..."
+# navigator/widgets/editor/edit_window/edit_window.nml:209, navigator/widgets/shell/main_menu/main_menu.nml:161
+"~P~rint" = "~Н~апечатать"
+# navigator/widgets/editor/edit_window/edit_window.nml:213
 "Print ~b~lock" = "Печатать ~б~лок"
-# navigator/widgets/editor/edit_window/edit_window.nml:209, navigator/widgets/shell/main_menu/main_menu.nml:193
+# navigator/widgets/editor/edit_window/edit_window.nml:218, navigator/widgets/shell/main_menu/main_menu.nml:193
 "E~x~it" = "В~ы~ход"
-# navigator/widgets/editor/edit_window/edit_window.nml:214, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:223, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~П~оиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:216, navigator/widgets/shell/main_menu/main_menu.nml:132, navigator/widgets/editor/file_editor/file_editor.py:2411
+# navigator/widgets/editor/edit_window/edit_window.nml:225, navigator/widgets/shell/main_menu/main_menu.nml:132, navigator/widgets/editor/file_editor/file_editor.py:2425
 "~F~ind..." = "~И~скать..."
-# navigator/widgets/editor/edit_window/edit_window.nml:220, navigator/widgets/editor/file_editor/file_editor.py:2412
+# navigator/widgets/editor/edit_window/edit_window.nml:229, navigator/widgets/editor/file_editor/file_editor.py:2426
 "~R~eplace..." = "~З~аменить..."
-# navigator/widgets/editor/edit_window/edit_window.nml:224
+# navigator/widgets/editor/edit_window/edit_window.nml:233
 "~S~earch again" = "П~р~одолжить поиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:228
-"Re~v~ersed search" = "О~б~ратный поиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:232
-"~G~o to line number..." = "Перейти к ~с~троке..."
 # navigator/widgets/editor/edit_window/edit_window.nml:237
-"Pa~r~agraph" = "Абза~ц~"
-# navigator/widgets/editor/edit_window/edit_window.nml:239
-"~J~ustify" = "По ~ш~ирине"
-# navigator/widgets/editor/edit_window/edit_window.nml:243
-"~R~ight" = "По ~п~равому краю"
-# navigator/widgets/editor/edit_window/edit_window.nml:247
-"~L~eft" = "По ~л~евому краю"
+"Re~v~ersed search" = "О~б~ратный поиск"
+# navigator/widgets/editor/edit_window/edit_window.nml:241
+"~G~o to line number..." = "Перейти к ~с~троке..."
+# navigator/widgets/editor/edit_window/edit_window.nml:246
+"~M~atching bracket" = "Пар~н~ая скобка"
 # navigator/widgets/editor/edit_window/edit_window.nml:251
+"Pa~r~agraph" = "Абза~ц~"
+# navigator/widgets/editor/edit_window/edit_window.nml:253
+"~J~ustify" = "По ~ш~ирине"
+# navigator/widgets/editor/edit_window/edit_window.nml:257
+"~R~ight" = "По ~п~равому краю"
+# navigator/widgets/editor/edit_window/edit_window.nml:261
+"~L~eft" = "По ~л~евому краю"
+# navigator/widgets/editor/edit_window/edit_window.nml:265
 "~C~enter" = "По ~ц~ентру"
-# navigator/widgets/editor/edit_window/edit_window.nml:256
-"~M~argins..." = "~О~тступы..."
-# navigator/widgets/editor/edit_window/edit_window.nml:260, navigator/widgets/editor/edit_window/edit_window.nml:335, navigator/widgets/editor/edit_window/edit_window.nml:350 ...
-"~B~lock" = "~Б~лок"
-# navigator/widgets/editor/edit_window/edit_window.nml:262
-"~M~ove" = "~П~еренести"
 # navigator/widgets/editor/edit_window/edit_window.nml:270
+"~M~argins..." = "~О~тступы..."
+# navigator/widgets/editor/edit_window/edit_window.nml:274, navigator/widgets/editor/edit_window/edit_window.nml:354, navigator/widgets/editor/edit_window/edit_window.nml:369 ...
+"~B~lock" = "~Б~лок"
+# navigator/widgets/editor/edit_window/edit_window.nml:276
+"~M~ove" = "~П~еренести"
+# navigator/widgets/editor/edit_window/edit_window.nml:284
 "~I~ndent" = "Сдвиг ~в~право"
-# navigator/widgets/editor/edit_window/edit_window.nml:274
+# navigator/widgets/editor/edit_window/edit_window.nml:288
 "~U~nindent" = "Сдвиг в~л~ево"
-# navigator/widgets/editor/edit_window/edit_window.nml:279
+# navigator/widgets/editor/edit_window/edit_window.nml:293
+"~H~ide/show block" = "~С~крыть/показать блок"
+# navigator/widgets/editor/edit_window/edit_window.nml:298
 "U~p~percase" = "П~р~описные"
-# navigator/widgets/editor/edit_window/edit_window.nml:283, navigator/widgets/editor/edit_window/edit_window.nml:340
+# navigator/widgets/editor/edit_window/edit_window.nml:302, navigator/widgets/editor/edit_window/edit_window.nml:359
 "~L~owercase" = "~С~трочные"
-# navigator/widgets/editor/edit_window/edit_window.nml:287
+# navigator/widgets/editor/edit_window/edit_window.nml:306
 "Capi~t~alize" = "~З~аглавные"
-# navigator/widgets/editor/edit_window/edit_window.nml:292
-"~S~ort" = "С~о~ртировать"
-# navigator/widgets/editor/edit_window/edit_window.nml:296
-"Calc~u~late sum" = "В~ы~числить сумму"
-# navigator/widgets/editor/edit_window/edit_window.nml:301
-"~M~isc" = "Ра~з~ное"
-# navigator/widgets/editor/edit_window/edit_window.nml:303
-"Insert ~d~ate" = "Вставить ~д~ату"
-# navigator/widgets/editor/edit_window/edit_window.nml:307
-"Insert ~t~ime" = "Вставить ~в~ремя"
 # navigator/widgets/editor/edit_window/edit_window.nml:311
+"~S~ort" = "С~о~ртировать"
+# navigator/widgets/editor/edit_window/edit_window.nml:315
+"Calc~u~late sum" = "В~ы~числить сумму"
+# navigator/widgets/editor/edit_window/edit_window.nml:320
+"~M~isc" = "Ра~з~ное"
+# navigator/widgets/editor/edit_window/edit_window.nml:322
+"Insert ~d~ate" = "Вставить ~д~ату"
+# navigator/widgets/editor/edit_window/edit_window.nml:326
+"Insert ~t~ime" = "Вставить ~в~ремя"
+# navigator/widgets/editor/edit_window/edit_window.nml:330
 "Du~p~licate line" = "Ду~б~лировать строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:315, navigator/widgets/shell/main_menu/main_menu.nml:222
+# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/shell/main_menu/main_menu.nml:222
 "Character ta~b~le" = "~Т~аблица символов"
-# navigator/widgets/editor/edit_window/edit_window.nml:319
+# navigator/widgets/editor/edit_window/edit_window.nml:338
 "Line Dra~w~ing" = "~Р~исование линий"
-# navigator/widgets/editor/edit_window/edit_window.nml:325
+# navigator/widgets/editor/edit_window/edit_window.nml:344
 "~U~ppercase" = "~П~рописные"
-# navigator/widgets/editor/edit_window/edit_window.nml:327, navigator/widgets/editor/edit_window/edit_window.nml:342, navigator/widgets/editor/edit_window/edit_window.nml:357
+# navigator/widgets/editor/edit_window/edit_window.nml:346, navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:376
 "~W~ord" = "~С~лово"
-# navigator/widgets/editor/edit_window/edit_window.nml:331, navigator/widgets/editor/edit_window/edit_window.nml:346, navigator/widgets/editor/edit_window/edit_window.nml:361
+# navigator/widgets/editor/edit_window/edit_window.nml:350, navigator/widgets/editor/edit_window/edit_window.nml:365, navigator/widgets/editor/edit_window/edit_window.nml:380
 "~L~ine" = "С~т~рока"
-# navigator/widgets/editor/edit_window/edit_window.nml:355, navigator/widgets/editor/file_editor/file_editor.py:2420
+# navigator/widgets/editor/edit_window/edit_window.nml:374, navigator/widgets/editor/file_editor/file_editor.py:2434
 "~C~apitalize" = "~З~аглавные"
-# navigator/widgets/editor/edit_window/edit_window.nml:370
+# navigator/widgets/editor/edit_window/edit_window.nml:389
 "Optio~n~s" = "~Н~астройки"
-# navigator/widgets/editor/edit_window/edit_window.nml:372
+# navigator/widgets/editor/edit_window/edit_window.nml:391
 "~B~ackspace indents" = "~З~абой с отступом"
-# navigator/widgets/editor/edit_window/edit_window.nml:375
+# navigator/widgets/editor/edit_window/edit_window.nml:394
 "AutoB~r~ackets" = "Авто~с~кобки"
-# navigator/widgets/editor/edit_window/edit_window.nml:378
+# navigator/widgets/editor/edit_window/edit_window.nml:397
 "Auto~i~ndent" = "Авто~о~тступ"
-# navigator/widgets/editor/edit_window/edit_window.nml:381
+# navigator/widgets/editor/edit_window/edit_window.nml:400
 "~A~uto wrap" = "~А~втоперенос"
-# navigator/widgets/editor/edit_window/edit_window.nml:384, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:403, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~J~ustify on wrap" = "~В~ыравнивать при переносе"
-# navigator/widgets/editor/edit_window/edit_window.nml:387, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:406, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~V~ertical blocks" = "В~е~ртикальные блоки"
-# navigator/widgets/editor/edit_window/edit_window.nml:390, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:409, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "Opti~m~al fill" = "Опти~м~альное заполнение"
-# navigator/widgets/editor/edit_window/edit_window.nml:393
+# navigator/widgets/editor/edit_window/edit_window.nml:412
 "Current ~l~ine highlight" = "Подсветка ~т~екущей строки"
-# navigator/widgets/editor/edit_window/edit_window.nml:396
+# navigator/widgets/editor/edit_window/edit_window.nml:415
 "Current ~c~olumn highlight" = "Подсветка текущей ~к~олонки"
-# navigator/widgets/editor/edit_window/edit_window.nml:399
+# navigator/widgets/editor/edit_window/edit_window.nml:418
 "Syntax ~h~ighlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/editor/edit_window/edit_window.nml:403
+# navigator/widgets/editor/edit_window/edit_window.nml:422
 "Show hi~d~den characters" = "Показывать ск~р~ытые символы"
-# navigator/widgets/editor/edit_window/edit_window.nml:411
+# navigator/widgets/editor/edit_window/edit_window.nml:430
 "File t~y~pe" = "~Т~ип файла"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "Замена"
@@ -548,7 +556,7 @@ name = "Русский"
 "Paneli~z~e command..." = "Фа~й~лы из вывода команды..."
 # navigator/widgets/manager/manager/manager.nml:170
 "~C~ompare directories" = "Ср~а~внить каталоги"
-# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1312
+# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1314
 "Count directory len~g~th" = "В~ы~числить размер каталога"
 # navigator/widgets/manager/manager/manager.nml:177
 "Directory Branc~h~" = "~В~етвь каталога"
@@ -572,33 +580,37 @@ name = "Русский"
 "Show/hide h~i~dden files" = "Показ скрытых ~ф~айлов"
 # navigator/widgets/manager/manager/manager.nml:219
 "Show/hide ~f~ooter" = "Нижн~я~я часть панели"
-# navigator/widgets/manager/manager/manager.nml:224
+# navigator/widgets/manager/manager/manager.nml:225
+"Move divider left" = "Сдвинуть разделитель влево"
+# navigator/widgets/manager/manager/manager.nml:229
+"Move divider right" = "Сдвинуть разделитель вправо"
+# navigator/widgets/manager/manager/manager.nml:234
 "Director~y~ tree" = "~Д~ерево каталогов"
-# navigator/widgets/manager/manager/manager.nml:228
+# navigator/widgets/manager/manager/manager.nml:238
 "I~n~fo" = "И~н~формация"
-# navigator/widgets/manager/manager/manager.nml:232
+# navigator/widgets/manager/manager/manager.nml:242
 "Quic~k~ view" = "Быстрый ~п~росмотр"
-# navigator/widgets/manager/manager/manager.nml:237, navigator/widgets/manager/panel/panel.py:1315
+# navigator/widgets/manager/manager/manager.nml:247, navigator/widgets/manager/panel/panel.py:1317
 "Select grou~p~..." = "Пометить ~г~руппу..."
-# navigator/widgets/manager/manager/manager.nml:241, navigator/widgets/manager/panel/panel.py:1316
-"~U~nselect group..." = "Снять по~м~етку группы..."
-# navigator/widgets/manager/manager/manager.nml:245, navigator/widgets/manager/panel/panel.py:1317
+# navigator/widgets/manager/manager/manager.nml:251, navigator/widgets/manager/panel/panel.py:1318
+"~U~nselect group..." = "Снять пометку по ~ш~аблону..."
+# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1319
 "In~v~ert selection" = "~И~нвертировать пометку"
-# navigator/widgets/manager/manager/manager.nml:249
+# navigator/widgets/manager/manager/manager.nml:259
 "Advanced filter..." = "Расширенный фильтр..."
-# navigator/widgets/manager/manager/manager.nml:254
+# navigator/widgets/manager/manager/manager.nml:264
 "Change ~d~rive" = "См~е~нить диск"
-# navigator/widgets/manager/manager/manager.nml:258
+# navigator/widgets/manager/manager/manager.nml:268
 "Change direc~t~ory" = "Сменить ката~л~ог"
-# navigator/widgets/manager/manager/manager.nml:262
+# navigator/widgets/manager/manager/manager.nml:272
 "Quick s~e~arch" = "Быст~р~ый поиск"
-# navigator/widgets/manager/manager/manager.nml:266, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71
+# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71
 "~R~e-read" = "~О~бновить"
-# navigator/widgets/manager/manager/manager.nml:270
+# navigator/widgets/manager/manager/manager.nml:280
 "S~a~me directory in other panel" = "Син~х~ронизировать панели"
-# navigator/widgets/manager/manager/manager.nml:274
+# navigator/widgets/manager/manager/manager.nml:284
 "~Q~uick dirs..." = "~Б~ыстрый переход..."
-# navigator/widgets/manager/manager/manager.nml:278
+# navigator/widgets/manager/manager/manager.nml:288
 "History of directories..." = "История каталогов..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "Установки панели"
@@ -668,7 +680,7 @@ name = "Русский"
 "R~e~verse" = "~И~нверсия"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:22
 "~D~isk Drive" = "~Д~иск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2013 ...
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2020 ...
 "Size" = "Размер"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:65 ...
 "Attributes" = "Атрибуты"
@@ -678,7 +690,7 @@ name = "Русский"
 "Date" = "Дата"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~П~оиск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2019
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2026
 "Path" = "Путь"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~А~рхивы"
@@ -774,7 +786,7 @@ name = "Русский"
 "Viewer options" = "Опции просмотра"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "Hex-ре~ж~им"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:136, navigator/widgets/viewer/file_viewer/file_viewer.py:847
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:141, navigator/widgets/viewer/file_viewer/file_viewer.py:850
 "~W~rap lines" = "Перен~о~с строк"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "Полоса опци~й~"
@@ -1066,7 +1078,7 @@ name = "Русский"
 "~T~rashcan on/off" = "Ко~р~зина вкл/выкл"
 # navigator/widgets/shell/main_menu/main_menu.nml:88
 "~G~ame" = "~И~гра"
-# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/file_window/file_window.nml:123, navigator/widgets/manager/panel/panel.py:1301
+# navigator/widgets/shell/main_menu/main_menu.nml:96, navigator/widgets/viewer/file_window/file_window.nml:123
 "~V~iew" = "~С~мотреть"
 # navigator/widgets/shell/main_menu/main_menu.nml:98
 "~A~s is" = "~К~ак есть"
@@ -1082,9 +1094,9 @@ name = "Русский"
 "~A~lternate edit" = "~В~строенный редактор"
 # navigator/widgets/shell/main_menu/main_menu.nml:128
 "Edit ~n~ew file..." = "~Н~овый файл..."
-# navigator/widgets/shell/main_menu/main_menu.nml:136, navigator/widgets/manager/panel/panel.py:1305
+# navigator/widgets/shell/main_menu/main_menu.nml:136, navigator/widgets/manager/panel/panel.py:1307
 "~C~opy..." = "~К~опировать..."
-# navigator/widgets/shell/main_menu/main_menu.nml:140, navigator/widgets/manager/panel/panel.py:1306
+# navigator/widgets/shell/main_menu/main_menu.nml:140, navigator/widgets/manager/panel/panel.py:1308
 "~R~ename/Move..." = "Пе~р~еименовать/перенести..."
 # navigator/widgets/shell/main_menu/main_menu.nml:146
 "~Q~uick rename..." = "~Б~ыстро переименовать..."
@@ -1092,11 +1104,11 @@ name = "Русский"
 "Cop~y~ to archive..." = "К~о~пировать в архив..."
 # navigator/widgets/shell/main_menu/main_menu.nml:153
 "Ex~t~ract archive..." = "Из~в~лечь из архива..."
-# navigator/widgets/shell/main_menu/main_menu.nml:157, navigator/widgets/manager/panel/panel.py:1307
+# navigator/widgets/shell/main_menu/main_menu.nml:157, navigator/widgets/manager/panel/panel.py:1309
 "Create ~s~ymlink..." = "Си~м~вол. ссылка..."
-# navigator/widgets/shell/main_menu/main_menu.nml:165, navigator/widgets/manager/panel/panel.py:1313
+# navigator/widgets/shell/main_menu/main_menu.nml:165, navigator/widgets/manager/panel/panel.py:1315
 "~M~ake directory" = "Создать ка~т~алог"
-# navigator/widgets/shell/main_menu/main_menu.nml:173, navigator/widgets/manager/panel/panel.py:1309
+# navigator/widgets/shell/main_menu/main_menu.nml:173, navigator/widgets/manager/panel/panel.py:1311
 "File ~A~ttributes..." = "~А~трибуты файла..."
 # navigator/widgets/shell/main_menu/main_menu.nml:177
 "UU E~n~code..." = "UU-ко~д~ирование..."
@@ -1232,7 +1244,7 @@ name = "Русский"
 "~N~ext" = "~С~ледующее"
 # navigator/widgets/shell/main_menu/main_menu.nml:430
 "~P~revious" = "~П~редыдущее"
-# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:193, navigator/widgets/viewer/file_viewer/file_viewer.py:856
+# navigator/widgets/shell/main_menu/main_menu.nml:434, navigator/widgets/viewer/file_window/file_window.nml:202, navigator/widgets/viewer/file_viewer/file_viewer.py:860
 "~C~lose" = "~З~акрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:439
 "~L~ist..." = "Сп~и~сок..."
@@ -1278,39 +1290,43 @@ name = "Русский"
 "~A~ll fields" = "~П~о всем полям"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~В~перёд"
-# navigator/widgets/viewer/file_window/file_window.nml:126, navigator/widgets/viewer/file_viewer/file_viewer.py:843
+# navigator/widgets/viewer/file_window/file_window.nml:128, navigator/widgets/viewer/file_viewer/file_viewer.py:845
+"He~x~/Text/Dump" = "Hex/Тек~с~т/Дамп"
+# navigator/widgets/viewer/file_window/file_window.nml:131, navigator/widgets/viewer/file_viewer/file_viewer.py:846
 "~T~ext" = "~Т~екст"
-# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:844
+# navigator/widgets/viewer/file_window/file_window.nml:134, navigator/widgets/viewer/file_viewer/file_viewer.py:847
 "~H~ex" = "~Ш~естнадцатеричный"
-# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:845
+# navigator/widgets/viewer/file_window/file_window.nml:137, navigator/widgets/viewer/file_viewer/file_viewer.py:848
 "~D~ump" = "~Д~амп"
-# navigator/widgets/viewer/file_window/file_window.nml:141, navigator/widgets/viewer/file_viewer/file_viewer.py:848
+# navigator/widgets/viewer/file_window/file_window.nml:146, navigator/widgets/viewer/file_viewer/file_viewer.py:851
 "~M~arkup view" = "Просмотр ~р~азметки"
-# navigator/widgets/viewer/file_window/file_window.nml:145
+# navigator/widgets/viewer/file_window/file_window.nml:150
 "S~y~ntax highlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/viewer/file_window/file_window.nml:150, navigator/widgets/editor/commands.py:372
-"Hidden characters" = "Скрытые символы"
 # navigator/widgets/viewer/file_window/file_window.nml:155
+"Sh~o~w hidden characters" = "Показывать ск~р~ытые символы"
+# navigator/widgets/viewer/file_window/file_window.nml:160
 "~F~ile type" = "Тип фай~л~а"
-# navigator/widgets/viewer/file_window/file_window.nml:158
+# navigator/widgets/viewer/file_window/file_window.nml:164, navigator/widgets/viewer/file_viewer/file_viewer.py:852
+"Fi~l~ter" = "Фил~ь~тр"
+# navigator/widgets/viewer/file_window/file_window.nml:167
 "~N~o filter" = "~Б~ез фильтра"
-# navigator/widgets/viewer/file_window/file_window.nml:161
+# navigator/widgets/viewer/file_window/file_window.nml:170
 "~A~SCII filter" = "~Ф~ильтр ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:164
+# navigator/widgets/viewer/file_window/file_window.nml:173
 "~P~rintable filter" = "Фильтр ~в~идимых"
-# navigator/widgets/viewer/file_window/file_window.nml:168, navigator/widgets/viewer/file_viewer/file_viewer.py:850
+# navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/file_viewer/file_viewer.py:854
 "~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/file_window/file_window.nml:171, navigator/widgets/viewer/file_viewer/file_viewer.py:851
+# navigator/widgets/viewer/file_window/file_window.nml:180, navigator/widgets/viewer/file_viewer/file_viewer.py:855
 "Search a~g~ain" = "Искать ~е~щё"
-# navigator/widgets/viewer/file_window/file_window.nml:174
+# navigator/widgets/viewer/file_window/file_window.nml:183
 "Re~v~erse search" = "Поиск ~н~азад"
-# navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/file_viewer/file_viewer.py:852
+# navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/file_viewer/file_viewer.py:856
 "Go to add~r~ess..." = "Перейти по ~а~дресу..."
-# navigator/widgets/viewer/file_window/file_window.nml:181
+# navigator/widgets/viewer/file_window/file_window.nml:190
 "St~o~re" = "Запо~м~нить"
-# navigator/widgets/viewer/file_window/file_window.nml:184
+# navigator/widgets/viewer/file_window/file_window.nml:193
 "Sav~e~ as..." = "~С~охранить как..."
-# navigator/widgets/viewer/file_window/file_window.nml:188, navigator/widgets/viewer/file_viewer/file_viewer.py:854
+# navigator/widgets/viewer/file_window/file_window.nml:197, navigator/widgets/viewer/file_viewer/file_viewer.py:858
 "Encod~i~ng..." = "~К~одировка..."
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Переход на адрес"
@@ -1424,7 +1440,7 @@ name = "Русский"
 "plain" = "текст"
 # navigator/lib/highlight/__init__.py:275
 "auto" = "авто"
-# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1729
+# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1736
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
 # navigator/lib/system/diskinfo.py:160
 "Current directory:" = "Текущий каталог:"
@@ -1436,7 +1452,7 @@ name = "Русский"
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
 # navigator/lib/system/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1725
+# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1732
 "No files in this directory" = "В этом каталоге файлов нет"
 # navigator/lib/system/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
@@ -1616,6 +1632,8 @@ name = "Русский"
 "Current column highlight" = "Подсветка колонки"
 # navigator/widgets/editor/commands.py:364
 "Syntax highlight" = "Подсветка синтаксиса"
+# navigator/widgets/editor/commands.py:372
+"Hidden characters" = "Скрытые символы"
 # navigator/widgets/editor/commands.py:379, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "Тип файла"
 # navigator/widgets/editor/commands.py:396
@@ -1716,21 +1734,21 @@ name = "Русский"
 "Save file {name}?" = "Сохранить файл {name}?"
 # navigator/widgets/editor/edit_window/edit_window.py:386
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
-# navigator/widgets/editor/file_editor/file_editor.py:2413
+# navigator/widgets/editor/file_editor/file_editor.py:2427
 "~G~o to line..." = "~П~ерейти к строке..."
-# navigator/widgets/editor/file_editor/file_editor.py:2415
+# navigator/widgets/editor/file_editor/file_editor.py:2429
 "~I~ndent block" = "~Б~лок вправо"
-# navigator/widgets/editor/file_editor/file_editor.py:2416
+# navigator/widgets/editor/file_editor/file_editor.py:2430
 "U~n~indent block" = "Б~л~ок влево"
-# navigator/widgets/editor/file_editor/file_editor.py:2417
+# navigator/widgets/editor/file_editor/file_editor.py:2431
 "Change ca~s~e" = "~Р~егистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2418
+# navigator/widgets/editor/file_editor/file_editor.py:2432
 "~U~pper case" = "~В~ерхний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2419
+# navigator/widgets/editor/file_editor/file_editor.py:2433
 "~L~ower case" = "~Н~ижний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2422
+# navigator/widgets/editor/file_editor/file_editor.py:2436
 "Sa~v~e" = "~С~охранить"
-# navigator/widgets/editor/file_editor/file_editor.py:1354, navigator/widgets/editor/file_editor/file_editor.py:1393
+# navigator/widgets/editor/file_editor/file_editor.py:1367, navigator/widgets/editor/file_editor/file_editor.py:1406
 "Vertical blocks need for this operation" = "Выберите вертикальный блок для этой операции"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "~Я~зыки программирования"
@@ -1746,7 +1764,7 @@ name = "Русский"
 "Writing file" = "Запись файла"
 # navigator/widgets/editor/option_items.py:112
 "MD" = "MD"
-# navigator/widgets/editor/option_items.py:109, navigator/widgets/viewer/file_viewer/file_viewer.py:564
+# navigator/widgets/editor/option_items.py:109, navigator/widgets/viewer/file_viewer/file_viewer.py:566
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:111
 "RST" = "RST"
@@ -1772,7 +1790,7 @@ name = "Русский"
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:87
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100, navigator/widgets/manager/panel/panel.py:1751, navigator/widgets/tree/directory_tree/directory_tree.py:246
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100, navigator/widgets/manager/panel/panel.py:1758, navigator/widgets/tree/directory_tree/directory_tree.py:246
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:80
 "File ~{name}~" = "Файл ~{name}~"
@@ -1922,7 +1940,7 @@ name = "Русский"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:75
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2016
+# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2023
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:91
 "MkDir" = "Каталог"
@@ -2054,25 +2072,31 @@ name = "Русский"
 "{name}: not a dBase file" = "{name}: не файл dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} отмеченный файл", "{n} отмеченных файла", "{n} отмеченных файлов"]
-# navigator/widgets/manager/panel/panel.py:1752
+# navigator/widgets/manager/panel/panel.py:1759
 "~{total} in {n}~ selected file" = ["~{total} в {n}~ отмеченном файле", "~{total} в {n}~ отмеченных файлах", "~{total} в {n}~ отмеченных файлах"]
-# navigator/widgets/manager/panel/panel.py:1749
+# navigator/widgets/manager/panel/panel.py:1323
+"~I~nsert name" = "~В~ставить имя"
+# navigator/widgets/manager/panel/panel.py:1324
+"Insert pa~t~h" = "Вставить по~л~ный путь"
+# navigator/widgets/manager/panel/panel.py:1756
 "No files selected" = "Нет отмеченных файлов"
 # navigator/widgets/manager/panel/panel.py:1140
 "Search:" = "Поиск:"
-# navigator/widgets/manager/panel/panel.py:1730
+# navigator/widgets/manager/panel/panel.py:1303
+"Vie~w~" = "~С~мотреть"
+# navigator/widgets/manager/panel/panel.py:1737
 "Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
-# navigator/widgets/manager/panel/panel.py:1739
+# navigator/widgets/manager/panel/panel.py:1746
 "~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1984
+# navigator/widgets/manager/panel/panel.py:1991
 "Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:2012, navigator/widgets/shell/volume_list/volume_list.py:112
+# navigator/widgets/manager/panel/panel.py:2019, navigator/widgets/shell/volume_list/volume_list.py:112
 "Name" = "Имя"
-# navigator/widgets/manager/panel/panel.py:2014, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2021, navigator/lib/drives/base.py
 "Packed" = "Сжато"
-# navigator/widgets/manager/panel/panel.py:2015
+# navigator/widgets/manager/panel/panel.py:2022
 "%" = "%"
-# navigator/widgets/manager/panel/panel.py:1741
+# navigator/widgets/manager/panel/panel.py:1748
 "~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
 # navigator/widgets/setup/interface_page/interface_page.py:31, navigator/widgets/setup/interface_page/interface_page.py:42
 "Automatic" = "Автоматически"
@@ -2324,15 +2348,15 @@ name = "Русский"
 "Memo view" = "Просмотр мемо"
 # navigator/widgets/viewer/db_window/db_window.py:151
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:567
+# navigator/widgets/viewer/file_viewer/file_viewer.py:569
 "Markdown" = "Markdown"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:566
+# navigator/widgets/viewer/file_viewer/file_viewer.py:568
 "reST" = "reST"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:353
+# navigator/widgets/viewer/file_viewer/file_viewer.py:355
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:968
+# navigator/widgets/viewer/file_viewer/file_viewer.py:972
 "Reading..." = "Чтение..."
-# navigator/widgets/viewer/file_viewer/file_viewer.py:971
+# navigator/widgets/viewer/file_viewer/file_viewer.py:975
 "Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
 # navigator/widgets/viewer/file_window/file_window.py:325
 "Encoding" = "Кодировка"

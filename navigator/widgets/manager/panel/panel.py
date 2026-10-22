@@ -1292,13 +1292,15 @@ class Panel(ContextMenuHost, ListViewer):
             UnselectGroup,
             View,
         )
+        from navigator.widgets.shell.commands import InsertName, InsertPath
 
         menu = ContextMenu()
         entry = self.selected
         tagged = bool(self.marked)
         on_parent = entry is None or entry.name == ".."
         if not tagged and not on_parent and not entry.is_dir:
-            menu.add_item(tr("~V~iew"), View)
+            # ``w``, not the File menu's ``v``: *Invert selection* has that here.
+            menu.add_item(tr("Vie~w~"), View)
             menu.add_item(tr("~E~dit"), Edit)
             menu.add_line()
         if tagged or not on_parent:
@@ -1315,6 +1317,11 @@ class Panel(ContextMenuHost, ListViewer):
         menu.add_item(tr("Select grou~p~..."), SelectGroup)
         menu.add_item(tr("~U~nselect group..."), UnselectGroup)
         menu.add_item(tr("In~v~ert selection"), InvertSelection)
+        # Ctrl+Enter and Ctrl+Shift+Enter, which DN had on no menu -- a
+        # departure, asked for; the shell answers them.
+        menu.add_line()
+        menu.add_item(tr("~I~nsert name"), InsertName)
+        menu.add_item(tr("Insert pa~t~h"), InsertPath)
         return menu
 
     def _dragging(self, event: MouseClickEvent) -> bool:
