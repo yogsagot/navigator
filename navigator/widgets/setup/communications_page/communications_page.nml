@@ -103,4 +103,4 @@ CommunicationsPage:
         y: 7
         width: max(0, parent.width - 6)
         height: 1
-        items: ["~A~sk first", "Al~w~ays", "Ne~v~er"]
+        items: ["~A~sk first", "Alwa~y~s", "Ne~v~er"]

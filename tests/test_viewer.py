@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, run_app, settle
+from conftest import FakeTerminal, IDLE, run_app, settle, Until
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
@@ -725,3 +725,45 @@ def test_ctrl_shift_8_switches_hidden_characters_in_the_viewer(files):
                   KeyEvent("8", ctrl=True, shift=True),
                   lambda a: seen.append(opened(a).viewer.show_hidden)])
     assert seen == [True]
+
+
+def test_the_quick_view_s_own_menu_views_renders_and_closes_only_itself(files):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.commands import ShowContextMenu
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    app = navigator(files)
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def quick(a):
+        return a.manager.quick if a.manager.quick.visible else None
+
+    def open_menu(a):
+        a.spawn(quick(a).viewer.emit(ShowContextMenu()))
+
+    def look(a):
+        viewer = quick(a).viewer
+        seen["items"] = [(parse_shortcut(e.text)[0], key_caption(e, a, viewer))
+                         for e in popup(a).box.entries() if isinstance(e, MenuItem)]
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("q", ctrl=True),
+        Until(lambda a: quick(a) is not None and quick(a).viewer.source is not None),
+        open_menu, Until(lambda a: popup(a) is not None), look,
+        KeyEvent("c", "c"), Until(lambda a: popup(a) is None), lambda a: None,
+        lambda a: seen.update(after=quick(a), manager=a.manager in a.shell.desktop.windows(),
+                              keys=a.focused is a.manager.left),
+        KeyEvent("q", ctrl=True), Until(lambda a: quick(a) is not None and quick(a).viewer.source is not None),
+        open_menu, Until(lambda a: popup(a) is not None), KeyEvent("v", "v"),
+        Until(lambda a: opened(a) is not None),
+        lambda a: seen.update(viewing=opened(a).viewer.path),
+    ])
+    assert seen["items"] == [("View", "F3"), ("Markup view", "Shift-F4"), ("Close quick view", "Ctrl-Q")]
+    assert seen["after"] is None and seen["manager"]  # the panel back, the file manager still open
+    assert seen["keys"]  # the right click never took the keyboard, so closing leaves it where it was
+    assert seen["viewing"] == files / "text.txt"

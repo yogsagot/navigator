@@ -174,6 +174,6 @@ class CommunicationsPage(_Component):
         )
         self.upload_changed.height = 1    # communications_page.nml:105
         self.upload_changed.items = _bind(    # communications_page.nml:106
-            lambda _o: [_tr('~A~sk first'), _tr('Al~w~ays'), _tr('Ne~v~er')],
+            lambda _o: [_tr('~A~sk first'), _tr('Alwa~y~s'), _tr('Ne~v~er')],
             yielding=True,
         )

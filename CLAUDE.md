@@ -94,7 +94,7 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   (plus `locales/` beside `navigator.ini`). `--language CODE` or Options > Interface picks one, else `$LANG`.
   `./venv/bin/python -m navml extract CODE navml navigator` adds what is missing to each package's
   `locales/CODE.toml` (any package directory or dotted name; navml alone by default), `tools/i18n.py extract CODE` does
-  both layers, `tools/i18n.py check` exits 1 on gaps (`i18n` skill)
+  both layers, `tools/i18n.py check` exits 1 on gaps and hotkey clashes, English included (a test runs it; `i18n` skill)
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
   `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
@@ -162,6 +162,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
   tests get a fresh `:memory:` one each.
 - **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.
+  The same after changing a method or an import in a component's hand-written `.py` half: the generated `.pyi`
+  copies both, and `tests/test_nml_build.py` fails when it is stale.
 - **A sheet cannot be parsed before the widgets it styles are imported** (`load_scheme()` imports `Panel` first).
 - **User-visible text goes through `tr()`/`tr_n()`** with a literal English key and whole-sentence placeholders;
   markup captions are wrapped by the generator (`i18n` skill).

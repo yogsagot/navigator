@@ -1175,8 +1175,25 @@ def test_the_search_shows_on_the_footer_with_the_caret_after_it(tree):
 
     run_app(app, [KeyEvent("s", ctrl=True), *keys("tw"), look])
     footer, caret, x = seen[0]
-    assert footer == " Search: tw "
+    # Ctrl+S again finds the next: said after the text, which the caret stays at.
+    assert footer == " Search: tw  Ctrl-S next "
     assert caret == (x + len(" Search: tw"), app.manager.left.height - 1)
+
+
+def test_the_search_hint_goes_where_the_footer_has_no_room_for_it(tree):
+    app = navigator(tree)
+    seen = []
+
+    def narrow(a):
+        panel = a.manager.left
+        panel.quick_search = ""
+        seen.append(panel.footer_text())
+        panel.quick_search = "x" * (panel.width - 16)
+        seen.append(panel.footer_text())
+
+    run_app(app, [KeyEvent("s", ctrl=True), narrow])
+    assert seen[0] == " Search:  "  # nothing typed: nothing to find next
+    assert "Ctrl-S" not in seen[1] and seen[1].endswith("x ")
 
 
 def test_the_panel_menu_carries_ctrl_h(tree):

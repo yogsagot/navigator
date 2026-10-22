@@ -95,6 +95,20 @@ def test_one_file_opens_on_its_own_mode_owner_and_time(tmp_path):
     assert dialog.group.choices == fileattr.assignable_groups()
 
 
+def test_the_bottom_frame_says_what_r_w_and_x_do_in_the_grid(tmp_path):
+    from navkit.screen import ScreenBuffer
+    from navkit.widget import Widget
+
+    make(tmp_path / "f", 0o640)
+    root = Widget(width=80, height=24)
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path, parent=root)
+    assert dialog.footer == "R W X tick the column's Read Write Exec"
+    buffer = ScreenBuffer(dialog.width, dialog.height)
+    dialog.render(buffer.view(0, 0, dialog.width, dialog.height))
+    bottom = "".join(buffer.get(x, dialog.height - 1)[0] or " " for x in range(dialog.width))
+    assert " R W X tick the column's Read Write Exec " in bottom
+
+
 def test_untouched_ok_changes_nothing(tmp_path):
     make(tmp_path / "f", 0o640)
     dialog = AttrDialog(entries=[entry("f")], here=tmp_path)

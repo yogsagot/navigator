@@ -83,7 +83,7 @@ class FMDefaultsPage(_Component):
         self.reverse.width = 22    # fm_defaults_page.nml:34
         self.reverse.height = 1    # fm_defaults_page.nml:35
         self.reverse.items = _bind(    # fm_defaults_page.nml:36
-            lambda _o: [_tr('~R~everse order')],
+            lambda _o: [_tr('Re~v~erse order')],
             yielding=True,
         )
 
@@ -92,7 +92,7 @@ class FMDefaultsPage(_Component):
         self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:42
         self.sort_by.height = 3    # fm_defaults_page.nml:43
         self.sort_by.items = _bind(    # fm_defaults_page.nml:44
-            lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('~A~ttributes'), _tr('~O~wner'), _tr('T~y~pe'), _tr('~U~nsorted')],
+            lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('Attributes'), _tr('O~w~ner'), _tr('Ty~p~e'), _tr('~U~nsorted')],
             yielding=True,
         )
 

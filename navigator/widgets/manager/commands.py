@@ -161,6 +161,14 @@ class HideInactive(Command):
     """
 
 
+class GoToTreeDirectory(Command):
+    """The Ctrl+T tree's right-click *Go to directory*: what Enter in it does,
+    the active panel to the directory at the cursor.  Not bound: Enter is the
+    tree's own (``TreeView.choose``)."""
+
+    title = "Go to directory"
+
+
 class ToggleTree(Command):
     """Ctrl+T: the passive panel becomes a directory tree, or a panel again.
 
@@ -466,6 +474,16 @@ class ChangeInactive(Command):
     passive panel.
     """
 
+    title = "Show in other panel"
+
+
+class GoToFile(Command):
+    """Enter in a *Find:* listing, as a command for the right-click menu: the
+    found file's own directory, the cursor on it -- DN's ``GotoFile``.  Not
+    bound: Enter is the panel's own (``Panel.choose``)."""
+
+    title = "Go to file"
+
 
 class CompareDir(Command):
     """Panel > Compare directories: tag what each panel has that the other
@@ -574,6 +592,7 @@ __all__ = [
     "UuDecode",
     "CompareDir",
     "ChangeInactive",
+    "GoToFile",
     "ReadFileList",
     "Panelize",
     "MultiRename",
@@ -597,6 +616,7 @@ __all__ = [
     "Calculator",
     "PrintFile",
     "DiskInfo",
+    "GoToTreeDirectory",
     "QuickView",
     "ToggleMark",
     "GoParent",

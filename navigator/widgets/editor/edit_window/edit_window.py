@@ -709,8 +709,14 @@ class EditWindow(Window):
         and the one opened comes back as it was last left.  A departure: a
         file that will not open is said and the window keeps its text, where
         DN closed the window.
+
+        In SmartPad the pad is left as closing leaves it, saved unasked, and
+        the window is an ordinary editor from then on (:meth:`_leave_smartpad`).
         """
-        if self.editor.modified:
+        if self.editor.modified and self.smartpad:
+            if not await self.save():
+                return
+        elif self.editor.modified:
             name = self.editor.path.name if self.editor.path else tr("Untitled")
             answer = await Dialog(
                 title=tr("Warning"), prompt=tr("File {name} was modified. Save?").format(name=name),
@@ -732,6 +738,7 @@ class EditWindow(Window):
             # Cancelled, or too large -- said already: the text stays.
             return
         self.remember_history()
+        self._leave_smartpad(path)
         self.editor.use_document(path, document)
         # The menu's choice was the file left's; the record may bring one back.
         self.editor.file_type = ""
@@ -772,11 +779,24 @@ class EditWindow(Window):
                     pass
         if not written:
             return
+        self._leave_smartpad(path)
         self.editor.path = path
         self.editor.lock_file()
         self.title = bind(lambda _o: self._title(), yielding=True)
         if self.parent is not None:
             await self.emit(FileSaved(path))
+
+    def _leave_smartpad(self, path: Path) -> None:
+        """SmartPad's window, about to hold *path*: an ordinary editor from now on.
+
+        Its title, edit history, the question on closing and ``FileSaved`` are
+        an editor's again, and the next Alt+Q opens the pad afresh -- which
+        finds its window by this flag, and would otherwise bring up *path* and
+        stamp it.  The pad's file keeps what it had on disk.  The pad's own
+        file chosen again changes nothing.
+        """
+        if self.smartpad and path != self.editor.path:
+            self.smartpad = False
 
     # -- closing -----------------------------------------------------------------
 

@@ -287,7 +287,7 @@ EditWindow(Window):
             MenuItem:
                 text: '~U~nindent'
                 command: UnindentBlock
-                key: 'Shift-Tab'
+                key: 'Alt-Shift-O'
             #: ^K H had no menu entry in DN -- a departure, asked for.
             MenuItem:
                 text: '~H~ide/show block'
@@ -311,8 +311,9 @@ EditWindow(Window):
                 text: '~S~ort'
                 command: SortBlock
                 key: 'Alt-T'
+            #: ``a``, not DN's ``u``, which its *Unindent* had too.
             MenuItem:
-                text: 'Calc~u~late sum'
+                text: 'C~a~lculate sum'
                 command: CalcBlock
                 key: 'Alt-Ins'
         SubMenu:

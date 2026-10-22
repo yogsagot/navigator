@@ -245,3 +245,18 @@ def test_an_empty_history_shows_nothing(files):
     run_app(app, [KeyEvent("pagedown", alt=True), lambda a: None,
                   lambda a: seen.update(modal=a.modal)])
     assert seen["modal"] is None
+
+
+def test_the_bottom_frame_names_the_list_s_own_keys(files):
+    ViewRecord.store(files / "text.txt")
+    app = navigator(files)
+    seen = {}
+
+    def bottom(a):
+        modal = a.modal
+        ox, oy = modal.offset()
+        y = oy + modal.y + modal.height - 1
+        seen["row"] = "".join(a._front.get(x, y)[0] or " " for x in range(ox + modal.x, ox + modal.x + modal.width))
+
+    run_app(app, [KeyEvent("pagedown", alt=True), lambda a: None, lambda a: None, bottom, KeyEvent("escape")])
+    assert " Space pin  Shift+↑↓ move  ←→ pinned " in seen["row"]

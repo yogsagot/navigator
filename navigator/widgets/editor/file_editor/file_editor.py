@@ -421,6 +421,7 @@ class FileEditor(ContextMenuHost, Widget):
         "alt+shift+v": MoveBlock,
         "alt+shift+k": CopyBlock,
         "alt+shift+i": IndentBlock,
+        "alt+shift+o": UnindentBlock,
         "alt+shift+u": UpcaseBlock,
         "alt+shift+l": LowcaseBlock,
         "alt+shift+c": CapitalizeBlock,
@@ -456,6 +457,9 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+g": GotoLineNumber,
         "ctrl+z": Undo,
         "ctrl+shift+z": Redo,
+        # What Ctrl+A is everywhere since; WordStar's *word left* in DN, which
+        # the WordStar presets give back.
+        "ctrl+a": SelectAll,
     }
 
     #: Every command :data:`WORDSTAR` binds, those no key above reaches among

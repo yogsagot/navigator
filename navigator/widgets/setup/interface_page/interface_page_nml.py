@@ -87,7 +87,7 @@ class InterfacePage(_Component):
         self.language.width = 40    # interface_page.nml:43
         self.language.height = 1    # interface_page.nml:44
         self.language.label_text = _bind(    # interface_page.nml:45
-            lambda _o: _tr('~L~anguage'),
+            lambda _o: _tr('La~n~guage'),
             yielding=True,
         )
         self.language.label_width = 15    # interface_page.nml:46

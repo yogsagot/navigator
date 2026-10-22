@@ -13,6 +13,9 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event
+from navkit.glyphs import GLYPHS_UNICODE
+from navkit.i18n import tr
+from navkit.reactive import bind
 from navml.history import HISTORY
 from navml.widgets.dialog.dialog import Dialog
 
@@ -26,6 +29,9 @@ class CommandHistoryDialog(Dialog):
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
+        # The list's own keys, which no button shows (DN's ``TTHistList``).
+        self.footer = bind(lambda o: tr("Space keep  {sides} next kept").format(
+            sides="\u2190\u2192" if o.glyphs >= GLYPHS_UNICODE else "Left/Right"), yielding=True)
         self._load(None)
 
     def _load(self, focus: str | None) -> None:

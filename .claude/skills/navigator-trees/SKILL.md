@@ -54,6 +54,18 @@ Slots `[94-101]`, `[104-110]`.
   right-click host -- `ContextMenuHost`'s hooks written out, as `InputLine`'s, a component's half having one base --
   a click on a row first moving the cursor there (`prepare_context`, `row_at`).
 
+- **A tree's search label says *Ctrl-S next*** once text is typed and it fits (`TreeView.search_label(room=)`, the tree
+  window passing its frame's room); the tree window's caret is worked out from the prefix and `search_path`, not the
+  label's end, so the hint after the text does not move it.
+
+- **The Ctrl+T tree's right-click menu** (a departure, asked for): `DirectoryTree` is a `ContextMenuHost` whose
+  `menu` its holder sets -- `Manager._tree_menu` for Ctrl+T's: *~G~o to directory* (Enter, `GoToTreeDirectory` ->
+  `tree.choose()`), *~R~e-read* (Alt-R, `Rescan`, which reloads the tree while it has the keyboard), *Quick s~e~arch*
+  (Ctrl-S), *~C~lose tree* (Ctrl-T); a right click on a row moves the cursor there first. With no `menu` (the Tree
+  window's tree, Alt+T's) it offers none and the click goes on out, so the Tree window's own menu still answers.
+  The menu takes the keyboard (Quick search needs it), so *Close tree* hands it to the panel put back, DN's
+  `SwitchView`. Tests aim at a row that is painted: the tree reads from `/`, and where it scrolls depends on /tmp.
+
 ## Read when
 
 | Reference | Read when |

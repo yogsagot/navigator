@@ -305,7 +305,7 @@ def test_the_frame_s_footer_is_left_to_the_quick_search(place):
     panel = at(panel_at(place), "a")
     assert panel.footer_text() == ""
     panel.quick_search = "a"
-    assert panel.footer_text().endswith("a ")
+    assert panel.footer_text().startswith(" Search: a ")
 
 
 def test_the_setup_page_s_display_boxes_carry_the_link_line():

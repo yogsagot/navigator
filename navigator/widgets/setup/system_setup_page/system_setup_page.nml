@@ -82,7 +82,7 @@ SystemSetupPage:
         y: 12
         width: 31
         height: 1
-        label_text: "Report a ~s~tall after"
+        label_text: "Re~p~ort a stall after"
         label_width: 26
         mask: "999"
         #: PgUp and PgDn are the tabs' in *Settings*.

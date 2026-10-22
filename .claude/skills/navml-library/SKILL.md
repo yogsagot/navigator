@@ -67,6 +67,11 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   `password: True` paints every character as `*` and copies nothing -- not to the clipboard, not to the primary
   selection (a `Field`'s line is `field.entry`: set `field.entry.password` from the Python half).
 
+- **`Modal.footer`** is drawn centred on the bottom edge as `title` is on the top one, cut to the frame (a departure,
+  asked for): the keys a modal takes that no control shows -- *Commands history*'s and *File View/Edit History*'s list
+  keys. Not one of the generator's translated captions, so a dialog sets it in its Python half with `tr`, bound
+  (`yielding=True`) where it follows the glyph tier. Keep it inside the box: these boxes are 59 wide, so 55 columns,
+  ASCII spellings (`Left/Right`) included. *Settings* draws its own right-aligned hint instead (its tab column's rule).
 - **`FileDialog`** (`navml/widgets/dialog/file_dialog/`, DN's `TFileDialog` from `DNSTDDLG.PAS`, every rectangle
   `TFileDialog.Init`'s): `FileDialog(title=, label=, history_id=, directory=, wildcard="*", hidden=, ok_text=)` (*ok_text* `"~O~pen"` is
   DN's `fdOpenButton`), `execute()`

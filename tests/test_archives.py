@@ -443,7 +443,8 @@ def test_extract_to_and_test_are_the_archive_panel_s(desk):
         KeyEvent("enter"), Until(lambda a: "README" in names(a)), enabled("inside"),
     ])
     assert seen["disk"] == {"ArcTest": False, "ExtractArchive": True, "ExtractTo": False}
-    assert seen["inside"] == {"ArcTest": True, "ExtractArchive": False, "ExtractTo": True}
+    # Shift+F2 extracts inside one too: *Extract to...*.
+    assert seen["inside"] == {"ArcTest": True, "ExtractArchive": True, "ExtractTo": True}
 
 
 def test_extract_to_copies_the_selection_out_with_its_paths(desk):
@@ -470,6 +471,65 @@ def test_shift_f2_extracts_an_archive_from_outside_it(desk):
     ])
     assert (here / "out" / "src" / "deep" / "x.txt").read_text() == "x"
     assert (here / "out" / "empty").is_dir()
+
+
+def test_shift_f2_inside_an_archive_is_extract_to(desk):
+    app, here = desk
+    run_app(app, [
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("README"), KeyEvent("f2", shift=True), Until(modal_is("ExtractDialog")),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "README").exists(), timeout=5),
+    ])
+    assert not (here / "out" / "src").exists()  # the selection only, not the whole archive
+
+
+def test_shift_f1_packs_the_selection_into_a_new_zip_in_the_other_panel(desk):
+    import zipfile
+
+    app, here = desk
+    (here / "notes.txt").write_text("n\n")
+    seen = {}
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
+        KeyEvent("f1", shift=True), Until(modal_is("CopyDialog")),
+        lambda a: seen.update(target=a.modal.target.value),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "notes.zip").exists(), timeout=5),
+        Until(lambda a: archive.find(Location.of(here / "out" / "notes.zip")) is None, timeout=5),
+    ])
+    assert seen["target"] == f"{here / 'out' / 'notes.zip'}#/notes.txt"
+    with zipfile.ZipFile(here / "out" / "notes.zip") as packed:
+        assert packed.read("notes.txt") == b"n\n"
+
+
+def test_the_right_click_menu_offers_the_archive_commands_where_they_apply(desk):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    app, here = desk
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def captions(key):
+        return lambda a: seen.update({key: [parse_shortcut(e.text)[0] for e in popup(a).box.entries()
+                                            if hasattr(e, "command")]})
+
+    def right_click_cursor(a):
+        from navml.widgets.menu.commands import ShowContextMenu
+
+        a.spawn(a.manager.left.emit(ShowContextMenu()))
+
+    run_app(app, [
+        at("a.zip"), right_click_cursor, Until(lambda a: popup(a) is not None), captions("on_zip"),
+        KeyEvent("escape"), Until(lambda a: popup(a) is None),
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)), at("README"),
+        right_click_cursor, Until(lambda a: popup(a) is not None), captions("inside"),
+        KeyEvent("escape"), Until(lambda a: popup(a) is None),
+    ])
+    assert "Extract archive..." in seen["on_zip"] and "Extract to..." not in seen["on_zip"]
+    assert "Extract to..." in seen["inside"] and "Test archive" in seen["inside"]
+    assert "Extract archive..." not in seen["inside"]
 
 
 def test_test_archive_says_what_failed(desk):

@@ -54,17 +54,22 @@ class Modal(_Component):
     #: Shown centred on the top edge, with a space either side of it.
     title: str = _reactive('')    # modal.nml:26
 
+    #: Shown centred on the bottom edge the same way: the keys the modal takes
+    #: that no control of its shows (a departure, asked for; TV's frame had
+    #: none).  Not a caption the generator translates -- set it with ``tr``.
+    footer: str = _reactive('')    # modal.nml:31
+
     #: Whether the ``[■]`` icon is painted, and the corner answers a click.
-    closable: bool = _reactive(True)    # modal.nml:29
+    closable: bool = _reactive(True)    # modal.nml:34
 
     #: The size the modal asks for.  Overridden by a derived document.
-    modal_width: int = _reactive(50)    # modal.nml:32
-    modal_height: int = _reactive(10)    # modal.nml:33
+    modal_width: int = _reactive(50)    # modal.nml:37
+    modal_height: int = _reactive(10)    # modal.nml:38
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
 
-        self.width = _bind(lambda _o: _o.modal_width)    # modal.nml:35
-        self.height = _bind(lambda _o: _o.modal_height)    # modal.nml:36
-        self.x = _bind(lambda _o: max(0, (_o.parent.width - _o.width) // 2))    # modal.nml:37
-        self.y = _bind(lambda _o: max(0, (_o.parent.height - _o.height) // 2))    # modal.nml:38
+        self.width = _bind(lambda _o: _o.modal_width)    # modal.nml:40
+        self.height = _bind(lambda _o: _o.modal_height)    # modal.nml:41
+        self.x = _bind(lambda _o: max(0, (_o.parent.width - _o.width) // 2))    # modal.nml:42
+        self.y = _bind(lambda _o: max(0, (_o.parent.height - _o.height) // 2))    # modal.nml:43

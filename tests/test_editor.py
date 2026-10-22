@@ -2948,3 +2948,53 @@ def test_the_block_kind_moves_from_the_info_line_to_the_strip(files):
     assert editor_window(app).editor.vertical_blocks
     assert seen["lit"] == seen["want"]
     assert seen["label"] == "\uf07d"   # nf-fa-arrows_v: the fake terminal is Nerd
+
+
+def test_ctrl_a_selects_the_whole_text(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("a", ctrl=True)])
+    editor = editor_window(app).editor
+    start, end = editor.block
+    lines = editor.document.lines
+    assert (start.line, start.index) == (0, 0)
+    assert (end.line, end.index) == (len(lines) - 1, len(lines[-1]))
+
+
+def test_alt_shift_o_unindents_the_block_by_one_blank(tmp_path, quiet_console):
+    (tmp_path / "dir").mkdir(exist_ok=True)
+    (tmp_path / "text.txt").write_text("    a\n    b\n")
+    app = navigator(tmp_path)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, KeyEvent("a", ctrl=True),
+                  KeyEvent("o", "O", alt=True, shift=True)])
+    assert editor_window(app).editor.document.encode() == b"   a\n   b\n"
+
+
+def test_every_entry_on_the_editor_s_menu_shows_its_key(files):
+    from navml.widgets.menu.commands import ShowContextMenu
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    app = navigator(files)
+    missing = []
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def look(a):
+        editor = editor_window(a).editor
+
+        def walk(entries):
+            for entry in entries:
+                if isinstance(entry, SubMenu):
+                    walk(entry.entries())
+                elif isinstance(entry, MenuItem) and not key_caption(entry, a, editor):
+                    missing.append(entry.text)
+
+        walk(popup(a).box.entries())
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: a.spawn(editor_window(a).editor.emit(ShowContextMenu())),
+                  Until(lambda a: popup(a) is not None), look])
+    assert missing == []

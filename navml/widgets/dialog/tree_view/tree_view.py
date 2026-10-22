@@ -507,15 +507,24 @@ class TreeView(ListViewer):
         else:
             put(name_at, item.node.name, self.part_style("node"))
 
-    def search_label(self) -> str:
+    def search_label(self, room: int | None = None) -> str:
         """`` Search: us/lo/b `` while searching, else "": what a frame shows.
 
         The tree's own footer when it is framed; a frameless tree's owner may
-        put it on a frame of its own, as the tree window does.
+        put it on a frame of its own, as the tree window does.  With text
+        typed, *Ctrl-S next* follows it when the whole fits in *room* (the
+        footer's own, by default) -- a departure, asked for: Ctrl+S again
+        finding the next showed nowhere.  After the text, so a caret worked
+        out from the text's end stays put.
         """
         if self.search is None:
             return ""
-        return tr(" Search: ") + f"{self.search_path} "
+        label = tr(" Search: ") + f"{self.search_path} "
+        if self.search_path:
+            hinted = f"{label} {tr('Ctrl-S next')} "
+            if len(hinted) <= (self.width - 4 if room is None else room):
+                return hinted
+        return label
 
     def footer_text(self) -> str:
         """While searching, the path typed so far; otherwise the list's own."""

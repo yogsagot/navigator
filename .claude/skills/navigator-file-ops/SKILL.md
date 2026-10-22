@@ -92,7 +92,9 @@ thread (`attr_dialog.gather`: every `stat`, and the user/group lists NSS may fet
 tagged file, as `dlgFilesAttr` was: a twelve-bit grid with an octal line (a base-8 `MaskedField`, each digit setting its
 three boxes), *User*/*Group* `ChoiceField`s, DN's *Date*/*Time* (`DateField`/`TimeField`), and *Recurse*. DN's Set/Clear
 columns became **tri-state `CheckBoxes`**. **Only bits the user pressed are applied.** `Dialog.valid()` keeps it up over
-an unreadable value.
+an unreadable value. In the grid R, W and X tick *Read*/*Write*/*Exec* in the cursor's column
+(`_on_bits_key`, `ROW_KEYS`, Latin in every language), which the bottom frame says (`Modal.footer`; a departure, asked
+for).
 
 ## Make directory (F7)
 

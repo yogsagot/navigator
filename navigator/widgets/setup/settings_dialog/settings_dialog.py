@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.reactive import bind, unbind
+from navkit.screen import Surface
 from navkit.widget import Widget
 from navml.widgets.dialog.dialog import Dialog
 
@@ -59,6 +61,27 @@ class SettingsDialog(Dialog):
         unbind(row, Widget.width)
         row.x = bind(lambda r: tabs.x + tabs.column + 1)
         row.width = bind(lambda r: max(0, tabs.x + tabs.width - r.x))
+
+    def tab_hint(self) -> tuple[int, str] | None:
+        """Where the bottom frame says how to change pages, and what: the
+        keys ``TabView`` binds for it, which nothing else shows -- a tab's
+        title has no letter, Alt+letter being its page's controls'.  Right
+        of centre, clear of the corner and of the rule a column of tabs
+        brings down to the edge.  None when the box is too narrow for it."""
+        label = " " + tr("Ctrl-PgUp/PgDn: tabs") + " "
+        x = self.width - len(label) - 2
+        if self.height < 2 or x < 1 or (self.tabs.side == "left" and x <= self.tabs.x + self.tabs.column):
+            return None
+        return x, label
+
+    def render(self, surface: Surface) -> None:
+        """The frame, and over its bottom edge :meth:`tab_hint`, in the title's
+        colours -- a departure, asked for: DN had no tabbed dialog to say it."""
+        super().render(surface)
+        placed = self.tab_hint()
+        if placed is not None:
+            x, label = placed
+            surface.draw_text(x, self.height - 1, label, self.part_style("title"))
 
     def page(self, tab: str) -> Widget:
         if tab not in PAGES:

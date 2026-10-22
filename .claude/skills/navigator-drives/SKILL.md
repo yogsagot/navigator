@@ -242,6 +242,13 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   locations)`**: every member read through (zip CRCs, tar reads; 7z/rar `7z t` whole), `(path, why)` per failure,
   said in a box. **Departure, recorded**: DN put Extract/Test/Password on F4/F6/F7 of an archive panel's key bar
   (`hcArchives`); here F4 and F6 stay Edit and Rename/Move, which work in an archive.
+  **Shift+F2 extracts everywhere** (a departure, asked for): outside an archive it is *Extract archive*, inside one
+  `Manager.on_extract_archive` runs *Extract to...* -- so Panel > *Extract to...* shows Shift-F2 as a static key (the
+  binding is `ExtractArchive`'s). The panel's right-click menu offers *Extract to...* and *Test archive* in an
+  archive, and *Extract archive...* on an archive file outside one (`panel._archive_file`). **Shift+F1, File > *Copy
+  to archive...*** (`ArchiveFiles`, `cmPanelArcFiles`) is F5's Copy dialog with the target a new `.zip`'s root
+  (`Manager._archive_target`: named after the one entry, else the directory; in the other panel's place when it is on
+  the disk, else this one's), which the copy makes and packs into -- DN asked in an archiver's own box.
 - **Archive columns** (`TArcDrive.Init`'s `ColumnsDefaults.Arc`): `Panel.archive_columns`, seeded from *Column
   defaults*' *Archives* (`[column_defaults] arc_*`) each time an archive is entered (`_hold_archive`), is
   `shown_columns` in an archive; `packed` (*Packed*, `display_packed`) and `ratio` (*%*, `display_ratio`, DN's

@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
@@ -188,9 +188,12 @@ Manager(Window):
         MenuLine:
         #: DN's archive panel key bar, F4 and F6 (``hcArchives``): a menu's
         #: here, F4 and F6 staying Edit and Rename/Move.
+        #: Shift+F2 is *Extract archive*'s, which does this in an archive
+        #: (``Manager.on_extract_archive``): the key is that one's binding.
         MenuItem:
             text: 'E~x~tract to...'
             command: ExtractTo
+            key: 'Shift-F2'
         MenuItem:
             text: 'Test archive'
             command: ArcTest
@@ -280,6 +283,12 @@ Manager(Window):
             text: 'S~a~me directory in other panel'
             command: EqualizePanels
             key: 'Alt-='
+        #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
+        #: departure, asked for.  No hotkey: only ``j`` is free.
+        MenuItem:
+            text: 'Show in other panel'
+            command: ChangeInactive
+            key: 'Shift-Enter'
         MenuItem:
             text: '~Q~uick dirs...'
             command: ListOfDirs

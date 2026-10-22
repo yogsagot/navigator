@@ -55,7 +55,7 @@ from typing import Any, Sequence
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
-from navkit.reactive import effect, untracked
+from navkit.reactive import bind, effect, untracked
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -168,6 +168,9 @@ class AttrDialog(Dialog):
         :func:`gather` found of them, asked for here if not given."""
         super().__init__(**kwargs)
         self.message.visible = False
+        # The grid's R, W and X (``_on_bits_key``), which no caption marks --
+        # a departure, asked for.  Bound so it follows the language.
+        self.footer = bind(lambda o: tr("R W X tick the column's Read Write Exec"), yielding=True)
         self._entries = list(entries)
         from navigator.lib.drives import Location
         from navigator.lib.file_ops.filecopy import shown

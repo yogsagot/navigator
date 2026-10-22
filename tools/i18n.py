@@ -15,8 +15,9 @@ any one package; this script runs it over both of this repository's layers.
 with where it is used as a comment, and moves what is no longer used to an
 ``[unused]`` table, which :mod:`navkit.i18n` does not read, so nothing a
 translator wrote is thrown away.  **check** writes nothing; it reports missing
-and unused entries, and captions of one dialog or menu whose translated
-hotkeys clash where the English ones did not, and exits 1 if there is any.
+and unused entries, and captions of one dialog or menu whose hotkeys clash --
+in English, said once, and in each catalogue -- and exits 1 if there is any.
+A clash leaves a control that its Alt+letter never reaches.
 """
 
 from __future__ import annotations
@@ -48,23 +49,37 @@ def _hotkey(caption: str) -> str | None:
     return caption[start + 1].casefold()
 
 
-def _clashes(scope: list[str], strings: dict) -> list[str]:
-    def letters(captions):
-        seen: dict[str, str] = {}
-        clash = []
-        for caption in captions:
-            letter = _hotkey(caption)
-            if letter is None:
-                continue
-            if letter in seen and seen[letter] != caption:
-                clash.append(f"{seen[letter]!r} and {caption!r} share ~{letter}~")
-            seen.setdefault(letter, caption)
-        return clash
+def _letters(captions: list[str]) -> list[str]:
+    """Each pair of *captions* marking the same hotkey."""
+    seen: dict[str, str] = {}
+    clash = []
+    for caption in captions:
+        letter = _hotkey(caption)
+        if letter is None:
+            continue
+        if letter in seen and seen[letter] != caption:
+            clash.append(f"{seen[letter]!r} and {caption!r} share ~{letter}~")
+        seen.setdefault(letter, caption)
+    return clash
 
-    if letters(scope):
-        return []
+
+def _clashes(scope: list[str], strings: dict) -> list[str]:
+    """The clashes of *scope* as *strings* translates it -- what an English
+    clash is already, being said once by :func:`check_english`, left out."""
+    english = set(_letters(scope))
     translated = [strings.get(c) if isinstance(strings.get(c), str) and strings.get(c) else c for c in scope]
-    return letters(translated)
+    return [clash for clash in _letters(translated) if clash not in english]
+
+
+def check_english(layers: dict[str, Found]) -> int:
+    """The clashes in the captions as written: every language starts from them."""
+    problems = 0
+    for layer, found in layers.items():
+        for where, scope in found.scopes:
+            for clash in _letters(scope):
+                print(f"{layer}/{where}: {clash}")
+                problems += 1
+    return problems
 
 
 def check(code: str, layers: dict[str, Found]) -> int:
@@ -118,7 +133,7 @@ def main() -> int:
             added, unused = write(path, args.code, found, existing)
             print(f"{path.relative_to(ROOT)}: {len(found.keys)} strings, {added} new, {unused} unused")
         return 0
-    problems = sum(check(code, layers) for code in (args.code or codes()))
+    problems = check_english(layers) + sum(check(code, layers) for code in (args.code or codes()))
     return 1 if problems else 0
 
 

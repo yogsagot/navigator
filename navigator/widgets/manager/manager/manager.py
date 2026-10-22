@@ -30,6 +30,7 @@ from navml.widgets.window import Window
 from navigator.widgets.manager.commands import (
     AlternateEdit,
     AlternateView,
+    ArchiveFiles,
     ArcTest,
     ChangeAttributes,
     ChangeDirectory,
@@ -46,6 +47,7 @@ from navigator.widgets.manager.commands import (
     ExtractArchive,
     ExtractTo,
     GoParent,
+    GoToTreeDirectory,
     HideInactive,
     HideLeft,
     HideRight,
@@ -62,6 +64,7 @@ from navigator.widgets.manager.commands import (
     SelectGroup,
     SwitchPanel,
     ChangeInactive,
+    GoToFile,
     CompareDir,
     CountLength,
     FastRename,
@@ -231,6 +234,7 @@ class Manager(Window):
         self.left.path = left
         self.right.path = right
         self.tree.visible = False
+        self.tree.menu = self._tree_menu
         self.quick.visible = False
         self.info.visible = False
         #: The pending "panel, follow the tree" -- cancelled by every move.
@@ -570,8 +574,49 @@ class Manager(Window):
         return True
 
     async def on_extract_archive(self, event: ExtractArchive) -> bool:
-        self.spawn(self.extract_archives(self.active_panel))
+        """Shift+F2: the archives at the cursor or tagged extracted -- or, in
+        an archive, what is tagged there (*Extract to...*), so the one key
+        extracts wherever the panel is.  A departure, asked for: DN's
+        ``cmExtractArchive`` did nothing inside an archive."""
+        panel = self.active_panel
+        if panel.location.outer is not None:
+            self.spawn(self.extract_files(panel))
+        else:
+            self.spawn(self.extract_archives(panel))
         return True
+
+    async def on_archive_files(self, event: ArchiveFiles) -> bool:
+        """Shift+F1, File > *Copy to archive...*: ``cmPanelArcFiles``, as F5's
+        Copy with its target a new ``.zip`` -- which the copy makes and packs
+        into (``filecopy._open_target_archive``), so this is only the name.
+        A departure: DN asked in an archiver's own box (*Archive files*)."""
+        panel = self.active_panel
+        entries = self.selection(panel)
+        target = self._archive_target(panel, entries)
+        if target is not None:
+            self.spawn(self.copy_entries(panel, entries, target, move=False, others=(self.passive_panel,)))
+        return True
+
+    def _archive_target(self, panel: Panel, entries: list[Any]) -> Location | None:
+        """The new archive's root: named after the one entry, or after the
+        panel's directory for several, in the other panel's place when it is
+        on the disk, else this one's -- an archive is made only there."""
+        from pathlib import PurePosixPath
+
+        from navigator.lib.drives.archive import ARCHIVE_SITE
+
+        if not entries:
+            return None
+        if len(entries) == 1 and entries[0].name != "..":
+            stem = Path(entries[0].name).stem if not entries[0].is_dir else entries[0].name
+        else:
+            stem = panel.location.path.name or "archive"
+        for side in (self.passive_panel, panel):
+            location = side.location
+            if location.is_local and location.outer is None:
+                outer = Location.of(location.local / f"{stem or 'archive'}.zip")
+                return Location(ARCHIVE_SITE, PurePosixPath("/"), outer=outer)
+        return None
 
     def _extract_target(self, panel: Panel) -> str | None:
         """``cmPushFirstName``: the other panel's place, where it can be written."""
@@ -734,6 +779,11 @@ class Manager(Window):
             return True
         side = "right" if self.active_panel is self.left else "left"
         self.bring_side(side).go_to_entry(entry)
+        return True
+
+    async def on_go_to_file(self, event: GoToFile) -> bool:
+        """The right-click menu's *Go to file*: Enter in a *Find:* listing."""
+        self.active_panel.go_to_entry()
         return True
 
     async def on_read_file_list(self, event: ReadFileList) -> bool:
@@ -1538,6 +1588,25 @@ class Manager(Window):
         self.toggle_inactive_side()
         return True
 
+    def _tree_menu(self) -> Any:
+        """Ctrl+T's tree, right-clicked -- a departure, asked for, as every
+        context menu is: where Enter goes, the tree read again, its quick
+        search, and Ctrl+T's way back to the panel."""
+        from navml.widgets.dialog.commands import QuickSearch
+        from navml.widgets.menu.context_menu import ContextMenu
+
+        menu = ContextMenu()
+        menu.add_item(tr("~G~o to directory"), GoToTreeDirectory, "Enter")
+        menu.add_item(tr("~R~e-read"), Rescan)
+        menu.add_item(tr("Quick s~e~arch"), QuickSearch)
+        menu.add_line()
+        menu.add_item(tr("~C~lose tree"), ToggleTree)
+        return menu
+
+    async def on_go_to_tree_directory(self, event: GoToTreeDirectory) -> bool:
+        await self.tree.choose()
+        return True
+
     async def on_rescan(self, event: Rescan) -> bool:
         found = self.active_panel.found
         if self.tree.focused:
@@ -1648,14 +1717,18 @@ class Manager(Window):
             # back has to be where it will be before the box is placed by it.
             self.panels.arrange()
             title = tr("Bookmarks")
-            width, _ = PopupMenu.measure(menu, app, self, title)
+            # The keys the box takes on a bookmark, in its own frame, as the
+            # *Link* list says its own -- a departure, asked for.
+            footer = tr("{label} Label  {delete} Delete  {move} Move").format(
+                label="F2", delete="Del", move=_move_keys(self.glyphs)) if rows else ""
+            width, _ = PopupMenu.measure(menu, app, self, title, footer)
             ox, oy = panel.offset()
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
             submenu = None
             if reopen is not None:
                 submenu = (menu.entries().index(link_menu), min(reopen, max(0, len(link_menu.entries()) - 1)))
-            box = PopupMenu(menu, x, y, current=current, behind=self, title=title, submenu=submenu,
+            box = PopupMenu(menu, x, y, current=current, behind=self, title=title, footer=footer, submenu=submenu,
                             keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
             chosen = await box.execute(app)
             reopen = None
@@ -1802,7 +1875,12 @@ class Manager(Window):
             return self.active_panel.location.outer is not None
         if isinstance(command, ExtractArchive):
             panel = self.active_panel
-            return panel.location.outer is None and any(_is_archive(entry) for entry in self.selection(panel))
+            if panel.location.outer is not None:
+                return True  # *Extract to...*'s, which is enabled throughout an archive
+            return any(_is_archive(entry) for entry in self.selection(panel))
+        if isinstance(command, ArchiveFiles):
+            panel = self.active_panel
+            return self._archive_target(panel, self.selection(panel)) is not None
         if isinstance(command, (Edit, AlternateEdit)) and not self.active_panel.location.is_local:
             # An editor's F2 puts the file back: not into a drive that takes nothing.
             try:
@@ -1866,7 +1944,7 @@ class Manager(Window):
         if isinstance(command, EqualizePanels):
             # A *Find:* listing has no one directory to send the other side to.
             return self.active_panel.found is None
-        if isinstance(command, ChangeInactive):
+        if isinstance(command, (ChangeInactive, GoToFile)):
             entry = self.active_panel.selected
             return self.active_panel.found is not None and entry is not None and entry.name != ".."
         if isinstance(command, QuickRename):
@@ -3567,9 +3645,19 @@ def sort_radio_captions(reverse: bool, glyphs: int) -> list[str]:
     from navigator.widgets.manager.panel.panel import direction_arrow
 
     if not reverse:
-        return list(sort_captions())
+        return list(_radio_captions())
     return [f"{caption} {arrow}" if (arrow := direction_arrow(mode, True, glyphs)) else caption
-            for mode, caption in zip(SORT_MODES, sort_captions())]
+            for mode, caption in zip(SORT_MODES, _radio_captions())]
+
+
+def _radio_captions() -> tuple[str, ...]:
+    """:func:`sort_captions` with the letters the two dialogs leave free: DN's
+    *Display* box beside them had ``y``, ``o`` and ``a`` (*Directory length*,
+    *Totals*, *Archives first*), and *Attributes* has no letter left.  The
+    same as the markup's ``items``, which is what ``tools/i18n.py check``
+    reads -- keep the two alike."""
+    return (tr("~N~ame"), tr("~E~xtension"), tr("~S~ize"), tr("~T~ime"), tr("Attributes"), tr("O~w~ner"), tr("Ty~p~e"),
+            tr("~U~nsorted"))
 
 
 def sort_orders() -> list[tuple[str, bool]]:
@@ -3639,6 +3727,12 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
     return menu, toggle
 
 
+def _move_keys(glyphs: int) -> str:
+    """Ctrl+Up/Ctrl+Down as a box's footer says them: arrows, or words in ASCII."""
+    arrows = "Up/Down" if glyphs <= glyphs_module.GLYPHS_ASCII else "\u2191\u2193"
+    return f"Ctrl+{arrows}"
+
+
 def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.GLYPHS_UNICODE) -> dict[int, Any]:
     """The box's *Link*: DN's ``SelectDrive`` listed the other PC's drives
     under ``LINK``; here a submenu of the connection profiles, ticked where
@@ -3655,9 +3749,8 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
     rows = profiles.profiles()
     if rows:
         # The keys ``_profile_key`` takes there, in the list's own frame.
-        arrows = "Up/Down" if glyphs <= glyphs_module.GLYPHS_ASCII else "\u2191\u2193"
         link.footer = tr("{edit} Edit  {delete} Delete  {move} Move").format(
-            edit="F2", delete="Del", move=f"Ctrl+{arrows}")
+            edit="F2", delete="Del", move=_move_keys(glyphs))
     menu.add_line(before=before)
     found: dict[int, Any] = {}
     for row in rows:

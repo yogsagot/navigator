@@ -42,7 +42,7 @@ InterfacePage:
         y: 10
         width: 40
         height: 1
-        label_text: "~L~anguage"
+        label_text: "La~n~guage"
         label_width: 15
 
     #: Not DN's: how many colours the terminal is sent, at once.  Above

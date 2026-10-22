@@ -188,6 +188,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   titled *SmartPad(TM) - path*; `EditWindow(smartpad=True)` keeps no edit history, saves unasked on closing (Esc,
   Close all, Alt+X) and sends no `FileSaved`. Alt+Q is on `Navigator.keys`; the Shell answers it, putting the console
   away first.
+  **Open (F3) and Save as (Shift+F2) end SmartPad** (`EditWindow._leave_smartpad`): the window takes the other file
+  and is an ordinary editor from then on -- its title, history, *Save?* on closing and `FileSaved` -- and the next
+  Alt+Q opens a fresh pad, which `open_smartpad` finds by the `smartpad` flag (else it brought up that file and
+  stamped it). Open saves the pad unasked first, as closing does; Save as leaves the pad's file as it was on disk.
 - **Find and Replace** (`StartSearch` F7 / ^Q F, `Replace` Ctrl+F7 / ^Q A, `ContSearch` Shift+F7, `ReverseSearch`
   Alt+F7 / ^Q R; DN's `StartSearch` in `EDITOR.PAS` and `TFileEditor.Search` in `MICROED.PAS`). The model is
   `navigator/lib/editor/search.py` (`SearchData`, the record `SEARCH` kept between searches as DN's typed constant was --
@@ -376,9 +380,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **Every bound key is on a menu** (departures, asked for): Editor > *Delete line* (Ctrl+Y, also the context menu),
   *Delete word left* (Ctrl+Backspace, also the context menu), *Insert line* (Ctrl+N), Search > *Matching bracket*
   (Alt+Left/Right), Block > *Hide/show block* (Alt+H). And the commands DN reached by ^K/^Q chords alone have modern
-  defaults, so their menu items show a key that works: Alt+Shift+V move, K copy, I indent, U/L/C upper/lower/
+  defaults, so their menu items show a key that works: Alt+Shift+V move, K copy, I indent, O unindent (one blank, ^K U;
+  Shift+Tab is the tab-stop `UnindentBlock(stop=True)`, a different command), U/L/C upper/lower/
   capitalise block, D/T insert date/time (Alt+Shift+letter arrives from any terminal; the WordStar presets replace
-  them with the chords). `menu_box.key_caption` shows the live binding and falls back to the `.nml`'s static `key:`,
+  them with the chords). Ctrl+A is *Select all* (WordStar's *word left* in DN; the WordStar, DN 1.51 and Emacs presets
+  take it back with an empty `select_all =`). `menu_box.key_caption` shows the live binding and falls back to the `.nml`'s static `key:`,
   so a static key must be one the default set binds. Left off the menus on purpose: movement, Enter/Tab/Backspace/
   Del, Ctrl+Up/Down scrolling, Insert (the option strip shows it).
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and

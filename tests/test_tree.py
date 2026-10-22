@@ -872,3 +872,68 @@ def test_the_tree_menu_joins_the_bar_and_a_right_click_offers_it_on_the_row_clic
     assert seen["cursor"] == 1
     assert seen["items"] == ["Re-read", "Quick search", "Close"]
     assert seen["search"]
+
+
+def test_a_tree_s_search_label_names_ctrl_s_next_when_it_fits_and_the_window_caret_stays_after_the_text(places):
+    seen = {}
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        tree = window.tree
+        seen["label"] = tree.search_label(room=60)
+        seen["tight"] = tree.search_label(room=len(tree.search_label(room=0)))
+        x, label = window._search_label()
+        seen["caret"] = window.cursor_position()[0] - x
+        seen["typed"] = len(" Search: ") + len(tree.search_path)
+
+    tree_window_run(places, KeyEvent("s", ctrl=True), KeyEvent("o", "o"), look)
+    assert seen["label"].endswith("  Ctrl-S next ")
+    assert "Ctrl-S" not in seen["tight"]
+    assert seen["caret"] == seen["typed"]
+
+
+def test_the_ctrl_t_tree_s_right_click_menu_goes_there_and_closes_it(places):
+    from navkit.events import MouseClickEvent
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.commands import ShowContextMenu
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from test_nav import navigator
+
+    app = navigator(places)
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def right_click_elsewhere(a):
+        # Any directory painted other than the cursor's: where the tree has
+        # scrolled to depends on what else /tmp holds.
+        tree = a.manager.tree
+        index = next(i for i in range(tree.scroll, min(len(tree.items), tree.scroll + tree.rows))
+                     if i != tree.cursor and isinstance(tree.items[i].node.data, pathlib.Path))
+        seen["target"] = tree.items[index].node.data
+        ox, oy = tree.offset()
+        y = tree.inset + tree.header + index - tree.scroll
+        a.post_event(MouseClickEvent(x=ox + tree.x + 4, y=oy + tree.y + y, button="right", action="press"))
+
+    def look(a):
+        tree = a.manager.tree
+        seen["items"] = [(parse_shortcut(e.text)[0], key_caption(e, a, tree))
+                         for e in popup(a).box.entries() if isinstance(e, MenuItem)]
+        seen["at"] = tree.selected_path
+
+    run_app(app, [
+        KeyEvent("t", ctrl=True), Until(lambda a: a.manager.tree.visible and a.manager.tree.selected_path == places),
+        right_click_elsewhere, Until(lambda a: popup(a) is not None), look,
+        KeyEvent("g", "g"), Until(lambda a: popup(a) is None),
+        Until(lambda a: a.manager.left.path == seen["target"]),
+        lambda a: a.spawn(a.manager.tree.emit(ShowContextMenu())),
+        Until(lambda a: popup(a) is not None), KeyEvent("c", "c"), Until(lambda a: popup(a) is None),
+        lambda a: seen.update(tree=a.manager.tree.visible),
+    ])
+    assert seen["items"] == [("Go to directory", "Enter"), ("Re-read", "Alt-R"), ("Quick search", "Ctrl-S"),
+                             ("Close tree", "Ctrl-T")]
+    assert seen["at"] == seen["target"]  # the right click moved the cursor there first
+    assert seen["tree"] is False

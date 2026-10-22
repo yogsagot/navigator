@@ -65,3 +65,17 @@ def test_edit_changes_a_command_and_keeps_its_mark(app):
     assert seen["was"] == "make"
     assert seen["items"] == ["ls", "pwd", "make all"] and seen["at"] == "make all"
     assert HISTORY.is_pinned("command", "make all")
+
+
+def bottom_row(a) -> str:
+    modal = a.modal
+    ox, oy = modal.offset()
+    y = oy + modal.y + modal.height - 1
+    return "".join(a._front.get(x, y)[0] or " " for x in range(ox + modal.x, ox + modal.x + modal.width))
+
+
+def test_the_bottom_frame_names_the_list_s_own_keys(app):
+    seen = {}
+    run_app(app, [KeyEvent("f8", alt=True), Until(listing), lambda a: None,
+                  lambda a: seen.update(row=bottom_row(a)), KeyEvent("escape")])
+    assert " Space keep  ←→ next kept " in seen["row"]

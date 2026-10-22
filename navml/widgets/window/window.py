@@ -35,6 +35,7 @@ from typing import Any
 
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS
+from navkit.i18n import tr
 from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
@@ -270,6 +271,30 @@ class Window(Widget):
     def render_after(self, surface: Surface) -> None:
         if not self.framed:
             self._paint_chrome(surface)
+        self._paint_move_hint(surface)
+
+    def move_hint(self) -> tuple[int, str] | None:
+        """While the keyboard moves or sizes this window (Ctrl+F5), where its
+        bottom edge says which keys do what, and the words -- cut to the
+        frame, None with no room or no move.  A departure, asked for: Turbo
+        Vision's ``dmDragMove`` said nothing, and its keys are no key table's,
+        so the key bar cannot say them either."""
+        if self._key_move is None or self.height < 2:
+            return None
+        label = " " + tr("Arrows move  Shift+arrows size  Enter keep  Esc undo") + " "
+        room = self.width - 4
+        if room < 8:
+            return None
+        label = label[:room]
+        return max(2, (self.width - len(label)) // 2), label
+
+    def _paint_move_hint(self, surface: Surface) -> None:
+        """:meth:`move_hint` over the bottom edge, in the title's colours --
+        after the children, so an info line or a strip there gives way."""
+        placed = self.move_hint()
+        if placed is not None:
+            x, label = placed
+            surface.draw_text(x, self.height - 1, label, self.part_style("title"))
 
     def _paint_chrome(self, surface: Surface) -> None:
         unicode = self.glyphs > 1
@@ -454,6 +479,7 @@ class Window(Widget):
         self._key_move = (app.focused, (self.x, self.y, self.width, self.height))
         self.can_focus = True
         self.focus()
+        self.invalidate()  # the bottom edge's hint (``move_hint``)
 
     def end_move(self, keep: bool = True) -> None:
         """Leave keyboard move/size mode, giving the keyboard back."""
@@ -461,6 +487,7 @@ class Window(Widget):
             return
         previous, rect = self._key_move
         self._key_move = None
+        self.invalidate()
         if not keep:
             self.x, self.y, self.width, self.height = rect
         if previous is not None and previous is not self and previous.is_mounted and self._holds(previous):

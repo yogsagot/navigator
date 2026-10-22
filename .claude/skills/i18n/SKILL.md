@@ -67,7 +67,10 @@ tables' captions. `tools/i18n.py` is that module run over both layers, plus `che
 `./venv/bin/python tools/i18n.py extract de --name Deutsch` writes `navml/locales/de.toml` and
 `navigator/locales/de.toml` with every key (`""`, each with where it is used). Fill them in; `extract` again keeps
 what is written and adds what is new. `tools/i18n.py check [code]` exits 1 on untranslated or unused keys and on a
-dialog or menu whose translated hotkeys clash where the English did not. `packaging/linux/build.sh` asserts every
+dialog or menu whose hotkeys clash: in English (`check_english`, said once) and in each catalogue, which is checked
+even where the English clashes (it once skipped such a scope, and clashes hid behind it for a whole session). A scope
+is a `.nml` block's direct children's captions, or one `items` list; menus and lists built in Python (context menus,
+the Sort by box, the Columns dialog's list) are not seen and are checked by hand. `test_i18n` runs it. `packaging/linux/build.sh` asserts every
 catalogue is packaged.
 
 ## Tests

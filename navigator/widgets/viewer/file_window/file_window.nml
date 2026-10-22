@@ -186,8 +186,10 @@ FileWindow(Window):
             text: 'Go to add~r~ess...'
             command: GotoAddress
         MenuLine:
+        #: No letter: *Show hidden characters* has the only one its caption
+        #: could take, and this is greyed until it exists.
         MenuItem:
-            text: 'St~o~re'
+            text: 'Store'
             key: 'Shift-F2'
         MenuItem:
             text: 'Sav~e~ as...'

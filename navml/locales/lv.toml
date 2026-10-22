@@ -122,7 +122,7 @@ name = "Latviešu"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:189
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
+# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:522 ...
 " Search: " = " Meklēt: "
 # navml/widgets/dialog/input_line/input_line.py:377
 "Cu~t~" = "~I~zgriezt"
@@ -134,5 +134,9 @@ name = "Latviešu"
 "C~l~ear" = "~T~īrīt"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Atlasīt ~v~isu"
+# navml/widgets/dialog/tree_view/tree_view.py:524
+"Ctrl-S next" = "Ctrl-S nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
+# navml/widgets/window/window.py:284
+"Arrows move  Shift+arrows size  Enter keep  Esc undo" = "Bultas: pārvietot  Shift+bultas: izmērs  Enter: paturēt  Esc: atcelt"

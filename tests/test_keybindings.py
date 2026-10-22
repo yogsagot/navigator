@@ -59,7 +59,7 @@ def test_a_keyless_command_is_still_a_line():
     assert editor.entry("block_start").defaults == ()
     assert editor.entry("place_marker_3").defaults == ()
     assert editor.entry("goto_marker_9").defaults == ()
-    assert editor.entry("unindent_block").defaults == ()
+    assert editor.entry("mark_line").defaults == ()
     assert editor.entry("undo").defaults == ("alt+backspace", "ctrl+z")
     assert "ctrl+k b" not in key_table(FileEditor)
     assert section("global").entry("quick_run_10").defaults == ("ctrl+shift+f10",)

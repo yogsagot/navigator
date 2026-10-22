@@ -78,6 +78,22 @@ def test_a_right_click_on_a_file_moves_the_cursor_and_offers_its_operations(tree
     ]
 
 
+def test_every_entry_on_a_file_s_menu_shows_its_key(tree):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = navigator(tree)
+    seen = {}
+
+    def keys(a):
+        box = popup(a).box
+        seen.update({parse_shortcut(e.text)[0]: key_caption(e, a, a.manager.left)
+                     for e in box.entries() if isinstance(e, MenuItem)})
+
+    run_app(app, [right(5, 5), OPEN, keys])
+    assert seen["Select group..."] == 'Gray "+"' and seen["Invert selection"] == 'Gray "*"'
+    assert [name for name, key in seen.items() if not key] == []
+
+
 def test_insert_name_from_the_menu_types_it_on_the_command_line(tree):
     app = navigator(tree)
     run_app(app, [right(5, 5), OPEN, KeyEvent("i", "i"), SHUT])

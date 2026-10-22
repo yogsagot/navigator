@@ -87,7 +87,12 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   *Reading file* after `SLOW_PROGRESS_DELAY`, Cancel opens nothing. The quick view opens its file through
   `navml.background.Background` and shows only what the cursor is still on when it lands.
 - **Ctrl+Q is DN's quick view** (`QuickViewer`, a framed `FileViewer`), standing in the passive panel's place through
-  `Manager.switch_view`; it follows the active panel's cursor, and Tab moves the keyboard in and out.
+  `Manager.switch_view`; it follows the active panel's cursor, and Tab moves the keyboard in and out. Its right-click
+  menu is its own (`QuickViewer.context_menu`, set over the viewer's; a departure, asked for): *~V~iew* (the panel's
+  F3, on the same file), *~M~arkup view*, *~C~lose quick view* (Ctrl+Q) -- the F3 window's greyed nearly all of itself
+  here, and its *Close* closed the file manager. `context_focus` is off, so the keyboard stays with the panel: closing
+  the view while it holds the keyboard gives it to the panel put back (DN's `SwitchView`), and the next Ctrl+Q then
+  stands on the other side.
 - **File View History (Alt+PgDn)**: DN's `TViewRecord`. Each file's window rectangle (scaled to the desktop, as
   `AdjustToDesktopSize` did), mode, wrap, filter, `top`, `x_delta` and hex `cursor` are written to the `ViewRecord`
   model. That happens when a viewer opens on a file with no record, and when it closes by any route, Alt+X included
@@ -95,7 +100,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   **Open viewers through `navigator.lib.config.file_history.open_viewer`**, never `desktop.open(FileWindow(...))`, or nothing is
   restored. As Text / As Hex pass a mode, which wins over the record's. Gated on Interface's *Track viewing history*; the rectangle, `top`, `x_delta` and `cursor` come
   back only under *Store viewer position* as well.
-  The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The Ctrl+Q quick viewer records nothing.
+  The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). Its bottom frame names the list's own keys,
+  *Space pin  Shift+↑↓ move  ←→ pinned* (`Modal.footer`; a departure, asked for). The Ctrl+Q quick viewer records nothing.
 - **The dBase viewer** (File > View > As DataBase, `ViewAsDataBase`; F3 on a `.dbf`, DN's `ViewFile` `XT = '.DBF'`):
   `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
   cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As

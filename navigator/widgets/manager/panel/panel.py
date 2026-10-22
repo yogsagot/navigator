@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from navkit.commands import key_label
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
@@ -187,6 +188,13 @@ SORT_MODES: tuple[str, ...] = PanelDefaultsData.SORT_BY
 #: no direction.
 SORT_ASCENDS = {"name": True, "extension": True, "size": False, "time": False,
                 "attributes": True, "owner": True, "type": True}
+
+
+def _archive_file(entry: Any) -> bool:
+    """A file Shift+F2 extracts -- the *archive* file type's -- as the
+    right-click menu offers *Extract archive* on it (``Manager`` decides)."""
+    return (entry is not None and not entry.is_dir and entry.name != ".."
+            and filetypes.group_of(entry.name) == "archive")
 
 
 def direction_arrow(mode: str, reverse: bool, glyphs: int) -> str:
@@ -1279,11 +1287,16 @@ class Panel(ContextMenuHost, ListViewer):
         Built each time, so its captions follow the language.
         """
         from navigator.widgets.manager.commands import (
+            ArcTest,
             ChangeAttributes,
+            ChangeInactive,
             Copy,
             CountLength,
             Delete,
             Edit,
+            ExtractArchive,
+            ExtractTo,
+            GoToFile,
             InvertSelection,
             MakeDirectory,
             MakeLink,
@@ -1298,6 +1311,12 @@ class Panel(ContextMenuHost, ListViewer):
         entry = self.selected
         tagged = bool(self.marked)
         on_parent = entry is None or entry.name == ".."
+        if self.found is not None and not on_parent:
+            # A *Find:* listing's Enter and Shift+Enter -- a departure, asked
+            # for: DN had them on no menu.
+            menu.add_item(tr("Go to ~f~ile"), GoToFile, "Enter")
+            menu.add_item(tr("Show in ~o~ther panel"), ChangeInactive)
+            menu.add_line()
         if not tagged and not on_parent and not entry.is_dir:
             # ``w``, not the File menu's ``v``: *Invert selection* has that here.
             menu.add_item(tr("Vie~w~"), View)
@@ -1310,13 +1329,25 @@ class Panel(ContextMenuHost, ListViewer):
             menu.add_item(tr("~D~elete"), Delete)
             menu.add_item(tr("File ~A~ttributes..."), ChangeAttributes)
             menu.add_line()
+        # The archive's own two in one, and Shift+F2 on an archive outside one
+        # -- a departure, asked for, as the menu is.  ``x`` for both: an
+        # archive panel offers no *Extract archive*.
+        if self.location.outer is not None:
+            menu.add_item(tr("E~x~tract to..."), ExtractTo, "Shift-F2")
+            menu.add_item(tr("Test arc~h~ive"), ArcTest)
+            menu.add_line()
+        elif any(_archive_file(item) for item in (self.marked_entries if tagged else [entry])):
+            menu.add_item(tr("E~x~tract archive..."), ExtractArchive, "Shift-F2")
+            menu.add_line()
         if entry is not None and entry.is_dir:
             menu.add_item(tr("Count directory len~g~th"), CountLength)
         menu.add_item(tr("~M~ake directory"), MakeDirectory)
         menu.add_line()
-        menu.add_item(tr("Select grou~p~..."), SelectGroup)
-        menu.add_item(tr("~U~nselect group..."), UnselectGroup)
-        menu.add_item(tr("In~v~ert selection"), InvertSelection)
+        # Their keys are bound as ``by_key`` commands, which these are not, so
+        # no live key is found: the keypad's, as the Panel menu writes them.
+        menu.add_item(tr("Select grou~p~..."), SelectGroup, key_label("kp_plus"))
+        menu.add_item(tr("~U~nselect group..."), UnselectGroup, key_label("kp_minus"))
+        menu.add_item(tr("In~v~ert selection"), InvertSelection, key_label("kp_multiply"))
         # Ctrl+Enter and Ctrl+Shift+Enter, which DN had on no menu -- a
         # departure, asked for; the shell answers them.
         menu.add_line()
@@ -1673,7 +1704,14 @@ class Panel(ContextMenuHost, ListViewer):
         """What a search has typed, while it is searching; else nothing --
         the current file and the selection are info lines, as DN's were."""
         if self.quick_search is not None:
-            return f"{self.search_label}{self.quick_search} "
+            label = f"{self.search_label}{self.quick_search} "
+            if self.quick_search:
+                # Ctrl+S again finds the next -- said where it fits whole, after
+                # the text so the caret stays put (a departure, asked for).
+                hinted = f"{label} {tr('Ctrl-S next')} "
+                if len(hinted) <= self.width - 4:
+                    return hinted
+            return label
         return ""
 
     # -- the info lines: TInfoView ------------------------------------------------

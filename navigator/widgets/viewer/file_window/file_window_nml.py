@@ -126,11 +126,11 @@ class FileWindow(Window, _Component):
         _w17 = MenuItem(parent=self.view_menu)    # file_window.nml:182
         _w18 = MenuItem(parent=self.view_menu)    # file_window.nml:185
         _w19 = MenuLine(parent=self.view_menu)    # file_window.nml:188
-        _w20 = MenuItem(parent=self.view_menu)    # file_window.nml:189
-        _w21 = MenuItem(parent=self.view_menu)    # file_window.nml:192
-        _w22 = MenuItem(parent=self.view_menu)    # file_window.nml:196
-        _w23 = MenuLine(parent=self.view_menu)    # file_window.nml:200
-        _w24 = MenuItem(parent=self.view_menu)    # file_window.nml:201
+        _w20 = MenuItem(parent=self.view_menu)    # file_window.nml:191
+        _w21 = MenuItem(parent=self.view_menu)    # file_window.nml:194
+        _w22 = MenuItem(parent=self.view_menu)    # file_window.nml:198
+        _w23 = MenuLine(parent=self.view_menu)    # file_window.nml:202
+        _w24 = MenuItem(parent=self.view_menu)    # file_window.nml:203
 
         self.zoomed = True    # file_window.nml:27
 
@@ -245,16 +245,16 @@ class FileWindow(Window, _Component):
         _w18.text = _bind(lambda _o: _tr('Go to add~r~ess...'), yielding=True)    # file_window.nml:186
         _w18.command = GotoAddress    # file_window.nml:187
 
-        _w20.text = _bind(lambda _o: _tr('St~o~re'), yielding=True)    # file_window.nml:190
-        _w20.key = 'Shift-F2'    # file_window.nml:191
+        _w20.text = _bind(lambda _o: _tr('Store'), yielding=True)    # file_window.nml:192
+        _w20.key = 'Shift-F2'    # file_window.nml:193
 
-        _w21.text = _bind(lambda _o: _tr('Sav~e~ as...'), yielding=True)    # file_window.nml:193
-        _w21.command = SaveViewAs    # file_window.nml:194
-        _w21.key = 'Shift-F5'    # file_window.nml:195
+        _w21.text = _bind(lambda _o: _tr('Sav~e~ as...'), yielding=True)    # file_window.nml:195
+        _w21.command = SaveViewAs    # file_window.nml:196
+        _w21.key = 'Shift-F5'    # file_window.nml:197
 
-        _w22.text = _bind(lambda _o: _tr('Encod~i~ng...'), yielding=True)    # file_window.nml:197
-        _w22.command = ChooseEncoding    # file_window.nml:198
-        _w22.key = 'Shift-F6'    # file_window.nml:199
+        _w22.text = _bind(lambda _o: _tr('Encod~i~ng...'), yielding=True)    # file_window.nml:199
+        _w22.command = ChooseEncoding    # file_window.nml:200
+        _w22.key = 'Shift-F6'    # file_window.nml:201
 
-        _w24.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:202
-        _w24.command = CloseWindow    # file_window.nml:203
+        _w24.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:204
+        _w24.command = CloseWindow    # file_window.nml:205

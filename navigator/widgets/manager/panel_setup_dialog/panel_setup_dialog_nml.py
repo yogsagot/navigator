@@ -77,7 +77,7 @@ class PanelSetupDialog(Dialog, _Component):
         self.reverse.width = 22    # panel_setup_dialog.nml:33
         self.reverse.height = 1    # panel_setup_dialog.nml:34
         self.reverse.items = _bind(    # panel_setup_dialog.nml:35
-            lambda _o: [_tr('~R~everse order')],
+            lambda _o: [_tr('Re~v~erse order')],
             yielding=True,
         )
 
@@ -86,7 +86,7 @@ class PanelSetupDialog(Dialog, _Component):
         self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:41
         self.sort_by.height = 3    # panel_setup_dialog.nml:42
         self.sort_by.items = _bind(    # panel_setup_dialog.nml:43
-            lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('~A~ttributes'), _tr('~O~wner'), _tr('T~y~pe'), _tr('~U~nsorted')],
+            lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('Attributes'), _tr('O~w~ner'), _tr('Ty~p~e'), _tr('~U~nsorted')],
             yielding=True,
         )
 

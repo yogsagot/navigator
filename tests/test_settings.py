@@ -889,3 +889,24 @@ def test_use_system_clipboard_switches_the_applications(tmp_path, quiet_console)
         lambda a: seen.append(a.system_clipboard),
     ])
     assert seen == [True, False]
+
+
+@pytest.mark.parametrize("side", ["top", "left"])
+def test_the_bottom_frame_says_how_to_change_tabs(tmp_path, quiet_console, side):
+    from navigator.widgets.shell.commands import Settings
+
+    SETTINGS.interface.settings_tabs = side
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def look(a):
+        dialog = a.modal
+        ox, oy = dialog.offset()
+        buffer = a._front
+        y = oy + dialog.y + dialog.height - 1
+        seen["bottom"] = "".join(buffer.get(x, y)[0] or " " for x in range(ox + dialog.x, ox + dialog.x + dialog.width))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(Settings)), lambda a: None, lambda a: None, look,
+                  KeyEvent("escape")])
+    assert " Ctrl-PgUp/PgDn: tabs " in seen["bottom"]
+    assert seen["bottom"].rstrip()[-1] not in " "  # the corner is still there

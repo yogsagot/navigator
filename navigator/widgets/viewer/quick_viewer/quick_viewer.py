@@ -74,6 +74,34 @@ class QuickViewer(Widget):
     #: What was fetched for the file on another drive showing now, if any.
     _use: Any = None
 
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        # The F3 window's menu greys nearly all of itself here, and its *Close*
+        # would close the file manager: this one's own instead.
+        self.viewer.context_menu = self.context_menu
+        # And the keyboard stays with the panel, as the console's menu leaves
+        # it with the command line: *Close quick view* taken with the keyboard
+        # in here would hand it to the panel put back (``switch_view``).
+        self.viewer.context_focus = False
+
+    def context_menu(self) -> Any:
+        """The quick view's right-click menu -- a departure, asked for, as every
+        context menu is: the file in the full viewer (the panel's F3, on the
+        same file), *Markup view*, and Ctrl+Q's way back to the panel."""
+        from navkit.i18n import tr
+        from navml.widgets.menu.context_menu import ContextMenu
+
+        from navigator.widgets.manager.commands import QuickView, View
+
+        if self.viewer.source is None:
+            return None
+        menu = ContextMenu()
+        menu.add_item(tr("~V~iew"), View)
+        menu.add_item(tr("~M~arkup view"), SwitchRendered)
+        menu.add_line()
+        menu.add_item(tr("~C~lose quick view"), QuickView)
+        return menu
+
     def show(self, path: Any) -> None:
         """Show *path*, unless it is already showing; nothing for anything but a file.
 

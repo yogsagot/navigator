@@ -27,6 +27,7 @@ from navkit.screen import Surface
 
 from navml.background import Background, Outcome
 from navml.widgets.dialog.tree_view import TreeNode, TreeView
+from navml.widgets.menu.context_menu import ContextMenuHost
 
 #: Where the file counts under the tree are taken: a directory of a hundred
 #: thousand files, or one on a dead mount, is counted without the screen
@@ -247,7 +248,7 @@ def files_line(files: int, size: int) -> str:
     return tr_n("{n} file with {total}", "{n} files with {total}", files, total=total)
 
 
-class DirectoryTree(TreeView):
+class DirectoryTree(ContextMenuHost, TreeView):
     """The filesystem as a tree, with the directory under the cursor described."""
 
     #: The two rows ``TTreeInfoView`` paints under the tree.
@@ -272,6 +273,21 @@ class DirectoryTree(TreeView):
         #: a thread, the line left blank until the count is in.
         self._counts: dict[Path, tuple[int, int]] = {}
         self._counting: set[Path] = set()
+        #: What builds the right-click menu, given by whoever holds the tree
+        #: (the file manager, for Ctrl+T's); None offers none, and the click
+        #: goes on out -- to the Tree window's own menu, say.
+        self.menu: Any = None
+
+    def context_menu(self) -> Any:
+        return self.menu() if self.menu is not None else None
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """A right click on a row puts the cursor there, as a left click does."""
+        if self.menu is None:
+            return
+        index = self.row_at(y)
+        if index is not None:
+            self.cursor = index
 
     @computed
     def rows(self) -> int:

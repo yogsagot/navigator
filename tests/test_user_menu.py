@@ -196,8 +196,8 @@ def test_f2_shows_the_local_menu_centred_and_enter_runs_the_item(place):
 
     def look(a):
         box = popup(a)
-        width, height = PopupMenu.measure(box.menu, a, a.shell, "User menu")
-        seen.update(captions=captions(box.box), at=box.at, title=box.box.title,
+        width, height = PopupMenu.measure(box.menu, a, a.shell, "User menu (local)", "F2 Global menu  F4 Edit")
+        seen.update(captions=captions(box.box), at=box.at, title=box.box.title, footer=box.box.footer,
                     centre=((a.root.width - width) // 2, (a.root.height - height) // 2))
 
     run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("f2"),
@@ -205,7 +205,8 @@ def test_f2_shows_the_local_menu_centred_and_enter_runs_the_item(place):
                   KeyEvent("end"), KeyEvent("up"), KeyEvent("enter"),
                   Until(lambda a: ran)])
     assert seen["captions"] == ["Windows", "-", "Format", "F5 Edit a.txt", "List"]
-    assert seen["at"] == seen["centre"] and seen["title"] == "User menu"
+    assert seen["at"] == seen["centre"] and seen["title"] == "User menu (local)"
+    assert seen["footer"] == "F2 Global menu  F4 Edit"
     assert script_of(ran) == f"vi {place}/a.txt\ncp {place.parent}/tmp/navigator-{os.getuid()}/active.lst " \
                              f"{place}/ %3 $HOME\n"
 
@@ -256,10 +257,12 @@ def test_f2_in_the_box_changes_to_the_global_menu_and_f4_edits_it(place):
     seen = {}
     run_app(app, [KeyEvent("f2"), Until(lambda a: popup(a) is not None), KeyEvent("f2"),
                   Until(lambda a: popup(a) is not None and captions(popup(a).box) == ["Global thing"]),
+                  lambda a: seen.update(title=popup(a).box.title, footer=popup(a).box.footer),
                   KeyEvent("f4"),
                   Until(lambda a: isinstance(a.shell.desktop.active_window, EditWindow)),
                   lambda a: seen.update(path=a.shell.desktop.active_window.editor.path)])
     assert seen["path"] == global_menu
+    assert seen["title"] == "User menu (global)" and seen["footer"] == "F2 Local menu  F4 Edit"
 
 
 def test_no_menu_anywhere_says_so(place):

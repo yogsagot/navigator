@@ -550,6 +550,30 @@ def test_the_box_is_titled_bookmarks_in_its_top_frame(places):
     assert " Bookmarks " in seen[0]
 
 
+def frame_rows(a) -> tuple[str, str]:
+    """The open box's top and bottom rows, as painted."""
+    box = popup(a).box
+    buffer = ScreenBuffer(box.width, box.height)
+    box.render_tree(buffer.view(-box.x, -box.y, box.width + box.x, box.height + box.y))
+    row = lambda y: "".join(buffer.get(x, y)[0] or " " for x in range(box.width))
+    return row(0), row(box.height - 1)
+
+
+def test_the_bottom_frame_names_the_bookmark_keys_while_there_are_bookmarks(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = []
+    run_app(app, [KeyEvent("f1", alt=True), BOX, lambda a: seen.append(frame_rows(a)[1]), KeyEvent("escape")])
+    assert " F2 Label  Del Delete  Ctrl+\u2191\u2193 Move " in seen[0]
+
+
+def test_with_no_bookmarks_the_bottom_frame_is_plain(places):
+    app = navigator(places / "start")
+    seen = []
+    run_app(app, [KeyEvent("f1", alt=True), BOX, lambda a: seen.append(frame_rows(a)[1]), KeyEvent("escape")])
+    assert "Label" not in seen[0]
+
+
 # -- the Link list: profiles edited, removed and moved with the box's own keys -------------------------
 
 

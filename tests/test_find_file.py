@@ -327,3 +327,40 @@ def test_a_path_column_takes_the_directory_s_line_over(place):
     assert "path" not in columns and lines[1].endswith("/a/deep")
     columns, lines = seen["wide"]
     assert "path" in columns and lines[0].rstrip().endswith("/a/deep") and "/a/deep" not in lines[1]
+
+
+def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place):
+    from navml.widgets.dialog.control.control import parse_shortcut
+    from navml.widgets.menu.commands import ShowContextMenu
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navigator.widgets.manager.commands import ChangeInactive
+
+    app = navigator(place)
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    def panel_menu(name):
+        def action(a):
+            item = next(e for e in a.manager.panel_menu.entries() if getattr(e, "command", None) is ChangeInactive)
+            seen[name] = (key_caption(item, a, a.manager.left), a.command_enabled(ChangeInactive, a.manager.left))
+        return action
+
+    run_app(app, [panel_menu("plain"),
+                  KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")), panel_menu("listing"),
+                  lambda a: a.spawn(a.manager.left.emit(ShowContextMenu())), Until(lambda a: popup(a) is not None),
+                  lambda a: seen.update(items=[parse_shortcut(e.text)[0] for e in popup(a).box.entries()
+                                               if hasattr(e, "command")][:2]),
+                  KeyEvent("o", "o"), Until(lambda a: popup(a) is None), lambda a: None,
+                  lambda a: seen.update(right=a.manager.right.path),
+                  lambda a: a.spawn(a.manager.left.emit(ShowContextMenu())), Until(lambda a: popup(a) is not None),
+                  KeyEvent("f", "f"), Until(lambda a: popup(a) is None), lambda a: None, lambda a: None,
+                  lambda a: seen.update(left=a.manager.left.path, found=a.manager.left.found)])
+    assert seen["plain"] == ("Shift-Enter", False)
+    assert seen["listing"] == ("Shift-Enter", True)
+    assert seen["items"] == ["Go to file", "Show in other panel"]
+    assert seen["right"] == place / "b"
+    assert seen["left"] == place / "b" and seen["found"] is None

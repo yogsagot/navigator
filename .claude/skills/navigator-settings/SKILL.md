@@ -132,6 +132,9 @@ note:
   for a page, which every page fits (*File panels*' second column is the tightest). There the tabs' rule runs the
   frame's whole height into its tees (`TabView.joins_frame`), and OK and Cancel are centred under the pages
   (`SettingsDialog._buttons_under_pages`, the base's `row` rebound).
+  **The bottom frame says *Ctrl-PgUp/PgDn: tabs*** (`SettingsDialog.tab_hint`, drawn in `render` in the title's
+  colours, right-aligned clear of a left column's rule; a departure, asked for): `TabView`'s page keys showed nowhere,
+  and a tab title cannot take a letter, Alt+letter being the page's controls'.
   The Screen savers page keeps *Time* under its lists, as DN had it, with the lists three rows shorter to stay that
   short.
 - **What OK does.** `Shell.setup(dialog, *sections)` spawns the dialog. For a multi-section answer it keeps only the

@@ -104,3 +104,51 @@ def test_the_pad_keeps_no_edit_history(pad):
     run(tmp_path, KeyEvent("q", alt=True), lambda a: None, KeyEvent("x", "x"),
         KeyEvent("escape"), IDLE)
     assert path.exists() and EditRecord.find(path) is None
+
+
+def answer_file(monkeypatch, path):
+    """*Open a File* and *Save File As* answered with *path*, unasked."""
+    async def ask(self, *args, **kwargs):
+        return path
+    monkeypatch.setattr("navigator.widgets.editor.edit_window.EditWindow._ask_file", ask)
+
+
+def test_save_as_makes_the_pad_an_ordinary_editor_and_alt_q_opens_a_fresh_pad(pad, monkeypatch):
+    from conftest import Until
+
+    tmp_path, path = pad
+    other = tmp_path / "kept.txt"
+    answer_file(monkeypatch, other)
+    seen = {}
+
+    def look(a):
+        window = front(a)
+        seen.update(flag=window.smartpad, title=window.title, path=window.editor.path)
+        seen["was"] = window
+
+    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
+        KeyEvent("f2", shift=True), Until(lambda a: other.exists()), lambda a: None, look,
+        KeyEvent("q", alt=True), lambda a: None,
+        lambda a: seen.update(pad=front(a) is not seen["was"] and front(a).smartpad,
+                              stamps=seen["was"].editor.document.encode().count(STAMP.encode())))
+    assert seen["flag"] is False and seen["path"] == other
+    assert seen["title"] == f"Edit - {other}"
+    assert other.read_text() == f"{STAMP}\nhi"
+    assert not path.exists()  # the pad's own file kept what it had: nothing
+    assert seen["pad"] and seen["stamps"] == 1  # the kept file was not stamped again
+
+
+def test_open_saves_the_pad_unasked_and_the_window_is_an_ordinary_editor(pad, monkeypatch):
+    from conftest import Until
+
+    tmp_path, path = pad
+    other = tmp_path / "other.txt"
+    other.write_text("other\n")
+    answer_file(monkeypatch, other)
+    seen = {}
+    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
+        KeyEvent("f3"), Until(lambda a: front(a).editor.path == other), lambda a: None,
+        lambda a: seen.update(flag=front(a).smartpad, modal=a.modal, title=front(a).title))
+    assert seen["modal"] is None  # no *Save?* for the pad
+    assert path.read_text() == f"{STAMP}\nhi"
+    assert seen["flag"] is False and seen["title"] == f"Edit - {other}"

@@ -232,7 +232,9 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first
 name from it that begins so (case folded, `*`/`?`, `..` never found); a character naming nothing is refused, Backspace
-drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret. Esc ends it;
+drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret, and with text
+typed ` Search: …  Ctrl-S next ` where that fits whole (`footer_text`; a departure, asked for) -- after the text, so the
+caret, worked out from the text's end, stays put. Esc ends it;
 any other key ends it and does its job -- Enter descends into (or runs) what was found in one press -- as do a click, a
 directory change and losing the keyboard. While it runs `edits_text` is True. Matching rules: `navml/quick_search.py`.
 
@@ -410,8 +412,14 @@ divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltR
   Alt+Left/Right; no hotkeys, `j` being the only free letter), and the panel's right-click menu ends with *Insert name*
   / *Insert path* (`InsertName`/`InsertPath`, Ctrl+Enter / Ctrl+Shift+Enter, answered by the shell). Left off on
   purpose: Alt+1..9 / Alt+Shift+1..9 (the bookmarks box has them), Alt+F6 (*Quick rename* is its menu form),
-  Shift+Enter (a *Find:* listing's), Ctrl+Shift+F1..F10 (user-defined), and navigation. Shift+F1 (`ArchiveFiles`)
-  and F1 (`Help`) are bound but have no handler yet.
+  Shift+Enter (a *Find:* listing's), Ctrl+Shift+F1..F10 (user-defined), and navigation. F1 (`Help`) is bound but has no
+  handler yet. In an archive the right-click menu adds *Extract to...*/*Test archive* (`navigator-drives`).
+  In a *Find:* listing it starts with *Go to ~f~ile* (`GoToFile`, Enter's `go_to_entry`, a command only for the menu --
+  Enter stays `Panel.choose`) and *Show in ~o~ther panel* (`ChangeInactive`, Shift+Enter), which is also Panel >
+  *Show in other panel*, enabled only in a listing.
+  *Select group*, *Unselect group* and *Invert selection* pass their keypad keys as static keys (`key_label("kp_plus")`
+  ...): their bindings are the `by_key=True` commands, which the menu's plain ones are not equal to, so no live key is
+  found -- the Panel menu's static `Gray "+"` is the same fallback.
 
 ## Read when
 

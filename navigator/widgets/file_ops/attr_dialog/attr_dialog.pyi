@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, Sequence
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
-from navkit.reactive import effect, untracked
+from navkit.reactive import bind, effect, untracked
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.file_ops import fileattr
 

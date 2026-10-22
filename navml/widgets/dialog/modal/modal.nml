@@ -25,6 +25,11 @@ Modal:
     #: Shown centred on the top edge, with a space either side of it.
     property title: ""
 
+    #: Shown centred on the bottom edge the same way: the keys the modal takes
+    #: that no control of its shows (a departure, asked for; TV's frame had
+    #: none).  Not a caption the generator translates -- set it with ``tr``.
+    property footer: ""
+
     #: Whether the ``[■]`` icon is painted, and the corner answers a click.
     property closable: True
 

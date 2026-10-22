@@ -12,6 +12,9 @@ from navml.widgets.dialog.dialog import Dialog
 
 from typing import Any
 from navkit.events import Event
+from navkit.glyphs import GLYPHS_UNICODE
+from navkit.i18n import tr
+from navkit.reactive import bind
 from navml.history import HISTORY
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 

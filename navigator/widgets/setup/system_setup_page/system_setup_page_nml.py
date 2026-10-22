@@ -134,7 +134,7 @@ class SystemSetupPage(_Component):
         self.stall_report.width = 31    # system_setup_page.nml:83
         self.stall_report.height = 1    # system_setup_page.nml:84
         self.stall_report.label_text = _bind(    # system_setup_page.nml:85
-            lambda _o: _tr('Report a ~s~tall after'),
+            lambda _o: _tr('Re~p~ort a stall after'),
             yielding=True,
         )
         self.stall_report.label_width = 26    # system_setup_page.nml:86

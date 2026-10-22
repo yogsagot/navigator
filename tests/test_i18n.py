@@ -296,3 +296,38 @@ def test_extract_adds_what_is_missing_and_keeps_what_is_written(tmp_path):
         "From a table": "",
     }
     assert written["unused"] == {"Gone": "Prom"}
+
+
+# -- tools/i18n.py check -------------------------------------------------------------------
+
+
+def _i18n_tool():
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parent.parent / "tools" / "i18n.py"
+    spec = importlib.util.spec_from_file_location("i18n_tool", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_an_english_clash_is_said_and_a_translation_is_checked_all_the_same():
+    tool = _i18n_tool()
+    scope = ["~A~ttributes", "~A~rchives first", "~N~ame", "~E~xtension"]
+    assert tool._letters(scope) == ["'~A~ttributes' and '~A~rchives first' share ~a~"]
+    # The English clash is said once, by check_english, not again per language;
+    # a translation's own clash is still found under it.
+    strings = {"~A~ttributes": "~A~tribūti", "~A~rchives first": "A~r~hīvi", "~N~ame": "~V~ārds",
+               "~E~xtension": "~V~ērsija"}
+    assert tool._clashes(scope, strings) == ["'~V~ārds' and '~V~ērsija' share ~v~"]
+
+
+def test_every_catalogue_and_the_english_captions_pass_the_check():
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    done = subprocess.run([sys.executable, "tools/i18n.py", "check"], cwd=root, capture_output=True, text=True)
+    assert done.returncode == 0, done.stdout
