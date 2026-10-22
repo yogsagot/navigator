@@ -171,6 +171,19 @@ class Shell(DockLayout):
             lambda w: "dock: none" if interface.hide_menu_bar else "dock: top; basis: 1"
         )
         self.menu.visible = bind(lambda w: not interface.hide_menu_bar or w.current >= 0)
+        # *Window strip*: from a cell after the last menu to a cell before the
+        # clock, on a bar that is docked and over windows that are showing.
+        menu, clock = self.menu, self.clock
+        self.window_strip.x = bind(lambda w: menu.item_span(len(menu.entries()))[0] + 1)
+        self.window_strip.width = bind(
+            lambda w: max(0, (clock.x if clock.visible else menu.width) - 1 - w.x)
+        )
+        self.window_strip.labels = bind(lambda w: interface.window_strip == "full")
+        self.window_strip.visible = bind(
+            lambda w: interface.window_strip != "off"
+            and not interface.hide_menu_bar
+            and not self.console_visible
+        )
         #: Up and Down through the shell's history: the entries, where the walk
         #: is, what was typed before it began, and what it last put on the line.
         self._walk: tuple[list[str], int, str, str] | None = None

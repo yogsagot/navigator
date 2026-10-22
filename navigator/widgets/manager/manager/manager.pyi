@@ -31,7 +31,7 @@ import errno
 import os
 import shlex
 import stat
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Awaitable, Callable, Sequence
 from navkit import glyphs as glyphs_module
 from navkit.events import DoubleClickEvent, MouseClickEvent
@@ -237,6 +237,7 @@ class Manager(Window, _Component):
     active_panel: Panel
     passive_panel: Panel
     def list_name(self) -> str: ...
+    def short_name(self) -> str: ...
     def switch_panel(self) -> None: ...
     def side_view(self, side: str) -> Any: ...
     async def toggle_side(self, side: str) -> None: ...

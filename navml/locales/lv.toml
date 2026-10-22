@@ -28,17 +28,17 @@ name = "Latviešu"
 "~W~indows" = "~L~ogi"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~A~izvērt"
-# navml/commands.py:28
+# navml/commands.py:30
 "Close" = "Aizvērt"
-# navml/commands.py:34
+# navml/commands.py:36
 "Zoom" = "Izvērst"
-# navml/commands.py:61
+# navml/commands.py:76
 "List" = "Saraksts"
-# navml/commands.py:71
+# navml/commands.py:86
 "Tile" = "Izklāt"
-# navml/commands.py:80
+# navml/commands.py:95
 "Cascade" = "Kaskāde"
-# navml/commands.py:90
+# navml/commands.py:105
 "Close all" = "Aizvērt visus"
 # navml/widgets/dialog/color_selector/color_selector.py:131
 " Text " = " Teksts "
@@ -140,13 +140,13 @@ name = "Latviešu"
 "Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
-# navml/widgets/window/window.py:282
+# navml/widgets/window/window.py:290
 "Move" = "Pārvietot"
-# navml/widgets/window/window.py:282
+# navml/widgets/window/window.py:290
 "Size" = "Izmērs"
-# navml/widgets/window/window.py:282
+# navml/widgets/window/window.py:290
 "Keep" = "Paturēt"
-# navml/widgets/window/window.py:282
+# navml/widgets/window/window.py:290
 "Undo" = "Atsaukt"
 
 # No longer shown anywhere; kept so nothing written is lost.

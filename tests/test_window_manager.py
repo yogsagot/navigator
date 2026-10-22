@@ -52,7 +52,7 @@ def test_alt_0_lists_the_windows_top_first_on_the_active_one(tree):
               CTRL_F3, lambda a: None, ALT_0, lambda a: None, look)
     first, second = managers(app)
     assert seen == [("WindowManagerDialog", [second, first], second, True,
-                     [f" {tree / 'alpha'}", f" {tree / 'alpha'}"])]
+                     [f" 2 {tree / 'alpha'}", f" 1 {tree / 'alpha'}"])]
 
 
 def test_a_background_manager_is_named_after_the_panel_it_had(tree):
@@ -66,7 +66,7 @@ def test_a_background_manager_is_named_after_the_panel_it_had(tree):
         ALT_0, lambda a: None,
         lambda a: seen.append([a.modal.windows.row_text(i, w)
                                for i, w in enumerate(a.modal.windows.items)]))
-    assert seen == [[f" {tree}", f" {tree / 'alpha'}"]]
+    assert seen == [[f" 2 {tree}", f" 1 {tree / 'alpha'}"]]
 
 
 def test_enter_switches_to_the_window_under_the_cursor(tree):

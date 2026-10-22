@@ -285,11 +285,21 @@ def _utf8_length(lead: int) -> int:
 def _modifiers(param: int) -> tuple[bool, bool, bool]:
     """Decode an xterm modifier parameter into ``(ctrl, alt, shift)``.
 
-    Only the three bits navkit names are read, so the kitty protocol's Super,
-    Hyper, Meta, Caps Lock and Num Lock bits above them are ignored.
+    Only the three bits every terminal sends are read; :func:`_super` reads
+    the kitty protocol's Super, and its Hyper, Meta, Caps Lock and Num Lock
+    bits are ignored.
     """
     bits = max(0, param - 1)
     return bool(bits & 4), bool(bits & 2), bool(bits & 1)
+
+
+def _super(param: int) -> bool:
+    """Whether an xterm modifier parameter has the kitty protocol's Super bit.
+
+    Read only from a key the terminal sent in the kitty form: legacy xterm
+    spends the same bit on Meta, which navkit does not name.
+    """
+    return bool(max(0, param - 1) & 8)
 
 
 def _held(param: int) -> frozenset[str]:
@@ -538,10 +548,13 @@ class InputParser:
             return [event] if event is not None else []
         out = self._hold(_held(param))
         if isinstance(event, KeyEvent):
+            if _super(param):
+                event = replace(event, super_=True)
             if kind == _RELEASE:
                 out.append(
                     KeyReleaseEvent(
-                        event.key, event.char, ctrl=event.ctrl, alt=event.alt, shift=event.shift
+                        event.key, event.char, ctrl=event.ctrl, alt=event.alt, shift=event.shift,
+                        super_=event.super_,
                     )
                 )
             else:

@@ -92,7 +92,7 @@ def _normalize(spec: str) -> str:
     if not parts:
         return ""
     *mods, key = parts
-    order = {"ctrl": 0, "alt": 1, "shift": 2}
+    order = {"ctrl": 0, "alt": 1, "shift": 2, "super": 3}
     mods = sorted(set(mods), key=lambda m: order.get(m, 99))
     return "+".join([*mods, key])
 
@@ -112,6 +112,9 @@ class KeyEvent(Event):
     ctrl: bool = False
     alt: bool = False
     shift: bool = False
+    #: The Super (Windows, Command) key, which only the kitty keyboard
+    #: protocol reports; ``super_`` because ``super`` is the builtin.
+    super_: bool = False
     #: Whether a :class:`KeyReleaseEvent` will follow this press.  True only
     #: for a key the terminal sent in the kitty keyboard protocol's form, the
     #: one route that reports a release; a widget that acts on the release
@@ -129,6 +132,8 @@ class KeyEvent(Event):
             mods.append("alt")
         if self.shift:
             mods.append("shift")
+        if self.super_:
+            mods.append("super")
         return "+".join([*mods, _KEY_NAMES.get(self.key, self.key)])
 
     def matches(self, *specs: str) -> bool:
@@ -138,7 +143,10 @@ class KeyEvent(Event):
     @property
     def is_printable(self) -> bool:
         """True if this key produced text that a text widget should insert."""
-        return bool(self.char) and not self.ctrl and not self.alt and self.char >= " "
+        return (
+            bool(self.char) and not self.ctrl and not self.alt and not self.super_
+            and self.char >= " "
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -158,11 +166,13 @@ class KeyReleaseEvent(Event):
     ctrl: bool = False
     alt: bool = False
     shift: bool = False
+    super_: bool = False
 
     @property
     def name(self) -> str:
         """The full key name including modifiers, as :attr:`KeyEvent.name`."""
-        mods = [m for m, held in (("ctrl", self.ctrl), ("alt", self.alt), ("shift", self.shift)) if held]
+        held = (("ctrl", self.ctrl), ("alt", self.alt), ("shift", self.shift), ("super", self.super_))
+        mods = [m for m, on in held if on]
         return "+".join([*mods, _KEY_NAMES.get(self.key, self.key)])
 
     def matches(self, *specs: str) -> bool:

@@ -75,7 +75,7 @@ class KeyTableError(TypeError):
 
 
 #: The modifiers a key spec may carry, in the order a canonical spec writes them.
-MODIFIERS = ("ctrl", "alt", "shift")
+MODIFIERS = ("ctrl", "alt", "shift", "super")
 
 
 def _normal_spec(spec: str) -> str:

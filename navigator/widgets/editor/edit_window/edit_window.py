@@ -17,7 +17,7 @@ import asyncio
 import os
 import stat
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from navkit.capabilities import GLYPHS_UNICODE
@@ -141,6 +141,14 @@ class EditWindow(Window):
     def list_name(self) -> str:
         """Window > List's line: the title, which already says ``Edit - ``."""
         return self._title()
+
+    def short_name(self) -> str:
+        """The window strip's: the file's name alone, marked while changed."""
+        path = self.use_set.copies[0].origin if self.use_set is not None else self.editor.path
+        name = PurePosixPath(str(path)).name if path is not None else ""
+        if self.editor.modified:
+            name = ("☼ " if self.editor.glyphs >= GLYPHS_UNICODE else "* ") + name
+        return name
 
     # -- the File Edit History -------------------------------------------------
 

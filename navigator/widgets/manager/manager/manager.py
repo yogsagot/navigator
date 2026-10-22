@@ -15,7 +15,7 @@ import errno
 import os
 import shlex
 import stat
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Awaitable, Callable, Sequence
 
 from navkit import glyphs as glyphs_module
@@ -622,8 +622,6 @@ class Manager(Window):
         """The new archive's root: named after the one entry, or after the
         panel's directory for several, in the other panel's place when it is
         on the disk, else this one's -- an archive is made only there."""
-        from pathlib import PurePosixPath
-
         from navigator.lib.drives.archive import ARCHIVE_SITE
 
         if not entries:
@@ -3213,6 +3211,11 @@ class Manager(Window):
         ):
             return str(saved.location)
         return str(self.active_panel.location)
+
+    def short_name(self) -> str:
+        """The window strip's: the last part of :meth:`list_name`'s directory."""
+        name = self.list_name()
+        return PurePosixPath(name).name or name
 
     def switch_panel(self) -> None:
         """Move the keyboard to the other panel, or between panel and tree."""

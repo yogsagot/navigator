@@ -19,6 +19,8 @@ application's, and live with it.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from navkit.commands import Command
 
 
@@ -50,6 +52,19 @@ class NextWindow(Command):
 
 class PreviousWindow(Command):
     """Bring the previous window forward."""
+
+
+@dataclass(frozen=True, slots=True)
+class SelectWindow(Command):
+    """Win+1 .. Win+9: bring window *number* forward, if there is one.
+
+    Turbo Vision's ``cmSelectWindowNum``, which the window whose ``Number``
+    it was sent answered.  ``TProgram.HandleEvent`` sent it for Alt+1 ..
+    Alt+9, and DOS Navigator commented that out (``DNAPP.PAS``) to give those
+    keys to its quick directories, so here the Super key has them.
+    """
+
+    number: int = 1
 
 
 class WindowManager(Command):

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from navkit.i18n import tr
@@ -45,6 +45,10 @@ class DBWindow(Window):
     def list_name(self) -> str:
         """Window > List's line: ``dlDBViewName``, *dBase View - * and the name."""
         return tr("dBase View - {path}").format(path=self.db.path if self.db is not None else "")
+
+    def short_name(self) -> str:
+        """The window strip's: the file's name alone."""
+        return PurePosixPath(str(self.db.path)).name if self.db is not None else ""
 
     def close(self) -> None:
         if self.db is not None:

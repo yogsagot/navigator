@@ -13,6 +13,7 @@ from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.shell.main_menu import MainMenu
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
+from navml.widgets.window_strip import WindowStrip
 
 import asyncio
 import os
@@ -51,6 +52,7 @@ class Shell(DockLayout, _Component):
     console: Console
     desktop: Desktop
     menu: MainMenu
+    window_strip: WindowStrip
     clock: Clock
     keybar: KeyBar
     command_line: CommandLine

@@ -45,6 +45,7 @@ from navml.commands import (
     CloseWindow,
     NextWindow,
     PreviousWindow,
+    SelectWindow,
     SizeMoveWindow,
     TileWindows,
     WindowManager,
@@ -93,7 +94,11 @@ class Desktop(Widget):
     #: lines bind ``cmNext`` and ``cmPrev`` to everywhere, F9 and Shift-F9.
     #: That leaves Ctrl-F6 for DOS Navigator's Calculator.  Alt-0 is the same
     #: menu's *List*, ``cmWindowManager``.  Tile, Cascade and Close all have no
-    #: key, because the original gave them none.  Consulted after the
+    #: key, because the original gave them none.  Win+1 .. Win+9 bring a
+    #: window forward by its number and Win+0 is the list again: an addition,
+    #: and a terminal speaking the kitty protocol is the only kind that sends
+    #: them, so Alt+Shift+F1 .. F9 do the same everywhere else (a VTE terminal
+    #: drops Super, and keeps Alt+digit for its tabs).  Consulted after the
     #: active window's own children, because this desktop is further from the
     #: focus than they are.
     keys = {
@@ -103,10 +108,18 @@ class Desktop(Widget):
         "shift+f9": PreviousWindow,
         "ctrl+f4": CloseWindow,
         "alt+0": WindowManager,
+        **{f"super+{n}": SelectWindow(number=n) for n in range(1, 10)},
+        **{f"alt+shift+f{n}": SelectWindow(number=n) for n in range(1, 10)},
+        "super+0": WindowManager,
     }
 
     #: The top window, which has the keyboard.  None on an empty desktop.
     active_window: Any = reactive(None)
+
+    #: The windows on the desktop, in the order they came, for whatever
+    #: shows them all -- the children list is not reactive.  Replaced
+    #: whenever one opens or closes; raising one leaves it alone.
+    open_windows: Any = reactive(())
 
     def mounted(self) -> None:
         super().mounted()
@@ -115,6 +128,9 @@ class Desktop(Widget):
         # parent does not cascade.  Every window is re-fitted from here: the
         # zoomed ones fill the new size, the others are pulled back onto it.
         effect(self, Desktop._fit_windows)
+        for window in self.windows():
+            self._number(window)
+        self._list_windows()
         if self.active_window is not None:
             self.activate(self.active_window)
 
@@ -128,6 +144,23 @@ class Desktop(Widget):
         """The windows on this desktop, bottom to top."""
         return [child for child in self.children if isinstance(child, Window)]
 
+    def window_numbered(self, number: int) -> Window | None:
+        """The window whose :attr:`~Window.number` is *number*, if one is."""
+        if number < 1:
+            return None
+        return next((w for w in self.windows() if w.number == number), None)
+
+    def _number(self, window: Window) -> None:
+        """Give *window* the lowest number from 1 to 9 nobody holds, or none."""
+        if window.number:
+            return
+        taken = {w.number for w in self.windows() if w is not window}
+        window.number = next((n for n in range(1, 10) if n not in taken), 0)
+
+    def _list_windows(self) -> None:
+        kept = [w for w in self.open_windows if w in self.children]
+        self.open_windows = (*kept, *(w for w in self.windows() if w not in kept))
+
     # -- opening, raising, closing -------------------------------------------
 
     def open(self, window: Window) -> Window:
@@ -137,6 +170,8 @@ class Desktop(Widget):
         window opened while the tree is being built has nothing to announce.
         """
         self.add(window)
+        self._number(window)
+        self._list_windows()
         if self.is_mounted:
             window.layout(self.width, self.height)
         self.activate(window)
@@ -179,6 +214,10 @@ class Desktop(Widget):
             return
         was_active = window is self.active_window
         self.remove(window)
+        # Its number is free for the next window, and must not come back with
+        # it should it be opened again over one that has taken it.
+        window.number = 0
+        self._list_windows()
         if not was_active:
             return
         self.active_window = None
@@ -189,6 +228,14 @@ class Desktop(Widget):
         app = self.application
         if app is not None and app.is_running:
             self.spawn(self.emit(EmptiedEvent()))
+
+    def select_window(self, number: int) -> bool:
+        """Bring window *number* forward; False when no window has it."""
+        window = self.window_numbered(number)
+        if window is None:
+            return False
+        self.activate(window)
+        return True
 
     def next_window(self) -> None:
         """Bring the bottom window to the top: repeated, it visits them all."""
@@ -303,6 +350,8 @@ class Desktop(Widget):
             return bool(self.tileable_windows())
         if isinstance(command, CloseAllWindows):
             return any(window.closable for window in self.windows())
+        if isinstance(command, SelectWindow):
+            return self.window_numbered(command.number) is not None
         window = self.active_window
         if window is None:
             return False
@@ -323,6 +372,9 @@ class Desktop(Widget):
     async def on_next_window(self, event: NextWindow) -> bool:
         self.next_window()
         return True
+
+    async def on_select_window(self, event: SelectWindow) -> bool:
+        return self.select_window(event.number)
 
     async def on_previous_window(self, event: PreviousWindow) -> bool:
         self.previous_window()

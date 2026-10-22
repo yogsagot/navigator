@@ -44,31 +44,37 @@ class Window(_Component):
     #: Shown centred on the top edge of a framed window.
     title: str = _reactive('')    # window.nml:17
 
+    #: The window's place in Win+1 .. Win+9 and the window strip, given by
+    #: the desktop when the window opens: the lowest of 1 .. 9 no other
+    #: window holds, kept while windows are raised and lowered.  Turbo
+    #: Vision's ``TWindow.Number``; 0 is its ``wnNoNumber``, a tenth window's.
+    number: int = _reactive(0)    # window.nml:23
+
     #: Whether the ``[■]`` icon is painted, and answers a click.
-    closable: bool = _reactive(True)    # window.nml:20
+    closable: bool = _reactive(True)    # window.nml:26
 
     #: Whether the ``[↑]`` icon is painted, and the title answers a double
     #: click.
-    zoomable: bool = _reactive(True)    # window.nml:24
+    zoomable: bool = _reactive(True)    # window.nml:30
 
     #: Whether the bottom-right corner is a grip.
-    resizable: bool = _reactive(True)    # window.nml:27
+    resizable: bool = _reactive(True)    # window.nml:33
 
     #: Whether Window > Tile and Cascade arrange it.  Turbo Vision's
     #: ``ofTileable``, but **on by default**, where Turbo Vision had it off and
     #: DOS Navigator set it on only some of its windows (not the tree window):
     #: every window on a desktop is free-floating and takes part.  Kept as the
     #: way out for a window that must stay where it is.
-    tileable: bool = _reactive(True)    # window.nml:34
+    tileable: bool = _reactive(True)    # window.nml:40
 
     #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
-    min_width: int = _reactive(16)    # window.nml:37
-    min_height: int = _reactive(6)    # window.nml:38
+    min_width: int = _reactive(16)    # window.nml:43
+    min_height: int = _reactive(6)    # window.nml:44
 
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.
-    zoomed: bool = _reactive(False)    # window.nml:43
+    zoomed: bool = _reactive(False)    # window.nml:49
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

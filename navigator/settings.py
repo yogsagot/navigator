@@ -376,6 +376,14 @@ class InterfaceData(Section):
         "top", choices=("top", "left"),
         doc="Where Options > Settings shows its tabs: a row on top, or a column on the left",
     )
+    #: Not DN's: OSP put a window's number in its close icon instead.  On by
+    #: default, asked for: unlike most additions that change the screen, it
+    #: shows nothing until a second window opens.
+    window_strip: str = Setting(
+        "numbers", choices=("off", "numbers", "full"),
+        doc="The windows listed on the menu bar, Win+1 .. Win+9's numbers: "
+            "off, numbers alone, or numbers and titles",
+    )
 
 
 class ConfirmsData(Section):

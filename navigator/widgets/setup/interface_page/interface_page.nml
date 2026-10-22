@@ -74,3 +74,21 @@ InterfacePage:
         width: 36
         height: 1
         items: ["~O~n top", "On the le~f~t"]
+
+    #: Not DN's: the windows on the menu bar, by number or with titles too.
+    Label:
+        id: window_strip_caption
+        x: 2
+        y: 16
+        width: 15
+        height: 1
+        text: "W~i~ndow strip"
+        link: window_strip
+
+    RadioButtons:
+        id: window_strip
+        x: 17
+        y: 16
+        width: 50
+        height: 1
+        items: ["Off", "Numbers", "With titles"]

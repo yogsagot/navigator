@@ -5,6 +5,7 @@ from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.shell.main_menu import MainMenu
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
+from navml.widgets.window_strip import WindowStrip
 
 #: The Navigator screen: the console, the desktop over it, the menu bar and
 #: clock over that, the command line, key bar.
@@ -53,6 +54,19 @@ Shell(DockLayout):
         context: None if parent.console_visible else desktop.active_window
         width: parent.width
         height: 1
+
+    #: Interface's *Window strip*: the windows by number, over the stretch of
+    #: the menu bar between its last menu and the clock, kept to the clock's
+    #: end -- after the bar, so it paints over it, and floating as the clock
+    #: does.  Its columns and whether it shows are bound in ``__init__``.
+    WindowStrip:
+        id: window_strip
+        desktop: parent.desktop
+        align: "right"
+        y: 0
+        height: 1
+        style:
+            dock: none
 
     #: Over the menu bar's right end, which is why it comes after it, and
     #: outside the docking altogether: it floats where its own lines put it.

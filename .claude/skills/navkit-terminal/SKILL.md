@@ -25,6 +25,8 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
 
 - **The kitty keyboard protocol** is pushed without asking; `NAVKIT_KEYBOARD=legacy` turns it off. Only it reports a
   held modifier (`Application.modifiers`, which the key bar reads).
+- **Super** is `KeyEvent.super_` (named `super+…` after ctrl, alt, shift; never printable), read only from a kitty-form
+  key -- legacy xterm spends that modifier bit on Meta. Before it was read, Super+1 arrived as a typed `1`.
 - **Ctrl+H vs Backspace**: a legacy terminal sends Ctrl+H as 0x08, which navkit reads as Ctrl+H only once the tty's
   erase character (`Terminal.erase`, termios `VERASE`, read before raw mode) says Backspace is 0x7F, and as Backspace
   otherwise (`InputParser.ctrl_h`).

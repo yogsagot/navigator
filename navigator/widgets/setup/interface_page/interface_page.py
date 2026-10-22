@@ -37,6 +37,8 @@ class InterfacePage(Widget):
         )
         sides = InterfaceData.field("settings_tabs").choices
         self.settings_tabs.value = self.settings_tabs.sel = sides.index(self.section.settings_tabs)
+        strips = InterfaceData.field("window_strip").choices
+        self.window_strip.value = self.window_strip.sel = strips.index(self.section.window_strip)
         #: ``{shown name: depth}``, in ``COLOR_DEPTHS``' order.
         self.depths = dict(zip(
             (tr("Automatic"), tr("Monochrome"), tr("8 colours"), tr("16 colours"),
@@ -55,5 +57,6 @@ class InterfacePage(Widget):
         values["history_size"] = max(1, int(text)) if text.isdigit() else self.section.history_size
         values["language"] = self.languages.get(self.language.value, self.section.language)
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]
+        values["window_strip"] = InterfaceData.field("window_strip").choices[self.window_strip.value]
         colors = self.depths.get(self.colors.value, self.appearance.colors)
         return {"interface": values, "appearance": {"colors": colors}}

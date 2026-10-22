@@ -9,7 +9,7 @@ only consumer of the queue the dialog's keys arrive on.
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from navkit.commands import Command
@@ -82,6 +82,10 @@ class FileWindow(Window):
     def list_name(self) -> str:
         """Window > List's line: DN's ``dlViewFile``, ``View - `` and the name."""
         return tr("View - {path}").format(path=self.viewer.path)
+
+    def short_name(self) -> str:
+        """The window strip's: the file's name alone."""
+        return PurePosixPath(str(self.viewer.path)).name
 
     # -- the File View History -------------------------------------------------
 

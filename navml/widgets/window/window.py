@@ -142,6 +142,14 @@ class Window(Widget):
         """
         return self.title
 
+    def short_name(self) -> str:
+        """What the window strip calls this window, where room is short.
+
+        :meth:`list_name`, unless a window has a shorter way to say it -- a
+        file's name rather than its whole path.
+        """
+        return self.list_name()
+
     def _bounds(self) -> tuple[int, int]:
         parent = self.parent
         if parent is None:

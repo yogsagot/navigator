@@ -38,6 +38,20 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
 - **Tile, Cascade, Close all** are DN's `TDesktop.Tile`/`Cascade` and `cmClearDesktop` from `DNAPP.PAS`; every window is
   arranged unless it says `tileable: False` (on by default, where DN's `ofTileable` was opt-in).
 - `Desktop.keys` holds the window keys; `navml/commands.py` holds the window command set `Desktop` runs.
+- **Every window has a `number`** (TV's `TWindow.Number`): `Desktop.open()` gives the lowest of 1..9 free, kept while
+  raised, 0 for a tenth and again once closed. **Win+1..9 is `SelectWindow(number)`** (TV's `cmSelectWindowNum`, whose
+  Alt+digits DN commented out for its quick directories) and Win+0 the list, which prefixes each row with its number.
+  Only a kitty-protocol terminal sends Super (Ghostty does; xfce4-terminal and other VTE ones never do), and desktops
+  (GNOME, KDE) grab Super+digit for their dock by default -- so **Alt+Shift+F1..F9** are bound too, which every
+  terminal sends, and **a digit in the Window list** (`WindowList.on_key`) chooses that window outright: Alt+0, 2.
+- **`Desktop.open_windows`** is the reactive tuple of windows (the children list is not), replaced on open and close,
+  not on raise -- what anything showing all the windows reads.
+- **`WindowStrip`** (`navml/widgets/window_strip/`, Python alone) paints a desktop's numbered windows as chips, the top
+  one `::chip:selected` (the number is `::number`), and a click activates; `labels` adds `Window.short_name()`
+  (`list_name()` unless a window says it shorter -- Manager its directory's last part, viewer/editor the file name),
+  cut evenly when short of room, then the rest counted as `+k`; `align: "right"` keeps them to the far end. Nothing
+  under two windows. Navigator's `Shell` floats it on the menu bar between the last menu and the clock, right-aligned
+  against the clock, under Interface's *Window strip* (`interface.window_strip`: `off`/`numbers` (default)/`full`), hidden with *Hide menu bar* and under Ctrl+O. Not DN's: OSP put the number in `[■]`.
 - With several file managers open, **`Shell.active_manager`** (nearest the top) is "the file manager";
   `shell.manager`/`app.manager` stay the first one. Manager > New (Ctrl+F3, `cmCreatePanel`) opens another zoomed
   `Manager` on the active panel's directory; Ctrl+F3 is on the application's table so it works with none open.

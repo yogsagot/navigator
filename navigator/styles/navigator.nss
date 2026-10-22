@@ -177,6 +177,13 @@ MenuBar::item:selected:disabled, MenuBar::hotkey:selected:disabled,
 MenuBox::item:selected:disabled, MenuBox::hotkey:selected:disabled
                                       { fg: $bar-selected-disabled-fg; bg: $bar-selected-disabled-bg; bold: $bar-selected-disabled-bold; dim: $bar-selected-disabled-dim; italic: $bar-selected-disabled-italic; underline: $bar-selected-disabled-underline; reverse: $bar-selected-disabled-reverse }
 
+/* Not DN's: the window strip is the menu bar's, its numbers marked as the
+   menus' letters are and the top window's chip as the bar's selected entry. */
+WindowStrip::chip                     { fg: $bar-fg; bg: $bar-bg; bold: $bar-bold; dim: $bar-dim; italic: $bar-italic; underline: $bar-underline; reverse: $bar-reverse }
+WindowStrip::number                   { fg: $bar-key-fg; bg: $bar-key-bg; bold: $bar-key-bold; dim: $bar-key-dim; italic: $bar-key-italic; underline: $bar-key-underline; reverse: $bar-key-reverse }
+WindowStrip::chip:selected            { fg: $bar-selected-fg; bg: $bar-selected-bg; bold: $bar-selected-bold; dim: $bar-selected-dim; italic: $bar-selected-italic; underline: $bar-selected-underline; reverse: $bar-selected-reverse }
+WindowStrip::number:selected          { fg: $bar-selected-key-fg; bg: $bar-selected-key-bg; bold: $bar-selected-key-bold; dim: $bar-selected-key-dim; italic: $bar-selected-key-italic; underline: $bar-selected-key-underline; reverse: $bar-selected-key-reverse }
+
 /* DOS Navigator's Colors dialog names slot [1] "Timer": it is the clock's
    colour first, and the background (CBackground) shares it. */
 Clock { fg: $desktop-fg; bg: $desktop-bg; bold: $desktop-bold; dim: $desktop-dim; italic: $desktop-italic; underline: $desktop-underline; reverse: $desktop-reverse }

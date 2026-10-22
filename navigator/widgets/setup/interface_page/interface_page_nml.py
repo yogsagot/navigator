@@ -51,6 +51,8 @@ class InterfacePage(_Component):
     colors: ChoiceField    # interface_page.nml:51
     settings_tabs_caption: Label    # interface_page.nml:62
     settings_tabs: RadioButtons    # interface_page.nml:71
+    window_strip_caption: Label    # interface_page.nml:80
+    window_strip: RadioButtons    # interface_page.nml:89
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -60,6 +62,8 @@ class InterfacePage(_Component):
         self.colors = ChoiceField(parent=self)    # interface_page.nml:50
         self.settings_tabs_caption = Label(parent=self)    # interface_page.nml:61
         self.settings_tabs = RadioButtons(parent=self)    # interface_page.nml:70
+        self.window_strip_caption = Label(parent=self)    # interface_page.nml:79
+        self.window_strip = RadioButtons(parent=self)    # interface_page.nml:88
 
         self.options.x = 2    # interface_page.nml:20
         self.options.y = 1    # interface_page.nml:21
@@ -118,5 +122,24 @@ class InterfacePage(_Component):
         self.settings_tabs.height = 1    # interface_page.nml:75
         self.settings_tabs.items = _bind(    # interface_page.nml:76
             lambda _o: [_tr('~O~n top'), _tr('On the le~f~t')],
+            yielding=True,
+        )
+
+        self.window_strip_caption.x = 2    # interface_page.nml:81
+        self.window_strip_caption.y = 16    # interface_page.nml:82
+        self.window_strip_caption.width = 15    # interface_page.nml:83
+        self.window_strip_caption.height = 1    # interface_page.nml:84
+        self.window_strip_caption.text = _bind(    # interface_page.nml:85
+            lambda _o: _tr('W~i~ndow strip'),
+            yielding=True,
+        )
+        self.window_strip_caption.link = _bind(lambda _o: self.window_strip)    # interface_page.nml:86
+
+        self.window_strip.x = 17    # interface_page.nml:90
+        self.window_strip.y = 16    # interface_page.nml:91
+        self.window_strip.width = 50    # interface_page.nml:92
+        self.window_strip.height = 1    # interface_page.nml:93
+        self.window_strip.items = _bind(    # interface_page.nml:94
+            lambda _o: [_tr('Off'), _tr('Numbers'), _tr('With titles')],
             yielding=True,
         )

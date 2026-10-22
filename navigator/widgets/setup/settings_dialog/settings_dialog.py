@@ -44,6 +44,10 @@ class SettingsDialog(Dialog):
         # the left, four columns wider -- a whole 80-column screen -- so a
         # page keeps the width it was laid out in beside the column of tabs.
         self.tabs.side = side or SETTINGS.interface.settings_tabs
+        # OK and Cancel a row lower than a dialog's, their shadow on the row
+        # above the frame, so a page's last line keeps a blank one under it.
+        unbind(self.row, Widget.y)
+        self.row.y = bind(lambda r: max(0, self.height - 3))
         if self.tabs.side == "left":
             self.modal_width = LEFT_WIDTH
             self._buttons_under_pages()

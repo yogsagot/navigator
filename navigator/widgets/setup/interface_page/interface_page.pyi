@@ -25,5 +25,7 @@ class InterfacePage(_Component):
     colors: ChoiceField
     settings_tabs_caption: Label
     settings_tabs: RadioButtons
+    window_strip_caption: Label
+    window_strip: RadioButtons
     def __init__(self, section: InterfaceData | None = ..., appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...

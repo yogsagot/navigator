@@ -16,6 +16,12 @@ Window:
     #: Shown centred on the top edge of a framed window.
     property title: ""
 
+    #: The window's place in Win+1 .. Win+9 and the window strip, given by
+    #: the desktop when the window opens: the lowest of 1 .. 9 no other
+    #: window holds, kept while windows are raised and lowered.  Turbo
+    #: Vision's ``TWindow.Number``; 0 is its ``wnNoNumber``, a tenth window's.
+    property number: 0
+
     #: Whether the ``[■]`` icon is painted, and answers a click.
     property closable: True
 
