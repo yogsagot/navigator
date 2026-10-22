@@ -633,3 +633,39 @@ def test_f2_edits_a_profile_del_removes_it_and_ctrl_down_moves_it(places):
     assert seen["after_move"][:2] == ["gamma", "alpha2"] and seen["moved_to"] == 1
     assert [(row.name, row.host) for row in profiles.profiles()] == [("gamma", "c.example"),
                                                                      ("alpha2", "a2.example")]
+
+
+@pytest.mark.parametrize("tick, answer, deleted, asks_again", [
+    (False, "y", True, True),    # Yes: deleted, and asked next time
+    (False, "n", False, True),   # No: kept
+    (True, "y", True, False),    # Don't ask again, Yes: deleted, and saved unticked
+    (True, "n", False, True),    # ... with No: nothing changes
+])
+def test_del_asks_first_with_delete_bookmark_ticked(places, tick, answer, deleted, asks_again):
+    from navigator.settings import SETTINGS, config_path
+
+    SETTINGS.confirmations.delete_bookmark = True
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = {}
+
+    def look(a):
+        seen.update(box=type(a.modal).__name__, tail=a.modal.prompt_tail.text)
+        if tick:
+            a.modal.options.value = 1
+
+    run_app(app, [
+        KeyEvent("f1", alt=True), BOX,
+        KeyEvent("delete"), Until(lambda a: type(a.modal).__name__ == "DeleteBookmarkDialog"),
+        look,
+        KeyEvent(answer, answer, alt=True), BOX,
+        KeyEvent("escape"), lambda a: None,
+    ])
+    # A path too long for the line keeps its end, which is what tells one from another.
+    shown = str(places / "first")
+    shown = shown if len(shown) <= 46 else "..." + shown[-43:]
+    assert seen == {"box": "DeleteBookmarkDialog", "tail": shown}
+    assert paths() == ([] if deleted else [str(places / "first")])
+    assert SETTINGS.confirmations.delete_bookmark is asks_again
+    saved = config_path().exists() and "delete_bookmark = no" in config_path().read_text(encoding="utf-8")
+    assert saved is (not asks_again)

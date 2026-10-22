@@ -1,0 +1,43 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Del in the bookmarks box, with Confirmations' *Delete bookmark* ticked.
+#:
+#: A departure, asked for: SelectDrive's box had no Del.  Shaped as Alt+X's
+#: ``ExitDialog``, with the same *Don't ask again*, which unticks the
+#: confirmation when the answer is *Yes*.
+DeleteBookmarkDialog(Dialog):
+    modal_width: 50
+    modal_height: 10
+    title: "Delete bookmark"
+    buttons: "yes-no"
+    #: Opened from the bookmarks box, and holds nothing a click could lose.
+    close_on_outside_click: True
+
+    Label:
+        id: prompt_head
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Do you wish to delete the bookmark"
+
+    #: The bookmark's label, or its path; given by the hand-written half.
+    Label:
+        id: prompt_tail
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+
+    #: Bit 1: stop asking -- saved, so it lasts.
+    CheckBoxes:
+        id: options
+        x: max(0, (parent.width - 22) // 2)
+        y: 4
+        width: 22
+        height: 1
+        items: ["~D~on't ask again"]

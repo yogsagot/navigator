@@ -1661,7 +1661,9 @@ class Manager(Window):
         box opens again with it still selected (DN's drive letters had an
         order of their own; this list has only the one its user gives it).
         F2 asks for the selected one's label, shown in place of its path, and
-        Del removes it, unasked, as *Remove this folder* does the panel's own.
+        Del removes it -- asked first while Confirmations' *Delete bookmark*
+        is ticked (``_confirm_delete_bookmark``); *Remove this folder*, an
+        entry chosen by name, never asks.
 
         Below the bookmarks, what is mounted now and not bookmarked
         (``mounted_places``), read each time the box opens; those entries are
@@ -1739,7 +1741,7 @@ class Manager(Window):
                 continue
             if box.pressed == DELETE_BOOKMARK_KEY:
                 keep = box.selected
-                if 0 <= keep < len(rows):
+                if 0 <= keep < len(rows) and await self._confirm_delete_bookmark(rows[keep]):
                     remove_bookmark(rows[keep].path)
                     keep = min(keep, max(0, len(rows) - 2))
                 continue
@@ -1787,6 +1789,27 @@ class Manager(Window):
             panel.path = Path(place)
             panel.focus()
             return
+
+    async def _confirm_delete_bookmark(self, row: Any) -> bool:
+        """Whether Del may delete *row*: at once with Confirmations' *Delete
+        bookmark* unticked, else when ``DeleteBookmarkDialog`` is answered
+        *Yes* -- whose *Don't ask again* unticks it, saved, as Alt+X's does
+        *Exit confirmation*."""
+        if not SETTINGS.confirmations.delete_bookmark:
+            return True
+        from navigator.widgets.manager.delete_bookmark_dialog import DeleteBookmarkDialog
+
+        answer = await DeleteBookmarkDialog(row.label or row.path).execute(self.application)
+        if not answer:
+            return False
+        if not answer["ask_again"]:
+            # A file that cannot be written only means the question comes back next time.
+            SETTINGS.confirmations.delete_bookmark = False
+            try:
+                SETTINGS.save(section="confirmations")
+            except OSError:
+                pass
+        return True
 
     async def _profile_key(self, key: str, profile: Any, item: Any, link_menu: Any) -> int:
         """One of the bookmarks' keys on an entry of the *Link* list: F2 edits

@@ -56,8 +56,13 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   connection it was read from (so a test's fresh database never sees another's), cleared by add/remove/seed and
   refreshed by `bookmarks()`, which the box calls -- another Navigator's change shows once this one's box opens. Panel
   paths are resolved, so a bookmark through a symlinked path (`$HOME` via a link) is not marked.
-- **Del** (`DELETE_BOOKMARK_KEY`) removes the selected bookmark, unasked as *Remove this folder* is, and the box opens
-  again on the entry that took its place (the one before, for the last). On *Add*/*Remove* it does nothing.
+- **Del** (`DELETE_BOOKMARK_KEY`) removes the selected bookmark, and the box opens again on the entry that took its
+  place (the one before, for the last). On *Add*/*Remove* it does nothing. While Confirmations' *Delete bookmark*
+  (`confirmations.delete_bookmark`, on by default; a departure, asked for) is ticked it asks first
+  (`Manager._confirm_delete_bookmark`, `DeleteBookmarkDialog` in `navigator/widgets/manager/delete_bookmark_dialog/`,
+  shaped as Alt+X's `ExitDialog`): *No*/Esc keep it and the box comes back; *Yes* with *Don't ask again* unticks the
+  setting and saves `[confirmations]`. *Remove this folder* never asks. `conftest` turns it off; the question is
+  tested where it is chosen.
 - **The key bar names those keys** while there are bookmarks -- *Del Delete*, *Ctrl+↑↓ Move*, *F2 Label*
   (`PopupMenu(hints=)`; `Up/Down` at the ASCII tier, `manager._move_keys`, shared with the *Link* list's `SubMenu.hints`)
   -- a departure, asked for, as SelectDrive's box had no such keys. Never in the box's frame: key hints are the key bar's.

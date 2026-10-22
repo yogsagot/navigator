@@ -354,6 +354,9 @@ def _default_settings(monkeypatch, tmp_path):
     # F2 writes at once, as the editor tests were written against; *Confirm
     # file save* is tested where it is chosen.
     SETTINGS.confirmations.save = False
+    # Del deletes a bookmark at once, as the bookmark tests were written
+    # against; *Delete bookmark*'s question is tested where it is chosen.
+    SETTINGS.confirmations.delete_bookmark = False
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()

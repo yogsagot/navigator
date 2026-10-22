@@ -386,7 +386,7 @@ class ConfirmsData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "erase_single", "erase_multiple", "erase_non_empty_dir", "erase_read_only",
-        "create_dir", "drag_and_drop", "exit", "save",
+        "create_dir", "drag_and_drop", "exit", "save", "delete_bookmark",
     )
 
     erase_single: bool = Setting(True, doc="Ask before erasing a single file")
@@ -398,6 +398,8 @@ class ConfirmsData(Section):
     exit: bool = Setting(True, doc="Ask before quitting Navigator")
     #: A departure, asked for: DN's F2 wrote at once and had no such box.
     save: bool = Setting(True, doc="Ask before the editor's F2 (Ctrl+S) saves a file")
+    #: A departure, asked for: SelectDrive's box had no Del to ask about.
+    delete_bookmark: bool = Setting(True, doc="Ask before Del in the bookmarks box deletes a bookmark")
 
 
 class EditorDefaultsData(Section):

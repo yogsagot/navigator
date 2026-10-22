@@ -28,8 +28,9 @@ class ConfirmationsPage(_Component):
     """Options > Configuration > Confirmations: DOS Navigator's ``dlgConfirmations``.
 
     The resource's one column of boxes, less *Close CD player*, which has no
-    drive to close here, and with *Editor file save* added (a departure, asked
-    for: DN's F2 never asked).  Four columns wider than DN's 36, for this library's
+    drive to close here, and with *Editor file save* and *Delete bookmark*
+    added (departures, asked for: DN's F2 never asked, and its drive box had
+    no Del).  Four columns wider than DN's 36, for this library's
     eleven-column buttons; Help is left out, having nothing to show yet.
     """
 
@@ -37,20 +38,20 @@ class ConfirmationsPage(_Component):
     __navml_source__ = "confirmations_page.nml"
 
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # confirmations_page.nml:11
+    title: str = _reactive('')    # confirmations_page.nml:12
 
     #: Ids, annotated so the hand-written half completes them.
-    options: CheckBoxes    # confirmations_page.nml:14
+    options: CheckBoxes    # confirmations_page.nml:15
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:13
+        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:14
 
-        self.options.x = 3    # confirmations_page.nml:15
-        self.options.y = 1    # confirmations_page.nml:16
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:17
-        self.options.height = 8    # confirmations_page.nml:18
-        self.options.items = _bind(    # confirmations_page.nml:19
-            lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e')],
+        self.options.x = 3    # confirmations_page.nml:16
+        self.options.y = 1    # confirmations_page.nml:17
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:18
+        self.options.height = 9    # confirmations_page.nml:19
+        self.options.items = _bind(    # confirmations_page.nml:20
+            lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark')],
             yielding=True,
         )
