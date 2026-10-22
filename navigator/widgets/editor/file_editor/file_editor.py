@@ -2405,6 +2405,7 @@ class FileEditor(ContextMenuHost, Widget):
         menu.add_item(tr("~C~opy"), ClipboardCopy)
         menu.add_item(tr("~P~aste"), ClipboardPaste)
         menu.add_item(tr("C~l~ear"), Clear)
+        menu.add_item(tr("~D~elete line"), DeleteLine)
         menu.add_item(tr("Select ~a~ll"), SelectAll)
         menu.add_line()
         menu.add_item(tr("~F~ind..."), StartSearch)

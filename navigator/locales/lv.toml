@@ -52,109 +52,111 @@ name = "Latviešu"
 "C~o~py to..." = "Kopēt ~u~z..."
 # navigator/widgets/editor/edit_window/edit_window.nml:166
 "P~a~ste from..." = "Ielīmēt n~o~..."
-# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/shell/main_menu/main_menu.nml:93
+# navigator/widgets/editor/edit_window/edit_window.nml:175, navigator/widgets/editor/file_editor/file_editor.py:2408
+"~D~elete line" = "D~z~ēst rindu"
+# navigator/widgets/editor/edit_window/edit_window.nml:181, navigator/widgets/shell/main_menu/main_menu.nml:93
 "~F~ile" = "~F~ails"
-# navigator/widgets/editor/edit_window/edit_window.nml:178
+# navigator/widgets/editor/edit_window/edit_window.nml:183
 "~O~pen..." = "~A~tvērt..."
-# navigator/widgets/editor/edit_window/edit_window.nml:182, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:187, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~S~aglabāt"
-# navigator/widgets/editor/edit_window/edit_window.nml:186
+# navigator/widgets/editor/edit_window/edit_window.nml:191
 "Save ~a~s..." = "Saglabāt ~k~ā..."
-# navigator/widgets/editor/edit_window/edit_window.nml:190
+# navigator/widgets/editor/edit_window/edit_window.nml:195
 "Save a~l~l..." = "Saglabāt ~v~isus..."
-# navigator/widgets/editor/edit_window/edit_window.nml:195, navigator/widgets/shell/main_menu/main_menu.nml:161
+# navigator/widgets/editor/edit_window/edit_window.nml:200, navigator/widgets/shell/main_menu/main_menu.nml:161
 "~P~rint" = "~D~rukāt"
-# navigator/widgets/editor/edit_window/edit_window.nml:199
+# navigator/widgets/editor/edit_window/edit_window.nml:204
 "Print ~b~lock" = "Drukāt ~b~loku"
-# navigator/widgets/editor/edit_window/edit_window.nml:204, navigator/widgets/shell/main_menu/main_menu.nml:193
+# navigator/widgets/editor/edit_window/edit_window.nml:209, navigator/widgets/shell/main_menu/main_menu.nml:193
 "E~x~it" = "~I~ziet"
-# navigator/widgets/editor/edit_window/edit_window.nml:209, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:214, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~M~eklēt"
-# navigator/widgets/editor/edit_window/edit_window.nml:211, navigator/widgets/shell/main_menu/main_menu.nml:132, navigator/widgets/editor/file_editor/file_editor.py:2410
+# navigator/widgets/editor/edit_window/edit_window.nml:216, navigator/widgets/shell/main_menu/main_menu.nml:132, navigator/widgets/editor/file_editor/file_editor.py:2411
 "~F~ind..." = "~M~eklēt..."
-# navigator/widgets/editor/edit_window/edit_window.nml:215, navigator/widgets/editor/file_editor/file_editor.py:2411
-"~R~eplace..." = "~A~izstāt..."
-# navigator/widgets/editor/edit_window/edit_window.nml:219
+# navigator/widgets/editor/edit_window/edit_window.nml:220, navigator/widgets/editor/file_editor/file_editor.py:2412
+"~R~eplace..." = "Aizvi~e~tot..."
+# navigator/widgets/editor/edit_window/edit_window.nml:224
 "~S~earch again" = "Meklēt ~v~ēlreiz"
-# navigator/widgets/editor/edit_window/edit_window.nml:223
+# navigator/widgets/editor/edit_window/edit_window.nml:228
 "Re~v~ersed search" = "Meklēt a~t~pakaļ"
-# navigator/widgets/editor/edit_window/edit_window.nml:227
-"~G~o to line number..." = "~P~āriet uz rindu..."
 # navigator/widgets/editor/edit_window/edit_window.nml:232
+"~G~o to line number..." = "~P~āriet uz rindu..."
+# navigator/widgets/editor/edit_window/edit_window.nml:237
 "Pa~r~agraph" = "~R~indkopa"
-# navigator/widgets/editor/edit_window/edit_window.nml:234
+# navigator/widgets/editor/edit_window/edit_window.nml:239
 "~J~ustify" = "~I~zlīdzināt"
-# navigator/widgets/editor/edit_window/edit_window.nml:238
+# navigator/widgets/editor/edit_window/edit_window.nml:243
 "~R~ight" = "~P~a labi"
-# navigator/widgets/editor/edit_window/edit_window.nml:242
+# navigator/widgets/editor/edit_window/edit_window.nml:247
 "~L~eft" = "Pa ~k~reisi"
-# navigator/widgets/editor/edit_window/edit_window.nml:246
-"~C~enter" = "~C~entrēt"
 # navigator/widgets/editor/edit_window/edit_window.nml:251
+"~C~enter" = "~C~entrēt"
+# navigator/widgets/editor/edit_window/edit_window.nml:256
 "~M~argins..." = "~M~alas..."
-# navigator/widgets/editor/edit_window/edit_window.nml:255, navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/editor/edit_window/edit_window.nml:345 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:260, navigator/widgets/editor/edit_window/edit_window.nml:335, navigator/widgets/editor/edit_window/edit_window.nml:350 ...
 "~B~lock" = "~B~loks"
-# navigator/widgets/editor/edit_window/edit_window.nml:257
+# navigator/widgets/editor/edit_window/edit_window.nml:262
 "~M~ove" = "~P~ārvietot"
-# navigator/widgets/editor/edit_window/edit_window.nml:265
+# navigator/widgets/editor/edit_window/edit_window.nml:270
 "~I~ndent" = "~A~tkāpe"
-# navigator/widgets/editor/edit_window/edit_window.nml:269
-"~U~nindent" = "~N~oņemt atkāpi"
 # navigator/widgets/editor/edit_window/edit_window.nml:274
+"~U~nindent" = "~N~oņemt atkāpi"
+# navigator/widgets/editor/edit_window/edit_window.nml:279
 "U~p~percase" = "~L~ielie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:278, navigator/widgets/editor/edit_window/edit_window.nml:335
+# navigator/widgets/editor/edit_window/edit_window.nml:283, navigator/widgets/editor/edit_window/edit_window.nml:340
 "~L~owercase" = "~M~azie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:282
-"Capi~t~alize" = "~S~ākumburti"
 # navigator/widgets/editor/edit_window/edit_window.nml:287
+"Capi~t~alize" = "~S~ākumburti"
+# navigator/widgets/editor/edit_window/edit_window.nml:292
 "~S~ort" = "Kār~t~ot"
-# navigator/widgets/editor/edit_window/edit_window.nml:291
-"Calc~u~late sum" = "Aprēķināt s~u~mmu"
 # navigator/widgets/editor/edit_window/edit_window.nml:296
+"Calc~u~late sum" = "Aprēķināt s~u~mmu"
+# navigator/widgets/editor/edit_window/edit_window.nml:301
 "~M~isc" = "~D~ažādi"
-# navigator/widgets/editor/edit_window/edit_window.nml:298
+# navigator/widgets/editor/edit_window/edit_window.nml:303
 "Insert ~d~ate" = "Ievietot ~d~atumu"
-# navigator/widgets/editor/edit_window/edit_window.nml:302
+# navigator/widgets/editor/edit_window/edit_window.nml:307
 "Insert ~t~ime" = "Ievietot lai~k~u"
-# navigator/widgets/editor/edit_window/edit_window.nml:306
+# navigator/widgets/editor/edit_window/edit_window.nml:311
 "Du~p~licate line" = "Dublēt ~r~indu"
-# navigator/widgets/editor/edit_window/edit_window.nml:310, navigator/widgets/shell/main_menu/main_menu.nml:222
+# navigator/widgets/editor/edit_window/edit_window.nml:315, navigator/widgets/shell/main_menu/main_menu.nml:222
 "Character ta~b~le" = "Rakstzīmju ~t~abula"
-# navigator/widgets/editor/edit_window/edit_window.nml:314
+# navigator/widgets/editor/edit_window/edit_window.nml:319
 "Line Dra~w~ing" = "Līniju ~z~īmēšana"
-# navigator/widgets/editor/edit_window/edit_window.nml:320
+# navigator/widgets/editor/edit_window/edit_window.nml:325
 "~U~ppercase" = "~L~ielie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:322, navigator/widgets/editor/edit_window/edit_window.nml:337, navigator/widgets/editor/edit_window/edit_window.nml:352
+# navigator/widgets/editor/edit_window/edit_window.nml:327, navigator/widgets/editor/edit_window/edit_window.nml:342, navigator/widgets/editor/edit_window/edit_window.nml:357
 "~W~ord" = "~V~ārds"
-# navigator/widgets/editor/edit_window/edit_window.nml:326, navigator/widgets/editor/edit_window/edit_window.nml:341, navigator/widgets/editor/edit_window/edit_window.nml:356
+# navigator/widgets/editor/edit_window/edit_window.nml:331, navigator/widgets/editor/edit_window/edit_window.nml:346, navigator/widgets/editor/edit_window/edit_window.nml:361
 "~L~ine" = "~R~inda"
-# navigator/widgets/editor/edit_window/edit_window.nml:350, navigator/widgets/editor/file_editor/file_editor.py:2419
+# navigator/widgets/editor/edit_window/edit_window.nml:355, navigator/widgets/editor/file_editor/file_editor.py:2420
 "~C~apitalize" = "~S~ākumburti"
-# navigator/widgets/editor/edit_window/edit_window.nml:365
-"Optio~n~s" = "I~e~statījumi"
-# navigator/widgets/editor/edit_window/edit_window.nml:367
-"~B~ackspace indents" = "~B~ackspace atkāpe"
 # navigator/widgets/editor/edit_window/edit_window.nml:370
+"Optio~n~s" = "I~e~statījumi"
+# navigator/widgets/editor/edit_window/edit_window.nml:372
+"~B~ackspace indents" = "~B~ackspace atkāpe"
+# navigator/widgets/editor/edit_window/edit_window.nml:375
 "AutoB~r~ackets" = "Auto~i~ekavas"
-# navigator/widgets/editor/edit_window/edit_window.nml:373
+# navigator/widgets/editor/edit_window/edit_window.nml:378
 "Auto~i~ndent" = "Auto~a~tkāpe"
-# navigator/widgets/editor/edit_window/edit_window.nml:376
+# navigator/widgets/editor/edit_window/edit_window.nml:381
 "~A~uto wrap" = "Auto~p~ārnese"
-# navigator/widgets/editor/edit_window/edit_window.nml:379, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:384, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~J~ustify on wrap" = "~L~īdzināt pārnesot"
-# navigator/widgets/editor/edit_window/edit_window.nml:382, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:387, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~V~ertical blocks" = "~V~ertikāli bloki"
-# navigator/widgets/editor/edit_window/edit_window.nml:385, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:390, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "Opti~m~al fill" = "~O~ptimāla aizpilde"
-# navigator/widgets/editor/edit_window/edit_window.nml:388
+# navigator/widgets/editor/edit_window/edit_window.nml:393
 "Current ~l~ine highlight" = "Izcelt ~r~indu"
-# navigator/widgets/editor/edit_window/edit_window.nml:391
+# navigator/widgets/editor/edit_window/edit_window.nml:396
 "Current ~c~olumn highlight" = "Izcelt ~k~olonnu"
-# navigator/widgets/editor/edit_window/edit_window.nml:394
+# navigator/widgets/editor/edit_window/edit_window.nml:399
 "Syntax ~h~ighlight" = "~S~intakses izcelšana"
-# navigator/widgets/editor/edit_window/edit_window.nml:398
+# navigator/widgets/editor/edit_window/edit_window.nml:403
 "Show hi~d~den characters" = "Rādīt slēptās ~z~īmes"
-# navigator/widgets/editor/edit_window/edit_window.nml:406
+# navigator/widgets/editor/edit_window/edit_window.nml:411
 "File t~y~pe" = "Faila ti~p~s"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "Aizstāt"
@@ -1714,19 +1716,19 @@ name = "Latviešu"
 "Save file {name}?" = "Saglabāt failu {name}?"
 # navigator/widgets/editor/edit_window/edit_window.py:386
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Fails {name}\nir tikai lasāms.\nTomēr mainīt?"
-# navigator/widgets/editor/file_editor/file_editor.py:2412
+# navigator/widgets/editor/file_editor/file_editor.py:2413
 "~G~o to line..." = "~P~āriet uz rindu..."
-# navigator/widgets/editor/file_editor/file_editor.py:2414
-"~I~ndent block" = "~B~loks pa labi"
 # navigator/widgets/editor/file_editor/file_editor.py:2415
-"U~n~indent block" = "Bl~o~ks pa kreisi"
+"~I~ndent block" = "~B~loks pa labi"
 # navigator/widgets/editor/file_editor/file_editor.py:2416
-"Change ca~s~e" = "Mainīt ~r~eģistru"
+"U~n~indent block" = "Bl~o~ks pa kreisi"
 # navigator/widgets/editor/file_editor/file_editor.py:2417
-"~U~pper case" = "~L~ielie burti"
+"Change ca~s~e" = "Mainīt ~r~eģistru"
 # navigator/widgets/editor/file_editor/file_editor.py:2418
+"~U~pper case" = "~L~ielie burti"
+# navigator/widgets/editor/file_editor/file_editor.py:2419
 "~L~ower case" = "~M~azie burti"
-# navigator/widgets/editor/file_editor/file_editor.py:2421
+# navigator/widgets/editor/file_editor/file_editor.py:2422
 "Sa~v~e" = "~S~aglabāt"
 # navigator/widgets/editor/file_editor/file_editor.py:1354, navigator/widgets/editor/file_editor/file_editor.py:1393
 "Vertical blocks need for this operation" = "Šai darbībai vajag vertikālus blokus"
