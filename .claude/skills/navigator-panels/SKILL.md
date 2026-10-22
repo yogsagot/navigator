@@ -174,6 +174,11 @@ Branch*, whose caption was dropped), where DN's `ossShowHidden` was a system opt
 on a name it hides is dropped. *Panel > Show/hide hidden files* is **ticked** while the active panel shows them. Every
 directory tree follows it (see `navigator-trees`). Ctrl+H decoding: `navkit-terminal`.
 
+**Ctrl+H and Alt+I are remembered per side** (a departure): each switch (`Manager.on_toggle_hidden`/`on_toggle_info_lines`) writes
+that panel's side to the `PanelState` model (one row a side, `navigator/lib/config/panel_state.py`'s `remember`), and
+`Manager.__init__` seeds both panels of every new file manager from it (`recall`). A side with no row follows System
+Setup's *Show hidden files* and shows its footer; a restored desktop is seeded after, so it wins.
+
 ## Sorting (Alt+B)
 
 `Panel.sort_mode`, one of `SORT_MODES` (name, extension, size, time, attributes, owner, type, unsorted -- `PanelDefaultsData.SORT_BY`), is

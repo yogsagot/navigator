@@ -105,6 +105,7 @@ from navigator.widgets.manager.panel.drag import Dropped, label_for
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
+from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.file_ops.filecopy import shown
 from navigator.settings import SETTINGS
@@ -233,6 +234,8 @@ class Manager(Window):
         super().__init__(**kwargs)
         self.left.path = left
         self.right.path = right
+        # Hidden files and the footer as each side was left (``panel_state``).
+        panel_state.recall(self)
         self.tree.visible = False
         self.tree.menu = self._tree_menu
         self.quick.visible = False
@@ -2114,11 +2117,13 @@ class Manager(Window):
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         """Ctrl+H: the active panel's dot-files, hidden or shown."""
         self.active_panel.toggle_hidden()
+        panel_state.remember(self, "left" if self.active_panel is self.left else "right")
         return True
 
     async def on_toggle_info_lines(self, event: ToggleInfoLines) -> bool:
         """Alt+I: the active panel's footer, hidden or shown."""
         self.active_panel.toggle_info()
+        panel_state.remember(self, "left" if self.active_panel is self.left else "right")
         return True
 
     async def on_quick_search(self, event: QuickSearch) -> bool:

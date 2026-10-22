@@ -1,0 +1,13 @@
+from navkit.database import Model
+
+#: What a side of the file manager was left showing: Ctrl+H's hidden files and
+#: Alt+I's footer, written at each switch and seeded into each new file
+#: manager's panel on that side (``navigator.lib.config.panel_state``).  One
+#: row a side, ``left`` or ``right``.  A departure: DN's ``ossShowHidden`` was
+#: a system option and it had no footer to hide.
+PanelState(Model):
+    table: "panel_states"
+    field side: str
+    field show_hidden: bool = True
+    field show_info: bool = True
+    unique by_side: side

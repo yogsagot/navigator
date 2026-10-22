@@ -46,6 +46,7 @@ from navigator.widgets.manager.panel.drag import Dropped, label_for
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
 from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
+from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.file_ops.filecopy import shown
 from navigator.settings import SETTINGS
