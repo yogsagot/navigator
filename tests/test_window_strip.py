@@ -194,6 +194,26 @@ def test_a_click_on_a_chip_brings_its_window_forward(tree):
     assert app.shell.desktop.active_window is app.manager
 
 
+def test_the_wheel_over_the_strip_steps_through_the_windows(tree):
+    SETTINGS.interface.window_strip = "numbers"
+    app = navigator(tree)
+    seen = []
+
+    def wheel(button):
+        def post(a):
+            strip = a.shell.window_strip
+            a.post_event(MouseClickEvent(strip.x + strip.width - 1, strip.y, button, "press"))
+        return post
+
+    def note(a):
+        seen.append(a.shell.desktop.active_window.number)
+
+    run_app(app, [opener("Notes", "Todo"), note,
+                  wheel("wheel_down"), note, wheel("wheel_down"), note,
+                  wheel("wheel_up"), note, wheel("wheel_up"), note])
+    assert seen == [3, 1, 2, 1, 3]
+
+
 def test_the_strip_hides_with_the_menu_bar_and_the_windows(tree):
     SETTINGS.interface.window_strip = "numbers"
     app = navigator(tree)

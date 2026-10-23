@@ -48,7 +48,7 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
 - **`Desktop.open_windows`** is the reactive tuple of windows (the children list is not), replaced on open and close,
   not on raise -- what anything showing all the windows reads.
 - **`WindowStrip`** (`navml/widgets/window_strip/`, Python alone) paints a desktop's numbered windows as chips, the top
-  one `::chip:selected` (the number is `::number`), and a click activates; `labels` adds `Window.short_name()`
+  one `::chip:selected` (the number is `::number`), and a click activates (the wheel anywhere over it steps to the next/previous number, wrapping); `labels` adds `Window.short_name()`
   (`list_name()` unless a window says it shorter -- Manager its directory's last part, viewer/editor the file name),
   cut evenly when short of room, then the rest counted as `+k`; `align: "right"` keeps them to the far end. Nothing
   under two windows. Navigator's `Shell` floats it on the menu bar between the last menu and the clock, right-aligned

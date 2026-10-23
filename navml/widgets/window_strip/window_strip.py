@@ -4,7 +4,9 @@ Not Turbo Vision's or DOS Navigator's: a window behind a zoomed one is out of
 sight and soon out of mind, and DN OSP's answer, the window's number in its
 close icon, says nothing about the others.  This lists them all, in number
 order, the top one marked, and a click on one brings it forward -- the same
-numbers Win+1 .. Win+9 go by.
+numbers Win+1 .. Win+9 go by.  The wheel anywhere over it steps the top
+window along them, down to the next number and up to the one before, round
+from the last to the first.
 
 Two forms: the numbers alone, a chip of three cells each, or each number with
 the window's :meth:`~navml.widgets.window.Window.short_name`.  Titles too long
@@ -112,10 +114,22 @@ class WindowStrip(Widget):
             surface.draw_text(end, 0, f"+{hidden}", self.part_style("chip"))
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.is_wheel:
+            return self._step(-1 if event.button in ("wheel_up", "wheel_left") else 1)
         if event.button != "left" or event.action != "press":
             return False
         window = self.window_at(event.x)
         if window is None or self.desktop is None:
             return False
         self.desktop.activate(window)
+        return True
+
+    def _step(self, delta: int) -> bool:
+        """Bring forward the window *delta* numbers on from the top one."""
+        windows = self.windows()
+        if len(windows) < 2:
+            return False
+        top = self.desktop.active_window
+        index = windows.index(top) if top in windows else (-1 if delta > 0 else 0)
+        self.desktop.activate(windows[(index + delta) % len(windows)])
         return True
