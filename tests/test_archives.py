@@ -424,6 +424,14 @@ def test_extract_without_path_names_puts_every_file_in_the_target(tmp_path):
     assert sorted(path.name for path in out.iterdir()) == ["main.py", "x.txt"]
 
 
+def written(path, text):
+    """Whether *path* holds *text* yet -- a file on a copier's thread may not."""
+    try:
+        return path.read_text() == text
+    except OSError:
+        return False
+
+
 def modal_is(name):
     return lambda a: type(a.modal).__name__ == name
 
@@ -456,7 +464,10 @@ def test_extract_to_copies_the_selection_out_with_its_paths(desk):
         at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
         at("src"), lambda a: a.spawn(a.run_command(ExtractTo)), Until(modal_is("ExtractDialog")),
         lambda a: seen.update(target=a.modal.target.value, options=a.modal.options.value),
-        KeyEvent("enter"), Until(lambda a: (here / "out" / "src" / "deep" / "x.txt").exists(), timeout=5),
+        # Both files, whole: the copier is on a thread and need not write them
+        # in the order the archive lists them.
+        KeyEvent("enter"), Until(lambda a: written(here / "out" / "src" / "deep" / "x.txt", "x")
+                                 and written(here / "out" / "src" / "main.py", "print('hi')\n"), timeout=5),
     ])
     assert seen == {"target": f"{here / 'out'}/", "options": 1}
     assert (here / "out" / "src" / "main.py").read_text() == "print('hi')\n"
