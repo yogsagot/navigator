@@ -47,8 +47,8 @@ $bar-selected-fg: $dn-white;          /*  [  5] Selected -- CMenuView, CStatusLi
 $bar-selected-bg: $dn-black;
 $bar-selected-disabled-fg: $dn-light_gray;/*  [  6] Selected disabled -- CMenuView, CStatusLine[5] */
 $bar-selected-disabled-bg: $dn-black;
-$bar-selected-key-fg: $dn-white;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
-$bar-selected-key-bg: $dn-black;
+$bar-selected-key-fg: $dn-black;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] -- Navigator: black on the light grey, a block, as white and the greys beside it are too close to tell; the .PAL has white on black */
+$bar-selected-key-bg: $dn-yellow;
 
 /* -- Dialogs ------------------------------------------------------------- */
 $dialog-frame-background-fg: $dn-white;/*  [ 33] Frame/background */
@@ -79,8 +79,8 @@ $dialog-button-shortcut-fg: $dn-white;/*  [ 45] Button shortcut */
 $dialog-button-shortcut-bg: $dn-dark_gray;
 $dialog-shortcut-selected-fg: $dn-light_gray;/*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: $dn-white;
-$dialog-shortcut-default-fg: $dn-white;/*  [179] Shortcut default */
-$dialog-shortcut-default-bg: $dn-dark_gray;
+$dialog-shortcut-default-fg: $dn-black;/*  [179] Shortcut default -- Navigator: black on the light grey, a block, as white and the greys beside it are too close to tell; the .PAL has white on dark_gray */
+$dialog-shortcut-default-bg: $dn-yellow;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow */
 $dialog-button-shadow-bg: $dn-light_gray;
 $dialog-cluster-normal-fg: $dn-black; /*  [ 47] Cluster normal */
@@ -295,8 +295,8 @@ $editor-menu-selected-fg: $dn-white;  /*  [ 67] Selected */
 $editor-menu-selected-bg: $dn-black;
 $editor-menu-selected-disabled-fg: $dn-light_gray;/*  [ 68] Selected disabled */
 $editor-menu-selected-disabled-bg: $dn-black;
-$editor-menu-shortcut-selected-fg: $dn-white;/*  [ 69] Shortcut selected */
-$editor-menu-shortcut-selected-bg: $dn-black;
+$editor-menu-shortcut-selected-fg: $dn-black;/*  [ 69] Shortcut selected -- Navigator: black on the light grey, a block, as white and the greys beside it are too close to tell; the .PAL has white on black */
+$editor-menu-shortcut-selected-bg: $dn-yellow;
 
 /* -- Disk Fixer ---------------------------------------------------------- */
 $fixer-frame-passive-fg: $dn-light_gray;/*  [153] Frame passive */
@@ -406,10 +406,14 @@ $viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on 
 $viewer-strings-bg: $editor-highlight-strings-bg;
 $viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
 $viewer-numbers-bg: $editor-highlight-numbers-bg;
-$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords -- on the editor's Normal text [76] */
 $viewer-keyword-bg: $editor-normal-text-bg;
 $viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
 $viewer-links-bg: $viewer-frame-icons-bg;
+$heading-fg: $editor-normal-text-fg;  /*  a heading in the editor and the quick view -- on Normal text, as the keywords [76] */
+$heading-bg: $editor-normal-text-bg;
+$viewer-heading-fg: $editor-normal-text-fg;/*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] */
+$viewer-heading-bg: $editor-normal-text-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

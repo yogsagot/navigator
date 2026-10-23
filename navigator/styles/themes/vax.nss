@@ -35,7 +35,7 @@ $bar-selected-fg: light_green;        /*  [  5] Selected -- CMenuView, CStatusLi
 $bar-selected-bg: dark_gray;
 $bar-selected-disabled-fg: black;     /*  [  6] Selected disabled -- CMenuView, CStatusLine[5] */
 $bar-selected-disabled-bg: dark_gray;
-$bar-selected-key-fg: light_green;    /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
+$bar-selected-key-fg: white;          /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] -- Navigator: white, as the text it marks is the same colour; the .PAL has light_green on dark_gray */
 $bar-selected-key-bg: dark_gray;
 
 /* -- Dialogs ------------------------------------------------------------- */
@@ -283,7 +283,7 @@ $editor-menu-selected-fg: light_green;/*  [ 67] Selected */
 $editor-menu-selected-bg: dark_gray;
 $editor-menu-selected-disabled-fg: green;/*  [ 68] Selected disabled */
 $editor-menu-selected-disabled-bg: dark_gray;
-$editor-menu-shortcut-selected-fg: light_green;/*  [ 69] Shortcut selected */
+$editor-menu-shortcut-selected-fg: white;/*  [ 69] Shortcut selected -- Navigator: white, as the text it marks is the same colour; the .PAL has light_green on dark_gray */
 $editor-menu-shortcut-selected-bg: dark_gray;
 
 /* -- Disk Fixer ---------------------------------------------------------- */
@@ -394,10 +394,14 @@ $viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on 
 $viewer-strings-bg: $editor-highlight-strings-bg;
 $viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
 $viewer-numbers-bg: $editor-highlight-numbers-bg;
-$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords -- on the editor's Normal text [76] */
 $viewer-keyword-bg: $editor-normal-text-bg;
 $viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
 $viewer-links-bg: $viewer-frame-icons-bg;
+$heading-fg: $editor-normal-text-fg;  /*  a heading in the editor and the quick view -- on Normal text, as the keywords [76] */
+$heading-bg: $editor-normal-text-bg;
+$viewer-heading-fg: $editor-normal-text-fg;/*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] */
+$viewer-heading-bg: $editor-normal-text-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

@@ -49,8 +49,9 @@ $color-broken: #ef6461;               /* a link that points nowhere */
 $color-temp: #7a7168;                 /* backups and temporaries */
 $color-comment: #8f8579;              /* comments */
 $color-string: #b5cc7a;               /* strings */
-$color-number: #f2a65a;               /* numbers */
+$color-number: #e5c07b;               /* numbers */
 $color-keyword: #f59e42;              /* keywords */
+$color-heading: #f59e42;              /* headings, in the editor and the viewer */
 $color-symbol: #d4c6b0;               /* operators and punctuation */
 $color-warn: #f2c46d;                 /* warnings: the error box's icons */
 $color-error: #9e3a32;                /* the error box */
@@ -436,7 +437,11 @@ $viewer-strings-fg: $color-string;    /*  the viewer's strings -- on Strings */
 $viewer-strings-bg: $color-ground;
 $viewer-numbers-fg: $color-number;    /*  the viewer's numbers -- on Numbers */
 $viewer-numbers-bg: $color-ground;
-$viewer-keyword-fg: $color-keyword;   /*  the viewer's keywords and headings -- on the editor's Normal text */
+$viewer-keyword-fg: $color-keyword;   /*  the viewer's keywords -- on the editor's Normal text */
 $viewer-keyword-bg: $color-ground;
 $viewer-links-fg: $color-accent;      /*  the viewer's links and bullets -- on its Frame icons */
 $viewer-links-bg: $color-ground;
+$heading-fg: $color-heading;          /*  a heading in the editor and the quick view -- on Normal text, as the keywords */
+$heading-bg: $color-ground;
+$viewer-heading-fg: $color-heading;   /*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords */
+$viewer-heading-bg: $color-ground;

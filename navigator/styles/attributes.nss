@@ -226,3 +226,5 @@ $viewer-strings-bold: inherit; $viewer-strings-dim: inherit; $viewer-strings-ita
 $viewer-numbers-bold: inherit; $viewer-numbers-dim: inherit; $viewer-numbers-italic: inherit; $viewer-numbers-underline: inherit; $viewer-numbers-reverse: inherit;
 $viewer-keyword-bold: inherit; $viewer-keyword-dim: inherit; $viewer-keyword-italic: inherit; $viewer-keyword-underline: inherit; $viewer-keyword-reverse: inherit;
 $viewer-links-bold: inherit; $viewer-links-dim: inherit; $viewer-links-italic: inherit; $viewer-links-underline: inherit; $viewer-links-reverse: inherit;
+$heading-bold: inherit; $heading-dim: inherit; $heading-italic: inherit; $heading-underline: inherit; $heading-reverse: inherit;
+$viewer-heading-bold: inherit; $viewer-heading-dim: inherit; $viewer-heading-italic: inherit; $viewer-heading-underline: inherit; $viewer-heading-reverse: inherit;

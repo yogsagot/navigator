@@ -79,7 +79,8 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   `navigator/assets/keymaps/` (`navigator-keybindings` skill). After adding, renaming or rebinding a command,
   regenerate the default set: `./venv/bin/python tools/keymap_default.py`; `--check` exits 1 when it is stale (a test
   runs it)
-- Options > Colors keeps the user's palette beside it as `palette.nss` (what differs from the theme, loaded after it);
+- Options > Colors keeps the user's palettes beside it, one per theme, as `palettes/<theme>.nss` (what differs from
+  that theme, loaded after it and only over it; an old single `palette.nss` is still read for its theme);
   Store palette writes themes into `themes/` there, which `--theme` finds (`colours-themes-glyphs` skill)
 - Regenerate `highlight.ini`'s template (`navigator/assets/highlight.ini`) from the installed Pygments after upgrading
   it: `./venv/bin/python tools/highlight_ini.py`; `--check` exits 1 when it is stale (a test runs it)

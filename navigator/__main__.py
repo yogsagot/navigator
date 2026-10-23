@@ -763,8 +763,9 @@ def main(argv: list[str] | None = None) -> int:
         except LookupError as exc:
             print(f"nav: {SETTINGS.path}: {exc}; using {DEFAULT_THEME}", file=sys.stderr)
             theme = DEFAULT_THEME
-    # The user's palette (Options > Colors) goes over whichever theme it is.
-    scheme, problem = user_scheme(theme)
+    # The user's palette (Options > Colors) goes over the theme it was made
+    # over, and only that one.
+    scheme, problem = user_scheme(theme, unmarked=appearance.theme)
     if problem is not None:
         print(f"nav: {problem}; the palette is left out", file=sys.stderr)
 

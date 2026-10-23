@@ -280,7 +280,7 @@ class Shell(DockLayout):
 
         self.stylesheet = scheme_from(sources, palette_source(render_palette(palette, "palette")))
         try:
-            await asyncio.to_thread(save_palette, palette)
+            await asyncio.to_thread(save_palette, palette, self.theme)
         except OSError as error:
             await self._palette_failed(tr("Cannot save the palette: {error}").format(error=error.strerror or error))
 

@@ -47,7 +47,7 @@ $bar-selected-fg: $dn-white;          /*  [  5] Selected -- CMenuView, CStatusLi
 $bar-selected-bg: $dn-blue;
 $bar-selected-disabled-fg: $dn-light_gray;/*  [  6] Selected disabled -- CMenuView, CStatusLine[5] */
 $bar-selected-disabled-bg: $dn-blue;
-$bar-selected-key-fg: $dn-white;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
+$bar-selected-key-fg: $dn-yellow;     /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] -- Navigator: yellow, as the text it marks is the same colour; the .PAL has white on blue */
 $bar-selected-key-bg: $dn-blue;
 
 /* -- Dialogs ------------------------------------------------------------- */
@@ -79,7 +79,7 @@ $dialog-button-shortcut-fg: $dn-red;  /*  [ 45] Button shortcut */
 $dialog-button-shortcut-bg: $dn-white;
 $dialog-shortcut-selected-fg: $dn-red;/*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: $dn-black;
-$dialog-shortcut-default-fg: $dn-blue;/*  [179] Shortcut default */
+$dialog-shortcut-default-fg: $dn-red; /*  [179] Shortcut default -- Navigator: red, as the other hotkeys, as the text it marks is the same colour; the .PAL has blue on white */
 $dialog-shortcut-default-bg: $dn-white;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow -- Navigator: a black shadow, as cyan on cyan draws none; the .PAL has cyan on cyan */
 $dialog-button-shadow-bg: $dn-cyan;
@@ -295,7 +295,7 @@ $editor-menu-selected-fg: $dn-white;  /*  [ 67] Selected */
 $editor-menu-selected-bg: $dn-blue;
 $editor-menu-selected-disabled-fg: $dn-light_gray;/*  [ 68] Selected disabled */
 $editor-menu-selected-disabled-bg: $dn-blue;
-$editor-menu-shortcut-selected-fg: $dn-white;/*  [ 69] Shortcut selected */
+$editor-menu-shortcut-selected-fg: $dn-yellow;/*  [ 69] Shortcut selected -- Navigator: yellow, as the text it marks is the same colour; the .PAL has white on blue */
 $editor-menu-shortcut-selected-bg: $dn-blue;
 
 /* -- Disk Fixer ---------------------------------------------------------- */
@@ -406,10 +406,14 @@ $viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on 
 $viewer-strings-bg: $editor-highlight-strings-bg;
 $viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
 $viewer-numbers-bg: $editor-highlight-numbers-bg;
-$viewer-keyword-fg: $dn-white;        /*  the viewer's keywords and headings -- on the editor's Normal text [76] -- Navigator: white, as the editor's black vanishes on the viewer's black */
+$viewer-keyword-fg: $dn-white;        /*  the viewer's keywords -- on the editor's Normal text [76] -- Navigator: white, as the editor's black vanishes on the viewer's black */
 $viewer-keyword-bg: $editor-normal-text-bg;
 $viewer-links-fg: $dn-light_blue;     /*  the viewer's links and bullets -- on its Frame icons [114] -- Navigator: light blue, as the frame icons' blue is barely there on black */
 $viewer-links-bg: $viewer-frame-icons-bg;
+$heading-fg: $editor-normal-text-fg;  /*  a heading in the editor and the quick view -- on Normal text, as the keywords [76] */
+$heading-bg: $editor-normal-text-bg;
+$viewer-heading-fg: $dn-white;        /*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] -- Navigator: white, as the viewer's keywords */
+$viewer-heading-bg: $editor-normal-text-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

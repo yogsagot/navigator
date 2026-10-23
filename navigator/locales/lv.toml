@@ -2716,6 +2716,10 @@ name = "Latviešu"
 "Viewer keywords" = "Skatītāja atslēgvārdi"
 # navigator/lib/appearance/palette.py
 "Viewer links" = "Skatītāja saites"
+# navigator/lib/appearance/palette.py
+"Headings" = "Virsraksti"
+# navigator/lib/appearance/palette.py
+"Viewer headings" = "Skatītāja virsraksti"
 # navigator/lib/config/keybindings.py
 "Global" = "Globāli"
 # navigator/lib/config/keybindings.py

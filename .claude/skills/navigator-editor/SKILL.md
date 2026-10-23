@@ -303,7 +303,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `navigator.nss` maps comments [164] ([184] on the current line), operators/punctuation [189], strings [190] and
   numbers [191], the last three foreground only as DN's `Draw` did. Keywords (and `Operator.Word`: `and`, `not`,
   `in`) are `$keyword`, a `DERIVED` alias of Normal text [76] -- plain, as DN left them -- which `default` gives
-  yellow. A block or found
+  yellow. Headings (`Generic.Heading`/`Subheading`: Markdown's `#`, reST's, a diff's file and hunk lines) are bold in
+  `$heading` (the editor, the quick view) and `$viewer-heading` (the viewer's plain and Markdown views): `DERIVED`
+  entries the keywords' colour in every DOS theme, and each modern theme's own (solarized-light's olive keywords were
+  too faint on cream). A test holds them to 3:1 on their ground in every theme. A block or found
   match paints over tokens, the current column over everything. **Lexing runs on a thread** (`_LEXER`, from `render`
   as `DirectoryTree` asks for counts): the whole text from line 0 to `LEX_AHEAD` lines past the screen, the lexer
   chosen there each time from the name and first line. Edits shift the spans (`highlight.shift_spans`, typing inside a

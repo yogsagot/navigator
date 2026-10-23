@@ -277,6 +277,35 @@ def test_keywords_are_yellow_in_the_default_theme_and_plain_in_another(files):
     assert norton["keyword-fg"] == norton["editor-normal-text-fg"]
 
 
+def test_a_markdown_heading_in_the_editor_is_the_keywords_colour_and_bold(files):
+    editor, cell = painted(files, "notes.md", b"# Title\n\ntext\n\n## Section\n", "f4")
+    keyword = token(editor, "keyword")
+    for row in (0, 4):
+        char, style = cell(row, 0)
+        assert char == "#" and style.fg == keyword.fg and style.bold
+    assert not cell(2, 0)[1].bold
+
+
+def test_headings_stand_out_from_their_ground_in_every_theme():
+    """3:1, the floor's reading text and then some: solarized-light's first
+    headings, its olive keywords on cream, were 2.9 and read as a dull yellow."""
+    from navkit.capabilities import VGA_PALETTE
+    from navkit.stylesheet import COLOR_NAMES
+    from navigator.lib.appearance.scheme import load_scheme, theme_names
+
+    def luminance(value):
+        rgb = VGA_PALETTE[COLOR_NAMES[value]] if value in COLOR_NAMES else \
+            tuple(int(value[i:i + 2], 16) for i in (1, 3, 5))
+        lin = [v / 255 / 12.92 if v / 255 <= 0.03928 else ((v / 255 + 0.055) / 1.055) ** 2.4 for v in rgb]
+        return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+    for theme in theme_names():
+        v = load_scheme(theme).variables
+        for heading, ground in (("heading", "editor-normal-text"), ("viewer-heading", "viewer-normal-text")):
+            high, low = sorted((luminance(v[f"{heading}-fg"]), luminance(v[f"{ground}-bg"])), reverse=True)
+            assert (high + 0.05) / (low + 0.05) >= 3, f"{theme}: {heading}"
+
+
 def test_a_comment_on_the_current_line_takes_its_own_colour(files):
     SETTINGS.editor.highlight_line = True
     editor, cell = painted(files, "code.py", CODE + b"# two\n", "f4")

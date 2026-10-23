@@ -38,7 +38,9 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   `:disabled` rule sets nothing its base does not already have; when a `:selected`/`:focused` state on its base's ground
   fades toward that ground below 3:1 while the base reads better (a passive tree cursor is exempt, and a highlight going
   the other way, DN's white label on grey, does not count); or when an input line, focused or not, has the
-  dialog's (`Modal`'s) ground (History's sides are exempt from the contrast floor: they are the button's own colour).
+  dialog's (`Modal`'s) ground; or when a hotkey (`::hotkey`, `::shortcut`, `::key`, not disabled) looks like the text it
+  marks -- its `::item`, `::title`, widget or `::label` -- by colour and attributes alike, as mono's blue (its registers'
+  light grey) did (History's sides are exempt from the contrast floor: they are the button's own colour).
   A rule setting only `fg` (a syntax token, a hotkey) is checked against the `bg` it inherits: the same selector without
   its part's classes/states, then without the part, then without the subject's states. Each pair it found
   in DN's palettes is a `DEPARTURES` entry. Most are in the grey custom-DAC themes, where two registers can be one
@@ -87,14 +89,19 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   colour taking any colour (a name, `#rrggbb`, `default`) and tri-state boxes for the five attributes (`[?]` is
   `inherit`). Each change re-parses the sheet from texts read once on a thread (`scheme.theme_sources` /
   `scheme_from`, ~50 ms) and assigns `Shell.stylesheet`, so the screen repaints live; Cancel puts the old sheet back.
-- **The user's palette is `palette.nss`** in the configuration directory (`palette.palette_path()`): only what differs
-  from the theme (`palette.differences`), so a theme changed under it keeps the rest. OK writes it (none left: the file
-  goes); `main()` loads it after the theme (`scheme.user_scheme`), and one that does not parse is left out with a
-  stderr warning. `Shell.theme` is the theme it goes over.
+- **The user's palettes are one per theme**, `palettes/<theme>.nss` in the configuration directory
+  (`palette.palette_path(theme)`): only what differs from that theme (`palette.differences`), so a theme changed under
+  it keeps the rest, and each applies under its own theme alone -- one theme's changes laid over the next recoloured
+  it (ember's amber keywords on paper's cream did). OK and Load palette write `Shell.theme`'s file (none left: the file
+  goes); `main()` loads the running theme's after the theme (`scheme.user_scheme`), and one that does not parse is
+  left out with a stderr warning. The header names the theme (` * Theme: NAME`, `palette.palette_theme`). The single
+  `palette.nss` of before (`legacy_palette_path()`) is still read for the theme it was made over -- its header's, or
+  the configured one's for a file too old to say (`unmarked=`) -- until that theme's own file is written, which removes
+  a legacy file naming that theme.
 - **Store palette** writes every entry's seven, resolved, as a full sheet into `~/.config/navigator/themes/`
   (`palette.user_themes()`, DN's `COLORS\*.PAL`), asking before overwriting; **a theme there is one `--theme` and
   `theme_names()` find, and wins over a shipped one of the same name** (`scheme.theme_path`). **Load palette** opens
-  the user's themes (or the shipped ones, with none) and keeps the file's difference from the theme as `palette.nss`;
+  the user's themes (or the shipped ones, with none) and keeps the file's difference from the theme as that theme's palette;
   one that does not parse says *Not a palette*. **.nss only** -- no `.PAL` reading at run time; that is palconv's job.
 
 ## File-type colours

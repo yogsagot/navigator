@@ -525,6 +525,12 @@ FileEditor::token.string                       { fg: $editor-highlight-strings-f
 FileEditor::token.number                       { fg: $editor-highlight-numbers-fg }
 FileEditor::token.keyword,
 FileEditor::token.operator.word                { fg: $keyword-fg; bold: $keyword-bold; dim: $keyword-dim; italic: $keyword-italic; underline: $keyword-underline; reverse: $keyword-reverse }
+/* A heading -- Markdown's `#', reStructuredText's, a diff's file and hunk
+   lines -- bold in `$heading', the keywords' colour in every DOS theme, as
+   the viewer's Markdown view draws one in `$viewer-heading' (a departure:
+   DN's editor knew no headings). */
+FileEditor::token.generic.heading,
+FileEditor::token.generic.subheading           { fg: $heading-fg; bold: true }
 /* The viewer had no highlighting in DN.  It takes its own entries --
    `$viewer-comments', `-symbols', `-strings', `-numbers', `-keyword' --
    aliases of the editor's slots, so a palette colours both alike unless its
@@ -538,6 +544,8 @@ FileViewer::token.string                       { fg: $viewer-strings-fg }
 FileViewer::token.number                       { fg: $viewer-numbers-fg }
 FileViewer::token.keyword,
 FileViewer::token.operator.word                { fg: $viewer-keyword-fg }
+FileViewer::token.generic.heading,
+FileViewer::token.generic.subheading           { fg: $viewer-heading-fg; bold: true }
 QuickViewer FileViewer::token.comment          { fg: $editor-highlight-comments-fg }
 QuickViewer FileViewer::token.operator,
 QuickViewer FileViewer::token.punctuation      { fg: $editor-highlight-symbols-fg }
@@ -545,13 +553,15 @@ QuickViewer FileViewer::token.string           { fg: $editor-highlight-strings-f
 QuickViewer FileViewer::token.number           { fg: $editor-highlight-numbers-fg }
 QuickViewer FileViewer::token.keyword,
 QuickViewer FileViewer::token.operator.word    { fg: $keyword-fg }
+QuickViewer FileViewer::token.generic.heading,
+QuickViewer FileViewer::token.generic.subheading { fg: $heading-fg; bold: true }
 /* A departure too, DN's viewer had no Markdown reading (View > Markdown):
-   headings in the keywords' colour, emphasis by attribute, code in the
+   headings in `$viewer-heading', emphasis by attribute, code in the
    strings' colour (a block's in the text's, its tokens the highlight's), the
    furniture -- rules, tables, quote gutters -- in the comments', links and
    bullets in `$viewer-links' (the frame icons' colour).  The theme's own
    variables only, so every theme has them. */
-FileViewer::md.heading                         { fg: $viewer-keyword-fg; bold: true }
+FileViewer::md.heading                         { fg: $viewer-heading-fg; bold: true }
 FileViewer::md.strong                          { fg: $viewer-symbols-fg; bold: true }
 FileViewer::md.emph                            { italic: true }
 FileViewer::md.strike                          { dim: true }

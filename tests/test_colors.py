@@ -13,7 +13,7 @@ from navkit.stylesheet import parse, variables_in
 
 from navigator.__main__ import Navigator
 from navigator.lib.appearance.palette import (
-    DERIVED, ENTRIES, NAVIGATOR_GROUP, differences, entry_values, groups, palette_path, read_palette,
+    DERIVED, ENTRIES, NAVIGATOR_GROUP, differences, entry_values, groups, legacy_palette_path, palette_path, read_palette,
     render_palette, save_palette, user_themes,
 )
 from navigator.lib.appearance.scheme import load_scheme, theme_names, theme_path, user_scheme
@@ -56,6 +56,33 @@ def test_the_user_palette_goes_over_the_theme_and_a_broken_one_is_left_out():
     assert problem and sheet.variables["panel-fg"] == load_scheme("default").variables["panel-fg"]
     save_palette({})
     assert not palette_path().exists()
+
+
+def test_each_theme_keeps_its_own_palette_and_no_other_sees_it():
+    """What differs from one theme laid over another recoloured it in the
+    first one's colours -- ember's amber keywords on paper's cream."""
+    save_palette({"keyword-fg": "#f59e42"}, "ember")
+    save_palette({"keyword-fg": "#123456"}, "paper")
+    assert palette_path("ember").name == "ember.nss" and "Theme: ember" in palette_path("ember").read_text()
+    assert user_scheme("ember")[0].variables["keyword-fg"] == "#f59e42"
+    assert user_scheme("paper")[0].variables["keyword-fg"] == "#123456"
+    sheet, problem = user_scheme("nord")
+    assert problem is None and sheet.variables["keyword-fg"] == load_scheme("nord").variables["keyword-fg"]
+    save_palette({}, "ember")
+    assert not palette_path("ember").exists() and palette_path("paper").exists()
+
+
+def test_the_one_palette_of_before_is_read_for_its_theme_until_that_theme_has_its_own():
+    legacy_palette_path().parent.mkdir(parents=True, exist_ok=True)
+    legacy_palette_path().write_text("$panel-fg: #ff0000;")
+    assert user_scheme("norton", unmarked="norton")[0].variables["panel-fg"] == "#ff0000"
+    assert user_scheme("paper", unmarked="norton")[0].variables["panel-fg"] == load_scheme("paper").variables["panel-fg"]
+    # One that names its theme goes when that theme's own file is written.
+    legacy_palette_path().write_text("/*\n * Theme: norton\n */\n$panel-fg: #ff0000;")
+    assert user_scheme("norton", unmarked="default")[0].variables["panel-fg"] == "#ff0000"
+    save_palette({"panel-fg": "#00ff00"}, "norton")
+    assert not legacy_palette_path().exists()
+    assert user_scheme("norton")[0].variables["panel-fg"] == "#00ff00"
 
 
 def test_a_stored_theme_is_one_by_name_and_wins_over_a_shipped_one():

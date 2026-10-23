@@ -132,16 +132,30 @@ def palette_source(text: str) -> tuple[str, str]:
     return (PALETTE_SOURCE, text)
 
 
-def user_scheme(theme: str = DEFAULT_THEME) -> tuple[Stylesheet, str | None]:
-    """*theme* with the user's palette (Options > Colors, ``palette.nss``)
-    over it, and what was wrong with the palette, or None.  A palette that
-    cannot be read or parsed is left out, so a broken hand edit costs its
-    colours and not the session."""
-    from navigator.lib.appearance.palette import palette_path
+def user_scheme(theme: str = DEFAULT_THEME, unmarked: str = DEFAULT_THEME) -> tuple[Stylesheet, str | None]:
+    """*theme* with the user's palette for it (Options > Colors,
+    ``palettes/<theme>.nss``) over it, and what was wrong with the palette,
+    or None.  A palette that cannot be read or parsed is left out, so a broken
+    hand edit costs its colours and not the session.
 
-    path = palette_path()
+    Each theme has its own: a palette is what differs from the theme it was
+    made over, and laid over another it recoloured that one in the first
+    one's colours.  Without one, the single ``palette.nss`` Navigator kept
+    before is used if it was made over *theme* -- by what its header says, or
+    for one too old to say, if *theme* is *unmarked*, the configured one."""
+    from navigator.lib.appearance.palette import legacy_palette_path, palette_path, palette_theme
+
+    path = palette_path(theme)
     if not path.is_file():
-        return load_scheme(theme), None
+        path = legacy_palette_path()
+        try:
+            made_over = palette_theme(path.read_text(encoding="utf-8")) or unmarked
+        except FileNotFoundError:
+            return load_scheme(theme), None
+        except OSError as error:
+            return load_scheme(theme), str(error)
+        if made_over != theme:
+            return load_scheme(theme), None
     try:
         return load_scheme(theme, path), None
     except StylesheetError as error:

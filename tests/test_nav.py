@@ -1302,7 +1302,9 @@ def test_no_theme_draws_an_unreadable_pair():
     """Every rule's foreground must read against its background, in every theme;
     a selected, focused or disabled state must look different from its base,
     and a selected or focused one may not fade below 3:1 where its base reads
-    better; and an input line must stand out from the dialog it is in.  A rule
+    better; an input line must stand out from the dialog it is in; and a
+    hotkey must not look like the text it marks, as mono's blue -- its
+    registers' light grey, the text's own -- did.  A rule
     that sets a foreground alone -- a syntax token, a hotkey -- is read against
     the ground it inherits: the same selector without its part's classes and
     states, then without the part, then without the subject's own states.
@@ -1406,6 +1408,46 @@ def test_no_theme_draws_an_unreadable_pair():
                         faded = contrast(fg, normal["bg"])
                         assert faded >= min(3.0, contrast(normal["fg"], normal["bg"])), \
                             f"{theme}: {subject.type_name} {state} fades to {faded:.2f}:1"
+        # A hotkey is told from its text by colour or by attribute.  A disabled
+        # item's hotkey is the item's on purpose, so those are left out.
+        def marks(selector):
+            subject = selector.subject
+            states = subject.states | subject.part_states
+            for ancestor, _combinator in selector.ancestors:
+                states = states | ancestor.states
+            return not states & {"disabled", "inert"}
+
+        # Clearly, not merely: bw's white text and #C6C6C6 hotkey differed and
+        # could not be told apart, so a colour difference of 25 (CIE76) in the
+        # letter or its ground, or an attribute of its own.
+        def lab(colour):
+            r, g, b = rgb(colour)
+            linear = [v / 255 / 12.92 if v / 255 <= 0.04045 else ((v / 255 + 0.055) / 1.055) ** 2.4 for v in (r, g, b)]
+            x, y, z = (sum(m * c for m, c in zip(row, linear)) for row in (
+                (0.4124 / 0.9505, 0.3576 / 0.9505, 0.1805 / 0.9505),
+                (0.2126, 0.7152, 0.0722),
+                (0.0193 / 1.089, 0.1192 / 1.089, 0.9505 / 1.089)))
+            f = [v ** (1 / 3) if v > 0.008856 else 7.787 * v + 16 / 116 for v in (x, y, z)]
+            return 116 * f[1] - 16, 500 * (f[0] - f[1]), 200 * (f[1] - f[2])
+
+        def apart(a, b):
+            return sum((p - q) ** 2 for p, q in zip(lab(a), lab(b))) ** 0.5
+
+        attributes = ("bold", "underline", "reverse", "italic")
+        for selector, colours in declared.items():
+            subject = selector.subject
+            if subject.part not in ("hotkey", "shortcut", "key") or not marks(selector):
+                continue
+            for part in ("item", "title", None, "label"):
+                text = declared.get(replace(selector, subject=replace(subject, part=part)))
+                if text is not None and "fg" in text:
+                    key = {**text, **colours}
+                    told = (apart(key["fg"], text["fg"]) >= 25
+                            or ("bg" in key and "bg" in text and apart(key["bg"], text["bg"]) >= 25)
+                            or any(key.get(a) != text.get(a) for a in attributes))
+                    assert told, f"{theme}: {subject.type_name}::{subject.part} " \
+                                 f"{sorted(subject.states | subject.part_states)} looks like its text"
+                    break
         # A field on the dialog's own ground has no edge: only its text shows.
         def ground(type_name, *states):
             return next(colours["bg"] for selector, colours in declared.items()

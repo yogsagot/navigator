@@ -236,8 +236,10 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "viewer-symbols": (189, "the viewer's symbols -- on Symbols"),
     "viewer-strings": (190, "the viewer's strings -- on Strings"),
     "viewer-numbers": (191, "the viewer's numbers -- on Numbers"),
-    "viewer-keyword": (76, "the viewer's keywords and headings -- on the editor's Normal text"),
+    "viewer-keyword": (76, "the viewer's keywords -- on the editor's Normal text"),
     "viewer-links": (114, "the viewer's links and bullets -- on its Frame icons"),
+    "heading": (76, "a heading in the editor and the quick view -- on Normal text, as the keywords"),
+    "viewer-heading": (76, "a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords"),
 }
 
 
@@ -287,10 +289,22 @@ DERIVED_ITEMS = {
     "viewer-numbers": "Viewer numbers",
     "viewer-keyword": "Viewer keywords",
     "viewer-links": "Viewer links",
+    "heading": "Headings",
+    "viewer-heading": "Viewer headings",
 }
 
-#: The palette the Colors dialog writes, in the configuration directory.
-PALETTE_NAME = "palette.nss"
+#: Where the Colors dialog keeps the user's palettes, in the configuration
+#: directory: one per theme, ``palettes/<theme>.nss``, each what differs from
+#: its theme and applied under it alone -- so every theme keeps its own
+#: changes, and picking one (``--theme``) never shows another's.
+PALETTES_NAME = "palettes"
+
+#: The one palette Navigator kept before there was one per theme: still read,
+#: for the theme it was made over, until that theme's own file is written.
+LEGACY_PALETTE_NAME = "palette.nss"
+
+#: How a palette's header names the theme it was made over.
+THEME_LINE = "Theme: "
 
 #: Where Store palette puts a palette by default, and a theme is also looked
 #: for by name -- DN's ``COLORS`` directory.
@@ -316,10 +330,17 @@ def stems() -> list[str]:
     return [stem for _, items in groups() for stem, _ in items]
 
 
-def palette_path() -> Path:
+def palette_path(theme: str = "default") -> Path:
+    """*theme*'s palette file, whether or not it is there."""
     from navigator.settings import config_dir
 
-    return config_dir() / PALETTE_NAME
+    return config_dir() / PALETTES_NAME / f"{theme}.nss"
+
+
+def legacy_palette_path() -> Path:
+    from navigator.settings import config_dir
+
+    return config_dir() / LEGACY_PALETTE_NAME
 
 
 def user_themes() -> Path:
@@ -346,13 +367,15 @@ def differences(base: Mapping[str, str], values: Mapping[str, str]) -> dict[str,
     return {name: value for name, value in values.items() if base.get(name) != value}
 
 
-def render_palette(values: Mapping[str, str], title: str) -> str:
+def render_palette(values: Mapping[str, str], title: str, theme: str | None = None) -> str:
     """*values* as a sheet of definitions, in the dialog's groups and order,
-    under a comment naming it *title*.  An entry none of whose variables is
+    under a comment naming it *title* -- and *theme*, the one they differ
+    from, when they are a user palette.  An entry none of whose variables is
     in *values* is left out."""
     lines = ["/*", f" * {title}", " *",
              " * Written by Navigator's Options > Colors (Store palette); it defines",
              " * variables and no rules, and loads after navigator.nss as a theme does.",
+             *([" *", f" * {THEME_LINE}{theme}"] if theme else []),
              " */", ""]
     for group, items in groups():
         body = []
@@ -388,12 +411,30 @@ def write_sheet(path: Path, text: str) -> None:
         raise
 
 
-def save_palette(values: Mapping[str, str]) -> None:
-    """The Colors dialog's *values* (what differs from the theme) as
-    ``palette.nss``; none, and the file goes.  Raises ``OSError``.  On a
-    thread."""
-    path = palette_path()
+def save_palette(values: Mapping[str, str], theme: str = "default") -> None:
+    """The Colors dialog's *values* (what differs from *theme*) as *theme*'s
+    palette file; none, and the file goes.  A legacy ``palette.nss`` that
+    says it was made over *theme* goes too, this file standing for it now.
+    Raises ``OSError``.  On a thread."""
+    path = palette_path(theme)
     if values:
-        write_sheet(path, render_palette(values, "Navigator's palette -- Options > Colors"))
+        write_sheet(path, render_palette(values, "Navigator's palette -- Options > Colors", theme))
     else:
         path.unlink(missing_ok=True)
+    legacy = legacy_palette_path()
+    try:
+        if palette_theme(legacy.read_text(encoding="utf-8")) == theme:
+            legacy.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def palette_theme(text: str) -> str | None:
+    """The theme a palette's *text* was made over, or None for one written
+    before palettes said (which :func:`~navigator.lib.appearance.scheme.user_scheme`
+    takes to be the configured theme's)."""
+    for line in text.splitlines()[:16]:
+        found = line.strip().removeprefix("*").strip()
+        if found.startswith(THEME_LINE):
+            return found[len(THEME_LINE):].strip() or None
+    return None

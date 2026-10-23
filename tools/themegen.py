@@ -77,6 +77,7 @@ ROLES = {
     "string": "strings",
     "number": "numbers",
     "keyword": "keywords",
+    "heading": "headings, in the editor and the viewer",
     "symbol": "operators and punctuation",
     "warn": "warnings: the error box's icons",
     "error": "the error box",
@@ -103,7 +104,7 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
             "dir": "#fff7ea", "exec": "#9ccf8a", "archive": "#e8846a", "image": "#6fc2c9",
             "media": "#d9a05b", "document": "#c9b99a", "source": "#9cc6e8", "link": "#86bdb1",
             "broken": "#ef6461", "temp": "#7a7168",
-            "comment": "#8f8579", "string": "#b5cc7a", "number": "#f2a65a", "keyword": "#f59e42",
+            "comment": "#8f8579", "string": "#b5cc7a", "number": "#e5c07b", "keyword": "#f59e42", "heading": "#f59e42",
             "symbol": "#d4c6b0",
             "warn": "#f2c46d", "error": "#9e3a32", "on_error": "#fff3e0", "error_shadow": "#0c0b0a", "modified": "#f2c46d", "drop_shadow": "#0b0a09", "drop_shadow_text": "#5a534c",
         },
@@ -122,7 +123,7 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
             "dir": "#1d4ed8", "exec": "#15803d", "archive": "#b45309", "image": "#0e7490",
             "media": "#a16207", "document": "#57534e", "source": "#1e40af", "link": "#0f766e",
             "broken": "#b91c1c", "temp": "#9c958a",
-            "comment": "#78716c", "string": "#15803d", "number": "#b45309", "keyword": "#1d4ed8",
+            "comment": "#78716c", "string": "#15803d", "number": "#b45309", "keyword": "#1d4ed8", "heading": "#1d4ed8",
             "symbol": "#57534e",
             "warn": "#ffe2b8", "error": "#b91c1c", "on_error": "#ffffff", "error_shadow": "#5c1010", "modified": "#b45309", "drop_shadow": "#c6bdad", "drop_shadow_text": "#6f685d",
         },
@@ -136,13 +137,13 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
             "surface": "#434c5e", "raised": "#5e6a82", "field": "#4c566a", "field_focus": "#2e3440",
             "overlay": "#3b4252", "border": "#7b88a1", "border_dim": "#5b667b", "shadow": "#15181e",
             "text": "#d8dee9", "text_dim": "#aeb6c4", "text_faint": "#8a95aa", "text_strong": "#eceff4",
-            "accent": "#88c0d0", "on_accent": "#2e3440", "on_accent_alt": "#4c566a", "on_accent_faint": "#46707c",
+            "accent": "#88c0d0", "on_accent": "#2e3440", "on_accent_alt": "#8f4a2c", "on_accent_faint": "#46707c",
             "selection": "#4c566a", "on_selection": "#eceff4",
             "hotkey": "#ebcb8b", "marked": "#ebcb8b",
             "dir": "#eceff4", "exec": "#a3be8c", "archive": "#d08770", "image": "#8fbcbb",
             "media": "#81a1c1", "document": "#e5e9f0", "source": "#88c0d0", "link": "#8fbcbb",
             "broken": "#bf616a", "temp": "#616e88",
-            "comment": "#6d7a96", "string": "#a3be8c", "number": "#d08770", "keyword": "#81a1c1",
+            "comment": "#6d7a96", "string": "#a3be8c", "number": "#d08770", "keyword": "#81a1c1", "heading": "#88c0d0",
             "symbol": "#eceff4",
             "warn": "#ebcb8b", "error": "#bf616a", "on_error": "#eceff4", "error_shadow": "#15181e", "modified": "#ebcb8b", "drop_shadow": "#1c2028", "drop_shadow_text": "#5b667b",
         },
@@ -150,7 +151,8 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
     "solarized-light": (
         "Solarized Light -- Solarized's cream grounds and its eight accents",
         "Solarized by Ethan Schoonover (ethanschoonover.com/solarized), MIT licence.  Violet and magenta"
-        " are left out: numbers take orange, links cyan.",
+        " are left out: numbers take orange, links cyan.  Keywords are its green deepened a shade, which"
+        " reads on its cream (4.3:1) where its own green (2.9:1) did not.",
         {
             "desktop": "#e4ddc8", "ground": "#fdf6e3", "ground_alt": "#eee8d5",
             "surface": "#eee8d5", "raised": "#d6cfb8", "field": "#e0d9c3", "field_focus": "#ffffff",
@@ -162,7 +164,7 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
             "dir": "#268bd2", "exec": "#859900", "archive": "#cb4b16", "image": "#2aa198",
             "media": "#b58900", "document": "#657b83", "source": "#073642", "link": "#2aa198",
             "broken": "#dc322f", "temp": "#93a1a1",
-            "comment": "#93a1a1", "string": "#2aa198", "number": "#cb4b16", "keyword": "#859900",
+            "comment": "#93a1a1", "string": "#2aa198", "number": "#cb4b16", "keyword": "#6c7d00", "heading": "#268bd2",
             "symbol": "#586e75",
             "warn": "#fdf6e3", "error": "#dc322f", "on_error": "#fdf6e3", "error_shadow": "#6b1513", "modified": "#cb4b16", "drop_shadow": "#d3cbb3", "drop_shadow_text": "#657b83",
         },
@@ -284,6 +286,7 @@ DERIVED_ROLES: dict[str, tuple[str, str]] = {
     "viewer-comments": ("comment", "ground"), "viewer-symbols": ("symbol", "ground"),
     "viewer-strings": ("string", "ground"), "viewer-numbers": ("number", "ground"),
     "viewer-keyword": ("keyword", "ground"), "viewer-links": ("accent", "ground"),
+    "heading": ("heading", "ground"), "viewer-heading": ("heading", "ground"),
 }
 
 assert set(SLOT_ROLES) == {slot.name for slot in SLOTS}, set(SLOT_ROLES) ^ {slot.name for slot in SLOTS}

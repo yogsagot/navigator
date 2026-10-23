@@ -33,7 +33,7 @@ $color-text_faint: #8a95aa;           /* disabled items */
 $color-text_strong: #eceff4;          /* emphasis */
 $color-accent: #88c0d0;               /* the cursor and the focused control */
 $color-on_accent: #2e3440;            /* text on the accent */
-$color-on_accent_alt: #4c566a;        /* a hotkey or a marked file under the cursor */
+$color-on_accent_alt: #8f4a2c;        /* a hotkey or a marked file under the cursor */
 $color-on_accent_faint: #46707c;      /* a disabled item under the cursor */
 $color-selection: #4c566a;            /* selected text, and the cursor where the focus is not */
 $color-on_selection: #eceff4;         /* text on the selection */
@@ -53,6 +53,7 @@ $color-comment: #6d7a96;              /* comments */
 $color-string: #a3be8c;               /* strings */
 $color-number: #d08770;               /* numbers */
 $color-keyword: #81a1c1;              /* keywords */
+$color-heading: #88c0d0;              /* headings, in the editor and the viewer */
 $color-symbol: #eceff4;               /* operators and punctuation */
 $color-warn: #ebcb8b;                 /* warnings: the error box's icons */
 $color-error: #bf616a;                /* the error box */
@@ -438,7 +439,11 @@ $viewer-strings-fg: $color-string;    /*  the viewer's strings -- on Strings */
 $viewer-strings-bg: $color-ground;
 $viewer-numbers-fg: $color-number;    /*  the viewer's numbers -- on Numbers */
 $viewer-numbers-bg: $color-ground;
-$viewer-keyword-fg: $color-keyword;   /*  the viewer's keywords and headings -- on the editor's Normal text */
+$viewer-keyword-fg: $color-keyword;   /*  the viewer's keywords -- on the editor's Normal text */
 $viewer-keyword-bg: $color-ground;
 $viewer-links-fg: $color-accent;      /*  the viewer's links and bullets -- on its Frame icons */
 $viewer-links-bg: $color-ground;
+$heading-fg: $color-heading;          /*  a heading in the editor and the quick view -- on Normal text, as the keywords */
+$heading-bg: $color-ground;
+$viewer-heading-fg: $color-heading;   /*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords */
+$viewer-heading-bg: $color-ground;

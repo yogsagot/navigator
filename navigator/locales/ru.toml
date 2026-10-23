@@ -2716,6 +2716,10 @@ name = "Русский"
 "Viewer keywords" = "Ключевые слова в просмотре"
 # navigator/lib/appearance/palette.py
 "Viewer links" = "Ссылки в просмотре"
+# navigator/lib/appearance/palette.py
+"Headings" = "Заголовки"
+# navigator/lib/appearance/palette.py
+"Viewer headings" = "Заголовки в просмотре"
 # navigator/lib/config/keybindings.py
 "Global" = "Глобальные"
 # navigator/lib/config/keybindings.py

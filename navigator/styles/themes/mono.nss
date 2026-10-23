@@ -41,14 +41,14 @@ $bar-fg: $dn-light_gray;              /*> [  2] Normal -- CMenuView, CStatusLine
 $bar-bg: $dn-black;
 $bar-disabled-fg: $dn-dark_gray;      /*  [  3] Disabled -- CMenuView, CStatusLine[2] -- Navigator: dark grey, as the .PAL draws a disabled item as an enabled one; the .PAL has light_gray on black */
 $bar-disabled-bg: $dn-black;
-$bar-key-fg: $dn-blue;                /*> [  4] Shortcut -- CMenuView, CStatusLine[3] */
+$bar-key-fg: $dn-white;               /*> [  4] Shortcut -- CMenuView, CStatusLine[3] -- Navigator: white, as this blue is the text's own grey; the .PAL has blue on black */
 $bar-key-bg: $dn-black;
 $bar-selected-fg: $dn-black;          /*  [  5] Selected -- CMenuView, CStatusLine[4] */
 $bar-selected-bg: $dn-light_gray;
 $bar-selected-disabled-fg: $dn-dark_gray;/*  [  6] Selected disabled -- CMenuView, CStatusLine[5] -- Navigator: dark grey, as the .PAL draws a disabled item as an enabled one; the .PAL has black on light_gray */
 $bar-selected-disabled-bg: $dn-light_gray;
-$bar-selected-key-fg: $dn-white;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
-$bar-selected-key-bg: $dn-black;
+$bar-selected-key-fg: $dn-white;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] -- Navigator: on the cursor's light grey, as the plain hotkey is white on black now; the .PAL has white on black */
+$bar-selected-key-bg: $dn-light_gray;
 
 /* -- Dialogs ------------------------------------------------------------- */
 $dialog-frame-background-fg: $dn-black;/*  [ 33] Frame/background */
@@ -75,11 +75,11 @@ $dialog-button-selected-fg: $dn-black;/*  [ 43] Button selected -- Navigator: in
 $dialog-button-selected-bg: $dn-light_gray;
 $dialog-button-disabled-fg: $dn-light_gray;/*  [ 44] Button disabled */
 $dialog-button-disabled-bg: $dn-black;
-$dialog-button-shortcut-fg: $dn-blue; /*  [ 45] Button shortcut */
+$dialog-button-shortcut-fg: $dn-white;/*  [ 45] Button shortcut -- Navigator: white, as this blue is the text's own grey; the .PAL has blue on black */
 $dialog-button-shortcut-bg: $dn-black;
 $dialog-shortcut-selected-fg: $dn-white;/*  [178] Shortcut selected -- Navigator: on the focused button's inverse ground; the .PAL has white on black */
 $dialog-shortcut-selected-bg: $dn-light_gray;
-$dialog-shortcut-default-fg: $dn-blue;/*  [179] Shortcut default */
+$dialog-shortcut-default-fg: $dn-white;/*  [179] Shortcut default -- Navigator: white, as this blue is the text's own grey; the .PAL has blue on black */
 $dialog-shortcut-default-bg: $dn-black;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow */
 $dialog-button-shadow-bg: $dn-light_gray;
@@ -406,10 +406,14 @@ $viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on 
 $viewer-strings-bg: $editor-highlight-strings-bg;
 $viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
 $viewer-numbers-bg: $editor-highlight-numbers-bg;
-$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords -- on the editor's Normal text [76] */
 $viewer-keyword-bg: $editor-normal-text-bg;
 $viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
 $viewer-links-bg: $viewer-frame-icons-bg;
+$heading-fg: $editor-normal-text-fg;  /*  a heading in the editor and the quick view -- on Normal text, as the keywords [76] */
+$heading-bg: $editor-normal-text-bg;
+$viewer-heading-fg: $editor-normal-text-fg;/*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] */
+$viewer-heading-bg: $editor-normal-text-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:
