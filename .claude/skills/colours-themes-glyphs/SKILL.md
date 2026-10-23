@@ -16,12 +16,15 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
 - Regenerate: `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL`
   prints one palette's decoded slots.
 - **For now only `default.nss` is edited** among the DOS themes: after palconv regenerates, revert the other ten.
-- **The modern themes** -- `ember`, `nord` (dark), `paper`, `solarized-light` (light) -- are not transcriptions and have
+- **The modern themes** -- `ember`, `nord`, `gruvbox`, `tokyo-night` (dark), `paper`, `solarized-light`, `gruvbox-light`,
+  `everforest-light` (light) -- are not transcriptions and have
   no `.PAL`: `tools/themegen.py` writes them from a role palette each (`THEMES`: about 45 named colours such as `ground`,
   `surface`, `field`, `accent`, `dir`, `comment`) and one shared table (`SLOT_ROLES`, `DERIVED_ROLES`) saying which two
   roles every slot draws. So they have no `DEPARTURES`: change a role, or a slot's roles, and rerun; `--check` (a test)
   fails on a hand edit. Every colour is a `$color-<role>` hex; no `$dn-*` registers. The no-magenta rule covers them
-  too (Nord's purple and Solarized's violet and magenta are left out). Nord and Solarized are MIT, credited in the header.
+  too (Nord's, Gruvbox's and Everforest's purple, Solarized's violet and magenta, and Tokyo Night's magenta and purple --
+  its keywords, which take its cyan -- are left out). The schemes are MIT, credited in each header with what was changed
+  (deepened colours on a light page, where the scheme's own fell short of the tests).
 - **Three entries a DOS theme draws exactly as DN did** exist so a light theme need not: `shadow` (the drop shadow,
   Turbo Vision's ShadowAttr $08, painted through navkit's `Widget::shadow` part, `SHADOW` where a sheet names none),
   `command-line` and `command-line-prompt` ($07 and $0F, which `TCommandLine.Draw` hard-coded), and `modified-title`

@@ -90,7 +90,8 @@ tests'). Still to come (README sketches it): a plugin system, the rest of the ed
   Python's `unicodedata` is newer than `UNICODE`, offline (a test runs it)
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
-  palette's decoded slots instead. The four modern themes (ember, paper, nord, solarized-light) have no `.PAL`: they are
+  palette's decoded slots instead. The eight modern themes (ember, paper, nord, solarized-light, gruvbox, gruvbox-light, tokyo-night,
+  everforest-light) have no `.PAL`: they are
   written from role palettes by `./venv/bin/python tools/themegen.py`; `--check` exits 1 when one is stale (a test runs it)
 - Captions are translated: English is the key, catalogues are `navml/locales/*.toml` and `navigator/locales/*.toml`
   (plus `locales/` beside `navigator.ini`). `--language CODE` or Options > Interface picks one, else `$LANG`.

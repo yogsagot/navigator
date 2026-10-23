@@ -169,6 +169,84 @@ THEMES: dict[str, tuple[str, str, dict[str, str]]] = {
             "warn": "#fdf6e3", "error": "#dc322f", "on_error": "#fdf6e3", "error_shadow": "#6b1513", "modified": "#cb4b16", "drop_shadow": "#d3cbb3", "drop_shadow_text": "#657b83",
         },
     ),
+    "gruvbox": (
+        "Gruvbox -- warm retro browns, cream text and its earthy accents",
+        "Gruvbox by Pavel Pertsev (github.com/morhetz/gruvbox), MIT licence. Its purple, a dusty pink, "
+        "is left out: numbers take its orange.",
+        {
+            "desktop": "#1d2021", "ground": "#282828", "ground_alt": "#32302f", "surface": "#504945",
+            "raised": "#665c54", "field": "#5a524c", "field_focus": "#1d2021", "overlay": "#32302f",
+            "border": "#a89984", "border_dim": "#665c54", "shadow": "#141414", "text": "#ebdbb2",
+            "text_dim": "#bdae93", "text_faint": "#928374", "text_strong": "#fbf1c7", "accent": "#fabd2f",
+            "on_accent": "#282828", "on_accent_alt": "#9d0006", "on_accent_faint": "#7c6f64", "selection": "#504945",
+            "on_selection": "#fbf1c7", "hotkey": "#fe8019", "marked": "#fabd2f", "dir": "#fbf1c7",
+            "exec": "#b8bb26", "archive": "#fe8019", "image": "#8ec07c", "media": "#fabd2f",
+            "document": "#d5c4a1", "source": "#83a598", "link": "#8ec07c", "broken": "#fb4934",
+            "temp": "#7c6f64", "comment": "#928374", "string": "#b8bb26", "number": "#fe8019",
+            "keyword": "#fb4934", "heading": "#fabd2f", "symbol": "#ebdbb2", "warn": "#fabd2f",
+            "error": "#9d0006", "error_shadow": "#141414", "modified": "#fabd2f", "drop_shadow": "#141414",
+            "drop_shadow_text": "#665c54", "on_error": "#fbf1c7",
+        },
+    ),
+    "gruvbox-light": (
+        "Gruvbox Light -- Gruvbox's cream page and the dark forms of its accents",
+        "Gruvbox by Pavel Pertsev (github.com/morhetz/gruvbox), MIT licence. Its purple is left out: "
+        "numbers take its orange.",
+        {
+            "desktop": "#ebdbb2", "ground": "#fbf1c7", "ground_alt": "#f2e5bc", "surface": "#ebdbb2",
+            "raised": "#c9b994", "field": "#d5c4a1", "field_focus": "#ffffff", "overlay": "#ebdbb2",
+            "border": "#7c6f64", "border_dim": "#a89984", "shadow": "#a89984", "text": "#3c3836",
+            "text_dim": "#504945", "text_faint": "#7c6f64", "text_strong": "#282828", "accent": "#076678",
+            "on_accent": "#fbf1c7", "on_accent_alt": "#fabd2f", "on_accent_faint": "#83a598", "selection": "#d5c4a1",
+            "on_selection": "#282828", "hotkey": "#af3a03", "marked": "#b57614", "dir": "#076678",
+            "exec": "#79740e", "archive": "#af3a03", "image": "#427b58", "media": "#b57614",
+            "document": "#504945", "source": "#076678", "link": "#427b58", "broken": "#9d0006",
+            "temp": "#928374", "comment": "#7c6f64", "string": "#79740e", "number": "#af3a03",
+            "keyword": "#9d0006", "heading": "#076678", "symbol": "#504945", "warn": "#fbf1c7",
+            "error": "#9d0006", "error_shadow": "#1d0000", "modified": "#af3a03", "drop_shadow": "#d5c4a1",
+            "drop_shadow_text": "#7c6f64", "on_error": "#fbf1c7",
+        },
+    ),
+    "tokyo-night": (
+        "Tokyo Night -- deep navy, soft lavender-blue text, neon blues and teals",
+        "Tokyo Night by enkia (github.com/enkia/tokyo-night-vscode-theme), MIT licence. Its magenta and "
+        "purple, which colour its keywords, are left out: keywords take its cyan; and its pink-red gives "
+        "way to its deeper red.",
+        {
+            "desktop": "#16161e", "ground": "#1a1b26", "ground_alt": "#292e42", "surface": "#414868",
+            "raised": "#565f89", "field": "#363c5a", "field_focus": "#16161e", "overlay": "#1f2335",
+            "border": "#737aa2", "border_dim": "#545c7e", "shadow": "#0d0d12", "text": "#c0caf5",
+            "text_dim": "#a9b1d6", "text_faint": "#737aa2", "text_strong": "#e1e6ff", "accent": "#7aa2f7",
+            "on_accent": "#1a1b26", "on_accent_alt": "#8c2b2b", "on_accent_faint": "#3d59a1", "selection": "#33467c",
+            "on_selection": "#e1e6ff", "hotkey": "#e0af68", "marked": "#e0af68", "dir": "#e1e6ff",
+            "exec": "#9ece6a", "archive": "#ff9e64", "image": "#73daca", "media": "#e0af68",
+            "document": "#a9b1d6", "source": "#7aa2f7", "link": "#2ac3de", "broken": "#db4b4b",
+            "temp": "#565f89", "comment": "#6b74a0", "string": "#9ece6a", "number": "#ff9e64",
+            "keyword": "#7dcfff", "heading": "#7aa2f7", "symbol": "#89ddff", "warn": "#e0af68",
+            "error": "#a33a3a", "error_shadow": "#0d0d12", "modified": "#e0af68", "drop_shadow": "#0d0d12",
+            "drop_shadow_text": "#545c7e", "on_error": "#e1e6ff",
+        },
+    ),
+    "everforest-light": (
+        "Everforest Light -- a warm, low-contrast paper with muted forest greens",
+        "Everforest by sainnhe (github.com/sainnhe/everforest), MIT licence. Its purple is left out: "
+        "keywords take its red. Its yellow, green, orange and aqua are deepened a shade, as on its cream "
+        "they fell short of the contrast floor.",
+        {
+            "desktop": "#e6e2cc", "ground": "#fdf6e3", "ground_alt": "#f4f0d9", "surface": "#efebd4",
+            "raised": "#d8d3ba", "field": "#e0dcc7", "field_focus": "#ffffff", "overlay": "#efebd4",
+            "border": "#829181", "border_dim": "#a6b0a0", "shadow": "#9aa28c", "text": "#5c6a72",
+            "text_dim": "#6c7a80", "text_faint": "#829181", "text_strong": "#3a464c", "accent": "#6b7a00",
+            "on_accent": "#fdf6e3", "on_accent_alt": "#ffd666", "on_accent_faint": "#b4bf6e", "selection": "#e6e2cc",
+            "on_selection": "#3a464c", "hotkey": "#c45f12", "marked": "#9a6f00", "dir": "#2f7aa8",
+            "exec": "#5f7000", "archive": "#c45f12", "image": "#268a65", "media": "#9a6f00",
+            "document": "#6c7a80", "source": "#2f7aa8", "link": "#268a65", "broken": "#d63c39",
+            "temp": "#a6b0a0", "comment": "#939f91", "string": "#5f7000", "number": "#c45f12",
+            "keyword": "#d63c39", "heading": "#2f7aa8", "symbol": "#6c7a80", "warn": "#fdf6e3",
+            "error": "#d63c39", "error_shadow": "#7a1f1d", "modified": "#c45f12", "drop_shadow": "#dedac3",
+            "drop_shadow_text": "#829181", "on_error": "#fdf6e3",
+        },
+    ),
 }
 
 
