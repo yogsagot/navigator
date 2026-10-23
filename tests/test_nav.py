@@ -1298,6 +1298,32 @@ def test_every_theme_completes_the_scheme(tree):
         assert manager.left.style.bg is not None
 
 
+def test_every_theme_shows_an_input_line_s_selection():
+    """Selected text must stand out from the line it is in, in every theme.
+
+    A focused line is drawn in [51] and its selection in [50]; a passive one
+    the other way round.  Mixing [50]'s foreground into [51]'s background drew
+    it black on black in norton and left it identical to the line in default.
+    """
+    for theme in theme_names():
+        line = mounted(InputLine(), stylesheet=load_scheme(theme))
+        line.value = "hello world"
+        line.select_all()
+        settle()
+        passive = line.style
+        passive_selection = line.part_style("selection")
+        line.focus()
+        line.select_all()
+        settle()
+        assert line.focused
+        focused = line.style
+        selection = line.part_style("selection")
+        assert (focused.fg, focused.bg) != (passive.fg, passive.bg), theme
+        for whole, part in ((passive, passive_selection), (focused, selection)):
+            assert part.fg != part.bg, theme
+            assert (part.fg, part.bg) != (whole.fg, whole.bg), theme
+
+
 def test_the_themes_all_carry_the_same_palette():
     """Every theme must define the same variables, being the same 144 entries.
 

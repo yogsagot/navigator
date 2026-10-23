@@ -79,8 +79,8 @@ $dialog-cluster-shortcut-fg: yellow;  /*  [ 49] Cluster shortcut */
 $dialog-cluster-shortcut-bg: cyan;
 $dialog-input-normal-fg: black;       /*  [ 50] Input normal */
 $dialog-input-normal-bg: cyan;
-$dialog-input-selected-fg: cyan;      /*  [ 51] Input selected */
-$dialog-input-selected-bg: black;
+$dialog-input-selected-fg: white;     /*  [ 51] Input selected -- Navigator: white on blue, the panels' ground, rather than black; the .PAL has cyan on black */
+$dialog-input-selected-bg: blue;
 $dialog-input-arrow-fg: black;        /*  [ 52] Input arrow */
 $dialog-input-arrow-bg: cyan;
 $dialog-history-button-fg: white;     /*  [ 53] History button */

@@ -278,9 +278,15 @@ ErrorDialog StaticText#logged  { fg: $error-dialog-fg; bg: $error-dialog-bg; bol
 ErrorDialog::icon              { fg: $error-dialog-icons-fg; bg: $error-dialog-icons-bg; bold: $error-dialog-icons-bold; dim: $error-dialog-icons-dim; italic: $error-dialog-icons-italic; underline: $error-dialog-icons-underline; reverse: $error-dialog-icons-reverse }
 ErrorDialog Button::shadow     { fg: $dialog-button-shadow-fg; bg: $error-dialog-bg; bold: $dialog-button-shadow-bold; dim: $dialog-button-shadow-dim; italic: $dialog-button-shadow-italic; underline: $dialog-button-shadow-underline; reverse: $dialog-button-shadow-reverse }
 
+/* DOS Navigator's CInputLine (#19#19#20#21) gives a passive and a focused line
+ * the same slot, [50], and paints the selection in [51] whole.  Departure: a
+ * focused line is drawn in [51], so the field being typed in stands out, and
+ * its selection takes [50] whole instead -- mixing the two slots' colours drew
+ * it black on black in some themes and invisible in others. */
 InputLine             { fg: $dialog-input-normal-fg;     bg: $dialog-input-normal-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
 InputLine:focused     { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
-InputLine::selection  { fg: $dialog-input-normal-fg;     bg: $dialog-input-selected-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
+InputLine::selection  { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
+InputLine:focused::selection { fg: $dialog-input-normal-fg;     bg: $dialog-input-normal-bg; bold: $dialog-input-normal-bold; dim: $dialog-input-normal-dim; italic: $dialog-input-normal-italic; underline: $dialog-input-normal-underline; reverse: $dialog-input-normal-reverse }
 InputLine::arrow      { fg: $dialog-input-arrow-fg;      bg: $dialog-input-arrow-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
 /* Key bindings' *Press a key*: the key caught, drawn as a line being typed in. */
 KeyCatcher            { fg: $dialog-input-selected-fg;   bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }

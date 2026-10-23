@@ -80,12 +80,12 @@ $dialog-cluster-selected-fg: white;   /*  [ 48] Cluster selected */
 $dialog-cluster-selected-bg: light_gray;
 $dialog-cluster-shortcut-fg: yellow;  /*  [ 49] Cluster shortcut */
 $dialog-cluster-shortcut-bg: light_gray;
-$dialog-input-normal-fg: white;       /*  [ 50] Input normal */
-$dialog-input-normal-bg: black;
+$dialog-input-normal-fg: white;       /*  [ 50] Input normal -- Navigator: dark grey, as the buttons, rather than black; the .PAL has white on black */
+$dialog-input-normal-bg: dark_gray;
 $dialog-input-selected-fg: white;     /*  [ 51] Input selected */
 $dialog-input-selected-bg: light_blue;
-$dialog-input-arrow-fg: yellow;       /*  [ 52] Input arrow */
-$dialog-input-arrow-bg: black;
+$dialog-input-arrow-fg: yellow;       /*  [ 52] Input arrow -- Navigator: dark grey, as the buttons, rather than black; the .PAL has yellow on black */
+$dialog-input-arrow-bg: dark_gray;
 $dialog-history-button-fg: white;     /*  [ 53] History button */
 $dialog-history-button-bg: light_blue;
 $dialog-history-sides-fg: light_blue; /*  [ 54] History sides */
@@ -96,8 +96,8 @@ $dialog-history-bar-icons-fg: blue;   /*  [ 56] History bar icons */
 $dialog-history-bar-icons-bg: cyan;
 $dialog-list-normal-fg: black;        /*  [ 57] List normal */
 $dialog-list-normal-bg: cyan;
-$dialog-list-focused-fg: white;       /*  [ 58] List focused */
-$dialog-list-focused-bg: black;
+$dialog-list-focused-fg: white;       /*  [ 58] List focused -- Navigator: dark grey, as the buttons, rather than black; the .PAL has white on black */
+$dialog-list-focused-bg: dark_gray;
 $dialog-list-selected-fg: white;      /*  [ 59] List selected */
 $dialog-list-selected-bg: cyan;
 $dialog-list-divider-fg: blue;        /*  [ 60] List divider */
@@ -110,12 +110,12 @@ $dialog-tree-normal-tree-fg: black;   /*  [104] Normal tree */
 $dialog-tree-normal-tree-bg: cyan;
 $dialog-tree-normal-nodes-fg: white;  /*  [105] Normal nodes */
 $dialog-tree-normal-nodes-bg: cyan;
-$dialog-tree-selected-node-fg: white; /*  [106] Selected node */
-$dialog-tree-selected-node-bg: black;
+$dialog-tree-selected-node-fg: white; /*  [106] Selected node -- Navigator: dark grey, as the buttons, rather than black; the .PAL has white on black */
+$dialog-tree-selected-node-bg: dark_gray;
 $dialog-tree-default-node-fg: yellow; /*  [107] Default node */
 $dialog-tree-default-node-bg: cyan;
-$dialog-tree-selected-default-fg: yellow;/*  [108] Selected default */
-$dialog-tree-selected-default-bg: black;
+$dialog-tree-selected-default-fg: yellow;/*  [108] Selected default -- Navigator: dark grey, as the buttons, rather than black; the .PAL has yellow on black */
+$dialog-tree-selected-default-bg: dark_gray;
 $dialog-tree-selected-passive-fg: blue;/*  [109] Selected passive */
 $dialog-tree-selected-passive-bg: cyan;
 $dialog-tree-selected-def-passive-fg: blue;/*  [110] Selected def. passive */
