@@ -42,7 +42,7 @@ class FMSetupPage(_Component):
     button* (``[file_manager] right_button``): DN's always selected, nor *Link
     target line* (``[file_manager] link_line``): DN had no symlinks, nor *Option
     flags* (``[file_manager] show_options``): the panels' strips on their bottom
-    frames.
+    frames, nor *Git status* (``[file_manager] git_status``): DN knew no git.
     """
 
     #: The document this class was generated from.
@@ -102,14 +102,14 @@ class FMSetupPage(_Component):
         self.display.x = 37    # fm_setup_page.nml:53
         self.display.y = 2    # fm_setup_page.nml:54
         self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_page.nml:55
-        self.display.height = 5    # fm_setup_page.nml:56
+        self.display.height = 6    # fm_setup_page.nml:56
         self.display.items = _bind(    # fm_setup_page.nml:57
-            lambda _o: [_tr('Colu~m~n titles'), _tr('~I~nfo divider'), _tr('~T~ag character'), _tr('Li~n~k target line'), _tr('Option ~f~lags')],
+            lambda _o: [_tr('Colu~m~n titles'), _tr('~I~nfo divider'), _tr('~T~ag character'), _tr('Li~n~k target line'), _tr('Option ~f~lags'), _tr('Git st~a~tus')],
             yielding=True,
         )
 
         self.tag_sign.x = 37    # fm_setup_page.nml:61
-        self.tag_sign.y = 8    # fm_setup_page.nml:62
+        self.tag_sign.y = 9    # fm_setup_page.nml:62
         self.tag_sign.width = 16    # fm_setup_page.nml:63
         self.tag_sign.height = 1    # fm_setup_page.nml:64
         self.tag_sign.label_text = _bind(    # fm_setup_page.nml:65
@@ -119,7 +119,7 @@ class FMSetupPage(_Component):
         self.tag_sign.label_width = 12    # fm_setup_page.nml:66
 
         self.right_button_caption.x = 37    # fm_setup_page.nml:70
-        self.right_button_caption.y = 10    # fm_setup_page.nml:71
+        self.right_button_caption.y = 11    # fm_setup_page.nml:71
         self.right_button_caption.width = 14    # fm_setup_page.nml:72
         self.right_button_caption.height = 1    # fm_setup_page.nml:73
         self.right_button_caption.text = _bind(    # fm_setup_page.nml:74
@@ -129,7 +129,7 @@ class FMSetupPage(_Component):
         self.right_button_caption.link = _bind(lambda _o: self.right_button)    # fm_setup_page.nml:75
 
         self.right_button.x = 37    # fm_setup_page.nml:79
-        self.right_button.y = 11    # fm_setup_page.nml:80
+        self.right_button.y = 12    # fm_setup_page.nml:80
         self.right_button.width = _bind(    # fm_setup_page.nml:81
             lambda _o: max(0, _o.parent.width - 39)
         )

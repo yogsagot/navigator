@@ -446,3 +446,17 @@ $heading-fg: $color-heading;          /*  a heading in the editor and the quick 
 $heading-bg: $color-ground;
 $viewer-heading-fg: $color-heading;   /*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords */
 $viewer-heading-bg: $color-ground;
+$git-modified-fg: $color-number;      /*  a panel's git letter for a modified file -- DN knew no git; on Custom 3 */
+$git-modified-bg: $color-ground;
+$git-added-fg: $color-string;         /*  git's added -- on Custom 2 */
+$git-added-bg: $color-ground;
+$git-deleted-fg: $color-broken;       /*  git's deleted, beneath a directory -- on Custom 4 */
+$git-deleted-bg: $color-ground;
+$git-renamed-fg: $color-number;       /*  git's renamed or copied -- on Custom 3, as modified */
+$git-renamed-bg: $color-ground;
+$git-untracked-fg: $color-link;       /*  git's untracked -- on Custom 1 */
+$git-untracked-bg: $color-ground;
+$git-ignored-fg: $color-temp;         /*  git's ignored -- on Normal text, as temporaries */
+$git-ignored-bg: $color-ground;
+$git-conflict-fg: $color-broken;      /*  git's unmerged -- on Custom 4, as deleted */
+$git-conflict-bg: $color-ground;

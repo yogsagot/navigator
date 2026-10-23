@@ -406,6 +406,8 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
 #:   sockets share it as they share the slot; they are rare outside ``/dev``.
 #: * ``default`` ``keyword``: yellow, at the user's request -- the alias keeps
 #:   keywords normal text, as DN left them.
+#: * ``default`` ``git-*``: git's own colours -- yellow changed, green added,
+#:   red deleted or unmerged, light cyan untracked, faint ignored.
 #: * ``dosshell`` ``viewer-keyword``, ``viewer-comments`` and ``viewer-links``: the
 #:   viewer is black where the editor is white, so the editor's black keywords
 #:   and blue comments, which the aliases would copy, vanish there.
@@ -425,6 +427,13 @@ DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None
         "viewer-keyword": (14, None, "yellow keywords, as the editor's"),
         "heading": (14, None, "yellow, as the keywords"),
         "viewer-heading": (14, None, "yellow, as the keywords"),
+        "git-modified": (14, None, "yellow, the colour a changed file has in git's own output"),
+        "git-added": (10, None, "light green, as git's"),
+        "git-deleted": (12, None, "light red, as git's"),
+        "git-renamed": (14, None, "yellow, as modified"),
+        "git-untracked": (11, None, "light cyan"),
+        "git-ignored": (0, None, "faint, as temporaries"),
+        "git-conflict": (12, None, "light red, as deleted"),
     },
     "dosshell": {
         "viewer-keyword": (15, None, "white, as the editor's black vanishes on the viewer's black"),

@@ -154,6 +154,8 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
     # No option strips on the panels' bottom frames: the picture is of the
     # file manager DN drew, not of the switches Navigator added to it.
     SETTINGS.file_manager.show_options = False
+    # Nor git's letters and branch, whatever repository the directory is in.
+    SETTINGS.file_manager.git_status = False
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd
     # Font, and the icon gutter would be a column of replacement boxes.
     info = replace(FULL, palette=VGA_PALETTE, glyphs=GLYPHS_UNICODE)

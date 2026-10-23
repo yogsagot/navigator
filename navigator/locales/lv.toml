@@ -570,7 +570,7 @@ name = "Latviešu"
 "Paneli~z~e command..." = "Komandas izvade panel~ī~..."
 # navigator/widgets/manager/manager/manager.nml:170
 "~C~ompare directories" = "Salīdzināt direkt~o~rijas"
-# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1367
+# navigator/widgets/manager/manager/manager.nml:173, navigator/widgets/manager/panel/panel.py:1483
 "Count directory len~g~th" = "Direktoriju izmērs ~b~aitos"
 # navigator/widgets/manager/manager/manager.nml:177
 "Directory Branc~h~" = "Direktoriju ~z~ars"
@@ -578,7 +578,7 @@ name = "Latviešu"
 "Multi-rename..." = "Grupas pārdēvēšana..."
 # navigator/widgets/manager/manager/manager.nml:186
 "Undo multi-rename" = "Atsaukt grupas pārdēvēšanu"
-# navigator/widgets/manager/manager/manager.nml:194, navigator/widgets/manager/panel/panel.py:1360
+# navigator/widgets/manager/manager/manager.nml:194, navigator/widgets/manager/panel/panel.py:1476
 "E~x~tract to..." = "Izvilkt uz..."
 # navigator/widgets/manager/manager/manager.nml:198, navigator/widgets/manager/manager/manager.py:786
 "Test archive" = "Pārbaudīt arhīvu"
@@ -604,11 +604,11 @@ name = "Latviešu"
 "I~n~fo" = "~I~nformācija"
 # navigator/widgets/manager/manager/manager.nml:245
 "Quic~k~ view" = "Ātrā ~a~pskate"
-# navigator/widgets/manager/manager/manager.nml:250, navigator/widgets/manager/panel/panel.py:1372
+# navigator/widgets/manager/manager/manager.nml:250, navigator/widgets/manager/panel/panel.py:1488
 "Select grou~p~..." = "Atlasīt ~g~rupu..."
-# navigator/widgets/manager/manager/manager.nml:254, navigator/widgets/manager/panel/panel.py:1373
+# navigator/widgets/manager/manager/manager.nml:254, navigator/widgets/manager/panel/panel.py:1489
 "~U~nselect group..." = "~N~oņemt grupas atlasi..."
-# navigator/widgets/manager/manager/manager.nml:258, navigator/widgets/manager/panel/panel.py:1374
+# navigator/widgets/manager/manager/manager.nml:258, navigator/widgets/manager/panel/panel.py:1490
 "In~v~ert selection" = "In~v~ertēt atlasi"
 # navigator/widgets/manager/manager/manager.nml:262
 "Advanced filter..." = "Paplašināts filtrs..."
@@ -706,7 +706,7 @@ name = "Latviešu"
 "Date" = "Datums"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~M~eklēšana"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2087
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2250
 "Path" = "Ceļš"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~A~rhīvi"
@@ -886,6 +886,8 @@ name = "Latviešu"
 "Li~n~k target line" = "Saites ~g~alamērķis"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
 "Option ~f~lags" = "O~p~ciju karodziņi"
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:57
+"Git st~a~tus" = "Git ~m~arķējums"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:65
 "Ta~g~ sign:" = "Atl. ~z~īme:"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:74
@@ -1160,9 +1162,9 @@ name = "Latviešu"
 "~A~lternate edit" = "~A~lternatīvi rediģēt"
 # navigator/widgets/shell/main_menu/main_menu.nml:129
 "Edit ~n~ew file..." = "Rediģēt ~j~aunu failu..."
-# navigator/widgets/shell/main_menu/main_menu.nml:137, navigator/widgets/manager/panel/panel.py:1350
+# navigator/widgets/shell/main_menu/main_menu.nml:137, navigator/widgets/manager/panel/panel.py:1466
 "~C~opy..." = "~K~opēt..."
-# navigator/widgets/shell/main_menu/main_menu.nml:141, navigator/widgets/manager/panel/panel.py:1351
+# navigator/widgets/shell/main_menu/main_menu.nml:141, navigator/widgets/manager/panel/panel.py:1467
 "~R~ename/Move..." = "~P~ārdēvēt/pārvietot..."
 # navigator/widgets/shell/main_menu/main_menu.nml:147
 "~Q~uick rename..." = "Ātri pārdē~v~ēt..."
@@ -1170,11 +1172,11 @@ name = "Latviešu"
 "Cop~y~ to archive..." = "Kopēt ar~h~īvā..."
 # navigator/widgets/shell/main_menu/main_menu.nml:155
 "Ex~t~ract archive..." = "~A~tpakot arhīvu..."
-# navigator/widgets/shell/main_menu/main_menu.nml:159, navigator/widgets/manager/panel/panel.py:1352
+# navigator/widgets/shell/main_menu/main_menu.nml:159, navigator/widgets/manager/panel/panel.py:1468
 "Create ~s~ymlink..." = "Simbo~l~iskā saite..."
-# navigator/widgets/shell/main_menu/main_menu.nml:167, navigator/widgets/manager/panel/panel.py:1368
+# navigator/widgets/shell/main_menu/main_menu.nml:167, navigator/widgets/manager/panel/panel.py:1484
 "~M~ake directory" = "Izv~e~idot direktoriju"
-# navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/manager/panel/panel.py:1354
+# navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/manager/panel/panel.py:1470
 "File ~A~ttributes..." = "~F~aila atribūti..."
 # navigator/widgets/shell/main_menu/main_menu.nml:179
 "UU E~n~code..." = "UU kodē~t~..."
@@ -1512,7 +1514,7 @@ name = "Latviešu"
 "plain" = "teksts"
 # navigator/lib/highlight/__init__.py:275
 "auto" = "auto"
-# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1797
+# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:1949
 "~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
 # navigator/lib/system/diskinfo.py:160
 "Current directory:" = "Pašreizējā direktorija:"
@@ -1524,7 +1526,7 @@ name = "Latviešu"
 "~{n:,}~ byte memory for user" = ["Pieejams lietotājam: ~{n:,}~ baits", "Pieejams lietotājam: ~{n:,}~ baiti", "Pieejams lietotājam: ~{n:,}~ baitu"]
 # navigator/lib/system/diskinfo.py:193
 "~{n:,}~ byte memory for Navigator" = ["Navigator izmanto: ~{n:,}~ baits", "Navigator izmanto: ~{n:,}~ baiti", "Navigator izmanto: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1793
+# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:1945
 "No files in this directory" = "Šajā direktorijā nav failu"
 # navigator/lib/system/diskinfo.py:168
 "~{n:,}~ file with {total}" = ["~{n:,}~ fails, {total}", "~{n:,}~ faili, {total}", "~{n:,}~ failu, {total}"]
@@ -1578,23 +1580,23 @@ name = "Latviešu"
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- skatītājs (DN dlgEditorDefaults)"
 # navigator/settings.py:534
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Iestatījumi > Failu pārvaldnieks > Iestatīšana (DN dlgFMSetup)"
-# navigator/settings.py:589
+# navigator/settings.py:594
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
-# navigator/settings.py:642
+# navigator/settings.py:647
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:676
+# navigator/settings.py:681
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:721
+# navigator/settings.py:726
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:736
+# navigator/settings.py:741
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:768
+# navigator/settings.py:773
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Iestatījumi > Konfigurācija > Valsts formāti (DN dlgCountrySetup)"
-# navigator/settings.py:792
+# navigator/settings.py:797
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:807
+# navigator/settings.py:812
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:836
+# navigator/settings.py:841
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:31, navigator/widgets/manager/manager/manager.py:721
 "Reading archive" = "Lasa arhīvu"
@@ -1868,7 +1870,7 @@ name = "Latviešu"
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:88
 "{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101, navigator/widgets/manager/panel/panel.py:1819, navigator/widgets/tree/directory_tree/directory_tree.py:247
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101, navigator/widgets/manager/panel/panel.py:1971, navigator/widgets/tree/directory_tree/directory_tree.py:247
 "{n:,} byte" = ["{n:,} baits", "{n:,} baiti", "{n:,} baitu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:81
 "File ~{name}~" = "Fails ~{name}~"
@@ -2014,7 +2016,7 @@ name = "Latviešu"
 "Ren" = "Pārdēv"
 # navigator/widgets/manager/commands.py:75
 "SymLnk" = "Saite"
-# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2084
+# navigator/widgets/manager/commands.py:87, navigator/widgets/manager/panel/panel.py:2247
 "Attr" = "Atrib."
 # navigator/widgets/manager/commands.py:91
 "MkDir" = "JaunDir"
@@ -2162,39 +2164,39 @@ name = "Latviešu"
 "Hid" = "Slēpt"
 # navigator/widgets/manager/panel/option_items.py:29
 "Detailed" = "Detalizēts"
-# navigator/widgets/manager/panel/panel.py:1820
+# navigator/widgets/manager/panel/panel.py:1972
 "~{total} in {n}~ selected file" = ["~{total} {n}~ atlasītā failā", "~{total} {n}~ atlasītos failos", "~{total} {n}~ atlasītos failos"]
-# navigator/widgets/manager/panel/panel.py:1378
+# navigator/widgets/manager/panel/panel.py:1494
 "~I~nsert name" = "~I~evietot nosaukumu"
-# navigator/widgets/manager/panel/panel.py:1379
+# navigator/widgets/manager/panel/panel.py:1495
 "Insert pa~t~h" = "Ievietot ~c~eļu"
-# navigator/widgets/manager/panel/panel.py:1817
+# navigator/widgets/manager/panel/panel.py:1969
 "No files selected" = "Nav atlasītu failu"
-# navigator/widgets/manager/panel/panel.py:1172
+# navigator/widgets/manager/panel/panel.py:1288
 "Search:" = "Meklēt:"
-# navigator/widgets/manager/panel/panel.py:1341
+# navigator/widgets/manager/panel/panel.py:1457
 "Go to ~f~ile" = "Pāriet ~u~z failu"
-# navigator/widgets/manager/panel/panel.py:1342
+# navigator/widgets/manager/panel/panel.py:1458
 "Show in ~o~ther panel" = "Rādīt ~o~trā panelī"
-# navigator/widgets/manager/panel/panel.py:1346
+# navigator/widgets/manager/panel/panel.py:1462
 "Vie~w~" = "~S~katīt"
-# navigator/widgets/manager/panel/panel.py:1361
+# navigator/widgets/manager/panel/panel.py:1477
 "Test arc~h~ive" = "Pārbaudīt ar~h~īvu"
-# navigator/widgets/manager/panel/panel.py:1798
+# navigator/widgets/manager/panel/panel.py:1950
 "Total: ~{n:,}~ file with {total}" = ["Kopā: ~{n:,}~ fails, {total}", "Kopā: ~{n:,}~ faili, {total}", "Kopā: ~{n:,}~ failu, {total}"]
-# navigator/widgets/manager/panel/panel.py:1807
+# navigator/widgets/manager/panel/panel.py:1959
 "~{n:,}~ free byte on ~{mount}" = ["Brīvs: ~{n:,}~ baits uz ~{mount}", "Brīvs: ~{n:,}~ baiti uz ~{mount}", "Brīvs: ~{n:,}~ baitu uz ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:2052
+# navigator/widgets/manager/panel/panel.py:2214
 "Reading directory..." = "Lasa direktoriju..."
-# navigator/widgets/manager/panel/panel.py:2080, navigator/widgets/shell/volume_list/volume_list.py:112
+# navigator/widgets/manager/panel/panel.py:2243, navigator/widgets/shell/volume_list/volume_list.py:112
 "Name" = "Vārds"
-# navigator/widgets/manager/panel/panel.py:2082, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2245, navigator/lib/drives/base.py
 "Packed" = "Saspiests"
-# navigator/widgets/manager/panel/panel.py:2083
+# navigator/widgets/manager/panel/panel.py:2246
 "%" = "%"
-# navigator/widgets/manager/panel/panel.py:1364
+# navigator/widgets/manager/panel/panel.py:1480
 "E~x~tract archive..." = "~A~tpakot arhīvu..."
-# navigator/widgets/manager/panel/panel.py:1809
+# navigator/widgets/manager/panel/panel.py:1961
 "~{size}~ free on ~{mount}" = "~{size}~ brīvi uz ~{mount}"
 # navigator/widgets/setup/country_page/country_page.py:30
 "Example: {stamp}" = "Piemērs: {stamp}"
@@ -2722,6 +2724,20 @@ name = "Latviešu"
 "Headings" = "Virsraksti"
 # navigator/lib/appearance/palette.py
 "Viewer headings" = "Skatītāja virsraksti"
+# navigator/lib/appearance/palette.py
+"Git: modified" = "Git: mainīts"
+# navigator/lib/appearance/palette.py
+"Git: added" = "Git: pievienots"
+# navigator/lib/appearance/palette.py
+"Git: deleted" = "Git: dzēsts"
+# navigator/lib/appearance/palette.py
+"Git: renamed" = "Git: pārdēvēts"
+# navigator/lib/appearance/palette.py
+"Git: untracked" = "Git: neizsekots"
+# navigator/lib/appearance/palette.py
+"Git: ignored" = "Git: ignorēts"
+# navigator/lib/appearance/palette.py
+"Git: conflict" = "Git: konflikts"
 # navigator/lib/config/keybindings.py
 "Global" = "Globāli"
 # navigator/lib/config/keybindings.py

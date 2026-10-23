@@ -228,3 +228,10 @@ $viewer-keyword-bold: inherit; $viewer-keyword-dim: inherit; $viewer-keyword-ita
 $viewer-links-bold: inherit; $viewer-links-dim: inherit; $viewer-links-italic: inherit; $viewer-links-underline: inherit; $viewer-links-reverse: inherit;
 $heading-bold: inherit; $heading-dim: inherit; $heading-italic: inherit; $heading-underline: inherit; $heading-reverse: inherit;
 $viewer-heading-bold: inherit; $viewer-heading-dim: inherit; $viewer-heading-italic: inherit; $viewer-heading-underline: inherit; $viewer-heading-reverse: inherit;
+$git-modified-bold: inherit; $git-modified-dim: inherit; $git-modified-italic: inherit; $git-modified-underline: inherit; $git-modified-reverse: inherit;
+$git-added-bold: inherit; $git-added-dim: inherit; $git-added-italic: inherit; $git-added-underline: inherit; $git-added-reverse: inherit;
+$git-deleted-bold: inherit; $git-deleted-dim: inherit; $git-deleted-italic: inherit; $git-deleted-underline: inherit; $git-deleted-reverse: inherit;
+$git-renamed-bold: inherit; $git-renamed-dim: inherit; $git-renamed-italic: inherit; $git-renamed-underline: inherit; $git-renamed-reverse: inherit;
+$git-untracked-bold: inherit; $git-untracked-dim: inherit; $git-untracked-italic: inherit; $git-untracked-underline: inherit; $git-untracked-reverse: inherit;
+$git-ignored-bold: inherit; $git-ignored-dim: inherit; $git-ignored-italic: inherit; $git-ignored-underline: inherit; $git-ignored-reverse: inherit;
+$git-conflict-bold: inherit; $git-conflict-dim: inherit; $git-conflict-italic: inherit; $git-conflict-underline: inherit; $git-conflict-reverse: inherit;

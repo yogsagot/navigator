@@ -49,7 +49,7 @@ from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see lis
     DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries,
     read_listing, restat_found, scan_directory,
 )
-from navigator.lib.system import dirwatch
+from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
 from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
@@ -337,6 +337,11 @@ class Panel(ContextMenuHost, ListViewer):
     #: this clamped to what the longest name needs.  Back to 0 on a change of
     #: directory or of mode.
     name_scroll: int = reactive(0)
+    #: What git says of the directory shown (:mod:`navigator.lib.system.gitstatus`):
+    #: a letter per entry and the branch for the title, or None outside a
+    #: work tree, off the local disk, over a *Find:* listing, or with File
+    #: Manager Setup's *Git status* off.  A departure: DN knew no git.
+    git: Any = reactive(None)
 
     #: ``simple``: name and size.  ``detailed``: name, size, permissions and
     #: date in columns.  ``list``: names alone, in as many columns as fit.
@@ -345,7 +350,7 @@ class Panel(ContextMenuHost, ListViewer):
     #: ``heading`` is the column-titles row the detailed and list modes draw.
     parts = ListViewer.parts + (
         "heading", "current-file", "selected-files", "selected-files-numbers",
-        "totals", "totals-numbers", "free-space", "free-space-numbers",
+        "totals", "totals-numbers", "free-space", "free-space-numbers", "git",
     )
 
     def __init__(self, path: Path | None = None, **kwargs: Any):
@@ -394,6 +399,17 @@ class Panel(ContextMenuHost, ListViewer):
         #: writing into this directory -- a change per block written -- from
         #: costing the loop a wake-up per block.
         self._heard = False
+        #: Counts the git reads started, so one that lands after a later one
+        #: was asked for is dropped.
+        self._git_generation = 0
+        #: The git directory being watched for the user's ``git add``,
+        #: ``commit`` and ``checkout`` -- which change it and not the directory
+        #: shown -- the read again a change asked for, and whether the
+        #: watcher's thread has told the loop already, as for :attr:`_watch`.
+        self._git_watch: dirwatch.Watch | None = None
+        self._git_watched: Path | None = None
+        self._git_refresh: asyncio.TimerHandle | None = None
+        self._git_heard = False
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
@@ -458,9 +474,12 @@ class Panel(ContextMenuHost, ListViewer):
         effect(self, Panel._follow_column_titles)
         effect(self, Panel._watch_directory)
         effect(self, Panel._hold_archive)
+        effect(self, Panel._follow_git)
+        effect(self, Panel._watch_git)
 
     def unmounting(self) -> None:
         self._stop_watching()
+        self._stop_watching_git()
         self._let_go_of_archive()
         super().unmounting()
 
@@ -554,6 +573,101 @@ class Panel(ContextMenuHost, ListViewer):
         app = self.application
         if app is not None:
             app.post_event(WakeEvent())
+
+    # -- git -----------------------------------------------------------------
+
+    def _follow_git(self) -> None:
+        """Read git again whenever a listing lands -- every re-read, Ctrl+R,
+        an auto refresh -- or File Manager Setup's *Git status* changes.
+
+        After the listing rather than in its read, so a slow ``git status``
+        never holds the listing up.  Only the local disk outside an archive,
+        never a *Find:* listing.  With no application it reads nothing, as
+        :meth:`_watch_directory` watches nothing, so model tests stay
+        deterministic; before the loop runs it waits for the read.
+        """
+        _ = self.items  # read for the dependency: replaced by every read landed
+        _ = self.error, self.found, self.location, self.scanning
+        _ = SETTINGS.file_manager.git_status
+        with untracked():
+            self._read_git()
+
+    def _read_git(self) -> None:
+        """Start a read of git for the directory shown, or say there is none."""
+        self._git_generation += 1
+        generation = self._git_generation
+        location = self.location
+        app = self.application
+        if self.scanning:
+            return  # the listing's landing reads again
+        if (app is None or not SETTINGS.file_manager.git_status
+                or not location.is_local or location.outer is not None
+                or self.found is not None or self.error is not None):
+            self.git = None
+            return
+        future = _SCANNER.submit(gitstatus.read, location.local)
+        if not app.is_running:
+            # Navigator's first listing, before the loop starts: waited for,
+            # as the listing itself is (:meth:`_rescan`).
+            self.git = future.result()
+            return
+        app.spawn(self._await_git(generation, location, future))
+
+    async def _await_git(self, generation: int, location: Location,
+                         future: concurrent.futures.Future[Any]) -> None:
+        state = await asyncio.wrap_future(future)
+        if generation != self._git_generation or self.location != location:
+            return  # read again, or somewhere else, since
+        self.git = state
+        app = self.application
+        if app is not None:
+            app.post_event(WakeEvent())
+
+    def _watch_git(self) -> None:
+        """Watch the git directory while *Auto refresh panels* is on: the
+        user's ``git add`` changes the index there, not the directory shown."""
+        git = self.git
+        wanted = git.git_dir if git is not None and SETTINGS.file_manager.auto_refresh else None
+        with untracked():
+            if wanted == self._git_watched:
+                return
+            self._stop_watching_git()
+            app = self.application
+            if wanted is None or app is None:
+                return
+            self._git_watched = wanted
+            self._git_watch = dirwatch.watch(wanted, lambda: self._heard_git(app))
+
+    def _heard_git(self, app: Any) -> None:
+        """On the watcher's thread: tell the loop, unless it has been told already."""
+        if self._git_heard:
+            return
+        self._git_heard = True
+        app.call_from_thread(self._git_changed)
+
+    def _git_changed(self) -> None:
+        """The git directory changed: read git again once the burst is over."""
+        if self._git_watch is None or self._git_refresh is not None:
+            return
+        self._git_refresh = asyncio.get_running_loop().call_later(REFRESH_DELAY, self._git_refresh_now)
+
+    def _git_refresh_now(self) -> None:
+        self._git_refresh = None
+        if self._git_watch is None:
+            return
+        # Before the read, so a change made while it runs asks for another.
+        self._git_heard = False
+        self._read_git()
+
+    def _stop_watching_git(self) -> None:
+        if self._git_watch is not None:
+            self._git_watch.cancel()
+            self._git_watch = None
+        if self._git_refresh is not None:
+            self._git_refresh.cancel()
+            self._git_refresh = None
+        self._git_watched = None
+        self._git_heard = False
 
     # -- the listing ---------------------------------------------------------
 
@@ -667,6 +781,8 @@ class Panel(ContextMenuHost, ListViewer):
             marked = frozenset()
             self.quick_search = None
             self.name_scroll = 0
+            # The last directory's letters are not this one's names'.
+            self.git = None
         elif marked:
             marked &= {entry.key for entry in entries}
         self.marked = marked
@@ -1558,7 +1674,7 @@ class Panel(ContextMenuHost, ListViewer):
         run past the right edge and be clipped.
         """
         rows, inner, inset = self.rows, self.inner_width, self.inset
-        items, gutter = self.items, self.gutter
+        items, gutter = self.items, self.gutter + self.git_cells
         if not rows or inner <= 0:
             return ()
         cap = inner if len(items) - self.scroll <= rows else max(1, (inner - 1) // 2)
@@ -1638,7 +1754,7 @@ class Panel(ContextMenuHost, ListViewer):
             width = columns[0][2] if columns else 0
         else:
             width = max(1, self.name_width)
-        return max(0, width - self.gutter)
+        return max(0, width - self.gutter - self.git_cells)
 
     @computed
     def max_name_scroll(self) -> int:
@@ -1689,6 +1805,32 @@ class Panel(ContextMenuHost, ListViewer):
         """
         return 2 if self.show_icons else 1
 
+    #: The cells a git letter takes at the end of a name: a blank, it, and a
+    #: blank keeping it off the column divider.
+    GIT_CELLS = 3
+
+    @property
+    def git_cells(self) -> int:
+        """:data:`GIT_CELLS` while the directory shown is in a work tree, else none."""
+        return self.GIT_CELLS if self.git is not None else 0
+
+    def git_mark(self, item: DirEntry) -> str:
+        """*item*'s letter (:mod:`navigator.lib.system.gitstatus`), or a blank."""
+        git = self.git
+        if git is None or item.name == ".." or item.directory is not None:
+            return " "
+        return git.marks.get(item.name, " ")
+
+    def git_text(self) -> str:
+        """The branch for the title, with how far it is ahead of and behind
+        its upstream (``master ↑2↓1``), or ``""`` outside a work tree."""
+        git = self.git
+        if git is None or not git.branch:
+            return ""
+        up, down = ("^", "v") if self.glyphs <= glyphs_module.GLYPHS_ASCII else ("\u2191", "\u2193")
+        counts = (f"{up}{git.ahead}" if git.ahead else "") + (f"{down}{git.behind}" if git.behind else "")
+        return f"{git.branch} {counts}" if counts else git.branch
+
     @property
     def title_location(self) -> str:
         """What the title names the directory by: its path on the disk, and
@@ -1715,6 +1857,10 @@ class Panel(ContextMenuHost, ListViewer):
         nothing of a mask, and a panel that hides files without saying so
         reads as a directory that lacks them.  The path gives way first; the
         mask is cut only when the bracket alone would not fit.
+
+        **In a git work tree the branch follows** (:meth:`git_text`), also
+        not DN's: it is dropped before the path would be cut under
+        :data:`MIN_NAME_WIDTH` cells to keep it.
         """
         title = self.found.title if self.found is not None else self.title_location
         mask = self.file_mask.strip()
@@ -1722,9 +1868,16 @@ class Panel(ContextMenuHost, ListViewer):
         room = max(4, self.width - 4 - 2 * self.title_margin)
         if suffix and len(suffix) > room - 4:
             suffix = suffix[: max(0, room - 8)] + "...]" if room > 12 else ""
-        space = room - len(suffix)
+        # The branch goes before the mask does, once the path would be cut
+        # under a dozen cells to keep it.
+        branch = self.git_text()
+        if branch:
+            branch = f"  {branch}"
+            if room - len(suffix) - len(branch) < min(len(title), self.MIN_NAME_WIDTH):
+                branch = ""
+        space = room - len(suffix) - len(branch)
         title = self._cut_start(title, space)
-        return f" {title}{suffix} "
+        return f" {title}{suffix}{branch} "
 
     def footer_text(self) -> str:
         """What a search has typed, while it is searching; else nothing --
@@ -1999,11 +2152,14 @@ class Panel(ContextMenuHost, ListViewer):
         return text[-room:] if room > 0 else ""
 
     def _draw_name(self, surface: Surface, x: int, y: int, width: int,
-                   item: DirEntry, style: Style, offset: int = 0) -> None:
-        """The tag, the icon or the type mark, and the name, in *width* cells.
+                   item: DirEntry, style: Style, offset: int = 0, selected: bool = False) -> None:
+        """The tag, the icon or the type mark, the name, and in a work tree
+        its git letter, in *width* cells.
 
         A tag takes the gutter over whichever of the other two it would hold:
-        the colour says *tagged* too, but not on a monochrome terminal.
+        the colour says *tagged* too, but not on a monochrome terminal.  The
+        letter stands a cell before the end, in its own colour (``Panel::git``) except
+        under the cursor bar, whose colours keep it readable.
         """
         gutter = min(self.gutter, width)
         if gutter:
@@ -2017,8 +2173,14 @@ class Panel(ContextMenuHost, ListViewer):
             else:
                 mark = item.type_mark
             surface.draw_text(x, y, mark, style, gutter)
-        if width > gutter:
-            room = width - gutter
+        git = self.git_cells if width > gutter + self.git_cells else 0
+        if git:
+            mark = self.git_mark(item)
+            letter = style if selected or mark == " " else self.part_style(
+                "git", classes=(gitstatus.CLASSES.get(mark, "modified"),))
+            surface.draw_text(x + width - 2, y, mark, letter, 1)
+        if width > gutter + git:
+            room = width - gutter - git
             name = window_text(item.name, offset, room, self.ellipsis)
             surface.draw_text(x + gutter, y, name, style, room)
 
@@ -2028,7 +2190,7 @@ class Panel(ContextMenuHost, ListViewer):
             selected = self.row_selected(index)
             for key, x, width in self.detail_columns:
                 if key == "name":
-                    self._draw_name(surface, x, y, width, item, style, self.name_offset)
+                    self._draw_name(surface, x, y, width, item, style, self.name_offset, selected)
                     continue
                 if selected:
                     # The cursor bar covers the dividers; draw them back in it.
@@ -2040,7 +2202,8 @@ class Panel(ContextMenuHost, ListViewer):
             return
         # Still an explicit limit: the name stops where the size column
         # begins, which is nearer than the edge the surface would clip at.
-        self._draw_name(surface, 1, y, max(1, self.name_width), item, style, self.name_offset)
+        self._draw_name(surface, 1, y, max(1, self.name_width), item, style, self.name_offset,
+                        self.row_selected(index))
         surface.draw_text(self.width - 9, y, item.display_size, style, 8)
 
     def render(self, surface: Surface) -> None:
@@ -2068,9 +2231,10 @@ class Panel(ContextMenuHost, ListViewer):
                     break
                 item = items[index]
                 style = self.row_style(index, item)
-                if self.row_selected(index):
+                selected = self.row_selected(index)
+                if selected:
                     surface.fill(x, top + row, width, 1, " ", style)
-                self._draw_name(surface, x, top + row, width, item, style)
+                self._draw_name(surface, x, top + row, width, item, style, selected=selected)
 
     @staticmethod
     def heading(key: str) -> str:

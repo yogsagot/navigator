@@ -17,7 +17,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: button* (``[file_manager] right_button``): DN's always selected, nor *Link
 #: target line* (``[file_manager] link_line``): DN had no symlinks, nor *Option
 #: flags* (``[file_manager] show_options``): the panels' strips on their bottom
-#: frames.
+#: frames, nor *Git status* (``[file_manager] git_status``): DN knew no git.
 FMSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -53,13 +53,13 @@ FMSetupPage:
         x: 37
         y: 2
         width: max(0, parent.width - 39)
-        height: 5
-        items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character", "Li~n~k target line", "Option ~f~lags"]
+        height: 6
+        items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character", "Li~n~k target line", "Option ~f~lags", "Git st~a~tus"]
 
     Field:
         id: tag_sign
         x: 37
-        y: 8
+        y: 9
         width: 16
         height: 1
         label_text: "Ta~g~ sign:"
@@ -68,7 +68,7 @@ FMSetupPage:
     Label:
         id: right_button_caption
         x: 37
-        y: 10
+        y: 11
         width: 14
         height: 1
         text: "Right button"
@@ -77,7 +77,7 @@ FMSetupPage:
     RadioButtons:
         id: right_button
         x: 37
-        y: 11
+        y: 12
         width: max(0, parent.width - 39)
         height: 2
         items: ["Conte~x~t menu", "Se~l~ect files"]

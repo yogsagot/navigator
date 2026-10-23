@@ -539,6 +539,7 @@ class FMSetupData(Section):
     )
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "column_titles", "info_divider", "tag_character", "link_line", "show_options",
+        "git_status",
     )
 
     auto_change_dir: bool = Setting(True, doc="The panel follows the tree's cursor once it rests")
@@ -570,6 +571,10 @@ class FMSetupData(Section):
     #: Not DN's either, as the editor's and viewer's strips are not.
     show_options: bool = Setting(
         True, doc="A panel's bottom frame shows its options, lit while on; a click switches one",
+    )
+    #: Not DN's, which knew no git (navigator.lib.system.gitstatus).
+    git_status: bool = Setting(
+        True, doc="In a git work tree, each file's status and the branch in the panel title",
     )
     tag_sign: str = Setting("√", doc="Tag sign; empty means √")
     #: Not DN's choice to make: its right button always selected

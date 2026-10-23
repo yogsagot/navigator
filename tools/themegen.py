@@ -479,6 +479,10 @@ DERIVED_ROLES: dict[str, tuple[str, str]] = {
     "viewer-strings": ("string", "ground"), "viewer-numbers": ("number", "ground"),
     "viewer-keyword": ("keyword", "ground"), "viewer-links": ("accent", "ground"),
     "heading": ("heading", "ground"), "viewer-heading": ("heading", "ground"),
+    "git-modified": ("number", "ground"), "git-added": ("string", "ground"),
+    "git-deleted": ("broken", "ground"), "git-renamed": ("number", "ground"),
+    "git-untracked": ("link", "ground"), "git-ignored": ("temp", "ground"),
+    "git-conflict": ("broken", "ground"),
 }
 
 assert set(SLOT_ROLES) == {slot.name for slot in SLOTS}, set(SLOT_ROLES) ^ {slot.name for slot in SLOTS}

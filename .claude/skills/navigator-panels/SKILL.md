@@ -56,6 +56,36 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   `Panel.unmounting()` cancels the watch, `Navigator.on_stop` calls `dirwatch.shutdown()`, and so does an autouse
   fixture in `tests/conftest.py`, because each watch holds an inotify instance and a user gets 128 of them.
 
+## Git status (`[file_manager] git_status`)
+
+A departure (asked for): DN knew no git. In a work tree, each row ends in a letter, and the title names the branch.
+- **The letters** are `M` modified, `A` added, `D` deleted, `R` renamed or copied, `?` untracked, `!` ignored and `U`
+  unmerged. A directory takes the strongest letter beneath it (`gitstatus.PRIORITY`, `U M D R A ?`). An ignored file
+  inside says nothing of its directory.
+- **Where the letter goes**: it sits in the middle of `Panel.GIT_CELLS` (3: a blank, the letter, a blank keeping it
+  off the column divider) at the end of the name's cells, in every view mode (`_draw_name`). `name_room` and `list_columns` give those cells up while `git` is
+  set.
+- **Colours**: the letter is coloured by `Panel::git.<class>` (`gitstatus.CLASSES`), the `git-*` `DERIVED` entries.
+  Under the cursor bar it takes the row's own colours.
+- **The title** reads `path [mask]  branch ↑N↓M` (`git_text`; `^`/`v` at the ASCII tier). A detached HEAD shows a
+  7-character commit. The branch is dropped before the path would be cut under `MIN_NAME_WIDTH` cells.
+- **How it is read**: `navigator/lib/system/gitstatus.py`'s `read` runs `git rev-parse` and then
+  `git status --porcelain=v2 -z --branch --ignored=matching -- .` on `_SCANNER`. The result is `Panel.git`, a
+  `GitState`, or None.
+  - It runs with **`GIT_OPTIONAL_LOCKS=0`**, so a read never writes the index. Without it, a read would take the
+    user's `index.lock`, and its own write would set off the `.git` watch below, for ever.
+- **When it is read**:
+  - **After a listing lands, never inside the scan**: `_follow_git` is an effect on `items`, `error`, `found`,
+    `location`, `scanning` and the setting. This way a slow `git status` never holds up a listing.
+  - It runs only for the local disk outside an archive, and never for a *Find:* listing. With no application it
+    reads nothing; before the loop runs it waits for the read, as the first listing does.
+  - A change of directory clears `git` in `_apply`, so the last directory's letters never land on new names.
+- **The `.git` watch**: `git add`/`commit`/`checkout` change the git directory and not the directory shown.
+  `_watch_git` therefore watches `GitState.git_dir` (non-recursive: index and HEAD) under *Auto refresh panels*, and
+  reads git again after `REFRESH_DELAY`. It uses the same one-shot hop to the loop as the directory watch.
+  An edit in a subdirectory the panel does not show is heard only by Ctrl+R or the next listing.
+- **The setting** is File Manager Setup's sixth *Display* box. The README screenshot turns it off.
+
 ## View modes (Ctrl+Y, DN's `cmToggleShowMode`)
 
 Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu entry DN never had).

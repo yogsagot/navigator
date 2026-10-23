@@ -106,6 +106,16 @@ Panel::row.stale-link { fg: $stale-link-fg; bg: $stale-link-bg; bold: $stale-lin
 Panel::row.device     { fg: $device-fg;     bg: $device-bg; bold: $device-bold; dim: $device-dim; italic: $device-italic; underline: $device-underline; reverse: $device-reverse }
 Panel::row.special    { fg: $special-fg;    bg: $special-bg; bold: $special-bold; dim: $special-dim; italic: $special-italic; underline: $special-underline; reverse: $special-reverse }
 
+/* The git letter at the end of a name in a work tree (navigator.lib.system.gitstatus):
+   not DN's, which knew no git.  Under the cursor bar it takes the row's colours. */
+Panel::git.modified   { fg: $git-modified-fg; bg: $git-modified-bg; bold: $git-modified-bold; dim: $git-modified-dim; italic: $git-modified-italic; underline: $git-modified-underline; reverse: $git-modified-reverse }
+Panel::git.added      { fg: $git-added-fg; bg: $git-added-bg; bold: $git-added-bold; dim: $git-added-dim; italic: $git-added-italic; underline: $git-added-underline; reverse: $git-added-reverse }
+Panel::git.deleted    { fg: $git-deleted-fg; bg: $git-deleted-bg; bold: $git-deleted-bold; dim: $git-deleted-dim; italic: $git-deleted-italic; underline: $git-deleted-underline; reverse: $git-deleted-reverse }
+Panel::git.renamed    { fg: $git-renamed-fg; bg: $git-renamed-bg; bold: $git-renamed-bold; dim: $git-renamed-dim; italic: $git-renamed-italic; underline: $git-renamed-underline; reverse: $git-renamed-reverse }
+Panel::git.untracked  { fg: $git-untracked-fg; bg: $git-untracked-bg; bold: $git-untracked-bold; dim: $git-untracked-dim; italic: $git-untracked-italic; underline: $git-untracked-underline; reverse: $git-untracked-reverse }
+Panel::git.ignored    { fg: $git-ignored-fg; bg: $git-ignored-bg; bold: $git-ignored-bold; dim: $git-ignored-dim; italic: $git-ignored-italic; underline: $git-ignored-underline; reverse: $git-ignored-reverse }
+Panel::git.conflict   { fg: $git-conflict-fg; bg: $git-conflict-bg; bold: $git-conflict-bold; dim: $git-conflict-dim; italic: $git-conflict-italic; underline: $git-conflict-underline; reverse: $git-conflict-reverse }
+
 Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg; bold: $cursor-bold; dim: $cursor-dim; italic: $cursor-italic; underline: $cursor-underline; reverse: $cursor-reverse }
 
 /* A tagged entry (Insert): `[87] Selected text', and under the cursor `[89]

@@ -405,6 +405,20 @@ $heading-fg: yellow;                  /*  a heading in the editor and the quick 
 $heading-bg: $editor-normal-text-bg;
 $viewer-heading-fg: yellow;           /*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] -- Navigator: yellow, as the keywords */
 $viewer-heading-bg: $editor-normal-text-bg;
+$git-modified-fg: yellow;             /*  a panel's git letter for a modified file -- DN knew no git; on Custom 3 [177] -- Navigator: yellow, the colour a changed file has in git's own output */
+$git-modified-bg: $highlight-custom-3-bg;
+$git-added-fg: light_green;           /*  git's added -- on Custom 2 [176] -- Navigator: light green, as git's */
+$git-added-bg: $highlight-custom-2-bg;
+$git-deleted-fg: light_red;           /*  git's deleted, beneath a directory -- on Custom 4 [180] -- Navigator: light red, as git's */
+$git-deleted-bg: $highlight-custom-4-bg;
+$git-renamed-fg: yellow;              /*  git's renamed or copied -- on Custom 3, as modified [177] -- Navigator: yellow, as modified */
+$git-renamed-bg: $highlight-custom-3-bg;
+$git-untracked-fg: light_cyan;        /*  git's untracked -- on Custom 1 [175] -- Navigator: light cyan */
+$git-untracked-bg: $highlight-custom-1-bg;
+$git-ignored-fg: black;               /*  git's ignored -- on Normal text, as temporaries [85] -- Navigator: faint, as temporaries */
+$git-ignored-bg: $panel-bg;
+$git-conflict-fg: light_red;          /*  git's unmerged -- on Custom 4, as deleted [180] -- Navigator: light red, as deleted */
+$git-conflict-bg: $highlight-custom-4-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

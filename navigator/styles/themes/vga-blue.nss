@@ -417,6 +417,20 @@ $heading-fg: $editor-normal-text-fg;  /*  a heading in the editor and the quick 
 $heading-bg: $editor-normal-text-bg;
 $viewer-heading-fg: $editor-normal-text-fg;/*  a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords [76] */
 $viewer-heading-bg: $editor-normal-text-bg;
+$git-modified-fg: $highlight-custom-3-fg;/*  a panel's git letter for a modified file -- DN knew no git; on Custom 3 [177] */
+$git-modified-bg: $highlight-custom-3-bg;
+$git-added-fg: $highlight-custom-2-fg;/*  git's added -- on Custom 2 [176] */
+$git-added-bg: $highlight-custom-2-bg;
+$git-deleted-fg: $highlight-custom-4-fg;/*  git's deleted, beneath a directory -- on Custom 4 [180] */
+$git-deleted-bg: $highlight-custom-4-bg;
+$git-renamed-fg: $highlight-custom-3-fg;/*  git's renamed or copied -- on Custom 3, as modified [177] */
+$git-renamed-bg: $highlight-custom-3-bg;
+$git-untracked-fg: $highlight-custom-1-fg;/*  git's untracked -- on Custom 1 [175] */
+$git-untracked-bg: $highlight-custom-1-bg;
+$git-ignored-fg: $panel-fg;           /*  git's ignored -- on Normal text, as temporaries [85] */
+$git-ignored-bg: $panel-bg;
+$git-conflict-fg: $highlight-custom-4-fg;/*  git's unmerged -- on Custom 4, as deleted [180] */
+$git-conflict-bg: $highlight-custom-4-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

@@ -27,7 +27,11 @@ def spooler(monkeypatch):
     jobs = []
     answer = {"code": 0, "stderr": b""}
 
+    real = subprocess.run
+
     def run(argv, input=None, **kwargs):
+        if argv[0] == "git":  # a panel's git status, not a print job
+            return real(argv, input=input, **kwargs)
         jobs.append(argv)
         return subprocess.CompletedProcess(argv, answer["code"], b"", answer["stderr"])
 

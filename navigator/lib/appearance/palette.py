@@ -240,6 +240,13 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "viewer-links": (114, "the viewer's links and bullets -- on its Frame icons"),
     "heading": (76, "a heading in the editor and the quick view -- on Normal text, as the keywords"),
     "viewer-heading": (76, "a heading in the viewer, the Markdown view's too -- on the editor's Normal text, as the viewer's keywords"),
+    "git-modified": (177, "a panel's git letter for a modified file -- DN knew no git; on Custom 3"),
+    "git-added": (176, "git's added -- on Custom 2"),
+    "git-deleted": (180, "git's deleted, beneath a directory -- on Custom 4"),
+    "git-renamed": (177, "git's renamed or copied -- on Custom 3, as modified"),
+    "git-untracked": (175, "git's untracked -- on Custom 1"),
+    "git-ignored": (85, "git's ignored -- on Normal text, as temporaries"),
+    "git-conflict": (180, "git's unmerged -- on Custom 4, as deleted"),
 }
 
 
@@ -291,6 +298,13 @@ DERIVED_ITEMS = {
     "viewer-links": "Viewer links",
     "heading": "Headings",
     "viewer-heading": "Viewer headings",
+    "git-modified": "Git: modified",
+    "git-added": "Git: added",
+    "git-deleted": "Git: deleted",
+    "git-renamed": "Git: renamed",
+    "git-untracked": "Git: untracked",
+    "git-ignored": "Git: ignored",
+    "git-conflict": "Git: conflict",
 }
 
 #: Where the Colors dialog keeps the user's palettes, in the configuration
