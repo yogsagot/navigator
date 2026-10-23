@@ -444,7 +444,7 @@ name = "Русский"
 "~L~evel up" = "~У~ровень выше"
 # navigator/widgets/game/game_window/game_window.nml:107, navigator/widgets/game/game_window/game_window.py:201
 "Pre~v~iew" = "~С~ледующая фигура"
-# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:87, navigator/widgets/shell/main_menu/main_menu.nml:439 ...
+# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:91, navigator/widgets/shell/main_menu/main_menu.nml:439 ...
 "~C~lose" = "~З~акрыть"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Рекорды Пентикса"
@@ -970,6 +970,8 @@ name = "Русский"
 "Press a key" = "Нажмите клавишу"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "Нажмите клавишу (или две подряд).\nEnter — принять, Esc — отмена."
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+"~P~review palette" = "Пр~е~дпросмотр палитры"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "~А~ктивные"
 # navigator/widgets/setup/savers_page/savers_page.nml:43
@@ -990,21 +992,21 @@ name = "Русский"
 "1~0~ minutes" = "1~0~ минут"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "~М~ышь вызывает заставку"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:291
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:296
 "Settings" = "Настройки"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:49
 "System" = "Система"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:303
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:308
 "Startup" = "Загрузка/выгрузка"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:309
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:314
 "Interface" = "Интерф."
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:323
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:328
 "Confirmations" = "Подтверждения"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:61
 "Savers" = "Заставки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:237
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:242
 "Country" = "Страна"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:329
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:334
 "Editor/Viewer" = "Ред/Пр"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/lib/config/keybindings.py
 "File panels" = "Файловые панели"
@@ -1074,23 +1076,23 @@ name = "Русский"
 "~E~XP" = "~E~XP"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:125
 "E~v~aluate" = "Вы~ч~ислить"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:184, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:188, navigator/lib/config/keybindings.py
 "Calendar" = "Календарь"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:40, navigator/widgets/shell/calendar_window/calendar_window.nml:82, navigator/widgets/shell/calendar_window/calendar_window.py:115
+# navigator/widgets/shell/calendar_window/calendar_window.nml:44, navigator/widgets/shell/calendar_window/calendar_window.nml:86, navigator/widgets/shell/calendar_window/calendar_window.py:115
 "Go to current ~d~ate" = "~Т~екущая дата"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:53
+# navigator/widgets/shell/calendar_window/calendar_window.nml:57
 "~C~alendar" = "~К~алендарь"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:56, navigator/widgets/shell/calendar_window/calendar_window.py:107
+# navigator/widgets/shell/calendar_window/calendar_window.nml:60, navigator/widgets/shell/calendar_window/calendar_window.py:107
 "~P~revious month" = "~П~редыдущий месяц"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:60, navigator/widgets/shell/calendar_window/calendar_window.py:108
+# navigator/widgets/shell/calendar_window/calendar_window.nml:64, navigator/widgets/shell/calendar_window/calendar_window.py:108
 "~N~ext month" = "~С~ледующий месяц"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:64, navigator/widgets/shell/calendar_window/calendar_window.py:109
+# navigator/widgets/shell/calendar_window/calendar_window.nml:68, navigator/widgets/shell/calendar_window/calendar_window.py:109
 "P~r~evious year" = "Пр~е~дыдущий год"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:68, navigator/widgets/shell/calendar_window/calendar_window.py:110
+# navigator/widgets/shell/calendar_window/calendar_window.nml:72, navigator/widgets/shell/calendar_window/calendar_window.py:110
 "Ne~x~t year" = "С~л~едующий год"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:73, navigator/widgets/shell/calendar_window/calendar_window.py:112
+# navigator/widgets/shell/calendar_window/calendar_window.nml:77, navigator/widgets/shell/calendar_window/calendar_window.py:112
 "Choose ~m~onth..." = "Выбрать ~м~есяц..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:77, navigator/widgets/shell/calendar_window/calendar_window.py:113
+# navigator/widgets/shell/calendar_window/calendar_window.nml:81, navigator/widgets/shell/calendar_window/calendar_window.py:113
 "Choose ~y~ear..." = "Выбрать ~г~од..."
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "История команд"
@@ -2240,47 +2242,47 @@ name = "Русский"
 "New Manager" = "Нов.пан"
 # navigator/widgets/shell/commands.py:84
 "View History" = "Ист.пр."
-# navigator/widgets/shell/commands.py:224
+# navigator/widgets/shell/commands.py:229
 "Trashcan" = "Корзина"
-# navigator/widgets/shell/commands.py:230
+# navigator/widgets/shell/commands.py:235
 "Screen Savers" = "Хранит."
-# navigator/widgets/shell/commands.py:244
+# navigator/widgets/shell/commands.py:249
 "Screen Rest" = "Отдых"
-# navigator/widgets/shell/commands.py:297
+# navigator/widgets/shell/commands.py:302
 "System Setup" = "Системные установки"
-# navigator/widgets/shell/commands.py:317
+# navigator/widgets/shell/commands.py:322
 "Keys" = "Клавиши"
-# navigator/widgets/shell/commands.py:338
+# navigator/widgets/shell/commands.py:343
 "File Manager Setup" = "Установки менеджера файлов"
-# navigator/widgets/shell/commands.py:344
+# navigator/widgets/shell/commands.py:349
 "Information Panel" = "Инфо"
-# navigator/widgets/shell/commands.py:350
+# navigator/widgets/shell/commands.py:355
 "Column Defaults" = "Установки колонок"
-# navigator/widgets/shell/commands.py:356
+# navigator/widgets/shell/commands.py:361
 "Highlight Groups" = "Подсв."
-# navigator/widgets/shell/commands.py:362
+# navigator/widgets/shell/commands.py:367
 "Quick Run File" = "Запуск"
-# navigator/widgets/shell/commands.py:368
+# navigator/widgets/shell/commands.py:373
 "Extension File" = "Расшир."
-# navigator/widgets/shell/commands.py:374
+# navigator/widgets/shell/commands.py:379
 "Highlight File" = "Подсветка"
-# navigator/widgets/shell/commands.py:380
+# navigator/widgets/shell/commands.py:385
 "Viewers" = "Просм."
-# navigator/widgets/shell/commands.py:386
+# navigator/widgets/shell/commands.py:391
 "Editors" = "Редакт."
-# navigator/widgets/shell/commands.py:404
+# navigator/widgets/shell/commands.py:409
 "Panel Defaults" = "Панели по умолчанию"
-# navigator/widgets/shell/commands.py:414
+# navigator/widgets/shell/commands.py:419
 "SSH" = "SSH"
-# navigator/widgets/shell/commands.py:422
+# navigator/widgets/shell/commands.py:427
 "Discon" = "Разрыв"
-# navigator/widgets/shell/commands.py:437
+# navigator/widgets/shell/commands.py:442
 "Comms" = "Связь"
-# navigator/widgets/shell/commands.py:445
+# navigator/widgets/shell/commands.py:450
 "FTP" = "FTP"
-# navigator/widgets/shell/commands.py:454
+# navigator/widgets/shell/commands.py:459
 "S3" = "S3"
-# navigator/widgets/shell/commands.py:462
+# navigator/widgets/shell/commands.py:467
 "SMB" = "SMB"
 # navigator/widgets/shell/console/console.py:300
 "C~l~ear selection" = "~С~нять выделение"
@@ -2302,37 +2304,37 @@ name = "Русский"
 "Pin" = "Закрепить"
 # navigator/widgets/shell/file_history_dialog/file_history_dialog.py:35
 "Pinned" = "К закреплённой"
-# navigator/widgets/shell/shell/shell.py:419
+# navigator/widgets/shell/shell/shell.py:434
 "Execute OS Command" = "Выполнить команду ОС"
-# navigator/widgets/shell/shell/shell.py:1646
+# navigator/widgets/shell/shell/shell.py:1673
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:2276, navigator/widgets/shell/shell/shell.py:2269
+# navigator/widgets/shell/shell/shell.py:2303, navigator/widgets/shell/shell/shell.py:2296
 "Disconnect" = "Разорвать связь"
-# navigator/widgets/shell/shell/shell.py:2535
+# navigator/widgets/shell/shell/shell.py:2562
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2535
+# navigator/widgets/shell/shell/shell.py:2562
 "File Edit History" = "История редактирования файлов"
-# navigator/widgets/shell/shell/shell.py:418
+# navigator/widgets/shell/shell/shell.py:433
 "~C~ommand" = "~К~оманда"
-# navigator/widgets/shell/shell/shell.py:2122, navigator/widgets/shell/shell/shell.py:2305
+# navigator/widgets/shell/shell/shell.py:2149, navigator/widgets/shell/shell/shell.py:2332
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2552
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2552
 "Track editing history" = "История редактирования файлов"
-# navigator/widgets/shell/shell/shell.py:1439
+# navigator/widgets/shell/shell/shell.py:1466
 "User menu (global)" = "Меню пользователя (общее)"
-# navigator/widgets/shell/shell/shell.py:1439
+# navigator/widgets/shell/shell/shell.py:1466
 "Local menu" = "Локальное меню"
-# navigator/widgets/shell/shell/shell.py:1441
+# navigator/widgets/shell/shell/shell.py:1468
 "User menu (local)" = "Меню пользователя (локальное)"
-# navigator/widgets/shell/shell/shell.py:1441
+# navigator/widgets/shell/shell/shell.py:1468
 "Global menu" = "Общее меню"
-# navigator/widgets/shell/shell/shell.py:2267
+# navigator/widgets/shell/shell/shell.py:2294
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:339
 "Store Color Palette" = "Запомнить цветовую палитру"
-# navigator/widgets/shell/shell/shell.py:380
+# navigator/widgets/shell/shell/shell.py:397
 "Load Color Palette" = "Загрузить цветовую палитру"
 # navigator/widgets/shell/shell/shell.py:244
 "No desktop has been saved" = "Рабочий стол не сохранялся"
@@ -2340,39 +2342,39 @@ name = "Русский"
 "Cannot read the theme: {error}" = "Невозможно прочитать тему: {error}"
 # navigator/widgets/shell/shell/shell.py:285
 "Cannot save the palette: {error}" = "Невозможно сохранить палитру: {error}"
-# navigator/widgets/shell/shell/shell.py:397
+# navigator/widgets/shell/shell/shell.py:412
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
-# navigator/widgets/shell/shell/shell.py:500
+# navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:1792
+# navigator/widgets/shell/shell/shell.py:1819
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
-# navigator/widgets/shell/shell/shell.py:2166
+# navigator/widgets/shell/shell/shell.py:2193
 "Wrong passphrase for {key}. Try again:" = "Неверная фраза-пароль для {key}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2167
+# navigator/widgets/shell/shell/shell.py:2194
 "Passphrase for {key}:" = "Фраза-пароль для {key}:"
-# navigator/widgets/shell/shell/shell.py:2153
+# navigator/widgets/shell/shell/shell.py:2180
 "Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2154
+# navigator/widgets/shell/shell/shell.py:2181
 "Secret key for {who}:" = "Секретный ключ для {who}:"
-# navigator/widgets/shell/shell/shell.py:2157
+# navigator/widgets/shell/shell/shell.py:2184
 "Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2158
+# navigator/widgets/shell/shell/shell.py:2185
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:2306
+# navigator/widgets/shell/shell/shell.py:2333
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:2528
+# navigator/widgets/shell/shell/shell.py:2555
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1377
-"Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
 # navigator/widgets/shell/shell/shell.py:1404
+"Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
+# navigator/widgets/shell/shell/shell.py:1431
 "File {name} not found" = "Файл {name} не найден"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1564
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:2139
+# navigator/widgets/shell/shell/shell.py:2166
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2355
+# navigator/widgets/shell/shell/shell.py:2382
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:2492
+# navigator/widgets/shell/shell/shell.py:2519
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
@@ -2691,9 +2693,9 @@ name = "Русский"
 # navigator/lib/appearance/palette.py
 "Error box" = "Окно ошибки"
 # navigator/lib/appearance/palette.py
-"Error box shadows" = "Тени окна ошибки"
-# navigator/lib/appearance/palette.py
 "Error box icons" = "Значки окна ошибки"
+# navigator/lib/appearance/palette.py
+"Error box shadows" = "Тени окна ошибки"
 # navigator/lib/appearance/palette.py
 "Keywords" = "Ключевые слова"
 # navigator/lib/appearance/palette.py

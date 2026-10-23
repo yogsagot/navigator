@@ -107,7 +107,9 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   (`palette.user_themes()`, DN's `COLORS\*.PAL`), asking before overwriting; **a theme there is one `--theme` and
   `theme_names()` find, and wins over a shipped one of the same name** (`scheme.theme_path`). **Load palette** opens
   the user's themes (or the shipped ones, with none) and keeps the file's difference from the theme as that theme's palette;
-  one that does not parse says *Not a palette*. **.nss only** -- no `.PAL` reading at run time; that is palconv's job.
+  one that does not parse says *Not a palette*. Its box is `PaletteFileDialog` (`navigator/widgets/setup/`, a
+  departure: `FileDialog` 59 wide so theme names fit, plus *Preview palette*, off by default): ticked, the file under
+  the *Files* cursor is read on a thread and painted; unticking, Esc or any close puts the screen back. **.nss only** -- no `.PAL` reading at run time; that is palconv's job.
 
 ## File-type colours
 

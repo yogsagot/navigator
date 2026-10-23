@@ -204,6 +204,36 @@ def test_a_file_that_is_not_a_palette_is_said_so(place):
     assert seen["prompt"].startswith("Not a palette") and not palette_path().exists()
 
 
+def loading(a) -> bool:
+    return getattr(a.modal, "title", None) == "Load Color Palette"
+
+
+def test_load_palette_previews_the_file_under_the_cursor_only_while_ticked(place):
+    user_themes().mkdir(parents=True)
+    (user_themes() / "a-red.nss").write_text("$panel-fg: red;")
+    (user_themes() / "b-green-with-a-long-name.nss").write_text("$panel-fg: green;")
+    app = navigator(place)
+    before = app.shell.stylesheet.variables["panel-fg"]
+    seen = {}
+
+    def fg(a):
+        return a.shell.stylesheet.variables["panel-fg"]
+
+    run_app(app, [lambda a: a.spawn(a.run_command(LoadColors)), Until(loading, timeout=5),
+                  lambda a: seen.update(unticked=fg(a), width=a.modal.files.width,
+                                        names=[item.name for item in a.modal.files.items]),
+                  lambda a: a.modal.preview.toggle(0), Until(lambda a: fg(a) == "red", timeout=5),
+                  lambda a: setattr(a.modal.files, "cursor", 1), Until(lambda a: fg(a) == "green", timeout=5),
+                  lambda a: a.modal.preview.toggle(0), Until(lambda a: fg(a) == before, timeout=5),
+                  lambda a: a.modal.preview.toggle(0), Until(lambda a: fg(a) == "green", timeout=5),
+                  KeyEvent("escape"), Until(lambda a: a.modal is None, timeout=5),
+                  lambda a: seen.update(after=fg(a))])
+    assert seen["unticked"] == before
+    assert seen["width"] >= 25
+    assert seen["names"] == ["a-red.nss", "b-green-with-a-long-name.nss"]
+    assert seen["after"] == before and not palette_path().exists()
+
+
 def test_differences_are_what_the_palette_keeps():
     assert differences({"a": "1", "b": "2"}, {"a": "1", "b": "3", "c": "4"}) == {"b": "3", "c": "4"}
 

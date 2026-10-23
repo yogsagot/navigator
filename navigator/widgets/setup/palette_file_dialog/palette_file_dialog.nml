@@ -1,0 +1,21 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.file_dialog import FileDialog
+
+#: Options > Load palette's file box: DN's ``TFileDialog``, wider, with a box
+#: that paints the palette under the *Files* cursor while it is ticked.
+#:
+#: Not DN's: ``LoadColors`` opened the plain 47-column ``GetFileNameDialog``,
+#: whose 15-column lists cut off most theme names (``solarized-light.nss``),
+#: and it showed nothing before the file was loaded.  The hand-written half
+#: moves the base's controls to make the room; this adds the box.
+PaletteFileDialog(FileDialog):
+    modal_width: 59
+    modal_height: 20
+
+    CheckBoxes:
+        id: preview
+        x: 3
+        y: 16
+        width: 30
+        height: 1
+        items: ["~P~review palette"]

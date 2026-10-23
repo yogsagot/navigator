@@ -364,21 +364,40 @@ class Shell(DockLayout):
         box (the user's themes if there are any, else the ones Navigator
         ships), its colours put over the theme and kept as the palette, as
         DN's ``LoadPalFromFile`` replaced the one in ``DN.CFG``.  One that does
-        not parse is said so and changes nothing."""
+        not parse is said so and changes nothing.  With *Preview palette*
+        ticked the box paints each file the cursor stops on; cancelling it
+        puts the screen back as it was."""
         import asyncio
-
-        from navml.widgets.dialog.file_dialog import FileDialog
 
         from navigator.lib.appearance.palette import differences, entry_values, user_themes
         from navigator.lib.appearance.scheme import THEMES, scheme_from
+        from navigator.widgets.setup.palette_file_dialog import PaletteFileDialog
 
         def start() -> Path:
             mine = user_themes()
             return mine if any(mine.glob("*.nss")) else THEMES
 
+        base = await self._palette_base()
+        if base is None:
+            return
+        sources, theme = base
+        before = self.stylesheet
+
+        def preview(shown: tuple[Path, str] | None) -> None:
+            if shown is None:
+                self.stylesheet = before
+                return
+            path, text = shown
+            try:
+                self.stylesheet = scheme_from(sources, (str(path), text))
+            except StylesheetError:
+                pass  # not a palette: the screen stays as it was
+
         directory = await asyncio.to_thread(start)
-        name = await FileDialog(title=tr("Load Color Palette"), label=tr("~F~ile name"), history_id="colors",
-                                directory=directory, wildcard="*.nss", ok_text=tr("~O~pen")).execute(self.application)
+        name = await PaletteFileDialog(title=tr("Load Color Palette"), label=tr("~F~ile name"), history_id="colors",
+                                       directory=directory, wildcard="*.nss", ok_text=tr("~O~pen"),
+                                       preview=preview).execute(self.application)
+        self.stylesheet = before
         if not name:
             return
         path = Path(name)
@@ -387,10 +406,6 @@ class Shell(DockLayout):
         except (OSError, UnicodeError) as error:
             await self._palette_failed(tr("Cannot read {path}: {error}").format(path=path, error=getattr(error, 'strerror', None) or error))
             return
-        base = await self._palette_base()
-        if base is None:
-            return
-        sources, theme = base
         try:
             loaded = scheme_from(sources, (str(path), text))
         except StylesheetError as error:

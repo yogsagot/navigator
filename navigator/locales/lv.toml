@@ -444,7 +444,7 @@ name = "Latviešu"
 "~L~evel up" = "~L~īmenis augstāk"
 # navigator/widgets/game/game_window/game_window.nml:107, navigator/widgets/game/game_window/game_window.py:201
 "Pre~v~iew" = "~R~ādīt nākamo"
-# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:87, navigator/widgets/shell/main_menu/main_menu.nml:439 ...
+# navigator/widgets/game/game_window/game_window.nml:111, navigator/widgets/shell/calendar_window/calendar_window.nml:91, navigator/widgets/shell/main_menu/main_menu.nml:439 ...
 "~C~lose" = "Ai~z~vērt"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix Top 10"
@@ -970,6 +970,8 @@ name = "Latviešu"
 "Press a key" = "Nospiediet taustiņu"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "Nospiediet taustiņu vai divus akordam.\nEnter apstiprina, Esc atceļ."
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+"~P~review palette" = "Priekš~s~katīt paleti"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "~I~zvēlētie"
 # navigator/widgets/setup/savers_page/savers_page.nml:43
@@ -990,21 +992,21 @@ name = "Latviešu"
 "1~0~ minutes" = "1~0~ minūtes"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "Pele ~s~āk saudzētāju"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:291
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:296
 "Settings" = "Uzstādījumi"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:49
 "System" = "Sistēma"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:303
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:308
 "Startup" = "Startēšana"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:309
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:314
 "Interface" = "Saskarne"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:323
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:328
 "Confirmations" = "Apstiprinājumi"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:61
 "Savers" = "Saudzētāji"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:237
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:242
 "Country" = "Valsts"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:329
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:334
 "Editor/Viewer" = "Redaktors/Skatītājs"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/lib/config/keybindings.py
 "File panels" = "Failu paneļi"
@@ -1074,23 +1076,23 @@ name = "Latviešu"
 "~E~XP" = "~E~XP"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:125
 "E~v~aluate" = "~A~prēķināt"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:184, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:188, navigator/lib/config/keybindings.py
 "Calendar" = "Kalendārs"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:40, navigator/widgets/shell/calendar_window/calendar_window.nml:82, navigator/widgets/shell/calendar_window/calendar_window.py:115
+# navigator/widgets/shell/calendar_window/calendar_window.nml:44, navigator/widgets/shell/calendar_window/calendar_window.nml:86, navigator/widgets/shell/calendar_window/calendar_window.py:115
 "Go to current ~d~ate" = "Uz šodienas ~d~atumu"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:53
+# navigator/widgets/shell/calendar_window/calendar_window.nml:57
 "~C~alendar" = "K~a~lendārs"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:56, navigator/widgets/shell/calendar_window/calendar_window.py:107
+# navigator/widgets/shell/calendar_window/calendar_window.nml:60, navigator/widgets/shell/calendar_window/calendar_window.py:107
 "~P~revious month" = "~I~epriekšējais mēnesis"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:60, navigator/widgets/shell/calendar_window/calendar_window.py:108
+# navigator/widgets/shell/calendar_window/calendar_window.nml:64, navigator/widgets/shell/calendar_window/calendar_window.py:108
 "~N~ext month" = "~N~ākamais mēnesis"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:64, navigator/widgets/shell/calendar_window/calendar_window.py:109
+# navigator/widgets/shell/calendar_window/calendar_window.nml:68, navigator/widgets/shell/calendar_window/calendar_window.py:109
 "P~r~evious year" = "Iepriekšējais ~g~ads"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:68, navigator/widgets/shell/calendar_window/calendar_window.py:110
+# navigator/widgets/shell/calendar_window/calendar_window.nml:72, navigator/widgets/shell/calendar_window/calendar_window.py:110
 "Ne~x~t year" = "Nāk~a~mais gads"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:73, navigator/widgets/shell/calendar_window/calendar_window.py:112
+# navigator/widgets/shell/calendar_window/calendar_window.nml:77, navigator/widgets/shell/calendar_window/calendar_window.py:112
 "Choose ~m~onth..." = "Izvēlēties ~m~ēnesi..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:77, navigator/widgets/shell/calendar_window/calendar_window.py:113
+# navigator/widgets/shell/calendar_window/calendar_window.nml:81, navigator/widgets/shell/calendar_window/calendar_window.py:113
 "Choose ~y~ear..." = "Izvēlēties gad~u~..."
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "Komandu vēsture"
@@ -2240,47 +2242,47 @@ name = "Latviešu"
 "New Manager" = "Jauns pārvaldnieks"
 # navigator/widgets/shell/commands.py:84
 "View History" = "Skatīšanas vēsture"
-# navigator/widgets/shell/commands.py:224
+# navigator/widgets/shell/commands.py:229
 "Trashcan" = "Atkritne"
-# navigator/widgets/shell/commands.py:230
+# navigator/widgets/shell/commands.py:235
 "Screen Savers" = "Ekrānsaudzētāji"
-# navigator/widgets/shell/commands.py:244
+# navigator/widgets/shell/commands.py:249
 "Screen Rest" = "Ekrāna atpūta"
-# navigator/widgets/shell/commands.py:297
+# navigator/widgets/shell/commands.py:302
 "System Setup" = "Sistēmas iestatīšana"
-# navigator/widgets/shell/commands.py:317
+# navigator/widgets/shell/commands.py:322
 "Keys" = "Taustiņi"
-# navigator/widgets/shell/commands.py:338
+# navigator/widgets/shell/commands.py:343
 "File Manager Setup" = "Pārvaldnieka iestatīšana"
-# navigator/widgets/shell/commands.py:344
+# navigator/widgets/shell/commands.py:349
 "Information Panel" = "Informācijas panelis"
-# navigator/widgets/shell/commands.py:350
+# navigator/widgets/shell/commands.py:355
 "Column Defaults" = "Kolonnu noklusējumi"
-# navigator/widgets/shell/commands.py:356
+# navigator/widgets/shell/commands.py:361
 "Highlight Groups" = "Izcelšanas grupas"
-# navigator/widgets/shell/commands.py:362
+# navigator/widgets/shell/commands.py:367
 "Quick Run File" = "Ātrās palaišanas fails"
-# navigator/widgets/shell/commands.py:368
+# navigator/widgets/shell/commands.py:373
 "Extension File" = "Paplašinājumu fails"
-# navigator/widgets/shell/commands.py:374
+# navigator/widgets/shell/commands.py:379
 "Highlight File" = "Izcelšanas fails"
-# navigator/widgets/shell/commands.py:380
+# navigator/widgets/shell/commands.py:385
 "Viewers" = "Skatītāji"
-# navigator/widgets/shell/commands.py:386
+# navigator/widgets/shell/commands.py:391
 "Editors" = "Redaktori"
-# navigator/widgets/shell/commands.py:404
+# navigator/widgets/shell/commands.py:409
 "Panel Defaults" = "Paneļu noklusējumi"
-# navigator/widgets/shell/commands.py:414
+# navigator/widgets/shell/commands.py:419
 "SSH" = "SSH"
-# navigator/widgets/shell/commands.py:422
+# navigator/widgets/shell/commands.py:427
 "Discon" = "Atvien"
-# navigator/widgets/shell/commands.py:437
+# navigator/widgets/shell/commands.py:442
 "Comms" = "Sakari"
-# navigator/widgets/shell/commands.py:445
+# navigator/widgets/shell/commands.py:450
 "FTP" = "FTP"
-# navigator/widgets/shell/commands.py:454
+# navigator/widgets/shell/commands.py:459
 "S3" = "S3"
-# navigator/widgets/shell/commands.py:462
+# navigator/widgets/shell/commands.py:467
 "SMB" = "SMB"
 # navigator/widgets/shell/console/console.py:300
 "C~l~ear selection" = "~N~oņemt atlasi"
@@ -2302,37 +2304,37 @@ name = "Latviešu"
 "Pin" = "Piespraust"
 # navigator/widgets/shell/file_history_dialog/file_history_dialog.py:35
 "Pinned" = "Piespraustie"
-# navigator/widgets/shell/shell/shell.py:419
+# navigator/widgets/shell/shell/shell.py:434
 "Execute OS Command" = "Izpildīt OS komandu"
-# navigator/widgets/shell/shell/shell.py:1646
+# navigator/widgets/shell/shell/shell.py:1673
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:2276, navigator/widgets/shell/shell/shell.py:2269
+# navigator/widgets/shell/shell/shell.py:2303, navigator/widgets/shell/shell/shell.py:2296
 "Disconnect" = "Atvienot"
-# navigator/widgets/shell/shell/shell.py:2535
+# navigator/widgets/shell/shell/shell.py:2562
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:2535
+# navigator/widgets/shell/shell/shell.py:2562
 "File Edit History" = "Failu rediģēšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:418
+# navigator/widgets/shell/shell/shell.py:433
 "~C~ommand" = "~K~omanda"
-# navigator/widgets/shell/shell/shell.py:2122, navigator/widgets/shell/shell/shell.py:2305
+# navigator/widgets/shell/shell/shell.py:2149, navigator/widgets/shell/shell/shell.py:2332
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2552
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2552
 "Track editing history" = "Sekot rediģēšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:1439
+# navigator/widgets/shell/shell/shell.py:1466
 "User menu (global)" = "Lietotāja izvēlne (globālā)"
-# navigator/widgets/shell/shell/shell.py:1439
+# navigator/widgets/shell/shell/shell.py:1466
 "Local menu" = "Lokālā izvēlne"
-# navigator/widgets/shell/shell/shell.py:1441
+# navigator/widgets/shell/shell/shell.py:1468
 "User menu (local)" = "Lietotāja izvēlne (lokālā)"
-# navigator/widgets/shell/shell/shell.py:1441
+# navigator/widgets/shell/shell/shell.py:1468
 "Global menu" = "Globālā izvēlne"
-# navigator/widgets/shell/shell/shell.py:2267
+# navigator/widgets/shell/shell/shell.py:2294
 "Close the {protocol} connection to {host}?" = "Aizvērt {protocol} savienojumu ar {host}?"
 # navigator/widgets/shell/shell/shell.py:339
 "Store Color Palette" = "Saglabāt krāsu paleti"
-# navigator/widgets/shell/shell/shell.py:380
+# navigator/widgets/shell/shell/shell.py:397
 "Load Color Palette" = "Ielādēt krāsu paleti"
 # navigator/widgets/shell/shell/shell.py:244
 "No desktop has been saved" = "Neviena darbvirsma nav saglabāta"
@@ -2340,39 +2342,39 @@ name = "Latviešu"
 "Cannot read the theme: {error}" = "Nevar nolasīt tēmu: {error}"
 # navigator/widgets/shell/shell/shell.py:285
 "Cannot save the palette: {error}" = "Nevar saglabāt paleti: {error}"
-# navigator/widgets/shell/shell/shell.py:397
+# navigator/widgets/shell/shell/shell.py:412
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
-# navigator/widgets/shell/shell/shell.py:500
+# navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:1792
+# navigator/widgets/shell/shell/shell.py:1819
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
-# navigator/widgets/shell/shell/shell.py:2166
+# navigator/widgets/shell/shell/shell.py:2193
 "Wrong passphrase for {key}. Try again:" = "Nepareiza ieejas frāze atslēgai {key}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2167
+# navigator/widgets/shell/shell/shell.py:2194
 "Passphrase for {key}:" = "Ieejas frāze atslēgai {key}:"
-# navigator/widgets/shell/shell/shell.py:2153
+# navigator/widgets/shell/shell/shell.py:2180
 "Wrong secret key for {who}. Try again:" = "Nepareiza slepenā atslēga {who}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2154
+# navigator/widgets/shell/shell/shell.py:2181
 "Secret key for {who}:" = "Slepenā atslēga {who}:"
-# navigator/widgets/shell/shell/shell.py:2157
+# navigator/widgets/shell/shell/shell.py:2184
 "Wrong {protocol} password for {who}. Try again:" = "Nepareiza {protocol} parole lietotājam {who}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2158
+# navigator/widgets/shell/shell/shell.py:2185
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
-# navigator/widgets/shell/shell/shell.py:2306
+# navigator/widgets/shell/shell/shell.py:2333
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
-# navigator/widgets/shell/shell/shell.py:2528
+# navigator/widgets/shell/shell/shell.py:2555
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
-# navigator/widgets/shell/shell/shell.py:1377
-"Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
 # navigator/widgets/shell/shell/shell.py:1404
+"Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
+# navigator/widgets/shell/shell/shell.py:1431
 "File {name} not found" = "Fails {name} nav atrasts"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1564
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
-# navigator/widgets/shell/shell/shell.py:2139
+# navigator/widgets/shell/shell/shell.py:2166
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:2355
+# navigator/widgets/shell/shell/shell.py:2382
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:2492
+# navigator/widgets/shell/shell/shell.py:2519
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Atkritne"
@@ -2691,9 +2693,9 @@ name = "Latviešu"
 # navigator/lib/appearance/palette.py
 "Error box" = "Kļūdas logs"
 # navigator/lib/appearance/palette.py
-"Error box shadows" = "Kļūdas loga ēnas"
-# navigator/lib/appearance/palette.py
 "Error box icons" = "Kļūdas loga ikonas"
+# navigator/lib/appearance/palette.py
+"Error box shadows" = "Kļūdas loga ēnas"
 # navigator/lib/appearance/palette.py
 "Keywords" = "Atslēgvārdi"
 # navigator/lib/appearance/palette.py
