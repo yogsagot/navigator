@@ -39,7 +39,8 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
   arranged unless it says `tileable: False` (on by default, where DN's `ofTileable` was opt-in).
 - `Desktop.keys` holds the window keys; `navml/commands.py` holds the window command set `Desktop` runs.
 - **Every window has a `number`** (TV's `TWindow.Number`): `Desktop.open()` gives the lowest of 1..9 free, kept while
-  raised, 0 for a tenth and again once closed. **Win+1..9 is `SelectWindow(number)`** (TV's `cmSelectWindowNum`, whose
+  raised, 0 for a tenth and again once closed. A close renumbers the rest 1..n in order (`Desktop._renumber`, a
+  departure: TV left the gap, which the window strip made read as a fault), a tenth taking the freed 9. **Win+1..9 is `SelectWindow(number)`** (TV's `cmSelectWindowNum`, whose
   Alt+digits DN commented out for its quick directories) and Win+0 the list, which prefixes each row with its number.
   Only a kitty-protocol terminal sends Super (Ghostty does; xfce4-terminal and other VTE ones never do), and desktops
   (GNOME, KDE) grab Super+digit for their dock by default -- so **Alt+Shift+F1..F9** are bound too, which every

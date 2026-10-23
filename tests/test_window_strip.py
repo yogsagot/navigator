@@ -58,7 +58,7 @@ def test_a_key_spec_may_name_super():
 # -- numbers -----------------------------------------------------------------
 
 
-def test_windows_take_the_lowest_free_number_and_keep_it_when_raised():
+def test_windows_take_the_next_number_and_keep_it_when_raised():
     desktop = Desktop(width=80, height=20)
     a, b, c = (desktop.open(notes(t)) for t in "abc")
     assert [w.number for w in (a, b, c)] == [1, 2, 3]
@@ -67,16 +67,27 @@ def test_windows_take_the_lowest_free_number_and_keep_it_when_raised():
     b.close()
     assert b.number == 0
     d = desktop.open(notes("d"))
-    assert d.number == 2
-    assert desktop.window_numbered(2) is d and desktop.window_numbered(5) is None
+    assert d.number == 3
+    assert desktop.window_numbered(2) is c and desktop.window_numbered(5) is None
     settle()
     assert list(desktop.open_windows) == [a, c, d]
+
+
+def test_closing_a_window_closes_the_gap_in_the_numbers():
+    desktop = Desktop(width=80, height=20)
+    a, b, c = (desktop.open(notes(t)) for t in "abc")
+    b.close()
+    assert [a.number, c.number] == [1, 2]
+    a.close()
+    assert c.number == 1
 
 
 def test_a_tenth_window_has_no_number():
     desktop = Desktop(width=80, height=20)
     windows = [desktop.open(notes(str(n))) for n in range(10)]
     assert [w.number for w in windows] == [*range(1, 10), 0]
+    windows[0].close()
+    assert [w.number for w in windows[1:]] == list(range(1, 10))
 
 
 def test_super_digit_brings_that_window_forward(tree):

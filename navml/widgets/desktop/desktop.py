@@ -157,6 +157,20 @@ class Desktop(Widget):
         taken = {w.number for w in self.windows() if w is not window}
         window.number = next((n for n in range(1, 10) if n not in taken), 0)
 
+    def _renumber(self) -> None:
+        """Close the gap a closed window left: 1 .. 9 again, in the same order.
+
+        A departure from Turbo Vision, whose ``TWindow.Number`` stays put
+        until the window closes, so closing 2 of three left 1 and 3: with the
+        window strip on show the gap read as a fault.  The numbered windows
+        keep their order, and one that had none -- a tenth -- takes a number
+        freed at the end.
+        """
+        numbered = sorted((w for w in self.open_windows if w.number), key=lambda w: w.number)
+        rest = [w for w in self.open_windows if not w.number]
+        for n, window in enumerate((*numbered, *rest), start=1):
+            window.number = n if n < 10 else 0
+
     def _list_windows(self) -> None:
         kept = [w for w in self.open_windows if w in self.children]
         self.open_windows = (*kept, *(w for w in self.windows() if w not in kept))
@@ -218,6 +232,7 @@ class Desktop(Widget):
         # it should it be opened again over one that has taken it.
         window.number = 0
         self._list_windows()
+        self._renumber()
         if not was_active:
             return
         self.active_window = None
