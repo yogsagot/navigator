@@ -42,13 +42,13 @@ $desktop-bg: $dn-blue;
 /* -- Menus --------------------------------------------------------------- */
 $bar-fg: $dn-light_gray;              /*> [  2] Normal -- CMenuView, CStatusLine[1] */
 $bar-bg: $dn-blue;
-$bar-disabled-fg: $dn-dark_gray;      /*  [  3] Disabled -- CMenuView, CStatusLine[2] */
+$bar-disabled-fg: $dn-light_blue;     /*  [  3] Disabled -- CMenuView, CStatusLine[2] -- Navigator: light blue, faint but legible; the .PAL has dark_gray on blue */
 $bar-disabled-bg: $dn-blue;
 $bar-key-fg: $dn-white;               /*> [  4] Shortcut -- CMenuView, CStatusLine[3] */
 $bar-key-bg: $dn-blue;
 $bar-selected-fg: $dn-blue;           /*  [  5] Selected -- CMenuView, CStatusLine[4] */
 $bar-selected-bg: $dn-light_gray;
-$bar-selected-disabled-fg: $dn-cyan;  /*  [  6] Selected disabled -- CMenuView, CStatusLine[5] */
+$bar-selected-disabled-fg: $dn-dark_gray;/*  [  6] Selected disabled -- CMenuView, CStatusLine[5] -- Navigator: dark grey, faint but legible; the .PAL has cyan on light_gray */
 $bar-selected-disabled-bg: $dn-light_gray;
 $bar-selected-key-fg: $dn-yellow;     /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
 $bar-selected-key-bg: $dn-light_gray;
@@ -152,8 +152,8 @@ $marked-fg: $dn-light_cyan;           /*  [ 87] Selected text -- CDoubleWindow[8
 $marked-bg: $dn-black;
 $cursor-fg: $dn-black;                /*> [ 88] Normal cursor -- CDoubleWindow[9] -> CPanel[4] */
 $cursor-bg: $dn-light_gray;
-$marked-cursor-fg: $dn-light_cyan;    /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
-$marked-cursor-bg: $dn-light_gray;
+$marked-cursor-fg: $dn-light_cyan;    /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] -- Navigator: a dark grey bar, as light cyan on light grey is barely there; the .PAL has light_cyan on light_gray */
+$marked-cursor-bg: $dn-dark_gray;
 $divider-fg: $dn-white;               /*  [ 86] List divider -- CDoubleWindow[7] -> CPanel[2] */
 $divider-bg: $dn-black;
 $active-title-fg: $dn-black;          /*> [ 90] Directory active -- CDoubleWindow[11] -> CTopView[1] */
@@ -389,8 +389,22 @@ $error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no sl
 $error-dialog-bg: $dn-red;
 $error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: $dn-red;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

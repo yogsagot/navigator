@@ -2691,9 +2691,23 @@ name = "Русский"
 # navigator/lib/appearance/palette.py
 "Error box" = "Окно ошибки"
 # navigator/lib/appearance/palette.py
+"Error box shadows" = "Тени окна ошибки"
+# navigator/lib/appearance/palette.py
 "Error box icons" = "Значки окна ошибки"
 # navigator/lib/appearance/palette.py
 "Keywords" = "Ключевые слова"
+# navigator/lib/appearance/palette.py
+"Viewer comments" = "Комментарии в просмотре"
+# navigator/lib/appearance/palette.py
+"Viewer symbols" = "Символы в просмотре"
+# navigator/lib/appearance/palette.py
+"Viewer strings" = "Строки в просмотре"
+# navigator/lib/appearance/palette.py
+"Viewer numbers" = "Числа в просмотре"
+# navigator/lib/appearance/palette.py
+"Viewer keywords" = "Ключевые слова в просмотре"
+# navigator/lib/appearance/palette.py
+"Viewer links" = "Ссылки в просмотре"
 # navigator/lib/config/keybindings.py
 "Global" = "Глобальные"
 # navigator/lib/config/keybindings.py

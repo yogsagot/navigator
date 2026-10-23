@@ -214,4 +214,11 @@ $temp-bold: inherit; $temp-dim: inherit; $temp-italic: inherit; $temp-underline:
 $root-title-bold: inherit; $root-title-dim: inherit; $root-title-italic: inherit; $root-title-underline: inherit; $root-title-reverse: inherit;
 $error-dialog-bold: inherit; $error-dialog-dim: inherit; $error-dialog-italic: inherit; $error-dialog-underline: inherit; $error-dialog-reverse: inherit;
 $error-dialog-icons-bold: inherit; $error-dialog-icons-dim: inherit; $error-dialog-icons-italic: inherit; $error-dialog-icons-underline: inherit; $error-dialog-icons-reverse: inherit;
+$error-dialog-shadow-bold: inherit; $error-dialog-shadow-dim: inherit; $error-dialog-shadow-italic: inherit; $error-dialog-shadow-underline: inherit; $error-dialog-shadow-reverse: inherit;
 $keyword-bold: inherit; $keyword-dim: inherit; $keyword-italic: inherit; $keyword-underline: inherit; $keyword-reverse: inherit;
+$viewer-comments-bold: inherit; $viewer-comments-dim: inherit; $viewer-comments-italic: inherit; $viewer-comments-underline: inherit; $viewer-comments-reverse: inherit;
+$viewer-symbols-bold: inherit; $viewer-symbols-dim: inherit; $viewer-symbols-italic: inherit; $viewer-symbols-underline: inherit; $viewer-symbols-reverse: inherit;
+$viewer-strings-bold: inherit; $viewer-strings-dim: inherit; $viewer-strings-italic: inherit; $viewer-strings-underline: inherit; $viewer-strings-reverse: inherit;
+$viewer-numbers-bold: inherit; $viewer-numbers-dim: inherit; $viewer-numbers-italic: inherit; $viewer-numbers-underline: inherit; $viewer-numbers-reverse: inherit;
+$viewer-keyword-bold: inherit; $viewer-keyword-dim: inherit; $viewer-keyword-italic: inherit; $viewer-keyword-underline: inherit; $viewer-keyword-reverse: inherit;
+$viewer-links-bold: inherit; $viewer-links-dim: inherit; $viewer-links-italic: inherit; $viewer-links-underline: inherit; $viewer-links-reverse: inherit;

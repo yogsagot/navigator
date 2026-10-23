@@ -63,7 +63,7 @@ $dialog-static-text-fg: $dn-black;    /*  [ 37] Static text */
 $dialog-static-text-bg: $dn-light_cyan;
 $dialog-label-normal-fg: $dn-black;   /*  [ 38] Label normal */
 $dialog-label-normal-bg: $dn-light_cyan;
-$dialog-label-selected-fg: $dn-light_red;/*  [ 39] Label selected */
+$dialog-label-selected-fg: $dn-red;   /*  [ 39] Label selected -- Navigator: red, as light red is barely there and the label's own hotkey colour; the .PAL has light_red on light_cyan */
 $dialog-label-selected-bg: $dn-light_cyan;
 $dialog-label-shortcut-fg: $dn-light_red;/*  [ 40] Label shortcut */
 $dialog-label-shortcut-bg: $dn-light_cyan;
@@ -75,7 +75,7 @@ $dialog-button-selected-fg: $dn-blue; /*  [ 43] Button selected */
 $dialog-button-selected-bg: $dn-white;
 $dialog-button-disabled-fg: $dn-dark_gray;/*  [ 44] Button disabled */
 $dialog-button-disabled-bg: $dn-light_gray;
-$dialog-button-shortcut-fg: $dn-red;  /*  [ 45] Button shortcut */
+$dialog-button-shortcut-fg: $dn-blue; /*  [ 45] Button shortcut -- Navigator: blue, as this palette's red is as light as the button; the .PAL has red on light_gray */
 $dialog-button-shortcut-bg: $dn-light_gray;
 $dialog-shortcut-selected-fg: $dn-red;/*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: $dn-white;
@@ -213,8 +213,8 @@ $tree-default-node-fg: $dn-light_cyan;/*  [ 97] Default node */
 $tree-default-node-bg: $dn-light_blue;
 $tree-selected-default-fg: $dn-white; /*  [ 98] Selected default */
 $tree-selected-default-bg: $dn-blue;
-$tree-selected-passive-fg: $dn-white; /*  [ 99] Selected passive */
-$tree-selected-passive-bg: $dn-black;
+$tree-selected-passive-fg: $dn-white; /*  [ 99] Selected passive -- Navigator: a grey bar, as the .PAL draws it as the focused cursor; the .PAL has white on black */
+$tree-selected-passive-bg: $dn-dark_gray;
 $tree-selected-def-passive-fg: $dn-yellow;/*  [100] Selected def. passive */
 $tree-selected-def-passive-bg: $dn-black;
 $tree-info-box-fg: $dn-yellow;        /*  [101] Info box */
@@ -271,7 +271,7 @@ $editor-highlight-comments-fg: $dn-light_gray;/*  [164] Comments */
 $editor-highlight-comments-bg: $dn-light_blue;
 $editor-highlight-symbols-fg: $dn-yellow;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-light_blue;
-$editor-highlight-strings-fg: $dn-light_red;/*  [190] Strings */
+$editor-highlight-strings-fg: $dn-yellow;/*  [190] Strings -- Navigator: yellow, as light red is barely there on light blue; the .PAL has light_red on light_blue */
 $editor-highlight-strings-bg: $dn-light_blue;
 $editor-highlight-numbers-fg: $dn-light_cyan;/*  [191] Numbers */
 $editor-highlight-numbers-bg: $dn-light_blue;
@@ -386,8 +386,22 @@ $error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no sl
 $error-dialog-bg: $dn-red;
 $error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: $dn-red;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

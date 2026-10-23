@@ -2691,9 +2691,23 @@ name = "Latviešu"
 # navigator/lib/appearance/palette.py
 "Error box" = "Kļūdas logs"
 # navigator/lib/appearance/palette.py
+"Error box shadows" = "Kļūdas loga ēnas"
+# navigator/lib/appearance/palette.py
 "Error box icons" = "Kļūdas loga ikonas"
 # navigator/lib/appearance/palette.py
 "Keywords" = "Atslēgvārdi"
+# navigator/lib/appearance/palette.py
+"Viewer comments" = "Skatītāja komentāri"
+# navigator/lib/appearance/palette.py
+"Viewer symbols" = "Skatītāja simboli"
+# navigator/lib/appearance/palette.py
+"Viewer strings" = "Skatītāja virknes"
+# navigator/lib/appearance/palette.py
+"Viewer numbers" = "Skatītāja skaitļi"
+# navigator/lib/appearance/palette.py
+"Viewer keywords" = "Skatītāja atslēgvārdi"
+# navigator/lib/appearance/palette.py
+"Viewer links" = "Skatītāja saites"
 # navigator/lib/config/keybindings.py
 "Global" = "Globāli"
 # navigator/lib/config/keybindings.py

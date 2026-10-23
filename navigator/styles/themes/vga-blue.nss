@@ -82,7 +82,7 @@ $dialog-button-shortcut-fg: $dn-blue; /*  [ 45] Button shortcut */
 $dialog-button-shortcut-bg: $dn-light_gray;
 $dialog-shortcut-selected-fg: $dn-red;/*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: $dn-white;
-$dialog-shortcut-default-fg: $dn-light_cyan;/*  [179] Shortcut default */
+$dialog-shortcut-default-fg: $dn-blue;/*  [179] Shortcut default -- Navigator: blue, as light cyan is barely there on light grey; the .PAL has light_cyan on light_gray */
 $dialog-shortcut-default-bg: $dn-light_gray;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow */
 $dialog-button-shadow-bg: $dn-light_blue;
@@ -176,7 +176,7 @@ $highlight-custom-2-fg: $dn-light_blue;/*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-blue;
 $highlight-custom-3-fg: $dn-green;    /*> [177] Custom 3 */
 $highlight-custom-3-bg: $dn-blue;
-$highlight-custom-4-fg: $dn-black;    /*> [180] Custom 4 */
+$highlight-custom-4-fg: $dn-light_red;/*> [180] Custom 4 -- Navigator: light red, as black on blue is barely there; the .PAL has black on blue */
 $highlight-custom-4-bg: $dn-blue;
 $highlight-custom-5-fg: $dn-light_gray;/*> [181] Custom 5 */
 $highlight-custom-5-bg: $dn-blue;
@@ -272,7 +272,7 @@ $editor-selected-text-bg: $dn-light_gray;
 /* -- Highlight ----------------------------------------------------------- */
 $editor-highlight-comments-fg: $dn-yellow;/*  [164] Comments */
 $editor-highlight-comments-bg: $dn-light_blue;
-$editor-highlight-symbols-fg: $dn-black;/*  [189] Symbols */
+$editor-highlight-symbols-fg: $dn-cyan;/*  [189] Symbols -- Navigator: cyan, as black is barely there on the editor's blue; the .PAL has black on cyan */
 $editor-highlight-symbols-bg: $dn-cyan;
 $editor-highlight-strings-fg: $dn-yellow;/*  [190] Strings */
 $editor-highlight-strings-bg: $dn-cyan;
@@ -389,8 +389,22 @@ $error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no sl
 $error-dialog-bg: $dn-red;
 $error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: $dn-red;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

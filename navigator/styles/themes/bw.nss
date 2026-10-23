@@ -382,12 +382,26 @@ $temp-fg: $panel-fg;                  /*  backups and temporaries -- MC's class,
 $temp-bg: $panel-bg;
 $root-title-fg: $dn-white;            /*  a title while running as root -- no slot */
 $root-title-bg: $dn-red;
-$error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no slot: DN's error boxes were grey */
-$error-dialog-bg: $dn-red;
-$error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
-$error-dialog-icons-bg: $dn-red;
+$error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no slot: DN's error boxes were grey -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-bg: $dn-brown;
+$error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-icons-bg: $dn-brown;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-shadow-bg: $dn-brown;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

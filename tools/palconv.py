@@ -262,39 +262,112 @@ LIVE = frozenset({1, 2, 4, 85, 88, 90, 91, 165, 172, 173, 174, 175, 176, 177, 18
 #:   A custom-DAC theme leaves the two registers out (:data:`UNUSED_COLORS`).
 DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]] = {
     "default": {
-        76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
-        85: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
-        117: ("#d8d8d8", None, "lighter text, for contrast"),
+        34: (1, None, "blue, as light green on light grey is barely there"),
         50: (None, 8, "dark grey, as the buttons, rather than black"),
         52: (None, 8, "dark grey, as the buttons, rather than black"),
         58: (None, 8, "dark grey, as the buttons, rather than black"),
+        76: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
+        85: ("#d8d8d8", None, "lighter text, as the viewer's [117]"),
         106: (None, 8, "dark grey, as the buttons, rather than black"),
         108: (None, 8, "dark grey, as the buttons, rather than black"),
+        117: ("#d8d8d8", None, "lighter text, for contrast"),
         177: ("#e5b567", None, "amber rather than magenta"),
         190: ("#e5b567", None, "amber rather than magenta"),
     },
     "dark": {
+        3: (9, None, "light blue, faint but legible"),
+        6: (8, None, "dark grey, faint but legible"),
+        89: (None, 8, "a dark grey bar, as light cyan on light grey is barely there"),
         164: (6, None, "brown rather than magenta"),
         173: ("#e5b567", None, "amber rather than magenta"),
         184: ("#e5b567", None, "amber rather than magenta"),
     },
     "dosshell": {
+        3: (8, None, "dark grey, faint but legible"),
+        39: (1, None, "blue, as dark grey makes the focused field's label look disabled"),
+        46: (0, None, "a black shadow, as cyan on cyan draws none"),
+        60: (3, None, "cyan, as blue on dark grey is barely there"),
+        70: (8, None, "dark grey, as light grey on cyan is barely there"),
+        112: (8, None, "dark grey, as light grey on cyan is barely there"),
+        166: (8, None, "dark grey, as light grey on cyan is barely there"),
         176: (0, None, "black rather than magenta"),
         190: (6, None, "brown rather than magenta"),
+    },
+    "mono": {
+        3: (8, None, "dark grey, as the .PAL draws a disabled item as an enabled one"),
+        6: (8, None, "dark grey, as the .PAL draws a disabled item as an enabled one"),
+        39: (15, None, "white, as the .PAL draws a selected label as an idle one"),
+        43: (0, 7, "inverse, as the .PAL draws a focused button as an idle one"),
+        51: (15, 8, "a dark grey field, as the .PAL's light grey is the dialog's own ground"),
+        99: (15, 8, "a grey bar, as this blue is the nodes' own grey"),
+        109: (15, 8, "a grey bar, as this blue is the nodes' own grey"),
+        178: (None, 7, "on the focused button's inverse ground"),
     },
     "norton": {
         51: (15, 1, "white on blue, the panels' ground, rather than black"),
         180: ("#e5b567", None, "amber rather than magenta"),
     },
-    "pctools": {177: (14, None, "yellow rather than magenta")},
-    "vax": {180: ("#e5b567", None, "amber rather than magenta")},
-    "vga-blue": {175: ("#e5b567", None, "amber rather than magenta")},
+    "pctools": {
+        39: (4, None, "red, as light red is barely there and the label's own hotkey colour"),
+        45: (1, None, "blue, as this palette's red is as light as the button"),
+        99: (None, 8, "a grey bar, as the .PAL draws it as the focused cursor"),
+        177: (14, None, "yellow rather than magenta"),
+        190: (14, None, "yellow, as light red is barely there on light blue"),
+    },
+    "vax": {
+        33: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        34: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        35: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        37: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        38: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        39: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        40: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        46: (8, 0, "a dark grey shadow on the black dialog"),
+        50: (10, 8, "a dark grey field, as the dialog is black now"),
+        52: (None, 8, "on the field's dark grey"),
+        54: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        61: (None, 0, "a black dialog, as green on dark grey is barely there"),
+        88: (15, None, "white, as green on the dark grey bar is barely there"),
+        117: (None, 0, "black, as the editor, since green on dark grey is barely there"),
+        119: (10, None, "light green, as green on dark grey is barely there"),
+        180: ("#e5b567", None, "amber rather than magenta"),
+        181: (9, None, "light blue, as blue on black is barely there"),
+    },
+    "vga-blue": {
+        175: ("#e5b567", None, "amber rather than magenta"),
+        179: (1, None, "blue, as light cyan is barely there on light grey"),
+        180: (12, None, "light red, as black on blue is barely there"),
+        189: (3, None, "cyan, as black is barely there on the editor's blue"),
+    },
     "vga-bw": {
+        5: (15, None, "white, as black on this grey is barely there"),
+        6: (3, None, "a lighter grey, still fainter than the item"),
+        7: (14, None, "the light grey key, as red is the same grey as its ground"),
+        34: (8, None, "dark grey, as light green is barely there on this grey"),
+        40: (15, None, "white, as yellow is barely there on this grey"),
+        49: (15, None, "white, as yellow is barely there on this grey"),
+        164: (11, None, "a lighter grey, for contrast"),
+        166: (0, None, "black, as dark grey is barely there on this ground"),
+        168: (14, None, "the light grey, as light green is barely there on this ground"),
+        175: (11, None, "a lighter grey, for contrast"),
+        176: (10, None, "a lighter grey, for contrast"),
         177: (11, None, "light cyan rather than magenta, the same grey"),
+        178: (0, None, "black, as yellow is the focused button's own grey"),
         190: (11, None, "light cyan rather than magenta, the same grey"),
     },
     "vga-spring": {
+        34: (1, None, "blue, as light green on light grey is barely there"),
+        47: (0, None, "black, as the labels, since dark grey is barely there on light grey"),
+        76: ("#d8d8d8", None, "lighter text, as light grey is barely there on dark grey"),
+        85: ("#d8d8d8", None, "lighter text, as light grey is barely there on dark grey"),
+        92: ("#d8d8d8", None, "lighter text, as light grey is barely there on dark grey"),
+        94: ("#d8d8d8", None, "lighter, as light grey is barely there on dark grey"),
+        117: ("#d8d8d8", None, "lighter text, as light grey is barely there on dark grey"),
+        164: (11, None, "light cyan, for contrast"),
+        166: (0, None, "black, as dark grey is barely there on this ground"),
+        175: (11, None, "light cyan, for contrast"),
         177: ("#e5b567", None, "amber rather than magenta"),
+        181: (10, None, "light green, as light blue is barely there"),
         190: ("#e5b567", None, "amber rather than magenta"),
     },
 }
@@ -316,6 +389,12 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
 #:   sockets share it as they share the slot; they are rare outside ``/dev``.
 #: * ``default`` ``keyword``: yellow, at the user's request -- the alias keeps
 #:   keywords normal text, as DN left them.
+#: * ``dosshell`` ``viewer-keyword``, ``viewer-comments`` and ``viewer-links``: the
+#:   viewer is black where the editor is white, so the editor's black keywords
+#:   and blue comments, which the aliases would copy, vanish there.
+#: * ``bw``, ``mono`` and ``vga-bw`` ``error-dialog`` and its icons and shadows: brown,
+#:   which these palettes' registers make #555555, rather than red, which they
+#:   make #393939 -- a black shadow on that is barely there.
 DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None, str]]] = {
     "default": {
         "symlink": (7, None, "MC's link colour; the alias would match images"),
@@ -326,6 +405,27 @@ DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None
         "device": ("#e5b567", None, "amber rather than magenta, as documents"),
         "special": ("#e5b567", None, "amber rather than magenta, as documents"),
         "keyword": (14, None, "yellow keywords, which DN left plain"),
+        "viewer-keyword": (14, None, "yellow keywords, as the editor's"),
+    },
+    "dosshell": {
+        "viewer-keyword": (15, None, "white, as the editor's black vanishes on the viewer's black"),
+        "viewer-comments": (7, None, "light grey, as the editor's blue is barely there on black"),
+        "viewer-links": (9, None, "light blue, as the frame icons' blue is barely there on black"),
+    },
+    "bw": {
+        "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+    },
+    "mono": {
+        "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+    },
+    "vga-bw": {
+        "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
     },
 }
 

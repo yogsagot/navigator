@@ -39,22 +39,22 @@ $bar-selected-key-fg: light_green;    /*  [  7] Shortcut selected -- CMenuView, 
 $bar-selected-key-bg: dark_gray;
 
 /* -- Dialogs ------------------------------------------------------------- */
-$dialog-frame-background-fg: green;   /*  [ 33] Frame/background */
-$dialog-frame-background-bg: dark_gray;
-$dialog-frame-icons-fg: light_green;  /*  [ 34] Frame icons */
-$dialog-frame-icons-bg: dark_gray;
-$dialog-scroll-bar-page-fg: green;    /*  [ 35] Scroll bar page */
-$dialog-scroll-bar-page-bg: dark_gray;
+$dialog-frame-background-fg: green;   /*  [ 33] Frame/background -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has green on dark_gray */
+$dialog-frame-background-bg: black;
+$dialog-frame-icons-fg: light_green;  /*  [ 34] Frame icons -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has light_green on dark_gray */
+$dialog-frame-icons-bg: black;
+$dialog-scroll-bar-page-fg: green;    /*  [ 35] Scroll bar page -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has green on dark_gray */
+$dialog-scroll-bar-page-bg: black;
 $dialog-scroll-bar-icons-fg: light_green;/*  [ 36] Scroll bar icons */
 $dialog-scroll-bar-icons-bg: green;
-$dialog-static-text-fg: green;        /*  [ 37] Static text */
-$dialog-static-text-bg: dark_gray;
-$dialog-label-normal-fg: green;       /*  [ 38] Label normal */
-$dialog-label-normal-bg: dark_gray;
-$dialog-label-selected-fg: light_green;/*  [ 39] Label selected */
-$dialog-label-selected-bg: dark_gray;
-$dialog-label-shortcut-fg: light_green;/*  [ 40] Label shortcut */
-$dialog-label-shortcut-bg: dark_gray;
+$dialog-static-text-fg: green;        /*  [ 37] Static text -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has green on dark_gray */
+$dialog-static-text-bg: black;
+$dialog-label-normal-fg: green;       /*  [ 38] Label normal -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has green on dark_gray */
+$dialog-label-normal-bg: black;
+$dialog-label-selected-fg: light_green;/*  [ 39] Label selected -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has light_green on dark_gray */
+$dialog-label-selected-bg: black;
+$dialog-label-shortcut-fg: light_green;/*  [ 40] Label shortcut -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has light_green on dark_gray */
+$dialog-label-shortcut-bg: black;
 $dialog-button-normal-fg: black;      /*  [ 41] Button normal */
 $dialog-button-normal-bg: green;
 $dialog-button-default-fg: light_cyan;/*  [ 42] Button default */
@@ -69,24 +69,24 @@ $dialog-shortcut-selected-fg: blue;   /*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: light_green;
 $dialog-shortcut-default-fg: white;   /*  [179] Shortcut default */
 $dialog-shortcut-default-bg: green;
-$dialog-button-shadow-fg: black;      /*  [ 46] Button shadow */
-$dialog-button-shadow-bg: dark_gray;
+$dialog-button-shadow-fg: dark_gray;  /*  [ 46] Button shadow -- Navigator: a dark grey shadow on the black dialog; the .PAL has black on dark_gray */
+$dialog-button-shadow-bg: black;
 $dialog-cluster-normal-fg: green;     /*  [ 47] Cluster normal */
 $dialog-cluster-normal-bg: black;
 $dialog-cluster-selected-fg: light_green;/*  [ 48] Cluster selected */
 $dialog-cluster-selected-bg: black;
 $dialog-cluster-shortcut-fg: light_green;/*  [ 49] Cluster shortcut */
 $dialog-cluster-shortcut-bg: black;
-$dialog-input-normal-fg: green;       /*  [ 50] Input normal */
-$dialog-input-normal-bg: black;
+$dialog-input-normal-fg: light_green; /*  [ 50] Input normal -- Navigator: a dark grey field, as the dialog is black now; the .PAL has green on black */
+$dialog-input-normal-bg: dark_gray;
 $dialog-input-selected-fg: black;     /*  [ 51] Input selected */
 $dialog-input-selected-bg: green;
-$dialog-input-arrow-fg: light_green;  /*  [ 52] Input arrow */
-$dialog-input-arrow-bg: black;
+$dialog-input-arrow-fg: light_green;  /*  [ 52] Input arrow -- Navigator: on the field's dark grey; the .PAL has light_green on black */
+$dialog-input-arrow-bg: dark_gray;
 $dialog-history-button-fg: black;     /*  [ 53] History button */
 $dialog-history-button-bg: green;
-$dialog-history-sides-fg: green;      /*  [ 54] History sides */
-$dialog-history-sides-bg: dark_gray;
+$dialog-history-sides-fg: green;      /*  [ 54] History sides -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has green on dark_gray */
+$dialog-history-sides-bg: black;
 $dialog-history-bar-page-fg: green;   /*  [ 55] History bar page */
 $dialog-history-bar-page-bg: black;
 $dialog-history-bar-icons-fg: light_green;/*  [ 56] History bar icons */
@@ -99,8 +99,8 @@ $dialog-list-selected-fg: light_green;/*  [ 59] List selected */
 $dialog-list-selected-bg: black;
 $dialog-list-divider-fg: green;       /*  [ 60] List divider */
 $dialog-list-divider-bg: black;
-$dialog-information-pane-fg: light_green;/*  [ 61] Information pane */
-$dialog-information-pane-bg: dark_gray;
+$dialog-information-pane-fg: light_green;/*  [ 61] Information pane -- Navigator: a black dialog, as green on dark grey is barely there; the .PAL has light_green on dark_gray */
+$dialog-information-pane-bg: black;
 
 /* -- Tree ---------------------------------------------------------------- */
 $dialog-tree-normal-tree-fg: green;   /*  [104] Normal tree */
@@ -135,7 +135,7 @@ $panel-fg: green;                     /*> [ 85] Normal text -- CDoubleWindow[6] 
 $panel-bg: black;
 $marked-fg: light_green;              /*  [ 87] Selected text -- CDoubleWindow[8] -> CPanel[3] */
 $marked-bg: black;
-$cursor-fg: green;                    /*> [ 88] Normal cursor -- CDoubleWindow[9] -> CPanel[4] */
+$cursor-fg: white;                    /*> [ 88] Normal cursor -- CDoubleWindow[9] -> CPanel[4] -- Navigator: white, as green on the dark grey bar is barely there; the .PAL has green on dark_gray */
 $cursor-bg: dark_gray;
 $marked-cursor-fg: light_green;       /*  [ 89] Selected cursor -- CDoubleWindow[10] -> CPanel[5] */
 $marked-cursor-bg: dark_gray;
@@ -163,7 +163,7 @@ $highlight-custom-3-fg: light_red;    /*> [177] Custom 3 */
 $highlight-custom-3-bg: black;
 $highlight-custom-4-fg: $color-amber; /*> [180] Custom 4 -- Navigator: amber rather than magenta; the .PAL has light_magenta on black */
 $highlight-custom-4-bg: black;
-$highlight-custom-5-fg: blue;         /*> [181] Custom 5 */
+$highlight-custom-5-fg: light_blue;   /*> [181] Custom 5 -- Navigator: light blue, as blue on black is barely there; the .PAL has blue on black */
 $highlight-custom-5-bg: black;
 
 /* -- Drive Line ---------------------------------------------------------- */
@@ -175,7 +175,7 @@ $drive-line-frame-fg: green;          /*  [187] Frame */
 $drive-line-frame-bg: black;
 
 /* -- Info ---------------------------------------------------------------- */
-$info-current-file-fg: green;         /*  [119] Current file */
+$info-current-file-fg: light_green;   /*  [119] Current file -- Navigator: light green, as green on dark grey is barely there; the .PAL has green on dark_gray */
 $info-current-file-bg: dark_gray;
 $info-selected-text-fg: green;        /*  [120] Selected text */
 $info-selected-text-bg: black;
@@ -231,8 +231,8 @@ $viewer-scroll-bar-page-fg: green;    /*  [115] Scroll bar page */
 $viewer-scroll-bar-page-bg: black;
 $viewer-scroll-bar-icons-fg: light_green;/*  [116] Scroll bar icons */
 $viewer-scroll-bar-icons-bg: green;
-$viewer-normal-text-fg: green;        /*  [117] Normal text */
-$viewer-normal-text-bg: dark_gray;
+$viewer-normal-text-fg: green;        /*  [117] Normal text -- Navigator: black, as the editor, since green on dark grey is barely there; the .PAL has green on dark_gray */
+$viewer-normal-text-bg: black;
 $viewer-selected-text-fg: light_green;/*  [118] Selected text */
 $viewer-selected-text-bg: dark_gray;
 
@@ -374,8 +374,22 @@ $error-dialog-fg: white;              /*  the error box, frame and text -- no sl
 $error-dialog-bg: red;
 $error-dialog-icons-fg: yellow;       /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: red;
+$error-dialog-shadow-fg: black;       /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

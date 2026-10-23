@@ -211,7 +211,7 @@ ENTRIES = (
 #: one: the titles of a session running as root, white on dark red, which no
 #: DN palette draws anywhere because DOS had no root to warn about.  The
 #: ``error-dialog`` pair are others: the box an unexpected exception opens,
-#: white on red with yellow icons, where DN's ``mfError`` box kept the grey
+#: white on red with yellow icons and black shadows, where DN's ``mfError`` box kept the grey
 #: dialog palette and only said *Error* in its title.
 DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "image": (175, "images -- DN's Custom 1"),
@@ -226,7 +226,14 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "root-title": ((15, 4), "a title while running as root -- no slot"),
     "error-dialog": ((15, 4), "the error box, frame and text -- no slot: DN's error boxes were grey"),
     "error-dialog-icons": ((14, 4), "the error box's frame icons -- no slot"),
+    "error-dialog-shadow": ((0, 4), "the error box's button shadows -- no slot"),
     "keyword": (76, "the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text"),
+    "viewer-comments": (164, "the viewer's comments -- DN's viewer had no highlighting; on Comments"),
+    "viewer-symbols": (189, "the viewer's symbols -- on Symbols"),
+    "viewer-strings": (190, "the viewer's strings -- on Strings"),
+    "viewer-numbers": (191, "the viewer's numbers -- on Numbers"),
+    "viewer-keyword": (76, "the viewer's keywords and headings -- on the editor's Normal text"),
+    "viewer-links": (114, "the viewer's links and bullets -- on its Frame icons"),
 }
 
 
@@ -264,7 +271,14 @@ DERIVED_ITEMS = {
     "root-title": "Title as root",
     "error-dialog": "Error box",
     "error-dialog-icons": "Error box icons",
+    "error-dialog-shadow": "Error box shadows",
     "keyword": "Keywords",
+    "viewer-comments": "Viewer comments",
+    "viewer-symbols": "Viewer symbols",
+    "viewer-strings": "Viewer strings",
+    "viewer-numbers": "Viewer numbers",
+    "viewer-keyword": "Viewer keywords",
+    "viewer-links": "Viewer links",
 }
 
 #: The palette the Colors dialog writes, in the configuration directory.

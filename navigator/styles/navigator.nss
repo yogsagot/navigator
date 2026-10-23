@@ -267,8 +267,8 @@ Button:focused StaticText::shortcut { fg: $dialog-shortcut-selected-fg; bold: $d
 /* The error box (ErrorDialog) is red: `$error-dialog', a departure -- DN's
    `mfError' box kept the grey dialog palette and only said *Error* in its
    title.  Its frame, title and text are white on red, the frame icons
-   yellow; the buttons keep a dialog's own colours, their shadows falling on
-   the red.  The two texts are named by id, so a button's caption -- also a
+   yellow; the buttons keep a dialog's own colours, their shadows black on
+   the red (`$error-dialog-shadow').  The two texts are named by id, so a button's caption -- also a
    StaticText -- keeps its rule above.  The traceback is styled further down
    with the editor's highlighting. */
 ErrorDialog,
@@ -276,7 +276,7 @@ ErrorDialog::title,
 ErrorDialog StaticText#summary,
 ErrorDialog StaticText#logged  { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
 ErrorDialog::icon              { fg: $error-dialog-icons-fg; bg: $error-dialog-icons-bg; bold: $error-dialog-icons-bold; dim: $error-dialog-icons-dim; italic: $error-dialog-icons-italic; underline: $error-dialog-icons-underline; reverse: $error-dialog-icons-reverse }
-ErrorDialog Button::shadow     { fg: $dialog-button-shadow-fg; bg: $error-dialog-bg; bold: $dialog-button-shadow-bold; dim: $dialog-button-shadow-dim; italic: $dialog-button-shadow-italic; underline: $dialog-button-shadow-underline; reverse: $dialog-button-shadow-reverse }
+ErrorDialog Button::shadow     { fg: $error-dialog-shadow-fg; bg: $error-dialog-shadow-bg; bold: $error-dialog-shadow-bold; dim: $error-dialog-shadow-dim; italic: $error-dialog-shadow-italic; underline: $error-dialog-shadow-underline; reverse: $error-dialog-shadow-reverse }
 
 /* DOS Navigator's CInputLine (#19#19#20#21) gives a passive and a focused line
  * the same slot, [50], and paints the selection in [51] whole.  Departure: a
@@ -358,8 +358,10 @@ CalendarView::day:today          { fg: $dialog-input-arrow-fg;       bg: $dialog
 CalendarView::day:selected,
 CalendarView::title:selected,
 TimePicker::value:selected       { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
-/* Today keeps its mark under the cursor: Input arrow's colour on the cursor's. */
-CalendarView::day:selected:today { fg: $dialog-input-arrow-fg;       bg: $dialog-input-selected-bg; bold: $dialog-input-arrow-bold; dim: $dialog-input-arrow-dim; italic: $dialog-input-arrow-italic; underline: $dialog-input-arrow-underline; reverse: $dialog-input-arrow-reverse }
+/* Today keeps its mark under the cursor: the cursor's colours, underlined.
+   Input arrow's colour on the cursor's ground mixed two slots, which some
+   palettes make the same colour. */
+CalendarView::day:selected:today { fg: $dialog-input-selected-fg;    bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: true; reverse: $dialog-input-selected-reverse }
 HistoryList ScrollBar::arrow,
 HistoryList ScrollBar::thumb     { fg: $dialog-history-bar-icons-fg; bg: $dialog-history-bar-icons-bg; bold: $dialog-history-bar-icons-bold; dim: $dialog-history-bar-icons-dim; italic: $dialog-history-bar-icons-italic; underline: $dialog-history-bar-icons-underline; reverse: $dialog-history-bar-icons-reverse }
 
@@ -516,33 +518,45 @@ FileEditor::token.string                       { fg: $editor-highlight-strings-f
 FileEditor::token.number                       { fg: $editor-highlight-numbers-fg }
 FileEditor::token.keyword,
 FileEditor::token.operator.word                { fg: $keyword-fg; bold: $keyword-bold; dim: $keyword-dim; italic: $keyword-italic; underline: $keyword-underline; reverse: $keyword-reverse }
-/* The viewer had no highlighting in DN: it borrows the editor's foregrounds,
-   comments' included, and keeps its own background (the quick view's too). */
-FileViewer::token.comment                      { fg: $editor-highlight-comments-fg }
+/* The viewer had no highlighting in DN.  It takes its own entries --
+   `$viewer-comments', `-symbols', `-strings', `-numbers', `-keyword' --
+   aliases of the editor's slots, so a palette colours both alike unless its
+   viewer's ground differs from its editor's (dosshell's black viewer on a
+   white editor), where a theme departs.  The quick view keeps the editor's:
+   its ground is the editor's in every palette. */
+FileViewer::token.comment                      { fg: $viewer-comments-fg }
 FileViewer::token.operator,
-FileViewer::token.punctuation                  { fg: $editor-highlight-symbols-fg }
-FileViewer::token.string                       { fg: $editor-highlight-strings-fg }
-FileViewer::token.number                       { fg: $editor-highlight-numbers-fg }
+FileViewer::token.punctuation                  { fg: $viewer-symbols-fg }
+FileViewer::token.string                       { fg: $viewer-strings-fg }
+FileViewer::token.number                       { fg: $viewer-numbers-fg }
 FileViewer::token.keyword,
-FileViewer::token.operator.word                { fg: $keyword-fg }
+FileViewer::token.operator.word                { fg: $viewer-keyword-fg }
+QuickViewer FileViewer::token.comment          { fg: $editor-highlight-comments-fg }
+QuickViewer FileViewer::token.operator,
+QuickViewer FileViewer::token.punctuation      { fg: $editor-highlight-symbols-fg }
+QuickViewer FileViewer::token.string           { fg: $editor-highlight-strings-fg }
+QuickViewer FileViewer::token.number           { fg: $editor-highlight-numbers-fg }
+QuickViewer FileViewer::token.keyword,
+QuickViewer FileViewer::token.operator.word    { fg: $keyword-fg }
 /* A departure too, DN's viewer had no Markdown reading (View > Markdown):
    headings in the keywords' colour, emphasis by attribute, code in the
    strings' colour (a block's in the text's, its tokens the highlight's), the
-   furniture -- rules, tables, quote gutters -- in the comments'.  The
-   theme's own variables only, so every theme has them. */
-FileViewer::md.heading                         { fg: $keyword-fg; bold: true }
-FileViewer::md.strong                          { fg: $editor-highlight-symbols-fg; bold: true }
+   furniture -- rules, tables, quote gutters -- in the comments', links and
+   bullets in `$viewer-links' (the frame icons' colour).  The theme's own
+   variables only, so every theme has them. */
+FileViewer::md.heading                         { fg: $viewer-keyword-fg; bold: true }
+FileViewer::md.strong                          { fg: $viewer-symbols-fg; bold: true }
 FileViewer::md.emph                            { italic: true }
 FileViewer::md.strike                          { dim: true }
-FileViewer::md.code                            { fg: $editor-highlight-strings-fg }
+FileViewer::md.code                            { fg: $viewer-strings-fg }
 FileViewer::md.code.block                      { fg: $viewer-normal-text-fg }
-FileViewer::md.link                            { fg: $viewer-frame-icons-fg; underline: true }
-FileViewer::md.image                           { fg: $editor-highlight-numbers-fg }
-FileViewer::md.bullet                          { fg: $viewer-frame-icons-fg }
-FileViewer::md.quote                           { fg: $editor-highlight-comments-fg; italic: true }
+FileViewer::md.link                            { fg: $viewer-links-fg; underline: true }
+FileViewer::md.image                           { fg: $viewer-numbers-fg }
+FileViewer::md.bullet                          { fg: $viewer-links-fg }
+FileViewer::md.quote                           { fg: $viewer-comments-fg; italic: true }
 FileViewer::md.rule,
 FileViewer::md.table,
-FileViewer::md.html                            { fg: $editor-highlight-comments-fg }
+FileViewer::md.html                            { fg: $viewer-comments-fg }
 FileViewer::md.th                              { bold: true }
 
 /* The error box's traceback (ErrorDialog, TraceList) is code, so it is shown

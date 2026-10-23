@@ -39,7 +39,7 @@ $desktop-bg: $dn-cyan;
 /* -- Menus --------------------------------------------------------------- */
 $bar-fg: $dn-black;                   /*> [  2] Normal -- CMenuView, CStatusLine[1] */
 $bar-bg: $dn-cyan;
-$bar-disabled-fg: $dn-light_gray;     /*  [  3] Disabled -- CMenuView, CStatusLine[2] */
+$bar-disabled-fg: $dn-dark_gray;      /*  [  3] Disabled -- CMenuView, CStatusLine[2] -- Navigator: dark grey, faint but legible; the .PAL has light_gray on cyan */
 $bar-disabled-bg: $dn-cyan;
 $bar-key-fg: $dn-white;               /*> [  4] Shortcut -- CMenuView, CStatusLine[3] */
 $bar-key-bg: $dn-cyan;
@@ -63,7 +63,7 @@ $dialog-static-text-fg: $dn-black;    /*  [ 37] Static text */
 $dialog-static-text-bg: $dn-cyan;
 $dialog-label-normal-fg: $dn-black;   /*  [ 38] Label normal */
 $dialog-label-normal-bg: $dn-cyan;
-$dialog-label-selected-fg: $dn-dark_gray;/*  [ 39] Label selected */
+$dialog-label-selected-fg: $dn-blue;  /*  [ 39] Label selected -- Navigator: blue, as dark grey makes the focused field's label look disabled; the .PAL has dark_gray on cyan */
 $dialog-label-selected-bg: $dn-cyan;
 $dialog-label-shortcut-fg: $dn-red;   /*  [ 40] Label shortcut */
 $dialog-label-shortcut-bg: $dn-cyan;
@@ -81,7 +81,7 @@ $dialog-shortcut-selected-fg: $dn-red;/*  [178] Shortcut selected */
 $dialog-shortcut-selected-bg: $dn-black;
 $dialog-shortcut-default-fg: $dn-blue;/*  [179] Shortcut default */
 $dialog-shortcut-default-bg: $dn-white;
-$dialog-button-shadow-fg: $dn-cyan;   /*  [ 46] Button shadow */
+$dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow -- Navigator: a black shadow, as cyan on cyan draws none; the .PAL has cyan on cyan */
 $dialog-button-shadow-bg: $dn-cyan;
 $dialog-cluster-normal-fg: $dn-black; /*  [ 47] Cluster normal */
 $dialog-cluster-normal-bg: $dn-cyan;
@@ -109,7 +109,7 @@ $dialog-list-focused-fg: $dn-white;   /*  [ 58] List focused */
 $dialog-list-focused-bg: $dn-black;
 $dialog-list-selected-fg: $dn-white;  /*  [ 59] List selected */
 $dialog-list-selected-bg: $dn-dark_gray;
-$dialog-list-divider-fg: $dn-blue;    /*  [ 60] List divider */
+$dialog-list-divider-fg: $dn-cyan;    /*  [ 60] List divider -- Navigator: cyan, as blue on dark grey is barely there; the .PAL has blue on dark_gray */
 $dialog-list-divider-bg: $dn-dark_gray;
 $dialog-information-pane-fg: $dn-white;/*  [ 61] Information pane */
 $dialog-information-pane-bg: $dn-dark_gray;
@@ -233,7 +233,7 @@ $disk-info-highlighted-text-fg: $dn-white;/*  [102] Highlighted text */
 $disk-info-highlighted-text-bg: $dn-cyan;
 
 /* -- File Viewer --------------------------------------------------------- */
-$viewer-frame-passive-fg: $dn-light_gray;/*  [112] Frame passive */
+$viewer-frame-passive-fg: $dn-dark_gray;/*  [112] Frame passive -- Navigator: dark grey, as light grey on cyan is barely there; the .PAL has light_gray on cyan */
 $viewer-frame-passive-bg: $dn-cyan;
 $viewer-frame-active-fg: $dn-black;   /*  [113] Frame active */
 $viewer-frame-active-bg: $dn-cyan;
@@ -249,7 +249,7 @@ $viewer-selected-text-fg: $dn-white;  /*  [118] Selected text */
 $viewer-selected-text-bg: $dn-blue;
 
 /* -- Editor/Spreadsheet -------------------------------------------------- */
-$editor-frame-passive-fg: $dn-light_gray;/*  [ 70] Frame passive */
+$editor-frame-passive-fg: $dn-dark_gray;/*  [ 70] Frame passive -- Navigator: dark grey, as light grey on cyan is barely there; the .PAL has light_gray on cyan */
 $editor-frame-passive-bg: $dn-cyan;
 $editor-frame-active-fg: $dn-black;   /*  [ 71] Frame active */
 $editor-frame-active-bg: $dn-cyan;
@@ -347,7 +347,7 @@ $terminal-scroll-bar-icons-fg: $dn-white;/*  [ 12] Scroll bar icons */
 $terminal-scroll-bar-icons-bg: $dn-black;
 
 /* -- dBase viewer -------------------------------------------------------- */
-$dbase-frame-passive-fg: $dn-light_gray;/*  [166] Frame passive */
+$dbase-frame-passive-fg: $dn-dark_gray;/*  [166] Frame passive -- Navigator: dark grey, as light grey on cyan is barely there; the .PAL has light_gray on cyan */
 $dbase-frame-passive-bg: $dn-cyan;
 $dbase-frame-active-fg: $dn-black;    /*  [167] Frame active */
 $dbase-frame-active-bg: $dn-cyan;
@@ -386,8 +386,22 @@ $error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no sl
 $error-dialog-bg: $dn-red;
 $error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: $dn-red;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $dn-light_gray;  /*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] -- Navigator: light grey, as the editor's blue is barely there on black */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $dn-white;        /*  the viewer's keywords and headings -- on the editor's Normal text [76] -- Navigator: white, as the editor's black vanishes on the viewer's black */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $dn-light_blue;     /*  the viewer's links and bullets -- on its Frame icons [114] -- Navigator: light blue, as the frame icons' blue is barely there on black */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

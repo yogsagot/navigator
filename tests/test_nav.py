@@ -1298,6 +1298,124 @@ def test_every_theme_completes_the_scheme(tree):
         assert manager.left.style.bg is not None
 
 
+def test_no_theme_draws_an_unreadable_pair():
+    """Every rule's foreground must read against its background, in every theme;
+    a selected, focused or disabled state must look different from its base,
+    and a selected or focused one may not fade below 3:1 where its base reads
+    better; and an input line must stand out from the dialog it is in.  A rule
+    that sets a foreground alone -- a syntax token, a hotkey -- is read against
+    the ground it inherits: the same selector without its part's classes and
+    states, then without the part, then without the subject's own states.
+
+    DOS Navigator's palettes have pairs a modern screen barely shows -- a grey
+    on a near-identical grey, a key the same colour as its bar -- and a rule
+    mixing two slots can make one where neither palette did.  Each that was
+    found is a palconv departure; this keeps new ones from creeping in.  The
+    floor is low, 2:1, so a disabled item may still be faint; the ordinary
+    text of a widget made for reading -- a panel's rows, a dialog's labels, the
+    viewer's page -- has 2.5:1, which vga-spring's two greys (2.3) and vax's
+    green on dark grey (2.4) fell below.
+    """
+    from navkit.capabilities import VGA_PALETTE
+
+    def rgb(value):
+        return VGA_PALETTE[value] if isinstance(value, int) else value
+
+    def luminance(colour):
+        def channel(v):
+            v /= 255
+            return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+        r, g, b = colour
+        return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+
+    def contrast(fg, bg):
+        high, low = sorted((luminance(rgb(fg)), luminance(rgb(bg))), reverse=True)
+        return (high + 0.05) / (low + 0.05)
+
+    # What is read rather than glanced at: the widget's own text, in no state
+    # and of no file type -- a highlight, a disabled item or a type's colour
+    # keeps the 2:1 floor.
+    reading = {"Panel", "FileEditor", "FileViewer", "StaticText", "Label", "CheckBoxes", "RadioButtons",
+               "InputLine", "HistoryList", "ListViewer", "DirectoryTree", "TreeView", "MenuBox", "MenuBar",
+               "TraceList", "CalendarView", "TimePicker", "DBViewer", "InfoPanel", "VolumeList", "CharTable",
+               "UnicodeGrid"}
+
+    def ordinary(selector):
+        subject = selector.subject
+        return (subject.type_name in reading and subject.part in (None, "row", "node", "item", "day", "value")
+                and not (subject.states or subject.part_states or subject.classes or subject.part_classes)
+                # A button's caption is the button's, which DN drew white on grey.
+                and not any(ancestor.type_name == "Button" for ancestor, _combinator in selector.ancestors))
+
+    # History's sides are the button's own colour on the dialog's ground --
+    # half blocks that are as faint as the button is against the dialog.
+    exempt = {"History"}
+    for theme in theme_names():
+        rules = load_scheme(theme).rules
+        declared = {}
+        for rule in rules:
+            colours = rule.declarations
+            declared.setdefault(rule.selector, {}).update(colours)
+            if "fg" not in colours or "bg" not in colours:
+                continue
+            if rule.selector.subject.type_name in exempt:
+                continue
+            floor = 2.5 if ordinary(rule.selector) else 2.0
+            assert contrast(colours["fg"], colours["bg"]) >= floor, f"{theme}: line {rule.line}"
+        for selector, colours in declared.items():
+            subject = selector.subject
+            if "fg" not in colours or "bg" in colours or subject.type_name in exempt:
+                continue
+            bare = replace(subject, part_classes=frozenset(), part_states=frozenset())
+            for ground in (bare, replace(bare, part=None),
+                           replace(bare, part=None, states=frozenset(), classes=frozenset())):
+                inherited = declared.get(replace(selector, subject=ground), {})
+                if "bg" in inherited:
+                    assert contrast(colours["fg"], inherited["bg"]) >= 2.0, \
+                        f"{theme}: {subject.type_name}::{subject.part} {sorted(subject.part_classes)} on its ground"
+                    break
+        # A state rule may set only what it changes -- a disabled item its
+        # foreground -- so it counts as unchanged when everything it sets is
+        # what its base already has.
+        for selector, colours in declared.items():
+            subject = selector.subject
+            for state in ("selected", "focused", "disabled"):
+                for field in ("states", "part_states"):
+                    if state in getattr(subject, field):
+                        base = replace(selector, subject=replace(
+                            subject, **{field: getattr(subject, field) - {state}}))
+                        if base in declared and colours:
+                            assert any(declared[base].get(key) != value for key, value in colours.items()), \
+                                f"{theme}: {subject.type_name} {state} looks like its base"
+                        # A highlight that fades toward the ground looks
+                        # disabled -- dosshell's grey label of the field being
+                        # typed in.  A tree's cursor without focus is
+                        # meant to recede, so it is left out.
+                        passive_node = subject.part == "node" and "focused" not in subject.states
+                        if state == "disabled" or passive_node or base not in declared:
+                            continue
+                        normal = declared[base]
+                        if "fg" not in normal or "bg" not in normal or colours.get("bg", normal["bg"]) != normal["bg"]:
+                            continue
+                        # Only toward the ground: white on light grey is DN's
+                        # own highlight of a black label, the other way round.
+                        fg = colours.get("fg", normal["fg"])
+                        darker = luminance(rgb(fg)) < luminance(rgb(normal["bg"]))
+                        if darker != (luminance(rgb(normal["fg"])) < luminance(rgb(normal["bg"]))):
+                            continue
+                        faded = contrast(fg, normal["bg"])
+                        assert faded >= min(3.0, contrast(normal["fg"], normal["bg"])), \
+                            f"{theme}: {subject.type_name} {state} fades to {faded:.2f}:1"
+        # A field on the dialog's own ground has no edge: only its text shows.
+        def ground(type_name, *states):
+            return next(colours["bg"] for selector, colours in declared.items()
+                        if selector.subject.type_name == type_name and not selector.ancestors
+                        and selector.subject.states == set(states) and selector.subject.part is None)
+        dialog = ground("Modal")
+        assert ground("InputLine") != dialog, f"{theme}: an input line is the dialog's colour"
+        assert ground("InputLine", "focused") != dialog, f"{theme}: a focused input line is the dialog's colour"
+
+
 def test_every_theme_shows_an_input_line_s_selection():
     """Selected text must stand out from the line it is in, in every theme.
 

@@ -21,6 +21,19 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   #D8D8D8 at the user's request (DEFAULT.PAL's was 2.6:1 contrast). **No theme paints magenta**, also at the user's
   request: every magenta/light magenta slot in all eleven themes is a `DEPARTURES` entry (mostly amber #E5B567);
   a custom-DAC theme defines fourteen registers, without the two magentas (`UNUSED_COLORS`).
+- **No theme draws an unreadable pair**, also at the user's request: `test_no_theme_draws_an_unreadable_pair` resolves
+  every rule that sets both fg and bg, in every theme, and fails below 2:1 contrast (2.5:1 for the ordinary text of a
+  widget made for reading -- a panel's rows, labels, static text, the editor and viewer, lists and trees -- in no state
+  and of no file type; a button's caption keeps 2:1); when a `:selected`, `:focused` or
+  `:disabled` rule sets nothing its base does not already have; when a `:selected`/`:focused` state on its base's ground
+  fades toward that ground below 3:1 while the base reads better (a passive tree cursor is exempt, and a highlight going
+  the other way, DN's white label on grey, does not count); or when an input line, focused or not, has the
+  dialog's (`Modal`'s) ground (History's sides are exempt from the contrast floor: they are the button's own colour).
+  A rule setting only `fg` (a syntax token, a hotkey) is checked against the `bg` it inherits: the same selector without
+  its part's classes/states, then without the part, then without the subject's states. Each pair it found
+  in DN's palettes is a `DEPARTURES` entry. Most are in the grey custom-DAC themes, where two registers can be one
+  grey. A rule that mixes two slots' fg and bg is the usual sheet-side cause (the old input-line selection, the
+  calendar's today under the cursor), so paint a state in one slot whole.
 - **No slot holds a bare `#rrggbb`**: a departure's hex colour must be in palconv's `COLOR_NAMES`, and the theme defines
   it once at the top as `$color-<name>` (`$color-amber`, `$color-pale_gray`, ...) and refers to it by name; a test
   enforces it. Like the `$dn-*` registers, `$color-*` names are whole colours, not slots.
@@ -36,7 +49,13 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   `default`). The ten other themes were given palconv's two alias lines by hand, as palconv would write them.
 - Variables Navigator needs and DN had no slot for are the **`DERIVED`** table, each an alias of a slot, with
   palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
-  `root-title`, `error-dialog` (white on red) and `error-dialog-icons` (yellow on red) are colour pairs, not aliases.
+  `root-title`, `error-dialog` (white on red), `error-dialog-icons` (yellow on red) and `error-dialog-shadow` (black on
+  red, the buttons' shadows) are colour pairs, not aliases; bw, mono and vga-bw give the error box a #555555 ground instead,
+  as their red is a near-black grey.
+  The F3 viewer's highlighting has its own aliases, `viewer-comments`/`-symbols`/`-strings`/`-numbers`/`-keyword`/`-links`
+  (of [164]/[189]/[190]/[191]/[76]/[114]), because a viewer's ground can differ from the editor's: dosshell's viewer is
+  black where its editor is white, and departs. The quick view keeps the editor's colours, its ground being the editor's
+  in every palette.
   They colour the error box (`ErrorDialog`), which departs from DN, whose `mfError` box kept the grey dialog palette.
   The eleven themes got their four lines by hand, spelled the way each theme spells `root-title`.
 - **The tables live in `navigator/lib/appearance/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because

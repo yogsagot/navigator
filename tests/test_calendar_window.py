@@ -101,7 +101,10 @@ def test_today_keeps_its_mark_under_the_cursor(app):
 
     run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), lambda a: None, look])
     assert seen["both"] not in (seen["plain"], seen["cursor"], seen["today"])
-    assert seen["both"].fg == seen["today"].fg and seen["both"].bg == seen["cursor"].bg
+    # The cursor's colours, underlined: today's own foreground on the cursor's
+    # ground mixed two slots, which some palettes make the same colour.
+    assert (seen["both"].fg, seen["both"].bg) == (seen["cursor"].fg, seen["cursor"].bg)
+    assert seen["both"].underline
 
 
 def test_ctrl_f12_opens_the_calendar_from_anywhere_and_the_menu_shows_it(app):

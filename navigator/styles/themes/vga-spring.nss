@@ -29,6 +29,7 @@ $dn-yellow: #aeff55;
 $dn-white: #ebffff;
 
 /* Navigator's own colours, the departures below name. */
+$color-pale_gray: #d8d8d8;
 $color-amber: #e5b567;
 
 /* All 144 entries DOS Navigator's Colors dialog exposes, in its groups and
@@ -56,7 +57,7 @@ $bar-selected-key-bg: $dn-green;
 /* -- Dialogs ------------------------------------------------------------- */
 $dialog-frame-background-fg: $dn-white;/*  [ 33] Frame/background */
 $dialog-frame-background-bg: $dn-light_gray;
-$dialog-frame-icons-fg: $dn-light_green;/*  [ 34] Frame icons */
+$dialog-frame-icons-fg: $dn-blue;     /*  [ 34] Frame icons -- Navigator: blue, as light green on light grey is barely there; the .PAL has light_green on light_gray */
 $dialog-frame-icons-bg: $dn-light_gray;
 $dialog-scroll-bar-page-fg: $dn-cyan; /*  [ 35] Scroll bar page */
 $dialog-scroll-bar-page-bg: $dn-blue;
@@ -86,7 +87,7 @@ $dialog-shortcut-default-fg: $dn-yellow;/*  [179] Shortcut default */
 $dialog-shortcut-default-bg: $dn-dark_gray;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow */
 $dialog-button-shadow-bg: $dn-light_gray;
-$dialog-cluster-normal-fg: $dn-dark_gray;/*  [ 47] Cluster normal */
+$dialog-cluster-normal-fg: $dn-black; /*  [ 47] Cluster normal -- Navigator: black, as the labels, since dark grey is barely there on light grey; the .PAL has dark_gray on light_gray */
 $dialog-cluster-normal-bg: $dn-light_gray;
 $dialog-cluster-selected-fg: $dn-white;/*  [ 48] Cluster selected */
 $dialog-cluster-selected-bg: $dn-light_gray;
@@ -146,7 +147,7 @@ $scrollbar-arrow-fg: $dn-black;       /*  [ 84] Scroll bar icons -- CDoubleWindo
 $scrollbar-arrow-bg: $dn-white;
 
 /* -- File Panel ---------------------------------------------------------- */
-$panel-fg: $dn-light_gray;            /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] */
+$panel-fg: $color-pale_gray;          /*> [ 85] Normal text -- CDoubleWindow[6] -> CPanel[1] -- Navigator: lighter text, as light grey is barely there on dark grey; the .PAL has light_gray on dark_gray */
 $panel-bg: $dn-dark_gray;
 $marked-fg: $dn-yellow;               /*  [ 87] Selected text -- CDoubleWindow[8] -> CPanel[3] */
 $marked-bg: $dn-dark_gray;
@@ -170,7 +171,7 @@ $executable-fg: $dn-light_cyan;       /*> [173] Executables -- CDoubleWindow[34]
 $executable-bg: $dn-dark_gray;
 $archive-fg: $dn-light_green;         /*> [174] Archives -- CDoubleWindow[35] -> CPanel[9], ttArc */
 $archive-bg: $dn-dark_gray;
-$highlight-custom-1-fg: $dn-cyan;     /*> [175] Custom 1 */
+$highlight-custom-1-fg: $dn-light_cyan;/*> [175] Custom 1 -- Navigator: light cyan, for contrast; the .PAL has cyan on dark_gray */
 $highlight-custom-1-bg: $dn-dark_gray;
 $highlight-custom-2-fg: $dn-green;    /*> [176] Custom 2 */
 $highlight-custom-2-bg: $dn-dark_gray;
@@ -178,7 +179,7 @@ $highlight-custom-3-fg: $color-amber; /*> [177] Custom 3 -- Navigator: amber rat
 $highlight-custom-3-bg: $dn-dark_gray;
 $highlight-custom-4-fg: $dn-light_red;/*> [180] Custom 4 */
 $highlight-custom-4-bg: $dn-dark_gray;
-$highlight-custom-5-fg: $dn-light_blue;/*> [181] Custom 5 */
+$highlight-custom-5-fg: $dn-light_green;/*> [181] Custom 5 -- Navigator: light green, as light blue is barely there; the .PAL has light_blue on dark_gray */
 $highlight-custom-5-bg: $dn-dark_gray;
 
 /* -- Drive Line ---------------------------------------------------------- */
@@ -206,7 +207,7 @@ $info-free-space-numbers-fg: $dn-white;/*  [125] Free space numbers */
 $info-free-space-numbers-bg: $dn-dark_gray;
 
 /* -- Tree ---------------------------------------------------------------- */
-$tree-normal-tree-fg: $dn-light_gray; /*  [ 94] Normal tree */
+$tree-normal-tree-fg: $color-pale_gray;/*  [ 94] Normal tree -- Navigator: lighter, as light grey is barely there on dark grey; the .PAL has light_gray on dark_gray */
 $tree-normal-tree-bg: $dn-dark_gray;
 $tree-normal-nodes-fg: $dn-white;     /*  [ 95] Normal nodes */
 $tree-normal-nodes-bg: $dn-dark_gray;
@@ -224,7 +225,7 @@ $tree-info-box-fg: $dn-black;         /*  [101] Info box */
 $tree-info-box-bg: $dn-light_gray;
 
 /* -- Quick View ---------------------------------------------------------- */
-$quick-view-normal-text-fg: $dn-light_gray;/*  [ 92] Normal text */
+$quick-view-normal-text-fg: $color-pale_gray;/*  [ 92] Normal text -- Navigator: lighter text, as light grey is barely there on dark grey; the .PAL has light_gray on dark_gray */
 $quick-view-normal-text-bg: $dn-dark_gray;
 $quick-view-selected-text-fg: $dn-black;/*  [ 93] Selected text */
 $quick-view-selected-text-bg: $dn-light_gray;
@@ -246,7 +247,7 @@ $viewer-scroll-bar-page-fg: $dn-white;/*  [115] Scroll bar page */
 $viewer-scroll-bar-page-bg: $dn-dark_gray;
 $viewer-scroll-bar-icons-fg: $dn-black;/*  [116] Scroll bar icons */
 $viewer-scroll-bar-icons-bg: $dn-white;
-$viewer-normal-text-fg: $dn-light_gray;/*  [117] Normal text */
+$viewer-normal-text-fg: $color-pale_gray;/*  [117] Normal text -- Navigator: lighter text, as light grey is barely there on dark grey; the .PAL has light_gray on dark_gray */
 $viewer-normal-text-bg: $dn-dark_gray;
 $viewer-selected-text-fg: $dn-black;  /*  [118] Selected text */
 $viewer-selected-text-bg: $dn-light_gray;
@@ -264,13 +265,13 @@ $editor-scroll-bar-page-fg: $dn-white;/*  [ 74] Scroll bar page */
 $editor-scroll-bar-page-bg: $dn-dark_gray;
 $editor-scroll-bar-icons-fg: $dn-black;/*  [ 75] Scroll bar icons */
 $editor-scroll-bar-icons-bg: $dn-white;
-$editor-normal-text-fg: $dn-light_gray;/*  [ 76] Normal text */
+$editor-normal-text-fg: $color-pale_gray;/*  [ 76] Normal text -- Navigator: lighter text, as light grey is barely there on dark grey; the .PAL has light_gray on dark_gray */
 $editor-normal-text-bg: $dn-dark_gray;
 $editor-selected-text-fg: $dn-white;  /*  [ 77] Selected text */
 $editor-selected-text-bg: $dn-light_gray;
 
 /* -- Highlight ----------------------------------------------------------- */
-$editor-highlight-comments-fg: $dn-cyan;/*  [164] Comments */
+$editor-highlight-comments-fg: $dn-light_cyan;/*  [164] Comments -- Navigator: light cyan, for contrast; the .PAL has cyan on dark_gray */
 $editor-highlight-comments-bg: $dn-dark_gray;
 $editor-highlight-symbols-fg: $dn-white;/*  [189] Symbols */
 $editor-highlight-symbols-bg: $dn-dark_gray;
@@ -350,7 +351,7 @@ $terminal-scroll-bar-icons-fg: $dn-blue;/*  [ 12] Scroll bar icons */
 $terminal-scroll-bar-icons-bg: $dn-cyan;
 
 /* -- dBase viewer -------------------------------------------------------- */
-$dbase-frame-passive-fg: $dn-dark_gray;/*  [166] Frame passive */
+$dbase-frame-passive-fg: $dn-black;   /*  [166] Frame passive -- Navigator: black, as dark grey is barely there on this ground; the .PAL has dark_gray on cyan */
 $dbase-frame-passive-bg: $dn-cyan;
 $dbase-frame-active-fg: $dn-white;    /*  [167] Frame active */
 $dbase-frame-active-bg: $dn-cyan;
@@ -389,8 +390,22 @@ $error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no sl
 $error-dialog-bg: $dn-red;
 $error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
 $error-dialog-icons-bg: $dn-red;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot */
+$error-dialog-shadow-bg: $dn-red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

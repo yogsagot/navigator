@@ -39,13 +39,13 @@ $desktop-bg: $dn-light_gray;
 /* -- Menus --------------------------------------------------------------- */
 $bar-fg: $dn-light_gray;              /*> [  2] Normal -- CMenuView, CStatusLine[1] */
 $bar-bg: $dn-black;
-$bar-disabled-fg: $dn-light_gray;     /*  [  3] Disabled -- CMenuView, CStatusLine[2] */
+$bar-disabled-fg: $dn-dark_gray;      /*  [  3] Disabled -- CMenuView, CStatusLine[2] -- Navigator: dark grey, as the .PAL draws a disabled item as an enabled one; the .PAL has light_gray on black */
 $bar-disabled-bg: $dn-black;
 $bar-key-fg: $dn-blue;                /*> [  4] Shortcut -- CMenuView, CStatusLine[3] */
 $bar-key-bg: $dn-black;
 $bar-selected-fg: $dn-black;          /*  [  5] Selected -- CMenuView, CStatusLine[4] */
 $bar-selected-bg: $dn-light_gray;
-$bar-selected-disabled-fg: $dn-black; /*  [  6] Selected disabled -- CMenuView, CStatusLine[5] */
+$bar-selected-disabled-fg: $dn-dark_gray;/*  [  6] Selected disabled -- CMenuView, CStatusLine[5] -- Navigator: dark grey, as the .PAL draws a disabled item as an enabled one; the .PAL has black on light_gray */
 $bar-selected-disabled-bg: $dn-light_gray;
 $bar-selected-key-fg: $dn-white;      /*  [  7] Shortcut selected -- CMenuView, CStatusLine[6] */
 $bar-selected-key-bg: $dn-black;
@@ -63,7 +63,7 @@ $dialog-static-text-fg: $dn-black;    /*  [ 37] Static text */
 $dialog-static-text-bg: $dn-light_gray;
 $dialog-label-normal-fg: $dn-black;   /*  [ 38] Label normal */
 $dialog-label-normal-bg: $dn-light_gray;
-$dialog-label-selected-fg: $dn-black; /*  [ 39] Label selected */
+$dialog-label-selected-fg: $dn-white; /*  [ 39] Label selected -- Navigator: white, as the .PAL draws a selected label as an idle one; the .PAL has black on light_gray */
 $dialog-label-selected-bg: $dn-light_gray;
 $dialog-label-shortcut-fg: $dn-white; /*  [ 40] Label shortcut */
 $dialog-label-shortcut-bg: $dn-black;
@@ -71,14 +71,14 @@ $dialog-button-normal-fg: $dn-light_gray;/*  [ 41] Button normal */
 $dialog-button-normal-bg: $dn-black;
 $dialog-button-default-fg: $dn-light_gray;/*  [ 42] Button default */
 $dialog-button-default-bg: $dn-black;
-$dialog-button-selected-fg: $dn-light_gray;/*  [ 43] Button selected */
-$dialog-button-selected-bg: $dn-black;
+$dialog-button-selected-fg: $dn-black;/*  [ 43] Button selected -- Navigator: inverse, as the .PAL draws a focused button as an idle one; the .PAL has light_gray on black */
+$dialog-button-selected-bg: $dn-light_gray;
 $dialog-button-disabled-fg: $dn-light_gray;/*  [ 44] Button disabled */
 $dialog-button-disabled-bg: $dn-black;
 $dialog-button-shortcut-fg: $dn-blue; /*  [ 45] Button shortcut */
 $dialog-button-shortcut-bg: $dn-black;
-$dialog-shortcut-selected-fg: $dn-white;/*  [178] Shortcut selected */
-$dialog-shortcut-selected-bg: $dn-black;
+$dialog-shortcut-selected-fg: $dn-white;/*  [178] Shortcut selected -- Navigator: on the focused button's inverse ground; the .PAL has white on black */
+$dialog-shortcut-selected-bg: $dn-light_gray;
 $dialog-shortcut-default-fg: $dn-blue;/*  [179] Shortcut default */
 $dialog-shortcut-default-bg: $dn-black;
 $dialog-button-shadow-fg: $dn-black;  /*  [ 46] Button shadow */
@@ -91,8 +91,8 @@ $dialog-cluster-shortcut-fg: $dn-white;/*  [ 49] Cluster shortcut */
 $dialog-cluster-shortcut-bg: $dn-black;
 $dialog-input-normal-fg: $dn-light_gray;/*  [ 50] Input normal */
 $dialog-input-normal-bg: $dn-black;
-$dialog-input-selected-fg: $dn-black; /*  [ 51] Input selected */
-$dialog-input-selected-bg: $dn-light_gray;
+$dialog-input-selected-fg: $dn-white; /*  [ 51] Input selected -- Navigator: a dark grey field, as the .PAL's light grey is the dialog's own ground; the .PAL has black on light_gray */
+$dialog-input-selected-bg: $dn-dark_gray;
 $dialog-input-arrow-fg: $dn-white;    /*  [ 52] Input arrow */
 $dialog-input-arrow-bg: $dn-black;
 $dialog-history-button-fg: $dn-white; /*  [ 53] History button */
@@ -125,8 +125,8 @@ $dialog-tree-default-node-fg: $dn-white;/*  [107] Default node */
 $dialog-tree-default-node-bg: $dn-black;
 $dialog-tree-selected-default-fg: $dn-black;/*  [108] Selected default */
 $dialog-tree-selected-default-bg: $dn-light_gray;
-$dialog-tree-selected-passive-fg: $dn-blue;/*  [109] Selected passive */
-$dialog-tree-selected-passive-bg: $dn-black;
+$dialog-tree-selected-passive-fg: $dn-white;/*  [109] Selected passive -- Navigator: a grey bar, as this blue is the nodes' own grey; the .PAL has blue on black */
+$dialog-tree-selected-passive-bg: $dn-dark_gray;
 $dialog-tree-selected-def-passive-fg: $dn-blue;/*  [110] Selected def. passive */
 $dialog-tree-selected-def-passive-bg: $dn-black;
 
@@ -213,8 +213,8 @@ $tree-default-node-fg: $dn-white;     /*  [ 97] Default node */
 $tree-default-node-bg: $dn-black;
 $tree-selected-default-fg: $dn-black; /*  [ 98] Selected default */
 $tree-selected-default-bg: $dn-light_gray;
-$tree-selected-passive-fg: $dn-blue;  /*  [ 99] Selected passive */
-$tree-selected-passive-bg: $dn-black;
+$tree-selected-passive-fg: $dn-white; /*  [ 99] Selected passive -- Navigator: a grey bar, as this blue is the nodes' own grey; the .PAL has blue on black */
+$tree-selected-passive-bg: $dn-dark_gray;
 $tree-selected-def-passive-fg: $dn-blue;/*  [100] Selected def. passive */
 $tree-selected-def-passive-bg: $dn-black;
 $tree-info-box-fg: $dn-black;         /*  [101] Info box */
@@ -382,12 +382,26 @@ $temp-fg: $panel-fg;                  /*  backups and temporaries -- MC's class,
 $temp-bg: $panel-bg;
 $root-title-fg: $dn-white;            /*  a title while running as root -- no slot */
 $root-title-bg: $dn-red;
-$error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no slot: DN's error boxes were grey */
-$error-dialog-bg: $dn-red;
-$error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot */
-$error-dialog-icons-bg: $dn-red;
+$error-dialog-fg: $dn-white;          /*  the error box, frame and text -- no slot: DN's error boxes were grey -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-bg: $dn-brown;
+$error-dialog-icons-fg: $dn-yellow;   /*  the error box's frame icons -- no slot -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-icons-bg: $dn-brown;
+$error-dialog-shadow-fg: $dn-black;   /*  the error box's button shadows -- no slot -- Navigator: a dark grey ground, as this red is a grey black shadows vanish into */
+$error-dialog-shadow-bg: $dn-brown;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
+$viewer-comments-bg: $editor-highlight-comments-bg;
+$viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */
+$viewer-symbols-bg: $editor-highlight-symbols-bg;
+$viewer-strings-fg: $editor-highlight-strings-fg;/*  the viewer's strings -- on Strings [190] */
+$viewer-strings-bg: $editor-highlight-strings-bg;
+$viewer-numbers-fg: $editor-highlight-numbers-fg;/*  the viewer's numbers -- on Numbers [191] */
+$viewer-numbers-bg: $editor-highlight-numbers-bg;
+$viewer-keyword-fg: $editor-normal-text-fg;/*  the viewer's keywords and headings -- on the editor's Normal text [76] */
+$viewer-keyword-bg: $editor-normal-text-bg;
+$viewer-links-fg: $viewer-frame-icons-fg;/*  the viewer's links and bullets -- on its Frame icons [114] */
+$viewer-links-bg: $viewer-frame-icons-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:
