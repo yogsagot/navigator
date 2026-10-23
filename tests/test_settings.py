@@ -294,6 +294,7 @@ def test_colours_are_chosen_in_interface_setup_and_sent_at_once(tmp_path, quiet_
     ("InterfaceSetup", "interface"),
     ("SetupConfirmation", "confirmations"),
     ("SaversSetup", "savers"),
+    ("CountrySetup", "country"),
     ("EditorDefaults", "editor_viewer"),
     ("FileManagerSetup", "file_manager"),
     ("DriveInfoSetup", "drive_info"),
@@ -373,8 +374,9 @@ def test_pgdn_and_pgup_turn_the_pages_from_the_savers_lists_too(tmp_path, quiet_
                   KeyEvent("pagedown"), lambda a: None, where,
                   KeyEvent("pageup"), lambda a: None, where,
                   KeyEvent("escape"), lambda a: None])
-    # Savers is the fifth page; it opens on its list, which gives the keys way.
-    assert seen == [(4, "ListViewer"), (5, "CheckBoxes"), (4, "ListViewer")]
+    # Savers is the fifth page; it opens on its list, which gives the keys way,
+    # and Country after it opens on its date order.
+    assert seen == [(4, "ListViewer"), (5, "RadioButtons"), (4, "ListViewer")]
 
 
 def test_pgdn_and_pgup_turn_the_pages_from_a_number_field_which_still_steps_with_the_arrows(

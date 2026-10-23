@@ -118,6 +118,29 @@ def test_the_time_is_dns_date_and_time_and_blank_is_leave_it():
     assert fileattr.parse_mtime("", "11:20", base) == base + 3600 - 30
 
 
+@pytest.mark.parametrize("format, text", [
+    ("%m/%d/%Y", "03/06/2024"), ("%Y-%m-%d", "2024-03-06"), ("%d.%m.%y", "06.03.24"),
+])
+def test_the_date_is_read_in_the_order_it_was_written_in(format, text):
+    base = time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))
+    assert fileattr.date_text(base, format) == time.strftime(format, time.localtime(base))
+    assert fileattr.parse_mtime(text, "", base, format) == base + 86400
+    with pytest.raises(ValueError):
+        fileattr.parse_mtime("06-03-2024", "", base, format)
+
+
+def test_a_12_hour_time_is_written_and_read_with_am_and_pm():
+    base = time.mktime((2024, 3, 5, 21, 20, 30, 0, 0, -1))
+    twelve = "%I:%M:%S%p"
+    assert fileattr.time_text(base, twelve) == "09:20:30pm"
+    assert fileattr.parse_mtime("", "09:20:30pm", base, time_format=twelve) is None
+    assert fileattr.parse_mtime("", "09:20:30am", base, time_format=twelve) == base - 12 * 3600
+    assert fileattr.parse_mtime("", "12:00:00am", base, time_format=twelve) == base - (21 * 3600 + 20 * 60 + 30)
+    for bad in ("13:00:00pm", "00:10:00am", "09:20:30"):
+        with pytest.raises(ValueError):
+            fileattr.parse_mtime("", bad, base, time_format=twelve)
+
+
 def test_a_bad_time_is_refused_and_mixed_times_need_both_halves():
     with pytest.raises(ValueError):
         fileattr.parse_mtime("31-02-2024", "10:00:00", None)

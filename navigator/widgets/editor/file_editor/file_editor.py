@@ -136,7 +136,7 @@ from navigator.lib.editor import lock
 from navigator.lib.editor.save import write_file
 from navigator.lib.editor import search
 from navigator.lib.editor.search import BREAK_CHARS, SearchData
-from navigator.lib.file_ops.fileattr import DATE_FORMAT, TIME_FORMAT
+from navigator.lib.config import country
 from navigator.lib import highlight
 from navigator.settings import SETTINGS
 from navigator.lib.viewer import HIDDEN_MARKS
@@ -1727,22 +1727,23 @@ class FileEditor(ContextMenuHost, Widget):
 
     # -- ^Q D and ^Q T -------------------------------------------------------------
 
-    def _insert_now(self, format: str) -> None:
-        """The date or time in DN's ``Date (D-M-Y)``/``Time (H:M:S)`` form -- the
-        attributes dialog's -- inserted at the cursor, never typed over what is
-        there even in overwrite, and the block left alone, as ``InsertDateTime`` left it."""
+    def _insert_now(self, text: str) -> None:
+        """The date or the time in *Country support*'s format (a custom date
+        included; the time with its seconds, DN's ``Time (H:M:S)``), inserted
+        at the cursor, never typed over what is there even in overwrite, and
+        the block left alone, as ``InsertDateTime`` left it."""
         self._moved()
         self._begin()
-        end = self.buffer.insert(self._pad(), time.strftime(format, _now()))
+        end = self.buffer.insert(self._pad(), text)
         self._go(end)
         self._end()
 
     async def on_insert_date(self, event: InsertDate) -> bool:
-        self._insert_now(DATE_FORMAT)
+        self._insert_now(country.format_date(_now()))
         return True
 
     async def on_insert_time(self, event: InsertTime) -> bool:
-        self._insert_now(TIME_FORMAT)
+        self._insert_now(country.format_time(_now(), seconds=True))
         return True
 
     async def on_switch_indent(self, event: SwitchIndent) -> bool:

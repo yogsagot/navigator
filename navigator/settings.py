@@ -750,6 +750,40 @@ class SaversData(Section):
         return [name for name in (part.strip() for part in self.selected.split(",")) if name]
 
 
+class CountryData(Section):
+    """``CountryInfo``: Options > Configuration > Country support (DN's
+    ``dlgCountrySetup``) -- how a file's date and time are written.
+
+    DN took the order from DOS's country information and let the dialog
+    change it -- Month-Day-Year, Day-Month-Year or Year-Month-Day, a
+    separator of its own, and 12 or 24 hours (``cfgCountryInfo``).  A
+    departure, asked for: each order comes with its usual separator --
+    European ``DD-MM-YYYY``, US ``MM/DD/YYYY``, ISO ``YYYY-MM-DD`` -- and a
+    fourth is any ``strftime`` format.  The thousands, decimal and currency
+    boxes and the uppercase table are left out: nothing here writes money,
+    and case is Unicode's.
+    """
+
+    name = "country"
+    title = "Options > Configuration > Country support (DN's dlgCountrySetup)"
+
+    DATES: ClassVar[tuple[str, ...]] = ("european", "us", "iso", "custom")
+    TIMES: ClassVar[tuple[str, ...]] = ("24h", "12h")
+    WEEKS: ClassVar[tuple[str, ...]] = ("monday", "sunday")
+
+    #: DN's default order (Day-Month-Year), with a four-digit year.
+    date_format: str = Setting(
+        "european", choices=DATES,
+        doc="A file's date: DD-MM-YYYY, MM/DD/YYYY, YYYY-MM-DD, or custom_date",
+    )
+    custom_date: str = Setting(
+        "%d.%m.%Y", doc="The date when date_format is custom, in strftime's %-directives",
+    )
+    time_format: str = Setting("24h", choices=TIMES, doc="A file's time and the clock: 24 or 12 hours")
+    #: Not DN's, which had no calendar: ISO's Monday, as navml's calendar began.
+    first_day: str = Setting("monday", choices=WEEKS, doc="The day a calendar's week starts on")
+
+
 class TetrisData(Section):
     """``TetrisRec``: ≡ > Game's *Setup game* (DN's ``dlgGameSetup``), kept
     as DN kept it (``cfgTetrisRec``)."""
@@ -821,8 +855,8 @@ class RemoteData(Section):
 SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
-    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, TetrisData, UUCodeData,
-    RemoteData,
+    DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
+    UUCodeData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -854,6 +888,7 @@ class Settings:
     column_defaults: ColumnDefaultsData
     highlight_groups: HighlightGroupsData
     savers: SaversData
+    country: CountryData
     tetris: TetrisData
     uucode: UUCodeData
     remote: RemoteData

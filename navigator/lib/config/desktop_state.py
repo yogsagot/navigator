@@ -328,6 +328,12 @@ async def restore(desktop: Any, data: dict[str, Any], *,
         rect = kept.get("rect")
         if isinstance(rect, dict):
             place_window(window, SimpleNamespace(**rect))
+            if kept.get("kind") == "calendar":
+                # It cannot be resized: its own size, whatever an older
+                # Navigator saved, so a row added since is not cut off.
+                from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
+
+                window.locate(window.x, window.y, min(WIDTH, desktop.width), min(HEIGHT, desktop.height))
         made.append(window)
         if index == front:
             in_front = window

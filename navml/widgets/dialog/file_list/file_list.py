@@ -24,7 +24,7 @@ import fnmatch
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, ClassVar
 
 import time
 
@@ -169,9 +169,10 @@ class FileInfoPane(Widget):
 
     Two lines, as ``TFileInfoPane.Draw`` wrote them: the directory with its
     wildcard, then ``' %-12s %-10s  %s'`` -- the name, the size or the word
-    *Directory*, and the date and time in DN's ``MakeDate`` form, a two-digit
-    year.  It keeps the last entry while the keyboard is elsewhere, as the
-    pane kept the last ``cmFileFocused`` record.
+    *Directory*, and the date and time -- by :attr:`stamp`, DN's ``MakeDate``
+    form with a two-digit year unless an application says otherwise.  It
+    keeps the last entry while the keyboard is elsewhere, as the pane kept
+    the last ``cmFileFocused`` record.
     """
 
     #: The directory and wildcard, ``FExpand``-ed.
@@ -182,12 +183,22 @@ class FileInfoPane(Widget):
     #: How the date and time are written.
     DATE_FORMAT = "%d-%m-%y %H:%M"
 
+    @staticmethod
+    def dn_stamp(mtime: float) -> str:
+        """*mtime* in :data:`DATE_FORMAT`, ``MakeDate``'s form."""
+        return time.strftime(FileInfoPane.DATE_FORMAT, time.localtime(mtime))
+
+    #: How every pane writes a modification time: a function of the seconds.
+    #: The library knows no country's format, so an application that keeps
+    #: one replaces this on the class (Navigator's ``Shell`` does).
+    stamp: ClassVar[Callable[[float], str]] = dn_stamp
+
     def lines(self) -> tuple[str, str]:
         item = self.item
         if item is None:
             return " " + self.path, ""
         size = tr("Directory") if item.is_dir else str(item.size)
-        when = time.strftime(self.DATE_FORMAT, time.localtime(item.mtime)) if item.mtime else ""
+        when = type(self).stamp(item.mtime) if item.mtime else ""
         return " " + self.path, f" {item.name:<12} {size:<10}  {when}"
 
     def render(self, surface: Surface) -> None:

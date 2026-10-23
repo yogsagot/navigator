@@ -7,8 +7,11 @@ from navml.component import Component as _Component
 from navml.widgets.timer import Timer
 
 from datetime import datetime
+from navkit.events import MouseClickEvent
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navigator.lib.config import country
+from navigator.widgets.shell.commands import OpenCalendar
 
 
 class Clock(_Component):
@@ -16,4 +19,5 @@ class Clock(_Component):
     tick: Timer
     def __init__(self, **kwargs: _Any) -> None: ...
     def text(self) -> str: ...
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool: ...
     def render(self, surface: Surface) -> None: ...

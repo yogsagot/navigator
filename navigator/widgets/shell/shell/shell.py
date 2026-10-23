@@ -45,6 +45,7 @@ from navigator.widgets.shell.commands import (
     OpenCalendar,
     ToggleTrashCan,
     SaversSetup,
+    CountrySetup,
     ScreenRest,
     About,
     ChangeColors,
@@ -90,9 +91,12 @@ from navigator.widgets.shell.commands import (
     ViewHistory,
 )
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
+from navml.widgets.dialog.date_button import CalendarView
+from navml.widgets.dialog.file_list import FileInfoPane
 from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.lib.appearance import filetypes
+from navigator.lib.config import country
 from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
 from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
@@ -150,6 +154,13 @@ class Shell(DockLayout):
         # once -- and these read only SETTINGS.
         interface = SETTINGS.interface
         self.clock.visible = bind(lambda w: interface.clock)
+        # *Country support*'s 12 hours put ``am``/``pm`` after the minutes.
+        self.clock.width = bind(lambda w: 7 if country.twelve_hours() else 5)
+        # navml's file dialogs know no country, so they are told from here;
+        # ``country.stamp`` reads the settings at each paint.
+        FileInfoPane.stamp = staticmethod(country.stamp)
+        # The same for the week a dropped calendar starts on.
+        CalendarView.default_first_weekday = staticmethod(country.first_weekday)
         # ≡ > Trashcan on/off's ``TTrashCan``: over the desktop's windows,
         # floating where its own bindings put it, as the clock does.
         from navigator.widgets.shell.trash_can import TrashCan
@@ -1284,21 +1295,33 @@ class Shell(DockLayout):
     async def on_open_calendar(self, event: OpenCalendar) -> bool:
         """Utilities > *Calendar*: TVDEMO's calendar window, a departure (DN had
         none) -- the one window, brought forward if it is open, else opened in
-        the middle of the desktop on today."""
+        the middle of the desktop on today.  From a click on the clock it goes
+        to the top right corner, its top edge on the screen's second row, just
+        under the clock; a click on the clock while it is open closes it."""
         from navigator.widgets.shell.calendar_window import CalendarWindow
         from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
 
         if self.console_visible:
             self.toggle_console()
         desktop = self.desktop
+        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
+        if event.under_clock:
+            # Screen row 1 in the desktop's rows: 0 under a docked menu bar,
+            # 1 when the desktop has the top row too.
+            top = desktop.offset()[1] + desktop.y
+            x, y = desktop.width - width, max(0, 1 - top)
+        else:
+            x, y = (desktop.width - width) // 2, (desktop.height - height) // 2
+        x, y = max(0, x), max(0, min(y, desktop.height - height))
         for window in desktop.windows():
             if isinstance(window, CalendarWindow):
-                desktop.activate(window)
+                if event.under_clock:
+                    window.close()
+                else:
+                    desktop.activate(window)
                 return True
         window = desktop.open(CalendarWindow())
-        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
-        window.locate(max(0, (desktop.width - width) // 2), max(0, (desktop.height - height) // 2),
-                      width, height)
+        window.locate(x, y, width, height)
         window.take_keyboard()
         return True
 
@@ -2397,6 +2420,10 @@ class Shell(DockLayout):
 
     async def on_savers_setup(self, event: SaversSetup) -> bool:
         self.spawn(self.settings("savers"))
+        return True
+
+    async def on_country_setup(self, event: CountrySetup) -> bool:
+        self.spawn(self.settings("country"))
         return True
 
     async def on_screen_rest(self, event: ScreenRest) -> bool:

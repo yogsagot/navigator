@@ -173,15 +173,20 @@ class SystemInfo(Command):
     """
 
 
+@dataclass(frozen=True, slots=True)
 class OpenCalendar(Command):
     """Utilities > Calendar: a month on the desktop, today marked.
 
     Not DOS Navigator 1.51's, which had no calendar -- a departure, asked for:
     Turbo Vision's ``TCalendarWindow`` from Borland's TVDEMO, the calendar a
     Turbo Vision desktop of the time offered beside its calculator.
+    *under_clock* is a click on the clock, which puts it in the top right
+    corner just under the clock rather than in the middle, or closes it when
+    it is open (also asked for).
     """
 
     title = "Calendar"
+    under_clock: bool = False
 
 
 class EnvEdit(Command):
@@ -230,6 +235,13 @@ class SaversSetup(Command):
     title = "Screen Savers"
 
 
+class CountrySetup(Command):
+    """Options > Configuration > Country support: DOS Navigator's
+    ``cmCountrySetup`` -- how a file's date and time are written."""
+
+    title = "Country"
+
+
 class ScreenRest(Command):
     """≡ > Screen rest: DOS Navigator's ``cmScreenRest`` -- a screen saver now
     (``InsertIdler``)."""
@@ -242,6 +254,7 @@ __all__ = [
     "EditLinks",
     "S3Link",
     "SaversSetup",
+    "CountrySetup",
     "ToggleTrashCan",
     "Game",
     "ScreenRest",

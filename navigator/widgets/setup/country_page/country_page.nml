@@ -1,0 +1,95 @@
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+
+#: Options > Configuration > Country support: DOS Navigator's
+#: ``dlgCountrySetup``, *Country information* (``[country]``, ``CountryData``).
+#:
+#: DN's *Date format* and *Time* where it had them, the date's three orders
+#: each with its usual separator and a fourth, *Custom*, whose ``strftime``
+#: format takes the line under them -- a departure, asked for, in place of
+#: DN's *Date separator* and *Time separator* lines.  The thousands, decimal
+#: and currency boxes and the uppercase table are left out: nothing here
+#: writes money, and case is Unicode's.  *Example* is not DN's: the stamp a
+#: panel's *Date* column would show now, following the choices as they are
+#: made.  Help is left out, having nothing to show yet.
+CountryPage:
+    #: The caption on its tab, which *Settings* gives it.
+    property title: ""
+
+    Label:
+        id: date_caption
+        x: 3
+        y: 1
+        width: 14
+        height: 1
+        text: "~D~ate format"
+        link: date_format
+
+    RadioButtons:
+        id: date_format
+        x: 3
+        y: 2
+        width: 34
+        height: 4
+        items: ["~E~uropean  DD-MM-YYYY", "~U~S        MM/DD/YYYY", "~I~SO       YYYY-MM-DD", "~C~ustom"]
+
+    Label:
+        id: time_caption
+        x: 40
+        y: 1
+        width: 8
+        height: 1
+        text: "~T~ime"
+        link: time_format
+
+    RadioButtons:
+        id: time_format
+        x: 40
+        y: 2
+        width: 20
+        height: 2
+        items: ["~1~2 hour", "~2~4 hour"]
+
+    #: Not DN's, which had no calendar: where a calendar's week begins.
+    Label:
+        id: week_caption
+        x: 40
+        y: 4
+        width: 14
+        height: 1
+        text: "~W~eek starts"
+        link: first_day
+
+    RadioButtons:
+        id: first_day
+        x: 40
+        y: 5
+        width: 20
+        height: 2
+        items: ["~M~onday", "~S~unday"]
+
+    Field:
+        id: custom_date
+        x: 3
+        y: 7
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "Custom ~f~ormat"
+        label_width: 16
+
+    StaticText:
+        id: custom_hint
+        x: 3
+        y: 8
+        width: max(0, parent.width - 6)
+        height: 2
+        text: "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's"
+
+    StaticText:
+        id: example
+        x: 3
+        y: 11
+        width: max(0, parent.width - 6)
+        height: 1

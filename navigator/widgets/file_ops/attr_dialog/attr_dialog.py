@@ -60,6 +60,7 @@ from navkit.reactive import effect, untracked
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
+from navigator.lib.config import country
 from navigator.lib.file_ops import fileattr
 #: The grid's twelve items.
 ALL_ITEMS = (1 << len(fileattr.BITS)) - 1
@@ -200,8 +201,11 @@ class AttrDialog(Dialog):
         self.group.choices = with_current(facts["groups"], self.group.value)
         if "can_chown_group" in facts:
             self.group.disabled = not facts["can_chown_group"]
-        self.date.value = fileattr.date_text(survey.mtime)
-        self.clock.value = fileattr.time_text(survey.mtime)
+        # *Country support*'s order, where a mask can hold it (country.typed_date_format).
+        self.date.date_format = country.typed_date_format()
+        self.date.value = fileattr.date_text(survey.mtime, self.date.date_format)
+        self.clock.time_format = country.typed_time_format()
+        self.clock.value = fileattr.time_text(survey.mtime, self.clock.time_format)
 
         self.recurse.disabled = not survey.dirs
         self.recurse_caption.disabled = not survey.dirs
@@ -350,7 +354,8 @@ class AttrDialog(Dialog):
         clear_bits = fileattr.from_items(changed & ~value)
         uid = fileattr.parse_user(self.user.value) if not self.user.disabled else None
         gid = fileattr.parse_group(self.group.value)
-        mtime = fileattr.parse_mtime(self.date.value, self.clock.value, survey.mtime)
+        mtime = fileattr.parse_mtime(self.date.value, self.clock.value, survey.mtime,
+                                     self.date.date_format, self.clock.time_format)
         recurse = fileattr.RECURSE[self.recurse.value] if survey.dirs else fileattr.NONE
         return fileattr.AttrRequest(
             sources=list(self._paths),

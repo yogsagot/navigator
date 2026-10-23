@@ -5,8 +5,10 @@ a validator on OK.  This is the line a date and a time want instead: the
 separators are part of it and cannot be typed over or deleted, and the only
 thing that goes in is a digit, at the place for one.
 
-* **``mask`` says the shape**: ``9`` is a place for a digit, anything else is
-  painted as itself and stepped over -- ``99-99-9999`` is a date.
+* **``mask`` says the shape**: ``9`` is a place for a digit, ``A`` a place
+  for the ``a`` or ``p`` of a 12-hour time's ``am``/``pm``, anything else is
+  painted as itself and stepped over -- ``99-99-9999`` is a date,
+  ``99:99Am`` a 12-hour time.
   :func:`mask_for` derives one from a ``strftime`` format.  **``base`` says
   which digits** go in: ten by default, eight for a file mode, which then
   refuses an ``8`` or a ``9`` and steps in eights.  A place may hold
@@ -15,6 +17,9 @@ thing that goes in is a digit, at the place for one.
 * **A digit overwrites the place under the caret** and the caret goes on to
   the next, staying on the last.  **Left and Right** move between the
   places, and **Home and End** jump to the first and the last.
+* **``a`` or ``p`` typed anywhere sets the ``am``/``pm`` place**, the caret
+  staying where it is; a digit is refused on that place, and Up and Down
+  there turn it over.
 * **Up and Down step the number under the caret** by the place's value --
   one on the units, ten on the tens -- with the caret staying put, and
   **PgUp and PgDn by ten times that**.  The line's button decides what that
@@ -38,6 +43,8 @@ thing that goes in is a digit, at the place for one.
 
 from __future__ import annotations
 
+import datetime
+
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
@@ -46,9 +53,16 @@ from navml.widgets.dialog.input_line import InputLine
 
 #: A place for a digit, in a mask.
 DIGIT = "9"
+#: A place for the ``a`` or ``p`` of ``am``/``pm``, in a mask.
+MERIDIEM = "A"
 
 #: What each ``strftime`` directive a date or a time uses takes in a mask.
-_DIRECTIVES = {"d": "99", "m": "99", "y": "99", "Y": "9999", "H": "99", "M": "99", "S": "99"}
+#: ``%p`` is spelled ``am``/``pm`` here whatever the C locale says
+#: (:func:`spell_time`), so it is a place and a literal ``m``.
+_DIRECTIVES = {
+    "d": "99", "m": "99", "y": "99", "Y": "9999", "H": "99", "I": "99", "M": "99", "S": "99",
+    "p": MERIDIEM + "m",
+}
 
 
 def spans(format: str) -> list[tuple[int, int, str]]:
@@ -86,17 +100,39 @@ def mask_for(format: str) -> str:
             mask.append(_DIRECTIVES[directive])
             index += 2
         else:
-            if char == DIGIT:
-                raise ValueError(f"{format!r} has a literal {DIGIT}, which a mask cannot tell from a digit")
+            if char in (DIGIT, MERIDIEM):
+                raise ValueError(f"{format!r} has a literal {char}, which a mask cannot tell from a place")
             mask.append(char)
             index += 1
     return "".join(mask)
 
 
+def spell_time(when: datetime.time | datetime.datetime, format: str) -> str:
+    """*when* in *format*, ``%p`` written ``am`` or ``pm`` -- not the C
+    locale's word, which may be capitals or nothing at all."""
+    if "%p" in format:
+        format = format.replace("%p", "am" if when.hour < 12 else "pm")
+    return when.strftime(format)
+
+
+def read_time(text: str, format: str) -> datetime.time:
+    """The time *text* spells in *format*, ``%p`` read as ``am``/``pm``
+    (:func:`spell_time`'s spelling).  ``ValueError`` for anything else."""
+    if "%p" not in format:
+        return datetime.datetime.strptime(text, format).time()
+    start, length = next((s, n) for s, n, directive in spans(format) if directive == "p")
+    half = text[start:start + length].lower()
+    if half not in ("am", "pm"):
+        raise ValueError(f"{text!r} has no am or pm")
+    when = datetime.datetime.strptime(text[:start] + text[start + length:], format.replace("%p", "", 1)).time()
+    return when.replace(hour=when.hour % 12 + (12 if half == "pm" else 0))
+
+
 class MaskedLine(InputLine):
     """An input line of digits in fixed places, typed over, never inserted into."""
 
-    #: The shape: ``9`` a digit's place, anything else a literal.
+    #: The shape: ``9`` a digit's place, ``A`` an ``am``/``pm`` place,
+    #: anything else a literal.
     mask: str = reactive("")
     #: Which digits a place takes, ``0`` to ``base - 1``, and what the plain
     #: stepping carries in.
@@ -110,13 +146,13 @@ class MaskedLine(InputLine):
 
     @property
     def places(self) -> list[int]:
-        """The indices a digit may go at."""
-        return [index for index, char in enumerate(self.mask) if char == DIGIT]
+        """The indices a digit, or an ``am``/``pm`` letter, may go at."""
+        return [index for index, char in enumerate(self.mask) if char in (DIGIT, MERIDIEM)]
 
     @property
     def blank(self) -> str:
         """The mask with every place empty: what the first digit fills in."""
-        return "".join(" " if char == DIGIT else char for char in self.mask)
+        return "".join(" " if char in (DIGIT, MERIDIEM) else char for char in self.mask)
 
     def _place_from(self, index: int, step: int = 1) -> int | None:
         """The first place at or past *index* going *step*-wise, or None."""
@@ -140,6 +176,17 @@ class MaskedLine(InputLine):
         """Whether *char* is a digit this line's base has."""
         return char.isdigit() and int(char) < self.base
 
+    def type_meridiem(self, letter: str) -> None:
+        """``a`` or ``p`` into the ``am``/``pm`` place, the caret left where it is."""
+        at = self.mask.find(MERIDIEM)
+        if at < 0 or letter.lower() not in "ap":
+            return
+        value = self.value if len(self.value) == len(self.mask) else self.blank
+        cursor = self.cursor
+        self.value = value[:at] + letter.lower() + value[at + 1 :]
+        self.cursor = cursor
+        self.anchor = None
+
     def type_digit(self, digit: str) -> None:
         places = self.places
         if not places or not self.accepts(digit):
@@ -147,6 +194,8 @@ class MaskedLine(InputLine):
         value = self.value if len(self.value) == len(self.mask) else self.blank
         self._settle()
         at = self.cursor
+        if self.mask[at] == MERIDIEM:
+            return
         self.value = value[:at] + digit + value[at + 1 :]
         later = self._place_from(at + 1)
         self.cursor = later if later is not None else at
@@ -175,6 +224,9 @@ class MaskedLine(InputLine):
         button = self.history
         step = getattr(button, "step", None)
         stepped = step(self.value, at, delta) if step is not None else None
+        if stepped is None and self.mask[at] == MERIDIEM:
+            value = self.value if len(self.value) == len(self.mask) else self.blank
+            stepped = value[:at] + ("a" if value[at] == "p" else "p") + value[at + 1 :]
         if stepped is None:
             stepped = self._step_run(at, delta)
         self.value = stepped
@@ -215,6 +267,8 @@ class MaskedLine(InputLine):
             return True
         if event.is_printable and event.char and self.accepts(event.char):
             self.type_digit(event.char)
+        elif event.is_printable and event.char and event.char.lower() in ("a", "p") and MERIDIEM in self.mask:
+            self.type_meridiem(event.char)
         elif event.matches("delete"):
             self.blank_place()
         elif event.matches("backspace"):

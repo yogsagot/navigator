@@ -54,10 +54,10 @@ class AttrDialog(Dialog, _Component):
     symbolic: StaticText    # attr_dialog.nml:75
     user: ChoiceField    # attr_dialog.nml:84
     group: ChoiceField    # attr_dialog.nml:93
-    date: DateField    # attr_dialog.nml:105
-    clock: TimeField    # attr_dialog.nml:114
-    recurse_caption: Label    # attr_dialog.nml:124
-    recurse: RadioButtons    # attr_dialog.nml:133
+    date: DateField    # attr_dialog.nml:108
+    clock: TimeField    # attr_dialog.nml:117
+    recurse_caption: Label    # attr_dialog.nml:127
+    recurse: RadioButtons    # attr_dialog.nml:136
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -69,10 +69,10 @@ class AttrDialog(Dialog, _Component):
         self.symbolic = StaticText(parent=self)    # attr_dialog.nml:74
         self.user = ChoiceField(parent=self)    # attr_dialog.nml:83
         self.group = ChoiceField(parent=self)    # attr_dialog.nml:92
-        self.date = DateField(parent=self)    # attr_dialog.nml:104
-        self.clock = TimeField(parent=self)    # attr_dialog.nml:113
-        self.recurse_caption = Label(parent=self)    # attr_dialog.nml:123
-        self.recurse = RadioButtons(parent=self)    # attr_dialog.nml:132
+        self.date = DateField(parent=self)    # attr_dialog.nml:107
+        self.clock = TimeField(parent=self)    # attr_dialog.nml:116
+        self.recurse_caption = Label(parent=self)    # attr_dialog.nml:126
+        self.recurse = RadioButtons(parent=self)    # attr_dialog.nml:135
 
         self.modal_width = 60    # attr_dialog.nml:20
         self.modal_height = 20    # attr_dialog.nml:21
@@ -136,35 +136,35 @@ class AttrDialog(Dialog, _Component):
         self.group.label_text = _bind(lambda _o: _tr('~G~roup'), yielding=True)    # attr_dialog.nml:98
         self.group.label_width = 10    # attr_dialog.nml:99
 
-        self.date.x = 2    # attr_dialog.nml:106
-        self.date.y = 12    # attr_dialog.nml:107
-        self.date.width = 26    # attr_dialog.nml:108
-        self.date.height = 1    # attr_dialog.nml:109
-        self.date.label_text = _bind(lambda _o: _tr('~D~ate'), yielding=True)    # attr_dialog.nml:110
-        self.date.label_width = 10    # attr_dialog.nml:111
+        self.date.x = 2    # attr_dialog.nml:109
+        self.date.y = 12    # attr_dialog.nml:110
+        self.date.width = 26    # attr_dialog.nml:111
+        self.date.height = 1    # attr_dialog.nml:112
+        self.date.label_text = _bind(lambda _o: _tr('~D~ate'), yielding=True)    # attr_dialog.nml:113
+        self.date.label_width = 10    # attr_dialog.nml:114
 
-        self.clock.x = 30    # attr_dialog.nml:115
-        self.clock.y = 12    # attr_dialog.nml:116
-        self.clock.width = 20    # attr_dialog.nml:117
-        self.clock.height = 1    # attr_dialog.nml:118
-        self.clock.label_text = _bind(lambda _o: _tr('~T~ime'), yielding=True)    # attr_dialog.nml:119
-        self.clock.label_width = 6    # attr_dialog.nml:120
+        self.clock.x = 30    # attr_dialog.nml:118
+        self.clock.y = 12    # attr_dialog.nml:119
+        self.clock.width = 22    # attr_dialog.nml:120
+        self.clock.height = 1    # attr_dialog.nml:121
+        self.clock.label_text = _bind(lambda _o: _tr('~T~ime'), yielding=True)    # attr_dialog.nml:122
+        self.clock.label_width = 6    # attr_dialog.nml:123
 
-        self.recurse_caption.x = 2    # attr_dialog.nml:125
-        self.recurse_caption.y = 14    # attr_dialog.nml:126
-        self.recurse_caption.width = 10    # attr_dialog.nml:127
-        self.recurse_caption.height = 1    # attr_dialog.nml:128
-        self.recurse_caption.text = _bind(    # attr_dialog.nml:129
+        self.recurse_caption.x = 2    # attr_dialog.nml:128
+        self.recurse_caption.y = 14    # attr_dialog.nml:129
+        self.recurse_caption.width = 10    # attr_dialog.nml:130
+        self.recurse_caption.height = 1    # attr_dialog.nml:131
+        self.recurse_caption.text = _bind(    # attr_dialog.nml:132
             lambda _o: _tr('~R~ecurse'),
             yielding=True,
         )
-        self.recurse_caption.link = _bind(lambda _o: self.recurse)    # attr_dialog.nml:130
+        self.recurse_caption.link = _bind(lambda _o: self.recurse)    # attr_dialog.nml:133
 
-        self.recurse.x = 12    # attr_dialog.nml:134
-        self.recurse.y = 14    # attr_dialog.nml:135
-        self.recurse.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # attr_dialog.nml:136
-        self.recurse.height = 1    # attr_dialog.nml:137
-        self.recurse.items = _bind(    # attr_dialog.nml:138
+        self.recurse.x = 12    # attr_dialog.nml:137
+        self.recurse.y = 14    # attr_dialog.nml:138
+        self.recurse.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # attr_dialog.nml:139
+        self.recurse.height = 1    # attr_dialog.nml:140
+        self.recurse.items = _bind(    # attr_dialog.nml:141
             lambda _o: [_tr('No'), _tr('Files'), _tr('Dirs'), _tr('All')],
             yielding=True,
         )

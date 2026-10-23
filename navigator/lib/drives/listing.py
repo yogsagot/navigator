@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import stat
-import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -22,6 +21,7 @@ from typing import Any
 from navkit.i18n import tr
 
 from navigator.lib.appearance import filetypes
+from navigator.lib.config import country
 from navigator.lib.file_ops.fileattr import group_name, user_name
 
 # Asked once per id rather than once per row painted: the password and group
@@ -189,15 +189,15 @@ class DirEntry:
 
     @property
     def display_date(self) -> str:
-        """The modification time, ``DD-MM-YYYY hh:mm``.
+        """The modification time in *Country support*'s format,
+        ``DD-MM-YYYY hh:mm`` by default (``country.stamp``).
 
-        DN's default country order, with a four-digit year -- a departure from
-        its ``YY``, which on DOS could not reach past 2107 anyway and here
-        would make 1999 and 2099 one.  Modification, not creation: a DOS
-        directory entry held one date, and Linux cannot report a creation time
-        portably.
+        A four-digit year -- a departure from DN's ``YY``, which on DOS could
+        not reach past 2107 anyway and here would make 1999 and 2099 one.
+        Modification, not creation: a DOS directory entry held one date, and
+        Linux cannot report a creation time portably.
         """
-        return time.strftime("%d-%m-%Y %H:%M", time.localtime(self.mtime))
+        return country.stamp(self.mtime)
 
     @property
     def info_size(self) -> str:

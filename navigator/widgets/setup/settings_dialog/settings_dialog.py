@@ -19,6 +19,7 @@ PAGES: dict[str, tuple[str, ...]] = {
     "interface": ("interface", "appearance"),
     "confirmations": ("confirmations",),
     "savers": ("savers",),
+    "country": ("country",),
     "editor_viewer": ("editor", "viewer"),
     "file_manager": ("file_manager",),
     "drive_info": ("drive_info",),

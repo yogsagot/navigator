@@ -102,6 +102,27 @@ def test_the_calendar_paints_the_month_the_weekdays_and_the_days():
     assert rows[3].rstrip("│ ").endswith("1  2  3  4")
 
 
+def calendar_rows(calendar):
+    buffer = ScreenBuffer(calendar.width, calendar.height)
+    calendar.render(buffer)
+    return ["".join(buffer.get(x, y)[0] or " " for x in range(calendar.width)) for y in range(calendar.height)]
+
+
+def test_a_calendar_with_a_format_spells_the_day_under_the_weeks():
+    calendar = Calendar(None, datetime.date(2026, 10, 15), width=Calendar.WIDTH, height=Calendar.SPELLED_HEIGHT)
+    calendar.date_format = "%m/%d/%Y"
+    assert Calendar.SPELLED_HEIGHT == Calendar.HEIGHT + 1
+    rows = calendar_rows(calendar)
+    assert rows[9].strip("│ ") == "10/15/2026"
+    keys(calendar, KeyEvent("right"))
+    assert calendar_rows(calendar)[9].strip("│ ") == "10/16/2026"
+
+
+def test_without_a_format_there_is_no_such_row():
+    calendar = Calendar(None, datetime.date(2026, 10, 15), width=Calendar.WIDTH, height=Calendar.SPELLED_HEIGHT)
+    assert calendar_rows(calendar)[9].strip("│ ") == ""
+
+
 def test_enter_and_a_click_on_a_day_choose_it():
     button = Picked()
     calendar = Calendar(button, datetime.date(2026, 10, 15), width=Calendar.WIDTH, height=Calendar.HEIGHT)
@@ -148,6 +169,47 @@ def test_without_seconds_there_are_two_numbers():
     keys(face, KeyEvent("end"))
     assert face.column == 1
     assert TimePicker.width_for(False) < TimePicker.width_for(True)
+
+
+def face_text(face):
+    buffer = ScreenBuffer(face.width, face.height)
+    face.render(buffer)
+    return "".join(buffer.get(x, 2)[0] or " " for x in range(face.width))
+
+
+def test_a_12_hour_face_shows_the_hour_1_to_12_and_am_or_pm_last():
+    width = TimePicker.width_for(True, twelve=True)
+    face = TimePicker(None, datetime.time(21, 5, 7), twelve=True, width=width, height=5)
+    assert width == TimePicker.width_for(True) + 5 and face.columns == 4
+    assert face_text(face).split() == ["│", "09", ":", "05", ":", "07", "pm", "│"]
+    face.values = (0, 0, 0)
+    assert "12" in face_text(face) and "am" in face_text(face)
+
+
+def test_up_and_down_turn_the_half_day_over_and_a_or_p_sets_it():
+    face = TimePicker(None, datetime.time(9, 5, 7), twelve=True)
+    keys(face, KeyEvent("end"), KeyEvent("up"))
+    assert face.values == (21, 5, 7) and face.column == 3
+    keys(face, KeyEvent("down"))
+    assert face.values == (9, 5, 7)
+    keys(face, KeyEvent("home"), KeyEvent("p", "p"))
+    assert face.values == (21, 5, 7) and face.column == 0
+    keys(face, KeyEvent("A", "A"))
+    assert face.values == (9, 5, 7)
+
+
+def test_an_hour_typed_on_a_12_hour_face_is_one_of_the_half_day_shown():
+    face = TimePicker(None, datetime.time(15, 0, 0), twelve=True)
+    keys(face, *(KeyEvent(c, c) for c in "11"))
+    assert face.values == (23, 0, 0) and face.column == 1
+    keys(face, KeyEvent("home"), *(KeyEvent(c, c) for c in "12"))
+    assert face.values == (12, 0, 0)
+    # Past 12 keeps only its second digit, as past 23 does on a 24-hour face.
+    keys(face, KeyEvent("home"), *(KeyEvent(c, c) for c in "17"))
+    assert face.values == (19, 0, 0)
+    # Digits on the am/pm column are refused.
+    keys(face, KeyEvent("end"), KeyEvent("5", "5"))
+    assert face.values == (19, 0, 0)
 
 
 def test_a_click_on_an_arrow_steps_its_number():
@@ -210,6 +272,38 @@ def test_alt_down_drops_the_picker_on_the_lines_value_and_enter_writes_it_back()
     assert date_text == "01-03-2026"
     assert face == "TimePicker" and time_text == "08:15:00"
     assert type(modal).__name__ == "Dialog"
+
+
+def test_a_12_hour_line_drops_a_12_hour_face_and_gets_am_or_pm_back():
+    async def steps(app, dialog, date, time):
+        time.time_format = "%I:%M:%S%p"
+        time.value = "09:05:07pm"
+        time.entry.focus()
+        app.post_event(KeyEvent("down", alt=True))
+        await asyncio.sleep(0.03)
+        face = app.modal
+        opened = (face.twelve, face.values, face.width)
+        app.post_event(KeyEvent("a", "a"))
+        app.post_event(KeyEvent("enter"))
+        await asyncio.sleep(0.03)
+        return opened, time.value
+
+    opened, text = run_dialog(steps)
+    assert opened == (True, (21, 5, 7), TimePicker.width_for(True, twelve=True))
+    assert text == "09:05:07am"
+
+
+def test_the_dropped_calendar_spells_the_day_in_the_line_s_format():
+    async def steps(app, dialog, date, time):
+        date.date_format = "%Y-%m-%d"
+        date.value = "2026-02-28"
+        date.entry.focus()
+        app.post_event(KeyEvent("down", alt=True))
+        await asyncio.sleep(0.03)
+        calendar = app.modal
+        return calendar.height, calendar.date_format, calendar_rows(calendar)[9].strip("│ ")
+
+    assert run_dialog(steps) == (Calendar.SPELLED_HEIGHT, "%Y-%m-%d", "2026-02-28")
 
 
 def test_esc_leaves_the_line_as_it_was():
@@ -501,6 +595,47 @@ def test_a_time_steps_as_a_clock_does_and_wraps_round_the_day():
     assert step("00:05:00", 0, -1) == "14:05:00"
     assert step("10:20:59", 7) == "10:21:00"
     assert len(step("garbage!", 0)) == 8
+
+
+def test_a_12_hour_time_has_an_am_pm_place_spelled_the_same_in_every_locale():
+    from navml.widgets.dialog.masked_line import mask_for, read_time, spell_time
+
+    assert mask_for("%I:%M:%S%p") == "99:99:99Am"
+    assert spell_time(datetime.time(0, 5, 7), "%I:%M:%S%p") == "12:05:07am"
+    assert spell_time(datetime.time(21, 5, 7), "%I:%M:%S%p") == "09:05:07pm"
+    assert read_time("12:05:07am", "%I:%M:%S%p") == datetime.time(0, 5, 7)
+    assert read_time("09:05:07PM", "%I:%M:%S%p") == datetime.time(21, 5, 7)
+    import pytest
+
+    for bad in ("13:00:00pm", "09:05:07xm", "00:05:07am"):
+        with pytest.raises(ValueError):
+            read_time(bad, "%I:%M:%S%p")
+
+
+def test_a_or_p_sets_the_half_day_wherever_the_caret_is_and_digits_skip_it():
+    line = masked("", "99:99:99Am")
+    keys(line, *(KeyEvent(c, c) for c in "093007"))
+    # The m is a literal, there as the separators are.
+    assert line.value == "09:30:07 m" and line.cursor == 8
+    keys(line, KeyEvent("7", "7"))
+    assert line.value == "09:30:07 m"  # a digit is refused on the am/pm place
+    keys(line, KeyEvent("home"), KeyEvent("p", "p"))
+    assert line.value == "09:30:07pm" and line.cursor == 0
+    keys(line, KeyEvent("A", "A"))
+    assert line.value == "09:30:07am"
+
+
+def test_a_12_hour_time_steps_round_the_clock_and_up_turns_the_half_day():
+    button = TimeButton()
+    button.time_format = "%I:%M:%S%p"
+
+    def step(text, index, delta=1):
+        return button.step(text, index, delta)
+
+    assert step("11:59:30am", 4) == "12:00:30pm"
+    assert step("12:00:00am", 1, -1) == "11:00:00pm"
+    assert step("09:05:07am", 8) == "09:05:07pm"
+    assert step("09:05:07pm", 8, -1) == "09:05:07am"
 
 
 def test_plain_down_in_a_date_field_steps_rather_than_dropping_the_calendar():

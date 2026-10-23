@@ -30,9 +30,11 @@ What is DN's and what is not:
 
 from __future__ import annotations
 
+import datetime
 import grp
 import os
 import pwd
+import re
 import stat
 import time
 from dataclasses import dataclass
@@ -40,6 +42,8 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
 from navkit.i18n import tr
+
+from navml.widgets.dialog.masked_line import spell_time
 
 from navigator.lib.file_ops.filecopy import Failure, error_message
 from navigator.lib.system.job import Job, Stopped
@@ -310,16 +314,27 @@ def _parse_id(text: str, lookup: Callable[[str], int], missing: str) -> int | No
 # -- the time --------------------------------------------------------------------
 
 
-def date_text(mtime: float | None) -> str:
-    return "" if mtime is None else time.strftime(DATE_FORMAT, time.localtime(mtime))
+def date_text(mtime: float | None, format: str = DATE_FORMAT) -> str:
+    return "" if mtime is None else time.strftime(format, time.localtime(mtime))
 
 
-def time_text(mtime: float | None) -> str:
-    return "" if mtime is None else time.strftime(TIME_FORMAT, time.localtime(mtime))
+def time_text(mtime: float | None, format: str = TIME_FORMAT) -> str:
+    """*mtime*'s time in *format*, ``%p`` as ``am``/``pm`` (``spell_time``)."""
+    if mtime is None:
+        return ""
+    return spell_time(datetime.datetime.fromtimestamp(mtime), format)
 
 
-def parse_mtime(date: str, clock: str, base: float | None) -> float | None:
+def parse_mtime(
+    date: str, clock: str, base: float | None,
+    date_format: str = DATE_FORMAT, time_format: str = TIME_FORMAT,
+) -> float | None:
     """The modification time *date* and *clock* name, or ``None`` to leave it.
+
+    *date* is read in *date_format*, numbers only (``%d``, ``%m``, ``%y``,
+    ``%Y`` and literals): *Country support*'s order, as the dialog's mask
+    spells it.  *clock* is ``H:M[:S]``, or with *time_format* holding ``%p``
+    ``h:M[:S]`` and ``am``/``pm`` after it, the hour 1 to 12.
 
     Both blank is *leave it*.  One blank takes that half from *base*, the
     time every file has now -- and with none to take it from, the whole is
@@ -334,15 +349,25 @@ def parse_mtime(date: str, clock: str, base: float | None) -> float | None:
         raise ValueError(tr("Give both a date and a time"))
     when = time.localtime(base) if base is not None else None
     if date:
-        day, month, year = _numbers(date, "-", tr("{text} is not a valid date"))
+        day, month, year = _date_numbers(date, date_format, tr("{text} is not a valid date"))
         if year < 100:
             year += 2000 if year < 70 else 1900
     else:
         day, month, year = when.tm_mday, when.tm_mon, when.tm_year
     if clock:
-        parts = _numbers(clock, ":", tr("{text} is not a valid time"), minimum=2)
+        invalid = tr("{text} is not a valid time")
+        half = None
+        if "%p" in time_format:
+            clock, half = clock[:-2].strip(), clock[-2:].lower()
+            if half not in ("am", "pm"):
+                raise ValueError(invalid.format(text=clock + half))
+        parts = _numbers(clock, ":", invalid, minimum=2)
         hour, minute = parts[0], parts[1]
         second = parts[2] if len(parts) > 2 else 0
+        if half is not None:
+            if not 1 <= hour <= 12:
+                raise ValueError(invalid.format(text=clock + half))
+            hour = hour % 12 + (12 if half == "pm" else 0)
     else:
         hour, minute, second = when.tm_hour, when.tm_min, when.tm_sec
     try:
@@ -355,6 +380,31 @@ def parse_mtime(date: str, clock: str, base: float | None) -> float | None:
     if base is not None and int(stamp) == int(base):
         return None
     return stamp
+
+
+def _date_numbers(text: str, format: str, invalid: str) -> tuple[int, int, int]:
+    """Day, month and year from *text* in *format*: each directive a run of
+    digits (a year's up to four, the others' up to two), blanks allowed
+    round them, the literals between as the format has them."""
+    pattern, index, fields = [], 0, []
+    while index < len(format):
+        char = format[index]
+        if char == "%" and index + 1 < len(format):
+            directive = format[index + 1]
+            if directive not in "dmyY":
+                raise ValueError(f"%{directive} is not a date's number")
+            fields.append(directive)
+            pattern.append(r"\s*(\d{1,%d})\s*" % (4 if directive == "Y" else 2))
+            index += 2
+        else:
+            pattern.append(re.escape(char))
+            index += 1
+    found = re.fullmatch("".join(pattern), text)
+    kinds = [directive.lower() for directive in fields]
+    if found is None or sorted(kinds) != ["d", "m", "y"]:
+        raise ValueError(invalid.format(text=text))
+    values = {kind: int(number) for kind, number in zip(kinds, found.groups())}
+    return values["d"], values["m"], values["y"]
 
 
 def _numbers(text: str, separator: str, invalid: str, minimum: int = 3) -> tuple[int, ...]:

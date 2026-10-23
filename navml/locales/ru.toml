@@ -74,43 +74,43 @@ name = "Русский"
 "Choose year" = "Выбрать год"
 # navml/widgets/dialog/commands.py:153
 "Go to current date" = "Текущая дата"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "January" = "Январь"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "February" = "Февраль"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "March" = "Март"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "April" = "Апрель"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "May" = "Май"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "June" = "Июнь"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "July" = "Июль"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "August" = "Август"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "September" = "Сентябрь"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "October" = "Октябрь"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "November" = "Ноябрь"
-# navml/widgets/dialog/date_button/date_button.py:79
+# navml/widgets/dialog/date_button/date_button.py:86
 "December" = "Декабрь"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Mo" = "Пн"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Tu" = "Вт"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "We" = "Ср"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Th" = "Чт"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Fr" = "Пт"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Sa" = "Сб"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Su" = "Вс"
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."
@@ -120,7 +120,7 @@ name = "Русский"
 "Invalid drive or directory." = "Неверный диск или каталог."
 # navml/widgets/dialog/file_dialog/file_dialog.py:226
 "Error" = "Ошибка"
-# navml/widgets/dialog/file_list/file_list.py:189
+# navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Каталог"
 # navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Поиск: "

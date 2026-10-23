@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import os
 import stat
+import time
 from pathlib import Path
 
 import pytest
@@ -19,6 +20,7 @@ from navml.history import HISTORY
 from navml.widgets.dialog.check_boxes import CheckBoxes
 
 from navigator.lib.file_ops import fileattr
+from navigator.settings import SETTINGS
 from navigator.widgets.manager.commands import ChangeAttributes
 from navigator.widgets.file_ops.attr_dialog import AttrDialog
 from navigator.widgets.file_ops.attr_dialog.attr_dialog import info_for, name_for
@@ -93,6 +95,40 @@ def test_one_file_opens_on_its_own_mode_owner_and_time(tmp_path):
     assert dialog.recurse.disabled
     assert dialog.user.choices == fileattr.users()
     assert dialog.group.choices == fileattr.assignable_groups()
+
+
+def test_the_date_is_in_country_support_s_order_and_read_back_in_it(tmp_path):
+    f = make(tmp_path / "f", 0o640)
+    stamp = time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))
+    os.utime(f, (0, stamp))
+    SETTINGS.country.date_format = "us"
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    assert (dialog.date.value, dialog.date.entry.mask) == ("03/05/2024", "99/99/9999")
+    assert dialog.accept() is None
+    dialog.date.value = "03/06/2024"
+    assert dialog.accept().mtime == stamp + 86400
+
+
+def test_the_time_is_in_twelve_hours_when_country_support_says_so(tmp_path):
+    f = make(tmp_path / "f", 0o640)
+    stamp = time.mktime((2024, 3, 5, 21, 20, 30, 0, 0, -1))
+    os.utime(f, (0, stamp))
+    SETTINGS.country.time_format = "12h"
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    assert (dialog.clock.value, dialog.clock.entry.mask) == ("09:20:30pm", "99:99:99Am")
+    assert dialog.accept() is None
+    dialog.clock.value = "09:20:30am"
+    assert dialog.accept().mtime == stamp - 12 * 3600
+
+
+def test_a_custom_date_with_names_is_typed_in_the_european_order(tmp_path):
+    f = make(tmp_path / "f", 0o640)
+    os.utime(f, (0, time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))))
+    SETTINGS.country.date_format = "custom"
+    SETTINGS.country.custom_date = "%d %b %Y"
+    assert AttrDialog(entries=[entry("f")], here=tmp_path).date.value == "05-03-2024"
+    SETTINGS.country.custom_date = "%Y.%m.%d"
+    assert AttrDialog(entries=[entry("f")], here=tmp_path).date.value == "2024.03.05"
 
 
 def test_untouched_ok_changes_nothing(tmp_path):

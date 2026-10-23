@@ -9,7 +9,6 @@ query back rather than skipping the file.
 
 from __future__ import annotations
 
-import time
 from typing import Any
 
 from navkit.events import Event
@@ -18,12 +17,15 @@ from navkit.i18n import tr, tr_n
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
+from navigator.lib.config import country
 from navigator.lib.file_ops.filecopy import Overwrite, OverwriteAnswer
 
 
 def stamp(mtime: float) -> str:
-    """``MakeDate`` as the query showed it: ``DD-MM-YY (hh:mm)``."""
-    return time.strftime("%d-%m-%y (%H:%M)", time.localtime(mtime))
+    """``MakeDate`` as the query showed it, ``DATE (hh:mm)``, in *Country
+    support*'s format -- with the four-digit year the panels have, where
+    DN's was ``YY``."""
+    return f"{country.date_text(mtime)} ({country.time_text(mtime)})"
 
 
 def describe(question: Overwrite, width: int = 40) -> str:

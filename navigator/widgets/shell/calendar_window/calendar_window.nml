@@ -15,28 +15,35 @@ from navml.widgets.window import Window
 #: navml's ``CalendarView``, the one a date line's ``▐↓▌`` drops, so it pages
 #: and picks a month or a year the same way; here it only shows, as TVDEMO's
 #: did.  *Go to current date* (Alt+D, or ``T`` in the month) brings today
-#: back under the cursor -- not TVDEMO's, asked for.  Esc closes it.
+#: back under the cursor -- not TVDEMO's, asked for.  Under the weeks the
+#: day under the cursor is spelled in *Country support*'s date format, as a
+#: date line's drop-down spells it in the line's (bound in ``__init__``).
+#: Esc closes it.
 CalendarWindow(Window):
     title: "Calendar"
     zoomable: False
     resizable: False
 
+    #: T is the month's own key too; here it also works while the button has
+    #: the keyboard, which the month's table is not on the way out from.
     keys:
         escape: CloseWindow
+        t: GoToToday
+        shift+t: GoToToday
 
     CalendarView:
         id: month
         x: 2
         y: 1
         width: 22
-        height: 8
+        height: 9
         can_focus: True
 
     Button:
         id: today_button
         text: "Go to current ~d~ate"
         x: 2
-        y: 10
+        y: 11
         width: 23
         height: 2
 

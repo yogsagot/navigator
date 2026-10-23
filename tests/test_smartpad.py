@@ -12,9 +12,20 @@ from navkit.events import KeyEvent
 from navigator.lib.utilities import smartpad
 from navigator.__main__ import Navigator
 from navigator.models.edit_record import EditRecord
+from navigator.settings import SETTINGS
 
 FIXED = time.strptime("2026-10-04 09:05:07", "%Y-%m-%d %H:%M:%S")
 STAMP = "──────< 04-10-2026 09:05:07 >" + "─" * 36
+
+
+@pytest.mark.parametrize("order, hours, text", [
+    ("european", "24h", "04-10-2026 09:05:07"),
+    ("us", "12h", "10/04/2026 09:05:07am"),
+    ("iso", "24h", "2026-10-04 09:05:07"),
+])
+def test_the_stamp_follows_country_support(order, hours, text):
+    SETTINGS.country.date_format, SETTINGS.country.time_format = order, hours
+    assert smartpad.stamp_text(FIXED) == f"──────< {text} >" + "─" * 36
 
 
 @pytest.fixture

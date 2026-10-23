@@ -2,11 +2,11 @@
 
 Options > Settings (``settings_dialog``) holds one page per section of
 ``navigator.ini`` behind a row of tabs: System Setup, Startup, Interface,
-Confirmations, Screen savers and Editor/Viewer from Options > Configuration,
+Confirmations, Screen savers, Country support and Editor/Viewer from Options > Configuration,
 and Setup, Information panel, New Manager defaults, Column defaults and
 Highlight groups from Options > File Manager -- DOS Navigator's
 ``dlgSystemSetup``, ``dlgStartupSetup``, ``dlgInterfaceSetup``,
-``dlgConfirmations``, ``TSaversDialog``, ``dlgEditorDefaults``, ``dlgFMSetup``,
+``dlgConfirmations``, ``TSaversDialog``, ``dlgCountrySetup``, ``dlgEditorDefaults``, ``dlgFMSetup``,
 ``dlgDriveInfoSetup``, ``dlgFMDefaults``, ``dlgColumnsDefaults`` and
 ``dlgHighlightGroups``, each a dialog of its own there.  Each page
 (``*_page``) is seeded from its :mod:`navigator.settings` section and accepts

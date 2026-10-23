@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import datetime
+from typing import Any
 
 from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr
+from navkit.reactive import bind
 from navml.commands import CloseWindow
 from navml.widgets.dialog.commands import (
     ChooseMonth,
@@ -22,12 +24,22 @@ from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
+from navigator.lib.config import country
+
 #: The view with a column either side, the button under it, and the frame.
-WIDTH, HEIGHT = 26, 13
+WIDTH, HEIGHT = 26, 14
 
 
 class CalendarWindow(Window):
     """TVDEMO's ``TCalendarWindow``: a month, today marked."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        # The day spelled under the weeks and the week's first day, following
+        # *Country support* --
+        # navml's view knows no country, so it is told from here.
+        self.month.date_format = bind(lambda w: country.date_format())
+        self.month.first_weekday = bind(lambda w: country.first_weekday())
 
     def go_to_today(self) -> None:
         """*Go to current date*: today's month, the cursor on today, the keys

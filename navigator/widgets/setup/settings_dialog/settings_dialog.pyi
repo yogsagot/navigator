@@ -9,6 +9,7 @@ from navml.widgets.dialog.tab_view import TabView
 from navigator.widgets.setup.column_defaults_page import ColumnDefaultsPage
 from navigator.widgets.setup.communications_page import CommunicationsPage
 from navigator.widgets.setup.confirmations_page import ConfirmationsPage
+from navigator.widgets.setup.country_page import CountryPage
 from navigator.widgets.setup.drive_info_page import DriveInfoPage
 from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage
 from navigator.widgets.setup.fm_defaults_page import FMDefaultsPage
@@ -32,6 +33,7 @@ class SettingsDialog(Dialog, _Component):
     interface: InterfacePage
     confirmations: ConfirmationsPage
     savers: SaversPage
+    country: CountryPage
     editor_viewer: EditorDefaultsPage
     file_manager: FMSetupPage
     drive_info: DriveInfoPage

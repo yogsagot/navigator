@@ -16,18 +16,21 @@ from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 import datetime
+from typing import Any
 from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr
+from navkit.reactive import bind
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
+from navigator.lib.config import country
 
 
 class CalendarWindow(Window, _Component):
     month: CalendarView
     today_button: Button
     calendar_menu: SubMenu
-    def __init__(self, **kwargs: _Any) -> None: ...
+    def __init__(self, **kwargs: Any) -> None: ...
     def go_to_today(self) -> None: ...
     async def on_today_button_click(self, event: Event) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...

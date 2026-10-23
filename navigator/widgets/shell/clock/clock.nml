@@ -2,7 +2,9 @@ from navml.widgets.timer import Timer
 
 #: DOS Navigator's clock, in the top-right corner of the menu bar.
 #:
-#: ``HH:MM`` in 24-hour time, its colon blinking once a second.
+#: ``HH:MM`` in 24-hour time, or ``hh:MMam`` in 12 as *Country support*
+#: says (DN's ``CountryInfo.TimeFmt``), its colon blinking once a second.
+#: Five columns wide, seven in 12 hours: ``Shell`` binds the width.
 #: The document holds the blink and ``clock.py`` paints.  The time itself is
 #: not state: it is read from the wall clock at every paint, and the tick that
 #: flips ``blink`` is what guarantees there is a paint every second.

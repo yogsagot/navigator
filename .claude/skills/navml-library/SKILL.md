@@ -46,6 +46,13 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   a base-8 `MaskedField` takes 0-7 only. **`DateField`/`TimeField`** are masked lines with a `Calendar` (TVDEMO's
   `TCalendarView` with a cursor; month/year picked from lists by click, `M`/`Y`, or Tab) or a `TimePicker` dropped by
   `▐↓▌` or Alt+Down; Up/Down step by the place under the caret, PgUp/PgDn by ten times that, carrying.
+  **The dropped `Calendar` spells the cursor's day under the weeks** in its button's `date_format`
+  (`CalendarView.date_format`; empty, no row -- Navigator's *Calendar* window binds it to *Country support*'s), so it is `SPELLED_HEIGHT` tall.
+  **A 12-hour time** is `%I` and `%p`: the mask's `A` is a place for the `a`/`p` of `am`/`pm` (then a literal `m`),
+  set by `a`/`p` typed anywhere, turned over by Up/Down on it, refusing digits. **Spell and read such a time with
+  `spell_time`/`read_time`** (`masked_line`), never `strftime`/`strptime`, whose `%p` is the C locale's word; the
+  `TimeButton` does, and drops a 12-hour `TimePicker` (`twelve`): the hour 1-12, an `am`/`pm` column last that
+  Up/Down turn over and `A`/`P` set, `values` still 24-hour, five columns wider (`width_for(seconds, twelve)`).
 - **`CalendarView`** is the month without the drop-down: `Calendar` is `CalendarView` + `DropDown` with `inset = 1`
   (its frame) and `picked()` choosing; the view alone (`inset = 0`) answers `False` for keys it does not use, so Esc
   reaches its window. Styles name `CalendarView`, which matches both. Utilities > Calendar (`CalendarWindow`,

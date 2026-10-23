@@ -1392,6 +1392,29 @@ def test_ctrl_q_d_and_t_insert_the_date_and_the_time(files, monkeypatch):
 
 
 @pytest.mark.usefixtures("wordstar")
+def test_the_inserted_date_follows_country_support(files, monkeypatch):
+    import time as time_module
+
+    fixed = time_module.strptime("2026-10-04 09:05:07", "%Y-%m-%d %H:%M:%S")
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    SETTINGS.country.date_format = "custom"
+    SETTINGS.country.custom_date = "%d %b %Y"
+    _, editor = text_editor(files, b"\n", ctrl("q"), KeyEvent("d", "d"))
+    assert editor.document.encode() == time_module.strftime("%d %b %Y", fixed).encode() + b"\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_the_inserted_time_follows_country_support_s_hours(files, monkeypatch):
+    import time as time_module
+
+    fixed = time_module.strptime("2026-10-04 21:05:07", "%Y-%m-%d %H:%M:%S")
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    SETTINGS.country.time_format = "12h"
+    _, editor = text_editor(files, b"\n", ctrl("q"), ctrl("t"))
+    assert editor.document.encode() == b"09:05:07pm\n"
+
+
+@pytest.mark.usefixtures("wordstar")
 def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
     import time as time_module
 

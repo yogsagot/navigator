@@ -74,6 +74,7 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 | `[drive_info]` | `DriveInfoData` | `DriveInfoPage` (`dlgDriveInfoSetup`) | `DriveInfoSetup` |
 | `[column_defaults]` | `ColumnDefaultsData` (`ColumnsDefaults`) | `ColumnDefaultsPage` (`dlgColumnsDefaults`) | `ColumnDefaults` (`cmColumnDefaults`) |
 | `[savers]` | `SaversData` (`TSaversData`) | `SaversPage` (`TSaversDialog`, built in code in DN) | `SaversSetup` (`cmSaversSetup`); ≡ > Screen rest is `ScreenRest` |
+| `[country]` | `CountryData` (`CountryInfo`) | `CountryPage` (`dlgCountrySetup`) | `CountrySetup` (`cmCountrySetup`) |
 | `[uucode]` | `UUCodeData` (`TUUEncodeData`, `UUDecodeOptions`) | `UUEncodeDialog`, `UUDecodeDialog` (`dlgUUEncode`, `dlgUUDecode`, under `file_ops/`) | `UuEncode`, `UuDecode` -- saved by `Manager._keep_uucode`, not `Shell.setup` |
 | `[highlight_groups]` | `HighlightGroupsData` (`CustomMask1`..`5`) | `HighlightPage` (`dlgHighlightGroups`) | `HighlightGroups` (`cmHighlightGroups`) |
 
@@ -100,7 +101,7 @@ back under its new word.
 - *OS-dependent disk access*
 - *Clear read-only from CD*
 
-Screen savers, Printer, Country, Mouse, Communications and Terminal stay greyed in the menu.
+Printer, Mouse and Terminal stay greyed in the menu.
 
 **Defaults are DN's** (`STARTUP.PAS`) except where Navigator already behaved otherwise. Each exception carries a `#:`
 note:
@@ -116,7 +117,7 @@ note:
 ## The dialogs
 
 - **One dialog, a page per section.** Options > Settings (`SettingsDialog`, `navigator/widgets/setup/settings_dialog/`,
-  command `Settings`) holds the eleven setup pages behind navml's `TabView`. Each menu item under Options >
+  command `Settings`) holds the thirteen setup pages behind navml's `TabView`. Each menu item under Options >
   Configuration and Options > File Manager, and its command, still exists and opens it on its own page
   (`Shell.settings(tab)`). This is a departure: DN had a resource to each. Colors and Key bindings stay dialogs of
   their own.
@@ -219,6 +220,7 @@ note:
 | `drive_info.*` | Each line of Ctrl+L's information panel (`diskinfo.lines`), read at every paint. The field is `directory_title`, not `title`: a field named `title` would hide the section's own `title` |
 | `column_defaults.*` | A new panel's `columns` (*Disk Drive*) and each *Find:* listing's `find_columns` (*File find*), `ColumnDefaultsData.columns(listing)`. *TEMP:* and *TDR View* are left out as DOS-only, *Archives* until archive handlers; every box defaults on (DN's were 0, its brief panel) |
 | `savers.*` | `selected` (names, commas: `star_flight`, `flash_light`, `clock`, `blackness`, or a program in `savers/` beside `navigator.ini`), `time` and `mouse`: `Navigator._check_saver` (every `saver_check_every`) calls `Shell.rest` after *Time* idle or when the pointer comes into the top right corner, never with it in the bottom right, nor while the console runs a command. Empty by default, as DN's list was; Screen rest with none selected is *Star flight* (a departure). `navigator/lib/appearance/savers.py`, `widgets/shell/screen_saver.py` |
+| `country.*` | *Country support* (`navigator/lib/config/country.py`): `date_format` `european` (default, `DD-MM-YYYY`), `us` (`MM/DD/YYYY`), `iso` (`YYYY-MM-DD`) or `custom` (`custom_date`, `strftime`'s directives, empty is European); `time_format` `24h` (default) or `12h`, DN's `hh:mmam`/`hh:mmpm` spelled by hand, not `%p`. `first_day` `monday` (default) or `sunday` (not DN's, which had no calendar): `country.first_weekday()`, which `Shell.__init__` puts on `CalendarView.default_first_weekday` for every dropped calendar and the *Calendar* window binds. Read at each paint by the panels' *Date* column (`DirEntry.display_date` = `country.stamp`; `Panel.detail_columns` measures its width with `country.stamp_width`, so it follows a change), the overwrite query and the clock (`Shell` binds its width, 5 or 7). A departure, asked for: DN had the three orders with a separator of its own; the presets carry theirs, and *Custom* replaces the separator lines. File Attributes' date is typed and read back in `country.typed_date_format()` -- the chosen order, or European where a mask cannot hold it (a name, a missing or repeated part) -- through `DateField.date_format` and `fileattr.parse_mtime(..., date_format)`; its time is `country.typed_time_format()` -- `%H:%M:%S`, or `%I:%M:%S%p` in 12 hours (`fileattr.time_text`/`parse_mtime(time_format=)`, the field two cells wider for it). The editor's *Insert date* (^Q D) writes `country.format_date`, custom included, and *Insert time* (^Q T) `country.format_time(seconds=True)`: `H:M:S` in 24 hours, `hh:mm:ssam`/`pm` in 12. SmartPad's stamp (`smartpad.stamp_text`) takes both, with the seconds (`country.format_time(seconds=True)`). navml's file dialogs' info pane writes through `FileInfoPane.stamp`, a class-level hook (DN's `DD-MM-YY hh:mm` by default) that `Shell.__init__` points at `country.stamp`, navml knowing no settings |
 | `uucode.*` | What UU Encode and UU Decode open on and run with (`navigator-file-ops`); `line_ends` defaults to `lf` (a departure: DN's was DOS's CR+LF) |
 | `highlight_groups.*` | The five custom file-type masks (`filetypes.use_masks`, from `Shell._use_highlight_groups`): row colours and *Group* order; a change re-reads every panel. The lines are named after Navigator's groups, not DN's *Custom 1*..*5*; a mask is kept with blanks and empty patterns dropped (`DelSpaces`) |
 | `panel_defaults.sort_by` | Seeds each new panel's `sort_mode` (Alt+B changes one panel's) |

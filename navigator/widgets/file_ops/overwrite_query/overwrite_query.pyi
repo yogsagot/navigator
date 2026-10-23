@@ -11,11 +11,11 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 
-import time
 from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
 from navml.widgets.dialog.control import escape_caption
+from navigator.lib.config import country
 from navigator.lib.file_ops.filecopy import Overwrite, OverwriteAnswer
 
 

@@ -172,3 +172,26 @@ def test_a_volumes_window_comes_back_showing_what_it_showed(place, monkeypatch):
 
     run_app(app, [lambda a: a.spawn(round_trip(a)), Until(lambda a: "kinds" in seen)])
     assert seen == {"kinds": ["Manager", "VolumesWindow"], "all": True, "free": True}
+
+
+def test_a_calendar_saved_shorter_comes_back_its_own_size(place):
+    from navigator.widgets.shell.calendar_window import CalendarWindow
+    from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
+
+    app = navigator(place)
+    seen = {}
+
+    async def round_trip(a):
+        window = a.shell.desktop.open(CalendarWindow())
+        window.locate(5, 3, WIDTH, HEIGHT)
+        data = desktop_state.snapshot(a.shell.desktop)
+        # As a Navigator before the spelled row saved it: a row shorter.
+        data["windows"][-1]["rect"]["height"] = HEIGHT - 1
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        await desktop_state.restore(a.shell.desktop, data)
+        window = a.shell.desktop.windows()[-1]
+        seen.update(rect=(window.x, window.y, window.width, window.height))
+
+    run_app(app, [lambda a: a.spawn(round_trip(a)), Until(lambda a: "rect" in seen)])
+    assert seen["rect"] == (5, 3, WIDTH, HEIGHT)

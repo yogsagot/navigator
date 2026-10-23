@@ -42,6 +42,7 @@ from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 # lines apart meaning a module and a keyword is a trap rather than a saving.
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons as icon_glyphs
+from navigator.lib.config import country
 from navigator.lib.config.bookmarks import bookmarked_paths
 from navigator.lib.drives import Drive, DriveGone, Location, drive_of
 from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see listing's docstring
@@ -1472,14 +1473,15 @@ class Panel(ContextMenuHost, ListViewer):
     #: The detailed mode's columns after the name: heading, width, and the
     #: ``DirEntry`` property that fills it.  Dropped in :data:`DROP_ORDER`
     #: when the name would get too narrow.  A width of ``None`` is measured
-    #: off the listing (:meth:`_owner_width`).
+    #: off the listing (:meth:`_owner_width`), or off *Country support*'s
+    #: format for the date (``country.stamp_width``).
     DETAIL_COLUMNS = {
         "size": ("Size", 8, "display_size"),
         "packed": ("Packed", 8, "display_packed"),
         "ratio": ("%", 4, "display_ratio"),
         "attributes": ("Attr", 9, "display_attributes"),
         "owner": ("Owner", None, "display_owner"),
-        "date": ("Date", 16, "display_date"),
+        "date": ("Date", None, "display_date"),
         "path": ("Path", None, "display_path"),
     }
     DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "owner", "date", "path")
@@ -1514,6 +1516,7 @@ class Panel(ContextMenuHost, ListViewer):
                  and (key not in self.ARCHIVE_ONLY or in_archive)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
         widths["owner"] = self._owner_width()
+        widths["date"] = country.stamp_width()
         widths["path"] = self._path_width() if "path" in shown else 0
 
         def rest() -> int:

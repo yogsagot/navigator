@@ -74,43 +74,43 @@ name = "Latviešu"
 "Choose year" = "Izvēlēties gadu"
 # navml/widgets/dialog/commands.py:153
 "Go to current date" = "Uz šodienas datumu"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "January" = "Janvāris"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "February" = "Februāris"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "March" = "Marts"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "April" = "Aprīlis"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "May" = "Maijs"
-# navml/widgets/dialog/date_button/date_button.py:77
+# navml/widgets/dialog/date_button/date_button.py:84
 "June" = "Jūnijs"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "July" = "Jūlijs"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "August" = "Augusts"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "September" = "Septembris"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "October" = "Oktobris"
-# navml/widgets/dialog/date_button/date_button.py:78
+# navml/widgets/dialog/date_button/date_button.py:85
 "November" = "Novembris"
-# navml/widgets/dialog/date_button/date_button.py:79
+# navml/widgets/dialog/date_button/date_button.py:86
 "December" = "Decembris"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Mo" = "Pr"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Tu" = "Ot"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "We" = "Tr"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Th" = "Ce"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Fr" = "Pk"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Sa" = "Se"
-# navml/widgets/dialog/date_button/date_button.py:85
+# navml/widgets/dialog/date_button/date_button.py:92
 "Su" = "Sv"
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."
@@ -120,7 +120,7 @@ name = "Latviešu"
 "Invalid drive or directory." = "Nederīgs disks vai direktorija."
 # navml/widgets/dialog/file_dialog/file_dialog.py:226
 "Error" = "Kļūda"
-# navml/widgets/dialog/file_list/file_list.py:189
+# navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Direktorija"
 # navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Meklēt: "

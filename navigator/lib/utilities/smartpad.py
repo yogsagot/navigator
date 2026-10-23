@@ -15,14 +15,15 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from navigator.lib.file_ops.fileattr import DATE_FORMAT, TIME_FORMAT
+from navigator.lib.config import country
 from navigator.settings import smartpad_path
 
 
 def stamp_text(when: time.struct_time | None = None) -> str:
-    """``InsertInfo``'s line: ``──────< date time >`` and a run of rule after it."""
+    """``InsertInfo``'s line: ``──────< date time >`` and a run of rule after it,
+    in *Country support*'s date format and hours, with the seconds."""
     when = when or time.localtime()
-    date, clock = time.strftime(DATE_FORMAT, when), time.strftime(TIME_FORMAT, when)
+    date, clock = country.format_date(when), country.format_time(when, seconds=True)
     return f"──────< {date} {clock} >" + "─" * 36
 
 

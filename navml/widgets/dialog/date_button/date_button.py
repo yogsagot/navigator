@@ -29,8 +29,15 @@ calendar only looked and this one chooses.
   on the month or the year, Left and Right step it, Enter or Down drops
   its list, and Home and End go to January and December -- on the year, to
   its first day and its last.  A pick puts the keys back on the days, so Enter then chooses.
+* **The day under the cursor is spelled under the weeks** in the line's
+  ``date_format``, so the calendar says what choosing will write -- a row
+  the drop-down has and a view given no format (the *Calendar* window)
+  does not.
 * **Weeks start on Monday**, ISO's order, where TVDEMO's started on Sunday;
-  ``first_weekday`` says otherwise.  Today is marked in the ``today`` state.
+  ``first_weekday`` says otherwise for one view, and
+  ``CalendarView.default_first_weekday`` for every view made after -- an
+  application with a setting for it replaces that on the class (Navigator's
+  ``Shell`` does).  Today is marked in the ``today`` state.
 """
 
 from __future__ import annotations
@@ -117,6 +124,8 @@ class CalendarView(Widget):
     WIDTH = 22
     #: The month row, the weekday row and six weeks.
     HEIGHT = 8
+    #: And the row under them that spells the day, with a :attr:`date_format`.
+    SPELLED_HEIGHT = HEIGHT + 1
 
     #: How far in from each edge the month is painted.
     inset = 0
@@ -127,8 +136,18 @@ class CalendarView(Widget):
     day: datetime.date = reactive(datetime.date(2000, 1, 1))
     #: The first column's weekday: 0 is Monday, 6 is Sunday.
     first_weekday: int = reactive(0)
+
+    @staticmethod
+    def default_first_weekday() -> int:
+        """What a new view's :attr:`first_weekday` is: ISO's Monday.  The
+        library knows no country, so an application that keeps one replaces
+        this on the class."""
+        return 0
     #: Where the keys are: the ``days``, or the top row's ``month`` or ``year``.
     section: str = reactive("days")
+    #: How the day under the cursor is spelled on the row under the weeks,
+    #: in ``strftime``'s directives; empty, there is no such row.
+    date_format: str = reactive("")
 
     #: What pages and picks, wherever the keys are: commands, so the *Calendar*
     #: window's menu shows them and Key bindings rebinds them.  The arrows,
@@ -150,6 +169,7 @@ class CalendarView(Widget):
     def __init__(self, day: datetime.date | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.day = day or datetime.date.today()
+        self.first_weekday = type(self).default_first_weekday()
 
     # -- the model -----------------------------------------------------------
 
@@ -260,6 +280,10 @@ class CalendarView(Widget):
                     self.turn((12 if last else 1) - day.month)
                 else:
                     self.day = datetime.date(day.year, 12, 31) if last else datetime.date(day.year, 1, 1)
+            else:
+                # Passed on, as the days pass on what they do not use: Esc
+                # closes the *Calendar* window from the month or the year too.
+                return False
         elif event.matches("enter", "space"):
             self.picked()
         elif event.matches("left"):
@@ -373,6 +397,11 @@ class CalendarView(Widget):
                     "day", selected=cell == day and self.section == "days", today=cell == today
                 )
                 surface.draw_text(inset + 3 * column, inset + 2 + row, f"{cell.day:>3}", style)
+        if self.date_format:
+            spelled = day.strftime(self.date_format)
+            inner = self.width - 2 * inset
+            x = inset + max(0, (inner - len(spelled)) // 2)
+            surface.draw_text(x, inset + 2 + 6, spelled[:inner], self.part_style("title"))
 
 
 class Calendar(CalendarView, DropDown):
@@ -381,6 +410,8 @@ class Calendar(CalendarView, DropDown):
     #: The view and the frame round it.
     WIDTH = CalendarView.WIDTH + 2
     HEIGHT = CalendarView.HEIGHT + 2
+    #: With the row that spells the day.
+    SPELLED_HEIGHT = CalendarView.SPELLED_HEIGHT + 2
 
     inset = 1
 
@@ -438,11 +469,13 @@ class DateButton(History):
         if app is None or link is None or link.inert:
             return None
         popup = Calendar(self, self.parse(link.value))
-        x, y = self.popup_origin(Calendar.WIDTH, Calendar.HEIGHT)
+        popup.date_format = self.date_format
+        height = Calendar.SPELLED_HEIGHT
+        x, y = self.popup_origin(Calendar.WIDTH, height)
         popup.x = bind(lambda o, v=x: v)
         popup.y = bind(lambda o, v=y: v)
         popup.width = bind(lambda o: Calendar.WIDTH)
-        popup.height = bind(lambda o: Calendar.HEIGHT)
+        popup.height = bind(lambda o, v=height: v)
         app.overlay(popup)
         return popup
 

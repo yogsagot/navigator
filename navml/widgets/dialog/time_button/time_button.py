@@ -6,7 +6,11 @@ companion, and built the same way (see :mod:`navml.widgets.dialog.date_button`).
 * **The button reads the line by its ``time_format``** (``%H:%M:%S`` unless
   told) and opens on that time, or on the present one; choosing writes it
   back in the same format.  A format without ``%S`` drops seconds from the
-  face too.
+  face too.  A 12-hour format (``%I`` and ``%p``) is read and written with
+  ``am``/``pm`` (``spell_time``/``read_time``), and the face shows the hour
+  1 to 12 with an ``am``/``pm`` column last, which Up and Down turn over and
+  ``A`` or ``P`` typed anywhere sets; two digits typed into the hour are an
+  hour of the half day shown.
 * **Alt+Down in the line drops the face, as a click does.**  **Up and Down
   in the line step the time** (:meth:`TimeButton.step`) by the value of the
   place under the caret, carrying as a clock does and wrapping round the
@@ -33,7 +37,7 @@ from navkit.screen import Surface
 from navml.component import take_declared
 from navml.widgets.dialog.drop_down import DropDown
 from navml.widgets.dialog.history import History
-from navml.widgets.dialog.masked_line.masked_line import spans
+from navml.widgets.dialog.masked_line.masked_line import read_time, spans, spell_time
 
 #: Over and under the number picked, and what an ASCII terminal gets.
 ARROWS = {"dos": "▲▼", "ascii": "^v"}
@@ -56,21 +60,26 @@ class TimePicker(DropDown):
     column: int = reactive(0)
     #: Whether the seconds are shown and stepped.
     seconds: bool = reactive(True)
+    #: Whether the hour is shown 1 to 12, with an ``am``/``pm`` column last.
+    #: :attr:`values` stay 24-hour either way.
+    twelve: bool = reactive(False)
 
     def __init__(self, button: TimeButton | None = None, when: datetime.time | None = None,
-                 seconds: bool = True, **kwargs: Any) -> None:
+                 seconds: bool = True, twelve: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.button = button
         self.seconds = seconds
+        self.twelve = twelve
         when = when or datetime.datetime.now().time()
         self.values = (when.hour, when.minute, when.second if seconds else 0)
         #: The first digit typed into the column, waiting for its second.
         self._typed: str = ""
 
     @staticmethod
-    def width_for(seconds: bool) -> int:
-        """`` 14 : 25 : 57 `` inside the frame, or without its last third."""
-        return 16 if seconds else 11
+    def width_for(seconds: bool, twelve: bool = False) -> int:
+        """`` 14 : 25 : 57 `` inside the frame, or without its last third,
+        and five columns more for a 12-hour face's ``am``/``pm``."""
+        return (16 if seconds else 11) + (5 if twelve else 0)
 
     def layout(self, width: int, height: int) -> None:
         """Keep the rectangle the button worked out."""
@@ -78,8 +87,25 @@ class TimePicker(DropDown):
     # -- the model -----------------------------------------------------------
 
     @property
-    def columns(self) -> int:
+    def numbers(self) -> int:
+        """How many columns are numbers: hours, minutes and perhaps seconds."""
         return 3 if self.seconds else 2
+
+    @property
+    def columns(self) -> int:
+        return self.numbers + (1 if self.twelve else 0)
+
+    @property
+    def meridiem(self) -> int | None:
+        """The ``am``/``pm`` column, or None on a 24-hour face."""
+        return self.numbers if self.twelve else None
+
+    def set_half(self, pm: bool) -> None:
+        """The same hour in the morning, or in the afternoon."""
+        values = list(self.values)
+        values[0] = values[0] % 12 + (12 if pm else 0)
+        self.values = tuple(values)
+        self._typed = ""
 
     @property
     def time(self) -> datetime.time:
@@ -89,6 +115,9 @@ class TimePicker(DropDown):
     def step(self, delta: int, column: int | None = None) -> None:
         """Step one number by *delta*, wrapping round its limit."""
         column = self.column if column is None else column
+        if column == self.meridiem:
+            self.set_half(self.values[0] < 12)
+            return
         values = list(self.values)
         values[column] = (values[column] + delta) % LIMITS[column]
         self.values = tuple(values)
@@ -99,17 +128,29 @@ class TimePicker(DropDown):
         self._typed = ""
 
     def type_digit(self, digit: str) -> None:
-        """A digit typed: the first sets the number, the second finishes it."""
-        limit = LIMITS[self.column]
+        """A digit typed: the first sets the number, the second finishes it.
+
+        On a 12-hour face the hour typed is one of the half day shown, ``12``
+        its first; a digit on the ``am``/``pm`` column is refused.
+        """
+        if self.column == self.meridiem:
+            return
+        twelve_hour = self.twelve and self.column == 0
+        limit = 13 if twelve_hour else LIMITS[self.column]
         values = list(self.values)
         if self._typed:
             number = int(self._typed + digit)
-            values[self.column] = number if number < limit else int(digit)
-            self.values = tuple(values)
-            self.pick(self.column + 1 if self.column + 1 < self.columns else self.column)
+            number = number if number < limit else int(digit)
+            done = True
         else:
-            values[self.column] = int(digit)
-            self.values = tuple(values)
+            number, done = int(digit), False
+        if twelve_hour:
+            number = number % 12 + (12 if values[0] >= 12 else 0)
+        values[self.column] = number
+        self.values = tuple(values)
+        if done:
+            self.pick(self.column + 1 if self.column + 1 < self.numbers else self.column)
+        else:
             self._typed = digit
 
     def choose(self) -> None:
@@ -142,6 +183,8 @@ class TimePicker(DropDown):
             self.pick(self.columns - 1)
         elif event.char and event.char.isdigit() and event.is_printable:
             self.type_digit(event.char)
+        elif self.twelve and event.char in ("a", "A", "p", "P"):
+            self.set_half(event.char in ("p", "P"))
         elif event.char in ("n", "N"):
             now = datetime.datetime.now().time()
             self.values = (now.hour, now.minute, now.second if self.seconds else 0)
@@ -183,10 +226,16 @@ class TimePicker(DropDown):
         surface.draw_text(x, 3, arrows[1] * 2, arrow)
         separator = self.part_style("separator")
         for column in range(self.columns):
-            if column:
-                surface.draw_text(5 * column, 2, ":", separator)
+            if column == self.meridiem:
+                text = "am" if self.values[0] < 12 else "pm"
+            elif column == 0 and self.twelve:
+                text = f"{(self.values[0] - 1) % 12 + 1:02}"
+            else:
+                text = f"{self.values[column]:02}"
+                if column:
+                    surface.draw_text(5 * column, 2, ":", separator)
             surface.draw_text(
-                2 + 5 * column, 2, f"{self.values[column]:02}",
+                2 + 5 * column, 2, text,
                 self.part_style("value", selected=column == self.column),
             )
 
@@ -208,7 +257,7 @@ class TimeButton(History):
     def parse(self, text: str) -> datetime.time | None:
         """The time *text* names in :attr:`time_format`, or None."""
         try:
-            return datetime.datetime.strptime(text.strip(), self.time_format).time()
+            return read_time(text.strip(), self.time_format)
         except ValueError:
             return None
 
@@ -217,9 +266,9 @@ class TimeButton(History):
         app, link = self.application, self.link
         if app is None or link is None or link.inert:
             return None
-        seconds = "%S" in self.time_format
-        popup = TimePicker(self, self.parse(link.value), seconds=seconds)
-        width = TimePicker.width_for(seconds)
+        seconds, twelve = "%S" in self.time_format, "%p" in self.time_format
+        popup = TimePicker(self, self.parse(link.value), seconds=seconds, twelve=twelve)
+        width = TimePicker.width_for(seconds, twelve)
         x, y = self.popup_origin(width, TimePicker.HEIGHT)
         popup.x = bind(lambda o, v=x: v)
         popup.y = bind(lambda o, v=y: v)
@@ -236,16 +285,20 @@ class TimeButton(History):
         """
         when = self.parse(text)
         if when is None:
-            return datetime.datetime.now().strftime(self.time_format)
-        seconds = {"H": 3600, "M": 60, "S": 1}
+            return spell_time(datetime.datetime.now(), self.time_format)
+        # ``%p`` has one place: a step either way turns the half day over.
+        seconds = {"H": 3600, "I": 3600, "M": 60, "S": 1, "p": 43200}
         for start, length, directive in spans(self.time_format):
             if start <= index < start + length and directive in seconds:
-                amount = delta * 10 ** (start + length - 1 - index) * seconds[directive]
+                if directive == "p":
+                    amount = seconds["p"]
+                else:
+                    amount = delta * 10 ** (start + length - 1 - index) * seconds[directive]
                 total = (when.hour * 3600 + when.minute * 60 + when.second + amount) % 86400
                 stepped = datetime.time(total // 3600, total // 60 % 60, total % 60)
-                return stepped.strftime(self.time_format)
+                return spell_time(stepped, self.time_format)
         return None
 
     def pick(self, when: datetime.time) -> None:
         """*when* into the line, in the line's own spelling."""
-        self.choose(when.strftime(self.time_format))
+        self.choose(spell_time(when, self.time_format))

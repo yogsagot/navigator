@@ -1,6 +1,6 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, ExtractArchive, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
-from navigator.widgets.shell.commands import About, EditLinks, FtpLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
+from navigator.widgets.shell.commands import About, EditLinks, FtpLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -38,12 +38,13 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: formats); *Format disk*, *Volume label*, *Reanimator* (FAT undelete) and
 #: *Disk editor* (sectors); *Memory Information* (conventional/XMS/EMS),
 #: *Phone Book*, *Open spreadsheet*, *CD Player*, and the modem's *Terminal*
-#: and *Manual dial*; *Printer setup*, *Country support*, *Mouse* and
-#: *Terminal* under Configuration; and the seventeen DOS archivers under
-#: Archives, which a list of POSIX ones replaces once archives can be opened.
+#: and *Manual dial*; *Printer setup*, *Mouse* and *Terminal* under
+#: Configuration; and the seventeen DOS archivers under Archives, which a
+#: list of POSIX ones replaces once archives can be opened.
 #: *Navigator Link* (as *SSH link (SFTP)*, named for what is on the wire),
 #: *Disconnect* and *Communications* are back, for connections to servers
-#: (``navigator/lib/drives``) where DN's were to a PC on a cable.  Two captions say what
+#: (``navigator/lib/drives``) where DN's were to a PC on a cable, and
+#: *Country support* for how dates and times are written.  Two captions say what
 #: they mean here: *ASCII Table* is *Character table*, and *Edit DOS
 #: Environment* is *Edit environment*.  *Change drive left/right* are
 #: *Bookmarks left/right*: the box they open lists bookmarked directories
@@ -328,6 +329,9 @@ MainMenu(MenuBar):
             MenuItem:
                 text: 'Screen sa~v~ers...'
                 command: SaversSetup
+            MenuItem:
+                text: 'C~o~untry support...'
+                command: CountrySetup
             MenuItem:
                 text: 'Comm~u~nications...'
                 command: SetupLink

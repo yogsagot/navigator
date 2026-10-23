@@ -44,7 +44,7 @@ def test_the_menu_opens_one_calendar_in_the_middle_on_today_and_its_keys_page_it
                   lambda a: seen.update(count=sum(1 for w in a.shell.desktop.windows() if w is calendar(a))),
                   KeyEvent("escape"), lambda a: None, lambda a: seen.update(gone=calendar(a) is None)])
     desktop_width = 80
-    assert seen["rect"][2:] == (26, 13) and seen["rect"][0] == (desktop_width - 26) // 2
+    assert seen["rect"][2:] == (26, 14) and seen["rect"][0] == (desktop_width - 26) // 2
     assert seen["focused"] and seen["day"] == datetime.date.today()
     assert seen["paged"].month == (datetime.date.today().month % 12) + 1
     assert seen["count"] == 1 and seen["gone"]
@@ -179,3 +179,110 @@ def test_a_right_click_on_a_day_moves_there_and_offers_the_menu(app):
     assert seen["items"] == ["Previous month", "Next month", "Previous year", "Next year",
                              "Choose month...", "Choose year...", "Go to current date", "Close"]
     assert seen["after"] == datetime.date.today()
+
+
+def test_the_window_spells_the_day_in_country_support_s_format(app):
+    from navigator.settings import SETTINGS
+
+    seen = []
+
+    def spelled(a):
+        month = calendar(a).month
+        seen.append(month.date_format)
+
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), spelled,
+                  lambda a: setattr(SETTINGS.country, "date_format", "iso"), lambda a: None, spelled])
+    assert seen == ["%d-%m-%Y", "%Y-%m-%d"]
+
+
+def test_the_window_s_week_follows_country_support(app):
+    from navigator.settings import SETTINGS
+
+    seen = []
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None),
+                  lambda a: seen.append(calendar(a).month.first_weekday),
+                  lambda a: setattr(SETTINGS.country, "first_day", "sunday"), lambda a: None,
+                  lambda a: seen.append(calendar(a).month.first_weekday)])
+    assert seen == [0, 6]
+
+
+def screen_rect(window):
+    ox, oy = window.offset()
+    return ox + window.x, oy + window.y, window.width, window.height
+
+
+@pytest.mark.parametrize("hide_menu_bar", [False, True])
+def test_a_click_on_the_clock_opens_the_calendar_just_under_it_and_another_closes_it(app, hide_menu_bar):
+    from navkit.events import MouseClickEvent
+    from navigator.settings import SETTINGS
+    from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
+
+    SETTINGS.interface.hide_menu_bar = hide_menu_bar
+    seen = {}
+
+    def click(a):
+        clock = a.shell.clock
+        ox, oy = clock.offset()
+        a.post_event(MouseClickEvent(ox + clock.x + 1, oy + clock.y, "left", "press"))
+        a.post_event(MouseClickEvent(ox + clock.x + 1, oy + clock.y, "left", "release"))
+
+    run_app(app, [click, Until(lambda a: calendar(a) is not None),
+                  lambda a: seen.update(first=screen_rect(calendar(a))),
+                  click, Until(lambda a: calendar(a) is None),
+                  lambda a: seen.update(closed=calendar(a) is None),
+                  click, Until(lambda a: calendar(a) is not None),
+                  lambda a: seen.update(again=screen_rect(calendar(a)))])
+    assert seen["first"] == (80 - WIDTH, 1, WIDTH, HEIGHT)
+    assert seen["closed"] and seen["again"] == seen["first"]
+
+
+def test_the_clock_closes_a_calendar_the_menu_opened(app):
+    def click(a):
+        clock = a.shell.clock
+        ox, oy = clock.offset()
+        a.post_event(MouseClickEvent(ox + clock.x, oy + clock.y, "left", "press"))
+        a.post_event(MouseClickEvent(ox + clock.x, oy + clock.y, "left", "release"))
+
+    from navkit.events import MouseClickEvent
+
+    seen = {}
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None),
+                  click, Until(lambda a: calendar(a) is None), lambda a: seen.update(closed=True)])
+    assert seen["closed"]
+
+
+def test_the_menu_still_opens_it_in_the_middle(app):
+    seen = {}
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None),
+                  lambda a: seen.update(rect=screen_rect(calendar(a)))])
+    assert seen["rect"][0] == (80 - 26) // 2 and seen["rect"][1] > 1
+
+
+@pytest.mark.parametrize("keys", [[], [KeyEvent("tab")], [KeyEvent("tab", shift=True)]])
+def test_esc_closes_the_window_from_the_days_the_month_or_the_year(app, keys):
+    seen = {}
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None), *keys,
+                  lambda a: seen.update(section=calendar(a).month.section),
+                  KeyEvent("escape"), lambda a: None, lambda a: seen.update(open=calendar(a) is not None)])
+    assert seen["section"] == ["days", "month", "year"][len(keys) and (1 if not keys[0].shift else 2)]
+    assert seen["open"] is False
+
+
+@pytest.mark.parametrize("where", ["days", "month", "button"])
+@pytest.mark.parametrize("key", [KeyEvent("t", "t"), KeyEvent("t", "T", shift=True)])
+def test_t_jumps_to_today_from_anywhere_in_the_window(app, where, key):
+    def move_keys(a):
+        window = calendar(a)
+        if where == "month":
+            window.month.section = "month"
+        elif where == "button":
+            window.today_button.focus()
+
+    seen = {}
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None),
+                  KeyEvent("pagedown", ctrl=True), move_keys, lambda a: None,
+                  lambda a: seen.update(before=calendar(a).month.day),
+                  key, lambda a: None,
+                  lambda a: seen.update(after=calendar(a).month.day, section=calendar(a).month.section)])
+    assert seen["before"] != datetime.date.today()
+    assert seen["after"] == datetime.date.today() and seen["section"] == "days"
