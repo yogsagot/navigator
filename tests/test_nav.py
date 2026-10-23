@@ -1506,8 +1506,9 @@ def test_every_theme_shows_an_input_line_s_selection():
 
 def test_the_modern_themes_are_what_themegen_writes():
     """The modern themes -- ember, paper, nord, solarized-light, gruvbox,
-    gruvbox-light, tokyo-night, everforest-light -- come from tools/themegen.py's
-    role palettes, not a .PAL: editing a sheet by hand is undone by the next run."""
+    gruvbox-light, tokyo-night, everforest-light, catppuccin-latte, one-dark,
+    one-light, kanagawa, phosphor, sepia -- come from tools/themegen.py's role
+    palettes, not a .PAL: editing a sheet by hand is undone by the next run."""
     root = Path(__file__).resolve().parent.parent
     done = subprocess.run([sys.executable, "tools/themegen.py", "--check"], cwd=root,
                           capture_output=True, text=True)
