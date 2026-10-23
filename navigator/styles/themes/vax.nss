@@ -378,6 +378,14 @@ $error-dialog-shadow-fg: black;       /*  the error box's button shadows -- no s
 $error-dialog-shadow-bg: red;
 $keyword-fg: $editor-normal-text-fg;  /*  the editor's keywords -- DN loaded KEYWORDS1 and never painted them; on Normal text [76] */
 $keyword-bg: $editor-normal-text-bg;
+$modified-title-fg: yellow;           /*  a changed file's title in the editor -- no slot: DN marked it on the info line */
+$modified-title-bg: black;
+$shadow-fg: dark_gray;                /*  the drop shadow a window, a dialog or a menu casts -- no slot: Turbo Vision's ShadowAttr, $08 */
+$shadow-bg: black;
+$command-line-fg: light_gray;         /*  the command line -- no slot: TCommandLine.Draw wrote $07 */
+$command-line-bg: black;
+$command-line-prompt-fg: white;       /*  the command line's prompt -- no slot: TCommandLine.Draw wrote $0F */
+$command-line-prompt-bg: black;
 $viewer-comments-fg: $editor-highlight-comments-fg;/*  the viewer's comments -- DN's viewer had no highlighting; on Comments [164] */
 $viewer-comments-bg: $editor-highlight-comments-bg;
 $viewer-symbols-fg: $editor-highlight-symbols-fg;/*  the viewer's symbols -- on Symbols [189] */

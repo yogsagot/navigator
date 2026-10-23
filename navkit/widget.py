@@ -134,8 +134,9 @@ class Widget:
     dims_behind = True
     #: Whether this widget casts Turbo Vision's drop shadow (``sfShadow``):
     #: two columns down its right and one row along its bottom, offset one row
-    #: and two columns, painted :data:`~navkit.style.SHADOW` over whatever is
-    #: already there.  Painted by :meth:`render_tree` into the *parent's*
+    #: and two columns, painted over whatever is already there in the
+    #: ``::shadow`` part -- :data:`~navkit.style.SHADOW` where the sheet says
+    #: nothing of it.  Painted by :meth:`render_tree` into the *parent's*
     #: surface, since it lies outside the widget, so the parent clips it.
     shadow: bool = False
     #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
@@ -646,12 +647,17 @@ class Widget:
         wide character's empty continuation cell is left alone.
         """
         x0, y0, width, height = self.x, self.y, self.width, self.height
+        # Not part_style: that starts from the widget's own colours, and a
+        # sheet that names no shadow has to get Turbo Vision's, not those.
+        found = self.effective_stylesheet.declarations_for(
+            self, stylesheet.PartRequest("shadow", frozenset(), frozenset()))
+        shade = SHADOW.derive(**stylesheet.appearance(found)) if found else SHADOW
         cells = [(x0 + width + dx, y0 + y) for y in range(1, height + 1) for dx in (0, 1)]
         cells += [(x0 + x, y0 + height) for x in range(2, width)]
         for x, y in cells:
             char, _ = surface.get(x, y)
             if char:
-                surface.set_cell(x, y, char, SHADOW)
+                surface.set_cell(x, y, char, shade)
 
     def render_after(self, surface: Surface) -> None:
         """Paint over this widget's children, into the same *surface*.
@@ -705,7 +711,8 @@ class Widget:
     #: surface beside the properties it declares.  Unioned down the MRO by
     #: :func:`navkit.stylesheet.parts_of`, the way ``emits`` is and for the
     #: same reason: a subclass that paints a new part adds to what its base
-    #: paints.
+    #: paints.  ``::shadow`` is not among them: the drop shadow is looked up
+    #: by :meth:`_paint_shadow` itself, for every widget that casts one.
     parts: tuple[str, ...] = ()
 
     def mounted(self) -> None:

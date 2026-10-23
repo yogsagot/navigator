@@ -304,14 +304,21 @@ History:inert, History:inert::arrow,
 Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
                       { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg; bold: $dialog-button-disabled-bold; dim: $dialog-button-disabled-dim; italic: $dialog-button-disabled-italic; underline: $dialog-button-disabled-underline; reverse: $dialog-button-disabled-reverse }
 
-/* The command line is the one rule here with colours in it rather than
-   variables, because DOS Navigator had no slot for it either:
-   `TCommandLine.Draw' writes the prompt in $0F and the text in $07, bright
-   white and light grey on black, whatever the palette (CMDLINE.PAS).  Every
-   theme is a transcription of a `.PAL', and a `.PAL' never carried these. */
-CommandLine            { fg: light_gray; bg: black }
-CommandLine::prompt    { fg: white }
-CommandLine::selection { fg: black; bg: light_gray }
+/* The command line: DOS Navigator had no slot for it, `TCommandLine.Draw'
+   writing the prompt in $0F and the text in $07, bright white and light grey
+   on black, whatever the palette (CMDLINE.PAS).  So `$command-line' and
+   `$command-line-prompt' are Navigator's own entries, those colours in every
+   DOS theme, and a modern theme's to choose.  The selection is the line
+   reversed, as it always was. */
+CommandLine            { fg: $command-line-fg; bg: $command-line-bg }
+CommandLine::prompt    { fg: $command-line-prompt-fg }
+CommandLine::selection { fg: $command-line-bg; bg: $command-line-fg }
+
+/* The drop shadow a window, a dialog or a menu casts (Widget.shadow): Turbo
+   Vision's ShadowAttr, $08, as a navkit constant, which DN's Colors dialog
+   never offered.  `$shadow' is that in every DOS theme, and lets a light
+   theme cast a soft one. */
+Widget::shadow         { fg: $shadow-fg; bg: $shadow-bg }
 
 /* What a panel drag carries (drag.py): `TDragger.Draw' wrote $30, black on
    cyan, with no palette entry behind it -- so a literal here too. */
@@ -476,9 +483,9 @@ EditWindow                                     { fg: $editor-frame-passive-fg; b
 EditWindow:active                              { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
 EditWindow::title                              { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
 EditWindow:active::title                       { fg: $editor-frame-title-fg;   bg: $editor-frame-title-bg; bold: $editor-frame-title-bold; dim: $editor-frame-title-dim; italic: $editor-frame-title-italic; underline: $editor-frame-title-underline; reverse: $editor-frame-title-reverse }
-/* A changed text writes the title in yellow (a departure, asked for: DN
-   marked it on the info line alone). */
-EditWindow.modified::title                     { fg: yellow }
+/* A changed text writes the title in `$modified-title', yellow in the DOS
+   themes (a departure, asked for: DN marked it on the info line alone). */
+EditWindow.modified::title                     { fg: $modified-title-fg }
 EditWindow::icon                               { fg: $editor-frame-icons-fg;   bg: $editor-frame-icons-bg; bold: $editor-frame-icons-bold; dim: $editor-frame-icons-dim; italic: $editor-frame-icons-italic; underline: $editor-frame-icons-underline; reverse: $editor-frame-icons-reverse }
 EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
 /* A departure: (↕) under Vertical blocks, the info line's colours reversed --

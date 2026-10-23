@@ -2697,6 +2697,14 @@ name = "Русский"
 # navigator/lib/appearance/palette.py
 "Keywords" = "Ключевые слова"
 # navigator/lib/appearance/palette.py
+"Changed file's title" = "Заголовок изменённого файла"
+# navigator/lib/appearance/palette.py
+"Shadows" = "Тени"
+# navigator/lib/appearance/palette.py
+"Command line" = "Командная строка"
+# navigator/lib/appearance/palette.py
+"Command line prompt" = "Приглашение командной строки"
+# navigator/lib/appearance/palette.py
 "Viewer comments" = "Комментарии в просмотре"
 # navigator/lib/appearance/palette.py
 "Viewer symbols" = "Символы в просмотре"

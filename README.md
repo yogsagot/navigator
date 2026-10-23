@@ -72,8 +72,9 @@ It consists of three parts:
     - carefully recreates the look and feel of classic DOS Navigator by Ritlabs
     - Falling blocks game from late Soviet Union
 
-Run `nav --help` for the options; `--theme NAME` picks one of the eleven colour schemes, and `--list-themes`
-names them.
+Run `nav --help` for the options; `--theme NAME` picks one of the fifteen colour schemes, and `--list-themes`
+names them: eleven from DOS Navigator's own palettes, and four modern ones -- `ember` and `nord` dark, `paper` and
+`solarized-light` light.
 
 Copy and paste depend on your terminal and on a small clipboard tool being installed; [docs/clipboard.md](docs/clipboard.md)
 explains the keys and how to set them up.

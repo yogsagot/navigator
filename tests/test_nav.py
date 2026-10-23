@@ -1422,7 +1422,26 @@ def test_every_theme_shows_an_input_line_s_selection():
     A focused line is drawn in [51] and its selection in [50]; a passive one
     the other way round.  Mixing [50]'s foreground into [51]'s background drew
     it black on black in norton and left it identical to the line in default.
+    Different is not enough: the selection's ground must stand apart from the
+    line's by a CIE76 colour difference of 15, hue counting as well as
+    lightness -- ember's first near-black on near-black was 5, default's dark
+    grey on light blue is far past it.
     """
+    from navkit.capabilities import VGA_PALETTE
+
+    def lab(colour):
+        r, g, b = (VGA_PALETTE[colour] if isinstance(colour, int) else colour)
+        linear = [v / 255 / 12.92 if v / 255 <= 0.04045 else ((v / 255 + 0.055) / 1.055) ** 2.4 for v in (r, g, b)]
+        x, y, z = (sum(m * c for m, c in zip(row, linear)) for row in (
+            (0.4124 / 0.9505, 0.3576 / 0.9505, 0.1805 / 0.9505),
+            (0.2126, 0.7152, 0.0722),
+            (0.0193 / 1.089, 0.1192 / 1.089, 0.9505 / 1.089)))
+        f = [v ** (1 / 3) if v > 0.008856 else 7.787 * v + 16 / 116 for v in (x, y, z)]
+        return 116 * f[1] - 16, 500 * (f[0] - f[1]), 200 * (f[1] - f[2])
+
+    def apart(a, b):
+        return sum((p - q) ** 2 for p, q in zip(lab(a), lab(b))) ** 0.5
+
     for theme in theme_names():
         line = mounted(InputLine(), stylesheet=load_scheme(theme))
         line.value = "hello world"
@@ -1440,6 +1459,16 @@ def test_every_theme_shows_an_input_line_s_selection():
         for whole, part in ((passive, passive_selection), (focused, selection)):
             assert part.fg != part.bg, theme
             assert (part.fg, part.bg) != (whole.fg, whole.bg), theme
+            assert apart(part.bg, whole.bg) >= 15, f"{theme}: a selection's ground is too close to its line's"
+
+
+def test_the_modern_themes_are_what_themegen_writes():
+    """ember, paper, nord and solarized-light come from tools/themegen.py's
+    role palettes, not a .PAL: editing a sheet by hand is undone by the next run."""
+    root = Path(__file__).resolve().parent.parent
+    done = subprocess.run([sys.executable, "tools/themegen.py", "--check"], cwd=root,
+                          capture_output=True, text=True)
+    assert done.returncode == 0, done.stdout + done.stderr
 
 
 def test_the_themes_all_carry_the_same_palette():
