@@ -8,6 +8,7 @@ markup; ``test_nml_model.py`` tests the markup.
 from __future__ import annotations
 
 import sqlite3
+import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -126,6 +127,35 @@ def test_a_transaction_commits_together_or_not_at_all():
                 Note.create(title="b")
             raise RuntimeError
     assert Note.count() == 0
+
+
+def test_a_transaction_on_another_thread_waits_rather_than_nesting():
+    # The connection is shared: a savepoint taken inside a transaction another
+    # thread then commits is gone by its RELEASE ("no such savepoint").
+    Note.count()
+    inside, go = threading.Event(), threading.Event()
+    errors: list[BaseException] = []
+
+    def hold():
+        try:
+            with DATABASE.transaction():
+                Note.create(title="thread")
+                inside.set()
+                go.wait(5)
+        except BaseException as error:
+            errors.append(error)
+
+    worker = threading.Thread(target=hold)
+    worker.start()
+    assert inside.wait(5)
+    threading.Timer(0.1, go.set).start()
+    with DATABASE.transaction():
+        assert go.is_set(), "began inside the other thread's transaction"
+        with DATABASE.transaction():
+            Note.create(title="loop")
+    worker.join(5)
+    assert errors == []
+    assert sorted(Note.query().values("title")) == ["loop", "thread"]
 
 
 # -- the schema, examined only when it changed --------------------------------------

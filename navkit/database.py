@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
+import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -232,6 +233,13 @@ class Database:
         self._ensured: set[str] = set()
         #: The file open now, or ``None`` before anything was, or for ``:memory:``.
         self.path: Path | None = None
+        #: Held for a transaction's length, so one thread's never opens inside
+        #: another's: the connection is shared (``check_same_thread=False``),
+        #: and a savepoint taken in a transaction another thread then commits
+        #: is gone by the time its ``RELEASE`` comes.
+        self._lock = threading.RLock()
+        #: How deep the holder of ``_lock`` is in transactions.
+        self._depth = 0
 
     def open(self, path: str | Path = ":memory:") -> None:
         """Connect to *path*, creating it if needed, closing whatever was open.
@@ -294,28 +302,34 @@ class Database:
 
         ``BEGIN IMMEDIATE`` takes the write lock up front, so two processes
         each reading before writing cannot both decide to.  A transaction
-        opened inside another is a savepoint of it.
+        opened inside another is a savepoint of it; one on another thread
+        waits for the first to finish.
         """
-        connection = self.connection
-        if connection.in_transaction:
-            name = f"sp{id(object())}"
-            connection.execute(f"SAVEPOINT {name}")
+        with self._lock:
+            connection = self.connection
+            self._depth += 1
             try:
-                yield
-            except BaseException:
-                connection.execute(f"ROLLBACK TO {name}")
-                connection.execute(f"RELEASE {name}")
-                raise
-            connection.execute(f"RELEASE {name}")
-            return
-        connection.execute("BEGIN IMMEDIATE")
-        try:
-            yield
-        except BaseException:
-            connection.execute("ROLLBACK")
-            self._forget_schemas()
-            raise
-        connection.execute("COMMIT")
+                if self._depth > 1:
+                    name = f"sp{id(object())}"
+                    connection.execute(f"SAVEPOINT {name}")
+                    try:
+                        yield
+                    except BaseException:
+                        connection.execute(f"ROLLBACK TO {name}")
+                        connection.execute(f"RELEASE {name}")
+                        raise
+                    connection.execute(f"RELEASE {name}")
+                    return
+                connection.execute("BEGIN IMMEDIATE")
+                try:
+                    yield
+                except BaseException:
+                    connection.execute("ROLLBACK")
+                    self._forget_schemas()
+                    raise
+                connection.execute("COMMIT")
+            finally:
+                self._depth -= 1
 
     # -- the schema -------------------------------------------------------------
 

@@ -86,6 +86,10 @@ every value is a parameter.
   calls `DATABASE.open(tmp_path / "x.db")`, and reopening the same path simulates a restart.
 - Writes are synchronous on the loop and autocommit per call: small and bounded, in WAL mode. Bulk work goes to
   `asyncio.to_thread` like file operations, and needs a connection of its own (not built yet).
+- **The one connection is shared across threads** (`check_same_thread=False`; profiles and recent links are written
+  through `asyncio.to_thread`), so `transaction()` holds an `RLock`: another thread's waits instead of nesting as a
+  savepoint in it. Nesting is counted per holder (`_depth`), not read off `in_transaction`, which saw the other
+  thread's and failed with *no such savepoint* once that one committed (`test_s3.py`, CI on 3.13).
 - **Departure from DN**: DN wrote `DN.HIS` on exit (`SaveHistories`, `DNUTIL.PAS`). Each history change is written
   as it happens, so a crash loses nothing.
 
