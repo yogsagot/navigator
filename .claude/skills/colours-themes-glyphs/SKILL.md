@@ -27,6 +27,11 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   Kanagawa's oniViolet and sakuraPink, and the purple One Dark/One Light and Tokyo Night colour keywords with -- those
   take a blue or cyan -- are left out). The schemes are MIT, credited in each header with what was changed
   (deepened colours on a light page, where the scheme's own fell short of the tests).
+  **The light themes' grounds are dimmed**, at the user's request: the page (`ground`) sits near 0.68 relative
+  luminance rather than near-white, every ground role scaled by one OKLab-lightness factor (`field_focus` by half as
+  much, so the line being typed in still stands out), and an ink that then fell short was deepened to its floor
+  (text 8:1, file types and syntax 4.5:1, comments 3.8:1, disabled and temporaries about 3:1). Keep a new light theme
+  there.
 - **Three entries a DOS theme draws exactly as DN did** exist so a light theme need not: `shadow` (the drop shadow,
   Turbo Vision's ShadowAttr $08, painted through navkit's `Widget::shadow` part, `SHADOW` where a sheet names none),
   `command-line` and `command-line-prompt` ($07 and $0F, which `TCommandLine.Draw` hard-coded), and `modified-title`

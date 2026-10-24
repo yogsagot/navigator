@@ -255,6 +255,15 @@ Label:selected        { fg: $dialog-label-selected-fg;   bg: $dialog-label-selec
  * ten do not.  Naming only `fg' would read correctly in ten themes. */
 Label::shortcut       { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-shortcut-bg; bold: $dialog-label-shortcut-bold; dim: $dialog-label-shortcut-dim; italic: $dialog-label-shortcut-italic; underline: $dialog-label-shortcut-underline; reverse: $dialog-label-shortcut-reverse }
 
+/* The drop shadow a window, a dialog or a menu casts (Widget.shadow): Turbo
+   Vision's ShadowAttr, $08, as a navkit constant, which DN's Colors dialog
+   never offered.  `$shadow' is that in every DOS theme, and lets a light
+   theme cast a soft one.  It must come before `Button::shadow': a button's
+   shadow is a part of the same name, the two selectors weigh the same, and
+   the later rule wins a tie -- placed after it, this painted every button's
+   shadow in the drop shadow's dark grey on black. */
+Widget::shadow         { fg: $shadow-fg; bg: $shadow-bg }
+
 Button                { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg; bold: $dialog-button-normal-bold; dim: $dialog-button-normal-dim; italic: $dialog-button-normal-italic; underline: $dialog-button-normal-underline; reverse: $dialog-button-normal-reverse }
 Button:am_default     { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg; bold: $dialog-button-default-bold; dim: $dialog-button-default-dim; italic: $dialog-button-default-italic; underline: $dialog-button-default-underline; reverse: $dialog-button-default-reverse }
 Button:focused        { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg; bold: $dialog-button-selected-bold; dim: $dialog-button-selected-dim; italic: $dialog-button-selected-italic; underline: $dialog-button-selected-underline; reverse: $dialog-button-selected-reverse }
@@ -323,12 +332,6 @@ Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
 CommandLine            { fg: $command-line-fg; bg: $command-line-bg }
 CommandLine::prompt    { fg: $command-line-prompt-fg }
 CommandLine::selection { fg: $command-line-bg; bg: $command-line-fg }
-
-/* The drop shadow a window, a dialog or a menu casts (Widget.shadow): Turbo
-   Vision's ShadowAttr, $08, as a navkit constant, which DN's Colors dialog
-   never offered.  `$shadow' is that in every DOS theme, and lets a light
-   theme cast a soft one. */
-Widget::shadow         { fg: $shadow-fg; bg: $shadow-bg }
 
 /* What a panel drag carries (drag.py): `TDragger.Draw' wrote $30, black on
    cyan, with no palette entry behind it -- so a literal here too. */

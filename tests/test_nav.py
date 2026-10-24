@@ -1504,6 +1504,21 @@ def test_every_theme_shows_an_input_line_s_selection():
             assert apart(part.bg, whole.bg) >= 15, f"{theme}: a selection's ground is too close to its line's"
 
 
+def test_every_theme_draws_a_button_s_shadow_on_the_dialog():
+    """A button's shadow is ``[46]``, half blocks on the dialog's own ground,
+    not the drop shadow a window casts.  ``Widget::shadow`` names a part of
+    the same name and weighs the same as ``Button::shadow``; placed after it in
+    the sheet, it won and painted every button's shadow dark grey on black."""
+    from navml.widgets import Button, Dialog
+
+    for theme in theme_names():
+        sheet = load_scheme(theme)
+        shadow = mounted(Button(), stylesheet=sheet).part_style("shadow")
+        assert shadow.bg == mounted(Dialog(), stylesheet=sheet).style.bg, theme
+    shadow = mounted(Button(), stylesheet=load_scheme("default")).part_style("shadow")
+    assert (shadow.fg, shadow.bg) == (0, 7)
+
+
 def test_the_modern_themes_are_what_themegen_writes():
     """The modern themes -- ember, paper, nord, solarized-light, gruvbox,
     gruvbox-light, tokyo-night, everforest-light, catppuccin-latte, one-dark,

@@ -14,50 +14,50 @@
  */
 
 /* The theme's roles: every slot below takes one of them. */
-$color-desktop: #d9c9a3;              /* behind the windows */
-$color-ground: #f1e7d0;               /* panels, the viewer and the editor */
-$color-ground_alt: #e8dcc0;           /* the editor's current line */
-$color-surface: #e6d8b8;              /* dialogs */
-$color-raised: #d3c19a;               /* buttons and scroll bars */
-$color-field: #ddcca6;                /* input lines, lists and trees in a dialog */
-$color-field_focus: #fbf5e6;          /* the input line being typed in */
-$color-overlay: #e6d8b8;              /* menus, the menu bar and the key bar */
+$color-desktop: #caba95;              /* behind the windows */
+$color-ground: #e0d7c0;               /* panels, the viewer and the editor */
+$color-ground_alt: #d8ccb1;           /* the editor's current line */
+$color-surface: #d6c8a9;              /* dialogs */
+$color-raised: #c5b38c;               /* buttons and scroll bars */
+$color-field: #cebd98;                /* input lines, lists and trees in a dialog */
+$color-field_focus: #f2ecdd;          /* the input line being typed in */
+$color-overlay: #d6c8a9;              /* menus, the menu bar and the key bar */
 $color-border: #7a6548;               /* frames */
 $color-border_dim: #a8946f;           /* the frame of a window without focus */
-$color-shadow: #a8946f;               /* a button's shadow */
-$color-text: #3b2f22;                 /* ordinary text */
-$color-text_dim: #5a4a36;             /* secondary text: titles, totals */
+$color-shadow: #93805b;               /* a button's shadow */
+$color-text: #2e2316;                 /* ordinary text */
+$color-text_dim: #4b3b28;             /* secondary text: titles, totals */
 $color-text_faint: #7f6c52;           /* disabled items */
 $color-text_strong: #1f170e;          /* emphasis */
 $color-accent: #7b2d26;               /* the cursor and the focused control */
 $color-on_accent: #f8f0dc;            /* text on the accent */
 $color-on_accent_alt: #f2c46d;        /* a hotkey or a marked file under the cursor */
 $color-on_accent_faint: #c98f88;      /* a disabled item under the cursor */
-$color-selection: #d3c19a;            /* selected text, and the cursor where the focus is not */
+$color-selection: #c5b38c;            /* selected text, and the cursor where the focus is not */
 $color-on_selection: #1f170e;         /* text on the selection */
 $color-hotkey: #9a4a1c;               /* a hotkey letter */
-$color-marked: #8a6a12;               /* a marked file */
+$color-marked: #785900;               /* a marked file */
 $color-dir: #2f5577;                  /* directories */
-$color-exec: #3d6b35;                 /* executables */
-$color-archive: #9a4a1c;              /* archives */
-$color-image: #2c6e6a;                /* images */
-$color-media: #8a6a12;                /* audio and video */
+$color-exec: #3a6832;                 /* executables */
+$color-archive: #974718;              /* archives */
+$color-image: #256864;                /* images */
+$color-media: #785900;                /* audio and video */
 $color-document: #5a4a36;             /* documents, devices and sockets */
 $color-source: #2f5577;               /* source code */
-$color-link: #2c6e6a;                 /* symbolic links */
+$color-link: #256864;                 /* symbolic links */
 $color-broken: #a52a1e;               /* a link that points nowhere */
-$color-temp: #a8946f;                 /* backups and temporaries */
-$color-comment: #7f6c52;              /* comments */
-$color-string: #3d6b35;               /* strings */
-$color-number: #9a4a1c;               /* numbers */
+$color-temp: #897652;                 /* backups and temporaries */
+$color-comment: #79664c;              /* comments */
+$color-string: #3a6832;               /* strings */
+$color-number: #974718;               /* numbers */
 $color-keyword: #7b2d26;              /* keywords */
 $color-heading: #2f5577;              /* headings, in the editor and the viewer */
 $color-symbol: #5a4a36;               /* operators and punctuation */
 $color-warn: #f8f0dc;                 /* warnings: the error box's icons */
 $color-error: #a63a2c;                /* the error box */
 $color-error_shadow: #1a0806;         /* a button's shadow on the error box */
-$color-modified: #9a4a1c;             /* a changed file's title in the editor */
-$color-drop_shadow: #d3c19a;          /* the shadow a window, a dialog or a menu casts */
+$color-modified: #974718;             /* a changed file's title in the editor */
+$color-drop_shadow: #c5b38c;          /* the shadow a window, a dialog or a menu casts */
 $color-drop_shadow_text: #7f6c52;     /* what shows through a drop shadow */
 $color-on_error: #f8f0dc;             /* text on the error box */
 
