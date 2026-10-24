@@ -169,6 +169,30 @@ class Section:
                 keys[name].append(key)
         return {name: tuple(found) for name, found in keys.items()}
 
+    def complete(self, assignment: Mapping[str, Iterable[str]]) -> Assignment:
+        """Every command's keys: *assignment*'s where it names the command,
+        else the defaults less any key *assignment* gives another command.
+
+        A file names what was bound when it was written, so a default added
+        since -- ``select_all`` taking Ctrl+A -- can clash with a key the
+        file deliberately put elsewhere (WordStar's Ctrl+A, word left).  The
+        file's choice wins and the newcomer goes without that key, rather
+        than the clash throwing the whole section back to the defaults.  A
+        chord counts as its first key: a default ``ctrl+k`` yields to a named
+        ``ctrl+k b``, and a default ``ctrl+k b`` to a named ``ctrl+k``.
+        """
+        named = {key for keys in assignment.values() for key in keys}
+        starts = {key.split()[0] for key in named}
+
+        def free(key: str) -> bool:
+            return key not in named and key not in starts and key.split()[0] not in named
+
+        return {
+            entry.name: tuple(assignment[entry.name]) if entry.name in assignment
+            else tuple(key for key in entry.defaults if free(key))
+            for entry in self.entries
+        }
+
     def table(self, assignment: Mapping[str, Iterable[str]]) -> dict[str, Binding]:
         """The key table *assignment* makes, checked as a class's is
         (``KeyTableError`` for a key bound twice or a chord's start bound
@@ -380,6 +404,7 @@ def read(file: Path, found: Iterable[Section]) -> tuple[dict[str, Assignment], l
                 assignment[option] = parse_keys(text)
             except ValueError as error:
                 warnings.append(f"{file}: [{name}] {option}: {error}; using the default")
+        assignment = section.complete(assignment)
         try:
             section.table(assignment)
         except KeyTableError as error:

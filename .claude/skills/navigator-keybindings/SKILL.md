@@ -76,7 +76,10 @@ names when no key has them. `FileEditor` lists every command of `WORDSTAR` this 
   - A key starting with `#` or `;` is joined with a bare `,` (`format_keys`), because ` #` would start an inline
     comment.
 - **Reading** (`read`). Problems are warnings, never errors:
-  - a missing line keeps its default;
+  - a missing line keeps its default, **less any key the file gives another command** (`Section.complete`): a
+    default added after the file was written (`select_all` taking Ctrl+A over a WordStar file's word-left Ctrl+A)
+    yields to the file instead of the clash throwing the section back to its defaults; a chord counts as its first
+    key both ways;
   - an unknown section or name is a warning;
   - a key that will not parse is a warning, and that line keeps its default;
   - a section that fails `Section.table` (one key on two commands, or a chord whose first key is also bound alone) is a

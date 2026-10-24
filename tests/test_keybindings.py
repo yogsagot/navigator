@@ -124,6 +124,7 @@ def test_what_will_not_do_is_a_warning_and_the_default(tmp_path):
         "x = f1\n"
         "[viewer]\n"
         "hex_mode = f2\n"
+        "unwrap = f2\n"
     )
     warnings = keybindings.load(Navigator, file)
     assert len(warnings) == 4
@@ -132,6 +133,30 @@ def test_what_will_not_do_is_a_warning_and_the_default(tmp_path):
     assert "[nowhere]" in warnings[2]
     assert "[viewer]" in warnings[3] and "using the defaults" in warnings[3]
     assert key_table(Manager)["f7"] is MakeDirectory
+
+
+def test_a_default_yields_a_key_the_file_gives_elsewhere(tmp_path):
+    """A file written before ``select_all`` took Ctrl+A, with WordStar's
+    Ctrl+A on word left: the file's line wins, the command it never named
+    goes without that key, and the rest of the section is still the file's."""
+    file = tmp_path / "keybindings.ini"
+    file.write_text("[editor]\nword_left = ctrl+left, ctrl+a\nmove_left = left, ctrl+s\n")
+    assert keybindings.load(Navigator, file) == []
+    editor = section("editor").current()
+    assert editor["word_left"] == ("ctrl+left", "ctrl+a")
+    assert editor["select_all"] == ()
+    assert editor["move_left"] == ("left", "ctrl+s")
+    assert command_of(key_table(FileEditor)["ctrl+s"]) == MoveLeft()
+
+
+def test_a_default_yields_to_a_chord_on_its_key():
+    """WordStar's ``ctrl+k b`` in a file: a default on bare ``ctrl+k`` could
+    not stay, a chord's first key being bound alone."""
+    editor = section("editor")
+    bare = next(e for e in editor.entries if e.defaults and " " not in e.defaults[0])
+    assigned = editor.complete({"block_start": (f"{bare.defaults[0]} b",)})
+    assert bare.defaults[0] not in assigned[bare.name]
+    editor.table(assigned)
 
 
 def test_a_file_that_is_not_ini_is_a_warning(tmp_path):
