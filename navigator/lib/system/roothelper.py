@@ -205,18 +205,19 @@ class _Helper:
         self.pending[number] = (handle, path)
         return number
 
-    def write_text(self, handle: int, backup: bool) -> None:
+    def write_text(self, handle: int, backup: bool, check_lock: bool = False) -> None:
         """``write_file``'s second half: the text gathered put in its file, as
-        the editor writes one -- in a single rename, owner and mode kept."""
+        the editor writes one -- in a single rename, owner and mode kept.
+        *check_lock* where the asking Navigator could not look itself."""
         from navigator.lib.editor.save import write_file
 
         file, path = self.pending.pop(handle)
         self.files.pop(handle, None)
         try:
             file.seek(0)
-            # Locks were asked about by the Navigator asking: the lock it
-            # holds itself would refuse this process.
-            write_file(Path(path), iter(lambda: file.read(1 << 20), b""), None, backup, check_lock=False)
+            # Locks were asked about by the Navigator asking, where it could:
+            # the lock it holds itself would refuse this process.
+            write_file(Path(path), iter(lambda: file.read(1 << 20), b""), None, backup, check_lock=check_lock)
         finally:
             file.close()
 

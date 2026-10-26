@@ -1616,3 +1616,37 @@ def test_a_root_panel_refreshes_when_its_directory_changes(started, tmp_path, qu
         lambda a: (tmp_path / "new.txt").write_text("n"),  # changed behind its back
         Until(lambda a: any(e.name == "new.txt" for e in panel(a).items), timeout=5),
     ])
+
+
+def test_the_helper_writes_no_bytecode_as_root():
+    for tool in ("sudo", "pkexec"):
+        argv = ELEVATION.argv(tool)
+        assert "-B" in argv and "-I" in argv, argv
+
+
+def test_a_save_into_a_directory_the_user_cannot_enter(started, tmp_path, monkeypatch):
+    """The real sudo check found it: the user's own lock check could not
+    resolve a path inside a root-only directory and refused the save."""
+    from navigator.lib.editor import save
+
+    path = tmp_path / "conf.txt"
+    path.write_text("old\n")
+
+    def refused(target):
+        raise PermissionError(errno.EACCES, "Permission denied", str(target))
+
+    monkeypatch.setattr(save, "resolve", refused)  # the user cannot reach it
+    calls: list = []
+    real = ELEVATION.call_data
+
+    def counted(op, *args, **kwargs):
+        calls.append((op, kwargs.get("check_lock")))
+        return real(op, *args, **kwargs)
+
+    ELEVATION.call_data = counted  # type: ignore[method-assign]
+    try:
+        ROOT_DRIVE.write_file(path, [b"new\n"])
+    finally:
+        del ELEVATION.call_data
+    assert path.read_text() == "new\n"
+    assert ("write_text", True) in calls  # the helper looked for locks instead

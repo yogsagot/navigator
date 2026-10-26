@@ -196,8 +196,14 @@ class RootDrive(LocalDrive):
         from navigator.lib.editor.lock import refuse_if_locked
         from navigator.lib.editor.save import resolve
 
-        # Here, where this Navigator's own locks are known.
-        refuse_if_locked(resolve(path))
+        # Here, where this Navigator's own locks are known -- unless the user
+        # may not even reach the file (a directory only root may enter): then
+        # no lock of this Navigator's can be on it, and the helper asks.
+        try:
+            refuse_if_locked(resolve(path))
+            helper_checks = False
+        except PermissionError:
+            helper_checks = True
         if job is not None:
             job.cancellable = False
         handle = ELEVATION.call("begin_text", path=str(path))
@@ -208,7 +214,7 @@ class RootDrive(LocalDrive):
         except BaseException:
             ELEVATION.call("close", handle=handle)
             raise
-        ELEVATION.call("write_text", handle=handle, backup=backup)
+        ELEVATION.call("write_text", handle=handle, backup=backup, check_lock=helper_checks)
 
 
     @staticmethod

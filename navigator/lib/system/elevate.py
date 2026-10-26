@@ -120,7 +120,9 @@ class Elevation:
     _ready = False
 
     def argv(self, tool: str) -> list[str]:
-        helper = [sys.executable, "-I", "-c", _BOOT]
+        # ``-B``: nothing imported as root writes a ``.pyc`` -- it would be
+        # root's, in the user's tree (or site-packages), and outlive this.
+        helper = [sys.executable, "-I", "-B", "-c", _BOOT]
         if self.command is not None:
             return list(self.command)
         if tool == "sudo":

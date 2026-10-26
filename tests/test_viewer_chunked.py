@@ -26,10 +26,13 @@ class Slow(SeekingReader):
     """A drive a round trip away: every read waits a little."""
 
     reads = 0
+    #: Two fetcher threads count at once: ``+=`` alone can lose one.
+    counting = threading.Lock()
 
     def read_at(self, offset, count):
         time.sleep(0.01)
-        type(self).reads += 1
+        with type(self).counting:
+            type(self).reads += 1
         return super().read_at(offset, count)
 
 

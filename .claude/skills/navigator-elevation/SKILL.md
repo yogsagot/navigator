@@ -27,8 +27,9 @@ of that operation goes through it without asking again** (DN's *All*).
 - **`navigator/lib/system/roothelper.py`** -- the root process. Messages are a 4-byte big-endian length, that much
   JSON, then `size` raw bytes. **Only names in `OPS` (the public methods of `_Helper`) may be asked**; an unknown op is
   `EINVAL`. Answers are `{"ok": ...}` or an `OSError` as `errno/strerror/filename`, re-raised as the same `OSError`
-  subclass on our side. It says `READY` once and ends at end of input. Started with `-I`, the package path inserted
-  explicitly, so nothing from the user's current directory or environment is imported as root.
+  subclass on our side. It says `READY` once and ends at end of input. Started with `-I -B`, the package path inserted
+  explicitly, so nothing from the user's current directory or environment is imported as root, and no `.pyc`
+  is written as root into the user's tree.
 - **`navigator/lib/drives/root.py`** -- `ROOT_DRIVE`, a `LocalDrive` whose every step is a helper request (files are
   `_RootFile`s read/written a `CHUNK` per request). `write_file` is the editor's `save.write_file` run in the
   helper; the text is gathered there first, so it is not stoppable part way.
@@ -132,6 +133,16 @@ of that operation goes through it without asking again** (DN's *All*).
   thread**, since a helper request blocks. F7 asks `ask_as_root` and makes the directory with `ROOT_DRIVE.mkdir`;
   `Manager.link_entries` asks `ask_skip(elevate=)` per refusal until answered, then `filelink.make_link(...,
   as_root=True)` and `ROOT_DRIVE.makedirs` for the rest, releasing in its `finally`.
+
+## Checked against the real tools (2026-10-26)
+
+sudo 1.9.15p5 and pkexec 124 (polkit-gnome agent, XFCE), by a script driving `ELEVATION` and `ROOT_DRIVE`
+directly plus a hand run in Navigator: the `\x01` prompt marker survives sudo, wrong passwords are told apart,
+3 MB of every byte value go through unchanged (no pty in the way), `write_file` keeps owner/mode/backup, a
+root-only directory lists and copies, release/timeout close it, and `-B` leaves no root-owned `.pyc`. **Found
+there and fixed**: `RootDrive.write_file`'s own lock check could not resolve a path inside a directory only root
+may enter -- the helper now checks locks itself then (`write_text(check_lock=True)`). **Not yet tried**: pkexec
+with no polkit agent (over ssh), where it may ask on the terminal Navigator owns.
 
 ## Not wired yet
 
