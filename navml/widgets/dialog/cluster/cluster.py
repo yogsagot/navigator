@@ -39,19 +39,13 @@ class Cluster(Control):
     #: it ``Sel``; it is not the *value*, and moving it is not choosing.
     sel: int = reactive(0)
 
-    #: Which characters the marks are drawn from.
-    look = StyleProperty(DEFAULT_MARKS, values=tuple(MARKS))
+    #: Which characters the marks are drawn from: a set of
+    #: :data:`navkit.glyphs.MARKS`, or ``auto`` for the application's
+    #: ``marks``, the one choice every cluster on the screen follows.
+    look = StyleProperty("auto", values=("auto", *MARKS))
 
     #: One row, its mark, and the ``~A~`` letter in its caption.
     parts = ("item", "mark", "shortcut")
-
-    #: Where in :func:`navkit.glyphs.marks` this cluster's pair begins: 0 for
-    #: a check box, 2 for a radio button.
-    mark_offset = 0
-
-    #: What goes around the mark.  ASCII in the original too, and fixed here
-    #: rather than in the glyph table for that reason.
-    brackets = "[]"
 
     #: What ``value`` means, which is the subclasses' whole difference.  The
     #: base answers "nothing is on" rather than raising, so that a bare
@@ -66,13 +60,13 @@ class Cluster(Control):
     def toggle(self, index: int) -> None:
         """Turn item *index* on, or over."""
 
-    def mark_char(self, index: int, off: str, on: str) -> str:
-        """The character between item *index*'s brackets.
+    def mark_index(self, index: int) -> int:
+        """Which of :func:`navkit.glyphs.marks`' five item *index* shows.
 
-        *off* or *on* from the glyph set, by :meth:`chosen`.  A subclass with
-        a third state answers that state's character itself.
+        The check box pair, off or on by :meth:`chosen`; a subclass answers
+        its own pair, or a third state.
         """
-        return on if self.chosen(index) else off
+        return 1 if self.chosen(index) else 0
 
     def mark_states(self, index: int) -> dict[str, bool]:
         """The states the ``mark`` part is styled by, beyond ``selected``."""
@@ -85,9 +79,10 @@ class Cluster(Control):
     # two columns -- which is how DOS Navigator's Copy dialog put its check
     # boxes.  A column is as wide as its longest caption, and the next one
     # starts two cells after it: ``Column`` stepped by the width plus six,
-    # which is the four of ``[x]`` and its blank and the two between.  A
-    # cluster at least as tall as its items is one column and paints exactly
-    # as it did before columns existed.
+    # which is the four of ``[x]`` and its blank and the two between.  Every
+    # look's marks are three cells for that reason.  A cluster at least as
+    # tall as its items is one column and paints exactly as it did before
+    # columns existed.
 
     def _rows(self) -> int:
         return max(1, self.height)
@@ -177,9 +172,10 @@ class Cluster(Control):
         if self.width < 1 or self.height < 1:
             return
         surface.fill(0, 0, self.width, self.height, " ", self.style)
-        glyphs = marks(self.look, self.glyphs)
-        off, on = glyphs[self.mark_offset], glyphs[self.mark_offset + 1]
-        opening, closing = self.brackets
+        look = self.look
+        if look == "auto":
+            look = getattr(self.application, "marks", DEFAULT_MARKS)
+        glyphs = marks(look, self.glyphs)
         rows = self._rows()
         for index, item in enumerate(self.items):
             column, y = divmod(index, rows)
@@ -192,9 +188,7 @@ class Cluster(Control):
             )
             if len(self.items) <= rows:
                 surface.fill(0, y, self.width, 1, " ", style)
-            surface.draw_text(x, y, opening, mark)
-            surface.draw_text(x + 1, y, self.mark_char(index, off, on), mark)
-            surface.draw_text(x + 2, y, closing, mark)
+            surface.draw_text(x, y, glyphs[self.mark_index(index)], mark)
             draw_caption(
                 surface, x + 4, y, item, style,
                 self.part_style("shortcut"), max(0, self.width - x - 4),

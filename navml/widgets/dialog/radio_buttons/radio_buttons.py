@@ -28,15 +28,15 @@ class RadioButtons(Cluster):
     ``value`` is an index rather than a bit set.
     """
 
-    #: Radio marks are the second pair in the glyph table.
-    mark_offset = 2
-    brackets = "()"
-
     def chosen(self, index: int) -> bool:
         return index == self.value
 
     def toggle(self, index: int) -> None:
         self.value = index
+
+    def mark_index(self, index: int) -> int:
+        """Radio marks are the last pair in the glyph table."""
+        return 4 if self.chosen(index) else 3
 
     @property
     def choice(self) -> str:

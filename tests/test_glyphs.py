@@ -9,6 +9,7 @@ from navkit.glyphs import (
     ASCII_JOINS,
     ASCII_MARKS,
     ASCII_SCROLLBAR,
+    BOX_MARKS,
     BOX_CHARSETS,
     BOX_JOINS,
     DOS_MARKS,
@@ -17,6 +18,8 @@ from navkit.glyphs import (
     GLYPHS_ASCII,
     GLYPHS_NERD,
     GLYPHS_UNICODE,
+    MARKS,
+    NERD_BOX_MARKS,
     ROUND_BOX,
     SINGLE_BOX,
     charset,
@@ -127,8 +130,8 @@ def test_a_nerd_font_improves_on_none_of_them(lookup, name):
 
     Box drawing, block elements and geometric shapes are all ordinary Unicode.
     The Private Use Area carries icons, and an icon is a *replacement* for one
-    of these rather than a better version of it -- a single-glyph check box
-    would collapse three cells into one and move every caption beside it.
+    of these rather than a better version of it.  The bracketless ``boxes``
+    marks are the one exception, below.
     """
     assert lookup(name, GLYPHS_NERD) == lookup(name, GLYPHS_UNICODE)
 
@@ -139,11 +142,30 @@ def test_an_unknown_name_answers_rather_than_raising(lookup, fallback):
     assert lookup("nonsense") == lookup(fallback)
 
 
-def test_the_marks_are_four_single_cells():
-    """A cluster paints `[`, a mark and `]', so a wide mark would misalign it."""
-    for chars in (DOS_MARKS, ASCII_MARKS):
-        assert len(chars) == 4
-        assert all(len(char) == 1 for char in chars)
+@pytest.mark.parametrize("tier", [GLYPHS_ASCII, GLYPHS_UNICODE, GLYPHS_NERD])
+@pytest.mark.parametrize("name", sorted(MARKS))
+def test_every_look_is_five_marks_of_three_cells(name, tier):
+    """A cluster puts its captions four cells in, so every mark, in every look
+    and at every tier, takes exactly the three cells ``[X]`` does."""
+    from navkit.screen import char_width
+
+    chars = marks(name, tier)
+    assert len(chars) == 5
+    assert all(sum(char_width(char) for char in mark) == 3 for mark in chars)
+
+
+@pytest.mark.parametrize("name", sorted(MARKS))
+def test_every_look_is_ascii_below_unicode(name):
+    assert marks(name, GLYPHS_ASCII) == ASCII_MARKS
+
+
+def test_a_nerd_font_changes_only_the_bracketless_look():
+    """Font Awesome's squares and circles are the marks themselves; inside
+    brackets an icon improves on nothing."""
+    assert marks("boxes", GLYPHS_UNICODE) == BOX_MARKS
+    assert marks("boxes", GLYPHS_NERD) == NERD_BOX_MARKS
+    for name in set(MARKS) - {"boxes"}:
+        assert marks(name, GLYPHS_NERD) == marks(name, GLYPHS_UNICODE)
 
 
 def test_the_scrollbar_is_six_single_cells():

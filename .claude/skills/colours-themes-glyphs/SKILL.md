@@ -156,6 +156,12 @@ Unicode tier up, else `dos` `▌▀▐▄` from CP437's half blocks where `Termi
 console font has no braille; `ascii` `|/-\` below Unicode) are navml
 `Spinner`'s frames, a sheet's `frames:` -- not `chars:`, which the gauge and scroll bar declare with other names.
 
+Check and radio **marks** (`MARKS`: `dos`, `brackets`, `boxes`, `ascii`) are a departure (DN drew only `[X]`/`(•)`):
+each is three cells, brackets included, so nothing moves between looks. Below Unicode every look is ASCII; the Nerd tier
+changes only `boxes`, to Font Awesome 4's `square_o`/`check_square_o`/`minus_square_o`/`circle_o`/`dot_circle_o`
+centred in the slot (the blank after takes a non-Mono font's overflow). Chosen by `[appearance] marks`/`--marks` or
+Options > Interface's *Marks*; `navml-library` has the widget side.
+
 **The Nerd Font icon gutter in `Panel` is the project's one standing modern exception**, taken deliberately, on only
 where the font is known to exist, reversible with `icons: none` or `--glyphs unicode`. Don't re-litigate it and don't
 read it as licence for the next flourish. Icons: `icons.BY_TYPE` beats the extension's;

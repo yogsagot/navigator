@@ -35,7 +35,7 @@ It is a container of sections, `SETTINGS.interface.clock`, `SETTINGS.confirmatio
 
 For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini > built-in default**.
 
-- The argparse defaults for `--theme`, `--palette`, `--colors`, `--glyphs` and `--dim-modal` are `None`, so the code can tell
+- The argparse defaults for `--theme`, `--palette`, `--colors`, `--glyphs`, `--marks` and `--dim-modal` are `None`, so the code can tell
   whether a flag was given.
 - The ini's palette, colours and glyphs go into `TerminalInfo.detect()` as its defaults, which lets `NAVKIT_PALETTE`,
   `NAVKIT_COLORS` and `NAVKIT_GLYPHS` still override them. A stated depth also outranks `NO_COLOR` (no-color.org defers
@@ -63,7 +63,7 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 
 | Section | Class (DN record) | Page (`navigator/widgets/setup/`, DN's dialog) | Command (opens that page) |
 |---|---|---|---|
-| `[appearance]` | `AppearanceData` (the flags) | only `colors`, on `InterfacePage` (*Colours*) | `InterfaceSetup` |
+| `[appearance]` | `AppearanceData` (the flags) | only `colors` and `marks`, on `InterfacePage` (*Colours*, *Marks*) | `InterfaceSetup` |
 | `[system]` | `SystemData` | `SystemSetupPage` (`dlgSystemSetup`) | `SystemSetup` |
 | `[startup]` | `StartupData` | `StartupPage` (`dlgStartupSetup`) | `StartupSetup` (`cmStartup`) |
 | `[interface]` | `InterfaceData` | `InterfacePage` (`dlgInterfaceSetup`) | `InterfaceSetup` |
@@ -187,7 +187,8 @@ note:
 | `startup.preserve_directory` | Off (DN's): after a command the active panel follows the shell's directory (`Shell._follow_shell`), and a restored desktop's topmost manager opens its active panel in the current directory -- the start one, or the panel's for Load desktop (`desktop_state.restore(here=)`). On: it keeps its own. DN decided at `Store`; here at restore, so the saved desktop loses nothing |
 | `interface.settings_tabs` | `top` (default) or `left`: where *Settings* puts its tabs (`TabView.side`), read as it opens. `left` widens the box to 80 (`settings_dialog.LEFT_WIDTH`) so a page keeps its width beside the column. Not DN's. Interface's *Settings tabs* radio buttons |
 | `interface.window_strip` | `off`, `numbers` (default, asked for; nothing shows until a second window opens) or `full`: the windows on the menu bar by number, kept to the clock's end, or with their names (`Shell`'s `WindowStrip`, see `navml-windows-menus`). Not DN's. Interface's *Window strip* radio buttons |
-| `appearance.colors` | The colour depth sent, replacing detection's guess (precedence above). Interface Setup's *Colours* (a departure: DN's was the video mode); a change applies at once, over a session's `--colors` as *Language* does over `--language` (`Navigator.use_color_depth`: re-detected with the new depth, `NAVKIT_COLORS` still winning, then `redraw()`). `InterfacePage` is two-section: it answers `{"interface": ..., "appearance": {"colors": ...}}` |
+| `appearance.colors` | The colour depth sent, replacing detection's guess (precedence above). Interface Setup's *Colours* (a departure: DN's was the video mode); a change applies at once, over a session's `--colors` as *Language* does over `--language` (`Navigator.use_color_depth`: re-detected with the new depth, `NAVKIT_COLORS` still winning, then `redraw()`). `InterfacePage` is two-section: it answers `{"interface": ..., "appearance": {"colors": ..., "marks": ...}}` |
+| `appearance.marks` | How check boxes and radio buttons are drawn (`MARK_LOOKS`: `dos`, `brackets` -- the default --, `boxes`), a departure. `main()` sets `Navigator.marks` from it or `--marks`; Interface Setup's *Marks* applies a change at once (`Shell.settings`: `application.marks`, then `invalidate()`). A `Navigator` built without `main()` -- the tests' -- keeps navkit's `dos` |
 | `interface.history_size` | 50 (a departure: DN fixed 20): entries kept per history list -- `HISTORY.limit` (set by `Shell._size_histories`) and `FileRecord.store`. A `MaskedField` under Interface Setup's boxes |
 | `confirmations.erase_single` / `erase_multiple` | Off: no Delete dialog, and so no *Recursive delete* |
 | `confirmations.erase_non_empty_dir` / `erase_read_only` | Off: the eraser's question is answered Yes |

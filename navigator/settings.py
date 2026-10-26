@@ -222,6 +222,9 @@ class Section:
 
 #: What ``--colors`` and ``[appearance] colors`` accept: detect, or a depth.
 COLOR_DEPTHS = ("auto", "mono", "8", "16", "256", "truecolor")
+#: What ``--marks`` and ``[appearance] marks`` accept: the looks of
+#: :data:`navkit.glyphs.MARKS` but ``ascii``, which ``--glyphs ascii`` gives.
+MARK_LOOKS = ("dos", "brackets", "boxes")
 
 
 class AppearanceData(Section):
@@ -232,7 +235,7 @@ class AppearanceData(Section):
     """
 
     name = "appearance"
-    title = "Appearance -- the --theme, --palette, --colors, --glyphs and --dim-modal flags"
+    title = "Appearance -- the --theme, --palette, --colors, --glyphs, --marks and --dim-modal flags"
 
     theme: str = Setting("default", doc="Colour scheme, one of `nav --list-themes`")
     palette: str = Setting(
@@ -246,6 +249,13 @@ class AppearanceData(Section):
     glyphs: str = Setting(
         "auto", choices=("auto", "ascii", "unicode", "nerd"),
         doc="Which characters the terminal's font draws",
+    )
+    #: Not DN's, whose marks were Turbo Vision's ``[X]`` and ``(•)`` -- still
+    #: there as ``dos``.  The default keeps the brackets and puts Unicode's
+    #: check mark and filled circle in them; ``boxes`` drops the brackets.
+    marks: str = Setting(
+        "brackets", choices=MARK_LOOKS,
+        doc="How check boxes and radio buttons are drawn: dos [X] (•), brackets [✓] (●), boxes without brackets",
     )
     dim_modal: bool = Setting(True, doc="Paint what lies behind a dialog faint")
 

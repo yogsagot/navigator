@@ -1,5 +1,5 @@
 """What OK means in *Interface Setup*: the ``[interface]`` section's new values,
-and ``[appearance]``'s colour depth."""
+and ``[appearance]``'s colour depth and check marks."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from navkit.i18n import languages, tr
 from navkit.widget import Widget
 
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import COLOR_DEPTHS, SETTINGS, AppearanceData, InterfaceData
+from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
 
 
 class InterfacePage(Widget):
@@ -49,6 +49,17 @@ class InterfacePage(Widget):
         self.colors.value = next(
             name for name, depth in self.depths.items() if depth == self.appearance.colors
         )
+        #: ``{shown name: look}``, in ``MARK_LOOKS``' order, each showing its
+        #: own marks.
+        self.looks = dict(zip(
+            (tr("Classic [X] (•)"), tr("Brackets [✓] (●)"), tr("Boxes ☑ ◉")),
+            MARK_LOOKS,
+        ))
+        self.marks.choices = list(self.looks)
+        self.marks.value = next(
+            (name for name, look in self.looks.items() if look == self.appearance.marks),
+            self.marks.choices[0],
+        )
 
     def accept(self) -> dict[str, dict[str, Any]]:
         values = InterfaceData.from_bits(InterfaceData.OPTIONS, self.options.value)
@@ -59,4 +70,5 @@ class InterfacePage(Widget):
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]
         values["window_strip"] = InterfaceData.field("window_strip").choices[self.window_strip.value]
         colors = self.depths.get(self.colors.value, self.appearance.colors)
-        return {"interface": values, "appearance": {"colors": colors}}
+        marks = self.looks.get(self.marks.value, self.appearance.marks)
+        return {"interface": values, "appearance": {"colors": colors, "marks": marks}}

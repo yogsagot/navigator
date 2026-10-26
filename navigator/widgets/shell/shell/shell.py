@@ -2027,10 +2027,16 @@ class Shell(DockLayout):
 
         before = SETTINGS.interface.language
         depth = SETTINGS.appearance.colors
+        marks = SETTINGS.appearance.marks
         await self.setup(SettingsDialog(tab=tab), *SECTIONS)
         # The same for the colour depth, over a session's --colors.
         if SETTINGS.appearance.colors != depth:
             self.application.use_color_depth(SETTINGS.appearance.colors)
+        # And the check marks, over a session's --marks; every cluster on the
+        # screen redraws, as it reads the application's choice.
+        if SETTINGS.appearance.marks != marks:
+            self.application.marks = SETTINGS.appearance.marks
+            self.application.invalidate()
         # Only a change: Cancel, or OK on the same choice, leaves a session's
         # --language standing.  Every caption bound to it follows this batch.
         if SETTINGS.interface.language != before:

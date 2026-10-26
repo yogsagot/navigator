@@ -9,8 +9,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: The resource's twelve boxes in its two columns of six, at its width; Help
 #: is left out, having nothing to show yet.  *History size* below them is a
 #: departure: DN's lists were a fixed 20 long; so is *Language*, DN's being
-#: the resource set it was installed with, and *Colours*, ``[appearance]``'s
-#: depth, where DN's was the video mode a DOS adapter was put in.
+#: the resource set it was installed with, *Colours*, ``[appearance]``'s
+#: depth, where DN's was the video mode a DOS adapter was put in, and *Marks*.
 InterfacePage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -50,10 +50,22 @@ InterfacePage:
     ChoiceField:
         id: colors
         x: 2
-        y: 12
+        y: 11
         width: 40
         height: 1
         label_text: "Colou~r~s"
+        label_width: 15
+
+    #: Not DN's, whose marks were Turbo Vision's alone: how check boxes and
+    #: radio buttons are drawn, ``[appearance] marks``.  Above *Settings
+    #: tabs*, as *Colours* is, so its list drops whole inside the box.
+    ChoiceField:
+        id: marks
+        x: 2
+        y: 12
+        width: 40
+        height: 1
+        label_text: "Mar~k~s"
         label_width: 15
 
     #: Not DN's: where *Settings* -- this box -- shows its tabs, the next

@@ -190,6 +190,25 @@ def test_a_flag_wins_over_the_file_and_is_not_written_back(monkeypatch, tmp_path
     assert "dim_modal = no" in path.read_text(encoding="utf-8")
 
 
+def test_marks_come_from_the_file_and_a_flag_wins(monkeypatch, tmp_path):
+    path = tmp_path / "n.ini"
+    path.write_text("[appearance]\nmarks = boxes\n", encoding="utf-8")
+    built = []
+
+    class Fake:
+        def __init__(self, left, right, scheme, **kwargs):
+            built.append(self)
+
+        def run(self):
+            pass
+
+    monkeypatch.setattr(entry, "Navigator", Fake)
+    entry.main(["--config", str(path), str(tmp_path)])
+    entry.main(["--config", str(path), "--marks", "dos", str(tmp_path)])
+    assert [app.marks for app in built] == ["boxes", "dos"]
+    assert "marks = boxes" in path.read_text(encoding="utf-8")
+
+
 def test_nav_refuses_to_start_inside_navigator(monkeypatch, tmp_path, capsys):
     def refuse(*args, **kwargs):
         raise AssertionError("Navigator was built")
@@ -285,6 +304,28 @@ def test_colours_are_chosen_in_interface_setup_and_sent_at_once(tmp_path, quiet_
     # Back to automatic: detection's answer again.
     app.use_color_depth("auto")
     assert terminal.info.colors == TRUECOLOR
+
+
+def test_marks_are_chosen_in_interface_setup_and_drawn_at_once(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose(a):
+        page = a.modal.interface
+        seen.append(page.marks.value)
+        page.marks.value = page.marks.choices[2]
+
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append(a.marks),
+    ])
+    assert seen == ["Brackets [\u2713] (\u25cf)", "boxes"]
+    assert SETTINGS.appearance.marks == "boxes"
+    assert "marks = boxes" in config_path().read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("command, tab", [

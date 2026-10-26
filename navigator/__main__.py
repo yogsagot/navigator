@@ -53,7 +53,7 @@ from navigator.lib.appearance.scheme import (
 )
 from navigator.lib.config.file_history import remember_windows
 from navigator.lib.system import dirwatch, errorlog
-from navigator.settings import COLOR_DEPTHS, SETTINGS, config_path, database_path
+from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
@@ -681,6 +681,12 @@ def main(argv: list[str] | None = None) -> int:
              "icon beside each name (default: the settings file's, else detect)",
     )
     parser.add_argument(
+        "--marks", choices=MARK_LOOKS, default=None,
+        help="how check boxes and radio buttons are drawn: `dos' [X] (•), "
+             "`brackets' [✓] (●), `boxes' without brackets, Nerd Font "
+             "icons with --glyphs nerd (default: the settings file's)",
+    )
+    parser.add_argument(
         "--language", default=None, metavar="CODE",
         help="the language to speak: a catalogue's code such as `lv', `en' "
              "(default: the settings file's, else $LANG)",
@@ -803,8 +809,10 @@ def main(argv: list[str] | None = None) -> int:
     left = _start_directory(args.left) if args.left else Path.cwd()
     right = _start_directory(args.right) if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
-    Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
-              given=bool(args.left), theme=theme, on_error=args.on_error).run()
+    app = Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
+                    given=bool(args.left), theme=theme, on_error=args.on_error)
+    app.marks = appearance.marks if args.marks is None else args.marks
+    app.run()
     return 0
 
 

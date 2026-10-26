@@ -25,6 +25,11 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   tree order, and any other control between buttons splits the run.
 - `Cluster` lays out in columns as `TCluster` did. **Tri-state `CheckBoxes`**: `mixed` draws `[?]`, `tristate` lets a
   bit cycle back to it.
+- **Marks** come from `navkit.glyphs.marks(look, tier)`: five three-cell strings (check off/on/mixed, radio off/on),
+  picked by `mark_index()` (`CheckBoxes` 0-2, `RadioButtons` 3-4). `look` is a style property: `dos` (`[X]` `(•)`),
+  `brackets` (`[✓]` `(●)`), `boxes` (`☐ ☑ ⊟`/`○ ◉` centred, Font Awesome icons at the Nerd tier), `ascii`, or `auto`
+  (the default) for `Application.marks` -- `dos` in navkit, `[appearance] marks` in Navigator. **Every mark is three
+  cells** in every look and tier: captions sit at `x + 4` and `_column_x` steps by `widest + 6`.
 - `ListViewer` hooks: `capacity`, `index_at`, `render_items`, overridable `_follow_cursor`; `framed = False` drops the
   frame; it claims only a *bare* Enter.
 - `StaticText.links` marks the `http(s)://` runs it paints (OSC 8, see `navkit-terminal`).

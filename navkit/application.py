@@ -49,6 +49,7 @@ from navkit.events import (
     ResizeEvent,
     WakeEvent,
 )
+from navkit.glyphs import DEFAULT_MARKS
 from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.screen import ScreenBuffer, Surface, render_diff
 from navkit.style import DEFAULT_STYLE, Style
@@ -317,6 +318,10 @@ class Application:
     #: swallowed either way, as WordStar's was.  Reactive, so whatever shows
     #: that a chord is pending (an editor's info line) follows it.
     chord: str = reactive("")
+    #: Which set of :data:`navkit.glyphs.MARKS` a check box or radio button
+    #: whose ``look`` is ``auto`` draws with.  Plain, read at every paint:
+    #: whoever changes it calls :meth:`invalidate`.
+    marks: str = DEFAULT_MARKS
 
     def __init__(
         self,

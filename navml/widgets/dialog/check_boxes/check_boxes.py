@@ -37,9 +37,6 @@ class CheckBoxes(Cluster):
     #: stays two-state, which is what a box with no ``mixed`` start wants.
     tristate: int = reactive(0)
 
-    #: The third mark.  ASCII, as the brackets are, so every glyph tier has it.
-    mixed_mark = "?"
-
     def chosen(self, index: int) -> bool:
         return bool(self.value & (1 << index))
 
@@ -59,10 +56,8 @@ class CheckBoxes(Cluster):
         else:
             self.value = self.value | bit
 
-    def mark_char(self, index: int, off: str, on: str) -> str:
-        if self.is_mixed(index):
-            return self.mixed_mark
-        return super().mark_char(index, off, on)
+    def mark_index(self, index: int) -> int:
+        return 2 if self.is_mixed(index) else super().mark_index(index)
 
     def mark_states(self, index: int) -> dict[str, bool]:
         return {**super().mark_states(index), "mixed": self.is_mixed(index)}

@@ -32,16 +32,17 @@ what keeps the buffer free of any runtime knowledge of capabilities.
 
 The widget library's vocabularies -- frame joins, scrollbar characters, check
 and radio marks -- sit beside the box sets for the same reason, and every one
-of them answers the same three questions a box set does.  **The third answer is
-the same for all of them: a Nerd Font improves on none of them.**  Every shape
-here is box-drawing, block-element or geometric-shape, all of which
+of them answers the same three questions a box set does.  **For all but one
+the third answer is the same: a Nerd Font improves on none of them.**  Every
+shape is box-drawing, block-element or geometric-shape, all of which
 :data:`GLYPHS_UNICODE` already guarantees; the Private Use Area carries icons
-and no better arrow, shade or tee.  The one case with a real candidate is a
-check box, where ``nf-fa-check_square`` is a single glyph -- and it is refused
-because it collapses three cells into one and would move every caption in a
-cluster.  Icons remain the application's vocabulary, and
-``navigator/lib/appearance/icons.py`` records why they are the project's one deliberate
-departure rather than a licence for more.
+and no better arrow, shade or tee.  The exception is the bracketless ``boxes``
+look of check and radio marks, where a Font Awesome square or circle *is* the
+mark.  It is drawn centred in the same three cells ``[X]`` takes, so no caption
+moves between tiers, and the blank after it takes the overflow of an icon a
+non-Mono Nerd Font draws wider than its cell.  Icons otherwise remain the
+application's vocabulary, and ``navigator/lib/appearance/icons.py`` records why
+they are the project's one deliberate departure rather than a licence for more.
 """
 
 from __future__ import annotations
@@ -146,15 +147,31 @@ SPINNERS = {"auto": DOS_SPINNER, "dos": DOS_SPINNER, "braille": BRAILLE_SPINNER,
             "ascii": ASCII_SPINNER}
 DEFAULT_SPINNER = "auto"
 
-#: Four marks: check box off, check box on, radio off, radio on.  The brackets
-#: around them are *not* here.  ``[ ]`` and ``( )`` are ASCII in the original
-#: too and are fixed in the widget, which is how Turbo Vision spells them --
-#: what varies between tiers is only what goes in the middle.
-DOS_MARKS = " X \u2022"
-ASCII_MARKS = " X *"
+#: Five marks: check box off, on and mixed, radio button off and on.  Each is
+#: three cells, brackets included, in every set and at every tier: a cluster
+#: puts its captions a fixed four cells in, and a mark that changed width with
+#: the look would move them.  ``dos`` is Turbo Vision's -- ``[ ]`` and ``( )``
+#: around CP437's ``X`` and bullet -- and the default of the kit.
+DOS_MARKS = ("[ ]", "[X]", "[?]", "( )", "(\u2022)")
+ASCII_MARKS = ("[ ]", "[X]", "[?]", "( )", "(*)")
 
-#: The sets a ``marks`` declaration may name on a cluster.
-MARKS = {"dos": DOS_MARKS, "ascii": ASCII_MARKS}
+#: Not DN's: the brackets kept, a check mark and a filled circle inside them.
+#: ``●`` is of ambiguous East Asian width, as the ``dos`` bullet is.
+BRACKET_MARKS = ("[ ]", "[\u2713]", "[-]", "( )", "(\u25cf)")
+
+#: Not DN's: no brackets, one glyph centred in the three cells -- ballot boxes
+#: and circles.  Some terminals draw ``☑`` as a wide emoji; the blank
+#: after it is what such a terminal spills into.
+BOX_MARKS = (" \u2610 ", " \u2611 ", " \u229f ", " \u25cb ", " \u25c9 ")
+
+#: The same look from a Nerd Font: Font Awesome 4's ``square_o``,
+#: ``check_square_o``, ``minus_square_o``, ``circle_o`` and ``dot_circle_o``,
+#: at the codepoints Nerd Fonts 2 and 3 both keep.
+NERD_BOX_MARKS = (" \uf096 ", " \uf046 ", " \uf147 ", " \uf10c ", " \uf192 ")
+
+#: The sets a ``look`` declaration may name on a cluster.
+MARKS = {"dos": DOS_MARKS, "brackets": BRACKET_MARKS, "boxes": BOX_MARKS,
+         "ascii": ASCII_MARKS}
 DEFAULT_MARKS = "dos"
 
 
@@ -209,16 +226,19 @@ def spinner(name: str, tier: int = GLYPHS_UNICODE, braille: bool = True) -> str:
     return SPINNERS[name]
 
 
-def marks(name: str, tier: int = GLYPHS_UNICODE) -> str:
+def marks(name: str, tier: int = GLYPHS_UNICODE) -> tuple[str, ...]:
     """The named check and radio marks, degraded to what *tier* can render.
 
-    Only the radio dot actually moves: ``X`` and the two blanks are ASCII in
-    every set, which is why the ASCII form reads as a near-copy rather than as
-    a fallback.  That is the original's doing -- CP437's check box was ``[X]``
-    on a VGA text screen too.
+    Five three-cell strings, in :data:`DOS_MARKS`' order.  Below the Unicode
+    tier every look is :data:`ASCII_MARKS`, which is the original's own: CP437's
+    check box was ``[X]`` on a VGA text screen too.  ``boxes`` is the one look a
+    Nerd Font changes, to :data:`NERD_BOX_MARKS`.
     """
-    chars = MARKS.get(name, MARKS[DEFAULT_MARKS])
-    return ASCII_MARKS if tier < GLYPHS_UNICODE else chars
+    if tier < GLYPHS_UNICODE:
+        return ASCII_MARKS
+    if name == "boxes" and tier >= GLYPHS_NERD:
+        return NERD_BOX_MARKS
+    return MARKS.get(name, MARKS[DEFAULT_MARKS])
 
 
 def ellipsis(tier: int = GLYPHS_UNICODE) -> str:
