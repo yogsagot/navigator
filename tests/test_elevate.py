@@ -1650,3 +1650,24 @@ def test_a_save_into_a_directory_the_user_cannot_enter(started, tmp_path, monkey
         del ELEVATION.call_data
     assert path.read_text() == "new\n"
     assert ("write_text", True) in calls  # the helper looked for locks instead
+
+
+def test_every_tool_is_started_without_our_terminal(monkeypatch):
+    """pkexec with no polkit agent falls back to asking on the controlling
+    terminal -- the one Navigator draws on in raw mode -- so neither tool
+    may have it."""
+    import subprocess
+
+    seen: list = []
+
+    class Refusing:
+        def __init__(self, argv, **kwargs):
+            seen.append(kwargs.get("start_new_session"))
+            raise OSError(errno.ENOENT, "not started in a test")
+
+    monkeypatch.setattr(subprocess, "Popen", Refusing)
+    monkeypatch.setattr(elevate.shutil, "which", lambda name: f"/usr/bin/{name}")
+    for tool in ("sudo", "pkexec"):
+        monkeypatch.setattr(SETTINGS.system, "elevate", tool)
+        assert isinstance(ELEVATION.begin(), Refused)
+    assert seen == [True, True]

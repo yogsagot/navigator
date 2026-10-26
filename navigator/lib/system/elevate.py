@@ -142,11 +142,15 @@ class Elevation:
             if tool is None:
                 return Refused("sudo or pkexec is needed to work as root")
             try:
-                # sudo gets no terminal of ours: its asking comes through the
-                # pipe, and nothing it says can reach the screen.
+                # No terminal of ours for either tool: sudo's asking comes
+                # through the pipe, and pkexec -- with no polkit agent, as
+                # over ssh -- has no terminal to fall back to asking on, which
+                # Navigator is drawing on in raw mode; it refuses instead, and
+                # says why.  An agent is the login session's, not the
+                # terminal's, so it still asks where there is one.
                 self._process = subprocess.Popen(
                     self.argv(tool), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE, start_new_session=tool == "sudo", bufsize=0,
+                    stderr=subprocess.PIPE, start_new_session=True, bufsize=0,
                 )
             except OSError as error:
                 self._process = None

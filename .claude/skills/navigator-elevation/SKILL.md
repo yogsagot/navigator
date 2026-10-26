@@ -14,7 +14,7 @@ of that operation goes through it without asking again** (DN's *All*).
 - **`navigator/lib/system/elevate.py`** -- `ELEVATION`, the one helper. `begin()` starts it and answers `READY_STATE`,
   `Asked(prompt, wrong)` or `Refused(reason)`; `answer(password | None)` continues. **Everything blocks: call on a
   thread** (`asyncio.to_thread`), never the loop.
-  - sudo runs as `sudo -S -p MARKER -- python -I -c BOOT` in a new session with no terminal of ours: its prompt
+  - sudo runs as `sudo -S -p MARKER -- python -I -B -c BOOT` in a new session with no terminal of ours: its prompt
     comes through stderr and is recognised by `MARKER`; *Sorry* before it means `wrong`. The password goes to sudo's
     stdin and is never kept. pkexec's polkit agent asks for itself, so `begin` may wait (`START_TIMEOUT`).
   - `[system] elevate` (`auto` = sudo else pkexec, `sudo`, `pkexec`, `off`); `available()` is false when already
@@ -139,10 +139,12 @@ of that operation goes through it without asking again** (DN's *All*).
 sudo 1.9.15p5 and pkexec 124 (polkit-gnome agent, XFCE), by a script driving `ELEVATION` and `ROOT_DRIVE`
 directly plus a hand run in Navigator: the `\x01` prompt marker survives sudo, wrong passwords are told apart,
 3 MB of every byte value go through unchanged (no pty in the way), `write_file` keeps owner/mode/backup, a
-root-only directory lists and copies, release/timeout close it, and `-B` leaves no root-owned `.pyc`. **Found
+root-only directory lists and copies, release/timeout close it, and `-B` leaves no root-owned `.pyc`. By hand:
+F2 and F7 as root keep owner and mode, Enter on `/root` lists it at `root:///root`, and Ctrl+T shows its tree. **Found
 there and fixed**: `RootDrive.write_file`'s own lock check could not resolve a path inside a directory only root
-may enter -- the helper now checks locks itself then (`write_text(check_lock=True)`). **Not yet tried**: pkexec
-with no polkit agent (over ssh), where it may ask on the terminal Navigator owns.
+may enter -- the helper now checks locks itself then (`write_text(check_lock=True)`). Both tools start with
+`start_new_session=True`: pkexec with no polkit agent (over ssh) would otherwise ask on the terminal Navigator
+draws on; without one it refuses and says why.
 
 ## Not wired yet
 
