@@ -51,16 +51,25 @@ class Button(Control, _Component):
     #: Space that has not been let go.  The click comes when it is released.
     down: bool = _reactive(False)    # button.nml:24
 
+    #: Drawn without the shadow, the face filling the whole rectangle -- a
+    #: small button beside a line, one row tall.  A departure: ``TButton``
+    #: always had its shadow.  Pressed, a flat button does not move.
+    flat: bool = _reactive(False)    # button.nml:29
+
     #: Ids, annotated so the hand-written half completes them.
-    caption: StaticText    # button.nml:27
+    caption: StaticText    # button.nml:32
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = StaticText(parent=self)    # button.nml:26
+        self.caption = StaticText(parent=self)    # button.nml:31
 
-        self.caption.x = _bind(lambda _o: 2 if _o.parent.down else 1)    # button.nml:30
-        self.caption.y = 0    # button.nml:31
-        self.caption.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # button.nml:33
-        self.caption.height = 1    # button.nml:34
-        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:35
-        self.caption.align = 'center'    # button.nml:36
+        self.caption.x = _bind(    # button.nml:35
+            lambda _o: 2 if _o.parent.down and (not _o.parent.flat) else 1
+        )
+        self.caption.y = 0    # button.nml:36
+        self.caption.width = _bind(    # button.nml:38
+            lambda _o: max(0, _o.parent.width - (2 if _o.parent.flat else 3))
+        )
+        self.caption.height = 1    # button.nml:39
+        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:40
+        self.caption.align = 'center'    # button.nml:41

@@ -24,6 +24,7 @@ class Button(Control, _Component):
     text: str
     default: bool
     down: bool
+    flat: bool
     caption: StaticText
     emits: _Any
     parts: _Any

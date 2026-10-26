@@ -23,14 +23,19 @@ Button(Control):
     #: Space that has not been let go.  The click comes when it is released.
     property down: False
 
+    #: Drawn without the shadow, the face filling the whole rectangle -- a
+    #: small button beside a line, one row tall.  A departure: ``TButton``
+    #: always had its shadow.  Pressed, a flat button does not move.
+    property flat: False
+
     StaticText:
         id: caption
         #: One in from the face, which is where the ``►`` marker goes; the
         #: face itself is one further right while the button is down.
-        x: 2 if parent.down else 1
+        x: 2 if parent.down and not parent.flat else 1
         y: 0
         #: Two for the markers and one for the shadow's column.
-        width: max(0, parent.width - 3)
+        width: max(0, parent.width - (2 if parent.flat else 3))
         height: 1
         text: parent.text
         align: "center"

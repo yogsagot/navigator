@@ -226,7 +226,7 @@ class Button(Control):
         if app is not None and app.mouse_capture is self:
             # Tracking a held button.  Over the face or the column it moves
             # into, it is down; anywhere else it pops up and waits.
-            over = 0 <= event.x < self.width and 0 <= event.y < self.height - 1
+            over = 0 <= event.x < self.width and 0 <= event.y < self.face[1]
             if event.action == "release":
                 if self.down and over:
                     return await self._release()
@@ -278,6 +278,8 @@ class Button(Control):
     @property
     def face(self) -> tuple[int, int]:
         """The width and height of the button itself, shadow excluded."""
+        if self.flat:
+            return self.width, self.height
         return max(0, self.width - 1), max(0, self.height - 1)
 
     def render(self, surface: Surface) -> None:
@@ -287,12 +289,14 @@ class Button(Control):
         style = self.style
         shadow: Style = self.part_style("shadow")
         unicode = self.glyphs >= GLYPHS_UNICODE
-        left = 1 if self.down else 0
+        left = 1 if self.down and not self.flat else 0
         surface.fill(left, 0, width, height, " ", style)
         if self.marked and width >= 2:
             first, last = MARKERS["dos" if unicode else "ascii"]
             surface.draw_text(left, 0, first, style)
             surface.draw_text(left + width - 1, 0, last, style)
+        if self.flat:
+            return
         if self.down:
             # The face has moved into its shadow: what it left is blank.
             surface.fill(0, 0, 1, height, " ", shadow)

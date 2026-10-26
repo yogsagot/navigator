@@ -262,3 +262,48 @@ def test_ctrl_p_types_the_character_found_in_the_editor(nav):
     window = app.shell.desktop.active_window
     assert isinstance(window, EditWindow)
     assert window.editor.document.encode() == "😀ab\n".encode()
+
+
+def test_the_filter_narrows_the_groups_and_shows_the_first_left():
+    seen = []
+
+    def look(a):
+        chart = a.modal
+        seen.append(([c.kind for c in chart.categories], chart.grid.caption))
+
+    def type_filter(a):
+        a.modal.filter.focus()
+
+    run(type_filter, *[KeyEvent(c, c) for c in "arrows"], lambda a: None, look)
+    kinds, caption = seen[0]
+    assert kinds[0] == "recent" and all(k == "block" for k in kinds[1:]) and len(kinds) > 2
+    assert "Arrows" in caption
+
+
+def test_the_filter_keeps_the_group_shown_when_it_matches():
+    seen = []
+    run(lambda a: a.modal.filter.focus(), *[KeyEvent(c, c) for c in "latin"], lambda a: None,
+        lambda a: seen.append(a.modal.grid.caption))
+    assert seen == ["Basic Latin"]
+
+
+def test_x_empties_the_filter():
+    seen = []
+
+    async def press(a):
+        await a.modal.clear_filter.press()
+
+    run(lambda a: a.modal.filter.focus(), *[KeyEvent(c, c) for c in "zzz"], lambda a: None,
+        lambda a: seen.append(len(a.modal.categories)), lambda a: a.spawn(press(a)), lambda a: None,
+        lambda a: seen.append((a.modal.filter.value, len(a.modal.categories), a.modal.filter.focused)))
+    assert seen[0] == 1
+    assert seen[1][0] == "" and seen[1][1] > 100 and seen[1][2]
+
+
+def test_escape_in_the_filter_empties_it_before_it_closes():
+    seen = []
+    answer, _ = run(lambda a: a.modal.filter.focus(), *[KeyEvent(c, c) for c in "zzz"], KeyEvent("escape"),
+                    lambda a: seen.append((a.modal.filter.value, len(a.modal.categories) > 100)),
+                    KeyEvent("escape"))
+    assert seen == [("", True)]
+    assert answer is None

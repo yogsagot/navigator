@@ -15,7 +15,7 @@ from navigator.widgets.shell.unicode_grid import UnicodeGrid
 #:
 #: The search line across the top; down the left, how to group -- blocks,
 #: general categories, and in the Nerd tier the Nerd Font sets -- over the
-#: groups; the grid of the group chosen on the right; the character under its
+#: groups, and under them a line that filters them by name; the grid of the group chosen on the right; the character under its
 #: cursor described across the bottom, beside *Insert*, *Copy* and *Cancel*.
 #: Sized to the screen as *Choose Directory* is, never smaller than an
 #: 80 by 25 screen allows, every control placed against the dialog's edges.
@@ -65,7 +65,25 @@ UnicodeChart(Dialog):
         x: 2
         y: 5 + grouping.height
         width: 24
-        height: max(3, parent.height - 10 - grouping.height)
+        height: max(3, parent.height - 11 - grouping.height)
+
+    #: Narrows the groups to those whose name has what is typed in it.
+    InputLine:
+        id: filter
+        x: 2
+        y: groups.y + groups.height
+        width: 20
+        height: 1
+
+    #: Empties the filter.
+    Button:
+        id: clear_filter
+        text: "X"
+        flat: True
+        x: 23
+        y: filter.y
+        width: 3
+        height: 1
 
     UnicodeGrid:
         id: grid

@@ -13,7 +13,10 @@ Enter, Ctrl+B, Ctrl+P, *Insert* or a double click in the grid take the
 character under the grid's cursor; Ctrl+C or *Copy* put it on the clipboard
 and take nothing.  Either puts it at the front of *Recent*, the list's first
 group in every grouping (:class:`~navigator.models.recent_char.RecentChar`).
-The chart reopens on the grouping, group and character last left, as
+The line under the list filters its groups by name as it is typed, and the
+*X* beside it empties it, as Esc does while the line has the keyboard and
+holds something; *Search results* and *Recent* stay whatever it
+holds.  The chart reopens on the grouping, group and character last left, as
 ``ASCIITable`` kept its ``const C``.
 
 The whole code space is read once per process, on a thread
@@ -31,6 +34,7 @@ from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.background import Background, Outcome
+from navml.widgets.dialog.commands import Cancel
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.utilities import unicode_table
@@ -78,6 +82,8 @@ class UnicodeChart(Dialog):
         self._query = ""
         #: The query whose results the list holds.
         self.searched = ""
+        #: The filter the list was last filled for, lower-cased.
+        self._filtered = ""
         self._recent = unicode_table.recent()
         self._list(_last["group"])
         group = self._category(_last["group"]) or self.categories[0]
@@ -96,6 +102,7 @@ class UnicodeChart(Dialog):
         effect(self, UnicodeChart._follow_grouping)
         effect(self, UnicodeChart._follow_group)
         effect(self, UnicodeChart._follow_search)
+        effect(self, UnicodeChart._follow_filter)
         effect(self, UnicodeChart._describe)
         if self.index is None:
             _background.run(self, unicode_table.build_index, self.nerd, done=self._indexed)
@@ -125,11 +132,17 @@ class UnicodeChart(Dialog):
         return category.name
 
     def _list(self, keep: str) -> None:
-        """Fill the list for the grouping chosen, the cursor on *keep* if it is there."""
+        """Fill the list for the grouping chosen and the filter typed, the
+        cursor on *keep* if it is there, else on the first group the filter
+        let through."""
         self._grouped = self.grouping.value
-        self.categories = ([FOUND] if self._found is not None else []) + [RECENT] + self._grouped_categories()
+        self._filtered = self.filter.value.strip().casefold()
+        pinned = ([FOUND] if self._found is not None else []) + [RECENT]
+        grouped = [c for c in self._grouped_categories() if self._filtered in self.caption(c).casefold()]
+        self.categories = pinned + grouped
         self.groups.items = [self.caption(category) for category in self.categories]
-        self.groups.cursor = next((i for i, c in enumerate(self.categories) if c.ident == keep), 0)
+        first = len(pinned) if self._filtered and grouped else 0
+        self.groups.cursor = next((i for i, c in enumerate(self.categories) if c.ident == keep), first)
 
     def _codes(self, category: Category) -> list[int] | None:
         if category.kind == "recent":
@@ -156,6 +169,13 @@ class UnicodeChart(Dialog):
         if self.grouping.value != self._grouped:
             self._list(self._shown)
             self._show(self.categories[self.groups.cursor])
+
+    def _follow_filter(self) -> None:
+        if self.filter.value.strip().casefold() != self._filtered:
+            self._list(self._shown)
+            current = self.categories[self.groups.cursor]
+            if current.ident != self._shown:
+                self._show(current)
 
     def _follow_group(self) -> None:
         cursor = self.groups.cursor
@@ -248,6 +268,22 @@ class UnicodeChart(Dialog):
     async def on_copy_button_click(self, event: Event) -> bool:
         self.copy_out()
         return True
+
+    def clear_filter_line(self) -> None:
+        self.filter.value = ""
+        self.filter.cursor = 0
+        self.filter.focus()
+
+    async def on_clear_filter_click(self, event: Event) -> bool:
+        self.clear_filter_line()
+        return True
+
+    async def on_cancel(self, event: Cancel) -> bool:
+        """Esc in a filter line holding something empties it, and the next one closes."""
+        if self.filter.focused and self.filter.value:
+            self.clear_filter_line()
+            return True
+        return await super().on_cancel(event)
 
     async def on_grid_chosen(self, event: Any) -> bool:
         self.take()

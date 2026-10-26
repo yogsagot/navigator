@@ -398,6 +398,18 @@ def test_a_taller_button_runs_its_shadow_down_in_full_blocks():
     assert [buffer.get(5, y)[0] for y in range(3)] == ["▄", "█", "▀"]
 
 
+def test_a_flat_button_has_no_shadow_and_does_not_move_when_pressed():
+    button = Button(text="X", width=3, height=1, default=True, flat=True)
+    assert button.face == (3, 1)
+    buffer = _Buffer(3, 1)
+    button.render(buffer)
+    assert _row(buffer, 0) == "▶ ◀"
+    button.down = True
+    buffer = _Buffer(3, 1)
+    button.render(buffer)
+    assert _row(buffer, 0) == "▶ ◀"
+
+
 class _Placed(Widget):
     """A root that keeps its children where the test put them."""
 
