@@ -594,15 +594,20 @@ class EditWindow(Window):
 
         *Entire scope* starts from the text's start, or its end searching
         backward, and the cursor goes back where it was if nothing is found.
+
+        A departure, asked for: a block marked within one line is the text to
+        find, where DN always took the word at the cursor.  A block over
+        several lines cannot be found line by line, so it leaves the word.
         """
         from navigator.lib.editor import search
         from navigator.lib.editor.document import Pos
         from navigator.widgets.editor.find_dialog import FindDialog
 
         editor = self.editor
-        answer = await FindDialog(
-            word=editor.word_at_cursor(), replace=replace,
-        ).execute(self.application)
+        word = editor.block_text if editor.has_block else ""
+        if not word or "\n" in word:
+            word = editor.word_at_cursor()
+        answer = await FindDialog(word=word, replace=replace).execute(self.application)
         if answer is None:
             return
         self._replace_all = replace and answer == "all"

@@ -2070,6 +2070,22 @@ def test_the_find_dialog_opens_on_the_word_at_the_cursor(files, fresh_search):
     assert seen == ["one"]
 
 
+def test_the_find_and_replace_dialogs_open_on_a_block_within_one_line(files, fresh_search):
+    marked = [KeyEvent("right")] + [KeyEvent("right", shift=True)] * 4  # "ne c"
+    for key in (KeyEvent("f7"), KeyEvent("f7", ctrl=True)):
+        seen = []
+        text_editor(files, TEXT, *marked, key, lambda a: None,
+                    lambda a: seen.append(a.modal.text.value))
+        assert seen == ["ne c"]
+
+
+def test_a_block_over_lines_leaves_the_word_at_the_cursor(files, fresh_search):
+    seen = []
+    text_editor(files, TEXT, KeyEvent("down", shift=True), KeyEvent("f7"), lambda a: None,
+                lambda a: seen.append(a.modal.text.value))
+    assert seen == ["two"]
+
+
 def test_shift_f7_finds_the_next_and_alt_f7_the_one_before(files, fresh_search):
     _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("cat"),
                             KeyEvent("enter"), lambda a: None,
