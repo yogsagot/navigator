@@ -31,9 +31,14 @@ BOOT = [sys.executable, "-I", "-c", elevate._BOOT]
 
 @pytest.fixture
 def helper():
-    """The helper, run as the user, closed afterwards."""
+    """The helper, run as the user, closed afterwards -- and no panel left
+    holding it from a test whose app ended with a panel at ``root:``."""
+    from navigator.lib.drives import root, unmount
+
     ELEVATION.command = list(BOOT)
     yield ELEVATION
+    root._HOLDERS.clear()
+    unmount(root.ROOT_SITE)
     ELEVATION.close()
     ELEVATION.command = None
 
@@ -1308,3 +1313,284 @@ def test_mkdir_in_a_refused_archive_goes_on_as_root(helper, tmp_path, quiet_cons
         ])
     finally:
         locked.chmod(0o700)
+
+
+# -- browsing as root -------------------------------------------------------------
+
+
+def test_the_root_site_lists_through_the_helper(started, tmp_path):
+    from navigator.lib.drives import drive_of
+    from navigator.lib.drives import root
+
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "a.txt").write_text("a")
+    (tmp_path / ".hidden").write_text("h")
+    holder = object()
+    root.hold(holder)
+    try:
+        where = root.root_location(tmp_path)
+        assert str(where) == f"root://{tmp_path}"
+        entries, error, _ = drive_of(where).scan(where, False, "name", free=False)
+        assert error is None
+        assert [(e.name, e.is_dir) for e in entries] == [("..", True), ("sub", True), ("a.txt", False)]
+        assert drive_of(where).stat(where / "a.txt").st_size == 1
+    finally:
+        assert root.leave(holder)
+    from navigator.lib.drives import DriveGone
+
+    with pytest.raises(DriveGone):
+        drive_of(root.root_location(tmp_path))  # unmounted with its last holder
+
+
+def test_copy_and_erase_between_the_root_site_and_the_disk(started, tmp_path):
+    from navigator.lib.drives import root
+    from navigator.lib.file_ops import fileerase
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "a.txt").write_text("alpha")
+    (tmp_path / "dst").mkdir()
+    holder = object()
+    root.hold(holder)
+    try:
+        source = root.root_location(tmp_path / "src" / "a.txt")
+        done = run(CopyRequest([source], str(tmp_path / "dst"), ASK, 0), CopyJob(asker=lambda q: None), tmp_path)
+        assert done == [source] and (tmp_path / "dst" / "a.txt").read_text() == "alpha"
+        gone = fileerase.run(fileerase.EraseRequest([source]), fileerase.EraseJob(asker=lambda q: fileerase.YES))
+        assert gone == [source] and not (tmp_path / "src" / "a.txt").exists()
+    finally:
+        root.leave(holder)
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_entering_an_unreadable_directory_offers_to_browse_as_root(helper, tmp_path, quiet_console, monkeypatch):
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import KeyEvent
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    monkeypatch.setattr(SETTINGS.system, "root_timeout", 0)
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    (locked / "secret.txt").write_text("s")
+    locked.chmod(0)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def in_root(a):
+        p = panel(a)
+        return p.location.site == root.ROOT_SITE and any(e.name == "secret.txt" for e in p.items)
+
+    def look(a):
+        seen.update(where=str(panel(a).location), running=ELEVATION.running)
+
+    try:
+        run_app(app, [
+            Until(lambda a: any(e.name == "locked" for e in panel(a).items)),
+            put_cursor_on("locked"), KeyEvent("enter"),
+            Until(lambda a: a.modal is not None, timeout=5),
+            lambda a: seen.update(button=a.modal.ok.text),
+            # The (unprivileged) helper must list it; the panel goes to root:
+            # on the answer, whatever the mode is by then.
+            press_ok_after(lambda: locked.chmod(0o755)),
+            Until(in_root, timeout=10),
+            look,
+            lambda a: panel(a).go_up(),
+            Until(lambda a: panel(a).location.is_local and any(e.name == "locked" for e in panel(a).items),
+                  timeout=5),
+            Until(lambda a: not ELEVATION.running, timeout=5),  # the last panel out let it go
+        ])
+    finally:
+        locked.chmod(0o755)
+    assert seen == {"button": "As ~r~oot", "where": f"root://{locked}", "running": True}
+
+
+def test_a_file_fetched_from_the_root_site_goes_back_keeping_owner_and_mode(started, tmp_path):
+    from navigator.lib.drives import root, usefile
+    from navigator.lib.system.job import Job
+
+    path = tmp_path / "conf"
+    path.write_text("old\n")
+    path.chmod(0o640)
+    holder = object()
+    root.hold(holder)
+    try:
+        origin = root.root_location(path)
+        use = usefile.fetch([origin], Job())  # through the mounted root: drive, as F4 elsewhere does
+        try:
+            copy = use.copies[0]
+            copy.local.write_text("new\n")
+            usefile.upload([copy], Job())
+        finally:
+            usefile.discard(use)
+    finally:
+        root.leave(holder)
+    assert path.read_text() == "new\n" and path.stat().st_mode & 0o777 == 0o640
+    assert not any(p.name.startswith(".conf.nav-") for p in tmp_path.iterdir())  # no stray beside-file
+
+
+def test_a_root_place_from_a_history_asks_to_open_root(helper, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    place = tmp_path / "place"
+    place.mkdir()
+    (place / "inside.txt").write_text("x")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def go(a):
+        assert not ELEVATION.running  # a new session's: nothing open yet
+        a.spawn(manager_of(a)._go_to(panel(a), f"root://{place}"))
+
+    run_app(app, [
+        Until(lambda a: any(e.name == "place" for e in panel(a).items)),
+        go,
+        Until(lambda a: a.modal is not None, timeout=5),
+        lambda a: seen.update(title=a.modal.title, prompt=a.modal.prompt, button=a.modal.ok.text),
+        lambda a: a.spawn(a.modal.ok.press()),
+        Until(lambda a: panel(a).location.site == root.ROOT_SITE
+              and any(e.name == "inside.txt" for e in panel(a).items), timeout=10),
+    ])
+    assert seen == {"title": "Root access", "prompt": f"Open {place} as root?", "button": "As ~r~oot"}
+
+
+def test_a_restored_root_panel_declined_shows_the_disk_instead(helper, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    place = tmp_path / "place"
+    place.mkdir()
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    seen: dict = {}
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(place)),  # as a saved desktop does
+        Until(lambda a: a.modal is not None, timeout=5),
+        lambda a: a.spawn(a.modal.cancel.press()),
+        Until(lambda a: panel(a).location == Location.of(place), timeout=5),
+        lambda a: None, lambda a: None,
+        lambda a: seen.update(modal=a.modal, held=id(panel(a)) in root._HOLDERS),
+    ])
+    assert seen == {"modal": None, "held": False}  # not asked again, and nothing held
+
+
+def test_a_restored_root_panel_reads_at_once_while_root_is_open(started, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    place = tmp_path / "place"
+    place.mkdir()
+    (place / "inside.txt").write_text("x")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(place)),
+        Until(lambda a: any(e.name == "inside.txt" for e in panel(a).items), timeout=10),
+    ])
+    assert app.modal is None
+
+
+# -- find and the tree in a root panel --------------------------------------------
+
+
+@pytest.fixture
+def root_tree(tmp_path):
+    (tmp_path / "sub" / "deep").mkdir(parents=True)
+    (tmp_path / "sub" / "deep" / "x.conf").write_text("needle")
+    (tmp_path / "sub" / "y.conf").write_text("hay")
+    return tmp_path
+
+
+def test_find_in_a_root_panel_searches_through_the_helper(started, root_tree, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import KeyEvent
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+    from navigator.widgets.manager.find_file_dialog import FindFileDialog
+
+    app = Navigator(root_tree, root_tree, terminal=FakeTerminal(100, 30))
+    seen: dict = {}
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def ask(a):
+        a.modal.mask.value = "*.conf"
+        a.modal.text.value = "needle"
+
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(root_tree)),
+        Until(lambda a: any(e.name == "sub" for e in panel(a).items), timeout=5),
+        KeyEvent("f7", alt=True), Until(lambda a: isinstance(a.modal, FindFileDialog), timeout=5),
+        ask, KeyEvent("enter"),
+        Until(lambda a: panel(a).found is not None and not panel(a).found.live, timeout=10),
+        lambda a: seen.update(found=[(str(e.directory), e.name) for e in panel(a).found.entries]),
+    ])
+    assert seen["found"] == [(f"root://{root_tree}/sub/deep", "x.conf")]
+
+
+def test_the_tree_in_a_root_panel_lists_through_the_helper(started, root_tree, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import KeyEvent
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    app = Navigator(root_tree, root_tree, terminal=FakeTerminal(100, 30))
+    seen: dict = {}
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def tree(a):
+        return manager_of(a).tree
+
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(root_tree)),
+        Until(lambda a: any(e.name == "sub" for e in panel(a).items), timeout=5),
+        KeyEvent("t", ctrl=True),
+        Until(lambda a: tree(a).visible and str(tree(a).selected_path) == f"root://{root_tree}", timeout=5),
+        lambda a: seen.update(top=str(tree(a).root.data)),
+    ])
+    assert seen == {"top": "root:///"}
+
+
+def test_a_readable_directory_chosen_in_the_tree_is_the_disks_own(started, root_tree, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+    from navml.widgets.dialog.tree_view import TreeNode
+
+    app = Navigator(root_tree, root_tree, terminal=FakeTerminal(100, 30))
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    class Chosen:
+        node = TreeNode("sub", data=root.root_location(root_tree / "sub"))
+
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(root_tree)),
+        Until(lambda a: any(e.name == "sub" for e in panel(a).items), timeout=5),
+        lambda a: a.spawn(manager_of(a).on_tree_chosen(Chosen())),
+        Until(lambda a: panel(a).location == Location.of(root_tree / "sub"), timeout=5),
+    ])

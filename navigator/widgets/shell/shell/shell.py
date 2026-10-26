@@ -1004,9 +1004,10 @@ class Shell(DockLayout):
         if isinstance(command, (InsertName, InsertPath)):
             return self._panel_entry() is not None
         if isinstance(command, HangUp):
-            from navigator.lib.drives import mounted
+            from navigator.lib.drives import mounted, sessions
 
-            return bool(mounted())
+            # Connections only: a panel browsing ``root:`` mounts a drive too.
+            return any(drive.site.scheme in sessions.SCHEMES for drive in mounted())
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link)):
             return self.active_manager is not None
         if isinstance(command, (HideLeft, HideRight)):
@@ -2127,6 +2128,14 @@ class Shell(DockLayout):
         from navml.widgets.dialog.control import escape_caption
 
         site = target.site
+        from navigator.lib.drives import root
+
+        if site == root.ROOT_SITE and target.outer is None:
+            # Not a connection: root access, asked for (a departure;
+            # :mod:`navigator.lib.system.elevate`).
+            from navigator.widgets.file_ops.as_root import reach_root
+
+            return await reach_root(self.application, target)
         if target.is_local or SESSIONS.is_open(site):
             return True
         app = self.application

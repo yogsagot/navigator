@@ -121,6 +121,16 @@ class _Helper:
     def readlink(self, path: str) -> str:
         return os.readlink(path)
 
+    def listing(self, path: str, show_hidden: bool, sort: str, free: bool, options: dict[str, Any]) -> Any:
+        """A panel's read of *path*, as the disk's own (``listing.read_listing``),
+        its entries packed: a panel browsing as root (``RootSiteDrive.scan``)."""
+        from navigator.lib.drives.listing import read_listing
+
+        entries, error, space = read_listing(Path(path), show_hidden, sort, free=free, **options)
+        # A list, not a tuple: a tuple answered is ``(value, payload)``.
+        return [[[entry.name, entry.is_dir, entry.size, entry.mode, entry.mtime, entry.is_link,
+                 entry.link_target, entry.uid, entry.gid, entry.counted] for entry in entries], error, space]
+
     def realpath(self, path: str) -> str:
         return str(Path(path).resolve())
 

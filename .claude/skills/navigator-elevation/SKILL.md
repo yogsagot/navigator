@@ -93,6 +93,29 @@ of that operation goes through it without asking again** (DN's *All*).
 - **F7 and Alt+A inside an archive** whose rewrite is refused: F7's remote branch offers `_may_as_root` and finishes
   through `go_root`; `multirename._finish` asks a `Failure` (with `elevate` for a local archive) where the failure
   used to be passed over in silence -- the renames were shown and never written.
+- **Browsing an unreadable directory** (`navigator/lib/drives/root.py`'s second half): a panel lists and works
+  as root at **`ROOT_SITE`** (`Site("root")`, shown `root:///path`) -- the disk's paths on a site of their own,
+  so every step is a drive's, exactly as on a server, and copy/erase/F3/F4/Alt+E/... need nothing new.
+  `RootSiteDrive` hands each step to `ROOT_DRIVE` on `on_disk(location)`; its `scan` is the helper's `listing` op
+  (the disk's own `listing.read_listing`, entries packed as lists -- **an op must never return a tuple that is
+  not `(value, payload)`**). No `exec`, `watch` or free space there; Disconnect (Alt+H) ignores it.
+  - `root.hold(panel)` mounts the drive and holds the helper; `root.leave` unmounts with the last holder and the
+    panel releases. `Panel._hold_root` (an effect) follows the location -- but `Panel._go_root` **holds before it
+    moves**, since the rescan effect runs first and would find no drive.
+  - The offer: `Panel._apply`, for a *navigation* read (not a re-read) of a local directory that failed and
+    `os.access` says is unreadable -> `_offer_root`, once per place (`_root_offered`). While the helper runs
+    already, it switches unasked, as the quick view does.
+  - Leaving: Enter and `..` on `root:` go back to the disk itself where `readable_plainly` says the user may list;
+    so do a directory chosen in the tree (`Manager.on_tree_chosen`) and in Alt+T (`Panel._plain_where_readable`).
+  - Alt+F7 and the trees (Ctrl+T, Alt+T) need nothing of their own there: `filefind._search_drive` and
+    `DirectoryTree`'s drive reads go through `drive_of`, which is `RootSiteDrive` (tests in `test_elevate.py`).
+  - **Coming back to a `root:` place** (a history, a bookmark, a typed URL -- anything through `Shell.reach` --
+    or a saved desktop / the command line, which set the location directly): `Shell.reach` hands `ROOT_SITE` to
+    `as_root.reach_root` (*Open … as root?*, titled *Root access*, then `root.mount_drive()`), never to `SESSIONS`.
+    A panel that lands there unasked is caught by `_hold_root` -> `_arrived_at_root`: the same question, then a
+    re-read; declined, the disk's own place, not asked about again.
+  - `root._HOLDERS` is module-level: a test whose app ends with a panel at `root:` leaves its holder (the `helper`
+    fixture in `tests/test_elevate.py` clears it).
 - **Remote drives are deliberately not offered it**: local root cannot get past a server's refusal (FTP, SMB, S3
   have no notion of it; SFTP would need the server's `sftp-server` under its own sudo -- a separate feature,
   declined for now).

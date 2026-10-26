@@ -374,6 +374,11 @@ class Panel(ContextMenuHost, ListViewer):
         #: The archive the panel holds open (:meth:`_hold_archive`), by its
         #: location, or None.
         self._archive: Location | None = None
+        #: Whether the panel is at ``root:`` and holds the root helper open
+        #: (:meth:`_hold_root`), and the directory *As root* was last offered
+        #: for, so a re-read of it does not ask again.
+        self._at_root = False
+        self._root_offered: Location | None = None
         #: The last directory on the local disk the panel showed: where it
         #: goes back to when the drive it is on closes (DN's ``cmCloseLinked``).
         self.local_anchor: Location = Location.of(Path("."))
@@ -474,6 +479,7 @@ class Panel(ContextMenuHost, ListViewer):
         effect(self, Panel._follow_column_titles)
         effect(self, Panel._watch_directory)
         effect(self, Panel._hold_archive)
+        effect(self, Panel._hold_root)
         effect(self, Panel._follow_git)
         effect(self, Panel._watch_git)
 
@@ -481,6 +487,7 @@ class Panel(ContextMenuHost, ListViewer):
         self._stop_watching()
         self._stop_watching_git()
         self._let_go_of_archive()
+        self._let_go_of_root()
         super().unmounting()
 
     # -- the archive the panel is in -----------------------------------------
@@ -514,6 +521,96 @@ class Panel(ContextMenuHost, ListViewer):
                 asyncio.get_running_loop().run_in_executor(None, drive.close)
             except RuntimeError:
                 drive.close()
+
+    # -- browsing as root (a departure; navigator.lib.system.elevate) ----------
+
+    def _hold_root(self) -> None:
+        """While the panel is at ``root:`` it holds the root helper open
+        (``root.hold``); the last panel to leave lets it go."""
+        from navigator.lib.drives import root
+
+        location = self.location
+        at_root = location.site == root.ROOT_SITE
+        with untracked():
+            if at_root and not self._at_root:
+                root.hold(self)
+                self._at_root = True
+                app = self.application
+                if app is not None:
+                    # Come to by a way that asked nothing -- a saved desktop,
+                    # the command line: the read before the hold found no
+                    # drive, and root access may not be open at all.
+                    app.spawn(self._arrived_at_root(location))
+            elif not at_root and self._at_root:
+                self._let_go_of_root()
+
+    def _let_go_of_root(self) -> None:
+        if not self._at_root:
+            return
+        from navigator.lib.drives import root
+        from navigator.lib.system.elevate import ELEVATION
+
+        self._at_root = False
+        if root.leave(self):
+            try:
+                asyncio.get_running_loop().run_in_executor(None, ELEVATION.release)
+            except RuntimeError:
+                ELEVATION.release()
+
+    async def _arrived_at_root(self, location: Location) -> None:
+        """At ``root:`` with nothing asked: read again once root access is
+        open -- *Open it as root?* if it is not -- or, declined, the disk's
+        own place shown instead (not asked about again)."""
+        from navigator.lib.drives import root
+        from navigator.lib.system.elevate import ELEVATION
+
+        if not ELEVATION.running:
+            from navigator.widgets.file_ops.as_root import reach_root
+
+            if not await reach_root(self.application, location):
+                if self.location == location:
+                    plain = root.on_disk(location)
+                    self._root_offered = plain
+                    self.location = plain
+                return
+        if self.location == location:
+            self.reload()
+
+    def _plain_where_readable(self, location: Location) -> Location:
+        """A ``root:`` place the user may read is the disk's own again."""
+        from navigator.lib.drives import root
+
+        return root.on_disk(location) if root.readable_plainly(location) else location
+
+    def _offer_root(self, path: Location) -> None:
+        """A directory the panel came to and may not read: *As root* -- at
+        once, unasked, while root access is open already; else asked, once
+        for that directory.  Yes puts the panel at ``root:`` there."""
+        if path == self._root_offered:
+            return
+        self._root_offered = path
+        app = self.application
+        if app is not None:
+            app.spawn(self._go_root(path))
+
+    async def _go_root(self, path: Location) -> None:
+        from navigator.lib.drives import root
+        from navigator.lib.system.elevate import ELEVATION
+        from navigator.widgets.file_ops.as_root import ask_as_root
+
+        if not await asyncio.to_thread(ELEVATION.available):
+            return
+        if not ELEVATION.running:
+            message = tr("Cannot read {path}: {error}").format(path=str(path), error=self.error or "")
+            if not await ask_as_root(self.application, message):
+                return
+        if self.location == path:  # not moved on meanwhile
+            # Held -- and so mounted -- before the move: the read the move
+            # starts must find the drive.
+            if not self._at_root:
+                root.hold(self)
+                self._at_root = True
+            self.location = root.root_location(path)
 
     # -- auto refresh --------------------------------------------------------
 
@@ -773,6 +870,10 @@ class Panel(ContextMenuHost, ListViewer):
         where = request.where if request.where is not None else path
         if path.is_local and error is None:
             self.local_anchor = path
+        if (path.is_local and error is not None and where != self._listed
+                and os.path.isdir(path.local) and not os.access(path.local, os.R_OK | os.X_OK)):
+            # A directory come to and refused: *As root* (a departure).
+            self._offer_root(path)
         if where != self._listed and where == path and error is None and path.outer is None:
             # ``AddToDirectoryHistory``: a directory the panel has come to --
             # not one inside an archive, which is no place to come back to.
@@ -912,7 +1013,7 @@ class Panel(ContextMenuHost, ListViewer):
             self.go_up()
         else:
             # Another drive's links are its own to follow: the name is enough.
-            self.location = (self.location / entry.name).normalized()
+            self.location = self._plain_where_readable((self.location / entry.name).normalized())
 
     def go_up(self) -> None:
         """Go to the parent directory, the cursor on the one just left.
@@ -941,7 +1042,7 @@ class Panel(ContextMenuHost, ListViewer):
         location = self.location
         if not location.is_root:
             self._return_to = location.name
-            self.location = location.parent
+            self.location = self._plain_where_readable(location.parent)
             return
         try:
             up = drive_of(location).change_up(location)

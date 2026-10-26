@@ -1977,7 +1977,8 @@ class Manager(Window):
         panel = self.active_panel
         chosen = await ChangeDirDialog(start=shown(panel.location), hidden=panel.show_hidden).execute(self.application)
         if chosen is not None:
-            panel.location = Location.of(chosen)
+            # A ``root:`` directory the user may read is the disk's own again.
+            panel.location = panel._plain_where_readable(Location.of(chosen))
             panel.focus()
 
     def enables(self, command: Any) -> bool:
@@ -2250,8 +2251,10 @@ class Manager(Window):
         return True
 
     async def on_tree_chosen(self, event: Any) -> bool:
-        """Enter in the tree: the panel goes there now, not after the pause."""
-        self.active_panel.location = Location.of(event.node.data)
+        """Enter in the tree: the panel goes there now, not after the pause --
+        a ``root:`` directory the user may read as the disk's own again."""
+        panel = self.active_panel
+        panel.location = panel._plain_where_readable(Location.of(event.node.data))
         return True
 
     async def on_make_directory(self, event: MakeDirectory) -> bool:

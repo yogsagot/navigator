@@ -12,12 +12,12 @@ from __future__ import annotations
 import io
 import os
 from collections.abc import Iterable
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import IO, Any
 
-from navigator.lib.drives.base import Child, Drive
+from navigator.lib.drives.base import CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive
 from navigator.lib.drives.local import LocalDrive
-from navigator.lib.drives.location import Location
+from navigator.lib.drives.location import LOCAL_SITE, Location, Site
 from navigator.lib.system.elevate import ELEVATION
 from navigator.lib.system.roothelper import unpack_stat
 
@@ -221,4 +221,196 @@ class RootDrive(LocalDrive):
 ROOT_DRIVE = RootDrive()
 
 
-__all__ = ["ROOT_DRIVE", "RootDrive"]
+# -- browsing as root ---------------------------------------------------------------
+
+#: Where a panel is that lists and works as root: the disk's paths, on a site
+#: of their own (``root:///etc/...``), so every step is a drive's -- as on a
+#: server -- and nothing mistakes it for the disk itself.
+ROOT_SITE = Site("root")
+
+
+def root_location(path: Path | str | Location) -> Location:
+    """*path* on the disk, as root sees it."""
+    if isinstance(path, Location):
+        path = path.path
+    return Location(ROOT_SITE, PurePosixPath(str(path)))
+
+
+def on_disk(location: Location) -> Location:
+    """A ``root:`` location's own place on the disk; any other as it is."""
+    if location.site == ROOT_SITE and location.outer is None:
+        return Location(LOCAL_SITE, Path(str(location.path)))
+    return location
+
+
+def readable_plainly(location: Location) -> bool:
+    """Whether the user may list a ``root:`` directory without root, so a
+    panel there goes back to the disk itself."""
+    return (location.site == ROOT_SITE and location.outer is None
+            and os.access(str(location.path), os.R_OK | os.X_OK))
+
+
+class RootSiteDrive(Drive):
+    """The disk at :data:`ROOT_SITE`: each step :data:`ROOT_DRIVE`'s, on the
+    place the location names.  Mounted while a panel is there
+    (:func:`hold`); programs are not run from it (no ``exec``), the panel
+    is not watched for changes, and the free space is not asked."""
+
+    site = ROOT_SITE
+    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN))
+
+    def scan(self, location: Location, show_hidden: bool, sort: str, *, free: bool,
+             **options: Any) -> tuple[list, str | None, tuple[int, str] | None]:
+        from navigator.lib.drives.listing import DirEntry
+
+        options = {key: value for key, value in options.items() if key != "job"}
+        packed, error, space = ELEVATION.call("listing", path=str(location.path), show_hidden=show_hidden,
+                                              sort=sort, free=free, options=options)
+        entries = []
+        for name, is_dir, size, mode, mtime, is_link, target, uid, gid, counted in packed:
+            entry = DirEntry(name, is_dir, size, mode, mtime, is_link, target, uid, gid)
+            entry.counted = counted
+            entries.append(entry)
+        return entries, error, tuple(space) if space else None
+
+    def stat(self, location: Location) -> os.stat_result:
+        return ROOT_DRIVE.stat(on_disk(location))
+
+    def lstat(self, location: Location) -> os.stat_result:
+        return ROOT_DRIVE.lstat(on_disk(location))
+
+    def lexists(self, location: Location) -> bool:
+        return ROOT_DRIVE.lexists(on_disk(location))
+
+    def exists(self, location: Location) -> bool:
+        return ROOT_DRIVE.exists(on_disk(location))
+
+    def is_dir(self, location: Location) -> bool:
+        return ROOT_DRIVE.is_dir(on_disk(location))
+
+    def is_link(self, location: Location) -> bool:
+        return ROOT_DRIVE.is_link(on_disk(location))
+
+    def children(self, location: Location) -> list[Child]:
+        return ROOT_DRIVE.children(on_disk(location))
+
+    def names(self, location: Location) -> list[str]:
+        return ROOT_DRIVE.names(on_disk(location))
+
+    def readlink(self, location: Location) -> str:
+        return ROOT_DRIVE.readlink(on_disk(location))
+
+    def realpath(self, location: Location) -> Location:
+        return root_location(ROOT_DRIVE.realpath(on_disk(location)))
+
+    def same_file(self, a: Location, b: Location) -> bool:
+        try:
+            first, second = self.stat(a), self.stat(b)
+        except OSError:
+            return False
+        return (first.st_dev, first.st_ino) == (second.st_dev, second.st_ino)
+
+    def writable(self, location: Location, st: Any) -> bool:
+        return True  # root's: what would refuse it is not a mode
+
+    def open_read(self, location: Location) -> IO[bytes]:
+        return ROOT_DRIVE.open_read(on_disk(location))
+
+    def open_random(self, location: Location) -> Any:
+        return ROOT_DRIVE.open_random(on_disk(location))
+
+    def open_write(self, location: Location, *, append: bool = False, mode: int = 0o666) -> IO[bytes]:
+        return ROOT_DRIVE.open_write(on_disk(location), append=append, mode=mode)
+
+    def sync(self, handle: IO[bytes]) -> None:
+        ROOT_DRIVE.sync(handle)
+
+    def mkdir(self, location: Location, mode: int = 0o777) -> None:
+        ROOT_DRIVE.mkdir(on_disk(location), mode)
+
+    def makedirs(self, location: Location) -> None:
+        ROOT_DRIVE.makedirs(on_disk(location))
+
+    def rmdir(self, location: Location) -> None:
+        ROOT_DRIVE.rmdir(on_disk(location))
+
+    def unlink(self, location: Location) -> None:
+        ROOT_DRIVE.unlink(on_disk(location))
+
+    def rename(self, source: Location, dest: Location) -> None:
+        ROOT_DRIVE.rename(on_disk(source), on_disk(dest))
+
+    def replace(self, source: Location, dest: Location) -> None:
+        ROOT_DRIVE.replace(on_disk(source), on_disk(dest))
+
+    def symlink(self, target: str, location: Location) -> None:
+        ROOT_DRIVE.symlink(target, on_disk(location))
+
+    def chmod(self, location: Location, mode: int) -> None:
+        ROOT_DRIVE.chmod(on_disk(location), mode)
+
+    def chown(self, location: Location, uid: int, gid: int, *, follow: bool = True) -> None:
+        ROOT_DRIVE.chown(on_disk(location), uid, gid, follow=follow)
+
+    def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
+        ROOT_DRIVE.utime(on_disk(location), atime_ns, mtime_ns, follow=follow)
+
+    def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
+                        follow: bool) -> None:
+        if isinstance(source_drive, (LocalDrive, RootSiteDrive)):
+            ELEVATION.call("copystat", source=str(source.path), dest=str(dest.path), follow=follow)
+            return
+        Drive.copy_attributes(self, source_drive, source, dest, st, follow=follow)
+
+    def write_file(self, path: Path | Location, chunks: Iterable[bytes], job: Any = None,
+                   backup: bool = False) -> None:
+        """The editor's write as root: what a file fetched from here goes back by."""
+        ROOT_DRIVE.write_file(Path(str(path.path if isinstance(path, Location) else path)), chunks, job, backup)
+
+    def describe(self) -> list[tuple[str, str]]:
+        return [("Kind", "root")]
+
+
+ROOT_SITE_DRIVE = RootSiteDrive()
+
+#: The panels at :data:`ROOT_SITE`, which hold the helper open between them.
+_HOLDERS: set[int] = set()
+
+
+def mount_drive() -> None:
+    """The root drive mounted, holder or none yet: what a ``root:`` place
+    reached from a history is read through before its panel holds it."""
+    from navigator.lib.drives import mount, mounted
+
+    if not any(drive is ROOT_SITE_DRIVE for drive in mounted()):
+        mount(ROOT_SITE_DRIVE)
+
+
+def hold(holder: object) -> None:
+    """*holder* (a panel) is at :data:`ROOT_SITE`: the drive mounted, the
+    helper held open until the last holder :func:`leave` s."""
+
+    if id(holder) in _HOLDERS:
+        return
+    mount_drive()
+    _HOLDERS.add(id(holder))
+    ELEVATION.hold()
+
+
+def leave(holder: object) -> bool:
+    """*holder* gone from :data:`ROOT_SITE`; True when it was the last, and
+    the caller lets the helper go (``ELEVATION.release``, on a thread)."""
+    from navigator.lib.drives import unmount
+
+    if id(holder) not in _HOLDERS:
+        return False
+    _HOLDERS.discard(id(holder))
+    ELEVATION.unhold()
+    if _HOLDERS:
+        return False
+    unmount(ROOT_SITE)
+    return True
+
+
+__all__ = ["ROOT_DRIVE", "ROOT_SITE", "ROOT_SITE_DRIVE", "RootDrive", "RootSiteDrive", "hold", "leave",
+           "mount_drive", "on_disk", "readable_plainly", "root_location"]

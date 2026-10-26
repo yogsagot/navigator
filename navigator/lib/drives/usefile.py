@@ -240,7 +240,7 @@ def upload(copies: list[TempCopy], job: Any) -> None:
     for copy in copies:
         origin = copy.origin
         drive = copy.through()
-        if getattr(drive, "write_file", None) is not None and origin.is_local:
+        if getattr(drive, "write_file", None) is not None:
             # As root: the editor's write, owner and mode kept, in one rename
             # -- a new file made by root would be root's.
             def chunks(local: Path = copy.local) -> Any:
@@ -249,7 +249,7 @@ def upload(copies: list[TempCopy], job: Any) -> None:
                         job.position += len(data)
                         yield data
 
-            drive.write_file(Path(origin.local), chunks(), job)
+            drive.write_file(Path(origin.local) if origin.is_local else origin, chunks(), job)
             st = drive.stat(origin)
             mine = os.stat(copy.local)
             copy.size, copy.mtime_ns = mine.st_size, mine.st_mtime_ns

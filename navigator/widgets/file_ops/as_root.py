@@ -149,15 +149,35 @@ async def view_as_root(desktop: Any, path: Path, mode: str | None = None) -> Any
     return window
 
 
-async def ask_as_root(app: Any, message: str) -> bool:
-    """*message*, with *As root* and *Cancel*: True once the helper runs."""
+async def ask_as_root(app: Any, message: str, *, title: str | None = None) -> bool:
+    """*message*, with *As root* and *Cancel*: True once the helper runs.
+    *title* is the box's, an *Error* unless given."""
     while True:
-        box = Dialog(title=tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
+        box = Dialog(title=title or tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
         box.ok.text = tr("As ~r~oot")
         if await box.execute(app) is not True:
             return False
         if await open_root(app):
             return True
+
+
+async def reach_root(app: Any, place: Any) -> bool:
+    """A ``root:`` place come back to -- from a history, a bookmark, a
+    saved desktop -- with root access not open: *Open it as root?* asked,
+    the helper started, and the root drive mounted.  True once it is; False
+    if there is no way to root, which is said, or it was not wanted."""
+    from navigator.lib.drives import root
+
+    if not ELEVATION.running:
+        if not await asyncio.to_thread(ELEVATION.available):
+            await Dialog(title=tr("Root access"), prompt=tr("{path}: root access is not available").format(
+                path=escape_caption(str(root.on_disk(place)))), buttons="ok").execute(app)
+            return False
+        if not await ask_as_root(app, tr("Open {path} as root?").format(path=str(root.on_disk(place))),
+                                 title=tr("Root access")):
+            return False
+    root.mount_drive()
+    return True
 
 
 async def ask_skip(app: Any, message: str, *, elevate: bool = False) -> Any:
@@ -180,4 +200,5 @@ async def ask_skip(app: Any, message: str, *, elevate: bool = False) -> Any:
             return AS_ROOT
 
 
-__all__ = ["ask_as_root", "ask_skip", "database_as_root", "fetch_database", "open_root", "root_source", "view_as_root"]
+__all__ = ["ask_as_root", "ask_skip", "database_as_root", "fetch_database", "open_root", "reach_root",
+           "root_source", "view_as_root"]
