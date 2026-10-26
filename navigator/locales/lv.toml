@@ -1349,11 +1349,9 @@ flag = "LV"
 "Other" = "Cits"
 # navigator/widgets/shell/unicode_chart/unicode_chart.nml:27
 "Character Table" = "Simbolu tabula"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:81
-"X" = ""
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:107
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:106
 "~I~nsert" = "~I~evietot"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:117
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:116
 "Co~p~y" = "Ko~p~ēt"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:33, navigator/widgets/shell/commands.py:111
 "Volumes" = "Sējumi"
@@ -2427,21 +2425,21 @@ flag = "LV"
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Atkritne"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
-"~B~locks" = "~B~loki"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
-"~C~ategories" = "~K~ategorijas"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:129
-"Recent" = "Nesenie"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:131
-"Search results" = "Meklēšanas rezultāti"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:161, navigator/widgets/shell/unicode_chart/unicode_chart.py:227
-"Reading the character names..." = "Lasa simbolu nosaukumus..."
 # navigator/widgets/shell/unicode_chart/unicode_chart.py:71
+"~B~locks" = "~B~loki"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:71
+"~C~ategories" = "~K~ategorijas"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:131
+"Recent" = "Nesenie"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:133
+"Search results" = "Meklēšanas rezultāti"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:163, navigator/widgets/shell/unicode_chart/unicode_chart.py:229
+"Reading the character names..." = "Lasa simbolu nosaukumus..."
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:73
 "~N~erd Fonts" = "~N~erd fonti"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:166
 "Nothing taken yet" = "Vēl nekas nav izvēlēts"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:166
 "Nothing found" = "Nekas nav atrasts"
 # navigator/widgets/shell/unicode_grid/unicode_grid.py:121
 "{at} of {count}" = "{at} no {count}"

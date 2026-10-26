@@ -65,6 +65,8 @@ class UnicodeChart(Dialog):
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
+        # A symbol, not a word: set here because a markup literal is translated.
+        self.clear_filter.text = "X"
         self.nerd = glyphs >= GLYPHS_NERD
         groupings = [tr("~B~locks"), tr("~C~ategories")]
         if self.nerd:

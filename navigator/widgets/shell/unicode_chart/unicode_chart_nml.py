@@ -60,11 +60,11 @@ class UnicodeChart(Dialog, _Component):
     groups: ListViewer    # unicode_chart.nml:64
     filter: InputLine    # unicode_chart.nml:72
     clear_filter: Button    # unicode_chart.nml:80
-    grid: UnicodeGrid    # unicode_chart.nml:89
-    info: StaticText    # unicode_chart.nml:98
-    insert_button: Button    # unicode_chart.nml:106
-    copy_button: Button    # unicode_chart.nml:116
-    abandon: Button    # unicode_chart.nml:124
+    grid: UnicodeGrid    # unicode_chart.nml:88
+    info: StaticText    # unicode_chart.nml:97
+    insert_button: Button    # unicode_chart.nml:105
+    copy_button: Button    # unicode_chart.nml:115
+    abandon: Button    # unicode_chart.nml:123
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -78,19 +78,19 @@ class UnicodeChart(Dialog, _Component):
         """``clear_filter`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_grid_chosen(self, event: _Event) -> bool:    # unicode_chart.nml:89
+    async def on_grid_chosen(self, event: _Event) -> bool:    # unicode_chart.nml:88
         """``grid`` raised an event whose handler is ``on_chosen``."""
         return False
 
-    async def on_insert_button_click(self, event: _Event) -> bool:    # unicode_chart.nml:106
+    async def on_insert_button_click(self, event: _Event) -> bool:    # unicode_chart.nml:105
         """``insert_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_copy_button_click(self, event: _Event) -> bool:    # unicode_chart.nml:116
+    async def on_copy_button_click(self, event: _Event) -> bool:    # unicode_chart.nml:115
         """``copy_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # unicode_chart.nml:124
+    async def on_abandon_click(self, event: _Event) -> bool:    # unicode_chart.nml:123
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -103,11 +103,11 @@ class UnicodeChart(Dialog, _Component):
         self.groups = ListViewer(parent=self)    # unicode_chart.nml:63
         self.filter = InputLine(parent=self)    # unicode_chart.nml:71
         self.clear_filter = Button(parent=self)    # unicode_chart.nml:79
-        self.grid = UnicodeGrid(parent=self)    # unicode_chart.nml:88
-        self.info = StaticText(parent=self)    # unicode_chart.nml:97
-        self.insert_button = Button(parent=self)    # unicode_chart.nml:105
-        self.copy_button = Button(parent=self)    # unicode_chart.nml:115
-        self.abandon = Button(parent=self)    # unicode_chart.nml:123
+        self.grid = UnicodeGrid(parent=self)    # unicode_chart.nml:87
+        self.info = StaticText(parent=self)    # unicode_chart.nml:96
+        self.insert_button = Button(parent=self)    # unicode_chart.nml:104
+        self.copy_button = Button(parent=self)    # unicode_chart.nml:114
+        self.abandon = Button(parent=self)    # unicode_chart.nml:122
 
         self.modal_width = _bind(    # unicode_chart.nml:25
             lambda _o: max(76, min(_o.parent.width - 4, 120)) if _o.parent is not None else 76
@@ -156,47 +156,46 @@ class UnicodeChart(Dialog, _Component):
         self.filter.width = 20    # unicode_chart.nml:75
         self.filter.height = 1    # unicode_chart.nml:76
 
-        self.clear_filter.text = _bind(lambda _o: _tr('X'), yielding=True)    # unicode_chart.nml:81
-        self.clear_filter.flat = True    # unicode_chart.nml:82
-        self.clear_filter.x = 23    # unicode_chart.nml:83
-        self.clear_filter.y = _bind(lambda _o: self.filter.y)    # unicode_chart.nml:84
-        self.clear_filter.width = 3    # unicode_chart.nml:85
-        self.clear_filter.height = 1    # unicode_chart.nml:86
+        self.clear_filter.flat = True    # unicode_chart.nml:81
+        self.clear_filter.x = 23    # unicode_chart.nml:82
+        self.clear_filter.y = _bind(lambda _o: self.filter.y)    # unicode_chart.nml:83
+        self.clear_filter.width = 3    # unicode_chart.nml:84
+        self.clear_filter.height = 1    # unicode_chart.nml:85
         self.clear_filter.on_click = self.on_clear_filter_click    # unicode_chart.nml:80
 
-        self.grid.x = 27    # unicode_chart.nml:90
-        self.grid.y = 4    # unicode_chart.nml:91
-        self.grid.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # unicode_chart.nml:92
-        self.grid.height = _bind(lambda _o: max(3, _o.parent.height - 9))    # unicode_chart.nml:93
-        self.grid.on_chosen = self.on_grid_chosen    # unicode_chart.nml:89
+        self.grid.x = 27    # unicode_chart.nml:89
+        self.grid.y = 4    # unicode_chart.nml:90
+        self.grid.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # unicode_chart.nml:91
+        self.grid.height = _bind(lambda _o: max(3, _o.parent.height - 9))    # unicode_chart.nml:92
+        self.grid.on_chosen = self.on_grid_chosen    # unicode_chart.nml:88
 
-        self.info.name = 'info'    # unicode_chart.nml:99
-        self.info.x = 2    # unicode_chart.nml:100
-        self.info.y = _bind(lambda _o: max(0, _o.parent.height - 5))    # unicode_chart.nml:101
-        self.info.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # unicode_chart.nml:102
-        self.info.height = 2    # unicode_chart.nml:103
+        self.info.name = 'info'    # unicode_chart.nml:98
+        self.info.x = 2    # unicode_chart.nml:99
+        self.info.y = _bind(lambda _o: max(0, _o.parent.height - 5))    # unicode_chart.nml:100
+        self.info.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # unicode_chart.nml:101
+        self.info.height = 2    # unicode_chart.nml:102
 
-        self.insert_button.text = _bind(    # unicode_chart.nml:107
+        self.insert_button.text = _bind(    # unicode_chart.nml:106
             lambda _o: _tr('~I~nsert'),
             yielding=True,
         )
-        self.insert_button.default = True    # unicode_chart.nml:108
-        self.insert_button.x = _bind(lambda _o: max(0, _o.parent.width - 41))    # unicode_chart.nml:109
-        self.insert_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:110
-        self.insert_button.width = 12    # unicode_chart.nml:111
-        self.insert_button.height = 2    # unicode_chart.nml:112
-        self.insert_button.on_click = self.on_insert_button_click    # unicode_chart.nml:106
+        self.insert_button.default = True    # unicode_chart.nml:107
+        self.insert_button.x = _bind(lambda _o: max(0, _o.parent.width - 41))    # unicode_chart.nml:108
+        self.insert_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:109
+        self.insert_button.width = 12    # unicode_chart.nml:110
+        self.insert_button.height = 2    # unicode_chart.nml:111
+        self.insert_button.on_click = self.on_insert_button_click    # unicode_chart.nml:105
 
-        self.copy_button.text = _bind(lambda _o: _tr('Co~p~y'), yielding=True)    # unicode_chart.nml:117
-        self.copy_button.x = _bind(lambda _o: max(0, _o.parent.width - 28))    # unicode_chart.nml:118
-        self.copy_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:119
-        self.copy_button.width = 12    # unicode_chart.nml:120
-        self.copy_button.height = 2    # unicode_chart.nml:121
-        self.copy_button.on_click = self.on_copy_button_click    # unicode_chart.nml:116
+        self.copy_button.text = _bind(lambda _o: _tr('Co~p~y'), yielding=True)    # unicode_chart.nml:116
+        self.copy_button.x = _bind(lambda _o: max(0, _o.parent.width - 28))    # unicode_chart.nml:117
+        self.copy_button.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:118
+        self.copy_button.width = 12    # unicode_chart.nml:119
+        self.copy_button.height = 2    # unicode_chart.nml:120
+        self.copy_button.on_click = self.on_copy_button_click    # unicode_chart.nml:115
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # unicode_chart.nml:125
-        self.abandon.x = _bind(lambda _o: max(0, _o.parent.width - 15))    # unicode_chart.nml:126
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:127
-        self.abandon.width = 12    # unicode_chart.nml:128
-        self.abandon.height = 2    # unicode_chart.nml:129
-        self.abandon.on_click = self.on_abandon_click    # unicode_chart.nml:124
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # unicode_chart.nml:124
+        self.abandon.x = _bind(lambda _o: max(0, _o.parent.width - 15))    # unicode_chart.nml:125
+        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # unicode_chart.nml:126
+        self.abandon.width = 12    # unicode_chart.nml:127
+        self.abandon.height = 2    # unicode_chart.nml:128
+        self.abandon.on_click = self.on_abandon_click    # unicode_chart.nml:123

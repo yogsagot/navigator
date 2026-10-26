@@ -1349,11 +1349,9 @@ flag = "RU"
 "Other" = "Прочее"
 # navigator/widgets/shell/unicode_chart/unicode_chart.nml:27
 "Character Table" = "Таблица символов"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:81
-"X" = ""
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:107
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:106
 "~I~nsert" = "~В~ставить"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:117
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:116
 "Co~p~y" = "Копи~р~овать"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:33, navigator/widgets/shell/commands.py:111
 "Volumes" = "Тома"
@@ -2427,21 +2425,21 @@ flag = "RU"
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
-"~B~locks" = "~Б~локи"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
-"~C~ategories" = "~К~атегории"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:129
-"Recent" = "Недавние"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:131
-"Search results" = "Результаты поиска"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:161, navigator/widgets/shell/unicode_chart/unicode_chart.py:227
-"Reading the character names..." = "Чтение названий символов..."
 # navigator/widgets/shell/unicode_chart/unicode_chart.py:71
+"~B~locks" = "~Б~локи"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:71
+"~C~ategories" = "~К~атегории"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:131
+"Recent" = "Недавние"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:133
+"Search results" = "Результаты поиска"
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:163, navigator/widgets/shell/unicode_chart/unicode_chart.py:229
+"Reading the character names..." = "Чтение названий символов..."
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:73
 "~N~erd Fonts" = "~Ш~рифты Nerd"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:166
 "Nothing taken yet" = "Ещё ничего не выбрано"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:166
 "Nothing found" = "Ничего не найдено"
 # navigator/widgets/shell/unicode_grid/unicode_grid.py:121
 "{at} of {count}" = "{at} из {count}"

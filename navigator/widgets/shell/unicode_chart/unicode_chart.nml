@@ -78,7 +78,6 @@ UnicodeChart(Dialog):
     #: Empties the filter.
     Button:
         id: clear_filter
-        text: "X"
         flat: True
         x: 23
         y: filter.y
