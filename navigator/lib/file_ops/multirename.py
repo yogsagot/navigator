@@ -349,6 +349,8 @@ class RenameJob(Job):
         self.count = 0
         self.total = 0
         self.current = ""
+        #: *As root* was answered: every rename after is the root helper's.
+        self.elevated = False
 
 
 def run(pairs: Sequence[tuple[Any, str, str]], job: RenameJob,
@@ -358,8 +360,32 @@ def run(pairs: Sequence[tuple[Any, str, str]], job: RenameJob,
     taken is refused, as DOS's rename refused it.  A failure asks
     (:class:`navigator.lib.file_ops.filecopy.Failure`) whether to skip it or
     stop; a file left under its temporary name by one is put back.  Returns,
-    and keeps in ``job.done``, what was renamed."""
-    from navigator.lib.file_ops.filecopy import Failure
+    and keeps in ``job.done``, what was renamed.
+
+    A rename on the disk refused permission may be answered *As root*
+    (:data:`~navigator.lib.file_ops.filecopy.AS_ROOT`; a departure): it is
+    tried again, and every rename after it is, through the root helper.
+    """
+    try:
+        return _run(pairs, job, drive_for)
+    finally:
+        if job.elevated:
+            from navigator.lib.system.elevate import ELEVATION
+
+            ELEVATION.release()
+
+
+def _run(pairs: Sequence[tuple[Any, str, str]], job: RenameJob,
+         drive_for: Callable[[Any], Any]) -> list[tuple[Any, str, str]]:
+    from navigator.lib.file_ops.filecopy import AS_ROOT, Failure
+    from navigator.lib.system.elevate import refused
+
+    def drive_of_place(place: Any) -> Any:
+        if job.elevated and getattr(place, "is_local", False):
+            from navigator.lib.drives.root import ROOT_DRIVE
+
+            return ROOT_DRIVE
+        return drive_for(place)
 
     planned = steps(pairs)
     job.total = len(pairs)
@@ -372,13 +398,36 @@ def run(pairs: Sequence[tuple[Any, str, str]], job: RenameJob,
         source_key = (step.place, step.old)
         if source_key in failed:
             continue
-        drive = drive_for(step.place)
         job.current = step.old if step.new == step.final else step.final
         try:
-            target = step.place / step.new
-            if drive.lexists(target) and not drive.same_file(step.place / step.old, target):
-                raise FileExistsError(0, tr("a file of that name is already there"))
-            drive.rename(step.place / step.old, target)
+            while True:
+                drive = drive_of_place(step.place)
+                try:
+                    target = step.place / step.new
+                    if drive.lexists(target) and not drive.same_file(step.place / step.old, target):
+                        raise FileExistsError(0, tr("a file of that name is already there"))
+                    drive.rename(step.place / step.old, target)
+                    break
+                except OSError as error:
+                    old = origin.get(source_key, step.old)
+                    # Offered only for a file still under its own name: one
+                    # stranded under a temporary one is put back below first.
+                    if (step.old != old or job.elevated or not refused(error)
+                            or not getattr(step.place, "is_local", False)):
+                        raise
+                    answer = job.ask(Failure(
+                        step.place / old, lambda: tr("Could not rename {old}\nto {new}: {reason}"),
+                        {"old": old, "new": step.final, "reason": error.strerror or str(error)}, elevate=True))
+                    if answer == AS_ROOT:
+                        job.elevated = True
+                        continue
+                    if not answer:
+                        raise Stopped from None
+                    failed.add((step.place, step.new))
+                    drive = None
+                    break
+            if drive is None:
+                continue
         except OSError as error:
             old = origin.get(source_key, step.old)
             reason = error.strerror or str(error)
@@ -402,11 +451,35 @@ def run(pairs: Sequence[tuple[Any, str, str]], job: RenameJob,
             job.done.append((step.place, old, step.new))
             job.count = len(job.done)
     for place in {place for place, _, _ in pairs}:
-        try:
-            drive_for(place).finish()
-        except OSError:
-            pass
+        _finish(drive_for(place), place, job)
     return job.done
+
+
+def _finish(drive: Any, place: Any, job: RenameJob) -> None:
+    """*drive*'s changes written (an archive anew): a failure is asked about
+    -- Skip or Cancel -- where it used to be passed over, which left an
+    archive's renames shown but never written; an archive on the disk whose
+    rewrite was refused permission is offered *As root* too
+    (``ArchiveDrive.go_root``; a departure)."""
+    from navigator.lib.file_ops.filecopy import AS_ROOT, Failure, error_message
+    from navigator.lib.system.elevate import refused
+
+    while True:
+        try:
+            drive.finish()
+            return
+        except OSError as error:
+            outer = getattr(drive, "outer", None)
+            go_root = getattr(drive, "go_root", None)
+            offer = (go_root is not None and outer is not None and outer.is_local
+                     and not getattr(drive, "as_root", False) and refused(error))
+            answer = job.ask(Failure(outer if outer is not None else place, error_message(error), elevate=offer))
+            if answer == AS_ROOT:
+                go_root(job)
+                continue
+            if not answer:
+                raise Stopped from None
+            return
 
 
 @dataclass

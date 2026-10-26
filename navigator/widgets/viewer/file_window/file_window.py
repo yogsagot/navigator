@@ -384,7 +384,21 @@ class FileWindow(Window):
         try:
             # A file read across a network is written from its drive, whole.
             data = source if viewer.remote else source.path
-            await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding)
+            try:
+                await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding)
+            except OSError as error:
+                from navigator.lib.system.elevate import ELEVATION, refused
+
+                message = tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error)
+                # Refused permission on the disk: *As root* (a departure;
+                # :mod:`navigator.lib.system.elevate`).
+                if not (place.is_local and refused(error) and await asyncio.to_thread(ELEVATION.available)):
+                    raise
+                from navigator.widgets.file_ops.as_root import ask_as_root
+
+                if not await ask_as_root(app, message):
+                    return
+                await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding, as_root=True)
         except OSError as error:
             await Dialog(title=tr("Error"),
                          prompt=tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error),

@@ -19,7 +19,10 @@ from navml.widgets.dialog.static_text import StaticText
 #: and no choice, where this picks a box with the traceback or quitting
 #: with it printed -- never nothing (``SystemData.on_error``).  *Report a
 #: stall after* is a third: how long Navigator may stop answering before
-#: ``errors.log`` records why (``SystemData.stall_report``).
+#: ``errors.log`` records why (``SystemData.stall_report``).  *Root access*
+#: and *Keep root open while idle* are a fourth: what *As root* asks for root
+#: with, after a step was refused permission, and for how long it stays open
+#: (``SystemData.elevate``, ``root_timeout``; ``navigator.lib.system.elevate``).
 SystemSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -95,3 +98,39 @@ SystemSetupPage:
         width: max(0, parent.width - 38)
         height: 1
         text: "seconds (0: never)"
+
+    Label:
+        id: elevate_caption
+        x: 3
+        y: 14
+        width: 14
+        height: 1
+        text: "Root a~c~cess"
+        link: elevate
+
+    RadioButtons:
+        id: elevate
+        x: 17
+        y: 14
+        width: max(0, parent.width - 20)
+        height: 1
+        items: ["~A~uto", "su~d~o", "pke~x~ec", "~N~ever offer"]
+
+    MaskedField:
+        id: root_timeout
+        x: 3
+        y: 16
+        width: 31
+        height: 1
+        label_text: "Keep root open ~w~hile idle"
+        label_width: 26
+        mask: "999"
+        page_keys: False
+
+    StaticText:
+        id: root_timeout_unit
+        x: 35
+        y: 16
+        width: max(0, parent.width - 38)
+        height: 1
+        text: "minutes (0: each time)"

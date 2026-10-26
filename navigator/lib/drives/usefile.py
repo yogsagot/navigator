@@ -46,6 +46,12 @@ class TempCopy:
     #: The original's, as fetched: what :func:`conflicts` compares against.
     origin_size: int = 0
     origin_mtime: float = 0.0
+    #: The drive it was fetched through and goes back through, when not
+    #: *origin*'s own: the root helper's, for a file opened *As root*.
+    drive: Any = None
+
+    def through(self) -> Any:
+        return self.drive or drive_of(self.origin)
 
 
 @dataclass
@@ -77,25 +83,31 @@ def _scratch(origin: Location) -> Path:
     return Path(tempfile.mkdtemp(dir=base))
 
 
-def fetch(origins: list[Location], job: Any) -> UseSet:
+def fetch(origins: list[Location], job: Any, drive: Any = None) -> UseSet:
     """*origins* downloaded into one new directory.  *job*'s ``position``
-    and ``total`` count the bytes; stopping it leaves nothing behind."""
+    and ``total`` count the bytes; stopping it leaves nothing behind.
+    *drive*, when given, is what they are read through (and put back
+    through) instead of their own."""
     if not origins:
         raise ValueError("nothing to fetch")
     directory = _scratch(origins[0])
     use = UseSet(directory)
     try:
-        stats = [drive_of(origin).stat(origin) for origin in origins]
+        stats = [(drive or drive_of(origin)).stat(origin) for origin in origins]
         job.total = sum(st.st_size for st in stats)
         job.position = 0
         for origin, st in zip(origins, stats):
             local = directory / origin.name
-            with drive_of(origin).open_read(origin) as reader, open(local, "wb") as writer:
+            # Never readable by others, whatever the original allowed: a
+            # copy made as root may hold what only root could read.
+            with (drive or drive_of(origin)).open_read(origin) as reader, \
+                    open(os.open(local, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "wb") as writer:
                 _pump(reader, writer, job)
             os.utime(local, ns=(st.st_atime_ns, st.st_mtime_ns))
-            os.chmod(local, st.st_mode & 0o777 | 0o600)
+            os.chmod(local, st.st_mode & 0o700 | 0o600 if drive is not None else st.st_mode & 0o777 | 0o600)
             mine = os.stat(local)
-            use.copies.append(TempCopy(origin, local, mine.st_size, mine.st_mtime_ns, st.st_size, st.st_mtime))
+            use.copies.append(TempCopy(origin, local, mine.st_size, mine.st_mtime_ns, st.st_size, st.st_mtime,
+                                       drive=drive))
     except BaseException:
         discard(use)
         raise
@@ -126,14 +138,17 @@ def blank(origin: Location) -> UseSet:
 
 
 def put_files(files: list[Path], directory: Location, job: Any,
-              ask: Callable[[list[Location]], set[Location]] | None = None) -> list[Location]:
+              ask: Callable[[list[Location]], set[Location]] | None = None,
+              drive: Any = None) -> list[Location]:
     """Files made on the disk -- a staging directory's -- written into
     *directory* on its drive under their own names, each beside under a name
     of its own and renamed over: what a command that can only write to the
     disk (UU encode and decode) leaves where it was asked to.  *ask* is
     given those there already, before anything is written, and answers the
-    ones to leave alone (or raises ``Stopped``).  Answers the places written."""
-    drive = drive_of(directory)
+    ones to leave alone (or raises ``Stopped``).  Answers the places written.
+    *drive*, when given, writes them instead of *directory*'s own (the root
+    helper's, for *As root*)."""
+    drive = drive or drive_of(directory)
     drive.makedirs(directory)
     keep: set[Location] = set()
     if ask is not None:
@@ -210,7 +225,7 @@ def conflicts(copies: list[TempCopy]) -> list[TempCopy]:
     found = []
     for copy in copies:
         try:
-            st = drive_of(copy.origin).stat(copy.origin)
+            st = copy.through().stat(copy.origin)
         except FileNotFoundError:
             continue
         if (st.st_size, int(st.st_mtime)) != (copy.origin_size, int(copy.origin_mtime)):
@@ -224,7 +239,22 @@ def upload(copies: list[TempCopy], job: Any) -> None:
     job.position = 0
     for copy in copies:
         origin = copy.origin
-        drive = drive_of(origin)
+        drive = copy.through()
+        if getattr(drive, "write_file", None) is not None and origin.is_local:
+            # As root: the editor's write, owner and mode kept, in one rename
+            # -- a new file made by root would be root's.
+            def chunks(local: Path = copy.local) -> Any:
+                with open(local, "rb") as reader:
+                    while data := reader.read(1 << 20):
+                        job.position += len(data)
+                        yield data
+
+            drive.write_file(Path(origin.local), chunks(), job)
+            st = drive.stat(origin)
+            mine = os.stat(copy.local)
+            copy.size, copy.mtime_ns = mine.st_size, mine.st_mtime_ns
+            copy.origin_size, copy.origin_mtime = st.st_size, st.st_mtime
+            continue
         try:
             mode = drive.stat(origin).st_mode & 0o7777
         except FileNotFoundError:

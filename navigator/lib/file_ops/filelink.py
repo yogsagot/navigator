@@ -44,15 +44,23 @@ def link_path(source: Path, dest: Path, relative: bool) -> str:
     return str(source)
 
 
-def make_link(source: Path, dest: Path, relative: bool) -> None:
+def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False) -> None:
     """Make *dest* a symbolic link to *source*.
 
     An existing *dest* is refused, a dangling link included -- ``os.symlink``
     would refuse it too, but only after the check this makes explicit.
+    *as_root* makes it through the root helper (blocking: on a thread).
     """
     from navigator.lib.drives import Location, drive_of
 
     source_place, dest_place = Location.of(source), Location.of(dest)
+    if as_root and dest_place.is_local and source_place.is_local:
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        if ROOT_DRIVE.lexists(dest_place):
+            raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(dest))
+        ROOT_DRIVE.symlink(link_path(source, dest, relative), dest_place)
+        return
     if not dest_place.is_local or not source_place.is_local:
         # On another drive: there, by its drive, and only to its own files --
         # a link holds a path, which means nothing on any other.

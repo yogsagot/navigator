@@ -252,6 +252,8 @@ class AppearanceData(Section):
 
 #: What an unexpected exception does: a box, or quitting with a traceback.
 ON_ERROR = ("dialog", "crash")
+#: What *As root* asks for root with (``navigator.lib.system.elevate.CHOICES``).
+ELEVATE = ("auto", "sudo", "pkexec", "off")
 
 
 class SystemData(Section):
@@ -293,6 +295,16 @@ class SystemData(Section):
     #: with the input before it and every stack (``errorlog.Watchdog``).
     stall_report: int = Setting(
         2, doc="Seconds Navigator may stop responding before errors.log records why; 0 never",
+    )
+    #: Not DN's (DOS refused no one): what *As root* asks for root with
+    #: (``navigator.lib.system.elevate``).
+    elevate: str = Setting(
+        "auto", choices=ELEVATE,
+        doc="A step refused permission may be done again as root through sudo or pkexec; auto is sudo, else pkexec",
+    )
+    #: Not DN's: sudo's own timestamp, for the root helper.
+    root_timeout: int = Setting(
+        5, doc="Minutes root access stays open after its last use; 0 closes it after each operation",
     )
 
 

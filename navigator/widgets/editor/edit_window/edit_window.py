@@ -246,18 +246,16 @@ class EditWindow(Window):
         await self.save()
 
     async def save(self) -> bool:
-        """Write the file; say why not if it cannot be.  True when written."""
+        """Write the file; say why not if it cannot be.  True when written.
+
+        A write refused permission offers *As root* (:meth:`_write_or_root`).
+        """
         path = self.editor.path
-        try:
-            if path is None:
-                raise OSError("no file name")
-            written = await self._write(path, backup=SETTINGS.editor.create_backup)
-        except OSError as error:
-            await Dialog(
-                title=tr("Error"),
-                prompt=tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error),
-                buttons="ok",
-            ).execute(self.application)
+        if path is None:
+            await self._say(tr("Cannot write {path}: {error}").format(path=path, error="no file name"))
+            return False
+        written = await self._write_or_root(path, backup=SETTINGS.editor.create_backup)
+        if written is None:
             return False
         if written and self.use_set is not None:
             # From another drive: the copy is written, and goes back now --
@@ -270,7 +268,34 @@ class EditWindow(Window):
             await self.emit(FileSaved(path))
         return written
 
-    async def _write(self, path: Path, backup: bool = False) -> bool:
+    async def _write_or_root(self, path: Path, backup: bool = False) -> bool | None:
+        """:meth:`_write`, saying why not if it cannot be: True written, False
+        cancelled, None failed (and said).
+
+        A write refused permission offers *As root* (a departure;
+        :mod:`navigator.lib.system.elevate`) and is tried again through the
+        root helper, as the editor writes a file there.
+        """
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        as_root = False
+        while True:
+            try:
+                return await self._write(path, backup=backup, as_root=as_root)
+            except OSError as error:
+                message = tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error)
+                if (not as_root and refused(error) and self.use_set is None
+                        and await asyncio.to_thread(ELEVATION.available)):
+                    from navigator.widgets.file_ops.as_root import ask_as_root
+
+                    if await ask_as_root(self.application, message):
+                        as_root = True
+                        continue
+                    return None
+                await self._say(message)
+                return None
+
+    async def _write(self, path: Path, backup: bool = False, as_root: bool = False) -> bool:
         """The text to *path*, on a thread: DN's ``SaveFile`` behind ``WriteMsg``.
 
         The text is taken as it is when the write starts; what is typed while
@@ -280,17 +305,27 @@ class EditWindow(Window):
         *backup* keeps the old file as ``NAME.bak``: only F2 asks for one, as
         only ``SaveFile`` made one (``CheckForOver``'s, behind Save as and
         ^K W, ran when the file did not exist, and so never had one to make).
+        *as_root* writes it through the root helper, which is let go of after.
         """
         from navigator.widgets.editor.loading import write_in_background
 
         async with self._saving:
             lines, endings, point = self.editor.snapshot()
+
+            def write(job: Any) -> None:
+                if not as_root:
+                    write_file(path, encode_lines(lines, endings, job), job, backup)
+                    return
+                from navigator.lib.drives.root import ROOT_DRIVE
+                from navigator.lib.system.elevate import ELEVATION
+
+                try:
+                    ROOT_DRIVE.write_file(path, encode_lines(lines, endings, job), job, backup)
+                finally:
+                    ELEVATION.release()
+
             try:
-                written = await write_in_background(
-                    self.application,
-                    lambda job: write_file(path, encode_lines(lines, endings, job), job, backup),
-                    total=len(lines),
-                )
+                written = await write_in_background(self.application, write, total=len(lines))
             finally:
                 # ``LockFile`` again, written or not: a save renames a new
                 # file over the one locked, and the lock goes with that.
@@ -400,8 +435,15 @@ class EditWindow(Window):
                 restore = path.stat().st_mode
                 path.chmod(restore | stat.S_IWUSR)
             except OSError as error:
-                await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
-                return None
+                from navigator.lib.system.elevate import ELEVATION, refused
+
+                restore = None
+                # Somebody else's file: the write is refused in its turn and
+                # offers *As root*, which needs no mode lifted.
+                if not (refused(error) and await asyncio.to_thread(ELEVATION.available)):
+                    await self._say(tr("Cannot write {path}: {error}").format(
+                        path=path, error=error.strerror or error))
+                    return None
         return appending, restore
 
     async def _say(self, message: str) -> None:
@@ -427,9 +469,26 @@ class EditWindow(Window):
         if answer is None:
             return
         append, restore = answer
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        as_root = False
 
         def write(job: Any) -> None:
-            if append:
+            if as_root:
+                from navigator.lib.drives.location import Location
+                from navigator.lib.drives.root import ROOT_DRIVE
+
+                try:
+                    if append:
+                        job.cancellable = False
+                        refuse_if_locked(path)
+                        with ROOT_DRIVE.open_write(Location.of(path), append=True) as file:
+                            file.write(data)
+                    else:
+                        ROOT_DRIVE.write_file(path, [data], job)
+                finally:
+                    ELEVATION.release()
+            elif append:
                 job.cancellable = False  # one write: all of it, or none
                 refuse_if_locked(path)
                 with open(path, "ab") as file:
@@ -440,10 +499,23 @@ class EditWindow(Window):
         from navigator.widgets.editor.loading import write_in_background
 
         try:
-            written = await write_in_background(self.application, write)
-        except OSError as error:
-            await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
-            return
+            while True:
+                try:
+                    written = await write_in_background(self.application, write)
+                    break
+                except OSError as error:
+                    message = tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error)
+                    # Refused permission: *As root* (a departure;
+                    # :mod:`navigator.lib.system.elevate`).
+                    if not as_root and refused(error) and await asyncio.to_thread(ELEVATION.available):
+                        from navigator.widgets.file_ops.as_root import ask_as_root
+
+                        if await ask_as_root(self.application, message):
+                            as_root = True
+                            continue
+                        return
+                    await self._say(message)
+                    return
         finally:
             if restore is not None:
                 try:
@@ -463,14 +535,35 @@ class EditWindow(Window):
         path = await self._block_file(tr("Paste from File"), tr("~P~aste from"))
         if path is None:
             return
+        from navigator.lib.system.elevate import ELEVATION, refused
         from navigator.widgets.editor.loading import read_in_background
 
-        try:
-            text = await read_in_background(
-                self.application, lambda job, budget: read_text(path, job, budget=budget))
-        except OSError as error:
-            await self._say(tr("Cannot read {path}: {error}").format(path=path, error=error.strerror or error))
-            return
+        as_root = False
+
+        def read(job: Any, budget: Any) -> str:
+            try:
+                return read_text(path, job, budget=budget, as_root=as_root)
+            finally:
+                if as_root:
+                    ELEVATION.release()
+
+        while True:
+            try:
+                text = await read_in_background(self.application, read)
+                break
+            except OSError as error:
+                message = tr("Cannot read {path}: {error}").format(path=path, error=error.strerror or error)
+                # Refused permission: *As root* (a departure;
+                # :mod:`navigator.lib.system.elevate`).
+                if not as_root and refused(error) and await asyncio.to_thread(ELEVATION.available):
+                    from navigator.widgets.file_ops.as_root import ask_as_root
+
+                    if await ask_as_root(self.application, message):
+                        as_root = True
+                        continue
+                    return
+                await self._say(message)
+                return
         if text is None:
             return
         self.editor.read_block(text)
@@ -775,10 +868,8 @@ class EditWindow(Window):
             return
         _, restore = answer
         try:
-            written = await self._write(path)
-        except OSError as error:
-            await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
-            return
+            # A refusal offers *As root*, as F2's does.
+            written = await self._write_or_root(path)
         finally:
             if restore is not None:
                 try:

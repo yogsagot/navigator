@@ -132,14 +132,15 @@ async def open_viewer(desktop: Any, path: Path | str, mode: str | None = None) -
 _opening: set[tuple[int, str]] = set()
 
 
-async def open_editor(desktop: Any, path: Path | str, *, new: bool = False) -> Any:
+async def open_editor(desktop: Any, path: Path | str, *, new: bool = False, as_root: bool = False) -> Any:
     """An editor on *path*, opened on *desktop* and put back as it was left.
 
     The file is read on a thread, under *Reading file* if it takes a while
     (``navigator.widgets.editor.loading``).  Returns the window, or None if
     the read was cancelled, the file would not fit in memory -- said already
     -- or the same file is already being opened.  Raises ``OSError`` before
-    anything is opened.
+    anything is opened.  *as_root* reads it through the root helper (F2 then
+    asks again, as a save refused permission does).
     """
     from navigator.widgets.editor.edit_window import EditWindow
     from navigator.widgets.editor.loading import load_document
@@ -149,7 +150,7 @@ async def open_editor(desktop: Any, path: Path | str, *, new: bool = False) -> A
         return None
     _opening.add(key)
     try:
-        document = await load_document(desktop.application, path, new=new)
+        document = await load_document(desktop.application, path, new=new, as_root=as_root)
     finally:
         _opening.discard(key)
     if document is None:

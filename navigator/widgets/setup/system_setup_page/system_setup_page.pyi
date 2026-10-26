@@ -13,6 +13,7 @@ from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
 from navkit.widget import Widget
+from navigator.lib.system.elevate import CHOICES as ELEVATE
 from navigator.settings import ON_ERROR, SETTINGS, SystemData
 
 
@@ -26,5 +27,9 @@ class SystemSetupPage(_Component):
     on_error: RadioButtons
     stall_report: MaskedField
     stall_unit: StaticText
+    elevate_caption: Label
+    elevate: RadioButtons
+    root_timeout: MaskedField
+    root_timeout_unit: StaticText
     def __init__(self, section: SystemData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...

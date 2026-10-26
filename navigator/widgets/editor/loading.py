@@ -77,15 +77,25 @@ async def read_in_background(app: Any, read: Any, *, message: str | None = None)
         return None
 
 
-async def load_document(app: Any, path: Path | str, *, new: bool = False) -> Document | None:
+async def load_document(app: Any, path: Path | str, *, new: bool = False,
+                        as_root: bool = False) -> Document | None:
     """The text of *path*, read on a thread; None if cancelled or too large.
 
     With *new*, a file that does not exist is an empty text.  Raises
-    ``OSError`` for a file that cannot be read.
+    ``OSError`` for a file that cannot be read.  *as_root* reads it through
+    the root helper, let go of after.
     """
+    def read(job: Any, budget: Any) -> Document:
+        try:
+            return read_document(path, job, budget=budget, as_root=as_root)
+        finally:
+            if as_root:
+                from navigator.lib.system.elevate import ELEVATION
+
+                ELEVATION.release()
+
     try:
-        return await read_in_background(
-            app, lambda job, budget: read_document(path, job, budget=budget))
+        return await read_in_background(app, read)
     except FileNotFoundError:
         if not new:
             raise

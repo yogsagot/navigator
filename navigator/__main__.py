@@ -310,6 +310,10 @@ class Navigator(Application):
         from navigator.lib.drives import archive
 
         await asyncio.to_thread(archive.close_all)
+        # And root's helper, if *As root* left one open.
+        from navigator.lib.system.elevate import ELEVATION
+
+        await asyncio.to_thread(ELEVATION.close)
 
     #: Only the keys that mean the same thing wherever the focus is.
     #:

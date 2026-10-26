@@ -173,6 +173,9 @@ class ArchiveDrive(Drive):
         self.local = local
         #: The fetched copy, for an archive on another drive; discarded on close.
         self.use = use
+        #: Read and put back through the root helper (*As root*, a departure;
+        #: :mod:`navigator.lib.system.elevate`), which it holds open meanwhile.
+        self.as_root = bool(use is not None and use.copies and use.copies[0].drive is not None)
         #: One read of the archive's file at a time.
         self._lock = threading.Lock()
         #: The index: every step that reads or changes it holds this.
@@ -523,6 +526,22 @@ class ArchiveDrive(Drive):
             if self.use is not None:
                 self._put_back()
 
+    def go_root(self, job: Any = None) -> None:
+        """From now on, written as root: the archive on the disk fetched
+        through the root helper into a private copy the rewrite is made in,
+        and put back through it -- owner and mode kept (``usefile.upload``).
+        What is staged stays staged, and members are still read from the
+        archive as it was opened.  For one on the disk only; blocking."""
+        from navigator.lib.drives import usefile
+        from navigator.lib.drives.root import ROOT_DRIVE
+        from navigator.lib.system.elevate import ELEVATION
+
+        if self.as_root or self.use is not None or not self.outer.is_local:
+            return
+        use = usefile.fetch([self.outer], job if job is not None else _NoJob(), drive=ROOT_DRIVE)
+        ELEVATION.hold()
+        self.use, self.local, self.as_root = use, use.local_for(self.outer), True
+
     def _put_back(self) -> None:
         """The rewritten copy of an archive from another drive, back there."""
         from navigator.lib.drives import usefile
@@ -730,6 +749,12 @@ class ArchiveDrive(Drive):
 
             usefile.discard(self.use)
             self.use = None
+        if self.as_root:
+            from navigator.lib.system.elevate import ELEVATION
+
+            self.as_root = False
+            ELEVATION.unhold()
+            ELEVATION.release()
 
 
 def _zip_time(mtime: float) -> tuple[int, int, int, int, int, int]:
@@ -793,7 +818,7 @@ def find(outer: Location) -> ArchiveDrive | None:
         return _OPEN.get(outer)
 
 
-def open_archive(outer: Location, job: Any = None, *, create: bool = False) -> ArchiveDrive:
+def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_root: bool = False) -> ArchiveDrive:
     """The archive at *outer*, opened (or the one open already) and found by
     :func:`~navigator.lib.drives.drive_of` from now on.  A file on another
     drive is fetched first.  :class:`NotAnArchive` for anything else.
@@ -802,11 +827,36 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False) -> A
     (:data:`NEW_KINDS`), an empty archive to write into -- DN's
     ``ArchiveFiles`` packing into an archive named on the target line.
     Only on the disk.
+
+    A file on the disk the user may not read raises ``PermissionError`` --
+    not :class:`NotAnArchive`, which would have it run as a program -- and
+    *as_root* opens it from a private copy fetched through the root helper,
+    every rewrite put back through it (a departure;
+    :mod:`navigator.lib.system.elevate`).
     """
     existing = find(outer)
     if existing is not None:
         return existing
     use = None
+    if outer.is_local and as_root:
+        from navigator.lib.drives import usefile
+        from navigator.lib.drives.root import ROOT_DRIVE
+        from navigator.lib.system.elevate import ELEVATION
+
+        try:
+            use = usefile.fetch([outer], job if job is not None else _NoJob(), drive=ROOT_DRIVE)
+        except BaseException:
+            ELEVATION.release()
+            raise
+        ELEVATION.hold()
+        try:
+            drive = ArchiveDrive(outer, use.local_for(outer), use=use)
+        except BaseException:
+            usefile.discard(use)
+            ELEVATION.unhold()
+            ELEVATION.release()
+            raise
+        return _register(outer, drive)
     if outer.is_local:
         local = outer.local
         if create and not os.path.lexists(local):
@@ -815,6 +865,8 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False) -> A
                 raise NotAnArchive(str(local))
             drive = ArchiveDrive(outer, local, new=kind)
             return _register(outer, drive)
+        if os.path.lexists(local) and not os.access(local, os.R_OK):
+            raise PermissionError(errno.EACCES, os.strerror(errno.EACCES), str(local))
     else:
         from navigator.lib.drives import usefile
 

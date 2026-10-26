@@ -58,6 +58,7 @@ def backup_of(path: Path) -> Path:
 
 def write_file(
     path: Path, data: bytes | Iterable[bytes], job: Any = None, backup: bool = False,
+    *, check_lock: bool = True,
 ) -> None:
     """Put *data* in *path*, as safely as the file allows.  Raises ``OSError``.
 
@@ -66,11 +67,14 @@ def write_file(
     old file as it was -- unless the write is in place, which finishes.
     *backup* keeps the old file, if there was one, as :func:`backup_of` it.
     A file another program holds locked is not written
-    (:func:`~navigator.lib.editor.lock.refuse_if_locked`).
+    (:func:`~navigator.lib.editor.lock.refuse_if_locked`) -- unless
+    *check_lock* is False, as the root helper is told, which is asked for by
+    a Navigator that has already asked it and holds the lock itself.
     """
     chunks = [data] if isinstance(data, (bytes, bytearray)) else data
     target = resolve(path)
-    refuse_if_locked(target)
+    if check_lock:
+        refuse_if_locked(target)
     try:
         info = os.stat(target)
     except FileNotFoundError:

@@ -45,7 +45,7 @@ from navkit.i18n import tr
 
 from navml.widgets.dialog.masked_line import spell_time
 
-from navigator.lib.file_ops.filecopy import Failure, error_message
+from navigator.lib.file_ops.filecopy import Elevated, Failure, error_message, finish_drives
 from navigator.lib.system.job import Job, Stopped
 
 #: The mode bits the dialog's grid shows, in its order: owner, group and
@@ -453,8 +453,12 @@ class AttrJob(Job):
         self.measuring = True
 
 
-def apply_one(path: Path, request: AttrRequest, *, follow: bool = True) -> None:
-    """Change *path* as *request* says.  ``OSError`` as the calls raise it."""
+def apply_one(path: Path, request: AttrRequest, *, follow: bool = True, as_root: bool = False) -> None:
+    """Change *path* as *request* says.  ``OSError`` as the calls raise it.
+    *as_root* makes the same calls through the root helper."""
+    if as_root:
+        _apply_as_root(path, request, follow=follow)
+        return
     if _elsewhere(path):
         _apply_elsewhere(path, request, follow=follow)
         return
@@ -471,6 +475,28 @@ def apply_one(path: Path, request: AttrRequest, *, follow: bool = True) -> None:
         os.chmod(path, new)
     if request.mtime is not None:
         os.utime(path, (st.st_atime, request.mtime), follow_symlinks=follow)
+
+
+def _apply_as_root(path: Any, request: AttrRequest, *, follow: bool) -> None:
+    """:func:`apply_one`'s calls, each one the root helper's
+    (:data:`~navigator.lib.drives.root.ROOT_DRIVE`)."""
+    from navigator.lib.drives.location import Location
+    from navigator.lib.drives.root import ROOT_DRIVE
+
+    where = Location.of(Path(_local(path)))
+    st = ROOT_DRIVE.stat(where) if follow else ROOT_DRIVE.lstat(where)
+    chowned = False
+    uid = -1 if request.uid is None or request.uid == st.st_uid else request.uid
+    gid = -1 if request.gid is None or request.gid == st.st_gid else request.gid
+    if uid != -1 or gid != -1:
+        ROOT_DRIVE.chown(where, uid, gid, follow=follow)
+        chowned = True
+    old = stat.S_IMODE(st.st_mode)
+    new = (old & ~request.clear_bits) | request.set_bits
+    if new != old or (chowned and old & (stat.S_ISUID | stat.S_ISGID)):
+        ROOT_DRIVE.chmod(where, new)
+    if request.mtime is not None:
+        ROOT_DRIVE.utime(where, st.st_atime_ns, int(request.mtime * 1e9), follow=follow)
 
 
 def _apply_elsewhere(location: Any, request: AttrRequest, *, follow: bool) -> None:
@@ -495,17 +521,43 @@ def _apply_elsewhere(location: Any, request: AttrRequest, *, follow: bool) -> No
 
 def run(request: AttrRequest, job: AttrJob) -> list[Path]:
     """Change what *request* says; answer the sources changed without a failure."""
-    from navigator.lib.file_ops.filecopy import finish_drives
-
-    done = _Changer(request, job).run()
-    finish_drives(list(request.sources), None)  # an archive changed is written anew
-    return done
+    return _Changer(request, job).run()
 
 
-class _Changer:
+class _Changer(Elevated):
     def __init__(self, request: AttrRequest, job: AttrJob) -> None:
         self.request = request
         self.job = job
+
+    def _ask(self, question: Any) -> Any:
+        if self.job.stopped:
+            raise Stopped
+        answer = self.job.ask(question)
+        if answer is None or answer is False:
+            raise Stopped
+        return answer
+
+    def _as_root(self, path: Any) -> bool:
+        """Whether *path*'s steps are now the root helper's."""
+        return self.elevated and not _elsewhere(path)
+
+    def _stat(self, path: Any, *, follow: bool = True) -> Any:
+        if self._as_root(path):
+            from navigator.lib.drives.location import Location
+            from navigator.lib.drives.root import ROOT_DRIVE
+
+            where = Location.of(Path(_local(path)))
+            return ROOT_DRIVE.stat(where) if follow else ROOT_DRIVE.lstat(where)
+        return _stat(path, follow=follow)
+
+    def _children(self, path: Any) -> list[tuple[Any, Any]]:
+        if self._as_root(path):
+            from navigator.lib.drives.location import Location
+            from navigator.lib.drives.root import ROOT_DRIVE
+
+            local = Path(_local(path))
+            return [(local / name, st) for name, st in ROOT_DRIVE.children(Location.of(local))]
+        return _children(path)
 
     def _checkpoint(self) -> None:
         self.job.wait_while_paused()
@@ -538,8 +590,13 @@ class _Changer:
                         done.append(source)
                 finally:
                     job.done = before + count
+            # An archive changed is written anew -- a refused rewrite of one on
+            # the disk offered *As root*; any other failure passed over, as before.
+            finish_drives(list(self.request.sources), None, self._finish_as_root)
         except Stopped:
-            pass
+            finish_drives(list(self.request.sources), None)
+        finally:
+            self._release()
         return done
 
     def _measure(self, path: Path) -> int:
@@ -548,9 +605,9 @@ class _Changer:
             return 1
         self._checkpoint()
         try:
-            if not stat.S_ISDIR(_stat(path, follow=False).st_mode):
+            if not stat.S_ISDIR(self._stat(path, follow=False).st_mode):
                 return 1
-            children = _children(path)
+            children = self._children(path)
         except OSError:
             return 1
         count = 1
@@ -564,18 +621,23 @@ class _Changer:
     def _change(self, path: Path, *, follow: bool) -> bool:
         self._checkpoint()
         self.job.path = str(path)
-        try:
-            apply_one(path, self.request, follow=follow)
-        except OSError as error:
-            return self._fail(path, error)
-        return True
+        while True:
+            try:
+                apply_one(path, self.request, follow=follow, as_root=self._as_root(path))
+                return True
+            except OSError as error:
+                if not self._failed(path, error):
+                    return False
 
     def _source(self, path: Path) -> bool:
         """A tagged entry: always changed, and recursed into if asked."""
-        try:
-            is_dir = stat.S_ISDIR(_stat(path, follow=False).st_mode)
-        except OSError as error:
-            return self._fail(path, error)
+        while True:
+            try:
+                is_dir = stat.S_ISDIR(self._stat(path, follow=False).st_mode)
+                break
+            except OSError as error:
+                if not self._failed(path, error):
+                    return False
         if not is_dir or self.request.recurse == NONE:
             ok = self._change(path, follow=True)
             self.job.done += 1
@@ -586,14 +648,19 @@ class _Changer:
         """*path*'s contents, depth first, and *path*; True if nothing failed."""
         mine = always or self._wants(True)
         whole = True
-        early = mine and not _elsewhere(path) and not os.access(path, os.R_OK | os.X_OK)
+        early = (mine and not _elsewhere(path) and not self.elevated
+                 and not os.access(_local(path), os.R_OK | os.X_OK))
         if early:
             whole = self._change(path, follow=False)
-        try:
-            children = _children(path)
-        except OSError as error:
-            children = []
-            whole = self._fail(path, error) and whole
+        children: list[tuple[Any, Any]] = []
+        while True:
+            try:
+                children = self._children(path)
+                break
+            except OSError as error:
+                if not self._failed(path, error):
+                    whole = False
+                    break
         for child, st in children:
             self._checkpoint()
             if isinstance(st, FileNotFoundError):

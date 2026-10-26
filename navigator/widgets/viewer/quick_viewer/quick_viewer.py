@@ -12,6 +12,11 @@ panel with it.  Only the file the cursor is on when an opening lands is shown.
 
 **The keys that move are the viewer's**; F3, F4 and the rest stay the file
 panel's, whose status line DN kept showing while the quick view was up.
+
+**A file the user may not read is shown as root only while root access is
+open already** -- from an *As root* answered elsewhere, within ``[system]
+root_timeout`` (a departure; :mod:`navigator.lib.system.elevate`).  Moving the
+cursor never asks for a password; otherwise it shows nothing, as before.
 """
 
 from __future__ import annotations
@@ -158,10 +163,20 @@ class QuickViewer(Widget):
         self._let_go()
         super().unmounting()
 
-    def _opened(self, path: Path, outcome: Outcome) -> None:
+    def _opened(self, path: Path, outcome: Outcome, *, as_root: bool = False) -> None:
+        from navigator.lib.system.elevate import ELEVATION, refused
+
         try:
             source = outcome.result()
-        except OSError:
+        except OSError as error:
+            if self._wanted == path and not as_root and refused(error) and ELEVATION.running:
+                from navigator.widgets.file_ops.as_root import root_source
+
+                # Through the helper open already, a chunk at a time, as F3's
+                # *As root* reads; never copied to the disk.
+                _OPENER.run(self, root_source, path,
+                            done=lambda outcome, path=path: self._opened(path, outcome, as_root=True))
+                return
             # Not a file -- a directory, a device -- or not readable.
             if self._wanted == path:
                 self.viewer.close_file()

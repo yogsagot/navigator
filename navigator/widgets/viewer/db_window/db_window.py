@@ -27,6 +27,10 @@ class DBWindow(Window):
         #: does (``UseFile``): a field edited goes back there, the copy with
         #: the window.
         self.use_set: Any = None
+        #: Whether *use_set* was fetched as root, the helper held open for the
+        #: fields put back; ``close()`` lets go (a departure;
+        #: :mod:`navigator.lib.system.elevate`).
+        self.root_held = False
         if db is not None:
             # ``TWindow.Init(R, FName, 0)`` -- ``cmGetName``'s *dBase View - *
             # is the window list's.
@@ -61,6 +65,14 @@ class DBWindow(Window):
 
             use, self.use_set = self.use_set, None
             asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+        if self.root_held:
+            import asyncio
+
+            from navigator.lib.system.elevate import ELEVATION
+
+            self.root_held = False
+            ELEVATION.unhold()
+            asyncio.get_running_loop().run_in_executor(None, ELEVATION.release)
 
     def enables(self, command: Any) -> bool:
         """*Memo view* only on a memo field: off one, F3 does nothing."""
@@ -134,9 +146,10 @@ class DBWindow(Window):
                 writable = drive_of(self.use_set.copies[0].origin).can("write")
             except DriveGone:
                 writable = False
-        if not writable:
+        if not writable and self.use_set is None and not await self._edit_as_root():
             await self._say(tr("Could not edit field - file is write-protected"))
             return
+        db = self.db
         value = db.raw(record, field)
         if field.kind == "L":
             stored = "F" if value.strip().upper() == "T" else "T"
@@ -168,6 +181,40 @@ class DBWindow(Window):
 
             await put_back(self.application, self.use_set, ask=False)
         viewer.invalidate()
+
+    async def _edit_as_root(self) -> bool:
+        """A field of a file on the disk the user may not write: *As root*
+        offered, and the window moved onto a copy fetched through the root
+        helper, each field put back through it (a departure;
+        :mod:`navigator.lib.system.elevate`).  True once it is."""
+        import asyncio
+
+        from navigator.lib.system.elevate import ELEVATION
+        from navigator.widgets.file_ops.as_root import ask_as_root, fetch_database
+
+        if not await asyncio.to_thread(ELEVATION.available):
+            return False
+        path = self.db.path
+        if not await ask_as_root(self.application, tr("Could not edit field - file is write-protected")):
+            return False
+        use = await fetch_database(self.application, path)
+        if use is None:
+            return False
+        from navigator.lib.drives.location import Location
+
+        try:
+            db = await asyncio.to_thread(dbf.DBFile, use.local_for(Location.of(path)))
+        except (OSError, dbf.DBFError):
+            from navigator.lib.drives import usefile
+
+            usefile.discard(use)
+            ELEVATION.unhold()
+            await asyncio.to_thread(ELEVATION.release)
+            raise
+        self.db.close()
+        self.db = self.viewer.db = db
+        self.use_set, self.root_held = use, True
+        return True
 
     # -- F7, Shift+F7 ----------------------------------------------------------------
 

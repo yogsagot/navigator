@@ -140,14 +140,33 @@ def byte_table(codec: str) -> tuple[str, ...] | None:
     return tuple(table)
 
 
-def save_as(source: Path, target: Path, codec: str = "utf-8") -> None:
+def save_as(source: Path, target: Path, codec: str = "utf-8", *, as_root: bool = False) -> None:
     """The viewer's *Save as*: *source* written to *target* -- as it is, or
     read in the one-byte *codec* and written in UTF-8, as DN wrote it
     through its ``Xlat`` table.  Through a temporary file beside *target*,
-    so a failure leaves nothing half written.  A thread runs it."""
+    so a failure leaves nothing half written.  A thread runs it.
+
+    *as_root* writes a target on the disk through the root helper, as the
+    editor writes a file there (a departure; :mod:`navigator.lib.system.elevate`)."""
     import tempfile
 
     from navigator.lib.drives import Location
+
+    if as_root:
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        local = Path(target.local if isinstance(target, Location) else target)
+
+        def chunks() -> Any:
+            with _opened(source) as data:
+                while block := data.read(1 << 16):
+                    yield block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8")
+
+        try:
+            ROOT_DRIVE.write_file(local, chunks())
+        finally:
+            ROOT_DRIVE.release()
+        return
 
     if isinstance(target, Location) and not target.is_local:
         _save_elsewhere(source, target, codec)
@@ -532,6 +551,9 @@ class ChunkedSource(ViewSource):
         self._closed = False
         #: Called on the fetching thread once a chunk is in.
         self.arrived: Any = None
+        #: The drive *Save as* reads the whole file from, when not *origin*'s
+        #: own (the root helper's, for a file opened *As root*).
+        self.drive: Any = None
 
     def _chunk(self, index: int) -> bytes:
         chunk = self._chunks.get(index)
@@ -608,7 +630,7 @@ class ChunkedSource(ViewSource):
         """The whole file, from its drive: what *Save as* writes out."""
         from navigator.lib.drives import drive_of
 
-        return drive_of(self.origin).open_read(self.origin)
+        return (self.drive or drive_of(self.origin)).open_read(self.origin)
 
     def close(self) -> None:
         """For good: the drive's handle let go, nothing more fetched or said."""

@@ -199,17 +199,17 @@ def encode_lines(lines: list[str], endings: list[str], job: Any = None, *,
 
 
 def read_text(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
-              budget: int | None = None) -> str:
+              budget: int | None = None, as_root: bool = False) -> str:
     """*path*'s text as one string, line breaks and all: ^K R's block.
 
     Read as :func:`read_document` reads, a chunk at a time.
     """
-    document = read_document(path, job, chunk=chunk, budget=budget)
+    document = read_document(path, job, chunk=chunk, budget=budget, as_root=as_root)
     return "".join(line + ending for line, ending in zip(document.lines, document.endings))
 
 
 def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
-                  budget: int | None = None) -> Document:
+                  budget: int | None = None, as_root: bool = False) -> Document:
     """Read *path* a chunk at a time, for a thread to do while the loop paints.
 
     Raises ``OSError`` for anything that is not a regular file -- looked at
@@ -222,8 +222,18 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
     once, for a file larger than the budget; after each chunk, for a text
     whose lines so far say the whole will not fit; and for what was read, for
     a file whose size said nothing (``/proc``) or whose tail is denser.
+
+    *as_root* reads it through the root helper
+    (:data:`~navigator.lib.drives.root.ROOT_DRIVE`).
     """
-    info = os.stat(path)
+    if as_root:
+        from navigator.lib.drives.location import Location
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        where = Location.of(Path(path))
+        info = ROOT_DRIVE.stat(where)
+    else:
+        info = os.stat(path)
     if not stat.S_ISREG(info.st_mode):
         raise OSError(21 if stat.S_ISDIR(info.st_mode) else 22,
                       "Not a regular file", str(path))
@@ -235,7 +245,7 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
         job.position = 0
     reader = LineReader()
     done = 0
-    with open(path, "rb", buffering=0) as file:
+    with (ROOT_DRIVE.open_read(where) if as_root else open(path, "rb", buffering=0)) as file:
         while True:
             if job is not None and job.stopped:
                 raise Stopped

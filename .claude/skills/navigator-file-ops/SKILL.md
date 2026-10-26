@@ -9,6 +9,7 @@ All live under `navigator/widgets/file_ops/` (dialogs, progress boxes, queries; 
 models in `navigator/`. Operations run on a thread through **`navigator/lib/system/job.py`'s `Job`**, the worker contract
 `CopyJob`, `EraseJob` and `AttrJob` share; **`Manager._watch_job`** is the loop that watches one. Progress boxes are
 DN's `TWhileView` with the library's `ProgressBar`. Copied/erased entries are untagged and both panels re-read.
+A refused step offers **As root** (copy, move, erase; `navigator-elevation` skill).
 
 **Nothing that can wait on a disk runs on the loop.** A job that asks questions goes through `_watch_job`; one that
 only reads or writes goes through **`navigator/lib/system/progress.py`'s `run_with_progress(app, func, job, make_box, refresh)`**

@@ -404,10 +404,22 @@ class Manager(Window):
 
         notice = tr("Encoding {name}").format(name=place.name)
         target = answer["target"]
+
+        def as_root(job: Any, local: Path, staging: Path) -> Any:
+            """Encoded from a copy read as root into the staging directory,
+            then put where it was asked through the helper."""
+            from navigator.lib.file_ops.filecopy import target_location
+
+            dest = target_location(target, place.parent)
+            if dest.is_local and (target.endswith("/") or dest.local.is_dir()):
+                return uucode.encode(request_for(local, str(staging) + "/"), job, staging), dest
+            return uucode.encode(request_for(local, str(staging / dest.name)), job, staging), dest.parent
+
+        rooted = self._staged(place, as_root, uucode.ask_over_encoded, as_root=True)
         if place.is_local and "://" not in target and "#/" not in target:
             request = request_for(source, target)
             await self._run_uucode(panel, lambda job: uucode.encode(request, job, source.parent),
-                                   notice, beep_after=20)
+                                   notice, beep_after=20, as_root=rooted)
             return
 
         def elsewhere(job: Any, local: Path, staging: Path) -> Any:
@@ -419,7 +431,7 @@ class Manager(Window):
             return uucode.encode(request_for(local, str(staging / dest.name)), job, staging), dest.parent
 
         await self._run_uucode(panel, self._staged(place, elsewhere, uucode.ask_over_encoded),
-                               notice, beep_after=20)
+                               notice, beep_after=20, as_root=rooted if place.is_local else None)
 
     async def uu_decode(self, panel: Panel) -> None:
         """Ctrl+F8: ``UuDecode`` -- *UU Decode* asks into which directory,
@@ -444,11 +456,27 @@ class Manager(Window):
                                  display_errors=section.display_errors, save_broken=section.save_broken)
 
         notice = tr("Decoding {name}").format(name=place.name)
+
+        def ask(existing: list[Location], job: Any) -> set[Location]:
+            return uucode.ask_over_decoded(existing, job, section.check_existing)
+
+        def as_root(job: Any, local: Path, staging: Path) -> Any:
+            """Decoded from a copy read as root into the staging directory,
+            the files then put there through the helper."""
+            from navigator.lib.file_ops.filecopy import target_location
+
+            out = target_location(text, place.parent) if text else place.parent
+            result = uucode.decode(local, staging, job, check_existing=False,
+                                   display_errors=section.display_errors, save_broken=section.save_broken)
+            return result, out
+
+        rooted = self._staged(place, as_root, ask, as_root=True)
         if place.is_local and "://" not in text and "#/" not in text:
             source = place.local
             expanded = os.path.expanduser(text)
             out = source.parent / expanded if expanded else source.parent
-            await self._run_uucode(panel, lambda job: decode(source, out, job), notice, beep_after=5)
+            await self._run_uucode(panel, lambda job: decode(source, out, job), notice, beep_after=5,
+                                   as_root=rooted)
             return
 
         def elsewhere(job: Any, local: Path, staging: Path) -> Any:
@@ -463,10 +491,8 @@ class Manager(Window):
                                    display_errors=section.display_errors, save_broken=section.save_broken)
             return result, out
 
-        def ask(existing: list[Location], job: Any) -> set[Location]:
-            return uucode.ask_over_decoded(existing, job, section.check_existing)
-
-        await self._run_uucode(panel, self._staged(place, elsewhere, ask), notice, beep_after=5)
+        await self._run_uucode(panel, self._staged(place, elsewhere, ask), notice, beep_after=5,
+                               as_root=rooted if place.is_local else None)
 
     @staticmethod
     def _uu_place(panel: Panel) -> Location | None:
@@ -477,21 +503,38 @@ class Manager(Window):
 
     @staticmethod
     def _staged(place: Location, work: Callable[[Any, Path, Path], Any],
-                ask: Callable[[list[Location], Any], set[Location]] | None = None) -> Callable[[Any], Any]:
+                ask: Callable[[list[Location], Any], set[Location]] | None = None, *,
+                as_root: bool = False) -> Callable[[Any], Any]:
         """UU on another drive -- or into one: *place* fetched, *work* run on
         the copy with a staging directory for what it makes; when it answers
         ``(result, directory)`` the staged files go up into that directory on
         its drive, *ask(existing, job)* asked first of those there already
-        (``usefile.put_files``).  The copy and the staging go after."""
+        (``usefile.put_files``).  The copy and the staging go after.
+
+        *as_root* (a departure; :mod:`navigator.lib.system.elevate`): a local
+        *place* is fetched, and the staged files put on the disk, through the
+        root helper, which is let go of after."""
         def run(job: Any) -> Any:
+            drive = None
+            if as_root:
+                from navigator.lib.drives.root import ROOT_DRIVE
+
+                drive = ROOT_DRIVE
+            try:
+                return staged(job, drive)
+            finally:
+                if drive is not None:
+                    drive.release()
+
+        def staged(job: Any, drive: Any) -> Any:
             import tempfile
 
             from navigator.lib.drives import usefile
 
-            if place.is_local:
+            if place.is_local and drive is None:
                 use, local = None, place.local
             else:
-                use = usefile.fetch([place], job)
+                use = usefile.fetch([place], job, drive=drive if place.is_local else None)
                 local = use.local_for(place)
             from navigator.lib.system.tempdir import private_dir
 
@@ -502,7 +545,8 @@ class Manager(Window):
                     result, directory = answer
                     files = sorted(path for path in staging.iterdir() if path.is_file())
                     usefile.put_files(files, directory, job,
-                                      None if ask is None else lambda existing: ask(existing, job))
+                                      None if ask is None else lambda existing: ask(existing, job),
+                                      drive=drive if directory.is_local else None)
                     return result
                 return answer
             finally:
@@ -534,11 +578,13 @@ class Manager(Window):
                 SETTINGS.save(section="uucode")
 
     async def _run_uucode(self, panel: Panel, work_on: Callable[[Any], Any], notice: str,
-                          beep_after: float) -> None:
+                          beep_after: float, as_root: Callable[[Any], Any] | None = None) -> None:
         """*work_on(job)* on a thread under a box saying *notice*, its
         questions answered, its failure said, and the panels read again.
         *Beep after copy* rings for one that took longer than *beep_after*
-        seconds, as DN's timer did."""
+        seconds, as DN's timer did.  A failure refused permission offers
+        *As root*, and *as_root(job)* -- the same work through the helper --
+        is run instead (a departure; :mod:`navigator.lib.system.elevate`)."""
         from navigator.lib.file_ops import uucode
         from navigator.lib.system.job import Stopped
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
@@ -562,6 +608,11 @@ class Manager(Window):
         except OSError as error:
             where = f"{error.filename}: " if error.filename else ""
             problem = f"{where}{error.strerror or error}"
+            if as_root is not None and await self._may_as_root(error, problem):
+                await self._run_uucode(panel, as_root, notice, beep_after)
+                return
+            if as_root is not None and self._as_root_declined:
+                problem = None
         finally:
             if not work.done():
                 job.stop()
@@ -697,8 +748,7 @@ class Manager(Window):
         the one *Extract files* box says -- or tested."""
         from navigator.lib.drives import archive
         from navigator.lib.system.job import Stopped
-        from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
-        from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
+        from navigator.widgets.editor.loading import FileJob
         from navml.widgets.dialog.control import escape_caption
 
         app = self.application
@@ -711,15 +761,13 @@ class Manager(Window):
         for outer in archives:
             job = FileJob()
 
-            def open_and_list(outer: Location = outer, job: FileJob = job) -> tuple[Any, list[Location]]:
-                drive = archive.open_archive(outer, job)
-                root = drive.at("/")
-                return drive, [root / name for name in drive.names(root)]
+            from navigator.widgets.drives.archives import open_archive_or_root
 
             try:
-                drive, sources = await run_with_progress(
-                    app, open_and_list, job, lambda: progress_box(job, tr("Reading archive")),
-                    refresh_box(job), delay=SLOW_PROGRESS_DELAY)
+                # An archive the user may not read offers *As root* here.
+                drive = await open_archive_or_root(app, outer, job)
+                root = drive.at("/")
+                sources = await asyncio.to_thread(lambda: [root / name for name in drive.names(root)])
             except Stopped:
                 return
             except (OSError, archive.NotAnArchive) as error:
@@ -1235,8 +1283,12 @@ class Manager(Window):
 
         A name already taken is refused, as DOS's rename refused it where
         POSIX's would replace it; a ``/`` is no name.  The cursor goes to the
-        file under its new name, and a tag goes with it.
+        file under its new name, and a tag goes with it.  A local rename
+        refused permission offers *As root* (a departure;
+        :mod:`navigator.lib.system.elevate`).
         """
+        from navigator.lib.system.elevate import ELEVATION, refused
+
         app = self.application
         old = entry.name
         here = Location.of(entry.directory) if entry.directory is not None else panel.location
@@ -1247,26 +1299,44 @@ class Manager(Window):
                          buttons="ok").execute(app)
             return
         taken = "a file of that name is already there"
+        as_root = False
 
         def rename() -> None:
             target = here / new
-            drive = drive_of(here)
-            if drive.lexists(target) and not drive.same_file(here / old, target):
-                raise FileExistsError(errno.EEXIST, taken)
-            drive.rename(here / old, target)
-            drive.finish()
+            if as_root:
+                from navigator.lib.drives.root import ROOT_DRIVE
 
-        try:
-            await asyncio.to_thread(rename)
-        except OSError as error:
-            reason = (tr("a file of that name is already there") if error.strerror == taken
-                      else error.strerror or error)
-            await Dialog(title=tr("Error"),
-                         prompt=tr("Could not rename {old}\nto {new}: {reason}").format(
-                             old=old, new=new, reason=reason),
-                         buttons="ok").execute(app)
-        else:
+                drive = ROOT_DRIVE
+            else:
+                drive = drive_of(here)
+            try:
+                if drive.lexists(target) and not drive.same_file(here / old, target):
+                    raise FileExistsError(errno.EEXIST, taken)
+                drive.rename(here / old, target)
+                drive.finish()
+            finally:
+                if as_root:
+                    ELEVATION.release()
+
+        while True:
+            try:
+                await asyncio.to_thread(rename)
+            except OSError as error:
+                reason = (tr("a file of that name is already there") if error.strerror == taken
+                          else error.strerror or error)
+                message = tr("Could not rename {old}\nto {new}: {reason}").format(old=old, new=new, reason=reason)
+                if (not as_root and here.is_local and refused(error)
+                        and await asyncio.to_thread(ELEVATION.available)):
+                    from navigator.widgets.file_ops.as_root import ask_as_root
+
+                    if await ask_as_root(app, message):
+                        as_root = True
+                        continue
+                    return
+                await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(app)
+                return
             await self._after_renames(panel, [(here, old, new)], at=(here, new))
+            return
 
     async def _after_renames(self, panel: Panel, renamed: Sequence[tuple[Location, str, str]],
                              at: tuple[Location, str] | None = None) -> None:
@@ -1393,7 +1463,7 @@ class Manager(Window):
 
         async def answer(question: Any) -> Any:
             if isinstance(question, filecopy.Failure):
-                return await self._ask_skip(question.message)
+                return await self._ask_skip(question.message, elevate=question.elevate)
             return None
 
         running = asyncio.ensure_future(asyncio.to_thread(multirename.run, list(pairs), job, drive_of))
@@ -1470,12 +1540,7 @@ class Manager(Window):
                       errors="surrogateescape") as file:
                 file.writelines(f"{text}\n" for text in lines)
 
-        try:
-            await asyncio.to_thread(write)
-        except OSError as error:
-            await Dialog(title=tr("Error"),
-                         prompt=tr("Cannot open {path}: {reason}").format(path=target, reason=error.strerror or error),
-                         buttons="ok").execute(app)
+        if not await self._write_list(write, Location.of(target), lines, appending):
             return
         panel.untag(entries)
         await self.emit(FileSaved(target))
@@ -1522,15 +1587,41 @@ class Manager(Window):
                 file.write("".join(f"{text}\n" for text in lines).encode("utf-8", "surrogateescape"))
             drive.finish()
 
-        try:
-            await asyncio.to_thread(write)
-        except OSError as error:
-            await Dialog(title=tr("Error"),
-                         prompt=tr("Cannot open {path}: {reason}").format(path=target, reason=error.strerror or error),
-                         buttons="ok").execute(app)
+        if not await self._write_list(write, target, lines, appending):
             return
         panel.untag(entries)
         await self.emit(FileSaved(local if local is not None else target))
+
+    async def _write_list(self, write: Callable[[], None], target: Location, lines: list[str],
+                          appending: bool) -> bool:
+        """Alt+L's *write* on a thread, its failure said; True once written.
+        A list on the disk refused permission offers *As root* and is written
+        through the helper (a departure; :mod:`navigator.lib.system.elevate`)."""
+        def as_root() -> None:
+            from navigator.lib.drives.root import ROOT_DRIVE
+
+            try:
+                ROOT_DRIVE.makedirs(target.parent)
+                with ROOT_DRIVE.open_write(target, append=appending) as file:
+                    file.write("".join(f"{text}\n" for text in lines).encode("utf-8", "surrogateescape"))
+            finally:
+                ROOT_DRIVE.release()
+
+        try:
+            await asyncio.to_thread(write)
+            return True
+        except OSError as error:
+            message = tr("Cannot open {path}: {reason}").format(path=target, reason=error.strerror or error)
+            if target.is_local and await self._may_as_root(error, message):
+                try:
+                    await asyncio.to_thread(as_root)
+                    return True
+                except OSError as again:
+                    message = tr("Cannot open {path}: {reason}").format(path=target, reason=again.strerror or again)
+            elif target.is_local and self._as_root_declined:
+                return False
+            await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
+            return False
 
     async def on_panel_setup(self, event: PanelSetup) -> bool:
         self.spawn(self.panel_setup(self.active_panel))
@@ -2180,14 +2271,40 @@ class Manager(Window):
         rescan is a token rather than a call because the panel's listing
         follows its path and its token -- which is what makes "the directory
         changed" and "the user pressed Ctrl+R" the same code path.
+
+        A local directory refused permission offers *As root* (a departure;
+        :mod:`navigator.lib.system.elevate`).
         """
+        from navigator.lib.system.elevate import ELEVATION, refused
+
         panel = self.active_panel
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
         try:
             if panel.location.is_local:
-                (panel.path / name).mkdir()
+                try:
+                    (panel.path / name).mkdir()
+                except OSError as error:
+                    if not refused(error) or not await asyncio.to_thread(ELEVATION.available):
+                        raise
+                    from navigator.widgets.file_ops.as_root import ask_as_root
+
+                    message = tr("Cannot make directory {name}: {error}").format(
+                        name=name, error=error.strerror or error)
+                    if not await ask_as_root(self.application, message):
+                        return
+                    from navigator.lib.drives.root import ROOT_DRIVE
+
+                    place = Location.of(panel.path / name)
+
+                    def make_as_root() -> None:
+                        try:
+                            ROOT_DRIVE.mkdir(place)
+                        finally:
+                            ELEVATION.release()
+
+                    await asyncio.to_thread(make_as_root)
             else:
                 # Another drive is a round trip away: a thread makes it.
                 place = panel.location / name
@@ -2197,7 +2314,29 @@ class Manager(Window):
                     drive.mkdir(place)
                     drive.finish()
 
-                await asyncio.to_thread(make)
+                try:
+                    await asyncio.to_thread(make)
+                except OSError as error:
+                    # An archive on the disk whose rewrite was refused:
+                    # *As root*, its rewrite put back through the helper.
+                    drive = drive_of(place)
+                    outer = getattr(drive, "outer", None)
+                    if (getattr(drive, "go_root", None) is None or outer is None or not outer.is_local
+                            or getattr(drive, "as_root", False)):
+                        raise
+                    message = tr("Cannot make directory {name}: {error}").format(
+                        name=name, error=error.strerror or error)
+                    if not await self._may_as_root(error, message):
+                        if self._as_root_declined:
+                            panel.reload()
+                            return
+                        raise
+
+                    def finish_as_root() -> None:
+                        drive.go_root()
+                        drive.finish()
+
+                    await asyncio.to_thread(finish_as_root)
         except OSError as error:
             await Dialog(
                 title=tr("Cannot make directory"),
@@ -2575,16 +2714,15 @@ class Manager(Window):
                 title=tr("Warning"),
             ) is True
         if isinstance(question, filecopy.Failure):
-            return await self._ask_skip(question.message)
+            return await self._ask_skip(question.message, elevate=question.elevate)
         return None
 
-    async def _ask_skip(self, message: str) -> bool:
-        """An error with *Skip* and *Cancel*: True to go on without this file."""
-        from navml.widgets.dialog.control import escape_caption
+    async def _ask_skip(self, message: str, *, elevate: bool = False) -> Any:
+        """An error with *Skip* and *Cancel*: True to go on without this file.
+        With *elevate*, *As root* too (:func:`navigator.widgets.file_ops.as_root.ask_skip`)."""
+        from navigator.widgets.file_ops.as_root import ask_skip
 
-        box = Dialog(title=tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
-        box.ok.text = tr("~S~kip")
-        return await box.execute(self.application) is True
+        return await ask_skip(self.application, message, elevate=elevate)
 
     # -- deleting ----------------------------------------------------------------
 
@@ -2687,7 +2825,7 @@ class Manager(Window):
         if isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
             return await EraseQuery(question=question).execute(self.application)
         if isinstance(question, filecopy.Failure):
-            return await self._ask_skip(question.message)
+            return await self._ask_skip(question.message, elevate=question.elevate)
         return None
 
     # -- symbolic links ----------------------------------------------------------
@@ -2738,11 +2876,33 @@ class Manager(Window):
             )
         if request is None:
             return
-        # On another drive every step is a round trip: on a thread.
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        # On another drive every step is a round trip: on a thread.  So is
+        # every step once *As root* was answered: each is the helper's.
         elsewhere = not here.is_local or "://" in request.target or "#/" in request.target
+        as_root = False
 
         async def step(function: Any, *args: Any) -> Any:
-            return await asyncio.to_thread(function, *args) if elsewhere else function(*args)
+            if elsewhere or as_root:
+                return await asyncio.to_thread(function, *args)
+            return function(*args)
+
+        def drive_or_root(place: Location) -> Any:
+            if as_root and place.is_local:
+                from navigator.lib.drives.root import ROOT_DRIVE
+
+                return ROOT_DRIVE
+            return drive_of(place)
+
+        async def failed(error: OSError) -> Any:
+            """Skip / Cancel, and *As root* for a local refusal not yet root's."""
+            nonlocal as_root
+            answer = await self._ask_skip(filecopy.error_message(error),
+                                          elevate=not elsewhere and not as_root and refused(error))
+            if answer == filecopy.AS_ROOT:
+                as_root = True
+            return answer
 
         destination = await step(filecopy.resolve_target, request.target, request.sources, shown(here))
         linked: set[Any] = set()
@@ -2753,21 +2913,31 @@ class Manager(Window):
                         path=escape_caption(str(destination.directory)))
                 ) is not True:
                     return
-                try:
-                    place = Location.of(destination.directory)
-                    await step(lambda: drive_of(place).makedirs(place))
-                except OSError as error:
-                    await self._ask_skip(filecopy.error_message(error))
-                    return
-            for source in request.sources:
-                try:
-                    await step(filelink.make_link, source, destination.path_for(source), request.relative)
-                except OSError as error:
-                    if not await self._ask_skip(filecopy.error_message(error)):
+                place = Location.of(destination.directory)
+                while True:
+                    try:
+                        await step(lambda: drive_or_root(place).makedirs(place))
                         break
-                    continue
-                linked.add(source)
+                    except OSError as error:
+                        if await failed(error) != filecopy.AS_ROOT:
+                            return
+            for source in request.sources:
+                while True:
+                    try:
+                        await step(filelink.make_link, source, destination.path_for(source),
+                                   request.relative, as_root)
+                    except OSError as error:
+                        answer = await failed(error)
+                        if answer == filecopy.AS_ROOT:
+                            continue
+                        if not answer:
+                            return
+                        break
+                    linked.add(source)
+                    break
         finally:
+            if as_root:
+                await asyncio.to_thread(ELEVATION.release)
             panel.untag_paths(linked)
             panel.reload()
             for other in others:
@@ -2965,16 +3135,50 @@ class Manager(Window):
                                  buttons="ok").execute(self.application)
                     return
             except OSError as error:
-                await Dialog(title=tr("Cannot view file"), prompt=f"{entry.name}: {error.strerror or error}",
-                             buttons="ok").execute(self.application)
+                message = f"{entry.name}: {error.strerror or error}"
+                # Refused permission: *As root*, on a copy fetched through the
+                # helper (a departure; :mod:`navigator.lib.system.elevate`).
+                if await self._may_as_root(error, message):
+                    from navigator.widgets.file_ops.as_root import database_as_root
+
+                    try:
+                        await database_as_root(desktop, path)
+                    except DBFError:
+                        await Dialog(title=tr("Cannot view file"),
+                                     prompt=tr("{name}: not a dBase file").format(name=entry.name),
+                                     buttons="ok").execute(self.application)
+                    except OSError as again:
+                        await Dialog(title=tr("Cannot view file"),
+                                     prompt=f"{entry.name}: {again.strerror or again}",
+                                     buttons="ok").execute(self.application)
+                    return
+                if not self._as_root_declined:
+                    await Dialog(title=tr("Cannot view file"), prompt=message,
+                                 buttons="ok").execute(self.application)
                 return
             mode = None
         try:
             await open_viewer(desktop, path, mode)
         except OSError as error:
+            from navigator.lib.system.elevate import ELEVATION, refused
+
+            message = f"{entry.name}: {error.strerror or error}"
+            # Refused permission: *As root* (a departure;
+            # :mod:`navigator.lib.system.elevate`), read through the helper.
+            if refused(error) and await asyncio.to_thread(ELEVATION.available):
+                from navigator.widgets.file_ops.as_root import ask_as_root, view_as_root
+
+                if await ask_as_root(self.application, message):
+                    try:
+                        await view_as_root(desktop, path, mode)
+                    except OSError as again:
+                        await Dialog(title=tr("Cannot view file"),
+                                     prompt=f"{entry.name}: {again.strerror or again}",
+                                     buttons="ok").execute(self.application)
+                return
             await Dialog(
                 title=tr("Cannot view file"),
-                prompt=f"{entry.name}: {error.strerror or error}",
+                prompt=message,
                 buttons="ok",
             ).execute(self.application)
 
@@ -3151,11 +3355,42 @@ class Manager(Window):
         try:
             await open_editor(desktop, path)
         except OSError as error:
+            message = f"{entry.name}: {error.strerror or error}"
+            # Refused permission: *As root* (a departure;
+            # :mod:`navigator.lib.system.elevate`) -- read through the helper.
+            if await self._may_as_root(error, message):
+                try:
+                    await open_editor(desktop, path, as_root=True)
+                except OSError as again:
+                    await Dialog(title=tr("Cannot edit file"), prompt=f"{entry.name}: {again.strerror or again}",
+                                 buttons="ok").execute(self.application)
+                return
+            if self._as_root_declined:
+                return
             await Dialog(
                 title=tr("Cannot edit file"),
-                prompt=f"{entry.name}: {error.strerror or error}",
+                prompt=message,
                 buttons="ok",
             ).execute(self.application)
+
+    #: Whether the last :meth:`_may_as_root` put the question and was told no.
+    _as_root_declined = False
+
+    async def _may_as_root(self, error: OSError, message: str) -> bool:
+        """For a local step refused permission: *As root* asked, True once the
+        helper runs.  False -- and :attr:`_as_root_declined` set if the user
+        said Cancel to it -- where it may not be offered or was not wanted."""
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        self._as_root_declined = False
+        if not refused(error) or not await asyncio.to_thread(ELEVATION.available):
+            return False
+        from navigator.widgets.file_ops.as_root import ask_as_root
+
+        if await ask_as_root(self.application, message):
+            return True
+        self._as_root_declined = True
+        return False
 
     def _remember_panel(self) -> None:
         if self.right.focused:
