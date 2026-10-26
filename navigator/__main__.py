@@ -130,8 +130,18 @@ class Navigator(Application):
         stays monochrome; ``auto`` is detection's answer again."""
         terminal = self.terminal
         depth = TerminalInfo.detect(is_tty=terminal.is_tty, colors=depth_named(name)).colors
-        terminal.info = replace(terminal.info, colors=depth)
-        self.redraw()
+        self.use_terminal_info(replace(terminal.info, colors=depth))
+
+    def use_glyphs(self, name: str) -> None:
+        """Draw with *name*'s characters from the next frame on, which is
+        painted whole: Interface Setup's *Glyphs*, changed.  Decided the same
+        way as at start, so ``NAVKIT_GLYPHS`` still wins and ``auto`` gives
+        back what was detected.  Frames, marks, arrows and the panel's icon
+        gutter are drawn at paint time, and a caption bound to the tier
+        follows ``info_revision``."""
+        terminal = self.terminal
+        tier = TerminalInfo.detect(is_tty=terminal.is_tty, glyphs=tier_named(name)).glyphs
+        self.use_terminal_info(replace(terminal.info, glyphs=tier))
 
     async def on_start(self) -> None:
         # Started now rather than on the first command, because its prompt

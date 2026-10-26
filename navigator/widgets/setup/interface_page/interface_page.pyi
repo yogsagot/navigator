@@ -15,7 +15,7 @@ from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import flag_emoji, flags, languages, tr
 from navkit.widget import Widget
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
+from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
 
 
 class InterfacePage(_Component):
@@ -24,6 +24,7 @@ class InterfacePage(_Component):
     history_size: MaskedField
     language: ChoiceField
     colors: ChoiceField
+    glyphs_tier: ChoiceField
     marks: ChoiceField
     settings_tabs_caption: Label
     settings_tabs: RadioButtons

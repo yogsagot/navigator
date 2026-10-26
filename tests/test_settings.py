@@ -372,6 +372,53 @@ def test_marks_are_chosen_in_interface_setup_and_drawn_at_once(tmp_path, quiet_c
     assert "marks = boxes" in config_path().read_text(encoding="utf-8")
 
 
+def test_glyphs_are_chosen_in_interface_setup_and_drawn_at_once(tmp_path, quiet_console, monkeypatch):
+    from navkit.glyphs import GLYPHS_ASCII, GLYPHS_NERD, GLYPHS_UNICODE
+    from conftest import settle
+    from navkit.reactive import effect
+
+    monkeypatch.setenv("TERM", "xterm-256color")
+    monkeypatch.setenv("LANG", "en_US.UTF-8")
+    for name in ("LC_ALL", "LC_CTYPE", "NAVKIT_GLYPHS", "NERD_FONT", "KITTY_WINDOW_ID",
+                 "WEZTERM_EXECUTABLE", "GHOSTTY_RESOURCES_DIR", "TERM_PROGRAM"):
+        monkeypatch.delenv(name, raising=False)
+    terminal = FakeTerminal(80, 24)
+    app = Navigator(tmp_path, tmp_path, terminal=terminal)
+    panel = app.manager.left
+    seen = []
+    # Something depending on the tier, as the File type menu's captions do.
+    tiers = []
+    effect(panel, lambda p: tiers.append(p.glyphs))
+
+    def look(a):
+        seen.append((a.terminal.info.glyphs, panel.gutter, tiers[-1]))
+
+    def choose(a):
+        page = a.modal.interface
+        seen.append(page.glyphs_tier.value)
+        page.glyphs_tier.value = "ASCII"
+        # Weighed as a real terminal would be; a fake one is plain.
+        terminal.is_tty = True
+
+    run_app(app, [
+        look,
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+        look,
+    ])
+    assert seen == [(GLYPHS_NERD, 2, GLYPHS_NERD), "Automatic", (GLYPHS_ASCII, 1, GLYPHS_ASCII)]
+    assert SETTINGS.appearance.glyphs == "ascii"
+    assert "glyphs = ascii" in config_path().read_text(encoding="utf-8")
+    # Back to automatic: detection's answer again.
+    app.use_glyphs("auto")
+    settle()
+    assert terminal.info.glyphs == GLYPHS_UNICODE
+    assert tiers[-1] == GLYPHS_UNICODE
+
+
 @pytest.mark.parametrize("command, tab", [
     ("Settings", "system"),
     ("SystemSetup", "system"),

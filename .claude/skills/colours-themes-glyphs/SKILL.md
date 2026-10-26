@@ -147,7 +147,12 @@ back. **A child program's cells are never pinned** (`Style.terminal_palette`, pe
 ## Glyphs
 
 `TerminalInfo.glyphs`: `GLYPHS_ASCII` < `GLYPHS_UNICODE` < `GLYPHS_NERD`; `NAVKIT_GLYPHS` overrides and `--glyphs
-{auto,ascii,unicode,nerd}` outranks it. **A font cannot be detected**, so the Nerd tier is granted only to emulators
+{auto,ascii,unicode,nerd}` outranks it. Options > Interface's *Glyphs* (`[appearance] glyphs`) changes it in a
+running session: `Navigator.use_glyphs` weighs the choice as `main()` does (so `NAVKIT_GLYPHS` still wins) and hands
+the result to navkit's `Application.use_terminal_info`, which swaps `terminal.info`, bumps the reactive
+`info_revision` and repaints whole. `Widget.glyphs` reads `info_revision`, so a binding or computed on the tier
+follows; anything that reads the tier once and keeps the result (a dialog built before the change) does not.
+**A font cannot be detected**, so the Nerd tier is granted only to emulators
 that bundle a Nerd Font fallback (kitty, WezTerm, Ghostty) or a session that says so; a multiplexer needs the override.
 A non-UTF-8 locale gets ASCII. `navkit/glyphs.py` holds the frame sets (`single`, `double`, `round`, `ascii`) and imports
 nothing; `draw_box` takes six characters, never a name; `Widget.box_charset()` resolves the sheet's wish against the

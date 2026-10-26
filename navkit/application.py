@@ -322,6 +322,11 @@ class Application:
     #: whose ``look`` is ``auto`` draws with.  Plain, read at every paint:
     #: whoever changes it calls :meth:`invalidate`.
     marks: str = DEFAULT_MARKS
+    #: Counts the times :meth:`use_terminal_info` replaced what the terminal
+    #: is thought to support.  Nothing reads the number: :attr:`Widget.glyphs`
+    #: reads the field so that a caption bound to the glyph tier is
+    #: recomputed when the tier changes.
+    info_revision: int = reactive(0)
 
     def __init__(
         self,
@@ -1079,6 +1084,14 @@ class Application:
         self._front = None
         self._cursor_shown = None
         self.invalidate()
+
+    def use_terminal_info(self, info: Any) -> None:
+        """Use *info* -- a :class:`~navkit.capabilities.TerminalInfo` -- from
+        the next frame on, and paint that frame whole.  This is how a running
+        application changes its colour depth or glyph tier."""
+        self.terminal.info = info
+        self.info_revision += 1
+        self.redraw()
 
     def reclaim_terminal(self) -> None:
         """End a :meth:`release_terminal` loan: the screen back, repainted whole."""

@@ -1,5 +1,5 @@
 """What OK means in *Interface Setup*: the ``[interface]`` section's new values,
-and ``[appearance]``'s colour depth and check marks."""
+and ``[appearance]``'s colour depth, glyphs and check marks."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from navkit.i18n import flag_emoji, flags, languages, tr
 from navkit.widget import Widget
 
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
+from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
 
 
 class InterfacePage(Widget):
@@ -49,6 +49,16 @@ class InterfacePage(Widget):
         self.colors.choices = list(self.depths)
         self.colors.value = next(
             name for name, depth in self.depths.items() if depth == self.appearance.colors
+        )
+        #: ``{shown name: tier}``, in ``GLYPH_TIERS``' order.
+        self.tiers = dict(zip(
+            (tr("Automatic"), tr("ASCII"), tr("Unicode"), tr("Nerd Font")),
+            GLYPH_TIERS,
+        ))
+        self.glyphs_tier.choices = list(self.tiers)
+        self.glyphs_tier.value = next(
+            (name for name, tier in self.tiers.items() if tier == self.appearance.glyphs),
+            self.glyphs_tier.choices[0],
         )
         #: ``{shown name: look}``, in ``MARK_LOOKS``' order, each showing its
         #: own marks.
@@ -97,5 +107,6 @@ class InterfacePage(Widget):
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]
         values["window_strip"] = InterfaceData.field("window_strip").choices[self.window_strip.value]
         colors = self.depths.get(self.colors.value, self.appearance.colors)
+        glyphs = self.tiers.get(self.glyphs_tier.value, self.appearance.glyphs)
         marks = self.looks.get(self.marks.value, self.appearance.marks)
-        return {"interface": values, "appearance": {"colors": colors, "marks": marks}}
+        return {"interface": values, "appearance": {"colors": colors, "glyphs": glyphs, "marks": marks}}

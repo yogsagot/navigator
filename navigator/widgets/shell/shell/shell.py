@@ -2027,11 +2027,16 @@ class Shell(DockLayout):
 
         before = SETTINGS.interface.language
         depth = SETTINGS.appearance.colors
+        glyphs = SETTINGS.appearance.glyphs
         marks = SETTINGS.appearance.marks
         await self.setup(SettingsDialog(tab=tab), *SECTIONS)
         # The same for the colour depth, over a session's --colors.
         if SETTINGS.appearance.colors != depth:
             self.application.use_color_depth(SETTINGS.appearance.colors)
+        # And the glyph tier, over a session's --glyphs: frames, marks, arrows
+        # and the panels' icon gutter change on the next frame.
+        if SETTINGS.appearance.glyphs != glyphs:
+            self.application.use_glyphs(SETTINGS.appearance.glyphs)
         # And the check marks, over a session's --marks; every cluster on the
         # screen redraws, as it reads the application's choice.
         if SETTINGS.appearance.marks != marks:

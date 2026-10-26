@@ -907,51 +907,53 @@ flag = "RU"
 "~S~ource code" = "Исх~о~дный код"
 # navigator/widgets/setup/highlight_page/highlight_page.nml:60
 "~T~emporary files" = "~В~ременные файлы"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "~C~lock" = "~Ч~асы"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Hide ~m~enu bar" = "Скрыть ~м~еню"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Hide ~s~tatus line" = "Скрыть ~с~троку статуса"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "ESC for ~u~ser screen" = "ESC - ~э~кран пользователя"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Hide Command ~L~ine" = "Скрыть ~к~омандную строку"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "~A~uto hide Command Line" = "~А~втоскрытие ком. строки"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "~B~lock Insert Cursor" = "~Б~лочный курсор"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Store edi~t~or position" = "Позиция ре~д~актора"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Store vie~w~er position" = "Позиция пр~о~смотра"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Track ~e~diting history" = "История ~р~едактора"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Track ~v~iewing history" = "История ~п~росмотра"
-# navigator/widgets/setup/interface_page/interface_page.nml:24
+# navigator/widgets/setup/interface_page/interface_page.nml:25
 "Track ~d~irectories" = "~И~стория каталогов"
-# navigator/widgets/setup/interface_page/interface_page.nml:32
+# navigator/widgets/setup/interface_page/interface_page.nml:33
 "~H~istory size" = "Длина ис~т~ории"
-# navigator/widgets/setup/interface_page/interface_page.nml:45
+# navigator/widgets/setup/interface_page/interface_page.nml:48
 "La~n~guage" = "~Я~зык"
-# navigator/widgets/setup/interface_page/interface_page.nml:56
+# navigator/widgets/setup/interface_page/interface_page.nml:59
 "Colou~r~s" = "~Ц~вета"
-# navigator/widgets/setup/interface_page/interface_page.nml:68
+# navigator/widgets/setup/interface_page/interface_page.nml:70
+"Gl~y~phs" = "~Г~лифы"
+# navigator/widgets/setup/interface_page/interface_page.nml:82
 "Mar~k~s" = "~Ф~лажки"
-# navigator/widgets/setup/interface_page/interface_page.nml:79
+# navigator/widgets/setup/interface_page/interface_page.nml:93
 "Settin~g~s tabs" = "~В~кладки настроек"
-# navigator/widgets/setup/interface_page/interface_page.nml:88
+# navigator/widgets/setup/interface_page/interface_page.nml:102
 "~O~n top" = "Свер~х~у"
-# navigator/widgets/setup/interface_page/interface_page.nml:88
+# navigator/widgets/setup/interface_page/interface_page.nml:102
 "On the le~f~t" = "С~л~ева"
-# navigator/widgets/setup/interface_page/interface_page.nml:97
+# navigator/widgets/setup/interface_page/interface_page.nml:111
 "W~i~ndow strip" = "Окна в м~е~ню"
-# navigator/widgets/setup/interface_page/interface_page.nml:106
+# navigator/widgets/setup/interface_page/interface_page.nml:120
 "Off" = "Выкл."
-# navigator/widgets/setup/interface_page/interface_page.nml:106, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:120, navigator/lib/appearance/palette.py
 "Numbers" = "Числа"
-# navigator/widgets/setup/interface_page/interface_page.nml:106
+# navigator/widgets/setup/interface_page/interface_page.nml:120
 "With titles" = "С заголовками"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "Назначение клавиш"
@@ -1347,9 +1349,11 @@ flag = "RU"
 "Other" = "Прочее"
 # navigator/widgets/shell/unicode_chart/unicode_chart.nml:27
 "Character Table" = "Таблица символов"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:89
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:81
+"X" = ""
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:107
 "~I~nsert" = "~В~ставить"
-# navigator/widgets/shell/unicode_chart/unicode_chart.nml:99
+# navigator/widgets/shell/unicode_chart/unicode_chart.nml:117
 "Co~p~y" = "Копи~р~овать"
 # navigator/widgets/shell/volumes_window/volumes_window.nml:33, navigator/widgets/shell/commands.py:111
 "Volumes" = "Тома"
@@ -1425,9 +1429,9 @@ flag = "RU"
 "~A~ddress" = "~А~дрес"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "Ход поиска"
-# navigator/__main__.py:492
+# navigator/__main__.py:502
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "Не удалось прочитать буфер обмена рабочего стола, поэтому Navigator вставил свою последнюю копию. Установите xclip или xsel (X11) либо wl-clipboard (Wayland), чтобы буфер обмена был общим с другими программами."
-# navigator/__main__.py:497
+# navigator/__main__.py:507
 "Clipboard" = "Буфер обмена"
 # navigator/commands.py:67
 "Character table" = "Таблица символов"
@@ -1581,39 +1585,39 @@ flag = "RU"
 "License: {license}" = "Лицензия: {license}"
 # navigator/lib/viewer/pdf.py:70
 "Page {page} of {pages}" = "Страница {page} из {pages}"
-# navigator/settings.py:238
+# navigator/settings.py:240
 "Appearance -- the --theme, --palette, --colors, --glyphs, --marks and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --colors, --glyphs, --marks и --dim-modal"
-# navigator/settings.py:273
+# navigator/settings.py:275
 "Options > Configuration > System Setup (DN's dlgSystemSetup)" = "Параметры > Конфигурация > Система (dlgSystemSetup в DN)"
-# navigator/settings.py:325
+# navigator/settings.py:327
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Параметры > Конфигурация > Запуск (dlgStartupSetup в DN)"
-# navigator/settings.py:351
+# navigator/settings.py:353
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Параметры > Конфигурация > Интерфейс (dlgInterfaceSetup в DN)"
-# navigator/settings.py:415
+# navigator/settings.py:417
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Параметры > Конфигурация > Подтверждения (dlgConfirmations в DN)"
-# navigator/settings.py:439
+# navigator/settings.py:441
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
-# navigator/settings.py:504
+# navigator/settings.py:506
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:556
+# navigator/settings.py:558
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:616
+# navigator/settings.py:618
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:669
+# navigator/settings.py:671
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:703
+# navigator/settings.py:705
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:748
+# navigator/settings.py:750
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:763
+# navigator/settings.py:765
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:795
+# navigator/settings.py:797
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:819
+# navigator/settings.py:821
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:834
+# navigator/settings.py:836
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:863
+# navigator/settings.py:865
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:33
 "Reading archive" = "Чтение архива"
@@ -2231,23 +2235,29 @@ flag = "RU"
 "~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
 # navigator/widgets/setup/country_page/country_page.py:30
 "Example: {stamp}" = "Пример: {stamp}"
-# navigator/widgets/setup/interface_page/interface_page.py:31, navigator/widgets/setup/interface_page/interface_page.py:44
+# navigator/widgets/setup/interface_page/interface_page.py:32, navigator/widgets/setup/interface_page/interface_page.py:45, navigator/widgets/setup/interface_page/interface_page.py:55
 "Automatic" = "Автоматически"
-# navigator/widgets/setup/interface_page/interface_page.py:44
+# navigator/widgets/setup/interface_page/interface_page.py:45
 "Monochrome" = "Монохромный"
-# navigator/widgets/setup/interface_page/interface_page.py:44
+# navigator/widgets/setup/interface_page/interface_page.py:45
 "8 colours" = "8 цветов"
-# navigator/widgets/setup/interface_page/interface_page.py:44
+# navigator/widgets/setup/interface_page/interface_page.py:45
 "16 colours" = "16 цветов"
-# navigator/widgets/setup/interface_page/interface_page.py:45
+# navigator/widgets/setup/interface_page/interface_page.py:46
 "256 colours" = "256 цветов"
-# navigator/widgets/setup/interface_page/interface_page.py:45
+# navigator/widgets/setup/interface_page/interface_page.py:46
 "True colour" = "24-битный цвет"
 # navigator/widgets/setup/interface_page/interface_page.py:55
+"ASCII" = "ASCII"
+# navigator/widgets/setup/interface_page/interface_page.py:55
+"Unicode" = "Unicode"
+# navigator/widgets/setup/interface_page/interface_page.py:55
+"Nerd Font" = "Nerd Font"
+# navigator/widgets/setup/interface_page/interface_page.py:66
 "Classic [X] (•)" = "Классика [X] (•)"
-# navigator/widgets/setup/interface_page/interface_page.py:55
+# navigator/widgets/setup/interface_page/interface_page.py:66
 "Brackets [✓] (●)" = "В скобках [✓] (●)"
-# navigator/widgets/setup/interface_page/interface_page.py:55
+# navigator/widgets/setup/interface_page/interface_page.py:66
 "Boxes ☑ ◉" = "Квадратики ☑ ◉"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:215
 "Every key back to its default?" = "Вернуть все клавиши по умолчанию?"
@@ -2347,19 +2357,19 @@ flag = "RU"
 "Execute OS Command" = "Выполнить команду ОС"
 # navigator/widgets/shell/shell/shell.py:1674
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:2317, navigator/widgets/shell/shell/shell.py:2310
+# navigator/widgets/shell/shell/shell.py:2323, navigator/widgets/shell/shell/shell.py:2316
 "Disconnect" = "Разорвать связь"
-# navigator/widgets/shell/shell/shell.py:2576
+# navigator/widgets/shell/shell/shell.py:2582
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2576
+# navigator/widgets/shell/shell/shell.py:2582
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:433
 "~C~ommand" = "~К~оманда"
-# navigator/widgets/shell/shell/shell.py:2163, navigator/widgets/shell/shell/shell.py:2346
+# navigator/widgets/shell/shell/shell.py:2169, navigator/widgets/shell/shell/shell.py:2352
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:2566
+# navigator/widgets/shell/shell/shell.py:2572
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2566
+# navigator/widgets/shell/shell/shell.py:2572
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1467
 "User menu (global)" = "Меню пользователя (общее)"
@@ -2369,7 +2379,7 @@ flag = "RU"
 "User menu (local)" = "Меню пользователя (локальное)"
 # navigator/widgets/shell/shell/shell.py:1469
 "Global menu" = "Общее меню"
-# navigator/widgets/shell/shell/shell.py:2308
+# navigator/widgets/shell/shell/shell.py:2314
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:339
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -2387,21 +2397,21 @@ flag = "RU"
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
 # navigator/widgets/shell/shell/shell.py:1820
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
-# navigator/widgets/shell/shell/shell.py:2207
+# navigator/widgets/shell/shell/shell.py:2213
 "Wrong passphrase for {key}. Try again:" = "Неверная фраза-пароль для {key}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2208
+# navigator/widgets/shell/shell/shell.py:2214
 "Passphrase for {key}:" = "Фраза-пароль для {key}:"
-# navigator/widgets/shell/shell/shell.py:2194
+# navigator/widgets/shell/shell/shell.py:2200
 "Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2195
+# navigator/widgets/shell/shell/shell.py:2201
 "Secret key for {who}:" = "Секретный ключ для {who}:"
-# navigator/widgets/shell/shell/shell.py:2198
+# navigator/widgets/shell/shell/shell.py:2204
 "Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2199
+# navigator/widgets/shell/shell/shell.py:2205
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:2347
+# navigator/widgets/shell/shell/shell.py:2353
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:2569
+# navigator/widgets/shell/shell/shell.py:2575
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1405
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -2409,29 +2419,29 @@ flag = "RU"
 "File {name} not found" = "Файл {name} не найден"
 # navigator/widgets/shell/shell/shell.py:1565
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:2180
+# navigator/widgets/shell/shell/shell.py:2186
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2396
+# navigator/widgets/shell/shell/shell.py:2402
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:2533
+# navigator/widgets/shell/shell/shell.py:2539
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/trash_can.py:77
 "Trash" = "Корзина"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:65
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
 "~B~locks" = "~Б~локи"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:65
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:69
 "~C~ategories" = "~К~атегории"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:122
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:129
 "Recent" = "Недавние"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:124
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:131
 "Search results" = "Результаты поиска"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:148, navigator/widgets/shell/unicode_chart/unicode_chart.py:207
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:161, navigator/widgets/shell/unicode_chart/unicode_chart.py:227
 "Reading the character names..." = "Чтение названий символов..."
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:67
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:71
 "~N~erd Fonts" = "~Ш~рифты Nerd"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:151
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
 "Nothing taken yet" = "Ещё ничего не выбрано"
-# navigator/widgets/shell/unicode_chart/unicode_chart.py:151
+# navigator/widgets/shell/unicode_chart/unicode_chart.py:164
 "Nothing found" = "Ничего не найдено"
 # navigator/widgets/shell/unicode_grid/unicode_grid.py:121
 "{at} of {count}" = "{at} из {count}"

@@ -456,13 +456,14 @@ class Widget:
         wish for a mouse and the terminal's ability to report one and lets
         either veto.
 
-        Deliberately a plain property rather than a ``computed``: the tier is
-        settled once, when the terminal is detected, and never changes
-        afterwards, so there is nothing for a dependency to invalidate.  A
-        detached widget assumes Unicode, which is what the kit assumes whenever
-        it has no terminal to ask.
+        The tier is detected at start and can be changed later through
+        :meth:`Application.use_terminal_info`.  Reading
+        ``info_revision`` here lets a binding or computed that uses the tier
+        update when that happens.  A detached widget assumes Unicode, which is
+        what the kit assumes whenever it has no terminal to ask.
         """
         app = self.application
+        getattr(app, "info_revision", None)
         terminal = getattr(app, "terminal", None)
         return GLYPHS_UNICODE if terminal is None else terminal.info.glyphs
 

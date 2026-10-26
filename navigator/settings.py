@@ -222,6 +222,8 @@ class Section:
 
 #: What ``--colors`` and ``[appearance] colors`` accept: detect, or a depth.
 COLOR_DEPTHS = ("auto", "mono", "8", "16", "256", "truecolor")
+#: What ``--glyphs`` and ``[appearance] glyphs`` accept: detect, or a tier.
+GLYPH_TIERS = ("auto", "ascii", "unicode", "nerd")
 #: What ``--marks`` and ``[appearance] marks`` accept: the looks of
 #: :data:`navkit.glyphs.MARKS` but ``ascii``, which ``--glyphs ascii`` gives.
 MARK_LOOKS = ("dos", "brackets", "boxes")
@@ -247,7 +249,7 @@ class AppearanceData(Section):
         doc="How many colours the terminal shows; auto reads COLORTERM and TERM",
     )
     glyphs: str = Setting(
-        "auto", choices=("auto", "ascii", "unicode", "nerd"),
+        "auto", choices=GLYPH_TIERS,
         doc="Which characters the terminal's font draws",
     )
     #: Not DN's, whose marks were Turbo Vision's ``[X]`` and ``(•)`` -- still
