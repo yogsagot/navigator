@@ -1594,3 +1594,25 @@ def test_a_readable_directory_chosen_in_the_tree_is_the_disks_own(started, root_
         lambda a: a.spawn(manager_of(a).on_tree_chosen(Chosen())),
         Until(lambda a: panel(a).location == Location.of(root_tree / "sub"), timeout=5),
     ])
+
+
+def test_a_root_panel_refreshes_when_its_directory_changes(started, tmp_path, quiet_console, monkeypatch):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    monkeypatch.setattr(root, "POLL_INTERVAL", 0.1)
+    monkeypatch.setattr(SETTINGS.file_manager, "auto_refresh", True)
+    (tmp_path / "old.txt").write_text("o")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    run_app(app, [
+        Until(lambda a: panel(a).items),
+        lambda a: setattr(panel(a), "location", root.root_location(tmp_path)),
+        Until(lambda a: any(e.name == "old.txt" for e in panel(a).items), timeout=5),
+        lambda a: (tmp_path / "new.txt").write_text("n"),  # changed behind its back
+        Until(lambda a: any(e.name == "new.txt" for e in panel(a).items), timeout=5),
+    ])

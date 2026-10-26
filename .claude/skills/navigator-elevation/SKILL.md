@@ -98,7 +98,9 @@ of that operation goes through it without asking again** (DN's *All*).
   so every step is a drive's, exactly as on a server, and copy/erase/F3/F4/Alt+E/... need nothing new.
   `RootSiteDrive` hands each step to `ROOT_DRIVE` on `on_disk(location)`; its `scan` is the helper's `listing` op
   (the disk's own `listing.read_listing`, entries packed as lists -- **an op must never return a tuple that is
-  not `(value, payload)`**). No `exec`, `watch` or free space there; Disconnect (Alt+H) ignores it.
+  not `(value, payload)`**). No `exec` or free space there; Disconnect (Alt+H) ignores it. *Auto refresh* is a
+  `PollWatch` through the helper every `root.POLL_INTERVAL` (2 s) -- not `[remote] refresh`, off by default, as
+  this is the disk; `_arrived_at_root` sets the watch up again, the first having found no drive mounted.
   - `root.hold(panel)` mounts the drive and holds the helper; `root.leave` unmounts with the last holder and the
     panel releases. `Panel._hold_root` (an effect) follows the location -- but `Panel._go_root` **holds before it
     moves**, since the rescan effect runs first and would find no drive.

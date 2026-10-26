@@ -575,6 +575,9 @@ class Panel(ContextMenuHost, ListViewer):
                 return
         if self.location == location:
             self.reload()
+            # Watched again: the watch set up as the panel came here found
+            # no drive mounted yet, and nothing else moves it to look again.
+            self._watch_directory()
 
     def _plain_where_readable(self, location: Location) -> Location:
         """A ``root:`` place the user may read is the disk's own again."""

@@ -228,6 +228,11 @@ ROOT_DRIVE = RootDrive()
 #: server -- and nothing mistakes it for the disk itself.
 ROOT_SITE = Site("root")
 
+#: Seconds between a ``root:`` panel's looks for *Auto refresh*: the disk's
+#: own watcher cannot see into what the user may not read, and this is the
+#: disk, not a server -- so not ``[remote] refresh``, which is off by default.
+POLL_INTERVAL = 2.0
+
 
 def root_location(path: Path | str | Location) -> Location:
     """*path* on the disk, as root sees it."""
@@ -366,6 +371,13 @@ class RootSiteDrive(Drive):
                    backup: bool = False) -> None:
         """The editor's write as root: what a file fetched from here goes back by."""
         ROOT_DRIVE.write_file(Path(str(path.path if isinstance(path, Location) else path)), chunks, job, backup)
+
+    def watch(self, location: Location, notify: Any) -> Any:
+        """*Auto refresh*: the directory listed through the helper every
+        :data:`POLL_INTERVAL` seconds (``PollWatch``), *notify* called on a change."""
+        from navigator.lib.drives.base import PollWatch
+
+        return PollWatch(self, location, notify, POLL_INTERVAL)
 
     def describe(self) -> list[tuple[str, str]]:
         return [("Kind", "root")]
