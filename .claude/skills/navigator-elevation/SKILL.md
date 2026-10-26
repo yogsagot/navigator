@@ -36,6 +36,36 @@ of that operation goes through it without asking again** (DN's *All*).
   **The lock check is done here, not in the helper** (`check_lock=False` there): the editor's own `flock` would
   otherwise make the root process look like another program and refuse the save.
 
+## Threat model (reviewed 2026-10-26)
+
+Not a backdoor: no setuid file, no daemon, no sudoers/polkit rule, the password never kept; every start is the
+user's own authentication. What the review found and the rules it left:
+
+- **The channel to root is a `socketpair`, never a pipe.** A pipe's end can be reopened through
+  `/proc/<navigator-pid>/fd/N` by *any* process of the user's (Yama `ptrace_scope=1` restricts attach only) and fed
+  requests: root without a password for `root_timeout` minutes. A socket refuses that (`ENXIO`). On top, Navigator
+  is made **non-dumpable** (`prctl(PR_SET_DUMPABLE, 0)`, `_set_dumpable`) while the helper runs -- no ptrace, no
+  `/proc/<pid>` for the user's processes, even at `ptrace_scope=0` -- and dumpable again in `_shut`. A debugger or
+  py-spy cannot attach to Navigator meanwhile; that is the point.
+- **Root runs code the user may be able to change** (a checkout, a virtualenv, `pip --user`: `untrusted_code()`
+  over `code_paths()`, which include the venv's `site-packages`, whose `.pth` files run even under `-I`). It is said
+  in the question (`as_root._question`), not refused: no worse than `sudo ~/script`, and how development works. The
+  packaged install is root's and says nothing. Tests patch `as_root.untrusted_code` (autouse `trusted_code`).
+- **A step that changes the disk follows no symlink another user owns** (`_Helper._pinned`): only root's and the
+  asker's (`SUDO_UID`/`PKEXEC_UID`, else `getuid()`), `ELOOP` otherwise. Each directory on the way is held open with
+  `O_PATH` and the step done through `/proc/self/fd/<dir>/<name>`, so a directory swapped for a link between two steps
+  (the `rm -rf` race, a shared directory, the home of the user whose tree is being erased) cannot send root's next
+  unlink, write or chmod elsewhere. `open_write` adds `O_NOFOLLOW` after resolving, `chmod` changes an `O_PATH`-held
+  inode, `write_text` hands `write_file(follow=False)` the resolved name. Reads are left alone: the user has root
+  already. The kernel's `fs.protected_symlinks` covers sticky world-writable directories only; this is everywhere.
+  Elsewhere than Linux (`PINNABLE` false) steps go by name, as before.
+- **Live root is visible**: `RootMark` (`navigator/widgets/shell/root_mark.py`) shows *ROOT* white on red before the
+  clock while `ELEVATION.running` (polled once a second, `Shell.follow_root`), since a panel or the quick view may
+  then go to root unasked. Utilities > *Close root access* (`CloseRootAccess`, enabled while it shows) sends
+  `root:` panels back to the disk and closes the helper.
+- Still open, by choice: files created as root in the user's own tree stay root's (a `chown` back would be a
+  departure; not asked for).
+
 ## Wiring an operation
 
 - **Workers** subclass `filecopy.Elevated`: use `self._drive_of(location)` instead of `drive_of`, wrap a step in

@@ -58,7 +58,7 @@ def backup_of(path: Path) -> Path:
 
 def write_file(
     path: Path, data: bytes | Iterable[bytes], job: Any = None, backup: bool = False,
-    *, check_lock: bool = True,
+    *, check_lock: bool = True, follow: bool = True,
 ) -> None:
     """Put *data* in *path*, as safely as the file allows.  Raises ``OSError``.
 
@@ -70,9 +70,11 @@ def write_file(
     (:func:`~navigator.lib.editor.lock.refuse_if_locked`) -- unless
     *check_lock* is False, as the root helper is told, which is asked for by
     a Navigator that has already asked it and holds the lock itself.
+    *follow* False writes *path* as named: the root helper has resolved its
+    links already, through none another user owns.
     """
     chunks = [data] if isinstance(data, (bytes, bytearray)) else data
-    target = resolve(path)
+    target = resolve(path) if follow else path
     if check_lock:
         refuse_if_locked(target)
     try:

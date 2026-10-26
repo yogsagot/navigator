@@ -29,6 +29,15 @@ IS_ROOT = hasattr(os, "geteuid") and os.geteuid() == 0
 BOOT = [sys.executable, "-I", "-c", elevate._BOOT]
 
 
+@pytest.fixture(autouse=True)
+def trusted_code(monkeypatch):
+    """The suite runs from a checkout, which is the user's: the questions'
+    warning about it is tested on its own, not in every prompt compared."""
+    from navigator.widgets.file_ops import as_root
+
+    monkeypatch.setattr(as_root, "untrusted_code", lambda: None)
+
+
 @pytest.fixture
 def helper():
     """The helper, run as the user, closed afterwards -- and no panel left
@@ -62,6 +71,48 @@ def test_an_unknown_request_is_refused(started):
         started.call("eval", source="1")
     assert raised.value.errno == errno.EINVAL
     assert started.running
+
+
+def _dumpable() -> int:
+    import ctypes
+
+    return ctypes.CDLL(None).prctl(3, 0, 0, 0, 0)  # PR_GET_DUMPABLE
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="/proc and prctl are Linux's")
+def test_no_other_process_can_open_the_channel_to_root(started):
+    """A pipe could be opened again through /proc by any process of the
+    user's and fed requests for root; the socket cannot, and this process is
+    not dumpable (no ptrace, no /proc) while the helper is open."""
+    import subprocess
+
+    assert _dumpable() == 0
+    for fd in (started._socket.fileno(), started._process.stderr.fileno()):
+        reopen = subprocess.run(
+            [sys.executable, "-I", "-c", f"open('/proc/{os.getpid()}/fd/{fd}', 'wb')"],
+            capture_output=True, text=True, start_new_session=True,
+        )
+        assert reopen.returncode != 0, fd
+    started.close()
+    assert _dumpable() == 1
+
+
+@pytest.mark.skipif(IS_ROOT, reason="everything is root's own when run as root")
+def test_code_the_user_could_change_is_said(tmp_path):
+    mine = tmp_path / "site-packages"
+    mine.mkdir()
+    assert elevate.untrusted_code([Path("/nonexistent"), Path("/"), mine]) == mine
+    assert elevate.untrusted_code([Path("/"), Path("/usr")]) is None
+
+
+def test_the_question_says_root_would_run_code_the_user_could_change(monkeypatch, tmp_path):
+    from navigator.widgets.file_ops import as_root
+
+    assert as_root._question("Error", "Permission denied", "ok-cancel").prompt == "Permission denied"
+    monkeypatch.setattr(as_root, "untrusted_code", lambda: tmp_path)
+    box = as_root._question("Error", "Permission denied", "ok-cancel")
+    assert box.prompt == f"Permission denied\n\nRoot will run code from {tmp_path}, which your user can change."
+    assert box.modal_width == 64
 
 
 def test_a_helper_that_ends_at_once_is_a_refusal(helper):
@@ -1671,3 +1722,95 @@ def test_every_tool_is_started_without_our_terminal(monkeypatch):
         monkeypatch.setattr(SETTINGS.system, "elevate", tool)
         assert isinstance(ELEVATION.begin(), Refused)
     assert seen == [True, True]
+
+
+# -- links another user owns ---------------------------------------------------------
+
+
+def _distrusting():
+    """The helper's ops in this process, trusting no one's links but root's --
+    so the user's own links stand for another user's."""
+    from navigator.lib.system import roothelper
+
+    if not roothelper.PINNABLE:
+        pytest.skip("pinning needs O_PATH and /proc")
+    return roothelper._Helper(trusted=frozenset({0}))
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root's own links are trusted")
+def test_root_writes_through_no_link_another_user_owns(tmp_path):
+    ops = _distrusting()
+    victim = tmp_path / "victim"
+    victim.write_text("keep")
+    victim.chmod(0o600)
+    (tmp_path / "bait").symlink_to(victim)
+    with pytest.raises(OSError) as raised:
+        ops.open_write(str(tmp_path / "bait"), False, 0o644)
+    assert raised.value.errno == errno.ELOOP
+    with pytest.raises(OSError):
+        ops.chmod(str(tmp_path / "bait"), 0o777)
+    assert victim.read_text() == "keep" and victim.stat().st_mode & 0o777 == 0o600
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root's own links are trusted")
+def test_a_directory_swapped_for_a_link_does_not_send_an_erase_elsewhere(tmp_path):
+    """The rm -rf race: between listing a directory and unlinking what was
+    in it, the directory became a link to somewhere root would not go."""
+    ops = _distrusting()
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / "precious").write_text("x")
+    (tmp_path / "tree").symlink_to(elsewhere)  # was a directory a moment ago
+    with pytest.raises(OSError) as raised:
+        ops.unlink(str(tmp_path / "tree" / "precious"))
+    assert raised.value.errno == errno.ELOOP
+    assert (elsewhere / "precious").exists()
+    ops.unlink(str(tmp_path / "tree"))  # the link itself may go
+    assert not (tmp_path / "tree").exists() and (elsewhere / "precious").exists()
+
+
+def test_trusted_links_are_followed_and_steps_still_work(tmp_path):
+    from navigator.lib.system import roothelper
+
+    ops = roothelper._Helper()  # root's and the user's links trusted
+    real = tmp_path / "real"
+    real.mkdir()
+    (tmp_path / "via").symlink_to(real)
+    ops.makedirs(str(tmp_path / "via" / "a" / "b"))
+    handle = ops.open_write(str(tmp_path / "via" / "a" / "b" / "f"), False, 0o640)
+    ops.write(handle, b"data")
+    ops.close(handle)
+    ops.chmod(str(tmp_path / "via" / "a" / "b" / "f"), 0o600)
+    ops.rename(str(real / "a" / "b" / "f"), str(tmp_path / "via" / "g"))
+    assert (real / "g").read_bytes() == b"data" and (real / "g").stat().st_mode & 0o777 == 0o600
+    number = ops.begin_text(str(tmp_path / "via" / "g"))
+    ops.write(number, b"new")
+    ops.write_text(number, backup=True)
+    assert (real / "g").read_bytes() == b"new" and (real / "g.bak").read_bytes() == b"data"
+    assert (tmp_path / "via").is_symlink()
+    ops.unlink(str(real / "g"))
+    ops.rmdir(str(real / "a" / "b"))
+
+
+def test_the_menu_bar_says_root_while_it_is_open_and_it_can_be_closed(started, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.widgets.shell.commands import CloseRootAccess
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def look(a):
+        mark = a.shell.root_mark
+        seen.update(visible=mark.visible, right=mark.x + mark.width, clock=a.shell.clock.x,
+                    enabled=a.shell.enables(CloseRootAccess()))
+
+    run_app(app, [
+        lambda a: a.spawn(a.shell.follow_root()),
+        Until(lambda a: a.shell.root_mark.visible),
+        look,
+        lambda a: a.spawn(a.run_command(CloseRootAccess())),
+        Until(lambda a: not ELEVATION.running and not a.shell.root_mark.visible, timeout=5),
+    ])
+    assert seen["visible"] and seen["enabled"] and seen["right"] < seen["clock"]
+    assert not ELEVATION.running

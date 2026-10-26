@@ -427,6 +427,15 @@ class HangUp(Command):
     title = "Discon"
 
 
+class CloseRootAccess(Command):
+    """Utilities > *Close root access*: the root helper closed now, rather
+    than ``[system] root_timeout`` minutes after its last step; the panels
+    browsing ``root:`` go back to the disk.  Not DN's: DOS refused no one
+    (``navigator.lib.system.elevate``)."""
+
+    title = "Unroot"
+
+
 class EditLinks(Command):
     """Utilities > *Saved links*: the connection profiles in one box -- edited,
     added, deleted, reordered, kept on OK -- and one connected to.

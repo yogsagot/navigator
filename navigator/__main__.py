@@ -169,6 +169,8 @@ class Navigator(Application):
         self.call_every(self.idle_check_every, self._check_idle)
         # *Communications*' *Close an idle connection after*.
         self.call_every(60.0, self.shell.reap_connections)
+        # The menu bar's *ROOT* while root access is open.
+        self.call_every(1.0, self.shell.follow_root)
         self.call_every(self.saver_check_every, self._check_saver)
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
         # once its desktop was in place (``RunMenu``).

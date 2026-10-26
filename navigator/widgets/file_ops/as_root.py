@@ -17,7 +17,7 @@ from navkit.i18n import tr
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.lib.system.elevate import ELEVATION, Asked, Refused
+from navigator.lib.system.elevate import ELEVATION, Asked, Refused, untrusted_code
 
 
 async def open_root(app: Any) -> bool:
@@ -149,11 +149,26 @@ async def view_as_root(desktop: Any, path: Path, mode: str | None = None) -> Any
     return window
 
 
+def _question(title: str, message: str, buttons: str) -> Dialog:
+    """The box that offers *As root*, saying so when root would run code the
+    user could change (a checkout, a virtualenv): their own consent to that,
+    not a refusal (``elevate.untrusted_code``)."""
+    prompt = escape_caption(message)
+    path = None if ELEVATION.running else untrusted_code()
+    if path is None:
+        return Dialog(title=title, prompt=prompt, buttons=buttons)
+    warning = tr("Root will run code from {path}, which your user can change.").format(path=str(path))
+    box = Dialog(title=title, prompt=f"{prompt}\n\n{escape_caption(warning)}", buttons=buttons)
+    box.modal_width = 64
+    box.modal_height = 14
+    return box
+
+
 async def ask_as_root(app: Any, message: str, *, title: str | None = None) -> bool:
     """*message*, with *As root* and *Cancel*: True once the helper runs.
     *title* is the box's, an *Error* unless given."""
     while True:
-        box = Dialog(title=title or tr("Error"), prompt=escape_caption(message), buttons="ok-cancel")
+        box = _question(title or tr("Error"), message, "ok-cancel")
         box.ok.text = tr("As ~r~oot")
         if await box.execute(app) is not True:
             return False
@@ -188,8 +203,8 @@ async def ask_skip(app: Any, message: str, *, elevate: bool = False) -> Any:
 
     offer = elevate and ELEVATION.available()
     while True:
-        box = Dialog(title=tr("Error"), prompt=escape_caption(message),
-                     buttons="yes-no-cancel" if offer else "ok-cancel")
+        box = (_question(tr("Error"), message, "yes-no-cancel") if offer
+               else Dialog(title=tr("Error"), prompt=escape_caption(message), buttons="ok-cancel"))
         box.ok.text = tr("~S~kip")
         if offer:
             box.no.text = tr("As ~r~oot")

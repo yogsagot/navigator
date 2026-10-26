@@ -39,6 +39,7 @@ from navigator.widgets.shell.commands import (
     S3Link,
     FtpLink,
     HangUp,
+    CloseRootAccess,
     NavyLink,
     SmbLink,
     SetupLink,
@@ -167,6 +168,19 @@ class Shell(DockLayout):
 
         self.trash = self.add(TrashCan(self.desktop))
         self.trash.merge_style("dock: none")
+        # *ROOT* before the clock while root access is open: floating as it
+        # does, over the bar's row.
+        from navigator.widgets.shell.root_mark import RootMark, caption
+
+        self.root_mark = self.add(RootMark())
+        self.root_mark.merge_style("dock: none")
+        clock_ = self.clock
+        self.root_mark.width = bind(lambda w: len(caption()))
+        self.root_mark.x = bind(
+            lambda w: max(0, (clock_.x - 1 if clock_.visible else self.menu.width) - w.width))
+        self.root_mark.y = bind(lambda w: 0)
+        self.root_mark.visible = bind(
+            lambda w: w.open and not interface.hide_menu_bar and not self.console_visible)
         self.keybar.visible = bind(lambda w: not interface.hide_status_line)
         # *Auto hide Command Line*: DN 1.51 declared the box and never read
         # it, so this is the behaviour its ``CheckSize`` and ``ToggleCmdLine``
@@ -186,8 +200,10 @@ class Shell(DockLayout):
         # clock, on a bar that is docked and over windows that are showing.
         menu, clock = self.menu, self.clock
         self.window_strip.x = bind(lambda w: menu.item_span(len(menu.entries()))[0] + 1)
+        root_mark = self.root_mark
         self.window_strip.width = bind(
-            lambda w: max(0, (clock.x if clock.visible else menu.width) - 1 - w.x)
+            lambda w: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width)
+                          - 1 - w.x)
         )
         self.window_strip.labels = bind(lambda w: interface.window_strip == "full")
         self.window_strip.visible = bind(
@@ -1008,6 +1024,8 @@ class Shell(DockLayout):
 
             # Connections only: a panel browsing ``root:`` mounts a drive too.
             return any(drive.site.scheme in sessions.SCHEMES for drive in mounted())
+        if isinstance(command, CloseRootAccess):
+            return self.root_mark.open
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link)):
             return self.active_manager is not None
         if isinstance(command, (HideLeft, HideRight)):
@@ -2363,6 +2381,28 @@ class Shell(DockLayout):
                     if not panel.location.is_local:
                         used.add(panel.location.site)
         return used
+
+    async def follow_root(self) -> None:
+        """Whether root access is open, looked at once a second: the helper
+        starts and ends on threads, the reaper's among them."""
+        from navigator.lib.system.elevate import ELEVATION
+
+        self.root_mark.open = ELEVATION.running
+
+    async def on_close_root_access(self, event: CloseRootAccess) -> bool:
+        self.spawn(self.close_root_access())
+        return True
+
+    async def close_root_access(self) -> None:
+        """Utilities > *Close root access*: the panels at ``root:`` back on
+        the disk (:meth:`close_linked`), then the helper closed -- a window
+        still reading a file as root reads no more of it."""
+        from navigator.lib.drives import root
+        from navigator.lib.system.elevate import ELEVATION
+
+        self.close_linked(root.ROOT_SITE)
+        await asyncio.to_thread(ELEVATION.close)
+        self.root_mark.open = False
 
     async def reap_connections(self) -> None:
         """*Communications*' *Close an idle connection after*, looked at once a minute."""

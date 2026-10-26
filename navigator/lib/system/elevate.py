@@ -20,8 +20,10 @@ from __future__ import annotations
 
 import errno
 import os
+import pwd
 import selectors
 import shutil
+import socket
 import subprocess
 import sys
 import threading
@@ -82,6 +84,11 @@ class Elevation:
 
     def __init__(self) -> None:
         self._process: subprocess.Popen[bytes] | None = None
+        #: Our end of the helper's stdin and stdout, one socket: a pipe could
+        #: be opened again through ``/proc/<pid>/fd`` by any process of the
+        #: user's and fed requests; a socket cannot (``ENXIO``).
+        self._socket: socket.socket | None = None
+        self._channel: Any = None
         self._lock = threading.Lock()
         self._stderr = b""
         self._last = 0.0
@@ -141,6 +148,7 @@ class Elevation:
             tool = self.tool() if self.command is None else "test"
             if tool is None:
                 return Refused("sudo or pkexec is needed to work as root")
+            ours, theirs = socket.socketpair()
             try:
                 # No terminal of ours for either tool: sudo's asking comes
                 # through the pipe, and pkexec -- with no polkit agent, as
@@ -149,12 +157,20 @@ class Elevation:
                 # says why.  An agent is the login session's, not the
                 # terminal's, so it still asks where there is one.
                 self._process = subprocess.Popen(
-                    self.argv(tool), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                    self.argv(tool), stdin=theirs, stdout=theirs,
                     stderr=subprocess.PIPE, start_new_session=True, bufsize=0,
                 )
             except OSError as error:
                 self._process = None
+                ours.close()
                 return Refused(error.strerror or str(error))
+            finally:
+                theirs.close()
+            self._socket = ours
+            self._channel = ours.makefile("rwb", buffering=0)
+            # Nor may a process of the user's attach to this one, or open its
+            # /proc files, while it speaks for root.
+            _set_dumpable(False)
             self._stderr = b""
             return self._wait()
 
@@ -168,9 +184,8 @@ class Elevation:
                 self._shut()
                 return Refused("")
             try:
-                assert process.stdin is not None
-                process.stdin.write(password.encode() + b"\n")
-                process.stdin.flush()
+                assert self._socket is not None
+                self._socket.sendall(password.encode() + b"\n")
             except OSError as error:
                 self._shut()
                 return Refused(error.strerror or str(error))
@@ -179,8 +194,8 @@ class Elevation:
     def _wait(self) -> Asked | Refused | str:
         """Read sudo's talk and the helper's first line until one says what next."""
         process = self._process
-        assert process is not None and process.stdout is not None and process.stderr is not None
-        out, err = process.stdout.fileno(), process.stderr.fileno()
+        assert process is not None and self._socket is not None and process.stderr is not None
+        out, err = self._socket.fileno(), process.stderr.fileno()
         seen_out = b""
         talk_from = len(self._stderr)
         deadline = time.monotonic() + START_TIMEOUT
@@ -215,7 +230,7 @@ class Elevation:
                     if marker in self._stderr[talk_from:]:
                         before = self._stderr[talk_from:].split(marker)[0].decode(errors="replace")
                         self._stderr = self._stderr.replace(marker, b"\n")
-                        user = os.environ.get("USER") or ""
+                        user = _user()
                         return Asked(f"[sudo] password for {user}:" if user else "[sudo] password:",
                                      wrong="sorry" in before.lower())
         process.wait()
@@ -242,13 +257,11 @@ class Elevation:
 
     def call_data(self, op: str, payload: bytes = b"", **args: Any) -> tuple[Any, bytes]:
         with self._lock:
-            process = self._process
-            if not self.running or process is None:
+            if not self.running or self._channel is None:
                 raise OSError(errno.EACCES, "Root access is not open", args.get("path"))
-            assert process.stdin is not None and process.stdout is not None
             try:
-                send(process.stdin, {"op": op, "args": args}, payload)
-                message, data = receive(process.stdout)
+                send(self._channel, {"op": op, "args": args}, payload)
+                message, data = receive(self._channel)
             except (OSError, EOFError, ValueError) as error:
                 self._shut()
                 raise OSError(errno.EIO, f"The root helper ended: {error}", args.get("path")) from None
@@ -284,17 +297,21 @@ class Elevation:
     def _shut(self) -> None:
         self._held = 0
         process, self._process = self._process, None
+        channel, self._channel = self._channel, None
+        ours, self._socket = self._socket, None
         self._ready = False
-        if process is None:
-            return
         # The helper ends at the end of its input; root's process cannot be
         # killed by us, and need not be.
-        for stream in (process.stdin, process.stdout):
+        for stream in (channel, ours):
             try:
                 if stream is not None:
                     stream.close()
             except OSError:
                 pass
+        if ours is not None:
+            _set_dumpable(True)
+        if process is None:
+            return
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
@@ -317,6 +334,67 @@ class Elevation:
                     return
 
 
+def code_paths() -> list[Path]:
+    """What the helper runs as root: the interpreter (the name started and
+    what it resolves to), this package, and where its imports come from --
+    including a virtualenv's ``site-packages``, whose ``.pth`` files run at
+    start even under ``-I``."""
+    import sysconfig
+
+    paths = [Path(sys.executable), Path(sys.executable).resolve(), Path(_ROOT) / "navigator"]
+    for key in ("purelib", "platlib"):
+        paths.append(Path(sysconfig.get_paths()[key]))
+    return list(dict.fromkeys(paths))
+
+
+def untrusted_code(paths: list[Path] | None = None) -> Path | None:
+    """The first of :func:`code_paths` (or *paths*) the user could change --
+    their own, or writable by group or others -- else None.
+
+    Root then runs what anything working as the user can rewrite: no worse
+    than ``sudo ~/script``, and what a checkout or a virtualenv is, so it is
+    said in the question rather than refused.  The packaged install is
+    root's and says nothing.  A directory is judged by itself, not every file
+    in it."""
+    me = os.getuid()
+    for path in code_paths() if paths is None else paths:
+        try:
+            st = path.lstat()
+        except OSError:
+            continue
+        if st.st_uid == me or (st.st_mode & 0o022 and not st.st_mode & 0o1000 and not path.is_symlink()):
+            return path
+    return None
+
+
+def _user() -> str:
+    """Who sudo asks the password of: the real user, not ``$USER``."""
+    try:
+        return pwd.getpwuid(os.getuid()).pw_name
+    except KeyError:
+        return os.environ.get("USER") or ""
+
+
+#: ``prctl``'s ``PR_SET_DUMPABLE``.
+_PR_SET_DUMPABLE = 4
+
+
+def _set_dumpable(dumpable: bool) -> None:
+    """Whether processes of the user's may ptrace this one and open its
+    ``/proc/<pid>`` files -- refused while the helper is open, so nothing can
+    take over the channel to root through them.  Linux only; elsewhere a
+    no-op."""
+    if not sys.platform.startswith("linux"):
+        return
+    try:
+        import ctypes
+
+        libc = ctypes.CDLL(None, use_errno=True)
+        libc.prctl(_PR_SET_DUMPABLE, int(dumpable), 0, 0, 0)
+    except (OSError, AttributeError):
+        pass
+
+
 def _drain(stream: Any) -> None:
     try:
         while stream.read(4096):
@@ -329,4 +407,5 @@ def _drain(stream: Any) -> None:
 ELEVATION = Elevation()
 
 
-__all__ = ["CHOICES", "ELEVATION", "Asked", "Elevation", "READY_STATE", "REFUSED", "Refused", "refused"]
+__all__ = ["CHOICES", "ELEVATION", "Asked", "Elevation", "READY_STATE", "REFUSED", "Refused", "code_paths",
+           "refused", "untrusted_code"]

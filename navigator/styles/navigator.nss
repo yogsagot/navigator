@@ -350,6 +350,8 @@ GameInfo::best-bright  { fg: $dialog-cluster-shortcut-fg; bg: $dialog-cluster-sh
 
 /* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
    its text in their static text, dragged in their frame icons' colour. */
+/* The menu bar's ROOT while root access is open: the error box's white on red. */
+RootMark               { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
 TrashCan               { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }
 TrashCan:dragging      { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 /* Interface's `Block Insert Cursor' (`ouiBlockInsertCursor'): on `Shell',
