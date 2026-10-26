@@ -11,7 +11,8 @@ from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
-from navkit.i18n import languages, tr
+from navkit.glyphs import GLYPHS_NERD
+from navkit.i18n import flag_emoji, flags, languages, tr
 from navkit.widget import Widget
 from navigator.lib.config.language import AUTOMATIC
 from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
@@ -29,4 +30,6 @@ class InterfacePage(_Component):
     window_strip_caption: Label
     window_strip: RadioButtons
     def __init__(self, section: InterfaceData | None = ..., appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
+    def mounted(self) -> None: ...
+    def _flag_languages(self) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...

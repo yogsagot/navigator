@@ -15,6 +15,7 @@ by entry::
 
     [meta]
     name = "Latviešu"
+    flag = "LV"
 
     [strings]
     "Make directory" = "Izveidot direktoriju"
@@ -146,6 +147,34 @@ def languages() -> dict[str, str]:
                 meta = _read(entry).get("meta", {})
                 names[code] = meta.get("name") or names.get(code) or code
     return names
+
+
+def flags() -> dict[str, str]:
+    """``{code: region}`` for every catalogue whose ``[meta]`` names a flag.
+
+    A language is not a country, so the catalogue says which flag stands for
+    it; English, built in, takes Great Britain's.
+    """
+    found = {SOURCE: "GB"}
+    for source in _SOURCES:
+        try:
+            entries = list(source.iterdir())
+        except OSError:
+            continue
+        for entry in entries:
+            if entry.name.endswith(".toml") and entry.is_file():
+                region = _read(entry).get("meta", {}).get("flag")
+                if isinstance(region, str) and flag_emoji(region):
+                    found[entry.name.removesuffix(".toml")] = region.upper()
+    return found
+
+
+def flag_emoji(region: str) -> str:
+    """The flag for a two-letter *region* (``"LV"`` → ``🇱🇻``), or ``""``."""
+    region = region.upper()
+    if len(region) != 2 or not all("A" <= letter <= "Z" for letter in region):
+        return ""
+    return "".join(chr(0x1F1E6 + ord(letter) - ord("A")) for letter in region)
 
 
 def _code() -> str:

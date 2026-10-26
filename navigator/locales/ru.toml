@@ -1,5 +1,6 @@
 [meta]
 name = "Русский"
+flag = "RU"
 
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19

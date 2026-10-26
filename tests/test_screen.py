@@ -83,6 +83,29 @@ def test_wide_character_fits_when_the_row_ends_exactly():
     assert [buffer.get(x, 0)[0] for x in range(3)] == ["a", "日", ""]
 
 
+def test_a_flag_is_one_cell_two_wide():
+    buffer = ScreenBuffer(4, 1)
+    assert char_width("🇱🇻") == 2
+    assert buffer.draw_text(0, 0, "🇱🇻a") == 3
+    assert [buffer.get(x, 0)[0] for x in range(4)] == ["🇱🇻", "", "a", " "]
+
+
+def test_a_lone_regional_indicator_is_one_cell():
+    buffer = ScreenBuffer(3, 1)
+    assert buffer.draw_text(0, 0, "🇱a") == 2
+    assert [buffer.get(x, 0)[0] for x in range(2)] == ["🇱", "a"]
+
+
+def test_a_change_beside_a_flag_leaves_the_flag_alone():
+    previous = ScreenBuffer(4, 1)
+    previous.draw_text(0, 0, "🇱🇻a")
+    current = ScreenBuffer(4, 1)
+    current.copy_from(previous)
+    current.draw_text(2, 0, "b")
+    output = render_diff(previous, current)
+    assert "b" in output and "\U0001f1f1" not in output and "\U0001f1fb" not in output
+
+
 def test_fill_rectangle():
     buffer = ScreenBuffer(5, 3)
     buffer.fill(1, 1, 3, 1, "#", RED)

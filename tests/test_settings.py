@@ -248,6 +248,50 @@ def test_interface_ok_applies_and_saves(tmp_path, quiet_console):
     assert "clock = no" in config_path().read_text(encoding="utf-8")
 
 
+@pytest.fixture
+def shipped_catalogues():
+    from navkit.i18n import register_package
+
+    register_package("navigator.locales")
+
+
+def test_languages_wear_their_flags_at_the_nerd_tier(tmp_path, quiet_console, shipped_catalogues):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose(a):
+        language = a.modal.interface.language
+        seen.append(list(language.choices))
+        language.value = "🇱🇻 Latviešu"
+
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+    ])
+    [choices] = seen
+    assert choices[0] == "Automatic"
+    assert "🇬🇧 English" in choices and "🇷🇺 Русский" in choices
+    assert SETTINGS.interface.language == "lv"
+
+
+def test_languages_are_bare_names_below_the_nerd_tier(tmp_path, quiet_console, shipped_catalogues):
+    from navkit.capabilities import GLYPHS_UNICODE, TRUECOLOR, TerminalInfo
+
+    info = TerminalInfo(colors=TRUECOLOR, glyphs=GLYPHS_UNICODE)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24, info))
+    seen = []
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        lambda a: seen.append(list(a.modal.interface.language.choices)),
+    ])
+    [choices] = seen
+    assert "English" in choices and "Latviešu" in choices
+
+
 def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_path, quiet_console):
     from navml.history import HISTORY
 

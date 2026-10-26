@@ -14,6 +14,8 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
 - **`navkit/i18n.py`**: `tr(text)`, `tr_n(singular, plural, n, **values)` (formats `{n}` and the values),
   `tr_plain(text)` (lookup ignoring `~` hotkey marks -- what menu anchors use), `LOCALE.code` (reactive),
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
+  `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
+  the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
   `PLURAL_RULES` (en, lv, ru/uk/be, ja/zh/ko; anything else counts like English).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is

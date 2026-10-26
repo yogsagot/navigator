@@ -1,5 +1,6 @@
 [meta]
 name = "Latviešu"
+flag = "LV"
 
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:71

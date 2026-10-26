@@ -5,7 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.i18n import languages, tr
+from navkit.glyphs import GLYPHS_NERD
+from navkit.i18n import flag_emoji, flags, languages, tr
 from navkit.widget import Widget
 
 from navigator.lib.config.language import AUTOMATIC
@@ -60,6 +61,32 @@ class InterfacePage(Widget):
             (name for name, look in self.looks.items() if look == self.appearance.marks),
             self.marks.choices[0],
         )
+
+    def mounted(self) -> None:
+        super().mounted()
+        self._flag_languages()
+
+    def _flag_languages(self) -> None:
+        """Put each language's flag before its name, where emoji are drawn.
+
+        Not DN's, whose resource set had no choice to make: the flags are
+        emoji, so only the Nerd tier gets them, as it gets the panel's icon
+        gutter.  Done once attached, the tier being the terminal's; the value
+        follows its code, so a choice made before a remount is kept.
+        """
+        if self.glyphs < GLYPHS_NERD or getattr(self, "_flagged", False):
+            return
+        self._flagged = True
+        regions = flags()
+        chosen = self.languages.get(self.language.value)
+        shown: dict[str, str] = {}
+        for name, code in self.languages.items():
+            emoji = flag_emoji(regions.get(code, "")) if code != AUTOMATIC else ""
+            shown[f"{emoji} {name}" if emoji else name] = code
+        self.languages = shown
+        self.language.choices = list(shown)
+        if chosen is not None:
+            self.language.value = next(name for name, code in shown.items() if code == chosen)
 
     def accept(self) -> dict[str, dict[str, Any]]:
         values = InterfaceData.from_bits(InterfaceData.OPTIONS, self.options.value)

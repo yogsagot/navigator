@@ -50,6 +50,8 @@ def char_width(char: str) -> int:
     if not char:
         return 0
     if len(char) > 1:
+        if is_flag(char):
+            return 2
         return char_width(char[0])
     code = ord(char)
     if code < 0x20 or 0x7F <= code < 0xA0:
@@ -67,6 +69,22 @@ def char_width(char: str) -> int:
     # so, which is why a widget reserves the second cell rather than trusting
     # this -- see ``Panel``'s icon gutter.
     return 2 if unicodedata.east_asian_width(char) in ("W", "F") else 1
+
+
+def _regional(char: str) -> bool:
+    """Whether *char* is a Regional Indicator letter, half of a flag."""
+    return "\U0001f1e6" <= char <= "\U0001f1ff"
+
+
+def is_flag(cell: str) -> bool:
+    """Whether *cell* is a flag: two Regional Indicators, ``🇱🇻``.
+
+    Each half measures one cell, but a terminal that knows the pair draws
+    one emoji two cells wide over both.  So the pair is kept in one cell,
+    the way a wide character is, and a diff can never rewrite half of it
+    and leave the other half drawn as a letter.
+    """
+    return len(cell) >= 2 and _regional(cell[0]) and _regional(cell[1])
 
 
 def _blit_bounds(
@@ -190,7 +208,13 @@ class Surface:
         """Paint *text* starting at *x*, *y*; return the cells consumed."""
         limit = self.width - x if max_width is None else min(max_width, self.width - x)
         used = 0
-        for char in text:
+        index = 0
+        while index < len(text):
+            char = text[index]
+            index += 1
+            if _regional(char) and index < len(text) and _regional(text[index]):
+                char += text[index]
+                index += 1
             width = char_width(char)
             if width == 0:
                 continue

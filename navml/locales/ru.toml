@@ -1,5 +1,6 @@
 [meta]
 name = "Русский"
+flag = "RU"
 
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:71

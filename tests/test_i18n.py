@@ -8,6 +8,8 @@ import pytest
 from navkit.i18n import (
     LOCALE,
     catalogue,
+    flag_emoji,
+    flags,
     languages,
     plural_form,
     register_directory,
@@ -98,6 +100,20 @@ def test_a_broken_catalogue_is_english(tmp_path):
 
 def test_languages_name_themselves(latvian):
     assert languages() == {"en": "English", "lv": "Latviešu"}
+
+
+def test_a_catalogue_names_its_flag(tmp_path):
+    (tmp_path / "lv.toml").write_text('[meta]\nname = "Latviešu"\nflag = "lv"\n', encoding="utf-8")
+    (tmp_path / "ru.toml").write_text('[meta]\nflag = "Россия"\n', encoding="utf-8")
+    (tmp_path / "de.toml").write_text('[meta]\nname = "Deutsch"\n', encoding="utf-8")
+    register_directory(tmp_path)
+    assert flags() == {"en": "GB", "lv": "LV"}
+
+
+def test_a_region_becomes_its_regional_indicators():
+    assert flag_emoji("LV") == "\U0001f1f1\U0001f1fb"
+    assert flag_emoji("gb") == "🇬🇧"
+    assert flag_emoji("L") == flag_emoji("LVA") == flag_emoji("Ä1") == ""
 
 
 # -- counts ------------------------------------------------------------------

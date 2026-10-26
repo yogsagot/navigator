@@ -174,7 +174,9 @@ Design codepoints moved between Nerd Fonts 2 and 3. Without icons a bookmarked d
 ASCII gets DN's CP437 *ASCII Chart*, Unicode the *Character Table*, Nerd the same with a *Nerd Fonts* grouping. Its
 Nerd names and sets are `navigator/assets/unicode/nerdfont.txt`, generated from nerd-fonts `glyphnames.json` at
 `tools/unicode_tables.py`'s pinned `NERD_FONTS` tag (v3 codepoints); `navkit.screen.char_width` measures a cell
-holding a base plus combining marks (`◌́`) by its base, which is how the table shows a mark.
+holding a base plus combining marks (`◌́`) by its base, which is how the table shows a mark. A flag, two
+Regional Indicators (`🇱🇻`), is joined by `Surface.draw_text` into one cell measuring 2 (`screen.is_flag`), so a
+diff never rewrites half of it; a lone indicator stays one cell.
 
 ## Read when
 

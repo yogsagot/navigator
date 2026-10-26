@@ -35,7 +35,9 @@ InterfacePage:
         #: PgUp and PgDn are the tabs' in *Settings*.
         page_keys: False
 
-    #: Chosen from the catalogues found, never typed.
+    #: Chosen from the catalogues found, never typed.  At the Nerd tier each
+    #: name has its catalogue's ``[meta] flag`` in front, a departure like the
+    #: panel's icon gutter (``InterfacePage._flag_languages``).
     ChoiceField:
         id: language
         x: 2
