@@ -2132,6 +2132,27 @@ def test_replace_asks_and_yes_replaces_the_first_only(files, fresh_search):
     assert editor.document.encode() == b"one dog\ntwo Cat\ncat three\n"
 
 
+def test_the_replace_query_leaves_the_match_at_full_strength(files, fresh_search):
+    seen = []
+
+    def look(a):
+        editor = editor_window(a).editor
+        row = next(y for y in range(a._back.height)
+                   if "one cat" in "".join(a._back.get(x, y)[0] or " " for x in range(a._back.width)))
+        x = "".join(a._back.get(x, row)[0] or " " for x in range(a._back.width)).index("cat")
+        seen.append((type(a.modal).__name__, a._back.get(x, row)[1], editor.part_style("selected")))
+
+    def dimming(a):
+        a.dim_modal = True
+
+    text_editor(files, TEXT, dimming, KeyEvent("f7", ctrl=True), lambda a: None,
+                *typed("cat"), KeyEvent("tab"), *typed("dog"), KeyEvent("enter"),
+                lambda a: None, look)
+    [(modal, cell, selected)] = seen
+    assert modal == "ReplaceQuery"
+    assert cell == selected and not cell.dim
+
+
 def replace_cat_with_dog(a):
     """Fill *Replace* in: ``cat`` for ``dog``, whatever the last one left there."""
     a.modal.text.value, a.modal.new.value = "cat", "dog"

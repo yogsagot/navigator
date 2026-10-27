@@ -1,7 +1,8 @@
 """What *Replace this occurence?* answers: ``"yes"``, ``"all"``, ``"no"`` or None for Cancel.
 
 DN placed the box above or below the line found so as not to hide it; a navml
-dialog is centred.
+dialog is centred.  It dims nothing behind it (DN dimmed nothing at all): faint,
+the match it asks about was grey on grey.
 """
 
 from __future__ import annotations
@@ -15,6 +16,9 @@ from navml.widgets.dialog.dialog import Dialog
 
 class ReplaceQuery(Dialog):
     """``MessageBoxRect(dlQueryReplace, mfYesButton + mfAllButton + mfNoButton + mfCancelButton)``."""
+
+    #: The match it asks about stays at full strength.
+    dims_behind = False
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)

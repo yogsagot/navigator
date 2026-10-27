@@ -18,6 +18,7 @@ class ReplaceQuery(Dialog, _Component):
     every: Button
     skip: Button
     abandon: Button
+    dims_behind: _Any
     def __init__(self, **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     buttons_row: tuple[Any, ...]
