@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive, capabilities, zip and tar archives (and 7z/rar through 7-Zip's command line) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's command line) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -8,7 +8,7 @@ description: Remote and virtual drives -- navigator/lib/drives/ (Location and Si
 DOS Navigator's panel held a **`TDrive`** (`DRIVES.PAS`): the disk, an archive (`TArcDrive`), a *Find:* listing
 (`TFindDrive`), `TEMP:` (`TTempDrive`), or the PC at the other end of a cable (`TLinkDrive`, `NAVYLINK.PAS`, *Navigator
 Link*, Alt+F11). `navigator/lib/drives/` is that object for a modern system. There are the disk, an in-memory drive
-(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3 and archives (`ARCVIEW.PAS`). NFS is only
+(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3, archives (`ARCVIEW.PAS`) and the Trash (`trash:///`). NFS is only
 ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` has the plan and the phases.
 
 ## Rules
@@ -104,6 +104,15 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `mount`/`unmount`/`mounted`.
 - **`memory.py`** `MemoryDrive("name")`, site `mem://name`; `make(path, data)`/`read(path)` for tests. POSIX errors where
   cheap; no owners.
+- **`trash.py`** `TrashDrive`/`TRASH` on `TRASH_SITE` (`trash:///`): the freedesktop Trash
+  (`navigator.lib.file_ops.trash`, `navigator-file-ops` *The Trash*). **No connection**: `drive_of` answers `TRASH`
+  for the scheme without mounting and `Shell.reach` lets it through, so SESSIONS never sees it. The root lists every
+  trash directory's items (a name shown already gets `.N`; `item(name)` re-reads when unknown), below it is the disk
+  through `LOCAL`. Erasing only: `unlink`/`rmdir` of a root item also `forget()` its info file; making, writing,
+  renaming are `EROFS`. `DirEntry.trashed` (origin, deletion time) is the panel's second info line. Watches the home
+  trash's `files/`. Title `TRASH:/path`. The root lists `..` too: it and Backspace leave for
+  `Panel.local_anchor`, the last local directory read (`Drive.leaves_to_anchor`, which `_go_up_elsewhere` reads where
+  `change_up` answers None).
 - **`sessions.py`** `SESSIONS.connect(site, answers)` (blocks; raises `NeedPassword`, `NeedPassphrase`,
   `UnknownHostKey`, `HostKeyChanged`, `DriveGone`), `close`, `close_all`, `reap(in_use, idle)`, listeners;
   `SCHEMES` (scheme → module with `available()` and `connect()`), `available(scheme)`, `EXTRA_HINT`.

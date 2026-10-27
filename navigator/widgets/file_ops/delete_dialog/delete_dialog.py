@@ -2,6 +2,11 @@
 
 *Recursive delete* is remembered for the session, as Copy's mode and options
 and Create symlink's *Relative link* are, and starts unticked.
+
+*Move to Trash* is a second box, not DN's: offered (and ticked) only when
+File Manager Setup's *F8 moves to Trash* is on and every entry is on the
+disk.  Unticked, the entries are erased for good, as DN erased them; the
+first line says which of the two *Yes* does.
 """
 
 from __future__ import annotations
@@ -10,7 +15,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
+from navkit.reactive import bind, unbind
 
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
@@ -23,8 +28,9 @@ from navigator.lib.file_ops.fileerase import EraseRequest
 #: The *Recursive delete* box as the last accepted dialog left it.
 _session = {"recursive": False}
 
-#: The check box's bit.
+#: The check boxes' bits.
 RECURSIVE = 0x01
+TRASH = 0x02
 
 #: DN's ``Cut(S, 40)``: a longer name loses its middle.
 NAME_WIDTH = 40
@@ -56,9 +62,10 @@ class DeleteDialog(Dialog):
         self,
         entries: Sequence[Any] = (),
         here: Path | None = None,
+        trash: bool = False,
         **kwargs: Any,
     ) -> None:
-        """*entries* are the panel's selection in *here*."""
+        """*entries* are the panel's selection in *here*; *trash* offers *Move to Trash*."""
         super().__init__(**kwargs)
         self._entries = list(entries)
         self._here = Location.of(here if here is not None else Path.cwd())
@@ -70,6 +77,16 @@ class DeleteDialog(Dialog):
         self.cancel.text = tr("~N~o")
         self.prompt_caption.text = prompt_for(self._entries)
         self.options.value = RECURSIVE if _session["recursive"] else 0
+        if trash:
+            self.options.items = [tr("~R~ecursive delete"), tr("Move to ~T~rash")]
+            self.options.height = 2
+            # A row more, so the buttons keep their distance from the boxes.
+            self.modal_height += 1
+            self.options.value |= TRASH
+            options = self.options
+            self.prompt_head.text = bind(
+                lambda o: tr("Do you wish to move to the Trash") if options.value & TRASH
+                else tr("Do you wish to delete"))
 
     def focusable(self) -> list[Any]:
         """*Yes* first, as the message box's focus was, and the box after the buttons."""
@@ -82,4 +99,5 @@ class DeleteDialog(Dialog):
         return EraseRequest(
             sources=[shown(entry.path_in(self._here)) for entry in self._entries],
             recursive=recursive,
+            trash=bool(self.options.value & TRASH),
         )

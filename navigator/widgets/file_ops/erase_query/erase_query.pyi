@@ -14,7 +14,7 @@ from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr
 from navml.widgets.dialog.control import escape_caption
-from navigator.lib.file_ops.fileerase import ALL, NO, YES, NotEmpty, ReadOnly
+from navigator.lib.file_ops.fileerase import ALL, NO, YES, NotEmpty, NoTrash, ReadOnly
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
 
 
@@ -25,7 +25,7 @@ class EraseQuery(Dialog, _Component):
     agree: Button
     every: Button
     abandon: Button
-    def __init__(self, question: NotEmpty | ReadOnly | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, question: NotEmpty | ReadOnly | NoTrash | None = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     def slot(self, index: int) -> int: ...
     buttons_row: tuple[Any, ...]

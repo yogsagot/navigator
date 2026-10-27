@@ -348,8 +348,8 @@ def test_ctrl_down_on_add_moves_nothing_and_leaves_the_box_open(places):
         lambda a: seen.update(open=popup(a) is not None, current=popup(a).box.current),
         KeyEvent("escape"), lambda a: None,
     ])
-    # The bookmark, a line, *Link*, a line, and *Add* last.
-    assert seen["open"] and seen["current"] == 4
+    # The bookmark, a line, *Link*, *Trash*, a line, and *Add* last.
+    assert seen["open"] and seen["current"] == 5
     assert paths() == [str(places / "first")]
 
 
@@ -423,8 +423,8 @@ def test_del_removes_the_selected_bookmark_and_selects_the_next(places):
     first, gone = str(places / "first"), str(places / "gone")
     assert seen["middle"] == ([first, gone], 1)
     assert seen["last"] == ([first], 0)
-    assert seen["empty"] == ([], ["Link", "Add this folder"])
-    assert seen["on_add"] == (True, ["Link", "Add this folder"])
+    assert seen["empty"] == ([], ["Link", "Trash", "Add this folder"])
+    assert seen["on_add"] == (True, ["Link", "Trash", "Add this folder"])
     assert app.manager.left.path == places / "start"
 
 
@@ -456,11 +456,11 @@ def test_mounts_not_bookmarked_follow_the_bookmarks_and_can_be_chosen(places, mo
         KeyEvent("escape"), lambda a: None,
     ])
     first, disk, usb = (str(places / n) for n in ("first", "disk", "usb"))
-    assert seen["shown"] == [f"1 {first}", f"2 {disk}", f"3 {usb}", "Link", "Add this folder"]
-    assert seen["lines"] == [1, 4, 6]  # and the one above *Add*
+    assert seen["shown"] == [f"1 {first}", f"2 {disk}", f"3 {usb}", "Link", "Trash", "Add this folder"]
+    assert seen["lines"] == [1, 4, 7]  # and the one above *Add*
     assert seen["went"] == places / "usb"
     # The panel stood at the drive, which is gone: the box opens on the first entry.
-    assert seen["unplugged"] == [f"1 {first}", f"2 {disk}", "Link", "Add this folder"]
+    assert seen["unplugged"] == [f"1 {first}", f"2 {disk}", "Link", "Trash", "Add this folder"]
     # On a mount's entry Del, F2 and Ctrl+Up pass by: nothing stored, the box still open there.
     assert seen["still"] == (seen["unplugged"], [first], 2)
 
@@ -482,8 +482,8 @@ def test_the_box_opens_on_the_mount_the_panel_is_at_and_add_bookmarks_it(places,
     assert seen["current"] == 2
     usb = str(places / "usb")
     assert paths() == [str(places / "first"), usb]
-    assert seen["shown"] == [f"1 {places / 'first'}", f"2 {usb}", "Link", "Remove this folder"]
-    assert seen["lines"] == [2, 4]
+    assert seen["shown"] == [f"1 {places / 'first'}", f"2 {usb}", "Link", "Trash", "Remove this folder"]
+    assert seen["lines"] == [2, 5]
 
 
 def lines(app) -> list[int]:

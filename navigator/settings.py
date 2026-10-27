@@ -560,6 +560,7 @@ class FMSetupData(Section):
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
         "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
+        "use_trash",
     )
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "column_titles", "info_divider", "tag_character", "link_line", "show_options",
@@ -586,6 +587,9 @@ class FMSetupData(Section):
     #: Not DN's: it re-read a panel only on ``cmRereadDir`` from whatever
     #: changed the directory (navigator.lib.system.dirwatch).
     auto_refresh: bool = Setting(True, doc="A panel re-reads its directory when it changes on disk")
+    #: Not DN's, which erased for good: the freedesktop Trash
+    #: (navigator.lib.file_ops.trash), off as DN's behaviour is.
+    use_trash: bool = Setting(False, doc="F8 moves files on the disk to the Trash")
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")

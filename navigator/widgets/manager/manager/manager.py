@@ -79,6 +79,7 @@ from navigator.widgets.manager.commands import (
     Panelize,
     MultiRename,
     UndoMultiRename,
+    RestoreTrash,
     SetupColumns,
     AdvancedFilter,
     DirHistory,
@@ -113,6 +114,7 @@ from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
+from navigator.lib.drives import trash as trash_drive
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.file_ops.filecopy import shown
 from navigator.settings import SETTINGS
@@ -1485,6 +1487,83 @@ class Manager(Window):
         if done:
             await self._after_renames(panel, done)
 
+    # -- the Trash (not DN's: navigator.lib.drives.trash) ------------------------
+
+    async def on_restore_trash(self, event: RestoreTrash) -> bool:
+        self.spawn(self.restore_trash(self.active_panel))
+        return True
+
+    async def open_trash(self, panel: Panel | None = None) -> None:
+        """*panel* (the active one) on the Trash, and the keyboard with it."""
+        await self._go_to(panel or self.active_panel, str(trash_drive.location()))
+
+    async def restore_trash(self, panel: Panel) -> None:
+        """File > Restore from Trash: the selection put back where each came from.
+
+        On a thread (:func:`navigator.lib.file_ops.trash.restore_all`), a box
+        once it takes a moment; a name taken where one goes back asks *Skip*
+        or *Cancel*.  What went back is untagged, and both panels look again.
+        """
+        from navigator.lib.file_ops import filecopy, trash
+        from navigator.widgets.manager.find_progress import FindProgress
+
+        entries = self.selection(panel)
+        names = [entry.name for entry in entries]
+        found = await asyncio.to_thread(lambda: [trash_drive.TRASH.item(name) for name in names])
+        chosen = [item for item in found if item is not None]
+        if not chosen:
+            return
+        by_item = {id(item): trash_drive.location(name) for name, item in zip(names, found) if item is not None}
+        job = trash.RestoreJob()
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Restore")
+            box.count_row.visible = False
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = f"{job.count}/{job.total}  {job.current}"
+
+        async def answer(question: Any) -> Any:
+            if isinstance(question, filecopy.Failure):
+                return await self._ask_skip(question.message)
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(trash.restore_all, chosen, job))
+        try:
+            await self._watch_job(running, job, make_box, refresh, answer)
+            await running
+        finally:
+            if not running.done():
+                job.stop()
+            panel.untag_paths([by_item[id(item)] for item in job.done])
+            panel.reload()
+            (self.right if panel is self.left else self.left).reload()
+
+    async def empty_trash(self) -> None:
+        """Disk > Empty Trash: asked, then everything in it erased through the
+        one eraser (:meth:`_run_erase`), its box and its questions."""
+        from navigator.lib.file_ops import fileerase
+
+        app = self.application
+        if app is None:
+            return
+        names = await asyncio.to_thread(lambda: list(trash_drive.TRASH.items()))
+        if not names:
+            await Dialog(title=tr("Empty Trash"), prompt=tr("The Trash is empty"), buttons="ok").execute(app)
+            return
+        prompt = tr_n("Do you wish to empty the Trash?\n{n} item will be erased for good.",
+                      "Do you wish to empty the Trash?\n{n} items will be erased for good.", len(names))
+        if await Dialog(title=tr("Empty Trash"), prompt=prompt, buttons="yes-no").execute(app) is not True:
+            return
+        try:
+            await self._run_erase(fileerase.EraseRequest(
+                [trash_drive.location(name) for name in names], recursive=True))
+        finally:
+            self.left.reload()
+            self.right.reload()
+
     async def _run_renames(self, pairs: Sequence[tuple[Location, str, str]]) -> list[tuple[Location, str, str]]:
         """*pairs* renamed on a thread (:func:`navigator.lib.file_ops.multirename.run`),
         a box showing how far it is once it takes a moment; what was done."""
@@ -1961,6 +2040,9 @@ class Manager(Window):
             here = find_bookmark(panel.location)
             menu, toggle = bookmark_menu(rows, here is not None, mounts, present)
             links = link_section(menu, before=toggle, glyphs=self.glyphs)
+            # The Trash (not DN's), under *Link*, before the line above the toggle.
+            entries = menu.entries()
+            trash_item = menu.add_item(tr("~T~rash"), before=entries[entries.index(toggle) - 1])
             # Nothing inside an archive is a place to come back to.
             toggle.disabled = panel.location.outer is not None
             link_menu = next(entry for entry in menu.entries() if isinstance(entry, SubMenu))
@@ -2019,6 +2101,9 @@ class Manager(Window):
                         keep += by
                 continue
             if chosen is None:
+                return
+            if chosen is trash_item:
+                await self.open_trash(panel)
                 return
             if id(chosen) in links:
                 profile = links[id(chosen)]
@@ -2238,6 +2323,9 @@ class Manager(Window):
             return not self._aside_focused() and bool(self.selection(self.active_panel))
         if isinstance(command, UndoMultiRename):
             return Manager.last_renames is not None
+        if isinstance(command, RestoreTrash):
+            # The Trash's own items only: one inside a trashed directory has no place of its own to go back to.
+            return self.shows_trash and bool(self.selection(self.active_panel))
         if isinstance(command, ReadFileList):
             entry = self.active_panel.selected
             return entry is not None and not entry.is_dir
@@ -2720,7 +2808,13 @@ class Manager(Window):
         """
         from navml.widgets.dialog.control import escape_caption
 
-        if len(entries) == 1:
+        if self._trashes(source, entries):
+            if len(entries) == 1:
+                prompt = tr("Do you wish to move {name} to the Trash?").format(name=escape_caption(entries[0].name))
+            else:
+                prompt = tr_n("Do you wish to move {n} file to the Trash?",
+                              "Do you wish to move {n} files to the Trash?", len(entries))
+        elif len(entries) == 1:
             prompt = tr("Do you wish to delete {name}?").format(name=escape_caption(entries[0].name))
         else:
             prompt = tr_n("Do you wish to delete {n} file?", "Do you wish to delete {n} files?", len(entries))
@@ -3009,11 +3103,12 @@ class Manager(Window):
         # and so no *Recursive delete* either -- a non-empty directory is
         # then asked about below, if that is ticked.
         confirms = SETTINGS.confirmations
+        trash = self._trashes(panel, entries)
         if dialog and not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
-            request = await DeleteDialog(entries=entries, here=panel.location).execute(app)
+            request = await DeleteDialog(entries=entries, here=panel.location, trash=trash).execute(app)
         else:
             request = fileerase.EraseRequest(
-                sources=[shown(panel.entry_location(entry)) for entry in entries]
+                sources=[shown(panel.entry_location(entry)) for entry in entries], trash=trash,
             )
         if request is None:
             return
@@ -3024,6 +3119,12 @@ class Manager(Window):
             panel.untag_paths(done)
             panel.reload()
             other.reload()
+
+    @staticmethod
+    def _trashes(panel: Panel, entries: list[Any]) -> bool:
+        """Whether erasing *entries* moves them to the Trash: File Manager
+        Setup's *F8 moves to Trash* (not DN's), and only what is on the disk."""
+        return SETTINGS.file_manager.use_trash and all(panel.entry_location(entry).is_local for entry in entries)
 
     async def _run_erase(self, request: Any, *, quiet: bool = False) -> list[Any]:
         """*request* run on a thread under *Deleting* and the eraser's
@@ -3061,6 +3162,9 @@ class Manager(Window):
 
         if quiet and isinstance(question, (fileerase.NotEmpty, fileerase.ReadOnly)):
             return fileerase.YES
+        if isinstance(question, fileerase.NoTrash):
+            # Asked even when quiet: Yes loses what was meant for the Trash.
+            return await EraseQuery(question=question).execute(self.application)
 
         # *Erase non-empty sub-dir* and *Erase read-only files* in
         # Confirmations (``cfEraseSubdir``, ``cfEraseReadonly``): unticked,
@@ -3647,6 +3751,13 @@ class Manager(Window):
             self._last_panel = self.left
 
     @computed
+    def shows_trash(self) -> bool:
+        """Whether the active panel lists the Trash's own items, at its root:
+        what *Restore from Trash* acts on, and when File shows it."""
+        location = self.active_panel.location
+        return trash_drive.is_trash(location) and location.is_root
+
+    @computed
     def active_panel(self) -> Panel:
         """Whichever panel has the keyboard, or had it last.
 
@@ -4217,8 +4328,8 @@ class Manager(Window):
 
 
 #: The marked keys the bookmarks are chosen by, in order: the digits as DN's
-#: box had its drive letters, then the letters *Add* and *Remove* leave free.
-BOOKMARK_KEYS = "1234567890bcdefghijklmnopqstuvwxyz"
+#: box had its drive letters, then the letters *Add*, *Remove* and *Trash* leave free.
+BOOKMARK_KEYS = "1234567890bcdefghijklmnopqsuvwxyz"
 
 #: The keys that move the selected bookmark up and down in the box.
 MOVE_BOOKMARK_KEYS = ("ctrl+up", "ctrl+down")
@@ -4280,6 +4391,7 @@ def action_caption(action: str) -> str:
     return {
         fileerase.ERASING_FILE: tr("Erasing the file"),
         fileerase.ERASING_DIRECTORY: tr("Erasing the directory"),
+        fileerase.TRASHING: tr("Moving to the Trash"),
         fileattr.CHANGING: tr("Changing attributes of"),
     }.get(action, action)
 

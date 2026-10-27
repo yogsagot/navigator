@@ -11,7 +11,7 @@ from navml.widgets.dialog.label import Label
 from pathlib import Path
 from typing import Any, Sequence
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
+from navkit.reactive import bind, unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.drives import Location
@@ -23,6 +23,6 @@ class DeleteDialog(Dialog, _Component):
     prompt_head: Label
     prompt_caption: Label
     options: CheckBoxes
-    def __init__(self, entries: Sequence[Any] = ..., here: Path | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, entries: Sequence[Any] = ..., here: Path | None = ..., trash: bool = ..., **kwargs: Any) -> None: ...
     def focusable(self) -> list[Any]: ...
     def accept(self) -> EraseRequest: ...

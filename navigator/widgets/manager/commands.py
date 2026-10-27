@@ -475,6 +475,14 @@ class UndoMultiRename(Command):
     """
 
 
+class RestoreTrash(Command):
+    """File > Restore from Trash: what is selected in the Trash put back where it came from.
+
+    Not DOS Navigator's: its undelete was the *Reanimator*
+    (:mod:`navigator.lib.drives.trash`).
+    """
+
+
 class ChangeInactive(Command):
     """Shift+Enter in a *Find:* listing: the other panel goes to the file.
 
@@ -685,6 +693,7 @@ __all__ = [
     "Panelize",
     "MultiRename",
     "UndoMultiRename",
+    "RestoreTrash",
     "DirBranch",
     "SetupColumns",
     "AdvancedFilter",

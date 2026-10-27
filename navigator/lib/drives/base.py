@@ -304,6 +304,12 @@ class Drive:
         volume, an archive's packed and unpacked sizes."""
         return []
 
+    #: Whether ``..`` at the root, where :meth:`change_up` has nowhere to
+    #: go, leaves for the last local directory the panel read
+    #: (``Panel.local_anchor``): a drive that is no place of its own, as the
+    #: Trash is, which the panel came to from wherever it was.
+    leaves_to_anchor = False
+
     def change_up(self, location: Location) -> tuple[Location, str] | None:
         """``ChangeUp`` at the top of the drive: where ``..`` goes from its root,
         and the name for the cursor there -- an archive's, back on the drive it

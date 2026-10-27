@@ -6,17 +6,21 @@ window, and hidden until the menu shows it (``cmHideShowTools``).  The mouse
 drags it anywhere on the desktop; it keeps its distance from the bottom right
 corner when the screen is resized, as ``gfGrowAll`` kept it.  Files dragged
 out of a panel and dropped on it are erased (``cmDropped`` ->
-``cmEraseGroup``): see :mod:`navigator.widgets.manager.panel.drag`.
+``cmEraseGroup``): see :mod:`navigator.widgets.manager.panel.drag` -- or,
+with File Manager Setup's *F8 moves to Trash*, moved to the Trash.
 
-DN's double click on it ran the *Reanimator*, its undelete; there is nothing
-on a POSIX file system for that to do, and a double click does nothing.
+DN's double click on it ran the *Reanimator*, its undelete, a raw walk of a
+FAT disk that no POSIX file system allows.  A departure: the double click
+opens the freedesktop Trash in the file manager's active panel instead
+(``OpenTrash``, :mod:`navigator.lib.drives.trash`), which is the undelete a
+modern system has.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import MouseClickEvent
+from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
@@ -72,6 +76,15 @@ class TrashCan(Widget):
                 self.dragging = False
             return True
         return event.action == "press"
+
+    async def on_double_click(self, event: DoubleClickEvent) -> bool:
+        """``cmReanimator``'s place: the Trash opened (a departure, above)."""
+        from navigator.widgets.shell.commands import OpenTrash
+
+        app = self.application
+        if app is not None and event.button == "left":
+            self.spawn(app.run_command(OpenTrash))
+        return True
 
     def render(self, surface: Surface) -> None:
         for y, text in enumerate((ROWS[0], tr("Trash"), ROWS[2])):

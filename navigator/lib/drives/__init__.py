@@ -55,6 +55,11 @@ def drive_of(location: Location) -> Drive:
             raise DriveGone(location.outer.name)
         return drive
     site = location.site
+    if site.scheme == "trash":
+        # The Trash: no connection, nothing mounted (:mod:`navigator.lib.drives.trash`).
+        from navigator.lib.drives.trash import TRASH
+
+        return TRASH
     with _LOCK:
         drive = _MOUNTED.get(site)
     if drive is None:

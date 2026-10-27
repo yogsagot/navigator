@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -92,6 +92,28 @@ remembered for the session). `EraseQuery` puts DN's *not empty* (No/Yes/All/Canc
 writable -- (Yes/No/All) questions. `DeleteProgress` has a gauge and *Cancel*, which asks *Abort operation?*. Del and
 Shift+Del are `by_key`, stepping aside while the command line has text; Shift+F8/Shift+Del (`DeleteSingle`) take the
 cursor's entry whatever is tagged.
+
+## The Trash (F8 with *F8 moves to Trash*)
+
+Not DN's, and **off by default** (`[file_manager] use_trash`, File Manager Setup's *F8 moves to Trash*). The
+freedesktop.org Trash spec 1.0, so GNOME/KDE/`gio trash` see the same items. `navigator/lib/file_ops/trash.py` is the
+model: `home_trash()` (`$XDG_DATA_HOME/Trash`), `trash_for` (home trash on its own file system, else the mount's
+`$top/.Trash/$uid` -- sticky, not a link -- or `$top/.Trash-$uid`), `move` (info file reserved with `O_EXCL`, then
+`os.rename`; **never copied across file systems** -- `EXDEV`), `items`, `restore` (never over anything), `forget`,
+`restore_all`/`RestoreJob` on a thread. `directorysizes` is not kept (optional in the spec).
+- **One eraser**: `EraseRequest.trash`; `_Eraser._to_trash` moves a local source whole (measured as 1, no read-only
+  question, no *As root*). Where it cannot, `NoTrash` asks No/Yes/All/Cancel (`EraseQuery`, No first) -- asked even
+  from the quiet trash-can drop, since Yes loses the file. `Manager._trashes(panel, entries)` decides (setting on,
+  every entry on the disk); the drop's prompt says *move ... to the Trash* then.
+- **The Delete dialog's second box**, *Move to Trash* (`TRASH` bit), shown and ticked only when `_trashes` is true;
+  unticked it erases, so there is no bypass key. The first line follows the box; the dialog is a row taller.
+- **Ways in**: Disk > *Trash* (`OpenTrash`), the trash can's double click (where DN's *Reanimator* was), the
+  bookmarks box's `~T~rash` (so `t` left `BOOKMARK_KEYS`), and `trash:///` anywhere a place is typed; `..` or Backspace at its root goes back where the panel was. Disk > *Empty
+  Trash* (`EmptyTrash` -> `Manager.empty_trash`, through `_run_erase`); File > *Restore from Trash* (after Delete; **hidden**, not greyed, unless the active panel is the Trash's root:
+  `Shell.__init__` binds the item's `hidden` to `Manager.shows_trash` of the bar's context) and the context
+  menu (`RestoreTrash` -> `Manager.restore_trash`, root items only). The drive is `navigator-drives`'.
+- Tests: `tests/test_trash.py`; `conftest` points `XDG_DATA_HOME` into each test's directory, so nothing reaches the
+  user's Trash.
 
 ## File attributes (Alt+E)
 

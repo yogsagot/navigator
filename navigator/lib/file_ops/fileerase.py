@@ -28,6 +28,12 @@ What is DN's and what is not:
   in is left where it is, without a second complaint about its ``rmdir``.
   A refused one may be done again *As root*, and every step after it is
   (:class:`~navigator.lib.file_ops.filecopy.Elevated`; a departure).
+* **To the Trash** (``EraseRequest.trash``, not DN's): a source on the disk
+  is moved into the freedesktop Trash (:mod:`navigator.lib.file_ops.trash`)
+  whole, with nothing asked of what is inside it.  Where there is no trash
+  to move it to, :class:`NoTrash` asks whether to erase it instead -- No,
+  Yes, All or Cancel -- and *As root* is never offered for the move, so
+  nothing of root's lands in the user's trash.
 """
 
 from __future__ import annotations
@@ -47,6 +53,8 @@ NO, YES, ALL = "no", "yes", "all"
 #: What the *Erase* box's first line says, DN's ``dlErasingFile`` and ``dlErasingDir``.
 ERASING_FILE = "Erasing the file"
 ERASING_DIRECTORY = "Erasing the directory"
+#: And while a source goes to the Trash.
+TRASHING = "Moving to the Trash"
 
 
 @dataclass
@@ -56,6 +64,8 @@ class EraseRequest:
     sources: list[Path | Location]
     #: *Recursive delete*: a non-empty directory goes without being asked about.
     recursive: bool = False
+    #: *Move to Trash*: sources on the disk go to the Trash, not away.
+    trash: bool = False
 
 
 @dataclass
@@ -70,6 +80,14 @@ class ReadOnly:
     """``dlEraseRO``: the user cannot write *path*.  Yes, No, All or Cancel."""
 
     path: Path | Location
+
+
+@dataclass
+class NoTrash:
+    """*path* could not go to the Trash, *message* says why: erase it?  No, Yes, All or Cancel."""
+
+    path: Path | Location
+    message: str
 
 
 class EraseJob(Job):
@@ -104,6 +122,8 @@ class _Eraser(Elevated):
         self.job = job
         #: DN's ``DeleteAllFiles``: set by an All, and then nothing is asked.
         self.all = False
+        #: All to :class:`NoTrash`: what cannot go to the Trash is erased unasked.
+        self.erase_untrashable = False
 
     # -- asking ------------------------------------------------------------------
 
@@ -141,7 +161,8 @@ class _Eraser(Elevated):
         job = self.job
         done: list[Path | Location] = []
         try:
-            counts = [self._measure(Location.of(source)) for source in self.request.sources]
+            counts = [1 if self._trashing(Location.of(source)) else self._measure(Location.of(source))
+                      for source in self.request.sources]
             job.total = sum(counts)
             job.measuring = False
             for source, count in zip(self.request.sources, counts):
@@ -159,6 +180,9 @@ class _Eraser(Elevated):
         finally:
             self._release()
         return done
+
+    def _trashing(self, path: Location) -> bool:
+        return self.request.trash and path.is_local
 
     def _measure(self, path: Location) -> int:
         """Entries at and under *path*, never through a link."""
@@ -180,6 +204,10 @@ class _Eraser(Elevated):
 
     def _source(self, path: Location) -> bool:
         self._checkpoint()
+        if self._trashing(path):
+            gone = self._to_trash(path)
+            if gone is not None:
+                return gone
         while True:
             try:
                 st = self._drive_of(path).lstat(path)
@@ -204,6 +232,29 @@ class _Eraser(Elevated):
         return self._tree(path)
 
     # -- the parts ---------------------------------------------------------------
+
+    def _to_trash(self, path: Location) -> bool | None:
+        """*path* moved to the Trash: True if it went, False if it is kept,
+        None if it is to be erased instead."""
+        from navigator.lib.file_ops import trash
+
+        job = self.job
+        job.action = TRASHING
+        job.path = str(path)
+        try:
+            trash.move(path.local)
+        except FileNotFoundError:
+            return True
+        except OSError as error:
+            if not self.erase_untrashable:
+                answer = self._ask(NoTrash(shown(path), error_message(error)))
+                if answer == ALL:
+                    self.erase_untrashable = True
+                elif answer != YES:
+                    return False
+            return None
+        job.done += 1
+        return True
 
     def _file(self, path: Location, st: Any) -> bool:
         job = self.job
@@ -258,6 +309,6 @@ class _Eraser(Elevated):
 
 
 __all__ = [
-    "ALL", "ERASING_DIRECTORY", "ERASING_FILE", "EraseJob", "EraseRequest", "NO", "NotEmpty",
-    "ReadOnly", "Stopped", "YES", "run",
+    "ALL", "ERASING_DIRECTORY", "ERASING_FILE", "EraseJob", "EraseRequest", "NO", "NoTrash", "NotEmpty",
+    "ReadOnly", "Stopped", "TRASHING", "YES", "run",
 ]

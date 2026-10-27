@@ -1,5 +1,8 @@
 """What the delete's *Confirm* box says, and what each of its buttons answers.
 
+:class:`~navigator.lib.file_ops.fileerase.NoTrash` is put as *not empty* is
+-- No, Yes, All, Cancel, the focus on No -- since Yes there loses the file.
+
 The answer is :data:`~navigator.lib.file_ops.fileerase.NO`, ``YES`` or ``ALL``, or ``None``
 for Cancel and Esc, which stops the whole delete as DN's ``Abort`` did.
 """
@@ -14,16 +17,20 @@ from navkit.i18n import tr
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.lib.file_ops.fileerase import ALL, NO, YES, NotEmpty, ReadOnly
+from navigator.lib.file_ops.fileerase import ALL, NO, YES, NotEmpty, NoTrash, ReadOnly
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
 
 #: Each button's width, and the columns between two.
 BUTTON, GAP = 11, 2
 
 
-def describe(question: NotEmpty | ReadOnly) -> str:
-    """``dlEraseDirNotEmpty`` or ``dlEraseRO``, after the name."""
+def describe(question: NotEmpty | ReadOnly | NoTrash) -> str:
+    """``dlEraseDirNotEmpty`` or ``dlEraseRO``, after the name -- or, not
+    DN's, why it cannot go to the Trash."""
     name = escape_caption(cut(question.path.name))
+    if isinstance(question, NoTrash):
+        return tr("Cannot move {name} to the Trash:\n{reason}\nDelete it permanently?").format(
+            name=name, reason=escape_caption(cut(question.message, 50)))
     if isinstance(question, ReadOnly):
         return tr("File {name}\nis write-protected.\nOK to delete it?").format(name=name)
     return tr("Directory {name}\nis not empty.\nDo you wish to delete it?").format(name=name)
@@ -32,7 +39,7 @@ def describe(question: NotEmpty | ReadOnly) -> str:
 class EraseQuery(Dialog):
     """*Confirm*: No, Yes, All or Cancel for a directory; Yes, No, All for a file."""
 
-    def __init__(self, question: NotEmpty | ReadOnly | None = None, **kwargs: Any) -> None:
+    def __init__(self, question: NotEmpty | ReadOnly | NoTrash | None = None, **kwargs: Any) -> None:
         if isinstance(question, ReadOnly):
             kwargs.setdefault("kind", "read-only")
         super().__init__(**kwargs)

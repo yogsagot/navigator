@@ -45,6 +45,8 @@ from navigator.widgets.shell.commands import (
     SetupLink,
     OpenCalendar,
     ToggleTrashCan,
+    OpenTrash,
+    EmptyTrash,
     SaversSetup,
     CountrySetup,
     ScreenRest,
@@ -196,6 +198,12 @@ class Shell(DockLayout):
             lambda w: "dock: none" if interface.hide_menu_bar else "dock: top; basis: 1"
         )
         self.menu.visible = bind(lambda w: not interface.hide_menu_bar or w.current >= 0)
+        # File > Restore from Trash is there only while the file manager in
+        # front shows the Trash's own listing (``Manager.shows_trash``); a
+        # viewer or an editor in front has no such panel.
+        menu = self.menu
+        self.menu.file_restore_trash.hidden = bind(
+            lambda w: not getattr(menu.context, "shows_trash", False))
         # *Window strip*: from a cell after the last menu to a cell before the
         # clock, on a bar that is docked and over windows that are showing.
         menu, clock = self.menu, self.clock
@@ -1026,7 +1034,7 @@ class Shell(DockLayout):
             return any(drive.site.scheme in sessions.SCHEMES for drive in mounted())
         if isinstance(command, CloseRootAccess):
             return self.root_mark.open
-        if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link)):
+        if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return self.active_manager is not None
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
@@ -2166,7 +2174,8 @@ class Shell(DockLayout):
             from navigator.widgets.file_ops.as_root import reach_root
 
             return await reach_root(self.application, target)
-        if target.is_local or SESSIONS.is_open(site):
+        if target.is_local or SESSIONS.is_open(site) or site.scheme == "trash":
+            # The Trash is no connection either (:mod:`navigator.lib.drives.trash`).
             return True
         app = self.application
         if target.outer is not None:
@@ -2492,6 +2501,25 @@ class Shell(DockLayout):
     async def on_toggle_trash_can(self, event: ToggleTrashCan) -> bool:
         """≡ > Trashcan on/off: ``cmHideShowTools``."""
         self.trash.shown = not self.trash.shown
+        return True
+
+    async def on_open_trash(self, event: OpenTrash) -> bool:
+        """Disk > Trash, and the trash can's double click: the file manager's
+        active panel on the Trash (not DN's -- ``OpenTrash``'s docstring)."""
+        manager = self.active_manager
+        if manager is None:
+            return False
+        if self.console_visible:
+            self.toggle_console()
+        self.desktop.activate(manager)
+        self.spawn(manager.open_trash())
+        return True
+
+    async def on_empty_trash(self, event: EmptyTrash) -> bool:
+        manager = self.active_manager
+        if manager is None:
+            return False
+        self.spawn(manager.empty_trash())
         return True
 
     async def on_savers_setup(self, event: SaversSetup) -> bool:

@@ -34,8 +34,8 @@ layered in three parts, each depending only on the one below:
 names has to be importable by its own name.
 
 Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS, SMB or S3
-(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), inside a zip or tar (Enter on it), or in memory (the
-tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
+(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
+Manager Setup says so, off by default), or in memory (the tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
 
 ## Environment and commands
 

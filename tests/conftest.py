@@ -333,7 +333,7 @@ def wordstar():
 
 @pytest.fixture(autouse=True)
 def _default_settings(monkeypatch, tmp_path):
-    """Every test starts from the default settings, and none can touch ``~/.config``.
+    """Every test starts from the default settings, and none can touch ``~/.config`` or the Trash.
 
     ``SETTINGS`` is shared like ``HISTORY``, and a setup dialog's OK saves to
     ``config_path()`` -- which ``XDG_CONFIG_HOME`` here points into the test's
@@ -346,6 +346,8 @@ def _default_settings(monkeypatch, tmp_path):
     from navigator.settings import SETTINGS
 
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    # Nor the user's Trash (navigator.lib.file_ops.trash).
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
     SETTINGS.reset()
     SETTINGS.panel_defaults.view_mode = "simple"
     # A failure fails the test rather than opening a box nobody answers; the

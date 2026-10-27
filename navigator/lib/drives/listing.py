@@ -47,7 +47,7 @@ class DirEntry:
     """
 
     __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
-                 "counted", "directory", "owner", "packed")
+                 "counted", "directory", "owner", "packed", "trashed")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
                  is_link: bool = False, link_target: str | None = None,
@@ -73,6 +73,10 @@ class DirEntry:
         #: What it takes in the archive it is in (DN's ``PSize``): the
         #: *Packed* and *%* columns'; None off an archive, or not known.
         self.packed: int | None = None
+        #: Where it was and when it went (``time.time()``, or None), for an
+        #: entry the Trash lists (:mod:`navigator.lib.drives.trash`); None
+        #: anywhere else.  The panel's second info line says them.
+        self.trashed: tuple[str, float | None] | None = None
 
     @property
     def key(self) -> str:

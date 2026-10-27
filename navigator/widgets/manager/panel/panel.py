@@ -1042,14 +1042,20 @@ class Panel(ContextMenuHost, ListViewer):
     def _go_up_elsewhere(self) -> None:
         """:meth:`go_up` on a drive other than the disk: the parent by name,
         and at the drive's root wherever its ``ChangeUp`` says -- an archive's
-        is back on the drive it was opened from, the cursor on its file."""
+        is back on the drive it was opened from, the cursor on its file; the
+        Trash's is back in the last local directory (``leaves_to_anchor``)."""
         location = self.location
         if not location.is_root:
             self._return_to = location.name
             self.location = self._plain_where_readable(location.parent)
             return
         try:
-            up = drive_of(location).change_up(location)
+            drive = drive_of(location)
+            up = drive.change_up(location)
+            if up is None and drive.leaves_to_anchor:
+                self._return_to = None
+                self.location = self.local_anchor
+                return
         except DriveGone:
             up = None
         if up is None:
@@ -1549,6 +1555,7 @@ class Panel(ContextMenuHost, ListViewer):
             PasteFromClipboard,
             PutInClipboard,
             RenameMove,
+            RestoreTrash,
             SelectGroup,
             UnselectGroup,
             View,
@@ -1564,6 +1571,10 @@ class Panel(ContextMenuHost, ListViewer):
             # for: DN had them on no menu.
             menu.add_item(tr("Go to ~f~ile"), GoToFile, "Enter")
             menu.add_item(tr("Show in ~o~ther panel"), ChangeInactive)
+            menu.add_line()
+        if (tagged or not on_parent) and self.location.site.scheme == "trash" and self.location.is_root:
+            # The Trash (not DN's): what it is there for.
+            menu.add_item(tr("Restore from Tras~h~"), RestoreTrash)
             menu.add_line()
         if not tagged and not on_parent and not entry.is_dir:
             # ``w``, not the File menu's ``v``: *Invert selection* has that here.
@@ -2150,6 +2161,19 @@ class Panel(ContextMenuHost, ListViewer):
                 return ""
             where = str(entry.directory) if entry.directory is not None else str(self.location)
             return self._cut_start(where, self.inner_width)
+        if any(item.trashed is not None for item in self.items):
+            # The Trash (not DN's): where the entry came from, and when.
+            if entry is None or entry.trashed is None:
+                return ""
+            origin, deleted = entry.trashed
+            if deleted is None:
+                template = tr("From {path}")
+            else:
+                template = tr("From {path}, deleted {when}").replace("{when}", country.stamp(deleted))
+            # The path gives up its start, as a *Find:* listing's does; the date stays.
+            room = self.inner_width - text_width(template.replace("{path}", ""))
+            text = template.replace("{path}", self._cut_start(origin or tr("an unknown place"), max(1, room)))
+            return fit_text(text, self.inner_width, self.ellipsis)
         if not SETTINGS.file_manager.link_line or not any(item.is_link for item in self.items):
             return None
         if entry is None or entry.link_target is None:

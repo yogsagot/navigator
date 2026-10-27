@@ -229,6 +229,24 @@ class ToggleTrashCan(Command):
     title = "Trashcan"
 
 
+class OpenTrash(Command):
+    """Disk > Trash, and a double click on the trash can: the active panel
+    on the Trash (``trash:///``).
+
+    Not DOS Navigator's: the double click ran its *Reanimator*, an undelete,
+    which the freedesktop Trash is on a POSIX system
+    (:mod:`navigator.lib.drives.trash`).
+    """
+
+    title = "Trash"
+
+
+class EmptyTrash(Command):
+    """Disk > Empty Trash: everything in the Trash erased for good, once asked."""
+
+    title = "Empty Trash"
+
+
 class SaversSetup(Command):
     """Options > Configuration > Screen savers: DOS Navigator's ``cmSaversSetup``."""
 
@@ -256,6 +274,8 @@ __all__ = [
     "SaversSetup",
     "CountrySetup",
     "ToggleTrashCan",
+    "OpenTrash",
+    "EmptyTrash",
     "Game",
     "ScreenRest",
     "MenuFileEdit",
