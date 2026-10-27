@@ -54,6 +54,31 @@ always the left column**, whichever panel is active. Dot-files are walked only w
 - **`CopyRequest.pairs`** (`filecopy.py`): each source with its exact target; `_Copier.run` skips `resolve_target`,
   measures all sources once and finishes every drive touched. Navigator's own, for two directions in one job.
 
+### Tree view (Ctrl+T)
+
+`SyncList.tree`; the *~T~ree view* check box beside *Show identical* (Alt+T) is the switch -- Ctrl+T and the
+*Synchronize* menu's ticked entry flip the box, and the window's `_follow_box` effect lists from it. The last choice is
+`SyncWindow.tree_view` for the session. The same columns, the rows under the directories both sides have (`dirsync.build_tree`); a one-sided
+directory is still a leaf row. Items are `Line`s (a `DirNode` or a `SyncRow`, depth, `more`, `rails`).
+
+- **Not navml's `TreeView`**: its Left/Right open and close branches, here they are actions; and it marks the
+  cursor's name, not the row's columns. The branches are its glyphs (`charset`/`joins`) and DN's `[+]`/`[-]` --
+  never `▸`/`▾`, which sit low in some fonts as `◄` did. The path column is cut at its end in the tree.
+- **A directory rolls up** (`annotate`/`_annotate_one`): the status its non-same rows share, else `≠`; the action
+  they share, else `MIXED` (`±`, `*` in ASCII); `count` of non-same rows (the info line); `allowed`, the union --
+  what `selected_allows` answers `enables` with, without walking the rows.
+- **An action on a directory** applies `with_action` to `rows_beneath(node)`: every row that allows it changes, the
+  rest stay.
+- **The tree is patched, never rebuilt, on an action**: `replace_rows(root, changed)` swaps rows in by `owners`
+  (`id(row)` -> node) and re-annotates only the touched directories and their parents, deepest first.
+  `build_tree` costs 0.1 s for 40k rows (`pathlib`'s `.parent`); it runs on Ctrl+T and after a rescan only.
+- **Keys**: Gray `+`/`-` open and close (on a row, `-` closes its directory), `*` opens all, Enter on a directory
+  toggles it (`SyncList.choose`; on a row Enter falls through to `DiffFiles`). A directory with nothing listed
+  beneath (all same, *Show identical* off) is hidden. Switching views keeps the cursor on its path, opening its
+  directories; `_put_cursor` tries the cursor's own index first.
+- **Effects**: `show_rows` is called from the window's `_follow_box` effect, so it peeks the items, cursor and
+  `tree` (`_current`); a read there would re-run the effect at every cursor move.
+
 ## Compare files (a departure)
 
 `DiffFiles` (File menu, *Compare files...*, no key; keyless in the Manager table), `Manager._diff_pair`: two tagged

@@ -295,7 +295,145 @@ def with_action(row: SyncRow, action: str) -> SyncRow:
     return SyncRow(row.path, row.left, row.right, row.status, row.newer, action, row.error)
 
 
+# -- the tree view ------------------------------------------------------------------
+
+#: A directory's action when the rows beneath it disagree.
+MIXED = "mixed"
+
+
+class DirNode:
+    """A directory both sides have, as the window's tree view shows it: its
+    subdirectories, its own rows, and what they all come to (:func:`annotate`).
+
+    A directory on one side alone is not one: it is a row, a leaf, as
+    :func:`walk` never goes into it.
+    """
+
+    __slots__ = ("path", "parent", "depth", "dirs", "rows", "status", "action", "count", "allowed",
+                 "statuses", "actions", "owners")
+
+    def __init__(self, path: PurePosixPath, parent: DirNode | None = None) -> None:
+        self.path = path
+        self.parent = parent
+        self.depth = 0 if parent is None else parent.depth + 1
+        self.dirs: dict[str, DirNode] = {}
+        self.rows: list[SyncRow] = []
+        #: The statuses and actions beneath that are not the same ones', kept
+        #: so a parent's roll-up is its children's, not a walk down again.
+        self.statuses: frozenset[str] = frozenset()
+        self.actions: frozenset[str] = frozenset()
+        #: On the root: which directory holds each row, by ``id`` -- what
+        #: :func:`replace_rows` finds a changed row's place by.
+        self.owners: dict[int, DirNode] = {}
+        #: The status the rows beneath share (the same ones aside), or
+        #: :data:`DIFFERS` when they do not; :data:`SAME` when all are.
+        self.status = SAME
+        #: The action they share, or :data:`MIXED`.
+        self.action = SKIP
+        #: How many rows beneath are not the same.
+        self.count = 0
+        #: Every action some row beneath allows.
+        self.allowed: frozenset[str] = frozenset()
+
+    @property
+    def name(self) -> str:
+        return self.path.name
+
+
+def build_tree(rows: list[SyncRow]) -> DirNode:
+    """The rows as a tree of the directories both sides have, annotated."""
+    root = DirNode(PurePosixPath())
+    nodes = {root.path: root}
+
+    def node_for(path: PurePosixPath) -> DirNode:
+        node = nodes.get(path)
+        if node is None:
+            parent = node_for(path.parent)
+            node = nodes[path] = DirNode(path, parent)
+            parent.dirs[path.name] = node
+        return node
+
+    for row in rows:
+        node = node_for(row.path.parent)
+        node.rows.append(row)
+        root.owners[id(row)] = node
+    annotate(root)
+    return root
+
+
+def annotate(node: DirNode) -> None:
+    """Give *node* and every directory beneath it its roll-up, bottom up."""
+    for child in node.dirs.values():
+        annotate(child)
+    _annotate_one(node)
+
+
+def replace_rows(root: DirNode, changed: dict[int, SyncRow]) -> None:
+    """Put each new row in place of the old one (*changed* maps the old one's
+    ``id`` to it) in the tree from :func:`build_tree`, and count again only
+    the directories they are in and those above them -- not the whole tree,
+    which an action on one row would otherwise rebuild."""
+    holding: set[DirNode] = set()
+    for old, new in changed.items():
+        node = root.owners.pop(old, None)
+        if node is not None:
+            root.owners[id(new)] = node
+            holding.add(node)
+    touched: set[DirNode] = set()
+    for node in holding:
+        node.rows = [changed.get(id(row), row) for row in node.rows]
+        while node is not None and node not in touched:
+            touched.add(node)
+            node = node.parent
+    for node in sorted(touched, key=lambda node: -node.depth):
+        _annotate_one(node)
+
+
+def _annotate_one(node: DirNode) -> None:
+    """*node*'s roll-up, from its own rows and its children's roll-ups."""
+    statuses: set[str] = set()
+    actions: set[str] = set()
+    allowed: set[str] = set()
+    count = 0
+    for child in node.dirs.values():
+        statuses |= child.statuses
+        actions |= child.actions
+        allowed |= child.allowed
+        count += child.count
+    for row in node.rows:
+        if row.status == SAME:
+            continue
+        statuses.add(row.status)
+        actions.add(row.action)
+        allowed.update(row.allowed)
+        count += 1
+    node.count = count
+    node.allowed = frozenset(allowed)
+    node.statuses, node.actions = frozenset(statuses), frozenset(actions)
+    node.status = _shared(statuses, SAME, DIFFERS)
+    node.action = _shared(actions, SKIP, MIXED)
+
+
+def _shared(values: set[str], none: str, several: str) -> str:
+    """The one value in *values*; *none* when empty, *several* when not one."""
+    if not values:
+        return none
+    return next(iter(values)) if len(values) == 1 else several
+
+
+def rows_beneath(node: DirNode) -> list[SyncRow]:
+    """Every row in *node* and the directories beneath it."""
+    found: list[SyncRow] = []
+    pending = [node]
+    while pending:
+        current = pending.pop()
+        found.extend(current.rows)
+        pending.extend(current.dirs.values())
+    return found
+
+
 __all__ = [
+    "MIXED", "DirNode", "annotate", "build_tree", "replace_rows", "rows_beneath",
     "ALLOWED", "CONFLICT", "COPY_LEFT", "COPY_RIGHT", "DELETE", "DIFFERS", "LEFT_ONLY", "RIGHT_ONLY", "SAME",
     "SKIP", "Side", "Summary", "below", "SyncJob", "SyncPlan", "SyncRow", "make_row", "plan", "summary",
     "walk", "with_action",

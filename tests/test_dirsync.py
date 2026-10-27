@@ -116,3 +116,45 @@ def test_pairs_copy_both_ways_in_one_job_and_keep_the_times(trees):
     assert os.stat(right / "newer").st_mtime == 300 and os.stat(left / "older").st_mtime == 300
     rows = dirsync.walk(left, right, CompareRequest())
     assert {str(row.path) for row in rows if row.status == dirsync.DIFFERS} == set()
+
+
+def test_the_tree_groups_rows_under_the_directories_both_sides_have(trees):
+    rows = dirsync.walk(*trees, CompareRequest(contents=True))
+    root = dirsync.build_tree(rows)
+    assert sorted(root.dirs) == ["sub"]  # a directory one side has is a row, not a branch
+    assert [str(row.path) for row in root.rows if row.is_dir] == ["lonely"]
+    sub = root.dirs["sub"]
+    assert (sub.status, sub.action, sub.count) == (dirsync.DIFFERS, dirsync.SKIP, 1)
+    assert [str(row.path) for row in dirsync.rows_beneath(sub)] == ["sub/deep", "sub/x"]
+
+
+def test_a_directory_rolls_up_what_its_rows_share(tmp_path):
+    side = dirsync.Side("file", 1, 0, 0o100644)
+    rows = [dirsync.make_row(PurePosixPath("a/one"), side, None, dirsync.LEFT_ONLY),
+            dirsync.make_row(PurePosixPath("a/two"), side, None, dirsync.LEFT_ONLY),
+            dirsync.make_row(PurePosixPath("a/same"), side, side, dirsync.SAME),
+            dirsync.make_row(PurePosixPath("b/one"), None, side, dirsync.RIGHT_ONLY),
+            dirsync.make_row(PurePosixPath("c/same"), side, side, dirsync.SAME)]
+    root = dirsync.build_tree(rows)
+    a, c = root.dirs["a"], root.dirs["c"]
+    assert (a.status, a.action, a.count) == (dirsync.LEFT_ONLY, dirsync.COPY_RIGHT, 2)
+    assert (c.status, c.action, c.count) == (dirsync.SAME, dirsync.SKIP, 0)
+    assert (root.status, root.action) == (dirsync.DIFFERS, dirsync.MIXED)
+    assert a.allowed == {dirsync.COPY_RIGHT, dirsync.SKIP, dirsync.DELETE}
+
+
+def test_rows_replaced_in_the_tree_roll_up_as_a_tree_built_anew(trees):
+    rows = dirsync.walk(*trees, CompareRequest(contents=True))
+    root = dirsync.build_tree(rows)
+    changed = {id(row): dirsync.with_action(row, dirsync.SKIP) for row in rows if row.status != dirsync.SAME}
+    dirsync.replace_rows(root, changed)
+    fresh = dirsync.build_tree([changed.get(id(row), row) for row in rows])
+
+    def same(one, two):
+        assert (one.status, one.action, one.count, one.allowed) == (two.status, two.action, two.count, two.allowed)
+        assert [row.action for row in one.rows] == [row.action for row in two.rows]
+        for name in one.dirs:
+            same(one.dirs[name], two.dirs[name])
+
+    same(root, fresh)
+    assert root.action == dirsync.SKIP

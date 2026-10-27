@@ -36,8 +36,10 @@ from navigator.widgets.manager.commands import (
     SetSyncAction,
     Synchronize,
     ToggleHidden,
+    ToggleTree,
 )
 from navigator.widgets.manager.panel.panel import human_size
+from navigator.widgets.manager.sync_list import SyncList
 
 
 async def walk_trees(app: Any, left: Any, right: Any, request: Any, show_hidden: bool) -> list[Any] | None:
@@ -86,6 +88,10 @@ class SyncWindow(Window):
         "ctrl+backspace": SetAllSyncActions("default"),
     }
 
+    #: Whether the next window opens in the tree view: the last one's choice,
+    #: for the session.
+    tree_view = False
+
     def __init__(self, manager: Any = None, left: Any = None, right: Any = None, request: Any = None,
                  rows: list[Any] | None = None, show_hidden: bool = True, **kwargs: Any) -> None:
         """*manager* does the synchronizing; *left* and *right* are the two
@@ -98,6 +104,11 @@ class SyncWindow(Window):
         self.request = request
         self.show_hidden = show_hidden
         self.all_rows: list[Any] = list(rows or ())
+        #: The rows as a tree, for the tree view: built when first asked for,
+        #: dropped whenever the rows change.
+        self._tree: dirsync.DirNode | None = None
+        self.rows.tree = SyncWindow.tree_view
+        self.tree_box.value = 1 if SyncWindow.tree_view else 0
         #: What the rows' actions come to, counted again whenever a row
         #: changes: what the summary line says, and what F5's ``enables`` --
         #: asked at every repaint of the key bar -- reads instead of a plan.
@@ -121,8 +132,10 @@ class SyncWindow(Window):
         effect(self, SyncWindow._follow_cursor)
 
     def _follow_box(self) -> None:
-        """The box ticked or cleared, by a key, a click or Ctrl+H: list again."""
+        """A box ticked or cleared, by a key, a click, Ctrl+H or Ctrl+T: list again."""
         self.identical.value  # noqa: B018 -- what this effect follows
+        tree = bool(self.tree_box.value & 1)
+        SyncWindow.tree_view = self.rows.tree = tree
         self._show()
 
     def _follow_cursor(self) -> None:
@@ -141,21 +154,18 @@ class SyncWindow(Window):
     # -- what is listed ----------------------------------------------------------
 
     def _show(self) -> None:
-        """List the rows, keeping the cursor on the path it was on; the
-        summary follows.  Items and cursor are peeked, as ``_follow_box``
-        calls this and must not run again at every cursor move."""
+        """List the rows -- as a tree in the tree view -- keeping the cursor on
+        the path it was on; the summary follows.  The list peeks at its items
+        and cursor, as ``_follow_box`` calls this and must not run again at
+        every cursor move."""
         listing = self.rows
-        items = peek(listing, ListViewer.items)
-        cursor = peek(listing, ListViewer.cursor)
-        current = items[cursor].path if 0 <= cursor < len(items) else None
-        shown = [row for row in self.all_rows if self.show_identical or row.status != dirsync.SAME]
-        listing.items = shown
-        listing.error = None if shown else tr("The directories are the same.")
-        if current is not None:
-            for index, row in enumerate(shown):
-                if row.path == current:
-                    listing.cursor = index
-                    break
+        root = None
+        if peek(listing, SyncList.tree):
+            if self._tree is None:
+                self._tree = dirsync.build_tree(self.all_rows)
+            root = self._tree
+        listing.show_rows(self.all_rows, root, self.show_identical)
+        listing.error = None if peek(listing, ListViewer.items) else tr("The directories are the same.")
         self.totals = dirsync.summary(self.all_rows)
         self.summary.text = self.summary_text()
 
@@ -169,16 +179,21 @@ class SyncWindow(Window):
         """The rows in *changed* (old row -> new row) put in place."""
         if changed:
             self.all_rows = [changed.get(id(row), row) for row in self.all_rows]
+            if self._tree is not None:
+                dirsync.replace_rows(self._tree, changed)
             self._show()
 
     # -- the actions ---------------------------------------------------------------
 
     async def on_set_sync_action(self, command: SetSyncAction) -> bool:
-        row = self.rows.selected
-        if row is not None:
+        """The row at the cursor -- or, on a directory, every row beneath it
+        that allows it -- given the action."""
+        changed = {}
+        for row in self.rows.selected_rows():
             new = dirsync.with_action(row, command.action)
             if new is not row:
-                self._replace({id(row): new})
+                changed[id(row)] = new
+        self._replace(changed)
         return True
 
     async def on_set_all_sync_actions(self, command: SetAllSyncActions) -> bool:
@@ -195,7 +210,7 @@ class SyncWindow(Window):
 
     def _comparable(self) -> Any:
         """The row under the cursor, when it is two files to compare."""
-        row = self.rows.selected
+        row = self.rows.selected_row
         if (row is None or row.left is None or row.right is None
                 or row.left.kind != "file" or row.right.kind != "file"):
             return None
@@ -203,8 +218,7 @@ class SyncWindow(Window):
 
     def enables(self, command: Any) -> bool:
         if isinstance(command, SetSyncAction):
-            row = self.rows.selected
-            return row is not None and (command.action == "default" or command.action in row.allowed)
+            return self.rows.selected_allows(command.action)
         if isinstance(command, Synchronize):
             totals = self.totals
             return (self.manager is not None and self.manager.parent is not None
@@ -214,13 +228,21 @@ class SyncWindow(Window):
         return super().enables(command)
 
     def checks(self, command: Any) -> bool | None:
-        """The menu ticks *Show identical* while it is on."""
+        """The menu ticks *Show identical* and *Tree view* while they are on."""
         if isinstance(command, ToggleHidden):
             return self.show_identical
+        if isinstance(command, ToggleTree):
+            return self.rows.tree
         return super().checks(command)
 
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         self.show_identical = not self.show_identical
+        return True
+
+    async def on_toggle_tree(self, event: ToggleTree) -> bool:
+        """Ctrl+T: *Tree view* ticked or cleared -- the box's effect lists again,
+        the cursor on the same path."""
+        self.tree_box.value = 0 if self.tree_box.value & 1 else 1
         return True
 
     async def on_diff_files(self, event: DiffFiles) -> bool:
@@ -245,6 +267,7 @@ class SyncWindow(Window):
                                 self.show_hidden)
         if rows is not None:
             self.all_rows = rows
+            self._tree = None
             self._show()
 
     async def on_synchronize(self, event: Synchronize) -> bool:
@@ -260,8 +283,10 @@ class SyncWindow(Window):
             await self.rescan()
 
     async def on_sync_button_click(self, event: Event) -> bool:
+        """*Synchronize*: F5's work, started and not awaited -- it asks first,
+        and a handler waiting on a dialog holds the loop that would show it."""
         if self.enables(Synchronize()):
-            await self.synchronize()
+            self.spawn(self.synchronize())
         return True
 
     async def on_close_button_click(self, event: Event) -> bool:
@@ -287,6 +312,7 @@ class SyncWindow(Window):
         menu.add_item(tr("S~k~ip"), SetSyncAction("skip"))
         menu.add_item(tr("D~e~fault action"), SetSyncAction("default"))
         menu.add_line()
+        menu.add_item(tr("~T~ree view"), ToggleTree)
         menu.add_item(tr("~S~ynchronize"), Synchronize)
         menu.add_item(tr("Cl~o~se"), CloseWindow)
         return menu
@@ -324,7 +350,7 @@ class SyncWindow(Window):
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():
-            for control in (self.identical, self.sync_button, self.close_button):
+            for control in (self.identical, self.tree_box, self.sync_button, self.close_button):
                 if control.shortcut_match(event.key):
                     return await control.activate(event.key)
         return await super().on_key(event)

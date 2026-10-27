@@ -31,7 +31,7 @@ flag = "RU"
 "~E~dit..." = "~И~зменить..."
 # navigator/widgets/drives/links_dialog/links_dialog.nml:58
 "~A~dd..." = "~Д~обавить..."
-# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/manager/sync_window/sync_window.nml:104, navigator/widgets/shell/environment_dialog/environment_dialog.nml:76 ...
+# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/manager/sync_window/sync_window.nml:121, navigator/widgets/shell/environment_dialog/environment_dialog.nml:76 ...
 "~D~elete" = "~У~далить"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:13
 "Password" = "Пароль"
@@ -677,31 +677,33 @@ flag = "RU"
 "Unselect" = "Снять пометку"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:47
 "~E~xcept mask" = "~И~сключить"
-# navigator/widgets/manager/sync_window/sync_window.nml:32, navigator/widgets/manager/manager/manager.py:1776, navigator/widgets/manager/sync_window/sync_window.py:125
+# navigator/widgets/manager/sync_window/sync_window.nml:36, navigator/widgets/manager/manager/manager.py:1776, navigator/widgets/manager/sync_window/sync_window.py:149
 "Synchronize" = "Синхронизация"
-# navigator/widgets/manager/sync_window/sync_window.nml:59, navigator/widgets/manager/sync_window/sync_window.nml:127
+# navigator/widgets/manager/sync_window/sync_window.nml:76, navigator/widgets/manager/sync_window/sync_window.nml:144
 "Show ~i~dentical" = "Показать ~о~динаковые"
-# navigator/widgets/manager/sync_window/sync_window.nml:70, navigator/widgets/manager/sync_window/sync_window.nml:88, navigator/widgets/manager/sync_window/sync_window.nml:91 ...
+# navigator/widgets/manager/sync_window/sync_window.nml:87, navigator/widgets/manager/sync_window/sync_window.nml:105, navigator/widgets/manager/sync_window/sync_window.nml:108 ...
 "~S~ynchronize" = "~С~инхронизировать"
-# navigator/widgets/manager/sync_window/sync_window.nml:94, navigator/widgets/manager/sync_window/sync_window.py:266
+# navigator/widgets/manager/sync_window/sync_window.nml:111, navigator/widgets/manager/sync_window/sync_window.py:302
 "~C~ompare files" = "Сравнить ~ф~айлы"
-# navigator/widgets/manager/sync_window/sync_window.nml:98, navigator/widgets/manager/sync_window/sync_window.py:268
+# navigator/widgets/manager/sync_window/sync_window.nml:115, navigator/widgets/manager/sync_window/sync_window.py:304
 "Copy ~r~ight" = "Копировать ~в~право"
-# navigator/widgets/manager/sync_window/sync_window.nml:101, navigator/widgets/manager/sync_window/sync_window.py:269
+# navigator/widgets/manager/sync_window/sync_window.nml:118, navigator/widgets/manager/sync_window/sync_window.py:305
 "Copy ~l~eft" = "Копировать в~л~ево"
-# navigator/widgets/manager/sync_window/sync_window.nml:107, navigator/widgets/manager/sync_window/sync_window.py:271
+# navigator/widgets/manager/sync_window/sync_window.nml:124, navigator/widgets/manager/sync_window/sync_window.py:307
 "S~k~ip" = "П~р~опустить"
-# navigator/widgets/manager/sync_window/sync_window.nml:110, navigator/widgets/manager/sync_window/sync_window.py:272
+# navigator/widgets/manager/sync_window/sync_window.nml:127, navigator/widgets/manager/sync_window/sync_window.py:308
 "D~e~fault action" = "Действие по умол~ч~анию"
-# navigator/widgets/manager/sync_window/sync_window.nml:114
+# navigator/widgets/manager/sync_window/sync_window.nml:131
 "~A~ll right" = "Все впр~а~во"
-# navigator/widgets/manager/sync_window/sync_window.nml:117
+# navigator/widgets/manager/sync_window/sync_window.nml:134
 "All le~f~t" = "Все вл~е~во"
-# navigator/widgets/manager/sync_window/sync_window.nml:120
+# navigator/widgets/manager/sync_window/sync_window.nml:137
 "All defa~u~lt" = "Все по у~м~олчанию"
-# navigator/widgets/manager/sync_window/sync_window.nml:124
+# navigator/widgets/manager/sync_window/sync_window.nml:141
 "Compare a~g~ain" = "Сравнить с~н~ова"
-# navigator/widgets/manager/sync_window/sync_window.nml:131, navigator/widgets/manager/sync_window/sync_window.py:275
+# navigator/widgets/manager/sync_window/sync_window.nml:147, navigator/widgets/manager/sync_window/sync_window.py:310
+"~T~ree view" = "~Д~ерево"
+# navigator/widgets/manager/sync_window/sync_window.nml:151, navigator/widgets/manager/sync_window/sync_window.py:312
 "Cl~o~se" = "~З~акрыть"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "Цвета"
@@ -735,7 +737,7 @@ flag = "RU"
 "Date" = "Дата"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~П~оиск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2396, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2396, navigator/widgets/manager/sync_list/sync_list.py:360
 "Path" = "Путь"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~А~рхивы"
@@ -1493,7 +1495,7 @@ flag = "RU"
 "Reading file" = "Чтение файла"
 # navigator/lib/drives/listing.py:102, navigator/lib/drives/listing.py:208
 "UP--DIR" = "НАВЕРХ"
-# navigator/lib/drives/listing.py:102, navigator/widgets/manager/sync_list/sync_list.py:97
+# navigator/lib/drives/listing.py:102, navigator/widgets/manager/sync_list/sync_list.py:298
 "DIR" = "КАТАЛОГ"
 # navigator/lib/drives/listing.py:208
 "SUB-DIR" = "ПОДКАТ"
@@ -1755,9 +1757,9 @@ flag = "RU"
 "Rev. Search" = "Поиск назад"
 # navigator/widgets/editor/commands.py:302
 "Justify" = "По шир."
-# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:360
 "Right" = "Вправо"
-# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:360
 "Left" = "Влево"
 # navigator/widgets/editor/commands.py:320
 "Center" = "Центр"
@@ -2303,13 +2305,15 @@ flag = "RU"
 "E~x~tract archive..." = "Извле~ч~ь из архива..."
 # navigator/widgets/manager/panel/panel.py:2085
 "~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
-# navigator/widgets/manager/sync_window/sync_window.py:139
+# navigator/widgets/manager/sync_list/sync_list.py:341
+"{n} difference beneath" = ["Внутри {n} отличие", "Внутри {n} отличия", "Внутри {n} отличий"]
+# navigator/widgets/manager/sync_window/sync_window.py:165
 "The directories are the same." = "Каталоги одинаковы."
-# navigator/widgets/manager/sync_window/sync_window.py:97
+# navigator/widgets/manager/sync_window/sync_window.py:116
 "Synchronize {left} and {right}" = "Синхронизация {left} и {right}"
-# navigator/widgets/manager/sync_window/sync_window.py:122
+# navigator/widgets/manager/sync_window/sync_window.py:146
 "Synchronize - {left}, {right}" = "Синхронизация - {left}, {right}"
-# navigator/widgets/manager/sync_window/sync_window.py:149
+# navigator/widgets/manager/sync_window/sync_window.py:171
 "{right} right ({right_size}), {left} left ({left_size}), {delete} to delete" = "{right} вправо ({right_size}), {left} влево ({left_size}), {delete} удалить"
 # navigator/widgets/setup/country_page/country_page.py:30
 "Example: {stamp}" = "Пример: {stamp}"

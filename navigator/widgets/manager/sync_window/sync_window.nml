@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, ToggleHidden
+from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, ToggleHidden, ToggleTree
 from navigator.widgets.manager.sync_list import SyncList
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
@@ -24,6 +24,10 @@ from navml.widgets.window import Window
 #: F5 copy, files kept with their times so the next compare finds them the
 #: same, then the deletes as one F8.
 #:
+#: *Tree view* -- or Ctrl+T -- shows the rows under their directories, a tree (``SyncList.tree``):
+#: an action on a directory acts on every row beneath it that allows it;
+#: Gray + and - and Enter open and close one, * opens them all.
+#:
 #: Laid out as Disk > Volumes is: the list without a frame of its own, a
 #: dialog's row under it.  *Show identical* -- or Ctrl+H, as it shows a
 #: panel's dot-files -- lists the paths that are the same too; Ctrl+R and
@@ -41,6 +45,7 @@ SyncWindow(Window):
         ctrl+r: Rescan
         alt+r: Rescan
         ctrl+h: ToggleHidden
+        ctrl+t: ToggleTree
         tab: SelectNext
         shift+tab: SelectPrevious
 
@@ -69,6 +74,15 @@ SyncWindow(Window):
         width: 22
         height: 1
         items: ["Show ~i~dentical"]
+
+    #: The tree view, as Ctrl+T and the menu switch it: in sight, so it is found.
+    CheckBoxes:
+        id: tree_box
+        x: 26
+        y: max(0, parent.height - 3)
+        width: 18
+        height: 1
+        items: ["~T~ree view"]
 
     StaticText:
         id: summary
@@ -138,6 +152,9 @@ SyncWindow(Window):
         MenuItem:
             text: 'Show ~i~dentical'
             command: ToggleHidden
+        MenuItem:
+            text: '~T~ree view'
+            command: ToggleTree
         MenuLine:
         MenuItem:
             text: 'Cl~o~se'

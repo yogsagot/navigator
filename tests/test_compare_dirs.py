@@ -250,3 +250,95 @@ def test_enter_on_a_pair_that_differs_compares_the_two_files(sides):
     run_app(app, [*open_window(app), to_d, KeyEvent("enter"), Until(diff_window),
                   lambda a: seen.update(hunks=diff_window(a).view.model.hunks)])
     assert seen["hunks"] == (1,)
+
+
+# -- the tree view -----------------------------------------------------------------------
+
+
+def lines(app) -> list[str]:
+    """The tree view's lines: a directory ``name/`` with its status, a row its path."""
+    rows = sync_window(app).rows
+    return [f"{line.path}/" if line.node is not None else str(line.path) for line in rows.items]
+
+
+def to_path(app, path: str) -> None:
+    rows = sync_window(app).rows
+    rows.cursor = next(i for i, item in enumerate(rows.items) if str(item.path) == path)
+
+
+@pytest.fixture
+def deep(sides):
+    for side, data in (("west", b"x"), ("east", b"yy")):
+        (sides / side / "sub" / "deep").write_bytes(data)
+    (sides / "west" / "sub" / "mine").write_bytes(b"m")
+    return sides
+
+
+def test_ctrl_t_lists_the_rows_under_their_directories_and_back(deep):
+    app = navigator(deep)
+    seen = {}
+    run_app(app, [*open_window(app), lambda a: to_path(a, "sub/mine"), KeyEvent("t", ctrl=True),
+                  lambda a: seen.update(tree=lines(a), at=str(sync_window(a).rows.selected.path)),
+                  KeyEvent("t", ctrl=True), lambda a: seen.update(flat=listed(a), back=str(sync_window(a).rows.selected.path))])
+    assert seen["tree"] == ["sub/", "sub/deep", "sub/mine", "b", "c", "d", "e"]
+    assert seen["at"] == "sub/mine" and seen["back"] == "sub/mine"
+    assert "sub/deep" in seen["flat"]
+
+
+def test_a_directory_opens_and_closes_and_an_action_on_it_sets_every_row_beneath(deep):
+    app = navigator(deep)
+    seen = {}
+    run_app(app, [*open_window(app), KeyEvent("t", ctrl=True), lambda a: to_path(a, "sub"),
+                  KeyEvent("kp_minus"), lambda a: seen.update(closed=lines(a)),
+                  KeyEvent("enter"), lambda a: seen.update(opened=lines(a)),
+                  KeyEvent("left"), lambda a: seen.update(left=listed_rows(a)),
+                  KeyEvent("delete"), lambda a: seen.update(deleted=listed_rows(a))])
+    assert seen["closed"] == ["sub/", "b", "c", "d", "e"]
+    assert seen["opened"][:3] == ["sub/", "sub/deep", "sub/mine"]
+    # Copied left where a row allows it: sub/mine is the left's alone, and stays as it was.
+    assert seen["left"]["sub/deep"] == "left" and seen["left"]["sub/mine"] == "right"
+    assert seen["deleted"]["sub/mine"] == "delete" and seen["deleted"]["sub/deep"] == "left"
+
+
+def listed_rows(app) -> dict[str, str]:
+    return {str(row.path): row.action for row in sync_window(app).all_rows}
+
+
+def test_enter_on_a_file_in_the_tree_still_compares_it(deep):
+    from navigator.widgets.viewer.diff_window import DiffWindow
+
+    (deep / "west" / "sub" / "deep").write_text("one\ntwo\n")
+    (deep / "east" / "sub" / "deep").write_text("one\nthree\n")
+    app = navigator(deep)
+
+    def diff_window(a):
+        return next((w for w in a.shell.desktop.windows() if isinstance(w, DiffWindow)), None)
+
+    run_app(app, [*open_window(app), KeyEvent("t", ctrl=True), lambda a: to_path(a, "sub/deep"),
+                  KeyEvent("enter"), Until(diff_window)])
+
+
+def test_the_synchronize_button_asks_as_f5_does(sides):
+    app = navigator(sides)
+    seen = {}
+    run_app(app, [*open_window(app), KeyEvent("s", alt=True), Until(lambda a: a.modal is not None),
+                  lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("escape"),
+                  lambda a: seen.update(left=(sides / "east" / "c").exists())])
+    assert seen["prompt"] == "Copy 3 files?" and not seen["left"]
+
+
+def test_the_tree_view_box_and_ctrl_t_switch_together(deep):
+    app = navigator(deep)
+    seen = []
+
+    def note(a):
+        window = sync_window(a)
+        seen.append((window.tree_box.value & 1, window.rows.tree, window.checks(ToggleTree())))
+
+    from navigator.widgets.manager.commands import ToggleTree
+
+    run_app(app, [*open_window(app), note, KeyEvent("t", alt=True), note,
+                  lambda a: seen.append(lines(a)[0]), KeyEvent("t", ctrl=True), note])
+    assert seen[0] == (0, False, False)
+    assert seen[1] == (1, True, True) and seen[2] == "sub/"
+    assert seen[3] == (0, False, False)

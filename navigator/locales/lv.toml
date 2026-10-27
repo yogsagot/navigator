@@ -31,7 +31,7 @@ flag = "LV"
 "~E~dit..." = "~R~ediģēt..."
 # navigator/widgets/drives/links_dialog/links_dialog.nml:58
 "~A~dd..." = "~P~ievienot..."
-# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/manager/sync_window/sync_window.nml:104, navigator/widgets/shell/environment_dialog/environment_dialog.nml:76 ...
+# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/manager/sync_window/sync_window.nml:121, navigator/widgets/shell/environment_dialog/environment_dialog.nml:76 ...
 "~D~elete" = "D~z~ēst"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:13
 "Password" = "Parole"
@@ -677,31 +677,33 @@ flag = "LV"
 "Unselect" = "Noņemt atlasi"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:47
 "~E~xcept mask" = "~I~zņemot masku"
-# navigator/widgets/manager/sync_window/sync_window.nml:32, navigator/widgets/manager/manager/manager.py:1776, navigator/widgets/manager/sync_window/sync_window.py:125
+# navigator/widgets/manager/sync_window/sync_window.nml:36, navigator/widgets/manager/manager/manager.py:1776, navigator/widgets/manager/sync_window/sync_window.py:149
 "Synchronize" = "Sinhronizēt"
-# navigator/widgets/manager/sync_window/sync_window.nml:59, navigator/widgets/manager/sync_window/sync_window.nml:127
+# navigator/widgets/manager/sync_window/sync_window.nml:76, navigator/widgets/manager/sync_window/sync_window.nml:144
 "Show ~i~dentical" = "Rādīt ~v~ienādos"
-# navigator/widgets/manager/sync_window/sync_window.nml:70, navigator/widgets/manager/sync_window/sync_window.nml:88, navigator/widgets/manager/sync_window/sync_window.nml:91 ...
+# navigator/widgets/manager/sync_window/sync_window.nml:87, navigator/widgets/manager/sync_window/sync_window.nml:105, navigator/widgets/manager/sync_window/sync_window.nml:108 ...
 "~S~ynchronize" = "~S~inhronizēt"
-# navigator/widgets/manager/sync_window/sync_window.nml:94, navigator/widgets/manager/sync_window/sync_window.py:266
+# navigator/widgets/manager/sync_window/sync_window.nml:111, navigator/widgets/manager/sync_window/sync_window.py:302
 "~C~ompare files" = "Salī~d~zināt failus"
-# navigator/widgets/manager/sync_window/sync_window.nml:98, navigator/widgets/manager/sync_window/sync_window.py:268
+# navigator/widgets/manager/sync_window/sync_window.nml:115, navigator/widgets/manager/sync_window/sync_window.py:304
 "Copy ~r~ight" = "Kopēt pa ~l~abi"
-# navigator/widgets/manager/sync_window/sync_window.nml:101, navigator/widgets/manager/sync_window/sync_window.py:269
+# navigator/widgets/manager/sync_window/sync_window.nml:118, navigator/widgets/manager/sync_window/sync_window.py:305
 "Copy ~l~eft" = "Kopēt pa ~k~reisi"
-# navigator/widgets/manager/sync_window/sync_window.nml:107, navigator/widgets/manager/sync_window/sync_window.py:271
+# navigator/widgets/manager/sync_window/sync_window.nml:124, navigator/widgets/manager/sync_window/sync_window.py:307
 "S~k~ip" = "~I~zlaist"
-# navigator/widgets/manager/sync_window/sync_window.nml:110, navigator/widgets/manager/sync_window/sync_window.py:272
+# navigator/widgets/manager/sync_window/sync_window.nml:127, navigator/widgets/manager/sync_window/sync_window.py:308
 "D~e~fault action" = "~N~oklusētā darbība"
-# navigator/widgets/manager/sync_window/sync_window.nml:114
+# navigator/widgets/manager/sync_window/sync_window.nml:131
 "~A~ll right" = "Visus pa l~a~bi"
-# navigator/widgets/manager/sync_window/sync_window.nml:117
+# navigator/widgets/manager/sync_window/sync_window.nml:134
 "All le~f~t" = "Visus pa kr~e~isi"
-# navigator/widgets/manager/sync_window/sync_window.nml:120
+# navigator/widgets/manager/sync_window/sync_window.nml:137
 "All defa~u~lt" = "Visiem n~o~klusēto"
-# navigator/widgets/manager/sync_window/sync_window.nml:124
+# navigator/widgets/manager/sync_window/sync_window.nml:141
 "Compare a~g~ain" = "Salīdzināt atkār~t~oti"
-# navigator/widgets/manager/sync_window/sync_window.nml:131, navigator/widgets/manager/sync_window/sync_window.py:275
+# navigator/widgets/manager/sync_window/sync_window.nml:147, navigator/widgets/manager/sync_window/sync_window.py:310
+"~T~ree view" = "Direktori~j~u koks"
+# navigator/widgets/manager/sync_window/sync_window.nml:151, navigator/widgets/manager/sync_window/sync_window.py:312
 "Cl~o~se" = "Aizvē~r~t"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "Krāsas"
@@ -735,7 +737,7 @@ flag = "LV"
 "Date" = "Datums"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~M~eklēšana"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2396, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2396, navigator/widgets/manager/sync_list/sync_list.py:360
 "Path" = "Ceļš"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~A~rhīvi"
@@ -1493,7 +1495,7 @@ flag = "LV"
 "Reading file" = "Lasa failu"
 # navigator/lib/drives/listing.py:102, navigator/lib/drives/listing.py:208
 "UP--DIR" = "AUGŠUP"
-# navigator/lib/drives/listing.py:102, navigator/widgets/manager/sync_list/sync_list.py:97
+# navigator/lib/drives/listing.py:102, navigator/widgets/manager/sync_list/sync_list.py:298
 "DIR" = "MAPE"
 # navigator/lib/drives/listing.py:208
 "SUB-DIR" = "APAKŠMAPE"
@@ -1755,9 +1757,9 @@ flag = "LV"
 "Rev. Search" = "Atpakaļ"
 # navigator/widgets/editor/commands.py:302
 "Justify" = "Izlīdz."
-# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:360
 "Right" = "Pa labi"
-# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:131
+# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:360
 "Left" = "Pa kr."
 # navigator/widgets/editor/commands.py:320
 "Center" = "Centrēt"
@@ -2303,13 +2305,15 @@ flag = "LV"
 "E~x~tract archive..." = "~A~tpakot arhīvu..."
 # navigator/widgets/manager/panel/panel.py:2085
 "~{size}~ free on ~{mount}" = "~{size}~ brīvi uz ~{mount}"
-# navigator/widgets/manager/sync_window/sync_window.py:139
+# navigator/widgets/manager/sync_list/sync_list.py:341
+"{n} difference beneath" = ["Zemāk {n} atšķirība", "Zemāk {n} atšķirības", "Zemāk {n} atšķirības"]
+# navigator/widgets/manager/sync_window/sync_window.py:165
 "The directories are the same." = "Direktorijas ir vienādas."
-# navigator/widgets/manager/sync_window/sync_window.py:97
+# navigator/widgets/manager/sync_window/sync_window.py:116
 "Synchronize {left} and {right}" = "Sinhronizēt {left} un {right}"
-# navigator/widgets/manager/sync_window/sync_window.py:122
+# navigator/widgets/manager/sync_window/sync_window.py:146
 "Synchronize - {left}, {right}" = "Sinhronizēt - {left}, {right}"
-# navigator/widgets/manager/sync_window/sync_window.py:149
+# navigator/widgets/manager/sync_window/sync_window.py:171
 "{right} right ({right_size}), {left} left ({left_size}), {delete} to delete" = "{right} pa labi ({right_size}), {left} pa kreisi ({left_size}), {delete} dzēst"
 # navigator/widgets/setup/country_page/country_page.py:30
 "Example: {stamp}" = "Piemērs: {stamp}"
