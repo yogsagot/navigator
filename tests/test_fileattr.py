@@ -247,3 +247,149 @@ def test_cancel_stops(tmp_path):
 def test_a_request_with_nothing_in_it_says_so(tmp_path):
     assert AttrRequest([tmp_path]).changes_nothing
     assert not AttrRequest([tmp_path], clear_bits=0o002).changes_nothing
+
+
+# -- ACLs, extended attributes and flags ---------------------------------------------
+
+from navigator.lib.file_ops import acl, fsflags  # noqa: E402
+
+
+def xattrs_or_skip(path):
+    try:
+        os.setxattr(path, "user.probe", b"")
+        os.removexattr(path, "user.probe")
+    except OSError:
+        pytest.skip("this file system takes no user extended attributes")
+
+
+def acls_or_skip(path):
+    try:
+        os.setxattr(path, acl.ACCESS, acl.pack(acl.from_mode(os.stat(path).st_mode)))
+    except OSError:
+        pytest.skip("this file system takes no ACLs")
+
+
+def test_a_request_with_only_extended_changes_is_not_empty(tmp_path):
+    assert not AttrRequest([tmp_path], xattr_remove={"user.a"}).changes_nothing
+    assert not AttrRequest([tmp_path], acl_set={("user", 1): 4}).changes_nothing
+    assert not AttrRequest([tmp_path], flags_set=fsflags.BY_LETTER["A"]).changes_nothing
+
+
+def test_the_survey_shares_what_every_file_has_and_marks_the_rest(tmp_path):
+    a = make(tmp_path / "a", 0o644)
+    b = make(tmp_path / "b", 0o644)
+    xattrs_or_skip(a)
+    for path in (a, b):
+        os.setxattr(path, "user.same", b"1")
+    os.setxattr(a, "user.differs", b"x")
+    os.setxattr(b, "user.differs", b"y")
+    os.setxattr(a, "user.only", b"z")
+    found = fileattr.survey([a, b])
+    assert found.xattrs_supported
+    assert found.xattrs == {"user.same": b"1", "user.differs": None, "user.only": None}
+
+
+def test_the_survey_reads_named_acl_entries_and_leaves_the_acl_attributes_out(tmp_path):
+    a = make(tmp_path / "a", 0o640)
+    acls_or_skip(a)
+    entries = acl.apply_deltas(acl.from_mode(0o640), {("user", os.getuid()): 6}, set())
+    os.setxattr(a, acl.ACCESS, acl.pack(entries))
+    found = fileattr.survey([a])
+    assert found.acl == {("user", os.getuid()): 6, acl.MASK_KEY: 6}
+    assert acl.ACCESS not in found.xattrs
+
+
+def test_xattrs_are_set_and_removed(tmp_path):
+    a = make(tmp_path / "a", 0o644)
+    xattrs_or_skip(a)
+    os.setxattr(a, "user.old", b"1")
+    fileattr.apply_one(a, AttrRequest([a], xattr_set={"user.new": b"\x00\xff"}, xattr_remove={"user.old"}))
+    assert os.listxattr(a) == ["user.new"] and os.getxattr(a, "user.new") == b"\x00\xff"
+
+
+def test_an_acl_entry_added_then_the_last_removed_leaves_the_mode_as_it_was(tmp_path):
+    a = make(tmp_path / "a", 0o640)
+    acls_or_skip(a)
+    os.removexattr(a, acl.ACCESS)
+    me = ("user", os.getuid())
+    fileattr.apply_one(a, AttrRequest([a], acl_set={me: 7}))
+    written = acl.parse(os.getxattr(a, acl.ACCESS))
+    assert written.named == {me: 7} and written.mask == 7
+    assert mode_of(a) == 0o670  # the group bits are the mask now
+    fileattr.apply_one(a, AttrRequest([a], acl_remove={me}))
+    assert acl.ACCESS not in os.listxattr(a)
+    assert mode_of(a) == 0o640
+
+
+def test_group_bits_pressed_with_an_acl_change_become_the_mask(tmp_path):
+    a = make(tmp_path / "a", 0o640)
+    acls_or_skip(a)
+    me = ("user", os.getuid())
+    fileattr.apply_one(a, AttrRequest([a], acl_set={me: 7}, clear_bits=0o070, set_bits=0o040))
+    assert acl.parse(os.getxattr(a, acl.ACCESS)).mask == 4
+
+
+def test_a_default_acl_goes_to_directories_only_under_recursion(tmp_path):
+    d = tmp_path / "d"
+    (d / "sub").mkdir(parents=True)
+    make(d / "f", 0o644)
+    acls_or_skip(d)
+    me = ("user", os.getuid())
+    request = AttrRequest([d], default_set={me: 5}, recurse=fileattr.ALL)
+    assert fileattr.run(request, AttrJob()) == [d]
+    for directory in (d, d / "sub"):
+        default = acl.parse(os.getxattr(directory, acl.DEFAULT))
+        assert default.named == {me: 5}
+    assert acl.DEFAULT not in os.listxattr(d / "f")
+
+
+def test_the_locking_flags_are_cleared_first_and_set_last(tmp_path, monkeypatch):
+    from navigator.lib.drives.local import LocalDrive
+
+    a = make(tmp_path / "a", 0o644)
+    calls = []
+    immutable = fsflags.IMMUTABLE
+    state = {"flags": immutable}
+    monkeypatch.setattr(LocalDrive, "get_flags", lambda self, where, follow=True: state["flags"])
+
+    def set_flags(self, where, flags, follow=True):
+        calls.append(("flags", flags))
+        state["flags"] = flags
+
+    monkeypatch.setattr(LocalDrive, "set_flags", set_flags)
+    monkeypatch.setattr(LocalDrive, "chmod", lambda self, where, mode: calls.append(("chmod", mode)))
+    noatime = fsflags.BY_LETTER["A"]
+    fileattr.apply_one(a, AttrRequest([a], set_bits=0o100, flags_clear=immutable, flags_set=noatime))
+    assert calls == [("flags", 0), ("chmod", 0o744), ("flags", noatime)]
+    calls.clear()
+    state["flags"] = 0
+    fileattr.apply_one(a, AttrRequest([a], set_bits=0o100, flags_set=immutable))
+    assert calls == [("chmod", 0o744), ("flags", immutable)]
+
+
+def test_flags_are_never_asked_of_a_fifo(tmp_path, monkeypatch):
+    from navigator.lib.drives.local import LocalDrive
+
+    fifo = tmp_path / "pipe"
+    os.mkfifo(fifo)
+    monkeypatch.setattr(LocalDrive, "get_flags", lambda *a, **k: pytest.fail("opened a fifo"))
+    fileattr.apply_one(fifo, AttrRequest([fifo], flags_set=fsflags.BY_LETTER["A"]))
+    assert not fileattr.survey([fifo]).flags_supported
+
+
+def test_values_are_spelled_and_read_as_getfattr_writes_them():
+    assert fileattr.spell_value(b"hello") == "hello"
+    assert fileattr.spell_value(b"\x00\x01") == "0x0001"
+    assert fileattr.spell_value(b"0x12") == '"0x12"'
+    for value in (b"hello", b"\x00\x01", b"0x12", b'"q"', b""):
+        assert fileattr.parse_value(fileattr.spell_value(value)) == value
+    assert fileattr.parse_value("0sAAE=") == b"\x00\x01"
+    with pytest.raises(ValueError):
+        fileattr.parse_value("0xzz")
+
+
+def test_an_xattr_name_needs_a_namespace_a_file_may_be_given():
+    assert fileattr.check_xattr_name(" user.a ") == "user.a"
+    for bad in ("", "user.", "plain", "system.posix_acl_access"):
+        with pytest.raises(ValueError):
+            fileattr.check_xattr_name(bad)

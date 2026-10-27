@@ -73,7 +73,9 @@ user's own authentication. What the review found and the rules it left:
   `Failure.elevate` is set only for a local path, a refusal errno, and a worker not yet elevated -- a step refused
   even as root is just Skip/Cancel. `is_root` turns true once elevated, so *Preserve attributes* sets owners.
   Copy/move (`_Copier`), erase (`_Eraser`) and Alt+E (`fileattr._Changer`, whose own `_stat`/`_children` go
-  through the helper once elevated, and `apply_one(as_root=True)`) are wired.
+  through the helper once elevated, and `apply_one(as_root=True)`) are wired. Alt+E's ACL, Xattrs and Flags pages go
+  through `RootDrive`'s `listxattr`/`getxattr`/`setxattr`/`removexattr`/`get_flags`/`set_flags`, each a helper op
+  through `_pinned` like `chmod` (`getxattr` answers its value as the raw payload, `setxattr` takes it as one).
 - **The loop side** is `navigator/widgets/file_ops/as_root.py`: `ask_skip(app, message, elevate=)` (Skip / As root /
   Cancel; answers True, None or `AS_ROOT`), `ask_as_root(app, message)` (As root / Cancel), and `open_root(app)` (the
   `PasswordDialog` titled *Root access* until sudo accepts, an *Error* box on a refusal, silence on Cancel).

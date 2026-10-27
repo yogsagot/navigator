@@ -1,0 +1,38 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.static_text import StaticText
+
+#: Alt+E's *Xattrs* page, *Add* or *Edit*: one extended attribute, its name
+#: and its value in ``getfattr``'s spellings.  Not DN's.
+XattrEntryDialog(Dialog):
+    modal_width: 60
+    modal_height: 11
+    title: "Extended Attribute"
+    buttons: "ok-cancel"
+
+    Field:
+        id: attr_name
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~N~ame"
+        label_width: 8
+
+    Field:
+        id: data
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Va~l~ue"
+        label_width: 8
+
+    #: How a value may be written.
+    StaticText:
+        id: hint
+        x: 10
+        y: 5
+        width: max(0, parent.width - 12)
+        height: 2
+        text: "Text, or 0x and hex digits, or 0s and base64; quotes round text keep it text"

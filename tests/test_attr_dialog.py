@@ -669,5 +669,159 @@ def test_the_key_bar_says_what_r_w_and_x_do_while_the_grid_has_the_keyboard(two)
         return in_grid, elsewhere
 
     in_grid, elsewhere = run_shell(a, b, steps)
-    assert in_grid == [("R W X", "Read Write Exec")]
-    assert elsewhere == []
+    # The tabs' own Ctrl+PgUp/PgDn stays beside it.
+    assert ("R W X", "Read Write Exec") in in_grid
+    assert ("R W X", "Read Write Exec") not in elsewhere
+
+
+# -- the ACL, Xattrs and Flags pages ----------------------------------------------------
+
+from navigator.lib.file_ops import acl, fsflags  # noqa: E402
+from navigator.widgets.file_ops.acl_entry_dialog import AclEntryDialog  # noqa: E402
+from navigator.widgets.file_ops.xattr_entry_dialog import XattrEntryDialog  # noqa: E402
+
+
+def with_acl(path: Path) -> Path:
+    """*path* given an ACL naming its owner by name, or the test skipped."""
+    entries = acl.apply_deltas(acl.from_mode(os.stat(path).st_mode), {("user", os.getuid()): 6}, set())
+    try:
+        os.setxattr(path, acl.ACCESS, acl.pack(entries))
+        os.setxattr(path, "user.note", b"hello")
+    except OSError:
+        pytest.skip("this file system takes no ACLs or user extended attributes")
+    return path
+
+
+def test_the_pages_are_mode_acl_xattrs_and_flags(tmp_path):
+    make(tmp_path / "f", 0o640)
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    assert dialog.tabs.captions() == ["Mode", "ACL", "Xattrs", "Flags"]
+
+
+def test_the_acl_and_xattrs_pages_list_what_the_file_has(tmp_path):
+    with_acl(make(tmp_path / "f", 0o640))
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    me = fileattr.user_name(os.getuid())
+    assert [row.split() for row in dialog.acl_list.items] == [["user", me, "rw-"], ["mask", "rw-"]]
+    assert [row.split() for row in dialog.xattr_list.items] == [["user.note", "hello"]]
+    assert not dialog.acl_list.disabled and dialog.acl_note.text == ""
+
+
+def test_only_the_acl_and_xattr_rows_changed_go_in_the_request(tmp_path):
+    with_acl(make(tmp_path / "f", 0o640))
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    assert dialog.accept() is None
+    dialog.acl_list.cursor = 0
+    dialog.delete_acl_entry()
+    dialog.delete_xattr()
+    assert dialog.must_ask()
+    request = dialog.accept()
+    assert request.acl_remove == {("user", os.getuid())} and request.acl_set == {}
+    assert request.xattr_remove == {"user.note"} and request.xattr_set == {}
+    assert dialog.acl_list.items[0].split() == ["mask", "auto"]
+
+
+def test_a_page_that_cannot_apply_is_inert_and_says_why(tmp_path):
+    make(tmp_path / "f", 0o640)
+    facts = gather_facts(tmp_path / "f")
+    facts.update(can_xattr=False, can_flags=False)
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path, facts=facts)
+    assert dialog.acl_list.disabled and dialog.acl_add.disabled and dialog.xattr_add.disabled
+    assert dialog.flags.disabled and dialog.lsattr.text == ""
+    assert dialog.acl_note.text == dialog.flags_note.text == "Not on this drive"
+
+
+def gather_facts(path: Path) -> dict:
+    from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
+
+    return gather([path])
+
+
+def test_only_the_flags_pressed_go_in_the_request(tmp_path):
+    make(tmp_path / "f", 0o640)
+    dialog = AttrDialog(entries=[entry("f")], here=tmp_path)
+    if dialog.flags.disabled:
+        pytest.skip("this file system has no inode flags")
+    dialog.mounted()
+    noatime = fsflags.EDITABLE.index("A")
+    dialog.flags.toggle(noatime)
+    settle()
+    request = dialog.accept()
+    assert request.flags_set == fsflags.BY_LETTER["A"] and request.flags_clear == 0
+    assert dialog.lsattr.text.split()[1][fsflags.FLAGS.index(("A", fsflags.BY_LETTER["A"]))] == "A"
+
+
+def test_the_acl_entry_box_swaps_its_list_with_the_type():
+    box = AclEntryDialog(["alice", "bob"], ["staff", "wheel"])
+    box.mounted()
+    assert box.who.choices == ["alice", "bob"]
+    box.who.value = "bob"
+    box.kind.value = 1
+    settle()
+    assert box.who.choices == ["staff", "wheel"] and box.who.value == ""
+    assert box.default_box.disabled  # no directory to inherit from
+
+
+def test_the_acl_entry_box_keeps_a_nameless_id_offered_and_answers_the_entry():
+    box = AclEntryDialog(["alice"], [], kind="user", name="4242", perms=acl.READ | acl.WRITE,
+                         editing=True)
+    assert box.who.choices == ["4242", "alice"] and box.who.disabled
+    assert box.accept() == (False, "user", 4242, 6)
+
+
+def test_the_acl_entry_box_refuses_no_one():
+    box = AclEntryDialog(["alice"], ["staff"])
+    assert not box.valid()
+
+
+def test_the_mask_entry_names_no_one():
+    box = AclEntryDialog([], [], perms=acl.READ, mask=True, editing=True)
+    assert box.who.disabled and box.kind.disabled
+    assert box.accept() == (False, "mask", None, 4)
+
+
+def test_the_xattr_box_reads_getfattr_spellings():
+    box = XattrEntryDialog()
+    box.attr_name.value = "user.blob"
+    box.data.value = "0x00ff"
+    assert box.accept() == ("user.blob", b"\x00\xff")
+    box.attr_name.value = "plain"
+    assert not box.valid()
+    editing = XattrEntryDialog("user.a", b"0x1", editing=True)
+    assert editing.attr_name.disabled and editing.data.value == '"0x1"'
+
+
+def test_ins_on_the_acl_list_adds_an_entry_picked_from_the_users(two):
+    a, b = two
+    with_acl(a / "one.txt")
+    os.removexattr(a / "one.txt", acl.ACCESS)
+    me = fileattr.user_name(os.getuid())
+
+    async def steps(app, shell):
+        put_cursor(shell.manager.left, "one.txt")
+        await open_attributes(app)
+        dialog = app.modal
+        dialog.tabs.select(1)
+        dialog.acl_list.focus()
+        app.post_event(KeyEvent("insert"))
+        loop = asyncio.get_running_loop()
+        end = loop.time() + 2
+        while not isinstance(app.modal, AclEntryDialog):
+            assert loop.time() < end, "the ACL entry box never opened"
+            await asyncio.sleep(0.01)
+        box = app.modal
+        offered = box.who.choices
+        box.who.value = me
+        box.perms.value = acl.READ | acl.EXECUTE
+        app.spawn(box.ok.press())
+        await asyncio.sleep(0.1)
+        rows = list(dialog.acl_list.items)
+        app.spawn(dialog.ok.press())
+        await asyncio.sleep(0.3)
+        return offered, rows
+
+    offered, rows = run_shell(a, b, steps)
+    assert offered == fileattr.users()
+    assert rows[0].split() == ["user", me, "r-x"]
+    written = acl.parse(os.getxattr(a / "one.txt", acl.ACCESS))
+    assert written.named == {("user", os.getuid()): 5}

@@ -139,6 +139,28 @@ class LocalDrive(Drive):
     def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
         os.utime(location.local, ns=(atime_ns, mtime_ns), follow_symlinks=follow)
 
+    def listxattr(self, location: Location, *, follow: bool = True) -> list[str]:
+        return os.listxattr(location.local, follow_symlinks=follow)
+
+    def getxattr(self, location: Location, name: str, *, follow: bool = True) -> bytes:
+        return os.getxattr(location.local, name, follow_symlinks=follow)
+
+    def setxattr(self, location: Location, name: str, value: bytes, *, follow: bool = True) -> None:
+        os.setxattr(location.local, name, value, follow_symlinks=follow)
+
+    def removexattr(self, location: Location, name: str, *, follow: bool = True) -> None:
+        os.removexattr(location.local, name, follow_symlinks=follow)
+
+    def get_flags(self, location: Location, *, follow: bool = True) -> int:
+        from navigator.lib.file_ops import fsflags
+
+        return fsflags.get_flags(location.local, follow=follow)
+
+    def set_flags(self, location: Location, flags: int, *, follow: bool = True) -> None:
+        from navigator.lib.file_ops import fsflags
+
+        fsflags.set_flags(location.local, flags, follow=follow)
+
     def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
                         follow: bool) -> None:
         if not isinstance(source_drive, LocalDrive):

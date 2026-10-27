@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -129,6 +129,29 @@ columns became **tri-state `CheckBoxes`**. **Only bits the user pressed are appl
 an unreadable value. In the grid R, W and X tick *Read*/*Write*/*Exec* in the cursor's column
 (`_on_bits_key`, `ROW_KEYS`, Latin in every language), which the key bar says while the grid has the keyboard
 (`AttrDialog.key_hints`; a departure, asked for).
+
+**Behind tabs: *Mode* | *ACL* | *Xattrs* | *Flags*** (a departure, asked for). The pages are `TabPage`s inline in
+`attr_dialog.nml`, so every id is still the dialog's; the name rows and *Recurse* stand outside them, since every
+page obeys *Recurse*. All three new pages are **deltas**: `survey` shares what every file has (`None` -- shown `???`,
+`<differs>`, `[?]` -- where they disagree or only some have it), and `build()` puts only rows added, changed or
+removed (flags pressed, `flags_touched`) in the request, so one edit reaches files whose ACLs otherwise differ.
+- **ACL** (`navigator/lib/file_ops/acl.py`, pure): the `system.posix_acl_access`/`_default` xattrs read and written in
+  the kernel's binary form (no libacl, no `setfacl`). The owner/group/other entries are the mode's and not listed;
+  the mask is worked out as `setfacl` does unless set by hand (the row says *auto* while it will be), and an ACL
+  left minimal is removed (`setfacl -b`), the mask going back into the group bits. Rows are keyed
+  `(default, kind, id)`; default rows only for directories. Ins/Enter/Del and *Add*/*Edit*/*Delete*/*Clear*;
+  `AclEntryDialog` (`file_ops/acl_entry_dialog`) picks whom from **all** users or groups (an ACL may name anyone,
+  unlike chown), the list swapping with *Type*; editing keeps whom and whether default.
+- **Xattrs**: every readable name but the two ACL ones; `XattrEntryDialog` takes `getfattr`'s spellings
+  (`fileattr.spell_value`/`parse_value`: text, quoted when it would read otherwise, `0x` hex, `0s` base64); a name
+  must be `user.`/`trusted.`/`security.` (`check_xattr_name`).
+- **Flags** (`navigator/lib/file_ops/fsflags.py`): `FS_IOC_GETFLAGS`/`SETFLAGS` on the file held open, **regular
+  files and directories only** (a device is never opened); twelve editable flags in the grid, the rest only in the
+  `lsattr` line. An unsupporting file system (`ENOTTY`...) leaves the page inert with a note, as another drive does
+  (`XATTR`/`FSFLAGS` capabilities: the disk and `root:` alone).
+- **`apply_one`'s order**: `i`/`a` cleared, chown, ACLs (then re-stat: the mask is the group bits), chmod (touched
+  group bits become the mask), xattrs, utime, flags set -- `+i` last, `-i` first. One generic path over a drive
+  (`LOCAL`, `ROOT_DRIVE` once elevated, or another drive with links skipped), so a refusal offers *As root* as before.
 
 ## Make directory (F7)
 

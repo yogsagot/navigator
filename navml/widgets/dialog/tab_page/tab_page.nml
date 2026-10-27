@@ -1,0 +1,9 @@
+#: One page of a ``TabView``, written in the document that holds the view.
+#:
+#: A ``TabView`` takes any widget as a page and captions its tab with the
+#: page's ``title``; this is the page that is nothing more, for a dialog
+#: whose pages are laid out in its own markup rather than as components of
+#: their own -- so their ids stay the dialog's, as if there were no tabs.
+TabPage:
+    #: The caption on its tab.
+    property title: ""

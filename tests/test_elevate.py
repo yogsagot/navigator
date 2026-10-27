@@ -1814,3 +1814,43 @@ def test_the_menu_bar_says_root_while_it_is_open_and_it_can_be_closed(started, t
     ])
     assert seen["visible"] and seen["enabled"] and seen["right"] < seen["clock"]
     assert not ELEVATION.running
+
+
+def test_the_helper_reads_and_writes_extended_attributes_and_flags(started, tmp_path):
+    """Alt+E's ACL, Xattrs and Flags pages, as root: the six ops through the helper."""
+    from navigator.lib.drives.location import Location
+    from navigator.lib.drives.root import ROOT_DRIVE
+    from navigator.lib.file_ops import fsflags
+
+    path = tmp_path / "f"
+    path.write_bytes(b"x")
+    try:
+        os.setxattr(path, "user.probe", b"")
+    except OSError:
+        pytest.skip("this file system takes no user extended attributes")
+    where = Location.of(path)
+    ROOT_DRIVE.setxattr(where, "user.note", b"\x00\xffbytes")
+    assert ROOT_DRIVE.getxattr(where, "user.note") == b"\x00\xffbytes"
+    assert sorted(ROOT_DRIVE.listxattr(where)) == ["user.note", "user.probe"]
+    ROOT_DRIVE.removexattr(where, "user.probe")
+    assert os.listxattr(path) == ["user.note"]
+    try:
+        flags = fsflags.get_flags(path)
+    except OSError:
+        return  # no flags here; the attributes were the point
+    assert ROOT_DRIVE.get_flags(where) == flags
+    ROOT_DRIVE.set_flags(where, flags | fsflags.BY_LETTER["A"])
+    assert fsflags.get_flags(path) & fsflags.BY_LETTER["A"]
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root's own links are trusted")
+def test_root_sets_no_attribute_through_a_link_another_user_owns(tmp_path):
+    ops = _distrusting()
+    victim = tmp_path / "victim"
+    victim.write_text("keep")
+    (tmp_path / "bait").symlink_to(victim)
+    with pytest.raises(OSError) as raised:
+        ops.setxattr(str(tmp_path / "bait"), "user.x", True, b"1")
+    assert raised.value.errno == errno.ELOOP
+    with pytest.raises(OSError):
+        ops.set_flags(str(tmp_path / "bait"), 0, True)

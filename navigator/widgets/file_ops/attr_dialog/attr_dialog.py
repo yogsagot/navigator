@@ -38,6 +38,16 @@ button does not ask: pressing it is already the answer.
 Changed means differing from what it opened on, so a box pressed and pressed
 back, or a line typed into and restored, asks nothing.
 
+**ACL, Xattrs and Flags are pages behind tabs** (a departure, asked for):
+what every file shares is listed or ticked, what they disagree on is ``???``,
+``‹differs›`` or ``[?]``, and only what the user added, changed or removed
+goes in the request -- the same edit to every file, under *Recurse* too
+(:mod:`navigator.lib.file_ops.acl` has the ACL's rules).  Ins, Enter and Del
+on either list are *Add*, *Edit* and *Delete*; whom an ACL entry names is
+picked from the passwd or group database (``AclEntryDialog``).  A page that
+cannot apply -- another drive, a file system without flags -- is inert and
+says why.
+
 **Up and Down move between the lines** -- Octal, User, Group, Date, Time, in
 that order, passing over one that is disabled -- since the grid and the
 radio buttons each keep their arrows for themselves and the lines had no
@@ -55,13 +65,15 @@ from typing import Any, Sequence
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
-from navkit.reactive import effect, untracked
+from navkit.reactive import bind, effect, unbind, untracked
+from navkit.widget import Widget
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.config import country
-from navigator.lib.file_ops import fileattr
+from navigator.lib.file_ops import acl, fileattr, fsflags
+
 #: The grid's twelve items.
 ALL_ITEMS = (1 << len(fileattr.BITS)) - 1
 
@@ -70,6 +82,13 @@ ROW_KEYS = {"r": 0, "w": 1, "x": 2}
 
 #: The grid's columns of read/write/execute: owner, group, others.
 RWX_COLUMNS = 3
+
+#: The flags grid's twelve items.
+ALL_FLAGS = (1 << len(fsflags.EDITABLE)) - 1
+
+#: An ACL row's key: whether it is the default ACL's, then the entry's own
+#: key (:meth:`navigator.lib.file_ops.acl.Acl.entries`).
+AclRow = tuple[bool, str, "int | None"]
 
 
 def name_for(entries: Sequence[Any]) -> str:
@@ -139,11 +158,14 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
         # they are numbers, and changed only where the drive can.
         from navigator.lib.drives import drive_of
 
-        can = drive_of(paths[0]).can("chown")
+        drive = drive_of(paths[0])
+        can = drive.can("chown")
         return {
             "survey": survey,
             "user": "" if survey.uid is None else str(survey.uid), "users": [], "can_chown_user": can,
             "group": "" if survey.gid is None else str(survey.gid), "groups": [], "can_chown_group": can,
+            "all_users": [], "all_groups": [], "names": acl_names(survey, numbers=True),
+            "can_xattr": drive.can("xattr"), "can_flags": drive.can("fsflags"),
         }
     return {
         "survey": survey,
@@ -152,7 +174,27 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
         "can_chown_user": fileattr.can_chown_user(),
         "group": "" if survey.gid is None else fileattr.group_name(survey.gid),
         "groups": fileattr.assignable_groups(),
+        # An ACL may name anyone, where only root may give a file away.
+        "all_users": fileattr.users(),
+        "all_groups": fileattr.groups(),
+        "names": acl_names(survey),
+        "can_xattr": True, "can_flags": True,
     }
+
+
+def acl_names(survey: fileattr.Survey, numbers: bool = False) -> dict[tuple[str, int], str]:
+    """The name of everyone the selection's ACLs name, asked here, on
+    :func:`gather`'s thread; their numbers alone with *numbers*."""
+    names = {}
+    for key in (*survey.acl, *survey.default_acl):
+        kind, ident = key
+        if ident is None or key in names:
+            continue
+        if numbers:
+            names[key] = str(ident)
+        else:
+            names[key] = fileattr.user_name(ident) if kind == acl.KIND_USER else fileattr.group_name(ident)
+    return names
 
 
 class AttrDialog(Dialog):
@@ -169,6 +211,10 @@ class AttrDialog(Dialog):
         :func:`gather` found of them, asked for here if not given."""
         super().__init__(**kwargs)
         self.message.visible = False
+        # OK and Cancel a row lower than a dialog's, their shadow on the row
+        # above the frame, as *Settings* has them: a blank row under *Recurse*.
+        unbind(self.row, Widget.y)
+        self.row.y = bind(lambda r: max(0, self.height - 3))
         self._entries = list(entries)
         from navigator.lib.drives import Location
         from navigator.lib.file_ops.filecopy import shown
@@ -210,6 +256,49 @@ class AttrDialog(Dialog):
         self.recurse.disabled = not survey.dirs
         self.recurse_caption.disabled = not survey.dirs
 
+        elsewhere = bool(self._paths) and not self._here.is_local
+        self._all_users = list(facts.get("all_users", ()))
+        self._all_groups = list(facts.get("all_groups", ()))
+        #: Who each ACL key names, for its row; keys added get theirs as added.
+        self._names: dict[tuple[str, int], str] = dict(facts.get("names", {}))
+        can_xattr = facts.get("can_xattr", True) and survey.xattrs_supported
+
+        #: The ACL rows as they are now, and as the dialog opened on them.
+        self._acl: dict[AclRow, int | None] = {}
+        if can_xattr:
+            self._acl = {(False, *key): perm for key, perm in survey.acl.items()}
+            self._acl.update({(True, *key): perm for key, perm in survey.default_acl.items()})
+        self._acl_initial = dict(self._acl)
+        self._acl_rows: list[AclRow] = []
+        self._refresh_acl()
+        #: Extended attributes as they are now, and as the dialog opened on them.
+        self._xattrs: dict[str, bytes | None] = dict(survey.xattrs) if can_xattr else {}
+        self._xattrs_initial = dict(self._xattrs)
+        self._xattr_rows: list[str] = []
+        self._refresh_xattrs()
+        if not can_xattr:
+            why = (tr("Not on this drive") if elsewhere or not facts.get("can_xattr", True)
+                   else tr("Not supported by this file system"))
+            self._inert(why, self.acl_note, self.acl_caption, self.acl_list, self.acl_add, self.acl_edit,
+                        self.acl_delete, self.acl_clear)
+            self._inert(why, self.xattr_note, self.xattr_caption, self.xattr_list, self.xattr_add,
+                        self.xattr_edit, self.xattr_delete)
+
+        #: The flags pressed, as grid items, as ``touched`` is the mode's.
+        self.flags_touched = 0
+        self._initial_flags = fsflags.to_items(survey.flags)
+        self._initial_flags_mixed = fsflags.to_items(survey.flags_mixed)
+        self.flags.value = self._initial_flags
+        self.flags.mixed = self._initial_flags_mixed
+        self.flags.tristate = self._initial_flags_mixed
+        self._flags_seen = (self._initial_flags, self._initial_flags_mixed)
+        self.lsattr.text = "lsattr  " + fsflags.lsattr(survey.flags, survey.flags_mixed)
+        if not (facts.get("can_flags", True) and survey.flags_supported):
+            why = (tr("Not on this drive") if elsewhere or not facts.get("can_flags", True)
+                   else tr("Not supported by this file system"))
+            self.lsattr.text = ""
+            self._inert(why, self.flags_note, self.flags_caption, self.flags)
+
         #: What the dialog opened on, which dismissing it compares against.
         self._opened_on = self._state()
 
@@ -218,16 +307,35 @@ class AttrDialog(Dialog):
         # In front of the grid's own keys, which still has the arrows and Space.
         self._grid_keys = self.bits.on_key
         self.bits.on_key = self._on_bits_key
+        # Ins, Enter and Del on the two lists.
+        self._acl_keys = self.acl_list.on_key
+        self.acl_list.on_key = self._on_acl_key
+        self.acl_list.choose = self._choose_acl
+        self._xattr_keys = self.xattr_list.on_key
+        self.xattr_list.on_key = self._on_xattr_key
+        self.xattr_list.choose = self._choose_xattr
 
     def mounted(self) -> None:
         super().mounted()
         effect(self, AttrDialog._grid_changed)
         effect(self, AttrDialog._octal_changed)
+        effect(self, AttrDialog._flags_changed)
 
     def key_hints(self) -> list[tuple[str, str]]:
         """The grid's R, W and X (``_on_bits_key``), which no caption marks,
-        while the grid has the keyboard."""
-        return [("R W X", tr("Read Write Exec"))] if self.bits.focused else []
+        while the grid has the keyboard; the lists' Ins and Del while one has."""
+        if self.bits.focused:
+            return [("R W X", tr("Read Write Exec"))]
+        if self.acl_list.focused or self.xattr_list.focused:
+            return [("Ins", tr("Add")), ("Enter", tr("Edit")), ("Del", tr("Delete"))]
+        return []
+
+    @staticmethod
+    def _inert(why: str, note: Any, *controls: Any) -> None:
+        """A page that cannot apply: its controls disabled, *note* saying *why*."""
+        note.text = escape_caption(why)
+        for control in controls:
+            control.disabled = True
 
     # -- Up and Down between the lines ----------------------------------------
 
@@ -316,6 +424,224 @@ class AttrDialog(Dialog):
                 self.bits.mixed = mixed
                 self.bits.value = value
 
+    # -- the flags ---------------------------------------------------------------
+
+    def _flags_changed(self) -> None:
+        value, mixed = self.flags.value, self.flags.mixed
+        with untracked():
+            old_value, old_mixed = self._flags_seen
+            self.flags_touched |= (value ^ old_value) | (mixed ^ old_mixed)
+            self._flags_seen = (value, mixed)
+            if not self.lsattr.text:
+                return
+            survey = self.survey
+            shown = (survey.flags & ~fsflags.EDITABLE_MASK) | fsflags.from_items(value)
+            unknown = (survey.flags_mixed & ~fsflags.EDITABLE_MASK) | fsflags.from_items(mixed)
+            self.lsattr.text = "lsattr  " + fsflags.lsattr(shown, unknown)
+
+    # -- the ACL -------------------------------------------------------------------
+
+    def _acl_name(self, row: AclRow) -> str:
+        _, kind, ident = row
+        if ident is None:
+            return ""
+        return self._names.get((kind, ident), str(ident))
+
+    def _acl_text(self, row: AclRow) -> str:
+        default, kind, ident = row
+        perm = self._acl[row]
+        if kind == acl.MASK_KEY[0] and self._mask_follows(default):
+            spelled = tr("auto")
+        else:
+            spelled = acl.spell(perm)
+        label = ("default:" if default else "") + kind
+        return f"{label:<14}{self._acl_name(row)[:20]:<21}{spelled}"
+
+    def _mask_follows(self, default: bool) -> bool:
+        """Whether the mask will be worked out again on OK: a named entry of
+        that ACL changed, and the mask was not set here."""
+        mask = (default, *acl.MASK_KEY)
+        if self._acl.get(mask) != self._acl_initial.get(mask) or mask not in self._acl_initial:
+            return False
+        rows = {row for row in self._acl.keys() | self._acl_initial.keys()
+                if row[0] == default and row[1] != acl.MASK_KEY[0]}
+        return any(self._acl.get(row) != self._acl_initial.get(row) for row in rows)
+
+    def _refresh_acl(self, at: AclRow | None = None) -> None:
+        def order(row: AclRow) -> tuple[Any, ...]:
+            default, kind, _ = row
+            return default, ("user", "group", "mask").index(kind), self._acl_name(row)
+
+        self._acl_rows = sorted(self._acl, key=order)
+        self.acl_list.items = [self._acl_text(row) for row in self._acl_rows]
+        if at in self._acl_rows:
+            self.acl_list.cursor = self._acl_rows.index(at)
+        else:
+            self.acl_list.cursor = max(0, min(self.acl_list.cursor, len(self._acl_rows) - 1))
+        has_rows = bool(self._acl_rows) and not self.acl_list.disabled
+        self.acl_edit.disabled = self.acl_delete.disabled = self.acl_clear.disabled = not has_rows
+
+    def _acl_row(self) -> AclRow | None:
+        index = self.acl_list.cursor
+        return self._acl_rows[index] if 0 <= index < len(self._acl_rows) else None
+
+    async def _on_acl_key(self, event: KeyEvent) -> bool:
+        if not self.acl_list.inert and not event.ctrl and not event.alt:
+            if event.matches("insert"):
+                self.spawn(self.add_acl_entry())
+                return True
+            if event.matches("delete"):
+                self.delete_acl_entry()
+                return True
+        return await self._acl_keys(event)
+
+    async def _choose_acl(self) -> bool:
+        if self._acl_row() is None:
+            return False
+        self.spawn(self.edit_acl_entry())
+        return True
+
+    async def on_acl_add_click(self, event: Any) -> bool:
+        self.spawn(self.add_acl_entry())
+        return True
+
+    async def on_acl_edit_click(self, event: Any) -> bool:
+        self.spawn(self.edit_acl_entry())
+        return True
+
+    async def on_acl_delete_click(self, event: Any) -> bool:
+        self.delete_acl_entry()
+        return True
+
+    async def on_acl_clear_click(self, event: Any) -> bool:
+        """``setfacl -b``: every row gone, on every file."""
+        self._acl = {}
+        self._refresh_acl()
+        self.acl_list.focus()
+        return True
+
+    async def add_acl_entry(self) -> None:
+        from navigator.widgets.file_ops.acl_entry_dialog import AclEntryDialog
+
+        box = AclEntryDialog(self._all_users, self._all_groups, can_default=bool(self.survey.dirs))
+        answer = await box.execute(self.application)
+        if answer is None:
+            return
+        default, kind, ident, perms = answer
+        row = (default, kind, ident)
+        if ident is not None:
+            self._names[(kind, ident)] = box.who.value.strip()
+        self._acl = {**self._acl, row: perms}
+        self._refresh_acl(at=row)
+        self.acl_list.focus()
+
+    async def edit_acl_entry(self) -> None:
+        from navigator.widgets.file_ops.acl_entry_dialog import AclEntryDialog
+
+        row = self._acl_row()
+        if row is None:
+            return
+        default, kind, _ = row
+        perm = self._acl[row]
+        box = AclEntryDialog(
+            self._all_users, self._all_groups, kind=kind, name=self._acl_name(row),
+            perms=perm or 0, default=default, can_default=default, editing=True,
+            mask=kind == acl.MASK_KEY[0],
+        )
+        answer = await box.execute(self.application)
+        if answer is None:
+            return
+        self._acl = {**self._acl, row: answer[3]}
+        self._refresh_acl(at=row)
+        self.acl_list.focus()
+
+    def delete_acl_entry(self) -> None:
+        row = self._acl_row()
+        if row is None:
+            return
+        self._acl = {key: perm for key, perm in self._acl.items() if key != row}
+        self._refresh_acl()
+
+    # -- the extended attributes -------------------------------------------------------
+
+    def _xattr_text(self, name: str) -> str:
+        value = self._xattrs[name]
+        spelled = tr("<differs>") if value is None else fileattr.spell_value(value)
+        return f"{name[:22]:<23}{spelled}"
+
+    def _refresh_xattrs(self, at: str | None = None) -> None:
+        self._xattr_rows = sorted(self._xattrs)
+        self.xattr_list.items = [self._xattr_text(name) for name in self._xattr_rows]
+        if at in self._xattr_rows:
+            self.xattr_list.cursor = self._xattr_rows.index(at)
+        else:
+            self.xattr_list.cursor = max(0, min(self.xattr_list.cursor, len(self._xattr_rows) - 1))
+        has_rows = bool(self._xattr_rows) and not self.xattr_list.disabled
+        self.xattr_edit.disabled = self.xattr_delete.disabled = not has_rows
+
+    def _xattr_row(self) -> str | None:
+        index = self.xattr_list.cursor
+        return self._xattr_rows[index] if 0 <= index < len(self._xattr_rows) else None
+
+    async def _on_xattr_key(self, event: KeyEvent) -> bool:
+        if not self.xattr_list.inert and not event.ctrl and not event.alt:
+            if event.matches("insert"):
+                self.spawn(self.add_xattr())
+                return True
+            if event.matches("delete"):
+                self.delete_xattr()
+                return True
+        return await self._xattr_keys(event)
+
+    async def _choose_xattr(self) -> bool:
+        if self._xattr_row() is None:
+            return False
+        self.spawn(self.edit_xattr())
+        return True
+
+    async def on_xattr_add_click(self, event: Any) -> bool:
+        self.spawn(self.add_xattr())
+        return True
+
+    async def on_xattr_edit_click(self, event: Any) -> bool:
+        self.spawn(self.edit_xattr())
+        return True
+
+    async def on_xattr_delete_click(self, event: Any) -> bool:
+        self.delete_xattr()
+        return True
+
+    async def add_xattr(self) -> None:
+        from navigator.widgets.file_ops.xattr_entry_dialog import XattrEntryDialog
+
+        answer = await XattrEntryDialog().execute(self.application)
+        if answer is None:
+            return
+        name, value = answer
+        self._xattrs = {**self._xattrs, name: value}
+        self._refresh_xattrs(at=name)
+        self.xattr_list.focus()
+
+    async def edit_xattr(self) -> None:
+        from navigator.widgets.file_ops.xattr_entry_dialog import XattrEntryDialog
+
+        name = self._xattr_row()
+        if name is None:
+            return
+        answer = await XattrEntryDialog(name, self._xattrs[name], editing=True).execute(self.application)
+        if answer is None:
+            return
+        self._xattrs = {**self._xattrs, name: answer[1]}
+        self._refresh_xattrs(at=name)
+        self.xattr_list.focus()
+
+    def delete_xattr(self) -> None:
+        name = self._xattr_row()
+        if name is None:
+            return
+        self._xattrs = {key: value for key, value in self._xattrs.items() if key != name}
+        self._refresh_xattrs()
+
     # -- what dismissing it loses -----------------------------------------------
 
     def _state(self) -> tuple[Any, ...]:
@@ -329,6 +655,10 @@ class AttrDialog(Dialog):
             self.date.value,
             self.clock.value,
             self.recurse.value,
+            self.flags.value,
+            self.flags.mixed,
+            tuple(sorted(self._acl.items(), key=repr)),
+            tuple(sorted(self._xattrs.items(), key=repr)),
         )
 
     def must_ask(self) -> bool:
@@ -357,7 +687,7 @@ class AttrDialog(Dialog):
         mtime = fileattr.parse_mtime(self.date.value, self.clock.value, survey.mtime,
                                      self.date.date_format, self.clock.time_format)
         recurse = fileattr.RECURSE[self.recurse.value] if survey.dirs else fileattr.NONE
-        return fileattr.AttrRequest(
+        request = fileattr.AttrRequest(
             sources=list(self._paths),
             set_bits=set_bits,
             clear_bits=clear_bits,
@@ -366,6 +696,19 @@ class AttrDialog(Dialog):
             mtime=mtime,
             recurse=recurse,
         )
+        for row in self._acl_initial.keys() - self._acl.keys():
+            (request.default_remove if row[0] else request.acl_remove).add(row[1:])
+        for row, perm in self._acl.items():
+            if perm is not None and self._acl_initial.get(row) != perm:
+                (request.default_set if row[0] else request.acl_set)[row[1:]] = perm
+        request.xattr_remove = set(self._xattrs_initial.keys() - self._xattrs.keys())
+        request.xattr_set = {name: value for name, value in self._xattrs.items()
+                             if value is not None and self._xattrs_initial.get(name) != value}
+        flags_value, flags_mixed = self.flags.value, self.flags.mixed
+        changed = self.flags_touched & ~flags_mixed & ALL_FLAGS
+        request.flags_set = fsflags.from_items(changed & flags_value)
+        request.flags_clear = fsflags.from_items(changed & ~flags_value)
+        return request
 
     def valid(self) -> bool:
         """``Valid(cmOK)``: a mode, owner, group or time that cannot be read keeps the dialog up."""

@@ -31,7 +31,7 @@ flag = "RU"
 "~E~dit..." = "~И~зменить..."
 # navigator/widgets/drives/links_dialog/links_dialog.nml:58
 "~A~dd..." = "~Д~обавить..."
-# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/manager/sync_window/sync_window.nml:130, navigator/widgets/shell/environment_dialog/environment_dialog.nml:76 ...
+# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:190, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:251 ...
 "~D~elete" = "~У~далить"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:13
 "Password" = "Пароль"
@@ -223,41 +223,97 @@ flag = "RU"
 "Replace this occurence?" = "Заменить это вхождение?"
 # navigator/widgets/editor/replace_query/replace_query.nml:23, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
 "~A~ll" = "~В~се"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:22
-"File Attributes" = "Атрибуты файла"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:49
-"O~w~ner      Group      Others     Special" = "В~л~аделец   Группа     Прочие     Особые"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:17
+"ACL Entry" = "Запись ACL"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:26
+"~T~ype" = "~Т~ип"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/widgets/manager/commands.py:25
+"User" = "Польз"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35
+"Group" = "Группа"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:52
+"~P~ermissions" = "~П~рава"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82 ...
 "Read" = "Чтение"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82 ...
 "Write" = "Запись"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82 ...
 "Exec" = "Запуск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:69
+"~D~efault, inherited by new files" = "По ~у~молчанию, наследуется новыми файлами"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:33
+"File Attributes" = "Атрибуты файла"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:63
+"Mode" = "Режим"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
+"O~w~ner      Group      Others     Special" = "В~л~аделец   Группа     Прочие     Особые"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82
 "Set UID" = "Set UID"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82
 "Set GID" = "Set GID"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:58
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:82
 "Sticky" = "Sticky"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:68
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
 "~O~ctal" = "~К~од"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:89
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:113
 "~U~ser" = "~Х~озяин"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:98, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:122, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "~Г~руппа"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:113, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:138, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
 "~D~ate" = "~Д~ата"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:122, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/country_page/country_page.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:147, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:43, navigator/widgets/setup/country_page/country_page.nml:44 ...
 "~T~ime" = "~В~ремя"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:132
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:154
+"ACL" = "ACL"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:162
+"E~n~tries" = "~З~аписи"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:174, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:235
+"~A~dd" = "~Д~обавить"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:182, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:243, navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44 ...
+"~E~dit" = "~П~равка"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:199
+"~C~lear" = "О~ч~истить"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:215
+"Xattrs" = "Xattr"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:223
+"Na~m~es" = "~И~мена"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:268
+"Flags" = "Флаги"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:276
+"~F~lags" = "~Ф~лаги"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Immutable" = "Неизменяем"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Append" = "Дописывать"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"No dump" = "Без dump"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"No atime" = "Без atime"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285, navigator/widgets/manager/commands.py:569
+"Sync" = "Синхр."
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Dir sync" = "Синхр. кат"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"No COW" = "Без COW"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Compress" = "Сжатие"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Journal" = "Журнал"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Top dir" = "Верх. кат"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Secure rm" = "Безоп. уд."
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:285
+"Undelete" = "Восстанов."
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:309
 "~R~ecurse" = "~Р~екурсия"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:141
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No" = "Нет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:141, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:78 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:78 ...
 "Files" = "Файлы"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:141
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Dirs" = "Каталоги"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:141
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "All" = "Все"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "Вычисление контрольных сумм"
@@ -311,7 +367,7 @@ flag = "RU"
 "~T~ree" = "Д~е~рево"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Подсчёт размера каталога"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/manager/manager.py:4677 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325 ...
 "Delete" = "Удаление"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27, navigator/widgets/file_ops/delete_dialog/delete_dialog.py:89
 "Do you wish to delete" = "Вы хотите удалить"
@@ -423,6 +479,12 @@ flag = "RU"
 "~U~NIX" = "~U~NIX"
 # navigator/widgets/file_ops/uu_encode_dialog/uu_encode_dialog.nml:119, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78
 "T~r~ee" = "~Д~ерево"
+# navigator/widgets/file_ops/xattr_entry_dialog/xattr_entry_dialog.nml:10
+"Extended Attribute" = "Расширенный атрибут"
+# navigator/widgets/file_ops/xattr_entry_dialog/xattr_entry_dialog.nml:28
+"Va~l~ue" = "З~н~ачение"
+# navigator/widgets/file_ops/xattr_entry_dialog/xattr_entry_dialog.nml:38
+"Text, or 0x and hex digits, or 0s and base64; quotes round text keep it text" = "Текст, или 0x и шестнадцатеричные цифры, или 0s и base64; текст в кавычках остаётся текстом"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:13
 "Setup game" = "Настройка игры"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:21, navigator/widgets/game/commands.py:35
@@ -1195,8 +1257,6 @@ flag = "RU"
 "~R~un" = "~З~апуск"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:35
 "~D~rop" = "~В~ставка"
-# navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:118, navigator/widgets/shell/main_menu/main_menu.nml:120 ...
-"~E~dit" = "~П~равка"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:53
 "~K~ill" = "~У~далить"
 # navigator/widgets/shell/edit_line_dialog/edit_line_dialog.nml:13, navigator/widgets/shell/commands.py:90
@@ -1563,18 +1623,26 @@ flag = "RU"
 "DIR" = "КАТАЛОГ"
 # navigator/lib/drives/listing.py:212
 "SUB-DIR" = "ПОДКАТ"
-# navigator/lib/file_ops/fileattr.py:293
+# navigator/lib/file_ops/fileattr.py:410
 "There is no user {name}" = "Нет пользователя {name}"
-# navigator/lib/file_ops/fileattr.py:298
+# navigator/lib/file_ops/fileattr.py:415
 "There is no group {name}" = "Нет группы {name}"
-# navigator/lib/file_ops/fileattr.py:358
+# navigator/lib/file_ops/fileattr.py:528
 "{text} is not a valid time" = "{text} - неверное время"
-# navigator/lib/file_ops/fileattr.py:349
+# navigator/lib/file_ops/fileattr.py:519
 "Give both a date and a time" = "Укажите и дату, и время"
-# navigator/lib/file_ops/fileattr.py:352, navigator/lib/file_ops/fileattr.py:379, navigator/lib/file_ops/fileattr.py:377
+# navigator/lib/file_ops/fileattr.py:522, navigator/lib/file_ops/fileattr.py:549, navigator/lib/file_ops/fileattr.py:547
 "{text} is not a valid date" = "{text} - неверная дата"
-# navigator/lib/file_ops/fileattr.py:124
+# navigator/lib/file_ops/fileattr.py:126
 "{text} is not an octal mode" = "{text} - не восьмеричный режим"
+# navigator/lib/file_ops/fileattr.py:478
+"{name} is not in the user, trusted or security namespace" = "{name} не в пространстве имён user, trusted или security"
+# navigator/lib/file_ops/fileattr.py:480
+"{name} is too long" = "{name} слишком длинное"
+# navigator/lib/file_ops/fileattr.py:465
+"{text} is not hexadecimal" = "{text} не шестнадцатеричное число"
+# navigator/lib/file_ops/fileattr.py:470
+"{text} is not base64" = "{text} не base64"
 # navigator/lib/file_ops/filecopy.py:538
 "{name} is not a regular file" = "{name} - не обычный файл"
 # navigator/lib/file_ops/filecopy.py:558
@@ -1641,7 +1709,7 @@ flag = "RU"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Несовпадение CRC файла {name}, указано={listed}, вычислено={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "текст"
-# navigator/lib/highlight/__init__.py:275
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:449
 "auto" = "авто"
 # navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:2106
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
@@ -1777,9 +1845,9 @@ flag = "RU"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Подлинность сервера {host} не может быть установлена.\nОтпечаток ключа {type}:\n{fingerprint}"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4701
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325
 "Add" = "Добавить"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/manager/commands.py:58, navigator/widgets/manager/manager/manager.py:4677 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "Правка"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4691
 "~N~ew SSH link (SFTP)..." = "~Н~овая связь по SSH (SFTP)..."
@@ -2011,6 +2079,14 @@ flag = "RU"
 "Hex" = "Hex"
 # navigator/widgets/editor/option_items.py:115
 "Dump" = "Дамп"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.py:59
+"Edit ACL Entry" = "Изменить запись ACL"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.py:65
+"mask" = "маска"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.py:95
+"Choose a user" = "Выберите пользователя"
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.py:95
+"Choose a group" = "Выберите группу"
 # navigator/widgets/file_ops/as_root.py:35, navigator/widgets/file_ops/as_root.py:192, navigator/widgets/file_ops/as_root.py:188
 "Root access" = "Доступ root"
 # navigator/widgets/file_ops/as_root.py:172, navigator/widgets/file_ops/as_root.py:210
@@ -2025,33 +2101,39 @@ flag = "RU"
 "Root access was refused: {reason}" = "В доступе root отказано: {reason}"
 # navigator/widgets/file_ops/as_root.py:188
 "{path}: root access is not available" = "{path}: доступ root недоступен"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:117
 "directory" = "каталог"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:86, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:104, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:88
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:81
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:564
+"<differs>" = "<различается>"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
 "File ~{name}~" = "Файл ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:103
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121
 "broken link" = "битая ссылка"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:113
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "link to {target}, {kind}" = "ссылка на {target}, {kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:80
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:292
+"Not on this drive" = "Недоступно на этом диске"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:276, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293
+"Not supported by this file system" = "Не поддерживается этой файловой системой"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:98
 "Directory ~{name}~" = "Каталог ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
 "named pipe" = "именованный канал"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:230
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:323
 "Read Write Exec" = "Чтение Запись Запуск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "socket" = "сокет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:109
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "device" = "устройство"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:111
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
 "special file" = "особый файл"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:341
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:666
 "Changes will be lost. Are you sure?" = "Изменения будут потеряны. Вы уверены?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:33
 "{done} of {n} file, {percent}%" = ["{done} из {n} файла, {percent}%", "{done} из {n} файлов, {percent}%", "{done} из {n} файлов, {percent}%"]
@@ -2161,6 +2243,8 @@ flag = "RU"
 "File {name}\nalready exists in destination directory" = "Файл {name}\nуже есть в каталоге назначения"
 # navigator/widgets/file_ops/rename_dialog/rename_dialog.py:20
 "~R~ename {name} to" = "~П~ереименовать {name} в"
+# navigator/widgets/file_ops/xattr_entry_dialog/xattr_entry_dialog.py:31
+"Edit Extended Attribute" = "Изменить расширенный атрибут"
 # navigator/widgets/game/commands.py:11
 "New game" = "Заново"
 # navigator/widgets/game/commands.py:17
@@ -2195,8 +2279,6 @@ flag = "RU"
 "Pa~c~ked size" = "~С~жатый размер"
 # navigator/widgets/manager/columns_dialog/columns_dialog.py:34
 "~R~atio" = "Сте~п~ень сжатия"
-# navigator/widgets/manager/commands.py:25
-"User" = "Польз"
 # navigator/widgets/manager/commands.py:29
 "View" = "Смотр"
 # navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1702, navigator/widgets/shell/shell/shell.py:1755 ...
@@ -2223,8 +2305,6 @@ flag = "RU"
 "Go to file" = "Перейти к файлу"
 # navigator/widgets/manager/commands.py:545
 "Compare" = "Сравн."
-# navigator/widgets/manager/commands.py:569
-"Sync" = "Синхр."
 # navigator/widgets/manager/commands.py:584
 "Hidden" = "Скрытые"
 # navigator/widgets/manager/commands.py:600

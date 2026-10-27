@@ -46,10 +46,14 @@ TREE = "tree"
 FIND = "find"
 UUCODE = "uucode"
 PRINT = "print"
+#: Extended attributes, and the POSIX ACLs kept in them (Alt+E's *ACL* and *Xattrs*).
+XATTR = "xattr"
+#: Inode flags, ``chattr``'s (Alt+E's *Flags*).
+FSFLAGS = "fsflags"
 
 #: Everything: the local disk's.
 EVERYTHING = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN, WATCH, FREE_SPACE, EXEC, TREE, FIND,
-                        UUCODE, PRINT))
+                        UUCODE, PRINT, XATTR, FSFLAGS))
 
 
 class DriveGone(OSError):
@@ -264,6 +268,25 @@ class Drive:
     def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
         raise unsupported(location)
 
+    def listxattr(self, location: Location, *, follow: bool = True) -> list[str]:
+        raise unsupported(location)
+
+    def getxattr(self, location: Location, name: str, *, follow: bool = True) -> bytes:
+        raise unsupported(location)
+
+    def setxattr(self, location: Location, name: str, value: bytes, *, follow: bool = True) -> None:
+        raise unsupported(location)
+
+    def removexattr(self, location: Location, name: str, *, follow: bool = True) -> None:
+        raise unsupported(location)
+
+    def get_flags(self, location: Location, *, follow: bool = True) -> int:
+        """``lsattr``'s flags (:mod:`navigator.lib.file_ops.fsflags`)."""
+        raise unsupported(location)
+
+    def set_flags(self, location: Location, flags: int, *, follow: bool = True) -> None:
+        raise unsupported(location)
+
     def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
                         follow: bool) -> None:
         """*Preserve attributes*: *source*'s mode and times (its ``stat`` *st*)
@@ -396,5 +419,6 @@ class PollWatch:
 
 __all__ = [
     "CHMOD", "CHOWN", "Child", "Drive", "DriveGone", "EVERYTHING", "EXEC", "FIND", "FREE_SPACE",
-    "FileStat", "PRINT", "PollWatch", "RENAME", "SYMLINK", "TREE", "UUCODE", "WATCH", "WRITE", "unsupported",
+    "FileStat", "PRINT", "PollWatch", "RENAME", "SYMLINK", "TREE", "UUCODE", "WATCH", "WRITE", "XATTR",
+    "FSFLAGS", "unsupported",
 ]

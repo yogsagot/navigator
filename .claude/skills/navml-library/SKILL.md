@@ -107,6 +107,9 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   takes the keyboard. System Information's four boxes are the first users.
 - **`TabView`** (`navml/widgets/dialog/tab_view/`, Python alone, a `Layout`): pages behind a row of tabs -- not Turbo
   Vision's, which had none. Every child is a page, its tab captioned by the page's `title`.
+  - **`TabPage`** (`navml/widgets/dialog/tab_page/`, markup alone): a page that is nothing but a `title`, for pages
+    laid out inline in the dialog's own document -- their ids stay the dialog's (Alt+E's `AttrDialog`). A page of
+    its own component (*Settings*' pages) needs none.
   - **The look.** Each tab is a box drawn in the sheet's `border`, `┌───┐` over `│ Caption │`. The tabs stand on a
     baseline across the whole width, closed off by `┴` feet. The current tab is double (`╔═╗`, `║`) with its foot
     open (`╜   ╙`), so it stands raised and joins the page under it.

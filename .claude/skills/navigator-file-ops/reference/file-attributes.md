@@ -78,6 +78,23 @@ dump, so what DN's loop did is read off its two dialogs and their help.
   the row now closes before *Exit*, as the Ctrl row closes before *Show*. Alt+X still quits; it is only uncaptioned
   there.
 
+**ACLs, extended attributes and inode flags** (asked for; DN had none of them) are three more pages behind tabs,
+the first being everything above as *Mode*:
+
+- **Why tabs**: one OK applies everything in one job, under one *Recurse*, with one *Changes will be lost* question;
+  separate MC-style boxes would each have needed their own. The pages are `TabPage`s in the dialog's own markup so
+  the existing ids, handlers and tests did not move.
+- **Why deltas**: the mode grid already applies only what was pressed. An ACL or xattr page that wrote its whole
+  list would replace every tagged file's entries with the first file's, which over several files (and under a
+  recursion) is the same mistake the grid's `touched` exists to avoid.
+- **Why no libacl**: the binary form is twelve lines to read and write, round-trips byte for byte with what
+  `setfacl` writes (a test checks it), and keeps the run-time dependencies pure Python.
+- **Why the order**: `chattr +i` refuses chmod, chown, setxattr and utime alike, so it goes last; `-i` likewise
+  first. An access ACL's mask *is* the mode's group bits, so the mode is re-read after an ACL is written, and group
+  bits the user pressed are written after it -- as `chmod` after `setfacl` would.
+- **Who an ACL may name**: anyone, so the entry box offers every user and group, where the *Mode* page's *Group* offers
+  a non-root user only their own.
+
 Not ported: `cmSingleAttr` (no key reached it in 1.51), F4 on a directory opening the dialog, and DN's single-file
 `dlgFileAttr` as a separate shape. With one entry, the same dialog simply has nothing mixed in it.
 

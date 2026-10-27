@@ -37,7 +37,7 @@ import pwd
 import re
 import stat
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
@@ -45,6 +45,8 @@ from navkit.i18n import tr
 
 from navml.widgets.dialog.masked_line import spell_time
 
+from navigator.lib.file_ops import acl as acls
+from navigator.lib.file_ops import fsflags
 from navigator.lib.file_ops.filecopy import Elevated, Failure, error_message, finish_drives
 from navigator.lib.system.job import Job, Stopped
 
@@ -147,6 +149,20 @@ class Survey:
     single: os.stat_result | None = None
     #: A lone link's target, as ``readlink`` gives it.
     link_target: str | None = None
+    #: The access and default ACLs' named entries and masks
+    #: (:meth:`navigator.lib.file_ops.acl.Acl.entries`) every file has,
+    #: ``None`` for one some have and others lack or have otherwise.
+    acl: dict[tuple[str, int | None], int | None] = field(default_factory=dict)
+    default_acl: dict[tuple[str, int | None], int | None] = field(default_factory=dict)
+    #: Extended attributes, the ACLs' two left out, as :attr:`acl` is.
+    xattrs: dict[str, bytes | None] = field(default_factory=dict)
+    #: Whether any file's extended attributes could be read at all.
+    xattrs_supported: bool = False
+    #: The inode flags every file has, and the ones they disagree on.
+    flags: int = 0
+    flags_mixed: int = 0
+    #: Whether any file's flags could be read at all.
+    flags_supported: bool = False
 
 
 # -- the disk, or another drive -----------------------------------------------------
@@ -189,6 +205,104 @@ def _children(path: Any) -> list[tuple[Any, Any]]:
     return found
 
 
+@dataclass
+class _Extended:
+    """One file's ACLs, extended attributes and flags, ``None`` where unreadable."""
+
+    acl: dict[tuple[str, int | None], int] | None = None
+    default_acl: dict[tuple[str, int | None], int] | None = None
+    xattrs: dict[str, bytes] | None = None
+    flags: int | None = None
+
+
+def _place(path: Any) -> tuple[Any, Any]:
+    """The drive *path* is on and the location it names there."""
+    from navigator.lib.drives import drive_of
+    from navigator.lib.drives.local import LOCAL
+    from navigator.lib.drives.location import Location
+
+    if _elsewhere(path):
+        return drive_of(path), path
+    return LOCAL, Location.of(Path(_local(path)))
+
+
+def read_xattrs(drive: Any, where: Any, *, follow: bool = True) -> dict[str, bytes]:
+    """Every extended attribute of *where* that can be read, by name."""
+    found = {}
+    for name in drive.listxattr(where, follow=follow):
+        try:
+            found[name] = drive.getxattr(where, name, follow=follow)
+        except OSError:
+            pass  # trusted.* and the like, unreadable to whoever asks
+    return found
+
+
+def read_acl(xattrs: dict[str, bytes], name: str) -> acls.Acl | None:
+    """The ACL in *xattrs* under *name*, or ``None`` where there is none."""
+    data = xattrs.get(name)
+    if data is None:
+        return None
+    try:
+        return acls.parse(data)
+    except ValueError:
+        return None
+
+
+def _extended(path: Any, st: Any) -> _Extended:
+    found = _Extended()
+    drive, where = _place(path)
+    if drive.can("xattr"):
+        try:
+            xattrs = read_xattrs(drive, where)
+        except OSError:
+            pass
+        else:
+            access = read_acl(xattrs, acls.ACCESS)
+            found.acl = access.entries() if access is not None else {}
+            if stat.S_ISDIR(st.st_mode):
+                default = read_acl(xattrs, acls.DEFAULT)
+                found.default_acl = default.entries() if default is not None else {}
+            found.xattrs = {name: value for name, value in xattrs.items() if name not in (acls.ACCESS, acls.DEFAULT)}
+    if drive.can("fsflags") and fsflags.has_flags(st.st_mode):
+        try:
+            found.flags = drive.get_flags(where)
+        except OSError:
+            pass
+    return found
+
+
+def _common(values: list[dict[Any, Any]]) -> dict[Any, Any]:
+    """What every one of *values* has the same, ``None`` for a key some lack or differ on."""
+    if not values:
+        return {}
+    keys = set().union(*values)
+    result = {}
+    for key in sorted(keys, key=repr):
+        seen = [value.get(key, _MISSING) for value in values]
+        result[key] = seen[0] if all(item == seen[0] for item in seen) and seen[0] is not _MISSING else None
+    return result
+
+
+_MISSING = object()
+
+
+def _combine(result: Survey, extended: list[_Extended]) -> None:
+    acl_maps = [item.acl for item in extended if item.acl is not None]
+    result.acl = _common(acl_maps)
+    result.default_acl = _common([item.default_acl for item in extended if item.default_acl is not None])
+    xattr_maps = [item.xattrs for item in extended if item.xattrs is not None]
+    result.xattrs = _common(xattr_maps)
+    result.xattrs_supported = bool(xattr_maps)
+    flags = [item.flags for item in extended if item.flags is not None]
+    result.flags_supported = bool(flags)
+    on = off = 0
+    for value in flags:
+        on |= value
+        off |= ~value & 0xFFFFFFFF
+    result.flags_mixed = on & off
+    result.flags = on & ~result.flags_mixed
+
+
 def survey(paths: Sequence[Path]) -> Survey:
     """What every one of *paths* has, and what they disagree on.
 
@@ -201,6 +315,7 @@ def survey(paths: Sequence[Path]) -> Survey:
     gids: set[int] = set()
     mtimes: set[int] = set()
     on, off = 0, 0
+    extended: list[_Extended] = []
     for path in paths:
         try:
             st = _stat(path)
@@ -224,11 +339,13 @@ def survey(paths: Sequence[Path]) -> Survey:
             first = False
         else:
             result.single = None
+        extended.append(_extended(path, st))
     result.mixed = on & off
     result.mode = on & ~result.mixed
     result.uid = uids.pop() if len(uids) == 1 else None
     result.gid = gids.pop() if len(gids) == 1 else None
     result.mtime = float(mtimes.pop()) if len(mtimes) == 1 else None
+    _combine(result, extended)
     if result.single is not None and len(paths) == 1:
         try:
             if _elsewhere(paths[0]):
@@ -309,6 +426,59 @@ def _parse_id(text: str, lookup: Callable[[str], int], missing: str) -> int | No
     if text.isdigit():
         return int(text)
     raise ValueError(missing.format(name=text))
+
+
+# -- extended attributes ---------------------------------------------------------
+
+#: The namespaces a name may be in; ``system.*`` is the kernel's (the ACLs).
+XATTR_NAMESPACES = ("user.", "trusted.", "security.")
+
+
+def spell_value(value: bytes) -> str:
+    """*value* as ``getfattr`` would write it: text where it is printable
+    UTF-8 -- quoted when it would otherwise read as hex, base64 or quoted --
+    and ``0x`` and hex digits where it is not."""
+    try:
+        text = value.decode("utf-8")
+    except UnicodeDecodeError:
+        return "0x" + value.hex()
+    if not text.isprintable():
+        return "0x" + value.hex()
+    if text[:2].lower() in ("0x", "0s") or text.startswith('"'):
+        return f'"{text}"'
+    return text
+
+
+def parse_value(text: str) -> bytes:
+    """What :func:`spell_value` writes, read back: ``"text"``, ``0x`` hex,
+    ``0s`` base64, or anything else as text.  ``ValueError`` for bad digits."""
+    import base64
+    import binascii
+
+    if len(text) >= 2 and text.startswith('"') and text.endswith('"'):
+        return text[1:-1].encode("utf-8")
+    prefix = text[:2].lower()
+    if prefix == "0x":
+        try:
+            return bytes.fromhex(text[2:])
+        except ValueError:
+            raise ValueError(tr("{text} is not hexadecimal").format(text=text)) from None
+    if prefix == "0s":
+        try:
+            return base64.b64decode(text[2:], validate=True)
+        except (binascii.Error, ValueError):
+            raise ValueError(tr("{text} is not base64").format(text=text)) from None
+    return text.encode("utf-8")
+
+
+def check_xattr_name(name: str) -> str:
+    """*name*, stripped, if it is one a file may be given; ``ValueError`` if not."""
+    name = name.strip()
+    if not any(name.startswith(space) and len(name) > len(space) for space in XATTR_NAMESPACES):
+        raise ValueError(tr("{name} is not in the user, trusted or security namespace").format(name=name or '""'))
+    if len(name.encode("utf-8")) > 255:
+        raise ValueError(tr("{name} is too long").format(name=name))
+    return name
 
 
 # -- the time --------------------------------------------------------------------
@@ -432,12 +602,35 @@ class AttrRequest:
     mtime: float | None = None
     #: What to change under a tagged directory: one of :data:`RECURSE`.
     recurse: str = NONE
+    #: Access-ACL entries to set and to remove, keyed as
+    #: :meth:`~navigator.lib.file_ops.acl.Acl.entries` keys them, the mask
+    #: (:data:`~navigator.lib.file_ops.acl.MASK_KEY`) among them.
+    acl_set: dict[tuple[str, int | None], int] = field(default_factory=dict)
+    acl_remove: set[tuple[str, int | None]] = field(default_factory=set)
+    #: The same for a directory's default ACL; a file is never given one.
+    default_set: dict[tuple[str, int | None], int] = field(default_factory=dict)
+    default_remove: set[tuple[str, int | None]] = field(default_factory=set)
+    #: Extended attributes to set, by name, and to remove.
+    xattr_set: dict[str, bytes] = field(default_factory=dict)
+    xattr_remove: set[str] = field(default_factory=set)
+    #: Inode flags to turn on, and off (:mod:`~navigator.lib.file_ops.fsflags`).
+    flags_set: int = 0
+    flags_clear: int = 0
+
+    @property
+    def changes_acl(self) -> bool:
+        return bool(self.acl_set or self.acl_remove or self.default_set or self.default_remove)
+
+    @property
+    def changes_flags(self) -> bool:
+        return bool(self.flags_set or self.flags_clear)
 
     @property
     def changes_nothing(self) -> bool:
         return not (
             self.set_bits or self.clear_bits or self.uid is not None
             or self.gid is not None or self.mtime is not None
+            or self.changes_acl or self.xattr_set or self.xattr_remove or self.changes_flags
         )
 
 
@@ -455,68 +648,110 @@ class AttrJob(Job):
 
 def apply_one(path: Path, request: AttrRequest, *, follow: bool = True, as_root: bool = False) -> None:
     """Change *path* as *request* says.  ``OSError`` as the calls raise it.
-    *as_root* makes the same calls through the root helper."""
+    *as_root* makes the same calls through the root helper
+    (:data:`~navigator.lib.drives.root.ROOT_DRIVE`).
+
+    In this order, each step passed over when it changes nothing: the
+    locking flags (``i``, ``a``) cleared, the owner, the ACLs, the mode, the
+    extended attributes, the time, and the flags set -- ``chattr +i`` last, as
+    it refuses everything after it, and ``-i`` first, for the same reason.
+    """
+    elsewhere = _elsewhere(path) and not as_root
     if as_root:
-        _apply_as_root(path, request, follow=follow)
-        return
-    if _elsewhere(path):
-        _apply_elsewhere(path, request, follow=follow)
-        return
-    st = os.stat(path, follow_symlinks=follow)
-    chowned = False
-    uid = -1 if request.uid is None or request.uid == st.st_uid else request.uid
-    gid = -1 if request.gid is None or request.gid == st.st_gid else request.gid
-    if uid != -1 or gid != -1:
-        os.chown(path, uid, gid, follow_symlinks=follow)
-        chowned = True
-    old = stat.S_IMODE(st.st_mode)
-    new = (old & ~request.clear_bits) | request.set_bits
-    if new != old or (chowned and old & (stat.S_ISUID | stat.S_ISGID)):
-        os.chmod(path, new)
-    if request.mtime is not None:
-        os.utime(path, (st.st_atime, request.mtime), follow_symlinks=follow)
+        from navigator.lib.drives.location import Location
+        from navigator.lib.drives.root import ROOT_DRIVE
 
-
-def _apply_as_root(path: Any, request: AttrRequest, *, follow: bool) -> None:
-    """:func:`apply_one`'s calls, each one the root helper's
-    (:data:`~navigator.lib.drives.root.ROOT_DRIVE`)."""
-    from navigator.lib.drives.location import Location
-    from navigator.lib.drives.root import ROOT_DRIVE
-
-    where = Location.of(Path(_local(path)))
-    st = ROOT_DRIVE.stat(where) if follow else ROOT_DRIVE.lstat(where)
-    chowned = False
-    uid = -1 if request.uid is None or request.uid == st.st_uid else request.uid
-    gid = -1 if request.gid is None or request.gid == st.st_gid else request.gid
-    if uid != -1 or gid != -1:
-        ROOT_DRIVE.chown(where, uid, gid, follow=follow)
-        chowned = True
-    old = stat.S_IMODE(st.st_mode)
-    new = (old & ~request.clear_bits) | request.set_bits
-    if new != old or (chowned and old & (stat.S_ISUID | stat.S_ISGID)):
-        ROOT_DRIVE.chmod(where, new)
-    if request.mtime is not None:
-        ROOT_DRIVE.utime(where, st.st_atime_ns, int(request.mtime * 1e9), follow=follow)
-
-
-def _apply_elsewhere(location: Any, request: AttrRequest, *, follow: bool) -> None:
-    """:func:`apply_one` on another drive: what it can set (``Drive.chmod``,
-    ``chown``, ``utime``), and an ``OSError`` for what it cannot."""
-    from navigator.lib.drives import drive_of
-
-    drive = drive_of(location)
-    st = drive.stat(location) if follow else drive.lstat(location)
-    if stat.S_ISLNK(st.st_mode):
+        drive, where = ROOT_DRIVE, Location.of(Path(_local(path)))
+    else:
+        drive, where = _place(path)
+    st = drive.stat(where) if follow else drive.lstat(where)
+    if elsewhere and stat.S_ISLNK(st.st_mode):
         return  # a server sets a link's target's attributes, never its own
-    if (request.uid is not None and request.uid != st.st_uid) or (request.gid is not None and request.gid != st.st_gid):
-        drive.chown(location, st.st_uid if request.uid is None else request.uid,
-                    st.st_gid if request.gid is None else request.gid)
+
+    flags = None
+    if request.changes_flags and fsflags.has_flags(st.st_mode):
+        old_flags = drive.get_flags(where, follow=follow)
+        flags = (old_flags & ~request.flags_clear) | request.flags_set
+        if flags == old_flags:
+            flags = None
+        elif old_flags & fsflags.LOCKING & ~flags:
+            drive.set_flags(where, old_flags & ~(fsflags.LOCKING & ~flags), follow=follow)
+
+    chowned = False
+    uid = -1 if request.uid is None or request.uid == st.st_uid else request.uid
+    gid = -1 if request.gid is None or request.gid == st.st_gid else request.gid
+    if uid != -1 or gid != -1:
+        if elsewhere:
+            drive.chown(where, st.st_uid if uid == -1 else uid, st.st_gid if gid == -1 else gid)
+        else:
+            drive.chown(where, uid, gid, follow=follow)
+        chowned = True
+
+    if request.changes_acl and not stat.S_ISLNK(st.st_mode):
+        if _apply_acls(drive, where, request, st, follow=follow):
+            # The access ACL's mask is the mode's group bits.
+            st = drive.stat(where) if follow else drive.lstat(where)
+
     old = stat.S_IMODE(st.st_mode)
     new = (old & ~request.clear_bits) | request.set_bits
-    if new != old:
-        drive.chmod(location, new)
+    if new != old or (not elsewhere and chowned and old & (stat.S_ISUID | stat.S_ISGID)):
+        drive.chmod(where, new)
+
+    if request.xattr_remove or request.xattr_set:
+        present = set(drive.listxattr(where, follow=follow))
+        for name in sorted(request.xattr_remove):
+            if name in present:
+                drive.removexattr(where, name, follow=follow)
+        for name, value in sorted(request.xattr_set.items()):
+            drive.setxattr(where, name, value, follow=follow)
+
     if request.mtime is not None:
-        drive.utime(location, int(st.st_atime * 1e9), int(request.mtime * 1e9))
+        drive.utime(where, st.st_atime_ns, int(request.mtime * 1e9), follow=follow)
+
+    if flags is not None:
+        drive.set_flags(where, flags, follow=follow)
+
+
+def _apply_acls(drive: Any, where: Any, request: AttrRequest, st: Any, *, follow: bool) -> bool:
+    """*request*'s ACL deltas on *where*; whether the access ACL was written."""
+    access_changed = False
+    present = set(drive.listxattr(where, follow=follow))
+    current = (acls.parse(drive.getxattr(where, acls.ACCESS, follow=follow))
+               if acls.ACCESS in present else acls.from_mode(st.st_mode))
+    if request.acl_set or request.acl_remove:
+        new = acls.apply_deltas(current, request.acl_set, request.acl_remove)
+        if new != current:
+            _write_acl(drive, where, acls.ACCESS, new, acls.ACCESS in present, follow=follow)
+            access_changed = True
+            current = new
+    if (request.default_set or request.default_remove) and stat.S_ISDIR(st.st_mode):
+        default = (acls.parse(drive.getxattr(where, acls.DEFAULT, follow=follow))
+                   if acls.DEFAULT in present else None)
+        base = default if default is not None else acls.seed_default(current)
+        new = acls.apply_deltas(base, request.default_set, request.default_remove)
+        if new != default:
+            _write_acl(drive, where, acls.DEFAULT, new, default is not None, follow=follow)
+    return access_changed
+
+
+def _write_acl(drive: Any, where: Any, name: str, acl: acls.Acl, present: bool, *, follow: bool) -> None:
+    """*acl* written under *name*, or removed when minimal (``setfacl -b``).
+
+    A minimal access ACL is the mode's three triplets, which the mode already
+    says; a minimal default ACL is no default at all.
+    """
+    if acl.minimal:
+        if name == acls.ACCESS:
+            # The group entry back as the group bits, which the mask held.
+            st = drive.stat(where) if follow else drive.lstat(where)
+            mode = stat.S_IMODE(st.st_mode) & ~0o070 | (acl.group << 3)
+            if present:
+                drive.removexattr(where, name, follow=follow)
+            drive.chmod(where, mode)
+        elif present:
+            drive.removexattr(where, name, follow=follow)
+        return
+    drive.setxattr(where, name, acls.pack(acl), follow=follow)
 
 
 def run(request: AttrRequest, job: AttrJob) -> list[Path]:
@@ -683,6 +918,7 @@ class _Changer(Elevated):
 
 
 __all__ = [
+    "XATTR_NAMESPACES", "check_xattr_name", "parse_value", "spell_value", "read_acl", "read_xattrs",
     "ALL", "AttrJob", "AttrRequest", "BITS", "CHANGING", "DIRS", "FILES", "MODE_MASK", "NONE",
     "RECURSE", "Survey", "apply_one", "assignable_groups", "can_chown_user", "date_text",
     "from_items", "group_name", "groups", "octal", "parse_group", "parse_mtime", "parse_octal",

@@ -15,7 +15,7 @@ from collections.abc import Iterable
 from pathlib import Path, PurePosixPath
 from typing import IO, Any
 
-from navigator.lib.drives.base import CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive
+from navigator.lib.drives.base import CHMOD, CHOWN, FSFLAGS, RENAME, SYMLINK, WRITE, XATTR, Child, Drive
 from navigator.lib.drives.local import LocalDrive
 from navigator.lib.drives.location import LOCAL_SITE, Location, Site
 from navigator.lib.system.elevate import ELEVATION
@@ -180,6 +180,24 @@ class RootDrive(LocalDrive):
     def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
         ELEVATION.call("utime", path=_path(location), atime_ns=atime_ns, mtime_ns=mtime_ns, follow=follow)
 
+    def listxattr(self, location: Location, *, follow: bool = True) -> list[str]:
+        return ELEVATION.call("listxattr", path=_path(location), follow=follow)
+
+    def getxattr(self, location: Location, name: str, *, follow: bool = True) -> bytes:
+        return ELEVATION.call_data("getxattr", path=_path(location), name=name, follow=follow)[1]
+
+    def setxattr(self, location: Location, name: str, value: bytes, *, follow: bool = True) -> None:
+        ELEVATION.call("setxattr", value, path=_path(location), name=name, follow=follow)
+
+    def removexattr(self, location: Location, name: str, *, follow: bool = True) -> None:
+        ELEVATION.call("removexattr", path=_path(location), name=name, follow=follow)
+
+    def get_flags(self, location: Location, *, follow: bool = True) -> int:
+        return ELEVATION.call("get_flags", path=_path(location), follow=follow)
+
+    def set_flags(self, location: Location, flags: int, *, follow: bool = True) -> None:
+        ELEVATION.call("set_flags", path=_path(location), flags=flags, follow=follow)
+
     def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
                         follow: bool) -> None:
         if not isinstance(source_drive, LocalDrive):
@@ -268,7 +286,7 @@ class RootSiteDrive(Drive):
     is not watched for changes, and the free space is not asked."""
 
     site = ROOT_SITE
-    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN))
+    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN, XATTR, FSFLAGS))
 
     def scan(self, location: Location, show_hidden: bool, sort: str, *, free: bool,
              **options: Any) -> tuple[list, str | None, tuple[int, str] | None]:
@@ -365,6 +383,24 @@ class RootSiteDrive(Drive):
 
     def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
         ROOT_DRIVE.utime(on_disk(location), atime_ns, mtime_ns, follow=follow)
+
+    def listxattr(self, location: Location, *, follow: bool = True) -> list[str]:
+        return ROOT_DRIVE.listxattr(on_disk(location), follow=follow)
+
+    def getxattr(self, location: Location, name: str, *, follow: bool = True) -> bytes:
+        return ROOT_DRIVE.getxattr(on_disk(location), name, follow=follow)
+
+    def setxattr(self, location: Location, name: str, value: bytes, *, follow: bool = True) -> None:
+        ROOT_DRIVE.setxattr(on_disk(location), name, value, follow=follow)
+
+    def removexattr(self, location: Location, name: str, *, follow: bool = True) -> None:
+        ROOT_DRIVE.removexattr(on_disk(location), name, follow=follow)
+
+    def get_flags(self, location: Location, *, follow: bool = True) -> int:
+        return ROOT_DRIVE.get_flags(on_disk(location), follow=follow)
+
+    def set_flags(self, location: Location, flags: int, *, follow: bool = True) -> None:
+        ROOT_DRIVE.set_flags(on_disk(location), flags, follow=follow)
 
     def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
                         follow: bool) -> None:

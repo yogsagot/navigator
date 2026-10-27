@@ -1,0 +1,69 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Alt+E's *ACL* page, *Add* or *Edit*: one entry of a POSIX ACL.  Not DN's.
+#:
+#: Whom it names is picked, never typed, as the *Mode* page's owner and group
+#: are: *Type* says from which list, the passwd database's or the group
+#: database's -- all of either, since an ACL may name anyone -- and any key on
+#: *Name* drops it, typing searching it.  *Default* puts the entry in a
+#: directory's default ACL, which what is made in it inherits.
+AclEntryDialog(Dialog):
+    modal_width: 56
+    modal_height: 13
+    title: "ACL Entry"
+    buttons: "ok-cancel"
+
+    Label:
+        id: kind_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~T~ype"
+        link: kind
+
+    RadioButtons:
+        id: kind
+        x: 14
+        y: 1
+        width: max(0, parent.width - 16)
+        height: 1
+        items: ["User", "Group"]
+
+    ChoiceField:
+        id: who
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~N~ame"
+        label_width: 12
+
+    Label:
+        id: perms_caption
+        x: 2
+        y: 5
+        width: 12
+        height: 1
+        text: "~P~ermissions"
+        link: perms
+
+    CheckBoxes:
+        id: perms
+        x: 14
+        y: 5
+        width: max(0, parent.width - 16)
+        height: 1
+        items: ["Read", "Write", "Exec"]
+
+    CheckBoxes:
+        id: default_box
+        x: 14
+        y: 7
+        width: max(0, parent.width - 16)
+        height: 1
+        items: ["~D~efault, inherited by new files"]

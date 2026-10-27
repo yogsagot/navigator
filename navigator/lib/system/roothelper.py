@@ -284,6 +284,37 @@ class _Helper:
         with self._pinned(path, follow=follow) as there:
             os.utime(there, ns=(atime_ns, mtime_ns), follow_symlinks=not PINNABLE and follow)
 
+    # Extended attributes (and the ACLs in them) and inode flags, Alt+E's:
+    # each on the name _pinned gives, whose end is never a link followed.
+
+    def listxattr(self, path: str, follow: bool) -> list[str]:
+        with self._pinned(path, follow=follow) as there:
+            return os.listxattr(there, follow_symlinks=not PINNABLE and follow)
+
+    def getxattr(self, path: str, name: str, follow: bool) -> tuple[None, bytes]:
+        with self._pinned(path, follow=follow) as there:
+            return None, os.getxattr(there, name, follow_symlinks=not PINNABLE and follow)
+
+    def setxattr(self, path: str, name: str, follow: bool, data: bytes = b"") -> None:
+        with self._pinned(path, follow=follow) as there:
+            os.setxattr(there, name, data, follow_symlinks=not PINNABLE and follow)
+
+    def removexattr(self, path: str, name: str, follow: bool) -> None:
+        with self._pinned(path, follow=follow) as there:
+            os.removexattr(there, name, follow_symlinks=not PINNABLE and follow)
+
+    def get_flags(self, path: str, follow: bool) -> int:
+        from navigator.lib.file_ops import fsflags
+
+        with self._pinned(path, follow=follow) as there:
+            return fsflags.get_flags(there, follow=not PINNABLE and follow)
+
+    def set_flags(self, path: str, flags: int, follow: bool) -> None:
+        from navigator.lib.file_ops import fsflags
+
+        with self._pinned(path, follow=follow) as there:
+            fsflags.set_flags(there, flags, follow=not PINNABLE and follow)
+
     def copystat(self, source: str, dest: str, follow: bool) -> None:
         try:
             with self._pinned(dest, follow=follow) as there:
