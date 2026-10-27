@@ -37,6 +37,10 @@ class CompareRequest:
     #: *Select* (True) tags what differs, after untagging everything; *Unselect*
     #: (False) only untags what differs.
     select: bool = True
+    #: *Window, recursive*: what differs, down both trees, listed in a window
+    #: to synchronize from (:mod:`navigator.lib.file_ops.dirsync`), the panels'
+    #: tags left alone.  ``select`` is meaningless with it.
+    window: bool = False
 
 
 def differing(mine: Iterable[Any], theirs: Iterable[Any], request: CompareRequest,
@@ -71,14 +75,40 @@ def _matches(entry: Any, other: Any, request: CompareRequest,
     if request.contents:
         if here is None or there is None:
             raise ValueError("comparing contents needs both directories")
-        mine, theirs = entry.path_in(here), other.path_in(there)
-        try:
-            if isinstance(mine, (str, os.PathLike)) and isinstance(theirs, (str, os.PathLike)):
-                return filecmp.cmp(mine, theirs, shallow=False)
-            return same_bytes(mine, theirs)
-        except OSError:
-            return False  # one that cannot be read is not shown to be the same
+        return same_contents(entry.path_in(here), other.path_in(there))
     return True
+
+
+def same_file(entry: Any, other: Any, request: CompareRequest, mine: Any = None, theirs: Any = None) -> bool:
+    """Whether two files, both there, pass every check *request* asks for --
+    either way round, which :func:`differing`'s *this one no newer* is not:
+    the recursive compare lists a pair once, not each side against the other.
+    *entry* and *other* have ``size``, ``mtime`` and ``mode``; *mine* and
+    *theirs* are where they are, needed only to compare contents."""
+    if request.size and entry.size != other.size:
+        return False
+    if request.time and int(entry.mtime) != int(other.mtime):
+        return False
+    if request.attributes and stat.S_IMODE(entry.mode) != stat.S_IMODE(other.mode):
+        return False
+    if request.contents:
+        if entry.size != other.size:
+            return False  # without reading either
+        if mine is None or theirs is None:
+            raise ValueError("comparing contents needs both files")
+        return same_contents(mine, theirs)
+    return True
+
+
+def same_contents(mine: Any, theirs: Any) -> bool:
+    """Whether the files at *mine* and *theirs* hold the same bytes; one that
+    cannot be read is not shown to be the same."""
+    try:
+        if isinstance(mine, (str, os.PathLike)) and isinstance(theirs, (str, os.PathLike)):
+            return filecmp.cmp(mine, theirs, shallow=False)
+        return same_bytes(mine, theirs)
+    except OSError:
+        return False
 
 
 def same_bytes(a: Any, b: Any, chunk: int = 1 << 16) -> bool:

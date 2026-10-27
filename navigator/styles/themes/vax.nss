@@ -416,6 +416,20 @@ $git-ignored-fg: $panel-fg;           /*  git's ignored -- on Normal text, as te
 $git-ignored-bg: $panel-bg;
 $git-conflict-fg: $highlight-custom-4-fg;/*  git's unmerged -- on Custom 4, as deleted [180] */
 $git-conflict-bg: $highlight-custom-4-bg;
+$diff-added-fg: $editor-highlight-symbols-fg;/*  Compare files' added lines -- DN compared no files; on Symbols, as the viewer's [189] */
+$diff-added-bg: $editor-highlight-symbols-bg;
+$diff-removed-fg: $editor-highlight-strings-fg;/*  Compare files' removed lines -- on Strings [190] */
+$diff-removed-bg: $editor-highlight-strings-bg;
+$diff-changed-fg: $editor-highlight-numbers-fg;/*  Compare files' changed lines -- on Numbers [191] */
+$diff-changed-bg: $editor-highlight-numbers-bg;
+$sync-new-fg: $highlight-custom-2-fg; /*  Synchronize's rows on one side alone -- DN had no such window; on Custom 2 [176] */
+$sync-new-bg: $highlight-custom-2-bg;
+$sync-changed-fg: $highlight-custom-3-fg;/*  Synchronize's rows that differ -- on Custom 3 [177] */
+$sync-changed-bg: $highlight-custom-3-bg;
+$sync-same-fg: $panel-fg;             /*  Synchronize's rows that are the same -- on Normal text [85] */
+$sync-same-bg: $panel-bg;
+$sync-conflict-fg: $highlight-custom-4-fg;/*  Synchronize's conflicts -- on Custom 4 [180] */
+$sync-conflict-bg: $highlight-custom-4-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

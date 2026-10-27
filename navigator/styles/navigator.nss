@@ -462,6 +462,29 @@ VolumesWindow ScrollBar                        { fg: $dialog-scroll-bar-page-fg;
 VolumesWindow ScrollBar::arrow,
 VolumesWindow ScrollBar::thumb                 { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg; bold: $dialog-scroll-bar-icons-bold; dim: $dialog-scroll-bar-icons-dim; italic: $dialog-scroll-bar-icons-italic; underline: $dialog-scroll-bar-icons-underline; reverse: $dialog-scroll-bar-icons-reverse }
 
+/* Compare directories' Synchronize window, not DN's: a dialog's frame as
+   Disk > Volumes', round a file panel's rows -- Normal text [85], the cursor
+   [88], the column titles [165] -- so a row's status colours it as a file
+   type colours a panel's row: Navigator's sync-* aliases, of DN's Custom
+   slots, on the panel's ground. */
+SyncWindow,
+SyncWindow:active                              { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+SyncWindow::title,
+SyncWindow:active::title                       { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+SyncWindow::icon                               { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
+SyncWindow SyncList                            { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+SyncWindow SyncList::row.only                  { fg: $sync-new-fg; bg: $sync-new-bg; bold: $sync-new-bold; dim: $sync-new-dim; italic: $sync-new-italic; underline: $sync-new-underline; reverse: $sync-new-reverse }
+SyncWindow SyncList::row.differs               { fg: $sync-changed-fg; bg: $sync-changed-bg; bold: $sync-changed-bold; dim: $sync-changed-dim; italic: $sync-changed-italic; underline: $sync-changed-underline; reverse: $sync-changed-reverse }
+SyncWindow SyncList::row.same                  { fg: $sync-same-fg; bg: $sync-same-bg; bold: $sync-same-bold; dim: $sync-same-dim; italic: $sync-same-italic; underline: $sync-same-underline; reverse: $sync-same-reverse }
+SyncWindow SyncList::row.conflict              { fg: $sync-conflict-fg; bg: $sync-conflict-bg; bold: $sync-conflict-bold; dim: $sync-conflict-dim; italic: $sync-conflict-italic; underline: $sync-conflict-underline; reverse: $sync-conflict-reverse }
+SyncWindow SyncList::row:selected              { fg: $cursor-fg; bg: $cursor-bg; bold: $cursor-bold; dim: $cursor-dim; italic: $cursor-italic; underline: $cursor-underline; reverse: $cursor-reverse }
+SyncWindow SyncList::divider                   { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+SyncWindow SyncList::heading                   { fg: $column-title-fg; bg: $column-title-bg; bold: $column-title-bold; dim: $column-title-dim; italic: $column-title-italic; underline: $column-title-underline; reverse: $column-title-reverse }
+SyncWindow SyncList::error                     { fg: $panel-fg; bg: $panel-bg; bold: $panel-bold; dim: $panel-dim; italic: $panel-italic; underline: $panel-underline; reverse: $panel-reverse }
+SyncWindow ScrollBar                           { fg: $dialog-scroll-bar-page-fg; bg: $dialog-scroll-bar-page-bg; bold: $dialog-scroll-bar-page-bold; dim: $dialog-scroll-bar-page-dim; italic: $dialog-scroll-bar-page-italic; underline: $dialog-scroll-bar-page-underline; reverse: $dialog-scroll-bar-page-reverse }
+SyncWindow ScrollBar::arrow,
+SyncWindow ScrollBar::thumb                    { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg; bold: $dialog-scroll-bar-icons-bold; dim: $dialog-scroll-bar-icons-dim; italic: $dialog-scroll-bar-icons-italic; underline: $dialog-scroll-bar-icons-underline; reverse: $dialog-scroll-bar-icons-reverse }
+
 /* The file viewer: TFileWindow takes CViewWindow, the File Viewer group
    [112] to [118] -- its frame, its scroll bar (TViewScroll, through
    CScrollBar), the text and a search hit.  TViewInfo draws over the bottom
@@ -485,6 +508,30 @@ FileWindow ScrollBar::arrow,
 FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg; bold: $viewer-scroll-bar-icons-bold; dim: $viewer-scroll-bar-icons-dim; italic: $viewer-scroll-bar-icons-italic; underline: $viewer-scroll-bar-icons-underline; reverse: $viewer-scroll-bar-icons-reverse }
 FileViewer                                     { fg: $viewer-normal-text-fg;   bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
 FileViewer::selected                           { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
+
+/* File > Compare files, not DN's: dressed as the viewer is, its window the
+   File Viewer group's frame, its text the viewer's Normal text [117], the
+   paths over the columns its active frame, the current difference's marks
+   its Selected text [118].  A line added, removed or changed is drawn in its
+   own colour on the viewer's ground: Navigator's diff-* aliases, of the
+   Highlight slots the viewer's syntax colours use. */
+DiffWindow                                     { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg; bold: $viewer-frame-passive-bold; dim: $viewer-frame-passive-dim; italic: $viewer-frame-passive-italic; underline: $viewer-frame-passive-underline; reverse: $viewer-frame-passive-reverse }
+DiffWindow:active                              { fg: $viewer-frame-active-fg; bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+DiffWindow::title                              { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg; bold: $viewer-frame-passive-bold; dim: $viewer-frame-passive-dim; italic: $viewer-frame-passive-italic; underline: $viewer-frame-passive-underline; reverse: $viewer-frame-passive-reverse }
+DiffWindow:active::title                       { fg: $viewer-frame-active-fg; bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+DiffWindow::icon                               { fg: $viewer-frame-icons-fg; bg: $viewer-frame-icons-bg; bold: $viewer-frame-icons-bold; dim: $viewer-frame-icons-dim; italic: $viewer-frame-icons-italic; underline: $viewer-frame-icons-underline; reverse: $viewer-frame-icons-reverse }
+DiffWindow StaticText#info                     { fg: $viewer-frame-active-fg; bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+DiffWindow ScrollBar                           { fg: $viewer-scroll-bar-page-fg; bg: $viewer-scroll-bar-page-bg; bold: $viewer-scroll-bar-page-bold; dim: $viewer-scroll-bar-page-dim; italic: $viewer-scroll-bar-page-italic; underline: $viewer-scroll-bar-page-underline; reverse: $viewer-scroll-bar-page-reverse }
+DiffWindow ScrollBar::arrow,
+DiffWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg; bold: $viewer-scroll-bar-icons-bold; dim: $viewer-scroll-bar-icons-dim; italic: $viewer-scroll-bar-icons-italic; underline: $viewer-scroll-bar-icons-underline; reverse: $viewer-scroll-bar-icons-reverse }
+DiffView                                       { fg: $viewer-normal-text-fg; bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
+DiffView::heading                              { fg: $viewer-frame-active-fg; bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+DiffView::divider                              { fg: $viewer-normal-text-fg; bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
+DiffView::line.added                           { fg: $diff-added-fg; bold: $diff-added-bold; dim: $diff-added-dim; italic: $diff-added-italic; underline: $diff-added-underline; reverse: $diff-added-reverse }
+DiffView::line.removed                         { fg: $diff-removed-fg; bold: $diff-removed-bold; dim: $diff-removed-dim; italic: $diff-removed-italic; underline: $diff-removed-underline; reverse: $diff-removed-reverse }
+DiffView::line.changed                         { fg: $diff-changed-fg; bold: $diff-changed-bold; dim: $diff-changed-dim; italic: $diff-changed-italic; underline: $diff-changed-underline; reverse: $diff-changed-reverse }
+DiffView::filler                               { dim: true }
+DiffView::mark.current                         { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
 
 /* The dBase viewer (File > View > As DataBase): TDBWindow takes CDBWindow,
    the dBase viewer group [166] to [171] -- its frame, icons, the field

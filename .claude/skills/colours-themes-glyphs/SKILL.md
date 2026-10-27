@@ -70,7 +70,9 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   since adding them regenerates every theme. Keywords have no slot: `DERIVED`'s `keyword` (alias of [76], yellow in
   `default`). The ten other themes were given palconv's two alias lines by hand, as palconv would write them.
 - Variables Navigator needs and DN had no slot for are the **`DERIVED`** table, each an alias of a slot, with
-  palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`).
+  palconv's `DERIVED_DEPARTURES` for a theme that wants otherwise (`default`'s `symlink` and `temp`). With no `.PAL`
+  at hand, a new alias's lines are written into the eleven DOS themes as palconv would (its `SLOTS` names, its
+  column), and themegen is rerun for the rest -- as `diff-*` and `sync-*` were (`navigator-compare`).
   `root-title`, `error-dialog` (white on red), `error-dialog-icons` (yellow on red) and `error-dialog-shadow` (black on
   red, the buttons' shadows) are colour pairs, not aliases; bw, mono and vga-bw give the error box a #555555 ground instead,
   as their red is a near-black grey.

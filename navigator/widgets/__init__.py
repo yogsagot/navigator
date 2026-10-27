@@ -77,6 +77,8 @@ _WIDGETS = {
     "InfoLine": "editor.file_editor",
     "FileHistoryDialog": "shell.file_history_dialog",
     "FileRecordList": "shell.file_record_list",
+    "DiffView": "viewer.diff_view",
+    "DiffWindow": "viewer.diff_window",
     "FileViewer": "viewer.file_viewer",
     "FileWindow": "viewer.file_window",
     "FMDefaultsPage": "setup.fm_defaults_page",
@@ -98,6 +100,8 @@ _WIDGETS = {
     "SystemSetupPage": "setup.system_setup_page",
     "TreeWindow": "tree.tree_window",
     "VolumesWindow": "shell.volumes_window",
+    "SyncList": "manager.sync_list",
+    "SyncWindow": "manager.sync_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
     "WriteWin": "file_ops.write_win",
 }
@@ -150,6 +154,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.char_table import CharTable
     from navigator.widgets.shell.unicode_chart import UnicodeChart
     from navigator.widgets.shell.unicode_grid import UnicodeGrid
+    from navigator.widgets.viewer.diff_view import DiffView
+    from navigator.widgets.viewer.diff_window import DiffWindow
     from navigator.widgets.viewer.file_viewer import FileViewer
     from navigator.widgets.viewer.file_window import FileWindow
     from navigator.widgets.viewer.goto_dialog import GotoDialog
@@ -166,6 +172,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.shell import Shell
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.shell.volumes_window import VolumesWindow
+    from navigator.widgets.manager.sync_list import SyncList
+    from navigator.widgets.manager.sync_window import SyncWindow
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
     from navigator.widgets.setup.confirmations_page import ConfirmationsPage
     from navigator.widgets.setup.editor_defaults_page import EditorDefaultsPage

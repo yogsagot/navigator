@@ -420,14 +420,8 @@ are left out; its memory three are read for POSIX.
 
 ## Comparing directories (Panel menu)
 
-`CompareDir`, `Manager.compare_directories`, DN's `cmCompareDir` -> `CM_CompareDirs`, from Panel > Compare directories
-only -- DN's Ctrl+C is left unbound, kept for a clipboard copy still to be designed:
-`CompareDialog` (`dlgCompareDirs`: size, time, attributes, contents; Select/Unselect; opens on size+time+Select every
-time, as `DT` was reset) then `navigator/lib/file_ops/dircompare.py` on each panel against the other. A file matches one of the
-same name (exact case) passing every check: same size, **this one no newer** (to the second), same permission bits,
-same bytes. *Select* tags exactly what has no match (directories never), *Unselect* only untags it -- so Select tags
-what a copy across would bring up to date. Only *contents* reads the disk, on a thread under *Comparing files*; Esc
-leaves the tags. A panel that moved meanwhile is left alone.
+Panel > Compare directories (DN's `cmCompareDir`), its *Window, recursive* Synchronize window and File > Compare
+files are the `navigator-compare` skill.
 
 ## Same directory in other panel (Alt+=)
 

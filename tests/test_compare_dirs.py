@@ -151,3 +151,102 @@ def test_the_menu_entry_runs_it_and_ctrl_c_is_left_free(sides):
     run_app(app, [look, KeyEvent("c", ctrl=True), lambda a: None,
                   lambda a: seen.update(modal=a.modal)])
     assert seen["key"] in ("", None) and seen["modal"] is None
+
+
+# -- Window, recursive: the Synchronize window ---------------------------------------------
+
+
+def test_the_third_mode_asks_for_the_window():
+    dialog = CompareDialog()
+    dialog.mode.value = 2
+    assert dialog.accept() == CompareRequest(select=False, window=True)
+
+
+def sync_window(app):
+    from navigator.widgets.manager.sync_window import SyncWindow
+
+    return next((w for w in app.shell.desktop.windows() if isinstance(w, SyncWindow)), None)
+
+
+def listed(app) -> dict[str, tuple[str, str]]:
+    return {str(row.path): (row.status, row.action) for row in sync_window(app).rows.items}
+
+
+def open_window(app) -> list:
+    """The actions that open the window: the dialog, *Window, recursive*, OK."""
+    return [compare, lambda a: None, KeyEvent("w", alt=True), KeyEvent("enter"), Until(sync_window)]
+
+
+def test_the_window_lists_what_differs_down_both_trees(sides):
+    (sides / "west" / "sub" / "deep").write_bytes(b"x")
+    app = navigator(sides)
+    seen = {}
+    run_app(app, [*open_window(app), lambda a: seen.update(rows=listed(a), tags=tags(a)),
+                  KeyEvent("h", ctrl=True), lambda a: seen.update(all=listed(a))])
+    assert seen["rows"] == {
+        "b": ("differs", "right"), "c": ("left-only", "right"), "d": ("differs", "skip"),
+        "e": ("right-only", "left"), "sub/deep": ("left-only", "right"),
+    }
+    assert seen["tags"] == (set(), set())
+    assert seen["all"]["a"] == ("same", "skip")
+
+
+def test_the_keys_change_a_rows_action_and_refuse_what_it_cannot_be(sides):
+    app = navigator(sides)
+    seen = []
+
+    def to(a, path):
+        rows = sync_window(a).rows
+        rows.cursor = next(i for i, row in enumerate(rows.items) if str(row.path) == path)
+
+    run_app(app, [*open_window(app), lambda a: to(a, "c"), KeyEvent("delete"),
+                  lambda a: seen.append(listed(a)["c"]), KeyEvent("left"), lambda a: seen.append(listed(a)["c"]),
+                  KeyEvent("backspace"), lambda a: seen.append(listed(a)["c"]),
+                  lambda a: to(a, "b"), KeyEvent("left"), lambda a: seen.append(listed(a)["b"]),
+                  KeyEvent("space"), lambda a: seen.append(listed(a)["b"]),
+                  KeyEvent("right", ctrl=True), lambda a: seen.append(listed(a))])
+    assert seen[0] == ("left-only", "delete")
+    assert seen[1] == ("left-only", "delete")  # a file the right lacks cannot come from there
+    assert seen[2] == ("left-only", "right")
+    assert seen[3] == ("differs", "left") and seen[4] == ("differs", "skip")
+    assert {path: action for path, (_, action) in seen[5].items()} == {
+        "b": "right", "c": "right", "d": "right", "e": "left"}
+
+
+def test_synchronize_copies_and_deletes_then_finds_the_trees_the_same(sides):
+    app = navigator(sides)
+    seen = {}
+
+    def delete_e(a):
+        rows = sync_window(a).rows
+        rows.cursor = next(i for i, row in enumerate(rows.items) if str(row.path) == "e")
+
+    run_app(app, [*open_window(app), delete_e, KeyEvent("delete"), KeyEvent("f5"),
+                  Until(lambda a: a.modal is not None), lambda a: seen.update(prompt=a.modal.prompt),
+                  KeyEvent("enter"), Until(lambda a: "c" not in listed(a), timeout=5),
+                  lambda a: seen.update(rows=listed(a), error=sync_window(a).rows.error)])
+    assert "Copy 2 files and delete 1 file?" in seen["prompt"]
+    assert seen["rows"] == {"d": ("differs", "skip")}  # same time, other size: nobody newer
+    assert (sides / "east" / "c").read_bytes() == b"3"
+    assert (sides / "west" / "b").stat().st_mtime == (sides / "east" / "b").stat().st_mtime == 300
+    assert not (sides / "east" / "e").exists()
+
+
+def test_enter_on_a_pair_that_differs_compares_the_two_files(sides):
+    from navigator.widgets.viewer.diff_window import DiffWindow
+
+    (sides / "west" / "d").write_text("one\ntwo\n")
+    (sides / "east" / "d").write_text("one\nthree\n")
+    app = navigator(sides)
+    seen = {}
+
+    def to_d(a):
+        rows = sync_window(a).rows
+        rows.cursor = next(i for i, row in enumerate(rows.items) if str(row.path) == "d")
+
+    def diff_window(a):
+        return next((w for w in a.shell.desktop.windows() if isinstance(w, DiffWindow)), None)
+
+    run_app(app, [*open_window(app), to_d, KeyEvent("enter"), Until(diff_window),
+                  lambda a: seen.update(hunks=diff_window(a).view.model.hunks)])
+    assert seen["hunks"] == (1,)

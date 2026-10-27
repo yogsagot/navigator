@@ -8,9 +8,14 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: *Options* over *Selection mode*, as ``DN.DNR`` stacks them; the buttons go
 #: under them rather than down the right, where this library puts every
 #: dialog's, and DN's Help goes until there is help to show.
+#:
+#: **A departure**: a third mode, *Window, recursive* -- what differs down
+#: both trees, listed in the *Synchronize* window (``SyncWindow``) rather
+#: than tagged.  Select stays first and is chosen every time, so the dialog
+#: opens as DN's did.
 CompareDialog(Dialog):
     modal_width: 34
-    modal_height: 15
+    modal_height: 16
     title: "Compare directories"
 
     Label:
@@ -46,5 +51,5 @@ CompareDialog(Dialog):
         x: 2
         y: 8
         width: 26
-        height: 2
-        items: ["S~e~lect", "~U~nselect"]
+        height: 3
+        items: ["S~e~lect", "~U~nselect", "~W~indow, recursive"]

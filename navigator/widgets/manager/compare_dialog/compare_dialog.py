@@ -20,4 +20,5 @@ class CompareDialog(Dialog):
             attributes=bool(options & 4),
             contents=bool(options & 8),
             select=self.mode.value == 0,
+            window=self.mode.value == 2,
         )

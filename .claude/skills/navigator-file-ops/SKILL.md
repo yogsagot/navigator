@@ -39,6 +39,9 @@ leaves the row blank.
 - **Without path names** (`CopyRequest.flatten`, *Extract files*' box unticked): a directory copied puts every file
   under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it
   (`navigator-drives`, *Extract to, Test, Shift+F2*).
+- **Pairs** (`CopyRequest.pairs`, Navigator's own): each source with its exact target, no target line read; measured
+  once, every drive touched finished. *Synchronize* copies both ways in one job with it (`navigator-compare`), and
+  erases through `Manager._run_erase`, the worker half of `erase_entries`.
 
 - **A paste (Ctrl+V) is `copy_entries` with `here`**: the entries' directory as it was clipped
   (`navigator.lib.file_ops.clip.CLIP.here`), not the source panel's now, so sources are right after it navigated.

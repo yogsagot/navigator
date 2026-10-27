@@ -484,6 +484,10 @@ DERIVED_ROLES: dict[str, tuple[str, str]] = {
     "git-deleted": ("broken", "ground"), "git-renamed": ("number", "ground"),
     "git-untracked": ("link", "ground"), "git-ignored": ("temp", "ground"),
     "git-conflict": ("broken", "ground"),
+    "diff-added": ("string", "ground"), "diff-removed": ("broken", "ground"),
+    "diff-changed": ("number", "ground"),
+    "sync-new": ("string", "ground"), "sync-changed": ("number", "ground"),
+    "sync-same": ("temp", "ground"), "sync-conflict": ("broken", "ground"),
 }
 
 assert set(SLOT_ROLES) == {slot.name for slot in SLOTS}, set(SLOT_ROLES) ^ {slot.name for slot in SLOTS}

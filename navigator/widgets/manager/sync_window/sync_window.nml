@@ -1,0 +1,144 @@
+from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, ToggleHidden
+from navigator.widgets.manager.sync_list import SyncList
+from navml.commands import CloseWindow
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import SelectNext, SelectPrevious
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.window import Window
+
+#: *Compare directories*' *Window, recursive*: every path below the two
+#: panels' directories that is on one side alone, or differs from its
+#: namesake, a row each with what is to be done with it.
+#:
+#: **Not DOS Navigator's**: a departure, asked for.  DN compared one level and
+#: tagged (``CM_CompareDirs``); this is Total Commander's *Synchronize
+#: directories*, whose keys it takes -- Right and Left copy a row that way,
+#: Space leaves it, Del deletes it from the one side it is on, Backspace gives
+#: it back what its status suggests; Ctrl+Right and Ctrl+Left set every row.
+#: Enter or F3 on a pair that differs compares the two files side by side
+#: (``DiffWindow``).  F5, or *Synchronize*, does it all: the copies as one
+#: F5 copy, files kept with their times so the next compare finds them the
+#: same, then the deletes as one F8.
+#:
+#: Laid out as Disk > Volumes is: the list without a frame of its own, a
+#: dialog's row under it.  *Show identical* -- or Ctrl+H, as it shows a
+#: panel's dot-files -- lists the paths that are the same too; Ctrl+R and
+#: Alt+R compare again.
+SyncWindow(Window):
+    title: "Synchronize"
+    #: Zoomed, as the viewer's window: a path wants every column it can get.
+    zoomed: True
+
+    keys:
+        escape: CloseWindow
+        enter: DiffFiles
+        f3: DiffFiles
+        f5: Synchronize
+        ctrl+r: Rescan
+        alt+r: Rescan
+        ctrl+h: ToggleHidden
+        tab: SelectNext
+        shift+tab: SelectPrevious
+
+    SyncList:
+        id: rows
+        framed: False
+        x: 1
+        y: 1
+        width: max(0, parent.width - 1)
+        height: max(0, parent.height - 4)
+
+    #: Over the bottom frame, a column in, as the viewer's info line: the row
+    #: under the cursor's two times, or why it is a conflict.
+    StaticText:
+        id: info
+        name: "info"
+        x: 1
+        y: max(0, parent.height - 1)
+        width: min(len(self.text), max(0, parent.width - 3))
+        height: 1
+
+    CheckBoxes:
+        id: identical
+        x: 2
+        y: max(0, parent.height - 3)
+        width: 22
+        height: 1
+        items: ["Show ~i~dentical"]
+
+    StaticText:
+        id: summary
+        x: 2
+        y: max(0, parent.height - 2)
+        width: max(0, parent.width - 30)
+        height: 1
+
+    Button:
+        id: sync_button
+        text: "~S~ynchronize"
+        x: max(0, parent.width - 31)
+        y: max(0, parent.height - 3)
+        width: 16
+        height: 2
+
+    Button:
+        id: close_button
+        text: "Close"
+        x: max(0, parent.width - 13)
+        y: max(0, parent.height - 3)
+        width: 10
+        height: 2
+
+    #: The window's own menu on the bar after *File* while it is active, and
+    #: its right-click menu.
+    SubMenu:
+        id: sync_menu
+        text: '~S~ynchronize'
+        after: 'File'
+        MenuItem:
+            text: '~S~ynchronize'
+            command: Synchronize
+        MenuItem:
+            text: '~C~ompare files'
+            command: DiffFiles
+        MenuLine:
+        MenuItem:
+            text: 'Copy ~r~ight'
+            command: SetSyncAction('right')
+        MenuItem:
+            text: 'Copy ~l~eft'
+            command: SetSyncAction('left')
+        MenuItem:
+            text: '~D~elete'
+            command: SetSyncAction('delete')
+        MenuItem:
+            text: 'S~k~ip'
+            command: SetSyncAction('skip')
+        MenuItem:
+            text: 'D~e~fault action'
+            command: SetSyncAction('default')
+        MenuLine:
+        MenuItem:
+            text: '~A~ll right'
+            command: SetAllSyncActions('right')
+        MenuItem:
+            text: 'All le~f~t'
+            command: SetAllSyncActions('left')
+        MenuItem:
+            text: 'All defa~u~lt'
+            command: SetAllSyncActions('default')
+        MenuLine:
+        MenuItem:
+            text: 'Compare a~g~ain'
+            command: Rescan
+        MenuItem:
+            text: 'Show ~i~dentical'
+            command: ToggleHidden
+        MenuLine:
+        MenuItem:
+            text: 'Cl~o~se'
+            command: CloseWindow

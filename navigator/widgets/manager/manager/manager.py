@@ -70,6 +70,7 @@ from navigator.widgets.manager.commands import (
     ChangeInactive,
     GoToFile,
     CompareDir,
+    DiffFiles,
     CountLength,
     FastRename,
     FindFile,
@@ -130,7 +131,7 @@ _LOCAL_ONLY: tuple[type, ...] = ()
 #: one column, and the listings that are no directory.  Greyed there.
 _NOT_IN_MILLER: tuple[type, ...] = (
     SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
-    CompareDir, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
+    CompareDir, DiffFiles, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
     DirBranch, ReadFileList, Panelize, ScrollNames,
 )
 
@@ -148,6 +149,10 @@ class Manager(Window):
 
     #: The panels' frames are this window's frame.
     framed = False
+
+    #: Handled here and bound to no key, but listed in Key bindings so one can
+    #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
+    keyless_commands = (CompareDir, DiffFiles)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -1698,6 +1703,9 @@ class Manager(Window):
         request = await CompareDialog().execute(app)
         if request is None:
             return
+        if request.window:
+            await self.sync_directories(request)
+            return
         here, there = shown(panel.location), shown(other.location)
         mine, theirs = list(panel.items), list(other.items)
 
@@ -1722,6 +1730,105 @@ class Manager(Window):
         for side, place, names in ((panel, here, found[0]), (other, there, found[1])):
             if side.location == Location.of(place):
                 side.marked = tagged(side.marked, names, request)
+
+    async def sync_directories(self, request: Any) -> None:
+        """*Compare directories*' *Window, recursive*: the two panels' trees
+        walked (:func:`~navigator.widgets.manager.sync_window.sync_window.walk_trees`)
+        and what differs listed in the *Synchronize* window -- the left
+        panel's tree on the left, whichever is active."""
+        from navigator.widgets.manager.sync_window import SyncWindow
+        from navigator.widgets.manager.sync_window.sync_window import walk_trees
+
+        app, desktop = self.application, self.desktop
+        if app is None or desktop is None:
+            return
+        left, right = shown(self.left.location), shown(self.right.location)
+        if self.left.location == self.right.location:
+            await Dialog(title=tr("Compare directories"), prompt=tr("Both panels show the same directory."),
+                         buttons="ok").execute(app)
+            return
+        show_hidden = self.left.show_hidden and self.right.show_hidden
+        rows = await walk_trees(app, left, right, request, show_hidden)
+        if rows is None:
+            return
+        desktop.open(SyncWindow(manager=self, left=left, right=right, request=request, rows=rows,
+                                show_hidden=show_hidden))
+
+    async def synchronize(self, plan: Any) -> bool:
+        """The *Synchronize* window's F5: *plan*'s copies, then its deletes,
+        once confirmed.  The copies are one F5 copy, overwriting without
+        asking -- the window said which way each goes -- and keeping each
+        file's time, or the next compare would find every one different
+        again; the deletes are one F8 with *Recursive delete*.  True when
+        nothing was stopped."""
+        from navigator.lib.file_ops import filecopy, fileerase
+
+        copies, deletes = len(plan.pairs), len(plan.deletes)
+        if not copies and not deletes:
+            return False
+        if copies and deletes:
+            prompt = tr("Copy {copies} and delete {deletes}?").format(
+                copies=tr_n("{n} file", "{n} files", copies), deletes=tr_n("{n} file", "{n} files", deletes))
+        elif copies:
+            prompt = tr_n("Copy {n} file?", "Copy {n} files?", copies)
+        else:
+            prompt = tr_n("Delete {n} file?", "Delete {n} files?", deletes)
+        if await self._ask_yes_no(prompt, title=tr("Synchronize")) is not True:
+            return False
+        ok = True
+        try:
+            if copies:
+                request = filecopy.CopyRequest(
+                    sources=[], target="", mode=filecopy.OVERWRITE, options=filecopy.PRESERVE,
+                    flush=SETTINGS.system.flush_buffers, pairs=list(plan.pairs),
+                )
+                ok = await self._run_copy(self.left, request, self.left.location, move=False, others=(self.right,))
+            if ok and deletes:
+                await self._run_erase(fileerase.EraseRequest(list(plan.deletes), recursive=True))
+        finally:
+            self.left.reload()
+            self.right.reload()
+        return ok
+
+    async def on_diff_files(self, event: DiffFiles) -> bool:
+        self.spawn(self.diff_files())
+        return True
+
+    def _diff_pair(self) -> tuple[Any, Any] | None:
+        """The two files File > Compare files compares: two tagged in the
+        active panel; else the one at its cursor and its namesake in the
+        other panel -- or, without one, the file at the other's cursor.  None
+        when there are not two files to compare."""
+        panel, other = self.active_panel, self.passive_panel
+
+        def is_file(entry: Any) -> bool:
+            return entry is not None and not entry.is_dir and entry.name != ".."
+
+        marked = [entry for entry in panel.marked_entries if is_file(entry)]
+        if len(marked) == 2:
+            return panel.entry_location(marked[0]), panel.entry_location(marked[1])
+        entry = panel.selected
+        if not is_file(entry) or self.miller_mode or self.hidden_side is not None:
+            return None
+        namesake = next((item for item in other.items if item.name == entry.name and is_file(item)), None)
+        match = namesake if namesake is not None else other.selected
+        if not is_file(match):
+            return None
+        pair = panel.entry_location(entry), other.entry_location(match)
+        if panel is self.right:
+            pair = pair[1], pair[0]  # the left panel's file on the left
+        return pair
+
+    async def diff_files(self) -> None:
+        """File > Compare files: :func:`~navigator.widgets.viewer.diff_window.open_diff`
+        on :meth:`_diff_pair`'s two files."""
+        from navigator.widgets.viewer.diff_window import open_diff
+
+        pair = self._diff_pair()
+        desktop = self.desktop
+        if pair is None or desktop is None:
+            return
+        await open_diff(desktop, *pair)
 
     async def on_equalize_panels(self, event: EqualizePanels) -> bool:
         self.equalize_panels()
@@ -2150,6 +2257,8 @@ class Manager(Window):
         if isinstance(command, CompareDir):
             # Two directories, compared: a *Find:* listing is not one.
             return self.left.found is None and self.right.found is None
+        if isinstance(command, DiffFiles):
+            return self._diff_pair() is not None
         if isinstance(command, SwitchPanel):
             # With one side hidden there is no other one for Tab to go to.
             return self.hidden_side is None
@@ -2890,8 +2999,6 @@ class Manager(Window):
         out, the caller having asked already."""
         from navigator.lib.file_ops import fileerase
         from navigator.widgets.file_ops.delete_dialog import DeleteDialog
-        from navigator.lib.system.progress import Rate
-        from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
         app = self.application
         other = self.right if panel is self.left else self.left
@@ -2910,6 +3017,21 @@ class Manager(Window):
             )
         if request is None:
             return
+        done: list[Path] = []
+        try:
+            done = await self._run_erase(request, quiet=quiet)
+        finally:
+            panel.untag_paths(done)
+            panel.reload()
+            other.reload()
+
+    async def _run_erase(self, request: Any, *, quiet: bool = False) -> list[Any]:
+        """*request* run on a thread under *Deleting* and the eraser's
+        questions; what went in full.  Cancelled, the worker is told to stop."""
+        from navigator.lib.file_ops import fileerase
+        from navigator.lib.system.progress import Rate
+        from navigator.widgets.file_ops.delete_progress import DeleteProgress
+
         job = fileerase.EraseJob()
         work = asyncio.ensure_future(asyncio.to_thread(fileerase.run, request, job))
         rate = Rate()
@@ -2924,17 +3046,13 @@ class Manager(Window):
             box.speed = -1.0 if speed is None else speed
             box.left = -1.0 if left is None else left
 
-        done: list[Path] = []
         try:
             await self._watch_job(work, job, DeleteProgress, refresh,
                                   lambda question: self._answer_erase_question(question, quiet=quiet))
-            done = await work
+            return await work
         finally:
             if not work.done():
                 job.stop()
-            panel.untag_paths(done)
-            panel.reload()
-            other.reload()
 
     async def _answer_erase_question(self, question: Any, *, quiet: bool = False) -> Any:
         """Put one of the eraser's questions to the user, and answer as it expects."""

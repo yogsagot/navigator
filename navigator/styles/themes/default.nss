@@ -419,6 +419,20 @@ $git-ignored-fg: black;               /*  git's ignored -- on Normal text, as te
 $git-ignored-bg: $panel-bg;
 $git-conflict-fg: light_red;          /*  git's unmerged -- on Custom 4, as deleted [180] -- Navigator: light red, as deleted */
 $git-conflict-bg: $highlight-custom-4-bg;
+$diff-added-fg: light_green;          /*  Compare files' added lines -- DN compared no files; on Symbols, as the viewer's [189] -- Navigator: light green, as git's added */
+$diff-added-bg: $editor-highlight-symbols-bg;
+$diff-removed-fg: light_red;          /*  Compare files' removed lines -- on Strings [190] -- Navigator: light red, as git's deleted */
+$diff-removed-bg: $editor-highlight-strings-bg;
+$diff-changed-fg: yellow;             /*  Compare files' changed lines -- on Numbers [191] -- Navigator: yellow, as git's modified */
+$diff-changed-bg: $editor-highlight-numbers-bg;
+$sync-new-fg: light_green;            /*  Synchronize's rows on one side alone -- DN had no such window; on Custom 2 [176] -- Navigator: light green, as git's added */
+$sync-new-bg: $highlight-custom-2-bg;
+$sync-changed-fg: yellow;             /*  Synchronize's rows that differ -- on Custom 3 [177] -- Navigator: yellow, as git's modified */
+$sync-changed-bg: $highlight-custom-3-bg;
+$sync-same-fg: black;                 /*  Synchronize's rows that are the same -- on Normal text [85] -- Navigator: faint, as temporaries */
+$sync-same-bg: $panel-bg;
+$sync-conflict-fg: light_red;         /*  Synchronize's conflicts -- on Custom 4 [180] -- Navigator: light red, as git's unmerged */
+$sync-conflict-bg: $highlight-custom-4-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

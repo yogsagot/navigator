@@ -502,6 +502,41 @@ class CompareDir(Command):
     """
 
 
+class DiffFiles(Command):
+    """File > Compare files: two files side by side, line against line.
+
+    **A departure**: DOS Navigator compared files only to tell whether they
+    were the same (``CompareFiles``, behind *Compare directories*), so the
+    name is not its.  Not bound: the key is the user's to give.
+    """
+
+    title = "Compare"
+
+
+@dataclass(frozen=True, slots=True)
+class SetSyncAction(Command):
+    """In the *Synchronize* window, what is done with the row under the
+    cursor: ``right`` or ``left`` (copied that way), ``skip``, ``delete``, or
+    ``default`` for what its status suggests.  Total Commander's keys, as the
+    window is its."""
+
+    action: str = "default"
+
+
+@dataclass(frozen=True, slots=True)
+class SetAllSyncActions(Command):
+    """In the *Synchronize* window, every row that allows it copied one way:
+    ``right`` or ``left``; ``default`` gives each its own back."""
+
+    action: str = "default"
+
+
+class Synchronize(Command):
+    """F5 in the *Synchronize* window: do what its rows say."""
+
+    title = "Sync"
+
+
 class ToggleHidden(Command):
     """Ctrl+H: show or hide the active panel's dot-files.
 
@@ -640,6 +675,10 @@ __all__ = [
     "UuEncode",
     "UuDecode",
     "CompareDir",
+    "DiffFiles",
+    "SetSyncAction",
+    "SetAllSyncActions",
+    "Synchronize",
     "ChangeInactive",
     "GoToFile",
     "ReadFileList",

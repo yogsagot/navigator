@@ -459,3 +459,17 @@ $git-ignored-fg: $color-temp;         /*  git's ignored -- on Normal text, as te
 $git-ignored-bg: $color-ground;
 $git-conflict-fg: $color-broken;      /*  git's unmerged -- on Custom 4, as deleted */
 $git-conflict-bg: $color-ground;
+$diff-added-fg: $color-string;        /*  Compare files' added lines -- DN compared no files; on Symbols, as the viewer's */
+$diff-added-bg: $color-ground;
+$diff-removed-fg: $color-broken;      /*  Compare files' removed lines -- on Strings */
+$diff-removed-bg: $color-ground;
+$diff-changed-fg: $color-number;      /*  Compare files' changed lines -- on Numbers */
+$diff-changed-bg: $color-ground;
+$sync-new-fg: $color-string;          /*  Synchronize's rows on one side alone -- DN had no such window; on Custom 2 */
+$sync-new-bg: $color-ground;
+$sync-changed-fg: $color-number;      /*  Synchronize's rows that differ -- on Custom 3 */
+$sync-changed-bg: $color-ground;
+$sync-same-fg: $color-temp;           /*  Synchronize's rows that are the same -- on Normal text */
+$sync-same-bg: $color-ground;
+$sync-conflict-fg: $color-broken;     /*  Synchronize's conflicts -- on Custom 4 */
+$sync-conflict-bg: $color-ground;

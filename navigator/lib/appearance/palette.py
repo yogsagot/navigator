@@ -247,6 +247,13 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "git-untracked": (175, "git's untracked -- on Custom 1"),
     "git-ignored": (85, "git's ignored -- on Normal text, as temporaries"),
     "git-conflict": (180, "git's unmerged -- on Custom 4, as deleted"),
+    "diff-added": (189, "Compare files' added lines -- DN compared no files; on Symbols, as the viewer's"),
+    "diff-removed": (190, "Compare files' removed lines -- on Strings"),
+    "diff-changed": (191, "Compare files' changed lines -- on Numbers"),
+    "sync-new": (176, "Synchronize's rows on one side alone -- DN had no such window; on Custom 2"),
+    "sync-changed": (177, "Synchronize's rows that differ -- on Custom 3"),
+    "sync-same": (85, "Synchronize's rows that are the same -- on Normal text"),
+    "sync-conflict": (180, "Synchronize's conflicts -- on Custom 4"),
 }
 
 
@@ -305,6 +312,13 @@ DERIVED_ITEMS = {
     "git-untracked": "Git: untracked",
     "git-ignored": "Git: ignored",
     "git-conflict": "Git: conflict",
+    "diff-added": "Compare: added lines",
+    "diff-removed": "Compare: removed lines",
+    "diff-changed": "Compare: changed lines",
+    "sync-new": "Synchronize: on one side",
+    "sync-changed": "Synchronize: different",
+    "sync-same": "Synchronize: identical",
+    "sync-conflict": "Synchronize: conflict",
 }
 
 #: Where the Colors dialog keeps the user's palettes, in the configuration

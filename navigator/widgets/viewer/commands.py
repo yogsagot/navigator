@@ -125,7 +125,23 @@ class CloseViewer(Command):
     """
 
 
+class NextDifference(Command):
+    """N, Alt+Down in a *Compare files* window: the next difference, as
+    Midnight Commander's ``mcdiff`` takes it on N and meld on Alt+Down.  Not
+    DOS Navigator's, which compared no files line by line."""
+
+    title = "Next"
+
+
+class PreviousDifference(Command):
+    """P, Alt+Up in a *Compare files* window: the previous difference."""
+
+    title = "Prev"
+
+
 __all__ = [
+    "NextDifference",
+    "PreviousDifference",
     "Unwrap",
     "HexMode",
     "SetViewMode",

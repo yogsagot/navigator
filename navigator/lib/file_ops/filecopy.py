@@ -68,6 +68,12 @@ class CopyRequest:
     #: file under a directory copied goes into the target itself, no
     #: directory made for it.
     flatten: bool = False
+    #: Each source with its own target, ``(source, target)``, in place of
+    #: *sources* and *target*: the target is the very path the source is
+    #: copied to, and its directory is there.  Navigator's own, for
+    #: *Synchronize* (:mod:`navigator.lib.file_ops.dirsync`), whose copies go
+    #: both ways in one job.
+    pairs: list[tuple[Path | Location, Path | Location]] | None = None
 
     @property
     def move(self) -> bool:
@@ -454,23 +460,30 @@ class _Copier(Elevated):
         done: list[Path | Location] = []
         opened = None
         try:
-            opened = _open_target_archive(target_location(request.target, self.cwd))
-            destination = resolve_target(request.target, request.sources, self.cwd)
-            if destination.create:
-                directory = Location.of(destination.directory)
-                self._ask(CreateDirectory(destination.directory))
-                if not self._try(directory, lambda: self._drive_of(directory).makedirs(directory)):
-                    return done
-            job.total_bytes = sum(self._measure(Location.of(source)) for source in request.sources)
+            if request.pairs is not None:
+                pairs = list(request.pairs)
+                places = [place for pair in pairs for place in pair]
+            else:
+                opened = _open_target_archive(target_location(request.target, self.cwd))
+                destination = resolve_target(request.target, request.sources, self.cwd)
+                if destination.create:
+                    directory = Location.of(destination.directory)
+                    self._ask(CreateDirectory(destination.directory))
+                    if not self._try(directory, lambda: self._drive_of(directory).makedirs(directory)):
+                        return done
+                pairs = [(source, destination.path_for(source)) for source in request.sources]
+                places = [*request.sources, destination.directory]
+            job.total_bytes = sum(self._measure(Location.of(source)) for source, _ in pairs)
             job.measuring = False
-            for source in request.sources:
+            for source, target in pairs:
                 self._checkpoint()
-                if self._transfer(Location.of(source), Location.of(destination.path_for(source))):
+                if self._transfer(Location.of(source), Location.of(target)):
                     done.append(source)
-            finish_drives([*request.sources, destination.directory], self._fail, self._finish_as_root)
+            finish_drives(places, self._fail, self._finish_as_root)
         except Stopped:
             # What went in full stays, as it would on a disk.
-            finish_drives([*request.sources, Location.of(self.cwd)], None)
+            paired = [place for pair in request.pairs or () for place in pair]
+            finish_drives([*request.sources, *paired, Location.of(self.cwd)], None)
         finally:
             job.measuring = False
             self._release()

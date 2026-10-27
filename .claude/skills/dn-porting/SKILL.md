@@ -32,7 +32,8 @@ over inventing modern alternatives when the two conflict** -- fidelity is the po
   colour departure goes in `palconv.py`'s `DEPARTURES`. Examples already taken: the user's shell prompt on the command
   line, the Owner column, byte-exact editor saves, Gray keys typing while the line has text, *Recursive delete*,
   Linux file attributes, symlinks on Shift+F5, F3 closing the viewer, `navigator.ini` in place of `DN.CFG`, the
-  editor's and viewer's option strip on the bottom frame, *Hidden characters*.
+  editor's and viewer's option strip on the bottom frame, *Hidden characters*, File > *Compare files* and *Compare
+  directories*' *Window, recursive* (`navigator-compare`).
 - **The one standing modern exception is the Nerd Font icon gutter** in `Panel`; don't re-litigate it and don't read it
   as licence for the next flourish.
 - When DN defined something but never used it (the tree window), or the 1.51 source lacks a handler (Alt+letter quick

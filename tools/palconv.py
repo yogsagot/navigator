@@ -407,7 +407,8 @@ DEPARTURES: dict[str, dict[int, tuple[int | str | None, int | str | None, str]]]
 #: * ``default`` ``keyword``: yellow, at the user's request -- the alias keeps
 #:   keywords normal text, as DN left them.
 #: * ``default`` ``git-*``: git's own colours -- yellow changed, green added,
-#:   red deleted or unmerged, light cyan untracked, faint ignored.
+#:   red deleted or unmerged, light cyan untracked, faint ignored.  ``diff-*``
+#:   and ``sync-*`` (Compare files, Synchronize) take the same ones.
 #: * ``dosshell`` ``viewer-keyword``, ``viewer-comments`` and ``viewer-links``: the
 #:   viewer is black where the editor is white, so the editor's black keywords
 #:   and blue comments, which the aliases would copy, vanish there.
@@ -434,6 +435,13 @@ DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None
         "git-untracked": (11, None, "light cyan"),
         "git-ignored": (0, None, "faint, as temporaries"),
         "git-conflict": (12, None, "light red, as deleted"),
+        "diff-added": (10, None, "light green, as git's added"),
+        "diff-removed": (12, None, "light red, as git's deleted"),
+        "diff-changed": (14, None, "yellow, as git's modified"),
+        "sync-new": (10, None, "light green, as git's added"),
+        "sync-changed": (14, None, "yellow, as git's modified"),
+        "sync-same": (0, None, "faint, as temporaries"),
+        "sync-conflict": (12, None, "light red, as git's unmerged"),
     },
     "dosshell": {
         "viewer-keyword": (15, None, "white, as the editor's black vanishes on the viewer's black"),

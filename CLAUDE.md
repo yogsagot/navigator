@@ -212,6 +212,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |
 | `navigator-file-ops` | copy, move, symlink, erase, attributes, mkdir, jobs |
+| `navigator-compare` | Compare directories (tagging, the recursive Synchronize window), File > Compare files side by side |
 | `navigator-elevation` | *As root*: sudo/pkexec, the root helper and `RootDrive`, wiring an operation to offer it |
 | `i18n` | `tr`/`tr_n`, TOML catalogues, generated live captions and yielding bindings, `--language`, `tools/i18n.py` |
 | `release-packaging` | PyPI, version, `.deb`/`.rpm`, repositories, GPG, release workflow |

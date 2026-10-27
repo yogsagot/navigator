@@ -1,0 +1,34 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+
+#: *Compare directories*' *Window, recursive* under way: the directory being
+#: compared, and how many differences so far.  Shaped as the search's box
+#: (``FindProgress``), whose *Cancel* it shares; DN had no such box, its
+#: compare reading one directory and saying only *Comparing files*.
+CompareProgress(Dialog):
+    modal_width: 56
+    modal_height: 8
+    title: "Compare directories"
+    buttons: "ok"
+    closable: False
+
+    property directory: ""
+    property count: 0
+
+    StaticText:
+        id: directory_row
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.fit(root.directory)
+
+    StaticText:
+        id: count_row
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: root.count_text(root.count)
