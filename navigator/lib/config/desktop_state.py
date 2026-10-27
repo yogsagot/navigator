@@ -83,6 +83,17 @@ def _panel(panel: Any) -> dict[str, Any]:
     }
 
 
+def _miller(window: Any) -> dict[str, Any] | None:
+    """Where Miller columns (Alt+F12) browse, or None while the panels show:
+    the directory and its cursor, and the side the panels give it back to."""
+    current = window.miller.current
+    if current is None:
+        return None
+    entry = current.selected
+    return {"path": str(current.location), "cursor": entry.name if entry is not None else None,
+            "side": window._miller_side}
+
+
 def _window(window: Any) -> dict[str, Any] | None:
     """*window*'s entry, or None for one that is not kept."""
     from navigator.lib.config.file_history import window_values
@@ -106,6 +117,7 @@ def _window(window: Any) -> dict[str, Any] | None:
             split=window.split,
             view={window.tree: "tree", window.quick: "quick", window.info: "info"}.get(replacement)
             if replacement is not None else None,
+            miller=_miller(window),
         )
     elif isinstance(window, EditWindow):
         if window.editor.path is None:
@@ -247,6 +259,17 @@ def _manager(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | None)
         manager.switch_view(view)
     if kept.get("hidden") in ("left", "right"):
         manager.hide_side(kept["hidden"])
+    miller = kept.get("miller")
+    if isinstance(miller, dict) and isinstance(miller.get("path"), str) and not dirs:
+        from navigator.lib.drives import Location
+
+        # On the disk only: another drive is not connected yet, and a
+        # panel kept there opens on the disk too (``_remote``).
+        location = Location.parse(miller["path"])
+        if location.is_local and Path(location.local).is_dir():
+            if miller.get("side") == "right":
+                manager.right.focus()
+            manager.toggle_miller(location, miller.get("cursor") or None)
     return manager
 
 

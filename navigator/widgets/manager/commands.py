@@ -145,6 +145,14 @@ class SwapPanels(Command):
     """
 
 
+class ToggleMiller(Command):
+    """Alt+F12: the file manager's two panels become Miller columns, or back.
+
+    Not DOS Navigator's -- a departure, asked for: Finder's column browser
+    (``navigator/widgets/manager/miller``).  Manager > Miller columns.
+    """
+
+
 class EqualizePanels(Command):
     """Alt+=: the passive panel goes to the active panel's directory.
 

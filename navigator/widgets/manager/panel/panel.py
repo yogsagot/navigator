@@ -2228,7 +2228,13 @@ class Panel(ContextMenuHost, ListViewer):
         if CLIP and CLIP.holds(self.entry_location(item)):
             # Waiting for Ctrl+V: ``Panel::row.clip-cut`` / ``.clip-copy``.
             classes += ("clip-cut" if CLIP.move else "clip-copy",)
+        classes += self.row_classes(index, item)
         return self.part_style("row", classes=classes, selected=self.row_selected(index))
+
+    def row_classes(self, index: int, item: DirEntry) -> tuple[str, ...]:
+        """More classes for row *index*'s ``Panel::row``: none here; a Miller
+        column marks the entry its next column shows (``.trail``)."""
+        return ()
 
     @property
     def divider_glyph(self) -> str:

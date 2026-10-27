@@ -65,6 +65,7 @@ It consists of three parts:
       themes already knows what colour they are.
 - **navigator** or nav - two panel file manager application
     - defines a Manager window that has two panels with file listings
+      -- or, with Alt+F12, Miller columns from the root down to the directory browsed, and a preview
     - defines View and Edit file windows
     - performs file operations over the selected files in the manager
     - uses file system handlers that enable file operations over ssh, smb, in zip files, etc.

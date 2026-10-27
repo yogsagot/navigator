@@ -855,8 +855,8 @@ class Shell(DockLayout):
             if seen is not None and seen != masks and self.desktop is not None:
                 for window in self.desktop.windows():
                     if isinstance(window, Manager):
-                        window.left.reload()
-                        window.right.reload()
+                        for panel in window.all_panels:
+                            panel.reload()
 
     def _choose_clipboard(self) -> None:
         """System Setup's *Use system clipboard*: the desktop's, or Navigator's own.
@@ -1091,7 +1091,7 @@ class Shell(DockLayout):
         rules = event.path == associations.path_of(HIGHLIGHT)
         for window in self.desktop.windows():
             if isinstance(window, Manager):
-                for panel in (window.left, window.right):
+                for panel in window.all_panels:
                     if panel.location == Location.of(directory):
                         panel.reload()
         if rules:
@@ -1387,8 +1387,9 @@ class Shell(DockLayout):
         manager = self.active_manager
         if manager is None:
             return None, None
-        passive = manager.passive_panel
-        return manager.active_panel, (passive if passive.visible else None)
+        active, passive = manager.active_panel, manager.passive_panel
+        # In Miller columns the passive panel is the active one: there is none.
+        return active, (passive if passive.visible and passive is not active else None)
 
     @staticmethod
     def _menu_side(panel: Any, list_file: str = "-", use: Any = None) -> Any:
@@ -1885,7 +1886,7 @@ class Shell(DockLayout):
                 await asyncio.to_thread(usefile.discard, use)
         manager = self.active_manager
         if manager is not None:
-            for panel in (manager.left, manager.right):
+            for panel in manager.all_panels:
                 if not panel.location.is_local:
                     panel.reload()
 
@@ -1924,7 +1925,7 @@ class Shell(DockLayout):
         elif (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
                 and cwd.is_dir() and not self._is_use_directory(cwd)):
             panel.path = cwd
-        for each in (manager.left, manager.right):
+        for each in manager.all_panels:
             each.reload()
 
     @computed
@@ -2358,7 +2359,7 @@ class Shell(DockLayout):
         moved = False
         for window in self.desktop.windows():
             if isinstance(window, Manager):
-                for panel in (window.left, window.right):
+                for panel in window.all_panels:
                     if panel.location.site == site:
                         panel.leave_found()
                         panel.location = panel.local_anchor
@@ -2377,7 +2378,7 @@ class Shell(DockLayout):
         used = set()
         for window in self.desktop.windows():
             if isinstance(window, Manager):
-                for panel in (window.left, window.right):
+                for panel in window.all_panels:
                     if not panel.location.is_local:
                         used.add(panel.location.site)
         return used

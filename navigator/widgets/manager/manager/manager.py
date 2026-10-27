@@ -91,6 +91,7 @@ from navigator.widgets.manager.commands import (
     ToggleHidden,
     ToggleInfoLines,
     ToggleMark,
+    ToggleMiller,
     ToggleShowMode,
     ToggleTree,
     UnselectGroup,
@@ -122,6 +123,16 @@ from navigator.settings import SETTINGS
 #: that cannot goes, until it is taught to.  What a drive cannot do at all is
 #: its capabilities' to grey (``enables``).
 _LOCAL_ONLY: tuple[type, ...] = ()
+
+
+#: What means nothing in Miller columns (Alt+F12): the other panel, a side
+#: to hide, swap or stand in for, the divider, the view modes and footer of
+#: one column, and the listings that are no directory.  Greyed there.
+_NOT_IN_MILLER: tuple[type, ...] = (
+    SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
+    CompareDir, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
+    DirBranch, ReadFileList, Panelize, ScrollNames,
+)
 
 
 def _is_archive(entry: Any) -> bool:
@@ -255,6 +266,10 @@ class Manager(Window):
         self.tree.menu = self._tree_menu
         self.quick.visible = False
         self.info.visible = False
+        self.miller.visible = False
+        #: The side that was active when Miller columns took the panels'
+        #: place, and gets the directory browsed when they give it back.
+        self._miller_side = "left"
         #: The pending "panel, follow the tree" -- cancelled by every move.
         self._follow: asyncio.Task[Any] | None = None
         #: What hiding a side set aside: the rectangle and ``zoomed`` before,
@@ -298,7 +313,14 @@ class Manager(Window):
     # is the application's.
 
     async def on_switch_panel(self, event: SwitchPanel) -> bool:
-        self.switch_panel()
+        if self.miller_mode:
+            self.miller.switch_focus()
+        else:
+            self.switch_panel()
+        return True
+
+    async def on_toggle_miller(self, event: ToggleMiller) -> bool:
+        self.toggle_miller()
         return True
 
     async def on_hide_left(self, event: HideLeft) -> bool:
@@ -631,7 +653,7 @@ class Manager(Window):
         finally:
             if not work.done():
                 job.stop()
-        for each in (self.left, self.right):
+        for each in self.all_panels:
             each.reload()
         if problem is not None:
             await Dialog(title=tr("Error"), prompt=problem, buttons="ok").execute(app)
@@ -1764,7 +1786,9 @@ class Manager(Window):
         """*side*'s panel, showing: Alt+F1 and Alt+F2 change a panel, so one
         hidden by Ctrl+F1/F2 comes back, and the tree or quick view standing in
         its place gives way, as DN's ``_ChangeDrive`` replaced a drive that
-        was not a disk."""
+        was not a disk.  In Miller columns, the column being browsed."""
+        if self.miller_mode:
+            return self.active_panel
         panel = self.left if side == "left" else self.right
         if self.hidden_side == side:
             self.show_side(side)
@@ -2001,6 +2025,11 @@ class Manager(Window):
         the tree or the quick view standing beside it has the keyboard -- those
         are not a listing.  Asked of a menu too, where neither has it and the
         panel is meant."""
+        if isinstance(command, ToggleMiller):
+            # A *Find:* listing is no directory to open columns on.
+            return self.miller_mode or self.active_panel.found is None
+        if self.miller_mode and isinstance(command, _NOT_IN_MILLER):
+            return False
         if isinstance(command, _LOCAL_ONLY) and not self.active_panel.location.is_local:
             return False
         if isinstance(command, MakeLink) and not self.active_panel.location.is_local:
@@ -2041,7 +2070,7 @@ class Manager(Window):
             if getattr(command, "by_key", False) and self._command_line_has_text():
                 # Disabled, so the key falls through and types its character.
                 return False
-            return not (self.tree.focused or self.quick.focused)
+            return not self._aside_focused()
         if isinstance(command, GoParent):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so Backspace falls through and edits the line.
@@ -2050,12 +2079,12 @@ class Manager(Window):
                 # File Manager Setup's *BS upper dir* off: Shift+Backspace
                 # and Ctrl+PgUp still go up.
                 return False
-            return not (self.tree.focused or self.quick.focused)
+            return not self._aside_focused()
         if isinstance(command, (PutInClipboard, CutToClipboard, PasteFromClipboard, ClearClipboard)):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so the key is the line's: copy, paste, history.
                 return False
-            if self.tree.focused or self.quick.focused:
+            if self._aside_focused():
                 return False
             if isinstance(command, (PutInClipboard, CutToClipboard)):
                 return bool(self.selection(self.active_panel))
@@ -2076,13 +2105,13 @@ class Manager(Window):
                 return False
         if isinstance(command, DeleteSingle):
             entry = self.active_panel.selected
-            return not (self.tree.focused or self.quick.focused) and (
+            return not self._aside_focused() and (
                 entry is not None and entry.name != ".."
             )
         if isinstance(command, (Copy, RenameMove, MakeLink, Delete, ChangeAttributes, PrintFile)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
-            return not (self.tree.focused or self.quick.focused) and bool(
+            return not self._aside_focused() and bool(
                 self.selection(self.active_panel)
             )
         if isinstance(command, StoreQuickDir):
@@ -2099,7 +2128,7 @@ class Manager(Window):
         if isinstance(command, Panelize):
             return self.active_panel.location.is_local
         if isinstance(command, MultiRename):
-            return not (self.tree.focused or self.quick.focused) and bool(self.selection(self.active_panel))
+            return not self._aside_focused() and bool(self.selection(self.active_panel))
         if isinstance(command, UndoMultiRename):
             return Manager.last_renames is not None
         if isinstance(command, ReadFileList):
@@ -2128,7 +2157,7 @@ class Manager(Window):
             panel = self.active_panel
             # The plain arrows are the command line's under *Use arrows*.
             return (
-                not (self.tree.focused or self.quick.focused)
+                not self._aside_focused()
                 and not (self._command_line_has_text() and SETTINGS.file_manager.use_arrows)
                 and panel.can_scroll_names(command.step)
             )
@@ -2141,7 +2170,14 @@ class Manager(Window):
             return self.active_panel.show_hidden
         if isinstance(command, ToggleInfoLines):
             return self.active_panel.show_info
+        if isinstance(command, ToggleMiller):
+            return self.miller_mode
         return super().checks(command)
+
+    def _aside_focused(self) -> bool:
+        """Whether the keyboard is in something beside the listing -- the tree,
+        the quick view, or the file Miller columns preview -- not a panel."""
+        return self.tree.focused or self.quick.focused or self.miller.preview_file.focus_within
 
     def _command_line(self) -> Any:
         """The command line of the screen this window is on, or None."""
@@ -2535,9 +2571,9 @@ class Manager(Window):
         if move and target == here:
             return
         source = next(
-            (panel for panel in (self.left, self.right) if panel.location == here), self.active_panel
+            (panel for panel in self.all_panels if panel.location == here), self.active_panel
         )
-        others = tuple(panel for panel in (self.left, self.right) if panel is not source)
+        others = tuple(panel for panel in self.all_panels if panel is not source)
         done = await self.copy_entries(source, entries, shown(target), move=move, others=others, here=here)
         if done and move:
             CLIP.clear()
@@ -2550,7 +2586,7 @@ class Manager(Window):
         (:meth:`_drop_menu`); a directory is never dropped into itself.
         """
         source = event.source
-        if source not in (self.left, self.right):
+        if source not in self.all_panels:
             return False
         if event.trash:
             self.spawn(self._drop_on_trash(source, list(event.entries)))
@@ -3505,6 +3541,10 @@ class Manager(Window):
         panel, the other is the active one whether or not it holds the
         keyboard: it is the one the tree steers.
         """
+        current = self.miller.current
+        if current is not None:
+            # Miller columns: the column being browsed, whatever has the keyboard.
+            return current
         replaced = self.replaced
         if replaced is not None:
             return self.right if replaced is self.left else self.left
@@ -3521,8 +3561,70 @@ class Manager(Window):
         While the tree or the quick view stands in for it, it is the panel
         they stand in for: its directory is still where DN's ``cmPushFirstName``
         would have pointed a copy.
+
+        In Miller columns there is no other panel: it is the active one, so
+        F5 and F6 offer the directory browsed (Ctrl+C/Ctrl+V go between two).
         """
+        if self.miller_mode:
+            return self.active_panel
         return self.right if self.active_panel is self.left else self.left
+
+    @computed
+    def miller_mode(self) -> bool:
+        """Whether Miller columns stand in the two panels' place (Alt+F12)."""
+        return self.miller.current is not None
+
+    @property
+    def all_panels(self) -> tuple[Panel, ...]:
+        """Both panels, and every Miller column while they show: what a
+        change on the disk or a drive closing must reach."""
+        return (self.left, self.right, *self.miller.columns())
+
+    def toggle_miller(self, location: Location | None = None, cursor: str | None = None) -> None:
+        """Alt+F12: Miller columns in the two panels' place, or the panels back.
+
+        The columns open on the active panel's directory, the cursor on its
+        entry (or on *location* and *cursor*, for a restored desktop); a side
+        hidden or stood in for is shown first.  Back, the side that was active
+        goes to the directory browsed, the cursor on its entry, and the other
+        is as it was left.
+        """
+        if self.miller_mode:
+            self._leave_miller()
+            return
+        panel = self.active_panel
+        if location is None:
+            if panel.found is not None:
+                return
+            entry = panel.selected
+            location = panel.location
+            cursor = entry.name if entry is not None and entry.name != ".." else None
+        if self.hidden_side is not None:
+            self.show_side(self.hidden_side)
+        if self.replacement is not None:
+            self.switch_view(self.replacement)
+        self._miller_side = "right" if panel is self.right else "left"
+        self.left.visible = self.right.visible = False
+        self.miller.visible = True
+        self.miller.open_at(location, cursor, like=panel)
+        self.panels.invalidate()
+
+    def _leave_miller(self) -> None:
+        current = self.miller.current
+        location, entry = current.location, current.selected
+        side = self.right if self._miller_side == "right" else self.left
+        self.left.visible = self.right.visible = True
+        side.focus()
+        self.miller.close()
+        self.miller.visible = False
+        name = entry.name if entry is not None else None
+        if side.location != location or side.found is not None:
+            side.leave_found()
+            side._return_to = name
+            side.location = location
+        elif name is not None:
+            side.reload(key=name)
+        self.panels.invalidate()
 
     def list_name(self) -> str:
         """The active panel's directory: what the window list shows for this window.
@@ -3768,7 +3870,10 @@ class Manager(Window):
         super().render_after(surface)
 
     def show_only(self, side: str) -> None:
-        """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``."""
+        """*side* showing and the other hidden: DN's ``cmPostHideLeft``/``Right``.
+        Nothing in Miller columns, which have no sides."""
+        if self.miller_mode:
+            return
         other = "right" if side == "left" else "left"
         if self.hidden_side == side:
             self.show_side(side)

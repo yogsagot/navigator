@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, ExtractArchive, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, Edit, EditNamed, ExtractArchive, FindFile, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, View, ViewAsDataBase, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import About, CloseRootAccess, EditLinks, FtpLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -295,6 +295,12 @@ MainMenu(MenuBar):
             text: 'Show/hide inactive ~p~anel'
             command: HideInactive
             key: 'Ctrl-P'
+        #: Not DN's -- a departure, asked for: Finder's columns in the two
+        #: panels' place (``navigator/widgets/manager/miller``).
+        MenuItem:
+            text: '~M~iller columns'
+            command: ToggleMiller
+            key: 'Alt-F12'
         MenuLine:
         MenuItem:
             text: 'Bookmarks le~f~t'

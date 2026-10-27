@@ -437,6 +437,43 @@ Commander's *Sync panels*. MC's Alt+I is the footer here and every Alt+letter ca
 opens *Options*), hence Alt+=. The passive side is brought as Alt+F1/F2 bring theirs (`bring_side`: a hidden side is
 shown, the tree or quick view gives way) and leaves a *Find:* listing; greyed while the active panel is one.
 
+## Miller columns (Alt+F12)
+
+`ToggleMiller`, `Manager.toggle_miller`, Manager > *Miller columns* (ticked while on). **A departure, asked for**:
+DN had two panels and nothing else; this is Finder's column browser. `navigator/widgets/manager/miller/miller_view.py`.
+
+- **`MillerView`** (Python-only, `id: miller`, hidden in the `panels` row) takes both panels' place; a hidden side or a
+  tree/quick/info view is put back first. **Empty while off**: `open_at` makes the columns, `close` removes them, so
+  nothing is read or watched for a layout not showing. Off again, the side that was active (`_miller_side`) goes to
+  the directory browsed, the cursor on its entry; the other side is untouched.
+- **Every column is a `MillerColumn(Panel)`**, so commands need nothing new: **`Manager.active_panel` is
+  `miller.current`** (the chain's last), and **`passive_panel` is the active one too** -- F5/F6 offer the directory
+  browsed, Ctrl+C/Ctrl+V go between two. `Manager.miller_mode` is the flag; `_NOT_IN_MILLER` greys what needs two
+  panels (swap, hide sides, tree/quick/info, divider, Ctrl+Y, Alt+I, Alt+K, *Find:*-style listings). `bring_side`
+  (Alt+F1/F2) answers the column, `show_only` does nothing (Ctrl+F1/F2 fall through to `Shell`). Anything that must
+  reach every panel -- a re-read after a copy, a drive closing, *FileSaved* -- loops over **`Manager.all_panels`**,
+  never `(left, right)`.
+- **The chain** (`MillerView.chain`, root first, replaced to change) comes from `_up` -- `Location.parent`, and at a
+  drive's root its `change_up`, as `Panel.go_up`. `_rebuild` keeps columns already on the way and makes the rest.
+  Right/Enter on a directory `step_in` (the **preview column becomes the chain's last**, a new preview is made);
+  Left/Backspace `step_out` (the last column becomes the preview, cursor kept). A press on an earlier column drops the
+  ones after it (`column_pressed`). **Any other move of the current column** -- a shell `cd`, a bookmark, Alt+T, Enter
+  on an archive -- moves the panel as it always did, and `_follow_moves` rebuilds the chain around it (`home` is
+  where the view last put a column).
+- **The preview** (`_follow_cursor`): a directory in `preview_dir`, a file in the view's own `QuickViewer`
+  (`preview_file`), or the quick view empty. Tab moves the keyboard into the file and back (`switch_focus`).
+  `_aside_focused` counts it with the tree and quick view.
+- **Layout** (`_place`): columns `[file_manager] miller_width` wide (File Manager Setup's *Miller column width*,
+  at least `MIN_WIDTH` 12), as many as leave the preview a column's width, the leftmost giving way; the preview takes
+  the rest. The first visible column and the preview keep `title_margin` 5 for the window icons.
+- **A column's look**: simple mode drawn narrow -- gutter, name, `▸` (`>` in ASCII) after a directory; title the
+  directory's own name; no footer, option strip, `..` (filtered in `_apply`) or git letters (`_read_git`). The entry
+  the next column lists is `Panel::row.trail` (`reverse`) while another column has the keyboard, via the
+  `Panel.row_classes` hook. Ctrl+H and the order apply to every column at once.
+- **Only the column browsed** offers *As root* (`_offer_root`) and goes into Alt+Backspace's history (columns'
+  `_remember_directory` is a no-op; `step_in`/`_rebuild` remember) -- the preview moves with every cursor step.
+- Kept with the desktop as the window's `miller` (path, cursor, side), on the local disk only.
+
 ## Swapping panels (Ctrl+U)
 
 `SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change

@@ -18,6 +18,7 @@ class FMSetupPage(_Component):
     title: str
     behavior_caption: Label
     behavior: CheckBoxes
+    miller_width: Field
     display_caption: Label
     display: CheckBoxes
     tag_sign: Field
@@ -25,3 +26,4 @@ class FMSetupPage(_Component):
     right_button: RadioButtons
     def __init__(self, section: FMSetupData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...
+    def _miller_width(self) -> int: ...

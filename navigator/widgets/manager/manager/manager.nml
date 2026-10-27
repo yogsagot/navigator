@@ -3,7 +3,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
-from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels
+from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -11,6 +11,7 @@ from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
 from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.info_panel import InfoPanel
+from navigator.widgets.manager.miller import MillerView
 from navigator.widgets.manager.panel import Panel
 from navml.widgets.layout.horizontal_layout import HorizontalLayout
 from navml.widgets.menu.menu_item import MenuItem
@@ -86,6 +87,7 @@ Manager(Window):
         ctrl+l: DiskInfo
         ctrl+p: HideInactive
         ctrl+u: SwapPanels
+        alt+f12: ToggleMiller
         alt+=: EqualizePanels
         alt+g: CountLength
         shift+enter: ChangeInactive
@@ -141,6 +143,11 @@ Manager(Window):
         #: The information panel Ctrl+L puts there instead (DN's ``TDiskInfo``).
         InfoPanel:
             id: info
+
+        #: Miller columns (Alt+F12), in both panels' place: a departure, asked
+        #: for.  Hidden, and empty, until then (``miller_view.py``).
+        MillerView:
+            id: miller
 
     #: DOS Navigator's *Panel* menu (``dlgMainMenu``), the file manager's own:
     #: on the main bar after *Utilities*, where DN had it, but only while this

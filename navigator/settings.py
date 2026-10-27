@@ -609,6 +609,8 @@ class FMSetupData(Section):
         "menu", choices=("menu", "select"),
         doc="The right mouse button in a panel: its context menu, or DN's selecting",
     )
+    #: Not DN's, which had no Miller columns (Alt+F12, ``navigator/widgets/manager/miller``).
+    miller_width: int = Setting(24, doc="Width of a Miller column (Alt+F12), at least 12")
 
 
 class PanelDefaultsData(Section):

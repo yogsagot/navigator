@@ -132,6 +132,10 @@ Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold:
    bar keeps its own colours; the gutter's sign marks it there. */
 Panel::row.clip-cut  { dim: true }
 Panel::row.clip-copy { italic: true }
+/* A departure: in Miller columns (Alt+F12), the entry a column's next column
+   lists, while another column has the keyboard: the row's own colours turned
+   round, a bar that is not the cursor's, and one a monochrome terminal draws. */
+Panel::row.trail     { reverse: true }
 
 /* The detailed and list modes (Ctrl+Y): the column titles over them, `[165]
    Column title', and the rules between their columns in the frame's own
