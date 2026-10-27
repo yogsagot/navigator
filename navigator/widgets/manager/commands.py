@@ -396,6 +396,23 @@ class UuDecode(Command):
     """
 
 
+class CalculateChecksums(Command):
+    """File > Checksums > Calculate: the tagged files' digests, in one list or
+    a list beside each (:mod:`navigator.lib.file_ops.checksum`).
+
+    **A departure**, asked for: DOS Navigator had no checksums, so there is
+    no ``cm*`` to name it after.  Not bound: the key is the user's to give.
+    """
+
+
+class VerifyChecksums(Command):
+    """File > Checksums > Verify: the files the tagged lists -- or the one at
+    the cursor -- name, hashed again and checked.
+
+    **A departure**, asked for, as :class:`CalculateChecksums` is.  Not bound.
+    """
+
+
 class DirHistory(Command):
     """Alt+Backspace, Panel > History of directories: where the panels have been.
 
@@ -690,6 +707,8 @@ __all__ = [
     "CountLength",
     "UuEncode",
     "UuDecode",
+    "CalculateChecksums",
+    "VerifyChecksums",
     "CompareDir",
     "DiffFiles",
     "SetSyncAction",

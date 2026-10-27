@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -160,6 +160,28 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
   section headers, `table`, `filetime`, `begin`/`end`, `sum -r/size` checked, anything else passed over. A severe
   error breaks a file, written only with *Save broken files*; *Check existing files* asks; *Display error messages*
   shows each. Departures: names keep case and length; a blank line also ends the data; `crc64` is not checked.
+
+## Checksums (File > Checksums)
+
+`navigator/lib/file_ops/checksum.py`, **a departure, asked for** -- DN had no checksums, so the commands
+(`CalculateChecksums`, `VerifyChecksums`) are named for what they do and are in `Manager.keyless_commands` (no default key).
+- **Format** is GNU coreutils' `*sum`: `hex␣␣name` (text mode), names relative to the list's directory; a name holding
+  `\`, LF or CR gets a leading `\` and those escaped. Reading also takes `*name` (binary) and BSD's `TAG (name) = hex`.
+  `sha256sum -c` checks what Calculate writes (a test runs it when coreutils is there).
+- **Algorithm**: MD5, SHA-1, SHA-256 (default), SHA-512, BLAKE2b, extensions `.md5sum`..`.b2sum`. Verify tells a list's by
+  its name (`SUFFIXES`, `WHOLE_NAMES` such as `SHA256SUMS`), else by its first digest's length; 128 hex digits without
+  a `b2` name are SHA-512. The last choice and mode are kept in `[checksum]` (`Manager._keep_section`).
+- **Calculate** works on `Manager.selection` (tagged, else the cursor's); a tagged directory is walked to the bottom
+  (`walk`, `_count_on_drive`'s walk: a link to a directory is not followed, one to a file is hashed). *One list* writes
+  through `_write_list` (so *As root* on the disk) after Alt+L's Yes/Append/Cancel (`_ask_over_list`), leaving the list
+  itself out; *Each file* writes `name.<ext>` beside each as it goes (`write_each`, a Stop keeps what was written),
+  skipping files that are lists, after one *overwrite them?* question. Entries done are untagged; unreadable files are
+  said in one Error box (eight lines, then *and N more*).
+- **Verify** takes the tagged lists (by name), else every tagged file or the cursor's, untags them, tags the failed and
+  unreadable files in `all_panels` (`Panel.tag_paths`), and shows `ChecksumReport` (counts, and a `ListViewer` of the
+  bad ones). Missing is `FileNotFoundError`; a list with no lines is in `lists_unreadable`.
+- **Every read goes through `drive_of(...).open_read`/`children`**, so both work on any drive; all of it runs on a
+  thread through `run_with_progress` (`ChecksumProgress`), asking nothing mid-work.
 
 ## Read when
 

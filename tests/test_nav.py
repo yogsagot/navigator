@@ -3504,7 +3504,7 @@ def test_only_entries_with_a_handler_behind_them_are_enabled(tree):
         return parse_shortcut(text)[0]
 
     run_app(app, [probe])
-    assert seen == ["View", "Edit", "Find...", "Make directory", "Execute OS command", "Exit"]
+    assert seen == ["View", "Edit", "Find...", "Make directory", "Checksums", "Execute OS command", "Exit"]
 
 
 def test_a_nested_menu_shades_the_box_it_opened_from(tree):

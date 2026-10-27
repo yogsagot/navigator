@@ -354,7 +354,7 @@ columns and cursor kept. Enabled only on the local disk. Two more ways in: a com
 
 **Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
 its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,
-`marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`.
+`marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`; `tag_paths(locations)` tags (Verify checksums' failures).
 
 ## Make list (Alt+L)
 

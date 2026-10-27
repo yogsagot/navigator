@@ -39,7 +39,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   prefix left it), a relative one is on the working directory's drive.
 - **Capabilities grey commands, not errors.** `Manager._LOCAL_ONLY` is **empty**: every command asks the drive or
   works on a fetched copy; it is where a new command that cannot goes until it is taught to. What a drive cannot do
-  at all its capabilities grey (`enables`): rename/move/delete/mkdir/F4 need `write`, Shift+F5 needs `symlink`.
+  at all its capabilities grey (`enables`): rename/move/delete/mkdir/F4 need `write`, Shift+F5 needs `symlink`. File > Checksums reads every file through `open_read`/`children`, so it needs nothing more.
 - **The last ones, and how**: Shift+F4 reads its name as a copy's target line does (`target_location`: a URL, an
   archive place, or relative to the panel's drive) -- an existing file there is fetched and edited, a new one is an
   empty copy (`usefile.blank`) that F2 makes there (`$EDITOR` only for one already there). Shift+F5 makes a link on

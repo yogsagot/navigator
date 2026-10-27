@@ -99,6 +99,8 @@ from navigator.widgets.manager.commands import (
     UnselectGroup,
     UuDecode,
     UuEncode,
+    CalculateChecksums,
+    VerifyChecksums,
     View,
     OpenWith,
     ViewAsDataBase,
@@ -155,7 +157,7 @@ class Manager(Window):
 
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
-    keyless_commands = (CompareDir, DiffFiles)
+    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -613,14 +615,19 @@ class Manager(Window):
     def _keep_uucode(values: dict[str, Any]) -> None:
         """What the dialog was accepted with, kept for the next time and
         saved, as DN set ``ConfigModified`` when it changed."""
+        Manager._keep_section("uucode", values)
+
+    @staticmethod
+    def _keep_section(name: str, values: dict[str, Any]) -> None:
+        """*values* kept in the settings section *name* and saved, when they changed it."""
         import contextlib
 
-        section = SETTINGS.uucode
+        section = getattr(SETTINGS, name)
         changed = {key: value for key, value in values.items() if getattr(section, key) != value}
         if changed:
             section.update(changed)
             with contextlib.suppress(OSError):
-                SETTINGS.save(section="uucode")
+                SETTINGS.save(section=name)
 
     async def _run_uucode(self, panel: Panel, work_on: Callable[[Any], Any], notice: str,
                           beep_after: float, as_root: Callable[[Any], Any] | None = None) -> None:
@@ -679,6 +686,180 @@ class Manager(Window):
         if isinstance(question, uucode.DecodeError):
             await Dialog(title=tr("Error"), prompt=question.text, buttons="ok").execute(app)
         return None
+
+    # -- Checksums (navigator.lib.file_ops.checksum): not DN's, a departure -------------------------
+
+    async def on_calculate_checksums(self, event: CalculateChecksums) -> bool:
+        self.spawn(self.calculate_checksums(self.active_panel))
+        return True
+
+    async def on_verify_checksums(self, event: VerifyChecksums) -> bool:
+        self.spawn(self.verify_checksums(self.active_panel))
+        return True
+
+    async def calculate_checksums(self, panel: Panel) -> None:
+        """File > Checksums > Calculate: the tagged files' -- or the cursor's
+        -- digests, a tagged directory's files to the bottom, written as
+        ``sha256sum`` writes them: in one list, its names from the list's
+        directory, or in ``name.<ext>`` beside each file.
+
+        The files are read on a thread through their drives, under a box if
+        it takes a while; Esc there stops it, keeping the lists of *Each
+        file* already written.  A list already there is asked about first --
+        *Append* adds to the one list -- and the entries done are untagged.
+        """
+        from navigator.lib.file_ops import checksum
+        from navigator.lib.file_ops.filecopy import target_location
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+        from navigator.widgets.file_ops.calculate_checksums_dialog import CalculateChecksumsDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        answer = await CalculateChecksumsDialog(directory_name=panel.location.name).execute(app)
+        if answer is None:
+            return
+        self._keep_section("checksum", {"algorithm": answer["algorithm"], "mode": answer["mode"]})
+        algorithm = answer["algorithm"]
+        sources = [panel.entry_location(entry) for entry in entries]
+        job = checksum.ChecksumJob()
+        title = tr("Calculating checksums")
+        written: list[Location] = []
+        try:
+            if answer["mode"] == "combined":
+                target = target_location(answer["name"], panel.location)
+                appending = await self._ask_over_list(target)
+                if appending is None:
+                    return
+                skip = target.normalized()
+
+                def calculate() -> list[tuple[Location, str]]:
+                    files = checksum.walk(sources, job, lambda location: location.normalized() == skip)
+                    return checksum.calculate(files, algorithm, job)
+
+                done = await self._run_checksums(calculate, job, title)
+                if done:
+                    lines = checksum.list_text(done, target.parent)
+
+                    def write() -> None:
+                        drive = drive_of(target)
+                        with drive.open_write(target, append=appending) as file:
+                            file.write("".join(f"{text}\n" for text in lines).encode("utf-8", "surrogateescape"))
+                        drive.finish()
+
+                    if not await self._write_list(write, target, lines, appending):
+                        return
+                    written.append(target)
+            else:
+                extension = checksum.EXTENSIONS[algorithm]
+
+                def gather() -> tuple[list[tuple[Location, int]], int]:
+                    files = checksum.walk(sources, job, lambda location: checksum.is_list_name(location.name))
+                    there = 0
+                    for location, _ in files:
+                        listing = location.parent / (location.name + extension)
+                        try:
+                            there += drive_of(listing).lexists(listing)
+                        except OSError:
+                            pass
+                    return files, there
+
+                files, there = await self._run_checksums(gather, job, title)
+                if there:
+                    prompt = tr_n("{n} checksum file already exists.\nOK to overwrite it?",
+                                  "{n} checksum files already exist.\nOK to overwrite them?", there)
+                    if not await Dialog(title=tr("Warning"), prompt=prompt, buttons="yes-no").execute(app):
+                        return
+                written = await self._run_checksums(lambda: checksum.write_each(files, algorithm, job), job, title)
+        except Stopped:
+            return
+        finally:
+            # One per directory: each re-reads every panel showing it.
+            for location in {location.parent: location for location in written}.values():
+                await self.emit(FileSaved(shown(location)))
+        failed = {name for name, _ in job.errors}
+        panel.untag(entry for entry, source in zip(entries, sources)
+                    if not any(name == str(source) or name.startswith(f"{source}/") for name in failed))
+        if job.errors:
+            await self._say_checksum_errors(job.errors)
+
+    async def verify_checksums(self, panel: Panel) -> None:
+        """File > Checksums > Verify: every file the tagged lists name hashed
+        again and checked, on a thread through its drive.
+
+        The lists are the tagged files whose names say they are lists --
+        ``.sha256sum``, ``SHA256SUMS``... -- else the tagged files or the
+        cursor's, told by their digests' length.  The lists are untagged, the
+        files that did not match tagged wherever a panel lists them, and the
+        counts and those files shown (``ChecksumReport``).
+        """
+        from navigator.lib.file_ops import checksum
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.file_ops.checksum_report import ChecksumReport
+
+        app = self.application
+        files = [entry for entry in self.selection(panel) if not entry.is_dir]
+        if app is None or not files:
+            return
+        named = [entry for entry in files if checksum.is_list_name(entry.name)]
+        entries = named or files
+        lists = [panel.entry_location(entry) for entry in entries]
+        job = checksum.ChecksumJob()
+        try:
+            result = await self._run_checksums(lambda: checksum.verify(lists, job), job,
+                                               tr("Verifying checksums"))
+        except Stopped:
+            return
+        panel.untag(entries)
+        bad = result.failed + [location for location, _ in result.unreadable]
+        for each in self.all_panels:
+            each.tag_paths(bad)
+        await ChecksumReport(result=result).execute(app)
+
+    async def _run_checksums(self, work: Callable[[], Any], job: Any, title: str) -> Any:
+        """*work* on a thread, under the checksums box once it takes a while."""
+        from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
+        from navigator.widgets.file_ops.checksum_progress import ChecksumProgress
+
+        def refresh(box: Any) -> None:
+            box.current = job.current
+            box.position = job.position
+            box.total = job.total
+            box.files_done = job.files_done
+            box.files_total = job.files_total
+
+        return await run_with_progress(self.application, work, job, lambda: ChecksumProgress(title=title),
+                                       refresh, delay=SLOW_PROGRESS_DELAY)
+
+    async def _ask_over_list(self, target: Location) -> bool | None:
+        """Whether a list file is appended to: False for a new one or *Yes*,
+        True for *Append*, None for Cancel -- Alt+L's question."""
+        def there() -> bool:
+            try:
+                return drive_of(target).lexists(target)
+            except OSError:
+                return False
+
+        if not await asyncio.to_thread(there):
+            return False
+        query = Dialog(title=tr("Warning"),
+                       prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
+                       buttons="yes-no-cancel")
+        query.no.text = tr("A~p~pend")
+        reply = await query.execute(self.application)
+        return None if reply is None else reply is False
+
+    async def _say_checksum_errors(self, errors: list[tuple[str, str]]) -> None:
+        """What could not be read, the first eight of it, as the archive test says its failures."""
+        from navml.widgets.dialog.control import escape_caption
+
+        lines = [escape_caption(f"{name}: {reason}") for name, reason in errors[:8]]
+        if len(errors) > 8:
+            lines.append(tr_n("and {n} more", "and {n} more", len(errors) - 8))
+        prompt = tr_n("{n} file could not be read:", "{n} files could not be read:", len(errors)) + "\n" + "\n".join(lines)
+        await Dialog(title=tr("Error"), prompt=prompt, buttons="ok").execute(self.application)
 
     # -- archives: Extract to, Test, Extract archive (ARCVIEW.PAS) ---------------------------------
 
@@ -2345,6 +2526,10 @@ class Manager(Window):
         if isinstance(command, QuickRename):
             # One entry: the one tagged, else the cursor's.
             return self._rename_candidate(self.active_panel) is not None
+        if isinstance(command, CalculateChecksums):
+            return not self._aside_focused() and bool(self.selection(self.active_panel))
+        if isinstance(command, VerifyChecksums):
+            return not self._aside_focused() and any(not entry.is_dir for entry in self.selection(self.active_panel))
         if isinstance(command, (UuEncode, UuDecode)):
             # DN's ``PF^.Attr and Directory = 0``: the file at the cursor.
             entry = self.active_panel.selected

@@ -879,6 +879,20 @@ class UUCodeData(Section):
     save_broken: bool = Setting(False, doc="Decoding keeps a file it could not decode whole")
 
 
+class ChecksumData(Section):
+    """File > Checksums > *Calculate*'s last choices.  Not DN's: a departure,
+    asked for -- DOS Navigator had no checksums to keep anything of."""
+
+    name = "checksum"
+    title = "File > Checksums > Calculate (not DN's)"
+
+    ALGORITHMS: ClassVar[tuple[str, ...]] = ("md5", "sha1", "sha256", "sha512", "blake2b")
+    MODES: ClassVar[tuple[str, ...]] = ("combined", "each")
+
+    algorithm: str = Setting("sha256", choices=ALGORITHMS, doc="The digest Calculate writes")
+    mode: str = Setting("combined", choices=MODES, doc="One list for all the files, or one beside each file")
+
+
 class RemoteData(Section):
     """Connections to other drives: Options > Configuration > *Communications*,
     where DN set up the modem and the cable its Navigator Link ran over
@@ -909,7 +923,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    UUCodeData, RemoteData,
+    UUCodeData, ChecksumData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -944,6 +958,7 @@ class Settings:
     country: CountryData
     tetris: TetrisData
     uucode: UUCodeData
+    checksum: ChecksumData
     remote: RemoteData
 
     def __init__(self) -> None:

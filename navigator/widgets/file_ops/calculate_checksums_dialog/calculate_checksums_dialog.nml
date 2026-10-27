@@ -1,0 +1,78 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: File > Checksums > Calculate.  Not DN's: a departure, asked for -- DOS
+#: Navigator had no checksums (``navigator.lib.file_ops.checksum``).
+#:
+#: The digest on the left, where it goes on the right, and the combined
+#: list's name under them, greyed while each file gets its own list.
+CalculateChecksumsDialog(Dialog):
+    modal_width: 60
+    modal_height: 14
+    title: "Calculate Checksums"
+
+    Label:
+        id: algorithm_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~A~lgorithm"
+        link: algorithm
+
+    RadioButtons:
+        id: algorithm
+        x: 2
+        y: 2
+        width: 20
+        height: 5
+        items: ["~M~D5", "SHA-~1~", "~S~HA-256", "SHA-~5~12", "~B~LAKE2b"]
+
+    Label:
+        id: mode_caption
+        x: 24
+        y: 1
+        width: 12
+        height: 1
+        text: "~W~rite"
+        link: mode
+
+    RadioButtons:
+        id: mode
+        x: 24
+        y: 2
+        width: max(0, parent.width - 26)
+        height: 2
+        items: ["~O~ne list for all files", "~E~ach file its own list"]
+
+    #: The combined list, from the panel's directory.
+    Field:
+        id: list_name
+        x: 2
+        y: 8
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~L~ist file"
+        label_width: 11
+        history_id: "checksum"
+        disabled: mode.value != 0
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 17
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 30
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

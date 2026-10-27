@@ -1075,6 +1075,21 @@ class Panel(ContextMenuHost, ListViewer):
         if done:
             self.untag(item for item in self.items if self.entry_location(item) in done)
 
+    def tag_paths(self, locations: Iterable[Location]) -> None:
+        """Tag the entries at *locations* this panel lists: what Verify
+        checksums leaves on the files that did not match."""
+        def key(location: Location) -> Location:
+            location = location.normalized()
+            return Location.of(Path(location.path).absolute()) if location.is_local else location
+
+        wanted = {key(location) for location in locations}
+        if not wanted:
+            return
+        keys = {item.key for item in self.items
+                if item.name != ".." and key(self.entry_location(item)) in wanted}
+        if keys - self.marked:
+            self.marked = self.marked | keys
+
     def untag(self, entries: Iterable[DirEntry]) -> None:
         """Take *entries*' tags off: what an operation done on them leaves."""
         keys = {entry.key for entry in entries}
