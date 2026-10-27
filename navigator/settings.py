@@ -266,6 +266,9 @@ class AppearanceData(Section):
 ON_ERROR = ("dialog", "crash")
 #: What *As root* asks for root with (``navigator.lib.system.elevate.CHOICES``).
 ELEVATE = ("auto", "sudo", "pkexec", "off")
+#: ``[system] desktop_vfs``: whose desktop plumbing is asked
+#: (navigator.lib.system.desktop) -- auto is KDE's KIO in a KDE session, else GIO.
+DESKTOP_VFS = ("auto", "gio", "kio", "off")
 
 
 class SystemData(Section):
@@ -318,12 +321,15 @@ class SystemData(Section):
     root_timeout: int = Setting(
         5, doc="Minutes root access stays open after its last use; 0 closes it after each operation",
     )
-    #: Not DN's: the desktop's GIO, through its ``gio`` command
-    #: (navigator.lib.system.gio) -- Volumes' Mount/Unmount/Eject, opening a
-    #: file in the desktop's application, GVfs drives and ``gio trash``.  Only
-    #: here, the System Setup page having no room left.
-    use_gio: bool = Setting(
-        True, doc="Use the desktop's gio command, when installed, for volumes, GVfs links and opening files",
+    #: Not DN's: the desktop's GIO (``gio``) or KDE's KIO (``kioclient``,
+    #: ``solid-hardware``, kio-fuse) -- Volumes' Mount/Unmount/Eject, opening
+    #: a file in the desktop's application, GVfs/KIO links and the trash's
+    #: fallback (navigator.lib.system.desktop).  One of them a session; set on
+    #: *Communications*' page, the System Setup page having no room left.  It was ``use_gio``,
+    #: whose ``false`` still reads as ``off``.
+    desktop_vfs: str = Setting(
+        "auto", choices=DESKTOP_VFS,
+        doc="The desktop's plumbing for volumes, links and opening files: GIO, KIO, or off; auto is KIO under KDE, else GIO",
     )
 
 
@@ -910,7 +916,7 @@ SECTIONS: tuple[type[Section], ...] = (
 #: only meant something on DOS.  :meth:`Settings.load` drops them rather than
 #: keeping them as extras, so the next save leaves them out of the file.
 OBSOLETE: dict[str, frozenset[str]] = {
-    "system": frozenset({"fast_execution", "advanced_copy"}),
+    "system": frozenset({"fast_execution", "advanced_copy", "use_gio"}),
     "startup": frozenset({"enable_blinking", "sleep_when_inactive"}),
     "file_manager": frozenset({
         "alt_difference", "ctrl_difference", "keep_descriptions", "drive_line",
@@ -989,6 +995,10 @@ class Settings:
                 continue
             section = self.section(name)
             for key, text in parser.items(name):
+                if name == "system" and key == "use_gio" and not parser.has_option(name, "desktop_vfs"):
+                    # ``desktop_vfs``'s predecessor: off stays off.
+                    if text.strip().lower() in ("false", "no", "off", "0"):
+                        section.desktop_vfs = "off"
                 if key in OBSOLETE.get(name, ()):
                     continue
                 field = cls.field(key)

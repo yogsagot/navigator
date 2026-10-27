@@ -48,7 +48,16 @@ def titles(scheme: str) -> tuple[str, str]:
         "ftp": (tr("FTP link"), tr("Edit FTP link")),
         "smb": (tr("SMB link (Windows share)"), tr("Edit SMB link (Windows share)")),
         "s3": (tr("S3 link (Amazon S3)"), tr("Edit S3 link (Amazon S3)")),
-    }.get(family, (scheme.upper(), scheme.upper()))
+    }.get(family) or _desktop_titles(scheme)
+
+
+def _desktop_titles(scheme: str) -> tuple[str, str]:
+    """A GVfs or KIO scheme's titles: the menu's name, and the protocol's."""
+    from navigator.lib.drives.sessions import protocol_name
+
+    protocol = protocol_name(scheme)
+    return (tr("GVfs/KIO link ({protocol})").format(protocol=protocol),
+            tr("Edit GVfs/KIO link ({protocol})").format(protocol=protocol))
 
 
 class ConnectDialog(Dialog):

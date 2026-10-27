@@ -129,7 +129,7 @@ MainMenu(MenuBar):
                 text: 'Edit ~n~ew file...'
                 command: EditNamed
                 key: 'Shift-F4'
-        #: Not DN's: one of the desktop's applications for the file, through ``gio``.
+        #: Not DN's: one of the desktop's applications for the file, through ``gio`` or KIO.
         MenuItem:
             text: 'Open ~w~ith...'
             command: OpenWith
@@ -267,9 +267,9 @@ MainMenu(MenuBar):
         MenuItem:
             text: 'S~3~ link (Amazon S3)...'
             command: S3Link
-        #: Not DN's: whatever the desktop's GVfs reaches, through ``gio``.
+        #: Not DN's: whatever the desktop's GVfs or KDE's KIO reaches.
         MenuItem:
-            text: '~G~Vfs link (MTP, WebDAV...)...'
+            text: '~G~Vfs/KIO link (MTP, WebDAV...)...'
             command: GvfsLink
         MenuItem:
             text: '~D~isconnect'

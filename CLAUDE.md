@@ -34,9 +34,10 @@ layered in three parts, each depending only on the one below:
 names has to be importable by its own name.
 
 Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS, SMB or S3
-(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), anywhere the desktop's GVfs reaches (GVfs link:
-`mtp://`, `dav://`, `google-drive://`..., through the `gio` command when installed -- `navigator-gio` skill, which also
-has Volumes' Mount/Eject and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
+(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), anywhere the desktop's GVfs or KDE's KIO reaches (GVfs/KIO link:
+`mtp://`, `dav://`, `webdav://`, `google-drive://`..., through the `gio` command or KDE's `kioclient`/kio-fuse, one of them
+by `[system] desktop_vfs` through `navigator/lib/system/desktop.py` -- `navigator-gio` and `navigator-kio` skills, which also
+have Volumes' Mount/Eject and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
 Manager Setup says so, off by default), or in memory (the tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
 
 ## Environment and commands
@@ -208,7 +209,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
-| `navigator-gio` | the `gio` command: Volumes' Mount/Unmount/Eject, Enter/Open with in desktop applications, GVfs drives, `gio trash` |
+| `navigator-gio` | the `gio` command: Volumes' Mount/Unmount/Eject, Enter/Open with in desktop applications, GVfs drives, `gio trash`; the `desktop.py` facade and `[system] desktop_vfs` |
+| `navigator-kio` | KDE's KIO/Solid commands (`kioclient`, `solid-hardware6`, `ktraderclient6`, `kstart`, kio-fuse over `dbus-send`): the same four features as `navigator-gio` |
 | `navigator-drives` | `Location`/`Drive`, SFTP, archives and the in-memory drive, sessions, credentials, `UseFile`, SSH link, Disconnect, the *Link* box, what still needs the disk |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
 | `navigator-editor` | F4 editor |

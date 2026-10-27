@@ -193,8 +193,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   path, seq). `location_of(profile)`; a path of `.` (`profiles.HOME`) opens on the server's home (`drive.home`).
   **Utilities > *Saved links*** (`EditLinks`, `Shell.edit_links`; also *Edit links...* at the foot of the *Link*
   list, `link_section`'s `EDIT_LINKS`) is `widgets/drives/links_dialog`: the profiles copied in as
-  `profiles.Entry`s (`entries()`), edited -- F2/*Edit* and Ins/*Add* (a protocol menu first) in
-  `ConnectDialog(editing=True)`, Del/*Delete* asked, Ctrl+Up/Down moved (its `LinkList` lets those keys past the
+  `profiles.Entry`s (`entries()`), edited -- F2/*Edit* and Ins/*Add* (a protocol menu first; *New GVfs/KIO link* asks the URI
+  first, `navigator-gio` skill) in `ConnectDialog(editing=True)`, Del/*Delete* asked, Ctrl+Up/Down moved (its `LinkList` lets those keys past the
   list to the `links_dialog` key table) -- and written back on OK in one transaction (`profiles.store`: gone names
   deleted, `seq` the list's order); Cancel changes nothing; *Connect* stores, then `go_remote`s the active panel.
 - **`recent.py`** over `navigator/models/recent_link/` (`recent_links`: scheme, host, user, port, path, seq; unique
@@ -303,9 +303,10 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - The prompt names the remote place while commands still run in the last local directory.
 - *Communications* holds connection settings, not a modem's.
 
-- **GVfs schemes** (mtp, dav, afp, google-drive...) are not in `SCHEMES` but reached through `sessions.module_name`;
-  `navigator/lib/drives/gvfs.py` mounts with `gio` and works on the FUSE path (`navigator-gio` skill). Test a
-  connection's kind with `sessions.is_connection`, never `in SCHEMES`.
+- **GVfs and KIO schemes** (mtp, dav, afp, google-drive...; webdav, fish, gdrive, kdeconnect...) are not in `SCHEMES`
+  but reached through `sessions.module_name`: `navigator/lib/drives/gvfs.py` mounts with `gio`, `navigator/lib/drives/kio.py`
+  through kio-fuse, and both work on the FUSE path (`navigator-gio`, `navigator-kio` skills). A scheme both reach
+  (`mtp`, `afc`, `nfs`) goes to the backend in use. Test a connection's kind with `sessions.is_connection`, never `in SCHEMES`.
 
 ## Adding a protocol
 

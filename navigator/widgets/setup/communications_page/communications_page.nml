@@ -7,7 +7,10 @@ from navml.widgets.dialog.static_text import StaticText
 #: modem and the cable its Navigator Link ran over (``cmSetupModem``) --
 #: here, connections to servers (``[remote]``, ``RemoteData``).  Nothing of
 #: DN's resource is left: a port, a speed and an init string have no meaning
-#: for SSH.
+#: for SSH.  *Desktop integration* is not DN's: whose plumbing -- GIO's or
+#: KDE's KIO -- mounts volumes, reaches GVfs/KIO links and opens files in the
+#: desktop's applications (``[system] desktop_vfs``,
+#: ``navigator.lib.system.desktop``); here, System Setup having no room left.
 CommunicationsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -104,3 +107,21 @@ CommunicationsPage:
         width: max(0, parent.width - 6)
         height: 1
         items: ["~A~sk first", "Alwa~y~s", "Ne~v~er"]
+
+    Label:
+        id: desktop_vfs_caption
+        x: 3
+        y: 9
+        width: max(0, parent.width - 6)
+        height: 1
+        text: "~D~esktop integration: volumes, links, opening files"
+        link: desktop_vfs
+
+    #: Two rows, two columns: one row is wider than the page with the tabs down the left.
+    RadioButtons:
+        id: desktop_vfs
+        x: 3
+        y: 10
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["Au~t~o", "~G~IO (GNOME, Xfce...)", "K~I~O (KDE)", "~O~ff"]

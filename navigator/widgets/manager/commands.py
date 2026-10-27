@@ -31,7 +31,7 @@ class View(Command):
 
 class OpenWith(Command):
     """File > *Open with*: the file at the cursor in one of the desktop's
-    applications for its type, chosen from a box (``gio``).  Not DN's."""
+    applications for its type, chosen from a box (``gio`` or KIO).  Not DN's."""
 
     title = "Open with"
 

@@ -79,11 +79,12 @@ def _is_archive_name(text: str) -> bool:
 
 def _host(parts: SplitResult, scheme: str) -> str:
     """The host *parts* name: lower case, as DNS has it -- but as written
-    for a GVfs scheme, whose "host" is a phone's or a camera's name
-    (``mtp://Google_Pixel_7_2B14/``), which GVfs matches exactly."""
+    for a GVfs or KIO scheme, whose "host" is a phone's or a camera's name
+    (``mtp://Google_Pixel_7_2B14/``), which GVfs and KIO match exactly."""
     from navigator.lib.system.gio import GVFS_SCHEMES
+    from navigator.lib.system.kio import KIO_SCHEMES
 
-    if scheme not in GVFS_SCHEMES:
+    if scheme not in GVFS_SCHEMES and scheme not in KIO_SCHEMES:
         return parts.hostname or ""
     host = parts.netloc.rpartition("@")[2]
     if host.startswith("["):

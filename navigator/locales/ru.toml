@@ -769,6 +769,11 @@ flag = "RU"
 "Alwa~y~s" = "~В~сегда"
 # navigator/widgets/setup/communications_page/communications_page.nml:106
 "Ne~v~er" = "~Н~икогда"
+"~D~esktop integration: volumes, links, opening files" = "~Р~абочий стол: тома, связи, открытие файлов"
+"Au~t~o" = "~А~вто"
+"~G~IO (GNOME, Xfce...)" = "~G~IO (GNOME, Xfce...)"
+"K~I~O (KDE)" = "~K~IO (KDE)"
+"~O~ff" = "Отк~л~ючено"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Erase ~s~ingle file" = "Удаление ~о~дного файла"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
@@ -1274,7 +1279,7 @@ flag = "RU"
 # navigator/widgets/shell/main_menu/main_menu.nml:268
 "S~3~ link (Amazon S3)..." = "Связь по S~3~ (Amazon S3)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:272
-"~G~Vfs link (MTP, WebDAV...)..." = "Связь по ~G~Vfs (MTP, WebDAV...)..."
+"~G~Vfs/KIO link (MTP, WebDAV...)..." = "Связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:275
 "~D~isconnect" = "Ра~з~орвать связь"
 # navigator/widgets/shell/main_menu/main_menu.nml:279
@@ -2166,7 +2171,7 @@ flag = "RU"
 # navigator/widgets/manager/manager/manager.py:4488
 "~L~ink" = "~С~вязь"
 # navigator/widgets/manager/manager/manager.py:4516
-"New ~G~Vfs link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs (MTP, WebDAV...)..."
+"New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
 # navigator/widgets/manager/manager/manager.py:991
 "Panelize" = "Вывод в панель"
 # navigator/widgets/manager/manager/manager.py:1522
@@ -2506,7 +2511,9 @@ flag = "RU"
 # navigator/widgets/shell/shell/shell.py:1837
 "Choose action" = "Выберите действие"
 # navigator/widgets/shell/shell/shell.py:2285, navigator/widgets/shell/shell/shell.py:2293
-"GVfs link" = "Связь по GVfs"
+"GVfs/KIO link" = "Связь по GVfs/KIO"
+"GVfs/KIO link ({protocol})" = "Связь по GVfs/KIO ({protocol})"
+"Edit GVfs/KIO link ({protocol})" = "Изменить связь по GVfs/KIO ({protocol})"
 # navigator/widgets/shell/shell/shell.py:2521, navigator/widgets/shell/shell/shell.py:2514
 "Disconnect" = "Разорвать связь"
 # navigator/widgets/shell/shell/shell.py:1701
@@ -2521,6 +2528,7 @@ flag = "RU"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
 # navigator/widgets/shell/shell/shell.py:2283
 "~U~RI (mtp://, dav://, google-drive://...)" = "~U~RI (mtp://, dav://, google-drive://...)"
+"~U~RI (mtp://, webdav://, gdrive://...)" = "~U~RI (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/shell/shell/shell.py:2364, navigator/widgets/shell/shell/shell.py:2550
 "{protocol} link" = "Связь {protocol}"
 # navigator/widgets/shell/shell/shell.py:2811
@@ -2577,6 +2585,7 @@ flag = "RU"
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
 # navigator/widgets/shell/shell/shell.py:2294
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} — не место, доступное GVfs. Он знает {schemes}"
+"{uri} is no place KIO reaches. It knows {schemes}" = "{uri} — не место, доступное KIO. Он знает {schemes}"
 # navigator/widgets/shell/shell/shell.py:2381
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
 # navigator/widgets/shell/shell/shell.py:2622

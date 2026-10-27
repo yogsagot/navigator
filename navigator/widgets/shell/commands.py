@@ -102,20 +102,20 @@ class OpenTreeWindow(Command):
 
 class MountVolume(Command):
     """Volumes > *Mount*: the volume under the cursor mounted through the
-    desktop's ``gio`` -- udisks, no root asked.  Not DN's."""
+    desktop's ``gio`` or KDE's Solid -- udisks, no root asked.  Not DN's."""
 
     title = "Mount"
 
 
 class UnmountVolume(Command):
-    """Volumes > *Unmount*: the volume under the cursor unmounted through ``gio``."""
+    """Volumes > *Unmount*: the volume under the cursor unmounted through ``gio`` or Solid."""
 
     title = "Unmount"
 
 
 class EjectVolume(Command):
     """Volumes > *Eject*: the volume under the cursor unmounted and its
-    medium ejected -- or its drive made safe to remove -- through ``gio``."""
+    medium ejected -- or its drive made safe to remove -- through ``gio`` or Solid."""
 
     title = "Eject"
 
@@ -514,10 +514,12 @@ class S3Link(Command):
 
 
 class GvfsLink(Command):
-    """Utilities > *GVfs link*: a place the desktop's GVfs reaches -- a phone
-    over MTP, a WebDAV, AFP or NFS share, Google Drive -- named by its URI,
-    mounted with ``gio mount`` (:mod:`navigator.lib.drives.gvfs`), and the
-    active panel sent there.  Not DN's."""
+    """Utilities > *GVfs/KIO link*: a place the desktop's GVfs -- or KDE's
+    KIO -- reaches -- a phone over MTP, a WebDAV, AFP or NFS share, Google
+    Drive -- named by its URI, mounted with ``gio mount``
+    (:mod:`navigator.lib.drives.gvfs`) or through kio-fuse
+    (:mod:`navigator.lib.drives.kio`), and the active panel sent there.
+    Not DN's."""
 
     title = "GVfs"
     scheme = "gvfs"

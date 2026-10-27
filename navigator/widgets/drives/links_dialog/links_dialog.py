@@ -130,22 +130,42 @@ class LinksDialog(Dialog):
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
+        from navigator.lib.system import desktop
+
         app = self.application
         menu = SubMenu()
         # The protocols, as the *Link* list's *New* items name them.
         schemes = {id(menu.add_item(caption)): scheme for caption, scheme in (
             (tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
             (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3"))}
+        # Whatever the desktop's GVfs or KIO reaches: its URI first, then the box to name it.
+        desktop_item = menu.add_item(tr("New ~G~Vfs/KIO link (MTP, WebDAV...)..."))
+        if desktop.program() is None:
+            desktop_item.disabled = True
+            desktop_item.key = "gio/kio"
+        schemes[id(desktop_item)] = "gvfs"
         ox, oy = self.append.offset()
         chosen = await PopupMenu(menu, ox + self.append.x, oy + self.append.y + self.append.height, current=0,
                                  behind=self, title=tr("New link")).execute(app)
         scheme = schemes.get(id(chosen))
         if scheme is not None:
-            answer = await self._ask(None, scheme)
+            answer = await (self._ask_desktop() if scheme == "gvfs" else self._ask(None, scheme))
             if answer is not None:
                 index = self.current
                 self._refresh(self._put(answer, len(self.entries) if index is None else index + 1))
         self.links.focus()
+
+    async def _ask_desktop(self) -> Entry | None:
+        """A GVfs/KIO link: its URI asked as *GVfs/KIO link* asks it, then
+        its protocol's box filled in from it, to be named."""
+        from navigator.widgets.drives.desktop_link import ask_desktop_uri
+
+        target = await ask_desktop_uri(self.application)
+        if target is None:
+            return None
+        site = target.site
+        path = "" if str(target.path) == "/" else str(target.path)
+        return await self._ask(Entry("", site.scheme, site.host, site.user, site.port, path), site.scheme)
 
     async def _ask(self, entry: Entry | None, scheme: str) -> Entry | None:
         from navigator.widgets.drives.connect_dialog import ConnectDialog, ConnectRequest

@@ -11,7 +11,7 @@ from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
 from navkit.widget import Widget
-from navigator.settings import SETTINGS, RemoteData
+from navigator.settings import DESKTOP_VFS, SETTINGS, RemoteData, SystemData
 
 
 class CommunicationsPage(_Component):
@@ -26,5 +26,7 @@ class CommunicationsPage(_Component):
     refresh_unit: StaticText
     upload_caption: Label
     upload_changed: RadioButtons
-    def __init__(self, section: RemoteData | None = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> dict[str, Any]: ...
+    desktop_vfs_caption: Label
+    desktop_vfs: RadioButtons
+    def __init__(self, section: RemoteData | None = ..., system: SystemData | None = ..., **kwargs: Any) -> None: ...
+    def accept(self) -> dict[str, dict[str, Any]]: ...

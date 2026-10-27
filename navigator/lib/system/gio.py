@@ -18,8 +18,10 @@ does four things Navigator would otherwise not:
 
 The command rather than GLib itself, since PyGObject is compiled and
 Navigator's every dependency is pure Python -- as archives drive 7-Zip's.
-``[system] use_gio`` off, or no ``gio`` on ``PATH``, and :func:`program` is
-None and all of it is greyed out.  Every call but :func:`program` and
+No ``gio`` on ``PATH`` and :func:`program` is None.  Callers ask through
+:mod:`navigator.lib.system.desktop`, which picks this module or KDE's
+(:mod:`navigator.lib.system.kio`) by ``[system] desktop_vfs`` and greys all
+of it out with neither.  Every call but :func:`program` and
 :func:`graphical` blocks: a thread runs it.
 """
 
@@ -36,6 +38,10 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+from navigator.lib.system.desktop_entry import (
+    App, application_dirs, desktop_file, desktop_name, graphical, launch_detached,
+)
 
 #: How long a quick question to ``gio`` may take.
 TIMEOUT = 15.0
@@ -58,21 +64,14 @@ GVFS_SCHEMES: dict[str, str] = {
 
 
 def program(which: Callable[[str], str | None] | None = None) -> str | None:
-    """The ``gio`` to run, or None: not installed, or ``[system] use_gio`` off.
+    """The ``gio`` to run, or None: not installed.  Whether it is *used* is
+    :func:`navigator.lib.system.desktop.backend`'s to say (``[system]
+    desktop_vfs``).
 
     ``shutil.which`` is looked up at the call, as :mod:`printing` does, so
     that replacing it in a test reaches here.
     """
-    from navigator.settings import SETTINGS
-
-    if not SETTINGS.system.use_gio:
-        return None
     return (which or shutil.which)("gio")
-
-
-def graphical() -> bool:
-    """Whether there is a display for a desktop application to open on."""
-    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 
 
 def _reason(text: str, fallback: str) -> str:
@@ -104,24 +103,7 @@ def run(*args: str, timeout: float = TIMEOUT) -> str:
     return out
 
 
-def launch_detached(argv: list[str]) -> None:
-    """*argv* started on its own, its output nowhere: a desktop application,
-    which outlives the command that asked for it and must not paint over
-    Navigator's screen."""
-    subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL, start_new_session=True)
-
-
 # -- applications -------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class App:
-    """A desktop application: its ``.desktop`` file's id, name and path."""
-
-    id: str
-    name: str
-    path: Path | None
 
 
 def open_file(path: Path | str) -> None:
@@ -140,43 +122,6 @@ def content_type(path: Path | str) -> str:
         line = line.strip()
         if line.startswith("standard::content-type:"):
             return line.split(":", 3)[-1].strip()
-    return ""
-
-
-def application_dirs() -> list[Path]:
-    """Where ``.desktop`` files are, the user's first: the XDG data directories' ``applications/``."""
-    home = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
-    others = os.environ.get("XDG_DATA_DIRS") or "/usr/local/share:/usr/share"
-    return [Path(each) / "applications" for each in [home, *others.split(":")] if each]
-
-
-def desktop_file(app_id: str, dirs: Iterable[Path] | None = None) -> Path | None:
-    """Where the ``.desktop`` file *app_id* is: ``a-b.desktop`` may be ``a/b.desktop``."""
-    candidates = [app_id]
-    stem = app_id.removesuffix(".desktop")
-    if "-" in stem:
-        candidates.append(stem.replace("-", "/") + ".desktop")
-    for directory in application_dirs() if dirs is None else dirs:
-        for candidate in candidates:
-            path = directory / candidate
-            if path.is_file():
-                return path
-    return None
-
-
-def desktop_name(path: Path) -> str:
-    """The ``Name=`` of a ``.desktop`` file's ``[Desktop Entry]``; ``""`` if none."""
-    try:
-        text = path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return ""
-    in_entry = False
-    for line in text.splitlines():
-        line = line.strip()
-        if line.startswith("["):
-            in_entry = line == "[Desktop Entry]"
-        elif in_entry and line.startswith("Name="):
-            return line[5:].strip()
     return ""
 
 
@@ -251,6 +196,11 @@ class GioVolume:
     def local(self) -> str:
         """Its mount point, when *uri* is a ``file://`` one; else ``""``."""
         return file_path(self.uri)
+
+    @property
+    def target(self) -> str:
+        """What :func:`unmount` and :func:`eject` are given: its mount's URI."""
+        return self.uri
 
 
 def file_path(uri: str) -> str:

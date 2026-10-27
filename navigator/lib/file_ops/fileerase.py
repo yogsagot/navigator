@@ -34,9 +34,10 @@ What is DN's and what is not:
   to move it to, :class:`NoTrash` asks whether to erase it instead -- No,
   Yes, All or Cancel -- and *As root* is never offered for the move, so
   nothing of root's lands in the user's trash.  Before it asks, where the
-  desktop's ``gio`` is, ``gio trash`` is tried (:func:`navigator.lib.system.gio.trash`):
-  GIO knows trashes this module does not -- a GVfs mount's own, behind the
-  FUSE bridge -- though what goes there is not listed in ``trash:///``.
+  desktop's ``gio`` or KIO is, ``gio trash`` or ``kioclient move PATH trash:/``
+  is tried (:func:`navigator.lib.system.desktop.trash`): GIO knows trashes
+  this module does not -- a GVfs mount's own, behind the FUSE bridge --
+  though what goes there is not listed in ``trash:///``.
 """
 
 from __future__ import annotations
@@ -252,12 +253,12 @@ class _Eraser(Elevated):
         except OSError as error:
             if error.errno == errno.EXDEV:
                 # No trash on its file system that the specification allows:
-                # GIO's, if it has one (a GVfs mount's own).
-                from navigator.lib.system import gio
+                # the desktop's, if it has one (a GVfs mount's own).
+                from navigator.lib.system import desktop
 
-                if gio.program() is not None:
+                if desktop.program() is not None:
                     try:
-                        gio.trash(path.local)
+                        desktop.trash(path.local)
                     except OSError as refused:
                         error = refused
                     else:

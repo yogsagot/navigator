@@ -447,7 +447,7 @@ class MainMenu(MenuBar, _Component):
         _w55.command = S3Link    # main_menu.nml:269
 
         _w56.text = _bind(    # main_menu.nml:272
-            lambda _o: _tr('~G~Vfs link (MTP, WebDAV...)...'),
+            lambda _o: _tr('~G~Vfs/KIO link (MTP, WebDAV...)...'),
             yielding=True,
         )
         _w56.command = GvfsLink    # main_menu.nml:273

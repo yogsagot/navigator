@@ -1038,9 +1038,9 @@ class Shell(DockLayout):
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return self.active_manager is not None
         if isinstance(command, GvfsLink):
-            from navigator.lib.system import gio
+            from navigator.lib.system import desktop
 
-            return self.active_manager is not None and gio.program() is not None
+            return self.active_manager is not None and desktop.program() is not None
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
             # console, DN's user screen, and not from a viewer or an editor.
@@ -1642,23 +1642,23 @@ class Shell(DockLayout):
     def desktop_opens() -> bool:
         """Whether Enter on a file ``extensions.ini`` has nothing for opens it
         in the desktop's application: *Pass other files to desktop* on, and
-        ``gio`` and a display to open it on."""
-        from navigator.lib.system import gio
+        ``gio`` or KIO and a display to open it on."""
+        from navigator.lib.system import desktop
 
-        return SETTINGS.file_manager.open_unassociated and gio.program() is not None and gio.graphical()
+        return SETTINGS.file_manager.open_unassociated and desktop.program() is not None and desktop.graphical()
 
     async def open_on_desktop(self, path: Path) -> bool:
         """*path* opened in the desktop's default application for its type
-        (``gio open``) -- not DN's, where a file ``DN.EXT`` had no line for
-        did nothing; nor here with *Pass other files to desktop* off.  A
-        failure is said.  True when it was handed over."""
-        from navigator.lib.system import gio
+        (``gio open``, ``kioclient exec``) -- not DN's, where a file
+        ``DN.EXT`` had no line for did nothing; nor here with *Pass other
+        files to desktop* off.  A failure is said.  True when it was handed over."""
+        from navigator.lib.system import desktop
         from navml.widgets.dialog.control import escape_caption
 
         if not self.desktop_opens():
             return False
         try:
-            await asyncio.to_thread(gio.open_file, path)
+            await asyncio.to_thread(desktop.open_file, path)
         except OSError as error:
             await Dialog(title=tr("Error"), buttons="ok", prompt=tr("Cannot open {path}: {error}").format(
                 path=escape_caption(str(path)), error=escape_caption(error.strerror or str(error)),
@@ -1669,7 +1669,7 @@ class Shell(DockLayout):
     async def open_with(self, origin: Location) -> None:
         """File > *Open with*: the applications the desktop has for *origin*'s
         type, in a box, the default first, and the file opened in the one
-        chosen (``gio launch``) -- or, under them, *Command...*: a command line
+        chosen (``gio launch``, ``kstart``) -- or, under them, *Command...*: a command line
         of the user's own (:meth:`open_with_command`).  Not DN's.
 
         A file on another drive is typed by its name, and fetched
@@ -1678,7 +1678,7 @@ class Shell(DockLayout):
         """
         import mimetypes
 
-        from navigator.lib.system import gio
+        from navigator.lib.system import desktop
         from navml.widgets.dialog.control import escape_caption
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
@@ -1686,10 +1686,10 @@ class Shell(DockLayout):
         app = self.application
         try:
             if origin.is_local:
-                mime = await asyncio.to_thread(gio.content_type, Path(origin.local))
+                mime = await asyncio.to_thread(desktop.content_type, Path(origin.local))
             else:
                 mime = mimetypes.guess_type(origin.name)[0] or ""
-            apps = await asyncio.to_thread(gio.applications, mime)
+            apps = await asyncio.to_thread(desktop.applications, mime)
         except OSError as error:
             await Dialog(title=tr("Open with"), buttons="ok",
                          prompt=escape_caption(error.strerror or str(error))).execute(app)
@@ -1720,7 +1720,7 @@ class Shell(DockLayout):
                 return
             path = use.local_for(origin) or use.directory / origin.name
         try:
-            await asyncio.to_thread(gio.launch, chosen_of[id(chosen)], path)
+            await asyncio.to_thread(desktop.launch, chosen_of[id(chosen)], path)
         except OSError as error:
             await Dialog(title=tr("Open with"), buttons="ok",
                          prompt=escape_caption(error.strerror or str(error))).execute(app)
@@ -2271,28 +2271,16 @@ class Shell(DockLayout):
         return True
 
     async def gvfs_link(self, panel: Any) -> bool:
-        """Utilities > *GVfs link*: a URI asked -- ``mtp://``, ``dav://``,
-        ``google-drive://``... -- and *panel* sent there, mounted through GVfs
-        (:mod:`navigator.lib.drives.gvfs`).  True once the panel is there."""
-        from navigator.lib.drives import sessions
-        from navigator.lib.system.gio import GVFS_SCHEMES
-        from navigator.widgets.shell.edit_line_dialog import EditLineDialog
-        from navml.widgets.dialog.control import escape_caption
+        """Utilities > *GVfs/KIO link*: a URI asked -- ``mtp://``, ``dav://``,
+        ``google-drive://``... (:func:`navigator.widgets.drives.desktop_link.ask_desktop_uri`)
+        -- and *panel* sent there, mounted through GVfs
+        (:mod:`navigator.lib.drives.gvfs`) or, where the desktop's plumbing
+        is KDE's, kio-fuse (:mod:`navigator.lib.drives.kio`).  True once the
+        panel is there."""
+        from navigator.widgets.drives.desktop_link import ask_desktop_uri
 
-        app = self.application
-        box = EditLineDialog("", history="gvfs_link", caption=tr("~U~RI (mtp://, dav://, google-drive://...)"))
-        # After construction: the markup's own *Edit History* is bound in ``__init__``.
-        box.title = tr("GVfs link")
-        text = await box.execute(app)
-        text = (text or "").strip()
-        if not text:
-            return False
-        target = Location.parse(text)
-        if target.is_local or sessions.module_name(target.site.scheme) is None:
-            known = ", ".join(f"{scheme}://" for scheme in GVFS_SCHEMES)
-            await Dialog(title=tr("GVfs link"), buttons="ok", prompt=escape_caption(
-                tr("{uri} is no place GVfs reaches. It knows {schemes}").format(uri=text, schemes=known),
-            )).execute(app)
+        target = await ask_desktop_uri(self.application)
+        if target is None:
             return False
         return await self.go_remote(panel, target)
 

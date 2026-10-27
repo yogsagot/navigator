@@ -1,6 +1,6 @@
 ---
 name: navigator-gio
-description: The desktop's GIO through the `gio` command -- navigator/lib/system/gio.py (program(), [system] use_gio, graphical(), run() and its reasons, parse_mount_list for `gio mount -li`, volumes/mount_device/unmount/eject, open_file/content_type/applications/launch, GVFS_SCHEMES/gvfs_schemes, mount_uri and its prompts, local_path/uri_of, trash), Disk > Volumes' Mount/Unmount/Eject and unmounted rows (volumes.merge, gather_all), Enter's fallback to the desktop's application ([file_manager] open_unassociated, Shell.open_on_desktop) and File > Open with (OpenWith, Shell.open_with), GVfs drives (navigator/lib/drives/gvfs.py: GvfsDrive over the FUSE bridge, mtp://, dav://, google-drive://..., Utilities > GVfs link, sessions.module_name/is_connection), and the `gio trash` fallback in fileerase. Use when touching any of these, or adding another thing GIO could do.
+description: The desktop's GIO through the `gio` command, and the facade that picks it or KIO (navigator/lib/system/desktop.py, [system] desktop_vfs, desktop_entry.py) -- navigator/lib/system/gio.py (program(), graphical(), run() and its reasons, parse_mount_list for `gio mount -li`, volumes/mount_device/unmount/eject, open_file/content_type/applications/launch, GVFS_SCHEMES/gvfs_schemes, mount_uri and its prompts, local_path/uri_of, trash), Disk > Volumes' Mount/Unmount/Eject and unmounted rows (volumes.merge, gather_all), Enter's fallback to the desktop's application ([file_manager] open_unassociated, Shell.open_on_desktop) and File > Open with (OpenWith, Shell.open_with), GVfs drives (navigator/lib/drives/gvfs.py: GvfsDrive over the FUSE bridge, mtp://, dav://, google-drive://..., Utilities > GVfs link, sessions.module_name/is_connection), and the `gio trash` fallback in fileerase. Use when touching any of these, or adding another thing GIO could do.
 ---
 
 # GIO (the `gio` command)
@@ -11,10 +11,18 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
 
 ## Rules
 
-- **`gio.program()` is the gate.** None when `gio` is not on `PATH` *or* `[system] use_gio` is off (ini-only: the
-  System Setup page has no room). Every command or menu item that needs GIO greys out through it (`enables()`), and the
-  Enter fallback and the `gio trash` fallback check it before trying. `shutil.which` is looked up at the call, as
-  `printing.print_command` does, so a test can replace it.
+- **Callers ask `navigator/lib/system/desktop.py`, never `gio` directly.** `desktop.backend()` is this module or KDE's
+  (`navigator-kio` skill), one per session, by `[system] desktop_vfs` (`auto|gio|kio|off`; Options > Settings > *Communications*' *Desktop
+  integration*, System Setup having no room -- that page answers `remote` and `system`, and `SettingsDialog.accept`
+  merges two pages' values for one section; auto is KIO when `$XDG_CURRENT_DESKTOP` says KDE and `kioclient` is there, else GIO, else KIO).
+  An old ini's `use_gio = false` reads as `off`. `desktop.program()` is the gate: every command or menu item that needs
+  it greys out through it (`enables()`), and the Enter and trash fallbacks check it before trying. The facade looks the
+  backend's function up at each call, so a test's `monkeypatch.setattr(gio, ...)` reaches it.
+- **`gio.program()`** is only `shutil.which("gio")`, looked up at the call, as `printing.print_command` does.
+- **Shared with KIO** (`navigator/lib/system/desktop_entry.py`, re-exported by `gio`): `App`, `application_dirs`,
+  `desktop_file`, `desktop_name`, `graphical`, `launch_detached`. A backend's volume (`GioVolume`, `KioVolume`) has
+  the same names (`name, device, ident, uri, local, mounted, activation_root, can_*`, `target`), so `volumes.merge`
+  and the window take either; `Volume.native` holds it.
 - **Every call but `program()` and `graphical()` blocks**: run it with `asyncio.to_thread`, on a
   `Background`, or inside a `Job`. `MOUNT_TIMEOUT` (60 s) bounds mounts; `TIMEOUT` (15 s) the rest.
 - **A failure is `OSError` carrying gio's own words** (`_reason`: its last stderr line, less `gio: ` and the URI).
@@ -24,15 +32,15 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   end and its error is shown.
 - **`graphical()`** (`$DISPLAY` or `$WAYLAND_DISPLAY`) gates opening and launching: over SSH there is nowhere to open
   a window.
-- **The test suite runs with `use_gio` off** (`tests/conftest.py`), so this machine's mounts never leak into a test.
-  `tests/test_gio.py` switches it back on and puts a fake `gio` (a Python script) first on `PATH`.
+- **The test suite runs with `desktop_vfs` off** (`tests/conftest.py`), so this machine's mounts never leak into a
+  test. `tests/test_gio.py` sets it to `gio` (autouse) and puts a fake `gio` (a Python script) first on `PATH`.
 
 ## Volumes (Disk > Volumes)
 
 - `gio.parse_mount_list` reads `gio mount -li`'s indented Drive/Volume/Mount tree. It lists every **Volume** and every
   **Mount without a volume** (a GVfs share, a phone), but no Drives. A volume's mount gives it its `uri` and
   `can_unmount`. A mount line is `Mount(0): name -> uri`.
-- `volumes.gather_all()` (the window's read) is `gather()` plus `merge()` with gio's list:
+- `volumes.gather_all()` (the window's read) is `gather()` plus `merge()` with the backend's list (gio's here):
   - a mounted volume gets its flags, matched by mount point;
   - a volume that is not mounted becomes a row with `mount=""`, `mounted=False`, listed after the others;
   - a GVfs mount becomes a row at its FUSE path (`local_path(uri)`). Without a FUSE path it is not listed.
@@ -79,7 +87,8 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   davs, afp, nfs, google-drive, onedrive, cdda) to its backend's `*.mount` file. It is written out because a backend's
   `Type=` names *mount* types (`smb-share`), not URI schemes. `gvfs_schemes()` keeps those whose file is installed.
 - **Not in `sessions.SCHEMES`**: that dict holds Navigator's own protocols. `sessions.module_name(scheme)` answers
-  either kind; `is_connection(scheme)` is what Disconnect (Alt+H) and its enabling use. `PROTOCOLS` has each GVfs
+  either kind (KIO's too: a scheme both reach goes to the backend in use); `gvfs.available()` is `NOT_IN_USE` when
+  the backend is not gio; `is_connection(scheme)` is what Disconnect (Alt+H) and its enabling use. `PROTOCOLS` has each GVfs
   scheme's sign (`MTP`, `DAV`, `GDRIVE`...).
 - **The host keeps its case** for a GVfs scheme (`location._host`): an MTP device name is not a DNS name. Every other
   scheme stays lower case.
@@ -101,8 +110,13 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   - Idle reaping and Disconnect therefore unmount what Navigator mounted.
 - **Ways in**:
   - `nav mtp://Device/`, a typed URL, history, profiles and saved desktops all go through `Shell.reach`;
-  - Utilities > *GVfs link* (`GvfsLink`, `Shell.gvfs_link`): an `EditLineDialog` for the URI, history `gvfs_link`;
-  - the Alt+F1/F2 box's Link part, *New GVfs link*, which `navy_link(scheme="gvfs")` redirects to.
+  - Utilities > *GVfs/KIO link* (`GvfsLink`, `Shell.gvfs_link`): `ask_desktop_uri`
+    (`navigator/widgets/drives/desktop_link.py`), an `EditLineDialog` titled *GVfs/KIO link* for the URI, history
+    `gvfs_link`, its examples and refusal the backend's;
+  - the Alt+F1/F2 box's Link part, *New GVfs/KIO link*, which `navy_link(scheme="gvfs")` redirects to;
+  - *Saved links*' *Add* > *New GVfs/KIO link* (`LinksDialog._ask_desktop`): the same URI box, then the protocol's
+    `ConnectDialog(editing=True)` filled from it to be named. `connect_dialog.titles` gives a GVfs/KIO scheme
+    *GVfs/KIO link (WebDAV)* by `sessions.protocol_name`.
 - Volumes' GVfs rows go to the FUSE path as a local directory. They are not this drive's, and are not Navigator's to
   disconnect.
 

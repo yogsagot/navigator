@@ -359,9 +359,9 @@ def _default_settings(monkeypatch, tmp_path):
     # Del deletes a bookmark at once, as the bookmark tests were written
     # against; *Delete bookmark*'s question is tested where it is chosen.
     SETTINGS.confirmations.delete_bookmark = False
-    # Nor the desktop's gio (navigator.lib.system.gio): what this machine has
+    # Nor the desktop's gio or KIO (navigator.lib.system.desktop): what this machine has
     # mounted is no test's business; its tests switch it on.
-    SETTINGS.system.use_gio = False
+    SETTINGS.system.desktop_vfs = "off"
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()

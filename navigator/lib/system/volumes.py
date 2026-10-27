@@ -13,11 +13,12 @@ device's own name.  A *real* one is backed by a block device or a network
 share; the kernel's own file systems (``proc``, ``sysfs``, ``cgroup2``...)
 and snap packages' squashfs images are not, and are listed only on request.
 
-Where the desktop's ``gio`` is (:mod:`navigator.lib.system.gio`) its volumes
-join them (:func:`merge`): one udisks has found but not mounted -- a USB
-disk plugged in, a partition -- is listed as *not mounted*, a phone or a
-share GVfs has mounted is listed at its FUSE path, and each says whether it
-can be mounted, unmounted or ejected, which the window offers.  Also not DN's.
+Where the desktop's ``gio`` or KDE's Solid is (:mod:`navigator.lib.system.desktop`)
+its volumes join them (:func:`merge`): one udisks has found but not mounted
+-- a USB disk plugged in, a partition -- is listed as *not mounted*, a phone
+or a share GVfs has mounted is listed at its FUSE path, and each says
+whether it can be mounted, unmounted or ejected, which the window offers.
+Also not DN's.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ from pathlib import Path
 
 from navigator.lib.system.diskinfo import label_of, unescape
 from navigator.lib.system.gio import GioVolume
+from navigator.lib.system.kio import KioVolume
 
 #: File system types that hold no files of the user's, wherever they are mounted.
 PSEUDO_TYPES = frozenset((
@@ -56,20 +58,23 @@ class Volume:
     total: int | None = None
     free: int | None = None
     real: bool = True
-    #: What ``gio`` says of it (:func:`merge`): False for one listed but not
-    #: mounted, whose *mount* is ``""``; the rest only where ``gio`` is.
+    #: What the desktop says of it (:func:`merge`): False for one listed but
+    #: not mounted, whose *mount* is ``""``; the rest only where ``gio`` or
+    #: Solid is.
     mounted: bool = True
     can_mount: bool = False
     can_unmount: bool = False
     can_eject: bool = False
-    #: The ``gio`` volume it is, for Mount, Unmount and Eject: None without ``gio``.
-    gio: GioVolume | None = None
+    #: The desktop's own volume it is (``gio``'s or Solid's), for Mount,
+    #: Unmount and Eject: None without either.
+    native: GioVolume | KioVolume | None = None
 
     @property
     def target(self) -> str:
-        """What Unmount and Eject are given: the mount's URI, else its mount point."""
-        if self.gio is not None and self.gio.uri:
-            return self.gio.uri
+        """What Unmount and Eject are given: the desktop's name for it (a
+        mount's URI, a Solid UDI), else its mount point."""
+        if self.native is not None and self.native.target:
+            return self.native.target
         return self.mount
 
 
@@ -135,8 +140,8 @@ def gather(*, mounts: Path = Path("/proc/self/mounts"),
     return found
 
 
-def merge(found: list[Volume], known: list[GioVolume], local_path: Callable[[str], str] = lambda uri: "") -> list[Volume]:
-    """*found* (:func:`gather`'s) with what ``gio`` *known*: each mounted one
+def merge(found: list[Volume], known: list[GioVolume] | list[KioVolume], local_path: Callable[[str], str] = lambda uri: "") -> list[Volume]:
+    """*found* (:func:`gather`'s) with what ``gio`` or Solid *known*: each mounted one
     given its flags, each not mounted added, and each GVfs mount added at
     *local_path* of its URI -- its FUSE path -- where it has one.  By mount
     point, the ones not mounted last, by name."""
@@ -146,7 +151,7 @@ def merge(found: list[Volume], known: list[GioVolume], local_path: Callable[[str
     for each in known:
         point = each.local or (local_path(each.uri) if each.uri else "")
         flags = {"can_mount": each.can_mount and not each.mounted, "can_unmount": each.can_unmount,
-                 "can_eject": each.can_eject, "gio": each}
+                 "can_eject": each.can_eject, "native": each}
         if point and point in by_mount:
             index = by_mount[point]
             merged[index] = replace(merged[index], **flags)
@@ -179,21 +184,23 @@ def _usage(point: str) -> tuple[int, int] | None:
 
 
 def gather_all() -> list[Volume]:
-    """:func:`gather`, and :func:`merge` with ``gio``'s volumes where ``gio``
-    is: the Volumes window's read, on a thread.  ``gio`` failing costs only
-    what it would have added."""
-    from navigator.lib.system import gio
+    """:func:`gather`, and :func:`merge` with the desktop's volumes where
+    ``gio`` or Solid is: the Volumes window's read, on a thread.  Either
+    failing costs only what it would have added."""
+    from navigator.lib.system import desktop
 
     found = gather()
-    if gio.program() is None:
+    module = desktop.backend()
+    if module is None:
         return found
     try:
-        known = gio.volumes()
+        known = module.volumes()
     except OSError:
         return found
+    find = getattr(module, "local_path", None)
 
     def local_path(uri: str) -> str:
-        path = gio.local_path(uri)
+        path = find(uri) if find is not None else None
         return str(path) if path is not None else ""
 
     return merge(found, known, local_path)

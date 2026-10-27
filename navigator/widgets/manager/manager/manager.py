@@ -2219,11 +2219,11 @@ class Manager(Window):
         are not a listing.  Asked of a menu too, where neither has it and the
         panel is meant."""
         if isinstance(command, OpenWith):
-            from navigator.lib.system import gio
+            from navigator.lib.system import desktop
 
             entry = self.active_panel.selected
             return (entry is not None and not entry.is_dir and entry.name != ".."
-                    and gio.program() is not None and gio.graphical())
+                    and desktop.program() is not None and desktop.graphical())
         if isinstance(command, ToggleMiller):
             # A *Find:* listing is no directory to open columns on.
             return self.miller_mode or self.active_panel.found is None
@@ -4510,13 +4510,13 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
             new.disabled = True
             new.key = sessions.EXTRA_HINT.get(scheme, "")
         found[id(new)] = scheme
-    # Whatever the desktop's GVfs reaches: a URI asked (``Shell.gvfs_link``).
-    from navigator.lib.system import gio
+    # Whatever the desktop's GVfs or KIO reaches: a URI asked (``Shell.gvfs_link``).
+    from navigator.lib.system import desktop
 
-    new = link.add_item(tr("New ~G~Vfs link (MTP, WebDAV...)..."))
-    if gio.program() is None:
+    new = link.add_item(tr("New ~G~Vfs/KIO link (MTP, WebDAV...)..."))
+    if desktop.program() is None:
         new.disabled = True
-        new.key = "gio"
+        new.key = "gio/kio"
     found[id(new)] = "gvfs"
     if rows:
         # *Saved links*, which the branch for a *New* opens for this mark.

@@ -1581,11 +1581,11 @@ class Panel(ContextMenuHost, ListViewer):
             # ``w``, not the File menu's ``v``: *Invert selection* has that here.
             menu.add_item(tr("Vie~w~"), View)
             menu.add_item(tr("~E~dit"), Edit)
-            # The desktop's applications (``gio``): not DN's, and only where
-            # there are some to open it in.
-            from navigator.lib.system import gio
+            # The desktop's applications (``gio``, KIO): not DN's, and only
+            # where there are some to open it in.
+            from navigator.lib.system import desktop
 
-            if gio.program() is not None and gio.graphical():
+            if desktop.program() is not None and desktop.graphical():
                 menu.add_item(tr("Ope~n~ with..."), OpenWith)
             menu.add_line()
         if tagged or not on_parent:

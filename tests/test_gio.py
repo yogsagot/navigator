@@ -74,10 +74,10 @@ Mount(0): share on server -> smb://server/share/
 """
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def use_gio():
-    """``[system] use_gio`` on, as it is by default -- the suite's ``conftest`` turns it off."""
-    SETTINGS.system.use_gio = True
+    """``[system] desktop_vfs`` set to GIO -- the suite's ``conftest`` turns it off."""
+    SETTINGS.system.desktop_vfs = "gio"
 
 
 # -- the fake gio -----------------------------------------------------------------
@@ -180,11 +180,15 @@ def fake_gio(tmp_path, monkeypatch, use_gio):
 # -- gio.py -------------------------------------------------------------------------
 
 
-def test_program_is_none_without_gio_or_with_use_gio_off(use_gio):
+def test_program_is_none_without_gio_and_the_desktop_none_with_it_off(use_gio, monkeypatch):
+    from navigator.lib.system import desktop
+
     assert gio.program(lambda name: None) is None
     assert gio.program(lambda name: f"/usr/bin/{name}") == "/usr/bin/gio"
-    SETTINGS.system.use_gio = False
-    assert gio.program(lambda name: f"/usr/bin/{name}") is None
+    monkeypatch.setattr(gio, "program", lambda which=None: "/usr/bin/gio")
+    assert desktop.backend() is gio and desktop.program() == "/usr/bin/gio"
+    SETTINGS.system.desktop_vfs = "off"
+    assert desktop.backend() is None and desktop.program() is None
 
 
 def test_the_mount_list_gives_volumes_and_mounts_without_one_but_no_drives():
@@ -310,10 +314,14 @@ def test_gvfs_schemes_are_connections_without_being_navigators_own():
     assert sessions.protocol_sign("mtp") == "MTP"
 
 
-def test_without_gio_a_gvfs_scheme_says_what_to_install():
-    from navigator.lib.drives import sessions
+def test_without_gio_a_gvfs_scheme_says_what_to_install(monkeypatch):
+    from navigator.lib.drives import gvfs, sessions
 
+    monkeypatch.setattr(gio, "program", lambda which=None: None)
     assert sessions.available("mtp") == gio.NO_GIO
+    monkeypatch.setattr(gio, "program", lambda which=None: "/usr/bin/gio")
+    SETTINGS.system.desktop_vfs = "off"
+    assert sessions.available("mtp") == gvfs.NOT_IN_USE
 
 
 # -- Volumes --------------------------------------------------------------------------
@@ -349,8 +357,8 @@ def gio_volumes_run(tmp_path, monkeypatch, *actions):
             mounted = gio.GioVolume("stick", device="/dev/sdc1", uri=f"file://{stick}", can_unmount=True,
                                     can_eject=True)
             return [Volume("stick", "vfat", str(stick), "/dev/sdc1", 10, 5, can_unmount=True, can_eject=True,
-                           gio=mounted)]
-        return [Volume("stick", "", "", "/dev/sdc1", mounted=False, can_mount=True, gio=known)]
+                           native=mounted)]
+        return [Volume("stick", "", "", "/dev/sdc1", mounted=False, can_mount=True, native=known)]
 
     def mount_device(volume):
         state["calls"].append(("mount", volume.device))
@@ -529,7 +537,7 @@ def test_the_gvfs_link_box_is_titled_so_and_asks_for_a_uri(tmp_path, monkeypatch
     app = navigator(tmp_path)
     run_app(app, [lambda a: a.spawn(a.run_command(GvfsLink)), Until(lambda a: a.modal is not None),
                   lambda a: seen.update(title=a.modal.title, caption=a.modal.caption), KeyEvent("escape")])
-    assert seen == {"title": "GVfs link", "caption": "~U~RI (mtp://, dav://, google-drive://...)"}
+    assert seen == {"title": "GVfs/KIO link", "caption": "~U~RI (mtp://, dav://, google-drive://...)"}
 
 
 def test_mount_unmount_and_eject_are_buttons_and_on_the_key_bar_greyed_as_the_volume_says(tmp_path, monkeypatch):

@@ -109,6 +109,38 @@ def test_add_asks_the_protocol_then_its_box(desk):
     assert profiles.find("box").scheme == "ftp"
 
 
+def test_add_takes_a_gvfs_or_kio_link_by_its_uri(desk, monkeypatch):
+    from navigator.lib.system import gio
+    from navigator.settings import SETTINGS
+
+    SETTINGS.system.desktop_vfs = "gio"
+    monkeypatch.setattr(gio, "program", lambda which=None: "/usr/bin/gio")
+    seen = {}
+
+    def type_uri(a):
+        seen["uri_title"] = a.modal.title
+        a.modal.line.value = "dav://bob@box.example/remote.php/webdav"
+
+    def name_it(a):
+        seen.update(title=a.modal.title, host=a.modal.host.value, user=a.modal.user.value,
+                    path=a.modal.directory.value)
+        a.modal.label.value = "cloud"
+
+    run_app(desk, [
+        open_links, Until(modal_is("LinksDialog")),
+        KeyEvent("insert"), Until(modal_is("PopupMenu")), KeyEvent("end"), KeyEvent("enter"),
+        Until(modal_is("EditLineDialog")), type_uri, KeyEvent("enter"),
+        Until(modal_is("ConnectDialog")), name_it, KeyEvent("enter"),
+        Until(modal_is("LinksDialog")),
+        lambda a: a.modal.close(a.modal.accept()),
+        Until(lambda a: "cloud" in names(), timeout=3),
+    ])
+    assert seen == {"uri_title": "GVfs/KIO link", "title": "Edit GVfs/KIO link (WebDAV)", "host": "box.example",
+                    "user": "bob", "path": "/remote.php/webdav"}
+    cloud = profiles.find("cloud")
+    assert (cloud.scheme, cloud.host, cloud.user, cloud.path) == ("dav", "box.example", "bob", "/remote.php/webdav")
+
+
 def test_connect_sends_the_active_panel_to_the_link(desk, monkeypatch):
     went = []
 

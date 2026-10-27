@@ -48,6 +48,9 @@ SCHEMES: dict[str, str] = {
 #: not in :data:`SCHEMES`, which are Navigator's own, but found by
 #: :func:`module_name` all the same.
 GVFS = "navigator.lib.drives.gvfs"
+#: The module of every scheme KIO reaches (:data:`navigator.lib.system.kio.KIO_SCHEMES`),
+#: where the desktop's plumbing is KDE's.
+KIO = "navigator.lib.drives.kio"
 
 #: What a menu says beside a scheme that is not there: the extra to install.
 EXTRA_HINT: dict[str, str] = {
@@ -78,6 +81,12 @@ PROTOCOLS: dict[str, tuple[str, str]] = {
     "google-drive": ("GDRIVE", "Google Drive"),
     "onedrive": ("ONEDRIVE", "OneDrive"),
     "cdda": ("CDDA", "Audio CD"),
+    # KIO's (navigator.lib.drives.kio), beside the ones it shares with GVfs.
+    "webdav": ("DAV", "WebDAV"),
+    "webdavs": ("DAVS", "WebDAV over TLS"),
+    "fish": ("FISH", "FISH (files over SSH)"),
+    "gdrive": ("GDRIVE", "Google Drive"),
+    "kdeconnect": ("KDECONNECT", "KDE Connect"),
 }
 
 
@@ -163,11 +172,18 @@ class Answers:
 
 
 def module_name(scheme: str) -> str | None:
-    """The module that speaks *scheme*: Navigator's own, else GVfs's for a
-    scheme GVfs reaches; None for one nothing does."""
+    """The module that speaks *scheme*: Navigator's own, else the desktop's
+    -- KIO's where its plumbing is KDE's and KIO reaches it, else GVfs's
+    for a scheme GVfs reaches, else KIO's for one only KIO does; None for
+    one nothing does.  A scheme both reach (``mtp``) goes to the one in use."""
+    if scheme in SCHEMES:
+        return SCHEMES[scheme]
+    from navigator.lib.system import desktop, kio
     from navigator.lib.system.gio import GVFS_SCHEMES
 
-    return SCHEMES.get(scheme) or (GVFS if scheme in GVFS_SCHEMES else None)
+    if scheme in kio.KIO_SCHEMES and (scheme not in GVFS_SCHEMES or desktop.backend() is kio):
+        return KIO
+    return GVFS if scheme in GVFS_SCHEMES else None
 
 
 def is_connection(scheme: str) -> bool:
@@ -287,6 +303,6 @@ SESSIONS = SessionManager()
 
 
 __all__ = [
-    "Answers", "GVFS", "HostKeyChanged", "NeedPassphrase", "NeedPassword", "SCHEMES", "SESSIONS",
+    "Answers", "GVFS", "HostKeyChanged", "KIO", "NeedPassphrase", "NeedPassword", "SCHEMES", "SESSIONS",
     "SessionManager", "UnknownHostKey", "available", "is_connection", "module_name", "scheme_module",
 ]

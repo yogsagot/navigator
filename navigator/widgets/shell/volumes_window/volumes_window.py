@@ -8,7 +8,8 @@ read.  **Enter in the list is not handled here**: the list emits
 ``ChosenEvent`` and it walks up to the screen, the one thing that knows where
 the file manager is.  *Go* is that, then closing.
 
-**Mount, Unmount and Eject** are ``gio``'s (:mod:`navigator.lib.system.gio`),
+**Mount, Unmount and Eject** are the desktop's -- ``gio``'s or Solid's
+(:mod:`navigator.lib.system.desktop`) --
 each run on a thread, its failure said in a box, the mounts read again after.
 Enter or *Go* on a volume not mounted mounts it, reads again, and only then
 chooses it -- with its mount point now -- for the screen.
@@ -34,7 +35,7 @@ from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
-from navigator.lib.system import gio, volumes
+from navigator.lib.system import desktop, volumes
 from navigator.widgets.manager.commands import Rescan, ToggleHidden
 from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 
@@ -144,7 +145,7 @@ class VolumesWindow(Window):
 
     # -- Mount, Unmount, Eject ------------------------------------------------------------
 
-    async def _gio(self, step: Any, *args: Any) -> bool:
+    async def _desktop(self, step: Any, *args: Any) -> bool:
         """``step(*args)`` on a thread, its failure in a box, the mounts read
         again either way; True when it worked."""
         try:
@@ -160,13 +161,13 @@ class VolumesWindow(Window):
     async def _mount_and_choose(self, volume: volumes.Volume, *, close: bool) -> None:
         """*volume* mounted, the mounts read again, and the volume -- at its
         mount point now -- chosen, as Enter on a mounted one is."""
-        if volume.gio is None or not await self._gio(gio.mount_device, volume.gio):
+        if volume.native is None or not await self._desktop(desktop.mount_device, volume.native):
             return
         found = await asyncio.to_thread(volumes.gather_all)
         self._found = found
         self._show()
-        now = next((each for each in found if each.mounted and each.gio is not None and volume.gio is not None
-                    and (each.gio.ident or each.gio.name) == (volume.gio.ident or volume.gio.name)), None)
+        now = next((each for each in found if each.mounted and each.native is not None
+                    and (each.native.ident or each.native.name) == (volume.native.ident or volume.native.name)), None)
         if now is None:
             return
         await self.volumes.emit(ChosenEvent(now))
@@ -175,29 +176,29 @@ class VolumesWindow(Window):
 
     async def on_mount_volume(self, command: MountVolume) -> bool:
         volume = self.volumes.selected
-        if volume is not None and volume.gio is not None:
-            self.spawn(self._gio(gio.mount_device, volume.gio))
+        if volume is not None and volume.native is not None:
+            self.spawn(self._desktop(desktop.mount_device, volume.native))
         return True
 
     async def on_unmount_volume(self, command: UnmountVolume) -> bool:
         volume = self.volumes.selected
         if volume is not None and volume.mounted:
-            self.spawn(self._gio(gio.unmount, volume.target))
+            self.spawn(self._desktop(desktop.unmount, volume.target))
         return True
 
     async def on_eject_volume(self, command: EjectVolume) -> bool:
         volume = self.volumes.selected
         if volume is not None and volume.mounted:
-            self.spawn(self._gio(gio.eject, volume.target))
+            self.spawn(self._desktop(desktop.eject, volume.target))
         return True
 
     def allows(self, action: str) -> bool:
         """Whether ``"mount"``, ``"unmount"`` or ``"eject"`` can be done to the
-        volume under the cursor: ``gio`` is there and says it can.  What the
+        volume under the cursor: ``gio`` or Solid is there and says it can.  What the
         buttons' ``disabled`` follows -- the list's cursor and items are read,
         so they follow it as it moves -- and what :meth:`enables` answers."""
         volume = self.volumes.selected
-        if volume is None or gio.program() is None:
+        if volume is None or desktop.program() is None:
             return False
         if action == "mount":
             return volume.can_mount

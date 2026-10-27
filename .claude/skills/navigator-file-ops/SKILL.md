@@ -102,7 +102,8 @@ model: `home_trash()` (`$XDG_DATA_HOME/Trash`), `trash_for` (home trash on its o
 `os.rename`; **never copied across file systems** -- `EXDEV`), `items`, `restore` (never over anything), `forget`,
 `restore_all`/`RestoreJob` on a thread. `directorysizes` is not kept (optional in the spec).
 - **One eraser**: `EraseRequest.trash`; `_Eraser._to_trash` moves a local source whole (measured as 1, no read-only
-  question, no *As root*). On `EXDEV`, `gio trash` is tried first where `gio` is (`navigator-gio` skill; not listed
+  question, no *As root*). On `EXDEV`, `desktop.trash` (`gio trash` or `kioclient move … trash:/`) is tried first where a backend is
+  (`navigator-gio`/`navigator-kio` skills; not listed
   in `trash:///`). Where it cannot, `NoTrash` asks No/Yes/All/Cancel (`EraseQuery`, No first) -- asked even
   from the quiet trash-can drop, since Yes loses the file. `Manager._trashes(panel, entries)` decides (setting on,
   every entry on the disk); the drop's prompt says *move ... to the Trash* then.

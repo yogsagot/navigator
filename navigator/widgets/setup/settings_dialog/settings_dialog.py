@@ -12,7 +12,9 @@ from navigator.settings import SETTINGS
 
 #: Each page by its id, and the ``navigator.ini`` sections it answers for.
 #: One section's page answers its values; *Editor/Viewer*'s answers two,
-#: by section name.
+#: by section name, and so does *Communications*, whose *Desktop
+#: integration* is ``[system] desktop_vfs`` (System Setup has no room left):
+#: two pages' values for one section are merged.
 PAGES: dict[str, tuple[str, ...]] = {
     "system": ("system",),
     "startup": ("startup",),
@@ -26,14 +28,14 @@ PAGES: dict[str, tuple[str, ...]] = {
     "panel_defaults": ("panel_defaults",),
     "column_defaults": ("column_defaults",),
     "highlight_groups": ("highlight_groups",),
-    "remote": ("remote",),
+    "remote": ("remote", "system"),
 }
 
 #: The dialog's width with its tabs down the left.
 LEFT_WIDTH = 80
 
 #: Every section the dialog answers for, in page order.
-SECTIONS: tuple[str, ...] = tuple(name for names in PAGES.values() for name in names)
+SECTIONS: tuple[str, ...] = tuple(dict.fromkeys(name for names in PAGES.values() for name in names))
 
 
 class SettingsDialog(Dialog):
@@ -74,5 +76,6 @@ class SettingsDialog(Dialog):
         answer: dict[str, dict[str, Any]] = {}
         for tab, sections in PAGES.items():
             values = self.page(tab).accept()
-            answer.update(values if len(sections) > 1 else {sections[0]: values})
+            for name, section in (values if len(sections) > 1 else {sections[0]: values}).items():
+                answer.setdefault(name, {}).update(section)
         return answer

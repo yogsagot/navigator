@@ -45,12 +45,19 @@ from navigator.lib.system import gio
 OUTSIDE = "Not on this GVfs mount"
 #: Why a mounted place has no directory to read: the FUSE bridge is not running.
 NO_FUSE = "GVfs's FUSE bridge (gvfsd-fuse) is not running"
+#: Why GVfs is not asked though ``gio`` is there.
+NOT_IN_USE = "GVfs is not in use: [system] desktop_vfs is not gio"
 
 
 def available() -> str | None:
-    """Why GVfs cannot be reached here, or None if it can."""
+    """Why GVfs cannot be reached here, or None if it can: no ``gio``, or
+    the desktop's plumbing is KIO's or off (``[system] desktop_vfs``)."""
+    from navigator.lib.system import desktop
+
     if gio.program() is None:
         return gio.NO_GIO
+    if desktop.backend() is not gio:
+        return NOT_IN_USE
     return None
 
 
@@ -252,4 +259,4 @@ def connect(site: Site, answers: Any) -> GvfsDrive:
     return GvfsDrive(site, top, prefix if str(prefix) else PurePosixPath("/"), ours=ours)
 
 
-__all__ = ["GvfsDrive", "NO_FUSE", "OUTSIDE", "available", "bridge_top", "connect", "uri_of"]
+__all__ = ["GvfsDrive", "NOT_IN_USE", "NO_FUSE", "OUTSIDE", "available", "bridge_top", "connect", "uri_of"]

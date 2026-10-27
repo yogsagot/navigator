@@ -1045,3 +1045,23 @@ def test_the_key_bar_says_how_to_change_tabs_and_the_frame_does_not(tmp_path, qu
                   KeyEvent("escape")])
     assert ("Ctrl-PgUp/PgDn", "Tabs") in seen["hints"]
     assert "PgDn" not in seen["bottom"]
+
+
+def test_communications_sets_the_desktop_integration_beside_system_setups_values(tmp_path, quiet_console):
+    from navigator.widgets.shell.commands import SetupLink
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    SETTINGS.system.root_timeout = 7
+
+    def choose_kio(a):
+        a.modal.remote.desktop_vfs.value = 2
+
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(SetupLink)),
+        lambda a: None,
+        choose_kio,
+        KeyEvent("enter"),
+        lambda a: None,
+    ])
+    assert SETTINGS.system.desktop_vfs == "kio" and SETTINGS.system.root_timeout == 7
+    assert "desktop_vfs = kio" in config_path().read_text(encoding="utf-8")
