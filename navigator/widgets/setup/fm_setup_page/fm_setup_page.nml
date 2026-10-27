@@ -20,7 +20,9 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: frames, nor *Git status* (``[file_manager] git_status``): DN knew no git,
 #: nor *Miller column width* (``[file_manager] miller_width``): DN had no
 #: Miller columns (Alt+F12), nor *F8 moves to Trash* (``[file_manager]
-#: use_trash``): DN erased for good (``navigator/lib/file_ops/trash.py``).
+#: use_trash``): DN erased for good (``navigator/lib/file_ops/trash.py``), nor
+#: *Pass other files to desktop* (``[file_manager] open_unassociated``): Enter
+#: on a file DN.EXT had nothing for did nothing (``gio open``).
 FMSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -39,13 +41,13 @@ FMSetupPage:
         x: 2
         y: 2
         width: 33
-        height: 10
-        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory", "Auto ~r~efresh panels", "F8 m~o~ves to Trash"]
+        height: 11
+        items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory", "Auto ~r~efresh panels", "F8 m~o~ves to Trash", "~P~ass other files to desktop"]
 
     Field:
         id: miller_width
         x: 2
-        y: 12
+        y: 13
         width: 31
         height: 1
         label_text: "Miller column ~w~idth:"

@@ -24,7 +24,7 @@ import posixpath
 import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from urllib.parse import quote, unquote, urlsplit
+from urllib.parse import SplitResult, quote, unquote, urlsplit
 
 
 class RemoteLocation(TypeError):
@@ -77,6 +77,20 @@ def _is_archive_name(text: str) -> bool:
     return bool(name) and filetypes.group_of(name) == "archive"
 
 
+def _host(parts: SplitResult, scheme: str) -> str:
+    """The host *parts* name: lower case, as DNS has it -- but as written
+    for a GVfs scheme, whose "host" is a phone's or a camera's name
+    (``mtp://Google_Pixel_7_2B14/``), which GVfs matches exactly."""
+    from navigator.lib.system.gio import GVFS_SCHEMES
+
+    if scheme not in GVFS_SCHEMES:
+        return parts.hostname or ""
+    host = parts.netloc.rpartition("@")[2]
+    if host.startswith("["):
+        return host[1:].partition("]")[0]
+    return unquote(host.partition(":")[0])
+
+
 @dataclass(frozen=True, slots=True)
 class Location:
     """A directory or a file on a :class:`Site`.
@@ -117,7 +131,7 @@ class Location:
         path = unquote(parts.path) or "/"
         if scheme == "file":
             return cls(LOCAL_SITE, Path(path))
-        site = Site(scheme, unquote(parts.username or ""), parts.hostname or "", parts.port or 0)
+        site = Site(scheme, unquote(parts.username or ""), _host(parts, scheme), parts.port or 0)
         return cls(site, PurePosixPath(path))
 
     @property

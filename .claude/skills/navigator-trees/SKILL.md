@@ -34,6 +34,9 @@ Slots `[94-101]`, `[104-110]`.
   `Shell.on_chosen`, which sends the active panel to its mount point, and the window stays; *Go* (default, Alt+G) does
   the same and closes it; *Close* closes. Tab walks the controls and Alt+letter takes one, as the calculator
   window does. The window is kept by a saved desktop (`kind="volumes"`, with both boxes).
+- **Volumes with `gio`** (`navigator-gio` skill): unmounted volumes listed as *(not mounted)*, GVfs mounts at
+  their FUSE path, and *Mount* (F5), *Unmount* (F6), *Eject* (F7) as buttons, key-bar items and menu entries; Enter/Go on an unmounted one mounts it
+  first. The window reads `volumes.gather_all`, which tests replace through `volumes.gather` (gio is off in tests).
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a

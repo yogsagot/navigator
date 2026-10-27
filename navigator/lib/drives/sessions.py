@@ -44,6 +44,11 @@ SCHEMES: dict[str, str] = {
     "s3+http": "navigator.lib.drives.s3",
 }
 
+#: The module of every scheme GVfs reaches (:data:`navigator.lib.system.gio.GVFS_SCHEMES`):
+#: not in :data:`SCHEMES`, which are Navigator's own, but found by
+#: :func:`module_name` all the same.
+GVFS = "navigator.lib.drives.gvfs"
+
 #: What a menu says beside a scheme that is not there: the extra to install.
 EXTRA_HINT: dict[str, str] = {
     "sftp": "navigator-fm[sftp]",
@@ -62,6 +67,17 @@ PROTOCOLS: dict[str, tuple[str, str]] = {
     "smb": ("SMB", "SMB (Windows share)"),
     "s3": ("S3", "S3 (Amazon S3 and compatible)"),
     "s3+http": ("S3", "S3 over plain HTTP"),
+    # GVfs's (navigator.lib.drives.gvfs).
+    "mtp": ("MTP", "MTP (phone or player)"),
+    "gphoto2": ("PTP", "PTP (camera)"),
+    "afc": ("AFC", "AFC (iPhone, iPad)"),
+    "dav": ("DAV", "WebDAV"),
+    "davs": ("DAVS", "WebDAV over TLS"),
+    "afp": ("AFP", "AFP (Apple share)"),
+    "nfs": ("NFS", "NFS"),
+    "google-drive": ("GDRIVE", "Google Drive"),
+    "onedrive": ("ONEDRIVE", "OneDrive"),
+    "cdda": ("CDDA", "Audio CD"),
 }
 
 
@@ -146,8 +162,21 @@ class Answers:
         return answers
 
 
+def module_name(scheme: str) -> str | None:
+    """The module that speaks *scheme*: Navigator's own, else GVfs's for a
+    scheme GVfs reaches; None for one nothing does."""
+    from navigator.lib.system.gio import GVFS_SCHEMES
+
+    return SCHEMES.get(scheme) or (GVFS if scheme in GVFS_SCHEMES else None)
+
+
+def is_connection(scheme: str) -> bool:
+    """Whether a drive on *scheme* is a connection Disconnect (Alt+H) closes."""
+    return module_name(scheme) is not None
+
+
 def scheme_module(scheme: str) -> Any:
-    name = SCHEMES.get(scheme)
+    name = module_name(scheme)
     if name is None:
         raise DriveGone(scheme, f"No drive speaks {scheme}://")
     return importlib.import_module(name)
@@ -155,7 +184,7 @@ def scheme_module(scheme: str) -> Any:
 
 def available(scheme: str) -> str | None:
     """Why *scheme* cannot be connected to here, or None if it can."""
-    name = SCHEMES.get(scheme)
+    name = module_name(scheme)
     if name is None:
         return f"{scheme}:// is not supported"
     try:
@@ -258,6 +287,6 @@ SESSIONS = SessionManager()
 
 
 __all__ = [
-    "Answers", "HostKeyChanged", "NeedPassphrase", "NeedPassword", "SCHEMES", "SESSIONS",
-    "SessionManager", "UnknownHostKey", "available", "scheme_module",
+    "Answers", "GVFS", "HostKeyChanged", "NeedPassphrase", "NeedPassword", "SCHEMES", "SESSIONS",
+    "SessionManager", "UnknownHostKey", "available", "is_connection", "module_name", "scheme_module",
 ]

@@ -12,16 +12,24 @@ A *volume* is a line of ``/proc/self/mounts``.  Its name is the label
 device's own name.  A *real* one is backed by a block device or a network
 share; the kernel's own file systems (``proc``, ``sysfs``, ``cgroup2``...)
 and snap packages' squashfs images are not, and are listed only on request.
+
+Where the desktop's ``gio`` is (:mod:`navigator.lib.system.gio`) its volumes
+join them (:func:`merge`): one udisks has found but not mounted -- a USB
+disk plugged in, a partition -- is listed as *not mounted*, a phone or a
+share GVfs has mounted is listed at its FUSE path, and each says whether it
+can be mounted, unmounted or ejected, which the window offers.  Also not DN's.
 """
 
 from __future__ import annotations
 
 import os
 import shutil
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from navigator.lib.system.diskinfo import label_of, unescape
+from navigator.lib.system.gio import GioVolume
 
 #: File system types that hold no files of the user's, wherever they are mounted.
 PSEUDO_TYPES = frozenset((
@@ -48,6 +56,21 @@ class Volume:
     total: int | None = None
     free: int | None = None
     real: bool = True
+    #: What ``gio`` says of it (:func:`merge`): False for one listed but not
+    #: mounted, whose *mount* is ``""``; the rest only where ``gio`` is.
+    mounted: bool = True
+    can_mount: bool = False
+    can_unmount: bool = False
+    can_eject: bool = False
+    #: The ``gio`` volume it is, for Mount, Unmount and Eject: None without ``gio``.
+    gio: GioVolume | None = None
+
+    @property
+    def target(self) -> str:
+        """What Unmount and Eject are given: the mount's URI, else its mount point."""
+        if self.gio is not None and self.gio.uri:
+            return self.gio.uri
+        return self.mount
 
 
 def parse_mounts(text: str) -> list[tuple[str, str, str]]:
@@ -110,3 +133,67 @@ def gather(*, mounts: Path = Path("/proc/self/mounts"),
         ))
     found.sort(key=lambda volume: volume.mount)
     return found
+
+
+def merge(found: list[Volume], known: list[GioVolume], local_path: Callable[[str], str] = lambda uri: "") -> list[Volume]:
+    """*found* (:func:`gather`'s) with what ``gio`` *known*: each mounted one
+    given its flags, each not mounted added, and each GVfs mount added at
+    *local_path* of its URI -- its FUSE path -- where it has one.  By mount
+    point, the ones not mounted last, by name."""
+    by_mount = {volume.mount: index for index, volume in enumerate(found)}
+    merged = list(found)
+    waiting: list[Volume] = []
+    for each in known:
+        point = each.local or (local_path(each.uri) if each.uri else "")
+        flags = {"can_mount": each.can_mount and not each.mounted, "can_unmount": each.can_unmount,
+                 "can_eject": each.can_eject, "gio": each}
+        if point and point in by_mount:
+            index = by_mount[point]
+            merged[index] = replace(merged[index], **flags)
+        elif point:
+            usage = _usage(point)
+            merged.append(Volume(
+                name=each.name, fs_type=_scheme(each.uri) or "gvfs", mount=point, device=each.uri,
+                total=usage[0] if usage else None, free=usage[1] if usage else None, **flags,
+            ))
+        elif not each.mounted:
+            waiting.append(Volume(
+                name=each.name or each.device, fs_type="", mount="", device=each.device or each.activation_root,
+                mounted=False, **flags,
+            ))
+    merged.sort(key=lambda volume: volume.mount)
+    waiting.sort(key=lambda volume: volume.name.lower())
+    return merged + waiting
+
+
+def _scheme(uri: str) -> str:
+    return uri.partition("://")[0] if "://" in uri else ""
+
+
+def _usage(point: str) -> tuple[int, int] | None:
+    try:
+        usage = shutil.disk_usage(point)
+    except OSError:
+        return None
+    return usage.total, usage.free
+
+
+def gather_all() -> list[Volume]:
+    """:func:`gather`, and :func:`merge` with ``gio``'s volumes where ``gio``
+    is: the Volumes window's read, on a thread.  ``gio`` failing costs only
+    what it would have added."""
+    from navigator.lib.system import gio
+
+    found = gather()
+    if gio.program() is None:
+        return found
+    try:
+        known = gio.volumes()
+    except OSError:
+        return found
+
+    def local_path(uri: str) -> str:
+        path = gio.local_path(uri)
+        return str(path) if path is not None else ""
+
+    return merge(found, known, local_path)

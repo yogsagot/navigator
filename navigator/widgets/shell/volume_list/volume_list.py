@@ -84,7 +84,11 @@ class VolumeList(ListViewer):
         return spans
 
     def cells(self, item: Any) -> list[tuple[str, bool]]:
-        """*item*'s text in each column, and whether it is right-aligned."""
+        """*item*'s text in each column, and whether it is right-aligned.
+        One ``gio`` knows but nothing has mounted has no mount point, nor sizes."""
+        if not getattr(item, "mounted", True):
+            return [(item.name, False), (item.fs_type, False), (tr("(not mounted)"), False),
+                    ("", True), ("", True), ("", True)]
         return [
             (item.name, False), (item.fs_type, False), (item.mount, False),
             (_percent(item.free, item.total, self.show_free), True), (_size(item.free), True), (_size(item.total), True),

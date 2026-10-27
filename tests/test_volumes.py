@@ -249,6 +249,6 @@ def test_the_volumes_menu_ticks_show_all_mounts_and_a_right_click_offers_it(tmp_
                                              if hasattr(e, "command")]),
                 KeyEvent("s", "s"), Until(lambda a: popup(a) is None), look("again"))
     assert "Volumes" in seen["bar"]
-    assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "Esc"]
+    assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "F5", "F6", "F7", "Esc"]
     assert (seen["off"], seen["on"], seen["again"]) == (False, True, False)
-    assert seen["items"] == ["Re-read", "Show all mounts", "Close"]
+    assert seen["items"] == ["Re-read", "Show all mounts", "Mount", "Unmount", "Eject", "Close"]

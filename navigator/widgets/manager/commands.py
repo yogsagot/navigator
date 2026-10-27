@@ -29,6 +29,13 @@ class View(Command):
     title = "View"
 
 
+class OpenWith(Command):
+    """File > *Open with*: the file at the cursor in one of the desktop's
+    applications for its type, chosen from a box (``gio``).  Not DN's."""
+
+    title = "Open with"
+
+
 class AlternateView(Command):
     """Alt+F3, File > Alternate view: DOS Navigator's ``cmIntFileView`` --
     the viewer *Internal viewer* does not pick: ``viewers.ini``'s, or the
@@ -664,6 +671,7 @@ class ClearClipboard(Command):
 __all__ = [
     "UserMenu",
     "View",
+    "OpenWith",
     "ViewAsText",
     "ViewAsHex",
     "ViewAsDataBase",

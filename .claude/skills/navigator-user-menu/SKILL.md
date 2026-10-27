@@ -48,7 +48,8 @@ comments (`;`/`#` are the shell's). One entry runs at once; **several are offere
 DN's Alt+Enter `[ ]` menu became, since Alt+Enter stays *Insert name*; DN's Shift+Enter `( )` variant has no key.
 
 - **Enter** on a non-executable file: `Panel.choose` emits `OpenFile` (beside `ExecuteFile`) -> `Shell.on_open_file`
-  -> `run_associated(EXTENSIONS, name)`; no entry, nothing happens. Not in a *Find:* listing (Enter goes to the file).
+  -> `run_associated(EXTENSIONS, name)`; no entry, the desktop's application (`gio open`, *Pass other files to
+  desktop*, a departure) where `gio` and a display are, else nothing happens (`navigator-gio` skill). Not in a *Find:* listing (Enter goes to the file).
 - **F3/F4 and Alt+F3/Alt+F4** (`AlternateView`/`AlternateEdit`, File > Alternate view/edit, DN's `cmIntFileView`/
   `cmIntFileEdit`): `Manager.view_file(intern)`/`edit_file(intern)` are DN's `ViewFile(Intern)`. The key agreeing with
   *Internal viewer/editor* opens the window; the other tries `viewers.ini`/`editors.ini`, falling back to

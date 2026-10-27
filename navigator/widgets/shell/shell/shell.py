@@ -37,6 +37,7 @@ from navigator.widgets.shell.commands import (
     EditLinks,
     Game,
     S3Link,
+    GvfsLink,
     FtpLink,
     HangUp,
     CloseRootAccess,
@@ -1031,11 +1032,15 @@ class Shell(DockLayout):
             from navigator.lib.drives import mounted, sessions
 
             # Connections only: a panel browsing ``root:`` mounts a drive too.
-            return any(drive.site.scheme in sessions.SCHEMES for drive in mounted())
+            return any(sessions.is_connection(drive.site.scheme) for drive in mounted())
         if isinstance(command, CloseRootAccess):
             return self.root_mark.open
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return self.active_manager is not None
+        if isinstance(command, GvfsLink):
+            from navigator.lib.system import gio
+
+            return self.active_manager is not None and gio.program() is not None
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
             # console, DN's user screen, and not from a viewer or an editor.
@@ -1619,13 +1624,140 @@ class Shell(DockLayout):
 
     async def on_open_file(self, event: Any) -> bool:
         """Enter on a file that is not itself a program: ``ExecFile`` -- what
-        ``extensions.ini`` says for its name (DN's ``DN.EXT``), else nothing."""
+        ``extensions.ini`` says for its name (DN's ``DN.EXT``), else the
+        desktop's application for it (:meth:`open_on_desktop`), else nothing."""
         if self.console.busy:
             return True
         if isinstance(event.path, Location) and not event.path.is_local:
             self.spawn(self._open_elsewhere(event.path))
         else:
-            self.spawn(self.run_associated(EXTENSIONS, event.path.name))
+            self.spawn(self._open_here(Path(event.path)))
+        return True
+
+    async def _open_here(self, path: Path) -> None:
+        if not await self.run_associated(EXTENSIONS, path.name):
+            await self.open_on_desktop(path)
+
+    @staticmethod
+    def desktop_opens() -> bool:
+        """Whether Enter on a file ``extensions.ini`` has nothing for opens it
+        in the desktop's application: *Pass other files to desktop* on, and
+        ``gio`` and a display to open it on."""
+        from navigator.lib.system import gio
+
+        return SETTINGS.file_manager.open_unassociated and gio.program() is not None and gio.graphical()
+
+    async def open_on_desktop(self, path: Path) -> bool:
+        """*path* opened in the desktop's default application for its type
+        (``gio open``) -- not DN's, where a file ``DN.EXT`` had no line for
+        did nothing; nor here with *Pass other files to desktop* off.  A
+        failure is said.  True when it was handed over."""
+        from navigator.lib.system import gio
+        from navml.widgets.dialog.control import escape_caption
+
+        if not self.desktop_opens():
+            return False
+        try:
+            await asyncio.to_thread(gio.open_file, path)
+        except OSError as error:
+            await Dialog(title=tr("Error"), buttons="ok", prompt=tr("Cannot open {path}: {error}").format(
+                path=escape_caption(str(path)), error=escape_caption(error.strerror or str(error)),
+            )).execute(self.application)
+            return False
+        return True
+
+    async def open_with(self, origin: Location) -> None:
+        """File > *Open with*: the applications the desktop has for *origin*'s
+        type, in a box, the default first, and the file opened in the one
+        chosen (``gio launch``) -- or, under them, *Command...*: a command line
+        of the user's own (:meth:`open_with_command`).  Not DN's.
+
+        A file on another drive is typed by its name, and fetched
+        (``UseFile``) only once an application is chosen: nothing waits for a
+        desktop application, so what it changes is not sent back.
+        """
+        import mimetypes
+
+        from navigator.lib.system import gio
+        from navml.widgets.dialog.control import escape_caption
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        app = self.application
+        try:
+            if origin.is_local:
+                mime = await asyncio.to_thread(gio.content_type, Path(origin.local))
+            else:
+                mime = mimetypes.guess_type(origin.name)[0] or ""
+            apps = await asyncio.to_thread(gio.applications, mime)
+        except OSError as error:
+            await Dialog(title=tr("Open with"), buttons="ok",
+                         prompt=escape_caption(error.strerror or str(error))).execute(app)
+            return
+        box_menu = SubMenu()
+        chosen_of = {id(box_menu.add_item(escape_caption(each.name))): each for each in apps}
+        if apps:
+            box_menu.add_line()
+        command = box_menu.add_item(tr("~C~ommand..."))
+        title = tr("Open with")
+        box = PopupMenu(box_menu, behind=self, title=title)
+        width, height = PopupMenu.measure(box_menu, app, self, title)
+        box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
+        chosen = await box.execute(app)
+        if chosen is command:
+            await self.open_with_command(origin)
+            return
+        if chosen is None or id(chosen) not in chosen_of:
+            return
+        path: Path
+        if origin.is_local:
+            path = Path(origin.local)
+        else:
+            from navigator.widgets.drives.use_file import materialize
+
+            use = await materialize(app, [origin])
+            if use is None:
+                return
+            path = use.local_for(origin) or use.directory / origin.name
+        try:
+            await asyncio.to_thread(gio.launch, chosen_of[id(chosen)], path)
+        except OSError as error:
+            await Dialog(title=tr("Open with"), buttons="ok",
+                         prompt=escape_caption(error.strerror or str(error))).execute(app)
+
+    @staticmethod
+    def open_with_history(name: str) -> str:
+        """The history *Open with*'s command line keeps for a file called
+        *name*: one per extension, case aside (``open_with.png``), and one
+        for the names that have none (``open_with``)."""
+        extension = Path(name).suffix.lower().lstrip(".")
+        return f"open_with.{extension}" if extension else "open_with"
+
+    @staticmethod
+    def open_with_line(text: str) -> str:
+        """*text* as the line that runs: the user menu's language, so ``!.!``
+        and the rest are put in; with no ``!`` macro in it, the file's name
+        goes on the end (``gimp`` runs ``gimp !.!``)."""
+        return text if "!" in text else f"{text} !.!"
+
+    async def open_with_command(self, origin: Location) -> bool:
+        """*Open with*'s *Command...*: a command line asked -- its history the
+        file's extension's own (:meth:`open_with_history`) -- and run in the
+        console as an ``extensions.ini`` entry is (:meth:`run_commands`):
+        the user menu's macros work, and a file on another drive is fetched
+        first and sent back once the command ends.  True once it ran."""
+        from navigator.lib.config.usermenu import commands_of
+        from navigator.widgets.shell.edit_line_dialog import EditLineDialog
+
+        box = EditLineDialog("", history=self.open_with_history(origin.name),
+                             caption=tr("~C~ommand (!.! is the file; else it goes at the end)"))
+        # After construction: the markup's own *Edit History* is bound in ``__init__``.
+        box.title = tr("Open with")
+        text = await box.execute(self.application)
+        text = (text or "").strip()
+        if not text or self.console.busy:
+            return False
+        await self.run_commands(commands_of([self.open_with_line(text)]))
         return True
 
     async def _open_elsewhere(self, origin: Location) -> None:
@@ -1638,7 +1770,11 @@ class Shell(DockLayout):
         use = await materialize(self.application, [origin])
         if use is None:
             return
-        if not await self.run_associated(EXTENSIONS, origin.name, cwd=use.directory, uses=[use]):
+        if await self.run_associated(EXTENSIONS, origin.name, cwd=use.directory, uses=[use]):
+            return
+        # The desktop's application on the copy, which stays: nothing waits
+        # for it to be done, so nothing is sent back either.
+        if not await self.open_on_desktop(use.local_for(origin) or use.directory / origin.name):
             await asyncio.to_thread(usefile.discard, use)
 
     async def on_quick_run(self, event: QuickRun) -> bool:
@@ -2093,6 +2229,9 @@ class Shell(DockLayout):
     async def on_s3_link(self, event: S3Link) -> bool:
         return self._link_command("s3")
 
+    async def on_gvfs_link(self, event: GvfsLink) -> bool:
+        return self._link_command("gvfs")
+
     def _link_command(self, scheme: str) -> bool:
         manager = self.active_manager
         if manager is not None:
@@ -2109,6 +2248,8 @@ class Shell(DockLayout):
         app = self.application
         if request is not None:
             scheme = request.scheme
+        if scheme == "gvfs":
+            return await self.gvfs_link(panel)
         family = (("ftp", "ftps") if scheme in ("ftp", "ftps") else ("s3", "s3+http") if scheme in ("s3", "s3+http")
                   else (scheme,))
         missing = sessions.available(scheme)
@@ -2128,6 +2269,32 @@ class Shell(DockLayout):
         await asyncio.to_thread(recent.remember, recent.Recent(
             request.scheme, request.host, request.user, request.port, request.path))
         return True
+
+    async def gvfs_link(self, panel: Any) -> bool:
+        """Utilities > *GVfs link*: a URI asked -- ``mtp://``, ``dav://``,
+        ``google-drive://``... -- and *panel* sent there, mounted through GVfs
+        (:mod:`navigator.lib.drives.gvfs`).  True once the panel is there."""
+        from navigator.lib.drives import sessions
+        from navigator.lib.system.gio import GVFS_SCHEMES
+        from navigator.widgets.shell.edit_line_dialog import EditLineDialog
+        from navml.widgets.dialog.control import escape_caption
+
+        app = self.application
+        box = EditLineDialog("", history="gvfs_link", caption=tr("~U~RI (mtp://, dav://, google-drive://...)"))
+        # After construction: the markup's own *Edit History* is bound in ``__init__``.
+        box.title = tr("GVfs link")
+        text = await box.execute(app)
+        text = (text or "").strip()
+        if not text:
+            return False
+        target = Location.parse(text)
+        if target.is_local or sessions.module_name(target.site.scheme) is None:
+            known = ", ".join(f"{scheme}://" for scheme in GVFS_SCHEMES)
+            await Dialog(title=tr("GVfs link"), buttons="ok", prompt=escape_caption(
+                tr("{uri} is no place GVfs reaches. It knows {schemes}").format(uri=text, schemes=known),
+            )).execute(app)
+            return False
+        return await self.go_remote(panel, target)
 
     async def go_remote(self, panel: Any, target: Location) -> bool:
         """*panel* to *target* on another drive, connected first -- asking
@@ -2222,16 +2389,19 @@ class Shell(DockLayout):
                         return False
                     answers.for_hop(unknown.hop).host_key = choice
                 except NeedPassword as needed:
-                    can_keep = await asyncio.to_thread(credentials.keyring_available)
+                    # GVfs keeps its own passwords (the desktop's keyring), not ours.
+                    can_keep = (sessions.module_name(site.scheme) != sessions.GVFS
+                                 and await asyncio.to_thread(credentials.keyring_available))
+                    who = f"{needed.user}@{needed.host}" if needed.user else needed.host
                     if site.scheme in ("s3", "s3+http"):
                         # S3's password is the access key's secret.
                         prompt = (tr("Wrong secret key for {who}. Try again:") if needed.wrong
                                   else tr("Secret key for {who}:")).format(
-                            who=escape_caption(f"{needed.user}@{needed.host}"))
+                            who=escape_caption(who))
                     else:
                         prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
                                   else tr("{protocol} password for {who}:")).format(
-                            protocol=protocol, who=escape_caption(f"{needed.user}@{needed.host}"))
+                            protocol=protocol, who=escape_caption(who))
                     answer = await PasswordDialog(prompt, can_keep=can_keep).execute(app)
                     if answer is None:
                         return False
@@ -2334,7 +2504,7 @@ class Shell(DockLayout):
         from navigator.lib.drives.sessions import SESSIONS
 
         app = self.application
-        drives = [drive for drive in mounted() if drive.site.scheme in sessions.SCHEMES]
+        drives = [drive for drive in mounted() if sessions.is_connection(drive.site.scheme)]
         if not drives:
             return
         if len(drives) == 1:

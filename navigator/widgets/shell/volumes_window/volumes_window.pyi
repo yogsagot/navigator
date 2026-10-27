@@ -7,6 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.commands import Rescan, ToggleHidden
+from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 from navigator.widgets.shell.volume_list import VolumeList
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
@@ -17,22 +18,29 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
+import asyncio
 from typing import Any
 from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
+from navml.widgets.dialog.control import escape_caption
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.tree_view import ChosenEvent
 from navml.background import Background, Outcome
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.dialog.list_viewer import ListViewer
-from navigator.lib.system import volumes
+from navigator.lib.system import gio, volumes
 
 
 class VolumesWindow(Window, _Component):
     volumes: VolumeList
     everything: CheckBoxes
     free_box: CheckBoxes
+    mount_button: Button
+    unmount_button: Button
+    eject_button: Button
     go_button: Button
     close_button: Button
     volumes_menu: SubMenu
@@ -48,6 +56,17 @@ class VolumesWindow(Window, _Component):
     def _read(self, read: int, outcome: Outcome) -> None: ...
     def _show(self) -> None: ...
     async def go(self) -> None: ...
+    async def on_chosen(self, event: ChosenEvent) -> bool: ...
+    async def _gio(self, step: Any, *args: Any) -> bool: ...
+    async def _mount_and_choose(self, volume: volumes.Volume, *, close: bool) -> None: ...
+    async def on_mount_volume(self, command: MountVolume) -> bool: ...
+    async def on_unmount_volume(self, command: UnmountVolume) -> bool: ...
+    async def on_eject_volume(self, command: EjectVolume) -> bool: ...
+    def allows(self, action: str) -> bool: ...
+    def enables(self, command: Any) -> bool: ...
+    async def on_mount_button_click(self, event: Event) -> bool: ...
+    async def on_unmount_button_click(self, event: Event) -> bool: ...
+    async def on_eject_button_click(self, event: Event) -> bool: ...
     async def on_rescan(self, event: Rescan) -> bool: ...
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool: ...
     def checks(self, command: Any) -> bool | None: ...

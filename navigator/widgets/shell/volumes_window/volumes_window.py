@@ -7,15 +7,24 @@ real or not; *Show all mounts* only changes which are shown, so it needs no
 read.  **Enter in the list is not handled here**: the list emits
 ``ChosenEvent`` and it walks up to the screen, the one thing that knows where
 the file manager is.  *Go* is that, then closing.
+
+**Mount, Unmount and Eject** are ``gio``'s (:mod:`navigator.lib.system.gio`),
+each run on a thread, its failure said in a box, the mounts read again after.
+Enter or *Go* on a volume not mounted mounts it, reads again, and only then
+chooses it -- with its mount point now -- for the screen.
 """
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
+from navml.widgets.dialog.control import escape_caption
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.tree_view import ChosenEvent
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
 from navml.widgets.menu.commands import ShowContextMenu
@@ -25,8 +34,9 @@ from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
-from navigator.lib.system import volumes
+from navigator.lib.system import gio, volumes
 from navigator.widgets.manager.commands import Rescan, ToggleHidden
+from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 
 #: Where the window reads the mounts.
 _READER = Background("nav-volumes", workers=1)
@@ -86,7 +96,7 @@ class VolumesWindow(Window):
     def reload(self) -> None:
         """Read the mounts again, on a thread; only the newest read is listed."""
         self._reads += 1
-        _READER.run(self, volumes.gather, done=lambda outcome, n=self._reads: self._read(n, outcome))
+        _READER.run(self, volumes.gather_all, done=lambda outcome, n=self._reads: self._read(n, outcome))
 
     def _read(self, read: int, outcome: Outcome) -> None:
         if read != self._reads:
@@ -117,8 +127,102 @@ class VolumesWindow(Window):
 
     async def go(self) -> None:
         """*Go*: the active panel to the volume under the cursor, and the window closed."""
+        volume = self.volumes.selected
+        if volume is not None and not volume.mounted:
+            self.spawn(self._mount_and_choose(volume, close=True))
+            return
         if await self.volumes.choose():
             self.request_close()
+
+    async def on_chosen(self, event: ChosenEvent) -> bool:
+        """Enter on a volume not mounted: mounted first, then chosen; any other walks on up."""
+        volume = event.node
+        if isinstance(volume, volumes.Volume) and not volume.mounted:
+            self.spawn(self._mount_and_choose(volume, close=False))
+            return True
+        return False
+
+    # -- Mount, Unmount, Eject ------------------------------------------------------------
+
+    async def _gio(self, step: Any, *args: Any) -> bool:
+        """``step(*args)`` on a thread, its failure in a box, the mounts read
+        again either way; True when it worked."""
+        try:
+            await asyncio.to_thread(step, *args)
+        except OSError as error:
+            await Dialog(title=tr("Volumes"), buttons="ok",
+                         prompt=escape_caption(error.strerror or str(error))).execute(self.application)
+            self.reload()
+            return False
+        self.reload()
+        return True
+
+    async def _mount_and_choose(self, volume: volumes.Volume, *, close: bool) -> None:
+        """*volume* mounted, the mounts read again, and the volume -- at its
+        mount point now -- chosen, as Enter on a mounted one is."""
+        if volume.gio is None or not await self._gio(gio.mount_device, volume.gio):
+            return
+        found = await asyncio.to_thread(volumes.gather_all)
+        self._found = found
+        self._show()
+        now = next((each for each in found if each.mounted and each.gio is not None and volume.gio is not None
+                    and (each.gio.ident or each.gio.name) == (volume.gio.ident or volume.gio.name)), None)
+        if now is None:
+            return
+        await self.volumes.emit(ChosenEvent(now))
+        if close:
+            self.request_close()
+
+    async def on_mount_volume(self, command: MountVolume) -> bool:
+        volume = self.volumes.selected
+        if volume is not None and volume.gio is not None:
+            self.spawn(self._gio(gio.mount_device, volume.gio))
+        return True
+
+    async def on_unmount_volume(self, command: UnmountVolume) -> bool:
+        volume = self.volumes.selected
+        if volume is not None and volume.mounted:
+            self.spawn(self._gio(gio.unmount, volume.target))
+        return True
+
+    async def on_eject_volume(self, command: EjectVolume) -> bool:
+        volume = self.volumes.selected
+        if volume is not None and volume.mounted:
+            self.spawn(self._gio(gio.eject, volume.target))
+        return True
+
+    def allows(self, action: str) -> bool:
+        """Whether ``"mount"``, ``"unmount"`` or ``"eject"`` can be done to the
+        volume under the cursor: ``gio`` is there and says it can.  What the
+        buttons' ``disabled`` follows -- the list's cursor and items are read,
+        so they follow it as it moves -- and what :meth:`enables` answers."""
+        volume = self.volumes.selected
+        if volume is None or gio.program() is None:
+            return False
+        if action == "mount":
+            return volume.can_mount
+        if action == "unmount":
+            return volume.mounted and volume.can_unmount
+        return volume.mounted and volume.can_eject
+
+    def enables(self, command: Any) -> bool:
+        """Mount, Unmount and Eject where :meth:`allows` them."""
+        for kind, action in ((MountVolume, "mount"), (UnmountVolume, "unmount"), (EjectVolume, "eject")):
+            if isinstance(command, kind):
+                return self.allows(action)
+        return super().enables(command)
+
+    async def on_mount_button_click(self, event: Event) -> bool:
+        await self.on_mount_volume(MountVolume())
+        return True
+
+    async def on_unmount_button_click(self, event: Event) -> bool:
+        await self.on_unmount_volume(UnmountVolume())
+        return True
+
+    async def on_eject_button_click(self, event: Event) -> bool:
+        await self.on_eject_volume(EjectVolume())
+        return True
 
     # -- what the buttons and keys do ---------------------------------------------------
 
@@ -150,6 +254,10 @@ class VolumesWindow(Window):
         menu = ContextMenu()
         menu.add_item(tr("~R~e-read"), Rescan)
         menu.add_item(tr("~S~how all mounts"), ToggleHidden)
+        menu.add_line()
+        menu.add_item(tr("~M~ount"), MountVolume)
+        menu.add_item(tr("~U~nmount"), UnmountVolume)
+        menu.add_item(tr("~E~ject"), EjectVolume)
         menu.add_line()
         menu.add_item(tr("~C~lose"), CloseWindow)
         return menu
@@ -194,7 +302,8 @@ class VolumesWindow(Window):
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():
-            for control in (self.everything, self.free_box, self.go_button, self.close_button):
+            for control in (self.everything, self.free_box, self.mount_button, self.unmount_button,
+                            self.eject_button, self.go_button, self.close_button):
                 if control.shortcut_match(event.key):
                     return await control.activate(event.key)
         return await super().on_key(event)

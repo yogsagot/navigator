@@ -1552,6 +1552,7 @@ class Panel(ContextMenuHost, ListViewer):
             InvertSelection,
             MakeDirectory,
             MakeLink,
+            OpenWith,
             PasteFromClipboard,
             PutInClipboard,
             RenameMove,
@@ -1580,6 +1581,12 @@ class Panel(ContextMenuHost, ListViewer):
             # ``w``, not the File menu's ``v``: *Invert selection* has that here.
             menu.add_item(tr("Vie~w~"), View)
             menu.add_item(tr("~E~dit"), Edit)
+            # The desktop's applications (``gio``): not DN's, and only where
+            # there are some to open it in.
+            from navigator.lib.system import gio
+
+            if gio.program() is not None and gio.graphical():
+                menu.add_item(tr("Ope~n~ with..."), OpenWith)
             menu.add_line()
         if tagged or not on_parent:
             menu.add_item(tr("~C~opy..."), Copy)

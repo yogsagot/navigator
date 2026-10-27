@@ -33,11 +33,15 @@ What is DN's and what is not:
   whole, with nothing asked of what is inside it.  Where there is no trash
   to move it to, :class:`NoTrash` asks whether to erase it instead -- No,
   Yes, All or Cancel -- and *As root* is never offered for the move, so
-  nothing of root's lands in the user's trash.
+  nothing of root's lands in the user's trash.  Before it asks, where the
+  desktop's ``gio`` is, ``gio trash`` is tried (:func:`navigator.lib.system.gio.trash`):
+  GIO knows trashes this module does not -- a GVfs mount's own, behind the
+  FUSE bridge -- though what goes there is not listed in ``trash:///``.
 """
 
 from __future__ import annotations
 
+import errno
 import stat
 from dataclasses import dataclass
 from pathlib import Path
@@ -246,6 +250,19 @@ class _Eraser(Elevated):
         except FileNotFoundError:
             return True
         except OSError as error:
+            if error.errno == errno.EXDEV:
+                # No trash on its file system that the specification allows:
+                # GIO's, if it has one (a GVfs mount's own).
+                from navigator.lib.system import gio
+
+                if gio.program() is not None:
+                    try:
+                        gio.trash(path.local)
+                    except OSError as refused:
+                        error = refused
+                    else:
+                        job.done += 1
+                        return True
             if not self.erase_untrashable:
                 answer = self._ask(NoTrash(shown(path), error_message(error)))
                 if answer == ALL:

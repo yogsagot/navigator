@@ -100,6 +100,26 @@ class OpenTreeWindow(Command):
     title = "Tree"
 
 
+class MountVolume(Command):
+    """Volumes > *Mount*: the volume under the cursor mounted through the
+    desktop's ``gio`` -- udisks, no root asked.  Not DN's."""
+
+    title = "Mount"
+
+
+class UnmountVolume(Command):
+    """Volumes > *Unmount*: the volume under the cursor unmounted through ``gio``."""
+
+    title = "Unmount"
+
+
+class EjectVolume(Command):
+    """Volumes > *Eject*: the volume under the cursor unmounted and its
+    medium ejected -- or its drive made safe to remove -- through ``gio``."""
+
+    title = "Eject"
+
+
 class OpenVolumesWindow(Command):
     """Disk > Volumes: every mounted volume, its type, mount point and free space.
 
@@ -271,6 +291,7 @@ __all__ = [
     "About",
     "EditLinks",
     "S3Link",
+    "GvfsLink",
     "SaversSetup",
     "CountrySetup",
     "ToggleTrashCan",
@@ -296,6 +317,9 @@ __all__ = [
     "NewManager",
     "OpenTreeWindow",
     "OpenVolumesWindow",
+    "MountVolume",
+    "UnmountVolume",
+    "EjectVolume",
     "ToggleMarkBySpace",
 ]
 
@@ -487,6 +511,16 @@ class S3Link(Command):
 
     title = "S3"
     scheme = "s3"
+
+
+class GvfsLink(Command):
+    """Utilities > *GVfs link*: a place the desktop's GVfs reaches -- a phone
+    over MTP, a WebDAV, AFP or NFS share, Google Drive -- named by its URI,
+    mounted with ``gio mount`` (:mod:`navigator.lib.drives.gvfs`), and the
+    active panel sent there.  Not DN's."""
+
+    title = "GVfs"
+    scheme = "gvfs"
 
 
 class SmbLink(Command):

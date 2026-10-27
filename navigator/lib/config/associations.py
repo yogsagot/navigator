@@ -24,7 +24,10 @@ and ``<=text`` and ``%3`` .. ``%9`` asking for parameters
 several offers them in a menu, as DN's Alt+Enter offered ``DN.EXT``'s
 ``[ ]`` menu -- Navigator keeps Alt+Enter for *Insert name*, so the menu is
 what several entries mean rather than a key of its own, and DN's
-Shift+Enter variant (``( )``) has no key and so no place.
+Shift+Enter variant (``( )``) has no key and so no place.  Enter on a file
+``extensions.ini`` has nothing for opens it in the desktop's application,
+where DN did nothing -- a departure, *Pass other files to desktop* in File
+Manager Setup (``Shell.open_on_desktop``, :mod:`navigator.lib.system.gio`).
 
 A fifth, :data:`HIGHLIGHT` (``highlight.ini``, DN's ``DN.HGL``), lives
 beside them and is seeded with them, but says which lexer colours a file

@@ -303,6 +303,10 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - The prompt names the remote place while commands still run in the last local directory.
 - *Communications* holds connection settings, not a modem's.
 
+- **GVfs schemes** (mtp, dav, afp, google-drive...) are not in `SCHEMES` but reached through `sessions.module_name`;
+  `navigator/lib/drives/gvfs.py` mounts with `gio` and works on the FUSE path (`navigator-gio` skill). Test a
+  connection's kind with `sessions.is_connection`, never `in SCHEMES`.
+
 ## Adding a protocol
 
 1. A module with `available() -> str | None` (the extra that is missing) and `connect(site, answers) -> Drive`; add it

@@ -318,6 +318,13 @@ class SystemData(Section):
     root_timeout: int = Setting(
         5, doc="Minutes root access stays open after its last use; 0 closes it after each operation",
     )
+    #: Not DN's: the desktop's GIO, through its ``gio`` command
+    #: (navigator.lib.system.gio) -- Volumes' Mount/Unmount/Eject, opening a
+    #: file in the desktop's application, GVfs drives and ``gio trash``.  Only
+    #: here, the System Setup page having no room left.
+    use_gio: bool = Setting(
+        True, doc="Use the desktop's gio command, when installed, for volumes, GVfs links and opening files",
+    )
 
 
 class StartupData(Section):
@@ -560,7 +567,7 @@ class FMSetupData(Section):
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
         "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
-        "use_trash",
+        "use_trash", "open_unassociated",
     )
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "column_titles", "info_divider", "tag_character", "link_line", "show_options",
@@ -590,6 +597,11 @@ class FMSetupData(Section):
     #: Not DN's, which erased for good: the freedesktop Trash
     #: (navigator.lib.file_ops.trash), off as DN's behaviour is.
     use_trash: bool = Setting(False, doc="F8 moves files on the disk to the Trash")
+    #: Not DN's, where Enter on a file DN.EXT had no line for did nothing:
+    #: the desktop's default application, through ``gio open``.
+    open_unassociated: bool = Setting(
+        True, doc="Enter on a file extensions.ini has no section for opens it in the desktop's application",
+    )
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")
     tag_character: bool = Setting(True, doc="Mark a tagged file with the tag sign")

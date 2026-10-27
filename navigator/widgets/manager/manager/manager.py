@@ -100,6 +100,7 @@ from navigator.widgets.manager.commands import (
     UuDecode,
     UuEncode,
     View,
+    OpenWith,
     ViewAsDataBase,
     ViewAsHex,
     ViewAsText,
@@ -2217,6 +2218,12 @@ class Manager(Window):
         the tree or the quick view standing beside it has the keyboard -- those
         are not a listing.  Asked of a menu too, where neither has it and the
         panel is meant."""
+        if isinstance(command, OpenWith):
+            from navigator.lib.system import gio
+
+            entry = self.active_panel.selected
+            return (entry is not None and not entry.is_dir and entry.name != ".."
+                    and gio.program() is not None and gio.graphical())
         if isinstance(command, ToggleMiller):
             # A *Find:* listing is no directory to open columns on.
             return self.miller_mode or self.active_panel.found is None
@@ -3373,6 +3380,15 @@ class Manager(Window):
         self.spawn(self.view_file(True))
         return True
 
+    async def on_open_with(self, event: OpenWith) -> bool:
+        """File > *Open with*: the file at the cursor in one of the desktop's applications."""
+        panel = self.active_panel
+        entry = panel.selected
+        shell = getattr(self.application, "shell", None)
+        if entry is not None and not entry.is_dir and entry.name != ".." and shell is not None:
+            self.spawn(shell.open_with(panel.entry_location(entry)))
+        return True
+
     async def on_alternate_view(self, event: AlternateView) -> bool:
         """Alt+F3, File > Alternate view: ``cmIntFileView``, F3 the other way round."""
         self.spawn(self.view_file(False))
@@ -4494,6 +4510,14 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
             new.disabled = True
             new.key = sessions.EXTRA_HINT.get(scheme, "")
         found[id(new)] = scheme
+    # Whatever the desktop's GVfs reaches: a URI asked (``Shell.gvfs_link``).
+    from navigator.lib.system import gio
+
+    new = link.add_item(tr("New ~G~Vfs link (MTP, WebDAV...)..."))
+    if gio.program() is None:
+        new.disabled = True
+        new.key = "gio"
+    found[id(new)] = "gvfs"
     if rows:
         # *Saved links*, which the branch for a *New* opens for this mark.
         link.add_line()
