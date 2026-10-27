@@ -8,8 +8,8 @@ read.  **Enter in the list is not handled here**: the list emits
 ``ChosenEvent`` and it walks up to the screen, the one thing that knows where
 the file manager is.  *Go* is that, then closing.
 
-**Mount, Unmount and Eject** are the desktop's -- ``gio``'s or Solid's
-(:mod:`navigator.lib.system.desktop`) --
+**Mount, Unmount and Eject** are the desktop's -- ``gio``'s or Solid's,
+else udisks2's own (:func:`navigator.lib.system.desktop.volume_backend`) --
 each run on a thread, its failure said in a box, the mounts read again after.
 Enter or *Go* on a volume not mounted mounts it, reads again, and only then
 chooses it -- with its mount point now -- for the screen.
@@ -194,11 +194,11 @@ class VolumesWindow(Window):
 
     def allows(self, action: str) -> bool:
         """Whether ``"mount"``, ``"unmount"`` or ``"eject"`` can be done to the
-        volume under the cursor: ``gio`` or Solid is there and says it can.  What the
+        volume under the cursor: ``gio``, Solid or udisks is there and says it can.  What the
         buttons' ``disabled`` follows -- the list's cursor and items are read,
         so they follow it as it moves -- and what :meth:`enables` answers."""
         volume = self.volumes.selected
-        if volume is None or desktop.program() is None:
+        if volume is None or desktop.volume_program() is None:
             return False
         if action == "mount":
             return volume.can_mount

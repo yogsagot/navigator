@@ -11,6 +11,13 @@ installed, else GIO, else KIO; ``gio`` or ``kio`` is that one or nothing;
 ``off`` is nothing.  With nothing, :func:`program` is None and all of it is
 greyed out.  The choice is made at each call, so a test or the ini changing
 reaches it.
+
+Disk > Volumes alone has a third: :func:`volume_backend` is the backend
+where it has its volume command (``gio``; Solid's ``solid-hardware6``), else
+udisks2's own ``udisksctl`` (:mod:`navigator.lib.system.udisks`) -- with
+``off`` too, as udisks2 is the system's, not the desktop's plumbing.
+:func:`volumes`, :func:`mount_device`, :func:`unmount` and :func:`eject`
+ask it.
 """
 
 from __future__ import annotations
@@ -20,7 +27,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-from navigator.lib.system import gio, kio
+from navigator.lib.system import gio, kio, udisks
 from navigator.lib.system.desktop_entry import App, graphical
 
 
@@ -102,20 +109,45 @@ def launch(app: App, path: Path | str) -> None:
     _module().launch(app, path)
 
 
+def volume_backend() -> ModuleType | None:
+    """Who Disk > Volumes asks: :func:`backend` where its volume command is
+    installed, else :mod:`~navigator.lib.system.udisks` where ``udisksctl``
+    is; None for none of them."""
+    module = backend()
+    if module is gio or (module is kio and kio.command("solid-hardware")):
+        return module
+    return udisks if udisks.program() else None
+
+
+def volume_program() -> str | None:
+    """The program Disk > Volumes runs, or None: what greys its Mount, Unmount and Eject out."""
+    module = volume_backend()
+    if module is kio:
+        return kio.command("solid-hardware")
+    return module.program() if module is not None else None
+
+
+def _volume_module() -> ModuleType:
+    module = volume_backend()
+    if module is None:
+        raise OSError(2, udisks.NO_UDISKS)
+    return module
+
+
 def volumes() -> list[Any]:
-    return _module().volumes()
+    return _volume_module().volumes()
 
 
 def mount_device(volume: Any) -> None:
-    _module().mount_device(volume)
+    _volume_module().mount_device(volume)
 
 
 def unmount(where: str) -> None:
-    _module().unmount(where)
+    _volume_module().unmount(where)
 
 
 def eject(where: str) -> None:
-    _module().eject(where)
+    _volume_module().eject(where)
 
 
 def trash(path: Path | str) -> None:
@@ -130,5 +162,5 @@ def link_schemes() -> dict[str, str]:
 __all__ = [
     "App", "applications", "backend", "content_type", "eject", "graphical", "kde_session", "launch",
     "link_name", "link_schemes", "missing", "mount_device", "name", "open_file", "program", "trash",
-    "unmount", "volumes",
+    "unmount", "volume_backend", "volume_program", "volumes",
 ]

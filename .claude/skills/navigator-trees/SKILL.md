@@ -34,10 +34,20 @@ Slots `[94-101]`, `[104-110]`.
   `Shell.on_chosen`, which sends the active panel to its mount point, and the window stays; *Go* (default, Alt+G) does
   the same and closes it; *Close* closes. Tab walks the controls and Alt+letter takes one, as the calculator
   window does. The window is kept by a saved desktop (`kind="volumes"`, with both boxes).
-- **Volumes with `gio` or Solid** (`navigator-gio`, `navigator-kio` skills; `Volume.native` is the backend's own
-  volume, `Volume.target` its URI or UDI): unmounted volumes listed as *(not mounted)*, GVfs mounts at
+- **Volumes with `gio`, Solid or udisks** (`navigator-gio`, `navigator-kio` skills; `Volume.native` is the backend's own
+  volume, `Volume.target` its URI, UDI or device): unmounted volumes listed as *(not mounted)*, GVfs mounts at
   their FUSE path, and *Mount* (F5), *Unmount* (F6), *Eject* (F7) as buttons, key-bar items and menu entries; Enter/Go on an unmounted one mounts it
-  first. The window reads `volumes.gather_all`, which tests replace through `volumes.gather` (`desktop_vfs` is off in tests).
+  first. The window reads `volumes.gather_all`, which tests replace through `volumes.gather` (`desktop_vfs` is off in tests, and `udisks.program` None).
+- **Who is asked is `desktop.volume_backend()`**, not `backend()`: the desktop's backend where its volume command is
+  installed (`gio`; KIO only with `solid-hardware6`), else **udisks2's own `udisksctl`**
+  (`navigator/lib/system/udisks.py`) -- with `desktop_vfs = off` too, since udisks2 is the system's service, not the
+  desktop's plumbing (a decision, no setting). `desktop.volume_program()` is the window's gate (`allows()`).
+  `udisks.parse_dump` reads `udisksctl dump` (object → interface → property → values, `'/'` quoted is *none*, a bare
+  `/` a mount point); `parse_volumes` keeps file-system blocks less loops, `HintIgnore` and unmounted `HintSystem`,
+  finds an opened LUKS volume's drive through `CryptoBackingDevice`, and offers Unmount on a removable drive or under
+  `/media/`, `/run/media/`, `/mnt/` (KIO's rule). Every call passes `--no-user-interaction`: a polkit refusal (an SSH
+  session) is an error box at once. **Eject** unmounts every file system on the drive, then `busctl ... Drive Eject`
+  for an `Ejectable` one (a disc: `udisksctl` has no eject) or `udisksctl power-off -p drives/...` otherwise.
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a

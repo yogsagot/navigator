@@ -102,20 +102,21 @@ class OpenTreeWindow(Command):
 
 class MountVolume(Command):
     """Volumes > *Mount*: the volume under the cursor mounted through the
-    desktop's ``gio`` or KDE's Solid -- udisks, no root asked.  Not DN's."""
+    desktop's ``gio`` or KDE's Solid, else ``udisksctl`` -- udisks, no root
+    asked.  Not DN's."""
 
     title = "Mount"
 
 
 class UnmountVolume(Command):
-    """Volumes > *Unmount*: the volume under the cursor unmounted through ``gio`` or Solid."""
+    """Volumes > *Unmount*: the volume under the cursor unmounted through ``gio``, Solid or udisks."""
 
     title = "Unmount"
 
 
 class EjectVolume(Command):
     """Volumes > *Eject*: the volume under the cursor unmounted and its
-    medium ejected -- or its drive made safe to remove -- through ``gio`` or Solid."""
+    medium ejected -- or its drive made safe to remove -- through ``gio``, Solid or udisks."""
 
     title = "Eject"
 

@@ -362,6 +362,11 @@ def _default_settings(monkeypatch, tmp_path):
     # Nor the desktop's gio or KIO (navigator.lib.system.desktop): what this machine has
     # mounted is no test's business; its tests switch it on.
     SETTINGS.system.desktop_vfs = "off"
+    # Nor udisks2, which Disk > Volumes asks with the desktop's plumbing off
+    # (navigator.lib.system.udisks); its tests give it a udisksctl.
+    from navigator.lib.system import udisks
+
+    monkeypatch.setattr(udisks, "program", lambda which=None: None)
     filetypes.use_masks(filetypes.CATEGORIES)  # *Highlight groups*' masks, put in force by a Shell
     yield
     SETTINGS.reset()

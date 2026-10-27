@@ -31,7 +31,8 @@ from navml.widgets.window import Window
 #: into *Free %*.  Tab walks the controls, Alt and a marked letter
 #: takes one, as in a dialog.
 #:
-#: Where the desktop's ``gio`` is, the volumes udisks knows but has not
+#: Where the desktop's ``gio`` or KDE's Solid is -- else udisks2's own
+#: ``udisksctl`` -- the volumes udisks knows but has not
 #: mounted are listed too, *not mounted*, and *Mount* (F5, Ctrl+N), *Unmount*
 #: (F6, Ctrl+U) and *Eject* (F7, Ctrl+E) act on the one under the cursor, as
 #: the desktop's file manager does -- a further departure.  Each is a button
@@ -80,7 +81,7 @@ VolumesWindow(Window):
         height: 1
         items: ["Show ~f~ree %"]
 
-    #: ``gio``'s three, each greyed as its command is (``VolumesWindow.allows``):
+    #: ``gio``'s, Solid's or udisks' three, each greyed as its command is (``VolumesWindow.allows``):
     #: on *Go* and *Close*'s row, a button's width apart, where 82 columns
     #: leave room beside the boxes; right-aligned over them where they do not.
     Button:

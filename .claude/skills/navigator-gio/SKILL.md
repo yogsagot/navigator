@@ -18,9 +18,12 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   An old ini's `use_gio = false` reads as `off`. `desktop.program()` is the gate: every command or menu item that needs
   it greys out through it (`enables()`), and the Enter and trash fallbacks check it before trying. The facade looks the
   backend's function up at each call, so a test's `monkeypatch.setattr(gio, ...)` reaches it.
+  Disk > Volumes alone asks `desktop.volume_backend()` (gated by `volume_program()`): this module, KIO with Solid's
+  command, else udisks2's `udisksctl` (`navigator/lib/system/udisks.py`, `navigator-trees` skill), `off` included.
 - **`gio.program()`** is only `shutil.which("gio")`, looked up at the call, as `printing.print_command` does.
 - **Shared with KIO** (`navigator/lib/system/desktop_entry.py`, re-exported by `gio`): `App`, `application_dirs`,
-  `desktop_file`, `desktop_name`, `graphical`, `launch_detached`. A backend's volume (`GioVolume`, `KioVolume`) has
+  `desktop_file`, `desktop_name`, `graphical`, `launch_detached`. A backend's volume (`GioVolume`, `KioVolume`,
+  `UdisksVolume`) has
   the same names (`name, device, ident, uri, local, mounted, activation_root, can_*`, `target`), so `volumes.merge`
   and the window take either; `Volume.native` holds it.
 - **Every call but `program()` and `graphical()` blocks**: run it with `asyncio.to_thread`, on a

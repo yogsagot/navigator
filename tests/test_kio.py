@@ -397,6 +397,7 @@ def test_the_volumes_window_mounts_through_solid(tmp_path, monkeypatch):
 
     monkeypatch.setattr(volumes, "gather_all", gather_all)
     monkeypatch.setattr(kio, "program", lambda which=None: "/usr/bin/kioclient")
+    monkeypatch.setattr(kio, "command", lambda name, which=None: f"/usr/bin/{name}")
     monkeypatch.setattr(kio, "mount_device", mount_device)
     monkeypatch.setattr(kio, "eject", eject)
     app = navigator(tmp_path)
