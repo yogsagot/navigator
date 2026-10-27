@@ -275,6 +275,26 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   passes the same tag, scrolling past either end (`Panel._right_marking`). The Menu key and Shift+F10 open the menu
   under either setting.
 
+## Copy, cut and paste through the clipboard (Ctrl+C/Ctrl+X/Ctrl+V)
+
+A departure, asked for -- only Ctrl+Ins is DN's (`FLPANELX.PAS` `_CtrlIns`, `cmPutInClipboard`: the names, nothing
+kept). DN's panel Ctrl+Del (take entries off the listing) was never ported, so it is *cut* here.
+
+- **Ctrl+C/Ctrl+Ins** (`PutInClipboard`) and **Ctrl+X/Ctrl+Del** (`CutToClipboard`) put the selection's full paths on
+  the clipboard, one a line (`Manager.clip_files`), and keep the entries in the app-wide
+  `navigator.lib.file_ops.clip.CLIP` (where they were listed, `here`, and `move`). Tags stay.
+  **Ctrl+V/Shift+Ins** (`PasteFromClipboard`) runs F5's or F6's dialog on them into the active panel
+  (`Manager.paste_files`, see `navigator-file-ops`). **Esc** (`ClearClipboard`) forgets them.
+- **All four are `by_key=True` and step aside while the command line has text** (the `fmoDelErase` rule), so the line
+  keeps copy/paste, and Ctrl+X still walks the history (a recall always puts text on the line). Paste and Esc are
+  disabled with no clip, so Shift+Ins pastes text and Esc does what it did.
+- **Any other copy forgets the clip** (`Navigator.copy_to_clipboard` compares with `CLIP.text`), so the next paste is
+  that text; a paste that moved forgets it too, a copy can be pasted again.
+- **The cue**: rows get `clip-cut` (dim) / `clip-copy` (italic) classes, after `.marked` in `navigator.nss`, the cursor
+  bar keeping its colours; the gutter shows `Panel.CLIP_MARKS` per glyph tier (`✂`/`❐`, nerd `md-content_cut/copy`,
+  ASCII `x`/`c`) below a tag's sign; every panel's info lines add *Clipboard: N files to move/copy*. The context menu
+  offers the three.
+
 ## Quick search (Ctrl+S)
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first

@@ -45,6 +45,7 @@ from navigator.lib.appearance import icons as icon_glyphs
 from navigator.lib.config import country
 from navigator.lib.config.bookmarks import bookmarked_paths
 from navigator.lib.drives import Drive, DriveGone, Location, drive_of
+from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see listing's docstring
     DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries,
     read_listing, restat_found, scan_directory,
@@ -1536,6 +1537,7 @@ class Panel(ContextMenuHost, ListViewer):
             ChangeInactive,
             Copy,
             CountLength,
+            CutToClipboard,
             Delete,
             Edit,
             ExtractArchive,
@@ -1544,6 +1546,8 @@ class Panel(ContextMenuHost, ListViewer):
             InvertSelection,
             MakeDirectory,
             MakeLink,
+            PasteFromClipboard,
+            PutInClipboard,
             RenameMove,
             SelectGroup,
             UnselectGroup,
@@ -1573,6 +1577,13 @@ class Panel(ContextMenuHost, ListViewer):
             menu.add_item(tr("~D~elete"), Delete)
             menu.add_item(tr("File ~A~ttributes..."), ChangeAttributes)
             menu.add_line()
+        # The clipboard's three, a departure as the keys are; theirs are
+        # ``by_key`` too, so named here.
+        if tagged or not on_parent:
+            menu.add_item(tr("Cop~y~ to clipboard"), PutInClipboard, key_label("ctrl+c"))
+            menu.add_item(tr("Cut to c~l~ipboard"), CutToClipboard, key_label("ctrl+x"))
+        menu.add_item(tr("Paste from clip~b~oard"), PasteFromClipboard, key_label("ctrl+v"))
+        menu.add_line()
         # The archive's own two in one, and Shift+F2 on an archive outside one
         # -- a departure, asked for, as the menu is.  ``x`` for both: an
         # archive panel offers no *Extract archive*.
@@ -2044,6 +2055,14 @@ class Panel(ContextMenuHost, ListViewer):
                 lines.append((second, "current-file"))
         if selected_files:
             lines.append((self._selection_text(marked), "selected-files"))
+        if CLIP:
+            # Every panel says what Ctrl+V would paste, wherever it was clipped.
+            count = len(CLIP.entries)
+            if CLIP.move:
+                text = tr_n("Clipboard: ~{n}~ file to move", "Clipboard: ~{n}~ files to move", count)
+            else:
+                text = tr_n("Clipboard: ~{n}~ file to copy", "Clipboard: ~{n}~ files to copy", count)
+            lines.append((text, "selected-files"))
         if self.shows("totals"):
             items = self.items
             if not any(item.name != ".." for item in items):
@@ -2206,6 +2225,9 @@ class Panel(ContextMenuHost, ListViewer):
             classes += (category,)
         if self.is_marked(item):
             classes += ("marked",)
+        if CLIP and CLIP.holds(self.entry_location(item)):
+            # Waiting for Ctrl+V: ``Panel::row.clip-cut`` / ``.clip-copy``.
+            classes += ("clip-cut" if CLIP.move else "clip-copy",)
         return self.part_style("row", classes=classes, selected=self.row_selected(index))
 
     @property
@@ -2234,6 +2256,17 @@ class Panel(ContextMenuHost, ListViewer):
     #: The type mark of a bookmarked directory, in place of ``/``: CP437's
     #: ``$04``, a character DN could have drawn.  The ASCII tier keeps ``/``.
     BOOKMARK_MARK = "♦"
+
+    #: What stands in the gutter of an entry Ctrl+C or Ctrl+X has clipped, a
+    #: tag's sign winning over it: ``(copy, cut)`` per glyph tier.
+    CLIP_MARKS = {
+        glyphs_module.GLYPHS_ASCII: ("c", "x"),
+        glyphs_module.GLYPHS_UNICODE: ("❐", "✂"),
+        glyphs_module.GLYPHS_NERD: ("\U000f018f", "\U000f0190"),  # md-content_copy, md-content_cut
+    }
+
+    def clip_mark(self, move: bool) -> str:
+        return self.CLIP_MARKS.get(self.glyphs, self.CLIP_MARKS[glyphs_module.GLYPHS_UNICODE])[move]
 
     def is_bookmarked(self, item: DirEntry) -> bool:
         """Whether *item* is a directory on the Alt+F1/Alt+F2 list."""
@@ -2269,6 +2302,8 @@ class Panel(ContextMenuHost, ListViewer):
         if gutter:
             if self.is_marked(item) and self.tag_char:
                 mark = self.tag_char
+            elif CLIP and CLIP.holds(self.entry_location(item)):
+                mark = self.clip_mark(CLIP.move)
             elif self.show_icons:
                 mark = icon_glyphs.icon_for(item.name, item.is_dir, item.type_mark,
                                             self.is_bookmarked(item))

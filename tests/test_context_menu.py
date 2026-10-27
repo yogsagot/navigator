@@ -73,7 +73,8 @@ def test_a_right_click_on_a_file_moves_the_cursor_and_offers_its_operations(tree
     assert app.manager.left.selected.name == "one.txt"
     assert seen["captions"] == [
         "View", "Edit", "Copy...", "Rename/Move...", "Create symlink...", "Delete",
-        "File Attributes...", "Make directory", "Select group...", "Unselect group...",
+        "File Attributes...", "Copy to clipboard", "Cut to clipboard", "Paste from clipboard",
+        "Make directory", "Select group...", "Unselect group...",
         "Invert selection", "Insert name", "Insert path",
     ]
 
@@ -114,7 +115,7 @@ def test_the_parent_entry_offers_only_what_needs_no_selection(tree):
     seen = {}
     run_app(app, [right(5, 2), OPEN, lambda a: seen.update(captions=captions(a))])
     assert seen["captions"] == [
-        "Count directory length", "Make directory", "Select group...",
+        "Paste from clipboard", "Count directory length", "Make directory", "Select group...",
         "Unselect group...", "Invert selection", "Insert name", "Insert path",
     ]
 

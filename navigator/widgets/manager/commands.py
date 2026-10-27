@@ -569,6 +569,47 @@ class DeleteSingle(Command):
     by_key: bool = False
 
 
+@dataclass(frozen=True, slots=True)
+class PutInClipboard(Command):
+    """Ctrl+C, Ctrl+Ins: the selection's paths on the clipboard, and the
+    entries kept to be copied by a paste (:mod:`navigator.lib.file_ops.clip`).
+
+    Ctrl+Ins is DOS Navigator's own, ``_CtrlIns`` posting
+    ``cmPutInClipboard``, which put the names there and kept nothing.
+    *by_key*: with text on the command line it steps aside, and the key is
+    the line's, as Del is.
+    """
+
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class CutToClipboard(Command):
+    """Ctrl+X, Ctrl+Del: as :class:`PutInClipboard`, to be moved.  A departure:
+    DN's panel Ctrl+Del took the entries off the listing, which was never
+    ported.  With text on the line Ctrl+X walks the command history as before."""
+
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class PasteFromClipboard(Command):
+    """Ctrl+V, Shift+Ins: the clipped entries into the active panel's
+    directory, through F5's or F6's dialog.  A departure, named after
+    ``cmGetFromClipboard``.  Without a clip, or with text on the line, the key
+    pastes text on the command line as before."""
+
+    by_key: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ClearClipboard(Command):
+    """Esc while files wait to be pasted: forget them.  Otherwise Esc is what
+    it was -- clearing the line, or *ESC for user screen*."""
+
+    by_key: bool = False
+
+
 __all__ = [
     "UserMenu",
     "View",
@@ -632,4 +673,8 @@ __all__ = [
     "ExtractArchive",
     "EditNamed",
     "DeleteSingle",
+    "PutInClipboard",
+    "CutToClipboard",
+    "PasteFromClipboard",
+    "ClearClipboard",
 ]

@@ -52,6 +52,7 @@ from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
 from navigator.lib.config.file_history import remember_windows
+from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.system import dirwatch, errorlog
 from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
@@ -117,6 +118,9 @@ class Navigator(Application):
         self.shell = Shell(left, right, scheme)
         self.shell.theme = theme
         super().__init__(root=self.shell, **kwargs)
+        # The panels' Ctrl+C/Ctrl+X clip is no widget's: its changes ask for
+        # a frame through here.
+        CLIP.listener = self.invalidate
 
     @property
     def manager(self) -> Manager:
@@ -496,6 +500,13 @@ class Navigator(Application):
         """The command line's command is done: posted from the pty's reader."""
         self.shell.command_finished(event.status, event.cwd)
         return True
+
+    def copy_to_clipboard(self, text: str, *, primary: bool = False) -> None:
+        """Any copy but the panels' own Ctrl+C/Ctrl+X forgets the files they
+        left to paste, so the next Ctrl+V pastes the text that was copied."""
+        if not primary and text and text != CLIP.text:
+            CLIP.clear()
+        super().copy_to_clipboard(text, primary=primary)
 
     def clipboard_unavailable(self) -> None:
         """Say, once, that a paste had to use Navigator's own copy."""

@@ -126,6 +126,13 @@ Panel::row:selected  { fg: $cursor-fg; bg: $cursor-bg; bold: $cursor-bold; dim: 
 Panel::row.marked          { fg: $marked-fg; bg: $marked-bg; bold: $marked-bold; dim: $marked-dim; italic: $marked-italic; underline: $marked-underline; reverse: $marked-reverse }
 Panel::row.marked:selected { fg: $marked-cursor-fg; bg: $marked-cursor-bg; bold: $marked-cursor-bold; dim: $marked-cursor-dim; italic: $marked-cursor-italic; underline: $marked-cursor-underline; reverse: $marked-cursor-reverse }
 
+/* An entry Ctrl+X or Ctrl+C left waiting for Ctrl+V (a departure, as the
+   keys are): faded to be moved, italic to be copied, over whatever colour
+   the row has -- after `.marked', so a tagged one shows it too. The cursor
+   bar keeps its own colours; the gutter's sign marks it there. */
+Panel::row.clip-cut  { dim: true }
+Panel::row.clip-copy { italic: true }
+
 /* The detailed and list modes (Ctrl+Y): the column titles over them, `[165]
    Column title', and the rules between their columns in the frame's own
    colours, so a rule and the tees joining it to the frame read as one line.

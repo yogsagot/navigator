@@ -16,7 +16,7 @@ import os
 import shlex
 import stat
 from pathlib import Path, PurePosixPath
-from typing import Any, Awaitable, Callable, Sequence
+from typing import Any, Awaitable, Callable, Iterable, Sequence
 
 from navkit import glyphs as glyphs_module
 from navkit.events import DoubleClickEvent, MouseClickEvent
@@ -37,7 +37,9 @@ from navigator.widgets.manager.commands import (
     ChangeDrive,
     ChangeLeft,
     ChangeRight,
+    ClearClipboard,
     Copy,
+    CutToClipboard,
     Delete,
     DeleteSingle,
     DirBranch,
@@ -55,7 +57,9 @@ from navigator.widgets.manager.commands import (
     MakeDirectory,
     MakeLink,
     MoveSeparator,
+    PasteFromClipboard,
     PrintFile,
+    PutInClipboard,
     QuickRename,
     QuickView,
     RenameMove,
@@ -107,6 +111,7 @@ from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
+from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.file_ops.filecopy import shown
 from navigator.settings import SETTINGS
 
@@ -175,6 +180,16 @@ class Manager(Window):
         #: and edits the line otherwise; Shift+Del is the menu's single delete.
         "delete": Delete(by_key=True),
         "shift+delete": DeleteSingle(by_key=True),
+        #: The clipboard's keys, each the command line's while it has text:
+        #: the paths copied there, and the entries kept to paste
+        #: (:mod:`navigator.lib.file_ops.clip`).  Esc forgets them.
+        "ctrl+c": PutInClipboard(by_key=True),
+        "ctrl+insert": PutInClipboard(by_key=True),
+        "ctrl+x": CutToClipboard(by_key=True),
+        "ctrl+delete": CutToClipboard(by_key=True),
+        "ctrl+v": PasteFromClipboard(by_key=True),
+        "shift+insert": PasteFromClipboard(by_key=True),
+        "escape": ClearClipboard(by_key=True),
         #: Scrolling a name too long for its column; the list mode's panel
         #: takes these first and moves a column instead.
         "left": ScrollNames(-1),
@@ -2036,6 +2051,22 @@ class Manager(Window):
                 # and Ctrl+PgUp still go up.
                 return False
             return not (self.tree.focused or self.quick.focused)
+        if isinstance(command, (PutInClipboard, CutToClipboard, PasteFromClipboard, ClearClipboard)):
+            if command.by_key and self._command_line_has_text():
+                # Disabled, so the key is the line's: copy, paste, history.
+                return False
+            if self.tree.focused or self.quick.focused:
+                return False
+            if isinstance(command, (PutInClipboard, CutToClipboard)):
+                return bool(self.selection(self.active_panel))
+            if not CLIP:
+                return False
+            if isinstance(command, PasteFromClipboard):
+                try:
+                    return self.active_panel.drive.can("write")
+                except DriveGone:
+                    return False
+            return True
         if isinstance(command, (Delete, DeleteSingle)) and command.by_key:
             if self._command_line_has_text():
                 # Disabled, so Del deletes a character and Shift+Del cuts.
@@ -2453,6 +2484,64 @@ class Manager(Window):
                 target = None
             await self.copy_entries(panel, entries, target, move=move, others=(other,))
 
+    async def on_put_in_clipboard(self, event: PutInClipboard) -> bool:
+        """Ctrl+C, Ctrl+Ins: DN's ``_CtrlIns``, and the entries kept to copy."""
+        self.clip_files(move=False)
+        return True
+
+    async def on_cut_to_clipboard(self, event: CutToClipboard) -> bool:
+        """Ctrl+X, Ctrl+Del: the same, kept to move."""
+        self.clip_files(move=True)
+        return True
+
+    async def on_paste_from_clipboard(self, event: PasteFromClipboard) -> bool:
+        """Ctrl+V, Shift+Ins: what was clipped, into the active panel's directory."""
+        self.spawn(self.paste_files())
+        return True
+
+    async def on_clear_clipboard(self, event: ClearClipboard) -> bool:
+        CLIP.clear()
+        return True
+
+    def clip_files(self, *, move: bool) -> None:
+        """The selection's paths on the clipboard, one a line, and the entries
+        in :data:`~navigator.lib.file_ops.clip.CLIP`.  Tags stay: the clip is
+        marked beside them, and a paste is not an operation on this panel."""
+        panel = self.active_panel
+        entries = self.selection(panel)
+        if not entries:
+            return
+        locations = [panel.entry_location(entry) for entry in entries]
+        text = CLIP.set(panel.location, entries, locations, move=move)
+        if self.application is not None:
+            self.application.copy_to_clipboard(text)
+
+    async def paste_files(self) -> None:
+        """F5's or F6's dialog on the clipped entries, into the active panel.
+
+        The dialog's sources are where the entries were clipped, wherever the
+        panel that listed them has gone since.  A directory is never pasted
+        into itself; a move pasted is done, and forgotten, while a copy can be
+        pasted again.
+        """
+        if not CLIP:
+            return
+        target = self.active_panel.location
+        if target.is_local and target.local.exists():
+            target = Location.of(target.local.resolve())
+        entries, here, move = list(CLIP.entries), CLIP.here, CLIP.move
+        if _into_itself(target, entries, here):
+            return
+        if move and target == here:
+            return
+        source = next(
+            (panel for panel in (self.left, self.right) if panel.location == here), self.active_panel
+        )
+        others = tuple(panel for panel in (self.left, self.right) if panel is not source)
+        done = await self.copy_entries(source, entries, shown(target), move=move, others=others, here=here)
+        if done and move:
+            CLIP.clear()
+
     async def on_dropped(self, event: Dropped) -> bool:
         """Files dropped from one of this window's panels: ``CM_Dropped`` -- or
         on the trash can, which erases them.
@@ -2469,9 +2558,7 @@ class Manager(Window):
         target = Location.of(event.target)
         if target.is_local and target.local.exists():
             target = Location.of(target.local.resolve())
-        here = source.location
-        above = (target, *(Location(target.site, parent, target.outer) for parent in target.path.parents))
-        if any(entry.is_dir and source.entry_location(entry) in above for entry in event.entries):
+        if _into_itself(target, event.entries, source.location):
             return True
         target = shown(target)
         others = (event.panel,) if event.panel is not None and event.panel is not source else ()
@@ -2539,18 +2626,21 @@ class Manager(Window):
                                     others=others, ask=ask)
 
     async def copy_entries(self, panel: Panel, entries: list[Any], target: Any, *, move: bool,
-                           others: tuple[Any, ...] = (), ask: bool = True) -> None:
+                           others: tuple[Any, ...] = (), ask: bool = True, here: Any = None) -> bool:
         """*entries* of *panel* copied (or moved) to *target*: the Copy dialog
         first when *ask*, else at once in the dialog's session mode and
-        options; then *panel* and *others* look again."""
+        options; then *panel* and *others* look again.  *here* is where the
+        entries are listed, *panel*'s directory unless said.  Whether the
+        copy ran, and was not stopped."""
         from navigator.lib.file_ops import filecopy
         from navigator.widgets.file_ops.copy_dialog import CopyDialog
         from navigator.widgets.file_ops.copy_dialog import copy_dialog
 
         app = self.application
         if app is None or not entries:
-            return
-        here = panel.location
+            return False
+        if here is None:
+            here = panel.location
         if ask:
             request = await CopyDialog(
                 entries=entries, here=here, other=target,
@@ -2560,18 +2650,18 @@ class Manager(Window):
             session = copy_dialog._session
             options = session["options"] & ~filecopy.MOVE
             request = filecopy.CopyRequest(
-                sources=[shown(panel.entry_location(entry)) for entry in entries],
+                sources=[shown(_entry_location(here, entry)) for entry in entries],
                 target=str(target).rstrip("/") + "/",
                 mode=session["mode"],
                 options=options | filecopy.MOVE if move else options,
                 flush=SETTINGS.system.flush_buffers,
             )
         if request is None:
-            return
-        await self._run_copy(panel, request, here, move=move, others=others)
+            return False
+        return await self._run_copy(panel, request, here, move=move, others=others)
 
     async def _run_copy(self, panel: Panel, request: Any, here: Any, *, move: bool,
-                        others: tuple[Any, ...] = ()) -> None:
+                        others: tuple[Any, ...] = ()) -> bool:
         """*request* run on a thread under the copy's box and questions; then
         what went is untagged in *panel*, and it and *others* look again."""
         from navigator.lib.file_ops import filecopy
@@ -2594,6 +2684,7 @@ class Manager(Window):
         if SETTINGS.file_manager.beep_after_copy and not job.stopped and app is not None:
             # ``BeepAfterCopy``, after a copy that was not aborted.
             app.bell()
+        return not job.stopped
 
     async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
         """The copy's progress box, *Stop*, and the worker's questions, until *work* ends."""
@@ -4009,6 +4100,20 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         menu.add_line()
     toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
     return menu, toggle
+
+
+def _entry_location(here: Any, entry: Any) -> Location:
+    """Where *entry* of a listing of *here* is: ``Panel.entry_location`` for a
+    directory the panel may no longer show."""
+    if entry.directory is not None:
+        return Location.of(entry.directory) / entry.name
+    return Location.of(here) / entry.name
+
+
+def _into_itself(target: Location, entries: Iterable[Any], here: Any) -> bool:
+    """Whether a directory among *entries* of *here* is *target* or above it."""
+    above = (target, *(Location(target.site, parent, target.outer) for parent in target.path.parents))
+    return any(entry.is_dir and _entry_location(here, entry) in above for entry in entries)
 
 
 def _move_keys(glyphs: int) -> str:

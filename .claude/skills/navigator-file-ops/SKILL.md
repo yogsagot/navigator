@@ -40,6 +40,12 @@ leaves the row blank.
   under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it
   (`navigator-drives`, *Extract to, Test, Shift+F2*).
 
+- **A paste (Ctrl+V) is `copy_entries` with `here`**: the entries' directory as it was clipped
+  (`navigator.lib.file_ops.clip.CLIP.here`), not the source panel's now, so sources are right after it navigated.
+  `copy_entries` returns whether the copy ran and was not stopped; `paste_files` forgets a moved clip then. A
+  directory is never pasted into itself (`_into_itself`, shared with drag and drop); a cut pasted where it came from
+  does nothing. The keys and cue are `navigator-panels`'.
+
 ## Quick rename (Shift+F6)
 
 A departure, asked for: `QuickRename` (Shift+F6, Midnight Commander's rename key; Ctrl+F6 stays DN's Calculator), `Manager.quick_rename` -> `RenameDialog` (`file_ops/rename_dialog`),
