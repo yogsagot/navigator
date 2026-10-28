@@ -19,3 +19,4 @@ PaletteFileDialog(FileDialog):
         width: 30
         height: 1
         items: ["~P~review palette"]
+        tooltips: ["Paint the palette under the cursor in the box beside the list"]

@@ -28,6 +28,9 @@ description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navi
   is never re-read. A line of only `<|` (`Commands.panelize`) has `Shell.run_commands` hand the sourced script to
   `Shell._panelize` -> `Manager.panelize` instead of the console: what it prints is the active panel's listing (a
   departure; `navigator-panels`, *Panelize command*). It works in the `.ini` associations too.
+- **An item's tooltip is what it will run** (`usermenu.preview`, set in `Shell.user_menu`'s `fill`): its lines with
+  both panels' macros in, quoted as they will run, `%0`..`%9` left as written (`expand(numbers=False)`: the list
+  files and answers do not exist yet), at most `PREVIEW_LINES`, after a line for `<Title`/`%3`.. (asks), `<|` or `<&`.
 - **A `<&` line runs the item in a window of its own** (`Commands.window`, a `WindowMode`; a departure,
   `console-command-line`, *Commands in a window*). The words `zoomed`/`normal` and `modal`/`floating` after it
   override System Setup's *Command windows* (`<& normal modal`), and `close` closes the window as soon as the

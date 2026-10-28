@@ -256,3 +256,25 @@ def test_a_digit_no_window_has_leaves_the_list_up(tree):
                   KeyEvent("escape")])
     assert seen == ["WindowManagerDialog"]
     assert app.shell.desktop.active_window.title == "Notes"
+
+
+def test_a_chip_s_tooltip_is_its_window_s_whole_name_and_key(tree):
+    SETTINGS.interface.window_strip = "full"
+    app = navigator(tree)
+    seen = []
+
+    def look(a):
+        strip = a.shell.window_strip
+        unbind(strip, WindowStrip.width)
+        strip.width = 7                                  # " 1 " and "+2"
+        (start, _, _), = strip.chips()
+        seen.append(strip.tooltip_at(start + 1, 0))
+        seen.append(strip.tooltip_at(strip.width - 1, 0))
+        seen.append(strip.tooltip_at(0, 0))               # kept to the clock: room before the chip
+
+    run_app(app, [opener("A long window title", "Another long title"), look])
+    first, count, between = seen
+    # The manager's whole name is its directory; Win+1 brings it forward.
+    assert first == f"{app.manager.list_name()} (Super-1)" and "/" in first
+    assert count == "2 A long window title\n3 Another long title"
+    assert between == ""

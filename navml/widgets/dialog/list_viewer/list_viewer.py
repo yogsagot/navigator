@@ -14,6 +14,12 @@ including a terminal resize, which an imperative version gets wrong.
 subtree's effects, and every widget in a dialog can be removed and put back.
 ``Panel`` could declare them in its constructor because the desktop never lets
 it go; a library widget has no such promise.
+
+**A row's tooltip is its whole text while the row is cut** (:meth:`ListViewer.row_tooltip`),
+as an input line's is; a row that fits leaves the list's own ``tooltip``.  Only
+for rows painted the plain way: a list that paints its own (``render_row`` or
+``render_items``) says what a tooltip is there by overriding ``row_tooltip``,
+since what it shows need not be ``row_text``.  A departure: ``TListViewer`` had none.
 """
 
 from __future__ import annotations
@@ -22,7 +28,7 @@ from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import computed, effect, peek, reactive
-from navkit.screen import Surface
+from navkit.screen import Surface, char_width
 from navkit.style import Style
 
 from navml.widgets.dialog.control import Control
@@ -136,6 +142,31 @@ class ListViewer(Control):
     def row_text(self, index: int, item: Any) -> str:
         """The text for one row.  ``str(item)`` unless told otherwise."""
         return str(item)
+
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """Row *index*'s tooltip: :meth:`cut_text` for a row painted the
+        plain way; ``""`` for one a subclass paints itself."""
+        cls = type(self)
+        if cls.render_row is not ListViewer.render_row or cls.render_items is not ListViewer.render_items:
+            return ""
+        return self.cut_text(index, item)
+
+    def cut_text(self, index: int, item: Any) -> str:
+        """Row *index*'s :meth:`row_text` while it is wider than the list, else ``""``."""
+        text = self.row_text(index, item)
+        return text if sum(char_width(char) for char in text) > self.inner_width else ""
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The tooltip of the row at *x*, *y*, else the list's own -- the row's
+        only between the frame's sides, never on the frame or a scroll bar's
+        column."""
+        inside = self.inset <= x < self.inset + self.inner_width
+        index = self.index_at(x, y) if inside else None
+        if index is not None:
+            text = self.row_tooltip(index, self.items[index])
+            if text:
+                return text
+        return super().tooltip_at(x, y)
 
     def row_selected(self, index: int) -> bool:
         """Whether row *index* is the one under the cursor, showing.

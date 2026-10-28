@@ -29,17 +29,25 @@ what the keyboard does now, and a file panel's ten function keys fill the line,
 so the last of those give way to them.  A box never says
 its keys in its own frame: they belong here, as DN's ``StatusDef`` put them
 (a departure where DN said nothing at all, asked for).
+
+**An item's tooltip is where its command sits in the menus** -- ``File > Make
+directory`` for ``F7 MkDir`` -- read off the menu bar (:attr:`KeyBar.menu`,
+the window's own menus included), so no caption is written twice.  A command
+no menu offers shows its caption; a hint shows nothing more than it says.
+A departure: DN had no tooltips.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from navkit.commands import Command, chain, key_label, layer_key
 from navkit.events import MouseClickEvent
 from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navml.widgets.dialog.control.control import parse_shortcut
 
 #: How many function keys the line looks for.
 KEYS = 10
@@ -60,6 +68,10 @@ class KeyBar(Widget):
     #: An item's key, and its caption.  Both take ``:disabled``, because Turbo
     #: Vision greys an unavailable item whole, its key included.
     parts = ("key", "label")
+
+    #: The menu bar whose entries name the items' commands in their tooltips;
+    #: None for none.
+    menu: Any = None
 
     def items(self) -> list[tuple[str, Command, int, int]]:
         """``(key, command, start, width)`` for each item, left to right.
@@ -131,6 +143,21 @@ class KeyBar(Widget):
                 start + 1, 0, name, self.part_style("key", disabled=disabled)
             )
             surface.draw_text(start + 1 + len(name), 0, f" {_title(command)} ", label)
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The item's command's place in the menus, ``File > Make directory``,
+        else its caption; nothing for a hint or between items."""
+        for _key, command, start, width in self.items():
+            if start <= x < start + width:
+                if isinstance(command, Hint):
+                    return ""
+                path = self.menu.path_to(command) if self.menu is not None else []
+                if not path:
+                    return _title(command)
+                # A caption's ``...`` says a box opens, which a tooltip need not.
+                names = (parse_shortcut(entry.text)[0].rstrip(".…").rstrip() for entry in path)
+                return " > ".join(names)
+        return super().tooltip_at(x, y)
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A press on an item asks for its command, as the key would.

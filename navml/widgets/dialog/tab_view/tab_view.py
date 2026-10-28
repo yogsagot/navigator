@@ -49,6 +49,13 @@ From anywhere on a page Ctrl+PgDn and Ctrl+PgUp (or Ctrl+Tab and
 Ctrl+Shift+Tab, where a terminal sends them) change it as well, and so do
 PgDn and PgUp unless the control with the keyboard takes them (a list pages,
 a number steps); a click on a tab selects it.
+
+**A tab's tooltip says what its page holds**: :attr:`TabView.tooltips`, one a
+page in step with them, as a cluster's are with its items -- the view's, not
+the page's, because a page's own ``tooltip`` would show over every blank and
+every control on it.  A tab with none shows its whole caption where the left
+column cut it; the arrows say which way they scroll.  Not Turbo Vision's,
+which had no tabs.
 """
 
 from __future__ import annotations
@@ -101,6 +108,10 @@ class TabView(Layout):
     #: on a double one), and the tabs, the arrows and the pages keep to what
     #: is between.
     joins_frame: bool = reactive(False)
+
+    #: Each tab's tooltip, in step with the pages; ``""`` or missing for none.
+    #: Translated in markup as a cluster's are.
+    tooltips: list[str] = reactive(factory=list)
 
     #: The tabs' boxes and the baseline.
     border = StyleProperty("single", values=tuple(BOX_CHARSETS))
@@ -391,6 +402,21 @@ class TabView(Layout):
         if at == self._length() - 1 and later:
             return 1
         return 0
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The tab's tooltip, its caption where cut, or which way an arrow goes."""
+        arrow = self._on_arrow(x, y)
+        if arrow:
+            return tr("Earlier tabs") if arrow < 0 else tr("Later tabs")
+        index = self.tab_at(x, y)
+        if index is None:
+            return super().tooltip_at(x, y)
+        if index < len(self.tooltips) and self.tooltips[index]:
+            return self.tooltips[index]
+        caption = self.captions()[index]
+        if self.side == "left" and len(caption) > self.column - 3:
+            return caption
+        return ""
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.is_wheel:

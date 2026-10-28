@@ -259,6 +259,21 @@ def test_bindings_leave_out_the_application_table_under_a_modal():
     assert set(app.bindings()) == {"ctrl+s", "f4"}
 
 
+def test_bindings_asked_from_inside_a_modal_leave_the_application_table_out_too():
+    """A dialog's button asking which key presses it: the application's table
+    would win every tie, and it is not consulted under the modal."""
+    root = Widget()
+    behind = root.add(Widget())
+    app = App(root=root)
+    dialog = Editor()
+    dialog.modal = True
+    app.overlay(dialog)
+    button = dialog.add(Widget())
+    assert set(app.bindings(button)) == {"ctrl+s", "f4"}
+    # From behind the modal it is the focus there that is asked about.
+    assert "ctrl+q" in app.bindings(behind)
+
+
 def test_enablement_is_reactive_through_what_enables_reads():
     from navkit.reactive import computed, reactive
 

@@ -20,6 +20,11 @@ It is a container of sections, `SETTINGS.interface.clock`, `SETTINGS.confirmatio
   touch the disk.
 - **An ini file is a departure.** DN kept a binary `DN.CFG` of tagged records (`DNUTIL.PAS` `WriteConfig`). The module
   docstring records why.
+- **A setting's `doc` is also its tooltip** on the setup page: a check box group seeded with `to_bits(Data.GROUP)`
+  sets `.tooltips = Data.tooltips(Data.GROUP)`, and any other control seeded from `self.section.NAME` sets
+  `.tooltip = self.section.tooltip("NAME")` (a field's line shows its field's, plus the whole text while cut). Both
+  go through `tr`, and `navigator/locales/__init__.py` yields every setting's doc for the catalogues. So a new
+  setting needs a doc that reads as a sentence, and `tools/i18n.py extract` then a translation.
 - **Writing.** `Settings.render()` writes through `navml.coder.Coder("ini")`, and `save()` writes it atomically
   (`mkstemp` in the same directory, then `os.replace`).
 - **`save(section=name)` re-reads the file first** and replaces only that section. A hand edit made while nav runs

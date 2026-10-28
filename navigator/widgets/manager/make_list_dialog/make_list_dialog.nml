@@ -40,3 +40,4 @@ MakeListDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 2
         items: ["~S~tore path names to list file", "A~u~todetermine necessity of path names"]
+        tooltips: ["Write each file's whole path, not its name alone", "Write a file's path only where it is not in the list file's own directory"]

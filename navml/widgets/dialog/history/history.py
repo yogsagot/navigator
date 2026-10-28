@@ -98,6 +98,19 @@ class History(Widget):
             link.history = None
         super().unmounting()
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What the button drops, and the key that drops it from the line:
+        Down, which the line takes for itself rather than through a key table.
+        A departure: ``THistory`` had no tooltip."""
+        own = super().tooltip_at(x, y)
+        if own:
+            return own
+        if self.choices:
+            return tr("Choose from the list ({key})").format(key="Down")
+        if self.history_id:
+            return tr("Earlier entries ({key})").format(key="Down")
+        return ""
+
     # -- the list ------------------------------------------------------------------
 
     def record(self) -> None:

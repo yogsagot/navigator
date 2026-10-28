@@ -73,8 +73,8 @@ def editor_items(editor: Any) -> tuple[OptionItem, ...]:
     The block's kind is the info line's ``(↔)``/``(↕)`` moved here, lit under
     *Vertical blocks*.  The info line shows it again while the strip is
     switched off."""
-    def switch(command: Any, word: Any, spellings: tuple[str, str]) -> OptionItem:
-        return OptionItem(command, lambda: option_label(word(), spellings, editor.glyphs))
+    def switch(command: Any, word: Any, spellings: tuple[str, str], tooltip: Any) -> OptionItem:
+        return OptionItem(command, lambda: option_label(word(), spellings, editor.glyphs), tooltip=tooltip)
 
     def block_label() -> str:
         if editor.vertical_blocks:
@@ -82,14 +82,16 @@ def editor_items(editor: Any) -> tuple[OptionItem, ...]:
         return option_label("-", STREAM_BLOCKS, editor.glyphs)
 
     return (
-        switch(SwitchInsert, lambda: tr("Ovr") if editor.overwrite else tr("Ins"), INSERT),
-        OptionItem(SwitchBlock, block_label),
-        switch(SwitchIndent, lambda: tr("Indent"), INDENT),
-        switch(SwitchSave, lambda: tr("Wrap"), WRAP),
-        switch(SwitchBrackets, lambda: tr("Brk"), BRACKETS),
-        switch(SwitchHighLight, lambda: tr("Hi"), HIGHLIGHT),
-        switch(SwitchHiddenChars, lambda: tr("Show"), HIDDEN),
-        OptionItem(ChooseFileType, lambda: _type_label(editor), lit=lambda: False),
+        switch(SwitchInsert, lambda: tr("Ovr") if editor.overwrite else tr("Ins"), INSERT,
+               lambda: tr("Insert or overwrite")),
+        OptionItem(SwitchBlock, block_label, tooltip=lambda: tr("Line or column blocks")),
+        switch(SwitchIndent, lambda: tr("Indent"), INDENT, lambda: tr("Indent new lines automatically")),
+        switch(SwitchSave, lambda: tr("Wrap"), WRAP, lambda: tr("Wrap lines at the right margin")),
+        switch(SwitchBrackets, lambda: tr("Brk"), BRACKETS, lambda: tr("Close brackets automatically")),
+        switch(SwitchHighLight, lambda: tr("Hi"), HIGHLIGHT, lambda: tr("Highlight the syntax")),
+        switch(SwitchHiddenChars, lambda: tr("Show"), HIDDEN, lambda: tr("Show hidden characters")),
+        OptionItem(ChooseFileType, lambda: _type_label(editor), lit=lambda: False,
+                   tooltip=lambda: tr("File type for highlighting")),
     )
 
 
@@ -108,8 +110,8 @@ def _format_label(viewer: Any) -> str:
 def viewer_items(viewer: Any) -> tuple[OptionItem, ...]:
     """The viewer's: the mode, Wrap, Syntax highlight, Hidden characters, the
     encoding, the file type and Markup view (``MD``, ``RST`` or ``HTML``)."""
-    def switch(command: Any, word: Any, spellings: tuple[str, str]) -> OptionItem:
-        return OptionItem(command, lambda: option_label(word(), spellings, viewer.glyphs))
+    def switch(command: Any, word: Any, spellings: tuple[str, str], tooltip: Any) -> OptionItem:
+        return OptionItem(command, lambda: option_label(word(), spellings, viewer.glyphs), tooltip=tooltip)
 
     def mode() -> str:
         return {"hex": tr("Hex"), "dump": tr("Dump")}.get(viewer.mode) or tr("Text")
@@ -118,13 +120,15 @@ def viewer_items(viewer: Any) -> tuple[OptionItem, ...]:
         return dict(viewer_model.ENCODINGS).get(viewer.encoding, viewer.encoding).split()[0]
 
     return (
-        OptionItem(HexMode, mode, lit=lambda: False),
-        switch(Unwrap, lambda: tr("Wrap"), WRAP),
-        switch(SwitchHighLight, lambda: tr("Hi"), HIGHLIGHT),
-        switch(SwitchHiddenChars, lambda: tr("Show"), HIDDEN),
-        OptionItem(ChooseEncoding, encoding, lit=lambda: False),
-        OptionItem(ChooseFileType, lambda: _type_label(viewer), lit=lambda: False),
+        OptionItem(HexMode, mode, lit=lambda: False, tooltip=lambda: tr("View as text, hex or dump")),
+        switch(Unwrap, lambda: tr("Wrap"), WRAP, lambda: tr("Wrap long lines")),
+        switch(SwitchHighLight, lambda: tr("Hi"), HIGHLIGHT, lambda: tr("Highlight the syntax")),
+        switch(SwitchHiddenChars, lambda: tr("Show"), HIDDEN, lambda: tr("Show hidden characters")),
+        OptionItem(ChooseEncoding, encoding, lit=lambda: False, tooltip=lambda: tr("Character encoding")),
+        OptionItem(ChooseFileType, lambda: _type_label(viewer), lit=lambda: False,
+                   tooltip=lambda: tr("File type for highlighting")),
         # Last, so a short frame -- hex mode's long info line -- drops it
         # first: it is greyed there anyway.
-        OptionItem(SwitchRendered, lambda: _format_label(viewer)),
+        OptionItem(SwitchRendered, lambda: _format_label(viewer),
+                   tooltip=lambda: tr("Show the markup rendered")),
     )

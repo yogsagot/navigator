@@ -29,9 +29,9 @@ flag = "LV"
 "~W~indows" = "~L~ogi"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~A~izvērt"
-# navml/commands.py:30
+# navml/commands.py:30, navml/widgets/window/window.py:273
 "Close" = "Aizvērt"
-# navml/commands.py:36
+# navml/commands.py:36, navml/widgets/window/window.py:275
 "Zoom" = "Izvērst"
 # navml/commands.py:76
 "List" = "Saraksts"
@@ -123,8 +123,12 @@ flag = "LV"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Meklēt: "
+# navml/widgets/dialog/history/history.py:109
+"Choose from the list ({key})" = "Izvēlēties no saraksta ({key})"
+# navml/widgets/dialog/history/history.py:111
+"Earlier entries ({key})" = "Agrākie ieraksti ({key})"
 # navml/widgets/dialog/input_line/input_line.py:377
 "Cu~t~" = "~I~zgriezt"
 # navml/widgets/dialog/input_line/input_line.py:378
@@ -135,20 +139,28 @@ flag = "LV"
 "C~l~ear" = "~T~īrīt"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Atlasīt ~v~isu"
-# navml/widgets/dialog/tab_view/tab_view.py:141
+# navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "Cilnes"
+# navml/widgets/dialog/tab_view/tab_view.py:410
+"Earlier tabs" = "Iepriekšējās cilnes"
+# navml/widgets/dialog/tab_view/tab_view.py:410
+"Later tabs" = "Nākamās cilnes"
 # navml/widgets/dialog/tree_view/tree_view.py:522
 "Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Move" = "Pārvietot"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Size" = "Izmērs"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Keep" = "Paturēt"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Undo" = "Atsaukt"
+# navml/widgets/window/window.py:275
+"Restore" = "Atjaunot"
+# navml/widgets/window/window.py:277
+"Drag to resize" = "Velciet, lai mainītu izmēru"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

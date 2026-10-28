@@ -45,6 +45,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, ClassVar
 
+from navkit.i18n import tr
 from navkit.reactive import Reactive
 from navml.coder import Coder
 
@@ -215,6 +216,27 @@ class Section:
     def from_bits(names: Iterable[str], bits: int) -> dict[str, bool]:
         """A ``CheckBoxes.value`` back into ``{name: ticked}``."""
         return {name: bool(bits >> i & 1) for i, name in enumerate(names)}
+
+    @classmethod
+    def tooltip(cls, name: str) -> str:
+        """Setting *name*'s doc, the ``navigator.ini`` comment, translated: a
+        setup page's tooltip for the control that sets it."""
+        field = cls.field(name)
+        return tr(field.doc) if field is not None else ""
+
+    @classmethod
+    def tooltips(cls, names: Iterable[str]) -> list[str]:
+        """:meth:`tooltip` for each of *names*: a ``CheckBoxes.tooltips``
+        in step with the value :meth:`to_bits` gives it."""
+        return [cls.tooltip(name) for name in names]
+
+    @classmethod
+    def bit_groups(cls) -> list[tuple[str, ...]]:
+        """The tuples of setting names a page turns into check boxes
+        (``OPTIONS``, ``DISPLAY``...): the class's upper-case tuples of names."""
+        return [value for key, value in vars(cls).items()
+                if key.isupper() and isinstance(value, tuple)
+                and value and all(isinstance(name, str) and cls.field(name) for name in value)]
 
 
 # -- the sections ---------------------------------------------------------------
@@ -427,6 +449,11 @@ class InterfaceData(Section):
         "numbers", choices=("off", "numbers", "full"),
         doc="The windows listed on the menu bar, Win+1 .. Win+9's numbers: "
             "off, numbers alone, or numbers and titles",
+    )
+    #: Not DN's, which had no tooltips: how long the mouse pointer rests on
+    #: something before its tooltip shows (navkit's ``tooltip_delay``).
+    tooltip_delay: int = Setting(
+        1000, doc="Milliseconds the mouse pointer rests on something before its tooltip shows, 0 for none",
     )
 
 

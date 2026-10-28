@@ -24,9 +24,13 @@ class CountryPage(Widget):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.country
         self.date_format.value = CountryData.DATES.index(self.section.date_format)
+        self.date_format.tooltip = self.section.tooltip("date_format")
         self.time_format.value = HOURS.index(self.section.time_format)
+        self.time_format.tooltip = self.section.tooltip("time_format")
         self.custom_date.value = self.section.custom_date
+        self.custom_date.tooltip = self.section.tooltip("custom_date")
         self.first_day.value = CountryData.WEEKS.index(self.section.first_day)
+        self.first_day.tooltip = self.section.tooltip("first_day")
         self.example.text = bind(lambda w: tr("Example: {stamp}").format(stamp=self.sample()))
 
     def chosen_format(self) -> str:

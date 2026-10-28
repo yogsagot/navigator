@@ -18,11 +18,17 @@ class SystemSetupPage(Widget):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.system
         self.options.value = self.section.to_bits(SystemData.OPTIONS)
+        self.options.tooltips = SystemData.tooltips(SystemData.OPTIONS)
         self.temp_dir.value = self.section.temp_dir
+        self.temp_dir.tooltip = self.section.tooltip("temp_dir")
         self.on_error.value = ON_ERROR.index(self.section.on_error)
+        self.on_error.tooltip = self.section.tooltip("on_error")
         self.stall_report.value = f"{self.section.stall_report:03d}"
+        self.stall_report.tooltip = self.section.tooltip("stall_report")
         self.elevate.value = ELEVATE.index(self.section.elevate)
+        self.elevate.tooltip = self.section.tooltip("elevate")
         self.root_timeout.value = f"{self.section.root_timeout:03d}"
+        self.root_timeout.tooltip = self.section.tooltip("root_timeout")
 
     def accept(self) -> dict[str, Any]:
         values: dict[str, Any] = SystemData.from_bits(SystemData.OPTIONS, self.options.value)

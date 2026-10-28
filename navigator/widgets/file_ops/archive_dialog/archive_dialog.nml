@@ -109,6 +109,7 @@ ArchiveDialog(Dialog):
         width: max(0, parent.width - 42)
         height: 3
         items: ["Store path~n~ames", "Mo~v~e files", "Follow s~y~mlinks"]
+        tooltips: ["Keep each file's directories inside the archive, not its name alone", "Delete the files once they are in the archive", "Pack what a link points to, not the link itself"]
 
     #: Which types are greyed, and what to install for them.
     StaticText:

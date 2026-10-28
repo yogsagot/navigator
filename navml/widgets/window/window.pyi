@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navml.component import Component as _Component
 
 from typing import Any
+from navkit import commands
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr
@@ -13,6 +14,7 @@ from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget
+from navml.commands import CloseWindow, SizeMoveWindow, ZoomWindow
 
 
 class Window(_Component):
@@ -45,6 +47,7 @@ class Window(_Component):
     def _icons(self) -> dict[str, int]: ...
     def _has_grip(self) -> bool: ...
     def chrome_hit(self, x: int, y: int) -> str | None: ...
+    def tooltip_at(self, x: int, y: int) -> str: ...
     def render(self, surface: Surface) -> None: ...
     def render_after(self, surface: Surface) -> None: ...
     def key_hints(self) -> list[tuple[str, str]]: ...

@@ -54,6 +54,13 @@ AttrDialog(Dialog):
     #: frame at both ends.
     TabView:
         id: tabs
+        #: What each page holds, a tab's tooltip, in the pages' order.
+        tooltips: [
+            "Permissions, owner, group and modification time",
+            "Access control list: permissions for particular users and groups",
+            "Extended attributes: names and values kept with the file",
+            "File system flags, such as immutable and append-only",
+        ]
         x: 0
         y: 3
         width: parent.width
@@ -83,6 +90,7 @@ AttrDialog(Dialog):
                 width: max(0, parent.width - 6)
                 height: 3
                 items: ["Read", "Write", "Exec", "Read", "Write", "Exec", "Read", "Write", "Exec", "Set UID", "Set GID", "Sticky"]
+                tooltips: ["", "", "", "", "", "", "", "", "", "Run with the file owner's rights", "Run with the group's rights; in a directory, new files take its group", "In a directory, only a file's owner may delete or rename it"]
 
             #: The mode as ``chmod`` takes it: four octal digits, each setting
             #: the three boxes it stands for.
@@ -286,6 +294,7 @@ AttrDialog(Dialog):
                 width: max(0, parent.width - 6)
                 height: 3
                 items: ["Immutable", "Append", "No dump", "No atime", "Sync", "Dir sync", "No COW", "Compress", "Journal", "Top dir", "Secure rm", "Undelete"]
+                tooltips: ["No one may change, rename or delete it, root included", "It can only be added to", "Left out of backups made with dump", "Its access time is never updated", "Its changes are written to the disk at once", "Changes to this directory are written to the disk at once", "Rewritten in place rather than copied on write (btrfs)", "Compressed by the file system", "Its data goes through the file system's journal", "The top of a directory tree, for where the file system places blocks", "Its blocks are cleared when it is deleted, where the file system can", "Its contents are kept when it is deleted, where the file system can"]
 
             StaticText:
                 id: lsattr

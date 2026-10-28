@@ -86,6 +86,7 @@ GameWindow(Window):
     SubMenu:
         id: game_menu
         text: '~G~ame'
+        tooltip: "A new game, pause, the Top Ten and setup"
         after: 'File'
         MenuItem:
             text: '~N~ew'
@@ -102,9 +103,11 @@ GameWindow(Window):
         MenuLine:
         MenuItem:
             text: '~L~evel up'
+            tooltip: "Play at the next level, faster"
             command: LevelUp
         MenuItem:
             text: 'Pre~v~iew'
+            tooltip: "Show the next figure"
             command: TogglePreview
         MenuLine:
         MenuItem:

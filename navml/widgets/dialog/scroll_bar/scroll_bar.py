@@ -59,6 +59,10 @@ class ScrollBar(Widget):
     #: writes one rule naming both.
     parts = ("arrow", "thumb")
 
+    #: No tooltip, and none of its owner's: a list asked about the bar's
+    #: position would name the row beside it, a text the line.
+    tooltip_passes = False
+
     @property
     def vertical(self) -> bool:
         return self.orientation != "horizontal"

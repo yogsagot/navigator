@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from navkit import commands
 from navkit.events import Event, KeyEvent, KeyReleaseEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, effect
@@ -19,6 +20,7 @@ from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
+from navml.widgets.dialog.commands import Cancel, Default
 from navml.widgets.dialog.control import Control
 
 if TYPE_CHECKING:
@@ -91,6 +93,11 @@ class Button(Control):
     with no group to hold them -- and the tab order already has them
     together, hidden and disabled ones left out, and stops at the first
     control that is not a button.
+
+    **Its tooltip names the keys that press it** -- the dialog's Enter on the
+    default button, its Esc on Cancel, and Alt with the caption's letter --
+    read off the key tables, so a rebound key is the one named; a
+    ``tooltip`` of its own comes first.  A departure: ``TButton`` had none.
     """
 
     #: What this widget emits, read through :func:`navkit.events.emitted`.
@@ -133,6 +140,34 @@ class Button(Control):
     def marked(self) -> bool:
         """Whether ``▶`` and ``◀`` are drawn: the button Enter would press."""
         return not self.inert and (self.focused or self.am_default)
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """``Enter, Alt-K``; after the button's own tooltip, in brackets."""
+        own = super().tooltip_at(x, y)
+        keys = ", ".join(self.press_keys())
+        if own and keys:
+            return f"{own} ({keys})"
+        return own or keys
+
+    def press_keys(self) -> list[str]:
+        """The keys that press this button from anywhere in its dialog, as
+        a menu spells them: the dialog's Default key if this is its default
+        button, its Cancel key if this is its ``cancel``, and the shortcut."""
+        app = self.application
+        if app is None:
+            return []
+        found = []
+        if self.default:
+            key = commands.key_for(app, Default, self)
+            if key:
+                found.append(commands.key_label(key))
+        if getattr(_dialog_of(self), "cancel", None) is self:
+            key = commands.key_for(app, Cancel, self)
+            if key:
+                found.append(commands.key_label(key))
+        if self.shortcut:
+            found.append(commands.key_label(f"alt+{self.shortcut}"))
+        return found
 
     async def press(self) -> bool:
         """Emit the click.  False if disabled, or if nothing claimed it."""

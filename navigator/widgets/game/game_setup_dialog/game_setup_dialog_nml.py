@@ -45,8 +45,8 @@ class GameSetupDialog(Dialog, _Component):
     game_style: RadioButtons    # game_setup_dialog.nml:42
     options_caption: Label    # game_setup_dialog.nml:50
     options: CheckBoxes    # game_setup_dialog.nml:59
-    pick: Button    # game_setup_dialog.nml:67
-    abandon: Button    # game_setup_dialog.nml:76
+    pick: Button    # game_setup_dialog.nml:68
+    abandon: Button    # game_setup_dialog.nml:77
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -56,11 +56,11 @@ class GameSetupDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:67
+    async def on_pick_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:68
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:76
+    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:77
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -72,8 +72,8 @@ class GameSetupDialog(Dialog, _Component):
         self.game_style = RadioButtons(parent=self)    # game_setup_dialog.nml:41
         self.options_caption = Label(parent=self)    # game_setup_dialog.nml:49
         self.options = CheckBoxes(parent=self)    # game_setup_dialog.nml:58
-        self.pick = Button(parent=self)    # game_setup_dialog.nml:66
-        self.abandon = Button(parent=self)    # game_setup_dialog.nml:75
+        self.pick = Button(parent=self)    # game_setup_dialog.nml:67
+        self.abandon = Button(parent=self)    # game_setup_dialog.nml:76
 
         self.modal_width = 53    # game_setup_dialog.nml:11
         self.modal_height = 15    # game_setup_dialog.nml:12
@@ -132,18 +132,22 @@ class GameSetupDialog(Dialog, _Component):
             lambda _o: [_tr('~P~iece preview')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # game_setup_dialog.nml:65
+            lambda _o: [_tr('Show the next piece (it scores less)')],
+            yielding=True,
+        )
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # game_setup_dialog.nml:68
-        self.pick.default = True    # game_setup_dialog.nml:69
-        self.pick.x = 40    # game_setup_dialog.nml:70
-        self.pick.y = 9    # game_setup_dialog.nml:71
-        self.pick.width = 11    # game_setup_dialog.nml:72
-        self.pick.height = 2    # game_setup_dialog.nml:73
-        self.pick.on_click = self.on_pick_click    # game_setup_dialog.nml:67
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # game_setup_dialog.nml:69
+        self.pick.default = True    # game_setup_dialog.nml:70
+        self.pick.x = 40    # game_setup_dialog.nml:71
+        self.pick.y = 9    # game_setup_dialog.nml:72
+        self.pick.width = 11    # game_setup_dialog.nml:73
+        self.pick.height = 2    # game_setup_dialog.nml:74
+        self.pick.on_click = self.on_pick_click    # game_setup_dialog.nml:68
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:77
-        self.abandon.x = 40    # game_setup_dialog.nml:78
-        self.abandon.y = 11    # game_setup_dialog.nml:79
-        self.abandon.width = 11    # game_setup_dialog.nml:80
-        self.abandon.height = 2    # game_setup_dialog.nml:81
-        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:76
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:78
+        self.abandon.x = 40    # game_setup_dialog.nml:79
+        self.abandon.y = 11    # game_setup_dialog.nml:80
+        self.abandon.width = 11    # game_setup_dialog.nml:81
+        self.abandon.height = 2    # game_setup_dialog.nml:82
+        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:77

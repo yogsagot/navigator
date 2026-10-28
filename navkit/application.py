@@ -54,6 +54,7 @@ from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.screen import ScreenBuffer, Surface, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
+from navkit.tooltip import Tooltip
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
 from navkit import clipboard, commands
 from navkit.widget import Widget, _call, check_handlers
@@ -75,6 +76,10 @@ DOUBLE_CLICK_TIMEOUT = 0.4
 #: ``clipboard-read = ask``), and one that never answers (VTE, JediTerm) is
 #: the case this is for.
 CLIPBOARD_ANSWER_TIMEOUT = 0.5
+
+#: Milliseconds the mouse pointer must rest on a widget with a tooltip before
+#: the tooltip shows.  Overridable per application (``tooltip_delay=``); zero off.
+TOOLTIP_DELAY = 1000
 
 #: How many failures :meth:`Application.report_error` may be offered inside
 #: :data:`ERROR_STORM_WINDOW` seconds before the next one stops the
@@ -109,9 +114,12 @@ class Repeat:
         app: Application,
         seconds: float,
         callback: Callable[[], Awaitable[Any]],
+        once: bool = False,
     ) -> None:
         self.seconds = seconds
         self.callback = callback
+        #: Ticks once and is done: :meth:`Application.call_later`'s.
+        self.once = once
         #: True once :meth:`cancel` has run, or the application stopped.
         self.cancelled = False
         self._app = app
@@ -144,6 +152,8 @@ class Repeat:
         if self.cancelled:
             return
         self._app.post_event(_Tick(self))
+        if self.once:
+            return
         now = loop.time()
         self._next += self.seconds
         if self._next <= now:
@@ -339,6 +349,7 @@ class Application:
         max_fps: int = 60,
         mouse: bool = True,
         double_click: float = DOUBLE_CLICK_TIMEOUT,
+        tooltip_delay: int = TOOLTIP_DELAY,
         palette: tuple[tuple[int, int, int], ...] | None = None,
         reprogram_palette: bool = False,
         dim_modal: bool = False,
@@ -408,6 +419,11 @@ class Application:
         self._escape_timer: asyncio.TimerHandle | None = None
         #: Turns two presses and a clock into a double-click.  Zero off.
         self._clicks = ClickTracker(double_click)
+        #: Milliseconds the pointer rests before a tooltip shows; zero for none.
+        self.tooltip_delay = tooltip_delay
+        #: The tooltip waiting for the pointer to rest, and the one shown.
+        self._tooltip_timer: Repeat | None = None
+        self._tooltip: Widget | None = None
         #: Work started by :meth:`spawn`, held so that nothing is collected
         #: mid-flight and everything can be cancelled on the way out.
         self._tasks: set[asyncio.Task[Any]] = set()
@@ -730,7 +746,23 @@ class Application:
             raise ValueError(f"call_every needs a positive interval, not {seconds!r}")
         if not inspect.iscoroutinefunction(callback):
             raise TypeError(f"call_every needs an async callback, not {callback!r}")
-        repeat = Repeat(self, seconds, callback)
+        return self._schedule(Repeat(self, seconds, callback))
+
+    def call_later(
+        self, seconds: float, callback: Callable[[], Awaitable[Any]]
+    ) -> Repeat:
+        """Await *callback* once, *seconds* from now, inside a batch.
+
+        :meth:`call_every` ticking once: the same handle, cancellable until
+        the tick has run, and the same path through the event queue.
+        """
+        if not seconds > 0:
+            raise ValueError(f"call_later needs a positive delay, not {seconds!r}")
+        if not inspect.iscoroutinefunction(callback):
+            raise TypeError(f"call_later needs an async callback, not {callback!r}")
+        return self._schedule(Repeat(self, seconds, callback, once=True))
+
+    def _schedule(self, repeat: Repeat) -> Repeat:
         self._repeats.add(repeat)
         if self._running and self._loop is not None:
             repeat._arm(self._loop)
@@ -1359,6 +1391,9 @@ class Application:
             # the way the pointer's position is: nothing is offered it.
             self.modifiers = event.modifiers
             return
+        # Any input takes a tooltip away, shown or waiting; only the pointer
+        # coming to rest (below) asks for one again.
+        self._drop_tooltip()
         # Saved and restored rather than set and cleared: `_handle' returns
         # early for a claimed event and re-enters itself for a double click,
         # so a plain reset would report "not dispatching" while the outer call
@@ -1372,6 +1407,8 @@ class Application:
             # written for presses, releases and drags, and all a motion can
             # mean on its own is "the pointer is here now".
             self._hover(event)
+            if self.tooltip_delay > 0:
+                self._tooltip_timer = self.call_later(self.tooltip_delay / 1000, self._show_tooltip)
             return
         dispatching, self._dispatching = self._dispatching, True
         try:
@@ -1475,6 +1512,8 @@ class Application:
         """
         if repeat.cancelled:
             return
+        if repeat.once:
+            repeat.cancel()
         dispatching, self._dispatching = self._dispatching, True
         try:
             await repeat.callback()
@@ -1507,6 +1546,50 @@ class Application:
         hook = getattr(self, event.handler, None)
         if hook is None or not await _call(self, event, hook):
             await self._dispatch_mouse(event)
+
+    # -- tooltips ---------------------------------------------------------------
+
+    def tooltip_here(self) -> str:
+        """The tooltip for where the pointer is, or ``""``.
+
+        Asked of the widget under the pointer (:attr:`hovered`) and then its
+        ancestors, nearest first, each in its own coordinates
+        (:meth:`Widget.tooltip_at`): a widget without one shows what it sits
+        in says -- unless it is one that stops the walk
+        (:attr:`Widget.tooltip_passes`).
+        """
+        if self.pointer is None:
+            return ""
+        px, py = self.pointer
+        widget = self.hovered
+        while widget is not None:
+            ox, oy = widget.offset()
+            text = widget.tooltip_at(px - ox - widget.x, py - oy - widget.y)
+            if text or not widget.tooltip_passes:
+                return text
+            widget = widget.parent
+        return ""
+
+    async def _show_tooltip(self) -> None:
+        """The pointer rested: put up what it rests on says, if anything.
+
+        As the root's last child, over everything -- a modal too, since what
+        stands after a modal is painted after it.
+        """
+        self._tooltip_timer = None
+        text = self.tooltip_here()
+        if not text or self._root is None or self.pointer is None:
+            return
+        self._tooltip = self.overlay(Tooltip(text, self.pointer))
+
+    def _drop_tooltip(self) -> None:
+        """Forget the tooltip waiting to show and take down the one shown."""
+        if self._tooltip_timer is not None:
+            self._tooltip_timer.cancel()
+            self._tooltip_timer = None
+        tooltip, self._tooltip = self._tooltip, None
+        if tooltip is not None and tooltip.parent is not None:
+            tooltip.parent.remove(tooltip)
 
     def _hover(self, event: MouseClickEvent) -> None:
         """Move :attr:`hovered` to whatever is under *event*'s position.

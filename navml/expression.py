@@ -65,7 +65,7 @@ TRANSLATE = "_tr"
 #: ``title: "Copy"`` compiles to ``_bind(lambda _o: _tr('Copy'))``.  Anything
 #: else -- ``key:``, ``history_id:``, ``align:``, a menu's ``after:`` anchor --
 #: is a name the program reads, not text a person does.
-TRANSLATED = frozenset({"text", "title", "label_text", "items", "prompt"})
+TRANSLATED = frozenset({"text", "title", "label_text", "items", "prompt", "tooltip", "tooltips"})
 
 #: The functions that read the current language, so an expression calling one
 #: is followed like one reading the widget.

@@ -412,6 +412,21 @@ class InputLine(Control):
             self.select_all()
         return taken
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What the line is for, and the whole text while it is cut.
+
+        What it is for is its own ``tooltip``, else its parent's: a field's
+        label and line are its two halves (``Field``, ``MaskedField``), and a
+        page says what the field sets on the field.  The whole text follows
+        on a line of its own while ``◄`` or ``►`` says some is out of sight --
+        never a password's.  A departure: ``TInputLine`` had no tooltip.
+        """
+        own = self.tooltip or getattr(self.parent, "tooltip", "")
+        cut = not self.password and len(self.value) > self.room
+        if own and cut:
+            return f"{own}\n{self.value}"
+        return own or (self.value if cut else "")
+
     def cursor_position(self) -> tuple[int, int] | None:
         """Where the terminal's own cursor belongs, in this widget."""
         return self.text_origin + self.cursor - self.first, 0

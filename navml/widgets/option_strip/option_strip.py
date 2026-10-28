@@ -25,6 +25,11 @@ border the frame's own line shows through in the frame's colours --
 take, and the items that would pass :attr:`OptionStrip.room` are left out from
 the last -- so whoever places the strip binds its width to the one and gives it
 the other.
+
+**A label alone is cryptic, so each item says what it is** in a tooltip
+(navkit's :attr:`~navkit.widget.Widget.tooltip`, shown while the mouse rests on
+it): the item's own words and the key that runs its command, ``Show hidden
+files (Ctrl-H)``.
 """
 
 from __future__ import annotations
@@ -33,7 +38,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from navkit import commands
-from navkit.commands import Binding
+from navkit.commands import Binding, key_label
 from navkit.events import MouseClickEvent
 from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.reactive import computed, reactive
@@ -48,12 +53,15 @@ class OptionItem:
     *label* is called while painting and while laying out, so whatever
     reactive it reads -- the mode it names, the language -- is followed.  *lit*
     overrides the command's ``checks``: a value such as the file type is never
-    lit, and Insert/Overwrite is lit in overwrite.
+    lit, and Insert/Overwrite is lit in overwrite.  *tooltip* says what the
+    option is, called when the tooltip shows -- a callable so the caller's
+    ``tr("...")`` is a literal the catalogue extraction finds.
     """
 
     command: Binding
     label: Callable[[], str]
     lit: Callable[[], bool] | None = None
+    tooltip: Callable[[], str] | None = None
 
 
 def option_label(word: str, spellings: tuple[str, str], glyphs: int) -> str:
@@ -123,6 +131,24 @@ class OptionStrip(Widget):
             lit = commands.checked(app, item.command, self.target) is True
         return lit and enabled, enabled
 
+    def item_at(self, x: int) -> OptionItem | None:
+        """The item shown at column *x*, brackets included, or None between."""
+        for start, end, item, _label in self.spans:
+            if start <= x < end:
+                return item
+        return None
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The item's tooltip and the key for its command, if one is bound;
+        between items, the strip's own."""
+        item = self.item_at(x)
+        if item is None or item.tooltip is None:
+            return super().tooltip_at(x, y)
+        text = item.tooltip()
+        app = self.application
+        key = commands.key_for(app, item.command, self.target) if app is not None else None
+        return f"{text} ({key_label(key)})" if key else text
+
     def render(self, surface: Surface) -> None:
         # No fill: what is between the items is whatever lies beneath.
         for start, _end, item, label in self.spans:
@@ -136,9 +162,7 @@ class OptionStrip(Widget):
         if event.action != "press" or event.button != "left":
             return True
         app = self.application
-        for start, end, item, _label in self.spans:
-            if start <= event.x < end and app is not None:
-                if commands.enabled(app, item.command, self.target):
-                    await commands.run(app, item.command, self.target)
-                break
+        item = self.item_at(event.x)
+        if item is not None and app is not None and commands.enabled(app, item.command, self.target):
+            await commands.run(app, item.command, self.target)
         return True

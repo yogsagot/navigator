@@ -142,6 +142,15 @@ class Widget:
     #: What ``#name`` matches.  Deliberately not a ``navml`` ``id``, which is a
     #: compile-time label with no run-time existence -- see navml/DESIGN.md.
     name: str = reactive("")
+    #: What resting the mouse pointer on this widget shows beside it, after
+    #: ``Application.tooltip_delay`` milliseconds; empty for none.  A widget
+    #: without one shows its nearest ancestor's.  See :meth:`tooltip_at`.
+    tooltip: str = reactive("")
+    #: Whether, with no tooltip of its own, this widget lets its ancestors
+    #: answer for it -- as most do: a label shows its field's.  False for a
+    #: widget whose ancestors would answer about something else, such as a
+    #: list's scroll bar, over which the list would name the row at that height.
+    tooltip_passes = True
     #: What ``.tag`` matches.  Frozen because the reactive layer counts a change
     #: only when a collection is *replaced*: a mutable set would be mutated in
     #: place and notify nothing.  Use :meth:`add_class` / :meth:`remove_class`.
@@ -849,6 +858,14 @@ class Widget:
         """
         app = self.application
         return app is not None and self._holds(app.hovered)
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The tooltip for *x*, *y* in this widget's own coordinates.
+
+        :attr:`tooltip` wherever the point is.  A widget that paints several
+        things -- a row of options -- overrides it to say which one is there.
+        """
+        return self.tooltip
 
     def focus(self) -> bool:
         """Take the keyboard.  False if this widget cannot have it.

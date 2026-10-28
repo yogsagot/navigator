@@ -68,3 +68,7 @@ class PasswordDialog(Dialog, _Component):
             lambda _o: [_tr('~S~ave in keyring')],
             yielding=True,
         )
+        self.keep.tooltips = _bind(    # password_dialog.nml:32
+            lambda _o: [_tr("Remember the password in the desktop's keyring, so it is not asked again")],
+            yielding=True,
+        )

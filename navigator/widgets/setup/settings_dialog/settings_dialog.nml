@@ -40,6 +40,22 @@ SettingsDialog(Dialog):
     #: neither the strip nor a page claims.
     TabView:
         id: tabs
+        #: What each page holds, a tab's tooltip, in the pages' order.
+        tooltips: [
+            "The internal editor and viewer, the clipboard, temporary files, failures and root access",
+            "What Navigator does when it starts and when it quits",
+            "The clock, the menu and key bars, the command line, histories, language and looks",
+            "Which actions ask before they act",
+            "Screen savers: which, after how long, and the mouse corners",
+            "How dates and times are written, and the first day of the week",
+            "The editor's and the viewer's defaults",
+            "How the file panels behave and look",
+            "What the information panel (Ctrl+L) shows",
+            "How a new file manager's panels start",
+            "The columns a panel shows on the disk, in a Find: listing and in an archive",
+            "Which files the panels show in which colour",
+            "Remote connections: keep-alive, timeouts, idle links and changed files",
+        ]
         x: 1 if self.side == "left" else 0
         y: 0 if self.side == "left" else 1
         width: max(0, parent.width - (2 if self.side == "left" else 0))

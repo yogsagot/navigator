@@ -17,6 +17,7 @@ class ConfirmationsPage(Widget):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.confirmations
         self.options.value = self.section.to_bits(ConfirmsData.OPTIONS)
+        self.options.tooltips = ConfirmsData.tooltips(ConfirmsData.OPTIONS)
 
     def accept(self) -> dict[str, Any]:
         return ConfirmsData.from_bits(ConfirmsData.OPTIONS, self.options.value)

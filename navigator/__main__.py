@@ -171,6 +171,7 @@ class Navigator(Application):
         self._watchdog = errorlog.start_watchdog(self, SETTINGS.system.stall_report)
         if self._watchdog is not None:
             effect(self.shell, self._follow_stall_report)
+        effect(self.shell, self._follow_tooltip_delay)
         self.call_every(self.idle_check_every, self._check_idle)
         # *Communications*' *Close an idle connection after*.
         self.call_every(60.0, self.shell.reap_connections)
@@ -187,6 +188,10 @@ class Navigator(Application):
         watchdog's thread reads a plain number, never the setting."""
         if self._watchdog is not None:
             self._watchdog.threshold = SETTINGS.system.stall_report
+
+    def _follow_tooltip_delay(self, _shell: Shell) -> None:
+        """Interface Setup's *Tooltip delay* in force at once."""
+        self.tooltip_delay = max(0, SETTINGS.interface.tooltip_delay)
 
     async def _restore_desktop(self) -> None:
         """Startup's *Autosave desktop*: the desktop saved on the way out last

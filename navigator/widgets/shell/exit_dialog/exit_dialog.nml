@@ -40,3 +40,4 @@ ExitDialog(Dialog):
         width: 22
         height: 1
         items: ["~D~on't ask again"]
+        tooltips: ["Quit without asking from now on (Options > Confirmations)"]

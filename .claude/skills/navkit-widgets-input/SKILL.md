@@ -104,10 +104,20 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   same route. It is not raised when a widget held the capture before the press, when the press took it, or for a
   press outside the modal. navkit says where a menu was asked for; navml's `ContextMenuHost` decides what it is
   (`navml-windows-menus`). `run_command(binding, start=)` runs a command from a widget other than the focus.
+- **`bindings(app, start)` / `key_for`** add the application's table only when there is no modal or *start* lies
+  outside it (asking about the focus behind it); a *start* inside the modal gets the modal's keys, as a key would.
 - **The one clock is `Application.call_every(seconds, async_callback)`**, returning a cancellable `Repeat`; callable
   before the loop runs; every tick is posted and awaited inside a dispatch.
 - Hover: a position the application keeps (`hovered` state). `Application.pointer` is the last reported `(x, y)` of
   any mouse report, plain motion included -- a plain attribute, not reactive (the screen savers' corners read it).
+- **Tooltips**: `Widget.tooltip` (a string, `""` for none; translated in markup) shows beside the pointer after it
+  rests `Application.tooltip_delay` milliseconds (1000, `TOOLTIP_DELAY`; 0 off). Asked through `Widget.tooltip_at(x, y)`,
+  own coordinates, from `hovered` up -- the nearest non-empty wins; a widget painting several things (navml's
+  `OptionStrip`, and `Window`'s chrome icons through `chrome_hit`) overrides it. A widget with `tooltip_passes = False` stops the
+  climb: navml's `ScrollBar`, which its list would otherwise answer for with the row at that height. **Only a plain motion arms it** (`Application.call_later`, a one-shot `Repeat`);
+  **any other input but a tick drops it**, shown or pending. Shown as navkit's `Tooltip` overlaid as the root's last
+  child (so over a modal too), geometry bound, flipping left/up at the edges. No mode 1003, no tooltips.
+  Navigator follows Interface Setup's *Tooltip delay* (`[interface] tooltip_delay`) by an effect in `on_start`.
 
 ## Commands and key tables
 
@@ -147,6 +157,8 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   out, the nearest winning a label; a hint labelled `F2` takes F2's slot, the rest lead before the function keys
   (they say what the keyboard does now; a panel's ten F-keys fill 80 columns, so the last give way). Hints are
   `Hint` items: never greyed, a click does nothing. Tests read them with conftest's `key_bar_hints(app)`.
+- **A key bar item's tooltip is its command's menu path** (`File > Make directory`, `...` dropped) through
+  `KeyBar.menu.path_to()`; a command in no menu shows its caption, a hint nothing.
 
 ## Read when
 
@@ -161,5 +173,6 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
 | `reference/double-click.md` | the double-click detector |
 | `reference/timers.md` | `call_every` |
 | `reference/commands.md` | commands, key tables, enabled-by-nearest-handler |
-| `reference/hover.md` | hover |
+| `reference/hover.md` | hover, tooltips |
+| `reference/tooltip-backlog.md` | choosing the next tooltip to add, or changing how tooltips work |
 | `reference/still-open.md` | navkit's open questions |

@@ -13,7 +13,7 @@ from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.lib.config.usermenu import Side, caption, expand, find_menu, parse, script_text
+from navigator.lib.config.usermenu import Side, caption, expand, find_menu, parse, preview, script_text
 from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.popup_menu import PopupMenu
 
@@ -300,3 +300,35 @@ def test_escape_runs_nothing(place):
     run_app(app, [lambda a: capture(a, ran), KeyEvent("f2"), Until(lambda a: popup(a) is not None),
                   KeyEvent("escape"), lambda a: None])
     assert ran == []
+
+
+# -- tooltips -------------------------------------------------------------------
+
+
+def test_an_items_preview_is_its_lines_with_the_panels_macros_in_and_its_numbers_as_written():
+    menu = parse(SAMPLE + "~P~ack = <|\n    tar tvf !.!\n~B~ig = " + "\n    ".join(f"echo {n}" for n in range(20)) + "\n")
+    items = {parse_shortcut(e.caption)[0]: e for e in menu.walk() if e.commands}
+    # The macros of both panels in, quoted as they will run; %1 and %3 left for the run.
+    assert preview(menu.commands(items["F5 Edit !.!"]), ACTIVE, PASSIVE) == \
+        "vi '/home/me/my dir/''read me'.txt\ncp %1 / %3 $HOME"
+    assert preview(menu.commands(items["Define..."]), ACTIVE, PASSIVE) == "Asks for parameters first\n%3 %4"
+    assert preview(menu.commands(items["Pack"]), ACTIVE, PASSIVE).startswith(
+        "Its output becomes the active panel's listing\n")
+    big = preview(menu.commands(items["Big"]), ACTIVE, PASSIVE).split("\n")
+    assert len(big) == 12 and big[-1] == "..."
+
+
+def test_f2s_items_say_what_they_will_run_in_the_box(place):
+    app = navigator(place)
+    seen = {}
+
+    def look(a):
+        box = popup(a).box
+        entries = {parse_shortcut(e.text)[0]: e for e in box.entries() if hasattr(e, "text")}
+        seen["edit"] = entries["F5 Edit a.txt"].tooltip
+        seen["list"] = entries["List"].tooltip
+        a.post_event(KeyEvent("escape"))
+
+    run_app(app, [to("a.txt"), KeyEvent("f2"), Until(lambda a: popup(a) is not None), look])
+    assert seen["edit"] == f"vi {place}/a.txt\ncp %1 {place}/ %3 $HOME"
+    assert seen["list"] == "cat %1"

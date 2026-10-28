@@ -17,6 +17,7 @@ class DriveInfoPage(Widget):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.drive_info
         self.options.value = self.section.to_bits(DriveInfoData.OPTIONS)
+        self.options.tooltips = DriveInfoData.tooltips(DriveInfoData.OPTIONS)
 
     def accept(self) -> dict[str, Any]:
         return DriveInfoData.from_bits(DriveInfoData.OPTIONS, self.options.value)

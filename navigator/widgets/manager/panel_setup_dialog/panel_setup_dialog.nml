@@ -33,6 +33,7 @@ PanelSetupDialog(Dialog):
         width: 22
         height: 1
         items: ["Re~v~erse order"]
+        tooltips: ["The order runs the other way: largest, newest, Z first..."]
 
     RadioButtons:
         id: sort_by

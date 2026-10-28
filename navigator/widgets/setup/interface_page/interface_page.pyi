@@ -22,6 +22,7 @@ class InterfacePage(_Component):
     title: str
     options: CheckBoxes
     history_size: MaskedField
+    tooltip_delay: MaskedField
     language: ChoiceField
     colors: ChoiceField
     glyphs_tier: ChoiceField

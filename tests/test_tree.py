@@ -932,3 +932,35 @@ def test_the_ctrl_t_tree_s_right_click_menu_goes_there_and_closes_it(places):
                              ("Close tree", "Ctrl-T")]
     assert seen["at"] == seen["target"]  # the right click moved the cursor there first
     assert seen["tree"] is False
+
+
+# -- tooltips -------------------------------------------------------------------
+
+
+def test_a_tree_node_names_itself_whole_while_cut():
+    long = "a-directory-with-a-long-name"
+    deep = node("a", node("b", node("c", node("d", node(long), expanded=True), expanded=True), expanded=True),
+                expanded=True)
+    _app, tree = mounted_tree(node("/", node("bin"), deep, expanded=True), width=20)
+    top = tree.inset + tree.header
+    at = {row.node.name: i for i, row in enumerate(tree.items)}
+    assert tree.shift == 0
+    assert tree.tooltip_at(3, top + at["bin"]) == ""            # fits
+    assert tree.tooltip_at(3, top + at[long]) == long          # runs past the right edge
+    # The cursor on the deep name scrolls the rows sideways: shallow names lose their start.
+    tree.cursor = at[long]
+    settle()
+    assert tree.shift > 0
+    assert tree.tooltip_at(3, top + at["bin"] - tree.scroll) == "bin"
+
+
+def test_a_directory_trees_node_gives_its_whole_path(tmp_path):
+    from navigator.widgets.tree.directory_tree.directory_tree import DirectoryTree, directory_node
+
+    (tmp_path / "one" / "two").mkdir(parents=True)
+    root = directory_node(tmp_path)
+    root.expanded = True
+    _app, tree = mounted_tree(root, width=40, cls=DirectoryTree)
+    top = tree.inset + tree.header
+    at = next(i for i, row in enumerate(tree.items) if row.node.name == "one")
+    assert tree.tooltip_at(3, top + at) == str(tmp_path / "one")

@@ -67,7 +67,12 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`). `MenuBar`/`SubMenu` share `MenuContainer`'s
   Python API for plugins: `add_item`/`add_submenu`/`add_line` with `before=`/`after=` anchors (an entry, a caption, or
   a command), `remove_entry`, `move_entry`, `entry`, `item_for(command)`, plus reactive `hidden`/`disabled` on every
-  entry.
+  entry. `path_to(command)` is the shown entries down to the item asking for it (the bar's spliced-in window menus
+  included, hidden ones never; the exact instance first, then its class) -- what the key bar's tooltips read.
+- **A bar caption's tooltip** is its entry's `tooltip` (markup `tooltip:`, translated) plus its `Alt-<letter>`
+  (`MenuBar.tooltip_at`); a window menu joining the bar brings its own. Give a new top-level menu one.
+- **A menu box row's tooltip** is its entry's `tooltip` (`MenuBox.tooltip_at`), shown over the open menu. Write one
+  only where the caption does not explain itself (*Panelize command*, *Optimal fill*); most items have none.
 - **A submenu can show a key**: `SubMenu.key_command` names a command that opens its entries some other way, and
   `MenuBox` paints that command's live key (`key_caption`, else `SubMenu.key`) just before the `►` -- a departure,
   TV's submenus had none. Display only; choosing the entry still opens the submenu.

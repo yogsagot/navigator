@@ -67,3 +67,4 @@ AclEntryDialog(Dialog):
         width: max(0, parent.width - 16)
         height: 1
         items: ["~D~efault, inherited by new files"]
+        tooltips: ["A default entry: what new files and directories made inside inherit"]

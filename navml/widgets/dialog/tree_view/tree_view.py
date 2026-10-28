@@ -507,6 +507,15 @@ class TreeView(ListViewer):
         else:
             put(name_at, item.node.name, self.part_style("node"))
 
+    def row_tooltip(self, index: int, item: TreeRow) -> str:
+        """The node's whole name while :meth:`render_row` cut it: its start
+        scrolled off the left (:attr:`shift`), or its end past the right edge
+        -- a deep branch's names run out of room first.  Placed as
+        ``render_row`` places it, so the two cannot disagree."""
+        name = item.node.name
+        at = 2 + 3 * len(item.rails) + len(self.branch(item)) - self.shift
+        return name if at < 0 or at + len(name) > self.inner_width else ""
+
     def search_label(self) -> str:
         """`` Search: us/lo/b `` while searching, else "": what a frame shows.
 

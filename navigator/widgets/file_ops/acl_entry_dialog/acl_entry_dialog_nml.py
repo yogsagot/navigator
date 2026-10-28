@@ -112,3 +112,7 @@ class AclEntryDialog(Dialog, _Component):
             lambda _o: [_tr('~D~efault, inherited by new files')],
             yielding=True,
         )
+        self.default_box.tooltips = _bind(    # acl_entry_dialog.nml:70
+            lambda _o: [_tr('A default entry: what new files and directories made inside inherit')],
+            yielding=True,
+        )

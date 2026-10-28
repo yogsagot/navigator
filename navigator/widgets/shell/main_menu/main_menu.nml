@@ -55,34 +55,42 @@ MainMenu(MenuBar):
     SubMenu:
         id: system
         text: '~≡~'
+        tooltip: "About, the screen saver, SmartPad, the Trashcan and the game"
         MenuItem:
             text: '~A~bout...'
             command: About
         MenuItem:
             text: '~R~efresh display'
+            tooltip: "Paint the whole screen again, over what another program left on it"
             command: Refresh
         MenuItem:
             text: '~S~creen rest'
+            tooltip: "Start the screen saver now"
             command: ScreenRest
         MenuLine:
         MenuItem:
             text: 'Screen gra~b~ber'
+            tooltip: "Copy a rectangle of the screen to the clipboard"
             command: ScreenGrab
             key: 'Shift-Alt-Ins'
         MenuItem:
             text: '~U~ser screen'
+            tooltip: "Look at the console until a key is pressed"
             command: ShowUserScreen
             key: 'Alt-F5'
         MenuItem:
             text: '~O~utput window'
+            tooltip: "Put the windows away to type in the console, or bring them back"
             command: ToggleConsole
             key: 'Ctrl-O'
         MenuItem:
             text: 'S~m~artPad (TM)'
+            tooltip: "A notepad kept from one session to the next"
             command: OpenSmartpad
             key: 'Alt-Q'
         MenuItem:
             text: '~T~rashcan on/off'
+            tooltip: "Show or hide the trash can that files are dropped on to delete them"
             command: ToggleTrashCan
         MenuLine:
         MenuItem:
@@ -92,11 +100,13 @@ MainMenu(MenuBar):
     SubMenu:
         id: file
         text: '~F~ile'
+        tooltip: "View, edit, copy, move, archive and delete files"
         SubMenu:
             id: file_view
             text: '~V~iew'
             MenuItem:
                 text: '~A~s is'
+                tooltip: "View the file as F3 does"
                 command: View
                 key: 'F3'
             MenuItem:
@@ -107,10 +117,12 @@ MainMenu(MenuBar):
                 command: ViewAsHex
             MenuItem:
                 text: 'As ~D~ataBase'
+                tooltip: "View a dBase file as a table"
                 command: ViewAsDataBase
             MenuLine:
             MenuItem:
                 text: 'Alternate vie~w~'
+                tooltip: "View with the viewer F3 does not use: the external one, or the internal"
                 command: AlternateView
                 key: 'Alt-F3'
         SubMenu:
@@ -122,6 +134,7 @@ MainMenu(MenuBar):
                 key: 'F4'
             MenuItem:
                 text: '~A~lternate edit'
+                tooltip: "Edit with the editor F4 does not use: the external one, or the internal"
                 command: AlternateEdit
                 key: 'Alt-F4'
             MenuLine:
@@ -132,6 +145,7 @@ MainMenu(MenuBar):
         #: Not DN's: one of the desktop's applications for the file, through ``gio`` or KIO.
         MenuItem:
             text: 'Open ~w~ith...'
+            tooltip: "Open the file in a desktop application chosen from a list"
             command: OpenWith
         MenuItem:
             text: '~F~ind...'
@@ -149,6 +163,7 @@ MainMenu(MenuBar):
         #: in a box, without *Rename/Move*'s targets and modes.
         MenuItem:
             text: '~Q~uick rename...'
+            tooltip: "Rename the file at the cursor in a small box"
             command: QuickRename
             key: 'Shift-F6'
         #: DN's ``Cop~y~ to archive``, renamed -- a departure, asked for: it
@@ -164,6 +179,7 @@ MainMenu(MenuBar):
             key: 'Shift-F2'
         MenuItem:
             text: 'Create ~s~ymlink...'
+            tooltip: "Make a symbolic link to each selected file"
             command: MakeLink
             key: 'Shift-F5'
         #: A departure: DOS Navigator compared no files line by line
@@ -189,17 +205,21 @@ MainMenu(MenuBar):
         MenuItem:
             id: file_restore_trash
             text: 'Restore from Tras~h~'
+            tooltip: "Put the selected files back where they were deleted from"
             command: RestoreTrash
         MenuItem:
             text: 'File ~A~ttributes...'
+            tooltip: "Permissions, owner, group, dates, ACLs and extended attributes"
             command: ChangeAttributes
             key: 'Alt-E'
         MenuItem:
             text: 'UU E~n~code...'
+            tooltip: "Encode the file as plain text, the old way of mailing files"
             command: UuEncode
             key: 'Ctrl-F7'
         MenuItem:
             text: '~U~U Decode...'
+            tooltip: "Decode the files UU-encoded in this file"
             command: UuDecode
             key: 'Ctrl-F8'
         #: Not DN's: a departure, asked for -- coreutils' ``*sum`` lists of
@@ -209,17 +229,21 @@ MainMenu(MenuBar):
             text: 'Chec~k~sums'
             MenuItem:
                 text: '~C~alculate...'
+                tooltip: "Hash the tagged files and write their checksums to a list"
                 command: CalculateChecksums
             MenuItem:
                 text: '~V~erify'
+                tooltip: "Hash the files a checksum list names again and check them"
                 command: VerifyChecksums
         MenuItem:
             text: 'Delete single file'
+            tooltip: "Delete the file at the cursor, not the selection"
             command: DeleteSingle
             key: 'Shift-Del'
         MenuLine:
         MenuItem:
             text: 'Execute ~O~S command'
+            tooltip: "Type a command in a box and run it"
             command: ExecuteOsCommand
         MenuItem:
             text: 'E~x~it'
@@ -228,11 +252,13 @@ MainMenu(MenuBar):
     SubMenu:
         id: disk
         text: '~D~isk'
+        tooltip: "The directory tree, volumes and the Trash"
         MenuItem:
             text: '~D~irectory tree'
             command: OpenTreeWindow
         MenuItem:
             text: '~V~olumes'
+            tooltip: "Disks and partitions: mount, unmount and eject them"
             command: OpenVolumesWindow
         #: Not DN's: the freedesktop Trash, which F8 moves files to when File
         #: Manager Setup says so (OpenTrash's docstring).
@@ -246,6 +272,7 @@ MainMenu(MenuBar):
     SubMenu:
         id: utilities
         text: '~U~tilities'
+        tooltip: "Calculator, calendar, remote links, the user menu and histories"
         MenuItem:
             text: 'S~y~stem Information'
             command: SystemInfo
@@ -261,6 +288,7 @@ MainMenu(MenuBar):
             command: OpenCalendar
         MenuItem:
             text: 'Character ta~b~le'
+            tooltip: "Pick a character to type where the cursor is"
             command: AsciiTable
             key: 'Ctrl-B'
         MenuLine:
@@ -284,20 +312,25 @@ MainMenu(MenuBar):
         #: Not DN's: whatever the desktop's GVfs or KDE's KIO reaches.
         MenuItem:
             text: '~G~Vfs/KIO link (MTP, WebDAV...)...'
+            tooltip: "A phone, a WebDAV share, Google Drive: anything the desktop can mount"
             command: GvfsLink
         MenuItem:
             text: '~D~isconnect'
+            tooltip: "Close a connection; its panels go back to the disk"
             command: HangUp
             key: 'Alt-H'
         MenuItem:
             text: 'Close ~r~oot access'
+            tooltip: "End root access now, rather than after its timeout"
             command: CloseRootAccess
         MenuItem:
             text: 'Saved l~i~nks...'
+            tooltip: "The saved connections: edit them, or connect to one"
             command: EditLinks
         MenuLine:
         MenuItem:
             text: 'Edi~t~ environment'
+            tooltip: "Edit the environment variables commands run with"
             command: EnvEdit
         MenuItem:
             text: '~U~ser menu'
@@ -318,6 +351,7 @@ MainMenu(MenuBar):
     SubMenu:
         id: manager
         text: '~M~anager'
+        tooltip: "New file managers, swapping and hiding panels, bookmarks"
         MenuItem:
             text: '~N~ew'
             command: NewManager
@@ -336,30 +370,36 @@ MainMenu(MenuBar):
             key: 'Ctrl-F2'
         MenuItem:
             text: 'Show/hide inactive ~p~anel'
+            tooltip: "Hide the panel without the keyboard, or show it again"
             command: HideInactive
             key: 'Ctrl-P'
         #: Not DN's -- a departure, asked for: Finder's columns in the two
         #: panels' place (``navigator/widgets/manager/miller``).
         MenuItem:
             text: '~M~iller columns'
+            tooltip: "Browse in columns, each directory beside its parent"
             command: ToggleMiller
             key: 'Alt-F12'
         MenuLine:
         MenuItem:
             text: 'Bookmarks le~f~t'
+            tooltip: "Send the left panel to a bookmarked directory"
             command: ChangeLeft
             key: 'Alt-F1'
         MenuItem:
             text: 'Bookmarks rig~h~t'
+            tooltip: "Send the right panel to a bookmarked directory"
             command: ChangeRight
             key: 'Alt-F2'
     SubMenu:
         id: options
         text: '~O~ptions'
+        tooltip: "Settings, configuration files, the desktop and colours"
         #: Every page of the two submenus below behind one row of tabs; not
         #: DN's, and the submenus' items still open it on their own pages.
         MenuItem:
             text: 'Sett~i~ngs...'
+            tooltip: "Every setup page in one box, behind tabs"
             command: Settings
         MenuLine:
         SubMenu:
@@ -386,6 +426,7 @@ MainMenu(MenuBar):
                 command: CountrySetup
             MenuItem:
                 text: 'Comm~u~nications...'
+                tooltip: "Settings for remote connections"
                 command: SetupLink
             MenuLine:
             MenuItem:
@@ -403,15 +444,19 @@ MainMenu(MenuBar):
                 command: FileManagerSetup
             MenuItem:
                 text: '~I~nformation panel...'
+                tooltip: "What the information panel (Ctrl+L) shows"
                 command: DriveInfoSetup
             MenuItem:
                 text: 'New Manager ~d~efaults...'
+                tooltip: "How a new file manager's panels start"
                 command: FileManagerDefaults
             MenuItem:
                 text: '~C~olumn defaults...'
+                tooltip: "The columns a new panel shows"
                 command: ColumnDefaults
             MenuItem:
                 text: '~H~ighlight groups...'
+                tooltip: "Which files the panels show in which colour"
                 command: HighlightGroups
         SubMenu:
             id: options_archives
@@ -422,31 +467,40 @@ MainMenu(MenuBar):
         MenuLine:
         MenuItem:
             text: '~Q~uick run file edit...'
+            tooltip: "Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run"
             command: EditQuickRun
         MenuItem:
             text: 'E~x~tension file edit...'
+            tooltip: "Edit extensions.ini: what Enter runs for each kind of file"
             command: ExtFileEdit
         MenuItem:
             text: '~H~ighlight file edit...'
+            tooltip: "Edit highlight.ini: which syntax colours which file"
             command: EditHGL
         MenuItem:
             text: '~G~lobal menu definition...'
+            tooltip: "Edit the F2 user menu used everywhere"
             command: MenuFileEdit
         MenuItem:
             text: 'Local ~m~enu definition...'
+            tooltip: "Edit this directory's own F2 user menu"
             command: LocalMenuFileEdit
         MenuItem:
             text: '~V~iewers...'
+            tooltip: "Edit viewers.ini: the external viewer for each kind of file"
             command: ExternalViewers
         MenuItem:
             text: '~E~ditors...'
+            tooltip: "Edit editors.ini: the external editor for each kind of file"
             command: ExternalEditors
         MenuLine:
         MenuItem:
             text: '~S~ave desktop'
+            tooltip: "Keep the open windows, to have them back later"
             command: SaveDesktop
         MenuItem:
             text: '~L~oad desktop'
+            tooltip: "Replace these windows with the ones last saved"
             command: LoadDesktop
         MenuLine:
         MenuItem:
@@ -454,13 +508,16 @@ MainMenu(MenuBar):
             command: ChangeColors
         MenuItem:
             text: 'S~t~ore palette'
+            tooltip: "Save the colours as a theme of your own"
             command: StoreColors
         MenuItem:
             text: 'Lo~a~d palette'
+            tooltip: "Use colours saved in a file"
             command: LoadColors
     SubMenu:
         id: window
         text: '~W~indow'
+        tooltip: "Arrange, switch between and close windows"
         MenuItem:
             text: '~T~ile'
             command: TileWindows
@@ -473,6 +530,7 @@ MainMenu(MenuBar):
         MenuLine:
         MenuItem:
             text: '~S~ize/Move'
+            tooltip: "Move and size the window with the keyboard"
             command: SizeMoveWindow
             key: 'Ctrl-F5'
         MenuItem:
@@ -494,5 +552,6 @@ MainMenu(MenuBar):
         MenuLine:
         MenuItem:
             text: '~L~ist...'
+            tooltip: "All the windows, to switch to one or close it"
             command: WindowManager
             key: 'Alt-0'

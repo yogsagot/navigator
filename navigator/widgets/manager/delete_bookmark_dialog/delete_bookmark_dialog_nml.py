@@ -77,3 +77,7 @@ class DeleteBookmarkDialog(Dialog, _Component):
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # delete_bookmark_dialog.nml:44
+            lambda _o: [_tr('Delete bookmarks without asking from now on (Options > Confirmations)')],
+            yielding=True,
+        )

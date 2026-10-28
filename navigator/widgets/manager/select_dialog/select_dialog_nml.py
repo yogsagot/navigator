@@ -87,3 +87,7 @@ class SelectDialog(Dialog, _Component):
             lambda _o: [_tr('~E~xcept mask')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # select_dialog.nml:48
+            lambda _o: [_tr('Select what the mask does not match')],
+            yielding=True,
+        )

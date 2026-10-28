@@ -261,6 +261,12 @@ class DirectoryTree(ContextMenuHost, TreeView):
     #: Rows kept under the tree for the path and the file count.
     INFO_ROWS = 2
 
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """A directory's whole path: the info lines name only the cursor's,
+        and a row shows its last part alone."""
+        path = item.node.data
+        return str(path) if path is not None else super().row_tooltip(index, item)
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: Whether dot-directories are listed -- the panel's ``show_hidden``,

@@ -27,10 +27,15 @@ class CommunicationsPage(Widget):
         self.system = system or SETTINGS.system
         self.desktop_vfs.value = DESKTOP_VFS.index(self.system.desktop_vfs)
         self.keepalive.value = f"{self.section.keepalive:03d}"
+        self.keepalive.tooltip = self.section.tooltip("keepalive")
         self.timeout.value = f"{self.section.timeout:03d}"
+        self.timeout.tooltip = self.section.tooltip("timeout")
         self.idle_disconnect.value = f"{self.section.idle_disconnect:03d}"
+        self.idle_disconnect.tooltip = self.section.tooltip("idle_disconnect")
         self.refresh.value = f"{self.section.refresh:03d}"
+        self.refresh.tooltip = self.section.tooltip("refresh")
         self.upload_changed.value = RemoteData.UPLOAD.index(self.section.upload_changed)
+        self.upload_changed.tooltip = self.section.tooltip("upload_changed")
 
     def accept(self) -> dict[str, dict[str, Any]]:
         section = self.section

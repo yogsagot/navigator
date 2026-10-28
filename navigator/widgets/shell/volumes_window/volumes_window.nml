@@ -72,6 +72,7 @@ VolumesWindow(Window):
         width: 22
         height: 1
         items: ["~S~how all mounts"]
+        tooltips: ["Show the kernel's own file systems too"]
 
     CheckBoxes:
         id: free_box
@@ -80,6 +81,7 @@ VolumesWindow(Window):
         width: 22
         height: 1
         items: ["Show ~f~ree %"]
+        tooltips: ["Show the share that is free rather than the share used"]
 
     #: ``gio``'s, Solid's or udisks' three, each greyed as its command is (``VolumesWindow.allows``):
     #: on *Go* and *Close*'s row, a button's width apart, where 82 columns
@@ -135,12 +137,14 @@ VolumesWindow(Window):
     SubMenu:
         id: volumes_menu
         text: '~V~olumes'
+        tooltip: "Mount, unmount and eject volumes"
         after: 'File'
         MenuItem:
             text: '~R~e-read'
             command: Rescan
         MenuItem:
             text: '~S~how all mounts'
+            tooltip: "Show the kernel's own file systems too"
             command: ToggleHidden
         MenuLine:
         MenuItem:

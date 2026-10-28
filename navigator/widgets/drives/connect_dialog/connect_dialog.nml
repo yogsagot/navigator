@@ -72,6 +72,7 @@ ConnectDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 1
         items: ["~K~eep in the Link list"]
+        tooltips: ["Save it under its name in the Link list, to connect again in one step"]
 
     #: FTP's only: the session and the data under TLS, ``ftps://``.
     CheckBoxes:
@@ -81,6 +82,7 @@ ConnectDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 1
         items: ["~E~ncrypt with TLS (FTPS)"]
+        tooltips: ["Encrypt the connection: FTPS rather than plain FTP"]
         visible: False
 
     #: Why a connection cannot be made here: the extra that is missing.

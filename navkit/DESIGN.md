@@ -119,6 +119,8 @@ its heading is added here.
   - What is not here -- [`navkit-widgets-input/commands.md`](../.claude/skills/navkit-widgets-input/reference/commands.md)
 - The held modifier: the kitty keyboard protocol -- [`navkit-terminal/held-modifier.md`](../.claude/skills/navkit-terminal/reference/held-modifier.md)
 - Hover: a position the application keeps -- [`navkit-widgets-input/hover.md`](../.claude/skills/navkit-widgets-input/reference/hover.md)
+- Tooltips: hover that waits -- [`navkit-widgets-input/hover.md`](../.claude/skills/navkit-widgets-input/reference/hover.md)
+- Tooltip backlog -- [`navkit-widgets-input/tooltip-backlog.md`](../.claude/skills/navkit-widgets-input/reference/tooltip-backlog.md)
 - Clipboard: OSC 52 and the tools beside it -- [`navkit-terminal/clipboard.md`](../.claude/skills/navkit-terminal/reference/clipboard.md)
 - Still open -- [`navkit-widgets-input/still-open.md`](../.claude/skills/navkit-widgets-input/reference/still-open.md)
   - What the widget library needs first -- [`navkit-widgets-input/still-open.md`](../.claude/skills/navkit-widgets-input/reference/still-open.md)

@@ -362,8 +362,10 @@ def bindings(app: Application, start: Widget | None = None) -> dict[str, Command
     and the application's after them all, which is the order a key bar shows
     a row of letters in -- the focused window's own before the desktop's.
     While a modal is up the application's table is not consulted, and
-    is not shown -- unless *start* names the widget to ask from, which is a
-    caller asking about the focus behind the modal rather than inside it.
+    is not shown -- unless *start* names the widget to ask from and it lies
+    outside the modal, which is a caller asking about the focus behind the
+    modal.  A *start* inside it (a dialog's button asking for its Enter) is
+    asking about the modal, where the application's table stands aside.
     """
     tables = [key_table(type(widget)) for widget in chain(app, start)][:-1]
     found: dict[str, Command] = {}
@@ -371,7 +373,8 @@ def bindings(app: Application, start: Widget | None = None) -> dict[str, Command
         for key, binding in table.items():
             if key not in found:
                 found[key] = command_of(binding)
-    if app.modal is None or start is not None:
+    modal = app.modal
+    if modal is None or (start is not None and not modal._holds(start)):
         found.update(
             {key: command_of(b) for key, b in key_table(type(app)).items()}
         )

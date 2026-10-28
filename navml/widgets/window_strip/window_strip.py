@@ -17,16 +17,23 @@ fewer than two windows, because one is never out of sight.
 **Painted from** :attr:`Desktop.open_windows` **and** ``active_window``, the
 two reactive things a desktop has; the names are read at every paint, and a
 window's name changing repaints its own frame, so the strip goes with it.
+
+**A chip's tooltip is its window's whole name** (:meth:`~navml.widgets.window.Window.list_name`,
+a chip's being cut or left out) and the key that brings it forward; the ``+k``
+lists the windows it counts, one a line.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from navkit import commands
 from navkit.events import MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
+
+from navml.commands import SelectWindow
 
 
 class WindowStrip(Widget):
@@ -69,6 +76,24 @@ class WindowStrip(Widget):
             if start <= column < start + len(text):
                 return window
         return None
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        chips, hidden, end = self._layout()
+        window = self.window_at(x)
+        if window is not None:
+            return self._describe(window)
+        if hidden and end <= x < end + len(f"+{hidden}"):
+            return "\n".join(f"{w.number} {w.list_name()}" for w in self.windows()[len(chips):])
+        return super().tooltip_at(x, y)
+
+    def _describe(self, window: Any) -> str:
+        """*window*'s name, and the key that brings it forward."""
+        app = self.application
+        key = None
+        if app is not None and self.desktop is not None:
+            key = commands.key_for(app, SelectWindow(number=window.number), self.desktop)
+        name = window.list_name() or window.short_name()
+        return f"{name} ({commands.key_label(key)})" if key else name
 
     def _fit(self, names: list[str]) -> list[str]:
         """*names* cut evenly until every chip fits, or to nothing."""

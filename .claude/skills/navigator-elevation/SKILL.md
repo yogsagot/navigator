@@ -63,6 +63,9 @@ user's own authentication. What the review found and the rules it left:
   clock while `ELEVATION.running` (polled once a second, `Shell.follow_root`), since a panel or the quick view may
   then go to root unasked. Utilities > *Close root access* (`CloseRootAccess`, enabled while it shows) sends
   `root:` panels back to the disk and closes the helper.
+- **Its tooltip** (`RootMark.tooltip_at`) says what it means, that it closes after `root_timeout` idle minutes (left
+  out at 0), and that Utilities > *Close root access* closes it now -- the path built from the menu's own translated
+  captions, so it reads as the menu does.
 - Still open, by choice: files created as root in the user's own tree stay root's (a `chown` back would be a
   departure; not asked for).
 

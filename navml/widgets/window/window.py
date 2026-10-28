@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit import commands
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr
@@ -40,6 +41,8 @@ from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget
+
+from navml.commands import CloseWindow, SizeMoveWindow, ZoomWindow
 
 #: The chrome, Turbo Vision's layout: close on the left, zoom on the right, one
 #: cell of content between brackets so it survives an ASCII terminal.
@@ -260,6 +263,23 @@ class Window(Widget):
         if y == self.height - 1 and x >= self.width - 2 and self._has_grip():
             return "resize"
         return None
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What a chrome icon does, and the key that does it too; elsewhere,
+        the window's own tooltip.  Read off :meth:`chrome_hit`, so it names
+        what a press there would do."""
+        hit = self.chrome_hit(x, y)
+        if hit == "close":
+            text, command = tr("Close"), CloseWindow
+        elif hit == "zoom":
+            text, command = (tr("Restore") if self.zoomed else tr("Zoom")), ZoomWindow
+        elif hit == "resize":
+            text, command = tr("Drag to resize"), SizeMoveWindow
+        else:
+            return super().tooltip_at(x, y)
+        app = self.application
+        key = commands.key_for(app, command, self) if app is not None else None
+        return f"{text} ({commands.key_label(key)})" if key else text
 
     def render(self, surface: Surface) -> None:
         if not self.framed or self.width < 2 or self.height < 2:

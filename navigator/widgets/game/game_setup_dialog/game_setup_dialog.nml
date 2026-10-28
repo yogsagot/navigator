@@ -62,6 +62,7 @@ GameSetupDialog(Dialog):
         width: 19
         height: 1
         items: ["~P~iece preview"]
+        tooltips: ["Show the next piece (it scores less)"]
 
     Button:
         id: pick

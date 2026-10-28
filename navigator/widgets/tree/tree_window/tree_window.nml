@@ -43,6 +43,7 @@ TreeWindow(Window):
     SubMenu:
         id: tree_menu
         text: '~T~ree'
+        tooltip: "Re-read and search the tree"
         after: 'File'
         MenuItem:
             text: '~R~e-read'

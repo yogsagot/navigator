@@ -70,6 +70,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from navkit.i18n import tr
+
 from navigator.settings import config_dir
 
 #: The global menu's name, beside ``navigator.ini``.
@@ -330,11 +332,12 @@ def find_menu(start: Path, want_global: bool = False) -> tuple[Path, bool] | Non
 
 
 def expand(text: str, active: Side, passive: Side, *, script: str = "",
-           params: str = "", quote: bool = True) -> str:
+           params: str = "", quote: bool = True, numbers: bool = True) -> str:
     """*text* with its macros put in: quoted for the shell unless *quote* is off.
 
     One pass, so what a macro puts in -- a name with a ``%`` or a ``!`` in it
-    -- is never read as another.
+    -- is never read as another.  With *numbers* off, ``%0`` to ``%9`` are
+    left as written: what they stand for exists only once the item runs.
     """
     words = params.split()
 
@@ -345,6 +348,8 @@ def expand(text: str, active: Side, passive: Side, *, script: str = "",
             return "!"
         if token == "%%":
             return "%"
+        if token.startswith("%") and not numbers:
+            return token
         if token.startswith("%"):
             number = int(token[1])
             if number == 0:
@@ -377,6 +382,31 @@ def expand(text: str, active: Side, passive: Side, *, script: str = "",
 def caption(entry: Entry, active: Side, passive: Side) -> str:
     """What the box shows for *entry*: its macros in, nothing quoted."""
     return expand(entry.caption, active, passive, quote=False)
+
+
+#: The most lines :func:`preview` shows of an item's script.
+PREVIEW_LINES = 12
+
+
+def preview(commands: Commands, active: Side, passive: Side) -> str:
+    """What choosing an item will do, as its tooltip in the box says it.
+
+    Its lines with the panels' macros in, quoted as they will run -- the
+    script's own ``%0`` to ``%9`` as written, being files and answers that
+    do not exist until it runs -- after a line saying how it runs, where that
+    is not plainly in the console.  Not DN's, whose menu showed captions only.
+    """
+    head = []
+    if commands.asks:
+        head.append(tr("Asks for parameters first"))
+    if commands.panelize:
+        head.append(tr("Its output becomes the active panel's listing"))
+    elif commands.window is not None:
+        head.append(tr("Runs in a window of its own"))
+    lines = [expand(line, active, passive, numbers=False) for line in commands.lines]
+    if len(lines) > PREVIEW_LINES:
+        lines = lines[:PREVIEW_LINES - 1] + ["..."]
+    return "\n".join(head + lines)
 
 
 def script_text(commands: Commands, active: Side, passive: Side, script: str,

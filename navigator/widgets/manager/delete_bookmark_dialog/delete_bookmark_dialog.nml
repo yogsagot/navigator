@@ -41,3 +41,4 @@ DeleteBookmarkDialog(Dialog):
         width: 22
         height: 1
         items: ["~D~on't ask again"]
+        tooltips: ["Delete bookmarks without asking from now on (Options > Confirmations)"]

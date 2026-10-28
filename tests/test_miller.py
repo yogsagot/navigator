@@ -172,3 +172,29 @@ def test_the_desktop_keeps_miller_columns(tree):
     run_app(app, [cursor_on("src"), ALT_F12, lambda a: None])
     kept = desktop_state._window(app.manager)
     assert kept["miller"] == {"path": str(tree / "west"), "cursor": "src", "side": "left"}
+
+
+# -- tooltips -------------------------------------------------------------------
+
+
+def test_a_miller_columns_cut_names_and_its_title_say_themselves_whole(tree):
+    long = "a-file-with-a-name-far-too-long-for-a-column.txt"
+    (tree / "west" / long).write_text("x")
+    app = navigator(tree)
+    seen = {}
+
+    def look(a):
+        column = a.manager.miller.chain[-1]
+        top = column.inset + column.header
+        row = {item.name: top + i - column.scroll for i, item in enumerate(column.items)}
+        x = column.inset + column.gutter
+        seen["long"] = column.tooltip_at(x, row[long])
+        seen["short"] = column.tooltip_at(x, row["src"])
+        text = column.title_text()
+        seen["title"] = column.tooltip_at(column.label_x(text) + 1, 0)
+
+    run_app(app, [ALT_F12, lambda a: None, look])
+    assert seen["long"] == long
+    assert seen["short"] == ""
+    # The title names the directory alone; its tooltip gives the whole path.
+    assert seen["title"] == str(tree / "west")

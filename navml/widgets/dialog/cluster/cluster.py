@@ -12,6 +12,11 @@ many items, no per-item objects.  Rows were never objects in the original."  A
 cluster is the same shape with a mark in front of each row, and it is why
 markup needs no repeater to express one: the items are a *value*, and a value
 is something a document can already say.
+
+**So are its tooltips**: :attr:`Cluster.tooltips` holds one an item, in
+step with :attr:`Cluster.items`, and an item without one -- an empty string,
+or past the end of a shorter list -- shows the cluster's own ``tooltip``.  A
+departure: Turbo Vision's clusters had none.
 """
 
 from __future__ import annotations
@@ -34,6 +39,11 @@ class Cluster(Control):
     #: in both, and because a base that paints them has to be able to paint
     #: none -- a ``Cluster`` with no items is an empty column, not an error.
     items: list[str] = reactive(factory=list)
+
+    #: Each item's tooltip, in step with :attr:`items`; ``""`` or missing
+    #: for none, which falls back to the cluster's own ``tooltip``.
+    #: Translated in markup as :attr:`items` is.
+    tooltips: list[str] = reactive(factory=list)
 
     #: Which item the keyboard is on, within the cluster.  Turbo Vision calls
     #: it ``Sel``; it is not the *value*, and moving it is not choosing.
@@ -118,6 +128,13 @@ class Cluster(Control):
             column += 1
         index = column * rows + y
         return index if index < len(self.items) else -1
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The tooltip of the item at *x*, *y*; else the cluster's own."""
+        index = self.item_at(x, y)
+        if 0 <= index < len(self.tooltips) and self.tooltips[index]:
+            return self.tooltips[index]
+        return super().tooltip_at(x, y)
 
     # -- input ---------------------------------------------------------------
 

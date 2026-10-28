@@ -49,12 +49,15 @@ DBWindow(Window):
     SubMenu:
         id: view_menu
         text: '~V~iew'
+        tooltip: "Fields, memos, editing and search"
         after: 'File'
         MenuItem:
             text: '~F~ields...'
+            tooltip: "The file's structure: its fields and their types"
             command: ShowFields
         MenuItem:
             text: '~M~emo view'
+            tooltip: "The memo text of the cell at the cursor"
             command: ShowMemo
         MenuItem:
             text: '~E~dit field...'

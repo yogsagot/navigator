@@ -8,7 +8,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #:
 #: The resource's twelve boxes in its two columns of six, at its width; Help
 #: is left out, having nothing to show yet.  *History size* below them is a
-#: departure: DN's lists were a fixed 20 long; so is *Language*, DN's being
+#: departure: DN's lists were a fixed 20 long, and *Tooltip delay* beside it
+#: (DN had no tooltips); so is *Language*, DN's being
 #: the resource set it was installed with, *Colours*, ``[appearance]``'s
 #: depth, where DN's was the video mode a DOS adapter was put in, *Glyphs*
 #: and *Marks*.
@@ -34,6 +35,19 @@ InterfacePage:
         label_width: 15
         mask: "999"
         #: PgUp and PgDn are the tabs' in *Settings*.
+        page_keys: False
+
+    #: Milliseconds, ``[interface] tooltip_delay``; nought for none.  No hot key:
+    #: every letter of its caption is taken on this page.
+    MaskedField:
+        id: tooltip_delay
+        x: 26
+        y: 8
+        width: 26
+        height: 1
+        label_text: "Tooltip delay (ms)"
+        label_width: 20
+        mask: "9999"
         page_keys: False
 
     #: Chosen from the catalogues found, never typed.  At the Nerd tier each

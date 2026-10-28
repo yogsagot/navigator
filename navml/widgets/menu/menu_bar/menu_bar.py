@@ -20,6 +20,10 @@ owns the bar binds ``context`` -- Navigator's shell binds it to the desktop's
 active window -- so the entries come and go with the activation.  They are
 shown and chosen like the bar's own, and their commands start from the focus
 as every menu command does, which is inside that window.
+
+**A caption's tooltip is its entry's** ``tooltip`` -- what the menu holds --
+and the Alt+letter that drops it, ``Alt-F``; a window's menus bring their
+own.  Not Turbo Vision's, which had none.
 """
 
 from __future__ import annotations
@@ -111,6 +115,19 @@ class MenuBar(MenuContainer, Widget):
                 return x, length
             x += length
         return x, 0
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The entry's own tooltip, and the Alt+letter that opens it."""
+        index = self.entry_at(x)
+        if index < 0:
+            return super().tooltip_at(x, y)
+        entry = self.entries()[index]
+        letter = parse_shortcut(entry.text)[2]
+        # Only a letter a keyboard types: ``≡`` has none but F10.
+        key = f"Alt-{letter.upper()}" if letter.isascii() and letter.isalnum() else ""
+        if entry.tooltip and key:
+            return f"{entry.tooltip} ({key})"
+        return entry.tooltip or key
 
     def entry_at(self, column: int) -> int:
         """The entry under *column* of the bar, or -1."""

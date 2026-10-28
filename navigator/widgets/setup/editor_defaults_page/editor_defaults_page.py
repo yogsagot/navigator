@@ -30,12 +30,16 @@ class EditorDefaultsPage(Widget):
         self.editor_section = editor or SETTINGS.editor
         self.viewer_section = viewer or SETTINGS.viewer
         self.editor.value = self.editor_section.to_bits(EditorDefaultsData.OPTIONS)
+        self.editor.tooltips = EditorDefaultsData.tooltips(EditorDefaultsData.OPTIONS)
         self.viewer.value = self.viewer_section.to_bits(ViewerDefaultsData.OPTIONS)
+        self.viewer.tooltips = ViewerDefaultsData.tooltips(ViewerDefaultsData.OPTIONS)
         for name in NUMBERS:
             getattr(self, name).value = f"{getattr(self.editor_section, name):03d}"
+            getattr(self, name).tooltip = self.editor_section.tooltip(name)
         self.line_divisor.value = EditorDefaultsData.LINE_DIVISORS.index(
             self.editor_section.line_divisor
         )
+        self.line_divisor.tooltip = self.editor_section.tooltip("line_divisor")
 
     def _number(self, name: str) -> int:
         """The number typed for *name*; a blank place counts as nought."""

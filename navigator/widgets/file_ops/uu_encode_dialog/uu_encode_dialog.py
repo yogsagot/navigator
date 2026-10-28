@@ -42,6 +42,7 @@ class UUEncodeDialog(Dialog):
         self.target.entry.select_all()
         section = SETTINGS.uucode
         self.prefixes.value = section.to_bits(UUCodeData.PREFIXES)
+        self.prefixes.tooltips = UUCodeData.tooltips(UUCodeData.PREFIXES)
         self.checksum.value = self.checksum.sel = UUCodeData.CHECKSUMS.index(section.checksum)
         self.lines.value = f"{section.lines_per_section:4d}"
         self.format.value = self.format.sel = UUCodeData.LINE_ENDS.index(section.line_ends)

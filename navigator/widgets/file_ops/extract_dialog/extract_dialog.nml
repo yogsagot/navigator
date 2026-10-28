@@ -47,6 +47,7 @@ ExtractDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 2
         items: ["Extract with ~p~ath names", "T~e~st only"]
+        tooltips: ["Make the archive's directories; off, every file goes straight into the target", "Check the archive for errors, writing nothing"]
 
     Button:
         id: pick

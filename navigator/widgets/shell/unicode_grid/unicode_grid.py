@@ -21,11 +21,16 @@ the cursor under the pointer, and a double click or Enter is
 :class:`ChosenEvent`, as ``TTable`` put the character back as a key press.
 The cursor cell is shown whether the grid has the keyboard or not: it is the
 character the info line describes and Enter would take.
+
+**The character under the pointer describes itself in a tooltip**, as the
+info line describes the cursor's (``unicode_table.describe``): its code
+point, name, category, decimal code, UTF-8 bytes and block.  A departure:
+DN's ``TTable`` had no tooltip.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr
@@ -35,7 +40,7 @@ from navkit.screen import Surface
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
 
-from navigator.lib.utilities.unicode_table import display
+from navigator.lib.utilities.unicode_table import describe, display
 
 #: Columns a character is given.
 CELL = 3
@@ -61,6 +66,9 @@ class UnicodeGrid(ListViewer):
         self._start: int | None = None
         #: The columns the rows were last cut to.
         self._laid = 1
+        #: Where the tooltips find the Nerd Font's icon names, to name an icon
+        #: by: the chart's index once read, None before that or below that tier.
+        self.nerd_names: Callable[[], dict[int, tuple[str, ...]] | None] = lambda: None
 
     def mounted(self) -> None:
         super().mounted()
@@ -125,6 +133,14 @@ class UnicodeGrid(ListViewer):
             return False
         await self.emit(ChosenEvent(self.code))
         return True
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The character under the pointer, described as the info line does
+        the cursor's; the grid's own tooltip between cells."""
+        at = self.index_at(x, y)
+        if at is None:
+            return super().tooltip_at(x, y)
+        return "\n".join(describe(self.codes[at], self.nerd_names()))
 
     def index_at(self, x: int, y: int) -> int | None:
         row = self.row_at(y)

@@ -19,6 +19,17 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   `Dialog.buttons` has `ok`, `yes-no-cancel`, ...; `Dialog.valid()` (`Valid(cmOK)`) keeps a dialog up over a value it
   cannot read. F7 Mkdir was the first dialog wired into the application.
 - `Button` emits `ClickEvent`; mouse and Space both go through one `press()`. Clicks act on release.
+- A `Button`'s tooltip is the keys that press it (`press_keys()`: the dialog's Default key on the default button,
+  its Cancel key on its `cancel`, Alt+letter), read off the key tables; its own `tooltip` goes in front.
+- `CheckBoxes`/`RadioButtons` (`Cluster`) take `tooltips:`, one an item in step with `items` (translated like it);
+  an empty or missing one falls back to the cluster's own `tooltip`. Write one only where the caption does not say
+  it (*Remove source files*, *Sticky*), `""` elsewhere; a test keeps every list in step with its `items`.
+- A `ListViewer` row's tooltip is its whole `row_text` while cut (`row_tooltip`, `cut_text`); a subclass with its own
+  `render_row` or `render_items` gets none unless it overrides `row_tooltip` (`TraceList` does) or `tooltip_at`
+  (`UnicodeGrid`, per cell). An input line's likewise, plus its own
+  or its field's `tooltip`.
+- A `TabView` takes `tooltips:`, one a page (what the page holds), shown on its tab only -- never a page's own
+  `tooltip`, which would show over its every blank. A cut left-column caption shows whole; the arrows say their way.
 - `Button.flat` (a departure: `TButton` always had its shadow) drops the shadow, so the face is the whole rectangle
   and the button may be one row tall; pressed, it does not move. For a small button beside a line, as the
   Character Table's filter *X*.

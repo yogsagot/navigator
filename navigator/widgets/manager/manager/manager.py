@@ -19,6 +19,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Awaitable, Callable, Iterable, Sequence
 
 from navkit import glyphs as glyphs_module
+from navkit.commands import key_for, key_label
 from navkit.events import DoubleClickEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
@@ -2245,6 +2246,11 @@ class Manager(Window):
             trash_item = menu.add_item(tr("~T~rash"), before=entries[entries.index(toggle) - 1])
             # Nothing inside an archive is a place to come back to.
             toggle.disabled = panel.location.outer is not None
+            if toggle.disabled:
+                toggle.tooltip = tr("A place inside an archive cannot be bookmarked")
+            else:
+                # Which folder: the panel's, which the box does not otherwise name.
+                toggle.tooltip = str(panel.location)
             link_menu = next(entry for entry in menu.entries() if isinstance(entry, SubMenu))
             # Entry by entry, where each one goes; None for a line and the toggle.
             places = [row.path for row in rows] + ([None] if rows and mounts else [])
@@ -4293,6 +4299,22 @@ class Manager(Window):
         bar = getattr(first, "bar", None)
         return bar is None or not bar.visible or not bar.y <= y - first.y < bar.y + bar.height
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Over the divider, how to move it -- a mouse affordance nothing else
+        announces, its keys and the double click that evens it out; read off
+        :meth:`divider_hit`, so it shows exactly where a press takes hold.  A
+        departure: DN's ``TSeparator`` had no tooltip."""
+        if not self.divider_hit(x, y):
+            return super().tooltip_at(x, y)
+        lines = [tr("Drag to resize the panels")]
+        app = self.application
+        if app is not None:
+            keys = [key_for(app, MoveSeparator(step), self) for step in (-1, 1)]
+            if all(keys):
+                lines[0] += f" ({', '.join(key_label(key) for key in keys)})"
+        lines.append(tr("Double-click to split them evenly"))
+        return "\n".join(lines)
+
     async def dispatch_mouse(self, event: MouseClickEvent) -> bool:
         """The divider before anything else.
 
@@ -4677,6 +4699,11 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
     tildes are doubled so the caption shows them rather than marking a key.
     A labelled bookmark shows its label, and its path where a menu shows an
     entry's key.
+
+    **Each entry's tooltip says what the caption leaves out** (a departure:
+    DN's box had none): the whole path where a label or ``~`` stands for it,
+    that a greyed one is not there now, and that a mount below the line is
+    not a bookmark.
     """
     from navml.widgets.dialog.control.control import escape_caption
     from navml.widgets.menu.sub_menu import SubMenu
@@ -4700,6 +4727,12 @@ def bookmark_menu(rows: list[Any], bookmarked: bool,
         if label:
             item.key = shown
         item.disabled = not (path in present if present is not None else Path(path).is_dir())
+        lines = [path] if label or shown != path else []
+        if index >= len(rows):
+            lines.append(tr("Mounted now, not a bookmark"))
+        if item.disabled:
+            lines.append(tr("Not there now"))
+        item.tooltip = "\n".join(lines)
     if entries:
         menu.add_line()
     toggle = menu.add_item(tr("~R~emove this folder") if bookmarked else tr("~A~dd this folder"))
@@ -4751,7 +4784,13 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
         item.ticked = SESSIONS.is_open(location.site)
         # The protocol before the place: what the link is over, never hidden.
         item.key = f"{sessions.protocol_sign(row.scheme)} {row.user + '@' if row.user else ''}{row.host}"
-        item.disabled = sessions.available(row.scheme) is not None
+        why = sessions.available(row.scheme)
+        item.disabled = why is not None
+        # The whole address, the port and the directory the caption leaves out.
+        lines = [str(location), tr("Connected") if item.ticked else tr("Not connected")]
+        if why is not None:
+            lines.append(why)
+        item.tooltip = "\n".join(lines)
         found[id(item)] = row
     if rows:
         link.add_line()
@@ -4759,9 +4798,14 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
     for caption, scheme in ((tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
                             (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3")):
         new = link.add_item(caption)
-        if sessions.available(scheme) is not None:
+        why = sessions.available(scheme)
+        if why is not None:
             new.disabled = True
             new.key = sessions.EXTRA_HINT.get(scheme, "")
+            # Why it is greyed, and what to install: the key column has room
+            # for the extra's name only.
+            extra = sessions.EXTRA_HINT.get(scheme)
+            new.tooltip = "\n".join([why] + ([tr("Install {extra}").format(extra=extra)] if extra else []))
         found[id(new)] = scheme
     # Whatever the desktop's GVfs or KIO reaches: a URI asked (``Shell.gvfs_link``).
     from navigator.lib.system import desktop
@@ -4770,6 +4814,7 @@ def link_section(menu: Any, *, before: Any = None, glyphs: int = glyphs_module.G
     if desktop.program() is None:
         new.disabled = True
         new.key = "gio/kio"
+        new.tooltip = tr("Needs the desktop's gio or KDE's kioclient command")
     found[id(new)] = "gvfs"
     if rows:
         # *Saved links*, which the branch for a *New* opens for this mark.

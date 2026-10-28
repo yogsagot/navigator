@@ -32,6 +32,7 @@ OverwriteQuery(Dialog):
         width: max(0, parent.width - 8)
         height: 1
         items: ["Accept choice for ~a~ll files"]
+        tooltips: ["Give this answer for every file that is already there"]
 
     Button:
         id: overwrite

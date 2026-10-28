@@ -6,6 +6,11 @@ the character in hand, :attr:`CharTable.code`; the arrows move it a cell,
 Home and End to the first and the last, and a press or a drag puts it under
 the pointer.  A double click is Enter's (``ChosenEvent``), as ``TTable`` put
 the character back as a key press.
+
+**The character under the pointer describes itself in a tooltip**: the
+report line's ``Char: Decimal: Hex:`` for it, and the Unicode character the
+VGA's glyph is (``U+263A  ☺  WHITE SMILING FACE``).  A departure: ``TTable``
+had no tooltip.
 """
 
 from __future__ import annotations
@@ -13,12 +18,14 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
+from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navml.widgets.dialog.tree_view import ChosenEvent
 
+from navigator.lib.utilities import unicode_table
 from navigator.lib.viewer import cp437
 
 #: Characters to a row, and rows.
@@ -48,6 +55,18 @@ class CharTable(Widget):
         for row in range(min(ROWS, self.height)):
             for column in range(min(COLUMNS, self.width)):
                 surface.set_cell(column, row, glyph(row * COLUMNS + column), style)
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The character at *x*, *y*: its codes, and what Unicode calls its glyph."""
+        if not (0 <= x < COLUMNS and 0 <= y < ROWS):
+            return super().tooltip_at(x, y)
+        code = y * COLUMNS + x
+        shown = glyph(code)
+        lines = [tr("Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}").format(char=shown, decimal=code, hex=code)]
+        if code:
+            # 0 is drawn blank, which is no character of its own.
+            lines.append(unicode_table.describe(ord(shown))[0])
+        return "\n".join(lines)
 
     def cursor_position(self) -> tuple[int, int] | None:
         return self.code % COLUMNS, self.code // COLUMNS

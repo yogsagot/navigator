@@ -46,6 +46,7 @@ LinkDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 1
         items: ["~R~elative link"]
+        tooltips: ["Point the link at a path relative to it, so the two can be moved together"]
 
     Button:
         id: pick

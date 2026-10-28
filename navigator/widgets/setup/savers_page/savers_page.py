@@ -31,7 +31,9 @@ class SaversPage(Widget):
         self.offered.items = [savers.caption(name) for name in names]
         self.chosen.items = [savers.caption(name) for name in self.section.names()]
         self.time.value = self.time.sel = SaversData.TIMES.index(self.section.time)
+        self.time.tooltip = self.section.tooltip("time")
         self.mouse.value = 1 if self.section.mouse else 0
+        self.mouse.tooltip = self.section.tooltip("mouse")
 
     async def on_join_click(self, event: Event) -> bool:
         picked = self.offered.selected

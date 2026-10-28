@@ -30,6 +30,10 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   item with no command as a choice (enabled unless `disabled`), unlike a bar's box, which greys it as unwritten.
   It is titled *Bookmarks* (`title=`, centred in the top frame; a departure, SelectDrive's box had none) -- pass
   the same title to `PopupMenu.measure` so the box is placed at the width it is shown.
+- **Tooltips** say what a caption leaves out (`bookmark_menu`, `link_section`, `choose_bookmark`): the whole path
+  where a label or `~` stands for it, *Not there now* on a greyed one, *Mounted now, not a bookmark* below the line; a
+  link's whole address and whether it is connected (and why it is greyed); a greyed *New ... link*'s reason and the
+  extra to install; the toggle's folder, or why it is greyed in an archive.
 - **`Manager`**: `on_change_left/right` call `bring_side(side)` first -- a side hidden by Ctrl+F1/F2 is shown, and the
   tree or quick view standing in its place gives way (`switch_view`) -- then spawn `choose_bookmark(panel)`.
   `on_change_drive` uses `active_panel`. `bookmark_menu(rows, bookmarked)` builds the entries: keys `1`-`9`, `0`, then

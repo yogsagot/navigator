@@ -35,6 +35,7 @@ class UUDecodeDialog(Dialog):
             self.target.value = str(other).rstrip("/") + "/"
         self.target.entry.select_all()
         self.options.value = SETTINGS.uucode.to_bits(UUCodeData.DECODE)
+        self.options.tooltips = UUCodeData.tooltips(UUCodeData.DECODE)
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

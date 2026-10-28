@@ -126,6 +126,23 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
 - Non-simple modes have a heading row in *Column title* `[165]` (`Panel::heading`) and single `│` rules in the frame's
   colours (`Panel::divider` on `$panel-fg`/`$panel-bg`, a departure from DN's `[86]`), meeting the frame in the tee
   `Widget.box_joins()` gives (`┬┴`/`╤╧`) wherever title/footer does not stand.
+- **A column title's tooltip** is `Panel.column_description(key)` and the order a click sorts by next
+  (`next_column_sort`, which `sort_by_column` applies, so the tooltip cannot promise another). A new column needs a
+  description there.
+- **An info line's tooltip** says whole what the line cut or rounded (`info_line_at`, `_info_tooltip`): *Current file*
+  the name, every byte, the date and a link's target; the line under it the whole directory/origin/target; *Free
+  space* the exact bytes; any other its text while wider than the panel. A new kind of line decides its own there.
+- **A row's tooltip** (`_row_tooltip_at`): over the name, the whole name while cut or scrolled (`_name_room`, the
+  room `_draw_name` gives it, in every mode) and a link's `-> target`; over the detailed mode's owner and path, their
+  whole text while cut; nothing over `..`, sizes, dates or attributes.
+- **The title's tooltip** (`_title_tooltip`, over the title's own cells): the whole path where its start was cut,
+  the mask in words with Alt+Del's key, the git branch (or detached HEAD) and ahead/behind spelled out -- even where
+  a narrow title dropped the branch. A title that says it all has none.
+- **The divider's tooltip** is `Manager.tooltip_at`, over exactly what `divider_hit` grabs: drag, Alt+Left/Right (read
+  off the key table) and the double click that evens the split. A panel's frame has none, so the lookup climbs to it.
+- **Miller columns inherit both** -- a `MillerColumn` is a `Panel`: a row's whole name while cut (`_name_room`
+  reads the column's own `name_width`), and the title, its directory's name alone, gives the whole path. No code of
+  their own; `tests/test_miller.py` holds it.
 - **The info lines are DN's `TInfoView`**, between the listing and the bottom frame under the *Info divider*, in its
   order, each behind its *Display* box (`Panel.info_lines`, `(text, part)`: the computed `_info_lines` with the
   current file's text filled in as it is read, because the gutter it follows is not reactive):

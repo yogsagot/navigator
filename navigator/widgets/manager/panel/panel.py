@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from navkit.commands import key_label
+from navkit.commands import key_for, key_label
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
@@ -52,6 +52,7 @@ from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see lis
 )
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
+from navigator.widgets.manager.commands import AdvancedFilter
 from navigator.widgets.manager.panel.drag import Dropped
 from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
 
@@ -1308,14 +1309,136 @@ class Panel(ContextMenuHost, ListViewer):
         :data:`COLUMN_SORTS`' modes, then that reversed, wrapping -- or its
         first when sorted by another column.  False for a column that sorts
         nothing.  Name's: name, name reversed, extension, extension reversed."""
-        modes = self.COLUMN_SORTS.get(key)
-        if modes is None:
+        step = self.next_column_sort(key)
+        if step is None:
             return False
-        steps = [(mode, reverse) for mode in modes for reverse in (False, True)]
-        here = (self.sort_mode, self.sort_reverse)
-        mode, reverse = steps[(steps.index(here) + 1) % len(steps)] if here in steps else steps[0]
+        mode, reverse = step
         self.sort_by(mode, reverse=reverse)
         return True
+
+    def next_column_sort(self, key: str) -> tuple[str, bool] | None:
+        """``(mode, reverse)`` a click on column *key*'s title sorts by next,
+        or None for a column that sorts nothing."""
+        modes = self.COLUMN_SORTS.get(key)
+        if modes is None:
+            return None
+        steps = [(mode, reverse) for mode in modes for reverse in (False, True)]
+        here = (self.sort_mode, self.sort_reverse)
+        return steps[(steps.index(here) + 1) % len(steps)] if here in steps else steps[0]
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Over a column's title: what the column shows, and the order a click
+        sorts by -- the titles are short (``Attr``, ``%``), and a click on one
+        does something the title does not say.  A departure: DN's titles had
+        no tooltip, and sorted nothing when clicked."""
+        if self.framed and y == 0:
+            text = self.title_text()
+            start = self.label_x(text)
+            if self.error is None and start <= x < start + len(text):
+                return self._title_tooltip()
+            return super().tooltip_at(x, y)
+        info = self.info_line_at(x, y)
+        if info is not None:
+            return self._info_tooltip(info)
+        index = self.index_at(x, y) if self.inset <= x < self.inset + self.inner_width else None
+        if index is not None and self.heading_at(x, y) is None:
+            return self._row_tooltip_at(index, x)
+        key = self.heading_at(x, y)
+        if key is None:
+            return super().tooltip_at(x, y)
+        text = self.column_description(key)
+        step = self.next_column_sort(key)
+        if step is None:
+            return text
+        from navigator.widgets.manager.manager.manager import sort_captions
+
+        mode, reverse = step
+        caption = dict(zip(SORT_MODES, sort_captions()))[mode].replace("~", "")
+        order = f"{caption} {self.direction_arrow(mode, reverse)}".rstrip()
+        return f"{text}\n{tr('A click sorts by {order}').format(order=order)}"
+
+    def _title_tooltip(self) -> str:
+        """What the title leaves out: the whole path where its start was cut,
+        the file mask in words, and the git branch with its counts spelled
+        out -- even where a narrow title dropped it.  Nothing for a title
+        that says it all.  A departure: DN's title had no tooltip."""
+        lines = []
+        whole = self.found.title if self.found is not None else self.title_location
+        if whole not in self.title_text():
+            lines.append(whole)
+        mask = self.file_mask.strip()
+        if mask not in ("", filetypes.ALL_FILES):
+            shown = tr("Only files matching {mask} are shown").format(mask=mask)
+            app = self.application
+            key = key_for(app, AdvancedFilter, self) if app is not None else None
+            lines.append(f"{shown} ({key_label(key)})" if key else shown)
+        git = self.git
+        if git is not None and git.branch:
+            if git.detached:
+                lines.append(tr("Git work tree, HEAD detached at {commit}").format(commit=git.branch))
+            else:
+                lines.append(tr("Git work tree, on {branch}").format(branch=git.branch))
+            if git.ahead:
+                lines.append(tr_n("{n} commit ahead of its upstream", "{n} commits ahead of its upstream", git.ahead))
+            if git.behind:
+                lines.append(tr_n("{n} commit behind its upstream", "{n} commits behind its upstream", git.behind))
+        return "\n".join(lines)
+
+    def _row_tooltip_at(self, index: int, x: int) -> str:
+        """Row *index* at column *x*: what the row left out there.
+
+        Over the name, the whole name while it is cut or scrolled (Left and
+        Right), and a link's target, which only the info line's second line
+        shows otherwise.  Over the detailed mode's owner and path, their
+        whole text while cut.  Elsewhere nothing: a size, a date or the
+        attributes are never cut.  A departure: DN's rows had no tooltip.
+        """
+        item = self.items[index]
+        if item.name == "..":
+            return ""
+        if self.view_mode == "detailed":
+            for key, left, width in self.detail_columns:
+                if not left <= x < left + width or key == "name":
+                    continue
+                if key in ("owner", "path"):
+                    whole = getattr(item, self.DETAIL_COLUMNS[key][2])
+                    return whole if text_width(whole) > width else ""
+                return ""
+        lines = []
+        if self.name_offset or text_width(item.name) > self._name_room(index):
+            lines.append(item.name)
+        if item.link_target is not None:
+            lines.append(f"-> {item.link_target}")
+        return "\n".join(lines)
+
+    def _name_room(self, index: int) -> int:
+        """The cells row *index*'s name is drawn in: :meth:`_draw_name`'s
+        *width* for its mode, less the gutter and the git letter."""
+        if self.view_mode == "detailed":
+            width = next((w for key, _x, w in self.detail_columns if key == "name"), 0)
+        elif self.view_mode == "list":
+            right = self.inset + self.inner_width
+            width = next((min(w, right - left) for first, left, w in self.list_columns
+                          if first <= index < first + self.rows), 0)
+        else:
+            width = max(1, self.name_width)
+        gutter = min(self.gutter, width)
+        git = self.git_cells if width > gutter + self.git_cells else 0
+        return max(0, width - gutter - git)
+
+    @staticmethod
+    def column_description(key: str) -> str:
+        """What column *key* shows, in a sentence: its title's longer self."""
+        return {
+            "name": tr("The file's name"),
+            "size": tr("The file's size"),
+            "packed": tr("The size packed in the archive"),
+            "ratio": tr("The packed size as a percentage of the original"),
+            "attributes": tr("Permissions: the owner's, the group's and others'"),
+            "owner": tr("The owner and group"),
+            "date": tr("When the file was last modified"),
+            "path": tr("The directory the file was found in"),
+        }[key]
 
     def sort_arrow(self, key: str) -> str:
         """What follows column *key*'s title: ``↑`` sorted by it ascending,
@@ -2201,6 +2324,69 @@ class Panel(ContextMenuHost, ListViewer):
         if entry is None or entry.link_target is None:
             return ""
         return fit_text(f"-> {entry.link_target}", self.inner_width, self.ellipsis)
+
+    def info_line_at(self, x: int, y: int) -> int | None:
+        """The index in :attr:`info_lines` of the line at *x*, *y*, or None --
+        the divider above them is none of theirs."""
+        height = self.info_height
+        if not height or not self.inset <= x < self.inset + self.inner_width:
+            return None
+        first = self.height - self.inset - height + (1 if SETTINGS.file_manager.info_divider else 0)
+        index = y - first
+        return index if 0 <= index < len(self._info_lines) else None
+
+    def _info_tooltip(self, index: int) -> str:
+        """Info line *index* whole, where the line had to leave something out.
+
+        *Current file*: the name, every byte, the date and a link's target,
+        which its columns cut to their widths.  The line under it: the whole
+        directory, origin or target, whose start it cut.  *Free space*: the
+        bytes, which it rounds as ``df -h`` does.  Any other: its text, while
+        it is wider than the panel.  A departure: DN's ``TInfoView`` had no
+        tooltip.
+        """
+        lines = self._info_lines
+        text, part = lines[index]
+        entry = self.selected
+        if part == "current-file":
+            if text is None:
+                return self._entry_details(entry)
+            return self._second_whole(entry)
+        if part == "free-space" and self.free_space:
+            free, mount = self.free_space
+            whole = tr_n("~{n:,}~ free byte on ~{mount}", "~{n:,}~ free bytes on ~{mount}", free, mount=mount)
+            return whole.replace("~", "")
+        plain = text.replace("~", "")
+        return plain if text_width(plain) > self.inner_width else ""
+
+    def _entry_details(self, entry: DirEntry | None) -> str:
+        """*entry*'s name, size in bytes, date and link target, a line each."""
+        if entry is None:
+            return ""
+        details = [entry.name]
+        if not entry.is_dir or entry.counted:
+            details.append(tr_n("{n:,} byte", "{n:,} bytes", entry.size))
+        if entry.name != "..":
+            details.append(entry.display_date)
+        if entry.link_target is not None:
+            details.append(f"-> {entry.link_target}")
+        return "\n".join(details)
+
+    def _second_whole(self, entry: DirEntry | None) -> str:
+        """What :meth:`_second_line` says for *entry*, uncut."""
+        if entry is None:
+            return ""
+        if self.found is not None:
+            return str(entry.directory) if entry.directory is not None else str(self.location)
+        if entry.trashed is not None:
+            origin, deleted = entry.trashed
+            where = origin or tr("an unknown place")
+            if deleted is None:
+                return tr("From {path}").replace("{path}", where)
+            return tr("From {path}, deleted {when}").replace("{when}", country.stamp(deleted)).replace("{path}", where)
+        if entry.link_target is not None:
+            return f"-> {entry.link_target}"
+        return ""
 
     @computed
     def info_height(self) -> int:

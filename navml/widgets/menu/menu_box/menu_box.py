@@ -34,6 +34,11 @@ painted exactly as before.
 
 The frame uses the widget's ``border`` like any other frame, so a terminal
 with no box-drawing characters gets ``+-+`` rather than replacement boxes.
+
+**An entry's tooltip is its own** ``tooltip`` (markup ``tooltip:``), shown
+while the mouse rests on its row -- a departure: Turbo Vision's boxes had
+none, and DN's menus no hint line.  Most entries leave it empty, their
+caption saying enough.
 """
 
 from __future__ import annotations
@@ -205,6 +210,13 @@ class MenuBox(Widget):
             if self.selectable(index):
                 self.current = index
                 return
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The tooltip of the entry on row *y*, inside the frame; else the box's."""
+        index = self.entry_at(y)
+        if index >= 0 and 2 <= x < self.width - 2:
+            return self.entries()[index].tooltip
+        return super().tooltip_at(x, y)
 
     def entry_at(self, row: int) -> int:
         """The entry on *row* of this box, or -1 for the frame."""

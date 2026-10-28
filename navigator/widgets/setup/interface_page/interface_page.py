@@ -26,7 +26,11 @@ class InterfacePage(Widget):
         self.section = section or SETTINGS.interface
         self.appearance = appearance or SETTINGS.appearance
         self.options.value = self.section.to_bits(InterfaceData.OPTIONS)
+        self.options.tooltips = InterfaceData.tooltips(InterfaceData.OPTIONS)
         self.history_size.value = f"{self.section.history_size:03d}"
+        self.history_size.tooltip = self.section.tooltip("history_size")
+        self.tooltip_delay.value = f"{min(9999, max(0, self.section.tooltip_delay)):04d}"
+        self.tooltip_delay.tooltip = self.section.tooltip("tooltip_delay")
         #: ``{shown name: code}``, automatic first; each language by its own
         #: name, as a person who cannot read the current one looks for it.
         self.languages = {tr("Automatic"): AUTOMATIC}
@@ -38,8 +42,10 @@ class InterfacePage(Widget):
         )
         sides = InterfaceData.field("settings_tabs").choices
         self.settings_tabs.value = self.settings_tabs.sel = sides.index(self.section.settings_tabs)
+        self.settings_tabs.tooltip = self.section.tooltip("settings_tabs")
         strips = InterfaceData.field("window_strip").choices
         self.window_strip.value = self.window_strip.sel = strips.index(self.section.window_strip)
+        self.window_strip.tooltip = self.section.tooltip("window_strip")
         #: ``{shown name: depth}``, in ``COLOR_DEPTHS``' order.
         self.depths = dict(zip(
             (tr("Automatic"), tr("Monochrome"), tr("8 colours"), tr("16 colours"),
@@ -71,6 +77,10 @@ class InterfacePage(Widget):
             (name for name, look in self.looks.items() if look == self.appearance.marks),
             self.marks.choices[0],
         )
+        self.language.tooltip = self.section.tooltip("language")
+        self.colors.tooltip = self.appearance.tooltip("colors")
+        self.glyphs_tier.tooltip = self.appearance.tooltip("glyphs")
+        self.marks.tooltip = self.appearance.tooltip("marks")
 
     def mounted(self) -> None:
         super().mounted()
@@ -103,6 +113,8 @@ class InterfacePage(Widget):
         # A blank place counts as nought; a list kept to nothing keeps one.
         text = self.history_size.value.replace(" ", "0")
         values["history_size"] = max(1, int(text)) if text.isdigit() else self.section.history_size
+        delay = self.tooltip_delay.value.replace(" ", "0")
+        values["tooltip_delay"] = int(delay) if delay.isdigit() else self.section.tooltip_delay
         values["language"] = self.languages.get(self.language.value, self.section.language)
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]
         values["window_strip"] = InterfaceData.field("window_strip").choices[self.window_strip.value]

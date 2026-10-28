@@ -56,3 +56,7 @@ class PaletteFileDialog(FileDialog, _Component):
             lambda _o: [_tr('~P~review palette')],
             yielding=True,
         )
+        self.preview.tooltips = _bind(    # palette_file_dialog.nml:22
+            lambda _o: [_tr('Paint the palette under the cursor in the box beside the list')],
+            yielding=True,
+        )

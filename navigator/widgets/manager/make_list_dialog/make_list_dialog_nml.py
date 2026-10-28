@@ -81,3 +81,7 @@ class MakeListDialog(Dialog, _Component):
             lambda _o: [_tr('~S~tore path names to list file'), _tr('A~u~todetermine necessity of path names')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # make_list_dialog.nml:43
+            lambda _o: [_tr("Write each file's whole path, not its name alone"), _tr("Write a file's path only where it is not in the list file's own directory")],
+            yielding=True,
+        )

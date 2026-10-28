@@ -669,3 +669,60 @@ def test_del_asks_first_with_delete_bookmark_ticked(places, tick, answer, delete
     assert SETTINGS.confirmations.delete_bookmark is asks_again
     saved = config_path().exists() and "delete_bookmark = no" in config_path().read_text(encoding="utf-8")
     assert saved is (not asks_again)
+
+
+# -- tooltips -------------------------------------------------------------------
+
+
+def test_a_bookmarks_tooltip_says_what_its_caption_leaves_out(monkeypatch, tmp_path):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path / "home"))
+    (tmp_path / "home" / "docs").mkdir(parents=True)
+    (tmp_path / "plain").mkdir()
+    add_bookmark(tmp_path / "home" / "docs")                 # shown as ~/docs
+    add_bookmark(tmp_path / "plain")                         # shown as it is
+    add_bookmark(tmp_path / "gone")                          # not there
+    label_bookmark(tmp_path / "plain", "Plain")
+    menu, _ = bookmark_menu(bookmarks(), bookmarked=False, mounts=[tmp_path / "plain"],
+                            present={str(tmp_path / "home" / "docs"), str(tmp_path / "plain")})
+    docs, plain, gone, _line, mount = menu.entries()[:5]
+    assert docs.tooltip == str(tmp_path / "home" / "docs")
+    assert plain.tooltip == str(tmp_path / "plain")          # behind its label
+    assert gone.tooltip == "Not there now"                  # its caption is its whole path already
+    assert mount.tooltip == "Mounted now, not a bookmark"
+    add_bookmark(Path("/"))
+    menu, _ = bookmark_menu(bookmarks()[-1:], bookmarked=False, present={"/"})
+    assert menu.entries()[0].tooltip == ""                   # the caption says it all
+
+
+def test_a_links_tooltip_is_its_whole_address_and_a_greyed_new_link_says_why(monkeypatch, places):
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    from navigator.lib.drives import profiles, sessions
+    from navigator.widgets.manager.manager.manager import link_section
+
+    profiles.save("alpha", "sftp", "a.example", "me", 2222, "/srv")
+    real = sessions.available
+    monkeypatch.setattr(sessions, "available",
+                        lambda scheme: "No module named 'paramiko'" if scheme == "sftp" else real(scheme))
+    menu = SubMenu()
+    link_section(menu)
+    link = menu.entries()[0]
+    alpha = link.entries()[0]
+    assert alpha.tooltip.split("\n") == ["sftp://me@a.example:2222/srv", "Not connected",
+                                         "No module named 'paramiko'"]
+    new_sftp = next(e for e in link.entries() if getattr(e, "text", "").startswith("~N~ew SSH"))
+    assert new_sftp.tooltip == "No module named 'paramiko'\nInstall navigator-fm[sftp]"
+
+
+def test_the_add_entry_names_the_folder_it_adds(places):
+    app = navigator(places / "start")
+    seen = {}
+
+    def look(a):
+        toggle = next(e for e in popup(a).box.entries()
+                      if parse_shortcut(getattr(e, "text", ""))[0] in ("Add this folder", "Remove this folder"))
+        seen["toggle"] = toggle.tooltip
+        a.post_event(KeyEvent("escape"))
+
+    run_app(app, [KeyEvent("f1", alt=True), BOX, look])
+    assert seen["toggle"] == str(places / "start")

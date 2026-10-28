@@ -29,9 +29,9 @@ flag = "RU"
 "~W~indows" = "~О~кна"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~З~акрыть"
-# navml/commands.py:30
+# navml/commands.py:30, navml/widgets/window/window.py:273
 "Close" = "Закрыть"
-# navml/commands.py:36
+# navml/commands.py:36, navml/widgets/window/window.py:275
 "Zoom" = "Размер"
 # navml/commands.py:76
 "List" = "Список"
@@ -123,8 +123,12 @@ flag = "RU"
 "Error" = "Ошибка"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Каталог"
-# navml/widgets/dialog/history/history.py:252, navml/widgets/dialog/history/history.py:258, navml/widgets/dialog/tree_view/tree_view.py:518 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:518 ...
 " Search: " = " Поиск: "
+# navml/widgets/dialog/history/history.py:109
+"Choose from the list ({key})" = "Выбрать из списка ({key})"
+# navml/widgets/dialog/history/history.py:111
+"Earlier entries ({key})" = "Прежние записи ({key})"
 # navml/widgets/dialog/input_line/input_line.py:377
 "Cu~t~" = "В~ы~резать"
 # navml/widgets/dialog/input_line/input_line.py:378
@@ -135,20 +139,28 @@ flag = "RU"
 "C~l~ear" = "О~ч~истить"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Вы~д~елить всё"
-# navml/widgets/dialog/tab_view/tab_view.py:141
+# navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "Вкладки"
+# navml/widgets/dialog/tab_view/tab_view.py:410
+"Earlier tabs" = "Предыдущие вкладки"
+# navml/widgets/dialog/tab_view/tab_view.py:410
+"Later tabs" = "Следующие вкладки"
 # navml/widgets/dialog/tree_view/tree_view.py:522
 "Next" = "Далее"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Меню"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Move" = "Сдвиг"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Size" = "Размер"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Keep" = "Оставить"
-# navml/widgets/window/window.py:290
+# navml/widgets/window/window.py:310
 "Undo" = "Отмена"
+# navml/widgets/window/window.py:275
+"Restore" = "Восстановить"
+# navml/widgets/window/window.py:277
+"Drag to resize" = "Перетащите, чтобы изменить размер"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

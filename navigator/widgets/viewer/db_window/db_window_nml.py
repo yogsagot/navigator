@@ -65,14 +65,14 @@ class DBWindow(Window, _Component):
         self.viewer = DBViewer(parent=self)    # db_window.nml:29
         self.indicator = StaticText(parent=self)    # db_window.nml:36
         self.view_menu = SubMenu(parent=self)    # db_window.nml:49
-        _w1 = MenuItem(parent=self.view_menu)    # db_window.nml:53
-        _w2 = MenuItem(parent=self.view_menu)    # db_window.nml:56
-        _w3 = MenuItem(parent=self.view_menu)    # db_window.nml:59
-        _w4 = MenuLine(parent=self.view_menu)    # db_window.nml:62
-        _w5 = MenuItem(parent=self.view_menu)    # db_window.nml:63
-        _w6 = MenuItem(parent=self.view_menu)    # db_window.nml:66
-        _w7 = MenuLine(parent=self.view_menu)    # db_window.nml:69
-        _w8 = MenuItem(parent=self.view_menu)    # db_window.nml:70
+        _w1 = MenuItem(parent=self.view_menu)    # db_window.nml:54
+        _w2 = MenuItem(parent=self.view_menu)    # db_window.nml:58
+        _w3 = MenuItem(parent=self.view_menu)    # db_window.nml:62
+        _w4 = MenuLine(parent=self.view_menu)    # db_window.nml:65
+        _w5 = MenuItem(parent=self.view_menu)    # db_window.nml:66
+        _w6 = MenuItem(parent=self.view_menu)    # db_window.nml:69
+        _w7 = MenuLine(parent=self.view_menu)    # db_window.nml:72
+        _w8 = MenuItem(parent=self.view_menu)    # db_window.nml:73
 
         self.zoomed = True    # db_window.nml:18
 
@@ -90,22 +90,34 @@ class DBWindow(Window, _Component):
         self.indicator.height = 1    # db_window.nml:43
 
         self.view_menu.text = _bind(lambda _o: _tr('~V~iew'), yielding=True)    # db_window.nml:51
-        self.view_menu.after = 'File'    # db_window.nml:52
+        self.view_menu.tooltip = _bind(    # db_window.nml:52
+            lambda _o: _tr('Fields, memos, editing and search'),
+            yielding=True,
+        )
+        self.view_menu.after = 'File'    # db_window.nml:53
 
-        _w1.text = _bind(lambda _o: _tr('~F~ields...'), yielding=True)    # db_window.nml:54
-        _w1.command = ShowFields    # db_window.nml:55
+        _w1.text = _bind(lambda _o: _tr('~F~ields...'), yielding=True)    # db_window.nml:55
+        _w1.tooltip = _bind(    # db_window.nml:56
+            lambda _o: _tr("The file's structure: its fields and their types"),
+            yielding=True,
+        )
+        _w1.command = ShowFields    # db_window.nml:57
 
-        _w2.text = _bind(lambda _o: _tr('~M~emo view'), yielding=True)    # db_window.nml:57
-        _w2.command = ShowMemo    # db_window.nml:58
+        _w2.text = _bind(lambda _o: _tr('~M~emo view'), yielding=True)    # db_window.nml:59
+        _w2.tooltip = _bind(    # db_window.nml:60
+            lambda _o: _tr('The memo text of the cell at the cursor'),
+            yielding=True,
+        )
+        _w2.command = ShowMemo    # db_window.nml:61
 
-        _w3.text = _bind(lambda _o: _tr('~E~dit field...'), yielding=True)    # db_window.nml:60
-        _w3.command = EditDbField    # db_window.nml:61
+        _w3.text = _bind(lambda _o: _tr('~E~dit field...'), yielding=True)    # db_window.nml:63
+        _w3.command = EditDbField    # db_window.nml:64
 
-        _w5.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # db_window.nml:64
-        _w5.command = SearchFor    # db_window.nml:65
+        _w5.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # db_window.nml:67
+        _w5.command = SearchFor    # db_window.nml:68
 
-        _w6.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # db_window.nml:67
-        _w6.command = ContinueSearch    # db_window.nml:68
+        _w6.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # db_window.nml:70
+        _w6.command = ContinueSearch    # db_window.nml:71
 
-        _w8.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:71
-        _w8.command = CloseWindow    # db_window.nml:72
+        _w8.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:74
+        _w8.command = CloseWindow    # db_window.nml:75

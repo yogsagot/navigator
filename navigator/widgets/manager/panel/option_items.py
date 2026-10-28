@@ -42,14 +42,19 @@ def _sort_label(panel: Any) -> str:
 
 def panel_items(panel: Any) -> tuple[OptionItem, ...]:
     """The panel's: Hidden files, the footer, the view mode and the order."""
-    def switch(command: Any, word: Any, spellings: tuple[str, str], on: Any) -> OptionItem:
-        return OptionItem(command, lambda: option_label(word(), spellings, panel.glyphs), lit=on)
+    def switch(command: Any, word: Any, spellings: tuple[str, str], on: Any, tooltip: Any) -> OptionItem:
+        return OptionItem(command, lambda: option_label(word(), spellings, panel.glyphs), lit=on,
+                          tooltip=tooltip)
 
     return (
-        switch(ToggleHidden, lambda: tr("Hid"), HIDDEN_FILES, lambda: panel.show_hidden),
-        switch(ToggleInfoLines, lambda: tr("Info"), FOOTER, lambda: panel.show_info),
-        OptionItem(ToggleShowMode, lambda: _mode_label(panel), lit=lambda: False),
-        OptionItem(SortBy, lambda: _sort_label(panel), lit=lambda: False),
+        switch(ToggleHidden, lambda: tr("Hid"), HIDDEN_FILES, lambda: panel.show_hidden,
+               lambda: tr("Show hidden files")),
+        switch(ToggleInfoLines, lambda: tr("Info"), FOOTER, lambda: panel.show_info,
+               lambda: tr("Show the info lines")),
+        OptionItem(ToggleShowMode, lambda: _mode_label(panel), lit=lambda: False,
+                   tooltip=lambda: tr("View mode: simple, detailed or list")),
+        OptionItem(SortBy, lambda: _sort_label(panel), lit=lambda: False,
+                   tooltip=lambda: tr("Sort order")),
     )
 
 

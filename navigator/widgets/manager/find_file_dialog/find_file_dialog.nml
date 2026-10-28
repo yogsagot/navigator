@@ -54,6 +54,7 @@ FindFileDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 2
         items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words"]
+        tooltips: ["Also match the size, date and kind set by Advanced...", "", "Search the subdirectories too", ""]
 
     Label:
         id: scope_caption

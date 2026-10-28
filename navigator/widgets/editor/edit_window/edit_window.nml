@@ -133,6 +133,7 @@ EditWindow(Window):
     SubMenu:
         id: edit_menu
         text: '~E~ditor'
+        tooltip: "Editing, the file, search, paragraphs and blocks"
         after: 'File'
         #: *Edit*'s entries on the *Editor* menu itself rather than a submenu
         #: of it -- a departure, asked for: they are what the menu is opened
@@ -161,13 +162,16 @@ EditWindow(Window):
             key: 'Shift-Ins'
         MenuItem:
             text: 'C~o~py to...'
+            tooltip: "Write the block to a file"
             command: BlockWrite
         MenuItem:
             text: 'P~a~ste from...'
+            tooltip: "Insert a file's text at the cursor"
             command: BlockRead
         MenuLine:
         MenuItem:
             text: 'C~l~ear'
+            tooltip: "Delete the selection without copying it to the clipboard"
             command: Clear
             key: 'Ctrl-Del'
         #: Not on DN's menu, where ^Y was the only way -- a departure, asked for.
@@ -244,6 +248,7 @@ EditWindow(Window):
             #: ^Q[ / ^Q] had no menu entry in DN -- a departure, asked for.
             MenuItem:
                 text: '~M~atching bracket'
+                tooltip: "Jump to the bracket that pairs with the one at the cursor"
                 command: BracketPair
                 key: 'Alt-Left'
         SubMenu:
@@ -251,6 +256,7 @@ EditWindow(Window):
             text: 'Pa~r~agraph'
             MenuItem:
                 text: '~J~ustify'
+                tooltip: "Justify the block's paragraph to both margins"
                 command: FJustify
                 key: 'Alt-J'
             MenuItem:
@@ -291,6 +297,7 @@ EditWindow(Window):
             #: ^K H had no menu entry in DN -- a departure, asked for.
             MenuItem:
                 text: '~H~ide/show block'
+                tooltip: "Hide the marked block, or show it again"
                 command: HideBlock
                 key: 'Alt-H'
             MenuLine:
@@ -309,11 +316,13 @@ EditWindow(Window):
             MenuLine:
             MenuItem:
                 text: '~S~ort'
+                tooltip: "Sort the lines by the column block"
                 command: SortBlock
                 key: 'Alt-T'
             #: ``a``, not DN's ``u``, which its *Unindent* had too.
             MenuItem:
                 text: 'C~a~lculate sum'
+                tooltip: "Add up the column block's numbers; the sum goes to the clipboard"
                 command: CalcBlock
                 key: 'Alt-Ins'
         SubMenu:
@@ -337,6 +346,7 @@ EditWindow(Window):
                 key: 'Ctrl P'
             MenuItem:
                 text: 'Line Dra~w~ing'
+                tooltip: "Draw lines with the arrow keys: off, single, double"
                 command: SwitchDrawMode
                 key: 'F4'
             MenuLine:
@@ -390,6 +400,7 @@ EditWindow(Window):
             text: 'Optio~n~s'
             MenuItem:
                 text: '~B~ackspace indents'
+                tooltip: "Backspace at a line's start goes back to an indent above"
                 command: SwitchBack
             MenuItem:
                 text: 'AutoB~r~ackets'
@@ -402,12 +413,15 @@ EditWindow(Window):
                 command: SwitchSave
             MenuItem:
                 text: '~J~ustify on wrap'
+                tooltip: "Widen a wrapped line to the margin"
                 command: SwitchWrap
             MenuItem:
                 text: '~V~ertical blocks'
+                tooltip: "Mark column blocks instead of line ones"
                 command: SwitchBlock
             MenuItem:
                 text: 'Opti~m~al fill'
+                tooltip: "Write blanks as tabs where they reach a tab stop"
                 command: SwitchFill
             MenuItem:
                 text: 'Current ~l~ine highlight'

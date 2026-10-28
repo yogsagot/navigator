@@ -81,3 +81,7 @@ class DeleteDialog(Dialog, _Component):
             lambda _o: [_tr('~R~ecursive delete')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # delete_dialog.nml:46
+            lambda _o: [_tr('Delete directories with everything in them')],
+            yielding=True,
+        )

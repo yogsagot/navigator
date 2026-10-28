@@ -67,6 +67,7 @@ CopyDialog(Dialog):
         width: max(0, parent.width - 6)
         height: 2
         items: ["Check ~f~ree disk space", "Pr~e~serve attributes", "Follow symli~n~ks", "Remove so~u~rce files"]
+        tooltips: ["Stop before copying when the target has too little room", "Keep permissions, owner and times on the copies", "Copy what a link points to, not the link itself", "Delete the originals once copied: a move"]
 
     #: DN's own row rather than ``Dialog``'s, which has no Tree in it.  Cancel
     #: carries no letter, as the resource's did: ``~C~`` is the prompt's.

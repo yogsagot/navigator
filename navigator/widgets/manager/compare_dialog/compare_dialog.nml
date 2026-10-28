@@ -35,6 +35,7 @@ CompareDialog(Dialog):
         width: 26
         height: 4
         items: ["Compare ~s~ize", "Compare ~t~ime", "Compare ~a~ttributes", "Compare ~c~ontents"]
+        tooltips: ["Files of different sizes are different", "A newer file is different from an older one", "Files with different permissions are different", "Read files of the same size through and compare them: slow, but certain"]
         value: 3
 
     Label:

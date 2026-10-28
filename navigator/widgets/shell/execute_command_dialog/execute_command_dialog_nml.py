@@ -82,3 +82,7 @@ class ExecuteCommandDialog(Dialog, _Component):
             lambda _o: [_tr('In a ~w~indow'), _tr('~Z~oomed'), _tr('~M~odal')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # execute_command_dialog.nml:45
+            lambda _o: [_tr('Run it in a window of its own rather than the console'), _tr('A command run in a window opens it zoomed'), _tr('A command run in a window holds every key until the window is closed')],
+            yielding=True,
+        )

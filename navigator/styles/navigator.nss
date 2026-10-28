@@ -216,6 +216,9 @@ KeyBar::key { fg: $bar-key-fg; bg: $bar-key-bg; bold: $bar-key-bold; dim: $bar-k
    too -- and wins over the rule above by being the more specific. */
 KeyBar::label:disabled,
 KeyBar::key:disabled { fg: $bar-disabled-fg; bg: $bar-disabled-bg; bold: $bar-disabled-bold; dim: $bar-disabled-dim; italic: $bar-disabled-italic; underline: $bar-disabled-underline; reverse: $bar-disabled-reverse }
+/* A tooltip (navkit's Tooltip) -- not DN's, which had none: the key bar's
+   colours, so every theme has them without a slot of its own. */
+Tooltip { fg: $bar-fg; bg: $bar-bg; bold: $bar-bold; dim: $bar-dim; italic: $bar-italic; underline: $bar-underline; reverse: $bar-reverse }
 
 /*
  * The widget library, bound to the slots DOS Navigator's Colors dialog

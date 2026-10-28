@@ -3,7 +3,7 @@
 **What counts as text** is what :mod:`navkit.i18n` will be asked for:
 
 - in markup, the caption literals of ``text``/``title``/``label_text``/
-  ``items``/``prompt`` -- found by compiling each line exactly as
+  ``items``/``prompt``/``tooltip``/``tooltips`` -- found by compiling each line exactly as
   ``navml build`` does, so the two can never disagree;
 - in Python, the literal first argument of ``tr()``, ``tr_n()`` (keyed by the
   singular), ``tr_plain()`` and ``tr_noop()`` (a table's entry, translated

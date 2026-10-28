@@ -43,3 +43,4 @@ DeleteDialog(Dialog):
         width: 24
         height: 1
         items: ["~R~ecursive delete"]
+        tooltips: ["Delete directories with everything in them"]

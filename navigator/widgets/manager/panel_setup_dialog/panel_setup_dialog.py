@@ -17,6 +17,9 @@ class PanelSetupDialog(Dialog):
 
     def __init__(self, panel: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        # The same eight boxes as *New Manager defaults*, for one panel: the
+        # settings' docs say what each shows.
+        self.display.tooltips = PanelDefaultsData.tooltips(PanelDefaultsData.DISPLAY)
         if panel is not None:
             # Each order's caption ends in the way it runs, following the box.
             self.sort_by.items = bind(lambda _o: sort_radio_captions(bool(self.reverse.value), panel.glyphs))

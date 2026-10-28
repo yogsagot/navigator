@@ -54,6 +54,7 @@ FindDialog(Dialog):
         width: 24
         height: 3 if root.replace else 2
         items: ["~C~ase sensitive", "~W~hole words only", "~P~rompt on replace"] if root.replace else ["~C~ase sensitive", "~W~hole words only"]
+        tooltips: ["", "", "Ask before each replacement"]
 
     Label:
         id: direction_caption

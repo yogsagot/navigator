@@ -26,6 +26,7 @@ class ScrollBar(_Component):
     emits: _Any
     chars: _Any
     parts: _Any
+    tooltip_passes: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
     vertical: bool
     length: int

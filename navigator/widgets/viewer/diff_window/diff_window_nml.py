@@ -88,12 +88,12 @@ class DiffWindow(Window, _Component):
         self.bar = ScrollBar(parent=self)    # diff_window.nml:46
         self.info = StaticText(parent=self)    # diff_window.nml:57
         self.compare_menu = SubMenu(parent=self)    # diff_window.nml:68
-        _w1 = MenuItem(parent=self.compare_menu)    # diff_window.nml:72
-        _w2 = MenuItem(parent=self.compare_menu)    # diff_window.nml:75
-        _w3 = MenuLine(parent=self.compare_menu)    # diff_window.nml:78
-        _w4 = MenuItem(parent=self.compare_menu)    # diff_window.nml:79
-        _w5 = MenuLine(parent=self.compare_menu)    # diff_window.nml:82
-        _w6 = MenuItem(parent=self.compare_menu)    # diff_window.nml:83
+        _w1 = MenuItem(parent=self.compare_menu)    # diff_window.nml:73
+        _w2 = MenuItem(parent=self.compare_menu)    # diff_window.nml:76
+        _w3 = MenuLine(parent=self.compare_menu)    # diff_window.nml:79
+        _w4 = MenuItem(parent=self.compare_menu)    # diff_window.nml:80
+        _w5 = MenuLine(parent=self.compare_menu)    # diff_window.nml:83
+        _w6 = MenuItem(parent=self.compare_menu)    # diff_window.nml:84
 
         self.zoomed = True    # diff_window.nml:26
 
@@ -124,19 +124,23 @@ class DiffWindow(Window, _Component):
             lambda _o: _tr('~C~ompare'),
             yielding=True,
         )
-        self.compare_menu.after = 'File'    # diff_window.nml:71
+        self.compare_menu.tooltip = _bind(    # diff_window.nml:71
+            lambda _o: _tr('Step through the differences'),
+            yielding=True,
+        )
+        self.compare_menu.after = 'File'    # diff_window.nml:72
 
-        _w1.text = _bind(lambda _o: _tr('~N~ext difference'), yielding=True)    # diff_window.nml:73
-        _w1.command = NextDifference    # diff_window.nml:74
+        _w1.text = _bind(lambda _o: _tr('~N~ext difference'), yielding=True)    # diff_window.nml:74
+        _w1.command = NextDifference    # diff_window.nml:75
 
-        _w2.text = _bind(    # diff_window.nml:76
+        _w2.text = _bind(    # diff_window.nml:77
             lambda _o: _tr('~P~revious difference'),
             yielding=True,
         )
-        _w2.command = PreviousDifference    # diff_window.nml:77
+        _w2.command = PreviousDifference    # diff_window.nml:78
 
-        _w4.text = _bind(lambda _o: _tr('~C~ompare again'), yielding=True)    # diff_window.nml:80
-        _w4.command = Rescan    # diff_window.nml:81
+        _w4.text = _bind(lambda _o: _tr('~C~ompare again'), yielding=True)    # diff_window.nml:81
+        _w4.command = Rescan    # diff_window.nml:82
 
-        _w6.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # diff_window.nml:84
-        _w6.command = CloseWindow    # diff_window.nml:85
+        _w6.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # diff_window.nml:85
+        _w6.command = CloseWindow    # diff_window.nml:86

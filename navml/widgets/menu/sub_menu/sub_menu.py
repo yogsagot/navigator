@@ -74,6 +74,34 @@ class MenuContainer:
                     return found
         return None
 
+    def path_to(self, command: Any) -> list[MenuNode]:
+        """The shown entries leading to the item asking for *command*: each
+        submenu down, then the item -- empty if no shown item asks for it.
+
+        Through :meth:`entries`, so a hidden entry is never offered and a
+        bar's spliced-in window menus are searched.  An item asking for the
+        command itself is preferred to one asking for another instance of
+        its class (``GoParent(by_key=True)`` and the menu's ``GoParent``).
+        """
+        wanted = command_of(command)
+        for exact in (True, False):
+            found = self._path_to(wanted, exact)
+            if found:
+                return found
+        return []
+
+    def _path_to(self, wanted: Command, exact: bool) -> list[MenuNode]:
+        for entry in self.entries():
+            if isinstance(entry, MenuItem) and entry.command is not None:
+                mine = command_of(entry.command)
+                if mine == wanted if exact else type(mine) is type(wanted):
+                    return [entry]
+            elif isinstance(entry, MenuContainer):
+                found = entry._path_to(wanted, exact)
+                if found:
+                    return [entry, *found]
+        return []
+
     # -- changing -------------------------------------------------------------------
 
     def add_item(

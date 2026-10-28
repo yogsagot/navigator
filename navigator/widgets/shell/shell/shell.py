@@ -186,6 +186,7 @@ class Shell(DockLayout):
         self.root_mark.visible = bind(
             lambda w: w.open and not interface.hide_menu_bar and not self.console_visible)
         self.keybar.visible = bind(lambda w: not interface.hide_status_line)
+        self.keybar.menu = self.menu
         # *Auto hide Command Line*: DN 1.51 declared the box and never read
         # it, so this is the behaviour its ``CheckSize`` and ``ToggleCmdLine``
         # gave a hidden line -- shown once it holds text, its row back to the
@@ -1469,7 +1470,7 @@ class Shell(DockLayout):
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
-        from navigator.lib.config.usermenu import caption, find_menu, global_menu, parse
+        from navigator.lib.config.usermenu import caption, find_menu, global_menu, parse, preview
 
         app = self.application
         if app is None:
@@ -1503,7 +1504,10 @@ class Shell(DockLayout):
                     elif entry.is_line:
                         into.add_line()
                     else:
-                        items[id(into.add_item(caption(entry, active, passive)))] = entry
+                        item = into.add_item(caption(entry, active, passive))
+                        # What it will run, the panels' macros in (``preview``).
+                        item.tooltip = preview(menu.commands(entry), active, passive)
+                        items[id(item)] = entry
                         if entry.fkey:
                             fkeys.setdefault(entry.fkey, entry)
 

@@ -162,38 +162,47 @@ Manager(Window):
     SubMenu:
         id: panel_menu
         text: '~P~anel'
+        tooltip: "List files, compare, sort, filter, select and change directory"
         after: 'Utilities'
         MenuItem:
             text: '~M~ake list file...'
+            tooltip: "Write the tagged files' names to a list file"
             command: MakeList
             key: 'Alt-L'
         MenuItem:
             text: 'Read file ~l~ist'
+            tooltip: "Show the files a list file names as a listing"
             command: ReadFileList
             key: 'Alt-V'
         #: A departure: MC's *External panelize* (Panelize's docstring).
         MenuItem:
             text: 'Paneli~z~e command...'
+            tooltip: "Run a command and list the files it prints in the panel"
             command: Panelize
             key: 'Alt-Y'
         MenuItem:
             text: '~C~ompare directories'
+            tooltip: "Tag what each panel has that the other lacks or has older"
             command: CompareDir
         MenuItem:
             text: 'Count directory len~g~th'
+            tooltip: "Add up the bytes under the selected directories"
             command: CountLength
             key: 'Alt-G'
         MenuItem:
             text: 'Directory Branc~h~'
+            tooltip: "Every file below this directory in one listing"
             command: DirBranch
         MenuLine:
         #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's docstring).
         MenuItem:
             text: 'Multi-rename...'
+            tooltip: "Rename the tagged files by a pattern"
             command: MultiRename
             key: 'Alt-A'
         MenuItem:
             text: 'Undo multi-rename'
+            tooltip: "Put back the names the last multi-rename changed"
             command: UndoMultiRename
         MenuLine:
         #: DN's archive panel key bar, F4 and F6 (``hcArchives``): a menu's
@@ -206,6 +215,7 @@ Manager(Window):
             key: 'Shift-F2'
         MenuItem:
             text: 'Test archive'
+            tooltip: "Read the archive through and check it for errors"
             command: ArcTest
         MenuLine:
         MenuItem:
@@ -249,10 +259,12 @@ Manager(Window):
             key: 'Ctrl-T'
         MenuItem:
             text: 'I~n~fo'
+            tooltip: "Disk and directory information in the other panel"
             command: DiskInfo
             key: 'Ctrl-L'
         MenuItem:
             text: 'Quic~k~ view'
+            tooltip: "Preview the file at the cursor in the other panel"
             command: QuickView
             key: 'Ctrl-Q'
         MenuLine:
@@ -270,15 +282,18 @@ Manager(Window):
             key: 'Gray "*"'
         MenuItem:
             text: 'Advanced filter...'
+            tooltip: "Show or hide files by extension"
             command: AdvancedFilter
             key: 'Alt-Del'
         MenuLine:
         MenuItem:
             text: 'Change ~d~rive'
+            tooltip: "Send this panel to a bookmarked directory"
             command: ChangeDrive
             key: 'Alt-C'
         MenuItem:
             text: 'Change direc~t~ory'
+            tooltip: "Choose a directory from a tree"
             command: ChangeDirectory
             key: 'Alt-T'
         MenuItem:
@@ -291,16 +306,19 @@ Manager(Window):
             key: 'Alt-R'
         MenuItem:
             text: 'S~a~me directory in other panel'
+            tooltip: "Send the other panel to this directory"
             command: EqualizePanels
             key: 'Alt-='
         #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
         #: departure, asked for.  No hotkey: only ``j`` is free.
         MenuItem:
             text: 'Show in other panel'
+            tooltip: "Show the found file in the other panel"
             command: ChangeInactive
             key: 'Shift-Enter'
         MenuItem:
             text: '~Q~uick dirs...'
+            tooltip: "The bookmarks, for this panel"
             command: ListOfDirs
             key: 'Alt-Shift-0'
         MenuItem:

@@ -55,6 +55,7 @@ CalendarWindow(Window):
     SubMenu:
         id: calendar_menu
         text: '~C~alendar'
+        tooltip: "Move between months and years"
         after: 'File'
         MenuItem:
             text: '~P~revious month'

@@ -82,3 +82,7 @@ class ExitDialog(Dialog, _Component):
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # exit_dialog.nml:43
+            lambda _o: [_tr('Quit without asking from now on (Options > Confirmations)')],
+            yielding=True,
+        )

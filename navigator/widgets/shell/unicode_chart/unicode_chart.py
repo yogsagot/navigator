@@ -106,6 +106,8 @@ class UnicodeChart(Dialog):
         effect(self, UnicodeChart._follow_search)
         effect(self, UnicodeChart._follow_filter)
         effect(self, UnicodeChart._describe)
+        # The icons' names for the grid's tooltips, read from the index when one shows.
+        self.grid.nerd_names = lambda: self.index.nerd if self.index is not None else None
         if self.index is None:
             _background.run(self, unicode_table.build_index, self.nerd, done=self._indexed)
 

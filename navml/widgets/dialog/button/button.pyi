@@ -9,12 +9,14 @@ from navml.widgets.dialog.static_text import StaticText
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
+from navkit import commands
 from navkit.events import Event, KeyEvent, KeyReleaseEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, effect
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
+from navml.widgets.dialog.commands import Cancel, Default
 
 
 class ClickEvent(Event): ...
@@ -31,6 +33,8 @@ class Button(Control, _Component):
     def __init__(self, text: str = ..., **kwargs: Any) -> None: ...
     am_default: bool
     marked: bool
+    def tooltip_at(self, x: int, y: int) -> str: ...
+    def press_keys(self) -> list[str]: ...
     async def press(self) -> bool: ...
     async def activate(self, letter: str = ...) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...

@@ -68,6 +68,7 @@ DiffWindow(Window):
     SubMenu:
         id: compare_menu
         text: '~C~ompare'
+        tooltip: "Step through the differences"
         after: 'File'
         MenuItem:
             text: '~N~ext difference'

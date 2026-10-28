@@ -121,6 +121,7 @@ FileWindow(Window):
     SubMenu:
         id: view_menu
         text: '~V~iew'
+        tooltip: "Text, hex or dump, wrapping, filters, search and encoding"
         after: 'File'
         #: F4 had no entry while the three below stood for it -- a departure,
         #: asked for, so every bound key shows on the menu.
@@ -144,6 +145,7 @@ FileWindow(Window):
         #: or its source.
         MenuItem:
             text: '~M~arkup view'
+            tooltip: "Show a Markdown, reST, HTML or PDF file rendered, or its source"
             command: SwitchRendered
             key: 'Shift-F4'
         MenuItem:
@@ -162,15 +164,18 @@ FileWindow(Window):
         #: F6, as F4 above.
         MenuItem:
             text: 'Fi~l~ter'
+            tooltip: "Hide characters: none, all but ASCII, or the control characters"
             command: AddFilter
         MenuItem:
             text: '~N~o filter'
             command: SetViewFilter(0)
         MenuItem:
             text: '~A~SCII filter'
+            tooltip: "Hide control characters and everything beyond ASCII"
             command: SetViewFilter(1)
         MenuItem:
             text: '~P~rintable filter'
+            tooltip: "Hide control characters"
             command: SetViewFilter(2)
         MenuLine:
         MenuItem:
@@ -184,6 +189,7 @@ FileWindow(Window):
             command: ReverseSearch
         MenuItem:
             text: 'Go to add~r~ess...'
+            tooltip: "Jump to an offset in the file"
             command: GotoAddress
         MenuLine:
         #: No letter: *Show hidden characters* has the only one its caption
@@ -197,6 +203,7 @@ FileWindow(Window):
             key: 'Shift-F5'
         MenuItem:
             text: 'Encod~i~ng...'
+            tooltip: "The code page the file is read in"
             command: ChooseEncoding
             key: 'Shift-F6'
         MenuLine:

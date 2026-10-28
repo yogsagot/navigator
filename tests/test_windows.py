@@ -522,3 +522,22 @@ def test_tile_cascade_and_close_all_need_a_window_that_consents(desk):
     assert [desktop.enables(c) for c in commands] == [False, False, False]
     desktop.open(window(5, 5, 30, 10))
     assert [desktop.enables(c) for c in commands] == [True, True, True]
+
+
+# -- tooltips on the chrome ------------------------------------------------------
+
+
+def test_the_chrome_icons_say_what_they_do(desk):
+    app, desktop = desk
+    back = desktop.open(window(0, 0, 30, 10))
+    win = desktop.open(window(40, 0, 30, 10))
+    win.tooltip = "Mine"
+    zoom = win._icons()["zoom"]
+    assert win.tooltip_at(2, 0).startswith("Close")
+    assert win.tooltip_at(zoom + 1, 0).startswith("Zoom")
+    assert win.tooltip_at(win.width - 1, win.height - 1).startswith("Drag to resize")
+    assert win.tooltip_at(10, 0) == "Mine"   # the title: no icon there
+    assert back.tooltip_at(2, 0) == ""       # an inactive window shows none
+    win.toggle_zoom()
+    settle()
+    assert win.tooltip_at(win._icons()["zoom"] + 1, 0).startswith("Restore")

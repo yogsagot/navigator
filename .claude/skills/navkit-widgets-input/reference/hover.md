@@ -20,3 +20,24 @@ hover then follows presses alone.
   painted rather than being widgets, so sweeping down a panel is one widget. A frame nothing restyled writes nothing.
   No sheet uses `:hovered` yet, so Navigator paints exactly what it did before.
 
+
+## Tooltips: hover that waits
+
+`Widget.tooltip` is HTML's `title` for a cell grid: neither Turbo Vision nor DOS Navigator had one, and the option
+strips' symbols (`[§]`, `[⇥]`) were what made it worth having.
+
+- **Armed by a plain motion, and by nothing else.** Each one cancels the pending timer and starts another
+  (`Application.call_later(tooltip_delay / 1000, ...)`, the delay being milliseconds), so the timer fires only once the pointer has stayed in one cell that
+  long. A press or a key drops it and does not re-arm: after a click, nothing pops up until the mouse moves again.
+  Every event but a `_Tick`, a `ModifiersEvent` or the wake drops a tooltip shown or waiting -- a resize included.
+- **What it says is decided when it shows**, not when the pointer arrived: `Application.tooltip_here()` asks
+  `tooltip_at(x, y)` of `hovered` and its ancestors, each in its own coordinates, nearest first. Confinement to the
+  modal comes for free from `hovered`.
+- **`call_later` is `call_every` ticking once** (`Repeat(once=True)`): the same queue path, so the tooltip appears as
+  one frame of its own batch, and the same cancellable handle.
+- **Shown as an overlay, the root's last child.** What stands after a modal is painted after it (`_render_above`), so
+  a tooltip shows over dialogs. It sits outside the modal, so adding and removing it marks below dirty and the frame
+  is painted whole -- twice per tooltip, which is nothing. Its geometry is bound (the root's `layout` would otherwise
+  hand it the screen on a resize), a cell right of and below the pointer, before it where it would pass an edge; it
+  never covers the pointer's cell, so the hit test cannot find it.
+- Styled as `Tooltip` in a sheet; Navigator gives it the key bar's colours.

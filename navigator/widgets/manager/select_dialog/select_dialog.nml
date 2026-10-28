@@ -45,3 +45,4 @@ SelectDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 1
         items: ["~E~xcept mask"]
+        tooltips: ["Select what the mask does not match"]

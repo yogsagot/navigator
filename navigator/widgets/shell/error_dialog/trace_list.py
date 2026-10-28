@@ -29,6 +29,10 @@ class TraceList(ListViewer):
         #: write is what asks for the frame.
         self.spans: list[list[Span]] = []
 
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """The whole line while it is cut: the rows are ``row_text`` coloured."""
+        return self.cut_text(index, item)
+
     def render_row(self, surface: Surface, y: int, index: int, item: Any) -> None:
         super().render_row(surface, y, index, item)
         if index >= len(self.spans):

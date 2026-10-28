@@ -23,3 +23,11 @@ def strings():
     from navigator.lib.drives.base import DESCRIBED
     for what in DESCRIBED:
         yield what, "navigator/lib/drives/base.py"
+    # Every setting's doc: a setup page shows it as the tooltip of the
+    # control that sets it (``Section.tooltip``/``tooltips``).  All of them
+    # rather than the ones a page names today, so a page that starts showing
+    # one finds it translated.
+    from navigator import settings
+    for section in settings.Section.__subclasses__():
+        for field in section.fields():
+            yield field.doc, "navigator/settings.py"

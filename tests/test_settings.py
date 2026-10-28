@@ -316,6 +316,28 @@ def test_history_size_is_typed_in_interface_setup_and_sizes_every_history(tmp_pa
     assert "history_size = 7" in config_path().read_text(encoding="utf-8")
 
 
+def test_tooltip_delay_is_typed_in_interface_setup_and_applied_at_once(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def type_delay(a):
+        seen.append(a.modal.interface.tooltip_delay.value)
+        a.modal.interface.tooltip_delay.value = "0500"
+
+    run_app(app, [
+        lambda a: seen.append(a.tooltip_delay),
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        type_delay,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append(a.tooltip_delay),
+    ])
+    assert seen == [1000, "1000", 500]
+    assert SETTINGS.interface.tooltip_delay == 500
+    assert "tooltip_delay = 500" in config_path().read_text(encoding="utf-8")
+
+
 def test_colours_are_chosen_in_interface_setup_and_sent_at_once(tmp_path, quiet_console, monkeypatch):
     from navkit.capabilities import ANSI_BRIGHT, TRUECOLOR
 

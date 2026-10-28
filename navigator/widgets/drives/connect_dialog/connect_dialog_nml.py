@@ -48,8 +48,8 @@ class ConnectDialog(Dialog, _Component):
     directory: Field    # connect_dialog.nml:51
     label: Field    # connect_dialog.nml:60
     keep: CheckBoxes    # connect_dialog.nml:69
-    secure: CheckBoxes    # connect_dialog.nml:78
-    missing: StaticText    # connect_dialog.nml:88
+    secure: CheckBoxes    # connect_dialog.nml:79
+    missing: StaticText    # connect_dialog.nml:90
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -59,8 +59,8 @@ class ConnectDialog(Dialog, _Component):
         self.directory = Field(parent=self)    # connect_dialog.nml:50
         self.label = Field(parent=self)    # connect_dialog.nml:59
         self.keep = CheckBoxes(parent=self)    # connect_dialog.nml:68
-        self.secure = CheckBoxes(parent=self)    # connect_dialog.nml:77
-        self.missing = StaticText(parent=self)    # connect_dialog.nml:87
+        self.secure = CheckBoxes(parent=self)    # connect_dialog.nml:78
+        self.missing = StaticText(parent=self)    # connect_dialog.nml:89
 
         self.modal_width = 60    # connect_dialog.nml:15
         self.modal_height = 16    # connect_dialog.nml:16
@@ -112,19 +112,27 @@ class ConnectDialog(Dialog, _Component):
             lambda _o: [_tr('~K~eep in the Link list')],
             yielding=True,
         )
+        self.keep.tooltips = _bind(    # connect_dialog.nml:75
+            lambda _o: [_tr('Save it under its name in the Link list, to connect again in one step')],
+            yielding=True,
+        )
 
-        self.secure.x = 3    # connect_dialog.nml:79
-        self.secure.y = 10    # connect_dialog.nml:80
-        self.secure.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # connect_dialog.nml:81
-        self.secure.height = 1    # connect_dialog.nml:82
-        self.secure.items = _bind(    # connect_dialog.nml:83
+        self.secure.x = 3    # connect_dialog.nml:80
+        self.secure.y = 10    # connect_dialog.nml:81
+        self.secure.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # connect_dialog.nml:82
+        self.secure.height = 1    # connect_dialog.nml:83
+        self.secure.items = _bind(    # connect_dialog.nml:84
             lambda _o: [_tr('~E~ncrypt with TLS (FTPS)')],
             yielding=True,
         )
-        self.secure.visible = False    # connect_dialog.nml:84
+        self.secure.tooltips = _bind(    # connect_dialog.nml:85
+            lambda _o: [_tr('Encrypt the connection: FTPS rather than plain FTP')],
+            yielding=True,
+        )
+        self.secure.visible = False    # connect_dialog.nml:86
 
-        self.missing.x = 2    # connect_dialog.nml:89
-        self.missing.y = 11    # connect_dialog.nml:90
-        self.missing.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # connect_dialog.nml:91
-        self.missing.height = 1    # connect_dialog.nml:92
-        self.missing.text = ''    # connect_dialog.nml:93
+        self.missing.x = 2    # connect_dialog.nml:91
+        self.missing.y = 11    # connect_dialog.nml:92
+        self.missing.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # connect_dialog.nml:93
+        self.missing.height = 1    # connect_dialog.nml:94
+        self.missing.text = ''    # connect_dialog.nml:95

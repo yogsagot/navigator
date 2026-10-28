@@ -20,10 +20,15 @@ class FMDefaultsPage(Widget):
         # Each order's caption ends in the way it runs, following the box.
         self.sort_by.items = bind(lambda _o: sort_radio_captions(bool(self.reverse.value), self.glyphs))
         self.sort_by.value = PanelDefaultsData.SORT_BY.index(self.section.sort_by)
+        self.sort_by.tooltip = self.section.tooltip("sort_by")
         self.reverse.value = 1 if self.section.sort_reverse else 0
+        self.reverse.tooltip = self.section.tooltip("sort_reverse")
         self.display.value = self.section.to_bits(PanelDefaultsData.DISPLAY)
+        self.display.tooltips = PanelDefaultsData.tooltips(PanelDefaultsData.DISPLAY)
         self.left_panel.value = PanelDefaultsData.LEFT_PANEL.index(self.section.left_panel)
+        self.left_panel.tooltip = self.section.tooltip("left_panel")
         self.view_mode.value = PanelDefaultsData.VIEW_MODE.index(self.section.view_mode)
+        self.view_mode.tooltip = self.section.tooltip("view_mode")
 
     def accept(self) -> dict[str, Any]:
         return {

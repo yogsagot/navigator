@@ -46,13 +46,13 @@ class MultiRenameDialog(Dialog, _Component):
     search: Field    # multi_rename_dialog.nml:39
     replace: Field    # multi_rename_dialog.nml:49
     options: CheckBoxes    # multi_rename_dialog.nml:59
-    case_caption: Label    # multi_rename_dialog.nml:67
-    case: RadioButtons    # multi_rename_dialog.nml:76
-    start: Field    # multi_rename_dialog.nml:84
-    step: Field    # multi_rename_dialog.nml:93
-    digits: Field    # multi_rename_dialog.nml:102
-    preview: RenamePreview    # multi_rename_dialog.nml:111
-    status: StaticText    # multi_rename_dialog.nml:118
+    case_caption: Label    # multi_rename_dialog.nml:68
+    case: RadioButtons    # multi_rename_dialog.nml:77
+    start: Field    # multi_rename_dialog.nml:85
+    step: Field    # multi_rename_dialog.nml:94
+    digits: Field    # multi_rename_dialog.nml:103
+    preview: RenamePreview    # multi_rename_dialog.nml:112
+    status: StaticText    # multi_rename_dialog.nml:119
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -61,13 +61,13 @@ class MultiRenameDialog(Dialog, _Component):
         self.search = Field(parent=self)    # multi_rename_dialog.nml:38
         self.replace = Field(parent=self)    # multi_rename_dialog.nml:48
         self.options = CheckBoxes(parent=self)    # multi_rename_dialog.nml:58
-        self.case_caption = Label(parent=self)    # multi_rename_dialog.nml:66
-        self.case = RadioButtons(parent=self)    # multi_rename_dialog.nml:75
-        self.start = Field(parent=self)    # multi_rename_dialog.nml:83
-        self.step = Field(parent=self)    # multi_rename_dialog.nml:92
-        self.digits = Field(parent=self)    # multi_rename_dialog.nml:101
-        self.preview = RenamePreview(parent=self)    # multi_rename_dialog.nml:110
-        self.status = StaticText(parent=self)    # multi_rename_dialog.nml:117
+        self.case_caption = Label(parent=self)    # multi_rename_dialog.nml:67
+        self.case = RadioButtons(parent=self)    # multi_rename_dialog.nml:76
+        self.start = Field(parent=self)    # multi_rename_dialog.nml:84
+        self.step = Field(parent=self)    # multi_rename_dialog.nml:93
+        self.digits = Field(parent=self)    # multi_rename_dialog.nml:102
+        self.preview = RenamePreview(parent=self)    # multi_rename_dialog.nml:111
+        self.status = StaticText(parent=self)    # multi_rename_dialog.nml:118
 
         self.modal_width = 76    # multi_rename_dialog.nml:14
         self.modal_height = 23    # multi_rename_dialog.nml:15
@@ -125,57 +125,61 @@ class MultiRenameDialog(Dialog, _Component):
             lambda _o: [_tr('Regular ~e~xpression'), _tr('Case sens~i~tive'), _tr('~F~irst match only')],
             yielding=True,
         )
+        self.options.tooltips = _bind(    # multi_rename_dialog.nml:65
+            lambda _o: [_tr('The search is a regular expression, not plain text'), '', _tr('Replace only the first match in each name')],
+            yielding=True,
+        )
 
-        self.case_caption.x = 31    # multi_rename_dialog.nml:68
-        self.case_caption.y = 5    # multi_rename_dialog.nml:69
-        self.case_caption.width = 10    # multi_rename_dialog.nml:70
-        self.case_caption.height = 1    # multi_rename_dialog.nml:71
-        self.case_caption.text = _bind(lambda _o: _tr('Case'), yielding=True)    # multi_rename_dialog.nml:72
-        self.case_caption.link = _bind(lambda _o: self.case)    # multi_rename_dialog.nml:73
+        self.case_caption.x = 31    # multi_rename_dialog.nml:69
+        self.case_caption.y = 5    # multi_rename_dialog.nml:70
+        self.case_caption.width = 10    # multi_rename_dialog.nml:71
+        self.case_caption.height = 1    # multi_rename_dialog.nml:72
+        self.case_caption.text = _bind(lambda _o: _tr('Case'), yielding=True)    # multi_rename_dialog.nml:73
+        self.case_caption.link = _bind(lambda _o: self.case)    # multi_rename_dialog.nml:74
 
-        self.case.x = 31    # multi_rename_dialog.nml:77
-        self.case.y = 6    # multi_rename_dialog.nml:78
-        self.case.width = 18    # multi_rename_dialog.nml:79
-        self.case.height = 5    # multi_rename_dialog.nml:80
-        self.case.items = _bind(    # multi_rename_dialog.nml:81
+        self.case.x = 31    # multi_rename_dialog.nml:78
+        self.case.y = 6    # multi_rename_dialog.nml:79
+        self.case.width = 18    # multi_rename_dialog.nml:80
+        self.case.height = 5    # multi_rename_dialog.nml:81
+        self.case.items = _bind(    # multi_rename_dialog.nml:82
             lambda _o: [_tr('Unchan~g~ed'), _tr('~l~ower'), _tr('~U~PPER'), _tr('~W~ord Caps'), _tr('Fi~r~st only')],
             yielding=True,
         )
 
-        self.start.x = 51    # multi_rename_dialog.nml:85
-        self.start.y = 6    # multi_rename_dialog.nml:86
-        self.start.width = 22    # multi_rename_dialog.nml:87
-        self.start.height = 1    # multi_rename_dialog.nml:88
-        self.start.label_text = _bind(    # multi_rename_dialog.nml:89
+        self.start.x = 51    # multi_rename_dialog.nml:86
+        self.start.y = 6    # multi_rename_dialog.nml:87
+        self.start.width = 22    # multi_rename_dialog.nml:88
+        self.start.height = 1    # multi_rename_dialog.nml:89
+        self.start.label_text = _bind(    # multi_rename_dialog.nml:90
             lambda _o: _tr('Coun~t~er'),
             yielding=True,
         )
-        self.start.label_width = 9    # multi_rename_dialog.nml:90
+        self.start.label_width = 9    # multi_rename_dialog.nml:91
 
-        self.step.x = 51    # multi_rename_dialog.nml:94
-        self.step.y = 7    # multi_rename_dialog.nml:95
-        self.step.width = 22    # multi_rename_dialog.nml:96
-        self.step.height = 1    # multi_rename_dialog.nml:97
-        self.step.label_text = _bind(lambda _o: _tr('Step'), yielding=True)    # multi_rename_dialog.nml:98
-        self.step.label_width = 9    # multi_rename_dialog.nml:99
+        self.step.x = 51    # multi_rename_dialog.nml:95
+        self.step.y = 7    # multi_rename_dialog.nml:96
+        self.step.width = 22    # multi_rename_dialog.nml:97
+        self.step.height = 1    # multi_rename_dialog.nml:98
+        self.step.label_text = _bind(lambda _o: _tr('Step'), yielding=True)    # multi_rename_dialog.nml:99
+        self.step.label_width = 9    # multi_rename_dialog.nml:100
 
-        self.digits.x = 51    # multi_rename_dialog.nml:103
-        self.digits.y = 8    # multi_rename_dialog.nml:104
-        self.digits.width = 22    # multi_rename_dialog.nml:105
-        self.digits.height = 1    # multi_rename_dialog.nml:106
-        self.digits.label_text = _bind(    # multi_rename_dialog.nml:107
+        self.digits.x = 51    # multi_rename_dialog.nml:104
+        self.digits.y = 8    # multi_rename_dialog.nml:105
+        self.digits.width = 22    # multi_rename_dialog.nml:106
+        self.digits.height = 1    # multi_rename_dialog.nml:107
+        self.digits.label_text = _bind(    # multi_rename_dialog.nml:108
             lambda _o: _tr('~D~igits'),
             yielding=True,
         )
-        self.digits.label_width = 9    # multi_rename_dialog.nml:108
+        self.digits.label_width = 9    # multi_rename_dialog.nml:109
 
-        self.preview.x = 2    # multi_rename_dialog.nml:112
-        self.preview.y = 11    # multi_rename_dialog.nml:113
-        self.preview.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # multi_rename_dialog.nml:114
-        self.preview.height = _bind(lambda _o: max(0, _o.parent.height - 16))    # multi_rename_dialog.nml:115
+        self.preview.x = 2    # multi_rename_dialog.nml:113
+        self.preview.y = 11    # multi_rename_dialog.nml:114
+        self.preview.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # multi_rename_dialog.nml:115
+        self.preview.height = _bind(lambda _o: max(0, _o.parent.height - 16))    # multi_rename_dialog.nml:116
 
-        self.status.x = 2    # multi_rename_dialog.nml:119
-        self.status.y = _bind(lambda _o: max(0, _o.parent.height - 5))    # multi_rename_dialog.nml:120
-        self.status.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # multi_rename_dialog.nml:121
-        self.status.height = 1    # multi_rename_dialog.nml:122
-        self.status.align = 'center'    # multi_rename_dialog.nml:123
+        self.status.x = 2    # multi_rename_dialog.nml:120
+        self.status.y = _bind(lambda _o: max(0, _o.parent.height - 5))    # multi_rename_dialog.nml:121
+        self.status.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # multi_rename_dialog.nml:122
+        self.status.height = 1    # multi_rename_dialog.nml:123
+        self.status.align = 'center'    # multi_rename_dialog.nml:124
