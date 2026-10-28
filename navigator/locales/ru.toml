@@ -367,7 +367,7 @@ flag = "RU"
 "~T~ree" = "Д~е~рево"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Подсчёт размера каталога"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330 ...
 "Delete" = "Удаление"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27, navigator/widgets/file_ops/delete_dialog/delete_dialog.py:89
 "Do you wish to delete" = "Вы хотите удалить"
@@ -1083,6 +1083,8 @@ flag = "RU"
 "~O~n top" = "Свер~х~у"
 # navigator/widgets/setup/interface_page/interface_page.nml:102
 "On the le~f~t" = "С~л~ева"
+# navigator/widgets/setup/interface_page/interface_page.nml:102
+"Sim~p~le" = "Прост~ы~е"
 # navigator/widgets/setup/interface_page/interface_page.nml:111
 "W~i~ndow strip" = "Окна в м~е~ню"
 # navigator/widgets/setup/interface_page/interface_page.nml:120
@@ -1135,33 +1137,33 @@ flag = "RU"
 "1~0~ minutes" = "1~0~ минут"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "~М~ышь вызывает заставку"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:341
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:33, navigator/widgets/shell/commands.py:341
 "Settings" = "Настройки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:49
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:50
 "System" = "Система"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:353
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:53, navigator/widgets/shell/commands.py:353
 "Startup" = "Загрузка/выгрузка"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:359
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:56, navigator/widgets/shell/commands.py:359
 "Interface" = "Интерф."
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:373
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:59, navigator/widgets/shell/commands.py:373
 "Confirmations" = "Подтверждения"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:61
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:62
 "Savers" = "Заставки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:281
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:65, navigator/widgets/shell/commands.py:281
 "Country" = "Страна"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:379
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:68, navigator/widgets/shell/commands.py:379
 "Editor/Viewer" = "Ред/Пр"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71, navigator/lib/config/keybindings.py
 "File panels" = "Файловые панели"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74
 "Info panel" = "Инфопанель"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77
 "Panel defaults" = "Панели по умолчанию"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80
 "Columns" = "Колонки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "Подсветка"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86
 "Communications" = "Связь"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "Загрузка"
@@ -1709,7 +1711,7 @@ flag = "RU"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Несовпадение CRC файла {name}, указано={listed}, вычислено={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "текст"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:449
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "авто"
 # navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:2106
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
@@ -1769,33 +1771,33 @@ flag = "RU"
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Параметры > Конфигурация > Запуск (dlgStartupSetup в DN)"
 # navigator/settings.py:366
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Параметры > Конфигурация > Интерфейс (dlgInterfaceSetup в DN)"
-# navigator/settings.py:430
+# navigator/settings.py:431
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Параметры > Конфигурация > Подтверждения (dlgConfirmations в DN)"
-# navigator/settings.py:454
+# navigator/settings.py:455
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
-# navigator/settings.py:519
+# navigator/settings.py:520
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:571
+# navigator/settings.py:572
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:642
+# navigator/settings.py:643
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:695
+# navigator/settings.py:696
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:729
+# navigator/settings.py:730
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:774
+# navigator/settings.py:775
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:789
+# navigator/settings.py:790
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:821
+# navigator/settings.py:822
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:845
+# navigator/settings.py:846
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:860
+# navigator/settings.py:861
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:903
+# navigator/settings.py:904
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:33
 "Reading archive" = "Чтение архива"
@@ -1845,9 +1847,9 @@ flag = "RU"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Подлинность сервера {host} не может быть установлена.\nОтпечаток ключа {type}:\n{fingerprint}"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4701
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "Добавить"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325, navigator/widgets/manager/commands.py:58 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "Правка"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4691
 "~N~ew SSH link (SFTP)..." = "~Н~овая связь по SSH (SFTP)..."
@@ -2101,39 +2103,39 @@ flag = "RU"
 "Root access was refused: {reason}" = "В доступе root отказано: {reason}"
 # navigator/widgets/file_ops/as_root.py:188
 "{path}: root access is not available" = "{path}: доступ root недоступен"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:117
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "каталог"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:104, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:564
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<различается>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "File ~{name}~" = "Файл ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
 "broken link" = "битая ссылка"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
 "link to {target}, {kind}" = "ссылка на {target}, {kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:292
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
 "Not on this drive" = "Недоступно на этом диске"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:276, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
 "Not supported by this file system" = "Не поддерживается этой файловой системой"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:98
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
 "Directory ~{name}~" = "Каталог ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
 "named pipe" = "именованный канал"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:323
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
 "Read Write Exec" = "Чтение Запись Запуск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
 "socket" = "сокет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
 "device" = "устройство"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
 "special file" = "особый файл"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:666
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
 "Changes will be lost. Are you sure?" = "Изменения будут потеряны. Вы уверены?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:33
 "{done} of {n} file, {percent}%" = ["{done} из {n} файла, {percent}%", "{done} из {n} файлов, {percent}%", "{done} из {n} файлов, {percent}%"]

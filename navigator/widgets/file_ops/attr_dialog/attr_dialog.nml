@@ -26,10 +26,11 @@ from navml.widgets.dialog.time_field import TimeField
 #: attributes and ``chattr``'s inode flags.  The pages are ``TabPage``s in
 #: this document, so every id is the dialog's whichever page it is on.  What
 #: the selection is, and *Recurse*, which every page's change obeys, stand
-#: outside them.
+#: outside them.  The tabs are simple ones, bare captions over a rule, a row
+#: less than boxed tabs.
 AttrDialog(Dialog):
     modal_width: 64
-    modal_height: 22
+    modal_height: 21
     title: "File Attributes"
     buttons: "ok-cancel"
 
@@ -49,13 +50,15 @@ AttrDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 1
 
-    #: The baseline is each page's first row; it meets the frame at both ends.
+    #: The rule under the captions is each page's first row; it meets the
+    #: frame at both ends.
     TabView:
         id: tabs
         x: 0
         y: 3
         width: parent.width
-        height: 13
+        height: 12
+        side: "simple"
         joins_frame: True
 
         TabPage:
@@ -303,7 +306,7 @@ AttrDialog(Dialog):
     Label:
         id: recurse_caption
         x: 2
-        y: 17
+        y: 16
         width: 10
         height: 1
         text: "~R~ecurse"
@@ -312,7 +315,7 @@ AttrDialog(Dialog):
     RadioButtons:
         id: recurse
         x: 12
-        y: 17
+        y: 16
         width: max(0, parent.width - 14)
         height: 1
         items: ["No", "Files", "Dirs", "All"]

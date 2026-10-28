@@ -410,8 +410,9 @@ class InterfaceData(Section):
     )
     #: Not DN's, which had no Options > Settings to put tabs in.
     settings_tabs: str = Setting(
-        "top", choices=("top", "left"),
-        doc="Where Options > Settings shows its tabs: a row on top, or a column on the left",
+        "simple", choices=("top", "left", "simple"),
+        doc="Where Options > Settings shows its tabs: a row on top, a column on the left, "
+            "or simple, a plain row of captions on top",
     )
     #: Not DN's: OSP put a window's number in its close icon instead.  On by
     #: default, asked for: unlike most additions that change the screen, it

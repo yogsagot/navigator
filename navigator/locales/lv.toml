@@ -367,7 +367,7 @@ flag = "LV"
 "~T~ree" = "K~o~ks"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Skaita direktorijas izmēru"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330 ...
 "Delete" = "Dzēst"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27, navigator/widgets/file_ops/delete_dialog/delete_dialog.py:89
 "Do you wish to delete" = "Vai vēlaties dzēst"
@@ -1083,6 +1083,8 @@ flag = "LV"
 "~O~n top" = "Au~g~šā"
 # navigator/widgets/setup/interface_page/interface_page.nml:102
 "On the le~f~t" = "~K~reisajā pusē"
+# navigator/widgets/setup/interface_page/interface_page.nml:102
+"Sim~p~le" = "Vienkār~š~i"
 # navigator/widgets/setup/interface_page/interface_page.nml:111
 "W~i~ndow strip" = "Logi izvēl~n~ē"
 # navigator/widgets/setup/interface_page/interface_page.nml:120
@@ -1135,33 +1137,33 @@ flag = "LV"
 "1~0~ minutes" = "1~0~ minūtes"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "Pele ~s~āk saudzētāju"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:32, navigator/widgets/shell/commands.py:341
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:33, navigator/widgets/shell/commands.py:341
 "Settings" = "Uzstādījumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:49
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:50
 "System" = "Sistēma"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:52, navigator/widgets/shell/commands.py:353
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:53, navigator/widgets/shell/commands.py:353
 "Startup" = "Startēšana"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:55, navigator/widgets/shell/commands.py:359
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:56, navigator/widgets/shell/commands.py:359
 "Interface" = "Saskarne"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:58, navigator/widgets/shell/commands.py:373
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:59, navigator/widgets/shell/commands.py:373
 "Confirmations" = "Apstiprinājumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:61
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:62
 "Savers" = "Saudzētāji"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:64, navigator/widgets/shell/commands.py:281
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:65, navigator/widgets/shell/commands.py:281
 "Country" = "Valsts"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67, navigator/widgets/shell/commands.py:379
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:68, navigator/widgets/shell/commands.py:379
 "Editor/Viewer" = "Redaktors/Skatītājs"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71, navigator/lib/config/keybindings.py
 "File panels" = "Failu paneļi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74
 "Info panel" = "Info panelis"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77
 "Panel defaults" = "Paneļu noklusējumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80
 "Columns" = "Kolonnas"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "Izcelšana"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86
 "Communications" = "Sakari"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "Startējot"
@@ -1709,7 +1711,7 @@ flag = "LV"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Nesakrīt faila {name} CRC, norādīts={listed}, aprēķināts={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "teksts"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:449
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "auto"
 # navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:2106
 "~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
@@ -1769,33 +1771,33 @@ flag = "LV"
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Iestatījumi > Konfigurācija > Startēšana (DN dlgStartupSetup)"
 # navigator/settings.py:366
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Iestatījumi > Konfigurācija > Saskarne (DN dlgInterfaceSetup)"
-# navigator/settings.py:430
+# navigator/settings.py:431
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Iestatījumi > Konfigurācija > Apstiprinājumi (DN dlgConfirmations)"
-# navigator/settings.py:454
+# navigator/settings.py:455
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- redaktors (DN dlgEditorDefaults)"
-# navigator/settings.py:519
+# navigator/settings.py:520
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Iestatījumi > Konfigurācija > Redaktors/skatītājs -- skatītājs (DN dlgEditorDefaults)"
-# navigator/settings.py:571
+# navigator/settings.py:572
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Iestatījumi > Failu pārvaldnieks > Iestatīšana (DN dlgFMSetup)"
-# navigator/settings.py:642
+# navigator/settings.py:643
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
-# navigator/settings.py:695
+# navigator/settings.py:696
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:729
+# navigator/settings.py:730
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:774
+# navigator/settings.py:775
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:789
+# navigator/settings.py:790
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:821
+# navigator/settings.py:822
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Iestatījumi > Konfigurācija > Valsts formāti (DN dlgCountrySetup)"
-# navigator/settings.py:845
+# navigator/settings.py:846
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:860
+# navigator/settings.py:861
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "File > Checksums > Calculate (not DN's)" = "Fails > Kontrolsummas > Aprēķināt (nav DN)"
-# navigator/settings.py:903
+# navigator/settings.py:904
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:33
 "Reading archive" = "Lasa arhīvu"
@@ -1845,9 +1847,9 @@ flag = "LV"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Servera {host} autentiskumu nevar pārbaudīt.\n{type} atslēgas nospiedums ir\n{fingerprint}"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4701
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Jauns G~V~fs/KIO savienojums (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "Pievienot"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:325, navigator/widgets/manager/commands.py:58 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "Rediģēt"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4691
 "~N~ew SSH link (SFTP)..." = "~J~auns SSH savienojums (SFTP)..."
@@ -2101,39 +2103,39 @@ flag = "LV"
 "Root access was refused: {reason}" = "Root piekļuve atteikta: {reason}"
 # navigator/widgets/file_ops/as_root.py:188
 "{path}: root access is not available" = "{path}: root piekļuve nav pieejama"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:117
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "direktorija"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:104, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2032, navigator/widgets/manager/manager/manager.py:2032
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2128, navigator/widgets/tree/directory_tree/directory_tree.py:247
 "{n:,} byte" = ["{n:,} baits", "{n:,} baiti", "{n:,} baitu"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:564
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<atšķiras>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "File ~{name}~" = "Fails ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
 "broken link" = "bojāta saite"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
 "link to {target}, {kind}" = "saite uz {target}, {kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:292
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
 "Not on this drive" = "Nav pieejams šajā diskā"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:276, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
 "Not supported by this file system" = "Šī failu sistēma to neatbalsta"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:98
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
 "Directory ~{name}~" = "Direktorija ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
 "named pipe" = "nosaukts kanāls"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:323
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
 "Read Write Exec" = "Lasīt Rakstīt Izpild."
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
 "socket" = "ligzda"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
 "device" = "ierīce"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
 "special file" = "speciāls fails"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:666
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
 "Changes will be lost. Are you sure?" = "Izmaiņas tiks zaudētas. Vai tiešām?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:33
 "{done} of {n} file, {percent}%" = ["{done} no {n} faila, {percent}%", "{done} no {n} failiem, {percent}%", "{done} no {n} failiem, {percent}%"]

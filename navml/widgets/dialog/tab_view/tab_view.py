@@ -11,13 +11,19 @@ width.  The current tab is drawn double and its foot is left open, so it
 reads as raised and joined to the page under it; every other tab is single
 and closed off by the baseline.
 
-**One row, scrolled.**  Tabs that do not all fit get a ◄ at the left edge and
-a ► at the right, each there only while there is a tab out of sight that way;
+**One row, scrolled.**  Tabs that do not all fit get a ← at the left edge and
+a → at the right, each there only while there is a tab out of sight that way;
 a click on one moves the row a tab along, and on top so does a notch of the
 wheel anywhere over the tabs.  Down the left a notch of the wheel is the tab
 above or below instead.  Selecting a tab out of sight (by
 key) brings it into view, which an effect does, so the view follows however
 the tab came to be current -- the scrolling is the view's, not the model's.
+
+**Simple tabs** (``side: "simple"``) are the row on top without the boxes:
+bare captions, the current one on a background that stands out from the
+dialog's (its own ``current`` part, a button's colours), over a single rule
+the whole width.  The rule is a page's first row, as the boxed tabs'
+baseline is, so the strip costs two rows where the boxed one costs three.
 
 **A page's first row is the baseline**, as a dialog's first row is its frame:
 a page lays its controls out from ``y: 1`` exactly as the dialog it might once
@@ -60,8 +66,13 @@ from navml.widgets.layout.layout import Layout
 from navml.widgets.layout.layout.layout import Rect
 
 
-#: Where the tabs go: in a row along the top, or a column down the left.
-SIDES = ("top", "left")
+#: Where the tabs go: in a row along the top, a column down the left, or a
+#: plain row of captions on top.
+SIDES = ("top", "left", "simple")
+
+#: The scrolling buttons, up, down, left and right in a scrollbar's order:
+#: arrows rather than a scrollbar's triangles, below Unicode its ``^v<>``.
+ARROWS = "\u2191\u2193\u2190\u2192"
 
 #: The widest the left column of tabs grows; a longer caption is cut.
 MAX_COLUMN = 20
@@ -80,6 +91,8 @@ class TabView(Layout):
 
     #: ``top``: a row of tabs over the page, scrolled sideways.  ``left``: a
     #: column of them beside it, a tab a row, scrolled up and down.
+    #: ``simple``: a row on top like ``top``'s, but of bare captions, the
+    #: current one on its own background, over a rule on a page's first row.
     side: str = reactive("top")
 
     #: The strip's two ends lie on the parent's frame: on top the first and
@@ -92,8 +105,9 @@ class TabView(Layout):
     #: The tabs' boxes and the baseline.
     border = StyleProperty("single", values=tuple(BOX_CHARSETS))
 
-    #: A tab's caption, the current one's, and the scrolling arrows.
-    parts = ("tab", "selected", "arrow")
+    #: A tab's caption, the current one's, and the scrolling arrows; and a
+    #: simple tab's current caption, which no box or mark sets apart.
+    parts = ("tab", "selected", "arrow", "current")
 
     #: The rows above the baseline on top: the tabs' tops and their captions.
     strip_rows = 2
@@ -235,11 +249,18 @@ class TabView(Layout):
         """A tab's cells on top: its caption, a blank either side, two bars."""
         return len(caption) + 4
 
-    def _sizes(self) -> list[int]:
-        """Each tab's cells along the strip: its width on top, a row down the left."""
+    def _size(self, caption: str) -> int:
+        """A tab's cells along the strip: its width on top; simple, its
+        caption between two blanks; down the left, a row."""
         if self.side == "left":
-            return [1] * len(self.children)
-        return [self._width(caption) for caption in self.captions()]
+            return 1
+        if self.side == "simple":
+            return len(caption) + 2
+        return self._width(caption)
+
+    def _sizes(self) -> list[int]:
+        """Each tab's cells along the strip."""
+        return [self._size(caption) for caption in self.captions()]
 
     def _framed(self) -> bool:
         """Whether this strip's ends lie on its parent's frame."""
@@ -331,7 +352,7 @@ class TabView(Layout):
             left, top = self.column + 1, self._offset()
             height = max(0, self.height - 2 * top)
             return {child: (left, top, max(0, self.width - left), height) for child in children}
-        left, top = self._offset(), self.strip_rows
+        left, top = self._offset(), 1 if self.side == "simple" else self.strip_rows
         width = max(0, self.width - 2 * left)
         return {child: (left, top, width, max(0, self.height - top)) for child in children}
 
@@ -340,11 +361,12 @@ class TabView(Layout):
         caption, or its foot on the baseline, which is a page's first row as
         well; a page leaves that row empty, so a click there falls out to
         here.  Down the left it is the column of tabs and the rule beside it,
-        but not the frame's rows: a click there is the frame's, to drag by."""
+        but not the frame's rows: a click there is the frame's, to drag by.
+        Simple, it is the captions and the rule under them."""
         offset = self._offset()
         if self.side == "left":
             return 0 <= x <= self.column and offset <= y < offset + self._length()
-        return 0 <= y <= self.strip_rows and offset <= x < offset + self._length()
+        return 0 <= y <= (1 if self.side == "simple" else self.strip_rows) and offset <= x < offset + self._length()
 
     def tab_at(self, x: int, y: int) -> int | None:
         if not self.in_strip(x, y):
@@ -353,7 +375,7 @@ class TabView(Layout):
             if self.side == "left":
                 if y == at:
                     return index
-            elif at <= x < at + self._width(caption):
+            elif at <= x < at + self._size(caption):
                 return index
         return None
 
@@ -382,7 +404,7 @@ class TabView(Layout):
                 if index != self.current:
                     self.select(index)
             elif self.scrolls:
-                # On top the row moves a tab a notch, as the arrows move it;
+                # On top, boxed or simple, the row moves a tab a notch, as the arrows move it;
                 # which tab is current does not change.
                 self.scroll(step)
             return True
@@ -403,6 +425,8 @@ class TabView(Layout):
             return
         if self.side == "left":
             self._render_left(surface)
+        elif self.side == "simple":
+            self._render_simple(surface)
         else:
             self._render_top(surface)
 
@@ -418,11 +442,7 @@ class TabView(Layout):
             raised_feet = (raised[3], raised[2])
         base, offset, length = self.strip_rows, self._offset(), self._length()
         surface.fill(offset, 0, length, base, " ", self.style)
-        baseline = [line] * self.width
-        if self._framed() and self.width >= 2:
-            tees = joins(getattr(self.parent, "border", "double"), self.glyphs)
-            baseline[0], baseline[-1] = tees[0], tees[1]
-        surface.draw_text(0, base, "".join(baseline), self.style)
+        self._baseline(surface, base)
         for x, index, caption in self.tabs():
             inner = self._width(caption) - 2
             chosen = index == self.current
@@ -439,18 +459,32 @@ class TabView(Layout):
             else:
                 surface.draw_text(x, base, foot + line * inner + foot, self.style)
         earlier, later = self.can_scroll()
-        arrows = scrollbar("dos", self.glyphs)
+        arrows = self._arrows()
         if earlier:
             surface.draw_text(offset, 1, arrows[2], self.part_style("arrow"))
         if later:
             surface.draw_text(offset + length - 1, 1, arrows[3], self.part_style("arrow"))
+
+    def _baseline(self, surface: Surface, y: int) -> None:
+        """The line under the tabs the whole width -- into the frame's tees
+        if it lies on one."""
+        baseline = [self.box_charset()[4]] * self.width
+        if self._framed() and self.width >= 2:
+            tees = joins(getattr(self.parent, "border", "double"), self.glyphs)
+            baseline[0], baseline[-1] = tees[0], tees[1]
+        surface.draw_text(0, y, "".join(baseline), self.style)
+
+    def _arrows(self) -> str:
+        """The scrolling buttons at the terminal's glyph tier."""
+        return ARROWS if self.glyphs >= GLYPHS_UNICODE else scrollbar("ascii", self.glyphs)
 
     def _render_left(self, surface: Surface) -> None:
         """A tab a row, a mark before the current one, and the rule beside
         them the whole height -- into the frame's tees if it lies on one."""
         column = self.column
         bar = self.box_charset()[5]
-        arrows = scrollbar("dos", self.glyphs)
+        mark = scrollbar("dos", self.glyphs)[3]
+        arrows = self._arrows()
         offset = self._offset()
         rows = {at: (index, caption) for at, index, caption in self.tabs()}
         surface.fill(0, offset, column, self._length(), " ", self.style)
@@ -463,7 +497,7 @@ class TabView(Layout):
                 cut = ellipsis(self.glyphs)
                 caption = caption[: max(0, column - 3 - len(cut))] + cut
             if chosen:
-                surface.draw_text(0, y, arrows[3], self.part_style("arrow"))
+                surface.draw_text(0, y, mark, self.part_style("arrow"))
             text = f" {caption}".ljust(column - 1)
             surface.draw_text(1, y, text, self.part_style("selected" if chosen else "tab"))
         rule = [bar] * self.height
@@ -477,3 +511,19 @@ class TabView(Layout):
             surface.draw_text(column // 2, offset, arrows[0], self.part_style("arrow"))
         if later:
             surface.draw_text(column // 2, offset + self._length() - 1, arrows[1], self.part_style("arrow"))
+
+    def _render_simple(self, surface: Surface) -> None:
+        """The captions side by side on the first row, the current one on
+        its own background, and the rule under them on the page's first row."""
+        arrows = self._arrows()
+        offset, length = self._offset(), self._length()
+        surface.fill(offset, 0, length, 1, " ", self.style)
+        for x, index, caption in self.tabs():
+            text = f" {caption} "[: max(0, offset + length - x)]
+            surface.draw_text(x, 0, text, self.part_style("current" if index == self.current else "tab"))
+        self._baseline(surface, 1)
+        earlier, later = self.can_scroll()
+        if earlier:
+            surface.draw_text(offset, 0, arrows[2], self.part_style("arrow"))
+        if later:
+            surface.draw_text(offset + length - 1, 0, arrows[3], self.part_style("arrow"))

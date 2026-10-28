@@ -34,6 +34,10 @@ PAGES: dict[str, tuple[str, ...]] = {
 #: The dialog's width with its tabs down the left.
 LEFT_WIDTH = 80
 
+#: The dialog's height with simple tabs: their rule is a page's first row,
+#: as the boxed tabs' baseline is, a row nearer the top, so a page keeps its rows.
+SIMPLE_HEIGHT = 23
+
 #: Every section the dialog answers for, in page order.
 SECTIONS: tuple[str, ...] = tuple(dict.fromkeys(name for names in PAGES.values() for name in names))
 
@@ -54,6 +58,8 @@ class SettingsDialog(Dialog):
         if self.tabs.side == "left":
             self.modal_width = LEFT_WIDTH
             self._buttons_under_pages()
+        elif self.tabs.side == "simple":
+            self.modal_height = SIMPLE_HEIGHT
         self.tabs.select(self.tabs.index_of(self.page(tab)))
 
     def _buttons_under_pages(self) -> None:

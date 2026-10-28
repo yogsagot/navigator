@@ -248,6 +248,10 @@ TabView::tab          { fg: $dialog-label-normal-fg;     bg: $dialog-label-norma
 TabView::selected     { fg: $dialog-label-selected-fg;   bg: $dialog-label-selected-bg; bold: $dialog-label-selected-bold; dim: $dialog-label-selected-dim; italic: $dialog-label-selected-italic; underline: $dialog-label-selected-underline; reverse: $dialog-label-selected-reverse }
 /* The strip with the keyboard: its current tab as a focused button is. */
 TabView:focused::selected { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg; bold: $dialog-button-selected-bold; dim: $dialog-button-selected-dim; italic: $dialog-button-selected-italic; underline: $dialog-button-selected-underline; reverse: $dialog-button-selected-reverse }
+/* Simple tabs' current caption, which has no box or mark to set it apart: a
+ * button's background, and a focused button's while the strip has the keyboard. */
+TabView::current      { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg; bold: $dialog-button-normal-bold; dim: $dialog-button-normal-dim; italic: $dialog-button-normal-italic; underline: $dialog-button-normal-underline; reverse: $dialog-button-normal-reverse }
+TabView:focused::current { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg; bold: $dialog-button-selected-bold; dim: $dialog-button-selected-dim; italic: $dialog-button-selected-italic; underline: $dialog-button-selected-underline; reverse: $dialog-button-selected-reverse }
 TabView::arrow        { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 
 /* A gauge in `TWhileView''s colour, which is its lines' colour: `GetColor(7)'

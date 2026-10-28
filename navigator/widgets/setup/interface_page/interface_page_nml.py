@@ -140,10 +140,10 @@ class InterfacePage(_Component):
 
         self.settings_tabs.x = 17    # interface_page.nml:98
         self.settings_tabs.y = 15    # interface_page.nml:99
-        self.settings_tabs.width = 36    # interface_page.nml:100
+        self.settings_tabs.width = 50    # interface_page.nml:100
         self.settings_tabs.height = 1    # interface_page.nml:101
         self.settings_tabs.items = _bind(    # interface_page.nml:102
-            lambda _o: [_tr('~O~n top'), _tr('On the le~f~t')],
+            lambda _o: [_tr('~O~n top'), _tr('On the le~f~t'), _tr('Sim~p~le')],
             yielding=True,
         )
 

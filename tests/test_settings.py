@@ -487,7 +487,7 @@ def test_interface_chooses_where_settings_puts_its_tabs_the_next_time(tmp_path, 
                   KeyEvent("enter"), lambda a: None,
                   lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, look,
                   KeyEvent("escape"), lambda a: None])
-    assert seen == [("top", 76), ("left", 80, 0), True, True]
+    assert seen == [("simple", 76), ("left", 80, 0), True, True]
     assert SETTINGS.interface.settings_tabs == "left"
     assert "settings_tabs = left" in config_path().read_text(encoding="utf-8")
 
@@ -1025,7 +1025,7 @@ def test_use_system_clipboard_switches_the_applications(tmp_path, quiet_console)
     assert seen == [True, False]
 
 
-@pytest.mark.parametrize("side", ["top", "left"])
+@pytest.mark.parametrize("side", ["top", "left", "simple"])
 def test_the_key_bar_says_how_to_change_tabs_and_the_frame_does_not(tmp_path, quiet_console, side):
     from navigator.widgets.shell.commands import Settings
 
@@ -1065,3 +1065,26 @@ def test_communications_sets_the_desktop_integration_beside_system_setups_values
     ])
     assert SETTINGS.system.desktop_vfs == "kio" and SETTINGS.system.root_timeout == 7
     assert "desktop_vfs = kio" in config_path().read_text(encoding="utf-8")
+
+
+def test_simple_settings_tabs_take_a_row_off_the_box_and_a_page_keeps_its_rows(tmp_path, quiet_console):
+    from navigator.widgets.setup.settings_dialog.settings_dialog import SIMPLE_HEIGHT
+
+    SETTINGS.interface.settings_tabs = "top"
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose_simple(a):
+        seen.append(a.modal.interface.height)
+        a.modal.interface.settings_tabs.value = 2
+
+    def look(a):
+        dialog = a.modal
+        seen.append((dialog.tabs.side, dialog.height, dialog.interface.y, dialog.interface.height))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, choose_simple,
+                  KeyEvent("enter"), lambda a: None,
+                  lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, look,
+                  KeyEvent("escape"), lambda a: None])
+    assert seen == [seen[0], ("simple", SIMPLE_HEIGHT, 1, seen[0])]
+    assert "settings_tabs = simple" in config_path().read_text(encoding="utf-8")

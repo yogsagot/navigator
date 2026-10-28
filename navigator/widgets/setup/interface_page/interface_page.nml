@@ -97,9 +97,9 @@ InterfacePage:
         id: settings_tabs
         x: 17
         y: 15
-        width: 36
+        width: 50
         height: 1
-        items: ["~O~n top", "On the le~f~t"]
+        items: ["~O~n top", "On the le~f~t", "Sim~p~le"]
 
     #: Not DN's: the windows on the menu bar, by number or with titles too.
     Label:

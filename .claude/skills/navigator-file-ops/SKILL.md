@@ -132,7 +132,8 @@ an unreadable value. In the grid R, W and X tick *Read*/*Write*/*Exec* in the cu
 
 **Behind tabs: *Mode* | *ACL* | *Xattrs* | *Flags*** (a departure, asked for). The pages are `TabPage`s inline in
 `attr_dialog.nml`, so every id is still the dialog's; the name rows and *Recurse* stand outside them, since every
-page obeys *Recurse*. All three new pages are **deltas**: `survey` shares what every file has (`None` -- shown `???`,
+page obeys *Recurse*. The tabs are simple ones (`TabView.side: "simple"`, bare captions over a rule), so the box is
+64 by 21. All three new pages are **deltas**: `survey` shares what every file has (`None` -- shown `???`,
 `<differs>`, `[?]` -- where they disagree or only some have it), and `build()` puts only rows added, changed or
 removed (flags pressed, `flags_touched`) in the request, so one edit reaches files whose ACLs otherwise differ.
 - **ACL** (`navigator/lib/file_ops/acl.py`, pure): the `system.posix_acl_access`/`_default` xattrs read and written in

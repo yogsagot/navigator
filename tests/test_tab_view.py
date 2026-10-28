@@ -90,7 +90,7 @@ def test_tabs_that_do_not_fit_scroll_one_row_between_arrows():
     assert tabs.can_scroll() == (False, True)
     buffer = ScreenBuffer(20, 6)
     tabs.render_tree(buffer)
-    assert rows(buffer)[1] == " ║ One ║│ Two │    ►"
+    assert rows(buffer)[1] == " ║ One ║│ Two │    →"
     tabs.scroll(1)
     assert [title for _, _, title in tabs.tabs()] == ["Two", "Three"]
     assert tabs.can_scroll() == (True, False)
@@ -99,7 +99,7 @@ def test_tabs_that_do_not_fit_scroll_one_row_between_arrows():
     assert [title for _, _, title in tabs.tabs()] == ["Two", "Three"]
     buffer = ScreenBuffer(20, 6)
     tabs.render_tree(buffer)
-    assert rows(buffer)[1] == "◄│ Two ││ Three │   "
+    assert rows(buffer)[1] == "←│ Two ││ Three │   "
 
 
 def test_the_arrows_scroll_and_a_tab_chosen_out_of_sight_comes_into_view():
@@ -264,7 +264,7 @@ def test_down_the_left_more_tabs_than_rows_scroll_between_up_and_down_arrows():
         "        │",
         "► One   │",
         "  Two   │",
-        "    ▼   │",
+        "    ↓   │",
     ]
     assert tabs._on_arrow(4, 3) == 1 and tabs._on_arrow(4, 0) == 0
     tabs.scroll(5)
@@ -454,3 +454,97 @@ def test_down_the_left_the_wheel_over_the_tabs_chooses_the_one_above_or_below():
         wheel("wheel_down", x=20), lambda a: None, look(where),                  # over the page: not the tabs'
     )
     assert seen == [(1, "~T~wo"), (2, "~T~hree"), (1, "~T~wo"), (1, "~T~wo")]
+
+
+# -- simple ---------------------------------------------------------------------
+
+
+def test_simple_tabs_are_bare_captions_over_a_rule_the_current_one_on_its_own_background():
+    box, tabs = dialog()
+    first = page(tabs, "One", "~A~lpha")
+    page(tabs, "Two")
+    page(tabs, "Three")
+    tabs.side = "simple"
+    tabs.x, tabs.y, tabs.width, tabs.height = 0, 0, 30, 4
+    assert not tabs.scrolls
+    assert [(x, title) for x, _, title in tabs.tabs()] == [(0, "One"), (5, "Two"), (10, "Three")]
+    tabs.arrange()
+    # The rule is the page's first row, as the boxed tabs' baseline is.
+    assert (first.x, first.y, first.width, first.height) == (0, 1, 30, 3)
+    buffer = ScreenBuffer(30, 4)
+    tabs.render_tree(buffer)
+    assert rows(buffer)[:3] == [
+        " One  Two  Three              ",
+        "──────────────────────────────",
+        " [ ] Alpha                    ",
+    ]
+    # No mark: the current caption, blanks and all, is on its own background.
+    current, tab = tabs.part_style("current"), tabs.part_style("tab")
+    assert [buffer.get(x, 0)[1] for x in range(0, 6)] == [current] * 5 + [tab]
+    assert tabs.tab_at(7, 0) == 1 and tabs.tab_at(7, 1) == 1 and tabs.tab_at(7, 2) is None
+    tabs.select(2)
+    buffer = ScreenBuffer(30, 4)
+    tabs.render_tree(buffer)
+    assert [buffer.get(x, 0)[1] for x in (4, 10, 16)] == [tab, current, current]
+
+
+def test_simple_tabs_that_do_not_fit_scroll_between_arrows():
+    box, tabs = dialog()
+    for title in ("One", "Two", "Three", "Four"):
+        page(tabs, title)
+    tabs.side = "simple"
+    tabs.x, tabs.y, tabs.width, tabs.height = 0, 0, 16, 3
+    assert tabs.scrolls
+    assert [title for _, _, title in tabs.tabs()] == ["One", "Two"]
+    buffer = ScreenBuffer(16, 3)
+    tabs.render_tree(buffer)
+    assert rows(buffer)[0] == "  One  Two     →"
+    assert tabs._on_arrow(15, 0) == 1 and tabs._on_arrow(15, 2) == 0
+    tabs.scroll(5)
+    assert [title for _, _, title in tabs.tabs()] == ["Three", "Four"]
+    assert tabs.can_scroll() == (True, False)
+
+
+def test_simple_tabs_over_the_frame_keep_inside_it_and_their_rule_meets_it():
+    box = Dialog(modal_width=30, modal_height=8, title="Tabs")
+    tabs = TabView(parent=box, side="simple", joins_frame=True)
+    tabs.x, tabs.y, tabs.width, tabs.height = 0, 1, 30, 4
+    first = page(tabs, "One", "~A~lpha")
+    page(tabs, "Two")
+
+    def painted(b):
+        buffer = ScreenBuffer(80, 25)
+        b.application.root.render_tree(buffer)
+        return [row[b.x:b.x + 30] for row in rows(buffer)[b.y:b.y + 4]]
+
+    def click_two(b):
+        b.application.post_event(MouseClickEvent(b.x + tabs.x + 8, b.y + tabs.y, "left"))
+
+    seen = run(box, look(lambda b: (first.x, first.y, first.width)), look(painted),
+               click_two, lambda a: None, look(lambda b: tabs.current))
+    assert seen[0] == (1, 1, 28)
+    assert seen[1][1:4] == [
+        "║ One  Two                   ║",
+        "╟────────────────────────────╢",
+        "║ [ ] Alpha                  ║",
+    ]
+    assert seen[2] == 1
+
+
+def test_simple_tabs_the_wheel_scrolls_the_row_and_leaves_the_current_one():
+    box, tabs = dialog(18)
+    tabs.side = "simple"
+    for title in ("One", "Two", "Three"):
+        page(tabs, title, f"~{title[0]}~{title[1:]}")
+
+    def wheel(button, y=0):
+        def action(b):
+            b.application.post_event(MouseClickEvent(box.x + tabs.x + 5, box.y + tabs.y + y, button))
+        return action
+
+    seen = run(
+        box,
+        wheel("wheel_down"), lambda a: None, look(lambda b: ([t for _, _, t in tabs.tabs()], tabs.current)),
+        wheel("wheel_down", y=3), lambda a: None, look(lambda b: tabs.first),
+    )
+    assert seen == [(["Two", "Three"], 0), 1]

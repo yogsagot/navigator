@@ -129,11 +129,13 @@ note:
   literal is translated live.
 - **Pages by id.** `settings_dialog.PAGES` maps each page id (`interface`, `editor_viewer`, ...) to its sections, and
   `SECTIONS` lists them all. Reach a page's controls as `dialog.interface.options` or `dialog.page("interface")`.
-- **Size.** It is 76 by 24, so it fits an 80x24 terminal: one scrolled row of tabs over the tallest page (*Panel
-  defaults*). With `interface.settings_tabs = left` it is 80 by 24: a column of at most 20 for the tabs, and 57 left
+- **Size.** Its markup is 76 by 24 with boxed tabs (`settings_tabs = top`), so it fits an 80x24 terminal: one
+  scrolled row of tabs over the tallest page (*Panel defaults*). With `interface.settings_tabs = left` it is 80 by 24: a column of at most 20 for the tabs, and 57 left
   for a page, which every page fits (*File panels*' second column is the tightest). There the tabs' rule runs the
   frame's whole height into its tees (`TabView.joins_frame`), and OK and Cancel are centred under the pages
-  (`SettingsDialog._buttons_under_pages`, the base's `row` rebound).
+  (`SettingsDialog._buttons_under_pages`, the base's `row` rebound). With `simple`, the default, it is 76 by 23
+  (`settings_dialog.SIMPLE_HEIGHT`): the rule under the captions is each page's first row, a row nearer the top than the boxed tabs' baseline, so
+  every page keeps the 17 rows it has.
   **The key bar says *Ctrl-PgUp/PgDn Tabs*** (`TabView.key_hints`, so every tabbed dialog; a departure, asked for):
   a tab title cannot take a letter, Alt+letter being the page's controls'.
   The Screen savers page keeps *Time* under its lists, as DN had it, with the lists three rows shorter to stay that
@@ -186,7 +188,7 @@ note:
 | `startup.clear_history` | `main()` calls `clear_histories()` before the screen is taken: every unpinned input-line, command and directory history entry and view/edit record goes; pinned ones stay (`ClearHistories`) |
 | `startup.inactivity_exit` | An hour with no key, click or paste (`Navigator.idle_exit_after`, looked at every `idle_check_every`) exits without asking, or runs `$DNIDLE` instead when it is set (`ExecExit`). Not while a command runs on the console, and (a departure) not while an editor holds a changed text. Pointer motion alone does not count, as it never reaches `on_event` |
 | `startup.preserve_directory` | Off (DN's): after a command the active panel follows the shell's directory (`Shell._follow_shell`), and a restored desktop's topmost manager opens its active panel in the current directory -- the start one, or the panel's for Load desktop (`desktop_state.restore(here=)`). On: it keeps its own. DN decided at `Store`; here at restore, so the saved desktop loses nothing |
-| `interface.settings_tabs` | `top` (default) or `left`: where *Settings* puts its tabs (`TabView.side`), read as it opens. `left` widens the box to 80 (`settings_dialog.LEFT_WIDTH`) so a page keeps its width beside the column. Not DN's. Interface's *Settings tabs* radio buttons |
+| `interface.settings_tabs` | `simple` (default), `top` or `left`: where *Settings* puts its tabs (`TabView.side`), read as it opens. `left` widens the box to 80 (`settings_dialog.LEFT_WIDTH`) so a page keeps its width beside the column; `simple` (bare captions over a rule) shortens it to 23 (`SIMPLE_HEIGHT`). Not DN's. Interface's *Settings tabs* radio buttons |
 | `interface.window_strip` | `off`, `numbers` (default, asked for; nothing shows until a second window opens) or `full`: the windows on the menu bar by number, kept to the clock's end, or with their names (`Shell`'s `WindowStrip`, see `navml-windows-menus`). Not DN's. Interface's *Window strip* radio buttons |
 | `appearance.colors` | The colour depth sent, replacing detection's guess (precedence above). Interface Setup's *Colours* (a departure: DN's was the video mode); a change applies at once, over a session's `--colors` as *Language* does over `--language` (`Navigator.use_color_depth`: re-detected with the new depth, `NAVKIT_COLORS` still winning, then `redraw()`). `InterfacePage` is two-section: it answers `{"interface": ..., "appearance": {"colors": ..., "marks": ...}}` |
 | `appearance.marks` | How check boxes and radio buttons are drawn (`MARK_LOOKS`: `dos`, `brackets` -- the default --, `boxes`), a departure. `main()` sets `Navigator.marks` from it or `--marks`; Interface Setup's *Marks* applies a change at once (`Shell.settings`: `application.marks`, then `invalidate()`). A `Navigator` built without `main()` -- the tests' -- keeps navkit's `dos` |

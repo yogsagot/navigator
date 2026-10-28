@@ -25,7 +25,9 @@ from navigator.widgets.setup.system_setup_page import SystemSetupPage
 #: tabs, scrolled between arrows, whose baseline is each page's first row:
 #: 24 rows, so an 80 by 24 terminal shows it whole.  Interface's *Settings
 #: tabs* puts them in a column down the left instead, and the Python half
-#: widens the box to 80 for that.
+#: widens the box to 80 for that; *Simple*, the default, is a row of bare
+#: captions over a rule on a page's first row, a row fewer, which it takes
+#: off the box's height.
 SettingsDialog(Dialog):
     modal_width: 76
     modal_height: 24

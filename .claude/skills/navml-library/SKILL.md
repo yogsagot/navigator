@@ -113,7 +113,7 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   - **The look.** Each tab is a box drawn in the sheet's `border`, `┌───┐` over `│ Caption │`. The tabs stand on a
     baseline across the whole width, closed off by `┴` feet. The current tab is double (`╔═╗`, `║`) with its foot
     open (`╜   ╙`), so it stands raised and joins the page under it.
-  - **One row, scrolled.** When the tabs do not fit, a `◄` at the left edge and a `►` at the right appear, each only
+  - **One row, scrolled.** When the tabs do not fit, a `←` at the left edge and a `→` at the right appear (arrows, `tab_view.ARROWS`, not the scrollbar's triangles; `^v<>` below Unicode), each only
     while a tab is hidden that way (`can_scroll()`). A click on one, or on top a notch of the wheel anywhere over the
     tabs, moves the row a tab along (`scroll()`) without changing the current tab. Down the left a notch of the wheel
     over the column chooses the tab above or below instead, stopping at the ends. The row never ends short with tabs
@@ -142,10 +142,16 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   - **Down the left** (`side: "left"`). A tab a row in a `column` (the longest caption plus 3, at most `MAX_COLUMN`
     20; a longer caption is cut with `glyphs.ellipsis`), an unbroken `│` rule beside it the whole height, and the
     pages to its right. The current tab has a `►` before it and the selected caption colour. More tabs than rows
-    scroll between `▲` and `▼` in the column's top and bottom rows. With `joins_frame` the `TabView` spans its
+    scroll between `↑` and `↓` in the column's top and bottom rows. With `joins_frame` the `TabView` spans its
     parent's frame rows: the rule meets the frame in that frame's tees (`joins(parent.border)`: `╤` and `╧` on a
     double frame), the tabs and pages keep to the rows between, and clicks on the frame rows, or right of the
     column, fall through to what is behind (the dialog's title and buttons).
+  - **Simple** (`side: "simple"`). The row on top without the boxes: each tab is `_size()` = ` caption `, caption +
+    2 cells, in `::tab`, the current one in its own `::current` part (no mark: a button's background,
+    `TabView:focused::current` a focused button's, so it stands out from the dialog's), over a single rule the whole
+    width (`_baseline()`, shared with the boxed strip). **The rule is the page's first row** (`plan()` puts pages at
+    `y` 1), as the boxed strip's baseline is, so it costs two rows where that costs three. It scrolls, wheels and
+    clicks as on top (`←`/`→` at the row's ends, on row 0); with `joins_frame` the rule meets the frame in `╟`/`╢`.
   - **`joins_frame` on top** spans the frame's columns instead: the baseline meets the frame in `╟` and `╢`, the
     rows above it leave the frame's bars alone, and the tabs, arrows and pages keep to the columns between. The same `first`, `scroll()`, `_reveal` and wheel serve both sides: a
     tab's size along the strip is its width on top and one row on the left (`_sizes()`, `_length()`).
