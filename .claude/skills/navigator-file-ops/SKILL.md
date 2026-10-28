@@ -39,6 +39,10 @@ leaves the row blank.
 - **Without path names** (`CopyRequest.flatten`, *Extract files*' box unticked): a directory copied puts every file
   under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it
   (`navigator-drives`, *Extract to, Test, Shift+F2*).
+- **Into an archive** (`CopyRequest.archive`, File > *Create archive...*'s `ArchiveOptions`; `navigator-drives`,
+  *Shift+F1*): after the last file the copier packs (`job.packing`, `CopyProgress.packing` says *Packing* NAME *into*
+  the archive, `_watch_copy` restarting the speed); Stop there leaves the archive as it was and moves nothing, and a
+  move's sources are deleted only once the archive is written (`_Copier._held`).
 - **Pairs** (`CopyRequest.pairs`, Navigator's own): each source with its exact target, no target line read; measured
   once, every drive touched finished. *Synchronize* copies both ways in one job with it (`navigator-compare`), and
   erases through `Manager._run_erase`, the worker half of `erase_entries`.

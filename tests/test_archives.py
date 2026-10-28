@@ -20,7 +20,11 @@ from navigator.lib.file_ops.filecopy import OVERWRITE, PRESERVE, CopyJob, CopyRe
 
 
 @pytest.fixture(autouse=True)
-def no_archives_left():
+def no_archives_left(monkeypatch):
+    from navigator.widgets.file_ops.archive_dialog import archive_dialog
+
+    # Create archive's box remembers its type and boxes for the session: not from test to test.
+    monkeypatch.setattr(archive_dialog, "_session", dict(archive_dialog._session))
     yield
     archive.close_all()
 
@@ -186,6 +190,179 @@ def test_a_target_naming_an_archive_not_there_makes_one(tmp_path):
     assert (tmp_path / "new.tar.xz").read_bytes()[:6] == b"\xfd7zXZ\x00"
     with tarfile.open(tmp_path / "new.tar.xz") as tarred:
         assert tarred.extractfile("inside/one.txt").read() == b"1"
+
+
+# -- Create archive: formats, levels, passwords, packing -------------------------------------------
+
+needs_7z = pytest.mark.skipif(__import__("shutil").which("7z") is None and __import__("shutil").which("7zz") is None
+                              and __import__("shutil").which("7za") is None, reason="no 7-Zip")
+needs_zstd = pytest.mark.skipif(__import__("shutil").which("zstd") is None, reason="no zstd")
+
+
+def packed(tmp_path, name, level, password=""):
+    """*name* made in *tmp_path* from one compressible file at *level*; its size."""
+    source = tmp_path / "text.txt"
+    if not source.exists():
+        source.write_bytes(Path(tarfile.__file__).read_bytes() + Path(zipfile.__file__).read_bytes())
+    target = tmp_path / name
+    done, _ = copy_in([source], f"{target}#/", tmp_path,
+                      archive=archive.ArchiveOptions(level=level, password=password))
+    assert done == [source]
+    return target.stat().st_size
+
+
+@pytest.mark.parametrize("name", ["a.zip", "a.tar.gz", "a.tar.bz2", "a.tar.xz",
+                                  pytest.param("a.tar.zst", marks=needs_zstd),
+                                  pytest.param("a.7z", marks=needs_7z)])
+def test_a_new_archive_is_packed_at_the_level_asked(tmp_path, name):
+    fastest = packed(tmp_path, "fast-" + name, "fastest")
+    maximum = packed(tmp_path, "max-" + name, "maximum")
+    assert maximum <= fastest
+    drive = archive.open_archive(Location.of(tmp_path / ("max-" + name)))
+    with drive.open_read(drive.at("/text.txt")) as reader:
+        assert reader.read() == (tmp_path / "text.txt").read_bytes()
+
+
+def test_store_writes_a_zip_s_new_members_uncompressed(tmp_path):
+    packed(tmp_path, "s.zip", "store")
+    with zipfile.ZipFile(tmp_path / "s.zip") as zipped:
+        assert zipped.getinfo("text.txt").compress_type == zipfile.ZIP_STORED
+
+
+def test_every_format_has_its_levels_and_a_plain_tar_none():
+    for _, suffix, kind in archive.FORMATS:
+        assert archive.new_kind("x" + suffix) == kind
+        levels = archive.LEVELS.get(kind, {})
+        assert (not levels) == (kind == ("tar", "")), suffix
+        assert set(levels) <= set(archive.LEVEL_NAMES)
+
+
+@needs_zstd
+def test_a_tar_zst_is_entered_and_written_into_like_any_tar(tmp_path):
+    (tmp_path / "one.txt").write_text("1")
+    copy_in([tmp_path / "one.txt"], f"{tmp_path / 'z.tar.zst'}#/", tmp_path)
+    assert (tmp_path / "z.tar.zst").read_bytes()[:4] == b"\x28\xb5\x2f\xfd"
+    drive = archive.open_archive(Location.of(tmp_path / "z.tar.zst"))
+    assert (drive.kind, drive.compression) == ("tar", "zst")
+    (tmp_path / "two.txt").write_text("2")
+    copy_in([tmp_path / "two.txt"], str(drive.at("/")) + "/", tmp_path)
+    plain = drive._plain
+    archive.close_all()
+    assert plain is not None and not plain.exists()  # the decompressed copy goes with it
+    drive = archive.open_archive(Location.of(tmp_path / "z.tar.zst"))
+    with drive.open_read(drive.at("/one.txt")) as one, drive.open_read(drive.at("/two.txt")) as two:
+        assert (one.read(), two.read()) == (b"1", b"2")
+
+
+def test_a_tar_zst_with_nothing_to_read_it_says_what_to_install(tmp_path, monkeypatch):
+    from navigator.lib.drives import zstd
+
+    (tmp_path / "z.tar.zst").write_bytes(zstd.MAGIC + b"\0" * 16)
+    monkeypatch.setattr(zstd, "_module", lambda: None)
+    monkeypatch.setattr(zstd, "_program", lambda: None)
+    with pytest.raises(archive.NeedsTool, match="zstd"):
+        archive.open_archive(Location.of(tmp_path / "z.tar.zst"))
+    assert archive.format_missing(("tar", "zst")) == zstd.MISSING
+
+
+@needs_7z
+@pytest.mark.parametrize("name", ["p.7z", "p.zip"])
+def test_a_password_encrypts_and_is_asked_for_and_kept_on_a_rewrite(tmp_path, name):
+    packed(tmp_path, name, "normal", password="s3cret")
+    outer = Location.of(tmp_path / name)
+    for wrong in ("", "nope"):
+        with pytest.raises(archive.NeedPassword):
+            archive.open_archive(outer, password=wrong)
+    drive = archive.open_archive(outer, password="s3cret")
+    assert drive.tool
+    (tmp_path / "more.txt").write_text("more")
+    copy_in([tmp_path / "more.txt"], str(drive.at("/")) + "/", tmp_path)
+    archive.close_all()
+    with pytest.raises(archive.NeedPassword):
+        archive.open_archive(outer)
+    drive = archive.open_archive(outer, password="s3cret")
+    with drive.open_read(drive.at("/more.txt")) as reader:
+        assert reader.read() == b"more"
+
+
+class StopWhilePacking(CopyJob):
+    """Stops once the packing has counted its first bytes."""
+
+    @property
+    def stopped(self):
+        return self.packing and self.done_bytes > 0
+
+
+def test_stop_while_packing_leaves_no_archive_and_moves_nothing(tmp_path):
+    from navigator.lib.file_ops.filecopy import MOVE
+
+    big = tmp_path / "big.bin"
+    big.write_bytes(bytes(range(256)) * 16384)  # four chunks
+    job = StopWhilePacking(asker=lambda q: pytest.fail(f"asked {q}"))
+    done = copy_run(CopyRequest([big], f"{tmp_path / 'b.zip'}#/", OVERWRITE, PRESERVE | MOVE), job, tmp_path)
+    assert done == [] and big.exists()
+    assert not (tmp_path / "b.zip").exists()
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["big.bin"]
+
+
+def test_stop_while_packing_into_an_archive_there_leaves_it_as_it_was(tmp_path):
+    before = make_zip(tmp_path / "a.zip").read_bytes()
+    big = tmp_path / "big.bin"
+    big.write_bytes(bytes(range(256)) * 16384)
+    drive = archive.open_archive(Location.of(tmp_path / "a.zip"))
+    job = StopWhilePacking(asker=lambda q: pytest.fail(f"asked {q}"))
+    assert copy_run(CopyRequest([big], str(drive.at("/")) + "/", OVERWRITE, PRESERVE), job, tmp_path) == []
+    assert (tmp_path / "a.zip").read_bytes() == before
+    assert not drive.dirty and "big.bin" not in drive.names(drive.at("/"))
+
+
+def test_a_move_into_an_archive_deletes_the_sources_once_it_is_written(tmp_path):
+    from navigator.lib.file_ops.filecopy import MOVE
+
+    (tmp_path / "tree" / "sub").mkdir(parents=True)
+    (tmp_path / "tree" / "sub" / "leaf.txt").write_text("leaf")
+    seen = []
+
+    class Watching(CopyJob):
+        def __setattr__(self, name, value):
+            if name == "packing" and value:
+                seen.append((tmp_path / "tree" / "sub" / "leaf.txt").exists())
+            super().__setattr__(name, value)
+
+    job = Watching(asker=lambda q: pytest.fail(f"asked {q}"))
+    done = copy_run(CopyRequest([tmp_path / "tree"], f"{tmp_path / 'm.tar.gz'}#/", OVERWRITE, PRESERVE | MOVE),
+                    job, tmp_path)
+    assert done == [tmp_path / "tree"] and seen == [True]  # still there while packing
+    assert not (tmp_path / "tree").exists()
+    with tarfile.open(tmp_path / "m.tar.gz") as tarred:
+        assert tarred.extractfile("tree/sub/leaf.txt").read() == b"leaf"
+
+
+def test_packing_is_counted_into_the_copy_s_job(tmp_path):
+    (tmp_path / "a.txt").write_bytes(b"a" * 1000)
+    (tmp_path / "b.txt").write_bytes(b"b" * 500)
+    job = CopyJob(asker=lambda q: pytest.fail(f"asked {q}"))
+    copy_run(CopyRequest([tmp_path / "a.txt", tmp_path / "b.txt"], f"{tmp_path / 'c.zip'}#/", OVERWRITE, PRESERVE),
+             job, tmp_path)
+    assert (job.total_bytes, job.done_bytes) == (1500, 1500)
+    assert job.dest == str(tmp_path / "c.zip") and not job.packing
+
+
+def test_a_new_archive_on_another_drive_is_made_there(tmp_path):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    memory = mount(MemoryDrive("arc-new"))
+    try:
+        directory = memory.make("/dir/keep", b"").parent
+        (tmp_path / "up.txt").write_text("up")
+        done, _ = copy_in([tmp_path / "up.txt"], f"{directory / 'new.tar.gz'}#/", tmp_path)
+        assert done == [tmp_path / "up.txt"]
+        with tarfile.open(fileobj=io.BytesIO(memory.read("/dir/new.tar.gz"))) as tarred:
+            assert tarred.extractfile("up.txt").read() == b"up"
+    finally:
+        archive.close_all()
+        unmount(memory.site)
 
 
 # -- a panel going in and out ------------------------------------------------------------------------
@@ -502,14 +679,101 @@ def test_shift_f1_packs_the_selection_into_a_new_zip_in_the_other_panel(desk):
     seen = {}
     run_app(app, [
         KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
-        KeyEvent("f1", shift=True), Until(modal_is("CopyDialog")),
+        KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")),
         lambda a: seen.update(target=a.modal.target.value),
         KeyEvent("enter"), Until(lambda a: (here / "out" / "notes.zip").exists(), timeout=5),
         Until(lambda a: archive.find(Location.of(here / "out" / "notes.zip")) is None, timeout=5),
     ])
-    assert seen["target"] == f"{here / 'out' / 'notes.zip'}#/notes.txt"
+    assert seen["target"] == f"{here / 'out' / 'notes.zip'}"
     with zipfile.ZipFile(here / "out" / "notes.zip") as packed:
         assert packed.read("notes.txt") == b"n\n"
+
+
+@needs_zstd
+def test_shift_f1_makes_the_type_chosen_and_moves_when_asked(desk):
+    from navigator.widgets.file_ops.archive_dialog import archive_dialog as box
+
+    app, here = desk
+    (here / "notes.txt").write_text("n\n")
+    made = here / "out" / "notes.tar.zst"
+
+    def choose(a):
+        a.modal.kind.value = 6  # TAR.ZST
+        a.modal.options.value = box.PATHNAMES | box.MOVE_FILES
+
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
+        KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")), choose,
+        Until(lambda a: a.modal.target.value.endswith("notes.tar.zst")),
+        KeyEvent("enter"), Until(lambda a: not (here / "notes.txt").exists(), timeout=5),
+        Until(lambda a: archive.find(Location.of(made)) is None, timeout=5),
+    ])
+    drive = archive.open_archive(Location.of(made))
+    with drive.open_read(drive.at("/notes.txt")) as reader:
+        assert reader.read() == b"n\n"
+
+
+def test_shift_f1_onto_an_archive_there_asks_and_adds_to_it(desk):
+    app, here = desk
+    (here / "notes.txt").write_text("n\n")
+    make_zip(here / "out" / "notes.zip")
+    asked = {}
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
+        KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")), KeyEvent("enter"),
+        Until(lambda a: a.modal is not None and a.modal.title == "Create archive"
+              and type(a.modal).__name__ == "Dialog"),
+        lambda a: asked.update(add=a.modal.ok.text, replace=a.modal.no.text),
+        KeyEvent("enter"),
+        Until(lambda a: "notes.txt" in zipfile.ZipFile(here / "out" / "notes.zip").namelist(), timeout=5),
+        Until(lambda a: archive.find(Location.of(here / "out" / "notes.zip")) is None, timeout=5),
+    ])
+    assert asked == {"add": "~A~dd to it", "replace": "~R~eplace"}
+    with zipfile.ZipFile(here / "out" / "notes.zip") as packed:
+        assert packed.read("README") == b"read me" and packed.read("notes.txt") == b"n\n"
+
+
+def test_a_password_typed_twice_differently_is_refused(desk):
+    app, here = desk
+    (here / "notes.txt").write_text("n\n")
+
+    def password(text):
+        def action(a):
+            field = a.modal.password if type(a.modal).__name__ == "ArchiveDialog" else a.modal.entry
+            field.value = text
+        return action
+
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
+        KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")),
+        lambda a: setattr(a.modal.kind, "value", 0), password("one"),
+        KeyEvent("enter"), Until(modal_is("PasswordDialog")), password("two"), KeyEvent("enter"),
+        Until(lambda a: a.modal is not None and a.modal.title == "Error"), KeyEvent("enter"),
+        Until(modal_is("ArchiveDialog")),
+    ])
+    assert not (here / "out" / "notes.zip").exists()
+
+
+@needs_7z
+def test_enter_on_an_encrypted_archive_asks_its_password(desk):
+    from navigator.lib.drives import arctool
+
+    app, here = desk
+    tree = here / "tree"
+    tree.mkdir()
+    (tree / "secret.txt").write_text("s")
+    arctool.write_archive(here / "locked.7z", tree, password="pw")
+
+    def answer(text):
+        return lambda a: setattr(a.modal.entry, "value", text)
+
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "locked.7z" in names(a)), at("locked.7z"),
+        KeyEvent("enter"), Until(modal_is("PasswordDialog"), timeout=5), answer("wrong"), KeyEvent("enter"),
+        Until(lambda a: a.modal is not None and "Wrong password" in str(a.modal.prompt), timeout=5),
+        answer("pw"), KeyEvent("enter"),
+        Until(lambda a: "secret.txt" in names(a), timeout=5),
+    ])
 
 
 def test_the_right_click_menu_offers_the_archive_commands_where_they_apply(desk):

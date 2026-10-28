@@ -13,6 +13,11 @@ from navml.widgets.progress_bar import ProgressBar
 #: The row under the total gauge, the speed and the time left, is a
 #: departure: DN never said how fast a copy went.  ``speed`` is bytes a
 #: second and ``left`` seconds, each negative while not known yet.
+#:
+#: ``packing`` is a copy into an archive being written at the end
+#: (``ArchiveDrive.finish``), which DN's archivers did with their own
+#: output: the rows say *Packing* the member *into* the archive, and the
+#: gauges count the packing.
 CopyProgress(Dialog):
     modal_width: 60
     modal_height: 14
@@ -21,6 +26,7 @@ CopyProgress(Dialog):
     closable: False
 
     property move: False
+    property packing: False
     property source: ""
     property dest: ""
     property file_done: 0
@@ -36,7 +42,7 @@ CopyProgress(Dialog):
         y: 1
         width: max(0, parent.width - 4)
         height: 1
-        text: root.fit(" Moving " if root.move else " Copying ", root.source)
+        text: root.fit(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
 
     StaticText:
         id: dest_row
@@ -44,7 +50,7 @@ CopyProgress(Dialog):
         y: 2
         width: max(0, parent.width - 4)
         height: 1
-        text: root.fit(" to ", root.dest)
+        text: root.fit(" into " if root.packing else " to ", root.dest)
 
     #: Both gauges are as wide as the box less four columns a side.
     ProgressBar:

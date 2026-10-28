@@ -21,30 +21,54 @@ async def open_archive_or_root(app: Any, origin: Location, job: Any) -> Any:
     """``archive.open_archive`` on a thread under *Reading archive* -- and,
     for one on the disk the user may not read, *As root* offered and the
     archive opened through the root helper (a departure;
-    :mod:`navigator.lib.system.elevate`).  ``PermissionError`` still if that
-    was declined; whatever else ``open_archive`` raises."""
+    :mod:`navigator.lib.system.elevate`).  An encrypted archive asks for its
+    password, again after a wrong one, as DN's ``dlgSetPassword`` asked for
+    an archiver's; Cancel is ``Stopped``.  ``PermissionError`` still if *As
+    root* was declined; whatever else ``open_archive`` raises."""
     from navigator.lib.drives import archive
     from navigator.lib.system.elevate import ELEVATION, refused
     from navigator.widgets.editor.loading import progress_box, refresh_box
 
-    def opening(as_root: bool) -> Any:
+    as_root, password = False, ""
+
+    def opening() -> Any:
         return run_with_progress(
-            app, lambda: archive.open_archive(origin, job, as_root=as_root), job,
+            app, lambda: archive.open_archive(origin, job, as_root=as_root, password=password), job,
             lambda: progress_box(job, tr("Reading archive")), refresh_box(job), delay=SLOW_PROGRESS_DELAY,
         )
 
-    try:
-        return await opening(False)
-    except OSError as error:
-        if not (origin.is_local and refused(error) and app is not None
-                and await asyncio.to_thread(ELEVATION.available)):
-            raise
-        from navigator.widgets.file_ops.as_root import ask_as_root
+    while True:
+        try:
+            return await opening()
+        except archive.NeedPassword:
+            if app is None:
+                raise
+            answer = await ask_archive_password(app, origin, wrong=bool(password))
+            if answer is None:
+                raise Stopped from None
+            password = answer
+        except OSError as error:
+            if as_root or not (origin.is_local and refused(error) and app is not None
+                               and await asyncio.to_thread(ELEVATION.available)):
+                raise
+            from navigator.widgets.file_ops.as_root import ask_as_root
 
-        message = tr("Cannot read {path}: {error}").format(path=str(origin), error=error.strerror or error)
-        if not await ask_as_root(app, message):
-            raise Stopped from None
-        return await opening(True)
+            message = tr("Cannot read {path}: {error}").format(path=str(origin), error=error.strerror or error)
+            if not await ask_as_root(app, message):
+                raise Stopped from None
+            as_root = True
+
+
+async def ask_archive_password(app: Any, origin: Location, *, wrong: bool = False) -> str | None:
+    """The password of the encrypted archive at *origin*, or None for Cancel."""
+    from navigator.widgets.drives.password_dialog import PasswordDialog
+
+    if wrong:
+        prompt = tr("Wrong password for {name}. Try again:").format(name=escape_caption(origin.name))
+    else:
+        prompt = tr("{name} is encrypted. Its password:").format(name=escape_caption(origin.name))
+    answer = await PasswordDialog(title=tr("Archive password"), prompt=prompt).execute(app)
+    return None if answer is None else answer[0]
 
 
 async def enter_archive(panel: Any, origin: Location) -> bool:

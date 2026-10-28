@@ -598,7 +598,8 @@ class ToggleInfoLines(Command):
 
 
 class ArchiveFiles(Command):
-    """Shift+F1, ``cmPanelArcFiles``."""
+    """Shift+F1, ``cmPanelArcFiles``: File > *Create archive...*, DN's
+    *Copy to archive*."""
 
     title = "Arc"
 

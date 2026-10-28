@@ -74,6 +74,9 @@ class CopyRequest:
     #: *Synchronize* (:mod:`navigator.lib.file_ops.dirsync`), whose copies go
     #: both ways in one job.
     pairs: list[tuple[Path | Location, Path | Location]] | None = None
+    #: File > *Create archive...*'s: how the new archive the target names is
+    #: packed (``archive.ArchiveOptions``); None packs as an F5 into one does.
+    archive: Any = None
 
     @property
     def move(self) -> bool:
@@ -172,6 +175,9 @@ class CopyJob(Job):
         self.file_done = 0
         #: True while the sources are being measured.
         self.measuring = True
+        #: True while an archive written into is packed (``ArchiveDrive.finish``):
+        #: ``source`` is the member, ``dest`` the archive.
+        self.packing = False
 
 
 # -- the target ----------------------------------------------------------------
@@ -403,6 +409,10 @@ class _Copier(Elevated):
         #: Set by the first ``EXDEV``: a move that has to copy stops trying to
         #: rename each directory under the one that could not be.
         self._cross_device = False
+        #: A move into an archive: each source's removal held, ``(source,
+        #: is_dir)`` in order, until the archive is written -- a pack that
+        #: fails or is stopped then loses nothing.  None for any other copy.
+        self._held: list[tuple[Location, bool]] | None = None
 
     @property
     def is_root(self) -> bool:
@@ -455,16 +465,46 @@ class _Copier(Elevated):
 
     # -- the whole ---------------------------------------------------------------
 
+    def _remove_source(self, source: Location, *, directory: bool = False) -> bool:
+        """A moved *source* deleted -- or, into an archive, held until it is written."""
+        if self._held is not None:
+            self._held.append((source, directory))
+            return True
+        if directory:
+            return self._try(source, lambda: self._drive_of(source).rmdir(source))
+        return self._try(source, lambda: self._drive_of(source).unlink(source))
+
+    def _remove_held(self, outer: Location) -> None:
+        """The held removals made, once the archive at *outer* is written --
+        none while it still has changes to write, its rewrite having failed."""
+        from navigator.lib.drives import archive
+
+        held, self._held = self._held or [], None
+        drive = archive.find(outer)
+        if drive is not None and drive.dirty:
+            return
+        for source, directory in held:
+            try:
+                self._remove_source(source, directory=directory)
+            except Stopped:
+                return
+
     def run(self) -> list[Path | Location]:
         request, job = self.request, self.job
         done: list[Path | Location] = []
         opened = None
+        outer = None
+        places: list[Any] = []
         try:
             if request.pairs is not None:
                 pairs = list(request.pairs)
                 places = [place for pair in pairs for place in pair]
             else:
-                opened = _open_target_archive(target_location(request.target, self.cwd))
+                target = target_location(request.target, self.cwd)
+                opened = _open_target_archive(target, request.archive)
+                outer = target.outer
+                if self.move and outer is not None:
+                    self._held = []
                 destination = resolve_target(request.target, request.sources, self.cwd)
                 if destination.create:
                     directory = Location.of(destination.directory)
@@ -479,13 +519,25 @@ class _Copier(Elevated):
                 self._checkpoint()
                 if self._transfer(Location.of(source), Location.of(target)):
                     done.append(source)
-            finish_drives(places, self._fail, self._finish_as_root)
+            if outer is not None:
+                job.packing, job.dest = True, str(shown(outer))
+            finish_drives(places, self._fail, self._finish_as_root, job=job if outer is not None else None)
+            job.packing = False
+            if outer is not None and self._held is not None:
+                self._remove_held(outer)
         except Stopped:
-            # What went in full stays, as it would on a disk.
-            paired = [place for pair in request.pairs or () for place in pair]
-            finish_drives([*request.sources, *paired, Location.of(self.cwd)], None)
+            if job.packing:
+                # Stopped while packing: the archive as it was, and nothing moved.
+                discard_drives(places)
+                done.clear()
+            else:
+                # What went in full stays, as it would on a disk.
+                paired = [place for pair in request.pairs or () for place in pair]
+                finish_drives([*request.sources, *paired, Location.of(self.cwd)], None)
+                if outer is not None and self._held is not None:
+                    self._remove_held(outer)
         finally:
-            job.measuring = False
+            job.measuring = job.packing = False
             self._release()
             if opened is not None:
                 from navigator.lib.drives import archive
@@ -607,7 +659,7 @@ class _Copier(Elevated):
                 except OSError:
                     pass
             if self.move and complete:
-                return self._try(source, lambda: self._drive_of(source).rmdir(source))
+                return self._remove_source(source, directory=True)
             return complete
         finally:
             self._walking.discard(key)
@@ -674,7 +726,7 @@ class _Copier(Elevated):
                 except OSError:
                     pass
         if self.move:
-            return self._try(source, lambda: self._drive_of(source).unlink(source))
+            return self._remove_source(source)
         return True
 
     def _same_link(self, source: Location, dest: Location) -> bool:
@@ -764,7 +816,7 @@ class _Copier(Elevated):
         if self.preserve:
             self._attributes(source, dest, st)
         if self.move:
-            return self._try(source, lambda: self._drive_of(source).unlink(source))
+            return self._remove_source(source)
         return True
 
     def _copy_bytes(self, source: Location, dest: Location, st: Any, *, append: bool) -> bool:
@@ -806,29 +858,35 @@ class _Copier(Elevated):
                 pass
 
 
-def _open_target_archive(target: Location) -> Location | None:
+def _open_target_archive(target: Location, options: Any = None) -> Location | None:
     """A copy into an archive not open yet: opened -- or, named but not there,
-    made empty (DN's ``ArchiveFiles``, packing by the target's name) -- for
-    the copy.  Its location, to let go of after; None for any other target."""
+    made empty (DN's ``ArchiveFiles``, packing by the target's name, as
+    *options* say) -- for the copy.  Its location, to let go of after; None
+    for any other target."""
     from navigator.lib.drives import archive
 
     outer = target.outer
     if outer is None or archive.find(outer) is not None:
         return None
     try:
-        archive.open_archive(outer, create=True)
+        drive = archive.open_archive(outer, create=True, options=options,
+                                     password=getattr(options, "password", ""))
     except (archive.NotAnArchive, OSError):
         return None  # said by the steps that fail
+    if options is not None:
+        drive.level = options.level  # what is added to one there already, too
     return outer
 
 
 def finish_drives(places: list[Any], fail: Callable[..., Any] | None,
-                  elevate: Callable[[Location, OSError, Any], bool | None] | None = None) -> None:
+                  elevate: Callable[[Location, OSError, Any], bool | None] | None = None,
+                  *, job: Any = None) -> None:
     """``Drive.finish`` once on each drive *places* are on: an archive
-    written into or erased in is written anew.  A failure is said through
-    *fail* (or passed over without one).  *elevate(place, error, drive)*,
-    given, is asked first: True to finish again (now as root), False when it
-    has said the failure itself, None to leave it to *fail*."""
+    written into or erased in is written anew, counted into *job* when
+    given.  A failure is said through *fail* (or passed over without one).
+    *elevate(place, error, drive)*, given, is asked first: True to finish
+    again (now as root), False when it has said the failure itself, None to
+    leave it to *fail*."""
     seen: set[int] = set()
     for place in places:
         try:
@@ -840,7 +898,7 @@ def finish_drives(places: list[Any], fail: Callable[..., Any] | None,
         seen.add(id(drive))
         while True:
             try:
-                drive.finish()
+                drive.finish(job)
             except OSError as error:
                 answer = None if elevate is None else elevate(Location.of(place), error, drive)
                 if answer is True:
@@ -848,6 +906,22 @@ def finish_drives(places: list[Any], fail: Callable[..., Any] | None,
                 if answer is None and fail is not None:
                     fail(Location.of(place), error_message(error))
             break
+
+
+def discard_drives(places: list[Any]) -> None:
+    """Each archive *places* are in, its unwritten changes dropped: a copy
+    into it stopped while it was being packed."""
+    seen: set[int] = set()
+    for place in places:
+        try:
+            drive = drive_of(Location.of(place))
+        except OSError:
+            continue
+        discard = getattr(drive, "discard", None)
+        if discard is None or id(drive) in seen:
+            continue
+        seen.add(id(drive))
+        discard()
 
 
 def stream(reader: IO[bytes], writer: IO[bytes], job: Any, chunk: int | None = None) -> None:

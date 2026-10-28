@@ -19,6 +19,7 @@ from navigator.widgets.manager.panel.panel import human_size
 
 class CopyProgress(Dialog, _Component):
     move: bool
+    packing: bool
     source: str
     dest: str
     file_done: int

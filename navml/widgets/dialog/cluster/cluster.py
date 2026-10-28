@@ -53,6 +53,16 @@ class Cluster(Control):
     #: be rendered is one the library's own smoke test cannot cover.
     value: int = reactive(0)
 
+    #: Which items can be chosen, a bit an item: Turbo Vision's
+    #: ``EnableMask`` (``TCluster.SetButtonState``).  A cleared bit greys the
+    #: item; the keyboard passes over it, and neither a click nor its letter
+    #: takes it.  Every item, by default.
+    enable_mask: int = reactive(-1)
+
+    def item_enabled(self, index: int) -> bool:
+        """Whether item *index* can be chosen: ``TCluster.ButtonState``."""
+        return bool(self.enable_mask >> index & 1)
+
     def chosen(self, index: int) -> bool:
         """Whether item *index* is on."""
         return False
@@ -112,8 +122,25 @@ class Cluster(Control):
     # -- input ---------------------------------------------------------------
 
     def _move(self, delta: int) -> None:
-        if self.items:
-            self.sel = min(max(self.sel + delta, 0), len(self.items) - 1)
+        """*delta* items along, over those that cannot be chosen -- staying
+        put where none further on can be."""
+        if not self.items:
+            return
+        index = self.sel + delta
+        step = 1 if delta > 0 else -1
+        while 0 <= index < len(self.items):
+            if self.item_enabled(index):
+                self.sel = index
+                return
+            index += step
+
+    def _edge(self, last: bool) -> None:
+        """The first item that can be chosen, or the last."""
+        order = range(len(self.items) - 1, -1, -1) if last else range(len(self.items))
+        for index in order:
+            if self.item_enabled(index):
+                self.sel = index
+                return
 
     async def on_key(self, event: KeyEvent) -> bool:
         if self.inert or not self.items:
@@ -126,13 +153,14 @@ class Cluster(Control):
             # A column along, as ``TCluster.HandleEvent`` stepped by
             # ``Size.Y``; nowhere to go is a key taken all the same.
             step = self._rows() * (1 if event.key == "right" else -1)
-            if 0 <= self.sel + step < len(self.items):
+            if 0 <= self.sel + step < len(self.items) and self.item_enabled(self.sel + step):
                 self.sel += step
         elif event.key in ("home", "end"):
             # The first item and the last, wherever the columns put them.
-            self.sel = 0 if event.key == "home" else len(self.items) - 1
+            self._edge(event.key == "end")
         elif event.matches("space"):
-            self.toggle(self.sel)
+            if self.item_enabled(self.sel):
+                self.toggle(self.sel)
         else:
             return False
         return True
@@ -142,7 +170,7 @@ class Cluster(Control):
         if event.action != "press" or event.button != "left" or self.inert:
             return False
         index = self.item_at(event.x, event.y)
-        if index >= 0:
+        if index >= 0 and self.item_enabled(index):
             self.sel = index
             self.toggle(index)
             return True
@@ -153,13 +181,14 @@ class Cluster(Control):
         if self.inert or not self.visible:
             return False
         return any(
-            parse_shortcut(item)[2] == letter.lower() for item in self.items
+            parse_shortcut(item)[2] == letter.lower() and self.item_enabled(index)
+            for index, item in enumerate(self.items)
         )
 
     async def activate(self, letter: str = "") -> bool:
         """Move to the item that marks *letter*, and turn it on."""
         for index, item in enumerate(self.items):
-            if parse_shortcut(item)[2] == letter.lower():
+            if parse_shortcut(item)[2] == letter.lower() and self.item_enabled(index):
                 self.focus()
                 self.sel = index
                 self.toggle(index)
@@ -182,14 +211,15 @@ class Cluster(Control):
             x = self._column_x(column)
             if x >= self.width:
                 break
-            style = self.part_style("item", selected=index == self.sel and self.focused)
+            disabled = not self.item_enabled(index)
+            style = self.part_style("item", selected=index == self.sel and self.focused, disabled=disabled)
             mark = self.part_style(
-                "mark", selected=index == self.sel, **self.mark_states(index)
+                "mark", selected=index == self.sel, disabled=disabled, **self.mark_states(index)
             )
             if len(self.items) <= rows:
                 surface.fill(0, y, self.width, 1, " ", style)
             surface.draw_text(x, y, glyphs[self.mark_index(index)], mark)
             draw_caption(
                 surface, x + 4, y, item, style,
-                self.part_style("shortcut"), max(0, self.width - x - 4),
+                self.part_style("shortcut", disabled=disabled), max(0, self.width - x - 4),
             )

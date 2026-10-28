@@ -331,11 +331,13 @@ KeyCatcher            { fg: $dialog-input-selected-fg;   bg: $dialog-input-selec
  * that one: in DN's own dialogs it is the dialog's grey with dark text, which
  * is what greyed out looks like on it.  A departure, since DN never disabled
  * a line; File Attributes' *User* is the one that needs it, for anyone but
- * root. */
+ * root.  A cluster's item greyed alone (``enable_mask``, Turbo Vision's
+ * ``EnableMask``) takes it too. */
 Label:inert, Label:inert::shortcut,
 InputLine:inert, InputLine:inert::arrow,
 History:inert, History:inert::arrow,
-Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut
+Cluster:inert::item, Cluster:inert::mark, Cluster:inert::shortcut,
+Cluster::item:disabled, Cluster::mark:disabled, Cluster::shortcut:disabled
                       { fg: $dialog-button-disabled-fg;  bg: $dialog-button-disabled-bg; bold: $dialog-button-disabled-bold; dim: $dialog-button-disabled-dim; italic: $dialog-button-disabled-italic; underline: $dialog-button-disabled-underline; reverse: $dialog-button-disabled-reverse }
 
 /* The command line: DOS Navigator had no slot for it, `TCommandLine.Draw'

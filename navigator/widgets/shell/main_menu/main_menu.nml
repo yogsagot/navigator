@@ -151,8 +151,11 @@ MainMenu(MenuBar):
             text: '~Q~uick rename...'
             command: QuickRename
             key: 'Shift-F6'
+        #: DN's ``Cop~y~ to archive``, renamed -- a departure, asked for: it
+        #: makes a new archive, in its own box (``dlgArchiveFiles``).  Every
+        #: letter of the name is taken, so *Compare files* gave up its ``i``.
         MenuItem:
-            text: 'Cop~y~ to archive...'
+            text: 'Create arch~i~ve...'
             command: ArchiveFiles
             key: 'Shift-F1'
         MenuItem:
@@ -164,9 +167,9 @@ MainMenu(MenuBar):
             command: MakeLink
             key: 'Shift-F5'
         #: A departure: DOS Navigator compared no files line by line
-        #: (``DiffWindow``).  Its ``i`` is the one letter this box leaves.
+        #: (``DiffWindow``).  Its ``l``: *Create archive* needed the ``i``.
         MenuItem:
-            text: 'Compare f~i~les...'
+            text: 'Compare fi~l~es...'
             command: DiffFiles
         MenuItem:
             text: '~P~rint'

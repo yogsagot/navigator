@@ -1,0 +1,154 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+
+#: File > *Create archive...* (Shift+F1): DOS Navigator's ``dlgArchiveFiles``,
+#: 64 by 18 as the resource had it.
+#:
+#: Laid out where DN put things: the name on the second row, *Password* under
+#: it on the right, *Archive type* down the left, *Compression* beside it, and
+#: OK / Cancel / Tree / Help along the bottom.  Departures, each because
+#: Navigator packs no archive through a DOS archiver of the user's choosing:
+#: the archive types are today's (DN's were ARC, ARJ, ... ZOO), *Compression*
+#: has *Store* and *Ultra* either side of DN's Normal/Faster/Maximum, and
+#: *Additional options* (the archiver's own switches) and *Force mode* are
+#: left out.  *Follow symlinks* is F5's, added.  The row above the buttons
+#: says which types are greyed for want of a tool.
+ArchiveDialog(Dialog):
+    modal_width: 64
+    modal_height: 18
+    title: "Create archive"
+
+    #: ``StatusDef hcArchiveFiles``' ``F10 Tree``, as Copy's.
+    keys:
+        f10: ChooseTarget
+
+    Label:
+        id: target_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "Archiv~e~ to"
+        link: target.entry
+
+    #: DN's ``hsFileCopyName``: the Copy dialog's history.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "copy"
+
+    Label:
+        id: kind_caption
+        x: 2
+        y: 4
+        width: 16
+        height: 1
+        text: "Archive type"
+        link: kind
+
+    #: :data:`navigator.lib.drives.archive.FORMATS`, in its order.
+    RadioButtons:
+        id: kind
+        x: 3
+        y: 5
+        width: 16
+        height: 7
+        items: ["~Z~IP", "~7~Z", "T~A~R", "TAR.~G~Z", "TAR.~B~Z2", "TAR.~X~Z", "TAR.Z~S~T"]
+
+    Label:
+        id: level_caption
+        x: 21
+        y: 4
+        width: 16
+        height: 1
+        text: "Compression"
+        link: level
+
+    #: :data:`navigator.lib.drives.archive.LEVEL_NAMES`, in its order: *None* is "store".
+    RadioButtons:
+        id: level
+        x: 22
+        y: 5
+        width: 15
+        height: 5
+        items: ["N~o~ne", "~F~astest", "Nor~m~al", "Max~i~mum", "~U~ltra"]
+
+    Label:
+        id: password_caption
+        x: 39
+        y: 4
+        width: 20
+        height: 1
+        text: "Pass~w~ord"
+        link: password.entry
+
+    Field:
+        id: password
+        x: 39
+        y: 5
+        width: max(0, parent.width - 41)
+        height: 1
+        label_text: ""
+        label_width: 0
+
+    CheckBoxes:
+        id: options
+        x: 40
+        y: 7
+        width: max(0, parent.width - 42)
+        height: 3
+        items: ["Store path~n~ames", "Mo~v~e files", "Follow s~y~mlinks"]
+
+    #: Which types are greyed, and what to install for them.
+    StaticText:
+        id: note
+        x: 2
+        y: 12
+        width: max(0, parent.width - 4)
+        height: 1
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 6
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 19
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 32
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    #: There is no help to show yet: shown, and disabled, as Copy's is.
+    Button:
+        id: help
+        text: "Help"
+        disabled: True
+        x: 45
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

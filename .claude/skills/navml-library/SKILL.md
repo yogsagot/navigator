@@ -26,7 +26,9 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   no wrap. The group is the unbroken run of buttons around the focused one in the dialog's tab order
   (`Button._row`), not a container -- most dialogs place buttons by `x`/`y` -- so keep a button row together in
   tree order, and any other control between buttons splits the run.
-- `Cluster` lays out in columns as `TCluster` did. **Tri-state `CheckBoxes`**: `mixed` draws `[?]`, `tristate` lets a
+- `Cluster` lays out in columns as `TCluster` did. **`enable_mask`** (a bit an item, all by default) is
+  `TCluster.EnableMask`: a cleared item is greyed (`::item:disabled` etc.), passed over by the arrows and Home/End,
+  and taken by neither a click nor its letter (`item_enabled`); *Create archive* greys types and levels with it. **Tri-state `CheckBoxes`**: `mixed` draws `[?]`, `tristate` lets a
   bit cycle back to it.
 - **Marks** come from `navkit.glyphs.marks(look, tier)`: five three-cell strings (check off/on/mixed, radio off/on),
   picked by `mark_index()` (`CheckBoxes` 0-2, `RadioButtons` 3-4). `look` is a style property: `dos` (`[X]` `(•)`),

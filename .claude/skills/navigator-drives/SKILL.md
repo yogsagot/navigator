@@ -209,8 +209,21 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   read through a pipe from `7z x -so -spd --` (`-spd`: a name is never a wildcard; `_Piped` kills the tool on an
   early close and turns its exit status into `OSError`), links' targets read as their contents. Nothing bundled:
   no tool is **`NeedsTool`** (a `NotAnArchive`), which Enter says rather than running the file. A 7z is rewritten by
-  `_write_7z` -- the old one unpacked once into a tree (solid blocks are whole), the index laid out over it, packed
-  anew by `arctool.write_7z` (`7z a -snl`); `.7z` is in `NEW_KINDS`. A rar is read-only (`capabilities` empty on the
+  `_write_tool` -- the old one unpacked once into a tree (solid blocks are whole), the index laid out over it, packed
+  anew by `arctool.write_archive` (`7z a -snl`, `-mx<level>`); `.7z` is in `NEW_KINDS`. **Passwords** (7z and zip,
+  7-Zip only): `ToolArchive(local, kind, password)` gives 7-Zip the password **on stdin, never `-p<pw>`** (which `ps`
+  shows) -- no `-p` at all, `start_new_session` so it has no terminal to ask on, the password and a newline as input;
+  `write_archive` passes a bare `-p` (it then reads the password twice) with `-mhe=on` (7z: names too) or
+  `-mem=AES256` (zip). A wrong or missing one is `arctool.NeedPassword` → **`archive.NeedPassword`** (a
+  `NotAnArchive`): listing fails with *Wrong password* (encrypted names), or a member says `Encrypted = +`
+  (`ToolInfo.encrypted`) and `7z t` on the smallest fails. A zip with an encrypted member (`flag_bits & 1`) is read
+  through `ToolArchive(kind="zip")` -- `ArchiveDrive.tool` is which back-end, `kind` stays `zip` -- and rewritten by
+  `_write_tool` with its password, so it stays encrypted; a password given for an archive that is not encrypted is
+  dropped (`_load`). `widgets/drives/archives.open_archive_or_root` asks it (`ask_archive_password`, a
+  `PasswordDialog`), again after a wrong one; Cancel is `Stopped`, never the `NotAnArchive` that would run the file.
+  **`.tar.zst`** (`zstd.py`): `compression.zstd` (3.14+) else the `zstd` command, neither is `NeedsTool`; `tarfile`
+  wants to seek, so `_open` decompresses it whole into a private `.tar` (`ArchiveDrive._plain`, deleted on close and
+  on re-reading) and `_write_tar` writes a plain tar and compresses it (`--ultra` above 19). A rar is read-only (`capabilities` empty on the
   instance). `_Member.packed`/`DirEntry.packed` carry the packed size (a zip's `compress_size`, 7-Zip's *Packed
   Size* -- blank for a solid block's later members; None for a tar). A place in one is `Location(Site("arc"), inner, outer=<the archive's location>)` -- `outer`
   is DN's `Prev` -- printing as `/dir/a.zip#/inner`; `Location.parse` reads that back when the name before `#/` is in
@@ -221,16 +234,31 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   FIFOs and hard links in a tar are not listed (and a rewrite drops them). Reads share one file, one at a time
   (`_Locked`). Title `ZIP:a.zip:/inner` (`get_dir`, DN's `ZIP:C:A.ZIP\INNER`). `..` is always listed; at the root
   `change_up` is `(outer.parent, outer.name)`, so the cursor lands on the archive.
-- **Writing an archive is a rewrite** (DN's packers rewrote too): every step -- `open_write`, `mkdir`, `rmdir`,
+- **Writing an archive is a rewrite** (DN's packers rewrote too) **at a level**: `ArchiveDrive.level` (one of
+  `LEVEL_NAMES`: store/fastest/normal/maximum/ultra, `normal` unless *Create archive* said) is
+  `LEVELS[(kind, compression)]` to each writer -- deflate level (*store* = `ZIP_STORED`, new members only; old
+  ones keep theirs), gzip/bz2 `compresslevel` (bz2's is only its block size), xz `preset` (*ultra* `|
+  PRESET_EXTREME`), zstd level, 7-Zip `-mx`; a level a format has not got is missing (no *store* for a compressed
+  tar), a plain tar has none. `ArchiveOptions(level, password)` rides on `CopyRequest.archive` into
+  `_open_target_archive`, which also sets the level on one there already. every step -- `open_write`, `mkdir`, `rmdir`,
   `unlink`, `rename`/`replace`, `symlink`, `chmod`, `utime` -- changes the in-memory index under `_tree`, a new file's
   bytes staged in `private_dir()/archive/<pid>/`; **`Drive.finish()`** (a no-op elsewhere) writes the whole archive
   anew beside it (`.name.XXXX`), each zip member keeping its compression, a tar its compression (`_compression_of`,
   by magic bytes) and owners, then `os.replace`s it over, re-reads it, and for a fetched one uploads it back.
+  **`finish(job)`** counts the packing into a copy's job (`total_bytes`/`done_bytes`, `source` the member,
+  `file_bytes`/`file_done`) and raises `Stopped` between chunks -- the temp file removed, the archive as it was;
+  **`discard()`** drops the unwritten changes (index re-read, staging deleted). The copier sets `job.packing` (and
+  `dest` the archive) around `finish_drives(..., job=)` for a target in an archive: the progress box says *Packing*;
+  Stop there discards (`filecopy.discard_drives`) and reports nothing done. **A move into an archive holds each
+  source's removal** (`_Copier._held`, `_remove_source`) until the archive is written and not `dirty`
+  (`_remove_held`) -- a pack that fails or is stopped loses nothing; before, sources went as each file was staged.
   **Whoever makes the steps calls `finish` once at the end**: the copier and eraser (`filecopy.finish_drives` over
   sources and target, also after Stop -- what went in full stays), `Manager.make_directory`/`_rename_entry`, and
   `usefile.upload` (the editor's F2). A copy whose target names an archive not open opens it, or -- named but not
   there, with a name in `NEW_KINDS` -- makes an empty one (DN's `ArchiveFiles`, packing by the target's name), and
-  lets go of it after (`release_unheld`). A panel holds the archive it is in (`Panel._hold_archive`;
+  lets go of it after (`release_unheld`). **On another drive too**: `open_archive(create=True)` on a remote name not
+  there makes it in a private copy (`usefile.blank`, the file removed so the first `finish` makes it) and `finish`
+  puts it there (`_put_back`). A panel holds the archive it is in (`Panel._hold_archive`;
   `archive.hold`/`leave`), the last one out closes it on a thread (which finishes first); `Navigator.on_stop` closes
   the rest.
 - **Entering**: Enter (`Panel.choose` → `_may_enter_archive`) with File Manager Setup's *Enter opens an archive*
@@ -254,10 +282,22 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   **Shift+F2 extracts everywhere** (a departure, asked for): outside an archive it is *Extract archive*, inside one
   `Manager.on_extract_archive` runs *Extract to...* -- so Panel > *Extract to...* shows Shift-F2 as a static key (the
   binding is `ExtractArchive`'s). The panel's right-click menu offers *Extract to...* and *Test archive* in an
-  archive, and *Extract archive...* on an archive file outside one (`panel._archive_file`). **Shift+F1, File > *Copy
-  to archive...*** (`ArchiveFiles`, `cmPanelArcFiles`) is F5's Copy dialog with the target a new `.zip`'s root
-  (`Manager._archive_target`: named after the one entry, else the directory; in the other panel's place when it is on
-  the disk, else this one's), which the copy makes and packs into -- DN asked in an archiver's own box.
+  archive, and *Extract archive...* on an archive file outside one (`panel._archive_file`). **Shift+F1, File > *Create
+  archive...*** (`ArchiveFiles`, `cmPanelArcFiles`; DN's caption *Copy to archive*, renamed -- a departure, asked
+  for; *Compare files* moved to `~l~` to free the `i`) is **`ArchiveDialog`** (`widgets/file_ops/archive_dialog`,
+  DN's `dlgArchiveFiles`, 64x18): *Archive to* (Copy's history), *Archive type* (`FORMATS`: ZIP 7Z TAR TAR.GZ
+  TAR.BZ2 TAR.XZ TAR.ZST), *Compression* (None/Fastest/Normal/Maximum/Ultra; *None* is `store`), *Password*,
+  *Store pathnames* (off = `CopyRequest.flatten`), *Move files*, *Follow symlinks*, Tree (keeps the name). The type
+  and the name's ending follow each other (`_kind_changed`/`_name_changed` effects); levels and password a type
+  has not got are greyed (`RadioButtons.enable_mask`, navml's `TCluster.EnableMask`); a type with no tool
+  (`archive.format_missing`) is greyed and said on the row above the buttons. OK (`confirm`): a name with no ending
+  gets the type's, a password is asked again (`dlgReenterPassword`), an existing file is *Add to it* / *Replace*
+  (`ask_add_or_replace`; existence asked on a thread); type, level and boxes are remembered for the session, never
+  the password. The request is a copy (`Manager.archive_files` → `_run_copy`, mode *Ask*) into the archive's root,
+  which the copy makes; `Manager._archive_place`: named after the one entry (its archive ending, else its last
+  extension, dropped), else the directory; in the other panel's place when it can be written (never inside an
+  archive), else this one's -- any drive. Departures: today's formats for DN's ARC..ZOO, *Store*/*Ultra* added, no
+  *Additional options* or *Force mode* (no per-format archiver to pass them to), *Follow symlinks* added.
 - **Archive columns** (`TArcDrive.Init`'s `ColumnsDefaults.Arc`): `Panel.archive_columns`, seeded from *Column
   defaults*' *Archives* (`[column_defaults] arc_*`) each time an archive is entered (`_hold_archive`), is
   `shown_columns` in an archive; `packed` (*Packed*, `display_packed`) and `ratio` (*%*, `display_ratio`, DN's

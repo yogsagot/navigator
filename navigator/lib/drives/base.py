@@ -339,11 +339,12 @@ class Drive:
         was opened from.  None where the root is the end."""
         return None
 
-    def finish(self) -> None:
+    def finish(self, job: Any = None) -> None:
         """The steps since the last, made final: called once by whoever made
         them -- a copy, an erase, a rename -- when it is done.  Nothing on a
         drive whose every step is final already; an archive is written anew
-        (:meth:`navigator.lib.drives.archive.ArchiveDrive.finish`)."""
+        (:meth:`navigator.lib.drives.archive.ArchiveDrive.finish`), counted
+        into a copy's *job* when given."""
 
     def close(self) -> None:
         """Let go of whatever the drive holds open."""

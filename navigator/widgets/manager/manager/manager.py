@@ -884,34 +884,52 @@ class Manager(Window):
         return True
 
     async def on_archive_files(self, event: ArchiveFiles) -> bool:
-        """Shift+F1, File > *Copy to archive...*: ``cmPanelArcFiles``, as F5's
-        Copy with its target a new ``.zip`` -- which the copy makes and packs
-        into (``filecopy._open_target_archive``), so this is only the name.
-        A departure: DN asked in an archiver's own box (*Archive files*)."""
-        panel = self.active_panel
-        entries = self.selection(panel)
-        target = self._archive_target(panel, entries)
-        if target is not None:
-            self.spawn(self.copy_entries(panel, entries, target, move=False, others=(self.passive_panel,)))
+        """Shift+F1, File > *Create archive...*: ``cmPanelArcFiles``, DN's
+        *Archive files* box (``ArchiveDialog``) naming the new archive and
+        how it is packed, then a copy into it -- which makes it and packs it
+        (``filecopy._open_target_archive``).  DN's caption was *Copy to
+        archive*: renamed, a departure asked for, since it makes one."""
+        self.spawn(self.archive_files(self.active_panel))
         return True
 
-    def _archive_target(self, panel: Panel, entries: list[Any]) -> Location | None:
-        """The new archive's root: named after the one entry, or after the
-        panel's directory for several, in the other panel's place when it is
-        on the disk, else this one's -- an archive is made only there."""
-        from navigator.lib.drives.archive import ARCHIVE_SITE
+    async def archive_files(self, panel: Panel) -> None:
+        from navigator.widgets.file_ops.archive_dialog import ArchiveDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        place = self._archive_place(panel, entries)
+        if app is None or place is None:
+            return
+        directory, stem = place
+        request = await ArchiveDialog(entries=entries, here=panel.location, directory=directory, stem=stem,
+                                      hidden=panel.show_hidden).execute(app)
+        if request is None:
+            return
+        await self._run_copy(panel, request, panel.location, move=request.move, others=(self.passive_panel,))
+
+    def _archive_place(self, panel: Panel, entries: list[Any]) -> tuple[str, str] | None:
+        """Where the new archive goes and its name without an ending: named
+        after the one entry, or after the panel's directory for several, in
+        the other panel's place when it can be written, else this one's --
+        never inside an archive.  None where neither can be written."""
+        from navigator.widgets.file_ops.archive_dialog.archive_dialog import suffix_of
 
         if not entries:
             return None
         if len(entries) == 1 and entries[0].name != "..":
-            stem = Path(entries[0].name).stem if not entries[0].is_dir else entries[0].name
+            name = entries[0].name
+            ending = suffix_of(name)
+            stem = name if entries[0].is_dir else name[: len(name) - len(ending)] if ending else Path(name).stem
         else:
             stem = panel.location.path.name or "archive"
         for side in (self.passive_panel, panel):
             location = side.location
-            if location.is_local and location.outer is None:
-                outer = Location.of(location.local / f"{stem or 'archive'}.zip")
-                return Location(ARCHIVE_SITE, PurePosixPath("/"), outer=outer)
+            try:
+                writable = location.outer is None and side.drive.can("write")
+            except DriveGone:
+                continue
+            if writable:
+                return str(shown(location)), stem or "archive"
         return None
 
     def _extract_target(self, panel: Panel) -> str | None:
@@ -2437,7 +2455,7 @@ class Manager(Window):
             return any(_is_archive(entry) for entry in self.selection(panel))
         if isinstance(command, ArchiveFiles):
             panel = self.active_panel
-            return self._archive_target(panel, self.selection(panel)) is not None
+            return self._archive_place(panel, self.selection(panel)) is not None
         if isinstance(command, (Edit, AlternateEdit)) and not self.active_panel.location.is_local:
             # An editor's F2 puts the file back: not into a drive that takes nothing.
             try:
@@ -3124,8 +3142,14 @@ class Manager(Window):
 
         rate = Rate()
         loop = asyncio.get_running_loop()
+        packing = False
 
         def refresh(box: Any) -> None:
+            nonlocal rate, packing
+            if job.packing != packing:
+                # The packing counts again from nought: the speed with it.
+                packing, rate = job.packing, Rate()
+            box.packing = job.packing
             box.source, box.dest = job.source, job.dest
             box.file_done, box.file_bytes = job.file_done, job.file_bytes
             box.done, box.total = job.done_bytes, job.total_bytes

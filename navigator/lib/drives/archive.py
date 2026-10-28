@@ -61,9 +61,72 @@ NEW_KINDS: tuple[tuple[str, str, str], ...] = (
     (".tar.gz", "tar", "gz"), (".tgz", "tar", "gz"),
     (".tar.bz2", "tar", "bz2"), (".tbz", "tar", "bz2"), (".tbz2", "tar", "bz2"),
     (".tar.xz", "tar", "xz"), (".txz", "tar", "xz"),
+    (".tar.zst", "tar", "zst"), (".tzst", "tar", "zst"),
     (".tar", "tar", ""),
     (".7z", "7z", ""),
 )
+
+#: File > *Create archive...*'s *Archive type*, in its order: the label,
+#: the name's suffix, and ``(kind, compression)``.
+FORMATS: tuple[tuple[str, str, tuple[str, str]], ...] = (
+    ("ZIP", ".zip", ("zip", "")),
+    ("7Z", ".7z", ("7z", "")),
+    ("TAR", ".tar", ("tar", "")),
+    ("TAR.GZ", ".tar.gz", ("tar", "gz")),
+    ("TAR.BZ2", ".tar.bz2", ("tar", "bz2")),
+    ("TAR.XZ", ".tar.xz", ("tar", "xz")),
+    ("TAR.ZST", ".tar.zst", ("tar", "zst")),
+)
+
+#: *Compression*'s levels, in its order -- DN's Normal/Faster/Maximum,
+#: with *Store* and *Ultra* either side.
+LEVEL_NAMES = ("store", "fastest", "normal", "maximum", "ultra")
+
+#: What each level is to each writer: deflate's or a compressor's level, xz's
+#: preset, 7-Zip's ``-mx``.  A level a format has not got is missing, and
+#: greyed in the box; a plain tar has none.
+LEVELS: dict[tuple[str, str], dict[str, int]] = {
+    ("zip", ""): {"store": 0, "fastest": 1, "normal": 6, "maximum": 9, "ultra": 9},
+    ("7z", ""): {"store": 0, "fastest": 1, "normal": 5, "maximum": 7, "ultra": 9},
+    ("tar", "gz"): {"fastest": 1, "normal": 6, "maximum": 9, "ultra": 9},
+    ("tar", "bz2"): {"fastest": 1, "normal": 9, "maximum": 9, "ultra": 9},
+    ("tar", "xz"): {"fastest": 0, "normal": 6, "maximum": 9, "ultra": 9 | lzma.PRESET_EXTREME},
+    ("tar", "zst"): {"fastest": 1, "normal": 3, "maximum": 19, "ultra": 22},
+}
+
+
+@dataclass(frozen=True)
+class ArchiveOptions:
+    """How *Create archive...* asked for a new archive to be packed: the
+    level (one of :data:`LEVEL_NAMES`) and, for a 7z or zip, a password."""
+
+    level: str = "normal"
+    password: str = ""
+
+
+def level_of(kind: tuple[str, str], name: str) -> int | None:
+    """*name*'s level to *kind*'s writer, or None: its own default."""
+    levels = LEVELS.get(kind, {})
+    return levels.get(name, levels.get("normal"))
+
+
+def format_missing(kind: tuple[str, str]) -> str | None:
+    """Why a new archive of *kind* cannot be made here, or None."""
+    from navigator.lib.drives import arctool, zstd
+
+    if kind[0] == "7z" and arctool.seven_zip() is None:
+        return "7z archives need 7-Zip: install 7zip (7zz) or p7zip (7z)"
+    if kind[1] == "zst" and not zstd.available():
+        return zstd.MISSING
+    return None
+
+
+def can_encrypt(kind: tuple[str, str]) -> bool:
+    """Whether a password can be set on a new archive of *kind*: a 7z or a
+    zip, through 7-Zip -- :mod:`zipfile` writes no encryption."""
+    from navigator.lib.drives import arctool
+
+    return kind in (("7z", ""), ("zip", "")) and arctool.seven_zip() is not None
 
 #: The kinds read through an archiver's command line (``arctool``).
 TOOL_KINDS = ("7z", "rar")
@@ -76,6 +139,11 @@ class NotAnArchive(Exception):
 class NeedsTool(NotAnArchive):
     """An archive by its signature -- a 7z, a rar -- with nothing here to read
     it: Enter says what to install rather than running it."""
+
+
+class NeedPassword(NotAnArchive):
+    """An encrypted archive, and no password or the wrong one: asked for,
+    and opened again with it (``navigator.widgets.drives.archives``)."""
 
 
 @dataclass
@@ -143,7 +211,7 @@ class _Locked(io.RawIOBase):
 
 
 def _compression_of(path: Path) -> str:
-    """A tar's compression, by its first bytes: ``gz``, ``bz2``, ``xz`` or ``""``."""
+    """A tar's compression, by its first bytes: ``gz``, ``bz2``, ``xz``, ``zst`` or ``""``."""
     try:
         with open(path, "rb") as file:
             head = file.read(6)
@@ -155,6 +223,8 @@ def _compression_of(path: Path) -> str:
         return "bz2"
     if head == b"\xfd7zXZ\x00":
         return "xz"
+    if head[:4] == b"\x28\xb5\x2f\xfd":  # zstd.MAGIC
+        return "zst"
     return ""
 
 
@@ -166,9 +236,11 @@ class ArchiveDrive(Drive):
     site = ARCHIVE_SITE
 
     def __init__(self, outer: Location, local: Path, *, use: Any = None,
-                 new: tuple[str, str] | None = None) -> None:
+                 new: tuple[str, str] | None = None, options: ArchiveOptions | None = None,
+                 password: str = "") -> None:
         """*new* -- ``(kind, compression)`` -- makes an empty archive, written
-        at the first :meth:`finish`, where *local* is not there yet."""
+        at the first :meth:`finish`, where *local* is not there yet, packed as
+        *options* say.  *password* opens an encrypted one."""
         self.outer = outer
         self.local = local
         #: The fetched copy, for an archive on another drive; discarded on close.
@@ -182,13 +254,20 @@ class ArchiveDrive(Drive):
         self._tree = threading.RLock()
         self._staging: Path | None = None
         self._dirty = False
+        #: How a rewrite packs: one of :data:`LEVEL_NAMES`.
+        self.level = options.level if options is not None else "normal"
+        #: The password it is encrypted with; kept, so a rewrite is too.
+        self.password = options.password if options is not None and new is not None else password
+        #: A ``.tar.zst`` decompressed, which :mod:`tarfile` reads.
+        self._plain: Path | None = None
         if new is not None:
             self.kind, self.compression = new
             self._archive = None
+            #: Read -- and written -- through 7-Zip (``arctool``).
+            self.tool = self.kind == "7z" or bool(self.password)
             self._dirty = True
         else:
-            self.kind, self._archive = _open(local)
-            self.compression = _compression_of(local) if self.kind == "tar" else ""
+            self._load()
         if self.kind == "rar":
             # Nothing writes a rar but rar itself, which is not free.
             self.capabilities = frozenset()
@@ -218,10 +297,40 @@ class ArchiveDrive(Drive):
             member.children = existing.children
         node.children[last] = member
 
+    def _load(self) -> None:
+        """The archive on the disk, opened: its kind, its compression, and
+        whether 7-Zip reads it."""
+        from navigator.lib.drives import arctool
+
+        old = self._plain
+        self.kind, self._archive, self.compression, self._plain = _open(self.local, self.password)
+        self.tool = isinstance(self._archive, arctool.ToolArchive)
+        members = self._archive.infolist() if self.tool else []
+        if members and not self._archive.encrypted:
+            # A password given for one that is not encrypted: a rewrite stays as it was.
+            self.password = ""
+        if old is not None and old != self._plain:
+            _unlink_quietly(old)
+
+    @property
+    def dirty(self) -> bool:
+        """Whether there are changes :meth:`finish` has still to write."""
+        return self._dirty
+
     def _index(self) -> None:
         if self._archive is None:
             return
-        if self.kind == "zip":
+        if self.tool:
+            for info in self._archive.infolist():
+                link = None
+                if info.is_link:
+                    try:
+                        link = self._archive.read_link(info)
+                    except OSError:
+                        link = ""  # damaged: listed still, for Test to say so
+                self._place(info.path, _Member(info.path, info.is_dir, info.size, info.mtime, info.mode,
+                                               link, None, None if info.is_dir else info.packed, info))
+        elif self.kind == "zip":
             for info in self._archive.infolist():
                 mode = (info.external_attr >> 16) & 0xFFFF
                 is_dir = info.is_dir() or stat.S_ISDIR(mode)
@@ -232,16 +341,6 @@ class ArchiveDrive(Drive):
                 self._place(info.filename, _Member(info.filename, is_dir, info.file_size, mtime,
                                                    stat.S_IMODE(mode), link, None,
                                                    None if is_dir else info.compress_size, info))
-        elif self.kind in TOOL_KINDS:
-            for info in self._archive.infolist():
-                link = None
-                if info.is_link:
-                    try:
-                        link = self._archive.read_link(info)
-                    except OSError:
-                        link = ""  # damaged: listed still, for Test to say so
-                self._place(info.path, _Member(info.path, info.is_dir, info.size, info.mtime, info.mode,
-                                               link, None, None if info.is_dir else info.packed, info))
         else:
             for info in self._archive.getmembers():
                 if not (info.isfile() or info.isdir() or info.issym()):
@@ -484,25 +583,35 @@ class ArchiveDrive(Drive):
 
     # -- the rewrite ---------------------------------------------------------------------------
 
-    def finish(self) -> None:
+    def finish(self, job: Any = None) -> None:
         """Every change since the last, written into the archive: the whole of
         it anew beside it, renamed over it, and -- for one fetched from another
-        drive -- put back there.  Nothing to do when nothing changed."""
+        drive -- put back there.  Nothing to do when nothing changed.
+
+        *job*, given, is a copy's (``CopyJob``): the packing is counted into
+        its ``total_bytes``/``done_bytes`` and ``source``/``file_bytes``/
+        ``file_done``, and stops between chunks (``Stopped``) when it is
+        stopped -- the archive on the disk as it was, the changes still to
+        write (:meth:`discard` drops them)."""
         with self._tree:
             if not self._dirty:
                 return
+            if job is not None:
+                job.total_bytes = sum(member.stat().st_size for _, member in self._walk(self.root)
+                                      if not member.is_dir and member.link is None)
+                job.done_bytes = 0
             directory = self.local.parent
             fd, name = tempfile.mkstemp(prefix=f".{self.local.name}.", dir=directory)
             os.close(fd)
             new = Path(name)
             try:
                 with self._lock:
-                    if self.kind == "zip":
-                        self._write_zip(new)
-                    elif self.kind == "7z":
-                        self._write_7z(new)
+                    if self.tool:
+                        self._write_tool(new, job)
+                    elif self.kind == "zip":
+                        self._write_zip(new, job)
                     else:
-                        self._write_tar(new)
+                        self._write_tar(new, job)
                 if self.local.exists():
                     shutil.copymode(self.local, new)
                 else:
@@ -516,7 +625,7 @@ class ArchiveDrive(Drive):
                 raise
             if self._archive is not None:
                 self._archive.close()
-            self.kind, self._archive = _open(self.local)
+            self._load()
             self.root = _Member("", True)
             self._index()
             self._dirty = False
@@ -525,6 +634,18 @@ class ArchiveDrive(Drive):
                 self._staging = None
             if self.use is not None:
                 self._put_back()
+
+    def discard(self) -> None:
+        """Every change since the last :meth:`finish` dropped: the index read
+        again from the archive as it is on the disk -- empty, for one not
+        written yet -- and what was staged deleted."""
+        with self._tree:
+            self.root = _Member("", True)
+            self._index()
+            self._dirty = False
+            if self._staging is not None:
+                shutil.rmtree(self._staging, ignore_errors=True)
+                self._staging = None
 
     def go_root(self, job: Any = None) -> None:
         """From now on, written as root: the archive on the disk fetched
@@ -564,7 +685,9 @@ class ArchiveDrive(Drive):
             if member.is_dir:
                 yield from self._walk(member, path + "/")
 
-    def _write_zip(self, target: Path) -> None:
+    def _write_zip(self, target: Path, job: Any = None) -> None:
+        level = level_of(("zip", ""), self.level)
+        fresh = zipfile.ZIP_STORED if self.level == "store" else zipfile.ZIP_DEFLATED
         with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as out:
             for path, member in self._walk(self.root):
                 old = member.info if member.staged is None else None
@@ -582,17 +705,38 @@ class ArchiveDrive(Drive):
                 # A new header, never the old one -- the old archive is read
                 # through it meanwhile -- keeping the member's compression.
                 info = zipfile.ZipInfo(path, _zip_time(member.mtime))
-                info.compress_type = old.compress_type if old is not None else zipfile.ZIP_DEFLATED
+                info.compress_type = old.compress_type if old is not None else fresh
+                if old is None and fresh == zipfile.ZIP_DEFLATED:
+                    info._compresslevel = level  # 3.13's ``compress_level``, under its 3.12 name
                 info.external_attr = (stat.S_IFREG | (member.mode & 0o7777 or 0o644)) << 16
                 info.create_system = 3
                 info.date_time = _zip_time(member.mtime)
                 size = member.stat().st_size
+                _counting(job, path, size)
                 with self._source(member) as reader, out.open(info, "w", force_zip64=size >= 1 << 31) as writer:
-                    shutil.copyfileobj(reader, writer, 1 << 20)
+                    _pump(reader, writer, job)
 
-    def _write_tar(self, target: Path) -> None:
-        mode = f"w:{self.compression}" if self.compression else "w"
-        with tarfile.open(target, mode) as out:
+    def _write_tar(self, target: Path, job: Any = None) -> None:
+        compression = self.compression
+        level = level_of(("tar", compression), self.level)
+        if compression == "zst":
+            plain = Path(tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tar", dir=target.parent)[1])
+            try:
+                self._write_tar_to(plain, "", None, job)
+                from navigator.lib.drives import zstd
+
+                zstd.compress(plain, target, level or 3)
+            finally:
+                _unlink_quietly(plain)
+            return
+        self._write_tar_to(target, compression, level, job)
+
+    def _write_tar_to(self, target: Path, compression: str, level: int | None, job: Any) -> None:
+        mode = f"w:{compression}" if compression else "w"
+        settings: dict[str, int] = {}
+        if level is not None:
+            settings = {"preset": level} if compression == "xz" else {"compresslevel": level}
+        with tarfile.open(target, mode, **settings) as out:
             for path, member in self._walk(self.root):
                 old = member.info if member.staged is None else None
                 info = tarfile.TarInfo(path)
@@ -608,13 +752,15 @@ class ArchiveDrive(Drive):
                     out.addfile(info)
                 else:
                     info.size = member.stat().st_size
+                    _counting(job, path, info.size)
                     with self._source(member) as reader:
-                        out.addfile(info, reader)
+                        out.addfile(info, _Counted(reader, job))
 
-    def _write_7z(self, target: Path) -> None:
+    def _write_tool(self, target: Path, job: Any = None) -> None:
         """The archive laid out as a directory -- the old one unpacked once,
         not a member at a time, its solid blocks being whole -- and packed
-        anew by 7-Zip."""
+        anew by 7-Zip: a 7z, or an encrypted zip.  *job* sees the laying
+        out; 7-Zip's own packing it waits through."""
         from navigator.lib.drives import arctool
 
         tree = Path(tempfile.mkdtemp(dir=self._stage().parent))
@@ -635,7 +781,9 @@ class ArchiveDrive(Drive):
                     os.symlink(member.link, place)
                     continue
                 if member.staged is not None:
-                    shutil.copyfile(member.staged, place)
+                    _counting(job, path, member.stat().st_size)
+                    with open(member.staged, "rb") as reader, open(place, "wb") as writer:
+                        _pump(reader, writer, job)
                 elif member.info is not None:
                     os.replace(old / member.info.path, place)
                 else:
@@ -645,7 +793,8 @@ class ArchiveDrive(Drive):
             for place, member in reversed(directories):
                 os.chmod(place, member.mode & 0o7777 or 0o755)
                 os.utime(place, (member.mtime, member.mtime))
-            arctool.write_7z(target, tree)
+            arctool.write_archive(target, tree, type_=self.kind, password=self.password,
+                                  level=level_of((self.kind, ""), self.level))
         finally:
             shutil.rmtree(tree, ignore_errors=True)
             shutil.rmtree(old, ignore_errors=True)
@@ -682,7 +831,7 @@ class ArchiveDrive(Drive):
         tested whole by their tool (``7z t``), as DN's archivers were."""
         from navigator.lib.system.job import Stopped
 
-        if self.kind in TOOL_KINDS and self._archive is not None:
+        if self.tool and self._archive is not None:
             with self._lock:
                 return self._archive.test()
         with self._tree:
@@ -744,6 +893,9 @@ class ArchiveDrive(Drive):
         if self._staging is not None:
             shutil.rmtree(self._staging, ignore_errors=True)
             self._staging = None
+        if self._plain is not None:
+            _unlink_quietly(self._plain)
+            self._plain = None
         if self.use is not None:
             from navigator.lib.drives import usefile
 
@@ -755,6 +907,71 @@ class ArchiveDrive(Drive):
             self.as_root = False
             ELEVATION.unhold()
             ELEVATION.release()
+
+
+def _counting(job: Any, path: str, size: int) -> None:
+    """*job* told the member *path* of *size* bytes is being packed."""
+    if job is not None:
+        job.source = path
+        job.file_bytes, job.file_done = size, 0
+
+
+def _pump(reader: IO[bytes], writer: IO[bytes], job: Any) -> None:
+    """*reader* into *writer*, counted into *job* and stopped with it."""
+    if job is None:
+        shutil.copyfileobj(reader, writer, 1 << 20)
+        return
+    from navigator.lib.system.job import Stopped
+
+    while True:
+        job.wait_while_paused()
+        if job.stopped:
+            raise Stopped
+        data = reader.read(1 << 20)
+        if not data:
+            break
+        writer.write(data)
+        job.file_done += len(data)
+        job.done_bytes += len(data)
+
+
+class _Counted:
+    """A member's reader as :mod:`tarfile` reads it, counted into a job."""
+
+    def __init__(self, reader: IO[bytes], job: Any) -> None:
+        self._reader, self._job = reader, job
+
+    def read(self, size: int = -1) -> bytes:
+        job = self._job
+        if job is not None:
+            from navigator.lib.system.job import Stopped
+
+            job.wait_while_paused()
+            if job.stopped:
+                raise Stopped
+        data = self._reader.read(size)
+        if job is not None:
+            job.file_done += len(data)
+            job.done_bytes += len(data)
+        return data
+
+
+def _unlink_quietly(path: Path) -> None:
+    try:
+        path.unlink()
+    except OSError:
+        pass
+
+
+def _private_file(suffix: str = "") -> Path:
+    """A new file in Navigator's private directory, for a decompressed tar."""
+    from navigator.lib.system.tempdir import private_dir
+
+    base = private_dir() / "archive" / str(os.getpid())
+    base.mkdir(parents=True, exist_ok=True, mode=0o700)
+    fd, name = tempfile.mkstemp(dir=base, suffix=suffix)
+    os.close(fd)
+    return Path(name)
 
 
 def _zip_time(mtime: float) -> tuple[int, int, int, int, int, int]:
@@ -773,23 +990,53 @@ def _read_umask() -> int:
 _UMASK = _read_umask()
 
 
-def _open(local: Path) -> tuple[str, Any]:
-    """``(kind, archive)`` for *local*, by what is in it, not its name."""
+def _tool_archive(local: Path, kind: str, password: str) -> Any:
     from navigator.lib.drives import arctool
+
+    try:
+        return arctool.ToolArchive(local, kind, password)
+    except arctool.MissingTool as error:
+        raise NeedsTool(str(error)) from error
+    except arctool.NeedPassword as error:
+        raise NeedPassword(str(local)) from error
+    except OSError as error:
+        raise NotAnArchive(error.strerror or str(error)) from error
+
+
+def _open(local: Path, password: str = "") -> tuple[str, Any, str, Path | None]:
+    """``(kind, archive, compression, plain)`` for *local*, by what is in it,
+    not its name: a 7z or rar -- or a zip with encrypted members -- through
+    7-Zip, a ``.tar.zst`` through *plain*, the plain tar it is decompressed
+    into (the caller's to delete)."""
+    from navigator.lib.drives import arctool, zstd
 
     kind = arctool.kind_of(local)
     if kind is not None:
+        return kind, _tool_archive(local, kind, password), "", None
+    compression = _compression_of(local)
+    if compression == "zst":
+        if not zstd.available():
+            raise NeedsTool(zstd.MISSING)
+        plain = _private_file(".tar")
         try:
-            return kind, arctool.ToolArchive(local, kind)
-        except arctool.MissingTool as error:
-            raise NeedsTool(str(error)) from error
-        except OSError as error:
-            raise NotAnArchive(error.strerror or str(error)) from error
+            zstd.decompress(local, plain)
+            if not tarfile.is_tarfile(plain):
+                raise NotAnArchive(str(local))
+            return "tar", tarfile.open(plain), compression, plain
+        except BaseException as error:
+            _unlink_quietly(plain)
+            if isinstance(error, (OSError, tarfile.TarError, EOFError)):
+                raise NotAnArchive(str(error)) from error
+            raise
     try:
         if zipfile.is_zipfile(local):
-            return "zip", zipfile.ZipFile(local)
+            archive = zipfile.ZipFile(local)
+            if any(info.flag_bits & 0x1 for info in archive.infolist()):
+                archive.close()  # encrypted: AES, which zipfile cannot read, or worse
+                return "zip", _tool_archive(local, "zip", password), "", None
+            return "zip", archive, "", None
         if tarfile.is_tarfile(local):
-            return "tar", tarfile.open(local)
+            return "tar", tarfile.open(local), compression, None
     except (OSError, zipfile.BadZipFile, tarfile.TarError, EOFError) as error:
         raise NotAnArchive(str(error)) from error
     raise NotAnArchive(str(local))
@@ -818,15 +1065,18 @@ def find(outer: Location) -> ArchiveDrive | None:
         return _OPEN.get(outer)
 
 
-def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_root: bool = False) -> ArchiveDrive:
+def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_root: bool = False,
+                 options: ArchiveOptions | None = None, password: str = "") -> ArchiveDrive:
     """The archive at *outer*, opened (or the one open already) and found by
     :func:`~navigator.lib.drives.drive_of` from now on.  A file on another
     drive is fetched first.  :class:`NotAnArchive` for anything else.
 
     *create*: where nothing is there yet and the name says what kind
     (:data:`NEW_KINDS`), an empty archive to write into -- DN's
-    ``ArchiveFiles`` packing into an archive named on the target line.
-    Only on the disk.
+    ``ArchiveFiles`` packing into an archive named on the target line --
+    packed as *options* say.  On another drive it is made in a private
+    copy and put there by :meth:`ArchiveDrive.finish` (``usefile.blank``).
+    *password* opens an encrypted archive; :class:`NeedPassword` without it.
 
     A file on the disk the user may not read raises ``PermissionError`` --
     not :class:`NotAnArchive`, which would have it run as a program -- and
@@ -850,7 +1100,7 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_r
             raise
         ELEVATION.hold()
         try:
-            drive = ArchiveDrive(outer, use.local_for(outer), use=use)
+            drive = ArchiveDrive(outer, use.local_for(outer), use=use, password=password)
         except BaseException:
             usefile.discard(use)
             ELEVATION.unhold()
@@ -863,17 +1113,25 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_r
             kind = new_kind(local.name)
             if kind is None:
                 raise NotAnArchive(str(local))
-            drive = ArchiveDrive(outer, local, new=kind)
+            drive = ArchiveDrive(outer, local, new=kind, options=options)
             return _register(outer, drive)
         if os.path.lexists(local) and not os.access(local, os.R_OK):
             raise PermissionError(errno.EACCES, os.strerror(errno.EACCES), str(local))
     else:
-        from navigator.lib.drives import usefile
+        from navigator.lib.drives import drive_of, usefile
 
+        if create and not drive_of(outer.parent).lexists(outer):
+            kind = new_kind(outer.name)
+            if kind is None:
+                raise NotAnArchive(str(outer))
+            use = usefile.blank(outer)
+            local = use.local_for(outer)
+            local.unlink()  # made by the first finish
+            return _register(outer, ArchiveDrive(outer, local, use=use, new=kind, options=options))
         use = usefile.fetch([outer], job if job is not None else _NoJob())
         local = use.local_for(outer)
     try:
-        drive = ArchiveDrive(outer, local, use=use)
+        drive = ArchiveDrive(outer, local, use=use, password=password)
     except BaseException:
         if use is not None:
             from navigator.lib.drives import usefile
@@ -944,5 +1202,7 @@ def close_all() -> None:
     release_unused(set())
 
 
-__all__ = ["ARCHIVE_SITE", "ArchiveDrive", "NEW_KINDS", "NeedsTool", "NotAnArchive", "TOOL_KINDS", "close_all", "find", "hold", "leave",
-           "new_kind", "open_archive", "release_unheld", "release_unused"]
+__all__ = ["ARCHIVE_SITE", "ArchiveDrive", "ArchiveOptions", "FORMATS", "LEVELS", "LEVEL_NAMES", "NEW_KINDS",
+           "NeedPassword", "NeedsTool", "NotAnArchive", "TOOL_KINDS", "can_encrypt", "close_all", "find",
+           "format_missing", "hold", "leave", "level_of", "new_kind", "open_archive", "release_unheld",
+           "release_unused"]
