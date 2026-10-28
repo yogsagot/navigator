@@ -14,10 +14,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit import commands
+from navkit import commands, tooltip
 from navkit.i18n import tr, tr_n
 from navkit.reactive import reactive
 from navkit.screen import Surface
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navigator.settings import SETTINGS
@@ -51,8 +52,8 @@ class RootMark(Widget):
         close = tr("{menu} closes it now").format(menu=path)
         app = self.application
         key = commands.key_for(app, CloseRootAccess) if app is not None else None
-        lines.append(f"{close} ({commands.key_label(key)})" if key else close)
-        return "\n".join(lines)
+        lines.append(with_keys(close, commands.key_label(key) if key else ""))
+        return tooltip.lines(*lines)
 
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)

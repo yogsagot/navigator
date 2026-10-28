@@ -216,16 +216,17 @@ class SyncWindow(Window):
             return None
         return row
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         if isinstance(command, SetSyncAction):
-            return self.rows.selected_allows(command.action)
+            return "" if self.rows.selected_allows(command.action) else tr("Not for this row")
         if isinstance(command, Synchronize):
             totals = self.totals
-            return (self.manager is not None and self.manager.parent is not None
-                    and bool(totals.right or totals.left or totals.delete))
+            if self.manager is None or self.manager.parent is None:
+                return tr("The file panels these were compared from are closed")
+            return "" if totals.right or totals.left or totals.delete else tr("Nothing is set to copy or delete")
         if isinstance(command, DiffFiles):
-            return self._comparable() is not None
-        return super().enables(command)
+            return "" if self._comparable() is not None else tr("The cursor is not on two files")
+        return super().refusal(command)
 
     def checks(self, command: Any) -> bool | None:
         """The menu ticks *Show identical* and *Tree view* while they are on."""

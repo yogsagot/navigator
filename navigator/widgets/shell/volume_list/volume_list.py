@@ -97,6 +97,20 @@ class VolumeList(ListViewer):
     def row_text(self, index: int, item: Any) -> str:
         return item.mount
 
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """What the row leaves out: the whole mount point and device, how it
+        is mounted, and the sizes in exact bytes."""
+        lines = []
+        if item.mount:
+            lines.append(tr("Mounted on {mount}").format(mount=item.mount))
+        if item.device:
+            lines.append(tr("Device {device}").format(device=item.device))
+        if item.options:
+            lines.append(tr("Options {options}").format(options=item.options))
+        if item.total is not None and item.free is not None:
+            lines.append(tr("{free} bytes free of {total}").format(free=f"{item.free:,}", total=f"{item.total:,}"))
+        return "\n".join(lines)
+
     def _cut_start(self, text: str, room: int) -> str:
         """*text* in *room* cells, its start cut and marked if it must be."""
         if len(text) <= room:

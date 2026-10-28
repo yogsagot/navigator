@@ -13,6 +13,7 @@ import datetime
 import time
 from functools import lru_cache
 
+from navkit.i18n import tr
 from navkit.screen import char_width
 
 from navml.widgets.dialog.masked_line import mask_for, spans
@@ -104,6 +105,12 @@ def time_text(mtime: float, section: CountryData | None = None, *, separator: st
 def stamp(mtime: float, section: CountryData | None = None) -> str:
     """*mtime*'s date and time, a blank between: the panels' *Date* column."""
     return stamp_in(mtime, date_format(section), twelve_hours(section))
+
+
+def last_used(when: float) -> str:
+    """``Last used 28-10-2026 18:57`` for a history entry used at *when*;
+    ``""`` for one from before the time was kept (0)."""
+    return tr("Last used {time}").format(time=stamp(when)) if when else ""
 
 
 def stamp_in(mtime: float, format: str, twelve: bool) -> str:

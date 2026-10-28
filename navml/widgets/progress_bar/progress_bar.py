@@ -16,6 +16,7 @@ whoever places the bar to write beside it, as ``TWhileView``'s were.
 from __future__ import annotations
 
 from navkit.glyphs import DEFAULT_GAUGE, GAUGES, gauge
+from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
@@ -50,6 +51,16 @@ class ProgressBar(Widget):
         if self.total <= 0:
             return 100
         return min(100, max(0, self.value * 100 // self.total))
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Its own tooltip, else what the bar rounds: exactly how much is done,
+        of how much, and what is left -- in whatever the bar counts."""
+        own = super().tooltip_at(x, y)
+        if own or self.total <= 0:
+            return own
+        return tr("{done} of {total} done ({percent}%), {rest} to go").format(
+            done=f"{self.value:,}", total=f"{self.total:,}", rest=f"{max(0, self.total - self.value):,}",
+            percent=f"{100 * self.fraction:.1f}")
 
     def render(self, surface: Surface) -> None:
         if self.width < 1 or self.height < 1:

@@ -10,7 +10,7 @@ from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path
+from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path, whole_path
 
 
 class ChecksumProgress(Dialog):
@@ -24,6 +24,10 @@ class ChecksumProgress(Dialog):
     def fit(self, path: str) -> str:
         """*path*, cut from the left to fit the row."""
         return fit_path("", path, self.width - 6)
+
+    def whole(self, path: str) -> str:
+        """*path* whole where its row cut it."""
+        return whole_path("", path, self.width - 6)
 
     @staticmethod
     def counted(done: int, total: int, percent: int) -> str:

@@ -15,6 +15,7 @@ from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, effect
 from navkit.screen import Surface
 from navkit.style import Style
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 from navml.widgets.dialog.commands import Cancel, Default
 

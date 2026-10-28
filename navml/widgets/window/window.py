@@ -40,6 +40,7 @@ from navkit.i18n import tr
 from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.commands import CloseWindow, SizeMoveWindow, ZoomWindow
@@ -275,11 +276,26 @@ class Window(Widget):
             text, command = (tr("Restore") if self.zoomed else tr("Zoom")), ZoomWindow
         elif hit == "resize":
             text, command = tr("Drag to resize"), SizeMoveWindow
+        elif hit == "move" and self.framed:
+            return self._title_tooltip(x, y)
         else:
             return super().tooltip_at(x, y)
         app = self.application
         key = commands.key_for(app, command, self) if app is not None else None
-        return f"{text} ({commands.key_label(key)})" if key else text
+        return with_keys(text, commands.key_label(key) if key else "")
+
+    def _title_tooltip(self, x: int, y: int) -> str:
+        """The top frame's: the window's own tooltip, else the whole title
+        where it was cut, and what the mouse does with the frame."""
+        own = super().tooltip_at(x, y)
+        if own:
+            return own
+        cut = self.title if len(self.title) + 2 > self.width - 2 else ""
+        if self.zoomable:
+            hint = tr("A double click zooms, a drag moves")
+        else:
+            hint = tr("A drag moves")
+        return f"{cut}\n{hint}" if cut else hint
 
     def render(self, surface: Surface) -> None:
         if not self.framed or self.width < 2 or self.height < 2:

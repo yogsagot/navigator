@@ -2418,163 +2418,198 @@ class Manager(Window):
             panel.location = panel._plain_where_readable(Location.of(chosen))
             panel.focus()
 
-    def enables(self, command: Any) -> bool:
-        """Tagging and the quick search are the active panel's, and not while
+    def refusal(self, command: Any) -> str:
+        """Why the active panel cannot do *command* now, ``""`` when it can.
+
+        Tagging and the quick search are the active panel's, and not while
         the tree or the quick view standing beside it has the keyboard -- those
         are not a listing.  Asked of a menu too, where neither has it and the
-        panel is meant."""
+        panel is meant.  A refusal of a key that falls through to the command
+        line (``by_key``) says so, though no menu asks it that way."""
+        panel = self.active_panel
+
+        def unless(condition: bool, reason: str) -> str:
+            return "" if condition else reason
+
+        def gone() -> str:
+            return tr("The connection to this panel's drive is closed")
+
+        aside = tr("Only in a file panel, not beside it")
+        nothing = tr("No files are tagged, and the cursor is on none")
+        typed = tr("The command line holds text: the key edits it")
+        read_only = tr("This drive cannot be written to")
+        not_found = tr("Not in a Find listing")
         if isinstance(command, OpenWith):
             from navigator.lib.system import desktop
 
-            entry = self.active_panel.selected
-            return (entry is not None and not entry.is_dir and entry.name != ".."
-                    and desktop.program() is not None and desktop.graphical())
+            entry = panel.selected
+            if entry is None or entry.is_dir or entry.name == "..":
+                return tr("The cursor is not on a file")
+            if desktop.program() is None:
+                return tr("Neither GIO nor KIO is installed")
+            return unless(desktop.graphical(), tr("No graphical desktop to open it on"))
         if isinstance(command, ToggleMiller):
             # A *Find:* listing is no directory to open columns on.
-            return self.miller_mode or self.active_panel.found is None
+            return unless(self.miller_mode or panel.found is None, not_found)
         if self.miller_mode and isinstance(command, _NOT_IN_MILLER):
-            return False
-        if isinstance(command, _LOCAL_ONLY) and not self.active_panel.location.is_local:
-            return False
-        if isinstance(command, MakeLink) and not self.active_panel.location.is_local:
+            return tr("Not in Miller columns (Alt-F12)")
+        if isinstance(command, _LOCAL_ONLY) and not panel.location.is_local:
+            return tr("Only on the local disk")
+        if isinstance(command, MakeLink) and not panel.location.is_local:
             # A link on another drive is made there, where it can be.
             try:
-                if not self.active_panel.drive.can("symlink"):
-                    return False
+                if not panel.drive.can("symlink"):
+                    return tr("This drive cannot hold links")
             except DriveGone:
-                return False
+                return gone()
         if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename,
                                 MultiRename)):
             try:
-                drive = self.active_panel.drive
+                drive = panel.drive
             except DriveGone:
-                return False
+                return gone()
             if isinstance(command, (RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename)) \
                     and not drive.can("write"):
-                return False
+                return read_only
         if isinstance(command, (ExtractTo, ArcTest)):
-            return self.active_panel.location.outer is not None
+            return unless(panel.location.outer is not None, tr("Only inside an archive"))
         if isinstance(command, ExtractArchive):
-            panel = self.active_panel
             if panel.location.outer is not None:
-                return True  # *Extract to...*'s, which is enabled throughout an archive
-            return any(_is_archive(entry) for entry in self.selection(panel))
+                return ""  # *Extract to...*'s, which is enabled throughout an archive
+            return unless(any(_is_archive(entry) for entry in self.selection(panel)),
+                          tr("No archive is tagged or at the cursor"))
         if isinstance(command, ArchiveFiles):
-            panel = self.active_panel
-            return self._archive_place(panel, self.selection(panel)) is not None
-        if isinstance(command, (Edit, AlternateEdit)) and not self.active_panel.location.is_local:
+            if not self.selection(panel):
+                return nothing
+            return unless(self._archive_place(panel, self.selection(panel)) is not None,
+                          tr("Neither panel's directory can be written to"))
+        if isinstance(command, (Edit, AlternateEdit)) and not panel.location.is_local:
             # An editor's F2 puts the file back: not into a drive that takes nothing.
             try:
-                return self.active_panel.drive.can("write")
+                return unless(panel.drive.can("write"), read_only)
             except DriveGone:
-                return False
+                return gone()
         if isinstance(
             command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, QuickSearch)
         ):
             if getattr(command, "by_key", False) and self._command_line_has_text():
                 # Disabled, so the key falls through and types its character.
-                return False
-            return not self._aside_focused()
+                return typed
+            return unless(not self._aside_focused(), aside)
         if isinstance(command, GoParent):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so Backspace falls through and edits the line.
-                return False
+                return typed
             if command.by_key and not SETTINGS.file_manager.bs_upper_dir:
                 # File Manager Setup's *BS upper dir* off: Shift+Backspace
                 # and Ctrl+PgUp still go up.
-                return False
-            return not self._aside_focused()
+                return tr("File Manager Setup's BS upper dir is off")
+            return unless(not self._aside_focused(), aside)
         if isinstance(command, (PutInClipboard, CutToClipboard, PasteFromClipboard, ClearClipboard)):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so the key is the line's: copy, paste, history.
-                return False
+                return typed
             if self._aside_focused():
-                return False
+                return aside
             if isinstance(command, (PutInClipboard, CutToClipboard)):
-                return bool(self.selection(self.active_panel))
+                return unless(bool(self.selection(panel)), nothing)
             if not CLIP:
-                return False
+                return tr("The file clipboard is empty")
             if isinstance(command, PasteFromClipboard):
                 try:
-                    return self.active_panel.drive.can("write")
+                    return unless(panel.drive.can("write"), read_only)
                 except DriveGone:
-                    return False
-            return True
+                    return gone()
+            return ""
         if isinstance(command, (Delete, DeleteSingle)) and command.by_key:
             if self._command_line_has_text():
                 # Disabled, so Del deletes a character and Shift+Del cuts.
-                return False
+                return typed
             if isinstance(command, Delete) and not SETTINGS.file_manager.del_erases:
                 # File Manager Setup's *Del erases* off: F8 still does.
-                return False
+                return tr("File Manager Setup's Del erases is off")
         if isinstance(command, DeleteSingle):
-            entry = self.active_panel.selected
-            return not self._aside_focused() and (
-                entry is not None and entry.name != ".."
-            )
+            entry = panel.selected
+            if self._aside_focused():
+                return aside
+            return unless(entry is not None and entry.name != "..", tr("The cursor is on no file"))
         if isinstance(command, (Copy, RenameMove, MakeLink, Delete, ChangeAttributes, PrintFile)):
             # DN's ``GetSelection`` answering nil: nothing tagged and the
             # cursor on ``..``, or a listing that is not a panel's.
-            return not self._aside_focused() and bool(
-                self.selection(self.active_panel)
-            )
+            if self._aside_focused():
+                return aside
+            return unless(bool(self.selection(panel)), nothing)
         if isinstance(command, StoreQuickDir):
             # ``Drive^.DriveType <> dtDisk``: a listing is not a directory to
             # keep, nor is a place in an archive.
-            return self.active_panel.found is None and self.active_panel.location.outer is None
+            if panel.found is not None:
+                return not_found
+            return unless(panel.location.outer is None, tr("Not inside an archive"))
         if isinstance(command, DirBranch):
             # ``CM_Branch`` acted on a disk's directory alone.
-            return self.active_panel.found is None
+            return unless(panel.found is None, not_found)
         if isinstance(command, MakeDirectory):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.
-            return self.active_panel.found is None
+            return unless(panel.found is None, not_found)
         if isinstance(command, Panelize):
-            return self.active_panel.location.is_local
+            return unless(panel.location.is_local, tr("Only on the local disk"))
         if isinstance(command, MultiRename):
-            return not self._aside_focused() and bool(self.selection(self.active_panel))
+            if self._aside_focused():
+                return aside
+            return unless(bool(self.selection(panel)), nothing)
         if isinstance(command, UndoMultiRename):
-            return Manager.last_renames is not None
+            return unless(Manager.last_renames is not None, tr("No multi-rename to undo"))
         if isinstance(command, RestoreTrash):
             # The Trash's own items only: one inside a trashed directory has no place of its own to go back to.
-            return self.shows_trash and bool(self.selection(self.active_panel))
+            if not self.shows_trash:
+                return tr("Only in the Trash")
+            return unless(bool(self.selection(panel)), nothing)
         if isinstance(command, ReadFileList):
-            entry = self.active_panel.selected
-            return entry is not None and not entry.is_dir
+            entry = panel.selected
+            return unless(entry is not None and not entry.is_dir, tr("The cursor is not on a file"))
         if isinstance(command, EqualizePanels):
             # A *Find:* listing has no one directory to send the other side to.
-            return self.active_panel.found is None
+            return unless(panel.found is None, not_found)
         if isinstance(command, (ChangeInactive, GoToFile)):
-            entry = self.active_panel.selected
-            return self.active_panel.found is not None and entry is not None and entry.name != ".."
+            entry = panel.selected
+            if panel.found is None:
+                return tr("Only in a Find listing")
+            return unless(entry is not None and entry.name != "..", tr("The cursor is on no file"))
         if isinstance(command, QuickRename):
             # One entry: the one tagged, else the cursor's.
-            return self._rename_candidate(self.active_panel) is not None
+            return unless(self._rename_candidate(panel) is not None,
+                          tr("Tag one file, or put the cursor on one"))
         if isinstance(command, CalculateChecksums):
-            return not self._aside_focused() and bool(self.selection(self.active_panel))
+            if self._aside_focused():
+                return aside
+            return unless(bool(self.selection(panel)), nothing)
         if isinstance(command, VerifyChecksums):
-            return not self._aside_focused() and any(not entry.is_dir for entry in self.selection(self.active_panel))
+            if self._aside_focused():
+                return aside
+            return unless(any(not entry.is_dir for entry in self.selection(panel)),
+                          tr("No checksum file is tagged or at the cursor"))
         if isinstance(command, (UuEncode, UuDecode)):
             # DN's ``PF^.Attr and Directory = 0``: the file at the cursor.
-            entry = self.active_panel.selected
-            return entry is not None and not entry.is_dir
+            entry = panel.selected
+            return unless(entry is not None and not entry.is_dir, tr("The cursor is not on a file"))
         if isinstance(command, CompareDir):
             # Two directories, compared: a *Find:* listing is not one.
-            return self.left.found is None and self.right.found is None
+            return unless(self.left.found is None and self.right.found is None, not_found)
         if isinstance(command, DiffFiles):
-            return self._diff_pair() is not None
+            return unless(self._diff_pair() is not None,
+                          tr("Tag two files, or put the cursor on a file with a namesake in the other panel"))
         if isinstance(command, SwitchPanel):
             # With one side hidden there is no other one for Tab to go to.
-            return self.hidden_side is None
+            return unless(self.hidden_side is None, tr("The other panel is hidden"))
         if isinstance(command, ScrollNames):
-            panel = self.active_panel
             # The plain arrows are the command line's under *Use arrows*.
-            return (
-                not self._aside_focused()
-                and not (self._command_line_has_text() and SETTINGS.file_manager.use_arrows)
-                and panel.can_scroll_names(command.step)
-            )
-        return super().enables(command)
+            if self._aside_focused():
+                return aside
+            if self._command_line_has_text() and SETTINGS.file_manager.use_arrows:
+                return typed
+            return unless(panel.can_scroll_names(command.step), tr("No name is cut to scroll"))
+        return super().refusal(command)
 
     def checks(self, command: Any) -> bool | None:
         """Ctrl+H is ticked in the menu while the active panel shows its

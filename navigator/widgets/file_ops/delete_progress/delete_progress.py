@@ -11,7 +11,7 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.system.progress import duration_text
-from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path
+from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path, whole_path
 
 
 class DeleteProgress(Dialog):
@@ -26,6 +26,10 @@ class DeleteProgress(Dialog):
     def fit(self, path: str) -> str:
         """*path*, cut from the left to fit the row."""
         return fit_path("", path, self.width - 4)
+
+    def whole(self, path: str) -> str:
+        """*path* whole where its row cut it."""
+        return whole_path("", path, self.width - 4)
 
     def count(self, done: int, total: int, percent: int) -> str:
         """``N of M (P%)``, the line under the gauge; *percent* is the bar's own.

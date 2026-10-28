@@ -33,6 +33,7 @@ from typing import Any
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.component import take_declared
@@ -125,9 +126,7 @@ class MenuBar(MenuContainer, Widget):
         letter = parse_shortcut(entry.text)[2]
         # Only a letter a keyboard types: ``≡`` has none but F10.
         key = f"Alt-{letter.upper()}" if letter.isascii() and letter.isalnum() else ""
-        if entry.tooltip and key:
-            return f"{entry.tooltip} ({key})"
-        return entry.tooltip or key
+        return with_keys(entry.tooltip, key)
 
     def entry_at(self, column: int) -> int:
         """The entry under *column* of the bar, or -1."""
@@ -168,6 +167,26 @@ class MenuBar(MenuContainer, Widget):
     @property
     def is_open(self) -> bool:
         return self.session is not None
+
+    def hint(self) -> str:
+        """What the highlighted entry says of itself while the menu is open:
+        the top box's current row's tooltip and why it is greyed
+        (:meth:`MenuBox.hint`), else the highlighted caption's tooltip; ``""``
+        while closed.  Turbo Vision's ``THintStatusLine``, which showed the
+        current item's hint on the status line -- so a menu read from the
+        keyboard says what the pointer would."""
+        session = self.session
+        if session is None:
+            return ""
+        boxes = session.boxes
+        if boxes:
+            box = boxes[-1]
+            entries = box.entries()
+            if 0 <= box.current < len(entries):
+                return box.hint(entries[box.current])
+            return ""
+        entries = self.entries()
+        return entries[self.current].tooltip if 0 <= self.current < len(entries) else ""
 
     def open(self, index: int = 0, *, drop: bool = False) -> None:
         """Take the input and highlight entry *index*; *drop* opens its box.

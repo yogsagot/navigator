@@ -62,6 +62,28 @@ class MenuSession(Widget):
     def boxes(self) -> list[MenuBox]:
         return [child for child in self.children if isinstance(child, MenuBox)]
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Over the bar, which lies beneath this layer, the bar's caption's;
+        the boxes, being children, answer for themselves."""
+        bx, by = self._bar_origin()
+        if by <= y < by + self.bar.height and bx <= x < bx + self.bar.width:
+            return self.bar.tooltip_at(x - bx, y - by)
+        return super().tooltip_at(x, y)
+
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The highlighted row of the top box, else the highlighted caption."""
+        boxes = self.boxes
+        if boxes:
+            box = boxes[-1]
+            if box.current >= 0:
+                return box.x + 2, box.y + 1 + box.current - box.scroll()
+            return box.x + 2, box.y
+        bx, by = self._bar_origin()
+        if self.bar.current >= 0:
+            start, _ = self.bar.item_span(self.bar.current)
+            return bx + start + 1, by
+        return bx, by
+
     # -- the bar -------------------------------------------------------------------
 
     def select(self, index: int, *, drop: bool) -> None:

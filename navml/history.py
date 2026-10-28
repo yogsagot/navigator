@@ -48,6 +48,11 @@ class HistoryStore:
         """The list for *history_id*, newest first."""
         return HistoryEntry.texts(history_id)
 
+    def used(self, history_id: str) -> dict[str, float]:
+        """When each text of *history_id* was last used, by ``time.time()``;
+        0 for one from before that was kept."""
+        return HistoryEntry.used_times(history_id)
+
     def add(self, history_id: str, text: str) -> None:
         """Remember *text* at the front of its list, as ``HistoryAdd`` does."""
         if not text:

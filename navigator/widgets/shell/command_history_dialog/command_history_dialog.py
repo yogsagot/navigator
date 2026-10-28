@@ -38,6 +38,7 @@ class CommandHistoryDialog(Dialog):
     def _load(self, focus: str | None) -> None:
         commands = list(reversed(HISTORY.entries(HISTORY_ID)))
         self.commands.items = commands
+        self.commands.used = HISTORY.used(HISTORY_ID)
         self.commands.kept = frozenset(c for c in commands if HISTORY.is_pinned(HISTORY_ID, c))
         if focus in commands:
             self.commands.cursor = commands.index(focus)

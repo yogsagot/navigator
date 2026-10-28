@@ -128,6 +128,14 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   (`HexMode`) and *Fi~l~ter* (`AddFilter`) above the entries that pick one mode or filter, on the context menu too.
   Only Ctrl+L (`SearchAgain`, *Search again*'s second key) and F3 (`CloseViewer`) stay uncaptioned, as DN and MC had them.
 
+## Tooltips
+
+- In hex and dump, `FileViewer.tooltip_at` names the byte under the pointer (`byte_at`): offset, hex, decimal,
+  octal, binary, the character in the current table -- read with `ViewSource.peek`, which answers from the chunk
+  cache only and never reads on the loop (`None` on a miss; a byte on screen was just read).
+- The info line's tooltip is the whole path and exact size (`info_tooltip`).
+- A greyed View command says why (`FileWindow.refusal`).
+
 ## Read when
 
 | Reference | Read when |

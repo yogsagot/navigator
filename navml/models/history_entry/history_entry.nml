@@ -13,5 +13,8 @@ HistoryEntry(Model):
     field pinned: bool = False
     #: Larger is newer; only the order means anything.
     field seq: int
+    #: When it was last put at the front, by ``time.time()``; 0 for an entry
+    #: from before this was kept.  A departure: DN's history kept no time.
+    field used: float = 0.0
     unique entry: list_id, text
     index by_list: list_id, seq

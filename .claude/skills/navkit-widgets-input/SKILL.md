@@ -116,8 +116,30 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `OptionStrip`, and `Window`'s chrome icons through `chrome_hit`) overrides it. A widget with `tooltip_passes = False` stops the
   climb: navml's `ScrollBar`, which its list would otherwise answer for with the row at that height. **Only a plain motion arms it** (`Application.call_later`, a one-shot `Repeat`);
   **any other input but a tick drops it**, shown or pending. Shown as navkit's `Tooltip` overlaid as the root's last
-  child (so over a modal too), geometry bound, flipping left/up at the edges. No mode 1003, no tooltips.
+  child (so over a modal too), geometry bound, flipping left/up at the edges. No mode 1003, no tooltips from the
+  pointer -- Shift+F11 instead (below).
   Navigator follows Interface Setup's *Tooltip delay* (`[interface] tooltip_delay`) by an effect in `on_start`.
+- **A tooltip follows on**: one taken down by the pointer moving on leaves the next quick for `TOOLTIP_FOLLOW_ON`
+  (2 s): armed with `TOOLTIP_FOLLOW_ON_DELAY` (0.08 s), not the whole delay. A key or a press ends that.
+- **A key is set apart only in `navkit.tooltip.Markup`**, a `str` whose `~` runs paint in `Tooltip::key`
+  (`caption_runs`, now `navkit/text.py`, navml re-exporting it). Build one with `with_keys(text, keys)` --
+  never `f"{text} ({key})"` -- and join lines with `navkit.tooltip.lines()`, which keeps it Markup and escapes the
+  plain parts; concatenating a Markup gives a plain `str`. A plain `str` is painted as it is, so a file name or a path
+  is never escaped. Tests compare `plain(text)`.
+- **Shift+F11 shows the tooltip of where the keyboard is** (`navkit.tooltip.ShowTooltip`, bound in `Navigator.keys`
+  and so in `keybindings.ini`'s `[global]`), until the next key. The application looks it up in its own table
+  itself, so it works past a modal, where that table otherwise stands aside. Where is
+  `Widget.tooltip_anchor()` of the focused widget -- the caret, else the corner; a list's cursor row, a cluster's
+  `sel`, a tab, a panel's cursor name, a calendar's day, an open menu's row override it -- asked as the pointer
+  would be there (`Application.tooltip_from`). A focusable widget that paints several things needs an anchor.
+- **A greyed command says why**: `Widget.refusal(command) -> str`, `""` when it will run; `enables` is
+  `not refusal(...)` by default, so override `refusal`, not `enables`, and the reason cannot drift from the veto.
+  `commands.disabled_reason` / `Application.command_disabled_reason` ask the widget `target()` would. A greyed menu
+  row (`MenuBox.hint`), key bar item and option strip item add it to their tooltip; a button has none (buttons do
+  not go through commands). A widget overriding only `enables` greys with no reason.
+- **While a menu is open the key bar is its hint line**, TV's `THintStatusLine`: `MenuBar.hint()` (the top box's
+  row, its reason, else the bar caption's tooltip) painted across `KeyBar` (`menu_hint()`), the items and their
+  tooltips standing aside. The menu session answers for the bar beneath it (`MenuSession.tooltip_at`).
 
 ## Commands and key tables
 
@@ -174,5 +196,4 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
 | `reference/timers.md` | `call_every` |
 | `reference/commands.md` | commands, key tables, enabled-by-nearest-handler |
 | `reference/hover.md` | hover, tooltips |
-| `reference/tooltip-backlog.md` | choosing the next tooltip to add, or changing how tooltips work |
 | `reference/still-open.md` | navkit's open questions |

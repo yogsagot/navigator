@@ -43,6 +43,7 @@ DeleteProgress(Dialog):
         height: 1
         align: "center"
         text: root.fit(root.path)
+        tooltip: root.whole(root.path)
 
     ProgressBar:
         id: bar

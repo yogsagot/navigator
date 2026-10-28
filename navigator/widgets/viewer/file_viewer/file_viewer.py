@@ -28,7 +28,7 @@ from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -58,6 +58,7 @@ from navigator.lib.viewer import (
     HIDDEN_MARKS,
     ViewSource,
     byte_table,
+    cp437,
     ENCODINGS,
     dump_row,
     dump_row_bytes,
@@ -954,6 +955,50 @@ class FileViewer(ContextMenuHost, Widget):
         if not 0 <= index < self.height * per:
             return None
         return HEX_PAIRS_AT + (index % per) * 3, index // per
+
+    def byte_at(self, x: int, y: int) -> int | None:
+        """The offset of the byte painted at *x*, *y* in the hex and dump
+        modes -- its pair or its character -- else None."""
+        if self.mode == "text" or self.source is None:
+            return None
+        per = self.row_bytes()
+        if self.mode == "hex":
+            chars_at = hex_chars_at(per)
+            if HEX_PAIRS_AT <= x < HEX_PAIRS_AT + per * 3 and (x - HEX_PAIRS_AT) % 3 < 2:
+                column = (x - HEX_PAIRS_AT) // 3
+            elif chars_at <= x < chars_at + per:
+                column = x - chars_at
+            else:
+                return None
+        elif DUMP_CHARS_AT <= x < DUMP_CHARS_AT + per:
+            column = x - DUMP_CHARS_AT
+        else:
+            return None
+        offset = self.top + y * per + column
+        return offset if 0 <= y < self.height and offset < self.size else None
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """In the hex and dump modes, the byte under the pointer: where it is,
+        and its value every way the row does not show it.  Only a byte already
+        read -- which a byte on screen is -- since this runs on the loop."""
+        offset = self.byte_at(x, y)
+        byte = self.source.peek(offset) if offset is not None and self.source is not None else None
+        if byte is None:
+            return super().tooltip_at(x, y)
+        table = self.source.table
+        char = table[byte] if table is not None else cp437(byte)
+        return "\n".join((
+            tr("Offset {hex} ({decimal})").format(hex=f"{offset:08X}", decimal=f"{offset:,}"),
+            tr("Byte {hex}, decimal {decimal}, octal {octal}, binary {binary}").format(
+                hex=f"{byte:02X}", decimal=byte, octal=f"{byte:03o}", binary=f"{byte:08b}"),
+            tr("Character {char}").format(char=char),
+        ))
+
+    def info_tooltip(self) -> str:
+        """What the info line leaves out: the whole name and the exact size."""
+        if self.source is None:
+            return ""
+        return "\n".join((str(self.path), tr_n("{count} byte", "{count} bytes", self.size, count=f"{self.size:,}")))
 
     def render(self, surface: Surface) -> None:
         style = self.style

@@ -104,6 +104,15 @@ compare only) get a box with `DiffersAt`'s byte and line; files differing only i
 - Marks `-`/`+` begin every non-equal row, so the view reads in mono; the current difference's marks are
   `::mark.current`. Text is decoded by the viewer's `decode_cells` (UTF-8, CP437 fallback, tabs, wide characters).
 
+## Tooltips
+
+- A Synchronize row's status column says why it differs -- sizes, which side is newer, permissions (when the
+  request compared attributes), contents (when it compared them and nothing else told) -- or what a conflict faces;
+  the action column what the action does; the path whole where cut (always in the tree view); sizes in bytes; a
+  date its whole stamp (`SyncList.cell_tooltip`, the request read off the window).
+- A Compare files row says which line it is on each side (no numbers are painted) and what became of it; a cut
+  heading shows whole (`DiffView.tooltip_at`, `_ROW_TEXT`).
+
 ## Colours
 
 `DERIVED` aliases (`palette.py`), each with `DERIVED_ITEMS`, `attributes.nss`, `themegen.DERIVED_ROLES` and palconv's

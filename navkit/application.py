@@ -54,7 +54,7 @@ from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.screen import ScreenBuffer, Surface, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
-from navkit.tooltip import Tooltip
+from navkit.tooltip import ShowTooltip, Tooltip
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
 from navkit import clipboard, commands
 from navkit.widget import Widget, _call, check_handlers
@@ -80,6 +80,15 @@ CLIPBOARD_ANSWER_TIMEOUT = 0.5
 #: Milliseconds the mouse pointer must rest on a widget with a tooltip before
 #: the tooltip shows.  Overridable per application (``tooltip_delay=``); zero off.
 TOOLTIP_DELAY = 1000
+
+#: Seconds after a tooltip was taken down by the pointer moving on during
+#: which the next one shows at once (:data:`TOOLTIP_FOLLOW_ON_DELAY`) rather
+#: than after the whole delay: sweeping along the key bar or down a menu reads
+#: one tooltip after another without stopping at each.
+TOOLTIP_FOLLOW_ON = 2.0
+#: Seconds the pointer rests before a follow-on tooltip shows: long enough
+#: that the cells crossed on the way show nothing.
+TOOLTIP_FOLLOW_ON_DELAY = 0.08
 
 #: How many failures :meth:`Application.report_error` may be offered inside
 #: :data:`ERROR_STORM_WINDOW` seconds before the next one stops the
@@ -424,6 +433,9 @@ class Application:
         #: The tooltip waiting for the pointer to rest, and the one shown.
         self._tooltip_timer: Repeat | None = None
         self._tooltip: Widget | None = None
+        #: Until when (``time.monotonic()``) the next tooltip follows on at
+        #: once: one was shown and the pointer moved on.  Zero when not.
+        self._tooltip_warm_until = 0.0
         #: Work started by :meth:`spawn`, held so that nothing is collected
         #: mid-flight and everything can be cancelled on the way out.
         self._tasks: set[asyncio.Task[Any]] = set()
@@ -1392,8 +1404,20 @@ class Application:
             self.modifiers = event.modifiers
             return
         # Any input takes a tooltip away, shown or waiting; only the pointer
-        # coming to rest (below) asks for one again.
+        # coming to rest (below) asks for one again.  The pointer moving off
+        # one shown keeps the next quick; anything else makes it wait again.
+        motion = isinstance(event, MouseClickEvent) and _is_plain_motion(event)
+        if motion and self._tooltip is not None:
+            self._tooltip_warm_until = time.monotonic() + TOOLTIP_FOLLOW_ON
+        elif not motion:
+            self._tooltip_warm_until = 0.0
         self._drop_tooltip()
+        if isinstance(event, KeyEvent) and not self.chord and self._is_show_tooltip(event):
+            # Read off the application's own table even past a modal, which
+            # that table otherwise stands aside for: a dialog is where it is
+            # most wanted.
+            self.show_focus_tooltip()
+            return
         # Saved and restored rather than set and cleared: `_handle' returns
         # early for a claimed event and re-enters itself for a double click,
         # so a plain reset would report "not dispatching" while the outer call
@@ -1408,7 +1432,10 @@ class Application:
             # mean on its own is "the pointer is here now".
             self._hover(event)
             if self.tooltip_delay > 0:
-                self._tooltip_timer = self.call_later(self.tooltip_delay / 1000, self._show_tooltip)
+                delay = self.tooltip_delay / 1000
+                if time.monotonic() < self._tooltip_warm_until:
+                    delay = min(delay, TOOLTIP_FOLLOW_ON_DELAY)
+                self._tooltip_timer = self.call_later(delay, self._show_tooltip)
             return
         dispatching, self._dispatching = self._dispatching, True
         try:
@@ -1560,11 +1587,17 @@ class Application:
         """
         if self.pointer is None:
             return ""
-        px, py = self.pointer
-        widget = self.hovered
+        return self.tooltip_from(self.hovered, *self.pointer)
+
+    @staticmethod
+    def tooltip_from(widget: Widget | None, x: int, y: int) -> str:
+        """The tooltip at screen cell *x*, *y*, asked of *widget* -- what is
+        painted there -- and then its ancestors, nearest first, each in its
+        own coordinates, until one answers or stops the walk
+        (:attr:`Widget.tooltip_passes`)."""
         while widget is not None:
             ox, oy = widget.offset()
-            text = widget.tooltip_at(px - ox - widget.x, py - oy - widget.y)
+            text = widget.tooltip_at(x - ox - widget.x, y - oy - widget.y)
             if text or not widget.tooltip_passes:
                 return text
             widget = widget.parent
@@ -1581,6 +1614,37 @@ class Application:
         if not text or self._root is None or self.pointer is None:
             return
         self._tooltip = self.overlay(Tooltip(text, self.pointer))
+
+    def _is_show_tooltip(self, event: KeyEvent) -> bool:
+        binding = commands.key_table(type(self)).get(event.name)
+        return binding is not None and isinstance(commands.command_of(binding), ShowTooltip)
+
+    async def on_show_tooltip(self, event: ShowTooltip) -> bool:
+        self.show_focus_tooltip()
+        return True
+
+    def show_focus_tooltip(self) -> bool:
+        """Put up the tooltip of where the keyboard is, beside it -- the
+        nearest widget on the focus path's :meth:`Widget.tooltip_anchor`,
+        asked of whatever is painted there and its ancestors as the pointer
+        would be.  False, showing nothing, where there is none."""
+        self._drop_tooltip()
+        scope = self.modal or self._root
+        if scope is None or self._root is None:
+            return False
+        path = scope._focus_path() or [scope]
+        widget = path[0]
+        ax, ay = widget.tooltip_anchor()
+        ox, oy = widget.offset()
+        x, y = ox + widget.x + ax, oy + widget.y + ay
+        # What is painted there: a descendant of the focused widget, if one
+        # is (an open menu's box), else the widget itself.
+        found = widget.widget_at(widget.x + ax, widget.y + ay) or widget
+        text = self.tooltip_from(found, x, y)
+        if not text:
+            return False
+        self._tooltip = self.overlay(Tooltip(text, (x, y)))
+        return True
 
     def _drop_tooltip(self) -> None:
         """Forget the tooltip waiting to show and take down the one shown."""
@@ -1734,7 +1798,19 @@ class Application:
     def enables(self, command: commands.Command) -> bool:
         """Whether the application will run *command* now.  See
         :meth:`Widget.enables`."""
-        return True
+        return not self.refusal(command)
+
+    def refusal(self, command: commands.Command) -> str:
+        """Why the application will not run *command* now, ``""`` when it
+        will.  See :meth:`Widget.refusal`."""
+        return ""
+
+    def command_disabled_reason(
+        self, binding: commands.Binding, start: Widget | None = None
+    ) -> str:
+        """Why *binding*'s command cannot run now, ``""`` when it can or
+        nobody says -- see :func:`navkit.commands.disabled_reason`."""
+        return commands.disabled_reason(self, binding, start)
 
     def checks(self, command: commands.Command) -> bool | None:
         """Whether *command* is a toggle that is on now.  See

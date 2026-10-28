@@ -26,7 +26,7 @@ from navkit.stylesheet import StylesheetError, parse_value
 from navml.widgets.dialog.color_selector import COLORS
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.lib.appearance.palette import ATTRIBUTES, groups
+from navigator.lib.appearance.palette import ATTRIBUTES, DERIVED, ENTRIES, groups
 
 #: Every attribute box may come back to ``[?]``: ``inherit``.
 ALL_BOXES = (1 << len(ATTRIBUTES)) - 1
@@ -41,6 +41,20 @@ def colour_of(text: str) -> Any:
     if isinstance(value, bool):
         raise ValueError(f"{text!r} is not a colour")
     return value
+
+
+def entry_tooltip(stem: str) -> str:
+    """What an item of the list is, past its name: the DOS Navigator palette
+    entry it is, or that it is Navigator's own, and the variables a palette
+    file writes it as."""
+    slots = {entry[0]: entry[1] for entry in ENTRIES}
+    variables = tr("In a palette file: ${stem}-fg, ${stem}-bg").format(stem=stem)
+    if stem in slots:
+        return f"{tr('DOS Navigator palette entry {slot}').format(slot=slots[stem])}\n{variables}"
+    slot = DERIVED.get(stem, (None, ""))[0]
+    if isinstance(slot, int):
+        return f"{tr('Not in DOS Navigator: it starts as palette entry {slot}').format(slot=slot)}\n{variables}"
+    return f"{tr('Not in DOS Navigator, which had no colour for it')}\n{variables}"
 
 
 class ColorsDialog(Dialog):
@@ -73,6 +87,7 @@ class ColorsDialog(Dialog):
     def _list_items(self, group: int) -> None:
         self._group = group
         self.items.items = [tr(item) for _, item in self.groups_of[group][1]]
+        self.items.tooltips = [entry_tooltip(stem) for stem, _ in self.groups_of[group][1]]
         self.items.cursor = 0
         self._show(self.groups_of[group][1][0][0])
 

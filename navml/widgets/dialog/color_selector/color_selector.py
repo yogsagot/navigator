@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_noop
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
 from navkit.style import Style
@@ -38,6 +38,26 @@ COLORS = (
     "dark_gray", "light_blue", "light_green", "light_cyan",
     "light_red", "light_magenta", "yellow", "white",
 )
+
+#: What a colour is called in a tooltip, translated when shown.
+_COLOR_CAPTIONS = {
+    "black": tr_noop("Black"),
+    "blue": tr_noop("Blue"),
+    "green": tr_noop("Green"),
+    "cyan": tr_noop("Cyan"),
+    "red": tr_noop("Red"),
+    "magenta": tr_noop("Magenta"),
+    "brown": tr_noop("Brown"),
+    "light_gray": tr_noop("Light grey"),
+    "dark_gray": tr_noop("Dark grey"),
+    "light_blue": tr_noop("Light blue"),
+    "light_green": tr_noop("Light green"),
+    "light_cyan": tr_noop("Light cyan"),
+    "light_red": tr_noop("Light red"),
+    "light_magenta": tr_noop("Light magenta"),
+    "yellow": tr_noop("Yellow"),
+    "white": tr_noop("White"),
+}
 
 #: The grid's width in cells, TV's ``Width = 4``.
 WIDTH = 4
@@ -92,6 +112,21 @@ class ColorSelector(Control):
         if 0 <= column < WIDTH and 0 <= row < len(COLORS) // WIDTH:
             self.choose(row * WIDTH + column)
         return True
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """The colour's name, as a palette file writes it too."""
+        column, row = x // CELL, y
+        if 0 <= column < WIDTH and 0 <= row < len(COLORS) // WIDTH:
+            name = COLORS[row * WIDTH + column]
+            return f"{tr(_COLOR_CAPTIONS[name])} ({name})"
+        return super().tooltip_at(x, y)
+
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The chosen colour's cell."""
+        if self.color < 0:
+            return super().tooltip_anchor()
+        row, column = divmod(self.color, WIDTH)
+        return column * CELL + 1, row
 
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)

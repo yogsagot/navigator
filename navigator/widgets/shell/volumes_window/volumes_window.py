@@ -206,12 +206,18 @@ class VolumesWindow(Window):
             return volume.mounted and volume.can_unmount
         return volume.mounted and volume.can_eject
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         """Mount, Unmount and Eject where :meth:`allows` them."""
         for kind, action in ((MountVolume, "mount"), (UnmountVolume, "unmount"), (EjectVolume, "eject")):
             if isinstance(command, kind):
-                return self.allows(action)
-        return super().enables(command)
+                if self.allows(action):
+                    return ""
+                if self.volumes.selected is None:
+                    return tr("The cursor is on no volume")
+                if desktop.volume_program() is None:
+                    return tr("Neither GIO, Solid nor udisks is installed")
+                return tr("Not for this volume")
+        return super().refusal(command)
 
     async def on_mount_button_click(self, event: Event) -> bool:
         await self.on_mount_volume(MountVolume())

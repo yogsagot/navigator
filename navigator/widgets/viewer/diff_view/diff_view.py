@@ -43,6 +43,24 @@ _LEFT_CLASS = {REPLACE: "changed", DELETE: "removed"}
 _RIGHT_CLASS = {REPLACE: "changed", INSERT: "added"}
 
 
+#: What a row says of the line it is on each side, called when asked so that
+#: each is translated in the language of the moment: a sentence a side, whole.
+_ROW_TEXT = {
+    "left": {
+        "equal": lambda: tr("Line {line}, the same as line {other} on the right"),
+        "changed": lambda: tr("Line {line}, changed: line {other} on the right"),
+        "alone": lambda: tr("Line {line}, only on the left: removed"),
+        "filler": lambda: tr("Line {other} on the right is only there: added"),
+    },
+    "right": {
+        "equal": lambda: tr("Line {line}, the same as line {other} on the left"),
+        "changed": lambda: tr("Line {line}, changed: line {other} on the left"),
+        "alone": lambda: tr("Line {line}, only on the right: added"),
+        "filler": lambda: tr("Line {other} on the left is only there: removed"),
+    },
+}
+
+
 class DiffView(Widget):
     """Two texts' aligned rows (a :class:`~navigator.lib.file_ops.filediff.TextDiff`),
     and the keys that scroll them."""
@@ -202,6 +220,36 @@ class DiffView(Widget):
             self.focus()
             return True
         return False
+
+    # -- tooltips ----------------------------------------------------------------
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """A heading's whole path where cut; on a row, which line of its file
+        it is -- no numbers are painted -- and what became of it on the other
+        side."""
+        left_width = (self.width - 1) // 2
+        if x == left_width:
+            return super().tooltip_at(x, y)
+        side = "left" if x < left_width else "right"
+        if y == 0:
+            title = self.left_title if side == "left" else self.right_title
+            width = left_width if side == "left" else self.width - left_width - 1
+            return title if len(title) > width - 1 else ""
+        model = self.model
+        row = self.top + y - 1
+        if model is None or not 0 <= row < model.rows:
+            return super().tooltip_at(x, y)
+        mine, theirs = (model.left_line, model.right_line) if side == "left" else (model.right_line, model.left_line)
+        line, other = mine[row] + 1, theirs[row] + 1
+        kind = model.kinds[row]
+        texts = _ROW_TEXT[side]
+        if line == 0:
+            return texts["filler"]().format(other=other)
+        if kind == EQUAL:
+            return texts["equal"]().format(line=line, other=other)
+        if kind == REPLACE:
+            return texts["changed"]().format(line=line, other=other)
+        return texts["alone"]().format(line=line)
 
     # -- painting ----------------------------------------------------------------
 

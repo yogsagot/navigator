@@ -58,6 +58,10 @@ class ListViewer(Control):
     #: its view.
     framed: bool = reactive(True)
 
+    #: A tooltip per item, in the items' order, as a cluster's ``tooltips``:
+    #: what a row says when it does not say it all.  An item past the end, or
+    #: with ``""``, shows its whole text while cut (:meth:`row_tooltip`).
+    tooltips: list[str] = reactive(factory=list)
     #: Whether PgUp and PgDn page the list.  Off, they pass on outward, as an
     #: unbound key does: a list on a page of tabs gives them to the tabs.
     #: The arrows, Home, End and the wheel still move it.
@@ -145,7 +149,10 @@ class ListViewer(Control):
 
     def row_tooltip(self, index: int, item: Any) -> str:
         """Row *index*'s tooltip: :meth:`cut_text` for a row painted the
-        plain way; ``""`` for one a subclass paints itself."""
+        plain way; ``""`` for one a subclass paints itself.  The item's own
+        in :attr:`tooltips` before either."""
+        if index < len(self.tooltips) and self.tooltips[index]:
+            return self.tooltips[index]
         cls = type(self)
         if cls.render_row is not ListViewer.render_row or cls.render_items is not ListViewer.render_items:
             return ""
@@ -167,6 +174,16 @@ class ListViewer(Control):
             if text:
                 return text
         return super().tooltip_at(x, y)
+
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The cursor's row, just inside the frame -- the caret's, if any."""
+        caret = self.cursor_position()
+        if caret is not None:
+            return caret
+        row = self.cursor - self.scroll
+        if self.items and 0 <= row < self.rows:
+            return self.inset + 1, self.inset + self.header + row
+        return super().tooltip_anchor()
 
     def row_selected(self, index: int) -> bool:
         """Whether row *index* is the one under the cursor, showing.

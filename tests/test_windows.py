@@ -537,7 +537,8 @@ def test_the_chrome_icons_say_what_they_do(desk):
     assert win.tooltip_at(zoom + 1, 0).startswith("Zoom")
     assert win.tooltip_at(win.width - 1, win.height - 1).startswith("Drag to resize")
     assert win.tooltip_at(10, 0) == "Mine"   # the title: no icon there
-    assert back.tooltip_at(2, 0) == ""       # an inactive window shows none
+    # An inactive window shows no icons: its title, which a drag moves, is all there.
+    assert not back.tooltip_at(2, 0).startswith("Close") and back.tooltip_at(2, 0).endswith("a drag moves")
     win.toggle_zoom()
     settle()
     assert win.tooltip_at(win._icons()["zoom"] + 1, 0).startswith("Restore")

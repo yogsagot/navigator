@@ -30,6 +30,14 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   or its field's `tooltip`.
 - A `TabView` takes `tooltips:`, one a page (what the page holds), shown on its tab only -- never a page's own
   `tooltip`, which would show over its every blank. A cut left-column caption shows whole; the arrows say their way.
+- A `ListViewer` takes `tooltips:` too, one an item, before the cut-text fallback (Colors' items, Savers' lists).
+- A standalone `Label` (not in a `Field`) shows its linked control's `tooltip`; its own wins.
+- A `ProgressBar` says what it rounds: exact done/total/left and the percent to one decimal, unless it has its own.
+- `CalendarView` spells a day out (weekday, `date_format`, ISO week, days from today), names a weekday column, and
+  keys its arrows and names; `ColorSelector` names a colour (`Light blue (light_blue)`).
+- A focusable widget that paints several things gives `tooltip_anchor()` for Shift+F11 (`ListViewer`, `Cluster`,
+  `TabView`, `CalendarView`, `ColorSelector` do); a framed `Window`'s title says it whole where cut, and what a
+  double click and a drag do.
 - `Button.flat` (a departure: `TButton` always had its shadow) drops the shadow, so the face is the whole rectangle
   and the button may be one row tall; pressed, it does not move. For a small button beside a line, as the
   Character Table's filter *X*.

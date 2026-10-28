@@ -13,6 +13,9 @@ ViewRecord(FileRecord):
     #: The flag: a pinned record is never evicted or deleted.
     field pinned: bool = False
     field seq: int
+    #: When the file was last viewed or edited, by ``time.time()``; 0 for a
+    #: record from before this was kept.  A departure: DN's record kept no time.
+    field used: float = 0.0
     #: The window, ``fOrigin``/``fSize``, on a desktop ``fDeskSize`` big.
     field zoomed: bool = True
     field x: int

@@ -323,17 +323,19 @@ class InputLine(Control):
     # they do not appear in ``keybindings.ini``.  The commands are what the
     # context menu runs, and what a dialog's own menu could.
 
-    def enables(self, command: Command) -> bool:
+    def refusal(self, command: Command) -> str:
+        if isinstance(command, (ClipboardCut, ClipboardPaste, Clear)) and self.inert:
+            return tr("The line cannot be changed now")
         if isinstance(command, (ClipboardCut, Clear)):
-            return not self.inert and bool(self.selected_text)
+            return "" if self.selected_text else tr("Nothing is selected")
         if isinstance(command, ClipboardCopy):
             # Ctrl+Ins copies the whole line when nothing is selected.
-            return bool(self.selected_text or self.value)
-        if isinstance(command, ClipboardPaste):
-            return not self.inert
+            return "" if self.selected_text or self.value else tr("The line is empty")
         if isinstance(command, SelectAll):
-            return bool(self.value) and self.selection != (0, len(self.value))
-        return super().enables(command)
+            if not self.value:
+                return tr("The line is empty")
+            return "" if self.selection != (0, len(self.value)) else tr("All of it is selected")
+        return super().refusal(command)
 
     async def on_clipboard_cut(self, command: ClipboardCut) -> bool:
         self.cut()

@@ -46,6 +46,7 @@ from navkit.commands import Command, chain, key_label, layer_key
 from navkit.events import MouseClickEvent
 from navkit.i18n import tr
 from navkit.screen import Surface
+from navkit.tooltip import lines, plain
 from navkit.widget import Widget
 from navml.widgets.dialog.control.control import parse_shortcut
 
@@ -130,9 +131,23 @@ class KeyBar(Widget):
                 found.setdefault(label, title)
         return found
 
+    def menu_hint(self) -> str:
+        """The open menu's highlighted entry's hint, on one line, or ``""``:
+        what Turbo Vision's ``THintStatusLine`` put on the status line while a
+        menu was open (:meth:`MenuBar.hint`)."""
+        menu = self.menu
+        hint = getattr(menu, "hint", None)
+        if hint is None:
+            return ""
+        return " -- ".join(line for line in plain(hint()).split("\n") if line)
+
     def render(self, surface: Surface) -> None:
         app = self.application
         surface.fill(0, 0, self.width, 1, " ", self.part_style("label"))
+        hint = self.menu_hint()
+        if hint:
+            surface.draw_text(1, 0, hint, self.part_style("label"), max(0, self.width - 1))
+            return
         for key, command, start, _width in self.items():
             hint = isinstance(command, Hint)
             disabled = not hint and app is not None and not app.command_enabled(command)
@@ -146,17 +161,23 @@ class KeyBar(Widget):
 
     def tooltip_at(self, x: int, y: int) -> str:
         """The item's command's place in the menus, ``File > Make directory``,
-        else its caption; nothing for a hint or between items."""
+        else its caption, and why it is greyed while it is; nothing for a hint,
+        between items, or while the bar shows an open menu's hint."""
+        if self.menu_hint():
+            return ""
+        app = self.application
         for _key, command, start, width in self.items():
             if start <= x < start + width:
                 if isinstance(command, Hint):
                     return ""
                 path = self.menu.path_to(command) if self.menu is not None else []
-                if not path:
-                    return _title(command)
                 # A caption's ``...`` says a box opens, which a tooltip need not.
                 names = (parse_shortcut(entry.text)[0].rstrip(".…").rstrip() for entry in path)
-                return " > ".join(names)
+                where = " > ".join(names) if path else _title(command)
+                reason = ""
+                if app is not None and not app.command_enabled(command):
+                    reason = app.command_disabled_reason(command)
+                return lines(where, reason)
         return super().tooltip_at(x, y)
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:

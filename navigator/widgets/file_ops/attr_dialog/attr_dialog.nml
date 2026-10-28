@@ -328,3 +328,4 @@ AttrDialog(Dialog):
         width: max(0, parent.width - 14)
         height: 1
         items: ["No", "Files", "Dirs", "All"]
+        tooltips: ["Only the tagged directories themselves change", "The files under a tagged directory change too, the directories in it not", "The directories under a tagged directory change too, the files in it not", "Everything under a tagged directory changes too"]

@@ -74,12 +74,14 @@ class DBWindow(Window):
             ELEVATION.unhold()
             asyncio.get_running_loop().run_in_executor(None, ELEVATION.release)
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         """*Memo view* only on a memo field: off one, F3 does nothing."""
         if isinstance(command, ShowMemo):
             fields = self.db.fields if self.db is not None else []
-            return 0 <= self.viewer.field < len(fields) and fields[self.viewer.field].kind == "M"
-        return super().enables(command)
+            if 0 <= self.viewer.field < len(fields) and fields[self.viewer.field].kind == "M":
+                return ""
+            return tr("The cursor is not on a memo field")
+        return super().refusal(command)
 
     async def _say(self, prompt: str, title: str | None = None) -> None:
         await Dialog(title=tr("Error") if title is None else title, prompt=prompt, buttons="ok").execute(self.application)

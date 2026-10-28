@@ -26,6 +26,7 @@ class CommunicationsPage(Widget):
         self.section = section or SETTINGS.remote
         self.system = system or SETTINGS.system
         self.desktop_vfs.value = DESKTOP_VFS.index(self.system.desktop_vfs)
+        self.desktop_vfs.tooltip = self.system.tooltip("desktop_vfs")
         self.keepalive.value = f"{self.section.keepalive:03d}"
         self.keepalive.tooltip = self.section.tooltip("keepalive")
         self.timeout.value = f"{self.section.timeout:03d}"

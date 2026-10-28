@@ -41,3 +41,34 @@ strips' symbols (`[§]`, `[⇥]`) were what made it worth having.
   hand it the screen on a resize), a cell right of and below the pointer, before it where it would pass an edge; it
   never covers the pointer's cell, so the hit test cannot find it.
 - Styled as `Tooltip` in a sheet; Navigator gives it the key bar's colours.
+
+
+## Tooltips: the second round
+
+What the first round's backlog asked for, done (October 2026), and why each went the way it did.
+
+- **The follow-on.** Sweeping the key bar or a menu restarted the whole wait at every item. A tooltip taken down
+  by a plain motion now leaves `_tooltip_warm_until` two seconds ahead; a motion inside it arms with
+  `TOOLTIP_FOLLOW_ON_DELAY` -- short, but not zero, so the cells crossed on the way show nothing. Any other input
+  ends it, as it ends the tooltip: after a key or a click the next one waits the whole delay again.
+- **Keys set apart, opt-in by type.** Marking keys with `~` in every tooltip would have made every file name and
+  path in one need escaping, and the first one forgotten would paint half a name bright. So only a `Markup` -- a
+  `str` subclass that `with_keys` and `lines` build -- is read as markup; everything else is painted literally.
+  `caption_runs` moved down to `navkit/text.py` because the tooltip is navkit's and navkit imports nothing above it.
+- **Shift+F11.** A terminal with no mode 1003 never reports a resting pointer; the keyboard user never had one
+  either. Shift+F1 is DN's *Copy to archive* and every other F1 is taken, so F11's Shift. Bound in the
+  application's table (so `keybindings.ini` rebinds it) but read past a modal by `Application._handle` itself,
+  since a dialog's check box is where it is most wanted. *Where* is `tooltip_anchor()`, not `cursor_position()`:
+  most focused widgets have no caret, and the panel's caret is the command line's.
+- **Why a command is greyed.** "Greyed" says nothing about what to do. `refusal()` returns the reason and
+  `enables()` is derived from it, rather than a `disabled_reason` beside `enables`, so the two cannot disagree.
+  `Manager`, `Shell`, the editor, the viewer, the windows, `Desktop` and `InputLine` say why; `Dialog`'s
+  `Default` and `TreeView`'s `QuickSearch` still only veto -- they are keys falling through, never shown greyed.
+- **The menu's hint on the key bar.** Keyboard navigation of the menus showed none of their tooltips. While a
+  menu is open the key bar is useless anyway (the application's table stands aside), so it shows the
+  highlighted row's tooltip and reason across its width, as Turbo Vision's `THintStatusLine` did.
+- **History times.** `HistoryEntry`, `ViewRecord` and `EditRecord` gained `used` (`time.time()`, 0 for a row
+  from before), a departure DN's histories lacked; the lists' rows say *Last used* in the Country format.
+- **A sweep** in `tests/test_tooltip.py`: every top-level menu (a window's joins the bar) has a tooltip, no item's
+  tooltip repeats its caption, every tab view's tooltips match its pages, and every focusable control in
+  Options > Settings but a button answers Shift+F11.

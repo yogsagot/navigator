@@ -31,6 +31,7 @@ from navkit import commands
 from navkit.events import MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.commands import SelectWindow
@@ -93,7 +94,7 @@ class WindowStrip(Widget):
         if app is not None and self.desktop is not None:
             key = commands.key_for(app, SelectWindow(number=window.number), self.desktop)
         name = window.list_name() or window.short_name()
-        return f"{name} ({commands.key_label(key)})" if key else name
+        return with_keys(name, commands.key_label(key) if key else "")
 
     def _fit(self, names: list[str]) -> list[str]:
         """*names* cut evenly until every chip fits, or to nothing."""

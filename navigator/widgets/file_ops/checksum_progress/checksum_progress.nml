@@ -34,6 +34,7 @@ ChecksumProgress(Dialog):
         height: 1
         wrap: False
         text: root.fit(root.current)
+        tooltip: root.whole(root.current)
 
     ProgressBar:
         id: bar

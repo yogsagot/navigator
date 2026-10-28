@@ -38,6 +38,7 @@ from navkit.process import MARKER
 from navkit.reactive import effect
 from navkit.stylesheet import Stylesheet
 from navkit.terminal import Terminal, is_a_tty
+from navkit.tooltip import ShowTooltip
 
 from navigator import __version__
 from navigator.lib.drives import Location
@@ -383,7 +384,8 @@ class Navigator(Application):
     #: and switches panels otherwise -- which is all it did in DOS Navigator.
     #:
     #: **Nothing here reaches past a modal**, and nothing here has to say so:
-    #: navkit stands the application's table aside while one is up.
+    #: navkit stands the application's table aside while one is up -- all but
+    #: Shift+F11's ``ShowTooltip``, which navkit looks up there itself.
     keys = {
         "ctrl+o": ToggleConsole,
         "alt+f5": ShowUserScreen,
@@ -416,6 +418,10 @@ class Navigator(Application):
         #: Utilities > *Calendar*, TVDEMO's calendar -- a departure, so a key
         #: of its own rather than DN's: nothing in Navigator binds F12.
         "ctrl+f12": OpenCalendar,
+        #: The tooltip of where the keyboard is, for a terminal that reports
+        #: no resting pointer -- not DN's, which had no tooltips.  Read past a
+        #: modal by navkit itself (``ShowTooltip``), unlike the rest of this table.
+        "shift+f11": ShowTooltip,
         "alt+x": Quit(desktop=True),
         "enter": ExecuteCommandLine,
         #: Not DN's: the line in a window of its own, as ``&`` before it.
@@ -428,12 +434,12 @@ class Navigator(Application):
         **{f"ctrl+shift+f{number}": QuickRun(number) for number in range(1, 11)},
     }
 
-    def enables(self, command: Command) -> bool:
+    def refusal(self, command: Command) -> str:
         if self.shell.program_has_keys:
-            return False
-        if isinstance(command, Quit) and command.desktop:
-            return not self._console_over_windows()
-        return True
+            return tr("A program in the console has the keys")
+        if isinstance(command, Quit) and command.desktop and self._console_over_windows():
+            return tr("The console is over the windows: Alt-X is the program's")
+        return ""
 
     async def on_toggle_console(self, event: ToggleConsole) -> bool:
         self.shell.toggle_console()

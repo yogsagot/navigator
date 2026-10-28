@@ -8,7 +8,7 @@ import pytest
 from conftest import IDLE, FakeTerminal, RecordingWidget, Until, run_app, settle
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.tooltip import Tooltip
+from navkit.tooltip import Tooltip, plain
 from navkit.widget import Widget
 
 from navigator.settings import SETTINGS
@@ -242,7 +242,8 @@ def test_a_key_bar_item_says_where_its_command_is_in_the_menus(place):
 
     run_app(app, [look("panel"), KeyEvent("down"), KeyEvent("f4"), IDLE, lambda a: None, look("editor")])
     assert found["panel"]["f7"] == "File > Make directory"
-    assert found["panel"]["f5"] == "File > Copy"           # its "..." dropped
+    # Its "..." dropped; greyed with the cursor on "..", and says why.
+    assert found["panel"]["f5"] == "File > Copy\nNo files are tagged, and the cursor is on none"
     assert found["panel"]["f1"] == "Help"                  # in no menu: the caption
     assert found["panel gap"] == ""
     # The editor's own menu, joined to the bar, is searched too.
@@ -286,7 +287,7 @@ def test_a_menu_bar_caption_says_what_its_menu_holds_and_its_key(place):
             bar = a.shell.menu
             for index, entry in enumerate(bar.entries()):
                 start, _width = bar.item_span(index)
-                found[(tag, entry.text.replace("~", ""))] = bar.tooltip_at(start + 1, 0)
+                found[(tag, entry.text.replace("~", ""))] = plain(bar.tooltip_at(start + 1, 0))
             found[(tag, "past the end")] = bar.tooltip_at(bar.item_span(len(bar.entries()))[0] + 1, 0)
         return action
 
@@ -325,8 +326,9 @@ def test_a_menu_box_row_shows_its_items_tooltip_over_the_open_menu(place):
         a.post_event(_motion(box.x + 4, box.y + row))
 
     run_app(app, [open_file_menu, rows, Until(_shown), lambda a: seen.update(shown=a._tooltip.text)])
-    assert seen["single"] == "Delete the file at the cursor, not the selection"
-    assert seen["copy"] == ""            # its caption says enough
+    # Greyed with the cursor on "..": the tooltip, then why.
+    assert seen["single"] == "Delete the file at the cursor, not the selection\nThe cursor is on no file"
+    assert seen["copy"] == "No files are tagged, and the cursor is on none"   # its caption says the rest
     assert seen["frame"] == ""
     assert seen["line"] == ""
     assert seen["shown"] == seen["single"]   # over the open menu, a modal
@@ -343,10 +345,10 @@ def test_a_dialog_button_names_the_keys_that_press_it(place):
 
     def look(a):
         dialog = a.modal
-        seen["ok"] = dialog.ok.tooltip_at(1, 0)
-        seen["cancel"] = dialog.cancel.tooltip_at(1, 0)
+        seen["ok"] = plain(dialog.ok.tooltip_at(1, 0))
+        seen["cancel"] = plain(dialog.cancel.tooltip_at(1, 0))
         dialog.cancel.tooltip = "Make nothing"
-        seen["own"] = dialog.cancel.tooltip_at(1, 0)
+        seen["own"] = plain(dialog.cancel.tooltip_at(1, 0))
         a.post_event(KeyEvent("escape"))
 
     run_app(app, [KeyEvent("f7"), lambda a: None, look])
@@ -750,7 +752,7 @@ def test_the_panel_title_says_what_it_leaves_out(place):
         seen["beside"] = panel.tooltip_at(1, 0)            # the frame, past the title
         panel.file_mask = "*.c"
         settle()
-        seen["mask"] = over_title(panel)
+        seen["mask"] = plain(over_title(panel))
         panel.file_mask = "*"
         panel.git = GitState("main", ahead=2, behind=1)
         settle()
@@ -934,3 +936,207 @@ def test_the_copy_dialogs_boxes_say_what_they_do(place):
     run_app(app, [lambda a: setattr(a.manager.left, "cursor", 1), KeyEvent("f5"),
                   Until(lambda a: a.modal is not None and hasattr(a.modal, "options")), look])
     assert seen["remove"] == "Delete the originals once copied: a move"
+
+
+# -- ways of working: follow-on, keys set apart, reasons, the menu's hint, Shift+F11 ----------
+
+
+def test_once_one_has_shown_the_next_follows_on_without_the_whole_delay():
+    root, left, right = _tree()
+    left.tooltip, right.tooltip = "Left", "Right"
+    app = _app(root)
+    seen = []
+
+    def slow(a):
+        a.tooltip_delay = 60_000         # only a follow-on can show in time now
+
+    run_app(app, [
+        _motion(3, 2), Until(_shown), slow,
+        _motion(25, 2), Until(_shown), lambda a: seen.append(a._tooltip.text),
+        KeyEvent("a"), lambda a: seen.append(a._tooltip_warm_until),
+        _motion(3, 2), lambda a: seen.append(a._tooltip_timer.seconds),
+    ])
+    assert seen == ["Right", 0.0, 60.0]   # a key made the next one wait again
+
+
+def test_markup_sets_a_key_apart_and_a_plain_tilde_is_drawn():
+    from navkit.tooltip import Markup, lines, plain, with_keys
+
+    tip = Tooltip(with_keys("Close ~x~", "Ctrl-F4"))
+    root = Widget(width=40, height=5)
+    root.add(tip)
+    assert isinstance(tip.text, Markup)
+    assert tip.lines == ("Close ~x~ (Ctrl-F4)",)
+    ((_line, marks),) = tip._pieces
+    assert [i for i, marked in enumerate(marks) if marked] == list(range(11, 18))
+    assert Tooltip("a ~b~ c").lines == ("a ~b~ c",)        # plain: not markup
+    assert with_keys("Zoom", "") == "Zoom" and not isinstance(with_keys("Zoom", ""), Markup)
+    joined = lines("/a/~b", with_keys("Go", "F5"), "")
+    assert isinstance(joined, Markup) and plain(joined) == "/a/~b\nGo (F5)"
+
+
+def test_a_widget_saying_why_it_refuses_a_command_greys_it_and_gives_the_reason():
+    from navkit import commands
+
+    class Nope(commands.Command):
+        pass
+
+    class Holder(RecordingWidget):
+        async def on_nope(self, event):
+            return True
+
+        def refusal(self, command):
+            return "Not today" if isinstance(command, Nope) else ""
+
+    root = RecordingWidget(" ")
+    holder = root.add(Holder(" ", width=10, height=2))
+    holder.can_focus = True
+    app = _app(root)
+    holder.focus()
+    assert not app.command_enabled(Nope)
+    assert app.command_disabled_reason(Nope) == "Not today"
+    assert app.command_disabled_reason(commands.Command) == ""      # nobody's: no reason
+
+
+def test_the_key_bar_shows_the_highlighted_menu_rows_tooltip_while_a_menu_is_open(place):
+    from navigator.__main__ import Navigator
+
+    app = Navigator(place / "one", place / "two", terminal=FakeTerminal(130, 30))
+    seen = {}
+
+    def open_file_menu(a):
+        a.shell.menu.open(a.shell.menu.hotkey("f"), drop=True)
+
+    def highlight(a):
+        box = a.shell.menu.session.boxes[0]
+        captions = [getattr(entry, "text", "").replace("~", "") for entry in box.entries()]
+        box.current = captions.index("Delete single file")
+
+    def look(a):
+        seen["hint"] = a.shell.keybar.menu_hint()
+        seen["row"] = _row(a, a.shell.keybar.y + a.shell.keybar.offset()[1])
+        seen["tip"] = a.shell.keybar.tooltip_at(3, 0)
+
+    run_app(app, [open_file_menu, highlight, IDLE, look, KeyEvent("escape"), KeyEvent("escape"),
+                  lambda a: seen.update(closed=a.shell.keybar.menu_hint())])
+    assert seen["hint"] == "Delete the file at the cursor, not the selection -- The cursor is on no file"
+    assert "Delete the file at the cursor" in seen["row"]
+    assert seen["tip"] == ""                       # the bar's own tooltips stand aside
+    assert seen["closed"] == ""
+
+
+def test_shift_f11_shows_the_tooltip_of_where_the_keyboard_is_until_the_next_key(place):
+    from navigator.__main__ import Navigator
+
+    name = "a" * 70 + ".txt"
+    (place / "one" / name).write_text("hi\n")
+    app = Navigator(place / "one", place / "two", terminal=FakeTerminal(80, 25))
+    seen = {}
+
+    def ok_focused(a):
+        a.modal.ok.focus()
+
+    run_app(app, [
+        KeyEvent("down"), KeyEvent("shift+f11"), lambda a: seen.update(row=a._tooltip and a._tooltip.text),
+        KeyEvent("up"), lambda a: seen.update(after=a._tooltip),
+        KeyEvent("f7"), lambda a: None, ok_focused, KeyEvent("shift+f11"),
+        lambda a: seen.update(button=a._tooltip and plain(a._tooltip.text)),
+        KeyEvent("escape"),
+    ])
+    assert seen["row"] == name                     # the cut name, at the cursor's row
+    assert seen["after"] is None
+    assert seen["button"] == "Enter, Alt-K"        # past the modal, which the app's table stands aside for
+
+
+# -- the sweep: nothing new goes without -------------------------------------------------
+
+
+def _nml_blocks(kind):
+    """``(path, line number, indent, {key: value})`` for every *kind* element of
+    every component's markup, its own lines only."""
+    import re
+    from pathlib import Path
+
+    for path in sorted(Path("navigator").rglob("*.nml")) + sorted(Path("navml").rglob("*.nml")):
+        lines = path.read_text(encoding="utf-8").split("\n")
+        for index, line in enumerate(lines):
+            if not re.match(rf"^\s*{kind}:\s*$", line):
+                continue
+            indent = len(line) - len(line.lstrip())
+            own = {}
+            for following in lines[index + 1:]:
+                depth = len(following) - len(following.lstrip())
+                if following.strip() and depth <= indent:
+                    break
+                if depth == indent + 4 and ":" in following and not following.strip().startswith("#"):
+                    key, _, value = following.strip().partition(":")
+                    own[key.strip()] = value.strip()
+            yield path, index + 1, indent, own
+
+
+def test_every_menu_on_the_bar_says_what_it_holds_and_no_tooltip_repeats_its_caption():
+    """A window's menu joins the bar, so a top-level one goes without a
+    tooltip nowhere; and a tooltip saying the caption again says nothing."""
+    import ast
+
+    top = 0
+    for kind in ("SubMenu", "MenuItem"):
+        for path, line, indent, own in _nml_blocks(kind):
+            if kind == "SubMenu" and indent == 4 and "context" not in own:
+                assert own.get("tooltip"), f"{path}:{line} {own.get('text')}"
+                top += 1
+            if "tooltip" in own and "text" in own:
+                caption = ast.literal_eval(own["text"]).replace("~", "").rstrip(".…").strip()
+                assert ast.literal_eval(own["tooltip"]).strip().lower() != caption.lower(), f"{path}:{line}"
+    assert top >= 15
+
+
+def test_every_tab_views_tooltips_are_in_step_with_its_pages(place):
+    from navigator.__main__ import Navigator
+    from navigator.widgets.shell.commands import Settings as OpenSettings
+    from navml.widgets.dialog.tab_view import TabView
+
+    app = Navigator(place / "one", place / "two", terminal=FakeTerminal(100, 30))
+    seen = []
+
+    def look(a):
+        stack = [a.modal]
+        while stack:
+            widget = stack.pop()
+            if isinstance(widget, TabView) and widget.tooltips:
+                seen.append((len(widget.tooltips), len(widget.pages)))
+            stack.extend(widget.children)
+        a.post_event(KeyEvent("escape"))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(OpenSettings)), lambda a: None, look])
+    assert seen and all(tips == pages for tips, pages in seen), seen
+
+
+def test_shift_f11_has_something_to_say_on_every_settings_control(place):
+    """Every control on every page of Options > Settings but a button (whose
+    tooltip is its keys) answers Shift+F11 -- which is to say the pointer too."""
+    from navigator.__main__ import Navigator
+    from navigator.widgets.shell.commands import Settings as OpenSettings
+    from navml.widgets.dialog.button import Button
+
+    app = Navigator(place / "one", place / "two", terminal=FakeTerminal(100, 30))
+    silent, asked = [], []
+
+    def look(a):
+        stack = [a.modal]
+        while stack:
+            widget = stack.pop()
+            stack.extend(widget.children)
+            if not widget.can_focus or isinstance(widget, Button):
+                continue
+            ax, ay = widget.tooltip_anchor()
+            ox, oy = widget.offset()
+            x, y = ox + widget.x + ax, oy + widget.y + ay
+            asked.append(widget)
+            if not a.tooltip_from(widget.widget_at(widget.x + ax, widget.y + ay) or widget, x, y):
+                silent.append((type(widget).__name__, type(widget.parent).__name__))
+        a.post_event(KeyEvent("escape"))
+
+    run_app(app, [lambda a: a.spawn(a.run_command(OpenSettings)), lambda a: None, look])
+    assert len(asked) >= 50
+    assert silent == []

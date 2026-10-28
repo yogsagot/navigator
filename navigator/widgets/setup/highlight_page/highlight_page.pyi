@@ -7,6 +7,7 @@ from navml.component import Component as _Component
 from navml.widgets.dialog.field import Field
 
 from typing import Any
+from navkit.i18n import tr
 from navkit.widget import Widget
 from navigator.lib.appearance.filetypes import CUSTOM
 from navigator.settings import SETTINGS, HighlightGroupsData

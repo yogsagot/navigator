@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.widget import Widget
 
 
@@ -30,6 +31,8 @@ class SaversPage(Widget):
         names = list(savers.BUILT_IN) + (savers.external() if available is None else available)
         self.offered.items = [savers.caption(name) for name in names]
         self.chosen.items = [savers.caption(name) for name in self.section.names()]
+        self.chosen.tooltip = tr("The savers that take turns when the screen rests; Remove takes the one at the cursor out")
+        self.offered.tooltip = tr("Every saver there is; Add puts the one at the cursor among the selected")
         self.time.value = self.time.sel = SaversData.TIMES.index(self.section.time)
         self.time.tooltip = self.section.tooltip("time")
         self.mouse.value = 1 if self.section.mouse else 0

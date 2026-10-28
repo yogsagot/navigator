@@ -32,6 +32,7 @@ action keys are the window's, the same in both views.
 
 from __future__ import annotations
 
+import stat
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
@@ -66,6 +67,20 @@ _STATUS_CLASS = {
 _ACTION_MARK = {
     dirsync.COPY_RIGHT: ("\u2192", "->"), dirsync.COPY_LEFT: ("\u2190", "<-"),
     dirsync.DELETE: ("✕", "x"), dirsync.SKIP: ("", ""), dirsync.MIXED: ("±", "*"),
+}
+
+
+#: What each action does, as a row's action column's tooltip -- given the row,
+#: or None for a directory line.
+_ACTION_TEXT = {
+    dirsync.COPY_RIGHT: lambda row: (tr("Copied to the right, over the one there")
+                                     if row is not None and row.right is not None else tr("Copied to the right")),
+    dirsync.COPY_LEFT: lambda row: (tr("Copied to the left, over the one there")
+                                    if row is not None and row.left is not None else tr("Copied to the left")),
+    dirsync.DELETE: lambda row: (tr("Deleted from the left") if row is not None and row.left is not None
+                                 else tr("Deleted from the right")),
+    dirsync.SKIP: lambda row: tr("Left alone"),
+    dirsync.MIXED: lambda row: tr("The rows beneath are not all set alike"),
 }
 
 
@@ -332,6 +347,89 @@ class SyncList(ListViewer):
         status = item.node.status if isinstance(item, Line) and item.node is not None else \
             (item.row if isinstance(item, Line) else item).status
         return self.part_style("row", classes=(_STATUS_CLASS[status],), selected=self.row_selected(index))
+
+    # -- tooltips --------------------------------------------------------------
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What a cell leaves out: the status's reason, the action's meaning,
+        the whole path, exact bytes and the whole time."""
+        inside = self.inset <= x < self.inset + self.inner_width
+        index = self.index_at(x, y) if inside else None
+        if index is not None:
+            for column, (left, width) in enumerate(self.columns()):
+                if left <= x < left + width:
+                    text = self.cell_tooltip(self.items[index], column, width - 2)
+                    if text:
+                        return text
+                    break
+        return super().tooltip_at(x, y)
+
+    def _request(self) -> Any:
+        """What the comparison asked: the window's ``CompareRequest``, or None."""
+        widget = self.parent
+        while widget is not None and getattr(widget, "request", None) is None:
+            widget = widget.parent
+        return widget.request if widget is not None else None
+
+    def cell_tooltip(self, item: Any, column: int, room: int) -> str:
+        """Column *column* of *item*, *room* cells wide, as a tooltip."""
+        if isinstance(item, Line) and item.node is not None:
+            node = item.node
+            if column == 0:
+                return tr_n("{n} difference beneath", "{n} differences beneath", node.count)
+            if column == 1:
+                return _ACTION_TEXT.get(node.action, lambda row: "")(None)
+            if column == 2:
+                return f"{node.path}/"
+            return ""
+        row = item.row if isinstance(item, Line) else item
+        if column == 0:
+            return self.status_reason(row)
+        if column == 1:
+            return _ACTION_TEXT[row.action](row)
+        if column == 2:
+            path = str(row.path) + ("/" if row.is_dir else "")
+            return path if isinstance(item, Line) or len(path) > room else ""
+        side = row.left if column in (3, 4) else row.right
+        if side is None:
+            return ""
+        if column in (3, 5):
+            if side.kind == "dir" or side.size < 1024:
+                return ""
+            return tr_n("{count} byte", "{count} bytes", side.size, count=f"{side.size:,}")
+        return stamp(side.mtime) if side.mtime else ""
+
+    def status_reason(self, row: dirsync.SyncRow) -> str:
+        """What *row*'s status means, and for a difference, which of the
+        checks the comparison asked for found one."""
+        if row.error:
+            return row.error
+        if row.status == dirsync.LEFT_ONLY:
+            return tr("Only on the left")
+        if row.status == dirsync.RIGHT_ONLY:
+            return tr("Only on the right")
+        if row.status == dirsync.SAME:
+            return tr("The same on both sides")
+        left, right = row.left, row.right
+        if row.status == dirsync.CONFLICT or left is None or right is None:
+            kinds = {"file": tr("a file"), "dir": tr("a directory"), "link": tr("a link"),
+                     "other": tr("a special file")}
+            return tr("On the left {left}, on the right {right}: they cannot be compared, and are left alone").format(
+                left=kinds.get(left.kind if left else "", ""), right=kinds.get(right.kind if right else "", ""))
+        request = self._request()
+        reasons = [tr("Different on the two sides")]
+        if left.size != right.size:
+            reasons.append(tr("Sizes {left} and {right} bytes").format(left=f"{left.size:,}", right=f"{right.size:,}"))
+        if row.newer == "left":
+            reasons.append(tr("The left one is newer"))
+        elif row.newer == "right":
+            reasons.append(tr("The right one is newer"))
+        if request is not None and request.attributes and stat.S_IMODE(left.mode) != stat.S_IMODE(right.mode):
+            reasons.append(tr("Permissions {left} and {right}").format(
+                left=f"{stat.S_IMODE(left.mode):04o}", right=f"{stat.S_IMODE(right.mode):04o}"))
+        if len(reasons) == 1 and request is not None and request.contents:
+            reasons.append(tr("Their contents differ"))
+        return "\n".join(reasons)
 
     def footer_text(self) -> str:
         """Why the row under the cursor is a conflict, or when each side was

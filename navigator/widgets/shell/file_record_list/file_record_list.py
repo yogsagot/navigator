@@ -21,8 +21,11 @@ from typing import Any
 
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import KeyEvent
+from navkit.tooltip import lines
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
+
+from navigator.lib.config.country import last_used
 
 
 class FileRecordList(ListViewer):
@@ -47,6 +50,10 @@ class FileRecordList(ListViewer):
     def row_text(self, index: int, item: Any) -> str:
         mark = ("■" if self.glyphs >= GLYPHS_UNICODE else "+") if item.pinned else " "
         return f"{mark}{item.path}"
+
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """The whole path while cut, and when the file was last viewed or edited."""
+        return lines(super().row_tooltip(index, item), last_used(getattr(item, "used", 0.0)))
 
     async def choose(self) -> bool:
         if self.selected is None:

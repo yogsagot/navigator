@@ -33,36 +33,37 @@ class EditRecord(FileRecord):    # edit_record.nml:11
         _Field("path", str, ''),    # edit_record.nml:14
         _Field("pinned", bool, False),    # edit_record.nml:16
         _Field("seq", int, 0),    # edit_record.nml:17
-        _Field("zoomed", bool, True),    # edit_record.nml:19
-        _Field("x", int, 0),    # edit_record.nml:20
-        _Field("y", int, 0),    # edit_record.nml:21
-        _Field("width", int, 0),    # edit_record.nml:22
-        _Field("height", int, 0),    # edit_record.nml:23
-        _Field("desk_width", int, 0),    # edit_record.nml:24
-        _Field("desk_height", int, 0),    # edit_record.nml:25
-        _Field("line", int, 0),    # edit_record.nml:26
-        _Field("col", int, 0),    # edit_record.nml:27
-        _Field("top", int, 0),    # edit_record.nml:28
-        _Field("left", int, 0),    # edit_record.nml:29
-        _Field("overwrite", bool, False),    # edit_record.nml:30
-        _Field("vertical_blocks", bool, False),    # edit_record.nml:31
-        _Field("highlight", bool, True),    # edit_record.nml:33
-        _Field("file_type", str, ''),    # edit_record.nml:36
-        _Field("marks", str, ''),    # edit_record.nml:38
+        _Field("used", float, 0.0),    # edit_record.nml:20
+        _Field("zoomed", bool, True),    # edit_record.nml:22
+        _Field("x", int, 0),    # edit_record.nml:23
+        _Field("y", int, 0),    # edit_record.nml:24
+        _Field("width", int, 0),    # edit_record.nml:25
+        _Field("height", int, 0),    # edit_record.nml:26
+        _Field("desk_width", int, 0),    # edit_record.nml:27
+        _Field("desk_height", int, 0),    # edit_record.nml:28
+        _Field("line", int, 0),    # edit_record.nml:29
+        _Field("col", int, 0),    # edit_record.nml:30
+        _Field("top", int, 0),    # edit_record.nml:31
+        _Field("left", int, 0),    # edit_record.nml:32
+        _Field("overwrite", bool, False),    # edit_record.nml:33
+        _Field("vertical_blocks", bool, False),    # edit_record.nml:34
+        _Field("highlight", bool, True),    # edit_record.nml:36
+        _Field("file_type", str, ''),    # edit_record.nml:39
+        _Field("marks", str, ''),    # edit_record.nml:41
     )
     __indexes__ = (
-        _Index("by_path", ('path',), unique=True),    # edit_record.nml:39
-        _Index("by_seq", ('seq',)),    # edit_record.nml:40
+        _Index("by_path", ('path',), unique=True),    # edit_record.nml:42
+        _Index("by_seq", ('seq',)),    # edit_record.nml:43
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "marks" TEXT NOT NULL DEFAULT \'\')',
+        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "used" REAL NOT NULL DEFAULT 0.0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "marks" TEXT NOT NULL DEFAULT \'\')',
         'CREATE UNIQUE INDEX "edit_history_by_path" ON "edit_history" ("path")',
         'CREATE INDEX "edit_history_by_seq" ON "edit_history" ("seq")',
     )
-    __schema__ = "ad774ec8db63d23b"
+    __schema__ = "622c8da75aa1b2ad"
 
     id: int | None
 
@@ -73,27 +74,31 @@ class EditRecord(FileRecord):    # edit_record.nml:11
     pinned: bool    # edit_record.nml:16
     seq: int    # edit_record.nml:17
 
+    #: When the file was last viewed or edited, by ``time.time()``; 0 for a
+    #: record from before this was kept.  A departure: DN's record kept no time.
+    used: float    # edit_record.nml:20
+
     #: The window, ``fOrigin``/``fSize``, on a desktop ``fDeskSize`` big.
-    zoomed: bool    # edit_record.nml:19
-    x: int# edit_record.nml:20
-    y: int# edit_record.nml:21
-    width: int    # edit_record.nml:22
-    height: int    # edit_record.nml:23
-    desk_width: int    # edit_record.nml:24
-    desk_height: int    # edit_record.nml:25
-    line: int    # edit_record.nml:26
-    col: int    # edit_record.nml:27
-    top: int    # edit_record.nml:28
-    left: int    # edit_record.nml:29
-    overwrite: bool    # edit_record.nml:30
-    vertical_blocks: bool    # edit_record.nml:31
+    zoomed: bool    # edit_record.nml:22
+    x: int# edit_record.nml:23
+    y: int# edit_record.nml:24
+    width: int    # edit_record.nml:25
+    height: int    # edit_record.nml:26
+    desk_width: int    # edit_record.nml:27
+    desk_height: int    # edit_record.nml:28
+    line: int    # edit_record.nml:29
+    col: int    # edit_record.nml:30
+    top: int    # edit_record.nml:31
+    left: int    # edit_record.nml:32
+    overwrite: bool    # edit_record.nml:33
+    vertical_blocks: bool    # edit_record.nml:34
 
     #: ``HiLite``: Editor > Options > *Syntax highlight*.
-    highlight: bool    # edit_record.nml:33
+    highlight: bool    # edit_record.nml:36
 
     #: *File type*: the lexer chosen for the text, ``none``, or empty for
     #: ``highlight.ini``'s choice.  DN chose by ``DN.HGL``'s masks alone.
-    file_type: str    # edit_record.nml:36
+    file_type: str    # edit_record.nml:39
 
     #: ``fMarks``: markers 1 to 9 as ``line:col``, comma-separated, empty where unset.
-    marks: str    # edit_record.nml:38
+    marks: str    # edit_record.nml:41

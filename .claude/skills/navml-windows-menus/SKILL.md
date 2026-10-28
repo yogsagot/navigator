@@ -72,7 +72,10 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **A bar caption's tooltip** is its entry's `tooltip` (markup `tooltip:`, translated) plus its `Alt-<letter>`
   (`MenuBar.tooltip_at`); a window menu joining the bar brings its own. Give a new top-level menu one.
 - **A menu box row's tooltip** is its entry's `tooltip` (`MenuBox.tooltip_at`), shown over the open menu. Write one
-  only where the caption does not explain itself (*Panelize command*, *Optimal fill*); most items have none.
+  only where the caption does not explain itself (*Panelize command*, *Optimal fill*); most items have none. A
+  greyed row adds why on a line of its own (`MenuBox.hint`, the command's `refusal`). While a menu is open the key
+  bar shows the highlighted row's hint (`MenuBar.hint()`); never a tooltip that only repeats the caption (a test
+  sweeps for it).
 - **A submenu can show a key**: `SubMenu.key_command` names a command that opens its entries some other way, and
   `MenuBox` paints that command's live key (`key_caption`, else `SubMenu.key`) just before the `►` -- a departure,
   TV's submenus had none. Display only; choosing the entry still opens the submenu.

@@ -14,6 +14,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.widget import Widget
 from navigator.lib.appearance import savers
 from navigator.settings import SETTINGS, SaversData

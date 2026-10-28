@@ -29,9 +29,9 @@ flag = "LV"
 "~W~indows" = "~L~ogi"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~A~izvērt"
-# navml/commands.py:30, navml/widgets/window/window.py:273
+# navml/commands.py:30, navml/widgets/window/window.py:274
 "Close" = "Aizvērt"
-# navml/commands.py:36, navml/widgets/window/window.py:275
+# navml/commands.py:36, navml/widgets/window/window.py:276
 "Zoom" = "Izvērst"
 # navml/commands.py:76
 "List" = "Saraksts"
@@ -41,7 +41,51 @@ flag = "LV"
 "Cascade" = "Kaskāde"
 # navml/commands.py:105
 "Close all" = "Aizvērt visus"
-# navml/widgets/dialog/color_selector/color_selector.py:131
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "Nav atvērta neviena loga"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "Nevienu logu nevar izkārtot"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "Nevienu logu nevar aizvērt"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "Šo logu nevar izvērst"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "Šo logu nevar aizvērt"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "Nav loga ar numuru {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "Melna"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "Zila"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "Zaļa"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "Ciānzila"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "Sarkana"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "Purpursarkana"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "Brūna"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "Gaiši pelēka"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "Tumši pelēka"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "Gaiši zila"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "Gaiši zaļa"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "Gaiši ciānzila"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "Gaiši sarkana"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "Gaiši purpursarkana"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "Dzeltena"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "Balta"
+# navml/widgets/dialog/color_selector/color_selector.py:166
 " Text " = " Teksts "
 # navml/widgets/dialog/commands.py:25
 "OK" = "OK"
@@ -75,44 +119,74 @@ flag = "LV"
 "Choose year" = "Izvēlēties gadu"
 # navml/widgets/dialog/commands.py:153
 "Go to current date" = "Uz šodienas datumu"
-# navml/widgets/dialog/date_button/date_button.py:84
-"January" = "Janvāris"
-# navml/widgets/dialog/date_button/date_button.py:84
-"February" = "Februāris"
-# navml/widgets/dialog/date_button/date_button.py:84
-"March" = "Marts"
-# navml/widgets/dialog/date_button/date_button.py:84
-"April" = "Aprīlis"
-# navml/widgets/dialog/date_button/date_button.py:84
-"May" = "Maijs"
-# navml/widgets/dialog/date_button/date_button.py:84
-"June" = "Jūnijs"
-# navml/widgets/dialog/date_button/date_button.py:85
-"July" = "Jūlijs"
-# navml/widgets/dialog/date_button/date_button.py:85
-"August" = "Augusts"
-# navml/widgets/dialog/date_button/date_button.py:85
-"September" = "Septembris"
-# navml/widgets/dialog/date_button/date_button.py:85
-"October" = "Oktobris"
-# navml/widgets/dialog/date_button/date_button.py:85
-"November" = "Novembris"
 # navml/widgets/dialog/date_button/date_button.py:86
+"January" = "Janvāris"
+# navml/widgets/dialog/date_button/date_button.py:86
+"February" = "Februāris"
+# navml/widgets/dialog/date_button/date_button.py:86
+"March" = "Marts"
+# navml/widgets/dialog/date_button/date_button.py:86
+"April" = "Aprīlis"
+# navml/widgets/dialog/date_button/date_button.py:86
+"May" = "Maijs"
+# navml/widgets/dialog/date_button/date_button.py:86
+"June" = "Jūnijs"
+# navml/widgets/dialog/date_button/date_button.py:87
+"July" = "Jūlijs"
+# navml/widgets/dialog/date_button/date_button.py:87
+"August" = "Augusts"
+# navml/widgets/dialog/date_button/date_button.py:87
+"September" = "Septembris"
+# navml/widgets/dialog/date_button/date_button.py:87
+"October" = "Oktobris"
+# navml/widgets/dialog/date_button/date_button.py:87
+"November" = "Novembris"
+# navml/widgets/dialog/date_button/date_button.py:88
 "December" = "Decembris"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Mo" = "Pr"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Tu" = "Ot"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "We" = "Tr"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Th" = "Ce"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Fr" = "Pk"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Sa" = "Se"
-# navml/widgets/dialog/date_button/date_button.py:92
+# navml/widgets/dialog/date_button/date_button.py:94
 "Su" = "Sv"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Monday" = "Pirmdiena"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Tuesday" = "Otrdiena"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Wednesday" = "Trešdiena"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Thursday" = "Ceturtdiena"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Friday" = "Piektdiena"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Saturday" = "Sestdiena"
+# navml/widgets/dialog/date_button/date_button.py:100
+"Sunday" = "Svētdiena"
+# navml/widgets/dialog/date_button/date_button.py:355
+"The month before" = "Iepriekšējais mēnesis"
+# navml/widgets/dialog/date_button/date_button.py:357
+"The month after" = "Nākamais mēnesis"
+# navml/widgets/dialog/date_button/date_button.py:359
+"A click chooses the month" = "Klikšķis izvēlas mēnesi"
+# navml/widgets/dialog/date_button/date_button.py:361
+"A click chooses the year" = "Klikšķis izvēlas gadu"
+# navml/widgets/dialog/date_button/date_button.py:372
+"Today" = "Šodien"
+# navml/widgets/dialog/date_button/date_button.py:368
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, {week}. nedēļa"
+# navml/widgets/dialog/date_button/date_button.py:374
+"{n} day from today" = ["pēc {n} dienas", "pēc {n} dienām", "pēc {n} dienām"]
+# navml/widgets/dialog/date_button/date_button.py:376
+"{n} day ago" = ["pirms {n} dienas", "pirms {n} dienām", "pirms {n} dienām"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."
 # navml/widgets/dialog/file_dialog/file_dialog.py:200
@@ -123,43 +197,57 @@ flag = "LV"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:518 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
 " Search: " = " Meklēt: "
 # navml/widgets/dialog/history/history.py:109
 "Choose from the list ({key})" = "Izvēlēties no saraksta ({key})"
 # navml/widgets/dialog/history/history.py:111
 "Earlier entries ({key})" = "Agrākie ieraksti ({key})"
-# navml/widgets/dialog/input_line/input_line.py:377
-"Cu~t~" = "~I~zgriezt"
-# navml/widgets/dialog/input_line/input_line.py:378
-"~C~opy" = "~K~opēt"
+# navml/widgets/dialog/input_line/input_line.py:328
+"The line cannot be changed now" = "Rindu pašlaik nevar mainīt"
 # navml/widgets/dialog/input_line/input_line.py:379
-"~P~aste" = "Ie~l~īmēt"
+"Cu~t~" = "~I~zgriezt"
 # navml/widgets/dialog/input_line/input_line.py:380
-"C~l~ear" = "~T~īrīt"
+"~C~opy" = "~K~opēt"
+# navml/widgets/dialog/input_line/input_line.py:381
+"~P~aste" = "Ie~l~īmēt"
 # navml/widgets/dialog/input_line/input_line.py:382
+"C~l~ear" = "~T~īrīt"
+# navml/widgets/dialog/input_line/input_line.py:384
 "Select ~a~ll" = "Atlasīt ~v~isu"
+# navml/widgets/dialog/input_line/input_line.py:330
+"Nothing is selected" = "Nekas nav atlasīts"
+# navml/widgets/dialog/input_line/input_line.py:333, navml/widgets/dialog/input_line/input_line.py:336
+"The line is empty" = "Rinda ir tukša"
+# navml/widgets/dialog/input_line/input_line.py:337
+"All of it is selected" = "Viss jau ir atlasīts"
 # navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "Cilnes"
-# navml/widgets/dialog/tab_view/tab_view.py:410
+# navml/widgets/dialog/tab_view/tab_view.py:417
 "Earlier tabs" = "Iepriekšējās cilnes"
-# navml/widgets/dialog/tab_view/tab_view.py:410
+# navml/widgets/dialog/tab_view/tab_view.py:417
 "Later tabs" = "Nākamās cilnes"
-# navml/widgets/dialog/tree_view/tree_view.py:522
+# navml/widgets/dialog/tree_view/tree_view.py:531
 "Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
-# navml/widgets/window/window.py:310
+# navml/widgets/progress_bar/progress_bar.py:61
+"{done} of {total} done ({percent}%), {rest} to go" = "Paveikts {done} no {total} ({percent}%), atlicis {rest}"
+# navml/widgets/window/window.py:295
+"A double click zooms, a drag moves" = "Dubultklikšķis izvērš, vilkšana pārvieto"
+# navml/widgets/window/window.py:297
+"A drag moves" = "Vilkšana pārvieto"
+# navml/widgets/window/window.py:326
 "Move" = "Pārvietot"
-# navml/widgets/window/window.py:310
+# navml/widgets/window/window.py:326
 "Size" = "Izmērs"
-# navml/widgets/window/window.py:310
+# navml/widgets/window/window.py:326
 "Keep" = "Paturēt"
-# navml/widgets/window/window.py:310
+# navml/widgets/window/window.py:326
 "Undo" = "Atsaukt"
-# navml/widgets/window/window.py:275
+# navml/widgets/window/window.py:276
 "Restore" = "Atjaunot"
-# navml/widgets/window/window.py:277
+# navml/widgets/window/window.py:278
 "Drag to resize" = "Velciet, lai mainītu izmēru"
 
 # No longer shown anywhere; kept so nothing written is lost.

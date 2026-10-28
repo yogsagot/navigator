@@ -43,6 +43,7 @@ from navkit.events import MouseClickEvent
 from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface, char_width
+from navkit.tooltip import lines, with_keys
 from navkit.widget import Widget
 
 
@@ -146,8 +147,13 @@ class OptionStrip(Widget):
             return super().tooltip_at(x, y)
         text = item.tooltip()
         app = self.application
-        key = commands.key_for(app, item.command, self.target) if app is not None else None
-        return f"{text} ({key_label(key)})" if key else text
+        if app is None:
+            return text
+        key = commands.key_for(app, item.command, self.target)
+        reason = ""
+        if not commands.enabled(app, item.command, self.target):
+            reason = commands.disabled_reason(app, item.command, self.target)
+        return lines(with_keys(text, key_label(key) if key else ""), reason)
 
     def render(self, surface: Surface) -> None:
         # No fill: what is between the items is whatever lies beneath.

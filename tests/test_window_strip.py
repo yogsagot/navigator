@@ -7,6 +7,7 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import unbind
 from navkit.screen import ScreenBuffer
 from navkit.terminal import InputParser
+from navkit.tooltip import plain
 from navml.widgets import Window
 from navml.widgets.desktop import Desktop
 from navml.widgets.window_strip import WindowStrip
@@ -275,6 +276,6 @@ def test_a_chip_s_tooltip_is_its_window_s_whole_name_and_key(tree):
     run_app(app, [opener("A long window title", "Another long title"), look])
     first, count, between = seen
     # The manager's whole name is its directory; Win+1 brings it forward.
-    assert first == f"{app.manager.list_name()} (Super-1)" and "/" in first
+    assert plain(first) == f"{app.manager.list_name()} (Super-1)" and "/" in first
     assert count == "2 A long window title\n3 Another long title"
     assert between == ""

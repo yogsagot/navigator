@@ -409,3 +409,7 @@ class AttrDialog(Dialog, _Component):
             lambda _o: [_tr('No'), _tr('Files'), _tr('Dirs'), _tr('All')],
             yielding=True,
         )
+        self.recurse.tooltips = _bind(    # attr_dialog.nml:331
+            lambda _o: [_tr('Only the tagged directories themselves change'), _tr('The files under a tagged directory change too, the directories in it not'), _tr('The directories under a tagged directory change too, the files in it not'), _tr('Everything under a tagged directory changes too')],
+            yielding=True,
+        )

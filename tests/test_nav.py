@@ -2870,6 +2870,8 @@ def test_the_application_keeps_only_what_is_global():
         # Utilities > Character table, for the command line; the SmartPad; ≡ > Game;
         # Utilities > Calendar.
         "ctrl+b", "alt+q", "alt+f9", "ctrl+f12", "alt+f11", "alt+h",
+        # The tooltip of where the keyboard is, from anywhere -- past a modal too.
+        "shift+f11",
         # ≡ > User screen: a look at the console from anywhere; the screen grabber.
         "alt+f5", "alt+shift+insert",
         # Utilities > Commands History, the command line's.

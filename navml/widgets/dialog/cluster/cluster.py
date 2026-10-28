@@ -136,6 +136,13 @@ class Cluster(Control):
             return self.tooltips[index]
         return super().tooltip_at(x, y)
 
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The item the keyboard is on (:attr:`sel`), at its mark."""
+        if not 0 <= self.sel < len(self.items):
+            return super().tooltip_anchor()
+        column, y = divmod(self.sel, self._rows())
+        return self._column_x(column) + 1, y
+
     # -- input ---------------------------------------------------------------
 
     def _move(self, delta: int) -> None:

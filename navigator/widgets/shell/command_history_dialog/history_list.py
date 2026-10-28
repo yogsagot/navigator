@@ -7,8 +7,11 @@ from typing import Any
 from navkit import glyphs as glyphs_module
 from navkit.events import Event, KeyEvent
 from navkit.reactive import reactive
+from navkit.tooltip import lines
 
 from navml.widgets.dialog.list_viewer import ListViewer
+
+from navigator.lib.config.country import last_used
 
 
 class Chosen(Event):
@@ -28,6 +31,17 @@ class HistoryList(ListViewer):
 
     #: The commands marked.
     kept: frozenset[str] = reactive(frozenset())
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        #: When each command was last run, by ``time.time()``: what a row's
+        #: tooltip says, which DN's list could not.
+        self.used: dict[str, float] = {}
+
+    def row_tooltip(self, index: int, item: Any) -> str:
+        """The whole command while cut, and when it was last run."""
+        when = self.used.get(item, 0.0)
+        return lines(super().row_tooltip(index, item), last_used(when))
 
     def row_text(self, index: int, item: Any) -> str:
         sign = "■" if self.glyphs > glyphs_module.GLYPHS_ASCII else "+"

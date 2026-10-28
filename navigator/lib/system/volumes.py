@@ -70,6 +70,9 @@ class Volume:
     #: The desktop's own volume it is (``gio``'s, Solid's or udisks'), for
     #: Mount, Unmount and Eject: None without any.
     native: GioVolume | KioVolume | UdisksVolume | None = None
+    #: How it is mounted, ``/proc/self/mounts``' fourth field
+    #: (``rw,relatime,...``); ``""`` where that does not say.
+    options: str = ""
 
     @property
     def target(self) -> str:
@@ -95,6 +98,17 @@ def parse_mounts(text: str) -> list[tuple[str, str, str]]:
         found.pop(point, None)
         found[point] = (device, point, fs_type)
     return list(found.values())
+
+
+def mount_options(text: str) -> dict[str, str]:
+    """Each mount point's options in *text*, a ``/proc/self/mounts`` -- the
+    last mount's, as :func:`parse_mounts` keeps the last."""
+    found: dict[str, str] = {}
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) >= 4:
+            found[unescape(parts[1])] = parts[3]
+    return found
 
 
 def is_real(device: str, fs_type: str) -> bool:
@@ -128,6 +142,7 @@ def gather(*, mounts: Path = Path("/proc/self/mounts"),
     except OSError:
         return []
     found: list[Volume] = []
+    options = mount_options(text)
     for device, point, fs_type in parse_mounts(text):
         try:
             usage = shutil.disk_usage(point)
@@ -136,7 +151,7 @@ def gather(*, mounts: Path = Path("/proc/self/mounts"),
         label = label_of(device, labels) if os.path.isabs(device) else ""
         found.append(Volume(
             name=volume_name(device, label), fs_type=fs_type, mount=point, device=device,
-            total=usage.total, free=usage.free, real=is_real(device, fs_type),
+            total=usage.total, free=usage.free, real=is_real(device, fs_type), options=options.get(point, ""),
         ))
     found.sort(key=lambda volume: volume.mount)
     return found

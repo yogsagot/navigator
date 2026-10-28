@@ -320,6 +320,23 @@ def enabled(
     return target(app, command_of(binding), start) is not None
 
 
+def disabled_reason(
+    app: Application, binding: Binding, start: Widget | None = None
+) -> str:
+    """Why *binding*'s command would not run if asked for now: the
+    ``refusal`` of the object :func:`target` asks, translated, or ``""`` --
+    when it would run, when nobody has its handler, or when the one that
+    vetoes it only overrides ``enables`` and gives no reason."""
+    command = command_of(binding)
+    for candidate in chain(app, start):
+        if getattr(candidate, command.handler, None) is not None:
+            if candidate.enables(command):
+                return ""
+            refusal = getattr(candidate, "refusal", None)
+            return refusal(command) if refusal is not None else ""
+    return ""
+
+
 def checked(
     app: Application, binding: Binding, start: Widget | None = None
 ) -> bool | None:

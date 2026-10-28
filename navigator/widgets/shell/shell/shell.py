@@ -1022,7 +1022,7 @@ class Shell(DockLayout):
         focused = app.focused if app is not None else None
         return isinstance(focused, TerminalView) and focused.busy
 
-    def enables(self, command: Command) -> bool:
+    def refusal(self, command: Command) -> str:
         """Enter, Home and End are the command line's only while it has text.
 
         And Enter only while no command is running: the program has the keys
@@ -1030,67 +1030,82 @@ class Shell(DockLayout):
         while a program holds the keyboard (:attr:`program_has_keys`).
         """
         if self.program_has_keys:
-            return False
+            return tr("A program in the console has the keys")
+        hidden = tr("Interface Setup hides the command line")
+        no_manager = tr("No file panels are open")
         if isinstance(command, AsciiTable):
             # ``ouiHideCmdline``: a hidden line takes no character either.
-            return not SETTINGS.interface.hide_command_line
+            return hidden if SETTINGS.interface.hide_command_line else ""
         if isinstance(
             command,
             (ExecuteCommandLine, ExecuteCommandLineInWindow, CommandLineHome, CommandLineEnd,
              CompleteCommandLine, InsertName, InsertPath),
-        ) and (self._editor_has_keys() or SETTINGS.interface.hide_command_line):
+        ):
             # A hidden command line runs and takes nothing: DN's
             # ``cmExecCommandLine`` and ``cmInsertName`` did nothing under
             # ``ouiHideCmdline``, and the keys fall through to the panel.
-            return False
+            if SETTINGS.interface.hide_command_line:
+                return hidden
+            if self._editor_has_keys():
+                return tr("The editor has the keys")
         if isinstance(command, (InsertName, InsertPath)):
-            return self._panel_entry() is not None
+            return "" if self._panel_entry() is not None else tr("The cursor is on no file")
         if isinstance(command, HangUp):
             from navigator.lib.drives import mounted, sessions
 
             # Connections only: a panel browsing ``root:`` mounts a drive too.
-            return any(sessions.is_connection(drive.site.scheme) for drive in mounted())
+            if any(sessions.is_connection(drive.site.scheme) for drive in mounted()):
+                return ""
+            return tr("No connection is open")
         if isinstance(command, CloseRootAccess):
-            return self.root_mark.open
+            return "" if self.root_mark.open else tr("No root access is open")
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
-            return self.active_manager is not None
+            return "" if self.active_manager is not None else no_manager
         if isinstance(command, GvfsLink):
             from navigator.lib.system import desktop
 
-            return self.active_manager is not None and desktop.program() is not None
+            if self.active_manager is None:
+                return no_manager
+            return "" if desktop.program() is not None else tr("Neither GIO nor KIO is installed")
         if isinstance(command, (HideLeft, HideRight)):
             # Reached here only from outside a file manager: from the
             # console, DN's user screen, and not from a viewer or an editor.
-            return self.console_visible and self.active_manager is not None
+            if self.active_manager is None:
+                return no_manager
+            return "" if self.console_visible else tr("Only in a file panel or the console")
         if isinstance(command, ToggleMarkBySpace):
             # ``CmdLine.Str <> ''``: once anything is on the line -- a blank
             # included -- Space types.  Otherwise it is Insert, wherever the
             # file manager would take Insert.
             # File Manager Setup's *Space toggles* off, it always types.
             manager = self.active_manager
-            return (
-                SETTINGS.file_manager.space_toggles_selection
-                and not self.command_line.value
-                and manager is not None
-                and manager.enables(ToggleMark())
-            )
+            if not SETTINGS.file_manager.space_toggles_selection:
+                return tr("File Manager Setup's Space toggles is off")
+            if self.command_line.value:
+                return tr("The command line holds text: the key edits it")
+            if manager is None:
+                return no_manager
+            return manager.refusal(ToggleMark())
         if isinstance(
             command,
             (ExecuteCommandLine, ExecuteCommandLineInWindow, CommandLineHome, CommandLineEnd,
              CompleteCommandLine),
         ):
             if not self.command_line.value.strip():
-                return False
+                return tr("The command line is empty")
             if isinstance(command, (CommandLineHome, CommandLineEnd)) and not SETTINGS.file_manager.use_arrows:
                 # *Use arrows* off: Home and End are the panel's, Shift+Home and
                 # Shift+End the line's (``fmoUseArrows``).
-                return False
+                return tr("File Manager Setup's Use arrows is off")
+            busy = tr("A command is still running")
             if isinstance(command, ExecuteCommandLine):
-                return not self.console.busy
+                return busy if self.console.busy else ""
             if isinstance(command, CompleteCommandLine):
                 subshell = self.console.subshell
-                return subshell.is_running and subshell.can_complete and not self.console.busy
-        return super().enables(command)
+                if not (subshell.is_running and subshell.can_complete):
+                    return tr("The shell cannot complete")
+                return busy if self.console.busy else ""
+        return super().refusal(command)
 
     def _editor_has_keys(self) -> bool:
         """Whether the keyboard is with a widget that edits text of its own.

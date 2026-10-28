@@ -15,7 +15,7 @@ from typing import Any
 
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
@@ -116,6 +116,24 @@ class InfoPanel(Widget):
             out.append(("\0" + tr("Connection"), False))
             out += [(f"{tr(what)}: ~{value}~", False) for what, value in self.described]
         return out
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """A line's whole text where the panel cut it, and the memory's exact
+        bytes where the line rounds them to K -- what ``TDiskInfo`` left out."""
+        lines = self.lines()[: max(0, self.height - 2)]
+        row = y - 1
+        if not 0 < x < self.width - 1 or not 0 <= row < len(lines):
+            return super().tooltip_at(x, y)
+        text, _centred = lines[row]
+        if text.startswith("\0"):
+            text = text[1:]
+        facts = self.facts
+        if facts is not None and facts.memory_total is not None and \
+                text == tr("~{n:,}~K bytes total memory").format(n=facts.memory_total >> 10):
+            return tr_n("{count} byte of memory in all", "{count} bytes of memory in all",
+                        facts.memory_total, count=f"{facts.memory_total:,}")
+        plain = text.replace("~", "")
+        return plain if len(plain) > self.width - 2 else super().tooltip_at(x, y)
 
     def render(self, surface: Surface) -> None:
         if self.width < 2 or self.height < 2:

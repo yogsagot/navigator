@@ -867,6 +867,15 @@ class Widget:
         """
         return self.tooltip
 
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """Where the keyboard is in this widget, in its own coordinates: what
+        the key that shows the focused widget's tooltip (Shift+F11,
+        :class:`navkit.tooltip.ShowTooltip`) asks :meth:`tooltip_at` about,
+        and where the box is put.  The caret (:meth:`cursor_position`), else
+        the corner; a widget whose keyboard is on one of several things it
+        paints -- a list's cursor row, a cluster's item -- says which."""
+        return self.cursor_position() or (0, 0)
+
     def focus(self) -> bool:
         """Take the keyboard.  False if this widget cannot have it.
 
@@ -1011,8 +1020,20 @@ class Widget:
         Override it to say *not here, not now*: a window that cannot be zoomed
         vetoes ``Zoom``.  Read it from reactive state, and a key bar or a menu
         showing the command greys it out by itself.
+
+        The default is :meth:`refusal` saying nothing; a widget that can say
+        *why* not overrides that instead, and this follows from it.
         """
-        return True
+        return not self.refusal(command)
+
+    def refusal(self, command: commands.Command) -> str:
+        """Why this widget will not run *command* now, translated -- ``""``
+        when it will.  :meth:`enables` is ``not refusal(...)``, so a widget
+        overriding this rather than :meth:`enables` cannot grey a command out
+        without saying why: a greyed menu item, key bar button or option shows
+        the reason as its tooltip (:func:`navkit.commands.disabled_reason`).
+        """
+        return ""
 
     def key_hints(self) -> Sequence[tuple[str, str]]:
         """The keys this widget takes that no key table names, as

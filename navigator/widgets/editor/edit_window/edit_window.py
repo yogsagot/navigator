@@ -367,10 +367,10 @@ class EditWindow(Window):
 
     # -- ^K R and ^K W -------------------------------------------------------------
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         if isinstance(command, (BlockWrite, PrintBlock)):
-            return self.editor.has_block
-        return super().enables(command)
+            return "" if self.editor.has_block else tr("No block is marked")
+        return super().refusal(command)
 
     async def _ask_file(
         self, title: str, label: str, history_id: str, ok_text: str | None = None,

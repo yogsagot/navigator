@@ -18,7 +18,7 @@ from navkit.reactive import effect
 from navkit.style import Style
 from navkit.stylesheet import StylesheetError, parse_value
 from navml.widgets.dialog.color_selector import COLORS
-from navigator.lib.appearance.palette import ATTRIBUTES, groups
+from navigator.lib.appearance.palette import ATTRIBUTES, DERIVED, ENTRIES, groups
 
 
 class ColorsDialog(Dialog, _Component):

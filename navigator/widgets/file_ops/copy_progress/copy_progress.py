@@ -28,6 +28,11 @@ def fit_path(label: str, path: str, width: int) -> str:
     return escape_caption(label + path)
 
 
+def whole_path(label: str, path: str, width: int) -> str:
+    """*path* whole where :func:`fit_path` cuts it, else ``""``: its row's tooltip."""
+    return path if len(path) > max(4, width - len(label)) else ""
+
+
 class CopyProgress(Dialog):
     """*Copy* or *Rename/move*: two gauges and *Stop*.
 
@@ -44,6 +49,10 @@ class CopyProgress(Dialog):
     def fit(self, label: str, path: str) -> str:
         """*label* and then *path*, cut to the row: :func:`fit_path`."""
         return fit_path(label, path, self.width - 4)
+
+    def whole(self, label: str, path: str) -> str:
+        """*path* whole where its row cut it: :func:`whole_path`."""
+        return whole_path(label, path, self.width - 4)
 
     def count(self, done: int, percent: int) -> str:
         """``N bytes (355MB, P%)``, the line under each gauge; *percent* is the bar's own.

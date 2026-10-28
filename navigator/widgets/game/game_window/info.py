@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
@@ -43,6 +43,33 @@ class GameInfo(Widget):
             on = not on
         surface.draw_text(0, y, edges[0], plain, 1)
         surface.draw_text(width - 1, y, edges[1], plain, 1)
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What the box leaves to be guessed: how the score is counted, how
+        far the next level is, and what showing *Next* costs."""
+        game = self.game
+        if game is None or not 0 < x < self.width - 1:
+            return super().tooltip_at(x, y)
+        if y == 1:
+            lines = [tr("A figure set down scores more the higher it lies and the higher the level"),
+                     tr("A line taken scores more the higher it was"),
+                     tr("An emptied glass scores 300 times the level")]
+            if game.preview:
+                lines.append(tr("While Next is shown, a figure set down and an emptied glass score 70%"))
+            return "\n".join(lines)
+        if y == 3:
+            if game.level >= 10:
+                return tr("The last level")
+            threshold = 90 - (9 - game.start_level) * 10
+            wanted = threshold + 1 if game.level == game.start_level else \
+                threshold + 20 * (game.level - game.start_level)
+            return tr_n("{n} more line to the next level", "{n} more lines to the next level",
+                        max(1, wanted - game.lines))
+        if 5 <= y < 10:
+            if game.preview:
+                return tr("The figure that falls next: while it is shown, a figure set down scores 70%")
+            return tr("Next is hidden, and a figure set down scores in full")
+        return super().tooltip_at(x, y)
 
     def render(self, surface: Surface) -> None:
         game = self.game

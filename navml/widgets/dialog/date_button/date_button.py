@@ -46,11 +46,13 @@ import calendar as _calendar
 import datetime
 from typing import Any
 
+from navkit import commands
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.reactive import bind, reactive
 from navkit.screen import Surface
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.component import take_declared
@@ -90,6 +92,12 @@ def month_names() -> list[str]:
 def weekday_names() -> list[str]:
     """The seven weekdays' two-letter names, Monday first, in the current language."""
     return [tr("Mo"), tr("Tu"), tr("We"), tr("Th"), tr("Fr"), tr("Sa"), tr("Su")]
+
+
+def weekday_full_names() -> list[str]:
+    """The seven weekdays' whole names, Monday first, in the current language."""
+    return [tr("Monday"), tr("Tuesday"), tr("Wednesday"), tr("Thursday"), tr("Friday"), tr("Saturday"),
+            tr("Sunday")]
 
 
 class _Choice:
@@ -330,6 +338,55 @@ class CalendarView(Widget):
         self.day = datetime.date.today()
         self.section = "days"
         return True
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """A day spelled out whole -- its weekday, its ISO week, how far from
+        today -- which the grid's two-letter columns do not; what the top
+        row's arrows and names do, with their keys."""
+        app = self.application
+
+        def keyed(text: str, command: Any) -> str:
+            key = commands.key_for(app, command, self) if app is not None else None
+            return with_keys(text, commands.key_label(key) if key else "")
+
+        inset, top = self.inset, y == self.inset
+        (mx, month), (yx, year) = self.title_spans()
+        if top and inset <= x <= inset + 2:
+            return keyed(tr("The month before"), PreviousMonth)
+        if top and self.width - inset - 3 <= x <= self.width - inset - 1:
+            return keyed(tr("The month after"), NextMonth)
+        if top and mx <= x < mx + len(month):
+            return keyed(tr("A click chooses the month"), ChooseMonth)
+        if top and yx <= x < yx + len(year):
+            return keyed(tr("A click chooses the year"), ChooseYear)
+        if y == inset + 1 and inset <= x < inset + 3 * 7:
+            return weekday_full_names()[(self.first_weekday + (x - inset) // 3) % 7]
+        day = self.day_at(x, y)
+        if day is None:
+            return super().tooltip_at(x, y)
+        spelled = day.strftime(self.date_format) if self.date_format else day.isoformat()
+        lines = [tr("{weekday}, {date}, week {week}").format(
+            weekday=weekday_full_names()[day.weekday()], date=spelled, week=day.isocalendar()[1])]
+        away = (day - datetime.date.today()).days
+        if away == 0:
+            lines.append(tr("Today"))
+        elif away > 0:
+            lines.append(tr_n("{n} day from today", "{n} days from today", away))
+        else:
+            lines.append(tr_n("{n} day ago", "{n} days ago", -away))
+        return "\n".join(lines)
+
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The cursor's day, or the month's or the year's name while the keys are there."""
+        (mx, _month), (yx, _year) = self.title_spans()
+        if self.section == "month":
+            return mx, self.inset
+        if self.section == "year":
+            return yx, self.inset
+        for row, week in enumerate(self.weeks()):
+            if self.day in week:
+                return self.inset + week.index(self.day) * 3 + 1, self.inset + 2 + row
+        return super().tooltip_anchor()
 
     def day_at(self, x: int, y: int) -> datetime.date | None:
         """The day painted at *x*, *y*, if any."""

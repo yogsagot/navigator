@@ -11,6 +11,7 @@ from navkit.events import MouseClickEvent
 from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navml.widgets.dialog.date_button.date_button import weekday_full_names
 from navigator.lib.config import country
 from navigator.widgets.shell.commands import OpenCalendar
 

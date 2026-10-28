@@ -49,6 +49,7 @@ from navkit import commands
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE, SCROLLBARS
 from navkit.reactive import reactive
 from navkit.screen import Surface
+from navkit.tooltip import lines
 from navkit.widget import Widget
 
 from navml.widgets.dialog.control.control import parse_shortcut
@@ -215,8 +216,18 @@ class MenuBox(Widget):
         """The tooltip of the entry on row *y*, inside the frame; else the box's."""
         index = self.entry_at(y)
         if index >= 0 and 2 <= x < self.width - 2:
-            return self.entries()[index].tooltip
+            return self.hint(self.entries()[index])
         return super().tooltip_at(x, y)
+
+    def hint(self, entry: MenuNode) -> str:
+        """What *entry* says of itself: its tooltip, and, while it is greyed,
+        why -- the command's ``refusal`` (:func:`navkit.commands.disabled_reason`)."""
+        reason = ""
+        if isinstance(entry, MenuItem) and entry.command is not None and not entry.disabled:
+            app = self.application
+            if app is not None and not app.command_enabled(entry.command, self.behind):
+                reason = app.command_disabled_reason(entry.command, self.behind)
+        return lines(entry.tooltip, reason)
 
     def entry_at(self, row: int) -> int:
         """The entry on *row* of this box, or -1 for the frame."""

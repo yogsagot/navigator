@@ -55,6 +55,17 @@ class Label(Control):
             return await link.activate(letter)
         return link.focus() if isinstance(link, Widget) else False
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Its own tooltip, else its control's: a caption stands for its
+        control, as a click on it does.  Inside a ``Field`` neither has one
+        and the field answers, being the parent; a label standing apart
+        borrows its control's here."""
+        own = super().tooltip_at(x, y)
+        link = self.link
+        if own or not isinstance(link, Widget):
+            return own
+        return link.tooltip
+
     async def on_mouse_click(self, event) -> bool:
         """A click on a caption means its control, which is what a user means."""
         if event.action == "press" and event.button == "left" and not self.inert:

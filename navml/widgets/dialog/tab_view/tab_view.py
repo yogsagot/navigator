@@ -379,6 +379,13 @@ class TabView(Layout):
             return 0 <= x <= self.column and offset <= y < offset + self._length()
         return 0 <= y <= (1 if self.side == "simple" else self.strip_rows) and offset <= x < offset + self._length()
 
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The current page's tab, where the keyboard is while the tabs have it."""
+        for at, index, _caption in self.tabs():
+            if index == self.current:
+                return (1, at) if self.side == "left" else (at + 1, 0)
+        return super().tooltip_anchor()
+
     def tab_at(self, x: int, y: int) -> int | None:
         if not self.in_strip(x, y):
             return None

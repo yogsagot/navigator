@@ -405,6 +405,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
   nested as submenus, greyed where the feature is still to come.
 
+## Tooltips
+
+- `InfoLine.tooltip_at` says what a click on each place does, with its key: line:column (Go to line), the
+  character's code (the table), the block indicator (stream/vertical); elsewhere the whole path.
+- Greyed block, clipboard and undo commands say why (`FileEditor.refusal`, `EditWindow.refusal`).
+
 ## Read when
 
 | Reference | Read when |

@@ -36,6 +36,7 @@ from typing import Any
 
 from navkit.commands import Command
 from navkit.events import Event
+from navkit.i18n import tr
 from navkit.reactive import effect, reactive, untracked
 from navkit.widget import Widget
 
@@ -355,26 +356,28 @@ class Desktop(Widget):
 
     # -- commands ------------------------------------------------------------
 
-    def enables(self, command: Command) -> bool:
+    def refusal(self, command: Command) -> str:
         """Every window command needs a window, and two need its consent.
 
         Tile and Cascade need a window that is tileable, and Close all one that
         is closable, wherever it is in the stack.
         """
         if isinstance(command, (TileWindows, CascadeWindows)):
-            return bool(self.tileable_windows())
+            return "" if self.tileable_windows() else tr("No window can be arranged")
         if isinstance(command, CloseAllWindows):
-            return any(window.closable for window in self.windows())
+            return "" if any(window.closable for window in self.windows()) else tr("No window can be closed")
         if isinstance(command, SelectWindow):
-            return self.window_numbered(command.number) is not None
+            if self.window_numbered(command.number) is not None:
+                return ""
+            return tr("No window is numbered {number}").format(number=command.number)
         window = self.active_window
         if window is None:
-            return False
+            return tr("No window is open")
         if isinstance(command, ZoomWindow):
-            return window.zoomable
+            return "" if window.zoomable else tr("This window cannot be zoomed")
         if isinstance(command, CloseWindow):
-            return window.closable
-        return True
+            return "" if window.closable else tr("This window cannot be closed")
+        return ""
 
     async def on_size_move_window(self, event: SizeMoveWindow) -> bool:
         self.active_window.begin_move()

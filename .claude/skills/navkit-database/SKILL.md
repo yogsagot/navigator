@@ -93,6 +93,12 @@ every value is a parameter.
 - **Departure from DN**: DN wrote `DN.HIS` on exit (`SaveHistories`, `DNUTIL.PAS`). Each history change is written
   as it happens, so a crash loses nothing.
 
+## History times
+
+`HistoryEntry`, `ViewRecord` and `EditRecord` keep `used` (`time.time()` when last put at the front; 0 for a row
+from before the column) -- what the history lists' tooltips say (`country.last_used`). Set wherever `seq` is
+bumped (`HistoryEntry.remember`, `FileRecord.store`); `swap` leaves it.
+
 ## Read when
 
 | Reference | Read when |

@@ -43,6 +43,7 @@ CopyProgress(Dialog):
         width: max(0, parent.width - 4)
         height: 1
         text: root.fit(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
+        tooltip: root.whole(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
 
     StaticText:
         id: dest_row
@@ -51,6 +52,7 @@ CopyProgress(Dialog):
         width: max(0, parent.width - 4)
         height: 1
         text: root.fit(" into " if root.packing else " to ", root.dest)
+        tooltip: root.whole(" into " if root.packing else " to ", root.dest)
 
     #: Both gauges are as wide as the box less four columns a side.
     ProgressBar:

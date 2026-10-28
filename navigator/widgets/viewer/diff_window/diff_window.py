@@ -84,12 +84,12 @@ class DiffWindow(Window):
         view.current = -1
         view.scroll_to(top)
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         """Next and Previous want a difference to go to."""
         if isinstance(command, (NextDifference, PreviousDifference)):
             model = self.view.model
-            return model is not None and bool(model.hunks)
-        return super().enables(command)
+            return "" if model is not None and model.hunks else tr("The files do not differ")
+        return super().refusal(command)
 
     async def on_bar_scroll(self, event: ScrollEvent) -> bool:
         self.view.scroll_to(event.value)

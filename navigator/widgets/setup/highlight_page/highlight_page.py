@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 
+from navkit.i18n import tr
 from navkit.widget import Widget
 
 from navigator.lib.appearance.filetypes import CUSTOM
@@ -24,7 +25,10 @@ class HighlightPage(Widget):
         super().__init__(**kwargs)
         self.section = section or SETTINGS.highlight_groups
         for key in CUSTOM:
-            getattr(self, key).value = getattr(self.section, key)
+            line = getattr(self, key)
+            line.value = getattr(self.section, key)
+            line.tooltip = tr("The files a row takes this group's colour for: patterns separated by ;, "
+                              "such as *.png;*.jpg, whatever their case")
 
     def accept(self) -> dict[str, Any]:
         return {key: tidy(getattr(self, key).value) for key in CUSTOM}

@@ -291,6 +291,18 @@ class ViewSource:
             self._chunks.popitem(last=False)
         return chunk
 
+    def peek(self, offset: int) -> int | None:
+        """The byte at *offset* if it is already in memory, else None -- never
+        a read: what a tooltip asks from the loop, where a disk may not be
+        waited on.  What is on screen was just read, so it is there."""
+        if not 0 <= offset < self.size:
+            return None
+        if self._data is not None:
+            return self._data[offset] if offset < len(self._data) else None
+        chunk = self._chunks.get(offset // CHUNK)
+        index = offset % CHUNK
+        return chunk[index] if chunk is not None and index < len(chunk) else None
+
     def read(self, offset: int, count: int) -> bytes:
         """Up to *count* bytes at *offset*, never past the size taken at open.
 

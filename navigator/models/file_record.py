@@ -17,6 +17,7 @@ on a POSIX file system would make two files one.
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -38,6 +39,7 @@ class FileRecord(Model):
     path: str
     pinned: bool
     seq: int
+    used: float
 
     @classmethod
     def ordered(cls: type[R]) -> list[R]:
@@ -60,7 +62,7 @@ class FileRecord(Model):
         with DATABASE.transaction():
             newest = cls.query().order("-seq").first()
             seq = 1 if newest is None else newest.seq + 1
-            cls.upsert(path=key_of(path), seq=seq, **values)
+            cls.upsert(path=key_of(path), seq=seq, used=time.time(), **values)
             cls.where(pinned=False).order("-seq").offset(limit).delete()
 
     @classmethod

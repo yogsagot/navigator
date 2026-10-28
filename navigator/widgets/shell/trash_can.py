@@ -86,6 +86,17 @@ class TrashCan(Widget):
             self.spawn(app.run_command(OpenTrash))
         return True
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What a drop on it does -- which File Manager Setup decides -- and
+        what else the mouse does with it."""
+        from navigator.settings import SETTINGS
+
+        if SETTINGS.file_manager.use_trash:
+            dropped = tr("Files dropped here from a panel are moved to the Trash")
+        else:
+            dropped = tr("Files dropped here from a panel are erased")
+        return "\n".join((dropped, tr("A double click opens the Trash; a drag moves the can")))
+
     def render(self, surface: Surface) -> None:
         for y, text in enumerate((ROWS[0], tr("Trash"), ROWS[2])):
             surface.draw_text(0, y, text, self.style, WIDTH)

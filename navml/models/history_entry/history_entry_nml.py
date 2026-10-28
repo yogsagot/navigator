@@ -30,20 +30,21 @@ class HistoryEntry(Model):    # history_entry.nml:7
         _Field("text", str, ''),    # history_entry.nml:11
         _Field("pinned", bool, False),    # history_entry.nml:13
         _Field("seq", int, 0),    # history_entry.nml:15
+        _Field("used", float, 0.0),    # history_entry.nml:18
     )
     __indexes__ = (
-        _Index("entry", ('list_id', 'text'), unique=True),    # history_entry.nml:16
-        _Index("by_list", ('list_id', 'seq')),    # history_entry.nml:17
+        _Index("entry", ('list_id', 'text'), unique=True),    # history_entry.nml:19
+        _Index("by_list", ('list_id', 'seq')),    # history_entry.nml:20
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "history" ("id" INTEGER PRIMARY KEY, "list_id" TEXT NOT NULL DEFAULT \'\', "text" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0)',
+        'CREATE TABLE "history" ("id" INTEGER PRIMARY KEY, "list_id" TEXT NOT NULL DEFAULT \'\', "text" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "used" REAL NOT NULL DEFAULT 0.0)',
         'CREATE UNIQUE INDEX "history_entry" ON "history" ("list_id", "text")',
         'CREATE INDEX "history_by_list" ON "history" ("list_id", "seq")',
     )
-    __schema__ = "b1c0f09837ffbc20"
+    __schema__ = "f466fb499af05f04"
 
     id: int | None
 
@@ -56,3 +57,7 @@ class HistoryEntry(Model):    # history_entry.nml:7
 
     #: Larger is newer; only the order means anything.
     seq: int    # history_entry.nml:15
+
+    #: When it was last put at the front, by ``time.time()``; 0 for an entry
+    #: from before this was kept.  A departure: DN's history kept no time.
+    used: float    # history_entry.nml:18

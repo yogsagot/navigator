@@ -104,6 +104,15 @@ class CommandLine(InputLine):
                 cells = ((" ", cells[0][1]),) + cells[1:]
         return cells
 
+    def tooltip_at(self, x: int, y: int) -> str:
+        """Over the prompt, the whole of it where it was cut from the left --
+        a deep directory's start; elsewhere the line's own (:meth:`InputLine.tooltip_at`)."""
+        if x < self.prompt_width:
+            whole = "".join(char for char, _ in self.prompt_cells) if self.prompt_cells else self.prompt
+            shown = "".join(char for char, _ in self.shown_cells) if self.prompt_cells else self.shown_prompt
+            return whole.strip() if len(whole) > len(shown) else ""
+        return super().tooltip_at(x, y)
+
     @property
     def prompt_width(self) -> int:
         """How many columns the prompt takes, whichever of the two is painted."""

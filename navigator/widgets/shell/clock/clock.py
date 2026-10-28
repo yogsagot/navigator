@@ -12,6 +12,7 @@ from navkit.events import MouseClickEvent
 from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.widget import Widget
+from navml.widgets.dialog.date_button.date_button import weekday_full_names
 
 from navigator.lib.config import country
 from navigator.widgets.shell.commands import OpenCalendar
@@ -23,9 +24,8 @@ def now() -> datetime:
 
 
 def weekday_names() -> list[str]:
-    """Monday to Sunday, in the current language."""
-    return [tr("Monday"), tr("Tuesday"), tr("Wednesday"), tr("Thursday"), tr("Friday"),
-            tr("Saturday"), tr("Sunday")]
+    """Monday to Sunday, in the current language: the calendar's names."""
+    return weekday_full_names()
 
 
 class Clock(Widget):

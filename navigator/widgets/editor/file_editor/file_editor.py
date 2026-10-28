@@ -30,11 +30,13 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+from navkit import commands
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.background import Background, Outcome
@@ -2319,32 +2321,35 @@ class FileEditor(ContextMenuHost, Widget):
         self.overwrite = not self.overwrite
         return True
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
+        no_block = tr("No block is marked")
         if isinstance(command, Undo):
             self.revision
-            return self.buffer.can_undo
+            return "" if self.buffer.can_undo else tr("Nothing to undo")
         if isinstance(command, Redo):
             self.revision
-            return self.buffer.can_redo
+            return "" if self.buffer.can_redo else tr("Nothing to redo")
         if isinstance(command, HideBlock):
-            return self.marked
+            return "" if self.marked else no_block
         if isinstance(command, UnindentBlock) and command.stop:
             # Shift+Tab: the cursor's line, when no block is there to take it.
-            return True
+            return ""
         if isinstance(command, SelectAll):
             self.revision
-            return any(self.document.lines)
+            return "" if any(self.document.lines) else tr("The text is empty")
         if isinstance(command, (FJustify, FRight, FLeft, FCenter)):
             # ``not (ValidBlock and BlockVisible) or VertBlock``: a stream block only.
-            return self.block is not None and not self.block_hidden
+            if self.block is None or self.block_hidden:
+                return no_block
+            return ""
         if isinstance(command, (
             ClipboardCut, ClipboardCopy, Clear, CopyBlock, MoveBlock,
             IndentBlock, UnindentBlock, UpcaseBlock, LowcaseBlock, CapitalizeBlock, SortBlock,
             CalcBlock,
             MoveBlockStart, MoveBlockEnd,
         )):
-            return self.has_block
-        return super().enables(command)
+            return "" if self.has_block else no_block
+        return super().refusal(command)
 
     def checks(self, command: Any) -> bool | None:
         """Editor > Options ticks *Vertical blocks*, *Auto wrap*, *Justify on wrap* and
@@ -3029,6 +3034,32 @@ class InfoLine(StaticText):
             start, end = editor.block_indicator()
             surface.draw_text(start, 0, self.text[start:end], self.part_style("column_block"),
                               max(0, self.width - start))
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        """What a click on each place does, with its key; elsewhere the whole
+        name of the file, which the title may have cut."""
+        window = self.parent
+        editor = getattr(window, "editor", None)
+        if not isinstance(editor, FileEditor):
+            return super().tooltip_at(x, y)
+        app = self.application
+
+        def keyed(text: str, command: Any) -> str:
+            key = commands.key_for(app, command, editor) if app is not None else None
+            return with_keys(text, commands.key_label(key) if key else "")
+
+        for (start, end), text, command in (
+            (editor.place_indicator(), tr("Line and column: a click goes to a line"), GotoLineNumber),
+            (editor.code_indicator(), tr("The character's code: a click opens the character table"), AsciiTable),
+            (editor.block_indicator(), tr("Vertical blocks: a click makes them stream blocks")
+             if editor.vertical_blocks else tr("Stream blocks: a click makes them vertical"), SwitchBlock),
+        ):
+            if start <= x < end:
+                return keyed(text, command)
+        use_set = getattr(window, "use_set", None)
+        if use_set is not None:
+            return str(use_set.copies[0].origin)
+        return str(editor.path) if editor.path is not None else ""
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.action != "press":

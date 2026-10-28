@@ -32,6 +32,7 @@ from navkit.reactive import bind, computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
+from navkit.tooltip import lines as tooltip_lines, with_keys
 
 from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -1371,7 +1372,7 @@ class Panel(ContextMenuHost, ListViewer):
             shown = tr("Only files matching {mask} are shown").format(mask=mask)
             app = self.application
             key = key_for(app, AdvancedFilter, self) if app is not None else None
-            lines.append(f"{shown} ({key_label(key)})" if key else shown)
+            lines.append(with_keys(shown, key_label(key) if key else ""))
         git = self.git
         if git is not None and git.branch:
             if git.detached:
@@ -1382,7 +1383,7 @@ class Panel(ContextMenuHost, ListViewer):
                 lines.append(tr_n("{n} commit ahead of its upstream", "{n} commits ahead of its upstream", git.ahead))
             if git.behind:
                 lines.append(tr_n("{n} commit behind its upstream", "{n} commits behind its upstream", git.behind))
-        return "\n".join(lines)
+        return tooltip_lines(*lines)
 
     def _row_tooltip_at(self, index: int, x: int) -> str:
         """Row *index* at column *x*: what the row left out there.
@@ -2002,6 +2003,15 @@ class Panel(ContextMenuHost, ListViewer):
         if self.view_mode == "list":
             return max(1, self.capacity)
         return super().page()
+
+    def tooltip_anchor(self) -> tuple[int, int]:
+        """The cursor's name: in the list mode, in the column it is in."""
+        if self.view_mode != "list" or self.cursor_position() is not None:
+            return super().tooltip_anchor()
+        for first, left, _width in self.list_columns:
+            if first <= self.cursor < first + self.rows:
+                return left + 1, self.inset + self.header + self.cursor - first
+        return super().tooltip_anchor()
 
     def index_at(self, x: int, y: int) -> int | None:
         if self.view_mode != "list":

@@ -89,3 +89,6 @@ Slots `[94-101]`, `[104-110]`.
 - `TreeView.row_tooltip`: a node's whole name while cut -- its start scrolled off by `shift`, or its end past the
   right edge -- placed as `render_row` places it.
 - `DirectoryTree.row_tooltip`: every directory's whole path (`node.data`); the info lines name only the cursor's.
+- `VolumeList.row_tooltip`: the whole mount point and device, the mount's options (`Volume.options`, the fourth
+  field of `/proc/self/mounts` through `volumes.mount_options`) and the sizes in exact bytes. A greyed Mount,
+  Unmount or Eject says why (`VolumesWindow.refusal`).

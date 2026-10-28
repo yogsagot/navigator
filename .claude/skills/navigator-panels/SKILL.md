@@ -140,6 +140,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   a narrow title dropped the branch. A title that says it all has none.
 - **The divider's tooltip** is `Manager.tooltip_at`, over exactly what `divider_hit` grabs: drag, Alt+Left/Right (read
   off the key table) and the double click that evens the split. A panel's frame has none, so the lookup climbs to it.
+- **Shift+F11 on a panel** shows its cursor row's tooltip (`Panel.tooltip_anchor`: the name, the list mode's
+  column too). A greyed panel command says why: `Manager.refusal`, which `enables` is derived from -- give a new
+  veto a reason there, not a bare `False`.
 - **Miller columns inherit both** -- a `MillerColumn` is a `Panel`: a row's whole name while cut (`_name_room`
   reads the column's own `name_width`), and the title, its directory's name alone, gives the whole path. No code of
   their own; `tests/test_miller.py` holds it.

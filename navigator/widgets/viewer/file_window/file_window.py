@@ -70,6 +70,7 @@ class FileWindow(Window):
             self.viewer.cursor = 0
         # ``TWindow.Init(R, FileName, 0)``: the title is the whole name.
         self.title = str(self.viewer.path)
+        self.info.tooltip = self.viewer.info_tooltip()
         fill_file_types(self.view_menu_file_type, self)
         self.options.items = viewer_items(self.viewer)
 
@@ -245,22 +246,25 @@ class FileWindow(Window):
             return self.viewer.file_type == command.file_type
         return super().checks(command)
 
-    def enables(self, command: Command) -> bool:
+    def refusal(self, command: Command) -> str:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them.
         *Markup view* is text only too, and wants a file no bigger than
         ``RENDER_LIMIT``; while it renders, Wrap and Hidden
         characters have nothing to act on."""
+        text_only = tr("Only in the text view")
         if isinstance(command, GotoAddress):
-            return self.viewer.mode != "text"
+            return tr("Only in the hex and dump views") if self.viewer.mode == "text" else ""
         if isinstance(command, SwitchRendered):
-            return self.viewer.mode == "text" and self.viewer.can_render
+            if self.viewer.mode != "text":
+                return text_only
+            return "" if self.viewer.can_render else tr("Not a markup file, or too big to render")
         if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.rendering:
-            return False
+            return tr("Not while the markup is rendered")
         if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):
-            return self.viewer.mode == "text"
+            return "" if self.viewer.mode == "text" else text_only
         if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
-            return viewer_model.last_search is not None
-        return super().enables(command)
+            return "" if viewer_model.last_search is not None else tr("Nothing has been searched for yet")
+        return super().refusal(command)
 
     async def on_bar_scroll(self, event: ScrollEvent) -> bool:
         """The scroll bar was worked: its value is a byte offset, snapped to a row."""

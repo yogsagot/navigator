@@ -196,10 +196,10 @@ class ScreenView(ContextMenuHost, Widget):
         menu.add_item(tr("C~l~ear selection"), Clear, "Esc")
         return menu
 
-    def enables(self, command: Any) -> bool:
+    def refusal(self, command: Any) -> str:
         if isinstance(command, (ClipboardCopy, Clear)):
-            return self.selection is not None
-        return super().enables(command)
+            return "" if self.selection is not None else tr("Nothing is selected")
+        return super().refusal(command)
 
     async def on_clipboard_copy(self, command: ClipboardCopy) -> bool:
         self._copy_selection()

@@ -18,6 +18,7 @@ from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, effect
 from navkit.screen import Surface
 from navkit.style import Style
+from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.widgets.dialog.commands import Cancel, Default
@@ -143,11 +144,7 @@ class Button(Control):
 
     def tooltip_at(self, x: int, y: int) -> str:
         """``Enter, Alt-K``; after the button's own tooltip, in brackets."""
-        own = super().tooltip_at(x, y)
-        keys = ", ".join(self.press_keys())
-        if own and keys:
-            return f"{own} ({keys})"
-        return own or keys
+        return with_keys(super().tooltip_at(x, y), self.press_keys())
 
     def press_keys(self) -> list[str]:
         """The keys that press this button from anywhere in its dialog, as
