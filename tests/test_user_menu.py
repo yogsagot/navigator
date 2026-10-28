@@ -88,6 +88,7 @@ def test_a_window_line_runs_the_item_in_a_window_opened_as_its_words_say():
     assert commands_of(["<& normal modal", "top"]).window == WindowMode(zoomed=False, modal=True)
     assert commands_of(["<&  ZOOMED floating", "top"]).window == WindowMode(zoomed=True, modal=False)
     assert commands_of(["<& normal modal", "top"]).lines == ["top"]
+    assert commands_of(["<& close floating", "vim x"]).window == WindowMode(modal=False, closes=True)
     # A word it does not know leaves it the parameters box's title.
     plain = commands_of(["<& Archive name", "tar czf %3 ."])
     assert plain.window is None and plain.asks and plain.title == "& Archive name"

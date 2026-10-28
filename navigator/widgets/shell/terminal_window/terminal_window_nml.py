@@ -35,23 +35,24 @@ class TerminalWindow(Window, _Component):
     frame, so it runs beside the panels and the other windows.  It gets every
     key but the ones that bring another window forward; closing the window
     hangs it up.  Once it has ended the window keeps its output, the title says
-    how it ended, and Esc or Enter closes it.
+    how it ended, and Esc or Enter closes it -- unless it was opened to close
+    as soon as its command ends well (``closes``: Alt+F4's console editors).
     """
 
     #: The document this class was generated from.
     __navml_source__ = "terminal_window.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    view: TerminalView    # terminal_window.nml:20
+    view: TerminalView    # terminal_window.nml:21
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.view = TerminalView(parent=self)    # terminal_window.nml:19
+        self.view = TerminalView(parent=self)    # terminal_window.nml:20
 
-        self.min_width = 20    # terminal_window.nml:16
-        self.min_height = 5    # terminal_window.nml:17
+        self.min_width = 20    # terminal_window.nml:17
+        self.min_height = 5    # terminal_window.nml:18
 
-        self.view.x = 1    # terminal_window.nml:21
-        self.view.y = 1    # terminal_window.nml:22
-        self.view.width = _bind(lambda _o: max(1, _o.parent.width - 2))    # terminal_window.nml:23
-        self.view.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # terminal_window.nml:24
+        self.view.x = 1    # terminal_window.nml:22
+        self.view.y = 1    # terminal_window.nml:23
+        self.view.width = _bind(lambda _o: max(1, _o.parent.width - 2))    # terminal_window.nml:24
+        self.view.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # terminal_window.nml:25

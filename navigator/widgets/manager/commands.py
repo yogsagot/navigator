@@ -59,8 +59,11 @@ class Edit(Command):
 
 
 class AlternateEdit(Command):
-    """Alt+F4, File > Alternate edit: DOS Navigator's ``cmIntFileEdit``, as
-    :class:`AlternateView` for the editor."""
+    """Alt+F4 (and Ctrl+K, not DN's: many window managers close the terminal
+    on Alt+F4), File > Alternate edit: DOS Navigator's ``cmIntFileEdit``, as
+    :class:`AlternateView` for the editor -- but with *Internal editor* on and
+    nothing in ``editors.ini``, a box of the console editors installed, run in
+    a window of their own (a departure: DN's was the editor window, F4's)."""
 
 
 class Copy(Command):

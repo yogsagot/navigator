@@ -3746,23 +3746,67 @@ class Manager(Window):
         return True
 
     async def on_alternate_edit(self, event: AlternateEdit) -> bool:
-        """Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round."""
+        """Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round
+        -- with *Internal editor* on and nothing in ``editors.ini``, a console
+        editor in a window (:meth:`console_editor`)."""
         self.spawn(self.edit_file(False))
         return True
 
     async def edit_file(self, intern: bool) -> None:
         """DN's ``EditFile(Intern, ...)``, as :meth:`view_file` for the viewer:
         ``editors.ini`` (DN's ``DN.EDT``) for the key that disagrees with
-        *Internal editor*, falling back to ``$EDITOR`` for F4 and the editor
-        window for Alt+F4."""
+        *Internal editor*, falling back to ``$EDITOR`` for F4 and, for Alt+F4,
+        the editor window if F4 runs ``$EDITOR`` -- else a box of the console
+        editors installed, each run in a window of its own.  A departure:
+        DN's Alt+F4 fell back to the editor window there too, which is F4."""
         if intern == SETTINGS.system.internal_editor:
             await self.edit()
         elif await self._run_associated(EDITORS):
             return
         elif intern:
             self.run_external("EDITOR", "vi")
+        elif SETTINGS.system.internal_editor:
+            await self.console_editor()
         else:
             await self.edit()
+
+    async def console_editor(self) -> None:
+        """Alt+F4 with nothing in ``editors.ini``: a box of the console editors
+        installed (:mod:`navigator.lib.editor.console_editors`) and *Internal
+        editor*, the one chosen run on the file in a window of its own
+        (``TerminalWindow``).  A file on another drive is fetched first and
+        offered back up once the window is closed.  With none installed it
+        is the editor window, as before."""
+        from navigator.lib.config.associations import Action
+        from navigator.lib.config.usermenu import Commands
+        from navigator.lib.editor import console_editors
+
+        shell = getattr(self.application, "shell", None)
+        panel = self.active_panel
+        entry = panel.selected
+        if shell is None or entry is None or entry.is_dir:
+            await self.edit()
+            return
+        found = await asyncio.to_thread(console_editors.installed)
+        if not found:
+            await self.edit()
+            return
+        internal = Action(tr("~I~nternal editor"), Commands([]))
+        action = await shell.choose_action([*console_editors.actions(found), internal],
+                                           title=tr("Choose editor"))
+        if action is None:
+            return
+        if action is internal:
+            await self.edit()
+            return
+        if panel.location.is_local or entry.directory is not None:
+            await shell.run_commands(action.commands)
+            return
+        from navigator.widgets.drives.use_file import materialize
+
+        use = await materialize(self.application, [panel.entry_location(entry)])
+        if use is not None:
+            await shell.run_commands(action.commands, cwd=use.directory, uses=[use])
 
     def run_external(self, variable: str, fallback: str, path: Path | None = None) -> None:
         """Run the program ``$variable`` names (or *fallback*) on *path*, else the selected file.

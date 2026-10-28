@@ -172,8 +172,11 @@ PDF viewer = xdg-open !.!
     EDITORS: """\
 # The editor a file wants: what F4 runs with System Setup's Internal editor
 # off, and Alt+F4 (Alternate edit) with it on.  A file no section takes is
-# edited as before.  Options > Editors.  The format is extensions.ini's: a
-# mask, then `Caption = commands', several offered in a menu; !.! is the file.
+# edited as before -- Alt+F4 then offers the console editors installed.
+# Options > Editors.  The format is extensions.ini's: a mask, then
+# `Caption = commands', several offered in a menu; !.! is the file.  A command
+# starting & runs in a window of its own: Vim = &vim !.!  -- and a line <& close
+# before it closes the window as soon as the editor quits.
 
 [*.odt;*.docx]
 Word processor = libreoffice !.!

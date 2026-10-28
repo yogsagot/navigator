@@ -25,7 +25,9 @@ departure, :mod:`navigator.lib.file_ops.panelize`).
 A ``<&`` line runs it in a window of its own rather than on the console (a
 departure, ``TerminalWindow``), opened as System Setup's *Command windows*
 say unless the words after it do: ``zoomed`` or ``normal``, ``modal`` or
-``floating`` (``<& normal modal``).  With a word it does not know it is a
+``floating`` (``<& normal modal``), and ``close``, which takes the window off
+as soon as the command ends with status 0 rather than keeping its output
+(``<& close``: an editor, whose last screen is nothing to read).  With a word it does not know it is a
 ``<Title`` as before; ``<|`` wins over it.  A command line starting ``&``
 does the same as a bare ``<&``, as ``&`` does on the command line
 (``Run = &./!.!``), the ``&`` taken off.
@@ -114,6 +116,7 @@ def _split(name: str) -> tuple[str, str]:
 _WINDOW_WORDS = {
     "zoomed": ("zoomed", True), "normal": ("zoomed", False),
     "modal": ("modal", True), "floating": ("modal", False),
+    "close": ("closes", True),
 }
 
 
@@ -123,6 +126,9 @@ class WindowMode:
 
     zoomed: bool | None = None
     modal: bool | None = None
+    #: ``close``: the window goes as soon as the command ends well (Alt+F4's
+    #: console editors, :mod:`navigator.lib.editor.console_editors`).
+    closes: bool = False
 
 
 def window_mode(text: str) -> WindowMode | None:

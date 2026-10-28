@@ -30,7 +30,8 @@ description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navi
   departure; `navigator-panels`, *Panelize command*). It works in the `.ini` associations too.
 - **A `<&` line runs the item in a window of its own** (`Commands.window`, a `WindowMode`; a departure,
   `console-command-line`, *Commands in a window*). The words `zoomed`/`normal` and `modal`/`floating` after it
-  override System Setup's *Command windows* (`<& normal modal`). `usermenu.window_mode` parses it before the
+  override System Setup's *Command windows* (`<& normal modal`), and `close` closes the window as soon as the
+  item ends with status 0 (`WindowMode.closes`; a failed item's window stays). `usermenu.window_mode` parses it before the
   `<Title` case, and **only when every word is one of those four**, so `<& Archive name` stays a title. `<|` wins
   over it. Such an item's script and lists are its own, `usermenu-N.sh`/`active-N.lst`/`passive-N.lst` (lowest free
   N), since the window may still be reading them when the next item writes the console's; they are removed when
@@ -63,9 +64,18 @@ DN's Alt+Enter `[ ]` menu became, since Alt+Enter stays *Insert name*; DN's Shif
   -> `run_associated(EXTENSIONS, name)`; no entry, the desktop's application (`gio open` or `kioclient exec`, *Pass other files to
   desktop*, a departure) where `desktop.program()` and a display are, else nothing happens (`navigator-gio` skill). Not in a *Find:* listing (Enter goes to the file).
 - **F3/F4 and Alt+F3/Alt+F4** (`AlternateView`/`AlternateEdit`, File > Alternate view/edit, DN's `cmIntFileView`/
-  `cmIntFileEdit`): `Manager.view_file(intern)`/`edit_file(intern)` are DN's `ViewFile(Intern)`. The key agreeing with
+  `cmIntFileEdit`; Alternate edit has **Ctrl+K** too, bound first so the menu shows it -- a departure, since many
+  window managers close the terminal on Alt+F4, and the reason no chord in the panels' table may start with
+  Ctrl+K): `Manager.view_file(intern)`/`edit_file(intern)` are DN's `ViewFile(Intern)`. The key agreeing with
   *Internal viewer/editor* opens the window; the other tries `viewers.ini`/`editors.ini`, falling back to
-  `$PAGER`/`$EDITOR` for F3/F4 and to the window for Alt+F3/Alt+F4.
+  `$PAGER`/`$EDITOR` for F3/F4 and to the window for Alt+F3/Alt+F4 -- except Alt+F4 with *Internal editor* on
+  (where the window is F4's): `Manager.console_editor` offers the console editors installed
+  (`navigator/lib/editor/console_editors.py`: `$VISUAL`, `$EDITOR`, then `KNOWN`, found by `shutil.which` on a
+  thread, one per realpath) and *Internal editor* in `Shell.choose_action`'s box, titled *Choose editor*. Each one is
+  an `editors.ini`-shaped `Action` running `&command !.!` through `run_commands`, so it opens in a `TerminalWindow` as
+  *Command windows* says, and closes as soon as the editor quits with status 0 (a `<& close` line, `WindowMode.closes`; a failed one stays). A file on another drive is fetched first (`materialize`) and offered back up when the window
+  closes. With none installed, Alt+F4 opens the window. A departure: DN's Alt+F4 fell back to the window there too.
+  Any `editors.ini` command can start with `&` to get a window.
 - **Ctrl+Shift+F1..F10** (`QuickRun(number)`, on `Navigator.keys` -- DN's code read Shift, its help said Alt):
   `quickrun.ini`'s section; none, nothing.
 - **Options > Quick run file edit / Extension file edit / Viewers / Editors** (`EditQuickRun`, `ExtFileEdit`,

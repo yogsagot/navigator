@@ -35,7 +35,7 @@ class TerminalWindow(Window):
 
     def __init__(self, command: str = "", cwd: Path | None = None, *, shell: str | None = None,
                  title: str | None = None, on_close: Callable[[], Any] | None = None,
-                 **kwargs: Any) -> None:
+                 closes: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: What the title calls the command: *command* itself unless given.
         self.command = title or command
@@ -45,6 +45,9 @@ class TerminalWindow(Window):
         #: Called once the window has gone -- the command line puts back the
         #: files it fetched from another drive for the command (``UseFile``).
         self.on_close = on_close
+        #: Gone as soon as the command ends with status 0, rather than kept
+        #: with its output: Alt+F4's console editors, whose screen is done with.
+        self.closes = closes
         self.title = bind(lambda w: w.caption())
 
     def caption(self) -> str:
@@ -53,6 +56,13 @@ class TerminalWindow(Window):
         if not ended:
             return self.command
         return tr("{command} - {ended}").format(command=self.command, ended=ended)
+
+    def command_ended(self, status: int) -> None:
+        """The command has ended (``TerminalView``): the window closed if it
+        :attr:`closes` and the command ended well; one that failed stays, to
+        say how."""
+        if self.closes and status == 0:
+            self.close()
 
     def take_keyboard(self) -> None:
         self.view.focus()
@@ -93,14 +103,15 @@ class TerminalWindow(Window):
 
 def open_terminal(desktop: Any, command: str, cwd: Path | None = None, *, zoomed: bool = True,
                   modal: bool = False, shell: str | None = None, title: str | None = None,
-                  on_close: Callable[[], Any] | None = None) -> TerminalWindow:
+                  closes: bool = False, on_close: Callable[[], Any] | None = None) -> TerminalWindow:
     """Run *command* in a new window on *desktop*: zoomed or :data:`COLUMNS` x
     :data:`LINES` (cut to the desktop) in the middle, one among the windows or
-    *modal*, holding every key until it is closed.
+    *modal*, holding every key until it is closed.  *closes* takes it off as
+    soon as the command ends with status 0.
 
     A window opened zoomed still has that rectangle to go back to.
     """
-    window = TerminalWindow(command, cwd, shell=shell, title=title, on_close=on_close)
+    window = TerminalWindow(command, cwd, shell=shell, title=title, on_close=on_close, closes=closes)
     width, height = min(COLUMNS + 2, desktop.width), min(LINES + 2, desktop.height)
     others = sum(1 for other in desktop.windows() if isinstance(other, TerminalWindow))
     shift = _STAGGER * (others % _STAGGERS)

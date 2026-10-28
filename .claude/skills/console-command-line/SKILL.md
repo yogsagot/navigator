@@ -159,7 +159,7 @@ there are windows.
   `Window`) is titled with the command, then `"cmd - exit status N"` / `"killed by signal N"`.
   `open_terminal()` opens it zoomed or 80×24 inside the frame (centred, staggered), and a zoomed one keeps
   that rectangle to unzoom to.
-- **How one is started.** `Shell.run_in_window(command, cwd=, zoomed=, modal=, uses=, cleanup=, title=)`, from:
+- **How one is started.** `Shell.run_in_window(command, cwd=, zoomed=, modal=, closes=, uses=, cleanup=, title=)`, from:
   - a typed line starting `&` (`run_command`, after the `|` check; a leading `&` is a shell syntax error too);
   - **Shift+Enter** (`ExecuteCommandLineInWindow` on `Navigator.keys`, gated as Enter is). Only kitty-protocol
     terminals tell it from Enter. With the line empty it falls through to the panel's Shift+Enter
@@ -176,6 +176,11 @@ there are windows.
   Alt+Shift+F1..F9, Super+digit, Alt+0), which the view declines. A modal window (`modal` set on the instance
   before `Desktop.open`, `view.holds_all_keys`) keeps those too. The mouse on the frame always moves, zooms
   and closes. Once the command has ended, Esc/Enter close the window and *Esc Close* is on the key bar.
+- **Closing by itself.** `run_in_window(closes=True)` (`WindowMode.closes`, a `<& close` line) closes the window
+  as soon as the command ends with status 0. `TerminalView._on_exit` calls the window's `command_ended(status)`,
+  on the loop. A command that fails leaves its window open, so its error can be read. Alt+F4's console editors
+  use it (`navigator/lib/editor/console_editors.py`), as can any user menu or `.ini` item; every other command
+  window stays open with its output.
 - **Stopping.** Closing the window (any route: `[■]`, Ctrl+F4, Close all) unmounts the view, and
   `TerminalView.unmounting` calls `PtyProcess.hang_up()`. That is SIGHUP to the process group and the pty
   let go; a child still alive after `HANG_UP_GRACE` (2 s) gets SIGKILL. It is reaped with `WNOHANG` from

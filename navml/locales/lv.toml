@@ -135,7 +135,7 @@ flag = "LV"
 "C~l~ear" = "~T~īrīt"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Atlasīt ~v~isu"
-# navml/widgets/dialog/tab_view/tab_view.py:136
+# navml/widgets/dialog/tab_view/tab_view.py:141
 "Tabs" = "Cilnes"
 # navml/widgets/dialog/tree_view/tree_view.py:522
 "Next" = "Nākamais"

@@ -123,6 +123,9 @@ class TerminalView(ScreenView):
         self.screen.respond = None
         self.status = status
         self._changed()
+        window = self.parent
+        if window is not None and hasattr(window, "command_ended"):
+            window.command_ended(status)
 
     # -- keys ------------------------------------------------------------------
 

@@ -63,6 +63,9 @@ Manager(Window):
         f3: View
         f4: Edit
         alt+f3: AlternateView
+        #: Not DN's: Alt+F4 closes the terminal's own window under many window
+        #: managers, so Alternate edit has Ctrl+K too -- first, so the menu shows it.
+        ctrl+k: AlternateEdit
         alt+f4: AlternateEdit
         f5: Copy
         f6: RenameMove

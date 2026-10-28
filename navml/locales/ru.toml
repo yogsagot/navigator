@@ -135,7 +135,7 @@ flag = "RU"
 "C~l~ear" = "О~ч~истить"
 # navml/widgets/dialog/input_line/input_line.py:382
 "Select ~a~ll" = "Вы~д~елить всё"
-# navml/widgets/dialog/tab_view/tab_view.py:136
+# navml/widgets/dialog/tab_view/tab_view.py:141
 "Tabs" = "Вкладки"
 # navml/widgets/dialog/tree_view/tree_view.py:522
 "Next" = "Далее"

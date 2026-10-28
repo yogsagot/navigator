@@ -239,3 +239,22 @@ def test_the_settings_say_how_a_window_opens(app):
     finally:
         SETTINGS.system.command_window_zoomed = True
         SETTINGS.system.command_window_modal = False
+
+
+def test_a_window_opened_to_close_goes_when_its_command_ends_well_and_stays_when_it_fails(app, tmp_path):
+    seen = {}
+    script = tmp_path / "private" / "editor.sh"
+    script.write_text("")
+
+    def open_one(command, cleanup=()):
+        return lambda a: seen.update(window=a.shell.run_in_window(command, closes=True, cleanup=list(cleanup)))
+
+    def gone(a):
+        return seen["window"] not in a.shell.desktop.windows()
+
+    run_app(app, [open_one("true", [script]), Until(gone),
+                  lambda a: seen.update(left=script.exists()),
+                  open_one("exit 3"), Until(ended),
+                  lambda a: seen.update(stayed=terminal(a) is seen["window"], title=seen["window"].title)])
+    assert not seen["left"]
+    assert seen["stayed"] and seen["title"] == "exit 3 - exit status 3"

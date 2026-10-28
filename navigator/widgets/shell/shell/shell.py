@@ -1639,7 +1639,7 @@ class Shell(DockLayout):
             return
         if window is not None:
             self.run_in_window(f". {shlex.quote(str(script))}", cwd=cwd, zoomed=window.zoomed,
-                               modal=window.modal, uses=fetched, cleanup=written,
+                               modal=window.modal, closes=window.closes, uses=fetched, cleanup=written,
                                title=shown[0] if shown else None)
             return
         elsewhere = {"cwd": cwd, "uses": fetched} if cwd is not None or fetched else {}
@@ -1853,15 +1853,17 @@ class Shell(DockLayout):
             return False
         action = group.actions[0]
         if len(group.actions) > 1:
-            action = await self._choose_action(group.actions)
+            action = await self.choose_action(group.actions)
             if action is None:
                 return True
         elsewhere = {"cwd": cwd, "uses": uses} if cwd is not None or uses else {}
         await self.run_commands(action.commands, **elsewhere)
         return True
 
-    async def _choose_action(self, actions: Any) -> Any:
-        """A ``PopupMenu`` of *actions*' captions, as F2's box is shown: the one chosen, or None."""
+    async def choose_action(self, actions: Any, title: str | None = None) -> Any:
+        """A ``PopupMenu`` of *actions*' captions, as F2's box is shown: the one chosen, or None.
+
+        *title* is the box's, "Choose action" unless given."""
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
@@ -1872,7 +1874,7 @@ class Shell(DockLayout):
         box_menu = SubMenu()
         chosen_of = {id(box_menu.add_item(expand(action.caption, active, passive, quote=False))): action
                      for action in actions}
-        title = tr("Choose action")
+        title = title or tr("Choose action")
         box = PopupMenu(box_menu, behind=self, title=title)
         width, height = PopupMenu.measure(box_menu, app, self, title)
         box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
@@ -2023,13 +2025,14 @@ class Shell(DockLayout):
         self.console.run(command, cwd)
 
     def run_in_window(self, command: str, *, cwd: Path | None = None, zoomed: bool | None = None,
-                      modal: bool | None = None, uses: list[Any] = (),
+                      modal: bool | None = None, closes: bool = False, uses: list[Any] = (),
                       cleanup: list[Path] = (), title: str | None = None) -> Any:
         """Run *command* in a window of its own (``TerminalWindow``), not on the console.
 
         *cwd* is where, the active panel's directory unless given; *zoomed*
         and *modal* how the window opens, System Setup's *Command windows*
-        unless given.  *uses* are files fetched from another drive for it,
+        unless given; *closes*, that the window goes as soon as the command
+        ends with status 0 rather than staying with its output.  *uses* are files fetched from another drive for it,
         offered back up once the window is closed; *cleanup* are files written
         for it alone (a user menu item's script), removed then.  *title* is
         what the window calls it, the command unless given.  Returns the
@@ -2049,7 +2052,7 @@ class Shell(DockLayout):
             self.desktop, command, cwd,
             zoomed=SETTINGS.system.command_window_zoomed if zoomed is None else zoomed,
             modal=SETTINGS.system.command_window_modal if modal is None else modal,
-            shell=self.console.subshell.shell, title=title,
+            shell=self.console.subshell.shell, title=title, closes=closes,
             on_close=lambda: self._closed_terminal(uses, cleanup),
         )
 

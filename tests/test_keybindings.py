@@ -97,12 +97,12 @@ def test_a_line_rebinds_and_an_empty_one_unbinds(tmp_path):
     file = tmp_path / "keybindings.ini"
     keybindings.seed(Navigator, file)
     text = file.read_text()
-    text = text.replace("\nmake_directory = f7\n", "\nmake_directory = F12, Ctrl+K M\n")
+    text = text.replace("\nmake_directory = f7\n", "\nmake_directory = F12, Ctrl+W M\n")
     text = text.replace("\ncopy = f5\n", "\ncopy =\n")
     file.write_text(text)
     assert keybindings.load(Navigator, file) == []
     table = key_table(Manager)
-    assert table["f12"] is MakeDirectory and table["ctrl+k m"] is MakeDirectory
+    assert table["f12"] is MakeDirectory and table["ctrl+w m"] is MakeDirectory
     assert "f7" not in table and "f5" not in table
     assert section("manager").current()["copy"] == ()
 
@@ -309,15 +309,15 @@ def test_rebind_and_ok_binds_and_writes(app):
     run_app(app, [
         lambda a: a.spawn(a.run_command(KeyBindingsSetup)), Until(titled("Key Bindings")),
         *at("manager", "make_directory"),
-        *rebind(KeyEvent("k", ctrl=True), KeyEvent("m")),
+        *rebind(KeyEvent("w", ctrl=True), KeyEvent("m")),
         lambda a: None, lambda a: seen.update(screen=screen(a)),
         KeyEvent("k", alt=True), lambda a: None, lambda a: None,
     ])
     table = key_table(Manager)
-    assert table["ctrl+k m"] is MakeDirectory and "f7" not in table
+    assert table["ctrl+w m"] is MakeDirectory and "f7" not in table
     text = keybindings.path().read_text()
-    assert "\nmake_directory = ctrl+k m" in text
-    assert "*Make directory" in seen["screen"] and "Ctrl-K M" in seen["screen"]
+    assert "\nmake_directory = ctrl+w m" in text
+    assert "*Make directory" in seen["screen"] and "Ctrl-W M" in seen["screen"]
 
 
 def test_a_key_another_command_has_is_asked_about_and_taken(app):
