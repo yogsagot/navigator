@@ -20,6 +20,14 @@ dependency and it is load-bearing.
 - `navkit/process.py`'s `PtyProcess` runs a child on a pty via `loop.add_reader`, sized with `TIOCSWINSZ` on the master
   (the kernel signals the child). A program that needs the real terminal goes through the relay (below), never a
   blocking call with the terminal stopped.
+- **A child is never given `LINES`/`COLUMNS`** (`PtyProcess.environment()` drops them, even if Navigator inherited
+  them). ncurses lets them override the pty's size for good, so `htop` kept drawing for its starting size after
+  every `SIGWINCH`. mc (S-Lang), top and btop ignore them, which is why only htop showed it. The size is the pty's
+  (`TIOCSWINSZ`) and nothing else.
+- **What `_Screen` adds to pyte for `xterm-256color`'s terminfo**: `REP` (`CSI n b`, ncurses' run of one
+  character), `SU`/`SD` (`CSI n S`/`CSI n T`; the private and many-parameter forms are other things and are
+  dropped), dispatched by `_Stream`'s extended `csi` table. Also tab stops for the columns a wider screen gains
+  (`_Screen.resize`): pyte set them once, and ncurses moves the cursor with tabs.
 - **A console screen is not reactive**: `Console.revision` stands in; anything mutating it behind the widget must bump it.
 
 ## The Console widget and Ctrl+O
@@ -134,6 +142,49 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   caret follows a word, `..` giving the directory); Ctrl+Shift+Enter the whole path, Ctrl+double-click the same (DN's `_CtrlEnter`); Alt+Enter
   bound beside it (mc's key) for terminals that send Ctrl+Enter as Enter.
 - **Space tags while the line is empty** (`ToggleMarkBySpace`, bound in `manager.nml`, handled and gated by `Shell`).
+
+## Commands in a window (a departure)
+
+DN ran one program and was not running itself while it did; the console still works that way. A command can
+also run **in a window of its own** on the desktop, beside the panels and other windows, as many at once as
+there are windows.
+
+- **The widgets.** `ScreenView` (`shell/console/screen_view.py`) is what `Console` and the window share:
+  painting a `ConsoleScreen`, scrollback, selection, copy/paste, and key/mouse forwarding. Its subclass says
+  `busy`, `alive` and `write_child`. `TerminalView` (`shell/terminal_view/`) is one command on its own
+  `PtyProcess`, `<command_shell()> -c command`. `command_shell()` in `subshell.py` is the shell the command line
+  runs (bash/zsh/sh/dash, else bash, else `/bin/sh`). It is non-interactive: no rc files, so no aliases, and
+  the environment is Navigator's own. It starts in `mounted()`, its pty follows its size through an effect,
+  and its `status` is set from the reader as `revision` is. `TerminalWindow` (`shell/terminal_window/`, a framed
+  `Window`) is titled with the command, then `"cmd - exit status N"` / `"killed by signal N"`.
+  `open_terminal()` opens it zoomed or 80×24 inside the frame (centred, staggered), and a zoomed one keeps
+  that rectangle to unzoom to.
+- **How one is started.** `Shell.run_in_window(command, cwd=, zoomed=, modal=, uses=, cleanup=, title=)`, from:
+  - a typed line starting `&` (`run_command`, after the `|` check; a leading `&` is a shell syntax error too);
+  - **Shift+Enter** (`ExecuteCommandLineInWindow` on `Navigator.keys`, gated as Enter is). Only kitty-protocol
+    terminals tell it from Enter. With the line empty it falls through to the panel's Shift+Enter
+    (`ChangeInactive`);
+  - File > Execute OS command's *In a window* / *Zoomed* / *Modal* (`ExecuteCommandDialog`, which replaced
+    `EditLineDialog` there);
+  - a user menu or `.ini` item with a `<&` line (`navigator-user-menu`).
+
+  `None` for zoomed/modal is System Setup's *Command windows zoomed* / *modal*
+  (`[system] command_window_zoomed`, default on, and `command_window_modal`, default off).
+- **Keys.** While it runs the program gets every key, F10, Ctrl+O and Alt+X included:
+  `Shell.program_has_keys` is also true for a focused, busy `TerminalView`. The exceptions are the ones that
+  bring another window forward: `window_keys()`, read from `Desktop.keys` (`SelectWindow`/`WindowManager`:
+  Alt+Shift+F1..F9, Super+digit, Alt+0), which the view declines. A modal window (`modal` set on the instance
+  before `Desktop.open`, `view.holds_all_keys`) keeps those too. The mouse on the frame always moves, zooms
+  and closes. Once the command has ended, Esc/Enter close the window and *Esc Close* is on the key bar.
+- **Stopping.** Closing the window (any route: `[■]`, Ctrl+F4, Close all) unmounts the view, and
+  `TerminalView.unmounting` calls `PtyProcess.hang_up()`. That is SIGHUP to the process group and the pty
+  let go; a child still alive after `HANG_UP_GRACE` (2 s) gets SIGKILL. It is reaped with `WNOHANG` from
+  `loop.call_later`, never by a blocking `waitpid` on the loop. **While the command runs, closing asks first**
+  (*Close command window*, Yes/No): `TerminalWindow.must_ask` is `view.busy` and Confirmations'
+  `close_command_window` (default on), so the icon, Ctrl+F4, Close all and Alt+X all ask; Esc or No keeps both.
+  Once it has ended, nothing asks. `Navigator.on_stop` hangs
+  up whatever is still open. `TerminalWindow.on_close` puts back `UseFile` copies and removes a menu item's own
+  script.
 
 ## The character table (Ctrl+B)
 

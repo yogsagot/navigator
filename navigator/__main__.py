@@ -65,6 +65,7 @@ from navigator.widgets.shell.commands import (
     CompleteCommandLine,
     EditHistory,
     ExecuteCommandLine,
+    ExecuteCommandLineInWindow,
     QuickRun,
     Game,
     HistoryList,
@@ -310,8 +311,15 @@ class Navigator(Application):
         # Every viewer and editor still open is recorded, as ``cmQuit`` went
         # through each window's ``Valid`` -- whatever way Navigator is left.
         remember_windows(self.shell.desktop)
-        # The shell would otherwise outlive the terminal it was talking to.
+        # The shell would otherwise outlive the terminal it was talking to,
+        # and so would a command in a window of its own.
         self.shell.console.stop()
+        from navigator.widgets.shell.terminal_view import TerminalView
+
+        for window in self.shell.desktop.windows():
+            view = getattr(window, "view", None)
+            if isinstance(view, TerminalView):
+                view.stop()
         # Auto refresh's observer: nothing is left to tell of a change.
         dirwatch.shutdown()
         # Every connection to another drive, closed -- on a thread, as a
@@ -405,6 +413,8 @@ class Navigator(Application):
         "ctrl+f12": OpenCalendar,
         "alt+x": Quit(desktop=True),
         "enter": ExecuteCommandLine,
+        #: Not DN's: the line in a window of its own, as ``&`` before it.
+        "shift+enter": ExecuteCommandLineInWindow,
         "home": CommandLineHome,
         "end": CommandLineEnd,
         "tab": CompleteCommandLine,

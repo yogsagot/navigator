@@ -30,6 +30,15 @@ class ExecuteCommandLine(Command):
     """
 
 
+class ExecuteCommandLineInWindow(Command):
+    """Shift+Enter with something on the command line: run it in a window of
+    its own, as ``&`` before it does (``TerminalWindow``).
+
+    Not DOS Navigator's.  Only a terminal speaking the kitty keyboard protocol
+    tells Shift+Enter from Enter; elsewhere ``&command`` is the way.
+    """
+
+
 class CompleteCommandLine(Command):
     """Tab with something on the command line: complete the word at the caret.
 
@@ -310,6 +319,7 @@ __all__ = [
     "LoadDesktop",
     "LocalMenuFileEdit",
     "ExecuteCommandLine",
+    "ExecuteCommandLineInWindow",
     "CompleteCommandLine",
     "InsertName",
     "InsertPath",

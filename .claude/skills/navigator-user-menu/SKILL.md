@@ -28,6 +28,18 @@ description: F2's user menu -- menu.ini / .navigator-menu.ini, what was DOS Navi
   is never re-read. A line of only `<|` (`Commands.panelize`) has `Shell.run_commands` hand the sourced script to
   `Shell._panelize` -> `Manager.panelize` instead of the console: what it prints is the active panel's listing (a
   departure; `navigator-panels`, *Panelize command*). It works in the `.ini` associations too.
+- **A `<&` line runs the item in a window of its own** (`Commands.window`, a `WindowMode`; a departure,
+  `console-command-line`, *Commands in a window*). The words `zoomed`/`normal` and `modal`/`floating` after it
+  override System Setup's *Command windows* (`<& normal modal`). `usermenu.window_mode` parses it before the
+  `<Title` case, and **only when every word is one of those four**, so `<& Archive name` stays a title. `<|` wins
+  over it. Such an item's script and lists are its own, `usermenu-N.sh`/`active-N.lst`/`passive-N.lst` (lowest free
+  N), since the window may still be reading them when the next item writes the console's; they are removed when
+  the window closes. The window is titled with the expanded lines joined by `; `, not the `. script` it runs. The
+  shipped menu's *System > Top in a window* is the example; the `.ini` associations get `<&` for nothing.
+  **A command line starting `&` does what a bare `<&` does** (the `&` taken off in `commands_of`, so it never
+  reaches the shell, which would refuse it), as `&` does on the command line: `Run = &./!.!`. A `<&` line's words
+  still say how the window opens. `!.!` is a bare name, which the shell looks up on `$PATH`; running the file at
+  the cursor wants `./!.!`.
 - **Departures**: in what runs, every value is `shlex.quote`d where it needs it (so a macro wants no quotes round it);
   names keep their case; the lines are written to `usermenu.sh` and **sourced** (`. script`) in the console's shell
   through `Shell.run_command(..., typed=False)` (no history, the line kept), so they are that shell's language and a

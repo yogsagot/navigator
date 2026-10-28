@@ -23,6 +23,9 @@ from navml.widgets.dialog.static_text import StaticText
 #: and *Keep root open while idle* are a fourth: what *As root* asks for root
 #: with, after a step was refused permission, and for how long it stays open
 #: (``SystemData.elevate``, ``root_timeout``; ``navigator.lib.system.elevate``).
+#: *Command windows zoomed* and *modal* are a fifth: how a command run in a
+#: window of its own opens (``TerminalWindow``), filling the row that was
+#: spare under *Options*.
 SystemSetupPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -41,8 +44,8 @@ SystemSetupPage:
         x: 3
         y: 2
         width: max(0, parent.width - 6)
-        height: 3
-        items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", "S~y~nc after copying", "Use internal te~r~minal"]
+        height: 4
+        items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", "S~y~nc after copying", "Use internal te~r~minal", "Command windows ~z~oomed", "Command windows moda~l~"]
 
     Label:
         id: temp_caption

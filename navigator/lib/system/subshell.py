@@ -386,6 +386,17 @@ def _sh_rc(nonce: str) -> str:
     )
 
 
+def command_shell(shell: str | None = None) -> str:
+    """The shell a command runs in: *shell* (else ``$SHELL``) if it is one
+    the hook knows -- bash, zsh, sh, dash -- else bash if it is installed,
+    else ``/bin/sh``.  So a command means the same wherever it is run: on the
+    command line's shell, or in a window of its own (``sh -c``)."""
+    shell = shell or os.environ.get("SHELL") or "/bin/sh"
+    if Path(shell).name not in ("bash", "zsh", "sh", "dash"):
+        shell = shutil.which("bash") or "/bin/sh"
+    return shell
+
+
 def shell_argv(shell: str, directory: Path, nonce: str) -> tuple[list[str], dict[str, str]]:
     """The command line and extra environment that start *shell* with the hook.
 
@@ -393,10 +404,8 @@ def shell_argv(shell: str, directory: Path, nonce: str) -> tuple[list[str], dict
     their own terms; anything else -- fish, tcsh -- has no hook written for
     it, so bash stands in if it is installed and a POSIX ``sh`` otherwise.
     """
+    shell = command_shell(shell)
     name = Path(shell).name
-    if name not in ("bash", "zsh", "sh", "dash"):
-        shell = shutil.which("bash") or "/bin/sh"
-        name = Path(shell).name
     if name == "bash":
         rc = directory / "bashrc"
         rc.write_text(_bash_rc(nonce))

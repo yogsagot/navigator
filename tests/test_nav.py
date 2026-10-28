@@ -1675,6 +1675,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.shell.commands",
         "navigator.widgets.shell.console",
         "navigator.widgets.shell.console.console",
+        "navigator.widgets.shell.console.screen_view",
         "navigator.widgets.shell.keybar",
         "navigator.widgets.shell.keybar.keybar",
         "navigator.widgets.shell.main_menu",
@@ -2875,6 +2876,8 @@ def test_the_application_keeps_only_what_is_global():
         "alt+f8",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
+        # The same line, run in a window of its own.
+        "shift+enter",
         # Quick run: DN ran DN.XRN from anywhere on the desktop.
         *(f"ctrl+shift+f{number}" for number in range(1, 11)),
         # The context menu of whatever holds the keyboard.

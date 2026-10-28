@@ -75,6 +75,15 @@ def test_a_child_that_cannot_be_executed_exits_rather_than_hanging():
     assert os.waitstatus_to_exitcode(process.status) == 127
 
 
+def test_the_child_is_not_told_a_size_that_would_outlive_a_resize(monkeypatch):
+    """ncurses lets ``LINES``/``COLUMNS`` override the pty's size for good:
+    ``htop`` went on drawing for the size it started at after every ``SIGWINCH``."""
+    monkeypatch.setenv("LINES", "99")
+    monkeypatch.setenv("COLUMNS", "99")
+    console, _ = run(collect(["/bin/sh", "-c", "printf '%s:%s\\r\\n' \"${LINES-none}\" \"${COLUMNS-none}\""]))
+    assert text_of(console, 0) == "none:none"
+
+
 def test_the_child_is_told_it_is_running_inside_navigator():
     console, _ = run(collect(["/bin/sh", "-c", f"printf '%s\\r\\n' \"${MARKER}\""]))
     assert text_of(console, 0) == "1"

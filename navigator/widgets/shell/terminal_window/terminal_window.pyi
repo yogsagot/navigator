@@ -1,0 +1,29 @@
+# navml: generated
+"""The merged surface of ``navigator.widgets.shell.terminal_window.terminal_window``."""
+
+from typing import Any as _Any
+
+from navml.component import Component as _Component
+from navigator.widgets.shell.terminal_view import TerminalView
+from navml.widgets.window import Window
+
+import os
+from pathlib import Path
+from typing import Any, Callable
+from navkit.i18n import tr
+from navkit.reactive import bind
+from navml.widgets.dialog.dialog import Dialog
+from navigator.settings import SETTINGS
+
+
+class TerminalWindow(Window, _Component):
+    view: TerminalView
+    def __init__(self, command: str = ..., cwd: Path | None = ..., *, shell: str | None = ..., title: str | None = ..., on_close: Callable[[], Any] | None = ..., **kwargs: Any) -> None: ...
+    def caption(self) -> str: ...
+    def take_keyboard(self) -> None: ...
+    def list_name(self) -> str: ...
+    def short_name(self) -> str: ...
+    def key_hints(self) -> list[tuple[str, str]]: ...
+    def must_ask(self) -> bool: ...
+    async def ask_to_close(self) -> bool: ...
+    def close(self) -> None: ...

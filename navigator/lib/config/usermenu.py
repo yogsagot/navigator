@@ -22,6 +22,13 @@ item's commands, ``<Title`` titles the box asking for parameters and
 A line of only ``<|`` panelizes the item: what it prints becomes the active
 panel's listing, a name a line, rather than being shown in the console (a
 departure, :mod:`navigator.lib.file_ops.panelize`).
+A ``<&`` line runs it in a window of its own rather than on the console (a
+departure, ``TerminalWindow``), opened as System Setup's *Command windows*
+say unless the words after it do: ``zoomed`` or ``normal``, ``modal`` or
+``floating`` (``<& normal modal``).  With a word it does not know it is a
+``<Title`` as before; ``<|`` wins over it.  A command line starting ``&``
+does the same as a bare ``<&``, as ``&`` does on the command line
+(``Run = &./!.!``), the ``&`` taken off.
 
 **Where it is** (``ExecUserMenu``): F2 looks for ``.navigator-menu.ini`` in
 the active panel's directory and then in each one above it -- the *local*
@@ -103,6 +110,31 @@ def _split(name: str) -> tuple[str, str]:
     return name[:dot], name[dot:]
 
 
+#: The words a ``<&`` line takes, and what each says of the window.
+_WINDOW_WORDS = {
+    "zoomed": ("zoomed", True), "normal": ("zoomed", False),
+    "modal": ("modal", True), "floating": ("modal", False),
+}
+
+
+@dataclass(frozen=True)
+class WindowMode:
+    """How a ``<&`` item's window opens; None is System Setup's say."""
+
+    zoomed: bool | None = None
+    modal: bool | None = None
+
+
+def window_mode(text: str) -> WindowMode | None:
+    """``<&`` and its words as a :class:`WindowMode`; None if *text* is not one."""
+    if not text.startswith("<&"):
+        return None
+    words = text[2:].lower().split()
+    if any(word not in _WINDOW_WORDS for word in words):
+        return None
+    return WindowMode(**dict(_WINDOW_WORDS[word] for word in words))
+
+
 @dataclass(frozen=True)
 class Commands:
     """An item's lines, and whether and how to ask for parameters first."""
@@ -113,6 +145,8 @@ class Commands:
     default: str = ""
     #: A ``<|`` line: the output is the active panel's listing.
     panelize: bool = False
+    #: A ``<&`` line: run in a window of its own, opened so.
+    window: WindowMode | None = None
 
 
 @dataclass
@@ -160,16 +194,21 @@ def commands_of(body: Iterable[str]) -> Commands:
     """An item's lines as what runs: ``<Title`` and ``<=text`` taken out for
     the parameters box, ``;`` lines and blank ones dropped, and whether a
     ``%3`` .. ``%9`` among them asks for parameters too; a ``<|`` line
-    panelizes it."""
+    panelizes it, a ``<&`` line -- or one starting ``&`` -- runs it in a window."""
     lines: list[str] = []
     title = default = ""
     asks = panelize = False
+    window: WindowMode | None = None
     for raw in body:
         text = raw.strip()
         if not text or text.startswith(";"):
             continue
         if text == "<|":
             panelize = True
+            continue
+        mode = window_mode(text)
+        if mode is not None:
+            window = mode
             continue
         if text.startswith("<"):
             asks = True
@@ -179,9 +218,16 @@ def commands_of(body: Iterable[str]) -> Commands:
             else:
                 title = rest.lstrip()
             continue
+        if text.startswith("&"):
+            # ``&command``, as on the command line: the item runs in a window,
+            # opened as a bare ``<&`` would.  No shell line starts with ``&``.
+            text = text[1:].lstrip()
+            window = window or WindowMode()
+            if not text:
+                continue
         lines.append(text)
         asks = asks or bool(re.search(r"(?<!%)%[3-9]", text))
-    return Commands(lines, asks, title, default, panelize)
+    return Commands(lines, asks, title, default, panelize, window)
 
 
 def parse(text: str, path: Path = Path(GLOBAL_NAME), is_global: bool = False) -> Menu:

@@ -28,9 +28,9 @@ class ConfirmationsPage(_Component):
     """Options > Configuration > Confirmations: DOS Navigator's ``dlgConfirmations``.
 
     The resource's one column of boxes, less *Close CD player*, which has no
-    drive to close here, and with *Editor file save* and *Delete bookmark*
-    added (departures, asked for: DN's F2 never asked, and its drive box had
-    no Del).  Four columns wider than DN's 36, for this library's
+    drive to close here, and with *Editor file save*, *Delete bookmark* and
+    *Close command window* added (departures, asked for: DN's F2 never asked,
+    its drive box had no Del, and it had no command windows).  Four columns wider than DN's 36, for this library's
     eleven-column buttons; Help is left out, having nothing to show yet.
     """
 
@@ -50,8 +50,8 @@ class ConfirmationsPage(_Component):
         self.options.x = 3    # confirmations_page.nml:16
         self.options.y = 1    # confirmations_page.nml:17
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:18
-        self.options.height = 9    # confirmations_page.nml:19
+        self.options.height = 10    # confirmations_page.nml:19
         self.options.items = _bind(    # confirmations_page.nml:20
-            lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark')],
+            lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark'), _tr('Close command ~w~indow')],
             yielding=True,
         )

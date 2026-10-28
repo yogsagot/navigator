@@ -279,7 +279,7 @@ class SystemData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "internal_editor", "internal_viewer", "system_clipboard", "show_hidden",
-        "flush_buffers", "internal_terminal",
+        "flush_buffers", "internal_terminal", "command_window_zoomed", "command_window_modal",
     )
 
     internal_editor: bool = Setting(True, doc="F4 opens the internal editor; off runs $EDITOR")
@@ -296,6 +296,12 @@ class SystemData(Section):
     #: Not DN's: Midnight Commander's Ctrl+O, for whoever prefers it.
     internal_terminal: bool = Setting(
         True, doc="Ctrl+O shows the console inside Navigator; off hands the real terminal to the shell, as mc does",
+    )
+    #: Not DN's: how a command run in a window of its own opens (``&command``,
+    #: Shift+Enter, a user menu item's ``<&``), unless it says otherwise.
+    command_window_zoomed: bool = Setting(True, doc="A command run in a window opens it zoomed")
+    command_window_modal: bool = Setting(
+        False, doc="A command run in a window holds every key until the window is closed",
     )
     #: DN's ``SwpDir``: where the shell's rc files and the user menu's script go.
     temp_dir: str = Setting("", doc="Temporary directory; empty means $TMPDIR")
@@ -432,7 +438,7 @@ class ConfirmsData(Section):
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
         "erase_single", "erase_multiple", "erase_non_empty_dir", "erase_read_only",
-        "create_dir", "drag_and_drop", "exit", "save", "delete_bookmark",
+        "create_dir", "drag_and_drop", "exit", "save", "delete_bookmark", "close_command_window",
     )
 
     erase_single: bool = Setting(True, doc="Ask before erasing a single file")
@@ -446,6 +452,10 @@ class ConfirmsData(Section):
     save: bool = Setting(True, doc="Ask before the editor's F2 (Ctrl+S) saves a file")
     #: A departure, asked for: SelectDrive's box had no Del to ask about.
     delete_bookmark: bool = Setting(True, doc="Ask before Del in the bookmarks box deletes a bookmark")
+    #: A departure, asked for: DN had no command windows (``TerminalWindow``).
+    close_command_window: bool = Setting(
+        True, doc="Ask before closing a window whose command is still running",
+    )
 
 
 class EditorDefaultsData(Section):

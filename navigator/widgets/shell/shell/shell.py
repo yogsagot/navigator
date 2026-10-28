@@ -68,6 +68,7 @@ from navigator.widgets.shell.commands import (
     EditHistory,
     EditorDefaults,
     ExecuteCommandLine,
+    ExecuteCommandLineInWindow,
     FileManagerDefaults,
     EnvEdit,
     ExecuteOsCommand,
@@ -446,8 +447,10 @@ class Shell(DockLayout):
         """File > Execute OS command: ``ExecDOSCmd`` -- DN's ``InputBox``, opened
         on the file at the active panel's cursor if it is one to run (followed
         by a blank, for its arguments), in the command line's history; OK runs
-        it as though it had been typed there.  *OS* where DN's title said *DOS*."""
-        from navigator.widgets.shell.edit_line_dialog import EditLineDialog
+        it as though it had been typed there.  *OS* where DN's title said *DOS*.
+        *In a window* (not DN's) runs it in a window of its own instead, opened
+        *Zoomed* and *Modal* as ticked."""
+        from navigator.widgets.shell.execute_command_dialog import ExecuteCommandDialog
 
         text = ""
         manager = self.active_manager
@@ -455,13 +458,16 @@ class Shell(DockLayout):
         if entry is not None and entry.is_executable:
             name = str(entry.path_in(manager.active_panel.path)) if entry.directory is not None else entry.name
             text = _escape(name) + " "
-        box = EditLineDialog(text, history=HISTORY_ID, caption=tr("~C~ommand"))
-        box.title = tr("Execute OS Command")
-        box.line.entry.anchor = None
-        box.line.entry.cursor = len(text)
-        command = await box.execute(self.application)
-        if command and command.strip():
-            self.run_command(command)
+        box = ExecuteCommandDialog(text, zoomed=SETTINGS.system.command_window_zoomed,
+                                   modal=SETTINGS.system.command_window_modal)
+        choice = await box.execute(self.application)
+        if choice is None or not choice.command.strip():
+            return
+        if choice.in_window:
+            HISTORY.add(HISTORY_ID, choice.command)
+            self.run_in_window(choice.command, zoomed=choice.zoomed, modal=choice.modal)
+        else:
+            self.run_command(choice.command)
 
     async def on_system_info(self, event: SystemInfo) -> bool:
         self.spawn(self.system_info())
@@ -1002,8 +1008,18 @@ class Shell(DockLayout):
         console, which sends it on.  The application asks the same question,
         so Ctrl+O -- ``mc``'s panel toggle, ``nano``'s Write Out -- goes to the
         program as well, and the way back to the panels is to leave it.
+
+        Or a command in a window of its own is running and has the keyboard
+        (``TerminalView``): it gets every key the same way, but for the ones
+        that bring another window forward, which it declines itself.
         """
-        return self.console.busy and self.console.focused
+        if self.console.busy and self.console.focused:
+            return True
+        from navigator.widgets.shell.terminal_view import TerminalView
+
+        app = self.application
+        focused = app.focused if app is not None else None
+        return isinstance(focused, TerminalView) and focused.busy
 
     def enables(self, command: Command) -> bool:
         """Enter, Home and End are the command line's only while it has text.
@@ -1019,8 +1035,8 @@ class Shell(DockLayout):
             return not SETTINGS.interface.hide_command_line
         if isinstance(
             command,
-            (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine,
-             InsertName, InsertPath),
+            (ExecuteCommandLine, ExecuteCommandLineInWindow, CommandLineHome, CommandLineEnd,
+             CompleteCommandLine, InsertName, InsertPath),
         ) and (self._editor_has_keys() or SETTINGS.interface.hide_command_line):
             # A hidden command line runs and takes nothing: DN's
             # ``cmExecCommandLine`` and ``cmInsertName`` did nothing under
@@ -1058,7 +1074,9 @@ class Shell(DockLayout):
                 and manager.enables(ToggleMark())
             )
         if isinstance(
-            command, (ExecuteCommandLine, CommandLineHome, CommandLineEnd, CompleteCommandLine)
+            command,
+            (ExecuteCommandLine, ExecuteCommandLineInWindow, CommandLineHome, CommandLineEnd,
+             CompleteCommandLine),
         ):
             if not self.command_line.value.strip():
                 return False
@@ -1573,22 +1591,37 @@ class Shell(DockLayout):
                     return
             uses.append(use)
 
+        # A window's script and lists are its own (``-N``), as it may still
+        # be reading them when the next item writes the console's.
+        window = commands.window if not commands.panelize else None
+        written: list[Path] = []
+        shown: list[str] = []
+
         def write() -> Path:
             directory = private_dir()
+            suffix = ""
+            if window is not None:
+                number = 1
+                while (directory / f"usermenu-{number}.sh").exists():
+                    number += 1
+                suffix = f"-{number}"
             files = []
-            for name, listed in zip(("active.lst", "passive.lst"), lists):
+            for name, listed in zip((f"active{suffix}.lst", f"passive{suffix}.lst"), lists):
                 if listed is None:
                     files.append("-")
                     continue
                 target = directory / name
+                written.append(target)
                 target.write_text("".join(f"{line}\n" for line in listed), encoding="utf-8",
                                   errors="surrogateescape")
                 files.append(str(target))
-            script = directory / "usermenu.sh"
+            script = directory / f"usermenu{suffix}.sh"
+            written.append(script)
             active = self._menu_side(active_panel, files[0], uses[0])
             passive = self._menu_side(passive_panel, files[1], uses[1])
-            script.write_text(script_text(commands, active, passive, str(script), params),
-                              encoding="utf-8", errors="surrogateescape")
+            text = script_text(commands, active, passive, str(script), params)
+            shown.append("; ".join(text.splitlines()))
+            script.write_text(text, encoding="utf-8", errors="surrogateescape")
             return script
 
         try:
@@ -1603,6 +1636,11 @@ class Shell(DockLayout):
         if commands.panelize:
             # ``<|``: the script's output is the active panel's listing.
             await self._panelize(f". {shlex.quote(str(script))}", fetched)
+            return
+        if window is not None:
+            self.run_in_window(f". {shlex.quote(str(script))}", cwd=cwd, zoomed=window.zoomed,
+                               modal=window.modal, uses=fetched, cleanup=written,
+                               title=shown[0] if shown else None)
             return
         elsewhere = {"cwd": cwd, "uses": fetched} if cwd is not None or fetched else {}
         self.run_command(f". {shlex.quote(str(script))}", typed=False, **elsewhere)
@@ -1931,6 +1969,12 @@ class Shell(DockLayout):
         self.run_command(self.command_line.value)
         return True
 
+    async def on_execute_command_line_in_window(self, event: ExecuteCommandLineInWindow) -> bool:
+        """Shift+Enter: the line run in a window of its own, as ``&`` before it would."""
+        line = self.command_line.value
+        self.run_command(line if line.lstrip().startswith("&") else "&" + line.lstrip())
+        return True
+
     def run_command(self, command: str, *, typed: bool = True, cwd: Path | None = None,
                     uses: list[Any] = ()) -> None:
         """Run *command* as though it had been typed on the command line.
@@ -1955,6 +1999,12 @@ class Shell(DockLayout):
                 # starting with a pipe is no shell command.
                 self.spawn(self._panelize(command.lstrip()[1:].strip(), uses))
                 return
+            if command.lstrip().startswith("&"):
+                # ``&cmd``: run in a window of its own (a departure,
+                # ``TerminalWindow``); a line starting with ``&`` is no shell
+                # command either.
+                self.run_in_window(command.lstrip()[1:].strip(), cwd=cwd, uses=uses)
+                return
         if cwd is None:
             cwd = self._command_directory()
         self._command_uses = [*self._command_uses, *uses]
@@ -1971,6 +2021,47 @@ class Shell(DockLayout):
             self.toggle_console()
         self.console.focus()
         self.console.run(command, cwd)
+
+    def run_in_window(self, command: str, *, cwd: Path | None = None, zoomed: bool | None = None,
+                      modal: bool | None = None, uses: list[Any] = (),
+                      cleanup: list[Path] = (), title: str | None = None) -> Any:
+        """Run *command* in a window of its own (``TerminalWindow``), not on the console.
+
+        *cwd* is where, the active panel's directory unless given; *zoomed*
+        and *modal* how the window opens, System Setup's *Command windows*
+        unless given.  *uses* are files fetched from another drive for it,
+        offered back up once the window is closed; *cleanup* are files written
+        for it alone (a user menu item's script), removed then.  *title* is
+        what the window calls it, the command unless given.  Returns the
+        window, or None for a blank command.
+        """
+        from navigator.widgets.shell.terminal_window import open_terminal
+
+        uses, cleanup = list(uses), list(cleanup)
+        if not command.strip():
+            self._closed_terminal(uses, cleanup)
+            return None
+        if cwd is None:
+            cwd = self._command_directory()
+        if self.console_visible:
+            self.toggle_console()
+        return open_terminal(
+            self.desktop, command, cwd,
+            zoomed=SETTINGS.system.command_window_zoomed if zoomed is None else zoomed,
+            modal=SETTINGS.system.command_window_modal if modal is None else modal,
+            shell=self.console.subshell.shell, title=title,
+            on_close=lambda: self._closed_terminal(uses, cleanup),
+        )
+
+    def _closed_terminal(self, uses: list[Any], cleanup: list[Path]) -> None:
+        """A command window has gone: what it fetched put back, what it wrote removed."""
+        for path in cleanup:
+            try:
+                path.unlink()
+            except OSError:
+                pass
+        if uses:
+            self.spawn(self._put_back(uses))
 
     async def _panelize(self, command: str, uses: list[Any] = ()) -> None:
         """*command*'s output as the active panel's listing

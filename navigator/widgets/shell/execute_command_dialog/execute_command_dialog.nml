@@ -1,0 +1,44 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > Execute OS command: DOS Navigator's ``InputBox`` as ``ExecDOSCmd``
+#: opened it -- a caption over one line, in the command line's history --
+#: with a row of check boxes that are not DN's: *In a window* runs the command
+#: in a window of its own (``TerminalWindow``) rather than on the console,
+#: *Zoomed* and *Modal* say how that window opens, seeded from System Setup.
+ExecuteCommandDialog(Dialog):
+    #: The caption over the line.
+    property caption: "~C~ommand"
+
+    modal_width: 60
+    modal_height: 10
+    title: "Execute OS Command"
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.caption
+        link: line.entry
+
+    Field:
+        id: line
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "command"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["In a ~w~indow", "~Z~oomed", "~M~odal"]

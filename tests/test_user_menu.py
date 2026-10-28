@@ -81,6 +81,25 @@ def test_an_items_lines_are_its_value_and_say_whether_to_ask():
     assert parse("x =\n").items[0].commands.lines == []
 
 
+def test_a_window_line_runs_the_item_in_a_window_opened_as_its_words_say():
+    from navigator.lib.config.usermenu import WindowMode, commands_of
+
+    assert commands_of(["<&", "top"]).window == WindowMode()
+    assert commands_of(["<& normal modal", "top"]).window == WindowMode(zoomed=False, modal=True)
+    assert commands_of(["<&  ZOOMED floating", "top"]).window == WindowMode(zoomed=True, modal=False)
+    assert commands_of(["<& normal modal", "top"]).lines == ["top"]
+    # A word it does not know leaves it the parameters box's title.
+    plain = commands_of(["<& Archive name", "tar czf %3 ."])
+    assert plain.window is None and plain.asks and plain.title == "& Archive name"
+    assert commands_of(["top"]).window is None
+    # ``&command``, as on the command line: the ``&`` taken off, the defaults
+    # unless a ``<&`` line says otherwise.
+    assert commands_of(["&./!.!"]) == commands_of(["<&", "./!.!"])
+    assert commands_of(["<& normal", "& top"]).window == WindowMode(zoomed=False)
+    assert commands_of(["<& normal", "& top"]).lines == ["top"]
+    assert parse("~R~un in window = &./!.!\n").items[0].commands.window == WindowMode()
+
+
 def test_the_shipped_menu_reads_with_submenus():
     from navigator.lib.config.associations import MENU, TEMPLATES
 

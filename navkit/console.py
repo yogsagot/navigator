@@ -181,7 +181,55 @@ class _Screen(pyte.HistoryScreen):
     def __init__(self, columns: int, lines: int, history: int) -> None:
         self._main: Any = None
         self.respond: Callable[[bytes], None] | None = None
+        #: The last character drawn, for ``REP`` to repeat.
+        self._last = ""
         super().__init__(columns, lines, history=history)
+
+    # Three sequences the ``xterm-256color`` terminfo a child is given offers
+    # and pyte does not implement, so they were dropped: ``rep`` (``CSI n b``),
+    # which ncurses sends for a run of one character -- a blank stretch, a
+    # meter's ``####`` -- and ``indn``/``rin`` (``CSI n S``/``CSI n T``),
+    # scrolling the region.  ``htop`` repainting a grown screen was left with
+    # its lines cut short and out of place.  :class:`_Stream` routes them here.
+
+    def draw(self, data: str) -> None:
+        super().draw(data)
+        if data:
+            self._last = data[-1]
+
+    def repeat_last(self, count: int = 1, *_: Any, private: bool = False, **__: Any) -> None:
+        """``REP``: the last character drawn, *count* more times."""
+        if private or not self._last:
+            return
+        self.draw(self._last * max(1, min(count, self.columns * self.lines)))
+
+    def scroll_up(self, count: int = 1, *rest: Any, private: bool = False, **_: Any) -> None:
+        """``SU``: the scrolling region up *count* rows, the cursor left where it is.
+
+        A private form (``CSI ? Pi ; Pa ; Pv S``, xterm's graphics query) is
+        no scroll and is dropped.
+        """
+        if private or rest:
+            return
+        self._scroll(count, up=True)
+
+    def scroll_down(self, count: int = 1, *rest: Any, private: bool = False, **_: Any) -> None:
+        """``SD``: the scrolling region down *count* rows.  With more than one
+        parameter it is xterm's mouse highlight tracking instead, dropped."""
+        if private or rest:
+            return
+        self._scroll(count, up=False)
+
+    def _scroll(self, count: int, *, up: bool) -> None:
+        top = self.margins.top if self.margins is not None else 0
+        saved = (self.cursor.x, self.cursor.y)
+        self.cursor.x, self.cursor.y = 0, top
+        count = max(1, count)
+        if up:
+            pyte.Screen.delete_lines(self, count)
+        else:
+            pyte.Screen.insert_lines(self, count)
+        self.cursor.x, self.cursor.y = saved
 
     @property
     def alternate(self) -> bool:
@@ -238,6 +286,22 @@ class _Screen(pyte.HistoryScreen):
         self._main = None
         super().reset()
 
+    def resize(self, lines: int | None = None, columns: int | None = None) -> None:
+        """pyte's, and tab stops every eight columns for what a wider screen
+        gains, as xterm sets them: pyte sets them once, for the width it
+        started at, so on a grown screen a tab past the old edge stopped at
+        the last column."""
+        old = self.columns
+        super().resize(lines, columns)
+        if self.columns > old:
+            self.tabstops.update(range((old + 7) // 8 * 8, self.columns, 8))
+
+
+class _Stream(pyte.ByteStream):
+    """pyte's stream, dispatching the sequences :class:`_Screen` adds."""
+
+    csi = {**pyte.ByteStream.csi, "b": "repeat_last", "S": "scroll_up", "T": "scroll_down"}
+
 
 def _drop_private(name: str) -> Callable[..., None]:
     base = getattr(pyte.HistoryScreen, name)
@@ -283,7 +347,7 @@ class ConsoleScreen:
     ):
         columns, lines = max(1, columns), max(1, lines)
         self.screen = _Screen(columns, lines, history)
-        self.stream = pyte.ByteStream(self.screen)
+        self.stream = _Stream(self.screen)
         # The mirror.  pyte's buffer is a sparse mapping of rows to sparse
         # mappings of columns, which is the right shape for an emulator and
         # the wrong one for a blit; keeping a real grid beside it means the
@@ -330,7 +394,7 @@ class ConsoleScreen:
                 # its parser is a generator, which an exception closes for
                 # good.  Start a fresh one; the rest of this read is lost,
                 # and whatever the program draws next lands.
-                self.stream = pyte.ByteStream(self.screen)
+                self.stream = _Stream(self.screen)
             self._synced = False
 
     def reset(self) -> None:

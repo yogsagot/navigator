@@ -27,6 +27,11 @@ import termios
 from asyncio import AbstractEventLoop, get_running_loop
 from typing import Callable, Mapping, Sequence
 
+#: How often a hung-up child is looked for, and how long it has to go before
+#: it is killed.
+_REAP_EVERY = 0.05
+HANG_UP_GRACE = 2.0
+
 #: What a child is told it is talking to.  ``pyte`` implements the xterm
 #: sequences a program is likely to reach for; claiming anything richer would
 #: invite escapes the console would drop on the floor.
@@ -89,8 +94,12 @@ class PtyProcess:
         """The environment the child is started in."""
         env = dict(self._env)
         env["TERM"] = self.term
-        env["COLUMNS"] = str(self.columns)
-        env["LINES"] = str(self.lines)
+        # No ``LINES``/``COLUMNS``, not even ones Navigator was started with:
+        # ncurses lets them override the pty's size for good, so after a
+        # ``SIGWINCH`` ``htop`` went on drawing for the size it started at.
+        # The size is the pty's (``TIOCSWINSZ``), which follows the widget.
+        env.pop("COLUMNS", None)
+        env.pop("LINES", None)
         env[MARKER] = "1"
         return env
 
@@ -150,6 +159,46 @@ class PtyProcess:
     def close(self) -> None:
         """Stop reading and let go of the pty, without waiting for the child."""
         self._detach()
+
+    def hang_up(self, grace: float | None = None) -> None:
+        """End the child the way closing its terminal would, without waiting.
+
+        ``SIGHUP`` to its process group and the pty let go; one that is still
+        there after *grace* seconds (:data:`HANG_UP_GRACE`) -- it ignored the signal -- gets
+        ``SIGKILL``.  It is reaped from the loop with ``WNOHANG``, never by a
+        blocking ``waitpid``, and *on_exit* is not called: whoever hangs up
+        has stopped listening.
+        """
+        if not self.is_running:
+            self._detach()
+            return
+        self.on_exit = None
+        self.signal(signal.SIGHUP)
+        self._detach()
+        loop = self._loop or get_running_loop()
+        deadline = loop.time() + (HANG_UP_GRACE if grace is None else grace)
+
+        def look() -> None:
+            if self.reap():
+                return
+            if loop.time() >= deadline:
+                self.kill()
+            loop.call_later(_REAP_EVERY, look)
+
+        loop.call_later(0, look)
+
+    def reap(self) -> bool:
+        """Collect the child's status if it has exited; True once it is gone."""
+        if self.pid is None or self.status is not None:
+            return True
+        try:
+            pid, status = os.waitpid(self.pid, os.WNOHANG)
+        except (ChildProcessError, OSError):
+            pid, status = self.pid, 0
+        if pid == 0:
+            return False
+        self.status = status
+        return True
 
     # -- internals -----------------------------------------------------------
 

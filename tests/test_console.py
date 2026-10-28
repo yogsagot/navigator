@@ -154,6 +154,39 @@ def test_resize_refuses_to_vanish():
     assert (console.columns, console.lines) == (1, 1)
 
 
+def test_a_wider_screen_has_tab_stops_across_all_of_it():
+    """ncurses moves the cursor with tabs; pyte set stops only for the width it began at."""
+    console = ConsoleScreen(20, 3)
+    console.resize(40, 3)
+    console.feed(b"a\tb\tc\td\te")
+    assert text_of(console, 0) == text_of(feed(b"a\tb\tc\td\te", 40, 3), 0) == "a       b       c       d       e"
+
+
+# -- sequences pyte lacks ----------------------------------------------------
+
+
+def test_rep_repeats_the_last_character_drawn():
+    """``rep`` in xterm-256color's terminfo, which ncurses sends for a run."""
+    assert text_of(feed(b"ab\x1b[4b|"), 0) == "abbbbb|"
+    assert text_of(feed(b"\x1b[3bx"), 0) == "x"  # nothing drawn yet: nothing repeated
+
+
+def test_su_and_sd_scroll_the_region_and_leave_the_cursor():
+    console = feed(b"1\r\n2\r\n3\r\n4")
+    console.feed(b"\x1b[1S")
+    assert [text_of(console, y) for y in range(4)] == ["2", "3", "4", ""]
+    console.feed(b"\x1b[2T")
+    assert [text_of(console, y) for y in range(4)] == ["", "", "2", "3"]
+    assert console.cursor[:2] == (1, 3)
+
+
+def test_the_private_and_long_forms_of_su_and_sd_are_not_scrolls():
+    """xterm's graphics query (``CSI ? Pi;Pa;Pv S``) and mouse highlight tracking (``CSI Ps;...T``)."""
+    console = feed(b"1\r\n2")
+    console.feed(b"\x1b[?1;1;0S\x1b[1;2;3;4;5T")
+    assert [text_of(console, y) for y in range(2)] == ["1", "2"]
+
+
 # -- scrollback ------------------------------------------------------------
 
 
