@@ -40,7 +40,7 @@ PATHNAMES, MOVE_FILES, FOLLOW = 1, 2, 4
 _session = {"kind": 0, "level": archive.LEVEL_NAMES.index("normal"), "options": PATHNAMES}
 
 #: The program each greyed type wants, by ``(kind, compression)``.
-_TOOLS = {("7z", ""): "7-Zip", ("tar", "zst"): "zstd"}
+_TOOLS = {("7z", ""): "7-Zip", ("tar", "zst"): "zstd", ("rar", ""): "rar"}
 
 
 def suffix_of(name: str) -> str:

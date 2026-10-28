@@ -14,7 +14,7 @@ from navml.widgets.dialog.static_text import StaticText
 #: it on the right, *Archive type* down the left, *Compression* beside it, and
 #: OK / Cancel / Tree / Help along the bottom.  Departures, each because
 #: Navigator packs no archive through a DOS archiver of the user's choosing:
-#: the archive types are today's (DN's were ARC, ARJ, ... ZOO), *Compression*
+#: the archive types are today's (DN's were ARC, ARJ, ... RAR ... ZOO; RAR the one kept), *Compression*
 #: has *Store* and *Ultra* either side of DN's Normal/Faster/Maximum, and
 #: *Additional options* (the archiver's own switches) and *Force mode* are
 #: left out.  *Follow symlinks* is F5's, added.  The row above the buttons
@@ -63,8 +63,8 @@ ArchiveDialog(Dialog):
         x: 3
         y: 5
         width: 16
-        height: 7
-        items: ["~Z~IP", "~7~Z", "T~A~R", "TAR.~G~Z", "TAR.~B~Z2", "TAR.~X~Z", "TAR.Z~S~T"]
+        height: 8
+        items: ["~Z~IP", "~7~Z", "T~A~R", "TAR.~G~Z", "TAR.~B~Z2", "TAR.~X~Z", "TAR.Z~S~T", "~R~AR"]
 
     Label:
         id: level_caption
@@ -114,7 +114,7 @@ ArchiveDialog(Dialog):
     StaticText:
         id: note
         x: 2
-        y: 12
+        y: 13
         width: max(0, parent.width - 4)
         height: 1
 

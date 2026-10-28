@@ -208,3 +208,32 @@ def test_a_damaged_7z_is_still_opened_and_test_names_what_failed(seven):
     drive = archive.open_archive(seven)
     failures = drive.test(Job())
     assert failures and all(why for _, why in failures)
+
+
+def test_a_listing_says_which_members_are_encrypted_and_where_links_point_and_skips_services():
+    rar = arctool.parse_unrar(
+        "        Name: l\n        Type: Unix symbolic link\n      Target: sub/a.txt\n        Size: 9\n"
+        "  Attributes: lrwxrwxrwx\n\n        Name: a.txt\n        Type: File\n        Size: 3\n"
+        "       Flags: encrypted \n\n        Name: QO\n        Type: Service\n        Size: 128\n\n"
+        "     Service: EOF\n")
+    assert [(m.path, m.is_link, m.target, m.encrypted) for m in rar] == [
+        ("l", True, "sub/a.txt", False), ("a.txt", False, None, True)]
+    seven = arctool.parse_slt(
+        "Path = l\nSize = 9\nAttributes =  lrwxrwxrwx\nEncrypted = -\nSymbolic Link = sub/a.txt\n\n"
+        "Path = a.txt\nSize = 3\nAttributes = A -rw-r--r--\nEncrypted = +\nSymbolic Link = \n")
+    assert [(m.path, m.is_link, m.target, m.encrypted) for m in seven] == [
+        ("l", True, "sub/a.txt", False), ("a.txt", False, None, True)]
+
+
+def test_unrar_is_preferred_for_a_rar(monkeypatch):
+    monkeypatch.setattr(arctool.shutil, "which", lambda name: f"/usr/bin/{name}")
+    assert arctool.tool_for("rar") == ("unrar", "/usr/bin/unrar")
+    monkeypatch.setattr(arctool.shutil, "which", lambda name: None if name == "unrar" else f"/usr/bin/{name}")
+    assert arctool.tool_for("rar")[0] == "7z"
+
+
+def test_an_empty_rar_is_refused_rather_than_made(tmp_path, monkeypatch):
+    monkeypatch.setattr(arctool, "rar_program", lambda: "/usr/bin/rar")
+    (tmp_path / "tree").mkdir()
+    with pytest.raises(OSError, match="cannot be empty"):
+        arctool.write_rar(tmp_path / "e.rar", tmp_path / "tree")

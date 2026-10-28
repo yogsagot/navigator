@@ -197,6 +197,8 @@ def test_a_target_naming_an_archive_not_there_makes_one(tmp_path):
 needs_7z = pytest.mark.skipif(__import__("shutil").which("7z") is None and __import__("shutil").which("7zz") is None
                               and __import__("shutil").which("7za") is None, reason="no 7-Zip")
 needs_zstd = pytest.mark.skipif(__import__("shutil").which("zstd") is None, reason="no zstd")
+needs_rar = pytest.mark.skipif(__import__("shutil").which("rar") is None or __import__("shutil").which("unrar") is None,
+                               reason="no rar and unrar")
 
 
 def packed(tmp_path, name, level, password=""):
@@ -213,7 +215,9 @@ def packed(tmp_path, name, level, password=""):
 
 @pytest.mark.parametrize("name", ["a.zip", "a.tar.gz", "a.tar.bz2", "a.tar.xz",
                                   pytest.param("a.tar.zst", marks=needs_zstd),
-                                  pytest.param("a.7z", marks=needs_7z)])
+                                  pytest.param("a.7z", marks=needs_7z),
+                                  pytest.param("a.rar", marks=pytest.mark.skipif(
+                                      __import__("shutil").which("rar") is None, reason="no rar"))])
 def test_a_new_archive_is_packed_at_the_level_asked(tmp_path, name):
     fastest = packed(tmp_path, "fast-" + name, "fastest")
     maximum = packed(tmp_path, "max-" + name, "maximum")
@@ -283,6 +287,60 @@ def test_a_password_encrypts_and_is_asked_for_and_kept_on_a_rewrite(tmp_path, na
     drive = archive.open_archive(outer, password="s3cret")
     with drive.open_read(drive.at("/more.txt")) as reader:
         assert reader.read() == b"more"
+
+
+@needs_rar
+def test_a_rar_is_made_entered_written_into_and_erased_in(tmp_path):
+    from navigator.lib.file_ops.fileerase import ALL, EraseJob, EraseRequest, run as erase_run
+
+    (tmp_path / "tree" / "sub").mkdir(parents=True)
+    (tmp_path / "tree" / "sub" / "leaf.txt").write_text("leaf")
+    (tmp_path / "tree" / "link").symlink_to("sub/leaf.txt")
+    copy_in([tmp_path / "tree"], f"{tmp_path / 'r.rar'}#/", tmp_path,
+            archive=archive.ArchiveOptions(level="maximum"))
+    assert (tmp_path / "r.rar").read_bytes()[:7] == b"Rar!\x1a\x07\x01"
+    drive = archive.open_archive(Location.of(tmp_path / "r.rar"))
+    assert drive.kind == "rar" and drive.can("write")
+    assert drive.readlink(drive.at("/tree/link")) == "sub/leaf.txt"
+    (tmp_path / "more.txt").write_text("more")
+    copy_in([tmp_path / "more.txt"], str(drive.at("/tree")) + "/", tmp_path)
+    erase_run(EraseRequest([drive.at("/tree/sub")]), EraseJob(asker=lambda q: ALL))
+    drive.finish()
+    archive.close_all()
+    drive = archive.open_archive(Location.of(tmp_path / "r.rar"))
+    assert sorted(drive.names(drive.at("/tree"))) == ["link", "more.txt"]
+    with drive.open_read(drive.at("/tree/more.txt")) as reader:
+        assert reader.read() == b"more"
+    assert drive.test(CopyJob()) == []
+
+
+@needs_rar
+def test_an_encrypted_rar_asks_and_keeps_its_password(tmp_path):
+    packed(tmp_path, "p.rar", "normal", password="s3cret")
+    outer = Location.of(tmp_path / "p.rar")
+    for wrong in ("", "nope"):
+        with pytest.raises(archive.NeedPassword):
+            archive.open_archive(outer, password=wrong)
+    drive = archive.open_archive(outer, password="s3cret")
+    (tmp_path / "more.txt").write_text("more")
+    copy_in([tmp_path / "more.txt"], str(drive.at("/")) + "/", tmp_path)
+    archive.close_all()
+    with pytest.raises(archive.NeedPassword):
+        archive.open_archive(outer)
+    drive = archive.open_archive(outer, password="s3cret")
+    with drive.open_read(drive.at("/more.txt")) as reader:
+        assert reader.read() == b"more"
+
+
+@needs_rar
+def test_a_rar_is_read_only_without_rar(tmp_path, monkeypatch):
+    from navigator.lib.drives import arctool
+
+    packed(tmp_path, "r.rar", "fastest")
+    monkeypatch.setattr(arctool, "rar_program", lambda: None)
+    drive = archive.open_archive(Location.of(tmp_path / "r.rar"))
+    assert not drive.can("write")
+    assert archive.format_missing(("rar", "")) and not archive.can_encrypt(("rar", ""))
 
 
 class StopWhilePacking(CopyJob):
@@ -754,21 +812,21 @@ def test_a_password_typed_twice_differently_is_refused(desk):
     assert not (here / "out" / "notes.zip").exists()
 
 
-@needs_7z
-def test_enter_on_an_encrypted_archive_asks_its_password(desk):
+@pytest.mark.parametrize("name", [pytest.param("locked.7z", marks=needs_7z), pytest.param("locked.rar", marks=needs_rar)])
+def test_enter_on_an_encrypted_archive_asks_its_password(desk, name):
     from navigator.lib.drives import arctool
 
     app, here = desk
     tree = here / "tree"
     tree.mkdir()
     (tree / "secret.txt").write_text("s")
-    arctool.write_archive(here / "locked.7z", tree, password="pw")
+    arctool.write_archive(here / name, tree, type_=name.rsplit(".", 1)[1], password="pw")
 
     def answer(text):
         return lambda a: setattr(a.modal.entry, "value", text)
 
     run_app(app, [
-        KeyEvent("r", ctrl=True), Until(lambda a: "locked.7z" in names(a)), at("locked.7z"),
+        KeyEvent("r", ctrl=True), Until(lambda a: name in names(a)), at(name),
         KeyEvent("enter"), Until(modal_is("PasswordDialog"), timeout=5), answer("wrong"), KeyEvent("enter"),
         Until(lambda a: a.modal is not None and "Wrong password" in str(a.modal.prompt), timeout=5),
         answer("pw"), KeyEvent("enter"),

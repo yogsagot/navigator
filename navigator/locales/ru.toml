@@ -261,6 +261,8 @@ flag = "RU"
 "TAR.~X~Z" = "TAR.~X~Z"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:67
 "TAR.Z~S~T" = "TAR.Z~S~T"
+# navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:67
+"~R~AR" = "~R~AR"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:75
 "Compression" = "Сжатие"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:85

@@ -23,7 +23,7 @@ from navigator.widgets.file_ops.archive_dialog import archive_dialog as archive_
 from navigator.widgets.file_ops.archive_dialog.archive_dialog import kind_index, suffix_of, with_suffix
 from navigator.widgets.manager.panel import DirEntry
 
-ZIP, SEVEN, TAR, TGZ, TBZ, TXZ, TZST = range(7)
+ZIP, SEVEN, TAR, TGZ, TBZ, TXZ, TZST, RAR = range(8)
 NONE, FASTEST, NORMAL, MAXIMUM, ULTRA = range(5)
 
 
@@ -33,7 +33,7 @@ def fresh_session(monkeypatch):
                         {"kind": ZIP, "level": NORMAL, "options": archive_dialog_module.PATHNAMES})
     # Every type to be had, whatever is installed here, unless a test says otherwise.
     monkeypatch.setattr(archive, "format_missing", lambda kind: None)
-    monkeypatch.setattr(archive, "can_encrypt", lambda kind: kind in (("7z", ""), ("zip", "")))
+    monkeypatch.setattr(archive, "can_encrypt", lambda kind: kind in (("7z", ""), ("zip", ""), ("rar", "")))
 
 
 def box(tmp_path, **kwargs):
@@ -53,6 +53,7 @@ def test_an_archive_name_s_ending_is_found_and_replaced_whole():
     assert with_suffix("/x/a.tar.gz", ".7z") == "/x/a.7z"
     assert with_suffix("/x/a", ".zip") == "/x/a.zip"
     assert kind_index("a.tgz") == TGZ and kind_index("a.tar.zst") == TZST and kind_index("a.txt") is None
+    assert kind_index("a.RAR") == RAR
 
 
 # -- the box -----------------------------------------------------------------------------------

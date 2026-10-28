@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's command line) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -204,17 +204,28 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   Interface's *History size*.
 - **`archive.py`** DN's `TArcDrive` (`ARCVIEW.PAS`): `ArchiveDrive` over `zipfile`/`tarfile` (any compression
   `tarfile.open` reads), and over **`arctool.ToolArchive`** for 7z and rar, told by signature (`arctool.kind_of`):
-  7-Zip's command line (`7zz`, `7z`, `7za` -- no rar codec in `7za`; `unrar` for rar where no 7-Zip reads it),
-  listed with `7z l -slt -ba` (`parse_slt`; `unrar lta`, `parse_unrar`, untried against a real unrar), each member
+  7-Zip's command line (`7zz`, `7z`, `7za` -- no rar codec in `7za`), and for rar **`unrar` first** (`tool_for`;
+  7-Zip 23's codec decrypts no encrypted rar -- *Unsupported Method* -- and fails `7z t` on a rar5 symlink), 7-Zip
+  the fallback; listed with `7z l -slt -ba` (`parse_slt`; `unrar lta -c-`, `parse_unrar`, which skips `Type:
+  Service` blocks -- `QO`, the quick-open record a larger rar carries, would otherwise list as a file), each member
   read through a pipe from `7z x -so -spd --` (`-spd`: a name is never a wildcard; `_Piped` kills the tool on an
-  early close and turns its exit status into `OSError`), links' targets read as their contents. Nothing bundled:
+  early close and turns its exit status into `OSError`), links' targets read as their contents -- except where the
+  listing names them (`ToolInfo.target`: unrar's `Target:`, 7-Zip's `Symbolic Link` for a rar; `unrar p` prints a
+  link as nothing and `7z x -so` fails on one). Nothing bundled:
   no tool is **`NeedsTool`** (a `NotAnArchive`), which Enter says rather than running the file. A 7z is rewritten by
   `_write_tool` -- the old one unpacked once into a tree (solid blocks are whole), the index laid out over it, packed
   anew by `arctool.write_archive` (`7z a -snl`, `-mx<level>`); `.7z` is in `NEW_KINDS`. **Passwords** (7z and zip,
   7-Zip only): `ToolArchive(local, kind, password)` gives 7-Zip the password **on stdin, never `-p<pw>`** (which `ps`
   shows) -- no `-p` at all, `start_new_session` so it has no terminal to ask on, the password and a newline as input;
   `write_archive` passes a bare `-p` (it then reads the password twice) with `-mhe=on` (7z: names too) or
-  `-mem=AES256` (zip). A wrong or missing one is `arctool.NeedPassword` → **`archive.NeedPassword`** (a
+  `-mem=AES256` (zip). unrar is fed the same way (no `-p-` any more); a wrong password makes it ask again and,
+  its input spent, abort with **255**, a missing one with encrypted names exit **11** -- both are refusal
+  (`_refused`), and a file-only encrypted rar (`Flags: encrypted`) is checked with `unrar t` on its smallest file.
+  **Writing a rar** is RARLAB's `rar` (not free, never required; `arctool.rar_program`): `write_rar` -- `rar a -r
+  -ol -y -idq -m<0..5>`, `-hp` with the password twice on stdin (names encrypted too), the target unlinked first
+  (rar adds to what is there); an empty tree is refused (`ENOTSUP`), since rar deletes an archive emptied of its last
+  member. Without `rar` a rar is read-only (`capabilities` empty) and RAR is greyed in *Create archive* (*RAR needs
+  rar*). A wrong or missing one is `arctool.NeedPassword` → **`archive.NeedPassword`** (a
   `NotAnArchive`): listing fails with *Wrong password* (encrypted names), or a member says `Encrypted = +`
   (`ToolInfo.encrypted`) and `7z t` on the smallest fails. A zip with an encrypted member (`flag_bits & 1`) is read
   through `ToolArchive(kind="zip")` -- `ArchiveDrive.tool` is which back-end, `kind` stays `zip` -- and rewritten by
@@ -223,8 +234,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `PasswordDialog`), again after a wrong one; Cancel is `Stopped`, never the `NotAnArchive` that would run the file.
   **`.tar.zst`** (`zstd.py`): `compression.zstd` (3.14+) else the `zstd` command, neither is `NeedsTool`; `tarfile`
   wants to seek, so `_open` decompresses it whole into a private `.tar` (`ArchiveDrive._plain`, deleted on close and
-  on re-reading) and `_write_tar` writes a plain tar and compresses it (`--ultra` above 19). A rar is read-only (`capabilities` empty on the
-  instance). `_Member.packed`/`DirEntry.packed` carry the packed size (a zip's `compress_size`, 7-Zip's *Packed
+  on re-reading) and `_write_tar` writes a plain tar and compresses it (`--ultra` above 19). A rar is writable only where `rar` is installed. `_Member.packed`/`DirEntry.packed` carry the packed size (a zip's `compress_size`, 7-Zip's *Packed
   Size* -- blank for a solid block's later members; None for a tar). A place in one is `Location(Site("arc"), inner, outer=<the archive's location>)` -- `outer`
   is DN's `Prev` -- printing as `/dir/a.zip#/inner`; `Location.parse` reads that back when the name before `#/` is in
   the *archive* file type (`a.zip#//` is the root too), and so does the copy target line (`filecopy.target_location`).
@@ -276,7 +286,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   the copier (`Manager._extract` → `_run_copy`), the Copy dialog's session mode and options, without paths
   `CopyRequest.flatten` (`_Copier._flattened`: every file under a directory into the target). Shift+F2 opens each
   archive on a thread, extracts its root's children, then `release_unheld`. Test is **`ArchiveDrive.test(job,
-  locations)`**: every member read through (zip CRCs, tar reads; 7z/rar `7z t` whole), `(path, why)` per failure,
+  locations)`**: every member read through (zip CRCs, tar reads; 7z `7z t`, rar `unrar t`, whole), `(path, why)` per failure,
   said in a box. **Departure, recorded**: DN put Extract/Test/Password on F4/F6/F7 of an archive panel's key bar
   (`hcArchives`); here F4 and F6 stay Edit and Rename/Move, which work in an archive.
   **Shift+F2 extracts everywhere** (a departure, asked for): outside an archive it is *Extract archive*, inside one
@@ -286,7 +296,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   archive...*** (`ArchiveFiles`, `cmPanelArcFiles`; DN's caption *Copy to archive*, renamed -- a departure, asked
   for; *Compare files* moved to `~l~` to free the `i`) is **`ArchiveDialog`** (`widgets/file_ops/archive_dialog`,
   DN's `dlgArchiveFiles`, 64x18): *Archive to* (Copy's history), *Archive type* (`FORMATS`: ZIP 7Z TAR TAR.GZ
-  TAR.BZ2 TAR.XZ TAR.ZST), *Compression* (None/Fastest/Normal/Maximum/Ultra; *None* is `store`), *Password*,
+  TAR.BZ2 TAR.XZ TAR.ZST RAR), *Compression* (None/Fastest/Normal/Maximum/Ultra; *None* is `store`), *Password*,
   *Store pathnames* (off = `CopyRequest.flatten`), *Move files*, *Follow symlinks*, Tree (keeps the name). The type
   and the name's ending follow each other (`_kind_changed`/`_name_changed` effects); levels and password a type
   has not got are greyed (`RadioButtons.enable_mask`, navml's `TCluster.EnableMask`); a type with no tool
@@ -367,7 +377,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - `tests/test_archives.py`: zip and tar.gz built in the test, the drive, copying out, the panel in and out, an
   archive on the in-memory drive, Extract to / Test / Shift+F2, the archive columns. `tests/test_arctool.py`: the
   7-Zip and unrar listings parsed from captured output (everywhere), and a real 7z entered, written, made and
-  tested -- skipped without 7-Zip (the official `7zz` tarball unpacked onto `PATH` is enough).
+  tested -- skipped without 7-Zip (the official `7zz` tarball unpacked onto `PATH` is enough); a real rar made,
+  written, erased in and encrypted, skipped without both `rar` and `unrar`.
   `tests/test_dcerpc.py`: `NetrShareEnum` against a pipe answering in fragments; `tests/test_smb.py` puts that pipe
   behind its stand-in `smbclient`. `tests/test_s3.py` (skipped without moto) runs moto's
   `ThreadedMotoServer` once per module and reaches it as an endpoint of its own over `s3+http` (path-style, as a

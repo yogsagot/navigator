@@ -261,6 +261,8 @@ flag = "LV"
 "TAR.~X~Z" = "TAR.~X~Z"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:67
 "TAR.Z~S~T" = "TAR.Z~S~T"
+# navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:67
+"~R~AR" = "~R~AR"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:75
 "Compression" = "Saspiešana"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:85
@@ -278,7 +280,7 @@ flag = "LV"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:111
 "Store path~n~ames" = "Saglabāt ce~ļ~us"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:111
-"Mo~v~e files" = "Pā~r~vietot failus"
+"Mo~v~e files" = "Pārvietot ~f~ailus"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:111
 "Follow s~y~mlinks" = "S~e~kot saitēm"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:140, navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:92, navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:70 ...

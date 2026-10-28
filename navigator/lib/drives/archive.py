@@ -64,6 +64,7 @@ NEW_KINDS: tuple[tuple[str, str, str], ...] = (
     (".tar.zst", "tar", "zst"), (".tzst", "tar", "zst"),
     (".tar", "tar", ""),
     (".7z", "7z", ""),
+    (".rar", "rar", ""),
 )
 
 #: File > *Create archive...*'s *Archive type*, in its order: the label,
@@ -76,6 +77,7 @@ FORMATS: tuple[tuple[str, str, tuple[str, str]], ...] = (
     ("TAR.BZ2", ".tar.bz2", ("tar", "bz2")),
     ("TAR.XZ", ".tar.xz", ("tar", "xz")),
     ("TAR.ZST", ".tar.zst", ("tar", "zst")),
+    ("RAR", ".rar", ("rar", "")),
 )
 
 #: *Compression*'s levels, in its order -- DN's Normal/Faster/Maximum,
@@ -92,6 +94,7 @@ LEVELS: dict[tuple[str, str], dict[str, int]] = {
     ("tar", "bz2"): {"fastest": 1, "normal": 9, "maximum": 9, "ultra": 9},
     ("tar", "xz"): {"fastest": 0, "normal": 6, "maximum": 9, "ultra": 9 | lzma.PRESET_EXTREME},
     ("tar", "zst"): {"fastest": 1, "normal": 3, "maximum": 19, "ultra": 22},
+    ("rar", ""): {"store": 0, "fastest": 1, "normal": 3, "maximum": 5, "ultra": 5},
 }
 
 
@@ -116,6 +119,8 @@ def format_missing(kind: tuple[str, str]) -> str | None:
 
     if kind[0] == "7z" and arctool.seven_zip() is None:
         return "7z archives need 7-Zip: install 7zip (7zz) or p7zip (7z)"
+    if kind[0] == "rar" and arctool.rar_program() is None:
+        return "rar archives are written by rar: install rar"
     if kind[1] == "zst" and not zstd.available():
         return zstd.MISSING
     return None
@@ -123,9 +128,12 @@ def format_missing(kind: tuple[str, str]) -> str | None:
 
 def can_encrypt(kind: tuple[str, str]) -> bool:
     """Whether a password can be set on a new archive of *kind*: a 7z or a
-    zip, through 7-Zip -- :mod:`zipfile` writes no encryption."""
+    zip, through 7-Zip -- :mod:`zipfile` writes no encryption -- or a rar,
+    through rar."""
     from navigator.lib.drives import arctool
 
+    if kind == ("rar", ""):
+        return arctool.rar_program() is not None
     return kind in (("7z", ""), ("zip", "")) and arctool.seven_zip() is not None
 
 #: The kinds read through an archiver's command line (``arctool``).
@@ -263,14 +271,17 @@ class ArchiveDrive(Drive):
         if new is not None:
             self.kind, self.compression = new
             self._archive = None
-            #: Read -- and written -- through 7-Zip (``arctool``).
-            self.tool = self.kind == "7z" or bool(self.password)
+            #: Read -- and written -- through 7-Zip or rar (``arctool``).
+            self.tool = self.kind in TOOL_KINDS or bool(self.password)
             self._dirty = True
         else:
             self._load()
         if self.kind == "rar":
-            # Nothing writes a rar but rar itself, which is not free.
-            self.capabilities = frozenset()
+            from navigator.lib.drives import arctool
+
+            if arctool.rar_program() is None:
+                # Nothing writes a rar but rar itself, which is not free: read-only without it.
+                self.capabilities = frozenset()
         self.root = _Member("", True)
         self._index()
 
@@ -759,7 +770,7 @@ class ArchiveDrive(Drive):
     def _write_tool(self, target: Path, job: Any = None) -> None:
         """The archive laid out as a directory -- the old one unpacked once,
         not a member at a time, its solid blocks being whole -- and packed
-        anew by 7-Zip: a 7z, or an encrypted zip.  *job* sees the laying
+        anew by 7-Zip -- a 7z, or an encrypted zip -- or by rar.  *job* sees the laying
         out; 7-Zip's own packing it waits through."""
         from navigator.lib.drives import arctool
 

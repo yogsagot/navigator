@@ -40,7 +40,7 @@ class ArchiveDialog(Dialog, _Component):
     it on the right, *Archive type* down the left, *Compression* beside it, and
     OK / Cancel / Tree / Help along the bottom.  Departures, each because
     Navigator packs no archive through a DOS archiver of the user's choosing:
-    the archive types are today's (DN's were ARC, ARJ, ... ZOO), *Compression*
+    the archive types are today's (DN's were ARC, ARJ, ... RAR ... ZOO; RAR the one kept), *Compression*
     has *Store* and *Ultra* either side of DN's Normal/Faster/Maximum, and
     *Additional options* (the archiver's own switches) and *Force mode* are
     left out.  *Follow symlinks* is F5's, added.  The row above the buttons
@@ -147,9 +147,9 @@ class ArchiveDialog(Dialog, _Component):
         self.kind.x = 3    # archive_dialog.nml:63
         self.kind.y = 5    # archive_dialog.nml:64
         self.kind.width = 16    # archive_dialog.nml:65
-        self.kind.height = 7    # archive_dialog.nml:66
+        self.kind.height = 8    # archive_dialog.nml:66
         self.kind.items = _bind(    # archive_dialog.nml:67
-            lambda _o: [_tr('~Z~IP'), _tr('~7~Z'), _tr('T~A~R'), _tr('TAR.~G~Z'), _tr('TAR.~B~Z2'), _tr('TAR.~X~Z'), _tr('TAR.Z~S~T')],
+            lambda _o: [_tr('~Z~IP'), _tr('~7~Z'), _tr('T~A~R'), _tr('TAR.~G~Z'), _tr('TAR.~B~Z2'), _tr('TAR.~X~Z'), _tr('TAR.Z~S~T'), _tr('~R~AR')],
             yielding=True,
         )
 
@@ -199,7 +199,7 @@ class ArchiveDialog(Dialog, _Component):
         )
 
         self.note.x = 2    # archive_dialog.nml:116
-        self.note.y = 12    # archive_dialog.nml:117
+        self.note.y = 13    # archive_dialog.nml:117
         self.note.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # archive_dialog.nml:118
         self.note.height = 1    # archive_dialog.nml:119
 
