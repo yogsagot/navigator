@@ -30,7 +30,7 @@ class DriveInfoPage(_Component):
 
     Its boxes in its order, less *EMS* and *XMS Information*, which only
     meant something on DOS; *Conventional Memory* is the machine's.  *File
-    under the cursor* is Navigator's own.  Help is
+    under the cursor* and *Media information* are Navigator's own.  Help is
     left out, having nothing to show yet.
     """
 
@@ -62,8 +62,8 @@ class DriveInfoPage(_Component):
         self.options.x = 2    # drive_info_page.nml:25
         self.options.y = 2    # drive_info_page.nml:26
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # drive_info_page.nml:27
-        self.options.height = 10    # drive_info_page.nml:28
+        self.options.height = 11    # drive_info_page.nml:28
         self.options.items = _bind(    # drive_info_page.nml:29
-            lambda _o: [_tr('~D~irectory Title'), _tr('~T~otals'), _tr('File under the ~c~ursor'), _tr('Volume ~S~ize'), _tr('Volume ~F~ree space'), _tr('Volume ~L~abel'), _tr('Total ~m~emory'), _tr('M~e~mory for user'), _tr('Memory for ~N~avigator'), _tr('~I~nformation file')],
+            lambda _o: [_tr('~D~irectory Title'), _tr('~T~otals'), _tr('File under the ~c~ursor'), _tr('Med~a~ information'), _tr('Volume ~S~ize'), _tr('Volume ~F~ree space'), _tr('Volume ~L~abel'), _tr('Total ~m~emory'), _tr('M~e~mory for user'), _tr('Memory for ~N~avigator'), _tr('~I~nformation file')],
             yielding=True,
         )

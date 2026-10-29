@@ -1156,6 +1156,8 @@ flag = "RU"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "File under the ~c~ursor" = "Файл под ~к~урсором"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
+"Med~a~ information" = "Ме~д~иа-информация"
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~S~ize" = "~Р~азмер диска"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~F~ree space" = "~С~вободное место на диске"
@@ -1925,7 +1927,7 @@ flag = "RU"
 "Main board" = "Системная плата"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:38
 "Disk drives" = "Диски"
-# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:322
+# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:333
 "Memory" = "Память"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "Прочее"
@@ -2179,70 +2181,84 @@ flag = "RU"
 "plain" = "текст"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "авто"
-# navigator/lib/system/diskinfo.py:210
+# navigator/lib/system/diskinfo.py:215
 "File" = "Файл"
-# navigator/lib/system/diskinfo.py:201
+# navigator/lib/system/diskinfo.py:206
 "Socket" = "Сокет"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:208
 "Character device" = "Символьное устройство"
-# navigator/lib/system/diskinfo.py:205
+# navigator/lib/system/diskinfo.py:210
 "Block device" = "Блочное устройство"
-# navigator/lib/system/diskinfo.py:207
+# navigator/lib/system/diskinfo.py:212
 "FIFO" = "FIFO"
-# navigator/lib/system/diskinfo.py:209
+# navigator/lib/system/diskinfo.py:214
 "Executable file" = "Исполняемый файл"
-# navigator/lib/system/diskinfo.py:196
+# navigator/lib/system/diskinfo.py:201
 "Broken symbolic link" = "Битая символическая ссылка"
-# navigator/lib/system/diskinfo.py:197
+# navigator/lib/system/diskinfo.py:202
 "Symbolic link to a directory" = "Символическая ссылка на каталог"
-# navigator/lib/system/diskinfo.py:197
+# navigator/lib/system/diskinfo.py:202
 "Symbolic link to a file" = "Символическая ссылка на файл"
-# navigator/lib/system/diskinfo.py:224, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:229, navigator/lib/appearance/palette.py
 "Current file" = "Текущий файл"
-# navigator/lib/system/diskinfo.py:229
+# navigator/lib/system/diskinfo.py:234
 "Size: ~not counted~" = "Размер: ~не подсчитан~"
-# navigator/lib/system/diskinfo.py:231
+# navigator/lib/system/diskinfo.py:236
 "Size: ~{n:,}~ byte" = ["Размер: ~{n:,}~ байт", "Размер: ~{n:,}~ байта", "Размер: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:281, navigator/widgets/manager/panel/panel.py:2296
+# navigator/lib/system/diskinfo.py:291, navigator/widgets/manager/panel/panel.py:2296
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:225
+# navigator/lib/system/diskinfo.py:230
 "Name: ~{name}~" = "Имя: ~{name}~"
-# navigator/lib/system/diskinfo.py:226
+# navigator/lib/system/diskinfo.py:231
 "Type: ~{kind}~" = "Тип: ~{kind}~"
-# navigator/lib/system/diskinfo.py:274
+# navigator/lib/system/diskinfo.py:284
 "Current directory:" = "Текущий каталог:"
-# navigator/lib/system/diskinfo.py:295
+# navigator/lib/system/diskinfo.py:306
 "~{n:,}~ total byte on ~{mount}~" = ["Всего ~{n:,}~ байт на ~{mount}~", "Всего ~{n:,}~ байта на ~{mount}~", "Всего ~{n:,}~ байт на ~{mount}~"]
-# navigator/lib/system/diskinfo.py:298
+# navigator/lib/system/diskinfo.py:309
 "~{n:,}~ free byte on ~{mount}~" = ["Свободно ~{n:,}~ байт на ~{mount}~", "Свободно ~{n:,}~ байта на ~{mount}~", "Свободно ~{n:,}~ байт на ~{mount}~"]
-# navigator/lib/system/diskinfo.py:313
+# navigator/lib/system/diskinfo.py:324
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:316
+# navigator/lib/system/diskinfo.py:327
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:233
+# navigator/lib/system/diskinfo.py:238
 "Modified: ~{when}~" = "Изменён: ~{when}~"
-# navigator/lib/system/diskinfo.py:235
-"Accessed: ~{when}~" = "Открыт: ~{when}~"
-# navigator/lib/system/diskinfo.py:237
-"Changed: ~{when}~" = "Статус изменён: ~{when}~"
 # navigator/lib/system/diskinfo.py:240
-"Attributes: ~{attributes}~" = "Атрибуты: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:243
-"Owner: ~{owner}~" = "Владелец: ~{owner}~"
+"Accessed: ~{when}~" = "Открыт: ~{when}~"
+# navigator/lib/system/diskinfo.py:242
+"Changed: ~{when}~" = "Статус изменён: ~{when}~"
 # navigator/lib/system/diskinfo.py:245
+"Attributes: ~{attributes}~" = "Атрибуты: ~{attributes}~"
+# navigator/lib/system/diskinfo.py:248
+"Owner: ~{owner}~" = "Владелец: ~{owner}~"
+# navigator/lib/system/diskinfo.py:250
 "Links: ~{links}~, inode ~{inode}~" = "Ссылок: ~{links}~, inode ~{inode}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:252
 "Link to: ~{target}~" = "Ссылка на: ~{target}~"
-# navigator/lib/system/diskinfo.py:278, navigator/widgets/manager/panel/panel.py:2292
+# navigator/lib/system/diskinfo.py:288, navigator/widgets/manager/panel/panel.py:2292
 "No files in this directory" = "В этом каталоге файлов нет"
-# navigator/lib/system/diskinfo.py:282
+# navigator/lib/system/diskinfo.py:292
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
-# navigator/lib/system/diskinfo.py:320, navigator/widgets/manager/commands.py:219
+# navigator/lib/system/diskinfo.py:331, navigator/widgets/manager/commands.py:219
 "Drive" = "Диск"
-# navigator/lib/system/diskinfo.py:311, navigator/widgets/manager/info_panel/info_panel.py:165
+# navigator/lib/system/diskinfo.py:322, navigator/widgets/manager/info_panel/info_panel.py:188
 "~{n:,}~K bytes total memory" = "Всего памяти: ~{n:,}~ КБ"
-# navigator/lib/system/diskinfo.py:302
+# navigator/lib/system/diskinfo.py:313
 "Volume label on ~{mount}: {label}~" = "Метка тома на ~{mount}: {label}~"
+# navigator/lib/system/mediainfo.py:313
+"mono" = "моно"
+# navigator/lib/system/mediainfo.py:315
+"stereo" = "стерео"
+# navigator/lib/system/mediainfo.py:316
+"{n} channel" = ["{n} канал", "{n} канала", "{n} каналов"]
+# navigator/lib/system/mediainfo.py:326
+"yes" = "да"
+# navigator/lib/system/mediainfo.py:341
+"{n} fps" = "{n} кадр/с"
+# navigator/lib/system/mediainfo.py:348
+"{n} kHz" = "{n} кГц"
+# navigator/lib/system/mediainfo.py:353
+"{n} kbit/s" = "{n} кбит/с"
 # navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "Недостаточно памяти для выполнения операции."
 # navigator/lib/system/sysinfo.py:146
@@ -2293,21 +2309,21 @@ flag = "RU"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
 # navigator/settings.py:734
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:769
+# navigator/settings.py:771
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:814
+# navigator/settings.py:816
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:829
+# navigator/settings.py:831
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:861
+# navigator/settings.py:863
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:885
+# navigator/settings.py:887
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:900
+# navigator/settings.py:902
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:927
+# navigator/settings.py:929
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:943
+# navigator/settings.py:945
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Неверный пароль для {name}. Ещё раз:"
@@ -2535,7 +2551,7 @@ flag = "RU"
 "Confirm file save" = "Подтверждение сохранения"
 # navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:263, navigator/widgets/viewer/file_window/file_window.py:496
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:176 ...
+# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:199 ...
 "Information" = "Информация"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
@@ -2905,9 +2921,9 @@ flag = "RU"
 "{n} difference found" = ["Найдено {n} отличие", "Найдено {n} отличия", "Найдено {n} отличий"]
 # navigator/widgets/manager/compare_progress/compare_progress.py:30
 "No differences found" = "Отличий не найдено"
-# navigator/widgets/manager/info_panel/info_panel.py:166
+# navigator/widgets/manager/info_panel/info_panel.py:189
 "{count} byte of memory in all" = ["Всего {count} байт памяти", "Всего {count} байта памяти", "Всего {count} байт памяти"]
-# navigator/widgets/manager/info_panel/info_panel.py:149
+# navigator/widgets/manager/info_panel/info_panel.py:172
 "Connection" = "Соединение"
 # navigator/widgets/manager/manager/manager.py:731
 "Calculating checksums" = "Вычисление контрольных сумм"
@@ -4057,6 +4073,44 @@ flag = "RU"
 "Unpacked" = "Распаковано"
 # navigator/lib/drives/base.py
 "Region" = "Регион"
+# navigator/lib/system/mediainfo.py
+"Duration" = "Длительность"
+# navigator/lib/system/mediainfo.py
+"Container" = "Контейнер"
+# navigator/lib/system/mediainfo.py
+"Video" = "Видео"
+# navigator/lib/system/mediainfo.py
+"Audio" = "Аудио"
+# navigator/lib/system/mediainfo.py
+"Bitrate" = "Битрейт"
+# navigator/lib/system/mediainfo.py
+"Title" = "Название"
+# navigator/lib/system/mediainfo.py
+"Artist" = "Исполнитель"
+# navigator/lib/system/mediainfo.py
+"Album" = "Альбом"
+# navigator/lib/system/mediainfo.py
+"Year" = "Год"
+# navigator/lib/system/mediainfo.py
+"Track" = "Трек"
+# navigator/lib/system/mediainfo.py
+"Genre" = "Жанр"
+# navigator/lib/system/mediainfo.py
+"Dimensions" = "Размеры"
+# navigator/lib/system/mediainfo.py
+"Camera" = "Камера"
+# navigator/lib/system/mediainfo.py
+"Taken" = "Снято"
+# navigator/lib/system/mediainfo.py
+"Pages" = "Страниц"
+# navigator/lib/system/mediainfo.py
+"Author" = "Автор"
+# navigator/lib/system/mediainfo.py
+"Subject" = "Тема"
+# navigator/lib/system/mediainfo.py
+"Producer" = "Программа"
+# navigator/lib/system/mediainfo.py
+"Encrypted" = "Зашифрован"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "Цветовая схема, одна из `nav --list-themes`"
 # navigator/settings.py
@@ -4293,6 +4347,8 @@ flag = "RU"
 "How many files it holds, and their bytes" = "Сколько в нём файлов и их байты"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "Файл под курсором: его тип, размер, время, атрибуты и владелец"
+# navigator/settings.py
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "Сведения о медиафайле или PDF: длительность, потоки, теги, размеры, страницы (для аудио и видео нужен ffprobe из FFmpeg)"
 # navigator/settings.py
 "The file system's size" = "Размер файловой системы"
 # navigator/settings.py

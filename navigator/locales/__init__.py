@@ -23,6 +23,9 @@ def strings():
     from navigator.lib.drives.base import DESCRIBED
     for what in DESCRIBED:
         yield what, "navigator/lib/drives/base.py"
+    from navigator.lib.system.mediainfo import LABELS
+    for what in LABELS:
+        yield what, "navigator/lib/system/mediainfo.py"
     # Every setting's doc: a setup page shows it as the tooltip of the
     # control that sets it (``Section.tooltip``/``tooltips``).  All of them
     # rather than the ones a page names today, so a page that starts showing

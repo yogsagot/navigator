@@ -455,6 +455,16 @@ from the `DirEntry`. `diskinfo.stat_file` on the same thread adds the MIME guess
 read on first use, hence the thread) and, for a local entry only, the `lstat`'s atime, ctime, links and inode.
 Nothing for `..`.
 
+Media details (`[drive_info] media_info`, *Media information*) join the same table:
+`navigator/lib/system/mediainfo.py`. Its `read` runs as a **second** `_READER` job after `stat_file` answers, so the
+table never waits for it. It is only for a local file whose MIME guess is audio, video, an image or a PDF. Audio and
+video come from `ffprobe` JSON (optional, looked up at the call like `gio`; without it, nothing). Images come from the
+stdlib, which reads the first 128 KB: the size of a PNG/GIF/BMP/WebP/JPEG, and a JPEG's EXIF camera and date taken,
+which ffprobe does not give. Any other image gets ffprobe's size. PDFs come from pypdf. The thread returns a plain
+`Media`; `pairs()` formats it on the loop because `tr` reads a reactive. `read` asks `wanted()` first, so a held-down
+key does not queue one ffprobe run per file behind the single worker. Labels are in `mediainfo.LABELS`, which the
+catalogues read through `navigator/locales/__init__.py`.
+
 ## Comparing directories (Panel menu)
 
 Panel > Compare directories (DN's `cmCompareDir`), its *Window, recursive* Synchronize window and File > Compare

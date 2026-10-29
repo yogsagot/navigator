@@ -1156,6 +1156,8 @@ flag = "LV"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "File under the ~c~ursor" = "~F~ails zem kursora"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
+"Med~a~ information" = "~M~ediju informācija"
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~S~ize" = "~S~ējuma izmērs"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~F~ree space" = "Sējuma ~b~rīvā vieta"
@@ -1925,7 +1927,7 @@ flag = "LV"
 "Main board" = "Mātesplate"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:38
 "Disk drives" = "Diski"
-# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:322
+# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:333
 "Memory" = "Atmiņa"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "Cits"
@@ -2179,70 +2181,84 @@ flag = "LV"
 "plain" = "teksts"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "auto"
-# navigator/lib/system/diskinfo.py:210
+# navigator/lib/system/diskinfo.py:215
 "File" = "Fails"
-# navigator/lib/system/diskinfo.py:201
+# navigator/lib/system/diskinfo.py:206
 "Socket" = "Ligzda"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:208
 "Character device" = "Rakstzīmju ierīce"
-# navigator/lib/system/diskinfo.py:205
+# navigator/lib/system/diskinfo.py:210
 "Block device" = "Bloku ierīce"
-# navigator/lib/system/diskinfo.py:207
+# navigator/lib/system/diskinfo.py:212
 "FIFO" = "FIFO"
-# navigator/lib/system/diskinfo.py:209
+# navigator/lib/system/diskinfo.py:214
 "Executable file" = "Izpildāms fails"
-# navigator/lib/system/diskinfo.py:196
+# navigator/lib/system/diskinfo.py:201
 "Broken symbolic link" = "Bojāta simboliskā saite"
-# navigator/lib/system/diskinfo.py:197
+# navigator/lib/system/diskinfo.py:202
 "Symbolic link to a directory" = "Simboliskā saite uz direktoriju"
-# navigator/lib/system/diskinfo.py:197
+# navigator/lib/system/diskinfo.py:202
 "Symbolic link to a file" = "Simboliskā saite uz failu"
-# navigator/lib/system/diskinfo.py:224, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:229, navigator/lib/appearance/palette.py
 "Current file" = "Pašreizējais fails"
-# navigator/lib/system/diskinfo.py:229
+# navigator/lib/system/diskinfo.py:234
 "Size: ~not counted~" = "Izmērs: ~nav saskaitīts~"
-# navigator/lib/system/diskinfo.py:231
+# navigator/lib/system/diskinfo.py:236
 "Size: ~{n:,}~ byte" = ["Izmērs: ~{n:,}~ baits", "Izmērs: ~{n:,}~ baiti", "Izmērs: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:281, navigator/widgets/manager/panel/panel.py:2296
+# navigator/lib/system/diskinfo.py:291, navigator/widgets/manager/panel/panel.py:2296
 "~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:225
+# navigator/lib/system/diskinfo.py:230
 "Name: ~{name}~" = "Nosaukums: ~{name}~"
-# navigator/lib/system/diskinfo.py:226
+# navigator/lib/system/diskinfo.py:231
 "Type: ~{kind}~" = "Tips: ~{kind}~"
-# navigator/lib/system/diskinfo.py:274
+# navigator/lib/system/diskinfo.py:284
 "Current directory:" = "Pašreizējā direktorija:"
-# navigator/lib/system/diskinfo.py:295
+# navigator/lib/system/diskinfo.py:306
 "~{n:,}~ total byte on ~{mount}~" = ["Kopā: ~{n:,}~ baits uz ~{mount}~", "Kopā: ~{n:,}~ baiti uz ~{mount}~", "Kopā: ~{n:,}~ baitu uz ~{mount}~"]
-# navigator/lib/system/diskinfo.py:298
+# navigator/lib/system/diskinfo.py:309
 "~{n:,}~ free byte on ~{mount}~" = ["Brīvs: ~{n:,}~ baits uz ~{mount}~", "Brīvs: ~{n:,}~ baiti uz ~{mount}~", "Brīvs: ~{n:,}~ baitu uz ~{mount}~"]
-# navigator/lib/system/diskinfo.py:313
+# navigator/lib/system/diskinfo.py:324
 "~{n:,}~ byte memory for user" = ["Pieejams lietotājam: ~{n:,}~ baits", "Pieejams lietotājam: ~{n:,}~ baiti", "Pieejams lietotājam: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:316
+# navigator/lib/system/diskinfo.py:327
 "~{n:,}~ byte memory for Navigator" = ["Navigator izmanto: ~{n:,}~ baits", "Navigator izmanto: ~{n:,}~ baiti", "Navigator izmanto: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:233
+# navigator/lib/system/diskinfo.py:238
 "Modified: ~{when}~" = "Mainīts: ~{when}~"
-# navigator/lib/system/diskinfo.py:235
-"Accessed: ~{when}~" = "Lietots: ~{when}~"
-# navigator/lib/system/diskinfo.py:237
-"Changed: ~{when}~" = "Statuss mainīts: ~{when}~"
 # navigator/lib/system/diskinfo.py:240
-"Attributes: ~{attributes}~" = "Atribūti: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:243
-"Owner: ~{owner}~" = "Īpašnieks: ~{owner}~"
+"Accessed: ~{when}~" = "Lietots: ~{when}~"
+# navigator/lib/system/diskinfo.py:242
+"Changed: ~{when}~" = "Statuss mainīts: ~{when}~"
 # navigator/lib/system/diskinfo.py:245
+"Attributes: ~{attributes}~" = "Atribūti: ~{attributes}~"
+# navigator/lib/system/diskinfo.py:248
+"Owner: ~{owner}~" = "Īpašnieks: ~{owner}~"
+# navigator/lib/system/diskinfo.py:250
 "Links: ~{links}~, inode ~{inode}~" = "Saites: ~{links}~, inode ~{inode}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:252
 "Link to: ~{target}~" = "Saite uz: ~{target}~"
-# navigator/lib/system/diskinfo.py:278, navigator/widgets/manager/panel/panel.py:2292
+# navigator/lib/system/diskinfo.py:288, navigator/widgets/manager/panel/panel.py:2292
 "No files in this directory" = "Šajā direktorijā nav failu"
-# navigator/lib/system/diskinfo.py:282
+# navigator/lib/system/diskinfo.py:292
 "~{n:,}~ file with {total}" = ["~{n:,}~ fails, {total}", "~{n:,}~ faili, {total}", "~{n:,}~ failu, {total}"]
-# navigator/lib/system/diskinfo.py:320, navigator/widgets/manager/commands.py:219
+# navigator/lib/system/diskinfo.py:331, navigator/widgets/manager/commands.py:219
 "Drive" = "Disks"
-# navigator/lib/system/diskinfo.py:311, navigator/widgets/manager/info_panel/info_panel.py:165
+# navigator/lib/system/diskinfo.py:322, navigator/widgets/manager/info_panel/info_panel.py:188
 "~{n:,}~K bytes total memory" = "~{n:,}~K baitu kopējā atmiņa"
-# navigator/lib/system/diskinfo.py:302
+# navigator/lib/system/diskinfo.py:313
 "Volume label on ~{mount}: {label}~" = "Sējuma nosaukums ~{mount}: {label}~"
+# navigator/lib/system/mediainfo.py:313
+"mono" = "mono"
+# navigator/lib/system/mediainfo.py:315
+"stereo" = "stereo"
+# navigator/lib/system/mediainfo.py:316
+"{n} channel" = ["{n} kanāls", "{n} kanāli", "{n} kanālu"]
+# navigator/lib/system/mediainfo.py:326
+"yes" = "jā"
+# navigator/lib/system/mediainfo.py:341
+"{n} fps" = "{n} kadri/s"
+# navigator/lib/system/mediainfo.py:348
+"{n} kHz" = "{n} kHz"
+# navigator/lib/system/mediainfo.py:353
+"{n} kbit/s" = "{n} kbit/s"
 # navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "Darbības pabeigšanai nepietiek atmiņas."
 # navigator/lib/system/sysinfo.py:146
@@ -2293,21 +2309,21 @@ flag = "LV"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
 # navigator/settings.py:734
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:769
+# navigator/settings.py:771
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:814
+# navigator/settings.py:816
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:829
+# navigator/settings.py:831
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:861
+# navigator/settings.py:863
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Iestatījumi > Konfigurācija > Valsts formāti (DN dlgCountrySetup)"
-# navigator/settings.py:885
+# navigator/settings.py:887
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:900
+# navigator/settings.py:902
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:927
+# navigator/settings.py:929
 "File > Checksums > Calculate (not DN's)" = "Fails > Kontrolsummas > Aprēķināt (nav DN)"
-# navigator/settings.py:943
+# navigator/settings.py:945
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Nepareiza {name} parole. Mēģiniet vēlreiz:"
@@ -2535,7 +2551,7 @@ flag = "LV"
 "Confirm file save" = "Apstiprināt saglabāšanu"
 # navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:263, navigator/widgets/viewer/file_window/file_window.py:496
 "Search string not found" = "Meklētā virkne nav atrasta"
-# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:176 ...
+# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:199 ...
 "Information" = "Informācija"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
@@ -2905,9 +2921,9 @@ flag = "LV"
 "{n} difference found" = ["Atrasta {n} atšķirība", "Atrastas {n} atšķirības", "Atrastas {n} atšķirības"]
 # navigator/widgets/manager/compare_progress/compare_progress.py:30
 "No differences found" = "Atšķirību nav"
-# navigator/widgets/manager/info_panel/info_panel.py:166
+# navigator/widgets/manager/info_panel/info_panel.py:189
 "{count} byte of memory in all" = ["Kopā {count} baits atmiņas", "Kopā {count} baiti atmiņas", "Kopā {count} baitu atmiņas"]
-# navigator/widgets/manager/info_panel/info_panel.py:149
+# navigator/widgets/manager/info_panel/info_panel.py:172
 "Connection" = "Savienojums"
 # navigator/widgets/manager/manager/manager.py:731
 "Calculating checksums" = "Aprēķina kontrolsummas"
@@ -4057,6 +4073,44 @@ flag = "LV"
 "Unpacked" = "Atspiests"
 # navigator/lib/drives/base.py
 "Region" = "Reģions"
+# navigator/lib/system/mediainfo.py
+"Duration" = "Ilgums"
+# navigator/lib/system/mediainfo.py
+"Container" = "Konteiners"
+# navigator/lib/system/mediainfo.py
+"Video" = "Video"
+# navigator/lib/system/mediainfo.py
+"Audio" = "Audio"
+# navigator/lib/system/mediainfo.py
+"Bitrate" = "Bitu ātrums"
+# navigator/lib/system/mediainfo.py
+"Title" = "Nosaukums"
+# navigator/lib/system/mediainfo.py
+"Artist" = "Izpildītājs"
+# navigator/lib/system/mediainfo.py
+"Album" = "Albums"
+# navigator/lib/system/mediainfo.py
+"Year" = "Gads"
+# navigator/lib/system/mediainfo.py
+"Track" = "Celiņš"
+# navigator/lib/system/mediainfo.py
+"Genre" = "Žanrs"
+# navigator/lib/system/mediainfo.py
+"Dimensions" = "Izmēri"
+# navigator/lib/system/mediainfo.py
+"Camera" = "Kamera"
+# navigator/lib/system/mediainfo.py
+"Taken" = "Uzņemts"
+# navigator/lib/system/mediainfo.py
+"Pages" = "Lapas"
+# navigator/lib/system/mediainfo.py
+"Author" = "Autors"
+# navigator/lib/system/mediainfo.py
+"Subject" = "Tēma"
+# navigator/lib/system/mediainfo.py
+"Producer" = "Veidotājs"
+# navigator/lib/system/mediainfo.py
+"Encrypted" = "Šifrēts"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "Krāsu shēma, viena no `nav --list-themes`"
 # navigator/settings.py
@@ -4293,6 +4347,8 @@ flag = "LV"
 "How many files it holds, and their bytes" = "Cik failu tajā ir un to baiti"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "Fails zem kursora: tā tips, izmērs, laiki, atribūti un īpašnieks"
+# navigator/settings.py
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "Mediju faila vai PDF dati: ilgums, straumes, birkas, izmēri, lapas (audio un video vajag FFmpeg ffprobe)"
 # navigator/settings.py
 "The file system's size" = "Failu sistēmas izmērs"
 # navigator/settings.py

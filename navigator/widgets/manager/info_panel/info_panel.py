@@ -5,7 +5,8 @@ read on a thread (:func:`navigator.lib.system.diskinfo.gather`) whenever the dir
 it describes changes or is re-read (``cmRereadInfo``), and what was read last
 stays up meanwhile.  The entry under the active panel's cursor is followed
 apart (:meth:`InfoPanel.show_file`), its stat read on the same thread, so
-moving the cursor never reads the disk's facts again.  A line is centred, as
+moving the cursor never reads the disk's facts again; a media file's
+details follow as a second read (:mod:`navigator.lib.system.mediainfo`).  A line is centred, as
 ``Wrt`` centred it, but for the information file's, which start at the left
 (the current file's are a table, padded to one width to centre as a block);
 ``~`` runs are drawn in the ``highlight`` part, and the rules across the
@@ -14,6 +15,7 @@ frame's colour.
 
 from __future__ import annotations
 
+import dataclasses
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +29,7 @@ from navkit.widget import Widget
 
 from navml.background import Background, Outcome
 
-from navigator.lib.system import diskinfo
+from navigator.lib.system import diskinfo, mediainfo
 from navigator.settings import SETTINGS
 
 #: Where a box charset keeps its horizontal line.
@@ -101,13 +103,32 @@ class InfoPanel(Widget):
             return
         path = Path(location.local) if location is not None and location.is_local else None
 
-        def answered(outcome: Outcome) -> None:
-            if self._wanted_file != location or self.entry is not entry:
+        def current() -> bool:
+            return self._wanted_file == location and self.entry is entry
+
+        def described(facts: diskinfo.FileFacts, outcome: Outcome) -> None:
+            if not current():
                 return
             try:
-                self.file_facts = outcome.result()
+                media = outcome.result()
+            except Exception:
+                media = None
+            if media is not None:
+                self.file_facts = dataclasses.replace(facts, media=media)
+
+        def answered(outcome: Outcome) -> None:
+            if not current():
+                return
+            try:
+                facts = outcome.result()
             except OSError:
-                self.file_facts = diskinfo.FileFacts()
+                facts = diskinfo.FileFacts()
+            self.file_facts = facts
+            # A media file's details next, apart: the table does not wait
+            # for ffprobe, and a file the cursor has left is not read.
+            if path is not None and SETTINGS.drive_info.media_info and mediainfo.kind(facts.mime):
+                _READER.run(self, mediainfo.read, path, facts.mime, current,
+                            done=lambda outcome: described(facts, outcome))
 
         _READER.run(self, diskinfo.stat_file, path, entry.name, done=answered)
 

@@ -21,7 +21,8 @@ under the panel's cursor: its type, size, times, attributes, owner, links
 and inode (:func:`file_lines`).  A departure: ``TDiskInfo`` described the
 directory alone.  The listing's entry gives most of it; a local entry's
 access and change times, links and inode are one ``lstat`` on a thread
-(:func:`stat_file`), which a remote one goes without.
+(:func:`stat_file`), which a remote one goes without; a media file's or a
+PDF's details are a second read (:mod:`navigator.lib.system.mediainfo`).
 """
 
 from __future__ import annotations
@@ -37,6 +38,7 @@ from typing import Any, Iterable
 from navkit.i18n import tr, tr_n
 
 from navigator.lib.config import country
+from navigator.lib.system import mediainfo
 
 #: DN's ``sDirInfo`` and ``sFileID``, in the order it looked for them.
 INFO_FILES = ("DirInfo", "File_ID.DIZ")
@@ -72,6 +74,9 @@ class FileFacts:
     inode: int | None = None
     #: The MIME type its name suggests (the stdlib's table, read on first use).
     mime: str = ""
+    #: A media file's or PDF's details (:class:`navigator.lib.system.mediainfo.Media`),
+    #: read after the rest; None until then, or for any other file.
+    media: Any = None
 
 
 #: The octal escapes the kernel writes in a mounts field.
@@ -245,6 +250,10 @@ def file_lines(entry: Any, facts: FileFacts | None) -> list[tuple[str, bool]]:
         out.append((tr("Links: ~{links}~, inode ~{inode}~").format(links=facts.nlink, inode=facts.inode), False))
     if entry.link_target is not None:
         out.append((tr("Link to: ~{target}~").format(target=entry.link_target), False))
+    for label, value in mediainfo.pairs(facts.media):
+        if isinstance(value, float):
+            value = country.stamp(value)
+        out.append((f"{tr(label)}: ~{value}~", False))
     return out[:1] + [(text, True) for text in table([text for text, _ in out[1:]])]
 
 

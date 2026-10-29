@@ -137,6 +137,15 @@ def test_the_section_follows_the_directory_block_behind_its_box():
     assert "\0Current file" not in [line for line, _ in lines(Path("/"), ENTRIES, FACTS, shows, entry, None)]
 
 
+def test_media_details_join_the_table():
+    from navigator.lib.system.mediainfo import Media
+
+    entry = DirEntry("a.png", False, 10, 0o100644)
+    text = [line for line, _ in file_lines(entry, FileFacts(nlink=1, inode=2, media=Media(width=4, height=3)))]
+    assert text[-1].rstrip() == "Dimensions: ~4 × 3~" and text[-2].strip() == "Links: ~1~, inode ~2~"
+    assert {line.index(":") for line in text[1:]} == {len("Attributes")}
+
+
 def test_stat_file(tmp_path):
     (tmp_path / "a.txt").write_text("x")
     facts = stat_file(tmp_path / "a.txt", "a.txt")
@@ -220,3 +229,25 @@ def test_information_panel_setup_saves_its_boxes(place):
     assert seen["title"] == "Settings" and seen["shown"]
     assert SETTINGS.drive_info.directory_title is False and SETTINGS.drive_info.totals is True
     assert "directory_title = no" in SETTINGS.path.read_text()
+
+
+def test_a_media_file_is_described_a_moment_later_unless_switched_off(place):
+    import struct
+
+    png = b"\x89PNG\r\n\x1a\n" + struct.pack(">I", 13) + b"IHDR" + struct.pack(">II", 2, 3)
+    (place / "b.png").write_bytes(png)
+    seen = {}
+
+    def to_png(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index("b.png")
+
+    app = navigator(place)
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), to_png,
+                  Until(lambda a: "Dimensions: ~2 × 3~" in described(a))])
+    SETTINGS.drive_info.media_info = False
+    app = navigator(place)
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), to_png,
+                  Until(lambda a: a.manager.info.file_facts is not None), lambda a: None,
+                  lambda a: seen.update(off=described(a))])
+    assert "Name: ~b.png~" in seen["off"] and not any(line.startswith("Dimensions") for line in seen["off"])
