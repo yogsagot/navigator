@@ -25,6 +25,7 @@ from __future__ import annotations
 
 from typing import Iterator
 
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS
 from navkit.screen import Surface
@@ -117,7 +118,7 @@ class Modal(Widget):
         if self.title:
             label = f" {self.title} "[: max(0, self.width - 2)]
             surface.draw_text(
-                max(1, (self.width - len(label)) // 2), 0, label,
+                max(1, (self.width - display_width(label)) // 2), 0, label,
                 self.part_style("title"),
             )
         if self.closable and self.width >= 8:

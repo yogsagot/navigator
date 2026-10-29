@@ -27,6 +27,7 @@ class InterfacePage(_Component):
     colors: ChoiceField
     glyphs_tier: ChoiceField
     marks: ChoiceField
+    direction: ChoiceField
     settings_tabs_caption: Label
     settings_tabs: RadioButtons
     window_strip_caption: Label

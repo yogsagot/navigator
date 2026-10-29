@@ -548,3 +548,14 @@ def test_faint_stays_sgr_2_below_truecolor():
     for colors in (ANSI_BRIGHT, EXTENDED):
         info = TerminalInfo(colors=colors, palette=VGA_PALETTE)
         assert info.adapt_style(Style(fg=WHITE, bg=BLUE, dim=True)).dim
+
+
+def test_a_title_cannot_carry_a_control_out_of_its_osc():
+    terminal, out = _terminal()
+    terminal.start()
+    before = len(out.getvalue())
+    terminal.set_title("evil\x07\x1b[2J\x9bdir")
+    terminal.flush()
+    written = out.getvalue()[before:]
+    osc = written[written.index("\x1b]0;"):]
+    assert osc == "\x1b]0;evil[2Jdir\x07"

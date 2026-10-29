@@ -72,16 +72,38 @@ AttrDialog(Dialog):
             id: mode_page
             title: "Mode"
 
-            #: Over the grid's four columns, which are eleven apart: a mark,
-            #: its blank, the widest caption, and two between.
+            #: Over the grid's four columns, a label each at the column's own
+            #: place (``bits.column_x``), so a translation's widths and a
+            #: mirrored screen move heading and column together.
             Label:
                 id: heading
                 x: 3
                 y: 1
-                width: max(0, parent.width - 6)
+                width: max(1, bits.column_x(1) - bits.column_x(0))
                 height: 1
-                text: "O~w~ner      Group      Others     Special"
+                text: "O~w~ner"
                 link: bits
+
+            Label:
+                x: 3 + bits.column_x(1)
+                y: 1
+                width: max(1, bits.column_x(2) - bits.column_x(1))
+                height: 1
+                text: "Group"
+
+            Label:
+                x: 3 + bits.column_x(2)
+                y: 1
+                width: max(1, bits.column_x(3) - bits.column_x(2))
+                height: 1
+                text: "Others"
+
+            Label:
+                x: 3 + bits.column_x(3)
+                y: 1
+                width: max(1, parent.width - 6 - bits.column_x(3))
+                height: 1
+                text: "Special"
 
             CheckBoxes:
                 id: bits

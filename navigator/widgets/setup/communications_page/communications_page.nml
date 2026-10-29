@@ -70,7 +70,7 @@ CommunicationsPage:
         y: 3
         width: max(0, parent.width - 40)
         height: 1
-        text: "minutes on (0: never)"
+        text: "minutes (0: never)"
 
     MaskedField:
         id: refresh

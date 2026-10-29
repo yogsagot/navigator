@@ -742,9 +742,15 @@ def main(argv: list[str] | None = None) -> int:
              "helps on a terminal that names no other colours",
     )
     parser.add_argument(
-        "--direction", choices=("auto", "ltr", "rtl"), default="auto",
+        "--direction", choices=("auto", "ltr", "rtl"), default=None,
         help="which way the screen reads: mirrored for a right-to-left "
-             "language's catalogue, or as said (default: auto)",
+             "language's catalogue, or as said (default: the settings file's, else auto)",
+    )
+    parser.add_argument(
+        "--bidi", choices=("app", "words"), default=None,
+        help="how right-to-left text is sent: laid out by Navigator (`app'), "
+             "or with each word reversed for kitty to turn back (`words') "
+             "(default: NAVKIT_BIDI, else detected)",
     )
     parser.add_argument(
         "--dim-modal", action=argparse.BooleanOptionalAction, default=None,
@@ -853,6 +859,9 @@ def main(argv: list[str] | None = None) -> int:
     # And for the colour depth, over NAVKIT_COLORS.
     if args.colors is not None and args.colors != "auto":
         info = replace(info, colors=depth_named(args.colors, info.colors))
+    # And how right-to-left text is sent, over NAVKIT_BIDI.
+    if args.bidi is not None:
+        info = replace(info, bidi=args.bidi)
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
     left = _start_directory(args.left) if args.left else Path.cwd()
@@ -861,7 +870,7 @@ def main(argv: list[str] | None = None) -> int:
     app = Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
                     given=bool(args.left), theme=theme, on_error=args.on_error)
     app.marks = appearance.marks if args.marks is None else args.marks
-    app.direction = args.direction
+    app.direction = args.direction if args.direction is not None else SETTINGS.interface.direction
     app.run()
     return 0
 

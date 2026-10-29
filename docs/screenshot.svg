@@ -109,7 +109,7 @@
 <text x="720" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">UP--DIR</text>
 <text x="10" y="75" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/docs</text>
 <text x="370" y="75" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff">About</text>
-<text x="610" y="75" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#55ff55">[■]</text>
+<text x="610" y="75" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#0000aa">[■]</text>
 <text x="760" y="75" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>
 <text x="10" y="95" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/src</text>
 <text x="760" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">DIR</text>

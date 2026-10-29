@@ -246,6 +246,12 @@ def ellipsis(tier: int = GLYPHS_UNICODE) -> str:
     return "..." if tier < GLYPHS_UNICODE else "\u2026"
 
 
+def hidden_mark(tier: int = GLYPHS_UNICODE) -> str:
+    """What stands for a character that would hide part of a name, such as
+    a direction override (:func:`navkit.bidi.reveal`): ``⁇``, ``?`` in ASCII."""
+    return "?" if tier < GLYPHS_UNICODE else "\u2047"
+
+
 def tier_named(name: str, default: int | None = None) -> int | None:
     """The tier *name* stands for, or *default* if it names nothing.
 

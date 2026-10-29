@@ -10,6 +10,7 @@ from navml.widgets.dialog.control import Control
 from navml.widgets.dialog.scroll_bar import ScrollBar
 
 from typing import Any
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface, char_width

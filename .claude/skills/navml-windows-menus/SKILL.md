@@ -24,6 +24,9 @@ Four rules from building it:
 navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget.render_after` for it (see
 `navkit-widgets-input`).
 
+- **A window's title keeps clear of its icons** (`Window._title_span`): between `[■]` and `[↑]`/`[↕]`, a blank from
+  each, cut by painted width with `…` (`_fit`), centred on the whole top edge where it fits and slid clear where it does
+  not; the title tooltip names the whole title when it was cut.
 - Closing the last window (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused; opening any window
   (`OpenedEvent`) hides the console again -- no command that opens one checks `console_visible` itself.
 - **Size/Move (Ctrl+F5) is `Window.begin_move`**, TV's `dmDragMove`: the window takes the keyboard, arrows move,

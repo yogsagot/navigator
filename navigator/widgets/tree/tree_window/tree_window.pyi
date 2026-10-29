@@ -17,6 +17,7 @@ from navml.widgets.window import Window
 
 from pathlib import Path
 from typing import Any
+from navkit.bidi import display_width
 from navkit.events import ContextMenuEvent
 from navkit.i18n import tr
 from navkit.screen import Surface

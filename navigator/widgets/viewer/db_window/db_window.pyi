@@ -15,6 +15,7 @@ from navml.widgets.window import Window
 
 from pathlib import Path, PurePosixPath
 from typing import Any
+from navkit.bidi import display_width
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog

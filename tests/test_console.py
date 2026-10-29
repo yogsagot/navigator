@@ -322,3 +322,47 @@ def test_a_sequence_that_breaks_pyte_does_not_break_the_console(monkeypatch):
     monkeypatch.undo()
     console.feed(b"later")
     assert "later" in console.screen.display[0]
+
+
+# -- right-to-left output --------------------------------------------------
+
+
+def _shown_row(console: ConsoleScreen, y: int = 0) -> str:
+    surface = console.surface
+    return "".join(surface.get(x, y)[0] for x in range(console.columns)).rstrip()
+
+
+def test_hebrew_output_is_shown_in_reading_order_on_a_left_to_right_line():
+    # As VTE shows it: the paragraph stays left to right, the word turns
+    # round and the number after it goes with it.
+    console = feed("ab \x1b[31mשלום\x1b[m 12\r\n".encode())
+    assert _shown_row(console) == "ab 12 םולש"
+    assert console.surface.get(6, 0)[1].fg == RED
+    assert console.surface.get(3, 0)[1].fg != RED  # the colour went with its letters
+    assert console.written.get(3, 0)[0] == "ש"
+
+
+def test_a_hebrew_first_line_keeps_its_blanks_at_the_end():
+    console = feed("שלום abc".encode())
+    assert _shown_row(console) == "םולש abc"
+
+
+def test_the_cursor_and_the_mouse_meet_the_program_in_its_own_columns():
+    console = feed("ab אבג".encode() + b"\x1b[1;4H")  # on alef, written column 3
+    assert console.cursor[0] == 3
+    assert console.visual_x(3, 0) == 5
+    assert console.logical_x(5, 0) == 3
+    assert console.visual_x(10, 0) == 10  # past the text nothing moves
+
+
+def test_a_selection_over_hebrew_copies_it_as_written():
+    console = feed("ab אבג cd".encode())
+    assert console.text((0, 0), (8, 0)) == "ab אבג cd"
+    assert console.text((3, 0), (4, 0)) == "בג"  # painted gimel, bet
+
+
+def test_a_program_that_lays_out_its_own_text_is_left_alone():
+    console = feed("\x1b[8lab אבג".encode())
+    assert _shown_row(console) == "ab אבג"
+    console.feed(b"\x1b[8h\x1b[2J\x1b[H" + "ab אבג".encode())
+    assert _shown_row(console) == "ab גבא"

@@ -84,7 +84,10 @@ CountryPage:
         x: 3
         y: 8
         width: max(0, parent.width - 6)
-        height: 2
+        #: Three rows, wrapped: two at the page's full width, a third when
+        #: Settings' tabs down the left narrow it.
+        height: 3
+        wrap: True
         text: "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's"
 
     StaticText:

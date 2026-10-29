@@ -147,7 +147,8 @@ per batch" behaviour is asserted.
 
 For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `python -m navigator` on a
 pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints).
-This is a manual check, not part of the suite.
+`tests/test_pty_end_to_end.py` does this for `--language he` (mirrored screen, `CSI 8 l`/`8 h`, quitting) and is
+skipped unless asked for: `NAVIGATOR_PTY_TESTS=1 ./venv/bin/python -m pytest tests/test_pty_end_to_end.py`.
 
 ## Rules every change risks breaking
 

@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from navkit.bidi import REVEALED, display_width, reveal, reveal_runs
 from navkit.commands import key_for, key_label
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
@@ -86,8 +87,8 @@ ELLIPSIS = "..."
 
 
 def text_width(text: str) -> int:
-    """The cells *text* takes on the terminal."""
-    return sum(char_width(char) for char in text)
+    """The cells *text* takes on the terminal (an Arabic lam-alef one)."""
+    return display_width(text)
 
 
 def skip_cells(text: str, cells: int) -> str:
@@ -1461,8 +1462,8 @@ class Panel(ContextMenuHost, ListViewer):
                     return whole if text_width(whole) > width else ""
                 return ""
         lines = []
-        if self.name_offset or text_width(item.name) > self._name_room(index):
-            lines.append(item.name)
+        if self.name_offset or text_width(self.shown_name(item)) > self._name_room(index):
+            lines.append(self.shown_name(item))
         if item.link_target is not None:
             lines.append(f"-> {item.link_target}")
         return "\n".join(lines)
@@ -2010,7 +2011,7 @@ class Panel(ContextMenuHost, ListViewer):
         columns = []
         first, x = self.scroll, inset
         while first < len(items) and x < inset + inner:
-            longest = max(len(item.name) for item in items[first : first + rows])
+            longest = max(text_width(self.shown_name(item)) for item in items[first : first + rows])
             width = min(cap, gutter + max(1, longest))
             columns.append((first, x, width))
             first += rows
@@ -2102,7 +2103,7 @@ class Panel(ContextMenuHost, ListViewer):
         """
         if self.view_mode == "list" or not self.items:
             return 0
-        longest = max(text_width(item.name) for item in self.items)
+        longest = max(text_width(self.shown_name(item)) for item in self.items)
         return max(0, longest - self.name_room)
 
     @computed
@@ -2355,7 +2356,7 @@ class Panel(ContextMenuHost, ListViewer):
             else:
                 text = fit_text(getattr(entry, self.DETAIL_COLUMNS[key][2]), width, self.ellipsis)
             pieces.append((x, text))
-        line = fit_text(entry.name, max(1, name_width), self.ellipsis)
+        line = fit_text(self.shown_name(entry), max(1, name_width), self.ellipsis)
         line = " " * name_x + line
         for x, text in pieces:
             line += " " * max(0, x - text_width(line)) + text
@@ -2430,7 +2431,7 @@ class Panel(ContextMenuHost, ListViewer):
         """*entry*'s name, size in bytes, date and link target, a line each."""
         if entry is None:
             return ""
-        details = [entry.name]
+        details = [self.shown_name(entry)]
         if not entry.is_dir or entry.counted:
             details.append(tr_n("{n:,} byte", "{n:,} bytes", entry.size))
         if entry.name != "..":
@@ -2584,6 +2585,13 @@ class Panel(ContextMenuHost, ListViewer):
         """What marks a name or path cut short: ``…``, or ``...`` in ASCII."""
         return glyphs_module.ellipsis(self.glyphs)
 
+    def shown_name(self, item: DirEntry) -> str:
+        """*item*'s name as the panel shows it: a direction override, an
+        isolate or a control in it as a visible ``⁇`` (``?`` in ASCII) that
+        reorders nothing, so ``photo`` + U+202E + ``gpj.exe`` cannot pass for
+        a picture.  A departure: DOS names had no such characters."""
+        return reveal(item.name, glyphs_module.hidden_mark(self.glyphs))
+
     def _cut_start(self, text: str, room: int) -> str:
         """*text* in *room* characters, its start cut and marked if it must be."""
         if len(text) <= room:
@@ -2625,8 +2633,12 @@ class Panel(ContextMenuHost, ListViewer):
             surface.draw_text(x + width - 2, y, mark, letter, 1)
         if width > gutter + git:
             room = width - gutter - git
-            name = window_text(item.name, offset, room, self.ellipsis)
-            surface.draw_text(x + gutter, y, name, style, room)
+            name = window_text(reveal(item.name, REVEALED), offset, room, self.ellipsis)
+            # The mark reversed out of the row, whatever the theme: a warning
+            # needs no colour of its own to be seen, monochrome included.
+            mark = glyphs_module.hidden_mark(self.glyphs)
+            runs = reveal_runs(name, style, mark, style.derive(reverse=not style.reverse))
+            surface.draw_runs(x + gutter, y, runs, room)
 
     def render_row(self, surface: Surface, y: int, index: int, item: DirEntry) -> None:
         style = self.row_style(index, item)
@@ -2734,7 +2746,7 @@ class Panel(ContextMenuHost, ListViewer):
                 break
             if self.header:
                 text = text[:shown]
-                surface.draw_text(x + (shown - len(text)) // 2, top, text, heading, shown)
+                surface.draw_text(x + (shown - display_width(text)) // 2, top, text, heading, shown)
             # Dividers go between columns: none after the last one.
             edge = x + width
             if index < len(spans) - 1 and edge < right:

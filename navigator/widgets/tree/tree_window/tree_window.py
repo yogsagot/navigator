@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.events import ContextMenuEvent
 from navkit.i18n import tr
 from navkit.screen import Surface
@@ -91,7 +92,7 @@ class TreeWindow(Window):
         if not label or not self.framed or self.height < 2:
             return None
         label = label[: max(0, self.width - 4)]
-        return max(1, (self.width - len(label)) // 2), label
+        return max(1, (self.width - display_width(label)) // 2), label
 
     def render(self, surface: Surface) -> None:
         """The frame, and over its bottom edge what the tree's search has typed,

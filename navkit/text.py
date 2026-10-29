@@ -8,6 +8,8 @@ above it; navml re-exports both from ``navml.widgets.dialog.control``.
 
 from __future__ import annotations
 
+from navkit.bidi import reveal
+
 
 def caption_runs(text: str) -> list[tuple[str, bool]]:
     """*text* as runs of plain and marked characters, in order.
@@ -55,5 +57,8 @@ def caption_runs(text: str) -> list[tuple[str, bool]]:
 
 
 def escape_caption(text: str) -> str:
-    """*text* with every ``~`` doubled, so a file name is drawn as it is."""
-    return text.replace("~", "~~")
+    """*text* with every ``~`` doubled, so a file name is drawn as it is --
+    and a direction override or a control in it shown as ``⁇``
+    (:func:`navkit.bidi.reveal`), so it cannot turn the name round.  Line
+    breaks and tabs are a caption's own and stay."""
+    return reveal(text, keep="\n\t").replace("~", "~~")

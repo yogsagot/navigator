@@ -569,3 +569,52 @@ def test_a_popup_taller_than_the_screen_is_cut_to_it_and_scrolls():
     assert seen["height"] == 8 and seen["y"] == 0
     assert seen["current"] == 11 and seen["top"] == 6
     assert seen["chosen"].text == "~L~ast"
+
+
+def test_a_hebrew_hotkey_opens_by_its_letter_or_by_the_key_in_its_place():
+    root = Widget()
+    bar = MenuBar(parent=root)
+    SubMenu(parent=bar, text="~ק~ובץ", tooltip="Files")
+    SubMenu(parent=bar, text="~e~xtra")
+    # ק is typed on e's key, but a bar that marks e itself keeps it.
+    assert bar.hotkey("ק") == 0
+    assert bar.hotkey("e") == 1
+    SubMenu(parent=bar, text="~ד~יסק")
+    assert bar.hotkey("s") == 2  # dalet is typed on s's key
+    start, _ = bar.item_span(0)
+    assert bar.tooltip_at(start, 0) == "Files (~Alt-ק~, ~Alt-E~)"
+
+
+def test_a_menu_hotkey_on_another_layout_beats_a_binding_on_the_latin_key(monkeypatch):
+    # Alt+ק with a Hebrew layout reports base "e": the menu marked ק opens,
+    # though a key table binds Alt+E -- the key as typed is offered first.
+    monkeypatch.setattr(Editor, "keys", {"f2": Save, "alt+e": Save})
+    app, bar, editor = build()
+    bar.entries()[0].text = "~ק~ובץ"
+
+    async def hotkey(event):
+        return await bar.open_hotkey(event)
+
+    editor.on_key = hotkey
+    seen = []
+    run_app(app, [KeyEvent("ק", "ק", alt=True, base="e"), lambda a: seen.append(bar.current)])
+    assert seen == [0] and editor.saved == 0
+    # A key nothing takes as typed is offered again as the Latin key.
+    app, bar, editor = build()
+
+    async def decline(event):
+        return False
+
+    editor.on_key = decline
+    run_app(app, [KeyEvent("ס", "ס", alt=True, base="e")])
+    assert editor.saved == 1
+
+
+def test_an_open_menu_takes_a_letter_typed_on_another_layout():
+    from navml.widgets.menu.popup_menu.popup_menu import letter_of
+
+    entries = [MenuItem(text="S~S~H link"), MenuItem(text="~F~TP link"), MenuItem(text="~ק~ובץ")]
+    assert letter_of(entries, "f") == 1
+    assert letter_of(entries, "ד") == 0  # dalet is typed on s's key
+    assert letter_of(entries, "e") == 2  # qof's key on a US keyboard
+    assert letter_of(entries, "ק") == 2

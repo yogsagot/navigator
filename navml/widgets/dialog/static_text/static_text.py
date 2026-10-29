@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import re
 
-from navkit.screen import Surface, char_width
+from navkit.bidi import display_width, painted_cells
+from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 
@@ -55,14 +56,22 @@ def link_urls(surface: Surface, x: int, y: int, line: str) -> None:
     as ``draw_caption`` left them.  An address a wrap has broken is linked a
     line at a time, each half to what it holds -- which is what the reader of
     a broken address sees too.
+
+    The cells are found where they were painted (:func:`navkit.bidi.painted_cells`):
+    in a Hebrew sentence, or on a mirrored screen, an address is not where
+    counting characters from the left would put it.
     """
-    for match in URL.finditer(line):
-        column = x + sum(max(1, char_width(c)) for c in line[: match.start()])
-        for offset in range(len(match.group())):
-            if not 0 <= column + offset < surface.width:
-                continue
-            char, style = surface.get(column + offset, y)
-            surface.set_cell(column + offset, y, char, style.derive(link=match.group()))
+    matches = list(URL.finditer(line))
+    if not matches:
+        return
+    for index, column, width in painted_cells(line, surface.rtl):
+        match = next((m for m in matches if m.start() <= index < m.end()), None)
+        if match is None:
+            continue
+        for cell in range(x + column, x + column + width):
+            if 0 <= cell < surface.width:
+                char, style = surface.get(cell, y)
+                surface.set_cell(cell, y, char, style.derive(link=match.group()))
 
 
 def wrapped(text: str, width: int) -> list[str]:
@@ -114,9 +123,9 @@ class StaticText(Widget):
         for row, line in enumerate(lines[: max(0, self.height)]):
             plain, _, _ = parse_shortcut(line)
             if self.align == "right":
-                x = max(0, self.width - len(plain))
+                x = max(0, self.width - display_width(plain))
             elif self.align == "center":
-                x = max(0, (self.width - len(plain)) // 2)
+                x = max(0, (self.width - display_width(plain)) // 2)
             else:
                 x = 0
             draw_caption(surface, x, row, line, style, shortcut, self.width - x)

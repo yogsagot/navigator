@@ -428,3 +428,38 @@ def test_the_application_asks_the_terminal_what_backspace_is():
         app = Application(Widget(), terminal=terminal)
         run_app(app, [])
         assert app._parser.ctrl_h is expected
+
+
+# -- a Hebrew or Arabic layout -------------------------------------------------
+
+
+def _keys(data: bytes) -> list[KeyEvent]:
+    parser = InputParser()
+    return [e for e in parser.feed(data) + parser.flush() if isinstance(e, KeyEvent)]
+
+
+@pytest.mark.parametrize(
+    ("data", "name", "base"),
+    [
+        ("\x1b[1505::120;3u".encode(), "alt+ס", "alt+x"),     # kitty: samekh on x's key
+        ("\x1b[1489::99;5u".encode(), "ctrl+ב", "ctrl+c"),    # kitty: bet on c's key
+        ("\x1b[1503::111;5u".encode(), "ctrl+ן", "ctrl+o"),
+        ("\x1b[1605;3u".encode(), "alt+م", "alt+l"),           # no base sent: the table
+        ("\x1bס".encode(), "alt+ס", "alt+x"),                  # legacy Alt
+        ("\x1bض".encode(), "alt+ض", "alt+q"),
+    ],
+)
+def test_a_shortcut_typed_on_another_layout_keeps_its_latin_name(data, name, base):
+    (event,) = _keys(data)
+    assert (event.name, event.as_base().name) == (name, base)
+    assert event.matches(name) and not event.matches(base)
+
+
+def test_a_bare_letter_of_another_layout_is_only_text():
+    for data in ("ס".encode(), "\x1b[1505::120u".encode()):
+        (event,) = _keys(data)
+        assert event.base is None and event.char == "ס" and event.is_printable
+
+
+def test_the_base_layout_key_does_not_make_a_different_key():
+    assert _keys("\x1bס".encode())[0] == KeyEvent("ס", "ס", alt=True)

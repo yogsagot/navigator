@@ -21,6 +21,13 @@ which is what makes shift-left and shift-right symmetrical without a branch.
 A mouse drag sets both the same way, holding the mouse while it lasts, and a
 double click selects the word under it.
 
+**Right-to-left text moves as it is painted.**  Left and Right go to the
+neighbouring caret place on screen (Ctrl to the nearest word start that way),
+as the editor's do, and a selection is what is painted between its two ends
+(:meth:`picked`) -- in mixed Hebrew and Latin that can be two stretches of
+the text, which a copy joins in reading order and a deletion takes both of.
+A line with nothing right-to-left in it keeps the plain index arithmetic.
+
 **The clipboard is Turbo Vision's keys and the terminal's.**  Ctrl+Ins copies
 the selection -- or the whole line, which is what DOS Navigator's command line
 copied, having no selection -- Shift+Del cuts and Shift+Ins pastes; Ctrl+C
@@ -34,7 +41,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from navkit.bidi import caret_column, has_rtl, index_at, text_rtl
+from navkit.bidi import caret_column, has_rtl, index_at
 from navkit.commands import Command
 from navkit.events import (
     ContextMenuEvent,
@@ -140,29 +147,50 @@ class InputLine(Control):
         value = "*" * len(self.value) if self.password else self.value
         return value[self.first : self.first + self.room]
 
-    def arrows_mirrored(self) -> bool:
-        """Left and Right trade places on a mirrored screen only while the
-        text reads right to left: in a path they move as they always do."""
-        return text_rtl(self.value, True)
+    def _bidi(self) -> bool:
+        """Whether the value is laid out other than as typed: right-to-left
+        letters in it, or a mirrored screen under it."""
+        return self._painted_rtl or (not self.password and has_rtl(self.value))
 
     @property
     def selected_text(self) -> str:
-        start, stop = self.selection
-        return self.value[start:stop]
+        return "".join(self.value[index] for index in self.picked())
 
     @property
     def selection(self) -> tuple[int, int]:
-        """The selected run as ``(start, stop)``, empty when there is none."""
+        """The selected run as ``(start, stop)``, empty when there is none --
+        from the first character selected to the last, which right-to-left
+        text can paint as two stretches (:meth:`picked`)."""
         if self.anchor is None or self.anchor == self.cursor:
             return self.cursor, self.cursor
-        return min(self.anchor, self.cursor), max(self.anchor, self.cursor)
+        picked = self.picked()
+        if not picked:
+            return self.cursor, self.cursor
+        return picked[0], picked[-1] + 1
+
+    def picked(self) -> list[int]:
+        """The indices selected, in the text's order: those painted between the
+        anchor's caret and the cursor's -- the run between them, unless the
+        value is laid out other than as typed."""
+        anchor, cursor = self.anchor, self.cursor
+        if anchor is None or anchor == cursor:
+            return []
+        if not self._bidi() or (anchor, cursor) == (0, len(self.value)) or (cursor, anchor) == (0, len(self.value)):
+            return list(range(min(anchor, cursor), max(anchor, cursor)))
+        value, rtl = self.value, self._painted_rtl
+        low, high = sorted((caret_column(value, anchor, rtl), caret_column(value, cursor, rtl)))
+        return [index for index in range(len(value))
+                if low <= _cell_of(value, index, rtl) < high]
 
     def select_all(self) -> None:
         self.anchor, self.cursor = 0, len(self.value)
 
     def _replace_selection(self, text: str) -> None:
-        start, stop = self.selection
-        value = self.value[:start] + text + self.value[stop:]
+        picked = self.picked() if self.anchor is not None else []
+        start = picked[0] if picked else self.cursor
+        gone = set(picked)
+        kept = "".join(char for index, char in enumerate(self.value) if index not in gone)
+        value = kept[:start] + text + kept[start:]
         if self.max_length and len(value) > self.max_length:
             return
         self.value = value
@@ -176,6 +204,44 @@ class InputLine(Control):
         elif not extend:
             self.anchor = None
         self.cursor = where
+
+    def _step(self, rightwards: bool) -> int:
+        """The caret place next to the cursor's on screen, rightwards or not.
+
+        Past what is painted, the end of the text lying that way: the line
+        scrolls on as it always did.
+        """
+        if not self._bidi():
+            return self.cursor + (1 if rightwards else -1)
+        shown, rtl, first = self._shown(), self._painted_rtl, self.first
+        here = caret_column(shown, self.cursor - first, rtl)
+        places = [(caret_column(shown, index, rtl), first + index)
+                  for index in range(len(shown) + 1) if first + index != self.cursor]
+        return self._nearest(here, places, rightwards, shown)
+
+    def _word_step(self, rightwards: bool) -> int:
+        """Ctrl+Left/Right on laid-out text: the nearest word start on screen
+        that way -- each word's first letter in the text, and the end."""
+        if not self._bidi():
+            return self._word_right() if rightwards else self._word_left()
+        shown, rtl, first = self._shown(), self._painted_rtl, self.first
+        here = caret_column(shown, self.cursor - first, rtl)
+        starts = [index for index in range(len(shown) + 1)
+                  if index == len(shown)
+                  or (not shown[index].isspace() and (index == 0 or shown[index - 1].isspace()))]
+        places = [(caret_column(shown, index, rtl), first + index)
+                  for index in starts if first + index != self.cursor]
+        return self._nearest(here, places, rightwards, shown)
+
+    def _nearest(self, here: int, places: list[tuple[int, int]], rightwards: bool, shown: str) -> int:
+        ahead = [(abs(column - here), index) for column, index in places
+                 if (column > here if rightwards else column < here)]
+        if ahead:
+            return min(ahead)[1]
+        rtl = self._painted_rtl
+        start, end = caret_column(shown, 0, rtl), caret_column(shown, len(shown), rtl)
+        towards_end = (end >= start) == rightwards
+        return self.cursor + (1 if towards_end else -1)
 
     def _word_left(self) -> int:
         index = self.cursor
@@ -226,10 +292,9 @@ class InputLine(Control):
                 self._replace_selection("")
             elif self.cursor < len(self.value):
                 self.value = self.value[: self.cursor] + self.value[self.cursor + 1 :]
-        elif event.key == "left":
-            self._move(self._word_left() if event.ctrl else self.cursor - 1, shift)
-        elif event.key == "right":
-            self._move(self._word_right() if event.ctrl else self.cursor + 1, shift)
+        elif event.key in ("left", "right"):
+            rightwards = event.key == "right"
+            self._move(self._word_step(rightwards) if event.ctrl else self._step(rightwards), shift)
         elif event.key == "home":
             self._move(0, shift)
         elif event.key == "end":
@@ -480,14 +545,16 @@ class InputLine(Control):
         """
         self._painted_rtl = surface.rtl
         shown = self._shown()
-        start, stop = self.selection
-        low = min(max(start - self.first, 0), len(shown))
-        high = min(max(stop - self.first, 0), len(shown))
-        style = self.style
-        surface.draw_runs(x, 0, (
-            (shown[:low], style), (shown[low:high], self.part_style("selection")),
-            (shown[high:], style),
-        ), room)
+        style, selected = self.style, self.part_style("selection")
+        picked = {index - self.first for index in self.picked()}
+        runs: list[tuple[str, Any]] = []
+        for index, char in enumerate(shown):
+            look = selected if index in picked else style
+            if runs and runs[-1][1] is look:
+                runs[-1] = (runs[-1][0] + char, look)
+            else:
+                runs.append((char, look))
+        surface.draw_runs(x, 0, runs, room)
 
     def _render_arrows(self, surface: Surface, room: int) -> None:
         """``◄`` and ``►`` where the value runs off either edge."""
@@ -497,3 +564,10 @@ class InputLine(Control):
             surface.draw_text(0, 0, chars[2], arrow)
         if self.first + room < len(self.value):
             surface.draw_text(self.width - 1, 0, chars[3], arrow)
+
+
+def _cell_of(text: str, index: int, rtl: bool) -> int:
+    """The column ``text[index]`` is painted in, from where *text* starts --
+    where a caret before it sits, as in the editor, whose selection between
+    two carets is the same cells from one up to the other."""
+    return caret_column(text, index, rtl)

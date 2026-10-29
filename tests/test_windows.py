@@ -542,3 +542,51 @@ def test_the_chrome_icons_say_what_they_do(desk):
     win.toggle_zoom()
     settle()
     assert win.tooltip_at(win._icons()["zoom"] + 1, 0).startswith("Restore")
+
+
+# -- on a mirrored screen ------------------------------------------------------------
+
+
+def _mirrored(app: Application, *events) -> None:
+    """*events* in screen columns, through the mirror as the loop takes them --
+    once a frame is painted, which is when the screen turns round."""
+    awaited(app._render())
+    for event in events:
+        awaited(app._handle(app._unmirror(event)))
+    settle()
+
+
+def test_on_a_mirrored_screen_a_window_follows_the_pointer(desk):
+    app, desktop = desk
+    app.direction = "rtl"
+    settle()
+    win = desktop.open(window(10, 5, 30, 10))
+    # Its title runs along screen row 6; in screen columns the window spans
+    # 79-39 .. 79-10, so a cell of its title is at 79-20.
+    grab = 79 - 20
+    _mirrored(app, press(grab, 6), move(grab - 4, 8), release(grab - 4, 8))
+    # Pulled four cells left on screen: four further from the frame's left.
+    assert (win.x, win.y) == (14, 7)
+
+
+def test_on_a_mirrored_screen_the_grip_is_bottom_left_and_pulls_wider(desk):
+    app, desktop = desk
+    app.direction = "rtl"
+    settle()
+    win = desktop.open(window(10, 5, 30, 10))
+    corner_x, corner_y = 79 - (10 + 29), 1 + 5 + 9
+    _mirrored(app, press(corner_x, corner_y), move(corner_x - 5, corner_y + 2), release(corner_x - 5, corner_y + 2))
+    assert (win.x, win.width, win.height) == (10, 35, 12)
+
+
+def test_a_long_title_stays_between_the_frame_icons(desk):
+    app, desktop = desk
+    win = desktop.open(window(10, 5, 30, 10, title="A rather long title for so narrow a window"))
+    settle()
+    buffer = ScreenBuffer(30, 10)
+    win.render(buffer)
+    top = "".join(buffer.get(x, 0)[0] for x in range(30))
+    # Both icons whole, the title between them, a cell clear of each, cut.
+    assert top[2:5] == "[■]" and top[25:28] == "[↑]"
+    assert top[5] == top[24] == top[1]  # frame, not title
+    assert "A rather" in top and "…" in top

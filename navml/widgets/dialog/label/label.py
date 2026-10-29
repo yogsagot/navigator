@@ -12,6 +12,7 @@ the focus, with nothing keeping the two in step by hand.
 
 from __future__ import annotations
 
+from navkit.bidi import display_width
 from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -75,9 +76,9 @@ class Label(Control):
     def render(self, surface: Surface) -> None:
         caption, _, _ = parse_shortcut(self.text)
         if self.align == "right":
-            x = max(0, self.width - len(caption))
+            x = max(0, self.width - display_width(caption))
         elif self.align == "center":
-            x = max(0, (self.width - len(caption)) // 2)
+            x = max(0, (self.width - display_width(caption)) // 2)
         else:
             x = 0
         draw_caption(

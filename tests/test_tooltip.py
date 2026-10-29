@@ -394,7 +394,7 @@ def test_the_setup_pages_check_boxes_say_their_settings_docs_in_step(place):
         page = dialog.interface
         rows = page.options._rows()
         index = InterfaceData.OPTIONS.index("esc_user_screen")
-        x = page.options._column_x(index // rows) + 1
+        x = page.options.column_x(index // rows) + 1
         seen["esc"] = page.options.tooltip_at(x, index % rows)
         seen["tabs"] = page.settings_tabs.tooltip_at(1, 0)
         a.post_event(KeyEvent("escape"))
@@ -929,7 +929,7 @@ def test_the_copy_dialogs_boxes_say_what_they_do(place):
         boxes = a.modal.options
         rows = boxes._rows()
         index = 3                                           # Remove source files
-        x = boxes._column_x(index // rows) + 1
+        x = boxes.column_x(index // rows) + 1
         seen["remove"] = boxes.tooltip_at(x, index % rows)
         a.post_event(KeyEvent("escape"))
 

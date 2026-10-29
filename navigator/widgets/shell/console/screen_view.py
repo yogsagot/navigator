@@ -10,6 +10,7 @@ one command on a pty of its own.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from navkit.console import ConsoleScreen
@@ -110,6 +111,9 @@ class ScreenView(ContextMenuHost, Widget):
         """
         if not self.tracks_mouse or not self.alive:
             return self._select(event)
+        x = self.screen.logical_x(event.x, event.y)
+        if x != event.x:  # a row laid out right to left: the program's column
+            event = replace(event, x=x)
         data = encode_mouse(
             event, tracking=self.screen.mouse_tracking, sgr=self.screen.mouse_sgr
         )
@@ -295,7 +299,7 @@ class ScreenView(ContextMenuHost, Widget):
         if not self.busy or self.screen.scrolled_back:
             return None
         column, row, hidden = self.screen.cursor
-        return None if hidden else (column, row)
+        return None if hidden else (self.screen.visual_x(column, row), row)
 
     def render(self, surface: Surface) -> None:
         _ = self.revision  # read for the dependency: this is what output moves

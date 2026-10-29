@@ -45,6 +45,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from navkit.bidi import display_width
 from navkit import commands
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE, SCROLLBARS
 from navkit.reactive import reactive
@@ -121,7 +122,7 @@ class MenuBox(Widget):
             height += 1
             if isinstance(entry, MenuLine):
                 continue
-            length = len(parse_shortcut(entry.text)[0]) + 6
+            length = display_width(parse_shortcut(entry.text)[0]) + 6
             key = key_caption(entry, app, behind)
             if isinstance(entry, SubMenu):
                 length += 3 + (len(key) + 1 if key else 0)
@@ -256,7 +257,7 @@ class MenuBox(Widget):
         frame_line(0, (tl, tr), horizontal, normal)
         if self.title and width >= 8:
             label = f" {self.title} "[: width - 6]
-            surface.draw_text((width - len(label)) // 2, 0, label, normal)
+            surface.draw_text((width - display_width(label)) // 2, 0, label, normal)
         for index in range(top, min(len(entries), top + rows)):
             entry = entries[index]
             y = index - top + 1
@@ -285,7 +286,7 @@ class MenuBox(Widget):
         frame_line(bottom, (bl, br), horizontal, normal)
         if self.footer and width >= 8:
             label = f" {self.footer} "[: width - 6]
-            surface.draw_text((width - len(label)) // 2, bottom, label, normal)
+            surface.draw_text((width - display_width(label)) // 2, bottom, label, normal)
         if width >= 6:
             bars = SCROLLBARS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"]
             if top > 0:

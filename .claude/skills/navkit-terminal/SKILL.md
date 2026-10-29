@@ -26,6 +26,16 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
 
 - **The kitty keyboard protocol** is pushed without asking; `NAVKIT_KEYBOARD=legacy` turns it off. Only it reports a
   held modifier (`Application.modifiers`, which the key bar reads).
+- **Another layout's letters** (Hebrew, Arabic) under Ctrl/Alt/Super carry `KeyEvent.base`, the US key in the same
+  place: kitty's base layout key (the third `:` field of the key code, asked for by flag 4), else
+  `navkit/keyboard.py`'s SI-1452 and Arabic (101) position table (a legacy terminal's `ESC ס`; VTE already sends Ctrl
+  as the Latin control byte). Not compared, and `matches()`/key tables see only `name`. **The application offers
+  the key as typed first, all the way** (chord, its table, `on_key`, the focus path: `Application._deliver_key`),
+  and only a key nothing took is offered again as `event.as_base()` -- so a translated menu's Alt+ק opens its menu
+  though Manager binds Alt+E, and Alt+ס, which nothing claims, still quits. (Looking the base up in each table in
+  turn let a nearer Alt+E binding beat the menu bar, which is reached last.) A bare letter gets no base: it is
+  text. `MenuBar.hotkey` also takes the Latin key in a non-Latin hotkey's place, for a US layout, and its tooltip
+  names both (Alt-ק, Alt-E).
 - **Super** is `KeyEvent.super_` (named `super+…` after ctrl, alt, shift; never printable), read only from a kitty-form
   key -- legacy xterm spends that modifier bit on Meta. Before it was read, Super+1 arrived as a typed `1`.
 - **Ctrl+H vs Backspace**: a legacy terminal sends Ctrl+H as 0x08, which navkit reads as Ctrl+H only once the tty's

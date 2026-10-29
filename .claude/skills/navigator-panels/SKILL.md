@@ -99,6 +99,10 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title, footer path and path column cut their start with the
   same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
+- A name is shown through `Panel.shown_name` (`navkit.bidi.reveal`): a direction override, isolate or control in it is a
+  `⁇` (`?` in ASCII) painted reversed out of the row, which reorders nothing -- `photo⁇gpj.exe`, not `photoexe.jpg`.
+  Widths, scrolling, list columns, tooltips and the info line measure the shown name; anything that *uses* the name
+  (copy, rename, Ctrl+Enter) keeps it whole. A departure: DOS names had no such characters.
 - **Drag-and-drop** (File Manager Setup's box, **on by default** -- a departure, DN's `fmoDragAndDrop` was off;
   `panel/drag.py`): a left press on a row captures the mouse; the first
   move with the button held makes a `DragLabel` overlay (` name ` or ` N selected files `, `$30`, shadow) that follows

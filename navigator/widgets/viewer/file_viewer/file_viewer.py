@@ -23,10 +23,11 @@ import bisect
 import fnmatch
 import functools
 import threading
+import unicodedata
 from pathlib import Path
 from typing import Any
 
-from navkit.bidi import order_cells
+from navkit.bidi import display_width, has_rtl, order_cells, text_rtl
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr, tr_n
@@ -54,6 +55,7 @@ from navigator.lib.viewer import html, markdown, pdf, rst
 from navigator.lib.viewer.layout import RENDER_LIMIT, Layout, decode
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
+    WHOLE_LINE,
     FILTER_TAGS,
     HEX_PAIRS_AT,
     HIDDEN_MARKS,
@@ -163,6 +165,27 @@ def _lay_out(name: str, data: bytes | None, size: int, codec: str, width: int, u
             data = stream.read(size)
     return RENDERERS[format](data[:size], width, codec=codec, unicode=unicode)
 
+
+
+def _laid_row(row: Any, width: int) -> tuple[list, list]:
+    """A rendered *row*'s cells as painted, and the cell each came from (None
+    for padding): Hebrew and Arabic in reading order, and a right-to-left
+    paragraph's row -- after its gutter or bullet -- set against the right
+    edge of *width*."""
+    cells = row.cells
+    if not row.rtl:
+        order = order_cells([cell[0] for cell in cells])
+        if order is None:
+            return cells, list(range(len(cells)))
+        return [(shown, *cells[column][1:]) for column, shown in order], [column for column, _ in order]
+    lead, body = cells[: row.lead], cells[row.lead:]
+    order = order_cells([cell[0] for cell in body], True, detect=False)
+    picked = list(range(len(body))) if order is None else [column for column, _ in order]
+    laid = body if order is None else [(shown, *body[column][1:]) for column, shown in order]
+    pad = max(0, width - len(lead) - len(laid))
+    blank = (" ", body[0][1] if body else (), None)
+    return ([*lead, *[blank] * pad, *laid],
+            [*range(len(lead)), *[None] * pad, *(row.lead + column for column in picked)])
 
 class FileViewer(ContextMenuHost, Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
@@ -670,6 +693,45 @@ class FileViewer(ContextMenuHost, Widget):
             self._render_go(layout.row_for(self.top))
 
     @_when_here
+    def _whole(self, row, limit: int) -> tuple:
+        """*row*'s cells, all of them when right-to-left text in it was cut at
+        *limit*: what is painted at the left of a reordered line can come from
+        its far end, which the screen-sized decoding stopped short of."""
+        cells = row.cells
+        if self.wrap_width is not None or len(cells) < limit or self.source is None:
+            return cells
+        if not has_rtl("".join(char for char, _ in cells)):
+            return cells
+        whole = self.source.line(row.start, None, filter=self.filter, max_cols=WHOLE_LINE)
+        return whole.cells if whole is not None else cells
+
+    def _ordered(self, cells, row, paragraphs: dict[int, bool]) -> list | None:
+        """*row*'s cells in reading order (:func:`navkit.bidi.order_cells`),
+        or None; *paragraphs* caches each wrapped line's direction by its start."""
+        chars = [char for char, _ in cells]
+        width = self.wrap_width
+        if width is None or self.source is None:
+            return order_cells(chars)
+        start = self.source.line_start(row.start, None)
+        rtl = paragraphs.get(start)
+        if rtl is None:
+            rtl = paragraphs[start] = self._line_rtl(start, row, chars)
+        return order_cells(chars, rtl, detect=False)
+
+    def _line_rtl(self, start: int, row, chars: list[str]) -> bool:
+        """Whether the line starting at *start* reads right to left: its first
+        strong letter's direction, read row by row up to *row* at most."""
+        offset = start
+        while offset < row.start:
+            piece = self.source.line(offset, self.wrap_width, filter=self.filter)
+            if piece is None or piece.next <= offset:
+                break
+            text = "".join(char for char, _ in piece.cells)
+            if any(unicodedata.bidirectional(char) in ("L", "R", "AL") for char in text):
+                return text_rtl(text)
+            offset = piece.next
+        return text_rtl("".join(chars))
+
     def show_hit(self, offset: int, length: int) -> None:
         """Put a search hit on screen and mark it.
 
@@ -696,8 +758,17 @@ class FileViewer(ContextMenuHost, Widget):
             self.top = self.source.line_start(offset, self.wrap_width)
         if self.wrap_width is None:
             row = self.source.line(self.source.line_start(offset), None,
-                                   filter=self.filter)
-            column = next((i for i, (_, at) in enumerate(row.cells) if at >= offset), 0) if row else 0
+                                   filter=self.filter, max_cols=WHOLE_LINE)
+            column = 0
+            if row:
+                cells = row.cells
+                start = next((i for i, (_, at) in enumerate(cells) if at >= offset), 0)
+                order = order_cells([char for char, _ in cells])
+                if order is not None and start < len(cells):
+                    # The hit's first column where reordering painted it.
+                    column = next((x for x, (at, _) in enumerate(order) if at == start), start)
+                else:
+                    column = start
             if not self.x_delta <= column < self.x_delta + self.width:
                 self.x_delta = max(0, column - self.width // 2)
 
@@ -1031,7 +1102,7 @@ class FileViewer(ContextMenuHost, Widget):
     def _say(self, surface: Surface, text: str) -> None:
         if self.height and self.width:
             text = text[: self.width]
-            surface.draw_text(max(0, (self.width - len(text)) // 2), self.height // 2, text, self.style)
+            surface.draw_text(max(0, (self.width - display_width(text)) // 2), self.height // 2, text, self.style)
 
     def _hit_covers(self, offset: int) -> bool:
         hit = self.hit
@@ -1047,11 +1118,15 @@ class FileViewer(ContextMenuHost, Widget):
         looks: dict[tuple[str, ...], Any] = {}
         hidden = self.show_hidden
         tier = 0 if self.glyphs >= GLYPHS_UNICODE else 1
+        paragraphs: dict[int, bool] = {}
         for y, row in enumerate(rows):
-            cells = row.cells
+            cells = self._whole(row, limit)
             # Hebrew or Arabic in the row: its cells in reading order, each
-            # still carrying its offset (navkit.bidi.order_cells).
-            order = order_cells([char for char, _ in cells])
+            # still carrying its offset (navkit.bidi.order_cells).  A wrapped
+            # row is a piece of its line, whose first strong letter says
+            # which way all of its rows read -- as a paragraph is broken into
+            # lines first and each line then ordered (UBA's L1).
+            order = self._ordered(cells, row, paragraphs)
             if order is not None:
                 cells = [(shown, cells[column][1]) for column, shown in order]
             token = 0
@@ -1110,11 +1185,7 @@ class FileViewer(ContextMenuHost, Widget):
             index = self.render_row + y
             if index >= len(layout.rows):
                 break
-            cells = layout.rows[index].cells
-            order = order_cells([cell[0] for cell in cells])
-            columns = range(len(cells)) if order is None else [column for column, _ in order]
-            if order is not None:
-                cells = [(shown, *cells[column][1:]) for column, shown in order]
+            cells, columns = _laid_row(layout.rows[index], width)
             for x, (char, classes, link) in enumerate(cells[:width]):
                 if (index, columns[x]) in marks:
                     look = selected

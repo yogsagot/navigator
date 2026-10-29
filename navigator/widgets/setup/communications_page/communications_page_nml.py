@@ -137,7 +137,7 @@ class CommunicationsPage(_Component):
         self.idle_unit.width = _bind(lambda _o: max(0, _o.parent.width - 40))    # communications_page.nml:71
         self.idle_unit.height = 1    # communications_page.nml:72
         self.idle_unit.text = _bind(    # communications_page.nml:73
-            lambda _o: _tr('minutes on (0: never)'),
+            lambda _o: _tr('minutes (0: never)'),
             yielding=True,
         )
 

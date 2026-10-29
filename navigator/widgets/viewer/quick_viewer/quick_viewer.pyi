@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import Any
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
-from navkit.glyphs import BOX_CHARSETS
+from navkit.bidi import display_width, reveal
+from navkit.glyphs import BOX_CHARSETS, hidden_mark
 from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent

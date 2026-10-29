@@ -977,6 +977,34 @@ def test_a_name_too_long_for_its_column_ends_in_an_ellipsis(tmp_path, modes):
     assert ".txt" not in row
 
 
+@pytest.mark.parametrize("modes", [0, 1, 2])
+def test_a_direction_override_in_a_name_is_shown_and_turns_nothing_round(tmp_path, modes):
+    (tmp_path / "photo\u202egpj.exe").write_text("")
+    panel = Panel(tmp_path, width=40, height=10)
+    panel.stylesheet = default_scheme()
+    panel = mounted(panel, size=(40, 10))
+    for _ in range(modes):
+        panel.cycle_view_mode()
+    settle()
+    buffer = ScreenBuffer(40, 10)
+    panel.render(buffer)
+    y = next(y for y in range(10) if "photo" in text_at(buffer, y))
+    assert "photo\u2047gpj" in text_at(buffer, y)  # the detailed mode cuts the rest
+    x = text_at(buffer, y).index("\u2047")
+    assert buffer.get(x, y)[1].reverse != buffer.get(x - 1, y)[1].reverse
+
+
+def test_an_ascii_terminal_shows_a_hidden_character_as_a_question_mark(tmp_path, quiet_console):
+    (tmp_path / "a\u2067b\nc").write_text("")
+    app = navigator_with(tmp_path, GLYPHS_ASCII)
+    run_app(app, [])
+    panel = app.manager.left
+    buffer = ScreenBuffer(panel.width, panel.height)
+    panel.render(buffer)
+    assert any("a?b?c" in text_at(buffer, y) for y in range(panel.height))
+    assert panel.shown_name(next(i for i in panel.items if i.name.startswith("a"))) == "a?b?c"
+
+
 def test_window_text_and_fit_text_take_the_marker_they_are_given():
     assert fit_text("a_rather_long_name.txt", 10, "…") == "a_rather_…"
     assert window_text("abcdefghijkl", 2, 8, "…") == "…defghi…"
@@ -2831,6 +2859,22 @@ def test_alt_x_quits_from_the_panels(tree):
     assert app.is_running is False
 
 
+def test_a_hebrew_layout_reaches_the_latin_shortcuts(tree, quiet_console):
+    # Ctrl+O and Alt+X with the layout switched to Hebrew: the letters typed
+    # are nun-sofit and samekh, the keys are o's and x's.
+    from navigator.widgets.shell.exit_dialog.exit_dialog import ExitDialog
+
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        KeyEvent("ן", ctrl=True, base="o"),
+        lambda a: seen.append(a.shell.console_visible),
+        KeyEvent("ס", "ס", alt=True, base="x"),
+        lambda a: seen.append(type(a.modal)),
+    ])
+    assert seen == [True, ExitDialog]
+
+
 def test_alt_x_quits_once_the_file_manager_is_closed(tree, quiet_console):
     # It used to be Manager's, so closing the window took the key with it.
     app = navigator(tree)
@@ -3997,6 +4041,17 @@ def test_a_drag_over_the_console_selects_and_copies_its_text(tree, quiet_console
     buffer = ScreenBuffer(80, 24)
     console.render(buffer)
     assert buffer.get(6, 0)[1].reverse and not buffer.get(5, 0)[1].reverse
+
+
+def test_hebrew_in_the_console_is_painted_and_copied_in_reading_order(tree, quiet_console):
+    app = navigator(tree)
+    console = console_with(app, "echo אבג x".encode())
+    buffer = ScreenBuffer(80, 24)
+    console.render(buffer)
+    assert "".join(buffer.get(x, 0)[0] for x in range(10)) == "echo גבא x"
+    drag(console, (5, 0), (6, 0))  # the painted gimel and bet
+    assert console.selected_text == "בג"
+    assert app.terminal.clipboard == [("בג", True)]
 
 
 def test_ctrl_insert_copies_the_console_s_selection_before_the_command_line(tree, quiet_console):

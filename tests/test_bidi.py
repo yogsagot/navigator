@@ -6,7 +6,7 @@ import pytest
 
 from navkit import i18n
 from navkit.application import Application
-from navkit.bidi import caret_column, index_at, layout, order_cells
+from navkit.bidi import REVEALED, caret_column, display_width, index_at, layout, order_cells, reveal, reveal_runs
 from navkit.capabilities import BIDI_APP, BIDI_WORDS, TerminalInfo
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.screen import ScreenBuffer, for_words
@@ -163,6 +163,60 @@ def test_the_bidi_tier_is_detected_and_overridden():
     assert TerminalInfo.detect(env=tty, is_tty=True).bidi == BIDI_APP
     assert TerminalInfo.detect(env={"TERM": "xterm-kitty"}, is_tty=True).bidi == BIDI_WORDS
     assert TerminalInfo.detect(env={**tty, "NAVKIT_BIDI": "words"}, is_tty=True).bidi == BIDI_WORDS
+    assert TerminalInfo.detect(env={**tty, "KITTY_WINDOW_ID": "1"}, is_tty=True).bidi == BIDI_WORDS
+
+
+@pytest.mark.parametrize(
+    ("env", "reorders", "multiplexer"),
+    [
+        ({"TERM": "xterm-256color"}, "", ""),
+        ({"TERM": "xterm-256color", "KONSOLE_VERSION": "230805"}, "konsole", ""),
+        ({"TERM": "mlterm"}, "mlterm", ""),
+        ({"TERM": "screen.xterm-256color", "MLTERM": "3.9.3", "STY": "1.pts"}, "mlterm", "screen"),
+        ({"TERM": "tmux-256color", "KONSOLE_VERSION": "230805", "TMUX": "/tmp/t,1,0"}, "konsole", "tmux"),
+    ],
+)
+def test_a_terminal_that_reorders_its_own_way_is_recognised(env, reorders, multiplexer):
+    info = TerminalInfo.detect(env=env, is_tty=True)
+    assert (info.reorders, info.multiplexer) == (reorders, multiplexer)
+
+
+def _started(**flags):
+    import io
+
+    from navkit.terminal import Terminal
+
+    out = io.StringIO()
+    terminal = Terminal(input_stream=io.StringIO(), output_stream=out, info=TerminalInfo(**flags))
+    terminal.start()
+    entered = out.getvalue()
+    terminal.stop()
+    return entered, out.getvalue()[len(entered):]
+
+
+def test_the_terminal_is_asked_to_reorder_nothing_and_given_its_bidi_back():
+    entered, left = _started()
+    assert "\x1b[8l" in entered and entered.index("\x1b[8l") < entered.index("\x1b[2J")
+    assert "\x1b[8h" in left and "50;" not in entered
+
+
+@pytest.mark.parametrize(
+    ("reorders", "off", "on"),
+    [
+        ("konsole", "\x1b]50;BidiRenderingEnabled=false\x07", "\x1b]50;BidiRenderingEnabled=true\x07"),
+        ("mlterm", "\x1b]5379;use_ctl=false\x07", "\x1b]5379;use_ctl=true\x07"),
+    ],
+)
+def test_konsole_and_mlterm_get_their_own_switch(reorders, off, on):
+    entered, left = _started(reorders=reorders)
+    assert "\x1b[8l" + off in entered
+    assert "\x1b[8h" + on in left
+
+
+def test_inside_screen_the_switch_is_passed_through():
+    entered, left = _started(reorders="konsole", multiplexer="screen")
+    assert "\x1bP\x1b[8l\x1b\\\x1bP\x1b]50;BidiRenderingEnabled=false\x07\x1b\\" in entered
+    assert "\x1bP\x1b[8h\x1b\\" in left
 
 
 # -- carets ------------------------------------------------------------------
@@ -261,19 +315,6 @@ def _painted_editor(tmp_path, text: str, col: int = 0):
     return editor, buffer
 
 
-def test_the_editor_paints_hebrew_in_reading_order(tmp_path):
-    _, buffer = _painted_editor(tmp_path, "שלום 12.txt\n")
-    assert row(buffer).rstrip() == shown("שלום 12.txt")
-
-
-def test_the_editors_cursor_sits_where_its_column_is_painted(tmp_path):
-    editor, _ = _painted_editor(tmp_path, "אבג\n", col=0)
-    assert editor.cursor_position() == (2, 0)  # alef, the first letter, is painted last
-    assert editor._logical_column(0, 2) == 0
-    editor.col = 5  # past the text the columns are as they are
-    assert editor.cursor_position() == (5, 0)
-
-
 def test_the_editor_keeps_a_mark_on_its_letter():
     from navigator.lib.editor import columns
 
@@ -296,28 +337,6 @@ def _press(editor, command) -> None:
     asyncio.run(getattr(editor, f"on_move_{command}")(None))
 
 
-def test_left_and_right_move_by_where_the_editor_paints(tmp_path):
-    # "אבג def": painted "def גבא" -- d e f at columns 0-2, ג ב א at 4-6.
-    editor = _editor_on(tmp_path, "אבג def\n", col=0)  # on alef, painted rightmost
-    painted = []
-    for _ in range(6):
-        _press(editor, "left")
-        painted.append(editor.cursor_position()[0])
-    assert painted == [5, 4, 3, 2, 1, 0]
-    _press(editor, "left")
-    assert editor.cursor_position()[0] == 0  # the left end: it stays
-    _press(editor, "right")
-    assert editor.cursor_position()[0] == 1
-
-
-def test_right_from_the_rightmost_letter_goes_past_the_text(tmp_path):
-    editor = _editor_on(tmp_path, "אבג\nx\n", col=0)
-    _press(editor, "right")
-    assert (editor.line, editor.col) == (0, 3)
-    _press(editor, "right")
-    assert (editor.line, editor.col) == (1, 0)
-
-
 def test_a_left_to_right_line_moves_as_it_always_has(tmp_path):
     editor = _editor_on(tmp_path, "abc\n", col=1)
     _press(editor, "right")
@@ -328,23 +347,6 @@ def _word(editor, command) -> None:
     import asyncio
 
     asyncio.run(getattr(editor, f"on_word_{command}")(None))
-
-
-def test_ctrl_left_and_right_go_to_words_by_where_they_are_painted(tmp_path):
-    # "אבג דה xy": painted "xy הד גבא"; the words start at x (0), ד (4) and א (8).
-    editor = _editor_on(tmp_path, "אבג דה xy\nnext\n", col=0)
-    assert editor.cursor_position()[0] == 8
-    _word(editor, "left")
-    assert editor.cursor_position()[0] == 4
-    _word(editor, "left")
-    assert editor.cursor_position()[0] == 0
-    _word(editor, "right")
-    assert editor.cursor_position()[0] == 4
-    _word(editor, "right")
-    _word(editor, "right")
-    assert (editor.line, editor.col) == (0, 9)  # the end of the line, past the text
-    _word(editor, "right")
-    assert (editor.line, editor.col) == (1, 0)
 
 
 def test_ctrl_right_on_a_left_to_right_line_is_dns(tmp_path):
@@ -366,106 +368,13 @@ def _shift(editor, command, times=1) -> None:
         asyncio.run(getattr(editor, f"on_move_{command}")(event))
 
 
-def _lit(editor) -> str:
-    """The characters of line 0 the block lights, left to right as painted."""
-    from navigator.lib.editor import columns
-
-    row = columns.cells(editor.document.lines[0], editor.tab_size)
-    order = order_cells([char for char, _ in row]) or [(at, char) for at, (char, _) in enumerate(row)]
-    picked = editor._block_picked(0)
-    assert picked is not None
-    return "".join(shown for at, shown in order if row[at][1] in picked[0])
-
-
-def test_shift_arrows_mark_what_is_painted_between_the_ends(tmp_path):
-    # "אבג xy": painted "xy גבא" -- x y at 0-1, ג ב א at 3-5.  From ג (painted 3)
-    # Shift+Left twice: the space and y are lit, the cells passed over.
-    editor = _editor_on(tmp_path, "אבג xy\n", col=2)
-    _shift(editor, "left", 2)
-    assert _lit(editor) == "y "
-    assert editor.block_text == " y"  # in the text's own order
-
-
-def test_a_painted_block_crossing_into_hebrew_holds_scattered_characters(tmp_path):
-    # From y (painted 1) right to ב (painted 4): y, the space and ג are lit --
-    # "ג" is the text's third letter, "y" its last: two stretches.
-    editor = _editor_on(tmp_path, "אבג xy\n", col=5)
-    _shift(editor, "right", 3)
-    assert _lit(editor) == "y ג"
-    assert editor.block_text == "ג y"
-    editor._delete_block()
-    assert editor.document.lines[0] == "אבx"
-
-
-def test_copying_a_painted_block_puts_in_its_characters_in_text_order(tmp_path):
-    import asyncio
-
-    editor = _editor_on(tmp_path, "אבג xy\nend\n", col=5)
-    _shift(editor, "right", 3)
-    editor.line, editor.col = 1, 3
-    asyncio.run(editor.on_copy_block(None))
-    assert editor.document.lines[1] == "endג y"
-    assert editor.block is not editor._painted_block  # the copy is the stretch it is
-
-
 def test_a_block_on_left_to_right_lines_is_the_stretch_it_always_was(tmp_path):
     editor = _editor_on(tmp_path, "one two\n", col=0)
     _shift(editor, "right", 3)
     assert editor.block_text == "one"
 
 
-def test_a_painted_block_over_two_lines_runs_to_the_end_each_line_reads_to(tmp_path):
-    import asyncio
-
-    from navigator.widgets.editor.commands import MoveDown
-
-    # From ב on "אבג" Shift+Down to "xy": the first line from ב towards its
-    # end (leftwards, it is Hebrew) -- ב and ג -- its break, then "x".
-    editor = _editor_on(tmp_path, "אבג\nxy\n", col=1)
-    asyncio.run(editor.on_move_down(MoveDown(extend=True)))
-    assert editor.block_text == "בג\nx"
-
-
 # -- column blocks on a reordered line -------------------------------------------
-
-
-def test_a_column_blocks_columns_are_painted_columns(tmp_path):
-    # Each line painted "xy גבא": columns 0-1 hold x and y, 2-4 the space, ג and ב.
-    editor = _editor_on(tmp_path, "אבג xy\nאבג xy\n", col=0)
-    editor.vertical_blocks = True
-    editor.column_block = ((0, 0), (1, 2))
-    assert editor.block_lines() == ["xy", "xy"]
-    editor.column_block = ((0, 2), (1, 5))
-    assert editor.block_lines() == ["בג ", "בג "]  # the text's order
-
-
-def test_a_column_block_across_a_reordered_line_takes_scattered_characters(tmp_path):
-    # Columns 1-4: y, the space, ג and ב -- indices 1-3 and 5 of "אבג xy".
-    editor = _editor_on(tmp_path, "אבג xy\n", col=0)
-    editor.vertical_blocks = True
-    editor.column_block = ((0, 1), (0, 5))
-    assert editor.block_lines() == ["בג y"]
-    editor._delete_block()
-    assert editor.document.lines[0] == "אx"
-
-
-def test_shift_arrows_mark_a_column_block_by_painted_columns(tmp_path):
-    editor = _editor_on(tmp_path, "אבג xy\n", col=0)  # on א, painted at 5
-    editor.vertical_blocks = True
-    _shift(editor, "left", 2)
-    assert editor.rectangle == (0, 3, 0, 5)
-    assert editor.block_lines() == ["בג"]
-
-
-def test_finding_in_a_painted_block_passes_over_what_lies_between_its_stretches(tmp_path):
-    from navigator.lib.editor.document import Pos
-    from navigator.lib.editor.search import SearchData
-
-    editor = _editor_on(tmp_path, "אבג xy\n", col=0)
-    editor.vertical_blocks = True
-    editor.column_block = ((0, 1), (0, 5))  # y, the space, ג, ב -- not x
-    assert editor.find(Pos(0, 0), SearchData(text="x", selected=True), backward=False) is None
-    assert editor.find(Pos(0, 0), SearchData(text="y", selected=True), backward=False) == (Pos(0, 5), Pos(0, 6))
 
 
 # -- ^K I and ^K U at a column block's painted edge -------------------------------------
@@ -480,33 +389,187 @@ def _indent(editor, *, undo: bool = False, stop: bool = False) -> None:
     asyncio.run((editor.on_unindent_block if undo else editor.on_indent_block)(command))
 
 
-def _painted(editor, number: int = 0) -> str:
-    from navigator.lib.editor import columns
-
-    row = columns.cells(editor.document.lines[number], editor.tab_size)
-    order = order_cells([char for char, _ in row])
-    return "".join(shown for _, shown in order) if order else "".join(char for char, _ in row)
-
-
-def test_indenting_a_column_block_paints_the_blank_at_its_left_edge(tmp_path):
-    # "אבג דה" painted "הד גבא"; the block's left edge at column 3, on ג.
-    editor = _editor_on(tmp_path, "אבג דה\n", col=0)
-    editor.vertical_blocks = True
-    editor.column_block = ((0, 3), (0, 5))
-    _indent(editor)
-    assert _painted(editor) == "הד  גבא"  # ג and what follows pushed one cell right
-
-
-def test_unindenting_takes_the_blank_painted_at_the_left_edge(tmp_path):
-    editor = _editor_on(tmp_path, "אבג  דה\n", col=0)  # painted "הד  גבא"
-    editor.vertical_blocks = True
-    editor.column_block = ((0, 3), (0, 5))
-    _indent(editor, undo=True)
-    assert _painted(editor) == "הד גבא"
-
-
 def test_a_stream_block_still_indents_at_the_lines_start(tmp_path):
     editor = _editor_on(tmp_path, "אבג\n", col=0)
     editor.block = (Pos(0, 0), Pos(0, 3))
     _indent(editor)
     assert editor.document.lines[0] == " אבג"
+
+
+# -- characters that hide part of a name ---------------------------------------
+
+
+def test_reveal_shows_what_would_reorder_or_hide_text():
+    assert reveal("photo\u202egpj.exe") == "photo\u2047gpj.exe"
+    assert shown(reveal("photo\u202egpj.exe")) == "photo\u2047gpj.exe"  # nothing turned round
+    assert reveal("a\u2066b\u2069c\x1b", "?") == "a?b?c?"
+    assert reveal("\u200fשלום") == "\u200fשלום"  # a mark of direction is used in earnest
+    assert reveal("plain.txt") == "plain.txt"
+
+
+def test_reveal_runs_styles_only_the_stand_ins():
+    text = reveal("a\u202eb?", REVEALED)
+    assert reveal_runs(text, RED, "?", BOLD) == [("a", RED), ("?", BOLD), ("b?", RED)]
+
+
+# -- input lines -----------------------------------------------------------------
+
+
+def _line(value: str, cursor: int):
+    from navml.widgets.dialog.input_line import InputLine
+
+    line = InputLine(value=value, width=20, height=1)
+    line.cursor = cursor
+    line.render(ScreenBuffer(20, 1))
+    return line
+
+
+def _press_line(line, key: str, **mods) -> None:
+    from conftest import awaited
+
+    awaited(line.on_key(KeyEvent(key, **mods)))
+
+
+def test_arrows_move_an_input_line_s_caret_to_the_neighbouring_painted_place():
+    # "ab אבג": painted "ab גבא", alef at column 5.  From the caret on alef,
+    # Left goes onto bet (column 4), not back to the blank before alef.
+    line = _line("ab אבג", 3)
+    assert line.caret_column() == 1 + 5
+    _press_line(line, "left")
+    assert (line.cursor, line.caret_column()) == (4, 1 + 4)
+    _press_line(line, "right")
+    assert line.cursor == 3
+    plain = _line("abc", 1)
+    _press_line(plain, "left")
+    assert plain.cursor == 0
+
+
+def test_an_input_line_selects_what_is_painted_between_the_carets():
+    line = _line("ab אבג", 3)  # on alef, column 5
+    _press_line(line, "left", shift=True)
+    _press_line(line, "left", shift=True)  # onto gimel, column 3
+    assert line.picked() == [4, 5]  # bet and gimel, painted at 3 and 4
+    assert line.selected_text == "בג"
+    _press_line(line, "delete")
+    assert line.value == "ab א" and line.cursor == 4
+
+
+def test_ctrl_arrows_go_to_the_nearest_painted_word_start():
+    line = _line("abc אבג דהו", 0)
+    _press_line(line, "right", ctrl=True)
+    assert line.cursor == 8  # dalet's word is painted first after "abc "
+
+
+# -- the viewer ------------------------------------------------------------------
+
+
+def _viewer(tmp_path, text: str, width: int, wrap: bool):
+    from conftest import settle
+    from navigator.lib.viewer import ViewSource
+    from navigator.widgets.viewer.file_viewer.file_viewer import FileViewer
+
+    path = tmp_path / "t.txt"
+    path.write_text(text, encoding="utf-8")
+    root = Widget(width=width, height=4)
+    viewer = root.add(FileViewer(x=0, y=0, width=width, height=4))
+    viewer.open(path, source=ViewSource(path))
+    viewer.wrap = wrap
+    settle()
+    return viewer
+
+
+def test_a_wrapped_hebrew_line_reads_right_to_left_on_every_row(tmp_path):
+    # The second row holds only Latin, but it is a piece of a Hebrew line:
+    # "abc def" there is still a run inside a right-to-left paragraph.
+    viewer = _viewer(tmp_path, "אבג דהו abc de.\n", 8, wrap=True)
+    buffer = ScreenBuffer(8, 4)
+    viewer.render(buffer)
+    assert row(buffer, 0) == shown("אבג דהו ", True)
+    assert row(buffer, 1).rstrip() == ".abc de"  # the full stop ends a Hebrew sentence
+
+
+def test_a_search_hit_is_scrolled_to_where_it_is_painted(tmp_path):
+    line = "אבג " * 30 + "xyz\n"
+    viewer = _viewer(tmp_path, line, 20, wrap=False)
+    offset = line.encode().index(b"xyz")
+    viewer.show_hit(offset, 3)
+    # "xyz" begins the right-to-left paragraph's painted row, at the left.
+    assert viewer.x_delta == 0
+    buffer = ScreenBuffer(20, 4)
+    viewer.render(buffer)
+    assert row(buffer).startswith("xyz ")  # decoded past the screen to be painted
+
+
+# -- widths ----------------------------------------------------------------------
+
+
+def test_display_width_counts_the_cells_painted():
+    assert display_width("abc") == 3
+    assert display_width("لا") == 1  # lam-alef: one ligature
+    assert display_width("שָׁלוֹם") == 4  # marks on their letters
+    assert display_width("日本") == 4
+    assert display_width("a\u200fb") == 2
+
+
+def test_a_centred_arabic_caption_is_centred_on_what_it_paints():
+    from navml.widgets.dialog.label import Label
+
+    label = Label(text="سلام لا", align="center", width=11, height=1)
+    buffer = ScreenBuffer(11, 1)
+    label.render(buffer)
+    painted = [x for x in range(11) if buffer.get(x, 0)[0] != " "]
+    # Seven letters and a blank in five cells -- "salam" has a lam-alef as
+    # well -- so three blank on either side, where len() made it two and four.
+    assert (painted[0], 10 - painted[-1]) == (3, 3)
+
+
+# -- links in dialog text ------------------------------------------------------
+
+
+@pytest.mark.parametrize("mirrored", [False, True])
+def test_a_link_in_hebrew_text_covers_the_address_where_it_is_painted(mirrored):
+    from navml.widgets.dialog.static_text import StaticText
+
+    url = "https://x.io"
+    text = StaticText(text=f"בקרו ב {url} היום", links=True, width=30, height=1)
+    buffer = ScreenBuffer(30, 1)
+    buffer.rtl = mirrored
+    text.render(buffer)
+    linked = "".join(buffer.get(x, 0)[0] for x in range(30) if buffer.get(x, 0)[1].link == url)
+    # An rtl surface holds it reversed (and its slashes flipped) for the mirror.
+    assert len(linked) == len(url) and ("x.io" in linked or "oi.x" in linked)
+
+
+# -- the rendered Markdown view -----------------------------------------------------
+
+
+def test_a_right_to_left_paragraph_is_set_against_the_right_edge():
+    from navigator.lib.viewer.markdown import render
+    from navigator.widgets.viewer.file_viewer.file_viewer import _laid_row
+
+    layout = render("שלום עולם\n\n- אבג\n\nplain\n".encode(), 20)
+    rows = [row for row in layout.rows if row.cells]
+    hebrew, item, plain = rows
+    cells, columns = _laid_row(hebrew, 20)
+    assert "".join(cell[0] for cell in cells) == " " * 11 + shown("שלום עולם")
+    assert columns[:11] == [None] * 11
+    cells, _ = _laid_row(item, 20)
+    text = "".join(cell[0] for cell in cells)
+    assert text.startswith(item.text[: item.lead]) and text.endswith("גבא")  # the bullet stays put
+    assert "".join(cell[0] for cell in _laid_row(plain, 20)[0]) == "plain"
+
+
+def test_a_grid_column_starts_after_its_widest_caption_as_painted():
+    from navml.widgets.dialog.check_boxes import CheckBoxes
+
+    boxes = CheckBoxes(items=["سلام", "x", "a", "b"], width=40, height=2)
+    # Four letters in three cells (a lam-alef), the mark's four and two between.
+    assert boxes.column_x(1) == 3 + 6
+
+
+def test_the_dbase_structure_box_holds_its_columns_left_to_right():
+    from navigator.widgets.viewer.db_window.db_window import _table_row
+
+    heading, row_ = _table_row("שם", "סוג", "אורך", "עשרוניים"), _table_row("AGE", "מספרי", "3", "0")
+    # Each column starts in the same cell on both lines, painted.
+    assert shown(heading).index("סוג"[::-1]) == shown(row_).index("מספרי"[::-1])

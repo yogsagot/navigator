@@ -30,6 +30,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit import keyboard
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
@@ -111,7 +113,7 @@ class MenuBar(MenuContainer, Widget):
         ``TMenuBar.GetItemRect`` -- the caption plus a space either side."""
         x = 1
         for position, entry in enumerate(self.entries()):
-            length = len(parse_shortcut(entry.text)[0]) + 2
+            length = display_width(parse_shortcut(entry.text)[0]) + 2
             if position == index:
                 return x, length
             x += length
@@ -124,9 +126,16 @@ class MenuBar(MenuContainer, Widget):
             return super().tooltip_at(x, y)
         entry = self.entries()[index]
         letter = parse_shortcut(entry.text)[2]
-        # Only a letter a keyboard types: ``≡`` has none but F10.
-        key = f"Alt-{letter.upper()}" if letter.isascii() and letter.isalnum() else ""
-        return with_keys(entry.tooltip, key)
+        # Only a letter a keyboard types: ``≡`` has none but F10.  A Hebrew
+        # or Arabic one is typed on its own layout, and on a US one by the
+        # key in its place (:meth:`hotkey`), which is said too.
+        keys = []
+        if letter.isalnum():
+            keys.append(f"Alt-{letter.upper()}")
+            latin = keyboard.latin(letter)
+            if latin is not None:
+                keys.append(f"Alt-{latin.upper()}")
+        return with_keys(entry.tooltip, keys)
 
     def entry_at(self, column: int) -> int:
         """The entry under *column* of the bar, or -1."""
@@ -137,12 +146,15 @@ class MenuBar(MenuContainer, Widget):
         return -1
 
     def hotkey(self, letter: str) -> int:
-        """The entry whose marked letter is *letter*, or -1."""
+        """The entry whose marked letter is *letter*, or -1 -- or, for a Latin
+        *letter*, whose Hebrew or Arabic letter is typed by that key on its own
+        layout (:mod:`navkit.keyboard`): a translated menu opens with Alt+E on
+        a US keyboard where its caption marks ק."""
         letter = letter.lower()
-        for index, entry in enumerate(self.entries()):
-            if parse_shortcut(entry.text)[2] == letter:
-                return index
-        return -1
+        marked = [parse_shortcut(entry.text)[2] for entry in self.entries()]
+        if letter in marked:
+            return marked.index(letter)
+        return next((index for index, mark in enumerate(marked) if keyboard.same_key(letter, mark)), -1)
 
     # -- painting ------------------------------------------------------------------
 

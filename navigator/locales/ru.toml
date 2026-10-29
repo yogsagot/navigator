@@ -35,7 +35,7 @@ flag = "RU"
 "~E~dit..." = "~И~зменить..."
 # navigator/widgets/drives/links_dialog/links_dialog.nml:58
 "~A~dd..." = "~Д~обавить..."
-# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:201, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:262 ...
+# navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:223, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:284 ...
 "~D~elete" = "~У~далить"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:13
 "Password" = "Пароль"
@@ -53,9 +53,9 @@ flag = "RU"
 "~E~ditor" = "~Р~едактор"
 # navigator/widgets/editor/edit_window/edit_window.nml:136
 "Editing, the file, search, paragraphs and blocks" = "Правка, файл, поиск, абзацы и блоки"
-# navigator/widgets/editor/edit_window/edit_window.nml:143, navigator/widgets/editor/file_editor/file_editor.py:2424
+# navigator/widgets/editor/edit_window/edit_window.nml:143, navigator/widgets/editor/file_editor/file_editor.py:2863
 "~U~ndo" = "~О~тменить"
-# navigator/widgets/editor/edit_window/edit_window.nml:147, navigator/widgets/editor/file_editor/file_editor.py:2425
+# navigator/widgets/editor/edit_window/edit_window.nml:147, navigator/widgets/editor/file_editor/file_editor.py:2864
 "R~e~do" = "В~е~рнуть"
 # navigator/widgets/editor/edit_window/edit_window.nml:164
 "C~o~py to..." = "Копировать в фа~й~л..."
@@ -67,9 +67,9 @@ flag = "RU"
 "Insert a file's text at the cursor" = "Вставить текст файла в позиции курсора"
 # navigator/widgets/editor/edit_window/edit_window.nml:174
 "Delete the selection without copying it to the clipboard" = "Удалить выделение, не копируя в буфер обмена"
-# navigator/widgets/editor/edit_window/edit_window.nml:179, navigator/widgets/editor/file_editor/file_editor.py:2431
+# navigator/widgets/editor/edit_window/edit_window.nml:179, navigator/widgets/editor/file_editor/file_editor.py:2870
 "~D~elete line" = "~У~далить строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:184, navigator/widgets/editor/file_editor/file_editor.py:2432
+# navigator/widgets/editor/edit_window/edit_window.nml:184, navigator/widgets/editor/file_editor/file_editor.py:2871
 "Delete ~w~ord left" = "Удалить слово перед курсоро~м~"
 # navigator/widgets/editor/edit_window/edit_window.nml:188
 "Insert l~i~ne" = "Вставить ст~р~оку"
@@ -91,9 +91,9 @@ flag = "RU"
 "E~x~it" = "В~ы~ход"
 # navigator/widgets/editor/edit_window/edit_window.nml:227, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~П~оиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:229, navigator/widgets/shell/main_menu/main_menu.nml:151, navigator/widgets/editor/file_editor/file_editor.py:2435
+# navigator/widgets/editor/edit_window/edit_window.nml:229, navigator/widgets/shell/main_menu/main_menu.nml:151, navigator/widgets/editor/file_editor/file_editor.py:2874
 "~F~ind..." = "~И~скать..."
-# navigator/widgets/editor/edit_window/edit_window.nml:233, navigator/widgets/editor/file_editor/file_editor.py:2436
+# navigator/widgets/editor/edit_window/edit_window.nml:233, navigator/widgets/editor/file_editor/file_editor.py:2875
 "~R~eplace..." = "~З~аменить..."
 # navigator/widgets/editor/edit_window/edit_window.nml:237
 "~S~earch again" = "П~р~одолжить поиск"
@@ -165,7 +165,7 @@ flag = "RU"
 "~W~ord" = "~С~лово"
 # navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:376, navigator/widgets/editor/edit_window/edit_window.nml:391
 "~L~ine" = "С~т~рока"
-# navigator/widgets/editor/edit_window/edit_window.nml:385, navigator/widgets/editor/file_editor/file_editor.py:2444
+# navigator/widgets/editor/edit_window/edit_window.nml:385, navigator/widgets/editor/file_editor/file_editor.py:2883
 "~C~apitalize" = "~З~аглавные"
 # navigator/widgets/editor/edit_window/edit_window.nml:400
 "Optio~n~s" = "~Н~астройки"
@@ -188,7 +188,7 @@ flag = "RU"
 # navigator/widgets/editor/edit_window/edit_window.nml:420
 "Mark column blocks instead of line ones" = "Отмечать вертикальные блоки вместо строчных"
 # navigator/widgets/editor/edit_window/edit_window.nml:423, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
-"Opti~m~al fill" = "Опти~м~альное заполнение"
+"Opti~m~al fill" = "Опти~м~ум заполнения"
 # navigator/widgets/editor/edit_window/edit_window.nml:424
 "Write blanks as tabs where they reach a tab stop" = "Записывать пробелы табуляцией там, где они доходят до позиции табуляции"
 # navigator/widgets/editor/edit_window/edit_window.nml:427
@@ -265,15 +265,15 @@ flag = "RU"
 "~T~ype" = "~Т~ип"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/widgets/manager/commands.py:25
 "User" = "Польз"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
 "Group" = "Группа"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:52
 "~P~ermissions" = "~П~рава"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92 ...
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114 ...
 "Read" = "Чтение"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92 ...
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114 ...
 "Write" = "Запись"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92 ...
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:61, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114 ...
 "Exec" = "Запуск"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:69
 "~D~efault, inherited by new files" = "По ~у~молчанию, наследуется новыми файлами"
@@ -341,113 +341,117 @@ flag = "RU"
 "File system flags, such as immutable and append-only" = "Флаги файловой системы, например неизменяемый и только для добавления"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
 "Mode" = "Режим"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:83
-"O~w~ner      Group      Others     Special" = "В~л~аделец   Группа     Прочие     Особые"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
+"O~w~ner" = "В~л~аделец"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:99
+"Others" = "Прочие"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:106
+"Special" = "Особые"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114
 "Set UID" = "Set UID"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114
 "Set GID" = "Set GID"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:114
 "Sticky" = "Sticky"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:93
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:115
 "Run with the file owner's rights" = "Выполняться с правами владельца файла"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:93
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:115
 "Run with the group's rights; in a directory, new files take its group" = "Выполняться с правами группы; в каталоге новые файлы получают его группу"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:93
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:115
 "In a directory, only a file's owner may delete or rename it" = "В каталоге удалить или переименовать файл может только его владелец"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:103
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:125
 "~O~ctal" = "~К~од"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:124
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:146
 "~U~ser" = "~Х~озяин"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:133, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "~Г~руппа"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:149, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
 "~D~ate" = "~Д~ата"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:158, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:44 ...
 "~T~ime" = "~В~ремя"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:165
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:187
 "ACL" = "ACL"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:173
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:195
 "E~n~tries" = "~З~аписи"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:185, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:246
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:207, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:268
 "~A~dd" = "~Д~обавить"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:193, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:254, navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:215, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:276, navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:44 ...
 "~E~dit" = "~П~равка"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:210
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:232
 "~C~lear" = "О~ч~истить"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:226
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:248
 "Xattrs" = "Xattr"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:234
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:256
 "Na~m~es" = "~И~мена"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:279
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:301
 "Flags" = "Флаги"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:287
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:309
 "~F~lags" = "~Ф~лаги"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Immutable" = "Неизменяем"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Append" = "Дописывать"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No dump" = "Без dump"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No atime" = "Без atime"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296, navigator/widgets/manager/commands.py:581
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/manager/commands.py:581
 "Sync" = "Синхр."
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Dir sync" = "Синхр. кат"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No COW" = "Без COW"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Compress" = "Сжатие"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Journal" = "Журнал"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Top dir" = "Верх. кат"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Secure rm" = "Безоп. уд."
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:296
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Undelete" = "Восстанов."
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "No one may change, rename or delete it, root included" = "Никто не может изменить, переименовать или удалить его, включая root"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "It can only be added to" = "В него можно только дописывать"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Left out of backups made with dump" = "Не включается в резервные копии dump"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Its access time is never updated" = "Время доступа к нему не обновляется"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Its changes are written to the disk at once" = "Его изменения сразу записываются на диск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Changes to this directory are written to the disk at once" = "Изменения этого каталога сразу записываются на диск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Rewritten in place rather than copied on write (btrfs)" = "Перезаписывается на месте, без копирования при записи (btrfs)"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Compressed by the file system" = "Сжимается файловой системой"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Its data goes through the file system's journal" = "Его данные проходят через журнал файловой системы"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "The top of a directory tree, for where the file system places blocks" = "Вершина дерева каталогов — для размещения блоков файловой системой"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Its blocks are cleared when it is deleted, where the file system can" = "При удалении его блоки очищаются, если файловая система умеет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:319
 "Its contents are kept when it is deleted, where the file system can" = "При удалении его содержимое сохраняется, если файловая система умеет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:321
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:343
 "~R~ecurse" = "~Р~екурсия"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:330
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "Нет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:330, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:78 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:78 ...
 "Files" = "Файлы"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:330
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "Каталоги"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:330
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "All" = "Все"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:331
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Only the tagged directories themselves change" = "Меняются только сами отмеченные каталоги"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:331
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "The files under a tagged directory change too, the directories in it not" = "Меняются и файлы в отмеченном каталоге, но не каталоги в нём"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:331
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "The directories under a tagged directory change too, the files in it not" = "Меняются и каталоги в отмеченном каталоге, но не файлы в нём"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:331
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Everything under a tagged directory changes too" = "Меняется и всё в отмеченном каталоге"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "Вычисление контрольных сумм"
@@ -703,8 +707,6 @@ flag = "RU"
 "Pentix Top Ten" = "Рекорды Пентикса"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Tetris Top Ten" = "Рекорды Тетриса"
-# navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:21
-"~Name                           Start  End       Score~" = "~Имя                            Старт  Финиш     Очки~"
 # navigator/widgets/game/winner_dialog/winner_dialog.nml:10
 "You have entered Top Ten!" = "Вы попали в десятку лучших!"
 # navigator/widgets/game/winner_dialog/winner_dialog.nml:19
@@ -853,7 +855,7 @@ flag = "RU"
 "~C~ompare directories" = "Ср~а~внить каталоги"
 # navigator/widgets/manager/manager/manager.nml:185
 "Tag what each panel has that the other lacks or has older" = "Отметить то, что есть в каждой панели, но отсутствует или старее в другой"
-# navigator/widgets/manager/manager/manager.nml:188, navigator/widgets/manager/panel/panel.py:1811
+# navigator/widgets/manager/manager/manager.nml:188, navigator/widgets/manager/panel/panel.py:1812
 "Count directory len~g~th" = "В~ы~числить размер каталога"
 # navigator/widgets/manager/manager/manager.nml:189
 "Add up the bytes under the selected directories" = "Подсчитать байты в выделенных каталогах"
@@ -869,7 +871,7 @@ flag = "RU"
 "Undo multi-rename" = "Отменить групповое переименование"
 # navigator/widgets/manager/manager/manager.nml:205
 "Put back the names the last multi-rename changed" = "Вернуть имена, изменённые последним групповым переименованием"
-# navigator/widgets/manager/manager/manager.nml:213, navigator/widgets/manager/panel/panel.py:1804
+# navigator/widgets/manager/manager/manager.nml:213, navigator/widgets/manager/panel/panel.py:1805
 "E~x~tract to..." = "Извле~ч~ь в..."
 # navigator/widgets/manager/manager/manager.nml:217, navigator/widgets/manager/manager/manager.py:1081
 "Test archive" = "Проверить архив"
@@ -901,13 +903,13 @@ flag = "RU"
 "Quic~k~ view" = "Быстрый ~п~росмотр"
 # navigator/widgets/manager/manager/manager.nml:267
 "Preview the file at the cursor in the other panel" = "Предпросмотр файла под курсором в другой панели"
-# navigator/widgets/manager/manager/manager.nml:272, navigator/widgets/manager/panel/panel.py:1816
+# navigator/widgets/manager/manager/manager.nml:272, navigator/widgets/manager/panel/panel.py:1817
 "Select grou~p~..." = "Пометить ~г~руппу..."
-# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/manager/panel/panel.py:1817
+# navigator/widgets/manager/manager/manager.nml:276, navigator/widgets/manager/panel/panel.py:1818
 "~U~nselect group..." = "Снять пометку по ~ш~аблону..."
-# navigator/widgets/manager/manager/manager.nml:280, navigator/widgets/manager/panel/panel.py:1818
+# navigator/widgets/manager/manager/manager.nml:280, navigator/widgets/manager/panel/panel.py:1819
 "In~v~ert selection" = "~И~нвертировать пометку"
-# navigator/widgets/manager/manager/manager.nml:284, navigator/widgets/manager/panel/panel.py:1819
+# navigator/widgets/manager/manager/manager.nml:284, navigator/widgets/manager/panel/panel.py:1820
 "Select all files" = "Пометить всё"
 # navigator/widgets/manager/manager/manager.nml:285
 "Select every file and directory in this panel" = "Пометить все файлы и каталоги этой панели"
@@ -953,8 +955,6 @@ flag = "RU"
 "~E~xtension" = "Ра~с~ширение"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "Атрибуты"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
-"O~w~ner" = "В~л~аделец"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4713
 "Ty~p~e" = "~Т~ип"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4692 ...
@@ -1061,7 +1061,7 @@ flag = "RU"
 "Date" = "Дата"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~П~оиск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2695, navigator/widgets/manager/sync_list/sync_list.py:458
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2707, navigator/widgets/manager/sync_list/sync_list.py:459
 "Path" = "Путь"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~А~рхивы"
@@ -1074,7 +1074,7 @@ flag = "RU"
 # navigator/widgets/setup/communications_page/communications_page.nml:24
 "~K~eep-alive every" = "~П~роверять связь каждые"
 # navigator/widgets/setup/communications_page/communications_page.nml:35, navigator/widgets/setup/communications_page/communications_page.nml:92, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
-"seconds (0: never)" = "секунд (0: никогда)"
+"seconds (0: never)" = "сек. (0: никогда)"
 # navigator/widgets/setup/communications_page/communications_page.nml:43
 "Connecting ~w~aits" = "~О~жидание соединения"
 # navigator/widgets/setup/communications_page/communications_page.nml:54
@@ -1082,7 +1082,7 @@ flag = "RU"
 # navigator/widgets/setup/communications_page/communications_page.nml:62
 "~C~lose an idle connection" = "~З~акрыть простаивающую связь"
 # navigator/widgets/setup/communications_page/communications_page.nml:73
-"minutes on (0: never)" = "минут спустя (0: никогда)"
+"minutes (0: never)" = "мин. (0: никогда)"
 # navigator/widgets/setup/communications_page/communications_page.nml:81
 "~L~ook for changes every" = "Проверять ~и~зменения каждые"
 # navigator/widgets/setup/communications_page/communications_page.nml:100
@@ -1145,7 +1145,7 @@ flag = "RU"
 "~S~unday" = "Вос~к~ресенья"
 # navigator/widgets/setup/country_page/country_page.nml:79
 "Custom ~f~ormat" = "Сво~й~ формат"
-# navigator/widgets/setup/country_page/country_page.nml:88
+# navigator/widgets/setup/country_page/country_page.nml:91
 "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's" = "Директивы strftime: %d день, %m месяц, %y или %Y год,\n%b или %B название месяца, %a или %A день недели"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:20
 "Items to display" = "Что показывать"
@@ -1199,7 +1199,7 @@ flag = "RU"
 "Viewer options" = "Опции просмотра"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "Hex-ре~ж~им"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:142, navigator/widgets/viewer/file_viewer/file_viewer.py:855
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:142, navigator/widgets/viewer/file_viewer/file_viewer.py:931
 "~W~rap lines" = "Перен~о~с строк"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "Полоса опци~й~"
@@ -1220,7 +1220,7 @@ flag = "RU"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78
 "~I~nfo" = "Инфор~м~ация"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78
-"A~b~sent" = "Отс~у~тствует"
+"A~b~sent" = "~У~брана"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:86
 "Panel mode" = "Режим панели"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:95
@@ -1254,13 +1254,13 @@ flag = "RU"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:53
 "Miller column ~w~idth:" = "~Ш~ирина колонки Миллера:"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
-"Colu~m~n titles" = "~З~аголовки колонок"
+"Colu~m~n titles" = "~З~аголовки"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
 "~I~nfo divider" = "Раз~д~елитель"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
 "~T~ag character" = "Си~м~вол отметки"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
-"Li~n~k target line" = "Строка ~ц~ели ссылки"
+"Li~n~k target line" = "~Ц~ель ссылки"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
 "Option ~f~lags" = "Ф~л~аги опций"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:71
@@ -1270,7 +1270,7 @@ flag = "RU"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:88
 "Right button" = "Правая кнопка"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:97
-"Conte~x~t menu" = "Контекстно~е~ меню"
+"Conte~x~t menu" = "Контекст. м~е~ню"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:97
 "Se~l~ect files" = "Выделять ~ф~айлы"
 # navigator/widgets/setup/highlight_page/highlight_page.nml:20
@@ -1310,7 +1310,7 @@ flag = "RU"
 # navigator/widgets/setup/interface_page/interface_page.nml:34
 "~H~istory size" = "Длина ис~т~ории"
 # navigator/widgets/setup/interface_page/interface_page.nml:48
-"Tooltip delay (ms)" = "Задержка подсказки (мс)"
+"Tooltip delay (ms)" = "Задержка подск. (мс)"
 # navigator/widgets/setup/interface_page/interface_page.nml:62
 "La~n~guage" = "~Я~зык"
 # navigator/widgets/setup/interface_page/interface_page.nml:73
@@ -1320,20 +1320,22 @@ flag = "RU"
 # navigator/widgets/setup/interface_page/interface_page.nml:96
 "Mar~k~s" = "~Ф~лажки"
 # navigator/widgets/setup/interface_page/interface_page.nml:107
-"Settin~g~s tabs" = "~В~кладки настроек"
-# navigator/widgets/setup/interface_page/interface_page.nml:116
+"Te~x~t direction" = "~Н~аправление"
+# navigator/widgets/setup/interface_page/interface_page.nml:118
+"Settin~g~s tabs" = "~В~кладки опций"
+# navigator/widgets/setup/interface_page/interface_page.nml:127
 "~O~n top" = "Свер~х~у"
-# navigator/widgets/setup/interface_page/interface_page.nml:116
+# navigator/widgets/setup/interface_page/interface_page.nml:127
 "On the le~f~t" = "С~л~ева"
-# navigator/widgets/setup/interface_page/interface_page.nml:116
+# navigator/widgets/setup/interface_page/interface_page.nml:127
 "Sim~p~le" = "Прост~ы~е"
-# navigator/widgets/setup/interface_page/interface_page.nml:125
+# navigator/widgets/setup/interface_page/interface_page.nml:136
 "W~i~ndow strip" = "Окна в м~е~ню"
-# navigator/widgets/setup/interface_page/interface_page.nml:134
+# navigator/widgets/setup/interface_page/interface_page.nml:145
 "Off" = "Выкл."
-# navigator/widgets/setup/interface_page/interface_page.nml:134, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:145, navigator/lib/appearance/palette.py
 "Numbers" = "Числа"
-# navigator/widgets/setup/interface_page/interface_page.nml:134
+# navigator/widgets/setup/interface_page/interface_page.nml:145
 "With titles" = "С заголовками"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "Назначение клавиш"
@@ -1472,7 +1474,7 @@ flag = "RU"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:83
 "Show a ~m~essage" = "Показать сооб~щ~ение"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:83
-"~Q~uit with a traceback" = "~З~авершить с трассировкой"
+"~Q~uit with a traceback" = "~З~акрыть с трассировкой"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:91
 "Re~p~ort a stall after" = "От~ч~ёт о зависании через"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:113
@@ -1661,9 +1663,9 @@ flag = "RU"
 "Open ~w~ith..." = "Открыть ~ч~ерез..."
 # navigator/widgets/shell/main_menu/main_menu.nml:148
 "Open the file in a desktop application chosen from a list" = "Открыть файл в приложении рабочего стола, выбранном из списка"
-# navigator/widgets/shell/main_menu/main_menu.nml:155, navigator/widgets/manager/panel/panel.py:1787
+# navigator/widgets/shell/main_menu/main_menu.nml:155, navigator/widgets/manager/panel/panel.py:1788
 "~C~opy..." = "~К~опировать..."
-# navigator/widgets/shell/main_menu/main_menu.nml:159, navigator/widgets/manager/panel/panel.py:1788
+# navigator/widgets/shell/main_menu/main_menu.nml:159, navigator/widgets/manager/panel/panel.py:1789
 "~R~ename/Move..." = "Пе~р~еименовать/перенести..."
 # navigator/widgets/shell/main_menu/main_menu.nml:165
 "~Q~uick rename..." = "~Б~ыстро переименовать..."
@@ -1673,19 +1675,19 @@ flag = "RU"
 "Create arch~i~ve..." = "С~о~здать архив..."
 # navigator/widgets/shell/main_menu/main_menu.nml:177
 "Ex~t~ract archive..." = "Из~в~лечь из архива..."
-# navigator/widgets/shell/main_menu/main_menu.nml:181, navigator/widgets/manager/panel/panel.py:1789
+# navigator/widgets/shell/main_menu/main_menu.nml:181, navigator/widgets/manager/panel/panel.py:1790
 "Create ~s~ymlink..." = "Си~м~вол. ссылка..."
 # navigator/widgets/shell/main_menu/main_menu.nml:182
 "Make a symbolic link to each selected file" = "Создать символическую ссылку на каждый выделенный файл"
 # navigator/widgets/shell/main_menu/main_menu.nml:188
 "Compare fi~l~es..." = "Сравнить фа~й~лы..."
-# navigator/widgets/shell/main_menu/main_menu.nml:195, navigator/widgets/manager/panel/panel.py:1812
+# navigator/widgets/shell/main_menu/main_menu.nml:195, navigator/widgets/manager/panel/panel.py:1813
 "~M~ake directory" = "Создать ка~т~алог"
-# navigator/widgets/shell/main_menu/main_menu.nml:207, navigator/widgets/manager/panel/panel.py:1773
+# navigator/widgets/shell/main_menu/main_menu.nml:207, navigator/widgets/manager/panel/panel.py:1774
 "Restore from Tras~h~" = "Восстановить и~з~ корзины"
 # navigator/widgets/shell/main_menu/main_menu.nml:208
 "Put the selected files back where they were deleted from" = "Вернуть выделенные файлы туда, откуда они были удалены"
-# navigator/widgets/shell/main_menu/main_menu.nml:211, navigator/widgets/manager/panel/panel.py:1791
+# navigator/widgets/shell/main_menu/main_menu.nml:211, navigator/widgets/manager/panel/panel.py:1792
 "File ~A~ttributes..." = "~А~трибуты файла..."
 # navigator/widgets/shell/main_menu/main_menu.nml:212
 "Permissions, owner, group, dates, ACLs and extended attributes" = "Права, владелец, группа, даты, ACL и расширенные атрибуты"
@@ -1927,7 +1929,7 @@ flag = "RU"
 "Main board" = "Системная плата"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:38
 "Disk drives" = "Диски"
-# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:333
+# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:334
 "Memory" = "Память"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "Прочее"
@@ -2003,15 +2005,15 @@ flag = "RU"
 "~C~ompare again" = "Сравнить с~н~ова"
 # navigator/widgets/viewer/file_window/file_window.nml:124
 "Text, hex or dump, wrapping, filters, search and encoding" = "Текст, hex или дамп, перенос, фильтры, поиск и кодировка"
-# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:850
+# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:926
 "He~x~/Text/Dump" = "Hex/Текст/Да~м~п"
-# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:851
+# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:927
 "~T~ext" = "~Т~екст"
-# navigator/widgets/viewer/file_window/file_window.nml:135, navigator/widgets/viewer/file_viewer/file_viewer.py:852
+# navigator/widgets/viewer/file_window/file_window.nml:135, navigator/widgets/viewer/file_viewer/file_viewer.py:928
 "~H~ex" = "~Ш~естнадцатеричный"
-# navigator/widgets/viewer/file_window/file_window.nml:138, navigator/widgets/viewer/file_viewer/file_viewer.py:853
+# navigator/widgets/viewer/file_window/file_window.nml:138, navigator/widgets/viewer/file_viewer/file_viewer.py:929
 "~D~ump" = "~Д~амп"
-# navigator/widgets/viewer/file_window/file_window.nml:147, navigator/widgets/viewer/file_viewer/file_viewer.py:856, navigator/widgets/viewer/quick_viewer/quick_viewer.py:105
+# navigator/widgets/viewer/file_window/file_window.nml:147, navigator/widgets/viewer/file_viewer/file_viewer.py:932, navigator/widgets/viewer/quick_viewer/quick_viewer.py:106
 "~M~arkup view" = "Просмотр ~р~азметки"
 # navigator/widgets/viewer/file_window/file_window.nml:148
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "Показать файл Markdown, reST, HTML или PDF отрисованным или его исходник"
@@ -2021,7 +2023,7 @@ flag = "RU"
 "Sh~o~w hidden characters" = "Показывать скр~ы~тые символы"
 # navigator/widgets/viewer/file_window/file_window.nml:162
 "~F~ile type" = "Тип фай~л~а"
-# navigator/widgets/viewer/file_window/file_window.nml:166, navigator/widgets/viewer/file_viewer/file_viewer.py:857
+# navigator/widgets/viewer/file_window/file_window.nml:166, navigator/widgets/viewer/file_viewer/file_viewer.py:933
 "Fi~l~ter" = "Фил~ь~тр"
 # navigator/widgets/viewer/file_window/file_window.nml:167
 "Hide characters: none, all but ASCII, or the control characters" = "Скрывать символы: никакие, все кроме ASCII или управляющие"
@@ -2037,7 +2039,7 @@ flag = "RU"
 "Hide control characters" = "Скрыть управляющие символы"
 # navigator/widgets/viewer/file_window/file_window.nml:188
 "Re~v~erse search" = "Поиск ~н~азад"
-# navigator/widgets/viewer/file_window/file_window.nml:191, navigator/widgets/viewer/file_viewer/file_viewer.py:861
+# navigator/widgets/viewer/file_window/file_window.nml:191, navigator/widgets/viewer/file_viewer/file_viewer.py:937
 "Go to add~r~ess..." = "Перейти по ~а~дресу..."
 # navigator/widgets/viewer/file_window/file_window.nml:192
 "Jump to an offset in the file" = "Перейти к смещению в файле"
@@ -2045,7 +2047,7 @@ flag = "RU"
 "Store" = "Запомнить"
 # navigator/widgets/viewer/file_window/file_window.nml:201
 "Sav~e~ as..." = "~С~охранить как..."
-# navigator/widgets/viewer/file_window/file_window.nml:205, navigator/widgets/viewer/file_viewer/file_viewer.py:863
+# navigator/widgets/viewer/file_window/file_window.nml:205, navigator/widgets/viewer/file_viewer/file_viewer.py:939
 "Encod~i~ng..." = "~К~одировка..."
 # navigator/widgets/viewer/file_window/file_window.nml:206
 "The code page the file is read in" = "Кодовая страница, в которой читается файл"
@@ -2089,7 +2091,7 @@ flag = "RU"
 "Runs in a window of its own" = "Выполняется в собственном окне"
 # navigator/lib/drives/listing.py:107, navigator/lib/drives/listing.py:213
 "UP--DIR" = "НАВЕРХ"
-# navigator/lib/drives/listing.py:107, navigator/widgets/manager/sync_list/sync_list.py:313
+# navigator/lib/drives/listing.py:107, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "КАТАЛОГ"
 # navigator/lib/drives/listing.py:213
 "SUB-DIR" = "ПОДКАТ"
@@ -2181,69 +2183,69 @@ flag = "RU"
 "plain" = "текст"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "авто"
-# navigator/lib/system/diskinfo.py:215
+# navigator/lib/system/diskinfo.py:216
 "File" = "Файл"
-# navigator/lib/system/diskinfo.py:206
+# navigator/lib/system/diskinfo.py:207
 "Socket" = "Сокет"
-# navigator/lib/system/diskinfo.py:208
+# navigator/lib/system/diskinfo.py:209
 "Character device" = "Символьное устройство"
-# navigator/lib/system/diskinfo.py:210
+# navigator/lib/system/diskinfo.py:211
 "Block device" = "Блочное устройство"
-# navigator/lib/system/diskinfo.py:212
+# navigator/lib/system/diskinfo.py:213
 "FIFO" = "FIFO"
-# navigator/lib/system/diskinfo.py:214
+# navigator/lib/system/diskinfo.py:215
 "Executable file" = "Исполняемый файл"
-# navigator/lib/system/diskinfo.py:201
+# navigator/lib/system/diskinfo.py:202
 "Broken symbolic link" = "Битая символическая ссылка"
-# navigator/lib/system/diskinfo.py:202
+# navigator/lib/system/diskinfo.py:203
 "Symbolic link to a directory" = "Символическая ссылка на каталог"
-# navigator/lib/system/diskinfo.py:202
+# navigator/lib/system/diskinfo.py:203
 "Symbolic link to a file" = "Символическая ссылка на файл"
-# navigator/lib/system/diskinfo.py:229, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:230, navigator/lib/appearance/palette.py
 "Current file" = "Текущий файл"
-# navigator/lib/system/diskinfo.py:234
+# navigator/lib/system/diskinfo.py:235
 "Size: ~not counted~" = "Размер: ~не подсчитан~"
-# navigator/lib/system/diskinfo.py:236
+# navigator/lib/system/diskinfo.py:237
 "Size: ~{n:,}~ byte" = ["Размер: ~{n:,}~ байт", "Размер: ~{n:,}~ байта", "Размер: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:291, navigator/widgets/manager/panel/panel.py:2296
+# navigator/lib/system/diskinfo.py:292, navigator/widgets/manager/panel/panel.py:2297
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:230
-"Name: ~{name}~" = "Имя: ~{name}~"
 # navigator/lib/system/diskinfo.py:231
+"Name: ~{name}~" = "Имя: ~{name}~"
+# navigator/lib/system/diskinfo.py:232
 "Type: ~{kind}~" = "Тип: ~{kind}~"
-# navigator/lib/system/diskinfo.py:284
+# navigator/lib/system/diskinfo.py:285
 "Current directory:" = "Текущий каталог:"
-# navigator/lib/system/diskinfo.py:306
+# navigator/lib/system/diskinfo.py:307
 "~{n:,}~ total byte on ~{mount}~" = ["Всего ~{n:,}~ байт на ~{mount}~", "Всего ~{n:,}~ байта на ~{mount}~", "Всего ~{n:,}~ байт на ~{mount}~"]
-# navigator/lib/system/diskinfo.py:309
+# navigator/lib/system/diskinfo.py:310
 "~{n:,}~ free byte on ~{mount}~" = ["Свободно ~{n:,}~ байт на ~{mount}~", "Свободно ~{n:,}~ байта на ~{mount}~", "Свободно ~{n:,}~ байт на ~{mount}~"]
-# navigator/lib/system/diskinfo.py:324
+# navigator/lib/system/diskinfo.py:325
 "~{n:,}~ byte memory for user" = ["Доступно пользователю: ~{n:,}~ байт", "Доступно пользователю: ~{n:,}~ байта", "Доступно пользователю: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:327
+# navigator/lib/system/diskinfo.py:328
 "~{n:,}~ byte memory for Navigator" = ["Использует Navigator: ~{n:,}~ байт", "Использует Navigator: ~{n:,}~ байта", "Использует Navigator: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:238
+# navigator/lib/system/diskinfo.py:239
 "Modified: ~{when}~" = "Изменён: ~{when}~"
-# navigator/lib/system/diskinfo.py:240
+# navigator/lib/system/diskinfo.py:241
 "Accessed: ~{when}~" = "Открыт: ~{when}~"
-# navigator/lib/system/diskinfo.py:242
+# navigator/lib/system/diskinfo.py:243
 "Changed: ~{when}~" = "Статус изменён: ~{when}~"
-# navigator/lib/system/diskinfo.py:245
+# navigator/lib/system/diskinfo.py:246
 "Attributes: ~{attributes}~" = "Атрибуты: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:248
+# navigator/lib/system/diskinfo.py:249
 "Owner: ~{owner}~" = "Владелец: ~{owner}~"
-# navigator/lib/system/diskinfo.py:250
+# navigator/lib/system/diskinfo.py:251
 "Links: ~{links}~, inode ~{inode}~" = "Ссылок: ~{links}~, inode ~{inode}~"
-# navigator/lib/system/diskinfo.py:252
+# navigator/lib/system/diskinfo.py:253
 "Link to: ~{target}~" = "Ссылка на: ~{target}~"
-# navigator/lib/system/diskinfo.py:288, navigator/widgets/manager/panel/panel.py:2292
+# navigator/lib/system/diskinfo.py:289, navigator/widgets/manager/panel/panel.py:2293
 "No files in this directory" = "В этом каталоге файлов нет"
-# navigator/lib/system/diskinfo.py:292
+# navigator/lib/system/diskinfo.py:293
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
-# navigator/lib/system/diskinfo.py:331, navigator/widgets/manager/commands.py:219
+# navigator/lib/system/diskinfo.py:332, navigator/widgets/manager/commands.py:219
 "Drive" = "Диск"
-# navigator/lib/system/diskinfo.py:322, navigator/widgets/manager/info_panel/info_panel.py:188
+# navigator/lib/system/diskinfo.py:323, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "Всего памяти: ~{n:,}~ КБ"
-# navigator/lib/system/diskinfo.py:313
+# navigator/lib/system/diskinfo.py:314
 "Volume label on ~{mount}: {label}~" = "Метка тома на ~{mount}: {label}~"
 # navigator/lib/system/mediainfo.py:313
 "mono" = "моно"
@@ -2253,11 +2255,11 @@ flag = "RU"
 "{n} channel" = ["{n} канал", "{n} канала", "{n} каналов"]
 # navigator/lib/system/mediainfo.py:326
 "yes" = "да"
-# navigator/lib/system/mediainfo.py:341
+# navigator/lib/system/mediainfo.py:343
 "{n} fps" = "{n} кадр/с"
-# navigator/lib/system/mediainfo.py:348
+# navigator/lib/system/mediainfo.py:349
 "{n} kHz" = "{n} кГц"
-# navigator/lib/system/mediainfo.py:353
+# navigator/lib/system/mediainfo.py:354
 "{n} kbit/s" = "{n} кбит/с"
 # navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "Недостаточно памяти для выполнения операции."
@@ -2297,33 +2299,33 @@ flag = "RU"
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "Параметры > Конфигурация > Запуск (dlgStartupSetup в DN)"
 # navigator/settings.py:394
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "Параметры > Конфигурация > Интерфейс (dlgInterfaceSetup в DN)"
-# navigator/settings.py:464
+# navigator/settings.py:472
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Параметры > Конфигурация > Подтверждения (dlgConfirmations в DN)"
-# navigator/settings.py:492
+# navigator/settings.py:500
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
-# navigator/settings.py:557
+# navigator/settings.py:565
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:609
+# navigator/settings.py:617
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:680
+# navigator/settings.py:688
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:734
+# navigator/settings.py:742
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:771
+# navigator/settings.py:779
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:816
+# navigator/settings.py:824
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:831
+# navigator/settings.py:839
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:863
+# navigator/settings.py:871
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:887
+# navigator/settings.py:895
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:902
+# navigator/settings.py:910
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:929
+# navigator/settings.py:937
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:945
+# navigator/settings.py:953
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Неверный пароль для {name}. Ещё раз:"
@@ -2441,9 +2443,9 @@ flag = "RU"
 "Rev. Search" = "Поиск назад"
 # navigator/widgets/editor/commands.py:302
 "Justify" = "По шир."
-# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:458
+# navigator/widgets/editor/commands.py:308, navigator/widgets/manager/sync_list/sync_list.py:459
 "Right" = "Вправо"
-# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:458
+# navigator/widgets/editor/commands.py:314, navigator/widgets/manager/sync_list/sync_list.py:459
 "Left" = "Влево"
 # navigator/widgets/editor/commands.py:320
 "Center" = "Центр"
@@ -2517,7 +2519,7 @@ flag = "RU"
 "Save" = "Запись"
 # navigator/widgets/editor/edit_window/edit_window.py:914, navigator/widgets/editor/edit_window/edit_window.py:826
 "Untitled" = "Безымянный"
-# navigator/widgets/editor/edit_window/edit_window.py:372, navigator/widgets/editor/file_editor/file_editor.py:2325
+# navigator/widgets/editor/edit_window/edit_window.py:372, navigator/widgets/editor/file_editor/file_editor.py:2764
 "No block is marked" = "Блок не отмечен"
 # navigator/widgets/editor/edit_window/edit_window.py:413, navigator/widgets/editor/edit_window/edit_window.py:916, navigator/widgets/editor/edit_window/edit_window.py:428 ...
 "Warning" = "Предупреждение"
@@ -2549,9 +2551,9 @@ flag = "RU"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:263, navigator/widgets/viewer/file_window/file_window.py:496
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:264, navigator/widgets/viewer/file_window/file_window.py:496
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:199 ...
+# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Информация"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
@@ -2563,35 +2565,35 @@ flag = "RU"
 "Save file {name}?" = "Сохранить файл {name}?"
 # navigator/widgets/editor/edit_window/edit_window.py:429
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
-# navigator/widgets/editor/file_editor/file_editor.py:2437
+# navigator/widgets/editor/file_editor/file_editor.py:2876
 "~G~o to line..." = "~П~ерейти к строке..."
-# navigator/widgets/editor/file_editor/file_editor.py:2439
+# navigator/widgets/editor/file_editor/file_editor.py:2878
 "~I~ndent block" = "~Б~лок вправо"
-# navigator/widgets/editor/file_editor/file_editor.py:2440
+# navigator/widgets/editor/file_editor/file_editor.py:2879
 "U~n~indent block" = "Б~л~ок влево"
-# navigator/widgets/editor/file_editor/file_editor.py:2441
+# navigator/widgets/editor/file_editor/file_editor.py:2880
 "Change ca~s~e" = "~Р~егистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2442
+# navigator/widgets/editor/file_editor/file_editor.py:2881
 "~U~pper case" = "~В~ерхний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2443
+# navigator/widgets/editor/file_editor/file_editor.py:2882
 "~L~ower case" = "~Н~ижний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:2446
+# navigator/widgets/editor/file_editor/file_editor.py:2885
 "Sa~v~e" = "~С~охранить"
-# navigator/widgets/editor/file_editor/file_editor.py:2328
+# navigator/widgets/editor/file_editor/file_editor.py:2767
 "Nothing to undo" = "Нечего отменять"
-# navigator/widgets/editor/file_editor/file_editor.py:2331
+# navigator/widgets/editor/file_editor/file_editor.py:2770
 "Nothing to redo" = "Нечего повторять"
-# navigator/widgets/editor/file_editor/file_editor.py:2339
+# navigator/widgets/editor/file_editor/file_editor.py:2778
 "The text is empty" = "Текст пуст"
-# navigator/widgets/editor/file_editor/file_editor.py:3052
+# navigator/widgets/editor/file_editor/file_editor.py:3600
 "Line and column: a click goes to a line" = "Строка и столбец: щелчок переходит к строке"
-# navigator/widgets/editor/file_editor/file_editor.py:3053
+# navigator/widgets/editor/file_editor/file_editor.py:3601
 "The character's code: a click opens the character table" = "Код символа: щелчок открывает таблицу символов"
-# navigator/widgets/editor/file_editor/file_editor.py:3054
+# navigator/widgets/editor/file_editor/file_editor.py:3602
 "Vertical blocks: a click makes them stream blocks" = "Вертикальные блоки: щелчок делает их потоковыми"
-# navigator/widgets/editor/file_editor/file_editor.py:3055
+# navigator/widgets/editor/file_editor/file_editor.py:3603
 "Stream blocks: a click makes them vertical" = "Потоковые блоки: щелчок делает их вертикальными"
-# navigator/widgets/editor/file_editor/file_editor.py:1373, navigator/widgets/editor/file_editor/file_editor.py:1412
+# navigator/widgets/editor/file_editor/file_editor.py:1811, navigator/widgets/editor/file_editor/file_editor.py:1850
 "Vertical blocks need for this operation" = "Выберите вертикальный блок для этой операции"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "~Я~зыки программирования"
@@ -2607,9 +2609,9 @@ flag = "RU"
 "Writing file" = "Запись файла"
 # navigator/widgets/editor/option_items.py:107
 "MD" = "MD"
-# navigator/widgets/editor/option_items.py:102, navigator/widgets/viewer/file_viewer/file_viewer.py:568
+# navigator/widgets/editor/option_items.py:102, navigator/widgets/viewer/file_viewer/file_viewer.py:596
 "PDF" = "PDF"
-# navigator/widgets/editor/option_items.py:104, navigator/widgets/viewer/file_viewer/file_viewer.py:570
+# navigator/widgets/editor/option_items.py:104, navigator/widgets/viewer/file_viewer/file_viewer.py:598
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:106
 "RST" = "RST"
@@ -2697,7 +2699,7 @@ flag = "RU"
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2318, navigator/widgets/manager/panel/panel.py:2435 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2319, navigator/widgets/manager/panel/panel.py:2436 ...
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<различается>"
@@ -2847,38 +2849,46 @@ flag = "RU"
 "Preview" = "Показ"
 # navigator/widgets/game/game_window/game_window.py:99
 "Game over\n\nFinal score - {score}" = "Конец игры\n\nИтоговый счёт - {score}"
-# navigator/widgets/game/game_window/info.py:66
+# navigator/widgets/game/game_window/info.py:67
 "{n} more line to the next level" = ["Ещё {n} линия до следующего уровня", "Ещё {n} линии до следующего уровня", "Ещё {n} линий до следующего уровня"]
-# navigator/widgets/game/game_window/info.py:71
+# navigator/widgets/game/game_window/info.py:72
 "Next is hidden, and a figure set down scores in full" = "Следующая скрыта, и уложенная фигура даёт полные очки"
-# navigator/widgets/game/game_window/info.py:93, navigator/widgets/game/winner_dialog/winner_dialog.py:19
+# navigator/widgets/game/game_window/info.py:94, navigator/widgets/game/winner_dialog/winner_dialog.py:19
 "Anonymous" = "Аноним"
-# navigator/widgets/game/game_window/info.py:54
-"A figure set down scores more the higher it lies and the higher the level" = "Уложенная фигура даёт тем больше очков, чем выше она лежит и чем выше уровень"
 # navigator/widgets/game/game_window/info.py:55
-"A line taken scores more the higher it was" = "Убранная линия даёт тем больше очков, чем выше она была"
+"A figure set down scores more the higher it lies and the higher the level" = "Уложенная фигура даёт тем больше очков, чем выше она лежит и чем выше уровень"
 # navigator/widgets/game/game_window/info.py:56
+"A line taken scores more the higher it was" = "Убранная линия даёт тем больше очков, чем выше она была"
+# navigator/widgets/game/game_window/info.py:57
 "An emptied glass scores 300 times the level" = "Опустошённый стакан даёт 300, умноженное на уровень"
-# navigator/widgets/game/game_window/info.py:62
+# navigator/widgets/game/game_window/info.py:63
 "The last level" = "Последний уровень"
-# navigator/widgets/game/game_window/info.py:70
+# navigator/widgets/game/game_window/info.py:71
 "The figure that falls next: while it is shown, a figure set down scores 70%" = "Фигура, которая упадёт следующей: пока она видна, уложенная фигура даёт 70%"
-# navigator/widgets/game/game_window/info.py:58
+# navigator/widgets/game/game_window/info.py:59
 "While Next is shown, a figure set down and an emptied glass score 70%" = "Пока видна следующая, уложенная фигура и опустошённый стакан дают 70%"
-# navigator/widgets/game/game_window/info.py:78, navigator/widgets/manager/commands.py:277, navigator/widgets/manager/panel/option_items.py:52 ...
+# navigator/widgets/game/game_window/info.py:79, navigator/widgets/manager/commands.py:277, navigator/widgets/manager/panel/option_items.py:52 ...
 "Info" = "Инфо"
-# navigator/widgets/game/game_window/info.py:79
-"Score: ~{score}~" = "Очки: ~{score}~"
 # navigator/widgets/game/game_window/info.py:80
-"Lines: ~{lines}~" = "Линий: ~{lines}~"
+"Score: ~{score}~" = "Очки: ~{score}~"
 # navigator/widgets/game/game_window/info.py:81
+"Lines: ~{lines}~" = "Линий: ~{lines}~"
+# navigator/widgets/game/game_window/info.py:82
 "Level: ~{level}~" = "Уров.: ~{level}~"
-# navigator/widgets/game/game_window/info.py:94
-"Best" = "Лучший"
 # navigator/widgets/game/game_window/info.py:95
-"~Name:~ {name}" = "~Имя:~ {name}"
+"Best" = "Лучший"
 # navigator/widgets/game/game_window/info.py:96
+"~Name:~ {name}" = "~Имя:~ {name}"
+# navigator/widgets/game/game_window/info.py:97
 "~Score:~ {score}" = "~Очки:~ {score}"
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2700, navigator/widgets/shell/volume_list/volume_list.py:131 ...
+"Name" = "Имя"
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
+"Start" = "Начало"
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
+"End" = "Конец"
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
+"Score" = "Очки"
 # navigator/widgets/manager/columns_dialog/columns_dialog.py:34
 "~O~riginal size" = "~И~сходный размер"
 # navigator/widgets/manager/columns_dialog/columns_dialog.py:34
@@ -2893,7 +2903,7 @@ flag = "RU"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:85
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2692
+# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2704
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:101
 "MkDir" = "Каталог"
@@ -2921,9 +2931,9 @@ flag = "RU"
 "{n} difference found" = ["Найдено {n} отличие", "Найдено {n} отличия", "Найдено {n} отличий"]
 # navigator/widgets/manager/compare_progress/compare_progress.py:30
 "No differences found" = "Отличий не найдено"
-# navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/widgets/manager/info_panel/info_panel.py:190
 "{count} byte of memory in all" = ["Всего {count} байт памяти", "Всего {count} байта памяти", "Всего {count} байт памяти"]
-# navigator/widgets/manager/info_panel/info_panel.py:172
+# navigator/widgets/manager/info_panel/info_panel.py:173
 "Connection" = "Соединение"
 # navigator/widgets/manager/manager/manager.py:731
 "Calculating checksums" = "Вычисление контрольных сумм"
@@ -3163,133 +3173,131 @@ flag = "RU"
 "View mode: simple, detailed or list" = "Режим просмотра: простой, подробный или список"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "Порядок сортировки"
-# navigator/widgets/manager/panel/panel.py:2319
+# navigator/widgets/manager/panel/panel.py:2320
 "~{total} in {n}~ selected file" = ["~{total} в {n}~ отмеченном файле", "~{total} в {n}~ отмеченных файлах", "~{total} в {n}~ отмеченных файлах"]
-# navigator/widgets/manager/panel/panel.py:1798
+# navigator/widgets/manager/panel/panel.py:1799
 "Paste from clip~b~oard" = "Вст~а~вить из буфера"
-# navigator/widgets/manager/panel/panel.py:1823
-"~I~nsert name" = "~В~ставить имя"
 # navigator/widgets/manager/panel/panel.py:1824
+"~I~nsert name" = "~В~ставить имя"
+# navigator/widgets/manager/panel/panel.py:1825
 "Insert pa~t~h" = "Вставить по~л~ный путь"
-# navigator/widgets/manager/panel/panel.py:2316
+# navigator/widgets/manager/panel/panel.py:2317
 "No files selected" = "Нет отмеченных файлов"
-# navigator/widgets/manager/panel/panel.py:2424, navigator/widgets/manager/panel/panel.py:2306
+# navigator/widgets/manager/panel/panel.py:2425, navigator/widgets/manager/panel/panel.py:2307
 "~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1489
-"The file's name" = "Имя файла"
 # navigator/widgets/manager/panel/panel.py:1490
-"The file's size" = "Размер файла"
+"The file's name" = "Имя файла"
 # navigator/widgets/manager/panel/panel.py:1491
-"The size packed in the archive" = "Сжатый размер в архиве"
+"The file's size" = "Размер файла"
 # navigator/widgets/manager/panel/panel.py:1492
-"The packed size as a percentage of the original" = "Сжатый размер в процентах от исходного"
+"The size packed in the archive" = "Сжатый размер в архиве"
 # navigator/widgets/manager/panel/panel.py:1493
-"Permissions: the owner's, the group's and others'" = "Права: владельца, группы и остальных"
+"The packed size as a percentage of the original" = "Сжатый размер в процентах от исходного"
 # navigator/widgets/manager/panel/panel.py:1494
-"The owner and group" = "Владелец и группа"
+"Permissions: the owner's, the group's and others'" = "Права: владельца, группы и остальных"
 # navigator/widgets/manager/panel/panel.py:1495
-"When the file was last modified" = "Когда файл был изменён в последний раз"
+"The owner and group" = "Владелец и группа"
 # navigator/widgets/manager/panel/panel.py:1496
+"When the file was last modified" = "Когда файл был изменён в последний раз"
+# navigator/widgets/manager/panel/panel.py:1497
 "The directory the file was found in" = "Каталог, в котором найден файл"
-# navigator/widgets/manager/panel/panel.py:1593
+# navigator/widgets/manager/panel/panel.py:1594
 "Search:" = "Поиск:"
-# navigator/widgets/manager/panel/panel.py:1768
-"Go to ~f~ile" = "Перейти к ~ф~айлу"
 # navigator/widgets/manager/panel/panel.py:1769
+"Go to ~f~ile" = "Перейти к ~ф~айлу"
+# navigator/widgets/manager/panel/panel.py:1770
 "Show in ~o~ther panel" = "Показать в ~д~ругой панели"
-# navigator/widgets/manager/panel/panel.py:1777
+# navigator/widgets/manager/panel/panel.py:1778
 "Vie~w~" = "~С~мотреть"
-# navigator/widgets/manager/panel/panel.py:1796
-"Cop~y~ to clipboard" = "Копировать в ~б~уфер"
 # navigator/widgets/manager/panel/panel.py:1797
+"Cop~y~ to clipboard" = "Копировать в ~б~уфер"
+# navigator/widgets/manager/panel/panel.py:1798
 "Cut to c~l~ipboard" = "Вырезать в бу~ф~ер"
-# navigator/widgets/manager/panel/panel.py:1805
+# navigator/widgets/manager/panel/panel.py:1806
 "Test arc~h~ive" = "Проверить ар~х~ив"
-# navigator/widgets/manager/panel/panel.py:2285
+# navigator/widgets/manager/panel/panel.py:2286
 "Clipboard: ~{n}~ file to move" = ["В буфере: ~{n}~ файл для перемещения", "В буфере: ~{n}~ файла для перемещения", "В буфере: ~{n}~ файлов для перемещения"]
-# navigator/widgets/manager/panel/panel.py:2287
+# navigator/widgets/manager/panel/panel.py:2288
 "Clipboard: ~{n}~ file to copy" = ["В буфере: ~{n}~ файл для копирования", "В буфере: ~{n}~ файла для копирования", "В буфере: ~{n}~ файлов для копирования"]
-# navigator/widgets/manager/panel/panel.py:2297
+# navigator/widgets/manager/panel/panel.py:2298
 "Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
-# navigator/widgets/manager/panel/panel.py:2382, navigator/widgets/manager/panel/panel.py:2452
+# navigator/widgets/manager/panel/panel.py:2383, navigator/widgets/manager/panel/panel.py:2453
 "From {path}" = "Из {path}"
-# navigator/widgets/manager/panel/panel.py:2450, navigator/widgets/manager/panel/panel.py:2387
+# navigator/widgets/manager/panel/panel.py:2451, navigator/widgets/manager/panel/panel.py:2388
 "an unknown place" = "неизвестного места"
-# navigator/widgets/manager/panel/panel.py:2659
+# navigator/widgets/manager/panel/panel.py:2671
 "Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:2688, navigator/widgets/shell/volume_list/volume_list.py:130
-"Name" = "Имя"
-# navigator/widgets/manager/panel/panel.py:2690, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2702, navigator/lib/drives/base.py
 "Packed" = "Сжато"
-# navigator/widgets/manager/panel/panel.py:2691
+# navigator/widgets/manager/panel/panel.py:2703
 "%" = "%"
-# navigator/widgets/manager/panel/panel.py:1427
+# navigator/widgets/manager/panel/panel.py:1428
 "Only files matching {mask} are shown" = "Показаны только файлы, соответствующие {mask}"
-# navigator/widgets/manager/panel/panel.py:1438
+# navigator/widgets/manager/panel/panel.py:1439
 "{n} commit ahead of its upstream" = ["{n} коммит впереди вышестоящей ветки", "{n} коммита впереди вышестоящей ветки", "{n} коммитов впереди вышестоящей ветки"]
-# navigator/widgets/manager/panel/panel.py:1440
+# navigator/widgets/manager/panel/panel.py:1441
 "{n} commit behind its upstream" = ["{n} коммит позади вышестоящей ветки", "{n} коммита позади вышестоящей ветки", "{n} коммитов позади вышестоящей ветки"]
-# navigator/widgets/manager/panel/panel.py:1784
+# navigator/widgets/manager/panel/panel.py:1785
 "Ope~n~ with..." = "Открыть ~ч~ерез..."
-# navigator/widgets/manager/panel/panel.py:1808
+# navigator/widgets/manager/panel/panel.py:1809
 "E~x~tract archive..." = "Извле~ч~ь из архива..."
-# navigator/widgets/manager/panel/panel.py:1414
+# navigator/widgets/manager/panel/panel.py:1415
 "A click sorts by {order}" = "Щелчок сортирует по: {order}"
-# navigator/widgets/manager/panel/panel.py:2308
+# navigator/widgets/manager/panel/panel.py:2309
 "~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
-# navigator/widgets/manager/panel/panel.py:2384, navigator/widgets/manager/panel/panel.py:2453
+# navigator/widgets/manager/panel/panel.py:2385, navigator/widgets/manager/panel/panel.py:2454
 "From {path}, deleted {when}" = "Из {path}, удалён {when}"
-# navigator/widgets/manager/panel/panel.py:1434
+# navigator/widgets/manager/panel/panel.py:1435
 "Git work tree, HEAD detached at {commit}" = "Рабочее дерево git, HEAD отсоединён на {commit}"
-# navigator/widgets/manager/panel/panel.py:1436
+# navigator/widgets/manager/panel/panel.py:1437
 "Git work tree, on {branch}" = "Рабочее дерево git, на {branch}"
-# navigator/widgets/manager/sync_list/sync_list.py:82
-"Left alone" = "Оставлено как есть"
 # navigator/widgets/manager/sync_list/sync_list.py:83
+"Left alone" = "Оставлено как есть"
+# navigator/widgets/manager/sync_list/sync_list.py:84
 "The rows beneath are not all set alike" = "Строкам ниже заданы разные действия"
-# navigator/widgets/manager/sync_list/sync_list.py:76
-"Copied to the right, over the one there" = "Копируется вправо, поверх имеющегося"
 # navigator/widgets/manager/sync_list/sync_list.py:77
-"Copied to the right" = "Копируется вправо"
+"Copied to the right, over the one there" = "Копируется вправо, поверх имеющегося"
 # navigator/widgets/manager/sync_list/sync_list.py:78
-"Copied to the left, over the one there" = "Копируется влево, поверх имеющегося"
+"Copied to the right" = "Копируется вправо"
 # navigator/widgets/manager/sync_list/sync_list.py:79
-"Copied to the left" = "Копируется влево"
+"Copied to the left, over the one there" = "Копируется влево, поверх имеющегося"
 # navigator/widgets/manager/sync_list/sync_list.py:80
-"Deleted from the left" = "Удаляется слева"
+"Copied to the left" = "Копируется влево"
 # navigator/widgets/manager/sync_list/sync_list.py:81
+"Deleted from the left" = "Удаляется слева"
+# navigator/widgets/manager/sync_list/sync_list.py:82
 "Deleted from the right" = "Удаляется справа"
-# navigator/widgets/manager/sync_list/sync_list.py:399, navigator/widgets/viewer/file_viewer/file_viewer.py:1001
+# navigator/widgets/manager/sync_list/sync_list.py:400, navigator/widgets/viewer/file_viewer/file_viewer.py:1077
 "{count} byte" = ["{count} байт", "{count} байта", "{count} байт"]
-# navigator/widgets/manager/sync_list/sync_list.py:408
+# navigator/widgets/manager/sync_list/sync_list.py:409
 "Only on the left" = "Только слева"
-# navigator/widgets/manager/sync_list/sync_list.py:410
+# navigator/widgets/manager/sync_list/sync_list.py:411
 "Only on the right" = "Только справа"
-# navigator/widgets/manager/sync_list/sync_list.py:412
+# navigator/widgets/manager/sync_list/sync_list.py:413
 "The same on both sides" = "Одинаково с обеих сторон"
-# navigator/widgets/manager/sync_list/sync_list.py:420
+# navigator/widgets/manager/sync_list/sync_list.py:421
 "Different on the two sides" = "Различается с двух сторон"
-# navigator/widgets/manager/sync_list/sync_list.py:379, navigator/widgets/manager/sync_list/sync_list.py:439
+# navigator/widgets/manager/sync_list/sync_list.py:380, navigator/widgets/manager/sync_list/sync_list.py:440
 "{n} difference beneath" = ["Внутри {n} отличие", "Внутри {n} отличия", "Внутри {n} отличий"]
-# navigator/widgets/manager/sync_list/sync_list.py:415
-"a file" = "файл"
-# navigator/widgets/manager/sync_list/sync_list.py:415
-"a directory" = "каталог"
-# navigator/widgets/manager/sync_list/sync_list.py:415
-"a link" = "ссылка"
 # navigator/widgets/manager/sync_list/sync_list.py:416
-"a special file" = "специальный файл"
-# navigator/widgets/manager/sync_list/sync_list.py:424
-"The left one is newer" = "Левый новее"
-# navigator/widgets/manager/sync_list/sync_list.py:431
-"Their contents differ" = "Их содержимое различается"
+"a file" = "файл"
+# navigator/widgets/manager/sync_list/sync_list.py:416
+"a directory" = "каталог"
+# navigator/widgets/manager/sync_list/sync_list.py:416
+"a link" = "ссылка"
 # navigator/widgets/manager/sync_list/sync_list.py:417
+"a special file" = "специальный файл"
+# navigator/widgets/manager/sync_list/sync_list.py:425
+"The left one is newer" = "Левый новее"
+# navigator/widgets/manager/sync_list/sync_list.py:432
+"Their contents differ" = "Их содержимое различается"
+# navigator/widgets/manager/sync_list/sync_list.py:418
 "On the left {left}, on the right {right}: they cannot be compared, and are left alone" = "Слева {left}, справа {right}: их нельзя сравнить, они остаются как есть"
-# navigator/widgets/manager/sync_list/sync_list.py:426
+# navigator/widgets/manager/sync_list/sync_list.py:427
 "The right one is newer" = "Правый новее"
-# navigator/widgets/manager/sync_list/sync_list.py:422
+# navigator/widgets/manager/sync_list/sync_list.py:423
 "Sizes {left} and {right} bytes" = "Размеры {left} и {right} байт"
-# navigator/widgets/manager/sync_list/sync_list.py:428
+# navigator/widgets/manager/sync_list/sync_list.py:429
 "Permissions {left} and {right}" = "Права {left} и {right}"
 # navigator/widgets/manager/sync_window/sync_window.py:168
 "The directories are the same." = "Каталоги одинаковы."
@@ -3319,8 +3327,12 @@ flag = "RU"
 "Example: {stamp}" = "Пример: {stamp}"
 # navigator/widgets/setup/highlight_page/highlight_page.py:30
 "The files a row takes this group's colour for: patterns separated by ;, such as *.png;*.jpg, whatever their case" = "Файлы, строка которых получает цвет этой группы: шаблоны через ;, например *.png;*.jpg, без учёта регистра"
-# navigator/widgets/setup/interface_page/interface_page.py:36, navigator/widgets/setup/interface_page/interface_page.py:51, navigator/widgets/setup/interface_page/interface_page.py:61
+# navigator/widgets/setup/interface_page/interface_page.py:36, navigator/widgets/setup/interface_page/interface_page.py:81, navigator/widgets/setup/interface_page/interface_page.py:51 ...
 "Automatic" = "Автоматически"
+# navigator/widgets/setup/interface_page/interface_page.py:81
+"Left to right" = "Слева направо"
+# navigator/widgets/setup/interface_page/interface_page.py:81
+"Right to left" = "Справа налево"
 # navigator/widgets/setup/interface_page/interface_page.py:51
 "Monochrome" = "Монохромный"
 # navigator/widgets/setup/interface_page/interface_page.py:51
@@ -3375,9 +3387,9 @@ flag = "RU"
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Десятичный: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:42
 "Overflow" = "Переполнение"
-# navigator/widgets/shell/clock/clock.py:43
+# navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}, {date}"
-# navigator/widgets/shell/clock/clock.py:46
+# navigator/widgets/shell/clock/clock.py:51
 "Click for the calendar" = "Щелкните, чтобы открыть календарь"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.py:36
 "Next kept" = "К отмеченной"
@@ -3439,7 +3451,7 @@ flag = "RU"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:543
 "SMB" = "SMB"
-# navigator/widgets/shell/console/screen_view.py:196
+# navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~С~нять выделение"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
 "Add Environment Variable" = "Добавление переменной"
@@ -3475,7 +3487,7 @@ flag = "RU"
 "Interface Setup hides the command line" = "Настройка интерфейса скрывает командную строку"
 # navigator/widgets/shell/shell/shell.py:1035
 "No file panels are open" = "Нет открытых файловых панелей"
-# navigator/widgets/shell/shell/shell.py:2622, navigator/widgets/shell/shell/shell.py:2615
+# navigator/widgets/shell/shell/shell.py:2627, navigator/widgets/shell/shell/shell.py:2620
 "Disconnect" = "Разорвать связь"
 # navigator/widgets/shell/shell/shell.py:1059
 "No connection is open" = "Нет открытых соединений"
@@ -3485,9 +3497,9 @@ flag = "RU"
 "~C~ommand..." = "~К~оманда..."
 # navigator/widgets/shell/shell/shell.py:1896
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:2922
+# navigator/widgets/shell/shell/shell.py:2927
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2922
+# navigator/widgets/shell/shell/shell.py:2927
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1050
 "The editor has the keys" = "Клавиши у редактора"
@@ -3503,11 +3515,11 @@ flag = "RU"
 "File Manager Setup's Use arrows is off" = "В настройке файлового менеджера выключено «Использовать стрелки»"
 # navigator/widgets/shell/shell/shell.py:1810
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
-# navigator/widgets/shell/shell/shell.py:2465, navigator/widgets/shell/shell/shell.py:2651
+# navigator/widgets/shell/shell/shell.py:2470, navigator/widgets/shell/shell/shell.py:2656
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:2912
+# navigator/widgets/shell/shell/shell.py:2917
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2912
+# navigator/widgets/shell/shell/shell.py:2917
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1106
 "The shell cannot complete" = "Оболочка не может дополнить"
@@ -3519,7 +3531,7 @@ flag = "RU"
 "User menu (local)" = "Меню пользователя (локальное)"
 # navigator/widgets/shell/shell/shell.py:1538
 "Global menu" = "Общее меню"
-# navigator/widgets/shell/shell/shell.py:2613
+# navigator/widgets/shell/shell/shell.py:2618
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:366
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -3537,21 +3549,21 @@ flag = "RU"
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
 # navigator/widgets/shell/shell/shell.py:2096
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
-# navigator/widgets/shell/shell/shell.py:2512
+# navigator/widgets/shell/shell/shell.py:2517
 "Wrong passphrase for {key}. Try again:" = "Неверная фраза-пароль для {key}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2513
+# navigator/widgets/shell/shell/shell.py:2518
 "Passphrase for {key}:" = "Фраза-пароль для {key}:"
-# navigator/widgets/shell/shell/shell.py:2499
-"Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2500
-"Secret key for {who}:" = "Секретный ключ для {who}:"
-# navigator/widgets/shell/shell/shell.py:2503
-"Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
 # navigator/widgets/shell/shell/shell.py:2504
+"Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
+# navigator/widgets/shell/shell/shell.py:2505
+"Secret key for {who}:" = "Секретный ключ для {who}:"
+# navigator/widgets/shell/shell/shell.py:2508
+"Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
+# navigator/widgets/shell/shell/shell.py:2509
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:2652
+# navigator/widgets/shell/shell/shell.py:2657
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:2915
+# navigator/widgets/shell/shell/shell.py:2920
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1471
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -3559,11 +3571,11 @@ flag = "RU"
 "File {name} not found" = "Файл {name} не найден"
 # navigator/widgets/shell/shell/shell.py:1649
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:2482
+# navigator/widgets/shell/shell/shell.py:2487
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2723
+# navigator/widgets/shell/shell/shell.py:2728
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:2879
+# navigator/widgets/shell/shell/shell.py:2884
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "код выхода {status}"
@@ -3599,25 +3611,25 @@ flag = "RU"
 "Nothing found" = "Ничего не найдено"
 # navigator/widgets/shell/unicode_grid/unicode_grid.py:129
 "{at} of {count}" = "{at} из {count}"
-# navigator/widgets/shell/volume_list/volume_list.py:129
+# navigator/widgets/shell/volume_list/volume_list.py:130
 "Free %" = "Свободно %"
-# navigator/widgets/shell/volume_list/volume_list.py:129
+# navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "Занято %"
-# navigator/widgets/shell/volume_list/volume_list.py:130
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:291
 "Type" = "Тип"
-# navigator/widgets/shell/volume_list/volume_list.py:130
+# navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "Точка монтирования"
-# navigator/widgets/shell/volume_list/volume_list.py:130
+# navigator/widgets/shell/volume_list/volume_list.py:131
 "Free" = "Свободно"
-# navigator/widgets/shell/volume_list/volume_list.py:90
+# navigator/widgets/shell/volume_list/volume_list.py:91
 "(not mounted)" = "(не подключён)"
-# navigator/widgets/shell/volume_list/volume_list.py:105
+# navigator/widgets/shell/volume_list/volume_list.py:106
 "Mounted on {mount}" = "Смонтирован в {mount}"
-# navigator/widgets/shell/volume_list/volume_list.py:107
+# navigator/widgets/shell/volume_list/volume_list.py:108
 "Device {device}" = "Устройство {device}"
-# navigator/widgets/shell/volume_list/volume_list.py:109
+# navigator/widgets/shell/volume_list/volume_list.py:110
 "Options {options}" = "Параметры {options}"
-# navigator/widgets/shell/volume_list/volume_list.py:111
+# navigator/widgets/shell/volume_list/volume_list.py:112
 "{free} bytes free of {total}" = "Свободно {free} байт из {total}"
 # navigator/widgets/shell/volumes_window/volumes_window.py:219
 "Not for this volume" = "Не для этого тома"
@@ -3649,61 +3661,63 @@ flag = "RU"
 "Edit Field" = "Правка"
 # navigator/widgets/viewer/commands.py:139
 "Prev" = "Пред."
-# navigator/widgets/viewer/db_window/db_window.py:276
+# navigator/widgets/viewer/db_window/db_window.py:277
 "Numeric" = "Число"
-# navigator/widgets/viewer/db_window/db_window.py:276
+# navigator/widgets/viewer/db_window/db_window.py:277
 "Character" = "Символ"
-# navigator/widgets/viewer/db_window/db_window.py:276
+# navigator/widgets/viewer/db_window/db_window.py:277
 "Memo" = "Мемо"
-# navigator/widgets/viewer/db_window/db_window.py:276
+# navigator/widgets/viewer/db_window/db_window.py:277
 "Logical" = "Логический"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:278
 "Float" = "С запятой"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:278
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:83
+# navigator/widgets/viewer/db_window/db_window.py:291
+"Length" = "Длина"
+# navigator/widgets/viewer/db_window/db_window.py:291
+"Decimals" = "Дробные"
+# navigator/widgets/viewer/db_window/db_window.py:84
 "The cursor is not on a memo field" = "Курсор не на поле memo"
-# navigator/widgets/viewer/db_window/db_window.py:161
+# navigator/widgets/viewer/db_window/db_window.py:162
 "Edit field" = "Редактирование поля"
-# navigator/widgets/viewer/db_window/db_window.py:51
+# navigator/widgets/viewer/db_window/db_window.py:52
 "dBase View - {path}" = "Просмотр dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:92
+# navigator/widgets/viewer/db_window/db_window.py:93
 "Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:303
+# navigator/widgets/viewer/db_window/db_window.py:319
 "Empty database {name}" = "Пустая база данных {name}"
-# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:200
+# navigator/widgets/viewer/db_window/db_window.py:153, navigator/widgets/viewer/db_window/db_window.py:201
 "Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
-# navigator/widgets/viewer/db_window/db_window.py:160
+# navigator/widgets/viewer/db_window/db_window.py:161
 "~V~alue" = "~З~начение"
-# navigator/widgets/viewer/db_window/db_window.py:111
+# navigator/widgets/viewer/db_window/db_window.py:112
 "Could not find MEMO file" = "Не найден файл MEMO"
-# navigator/widgets/viewer/db_window/db_window.py:290
-"Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"
-# navigator/widgets/viewer/db_window/db_window.py:119
+# navigator/widgets/viewer/db_window/db_window.py:120
 "Memo view" = "Просмотр мемо"
-# navigator/widgets/viewer/db_window/db_window.py:177
+# navigator/widgets/viewer/db_window/db_window.py:178
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
-# navigator/widgets/viewer/diff_view/diff_view.py:50
-"Line {line}, the same as line {other} on the right" = "Строка {line}, такая же, как строка {other} справа"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
-"Line {line}, changed: line {other} on the right" = "Строка {line}, изменена: строка {other} справа"
+"Line {line}, the same as line {other} on the right" = "Строка {line}, такая же, как строка {other} справа"
 # navigator/widgets/viewer/diff_view/diff_view.py:52
-"Line {line}, only on the left: removed" = "Строка {line}, только слева: удалена"
+"Line {line}, changed: line {other} on the right" = "Строка {line}, изменена: строка {other} справа"
 # navigator/widgets/viewer/diff_view/diff_view.py:53
+"Line {line}, only on the left: removed" = "Строка {line}, только слева: удалена"
+# navigator/widgets/viewer/diff_view/diff_view.py:54
 "Line {other} on the right is only there: added" = "Строка {other} есть только справа: добавлена"
-# navigator/widgets/viewer/diff_view/diff_view.py:56
-"Line {line}, the same as line {other} on the left" = "Строка {line}, такая же, как строка {other} слева"
 # navigator/widgets/viewer/diff_view/diff_view.py:57
-"Line {line}, changed: line {other} on the left" = "Строка {line}, изменена: строка {other} слева"
+"Line {line}, the same as line {other} on the left" = "Строка {line}, такая же, как строка {other} слева"
 # navigator/widgets/viewer/diff_view/diff_view.py:58
-"Line {line}, only on the right: added" = "Строка {line}, только справа: добавлена"
+"Line {line}, changed: line {other} on the left" = "Строка {line}, изменена: строка {other} слева"
 # navigator/widgets/viewer/diff_view/diff_view.py:59
+"Line {line}, only on the right: added" = "Строка {line}, только справа: добавлена"
+# navigator/widgets/viewer/diff_view/diff_view.py:60
 "Line {other} on the left is only there: removed" = "Строка {other} есть только слева: удалена"
-# navigator/widgets/viewer/diff_view/diff_view.py:113
-"No differences" = "Отличий нет"
-# navigator/widgets/viewer/diff_view/diff_view.py:116
-"{count} differences" = "Отличий: {count}"
 # navigator/widgets/viewer/diff_view/diff_view.py:118
+"No differences" = "Отличий нет"
+# navigator/widgets/viewer/diff_view/diff_view.py:121
+"{count} differences" = "Отличий: {count}"
+# navigator/widgets/viewer/diff_view/diff_view.py:123
 "Difference {number} of {count}" = "Отличие {number} из {count}"
 # navigator/widgets/viewer/diff_window/diff_window.py:156
 "The files are identical." = "Файлы одинаковы."
@@ -3719,21 +3733,21 @@ flag = "RU"
 "The files differ at byte {offset}, on line {line}." = "Файлы отличаются в байте {offset}, в строке {line}."
 # navigator/widgets/viewer/diff_window/diff_window.py:162, navigator/lib/config/keybindings.py
 "Compare files" = "Сравнение файлов"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:573
+# navigator/widgets/viewer/file_viewer/file_viewer.py:601
 "Markdown" = "Markdown"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:572
+# navigator/widgets/viewer/file_viewer/file_viewer.py:600
 "reST" = "reST"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:356
+# navigator/widgets/viewer/file_viewer/file_viewer.py:384
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1021
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1097
 "Reading..." = "Чтение..."
-# navigator/widgets/viewer/file_viewer/file_viewer.py:991
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1067
 "Offset {hex} ({decimal})" = "Смещение {hex} ({decimal})"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:992
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1068
 "Byte {hex}, decimal {decimal}, octal {octal}, binary {binary}" = "Байт {hex}, десятичный {decimal}, восьмеричный {octal}, двоичный {binary}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:994
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1070
 "Character {char}" = "Символ {char}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1024
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1100
 "Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
 # navigator/widgets/viewer/file_window/file_window.py:254
 "Only in the text view" = "Только в текстовом режиме"
@@ -3749,7 +3763,7 @@ flag = "RU"
 "Not a markup file, or too big to render" = "Не файл разметки или слишком велик для отрисовки"
 # navigator/widgets/viewer/file_window/file_window.py:266
 "Nothing has been searched for yet" = "Ещё ничего не искали"
-# navigator/widgets/viewer/quick_viewer/quick_viewer.py:107
+# navigator/widgets/viewer/quick_viewer/quick_viewer.py:108
 "~C~lose quick view" = "~З~акрыть быстрый просмотр"
 # navigator/lib/appearance/palette.py
 "Timer" = "Таймер"
@@ -4186,6 +4200,8 @@ flag = "RU"
 # navigator/settings.py
 "The language captions and messages are in: a catalogue's code (en, lv, ...), or empty to follow $LANG" = "Язык подписей и сообщений: код каталога (en, lv, ...) или пусто, чтобы следовать $LANG"
 # navigator/settings.py
+"Which way the screen reads: auto (as the language's catalogue says), ltr (left to right) or rtl (right to left, mirrored)" = "В какую сторону читается экран: auto (как сказано в каталоге языка), ltr (слева направо) или rtl (справа налево, зеркально)"
+# navigator/settings.py
 "Where Options > Settings shows its tabs: a row on top, a column on the left, or simple, a plain row of captions on top" = "Где Параметры > Настройки показывают вкладки: строкой сверху, столбцом слева или просто строкой подписей сверху"
 # navigator/settings.py
 "The windows listed on the menu bar, Win+1 .. Win+9's numbers: off, numbers alone, or numbers and titles" = "Окна, перечисленные в строке меню, номера Win+1 .. Win+9: выкл., только номера или номера и заголовки"
@@ -4481,3 +4497,6 @@ flag = "RU"
 "Friday" = "Пятница"
 "Saturday" = "Суббота"
 "Sunday" = "Воскресенье"
+"O~w~ner      Group      Others     Special" = "В~л~аделец   Группа     Прочие     Особые"
+"~Name                           Start  End       Score~" = "~Имя                            Старт  Финиш     Очки~"
+"Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"

@@ -16,9 +16,11 @@ import os
 import sys
 import termios
 import tty
+import unicodedata
 from dataclasses import replace
 from typing import IO
 
+from navkit import keyboard
 from navkit.capabilities import TerminalInfo
 from navkit.events import (
     Event,
@@ -101,6 +103,14 @@ CLEAR_SCREEN = "\x1b[H\x1b[2J"
 # bidi ignores it.
 BIDI_EXPLICIT = "\x1b[8l"
 BIDI_IMPLICIT = "\x1b[8h"
+# Terminals that reorder a line whatever BDSM says, each with its own switch
+# (probed, Oct 2026): Konsole's profile key through OSC 50, mlterm's
+# Complex Text Layout through OSC 5379.  Neither can be asked what it was, so
+# leaving turns it back on -- both defaults.
+BIDI_SWITCHES = {
+    "konsole": ("\x1b]50;BidiRenderingEnabled=false\x07", "\x1b]50;BidiRenderingEnabled=true\x07"),
+    "mlterm": ("\x1b]5379;use_ctl=false\x07", "\x1b]5379;use_ctl=true\x07"),
+}
 # OSC 4 rewrites one of the sixteen colour registers, OSC 104 with no argument
 # puts all of them back.  This is the terminal's answer to what a DOS palette
 # did to the VGA DAC, and the only way to reach a terminal that names nothing
@@ -501,7 +511,10 @@ class InputParser:
         if len(buf) < 1 + length:
             return 0, None
         char = bytes(buf[1 : 1 + length]).decode("utf-8", "replace")
-        return 1 + length, KeyEvent(char.lower(), char, alt=True, shift=char.isupper())
+        key = char.lower()
+        return 1 + length, KeyEvent(
+            key, char, alt=True, shift=char.isupper(), base=keyboard.latin(key)
+        )
 
 
     def _clipboard_reply(self) -> tuple[int, Event | None]:
@@ -551,7 +564,9 @@ class InputParser:
             if code in _KITTY_MODIFIER_KEYS:
                 return self._modifier_key(_KITTY_MODIFIER_KEYS[code], param, kind)
             event = _kitty_key(code, key[1] if len(key) > 1 else 0, param, text)
+            base = key[2] if len(key) > 2 else 0
         else:
+            base = 0
             event = _csi_key(body, terminator)
         if not kitty:
             return [event] if event is not None else []
@@ -559,6 +574,7 @@ class InputParser:
         if isinstance(event, KeyEvent):
             if _super(param):
                 event = replace(event, super_=True)
+            event = _with_base(event, base)
             if kind == _RELEASE:
                 out.append(
                     KeyReleaseEvent(
@@ -591,6 +607,21 @@ class InputParser:
             return []
         self.modifiers = held
         return [ModifiersEvent(held)]
+
+
+def _with_base(event: KeyEvent, base: int) -> KeyEvent:
+    """*event* with the Latin key it was pressed on, when that is a shortcut.
+
+    kitty's base layout key (*base*, flag 4) where it sent one, else the
+    position table.  Only under Ctrl, Alt or Super: a bare Hebrew letter is
+    text, and must not reach a binding on the Latin key in its place.
+    """
+    if not (event.ctrl or event.alt or event.super_) or len(event.key) != 1:
+        return event
+    latin = chr(base).lower() if 0x20 < base < 0x7F else keyboard.latin(event.key)
+    if latin is None or latin == event.key:
+        return event
+    return replace(event, base=latin)
 
 
 def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | None:
@@ -852,6 +883,30 @@ def encode_mouse(
     return b"\x1b[M" + bytes((32 + code, 32 + x, 32 + y))
 
 
+
+def bidi_switch(info: TerminalInfo) -> tuple[str, str]:
+    """What turns the terminal's own bidi off while Navigator owns the screen, and back on.
+
+    ``CSI 8 l`` for VTE (and whatever else honours ECMA-48), plus the
+    terminal's own switch from :data:`BIDI_SWITCHES`.  Inside screen each is
+    wrapped in ``DCS`` to reach the terminal; inside tmux nothing gets
+    through, wrapped or not (probed with ``allow-passthrough on``), so the
+    sequences go out as they are and tmux drops them.
+    """
+    off, on = BIDI_EXPLICIT, BIDI_IMPLICIT
+    own = BIDI_SWITCHES.get(info.reorders)
+    if own is not None:
+        off, on = off + own[0], on + own[1]
+    if info.multiplexer == "screen":
+        off, on = (_screen_passthrough(seq) for seq in (off, on))
+    return off, on
+
+
+def _screen_passthrough(sequences: str) -> str:
+    """Each escape sequence in *sequences* wrapped for GNU screen to pass on."""
+    return "".join(f"\x1bP\x1b{part}\x1b\\" for part in sequences.split("\x1b") if part)
+
+
 class Terminal:
     """The tty the application draws on.
 
@@ -976,7 +1031,7 @@ class Terminal:
         if self.info.alt_screen:
             self.write(ALT_SCREEN_ON)
         if self.info.mouse:  # an interactive terminal, the one test there is
-            self.write(BIDI_EXPLICIT)
+            self.write(bidi_switch(self.info)[0])
         self.write(AUTOWRAP_OFF + HIDE_CURSOR + CLEAR_SCREEN)
         if self.mouse:
             self.write(MOUSE_ON)
@@ -1012,7 +1067,7 @@ class Terminal:
         if self.info.alt_screen:
             self.write(ALT_SCREEN_OFF)
         if self.info.mouse:
-            self.write(BIDI_IMPLICIT)
+            self.write(bidi_switch(self.info)[1])
         self.flush()
 
     def set_clipboard(self, text: str, *, primary: bool = False) -> None:
@@ -1042,7 +1097,11 @@ class Terminal:
             self.write(TITLE_PUSH)
             self._title_pushed = True
         self._title = title
-        self.write(f"\x1b]0;{title}\x07")
+        # A control in a directory's name -- BEL, ESC -- would end the OSC
+        # early and have the rest of the name read as the terminal's
+        # commands: dropped, as everything else invisible would be.
+        safe = "".join(char for char in title if unicodedata.category(char) != "Cc")
+        self.write(f"\x1b]0;{safe}\x07")
 
     def bell(self) -> None:
         """Queue the terminal's bell, BEL, for the next :meth:`flush`."""

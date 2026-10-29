@@ -219,6 +219,30 @@ def _bidi(env: Mapping[str, str]) -> str:
     return BIDI_APP
 
 
+def _reorders(env: Mapping[str, str]) -> str:
+    """The terminal whose own bidi has to be switched off its own way, or ``""``.
+
+    Probed (Oct 2026): Konsole and mlterm reorder each line as a paragraph
+    and ignore ``CSI 8 l``, but each takes a setting by escape -- Konsole's
+    profile key through ``OSC 50``, mlterm's ``use_ctl`` through ``OSC 5379``.
+    Their variables survive a multiplexer, which is what wraps the sequence.
+    """
+    if env.get("KONSOLE_VERSION"):
+        return "konsole"
+    if env.get("MLTERM") or env.get("TERM", "").startswith("mlterm"):
+        return "mlterm"
+    return ""
+
+
+def _multiplexer(env: Mapping[str, str]) -> str:
+    """``"tmux"`` or ``"screen"`` when one stands between Navigator and the terminal."""
+    if env.get("TMUX"):
+        return "tmux"
+    if env.get("STY"):
+        return "screen"
+    return ""
+
+
 def _utf8(env: Mapping[str, str]) -> bool:
     """Whether the locale says this terminal is reading UTF-8.
 
@@ -293,6 +317,15 @@ class TerminalInfo:
     #: told, so the cells of such a word are sent reversed for it to put
     #: back (:func:`navkit.screen.for_words`).
     bidi: str = BIDI_APP
+    #: A terminal that reorders whatever it is sent and ignores ``CSI 8 l``,
+    #: but can be told otherwise its own way: ``"konsole"``, ``"mlterm"``, or
+    #: ``""`` (:func:`navkit.terminal.bidi_switch`).
+    reorders: str = ""
+    #: ``"tmux"`` or ``"screen"`` when Navigator runs inside one.  screen
+    #: passes a sequence on to the terminal wrapped in ``DCS``; tmux, even with
+    #: ``allow-passthrough on``, delivers none of the bidi switches (probed),
+    #: so inside it a terminal's own bidi has to be turned off by hand.
+    multiplexer: str = ""
 
     @property
     def truecolor(self) -> bool:
@@ -434,6 +467,8 @@ class TerminalInfo:
             glyphs=glyphs,
             braille=braille,
             bidi=bidi,
+            reorders=_reorders(env),
+            multiplexer=_multiplexer(env),
             alt_screen=not plain,
             mouse=not plain,
             bracketed_paste=not plain,

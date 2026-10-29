@@ -29,9 +29,9 @@ flag = "RU"
 "~W~indows" = "~О~кна"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~З~акрыть"
-# navml/commands.py:30, navml/widgets/window/window.py:274
+# navml/commands.py:30, navml/widgets/window/window.py:275
 "Close" = "Закрыть"
-# navml/commands.py:36, navml/widgets/window/window.py:276
+# navml/commands.py:36, navml/widgets/window/window.py:277
 "Zoom" = "Размер"
 # navml/commands.py:76
 "List" = "Список"
@@ -197,29 +197,29 @@ flag = "RU"
 "Error" = "Ошибка"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Каталог"
-# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " Поиск: "
 # navml/widgets/dialog/history/history.py:109
 "Choose from the list ({key})" = "Выбрать из списка ({key})"
 # navml/widgets/dialog/history/history.py:111
 "Earlier entries ({key})" = "Прежние записи ({key})"
-# navml/widgets/dialog/input_line/input_line.py:328
+# navml/widgets/dialog/input_line/input_line.py:410
 "The line cannot be changed now" = "Строку сейчас нельзя изменить"
-# navml/widgets/dialog/input_line/input_line.py:379
+# navml/widgets/dialog/input_line/input_line.py:461
 "Cu~t~" = "В~ы~резать"
-# navml/widgets/dialog/input_line/input_line.py:380
+# navml/widgets/dialog/input_line/input_line.py:462
 "~C~opy" = "~К~опировать"
-# navml/widgets/dialog/input_line/input_line.py:381
+# navml/widgets/dialog/input_line/input_line.py:463
 "~P~aste" = "~В~ставить"
-# navml/widgets/dialog/input_line/input_line.py:382
+# navml/widgets/dialog/input_line/input_line.py:464
 "C~l~ear" = "О~ч~истить"
-# navml/widgets/dialog/input_line/input_line.py:384
+# navml/widgets/dialog/input_line/input_line.py:466
 "Select ~a~ll" = "Вы~д~елить всё"
-# navml/widgets/dialog/input_line/input_line.py:330
+# navml/widgets/dialog/input_line/input_line.py:412
 "Nothing is selected" = "Ничего не выделено"
-# navml/widgets/dialog/input_line/input_line.py:333, navml/widgets/dialog/input_line/input_line.py:336
+# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
 "The line is empty" = "Строка пуста"
-# navml/widgets/dialog/input_line/input_line.py:337
+# navml/widgets/dialog/input_line/input_line.py:419
 "All of it is selected" = "Всё уже выделено"
 # navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "Вкладки"
@@ -227,27 +227,27 @@ flag = "RU"
 "Earlier tabs" = "Предыдущие вкладки"
 # navml/widgets/dialog/tab_view/tab_view.py:417
 "Later tabs" = "Следующие вкладки"
-# navml/widgets/dialog/tree_view/tree_view.py:531
+# navml/widgets/dialog/tree_view/tree_view.py:533
 "Next" = "Далее"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Меню"
 # navml/widgets/progress_bar/progress_bar.py:61
 "{done} of {total} done ({percent}%), {rest} to go" = "Готово {done} из {total} ({percent}%), осталось {rest}"
-# navml/widgets/window/window.py:295
-"A double click zooms, a drag moves" = "Двойной щелчок разворачивает, перетаскивание перемещает"
 # navml/widgets/window/window.py:297
+"A double click zooms, a drag moves" = "Двойной щелчок разворачивает, перетаскивание перемещает"
+# navml/widgets/window/window.py:299
 "A drag moves" = "Перетаскивание перемещает"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Move" = "Сдвиг"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Size" = "Размер"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Keep" = "Оставить"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Undo" = "Отмена"
-# navml/widgets/window/window.py:276
+# navml/widgets/window/window.py:277
 "Restore" = "Восстановить"
-# navml/widgets/window/window.py:278
+# navml/widgets/window/window.py:279
 "Drag to resize" = "Перетащите, чтобы изменить размер"
 
 # No longer shown anywhere; kept so nothing written is lost.

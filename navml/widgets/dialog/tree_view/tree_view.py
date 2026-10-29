@@ -64,6 +64,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable
 
 from navkit import glyphs as glyphs_module
+from navkit.bidi import reveal
 from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.i18n import tr
 from navkit.reactive import computed, effect, peek, reactive
@@ -502,10 +503,11 @@ class TreeView(ListViewer):
         branch = self.branch(item)
         put(column, branch, line_style)
         name_at = column + len(branch)
+        name = reveal(item.node.name, glyphs_module.hidden_mark(self.glyphs))
         if index == self.cursor:
-            put(name_at - 1, f" {item.node.name} ", self.part_style("node", selected=True))
+            put(name_at - 1, f" {name} ", self.part_style("node", selected=True))
         else:
-            put(name_at, item.node.name, self.part_style("node"))
+            put(name_at, name, self.part_style("node"))
 
     def row_tooltip(self, index: int, item: TreeRow) -> str:
         """The node's whole name while :meth:`render_row` cut it: its start

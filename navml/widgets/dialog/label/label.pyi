@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navml.component import Component as _Component
 from navml.widgets.dialog.control import Control
 
+from navkit.bidi import display_width
 from navkit.reactive import computed
 from navkit.screen import Surface
 from navkit.widget import Widget

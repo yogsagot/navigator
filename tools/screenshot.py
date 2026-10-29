@@ -19,6 +19,11 @@ It writes two things, both of them text:
 ``--check`` writes nothing and exits 1 if either would change, which is what
 to run after a change to anything the desktop paints.
 
+``--language CODE`` paints the scene in another catalogue's language -- a
+right-to-left one (``he``, ``ar``) mirrored, as ``nav --language he`` shows
+it -- and writes only ``docs/screenshot-CODE.svg``: the README's picture and
+text block stay the English scene.
+
 The screen is the real one: the application is constructed as ``nav``
 constructs it and rendered into a :class:`~navkit.screen.ScreenBuffer`, with
 the four things that would make it differ between runs pinned -- the
@@ -54,6 +59,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from navkit.bidi import has_rtl  # noqa: E402
 from navkit.capabilities import FULL, VGA_PALETTE, TerminalInfo, rgb_of  # noqa: E402
 from navkit.glyphs import GLYPHS_UNICODE  # noqa: E402
 from navkit.screen import ScreenBuffer  # noqa: E402
@@ -136,8 +142,9 @@ def populate(directory: Path) -> None:
         os.utime(path, (PINNED_TIME, PINNED_TIME))
 
 
-def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalInfo]:
-    """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty."""
+def paint(theme: str, width: int, height: int, language_code: str | None = None) -> tuple[ScreenBuffer, TerminalInfo]:
+    """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty --
+    in *language_code*'s catalogue, mirrored if it reads right to left."""
     from navigator.__main__ import Navigator
     from navigator.lib.appearance.scheme import load_scheme
     from navigator.settings import SETTINGS
@@ -187,12 +194,20 @@ def paint(theme: str, width: int, height: int) -> tuple[ScreenBuffer, TerminalIn
         asyncio.create_task(AboutDialog().execute(app))
         await asyncio.sleep(0.15)
         buffer = ScreenBuffer(width, height)
+        # Composed left to right and flipped on the way out, as the
+        # application does a frame (Application._back, ScreenBuffer.mirrored).
+        buffer.rtl = app.rtl
         app.shell.render_tree(buffer)
         app.exit()
         await task
-        return buffer
+        return buffer.mirrored() if buffer.rtl else buffer
 
     home = Path.cwd()
+    if language_code is not None:
+        from navigator.lib.config import language
+
+        language.install(Path(tempfile.gettempdir()) / "navigator-screenshot-none")
+        language.apply(language_code)
     with tempfile.TemporaryDirectory() as scratch:
         populate(Path(scratch))
         os.chdir(scratch)
@@ -374,10 +389,14 @@ def as_svg(buffer: ScreenBuffer, info: TerminalInfo) -> str:
             # that collapses spaces then has none to collapse, and
             # textLength pins every word to exactly the cells it covers.
             for word in re.finditer(r"\S+", "".join(run)):
+                # The cells are in the order they are painted already (a
+                # Hebrew scene's laid out by navkit.bidi): a renderer must not
+                # turn a right-to-left word round a second time.
+                override = ' unicode-bidi="bidi-override" direction="ltr"' if has_rtl(word.group()) else ""
                 texts.append(
                     f'<text x="{(run_start + word.start() * cells_each) * CELL_W}" y="{y + BASELINE}"'
                     f' textLength="{len(word.group()) * cells_each * CELL_W}" lengthAdjust="spacingAndGlyphs"'
-                    f"{attributes}>{escape(word.group())}</text>"
+                    f"{override}{attributes}>{escape(word.group())}</text>"
                 )
 
         x = 0
@@ -447,17 +466,25 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--theme", default="default", help="colour scheme (default: %(default)s)")
     parser.add_argument("--size", default="80x24", help="WIDTHxHEIGHT (default: %(default)s)")
     parser.add_argument("--check", action="store_true", help="write nothing; exit 1 if anything would change")
+    parser.add_argument(
+        "--language", default=None, metavar="CODE",
+        help="paint in this catalogue's language (he, ar mirrored) into docs/screenshot-CODE.svg "
+             "instead of the README's English scene",
+    )
     args = parser.parse_args(argv)
     try:
         width, height = (int(part) for part in args.size.lower().split("x"))
     except ValueError:
         parser.error(f"--size wants WIDTHxHEIGHT, not {args.size!r}")
 
-    buffer, info = paint(args.theme, width, height)
-    outputs = {
-        SVG: as_svg(buffer, info),
-        README: with_block(README.read_text(encoding="utf-8"), readme_block(as_text(buffer), width, height)),
-    }
+    buffer, info = paint(args.theme, width, height, args.language)
+    if args.language is not None:
+        outputs = {SVG.with_name(f"screenshot-{args.language}.svg"): as_svg(buffer, info)}
+    else:
+        outputs = {
+            SVG: as_svg(buffer, info),
+            README: with_block(README.read_text(encoding="utf-8"), readme_block(as_text(buffer), width, height)),
+        }
     stale = [path for path, text in outputs.items() if not path.exists() or path.read_text(encoding="utf-8") != text]
     if args.check:
         for path in stale:

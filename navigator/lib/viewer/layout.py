@@ -19,6 +19,7 @@ import bisect
 from dataclasses import dataclass, field
 from typing import Any
 
+from navkit.bidi import text_rtl
 from navkit.screen import char_width
 
 from navigator.lib import highlight
@@ -66,6 +67,11 @@ class Row:
     #: Which block the row belongs to: a search hit is looked for among one
     #: block's rows.
     block: int
+    #: A row of a right-to-left paragraph or heading: what follows its first
+    #: *lead* cells (a quote's gutter, a bullet) is ordered right to left and
+    #: set against the right edge, as a browser sets ``dir="auto"`` text.
+    rtl: bool = False
+    lead: int = 0
 
     @property
     def text(self) -> str:
@@ -174,6 +180,12 @@ def _wrap(cells: list[Cell], width: int) -> list[list[Cell]]:
     return lines
 
 
+def _reads_rtl(cells: list[Cell]) -> bool:
+    """Whether a paragraph of *cells* reads right to left: its first strong
+    letter's direction, as ``dir="auto"`` decides."""
+    return text_rtl("".join(cell[0] for cell in cells))
+
+
 class Builder:
     """Rows made block by block, inside the containers pushed."""
 
@@ -203,12 +215,12 @@ class Builder:
     def room(self) -> int:
         return max(1, self.width - sum(len(entry[1]) for entry in self.prefixes))
 
-    def emit(self, cells: list[Cell], src: int) -> None:
+    def emit(self, cells: list[Cell], src: int, rtl: bool = False) -> None:
         prefix: list[Cell] = []
         for entry in self.prefixes:
             prefix.extend(entry[1] if entry[2] else entry[0])
             entry[2] = True
-        self.layout.rows.append(Row(prefix + cells, src, self.block))
+        self.layout.rows.append(Row(prefix + cells, src, self.block, rtl, len(prefix)))
         self.last_src = src
 
     def open_block(self) -> None:
@@ -259,13 +271,14 @@ class Builder:
         """*cells* (classed ``heading h<level>`` by the caller), wrapped; the
         first two levels underlined."""
         self.open_block()
+        rtl = _reads_rtl(cells)
         lines = _wrap(cells, self.room())
         for line in lines:
-            self.emit(line, src)
+            self.emit(line, src, rtl)
         under = {1: self.glyphs.h1, 2: self.glyphs.h2}.get(level)
         if under:
             span = max((len(line) for line in lines), default=0)
-            self.emit(_cells(under * span, self.classes("heading", f"h{level}", "underline")), src)
+            self.emit(_cells(under * span, self.classes("heading", f"h{level}", "underline")), src, rtl)
 
     def paragraph(self, cells: list[Cell], src: int, *, tight: bool = False) -> None:
         """*cells* wrapped to the room there is.  *tight*, a tight list item's
@@ -275,8 +288,9 @@ class Builder:
             self.gap = True
         else:
             self.open_block()
+        rtl = _reads_rtl(cells)
         for line in _wrap(cells, self.room()):
-            self.emit(line, src)
+            self.emit(line, src, rtl)
 
     def rule(self, src: int) -> None:
         self.open_block()

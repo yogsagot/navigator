@@ -37,12 +37,8 @@ class TopTenDialog(Dialog, _Component):
 
     game_style: str = _reactive('tetris')    # top_ten_dialog.nml:13
 
-    #: Ids, annotated so the hand-written half completes them.
-    heading: Label    # top_ten_dialog.nml:16
-
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.heading = Label(parent=self)    # top_ten_dialog.nml:15
 
         self.modal_width = 59    # top_ten_dialog.nml:8
         self.modal_height = 19    # top_ten_dialog.nml:9
@@ -51,12 +47,3 @@ class TopTenDialog(Dialog, _Component):
             yielding=True,
         )
         self.buttons = 'ok'    # top_ten_dialog.nml:11
-
-        self.heading.x = 2    # top_ten_dialog.nml:17
-        self.heading.y = 2    # top_ten_dialog.nml:18
-        self.heading.width = 55    # top_ten_dialog.nml:19
-        self.heading.height = 1    # top_ten_dialog.nml:20
-        self.heading.text = _bind(    # top_ten_dialog.nml:21
-            lambda _o: _tr('~Name                           Start  End       Score~'),
-            yielding=True,
-        )

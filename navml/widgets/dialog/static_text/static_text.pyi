@@ -6,7 +6,8 @@ from typing import Any as _Any
 from navml.component import Component as _Component
 
 import re
-from navkit.screen import Surface, char_width
+from navkit.bidi import display_width, painted_cells
+from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
 from navml.widgets.dialog.control import caption_runs, parse_shortcut

@@ -2302,6 +2302,7 @@ class Shell(DockLayout):
         from navigator.widgets.setup.settings_dialog.settings_dialog import SECTIONS
 
         before = SETTINGS.interface.language
+        direction = SETTINGS.interface.direction
         depth = SETTINGS.appearance.colors
         glyphs = SETTINGS.appearance.glyphs
         marks = SETTINGS.appearance.marks
@@ -2323,6 +2324,10 @@ class Shell(DockLayout):
         if SETTINGS.interface.language != before:
             language.apply(SETTINGS.interface.language)
             self.application.invalidate()
+        # And the direction, over a session's --direction: the screen mirrors
+        # or stops mirroring on the next frame.
+        if SETTINGS.interface.direction != direction:
+            self.application.direction = SETTINGS.interface.direction
 
     async def on_setup_link(self, event: SetupLink) -> bool:
         self.spawn(self.settings("remote"))

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
 from navkit.screen import Surface
 from navkit.style import Style
@@ -34,7 +35,7 @@ class GameInfo(Widget):
         plain, bright = self.part_style(part), self.part_style(f"{part}-bright")
         surface.draw_text(0, y, fill * width, plain, width)
         shown = text.replace("~", "")
-        x = (width - len(shown)) // 2 if fill != " " else 1
+        x = (width - display_width(shown)) // 2 if fill != " " else 1
         on = False
         for piece in text.split("~"):
             if piece:

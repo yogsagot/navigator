@@ -55,6 +55,11 @@ mkdir -p "$LIB" build/root/usr/bin "$OUT"
 # pip --target leaves the console-script shims behind; the shim we ship is
 # ours, and theirs carry a shebang pointing at whatever built the package.
 rm -rf "$LIB/bin"
+# wcwidth (pyte's) ships an optional C accelerator in a platform wheel since
+# 0.9; without it the module uses its own pure-Python code (HAS_C_EXTENSION,
+# `wcwidth/__init__.py'), so it goes and the package stays `arch: all'.  Any
+# other compiled module still fails the assertion below.
+rm -f "$LIB"/wcwidth/_wcwidth_c*.so "$LIB"/wcwidth/_wcwidth_c.pyi
 find build/root -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 find build/root -name '*.pyc' -delete
 
@@ -64,8 +69,11 @@ install -m 0755 packaging/linux/nav.sh build/root/usr/bin/nav
 [ -f "$LIB/navigator/__main__.py" ] || { echo "build.sh: no application in the tree" >&2; exit 1; }
 [ -f "$LIB/navigator/styles/navigator.nss" ] || { echo "build.sh: the stylesheet is missing" >&2; exit 1; }
 
+# Every theme the checkout has, counted there like the catalogues below: a
+# fixed number went stale the day the modern themes joined DN's.
+want=$(ls navigator/styles/themes/*.nss 2>/dev/null | wc -l)
 themes=$(ls "$LIB"/navigator/styles/themes/*.nss 2>/dev/null | wc -l)
-[ "$themes" -eq 11 ] || { echo "build.sh: expected 11 themes, packaged $themes" >&2; exit 1; }
+[ "$themes" -eq "$want" ] || { echo "build.sh: expected $want themes, packaged $themes" >&2; exit 1; }
 
 # Every catalogue the checkout has, so a language is never silently English.
 for layer in navigator navml; do

@@ -33,9 +33,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit import commands
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
-from navkit.glyphs import BOX_CHARSETS
+from navkit.glyphs import BOX_CHARSETS, ellipsis
 from navkit.i18n import tr
 from navkit.reactive import computed
 from navkit.screen import Surface
@@ -290,7 +291,8 @@ class Window(Widget):
         own = super().tooltip_at(x, y)
         if own:
             return own
-        cut = self.title if len(self.title) + 2 > self.width - 2 else ""
+        left, right = self._title_span()
+        cut = self.title if display_width(self.title) + 2 > right - left else ""
         if self.zoomable:
             hint = tr("A double click zooms, a drag moves")
         else:
@@ -305,12 +307,22 @@ class Window(Widget):
             charset=self.box_charset(), fill=" ",
         )
         if self.title:
-            label = f" {self.title} "[: max(0, self.width - 2)]
-            surface.draw_text(
-                max(1, (self.width - len(label)) // 2), 0, label,
-                self.part_style("title"),
-            )
+            left, right = self._title_span()
+            label = _fit(f" {self.title} ", right - left, ellipsis(self.glyphs))
+            width = display_width(label)
+            x = min(max(left, (self.width - width) // 2), right - width)
+            surface.draw_text(x, 0, label, self.part_style("title"))
         self._paint_chrome(surface)
+
+    def _title_span(self) -> tuple[int, int]:
+        """The top edge's columns the title may take: between the close and
+        zoom icons that are showing (a blank clear of each), else the corners
+        -- Turbo Vision's ``TFrame`` kept it off them too.  It is centred on
+        the whole edge where it fits, and slid clear where it does not."""
+        icons = self._icons()
+        left = icons["close"] + 4 if "close" in icons else 1
+        right = icons["zoom"] - 1 if "zoom" in icons else self.width - 1
+        return left, max(left, right)
 
     def render_after(self, surface: Surface) -> None:
         if not self.framed:
@@ -542,3 +554,18 @@ class Window(Widget):
         # Everything else is swallowed: a key that reached a panel in the
         # middle of a move would be a surprise, and Escape is the way out.
         return True
+
+
+def _fit(label: str, room: int, marker: str) -> str:
+    """*label* in *room* painted cells, ending in *marker* and a blank when cut."""
+    if display_width(label) <= room:
+        return label
+    keep = room - display_width(marker) - 1
+    if keep <= 0:
+        return label[: max(0, room)]
+    out = ""
+    for char in label:
+        if display_width(out + char) > keep:
+            break
+        out += char
+    return out + marker + " "

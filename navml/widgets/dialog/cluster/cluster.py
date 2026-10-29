@@ -21,6 +21,7 @@ departure: Turbo Vision's clusters had none.
 
 from __future__ import annotations
 
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import DEFAULT_MARKS, MARKS, marks
 from navkit.reactive import reactive
@@ -107,12 +108,13 @@ class Cluster(Control):
     def _rows(self) -> int:
         return max(1, self.height)
 
-    def _column_x(self, column: int) -> int:
+    def column_x(self, column: int) -> int:
+        """Where column *column* starts: what a heading over it lines up with."""
         rows = self._rows()
         x = 0
         for first in range(0, column * rows, rows):
             widest = max(
-                (len(parse_shortcut(item)[0]) for item in self.items[first : first + rows]),
+                (display_width(parse_shortcut(item)[0]) for item in self.items[first : first + rows]),
                 default=0,
             )
             x += widest + 6
@@ -124,7 +126,7 @@ class Cluster(Control):
         if not 0 <= y < rows or x < 0:
             return -1
         column = 0
-        while (column + 1) * rows < len(self.items) and x >= self._column_x(column + 1):
+        while (column + 1) * rows < len(self.items) and x >= self.column_x(column + 1):
             column += 1
         index = column * rows + y
         return index if index < len(self.items) else -1
@@ -141,7 +143,7 @@ class Cluster(Control):
         if not 0 <= self.sel < len(self.items):
             return super().tooltip_anchor()
         column, y = divmod(self.sel, self._rows())
-        return self._column_x(column) + 1, y
+        return self.column_x(column) + 1, y
 
     # -- input ---------------------------------------------------------------
 
@@ -232,7 +234,7 @@ class Cluster(Control):
         rows = self._rows()
         for index, item in enumerate(self.items):
             column, y = divmod(index, rows)
-            x = self._column_x(column)
+            x = self.column_x(column)
             if x >= self.width:
                 break
             disabled = not self.item_enabled(index)

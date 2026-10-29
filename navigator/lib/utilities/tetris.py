@@ -241,9 +241,21 @@ def enter(style: str, name: str, start: int, end: int, score: int) -> None:
             entry.delete()
 
 
-def score_line(entry, highlight: bool = False) -> str:
-    """One Top Ten line, as ``ShowScores`` wrote it: the name filled with dots
-    to 30, then the levels and the score right-aligned on dots."""
+#: The Top Ten's four columns -- name, start level, end level, score -- as
+#: ``(x, width)``: where :func:`score_cells` puts each, and its heading.
+SCORE_COLUMNS = ((0, 30), (31, 5), (37, 5), (43, 10))
+
+
+def score_cells(entry, highlight: bool = False) -> tuple[str, str, str, str]:
+    """One Top Ten line's four columns, as ``ShowScores`` wrote them: the name
+    filled with dots to 30, then the levels and the score right-aligned on
+    dots.  Painted a column at a time, so a Hebrew name turns no column round."""
     name = f"~{entry.name}~" if highlight else entry.name
     dots = "." * max(0, 30 - len(entry.name))
-    return f"{name}{dots} {str(entry.start).rjust(5, '.')} {str(entry.end).rjust(5, '.')} {str(entry.score).rjust(10, '.')}"
+    return (f"{name}{dots}", str(entry.start).rjust(5, "."), str(entry.end).rjust(5, "."),
+            str(entry.score).rjust(10, "."))
+
+
+def score_line(entry, highlight: bool = False) -> str:
+    """:func:`score_cells` as one line, a blank between."""
+    return " ".join(score_cells(entry, highlight))

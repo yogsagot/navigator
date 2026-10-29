@@ -152,3 +152,25 @@ def test_nothing_to_compare_greys_the_menu_entry(sides):
 
     run_app(app, [look])
     assert seen["first"] == ".." and seen["enabled"] is False
+
+
+def test_hebrew_in_compared_files_reads_the_right_way_round():
+    from conftest import settle
+    from navkit.bidi import layout
+    from navkit.screen import ScreenBuffer
+    from navkit.widget import Widget
+    from navigator.lib.file_ops.filediff import align
+    from navigator.widgets.viewer.diff_view.diff_view import DiffView
+
+    root = Widget(width=41, height=4)
+    view = root.add(DiffView(x=0, y=0, width=41, height=4))
+    view.model = align("שלום abc\n".encode(), "שלום abd\n".encode())
+    settle()
+    buffer = ScreenBuffer(41, 4)
+    view.render(buffer)
+
+    def text(x, width):
+        return "".join(buffer.get(column, 1)[0] for column in range(x, x + width)).rstrip()
+
+    assert text(1, 19) == "".join(cell for _, cell in layout("שלום abc"))
+    assert text(22, 19) == "".join(cell for _, cell in layout("שלום abd"))

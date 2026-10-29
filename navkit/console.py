@@ -43,6 +43,7 @@ import pyte
 from pyte import graphics as _graphics
 from pyte.screens import Char, StaticDefaultDict
 
+from navkit.bidi import LaidCell, order_cells
 from navkit.screen import ScreenBuffer, Surface
 from navkit.style import Color, Style
 
@@ -184,6 +185,7 @@ class _Screen(pyte.HistoryScreen):
         #: The last character drawn, for ``REP`` to repeat.
         self._last = ""
         super().__init__(columns, lines, history=history)
+        self.mode.add(BIDI_MODE)  # pyte's constructor sets the modes after its reset()
 
     # Three sequences the ``xterm-256color`` terminfo a child is given offers
     # and pyte does not implement, so they were dropped: ``rep`` (``CSI n b``),
@@ -285,6 +287,13 @@ class _Screen(pyte.HistoryScreen):
     def reset(self) -> None:
         self._main = None
         super().reset()
+        # ECMA-48's BDSM starts implicit, as VTE's does: the screen lays a
+        # line out.  A program that sends ``CSI 8 l`` lays out its own.
+        self.mode.add(BIDI_MODE)
+
+    @property
+    def implicit_bidi(self) -> bool:
+        return BIDI_MODE in self.mode
 
     def resize(self, lines: int | None = None, columns: int | None = None) -> None:
         """pyte's, and tab stops every eight columns for what a wider screen
@@ -330,6 +339,10 @@ del _name
 _XTERM_GT = re.compile(rb"\x1b\[[>=][0-9;]*[a-zA-Z]")
 
 
+#: ECMA-48's Bi-Directional Support Mode, a public mode (``CSI 8 h/l``).
+BIDI_MODE = 8
+
+
 class ConsoleScreen:
     """A terminal screen Navigator owns, and the cells it currently shows.
 
@@ -353,6 +366,12 @@ class ConsoleScreen:
         # the wrong one for a blit; keeping a real grid beside it means the
         # per-frame cost is a row copy rather than a lookup per cell.
         self._mirror = ScreenBuffer(columns, lines)
+        # What is shown: the mirror with each row laid out as a terminal lays
+        # out a line -- Hebrew and Arabic in reading order, the paragraph
+        # left to right as VTE's is -- and the order that made it, None for a
+        # row that reads as written (nearly all of them).
+        self._laid = ScreenBuffer(columns, lines)
+        self._orders: list[list[LaidCell] | None] = [None] * lines
         self._synced = False
 
     # -- geometry ------------------------------------------------------------
@@ -371,6 +390,8 @@ class ConsoleScreen:
             return
         self.screen.resize(lines, columns)
         self._mirror.resize(columns, lines)
+        self._laid.resize(columns, lines)
+        self._orders = [None] * lines
         self.screen.dirty.update(range(lines))
         self._synced = False
 
@@ -502,16 +523,45 @@ class ConsoleScreen:
         rows joined by line breaks.  The trailing half of a wide character is
         no character at all and is skipped.  What is shown means what is on
         screen now -- history, when the view is scrolled back.
+
+        The cells are painted ones; on a row laid out right to left in part,
+        what they cover is copied in the order it was written, as a terminal
+        copies it, so a pasted Hebrew word reads the right way round.
         """
         (sx, sy), (ex, ey) = sorted((start, end), key=lambda cell: (cell[1], cell[0]))
-        surface = self.surface
+        self.sync()
+        mirror = self._mirror
         rows = []
         for y in range(max(0, sy), min(self.lines - 1, ey) + 1):
-            left = sx if y == sy else 0
-            right = ex + 1 if y == ey else self.columns
-            chars = (surface.get(x, y)[0] for x in range(max(0, left), min(self.columns, right)))
+            left = max(0, sx if y == sy else 0)
+            right = min(self.columns, ex + 1 if y == ey else self.columns)
+            columns = sorted(self.logical_x(x, y) for x in range(left, right))
+            chars = (mirror.get(x, y)[0] for x in dict.fromkeys(columns))
             rows.append("".join(chars).rstrip())
         return "\n".join(rows)
+
+    # -- painted and written columns ------------------------------------------
+
+    def visual_x(self, x: int, y: int) -> int:
+        """The painted column of written column *x* on row *y*."""
+        self.sync()
+        order = self._orders[y] if 0 <= y < len(self._orders) else None
+        if order is None:
+            return x
+        if x >= self.columns:
+            return x - (self.columns - len(order))
+        return next((at for at, (column, _) in enumerate(order) if column == x), x)
+
+    def logical_x(self, x: int, y: int) -> int:
+        """The written column of painted column *x* on row *y* -- where a click
+        lands for the program, and what a selection covers."""
+        self.sync()
+        order = self._orders[y] if 0 <= y < len(self._orders) else None
+        if order is None:
+            return x
+        if 0 <= x < len(order):
+            return order[x][0]
+        return x + (self.columns - len(order))
 
     # -- output --------------------------------------------------------------
 
@@ -533,29 +583,46 @@ class ConsoleScreen:
         self._synced = True
         if not dirty:
             return False
-        mirror, columns = self._mirror, self.screen.columns
+        mirror, laid, columns = self._mirror, self._laid, self.screen.columns
+        implicit = self.screen.implicit_bidi
         for y in sorted(dirty):
             if not 0 <= y < mirror.height:
                 continue
             row = self.screen.buffer[y]
-            for x in range(columns):
-                char = row[x]
+            cells = [(char.data, style_of(char)) for char in (row[x] for x in range(columns))]
+            for x, (data, style) in enumerate(cells):
                 # A cell holding "" is the trailing half of a wide character,
                 # and set_cell wrote it when it wrote the character itself.
-                mirror.set_cell(x, y, char.data, style_of(char))
+                mirror.set_cell(x, y, data, style)
+            order = order_cells([data for data, _ in cells], detect=False) if implicit else None
+            self._orders[y] = order
+            if order is None:
+                laid.blit(mirror, 0, y, src_x=0, src_y=y, width=columns, height=1)
+                continue
+            for x, (column, shown) in enumerate(order):
+                laid.set_cell(x, y, shown, cells[column][1])
+            for x in range(len(order), columns):  # what a lam-alef saved
+                laid.set_cell(x, y, " ", cells[-1][1])
         dirty.clear()
         return True
 
     @property
     def surface(self) -> Surface:
-        """The cells the child has painted, synced as of this call."""
+        """The cells shown, synced as of this call: each row laid out, so a
+        Hebrew word reads the right way round (:meth:`visual_x`)."""
+        self.sync()
+        return self._laid
+
+    @property
+    def written(self) -> Surface:
+        """The cells as the child wrote them, column for column."""
         self.sync()
         return self._mirror
 
     def blit_into(self, surface: Surface, x: int = 0, y: int = 0) -> None:
         """Paint the console onto *surface* at *x*, *y*."""
         self.sync()
-        surface.blit(self._mirror, x, y)
+        surface.blit(self._laid, x, y)
 
 
 def seed_from_host(console: ConsoleScreen) -> str | None:

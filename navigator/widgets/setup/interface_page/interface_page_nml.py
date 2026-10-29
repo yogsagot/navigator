@@ -54,10 +54,11 @@ class InterfacePage(_Component):
     colors: ChoiceField    # interface_page.nml:68
     glyphs_tier: ChoiceField    # interface_page.nml:79
     marks: ChoiceField    # interface_page.nml:91
-    settings_tabs_caption: Label    # interface_page.nml:102
-    settings_tabs: RadioButtons    # interface_page.nml:111
-    window_strip_caption: Label    # interface_page.nml:120
-    window_strip: RadioButtons    # interface_page.nml:129
+    direction: ChoiceField    # interface_page.nml:102
+    settings_tabs_caption: Label    # interface_page.nml:113
+    settings_tabs: RadioButtons    # interface_page.nml:122
+    window_strip_caption: Label    # interface_page.nml:131
+    window_strip: RadioButtons    # interface_page.nml:140
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -68,10 +69,11 @@ class InterfacePage(_Component):
         self.colors = ChoiceField(parent=self)    # interface_page.nml:67
         self.glyphs_tier = ChoiceField(parent=self)    # interface_page.nml:78
         self.marks = ChoiceField(parent=self)    # interface_page.nml:90
-        self.settings_tabs_caption = Label(parent=self)    # interface_page.nml:101
-        self.settings_tabs = RadioButtons(parent=self)    # interface_page.nml:110
-        self.window_strip_caption = Label(parent=self)    # interface_page.nml:119
-        self.window_strip = RadioButtons(parent=self)    # interface_page.nml:128
+        self.direction = ChoiceField(parent=self)    # interface_page.nml:101
+        self.settings_tabs_caption = Label(parent=self)    # interface_page.nml:112
+        self.settings_tabs = RadioButtons(parent=self)    # interface_page.nml:121
+        self.window_strip_caption = Label(parent=self)    # interface_page.nml:130
+        self.window_strip = RadioButtons(parent=self)    # interface_page.nml:139
 
         self.options.x = 2    # interface_page.nml:22
         self.options.y = 1    # interface_page.nml:23
@@ -143,40 +145,50 @@ class InterfacePage(_Component):
         self.marks.label_text = _bind(lambda _o: _tr('Mar~k~s'), yielding=True)    # interface_page.nml:96
         self.marks.label_width = 15    # interface_page.nml:97
 
-        self.settings_tabs_caption.x = 2    # interface_page.nml:103
-        self.settings_tabs_caption.y = 15    # interface_page.nml:104
-        self.settings_tabs_caption.width = 15    # interface_page.nml:105
-        self.settings_tabs_caption.height = 1    # interface_page.nml:106
-        self.settings_tabs_caption.text = _bind(    # interface_page.nml:107
+        self.direction.x = 2    # interface_page.nml:103
+        self.direction.y = 14    # interface_page.nml:104
+        self.direction.width = 40    # interface_page.nml:105
+        self.direction.height = 1    # interface_page.nml:106
+        self.direction.label_text = _bind(    # interface_page.nml:107
+            lambda _o: _tr('Te~x~t direction'),
+            yielding=True,
+        )
+        self.direction.label_width = 15    # interface_page.nml:108
+
+        self.settings_tabs_caption.x = 2    # interface_page.nml:114
+        self.settings_tabs_caption.y = 15    # interface_page.nml:115
+        self.settings_tabs_caption.width = 15    # interface_page.nml:116
+        self.settings_tabs_caption.height = 1    # interface_page.nml:117
+        self.settings_tabs_caption.text = _bind(    # interface_page.nml:118
             lambda _o: _tr('Settin~g~s tabs'),
             yielding=True,
         )
-        self.settings_tabs_caption.link = _bind(lambda _o: self.settings_tabs)    # interface_page.nml:108
+        self.settings_tabs_caption.link = _bind(lambda _o: self.settings_tabs)    # interface_page.nml:119
 
-        self.settings_tabs.x = 17    # interface_page.nml:112
-        self.settings_tabs.y = 15    # interface_page.nml:113
-        self.settings_tabs.width = 50    # interface_page.nml:114
-        self.settings_tabs.height = 1    # interface_page.nml:115
-        self.settings_tabs.items = _bind(    # interface_page.nml:116
+        self.settings_tabs.x = 17    # interface_page.nml:123
+        self.settings_tabs.y = 15    # interface_page.nml:124
+        self.settings_tabs.width = 50    # interface_page.nml:125
+        self.settings_tabs.height = 1    # interface_page.nml:126
+        self.settings_tabs.items = _bind(    # interface_page.nml:127
             lambda _o: [_tr('~O~n top'), _tr('On the le~f~t'), _tr('Sim~p~le')],
             yielding=True,
         )
 
-        self.window_strip_caption.x = 2    # interface_page.nml:121
-        self.window_strip_caption.y = 16    # interface_page.nml:122
-        self.window_strip_caption.width = 15    # interface_page.nml:123
-        self.window_strip_caption.height = 1    # interface_page.nml:124
-        self.window_strip_caption.text = _bind(    # interface_page.nml:125
+        self.window_strip_caption.x = 2    # interface_page.nml:132
+        self.window_strip_caption.y = 16    # interface_page.nml:133
+        self.window_strip_caption.width = 15    # interface_page.nml:134
+        self.window_strip_caption.height = 1    # interface_page.nml:135
+        self.window_strip_caption.text = _bind(    # interface_page.nml:136
             lambda _o: _tr('W~i~ndow strip'),
             yielding=True,
         )
-        self.window_strip_caption.link = _bind(lambda _o: self.window_strip)    # interface_page.nml:126
+        self.window_strip_caption.link = _bind(lambda _o: self.window_strip)    # interface_page.nml:137
 
-        self.window_strip.x = 17    # interface_page.nml:130
-        self.window_strip.y = 16    # interface_page.nml:131
-        self.window_strip.width = 50    # interface_page.nml:132
-        self.window_strip.height = 1    # interface_page.nml:133
-        self.window_strip.items = _bind(    # interface_page.nml:134
+        self.window_strip.x = 17    # interface_page.nml:141
+        self.window_strip.y = 16    # interface_page.nml:142
+        self.window_strip.width = 50    # interface_page.nml:143
+        self.window_strip.height = 1    # interface_page.nml:144
+        self.window_strip.items = _bind(    # interface_page.nml:145
             lambda _o: [_tr('Off'), _tr('Numbers'), _tr('With titles')],
             yielding=True,
         )

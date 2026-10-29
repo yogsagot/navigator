@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import unicodedata
 from collections.abc import Sequence
+from typing import Any
 from functools import lru_cache
 
 import arabic_reshaper
@@ -89,6 +90,54 @@ _REGIONAL_A, _REGIONAL_Z = "\U0001f1e6", "\U0001f1ff"
 def is_mark(char: str) -> bool:
     """Whether *char* draws on the character before it rather than a cell."""
     return unicodedata.category(char) in ("Mn", "Me")
+
+
+#: What :func:`reveal` makes visible: the embeddings and overrides
+#: (U+202A..U+202E) and isolates (U+2066..U+2069), which take no cell and
+#: reorder what follows -- ``photo`` + U+202E + ``gpj.exe`` is painted as
+#: ``photoexe.jpg`` -- and the C0 and C1 controls, which a terminal must
+#: never be sent.  The marks of direction (LRM, RLM, ALM) stay hidden: they
+#: cannot turn letters round, and right-to-left names use them in earnest.
+_HIDDEN = frozenset(
+    [chr(code) for code in range(0x202A, 0x202F)]
+    + [chr(code) for code in range(0x2066, 0x206A)]
+    + [chr(code) for code in range(0x20)]
+    + [chr(code) for code in range(0x7F, 0xA0)]
+)
+
+#: A stand-in one cell wide (a private-use character, plane 16) that
+#: :func:`reveal_runs` turns into the shown mark and its style, so the mark
+#: is told apart from the same character typed in the name.
+REVEALED = "\U0010fffd"
+
+
+def reveal(text: str, mark: str = "\u2047", keep: str = "") -> str:
+    """*text* with each character that would hide or reorder part of it --
+    a direction override, an embedding, an isolate, a control -- shown as
+    *mark*, one cell, and doing nothing.  *keep* names controls left alone
+    (a caption's line breaks).
+
+    For a file name on screen: what the name *is* (a copy, a rename, the
+    command line) keeps every character.  One character for one, so a
+    length measured before still holds.
+    """
+    if not any(char in _HIDDEN and char not in keep for char in text):
+        return text
+    return "".join(mark if char in _HIDDEN and char not in keep else char for char in text)
+
+
+def reveal_runs(text: str, style: Any, mark: str, mark_style: Any) -> list[tuple[str, Any]]:
+    """*text*, revealed with :data:`REVEALED` and then cut to fit, as runs
+    for ``draw_runs``: the stand-ins become *mark* in *mark_style*."""
+    if REVEALED not in text:
+        return [(text, style)]
+    runs: list[tuple[str, Any]] = []
+    for index, piece in enumerate(text.split(REVEALED)):
+        if index:
+            runs.append((mark, mark_style))
+        if piece:
+            runs.append((piece, style))
+    return runs
 
 
 def has_rtl(text: str) -> bool:
@@ -182,7 +231,9 @@ def layout(text: str, rtl: bool = False) -> tuple[LaidCell, ...]:
     return _order(_clusters(text), strong == "R" or (strong is None and rtl))
 
 
-def order_cells(chars: Sequence[str], rtl: bool = False) -> list[LaidCell] | None:
+def order_cells(
+    chars: Sequence[str], rtl: bool = False, *, detect: bool = True
+) -> list[LaidCell] | None:
     """A row of cells already laid out one per column, in visual order.
 
     *chars* is what each column shows -- a character and the marks on it,
@@ -192,9 +243,14 @@ def order_cells(chars: Sequence[str], rtl: bool = False) -> list[LaidCell] | Non
     in *chars* the cell came from; or None when the row reads as it is,
     which is what nearly every row of nearly every file does.  A lam-alef
     pair becomes one column, so a row can come back a column shorter.
+
+    The paragraph's direction is its first strong letter's, else *rtl*;
+    with *detect* false it is *rtl* whatever the row holds, which is what a
+    terminal does with a line (VTE: left to right, unless told otherwise) --
+    a row padded with blanks keeps them at its end.
     """
     text = "".join(chars)
-    strong = _first_strong(text)
+    strong = _first_strong(text) if detect else None
     if not has_rtl(text) and (strong == "L" or (strong is None and not rtl)):
         return None
     return list(_ordered_cells(tuple(chars), strong == "R" or (strong is None and rtl)))
@@ -254,6 +310,28 @@ def _written(cells: tuple[LaidCell, ...], rtl: bool) -> list[int]:
         columns.append(total - used - width if rtl else used)
         used += width
     return columns
+
+
+def display_width(text: str) -> int:
+    """The cells *text* takes once painted (``Surface.draw_runs``): marks on
+    their letter, format characters in none, a wide character in two, and an
+    Arabic lam-alef pair in the one cell of its ligature -- where ``len()``
+    would leave a centred Arabic caption a cell off."""
+    if text.isascii() and text.isprintable():
+        return len(text)
+    from navkit.screen import char_width  # navkit.screen imports this module
+
+    return sum(char_width(cell) for _, cell in layout(text))
+
+
+def painted_cells(text: str, rtl: bool = False) -> list[tuple[int, int, int]]:
+    """``(index, column, width)`` for each cell *text* paints, left to right:
+    the first character it holds, where it is painted from the start of the
+    text (as :func:`caret_column` counts) and how wide it is.  For marking
+    painted cells by what they hold -- a link over an address."""
+    cells = layout(text, rtl)
+    return [(start, column, width)
+            for (start, _), column, width in zip(cells, _written(cells, rtl), _widths(cells))]
 
 
 def caret_column(text: str, index: int, rtl: bool = False) -> int:

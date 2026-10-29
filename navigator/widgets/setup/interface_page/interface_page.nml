@@ -96,6 +96,17 @@ InterfacePage:
         label_text: "Mar~k~s"
         label_width: 15
 
+    #: Not DN's, which mirrored nothing: which way the screen reads,
+    #: ``[interface] direction``, applied at once.
+    ChoiceField:
+        id: direction
+        x: 2
+        y: 14
+        width: 40
+        height: 1
+        label_text: "Te~x~t direction"
+        label_width: 15
+
     #: Not DN's: where *Settings* -- this box -- shows its tabs, the next
     #: time it opens.
     Label:

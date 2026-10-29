@@ -35,7 +35,7 @@ def prompt_cells(data: bytes) -> tuple[Cell, ...]:
     """
     screen = ConsoleScreen(PROMPT_COLUMNS, 1, history=1)
     screen.feed(data)
-    surface = screen.surface
+    surface = screen.written  # the command line lays its own line out
     return tuple(surface.get(x, 0) for x in range(screen.screen.cursor.x))
 
 

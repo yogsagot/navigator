@@ -26,7 +26,8 @@ from typing import Any
 
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
-from navkit.glyphs import BOX_CHARSETS
+from navkit.bidi import display_width, reveal
+from navkit.glyphs import BOX_CHARSETS, hidden_mark
 from navkit.widget import Widget
 
 from navml.background import Background, Outcome
@@ -201,7 +202,7 @@ class QuickViewer(Widget):
         if path is None:
             return ""
         room = max(4, self.width - 4 - 2 * self.title_margin)
-        name = path.name
+        name = reveal(path.name, hidden_mark(self.glyphs))
         if len(name) > room:
             name = name[: room - 3] + "..."
         return f" {name} "
@@ -213,5 +214,5 @@ class QuickViewer(Widget):
                          charset=self.box_charset(), fill=" ")
         title = self.title_text()
         if title:
-            surface.draw_text(max(1, (self.width - len(title)) // 2), 0, title,
+            surface.draw_text(max(1, (self.width - display_width(title)) // 2), 0, title,
                               self.part_style("title"))

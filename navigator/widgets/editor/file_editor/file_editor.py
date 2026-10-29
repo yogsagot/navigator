@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 from navkit import commands
-from navkit.bidi import order_cells, text_rtl
+from navkit.bidi import has_rtl, order_cells, text_rtl
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.i18n import tr
@@ -227,6 +227,58 @@ def capitalize(text: str) -> str:
     return _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text)
 
 
+def _ordered(chars: list[str]) -> list[tuple[int, str]] | None:
+    """``order_cells``, with every column of the line kept: a lam-alef pair,
+    one ligature in one cell, leaves the alef's column over, and it is given
+    a blank cell so what follows on the line -- a tab stop most of all --
+    stays in the column the text has it in.  Not beside the ligature, which
+    would open a gap inside the word, but beside the next blank after it in
+    the text (one blank wider, where a tab or a space is anyway), or at the
+    line's end when none follows.  ``""``, as the second half of a wide
+    character is: painted as nothing, passed over by a move.
+    """
+    order = order_cells(chars)
+    if order is None or len(order) == len(chars):
+        return order
+    kept = {at for at, _ in order}
+    spare: dict[int, list[int]] = {}  # a cell's column -> the alef columns put beside it
+    for at in range(len(chars)):
+        if at in kept or chars[at] == "":
+            continue
+        beside = next((t for t in range(at + 1, len(chars)) if t in kept and chars[t] == " "), None)
+        if beside is None:
+            beside = max(kept)
+        spare.setdefault(beside, []).append(at)
+    out: list[tuple[int, str]] = []
+    for at, shown in order:
+        out.append((at, shown))
+        out.extend((alef, "") for alef in spare.get(at, ()))
+    return out
+
+
+def _laid_line(
+    text: str, tab: int, width: int, limit: int
+) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int]:
+    """Line *text* as the editor paints it: its cells, their painted order
+    (None when the line reads as written) and how many columns in its first
+    painted cell sits.
+
+    A right-to-left line -- its first strong letter Hebrew or Arabic -- is
+    right-aligned, as a word processor sets it: it ends against column
+    *width*, or one further in when it is wider, so the cell left of it, where
+    typing at its end appears, is always there.  A departure, as the rest of
+    right-to-left text is.  A line with no Hebrew or Arabic is cut at *limit*,
+    the screen's right edge, which is all render ever needs of a long one.
+    """
+    if not has_rtl(text):
+        return columns.cells(text, tab, limit=limit), None, 0
+    row = columns.cells(text, tab)
+    order = _ordered([char for char, _ in row])
+    if order is None or not text_rtl(text):
+        return row, order, 0
+    return row, order, max(width, len(order) + 1) - len(order)
+
+
 def _painted_spans(text: str, tab: int, start: int | None, end: int | None) -> list[tuple[int, int]] | None:
     """The stretches of *text* painted between a block's ends on this line, or
     None when the line reads as written (and the block is the stretch it is).
@@ -238,9 +290,15 @@ def _painted_spans(text: str, tab: int, start: int | None, end: int | None) -> l
     to the other are the block's; from a start alone, towards the end the line
     reads to (left in a right-to-left line), the start's own cell included;
     up to an end alone, from where the line begins, its cell left out.
+
+    On a right-to-left line (right-aligned, :func:`_laid_line`) a caret is the
+    right-hand edge of its cell, where a caret before a Hebrew letter stands,
+    and the line's end is the cell left of the text: two ends hold the cells
+    between them on that side, so Shift+End from the line's start holds all
+    of it.
     """
     row = columns.cells(text, tab)
-    order = order_cells([char for char, _ in row])
+    order = _ordered([char for char, _ in row])
     if order is None:
         return None
     cells = [row[at][1] for at, shown in order if shown != ""]
@@ -248,15 +306,16 @@ def _painted_spans(text: str, tab: int, start: int | None, end: int | None) -> l
     reach = {base: (bases[k + 1] if k + 1 < len(bases) else len(text)) for k, base in enumerate(bases)}
     count = len(cells)
 
+    rtl = text_rtl(text)
+
     def cell_of(index: int) -> int:
         if index >= len(text):
-            return count
+            return -1 if rtl else count
         return next((x for x, base in enumerate(cells) if base <= index < reach[base]), count)
 
-    rtl = text_rtl(text)
     if start is not None and end is not None:
         low, high = sorted((cell_of(start), cell_of(end)))
-        chosen = range(low, high)
+        chosen = range(low + 1, high + 1) if rtl else range(low, high)
     elif start is not None:
         at = cell_of(start)
         if start >= len(text):
@@ -844,16 +903,18 @@ class FileEditor(ContextMenuHost, Widget):
         self._goal = goal
 
     def _follow(self) -> None:
-        """Scroll so the cursor is on screen: DN's ``ScrollTo``."""
+        """Scroll so the cursor is on screen: DN's ``ScrollTo``.  Sideways by
+        where its column is painted, which on a reordered line is elsewhere."""
         rows, cols = max(1, self.height), max(1, self.width)
         if self.line < self.top:
             self.top = self.line
         elif self.line >= self.top + rows:
             self.top = self.line - rows + 1
-        if self.col < self.left:
-            self.left = self.col
-        elif self.col >= self.left + cols:
-            self.left = self.col - cols + 1
+        x = self._visual_column(self.line, self.col)
+        if x < self.left:
+            self.left = x
+        elif x >= self.left + cols:
+            self.left = x - cols + 1
 
     def layout(self, width: int, height: int) -> None:
         super().layout(width, height)
@@ -872,45 +933,58 @@ class FileEditor(ContextMenuHost, Widget):
 
         A departure: DN knew no right-to-left text.  The cursor goes to the
         neighbouring painted cell, so it runs with the arrow through Hebrew
-        and Latin alike.  Off the left end it stays; off the right end of the
-        text it goes past it, as on any line, and from there on to the next
-        line the way Right always has.
+        and Latin alike.  Off the end of the line's start it stays; off the
+        end its text reads to it goes past it, as on any line, and from there
+        on to the next line the way Right always has -- the right-hand end and
+        Right on a left-to-right line, the left-hand end and Left on a
+        right-to-left one, which is right-aligned (:func:`_laid_line`).
         """
         if not 0 <= self.line < len(self.document):
             return False
-        row, order, visual = self._painted_here()
+        row, order, visual, shift = self._painted_here()
         if order is None:
             return False
-        here = row[order[visual][0]][1] if visual < len(order) else None
+        here = row[order[visual][0]][1] if 0 <= visual < len(order) else None
         target = visual + step
         while 0 <= target < len(order) and (order[target][1] == "" or row[order[target][0]][1] == here):
             target += step  # the rest of a tab or a wide character: the same place
-        if target < 0:
-            return True
-        if target < len(order):
+        if 0 <= target < len(order):
             at = order[target][0]
             self._go_column(self.line, columns.column_of(self._text(), row[at][1], self.tab_size))
             return True
-        if target == len(order) or self._free:
-            self._go_column(self.line, len(row) + target - len(order))
+        if (target >= len(order)) == bool(shift):
+            return True  # off the line's start
+        beyond = -1 - target if shift else target - len(order)
+        if beyond == 0 or self._free:
+            self._go_column(self.line, len(row) + beyond)
             return True
-        return False
+        if not shift:
+            return False
+        if self.line + 1 < len(self.document):
+            self._go_column(self.line + 1, 0)
+        return True
 
-    def _painted_here(self) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int]:
+    def _painted_here(self) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int, int]:
         """The cursor's line as cells, their painted order (None when the line
-        reads as written), and the painted cell the cursor is on -- past the
-        text, as many cells past it as the cursor's column is."""
-        row = columns.cells(self._text(), self.tab_size)
-        order = order_cells([char for char, _ in row])
+        reads as written), the cell of that order the cursor is on -- past the
+        text, as many cells past it as the cursor's column is, to the left of
+        a right-to-left line -- and how far in the line is painted."""
+        row, order, shift = self._laid(self.line)
         if order is None:
-            return row, None, self.col
+            return row, None, self.col, 0
         if self.col < len(row):
-            # A column inside a tab or a wide character is that character's.
+            # A column inside a tab or a wide character is that character's;
+            # an alef's beside its lam is the blank left for it (_ordered).
             index = row[self.col][1]
-            visual = next(x for x, (at, shown) in enumerate(order) if row[at][1] == index and shown != "")
+            visual = next(
+                (x for x, (at, shown) in enumerate(order) if row[at][1] == index and shown != ""),
+                next(x for x, (at, _) in enumerate(order) if at == self.col),
+            )
+        elif shift:
+            visual = -1 - (self.col - len(row))
         else:
             visual = len(order) + self.col - len(row)
-        return row, order, visual
+        return row, order, visual, shift
 
     def _word_visually(self, step: int) -> bool:
         """Ctrl+Left (*step* -1) or Ctrl+Right (+1) by where words are painted, on
@@ -920,11 +994,12 @@ class FileEditor(ContextMenuHost, Widget):
         of a Hebrew word -- is a stop, and so is the end of the line; the cursor
         goes to the nearest stop that way on screen.  With none left that way
         it goes on to the line before or after as DN's ``WordLeft`` and
-        ``WordRight`` do.  A departure, as Left and Right are (_step_visually).
+        ``WordRight`` do -- after, the way the line reads.  A departure, as
+        Left and Right are (_step_visually).
         """
         if not 0 <= self.line < len(self.document):
             return False
-        row, order, visual = self._painted_here()
+        row, order, visual, shift = self._painted_here()
         if order is None:
             return False
         text = self._text()
@@ -933,11 +1008,11 @@ class FileEditor(ContextMenuHost, Widget):
             index = row[at][1]
             if shown and text[index] not in BREAK_CHARS and (index == 0 or text[index - 1] in BREAK_CHARS):
                 stops.setdefault(x, index)
-        stops[len(order)] = len(text)
+        stops[-1 if shift else len(order)] = len(text)
         ahead = [x for x in stops if (x - visual) * step > 0]
         if ahead:
             self._go(Pos(self.line, stops[min(ahead, key=lambda x: abs(x - visual))]))
-        elif step < 0:
+        elif (step < 0) != bool(shift):
             self._go(self._word_left(Pos(self.line, 0)))
         else:
             self._go(self._word_right(Pos(self.line, len(text))))
@@ -1218,14 +1293,13 @@ class FileEditor(ContextMenuHost, Widget):
         """
         text = self.document.lines[number] if number < len(self.document) else ""
         tab = self.tab_size
-        row = columns.cells(text, tab)
-        order = order_cells([char for char, _ in row])
+        row, order, shift = self._laid(number)
         if order is None:
             i, j = columns.span(text, left, right, tab)
             return [(i, j)], columns.column_of(text, j, tab) - columns.column_of(text, i, tab)
         bases = sorted({row[at][1] for at, shown in order if shown})
         reach = {base: (bases[k + 1] if k + 1 < len(bases) else len(text)) for k, base in enumerate(bases)}
-        inside = range(max(0, left), min(right, len(order)))
+        inside = range(max(0, left - shift), min(right - shift, len(order)))
         picked = sorted({
             i for x in inside if order[x][1]
             for i in range(row[order[x][0]][1], reach[row[order[x][0]][1]])
@@ -1563,33 +1637,44 @@ class FileEditor(ContextMenuHost, Widget):
         A column block's left edge is a painted column.  On a line Hebrew or
         Arabic reorders the character painted there may be read either way,
         so the blanks are tried before it and after it in the text, the line
-        laid out each time, and the place that paints them at *left* wins; if
-        neither does, before a left-to-right character, after a right-to-left
-        one, which is where they would go between letters of its own kind.
+        laid out each time, and the place that paints them nearest the edge
+        wins -- on it, or else the closer; even, before a left-to-right
+        character, after a right-to-left one, which is where they would go
+        between letters of its own kind.
+
+        On a right-to-left line, right-aligned (:func:`_laid_line`), the
+        blanks go in just left of the edge instead: what is painted from the
+        edge on stays where it is, and the rest of the line grows to the left.
         """
         text = self.document.lines[number]
         tab = self.tab_size
-        row = columns.cells(text, tab)
-        order = order_cells([char for char, _ in row])
-        if order is None or left >= len(order):
+        row, order, shift = self._laid(number)
+        if order is None or not 0 <= left - shift < len(order):
             return None
-        at = left
+        at = left - shift
         while at > 0 and order[at][1] == "":
             at -= 1  # the second half of a wide character: its owner
         start = row[order[at][0]][1]
         stop = start + 1
         while stop < len(text) and unicodedata.combining(text[stop]):
             stop += 1
-        for index in (start, stop):
+        wanted = left - len(blanks) if shift else left
+        best: tuple[int, int] | None = None  # (distance, index)
+        for index in ((stop, start) if text_rtl(text[start]) else (start, stop)):
             new = text[:index] + blanks + text[index:]
-            cells = columns.cells(new, tab)
-            laid = order_cells([char for char, _ in cells])
+            cells, laid, moved = _laid_line(new, tab, self.width, len(new))
             if laid is None:
                 continue
-            put = [cells[column][1] for column, _ in laid[left:left + len(blanks)]]
-            if put and all(index <= i < index + len(blanks) for i in put):
-                return index
-        return stop if text_rtl(text[start]) else start
+            put = sorted(
+                moved + x for x, (column, shown) in enumerate(laid)
+                if shown and index <= cells[column][1] < index + len(blanks)
+            )
+            if not put:
+                continue
+            distance = abs(put[0] - wanted)
+            if best is None or distance < best[0]:
+                best = (distance, index)
+        return best[1] if best is not None else (stop if text_rtl(text[start]) else start)
 
     def _blank_at(self, number: int, left: int) -> bool:
         """Whether line *number* has a blank at column *left* that an unindent can take."""
@@ -1599,15 +1684,17 @@ class FileEditor(ContextMenuHost, Widget):
 
     def _text_column(self, number: int, painted: int) -> int:
         """The text's column of what line *number* paints at column *painted*:
-        a column block's left edge, for an unindent."""
-        text = self.document.lines[number]
-        row = columns.cells(text, self.tab_size)
-        order = order_cells([char for char, _ in row])
+        a column block's left edge, for an unindent -- the cell left of it on
+        a right-to-left line, where an indent put its blank (_painted_insert)."""
+        row, order, shift = self._laid(number)
         if order is None:
             return painted
-        if painted >= len(order):
-            return painted + len(row) - len(order)
-        return order[painted][0]
+        at = painted - shift - (1 if shift else 0)
+        if at < 0:
+            return len(row) - 1 - at  # left of a right-aligned line: past its end
+        if at >= len(order):
+            return len(row) + at - len(order)
+        return order[at][0]
 
     async def on_unindent_block(self, event: UnindentBlock) -> bool:
         """^K U: one blank out of each line of the block where one stands there; a
@@ -1679,28 +1766,30 @@ class FileEditor(ContextMenuHost, Widget):
                 end = self.buffer.insert(start, new)
                 self.block = (start, end)
         else:
-            # What is lit, each stretch on its own; the block marked as it was
-            # when the text keeps its length, else the stretch it now spans.
-            block, runs = self.block, self._block_runs()
-            last: Pos | None = None
-            kept = True
-            for start, end in reversed(runs):
+            # What is lit, each stretch on its own, and the block still marked
+            # between its ends -- moved where a stretch grew or shrank (``ß``
+            # to ``SS``): after one by the difference, inside one (a caret on a
+            # reordered line can be) by what precedes it, recased.
+            ends = list(self.block)
+            for start, end in reversed(self._block_runs()):
                 old = self.document.text(start, end)
                 new = change(old)
-                if new != old:
-                    kept = kept and len(new) == len(old)
-                    self.buffer.delete(start, end)
-                    stop = self.buffer.insert(start, new)
-                    if last is None:
-                        last = stop
-                    elif last.line == start.line:
-                        last = Pos(last.line, last.index + len(new) - len(old))
-                elif last is None:
-                    last = end
-            if kept:
-                self.block = self._painted_block = block
-            elif runs and last is not None and last > runs[0][0]:
-                self.block = (runs[0][0], last)
+                if new == old:
+                    continue
+                inside = {
+                    k: Pos(at.line, head.index + len(change(self.document.text(head, at))))
+                    for k, at in enumerate(ends) if start < at < end
+                    for head in (start if at.line == start.line else Pos(at.line, 0),)
+                }
+                self.buffer.delete(start, end)
+                stop = self.buffer.insert(start, new)
+                ends = [
+                    inside[k] if k in inside
+                    else Pos(stop.line, stop.index + at.index - end.index) if at.line == end.line and at >= end
+                    else at
+                    for k, at in enumerate(ends)
+                ]
+            self.block = self._painted_block = (ends[0], ends[1]) if ends[0] < ends[1] else None
         self._end()
 
     async def on_sort_block(self, event: SortBlock) -> bool:
@@ -3271,34 +3360,46 @@ class FileEditor(ContextMenuHost, Widget):
             return x, y
         return None
 
-    def _row_order(self, number: int) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None]:
-        """Line *number*'s cells as far as the screen shows, and their reading
-        order when Hebrew or Arabic in them changes it (``order_cells``).
+    def _laid(self, number: int) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int]:
+        """Line *number* as it is painted (:func:`_laid_line`): its cells, their
+        reading order when Hebrew or Arabic in them changes it, and how far in
+        its first painted cell sits -- right-aligned, a right-to-left line.
 
         The cursor, the block and a click are all columns of the line as
-        written; the order is what maps them to where a column is painted.
+        written; the order and the shift are what map them to where a column
+        is painted.
         """
         lines = self.document.lines
         if not 0 <= number < len(lines):
-            return [], None
-        row = columns.cells(lines[number], self.tab_size, limit=self.left + self.width)
-        return row, order_cells([char for char, _ in row])
+            return [], None, 0
+        return _laid_line(lines[number], self.tab_size, self.width, self.left + self.width)
 
     def _visual_column(self, number: int, column: int) -> int:
-        """Where the text's *column* on line *number* is painted, before scrolling."""
-        row, order = self._row_order(number)
-        if order is None or column >= len(row):
-            return column - (len(row) - len(order)) if order is not None else column
-        return next((x for x, (at, _) in enumerate(order) if at == column), column)
+        """Where the text's *column* on line *number* is painted, before scrolling.
+
+        Past a right-to-left line's end the columns run on leftwards from the
+        cell left of its text, down to the screen's first.
+        """
+        row, order, shift = self._laid(number)
+        if order is None:
+            return column
+        if column >= len(row):
+            beyond = column - len(row)
+            return max(0, shift - 1 - beyond) if shift else len(order) + beyond
+        return shift + next((x for x, (at, _) in enumerate(order) if at == column), column)
 
     def _logical_column(self, number: int, x: int) -> int:
-        """The text's column painted at *x* (before scrolling) on line *number*."""
-        row, order = self._row_order(number)
+        """The text's column painted at *x* (before scrolling) on line *number*:
+        left of a right-to-left line, past its end; right of it, its start."""
+        row, order, shift = self._laid(number)
         if order is None:
             return x
-        if x >= len(order):
-            return x + len(row) - len(order)
-        return order[x][0]
+        at = x - shift
+        if at < 0:
+            return len(row) - 1 - at
+        if at >= len(order):
+            return 0 if shift else len(row) + at - len(order)
+        return order[at][0]
 
     def _block_picked(self, number: int) -> tuple[frozenset[int], bool] | None:
         """For a block the cursor marked (:attr:`_painted_block`): the indices
@@ -3368,11 +3469,11 @@ class FileEditor(ContextMenuHost, Widget):
                 selected = self.part_style("current_line_selected")
                 surface.fill(0, y, width, 1, " ", style)
             text = lines[number]
-            row = columns.cells(text, self.tab_size, limit=left + width)
             # Hebrew or Arabic in the line: its cells in reading order, each
             # keeping the column it has in the text (navkit.bidi.order_cells),
-            # which is what the block, a match and the tokens are told by.
-            order = order_cells([char for char, _ in row])
+            # which is what the block, a match and the tokens are told by; a
+            # right-to-left line right-aligned, *shift* columns in.
+            row, order, shift = _laid_line(text, self.tab_size, width, left + width)
             origin = range(len(row)) if order is None else [at for at, _ in order]
             # A block the cursor marked, on such a line: the characters lit
             # are its runs' (_block_runs), and the line break past the text.
@@ -3383,9 +3484,19 @@ class FileEditor(ContextMenuHost, Widget):
             span = span or self._found_columns(number)
             if order is not None:
                 row = [(shown, row[at][1]) for at, shown in order]
-            if picked is not None and picked[1] and left <= len(row) < left + width:
-                surface.fill(len(row) - left, y, 1, 1, " ", selected)
-            if span is not None:
+            # Where the line's end is painted: past its text, or left of it.
+            end_cell = shift - 1 if shift else len(row)
+            if picked is not None and picked[1] and left <= end_cell < left + width:
+                surface.fill(end_cell - left, y, 1, 1, " ", selected)
+            if span is not None and shift and not painted:
+                # Past a right-to-left line's end the columns run leftwards.
+                first, last = max(span[0], len(row)), span[1]
+                if first < last:
+                    start = max(left, shift - (last - len(row)))
+                    stop = min(left + width, shift - (first - len(row)))
+                    if start < stop:
+                        surface.fill(start - left, y, stop - start, 1, " ", selected)
+            elif span is not None:
                 # Past the text the columns are as they are; in it, each cell is lit
                 # by its own column, below.
                 beyond = len(row) if order is not None and not painted else 0
@@ -3398,17 +3509,19 @@ class FileEditor(ContextMenuHost, Widget):
                 # The line's ending, a cell past its text, in the colours there.
                 end = columns.width(text, self.tab_size)
                 ending = self.document.endings[number]
-                if ending in HIDDEN_MARKS and left <= end < left + width:
+                if ending in HIDDEN_MARKS and left <= end_cell < left + width:
                     look = selected if span is not None and span[0] <= end < span[1] else style
-                    surface.set_cell(end - left, y, HIDDEN_MARKS[ending][tier], look.derive(dim=True))
+                    surface.set_cell(end_cell - left, y, HIDDEN_MARKS[ending][tier], look.derive(dim=True))
             for x in range(width):
-                column = x + left
+                column = x + left - shift
+                if column < 0:
+                    continue
                 if column >= len(row):
                     break
                 char, index = row[column]
                 if picked is not None and index in picked[0]:
                     cell = selected
-                elif span is not None and span[0] <= (column if painted else origin[column]) < span[1]:
+                elif span is not None and span[0] <= (column + shift if painted else origin[column]) < span[1]:
                     cell = selected
                 else:
                     cell = style
@@ -3437,10 +3550,11 @@ class FileEditor(ContextMenuHost, Widget):
                     surface.set_cell(x, y, HIDDEN_MARKS[text[index]][tier], cell.derive(dim=True))
                     continue
                 surface.set_cell(x, y, char, cell)
-        if self.highlight_column and 0 <= self.col - left < width:
+        # The cursor's painted column: on a reordered line its column is elsewhere.
+        x = self._visual_column(self.line, self.col) - left
+        if self.highlight_column and 0 <= x < width:
             # ``WordRec(B[Delta.X - Pos.X]).Hi := CC[7]``: every row, text or not.
             column_style = self.part_style("current_column")
-            x = self.col - left
             for y in range(self.height):
                 char = surface.get(x, y)[0] or " "
                 surface.set_cell(x, y, char, column_style)

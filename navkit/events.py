@@ -121,6 +121,22 @@ class KeyEvent(Event):
     #: reads this to know whether it may wait for one.  Not compared, because
     #: it says how the key travelled rather than which key it was.
     releases: bool = field(default=False, compare=False)
+    #: The Latin key in the same place on a US keyboard, when the layout in
+    #: use (Hebrew, Arabic) typed something else under a modifier: Alt+ס is
+    #: ``key="ס"``, ``base="x"``.  kitty's protocol reports it; for a legacy
+    #: terminal's Alt it comes from :mod:`navkit.keyboard`.  Not compared,
+    #: like ``releases``: it is another name for the same key.  The
+    #: application offers the key as typed first, everywhere, and only a key
+    #: nobody took is offered again as :meth:`as_base` -- so a Hebrew menu's
+    #: Alt+ק opens its menu, and Alt+ס, which nothing claims, still quits.
+    base: str | None = field(default=None, compare=False)
+
+    def as_base(self) -> KeyEvent:
+        """This key as the Latin key in its place (:attr:`base`) was pressed."""
+        if self.base is None:
+            return self
+        char = None if self.ctrl or self.char is None else self.base
+        return replace(self, key=self.base, char=char, base=None)
 
     @property
     def name(self) -> str:

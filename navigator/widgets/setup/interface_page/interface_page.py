@@ -77,6 +77,14 @@ class InterfacePage(Widget):
             (name for name, look in self.looks.items() if look == self.appearance.marks),
             self.marks.choices[0],
         )
+        #: ``{shown name: [interface] direction}``.
+        self.directions = {tr("Automatic"): "auto", tr("Left to right"): "ltr", tr("Right to left"): "rtl"}
+        self.direction.choices = list(self.directions)
+        self.direction.value = next(
+            (name for name, code in self.directions.items() if code == self.section.direction),
+            self.direction.choices[0],
+        )
+        self.direction.tooltip = self.section.tooltip("direction")
         self.language.tooltip = self.section.tooltip("language")
         self.colors.tooltip = self.appearance.tooltip("colors")
         self.glyphs_tier.tooltip = self.appearance.tooltip("glyphs")
@@ -116,6 +124,7 @@ class InterfacePage(Widget):
         delay = self.tooltip_delay.value.replace(" ", "0")
         values["tooltip_delay"] = int(delay) if delay.isdigit() else self.section.tooltip_delay
         values["language"] = self.languages.get(self.language.value, self.section.language)
+        values["direction"] = self.directions.get(self.direction.value, self.section.direction)
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]
         values["window_strip"] = InterfaceData.field("window_strip").choices[self.window_strip.value]
         colors = self.depths.get(self.colors.value, self.appearance.colors)

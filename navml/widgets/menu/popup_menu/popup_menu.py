@@ -52,6 +52,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Any, Sequence
 
+from navkit import keyboard
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import bind
 from navkit.screen import Surface
@@ -320,11 +321,17 @@ class PopupMenu(Widget):
 
 
 def letter_of(entries: list[Any], char: str) -> int:
-    """The entry whose marked letter is *char*, or -1."""
+    """The entry whose marked letter is *char*, or -1 -- else the one whose
+    letter is typed by *char*'s key on another layout (Hebrew or Arabic and
+    Latin, :func:`navkit.keyboard.same_key`): a Latin S~S~H with a Hebrew
+    layout on, or a Hebrew menu's letter on a US keyboard."""
     char = char.lower()
     for index, entry in enumerate(entries):
         if isinstance(entry, MenuLine):
             continue
         if parse_shortcut(entry.text)[2] == char:
+            return index
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, MenuLine) and keyboard.same_key(char, parse_shortcut(entry.text)[2]):
             return index
     return -1

@@ -56,11 +56,15 @@ leave a working `nav`.
 
 - **The tree is staged by `pip install --target`, not by copying directories**, so the files that reach the package
   are exactly the ones the wheel declares -- `navigator/styles/*.nss` included. `build.sh` then asserts the stylesheet
-  and all eleven themes are present, because losing them yields an application that starts and *then* fails to theme.
+  and every theme the checkout has (counted there, not a fixed number) are present, because losing them yields an
+  application that starts and *then* fails to theme.
 - **One `arch: all` / `noarch` package serves every interpreter from 3.12 up**, because every dependency is pure
   Python. A venv could not: it bakes its minor version into `lib/python3.N/site-packages` and into `pyvenv.cfg`, so it
   would need one build per distro. `build.sh` fails the build if a `.so` ever appears in the staged tree, since that
-  is the moment the claim stops being true.
+  is the moment the claim stops being true. One is removed first: wcwidth (pyte's) ships an *optional* C accelerator
+  in a platform wheel since 0.9 and falls back to its own Python without it (`HAS_C_EXTENSION`). python-bidi is held
+  below 0.5 for the same reason (0.5+ is Rust); it and arabic-reshaper are vendored like the rest, `six` with them,
+  so distributions' `python3-bidi` (Ubuntu 24.04: 0.4.2) is never a dependency.
 - **`/usr/bin/nav` runs `python3 -sP`, and the `-P` is not hygiene.** A file manager is launched inside arbitrary
   directories, and without it a directory that merely *contains* an `icons.py` or a `pyte.py` shadows the real module,
   so Navigator dies on startup in that one directory and nowhere else. This is verified, not assumed: dropping a

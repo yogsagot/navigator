@@ -19,6 +19,7 @@ import dataclasses
 from pathlib import Path
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr, tr_n
@@ -197,15 +198,15 @@ class InfoPanel(Widget):
         surface.draw_box(0, 0, self.width, self.height, self.style,
                          charset=self.box_charset(), fill=" ")
         title = f" {tr('Information')} "
-        if len(title) <= self.width - 4 - 2 * self.title_margin:
-            surface.draw_text((self.width - len(title)) // 2, 0, title, self.part_style("title"))
+        if display_width(title) <= self.width - 4 - 2 * self.title_margin:
+            surface.draw_text((self.width - display_width(title)) // 2, 0, title, self.part_style("title"))
         inner = self.width - 2
         for row, (text, centred) in enumerate(self.lines()[: self.height - 2]):
             y = row + 1
             if text.startswith("\0"):
                 name = f" {text[1:]} " if text[1:] else ""
                 line = glyphs_module.charset("single", self.glyphs)[HORIZONTAL] * inner
-                start = max(0, (inner - len(name)) // 2)
+                start = max(0, (inner - display_width(name)) // 2)
                 line = (line[:start] + name + line[start + len(name):])[:inner]
                 surface.draw_text(1, y, line, self.style, inner)
                 # Joined to the frame at both ends, ``├``/``┤`` (``╟``/``╢``

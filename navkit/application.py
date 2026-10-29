@@ -1519,17 +1519,12 @@ class Application:
             if await self.on_event(event):
                 return
             if isinstance(event, KeyEvent):
-                if await self._chord_key(event):
-                    return
-                # Dispatching on the modal rather than the root is the whole
-                # of keyboard exclusivity: the walk runs from the focused
-                # widget up to whatever it was called on, so it neither starts
-                # outside the modal nor bubbles past it.
-                target = self.modal or self._root
-                if await self._run_key(event):
-                    return
-                if not await self.on_key(event) and target is not None:
-                    await target.dispatch_key(event)
+                # A Hebrew or Arabic letter under a modifier is offered as
+                # typed first, everywhere -- a translated menu's Alt+ק -- and
+                # only if nothing took it as the Latin key in its place, so
+                # Alt+ס still quits (KeyEvent.base).
+                if not await self._deliver_key(event) and event.base is not None:
+                    await self._deliver_key(event.as_base())
             elif isinstance(event, MouseClickEvent):
                 # Counted from the press itself, before it is delivered and
                 # whatever claims it: whether a widget consumed a press says
@@ -1804,6 +1799,22 @@ class Application:
             path = scope._focus_path() or [scope]
             tables += [commands.key_table(type(widget)) for widget in path]
         return tables
+
+    async def _deliver_key(self, event: KeyEvent) -> bool:
+        """A key through the chord, the application's table, its own
+        ``on_key`` and the focus path; whether anything took it."""
+        if await self._chord_key(event):
+            return True
+        # Dispatching on the modal rather than the root is the whole of
+        # keyboard exclusivity: the walk runs from the focused widget up to
+        # whatever it was called on, so it neither starts outside the modal
+        # nor bubbles past it.
+        target = self.modal or self._root
+        if await self._run_key(event):
+            return True
+        if await self.on_key(event):
+            return True
+        return target is not None and await target.dispatch_key(event)
 
     async def _chord_key(self, event: KeyEvent) -> bool:
         """A key that begins, continues or ends a chord; False for any other.

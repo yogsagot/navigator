@@ -53,6 +53,12 @@ LINE_LIMIT = 64 * 1024
 #: the pieces going up need not line up with the ones coming down.
 BACK_LIMIT = 16 * LINE_LIMIT
 
+#: How many columns of a long line are decoded to lay it out right to left:
+#: what a reordered row paints at its left can come from its far end, past
+#: what the screen-sized decoding stops at.  Enough for any line a person
+#: reads, short of a megabyte with no newline.
+WHOLE_LINE = 16384
+
 #: How much a search reads between two looks at whether it should stop.
 SEARCH_WINDOW = 1024 * 1024
 

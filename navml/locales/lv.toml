@@ -29,9 +29,9 @@ flag = "LV"
 "~W~indows" = "~L~ogi"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~A~izvērt"
-# navml/commands.py:30, navml/widgets/window/window.py:274
+# navml/commands.py:30, navml/widgets/window/window.py:275
 "Close" = "Aizvērt"
-# navml/commands.py:36, navml/widgets/window/window.py:276
+# navml/commands.py:36, navml/widgets/window/window.py:277
 "Zoom" = "Izvērst"
 # navml/commands.py:76
 "List" = "Saraksts"
@@ -197,29 +197,29 @@ flag = "LV"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " Meklēt: "
 # navml/widgets/dialog/history/history.py:109
 "Choose from the list ({key})" = "Izvēlēties no saraksta ({key})"
 # navml/widgets/dialog/history/history.py:111
 "Earlier entries ({key})" = "Agrākie ieraksti ({key})"
-# navml/widgets/dialog/input_line/input_line.py:328
+# navml/widgets/dialog/input_line/input_line.py:410
 "The line cannot be changed now" = "Rindu pašlaik nevar mainīt"
-# navml/widgets/dialog/input_line/input_line.py:379
+# navml/widgets/dialog/input_line/input_line.py:461
 "Cu~t~" = "~I~zgriezt"
-# navml/widgets/dialog/input_line/input_line.py:380
+# navml/widgets/dialog/input_line/input_line.py:462
 "~C~opy" = "~K~opēt"
-# navml/widgets/dialog/input_line/input_line.py:381
+# navml/widgets/dialog/input_line/input_line.py:463
 "~P~aste" = "Ie~l~īmēt"
-# navml/widgets/dialog/input_line/input_line.py:382
+# navml/widgets/dialog/input_line/input_line.py:464
 "C~l~ear" = "~T~īrīt"
-# navml/widgets/dialog/input_line/input_line.py:384
+# navml/widgets/dialog/input_line/input_line.py:466
 "Select ~a~ll" = "Atlasīt ~v~isu"
-# navml/widgets/dialog/input_line/input_line.py:330
+# navml/widgets/dialog/input_line/input_line.py:412
 "Nothing is selected" = "Nekas nav atlasīts"
-# navml/widgets/dialog/input_line/input_line.py:333, navml/widgets/dialog/input_line/input_line.py:336
+# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
 "The line is empty" = "Rinda ir tukša"
-# navml/widgets/dialog/input_line/input_line.py:337
+# navml/widgets/dialog/input_line/input_line.py:419
 "All of it is selected" = "Viss jau ir atlasīts"
 # navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "Cilnes"
@@ -227,27 +227,27 @@ flag = "LV"
 "Earlier tabs" = "Iepriekšējās cilnes"
 # navml/widgets/dialog/tab_view/tab_view.py:417
 "Later tabs" = "Nākamās cilnes"
-# navml/widgets/dialog/tree_view/tree_view.py:531
+# navml/widgets/dialog/tree_view/tree_view.py:533
 "Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"
 # navml/widgets/progress_bar/progress_bar.py:61
 "{done} of {total} done ({percent}%), {rest} to go" = "Paveikts {done} no {total} ({percent}%), atlicis {rest}"
-# navml/widgets/window/window.py:295
-"A double click zooms, a drag moves" = "Dubultklikšķis izvērš, vilkšana pārvieto"
 # navml/widgets/window/window.py:297
+"A double click zooms, a drag moves" = "Dubultklikšķis izvērš, vilkšana pārvieto"
+# navml/widgets/window/window.py:299
 "A drag moves" = "Vilkšana pārvieto"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Move" = "Pārvietot"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Size" = "Izmērs"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Keep" = "Paturēt"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Undo" = "Atsaukt"
-# navml/widgets/window/window.py:276
+# navml/widgets/window/window.py:277
 "Restore" = "Atjaunot"
-# navml/widgets/window/window.py:278
+# navml/widgets/window/window.py:279
 "Drag to resize" = "Velciet, lai mainītu izmēru"
 
 # No longer shown anywhere; kept so nothing written is lost.

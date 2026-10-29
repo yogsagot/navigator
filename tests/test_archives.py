@@ -791,7 +791,11 @@ def test_shift_f1_onto_an_archive_there_asks_and_adds_to_it(desk):
         assert packed.read("README") == b"read me" and packed.read("notes.txt") == b"n\n"
 
 
-def test_a_password_typed_twice_differently_is_refused(desk):
+def test_a_password_typed_twice_differently_is_refused(desk, monkeypatch):
+    # A zip's password needs 7-Zip to be written, which this test never gets
+    # to: the mismatch is refused first.  Said available, so the password
+    # field is enabled whether or not 7-Zip is installed.
+    monkeypatch.setattr("navigator.lib.drives.archive.can_encrypt", lambda kind: True)
     app, here = desk
     (here / "notes.txt").write_text("n\n")
 

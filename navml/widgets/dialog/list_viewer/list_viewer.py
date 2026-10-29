@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.reactive import computed, effect, peek, reactive
 from navkit.screen import Surface, char_width
@@ -342,7 +343,7 @@ class ListViewer(Control):
 
     def label_x(self, text: str) -> int:
         """Where a title or footer of *text* starts: centred on the frame."""
-        return max(1, (self.width - len(text)) // 2)
+        return max(1, (self.width - display_width(text)) // 2)
 
     def _render_label(self, surface: Surface, y: int, text: str, part: str) -> None:
         if not text:

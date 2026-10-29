@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import glyphs as glyphs_module
+from navkit.bidi import has_rtl, order_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
@@ -29,7 +30,7 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 
 from navigator.lib.file_ops.filediff import DELETE, EQUAL, INSERT, REPLACE
-from navigator.lib.viewer import decode_cells
+from navigator.lib.viewer import WHOLE_LINE, decode_cells
 
 #: How far Ctrl+Left and Ctrl+Right scroll sideways, as the viewer's.
 BIG_STEP = 20
@@ -313,6 +314,16 @@ class DiffView(Widget):
             return
         cells: list[tuple[str, int]] = []
         decode_cells(line, 0, cells, max_cols=self.x_delta + width)
+        if len(cells) >= self.x_delta + width and has_rtl("".join(char for char, _ in cells)):
+            # Cut short: what a reordered line paints at its left can come
+            # from its far end (FileViewer._whole).
+            cells = []
+            decode_cells(line, 0, cells, max_cols=WHOLE_LINE)
+        # Laid out as the viewer lays out a row, so Hebrew and Arabic read the
+        # right way round; the line has one look, so nothing else follows it.
+        order = order_cells([char for char, _ in cells])
+        if order is not None:
+            cells = [(shown, cells[column][1]) for column, shown in order]
         for offset in range(width):
             column = offset + self.x_delta
             if column >= len(cells):

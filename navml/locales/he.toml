@@ -30,9 +30,9 @@ direction = "rtl"
 "~W~indows" = "~ח~לונות"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~ס~גור"
-# navml/commands.py:30, navml/widgets/window/window.py:274
+# navml/commands.py:30, navml/widgets/window/window.py:275
 "Close" = "סגור"
-# navml/commands.py:36, navml/widgets/window/window.py:276
+# navml/commands.py:36, navml/widgets/window/window.py:277
 "Zoom" = "הגדל"
 # navml/commands.py:76
 "List" = "רשימה"
@@ -198,29 +198,29 @@ direction = "rtl"
 "Error" = "שגיאה"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "תיקייה"
-# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " חיפוש: "
 # navml/widgets/dialog/history/history.py:109
 "Choose from the list ({key})" = "בחר מהרשימה ({key})"
 # navml/widgets/dialog/history/history.py:111
 "Earlier entries ({key})" = "רשומות קודמות ({key})"
-# navml/widgets/dialog/input_line/input_line.py:345
+# navml/widgets/dialog/input_line/input_line.py:410
 "The line cannot be changed now" = "לא ניתן לשנות את השורה כעת"
-# navml/widgets/dialog/input_line/input_line.py:396
+# navml/widgets/dialog/input_line/input_line.py:461
 "Cu~t~" = "~ג~זור"
-# navml/widgets/dialog/input_line/input_line.py:397
+# navml/widgets/dialog/input_line/input_line.py:462
 "~C~opy" = "~ה~עתק"
-# navml/widgets/dialog/input_line/input_line.py:398
+# navml/widgets/dialog/input_line/input_line.py:463
 "~P~aste" = "ה~ד~בק"
-# navml/widgets/dialog/input_line/input_line.py:399
+# navml/widgets/dialog/input_line/input_line.py:464
 "C~l~ear" = "~נ~קה"
-# navml/widgets/dialog/input_line/input_line.py:401
+# navml/widgets/dialog/input_line/input_line.py:466
 "Select ~a~ll" = "~ב~חר הכל"
-# navml/widgets/dialog/input_line/input_line.py:347
+# navml/widgets/dialog/input_line/input_line.py:412
 "Nothing is selected" = "לא נבחר דבר"
-# navml/widgets/dialog/input_line/input_line.py:350, navml/widgets/dialog/input_line/input_line.py:353
+# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
 "The line is empty" = "השורה ריקה"
-# navml/widgets/dialog/input_line/input_line.py:354
+# navml/widgets/dialog/input_line/input_line.py:419
 "All of it is selected" = "הכל כבר נבחר"
 # navml/widgets/dialog/tab_view/tab_view.py:152
 "Tabs" = "כרטיסיות"
@@ -228,25 +228,25 @@ direction = "rtl"
 "Earlier tabs" = "כרטיסיות קודמות"
 # navml/widgets/dialog/tab_view/tab_view.py:417
 "Later tabs" = "כרטיסיות הבאות"
-# navml/widgets/dialog/tree_view/tree_view.py:531
+# navml/widgets/dialog/tree_view/tree_view.py:533
 "Next" = "הבא"
 # navml/widgets/menu/commands.py:14
-"Menu" = "תפריט"
+"Menu" = "תפר׳"
 # navml/widgets/progress_bar/progress_bar.py:61
 "{done} of {total} done ({percent}%), {rest} to go" = "הושלמו {done} מתוך {total} ({percent}%), נותרו {rest}"
-# navml/widgets/window/window.py:295
-"A double click zooms, a drag moves" = "לחיצה כפולה מגדילה, גרירה מזיזה"
 # navml/widgets/window/window.py:297
+"A double click zooms, a drag moves" = "לחיצה כפולה מגדילה, גרירה מזיזה"
+# navml/widgets/window/window.py:299
 "A drag moves" = "גרירה מזיזה"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Move" = "הזז"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Size" = "גודל"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Keep" = "השאר"
-# navml/widgets/window/window.py:326
+# navml/widgets/window/window.py:338
 "Undo" = "בטל"
-# navml/widgets/window/window.py:276
+# navml/widgets/window/window.py:277
 "Restore" = "שחזר"
-# navml/widgets/window/window.py:278
+# navml/widgets/window/window.py:279
 "Drag to resize" = "גרור לשינוי גודל"

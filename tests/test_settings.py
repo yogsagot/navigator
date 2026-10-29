@@ -277,6 +277,27 @@ def test_languages_wear_their_flags_at_the_nerd_tier(tmp_path, quiet_console, sh
     assert SETTINGS.interface.language == "lv"
 
 
+def test_choosing_a_right_to_left_language_mirrors_the_screen_at_once(tmp_path, quiet_console, shipped_catalogues):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose(a):
+        language = a.modal.interface.language
+        language.value = next(name for name in language.choices if "עברית" in name)
+
+    run_app(app, [
+        lambda a: seen.append(a.rtl),
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append(a.rtl),
+    ])
+    assert seen == [False, True]
+    assert SETTINGS.interface.language == "he"
+
+
 def test_languages_are_bare_names_below_the_nerd_tier(tmp_path, quiet_console, shipped_catalogues):
     from navkit.capabilities import GLYPHS_UNICODE, TRUECOLOR, TerminalInfo
 
@@ -392,6 +413,28 @@ def test_marks_are_chosen_in_interface_setup_and_drawn_at_once(tmp_path, quiet_c
     assert seen == ["Brackets [\u2713] (\u25cf)", "boxes"]
     assert SETTINGS.appearance.marks == "boxes"
     assert "marks = boxes" in config_path().read_text(encoding="utf-8")
+
+
+def test_the_direction_is_chosen_in_interface_setup_and_mirrors_at_once(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def choose(a):
+        page = a.modal.interface
+        seen.append(page.direction.value)
+        page.direction.value = page.direction.choices[2]
+
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(InterfaceSetup)),
+        lambda a: None,
+        choose,
+        KeyEvent("enter"),
+        lambda a: None,
+        lambda a: seen.append((a.direction, a.rtl)),
+    ])
+    assert seen == ["Automatic", ("rtl", True)]
+    assert SETTINGS.interface.direction == "rtl"
+    assert "direction = rtl" in config_path().read_text(encoding="utf-8")
 
 
 def test_glyphs_are_chosen_in_interface_setup_and_drawn_at_once(tmp_path, quiet_console, monkeypatch):

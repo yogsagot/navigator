@@ -436,6 +436,14 @@ class InterfaceData(Section):
         "", doc="The language captions and messages are in: a catalogue's code "
                 "(en, lv, ...), or empty to follow $LANG",
     )
+    #: Not DN's, which mirrored nothing: which way the screen reads.  Auto
+    #: follows the language's catalogue (``[meta] direction``); ``--direction``
+    #: overrides it for a session.
+    direction: str = Setting(
+        "auto", choices=("auto", "ltr", "rtl"),
+        doc="Which way the screen reads: auto (as the language's catalogue says), "
+            "ltr (left to right) or rtl (right to left, mirrored)",
+    )
     #: Not DN's, which had no Options > Settings to put tabs in.
     settings_tabs: str = Setting(
         "simple", choices=("top", "left", "simple"),

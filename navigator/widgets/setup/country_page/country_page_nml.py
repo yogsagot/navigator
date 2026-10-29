@@ -57,7 +57,7 @@ class CountryPage(_Component):
     first_day: RadioButtons    # country_page.nml:66
     custom_date: Field    # country_page.nml:74
     custom_hint: StaticText    # country_page.nml:83
-    example: StaticText    # country_page.nml:91
+    example: StaticText    # country_page.nml:94
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -69,7 +69,7 @@ class CountryPage(_Component):
         self.first_day = RadioButtons(parent=self)    # country_page.nml:65
         self.custom_date = Field(parent=self)    # country_page.nml:73
         self.custom_hint = StaticText(parent=self)    # country_page.nml:82
-        self.example = StaticText(parent=self)    # country_page.nml:90
+        self.example = StaticText(parent=self)    # country_page.nml:93
 
         self.date_caption.x = 3    # country_page.nml:23
         self.date_caption.y = 1    # country_page.nml:24
@@ -138,13 +138,14 @@ class CountryPage(_Component):
         self.custom_hint.x = 3    # country_page.nml:84
         self.custom_hint.y = 8    # country_page.nml:85
         self.custom_hint.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:86
-        self.custom_hint.height = 2    # country_page.nml:87
-        self.custom_hint.text = _bind(    # country_page.nml:88
+        self.custom_hint.height = 3    # country_page.nml:89
+        self.custom_hint.wrap = True    # country_page.nml:90
+        self.custom_hint.text = _bind(    # country_page.nml:91
             lambda _o: _tr("strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's"),
             yielding=True,
         )
 
-        self.example.x = 3    # country_page.nml:92
-        self.example.y = 11    # country_page.nml:93
-        self.example.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:94
-        self.example.height = 1    # country_page.nml:95
+        self.example.x = 3    # country_page.nml:95
+        self.example.y = 11    # country_page.nml:96
+        self.example.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:97
+        self.example.height = 1    # country_page.nml:98

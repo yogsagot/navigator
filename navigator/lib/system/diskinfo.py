@@ -36,6 +36,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from navkit.i18n import tr, tr_n
+from navkit.text import escape_caption
 
 from navigator.lib.config import country
 from navigator.lib.system import mediainfo
@@ -227,7 +228,7 @@ def file_lines(entry: Any, facts: FileFacts | None) -> list[tuple[str, bool]]:
         kind = f"{kind}, {facts.mime}"
     out = [
         ("\0" + tr("Current file"), True),
-        (tr("Name: ~{name}~").format(name=entry.name), False),
+        (tr("Name: ~{name}~").format(name=escape_caption(entry.name)), False),
         (tr("Type: ~{kind}~").format(kind=kind), False),
     ]
     if entry.is_dir and not entry.counted:

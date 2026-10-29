@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
@@ -285,10 +286,25 @@ async def show_structure(app: Any, db: dbf.DBFile, what: str) -> None:
 
     name = db.path.name if len(db.path.name) <= 20 else "..." + db.path.name[-17:]
     types = _type_names()
-    lines = [f" {f.name:<12}{types.get(f.kind, f.kind):<13}{f.length:<11}"
-             f"{f.decimals if f.kind in ('N', 'F') else '':<8}" for f in db.fields]
-    await DBListDialog(heading=tr("Name          Type       Length   Decimals"), lines=lines,
-                       title=what.format(name=name)).execute(app)
+    lines = [_table_row(f.name, types.get(f.kind, f.kind), str(f.length),
+                        str(f.decimals) if f.kind in ("N", "F") else "") for f in db.fields]
+    heading = _table_row(tr("Name"), tr("Type"), tr("Length"), tr("Decimals"))
+    await DBListDialog(heading=heading, lines=lines, title=what.format(name=name)).execute(app)
+
+
+#: The structure box's columns: a field's name, type, length and decimals.
+_COLUMNS = (12, 13, 11, 8)
+
+
+def _table_row(*cells: str) -> str:
+    """One line of the structure box: *cells* padded to :data:`_COLUMNS` by
+    their painted width, after a blank, each cell opened by an LRM -- the
+    table is held left to right, a dBase field name being ASCII, and two
+    Hebrew headings or a type name and its length never run together into
+    one right-to-left stretch that turns the columns round."""
+    padded = "".join(f"\u200e{cell}" + " " * max(1, width - display_width(cell))
+                     for cell, width in zip(cells, _COLUMNS))
+    return " " + padded.rstrip()
 
 
 async def open_database(desktop: Any, path: Path) -> Any:

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.commands import key_label, parse_key
 from navkit.events import KeyEvent
 from navkit.reactive import reactive
@@ -40,7 +41,7 @@ class KeyCatcher(Control):
     def render(self, surface: Surface) -> None:
         text = " ".join(key_label(key) for key in self.caught)
         surface.fill(0, 0, self.width, self.height, " ", self.style)
-        surface.draw_text(max(0, (self.width - len(text)) // 2), 0, text, self.style, self.width)
+        surface.draw_text(max(0, (self.width - display_width(text)) // 2), 0, text, self.style, self.width)
 
     async def on_key(self, event: KeyEvent) -> bool:
         if event.matches("enter"):

@@ -11,11 +11,3 @@ TopTenDialog(Dialog):
     buttons: "ok"
 
     property game_style: "tetris"
-
-    Label:
-        id: heading
-        x: 2
-        y: 2
-        width: 55
-        height: 1
-        text: "~Name                           Start  End       Score~"

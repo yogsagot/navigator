@@ -115,7 +115,7 @@ def test_f3_on_a_dbf_opens_the_dbase_viewer_and_its_keys_move_the_cell(place):
     assert seen["cell"] == (1, 2) and seen["indicator"] == "2/3" and seen["last"] == 2
     assert seen["title"].startswith("dBase View - ")
     assert seen["what"] == "Structure of people.dbf"
-    assert seen["fields"][1] == " AGE         Numeric      3          0       "
+    assert seen["fields"][1] == " \u200eAGE         \u200eNumeric      \u200e3          \u200e0"  # held left to right
     assert seen["memo"] == ["Hello", "memo"]
 
 

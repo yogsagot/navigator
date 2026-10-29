@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.events import KeyEvent
@@ -466,7 +467,7 @@ class SyncList(ListViewer):
             if shown <= 0:
                 break
             title = title[:shown]
-            surface.draw_text(x + (shown - len(title)) // 2, top, title, heading, shown)
+            surface.draw_text(x + (shown - display_width(title)) // 2, top, title, heading, shown)
             edge = x + width
             if index < len(spans) - 1 and edge < right:
                 for y in range(top, bottom):

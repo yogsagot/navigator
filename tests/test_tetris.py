@@ -166,7 +166,7 @@ def test_a_game_good_enough_asks_a_name_and_shows_the_top_ten(place):
                   lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("enter"),
                   Until(lambda a: isinstance(a.modal, WinnerDialog)), name, KeyEvent("enter"),
                   Until(lambda a: isinstance(a.modal, TopTenDialog)),
-                  lambda a: seen.update(lines=[l.text for l in a.modal.lines]), KeyEvent("enter"),
+                  lambda a: seen.update(lines=[" ".join(cell.text for cell in line) for line in a.modal.lines]), KeyEvent("enter"),
                   Until(lambda a: a.modal is None)], timeout=10)
     assert seen["prompt"].startswith("Game over")
     assert seen["lines"][0].startswith("~Juris~")
