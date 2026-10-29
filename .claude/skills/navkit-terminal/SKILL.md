@@ -33,6 +33,11 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
 - Keypad operators are named `kp_plus`/`kp_minus`/`kp_multiply`/`kp_divide` (`char` kept), from kitty codes or from
   `SS3` under application keypad mode. xfce4-terminal (VTE) and PyCharm send Gray `+` as a bare `+` even then (named
   `plus`); only Ghostty told them apart, which is why Navigator binds the plain keys too.
+- **With Num Lock on, a keypad operator's Ctrl is lost or moved.** VTE (xfce4-terminal) drops it: Ctrl+Gray `*` is a
+  bare `*`, byte for byte the plain key's, so nothing can bind it -- with Num Lock off it is `ESC O 5 j`
+  (`ctrl+kp_multiply`). Ghostty keeps it but may send the plain character's code (`CSI 42;5u`, `ctrl+*`), so bind
+  `ctrl+<char>` beside `ctrl+kp_*` (Navigator's Ctrl+Gray `*` does). VTE's checked with keyprobe; Ghostty's inferred
+  from binding `ctrl+*` making it work.
 - A terminal without the kitty protocol sends Ctrl+Enter as Enter; Ghostty keeps Ctrl+Enter and Ctrl+Shift+Enter
   unless unbound (`keybind = ctrl+enter=unbind`). xfce4-terminal eats Alt+E/F/V/T/B/H unless menu access keys are off.
 - **Find out what a terminal sends**: `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]` (`q` twice or

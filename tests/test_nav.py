@@ -2260,6 +2260,11 @@ def test_gray_star_and_ctrl_hray_star_reach_the_panel(tree):
     run_app(app, [lambda a: a.post_event(KeyEvent("kp_multiply", "*", ctrl=True))])
     assert app.manager.left.marked == {"alpha", "beta", "one.txt", "two.txt"}
 
+    # Num Lock on: the terminal reports the plain ``*`` with Ctrl.
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: a.post_event(KeyEvent("*", ctrl=True))])
+    assert app.manager.left.marked == {"alpha", "beta", "one.txt", "two.txt"}
+
 
 def test_select_all_tags_files_and_directories_whatever_was_tagged(mixed):
     mixed.marked = frozenset({"a.txt", "docs.txt"})

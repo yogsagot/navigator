@@ -284,7 +284,8 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   counts and `*.*` needs a dot, a departure from DN's `InMask`) -- seeded from `HISTORY["select"]` or `*`, *Except mask* ticked by Shift. Selecting passes directories over,
   unselecting does not (`Panel.select_group`).
 - **Gray `*` inverts** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their
-  tag; Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too.
+  tag; Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too -- bound as `ctrl+*` as well, which is how a terminal
+  may report it with Num Lock on.
 - **Ctrl+A selects all** (`SelectAll`, `Panel.select_all`, Panel > *Select all files* and the context menu, no hot key --
   only `j` is free there): every file and directory, never `..`, whatever was tagged. A departure, asked for: DN had
   none, and Ctrl+Gray `*` inverts (untagging what was tagged) and needs a terminal that reports the keypad.

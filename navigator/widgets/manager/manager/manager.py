@@ -185,6 +185,9 @@ class Manager(Window):
         "shift+kp_plus": SelectGroup(invert=True, by_key=True),
         "shift+kp_minus": UnselectGroup(invert=True, by_key=True),
         "ctrl+kp_multiply": InvertSelection(directories=True, by_key=True),
+        #: With Num Lock on, a terminal may report Ctrl+Gray ``*`` as the
+        #: plain ``*`` with Ctrl (kitty's ``CSI 42;5u``), as the bare keys above.
+        "ctrl+*": InvertSelection(directories=True, by_key=True),
         #: A departure, asked for: every file and directory at once.
         "ctrl+a": SelectAll(),
         #: DN's ``fmoBackGoesBack``: Backspace goes up while the command line
