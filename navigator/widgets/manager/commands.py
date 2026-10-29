@@ -372,6 +372,15 @@ class InvertSelection(Command):
     by_key: bool = False
 
 
+class SelectAll(Command):
+    """Ctrl+A: tag every file and directory in the panel, ``..`` aside.
+
+    A departure, asked for: DN had none, Ctrl+Gray ``*`` inverting the
+    directories too being the nearest -- which untags what was tagged, and
+    a terminal without the kitty protocol may not send it at all.
+    """
+
+
 class ToggleShowMode(Command):
     """Ctrl+Y, ``cmToggleShowMode``."""
 
@@ -753,6 +762,7 @@ __all__ = [
     "SelectGroup",
     "UnselectGroup",
     "InvertSelection",
+    "SelectAll",
     "ToggleShowMode",
     "ToggleHidden",
     "ToggleInfoLines",

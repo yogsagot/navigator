@@ -11,7 +11,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
-from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
+from navigator.widgets.manager.commands import SelectAll, SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -41,7 +41,7 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
 from navkit.stylesheet import parse_declarations
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, MakeDirectory, MakeLink, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped, label_for
@@ -203,6 +203,7 @@ class Manager(Window, _Component):
     async def on_go_parent(self, event: GoParent) -> bool: ...
     async def on_toggle_mark(self, event: ToggleMark) -> bool: ...
     async def on_invert_selection(self, event: InvertSelection) -> bool: ...
+    async def on_select_all(self, event: SelectAll) -> bool: ...
     async def on_select_group(self, event: SelectGroup) -> bool: ...
     async def on_unselect_group(self, event: UnselectGroup) -> bool: ...
     async def select_group(self, *, select: bool, invert: bool) -> None: ...

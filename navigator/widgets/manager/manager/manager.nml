@@ -3,7 +3,7 @@ from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRi
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
-from navigator.widgets.manager.commands import SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
+from navigator.widgets.manager.commands import SelectAll, SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
 from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
@@ -280,6 +280,11 @@ Manager(Window):
             text: 'In~v~ert selection'
             command: InvertSelection
             key: 'Gray "*"'
+        MenuItem:
+            text: 'Select all files'
+            tooltip: "Select every file and directory in this panel"
+            command: SelectAll
+            key: 'Ctrl-A'
         MenuItem:
             text: 'Advanced filter...'
             tooltip: "Show or hide files by extension"

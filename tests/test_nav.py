@@ -2261,6 +2261,19 @@ def test_gray_star_and_ctrl_hray_star_reach_the_panel(tree):
     assert app.manager.left.marked == {"alpha", "beta", "one.txt", "two.txt"}
 
 
+def test_select_all_tags_files_and_directories_whatever_was_tagged(mixed):
+    mixed.marked = frozenset({"a.txt", "docs.txt"})
+    mixed.select_all()
+    assert mixed.marked == {"a.txt", "B.TXT", "c.py", "Makefile", "notes.md", "docs.txt"}
+
+
+def test_ctrl_a_selects_all_in_the_active_panel(tree):
+    app = navigator_with(tree, GLYPHS_UNICODE)
+    run_app(app, [lambda a: a.post_event(KeyEvent("a", ctrl=True))])
+    assert app.manager.left.marked == {"alpha", "beta", "one.txt", "two.txt"}
+    assert app.manager.right.marked == frozenset()
+
+
 @pytest.mark.parametrize("key, char", [("kp_plus", "+"), ("kp_minus", "-"), ("kp_multiply", "*")])
 def test_a_gray_key_types_once_the_command_line_has_text(tree, key, char):
     app = navigator_with(tree, GLYPHS_UNICODE)

@@ -1199,6 +1199,10 @@ class Panel(ContextMenuHost, ListViewer):
         }
         self.marked = self.marked ^ flipped
 
+    def select_all(self) -> None:
+        """Ctrl+A: every entry tagged, directories too; ``..`` never."""
+        self.marked = frozenset(item.key for item in self.items if item.name != "..")
+
     @property
     def marked_entries(self) -> list[DirEntry]:
         """The tagged entries, in listing order."""
@@ -1747,6 +1751,7 @@ class Panel(ContextMenuHost, ListViewer):
             PutInClipboard,
             RenameMove,
             RestoreTrash,
+            SelectAll,
             SelectGroup,
             UnselectGroup,
             View,
@@ -1811,6 +1816,7 @@ class Panel(ContextMenuHost, ListViewer):
         menu.add_item(tr("Select grou~p~..."), SelectGroup, key_label("kp_plus"))
         menu.add_item(tr("~U~nselect group..."), UnselectGroup, key_label("kp_minus"))
         menu.add_item(tr("In~v~ert selection"), InvertSelection, key_label("kp_multiply"))
+        menu.add_item(tr("Select all files"), SelectAll)
         # Ctrl+Enter and Ctrl+Shift+Enter, which DN had on no menu -- a
         # departure, asked for; the shell answers them.
         menu.add_line()

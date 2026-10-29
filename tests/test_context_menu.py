@@ -75,7 +75,7 @@ def test_a_right_click_on_a_file_moves_the_cursor_and_offers_its_operations(tree
         "View", "Edit", "Copy...", "Rename/Move...", "Create symlink...", "Delete",
         "File Attributes...", "Copy to clipboard", "Cut to clipboard", "Paste from clipboard",
         "Make directory", "Select group...", "Unselect group...",
-        "Invert selection", "Insert name", "Insert path",
+        "Invert selection", "Select all files", "Insert name", "Insert path",
     ]
 
 
@@ -116,7 +116,7 @@ def test_the_parent_entry_offers_only_what_needs_no_selection(tree):
     run_app(app, [right(5, 2), OPEN, lambda a: seen.update(captions=captions(a))])
     assert seen["captions"] == [
         "Paste from clipboard", "Count directory length", "Make directory", "Select group...",
-        "Unselect group...", "Invert selection", "Insert name", "Insert path",
+        "Unselect group...", "Invert selection", "Select all files", "Insert name", "Insert path",
     ]
 
 

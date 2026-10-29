@@ -55,6 +55,7 @@ from navigator.widgets.manager.commands import (
     HideLeft,
     HideRight,
     InvertSelection,
+    SelectAll,
     MakeDirectory,
     MakeLink,
     MoveSeparator,
@@ -184,6 +185,8 @@ class Manager(Window):
         "shift+kp_plus": SelectGroup(invert=True, by_key=True),
         "shift+kp_minus": UnselectGroup(invert=True, by_key=True),
         "ctrl+kp_multiply": InvertSelection(directories=True, by_key=True),
+        #: A departure, asked for: every file and directory at once.
+        "ctrl+a": SelectAll(),
         #: DN's ``fmoBackGoesBack``: Backspace goes up while the command line
         #: is empty, and Shift+Backspace and Ctrl+PgUp whatever it holds.
         "backspace": GoParent(by_key=True),
@@ -2485,7 +2488,7 @@ class Manager(Window):
             except DriveGone:
                 return gone()
         if isinstance(
-            command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, QuickSearch)
+            command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, SelectAll, QuickSearch)
         ):
             if getattr(command, "by_key", False) and self._command_line_has_text():
                 # Disabled, so the key falls through and types its character.
@@ -2658,6 +2661,10 @@ class Manager(Window):
 
     async def on_invert_selection(self, event: InvertSelection) -> bool:
         self.active_panel.invert_marks(directories=event.directories)
+        return True
+
+    async def on_select_all(self, event: SelectAll) -> bool:
+        self.active_panel.select_all()
         return True
 
     async def on_select_group(self, event: SelectGroup) -> bool:

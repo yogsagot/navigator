@@ -285,6 +285,9 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   unselecting does not (`Panel.select_group`).
 - **Gray `*` inverts** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their
   tag; Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too.
+- **Ctrl+A selects all** (`SelectAll`, `Panel.select_all`, Panel > *Select all files* and the context menu, no hot key --
+  only `j` is free there): every file and directory, never `..`, whatever was tagged. A departure, asked for: DN had
+  none, and Ctrl+Gray `*` inverts (untagging what was tagged) and needs a terminal that reports the keypad.
 - **With text on the command line the Gray keys type instead** (a departure): bound in `manager.py` as `by_key=True`
   instances that `Manager.enables` disables while the line has text; the menu's instances are unaffected. **The plain
   `+`, `-`, `*` are bound the same way** (mc's rule), because VTE and PyCharm send Gray `+` as bare `+`.
