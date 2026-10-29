@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
+from navkit.bidi import display_width
 from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, ToggleHidden, ToggleTree
 from navigator.widgets.manager.sync_list import SyncList
 from navml.commands import CloseWindow

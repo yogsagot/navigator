@@ -60,6 +60,7 @@ which had no tabs.
 
 from __future__ import annotations
 
+from navkit.bidi import display_width, fit_cells, pad_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr
 from navkit.glyphs import BOX_CHARSETS, GLYPHS_UNICODE, charset, ellipsis, joins, scrollbar
@@ -258,7 +259,7 @@ class TabView(Layout):
     @staticmethod
     def _width(caption: str) -> int:
         """A tab's cells on top: its caption, a blank either side, two bars."""
-        return len(caption) + 4
+        return display_width(caption) + 4
 
     def _size(self, caption: str) -> int:
         """A tab's cells along the strip: its width on top; simple, its
@@ -266,7 +267,7 @@ class TabView(Layout):
         if self.side == "left":
             return 1
         if self.side == "simple":
-            return len(caption) + 2
+            return display_width(caption) + 2
         return self._width(caption)
 
     def _sizes(self) -> list[int]:
@@ -292,7 +293,7 @@ class TabView(Layout):
     def column(self) -> int:
         """The left strip's width: a mark, a blank, the longest caption and a
         blank, but never more than :data:`MAX_COLUMN` -- a page needs the rest."""
-        longest = max((len(caption) for caption in self.captions()), default=0)
+        longest = max((display_width(caption) for caption in self.captions()), default=0)
         return min(MAX_COLUMN, longest + 3)
 
     @property
@@ -421,7 +422,7 @@ class TabView(Layout):
         if index < len(self.tooltips) and self.tooltips[index]:
             return self.tooltips[index]
         caption = self.captions()[index]
-        if self.side == "left" and len(caption) > self.column - 3:
+        if self.side == "left" and display_width(caption) > self.column - 3:
             return caption
         return ""
 
@@ -526,12 +527,12 @@ class TabView(Layout):
                 continue
             index, caption = rows[y]
             chosen = index == self.current
-            if len(caption) > column - 3:
+            if display_width(caption) > column - 3:
                 cut = ellipsis(self.glyphs)
-                caption = caption[: max(0, column - 3 - len(cut))] + cut
+                caption = fit_cells(caption, max(0, column - 3 - len(cut))) + cut
             if chosen:
                 surface.draw_text(0, y, mark, self.part_style("arrow"))
-            text = f" {caption}".ljust(column - 1)
+            text = pad_cells(f" {caption}", column - 1)
             surface.draw_text(1, y, text, self.part_style("selected" if chosen else "tab"))
         rule = [bar] * self.height
         if self._framed() and self.height >= 2:

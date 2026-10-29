@@ -4,7 +4,8 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navml.widgets.dialog.control import Control
+from navkit.bidi import display_width
+from navml.widgets.dialog.control import Control, parse_shortcut
 from navml.widgets.dialog.static_text import StaticText
 
 from dataclasses import dataclass
@@ -34,6 +35,7 @@ class Button(Control, _Component):
     def __init__(self, text: str = ..., **kwargs: Any) -> None: ...
     am_default: bool
     marked: bool
+    crowded: bool
     def tooltip_at(self, x: int, y: int) -> str: ...
     def press_keys(self) -> list[str]: ...
     async def press(self) -> bool: ...

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.bidi import display_width
+from navkit.bidi import display_width, pad_cells
 from navkit import glyphs as glyphs_module
 from navkit.i18n import tr
 from navkit.reactive import reactive
@@ -158,7 +158,7 @@ class VolumeList(ListViewer):
             else:
                 text = fit_text(text, room, self.ellipsis)
             if flush_right:
-                text = text.rjust(room)
+                text = pad_cells(text, room, "right")
             surface.draw_text(x + 1, y, text, style, room)
 
     async def choose(self) -> bool:

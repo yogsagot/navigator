@@ -356,3 +356,90 @@ def test_every_catalogue_and_the_english_captions_pass_the_check():
     root = Path(__file__).resolve().parent.parent
     done = subprocess.run([sys.executable, "tools/i18n.py", "check"], cwd=root, capture_output=True, text=True)
     assert done.returncode == 0, done.stdout
+
+
+# -- Chinese and Japanese: two cells to a character ---------------------------
+
+
+def test_a_cjk_sentence_wraps_by_cells_between_characters():
+    from navkit.bidi import display_width
+    from navml.widgets.dialog.static_text.static_text import wrapped
+
+    lines = wrapped("文件已存在。是否覆盖？这是一个很长的句子。", 16)
+    assert all(display_width(line) <= 16 for line in lines)
+    assert "".join(lines) == "文件已存在。是否覆盖？这是一个很长的句子。"
+    assert display_width(lines[0]) == 16            # filled, not broken at a blank
+
+
+def test_kinsoku_keeps_a_closing_mark_off_the_start_of_a_line():
+    from navml.widgets.dialog.static_text.static_text import wrapped
+
+    # Seven characters fill 14 cells; the full stop goes down with the 字.
+    lines = wrapped("一二三四五六七。八", 14)
+    assert lines == ["一二三四五六", "七。八"]
+
+
+def test_a_hotkey_mark_takes_no_cells_in_a_wrapped_line():
+    from navml.widgets.dialog.static_text.static_text import wrapped
+
+    assert wrapped("名前(~N~)", 7) == ["名前(~N~)"]    # 名前(N): seven cells
+    assert wrapped("名前(~N~) ファイル", 15) == ["名前(~N~) ファイ", "ル"]
+
+
+def test_fit_and_pad_count_cells():
+    from navkit.bidi import fit_cells, pad_cells
+
+    assert fit_cells("ファイル", 5) == "ファ"          # the third would straddle
+    assert fit_cells("Files", 3) == "Fil"
+    assert pad_cells("失败", 6) == "失败  "
+    assert pad_cells("失败", 6, "right") == "  失败"
+    assert pad_cells("失败", 7, "center") == " 失败  "
+    assert pad_cells("FAILED", 3) == "FAILED"         # never cut
+
+
+def test_a_menu_box_is_as_wide_as_its_widest_cjk_caption(terminal):
+    from navml.widgets.menu.menu_box import MenuBox
+    from navml.widgets.menu.menu_item import MenuItem
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    menu = SubMenu(text="~F~ile")
+    menu.add(MenuItem(text="コピー(~C~)"))
+    width, _ = MenuBox.measure(menu, title="ブックマーク")
+    assert width == max(len("コピー(C)") + 3 + 6, 12 + 8)
+
+
+def test_a_caption_too_wide_for_its_button_takes_the_markers_cells(terminal):
+    from navml.widgets.dialog.button import Button
+    from tests.conftest import settle
+
+    button = Button(text="O~K~", x=0, y=0, width=11, height=2)
+    settle()
+    assert not button.crowded and (button.caption.x, button.caption.width) == (1, 8)
+    button.text = "いいえ(~N~)"                  # nine cells
+    settle()
+    assert button.crowded and (button.caption.x, button.caption.width) == (0, 10)
+
+
+def test_a_crowded_key_bar_drops_the_second_blank_between_items(monkeypatch):
+    from navigator.widgets.shell.keybar.keybar import Hint, KeyBar
+
+    bar = KeyBar(x=0, y=0, width=24, height=1)
+    english = [("F1", Hint("Help")), ("F2", Hint("User"))]
+    monkeypatch.setattr(bar, "_row", lambda: english)
+    assert [(start, width) for _, _, start, width in bar.items()] == [(0, 9), (9, 9)]   # " F1 Help "
+    wide = [("F1", Hint("帮助")), ("F2", Hint("用户")), ("F3", Hint("查看"))]
+    monkeypatch.setattr(bar, "_row", lambda: wide)
+    # Loose, 9 cells apiece would end the third at 25; tight, "F1 帮助 " is 8.
+    assert [(start, width) for _, _, start, width in bar.items()] == [(0, 8), (8, 8), (16, 8)]
+
+
+def test_a_crowded_menu_bar_keeps_one_blank_between_captions(terminal):
+    from navml.widgets.menu.menu_bar import MenuBar
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    bar = MenuBar(x=0, y=0, width=30, height=1)
+    for text in ("~F~ile", "~D~isk"):
+        bar.add(SubMenu(text=text))
+    assert not bar.tight() and [bar.item_span(i) for i in (0, 1)] == [(1, 6), (7, 6)]
+    bar.reserve = 20                            # ten cells left: " File  Disk " needs 13
+    assert bar.tight() and [bar.item_span(i) for i in (0, 1)] == [(1, 5), (6, 5)]

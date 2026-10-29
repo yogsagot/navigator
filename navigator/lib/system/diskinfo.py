@@ -35,6 +35,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr, tr_n
 from navkit.text import escape_caption
 
@@ -264,10 +265,10 @@ def table(rows: list[str]) -> list[str]:
     widest, so that centring them one by one starts them all in one column.
     A row with no ``": "`` (a translation's) keeps its text."""
     split = [row.partition(": ") for row in rows]
-    labels = max((len(label) for label, colon, _ in split if colon), default=0)
-    rows = [label.rjust(labels) + colon + value if colon else label for label, colon, value in split]
-    width = max(len(row.replace("~", "")) for row in rows)
-    return [row + " " * (width - len(row.replace("~", ""))) for row in rows]
+    labels = max((display_width(label) for label, colon, _ in split if colon), default=0)
+    rows = [pad_cells(label, labels, "right") + colon + value if colon else label for label, colon, value in split]
+    width = max(display_width(row.replace("~", "")) for row in rows)
+    return [row + " " * (width - display_width(row.replace("~", ""))) for row in rows]
 
 
 def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,

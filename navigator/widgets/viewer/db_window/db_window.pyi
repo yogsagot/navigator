@@ -4,6 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
+from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchAgain, SearchFor, ShowFields, ShowMemo
 from navigator.widgets.viewer.db_window.db_viewer import DBViewer
 from navml.commands import CloseWindow
@@ -15,7 +16,6 @@ from navml.widgets.window import Window
 
 from pathlib import Path, PurePosixPath
 from typing import Any
-from navkit.bidi import display_width
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog

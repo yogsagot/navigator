@@ -324,6 +324,33 @@ def display_width(text: str) -> int:
     return sum(char_width(cell) for _, cell in layout(text))
 
 
+def fit_cells(text: str, cells: int) -> str:
+    """*text* cut to at most *cells* cells; a wide character that would
+    straddle the edge is left out whole."""
+    if text.isascii() and text.isprintable():
+        return text[: max(0, cells)]
+    from navkit.screen import char_width  # navkit.screen imports this module
+
+    used = 0
+    for index, char in enumerate(text):
+        used += char_width(char)
+        if used > cells:
+            return text[:index]
+    return text
+
+
+def pad_cells(text: str, cells: int, align: str = "left") -> str:
+    """*text* padded with blanks to *cells* cells -- ``str.ljust``, ``rjust``
+    (*align* ``"right"``) and ``center`` counting cells, so a column of Chinese
+    or Japanese lines up.  Never cut."""
+    room = max(0, cells - display_width(text))
+    if align == "right":
+        return " " * room + text
+    if align == "center":
+        return " " * (room // 2) + text + " " * (room - room // 2)
+    return text + " " * room
+
+
 def painted_cells(text: str, rtl: bool = False) -> list[tuple[int, int, int]]:
     """``(index, column, width)`` for each cell *text* paints, left to right:
     the first character it holds, where it is painted from the start of the

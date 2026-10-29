@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 
@@ -22,15 +23,17 @@ def fit_path(label: str, path: str, width: int) -> str:
     the next; the box widening to fit, as ``TWhileView`` did, would make
     it jump about with every name.
     """
-    room = max(4, width - len(label))
-    if len(path) > room:
-        path = "..." + path[len(path) - room + 3 :]
+    room = max(4, width - display_width(label))
+    if display_width(path) > room:
+        while path and display_width(path) > room - 3:
+            path = path[1:]
+        path = "..." + path
     return escape_caption(label + path)
 
 
 def whole_path(label: str, path: str, width: int) -> str:
     """*path* whole where :func:`fit_path` cuts it, else ``""``: its row's tooltip."""
-    return path if len(path) > max(4, width - len(label)) else ""
+    return path if display_width(path) > max(4, width - display_width(label)) else ""
 
 
 class CopyProgress(Dialog):

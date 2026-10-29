@@ -58,7 +58,7 @@ class PasswordDialog(Dialog, _Component):
             lambda _o: _tr('~P~assword'),
             yielding=True,
         )
-        self.entry.label_width = 11    # password_dialog.nml:22
+        self.entry.label_width = 13    # password_dialog.nml:22
 
         self.keep.x = 3    # password_dialog.nml:27
         self.keep.y = 5    # password_dialog.nml:28

@@ -63,6 +63,10 @@ class MenuBar(MenuContainer, Widget):
     #: The widget whose own :class:`SubMenu` children join the bar, or None.
     context: Any = reactive(None)
 
+    #: The cells at the bar's right end that something floating over it
+    #: covers -- Navigator's clock -- which a crowded bar keeps clear of.
+    reserve: int = reactive(0)
+
     def __init__(self, **kwargs: Any) -> None:
         take_declared(self, kwargs)
         super().__init__(**kwargs)
@@ -108,12 +112,23 @@ class MenuBar(MenuContainer, Widget):
 
     # -- geometry ----------------------------------------------------------------
 
+    def tight(self) -> bool:
+        """Whether the captions, a blank either side, would run into
+        :attr:`reserve`: then each keeps only the blank before it, one
+        between captions rather than two.  A departure, for Chinese and
+        Japanese, whose ``ファイル(F)`` is two cells to a character and would
+        push *Window* under the clock or off an 80-column bar."""
+        end = 1 + sum(display_width(parse_shortcut(entry.text)[0]) + 2 for entry in self.entries())
+        return end > self.width - self.reserve
+
     def item_span(self, index: int) -> tuple[int, int]:
         """Where entry *index* sits on the bar: ``(start, width)``, as
-        ``TMenuBar.GetItemRect`` -- the caption plus a space either side."""
+        ``TMenuBar.GetItemRect`` -- the caption plus a space either side, or
+        before it only while the bar is :meth:`tight`."""
         x = 1
+        blanks = 1 if self.tight() else 2
         for position, entry in enumerate(self.entries()):
-            length = display_width(parse_shortcut(entry.text)[0]) + 2
+            length = display_width(parse_shortcut(entry.text)[0]) + blanks
             if position == index:
                 return x, length
             x += length
@@ -167,8 +182,9 @@ class MenuBar(MenuContainer, Widget):
             states = {"selected": index == self.current, "disabled": entry.disabled}
             style = self.part_style("item", **states)
             caption, mark, _ = parse_shortcut(entry.text)
+            after = [(" ", style)] if length > display_width(caption) + 1 else []
             surface.draw_runs(start, 0, [(" ", style), *shortcut_runs(
-                caption, mark, style, self.part_style("hotkey", **states)), (" ", style)])
+                caption, mark, style, self.part_style("hotkey", **states)), *after])
 
     # -- opening and closing ----------------------------------------------------------
 

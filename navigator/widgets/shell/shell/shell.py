@@ -17,6 +17,7 @@ import random
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
 
+from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
@@ -179,7 +180,7 @@ class Shell(DockLayout):
         self.root_mark = self.add(RootMark())
         self.root_mark.merge_style("dock: none")
         clock_ = self.clock
-        self.root_mark.width = bind(lambda w: len(caption()))
+        self.root_mark.width = bind(lambda w: display_width(caption()))
         self.root_mark.x = bind(
             lambda w: max(0, (clock_.x - 1 if clock_.visible else self.menu.width) - w.width))
         self.root_mark.y = bind(lambda w: 0)
@@ -210,6 +211,9 @@ class Shell(DockLayout):
         # *Window strip*: from a cell after the last menu to a cell before the
         # clock, on a bar that is docked and over windows that are showing.
         menu, clock = self.menu, self.clock
+        # The clock floats over the bar's end: a bar that would reach it
+        # closes up its captions (``MenuBar.tight``).
+        self.menu.reserve = bind(lambda w: max(0, w.width - clock.x + 1) if clock.visible else 0)
         self.window_strip.x = bind(lambda w: menu.item_span(len(menu.entries()))[0] + 1)
         root_mark = self.root_mark
         self.window_strip.width = bind(

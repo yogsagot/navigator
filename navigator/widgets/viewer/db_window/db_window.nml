@@ -1,3 +1,4 @@
+from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchAgain, SearchFor, ShowFields, ShowMemo
 from navigator.widgets.viewer.db_window.db_viewer import DBViewer
 from navml.commands import CloseWindow
@@ -39,7 +40,7 @@ DBWindow(Window):
         name: "indicator"
         x: 10
         y: max(0, parent.height - 1)
-        width: min(len(self.text), max(0, parent.width - 12))
+        width: min(display_width(self.text), max(0, parent.width - 12))
         height: 1
 
     #: The window's own menu on the bar after *File* while it is active, as

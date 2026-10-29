@@ -1,3 +1,4 @@
+from navkit.bidi import display_width
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar
@@ -30,7 +31,7 @@ WriteWin(Dialog):
 
     Spinner:
         id: spinner
-        x: max(1, (parent.width - len(root.notice)) // 2 - 2)
+        x: max(1, (parent.width - display_width(root.notice)) // 2 - 2)
         y: 1
         width: 1
         height: 1

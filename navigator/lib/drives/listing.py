@@ -18,6 +18,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from navkit.bidi import fit_cells, pad_cells
 from navkit.i18n import tr
 
 from navigator.lib.appearance import filetypes
@@ -105,7 +106,7 @@ class DirEntry:
     def display_size(self) -> str:
         if self.is_dir and not self.counted:
             mark = tr("UP--DIR") if self.name == ".." else tr("DIR")
-            return f"{mark:>8.8}"
+            return pad_cells(fit_cells(mark, 8), 8, "right")
         size = float(self.size)
         for unit in ("", "K", "M", "G", "T"):
             if size < 1024 or unit == "T":

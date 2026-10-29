@@ -9,6 +9,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar
 
 from typing import Any
+from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button

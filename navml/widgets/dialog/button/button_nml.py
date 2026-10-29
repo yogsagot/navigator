@@ -16,8 +16,9 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.dialog.control import Control    # button.nml:1
-from navml.widgets.dialog.static_text import StaticText    # button.nml:2
+from navkit.bidi import display_width    # button.nml:1
+from navml.widgets.dialog.control import Control, parse_shortcut    # button.nml:2
+from navml.widgets.dialog.static_text import StaticText    # button.nml:3
 
 __navml_component__ = "Button"
 
@@ -41,35 +42,35 @@ class Button(Control, _Component):
     __navml_source__ = "button.nml"
 
     #: The caption, with one ``~A~`` run marking the letter that presses it.
-    text: str = _reactive('')    # button.nml:16
+    text: str = _reactive('')    # button.nml:17
 
     #: Whether Enter presses this button from anywhere in the dialog.  One
     #: per dialog, and the dialog is what enforces that rather than this.
-    default: bool = _reactive(False)    # button.nml:20
+    default: bool = _reactive(False)    # button.nml:21
 
     #: Whether the button is drawn pressed: held under the mouse, or under a
     #: Space that has not been let go.  The click comes when it is released.
-    down: bool = _reactive(False)    # button.nml:24
+    down: bool = _reactive(False)    # button.nml:25
 
     #: Drawn without the shadow, the face filling the whole rectangle -- a
     #: small button beside a line, one row tall.  A departure: ``TButton``
     #: always had its shadow.  Pressed, a flat button does not move.
-    flat: bool = _reactive(False)    # button.nml:29
+    flat: bool = _reactive(False)    # button.nml:30
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: StaticText    # button.nml:32
+    caption: StaticText    # button.nml:33
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = StaticText(parent=self)    # button.nml:31
+        self.caption = StaticText(parent=self)    # button.nml:32
 
-        self.caption.x = _bind(    # button.nml:35
-            lambda _o: 2 if _o.parent.down and (not _o.parent.flat) else 1
+        self.caption.x = _bind(    # button.nml:38
+            lambda _o: (2 if _o.parent.down and (not _o.parent.flat) else 1) - (1 if display_width(parse_shortcut(_o.parent.text)[0]) > _o.parent.width - (2 if _o.parent.flat else 3) else 0)
         )
-        self.caption.y = 0    # button.nml:36
-        self.caption.width = _bind(    # button.nml:38
-            lambda _o: max(0, _o.parent.width - (2 if _o.parent.flat else 3))
+        self.caption.y = 0    # button.nml:39
+        self.caption.width = _bind(    # button.nml:41
+            lambda _o: max(0, _o.parent.width - (2 if _o.parent.flat else 3) + (2 if display_width(parse_shortcut(_o.parent.text)[0]) > _o.parent.width - (2 if _o.parent.flat else 3) else 0))
         )
-        self.caption.height = 1    # button.nml:39
-        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:40
-        self.caption.align = 'center'    # button.nml:41
+        self.caption.height = 1    # button.nml:42
+        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:43
+        self.caption.align = 'center'    # button.nml:44

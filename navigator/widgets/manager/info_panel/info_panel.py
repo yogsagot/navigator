@@ -19,7 +19,7 @@ import dataclasses
 from pathlib import Path
 from typing import Any
 
-from navkit.bidi import display_width
+from navkit.bidi import display_width, fit_cells
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr, tr_n
@@ -207,7 +207,7 @@ class InfoPanel(Widget):
                 name = f" {text[1:]} " if text[1:] else ""
                 line = glyphs_module.charset("single", self.glyphs)[HORIZONTAL] * inner
                 start = max(0, (inner - display_width(name)) // 2)
-                line = (line[:start] + name + line[start + len(name):])[:inner]
+                line = line[:start] + name + line[start + display_width(name):inner]
                 surface.draw_text(1, y, line, self.style, inner)
                 # Joined to the frame at both ends, ``├``/``┤`` (``╟``/``╢``
                 # on a double one), as a panel's info divider is.
@@ -216,7 +216,7 @@ class InfoPanel(Widget):
                 surface.set_cell(self.width - 1, y, right_tee, self.style)
                 continue
             plain = text.replace("~", "")
-            x = 1 + max(0, (inner - len(plain)) // 2) if centred else 1
+            x = 1 + max(0, (inner - display_width(plain)) // 2) if centred else 1
             bright = False
             for piece in text.split("~"):
                 if piece:
@@ -224,6 +224,7 @@ class InfoPanel(Widget):
                     room = 1 + inner - x
                     if room <= 0:
                         break
-                    surface.draw_text(x, y, piece[:room], style, room)
-                    x += len(piece[:room])
+                    piece = fit_cells(piece, room)
+                    surface.draw_text(x, y, piece, style, room)
+                    x += display_width(piece)
                 bright = not bright

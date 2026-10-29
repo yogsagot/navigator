@@ -53,7 +53,18 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
 - **Counts**: `tr_n("{n} file", "{n} files", n)`, never `"s" if n != 1`.
 - **Live**: text drawn in `render()` is live by itself. Text assigned once to a long-lived widget must be
   `bind(lambda _o: tr("..."), yielding=True)`; a message box built per use can take a plain `tr()`.
-- **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`.
+- **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`. Chinese and Japanese (`zh`, `ja`) keep the
+  English letter in ASCII parentheses after the caption, `"~N~ame" = "名前(~N~)"`, as CJK Windows and DOS
+  programs did: nobody presses a kanji with Alt, an IME sits in the way.
+- **Measure in cells, never `len()`**: a CJK character is two cells. `navkit.bidi.display_width` measures,
+  `fit_cells` cuts and `pad_cells` pads (ljust/rjust/center); StaticText's `wrapped()` breaks Chinese and Japanese
+  between characters (with kinsoku: no closing mark at a line's start). Whatever sizes, aligns or cuts a
+  translated caption goes through them. A Button whose caption is wider than its room takes the `▶◀` cells
+  (`Button.crowded`); the key bar goes tight (one blank between items) when it would otherwise lose an F-key,
+  and the menu bar (`MenuBar.tight`) when its captions would reach `reserve`, the clock's cells the shell
+  binds.
+  At 80 columns DN's English key row is exactly full, so a CJK key-bar title must be two characters; three
+  are fine only where the rest are two.
 - **Not translated**: `Command.title` stays English in the class (the key bar calls `tr` at render), key specs, ini
   keys and comments, history ids, paths, encoding names, stderr/log text, programmer exceptions, `strerror`.
 - **Never compare a shown caption with an English literal**; menu anchors already go through `tr_plain`.

@@ -21,6 +21,7 @@ import platform
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from navkit.bidi import display_width, fit_cells, pad_cells
 from navkit.i18n import tr
 
 #: Block devices that are not disks.
@@ -163,9 +164,10 @@ def lines(rows: list[tuple[str, str]], width: int, marker: str = "...") -> str:
         return " " + tr("None")
     labels = _labels()
     rows = [(labels.get(label, label), value) for label, value in rows]
-    room = max(len(label) for label, _ in rows)
+    room = max(display_width(label) for label, _ in rows)
     out = []
     for label, value in rows:
-        text = f"{label:>{room}} : {value}"
-        out.append(text if len(text) <= width else text[: max(0, width - len(marker))] + marker)
+        text = f"{pad_cells(label, room, 'right')} : {value}"
+        out.append(text if display_width(text) <= width
+                   else fit_cells(text, max(0, width - len(marker))) + marker)
     return "\n".join(out)

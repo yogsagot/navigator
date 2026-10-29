@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
@@ -268,7 +269,7 @@ class HistoryList(ListViewer, DropDown):
         """While searching, the caret after what has been typed, on the bottom edge."""
         if self.search is None or not self.framed:
             return None
-        x = self.label_x(self.footer_text()) + len(tr(" Search: ")) + len(self.search)
+        x = self.label_x(self.footer_text()) + display_width(tr(" Search: ")) + display_width(self.search)
         return min(x, self.width - 2), self.height - 1
 
     def layout(self, width: int, height: int) -> None:

@@ -9,6 +9,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.spinner import Spinner
 
 from typing import Any
+from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr
 from navkit.reactive import unbind
 from navml.widgets.dialog.button import Button

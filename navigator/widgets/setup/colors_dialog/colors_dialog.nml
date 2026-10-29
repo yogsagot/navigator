@@ -25,7 +25,7 @@ ColorsDialog(Dialog):
         id: group_caption
         x: 2
         y: 2
-        width: 8
+        width: 21
         height: 1
         text: "~G~roup"
         link: groups

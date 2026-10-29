@@ -246,10 +246,10 @@ class AttrDialog(Dialog, _Component):
 
         self.octal.x = 2    # attr_dialog.nml:121
         self.octal.y = 6    # attr_dialog.nml:122
-        self.octal.width = 16    # attr_dialog.nml:123
+        self.octal.width = 17    # attr_dialog.nml:123
         self.octal.height = 1    # attr_dialog.nml:124
         self.octal.label_text = _bind(lambda _o: _tr('~O~ctal'), yielding=True)    # attr_dialog.nml:125
-        self.octal.label_width = 10    # attr_dialog.nml:126
+        self.octal.label_width = 11    # attr_dialog.nml:126
         self.octal.mask = '9999'    # attr_dialog.nml:127
         self.octal.base = 8    # attr_dialog.nml:128
 
@@ -263,28 +263,28 @@ class AttrDialog(Dialog, _Component):
         self.user.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # attr_dialog.nml:144
         self.user.height = 1    # attr_dialog.nml:145
         self.user.label_text = _bind(lambda _o: _tr('~U~ser'), yielding=True)    # attr_dialog.nml:146
-        self.user.label_width = 10    # attr_dialog.nml:147
+        self.user.label_width = 11    # attr_dialog.nml:147
 
         self.group.x = 2    # attr_dialog.nml:151
         self.group.y = 8    # attr_dialog.nml:152
         self.group.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # attr_dialog.nml:153
         self.group.height = 1    # attr_dialog.nml:154
         self.group.label_text = _bind(lambda _o: _tr('~G~roup'), yielding=True)    # attr_dialog.nml:155
-        self.group.label_width = 10    # attr_dialog.nml:156
+        self.group.label_width = 11    # attr_dialog.nml:156
 
         self.date.x = 2    # attr_dialog.nml:167
         self.date.y = 9    # attr_dialog.nml:168
-        self.date.width = 26    # attr_dialog.nml:169
+        self.date.width = 27    # attr_dialog.nml:169
         self.date.height = 1    # attr_dialog.nml:170
         self.date.label_text = _bind(lambda _o: _tr('~D~ate'), yielding=True)    # attr_dialog.nml:171
-        self.date.label_width = 10    # attr_dialog.nml:172
+        self.date.label_width = 11    # attr_dialog.nml:172
 
         self.clock.x = 30    # attr_dialog.nml:176
         self.clock.y = 9    # attr_dialog.nml:177
-        self.clock.width = 22    # attr_dialog.nml:178
+        self.clock.width = 23    # attr_dialog.nml:178
         self.clock.height = 1    # attr_dialog.nml:179
         self.clock.label_text = _bind(lambda _o: _tr('~T~ime'), yielding=True)    # attr_dialog.nml:180
-        self.clock.label_width = 6    # attr_dialog.nml:181
+        self.clock.label_width = 7    # attr_dialog.nml:181
 
         self.acl_page.title = _bind(lambda _o: _tr('ACL'), yielding=True)    # attr_dialog.nml:187
 

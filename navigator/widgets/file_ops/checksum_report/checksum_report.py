@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr, tr_n
 
 from navml.widgets.dialog.dialog import Dialog
@@ -40,11 +41,12 @@ def summary(result: VerifyResult) -> str:
 def rows(result: VerifyResult) -> list[str]:
     """One row per file that did not match, and per list not read."""
     failed, missing, unreadable = tr("FAILED"), tr("MISSING"), tr("UNREADABLE")
-    width = max(len(failed), len(missing), len(unreadable)) + 2
-    out = [f"{failed:<{width}}{location}" for location in result.failed]
-    out += [f"{missing:<{width}}{location}" for location in result.missing]
-    out += [f"{unreadable:<{width}}{location}: {reason}" for location, reason in result.unreadable]
+    width = max(display_width(failed), display_width(missing), display_width(unreadable)) + 2
+    failed, missing, unreadable = (pad_cells(text, width) for text in (failed, missing, unreadable))
+    out = [f"{failed}{location}" for location in result.failed]
+    out += [f"{missing}{location}" for location in result.missing]
+    out += [f"{unreadable}{location}: {reason}" for location, reason in result.unreadable]
     no_checksums = tr("no checksums in it")
-    out += [f"{unreadable:<{width}}{location}: {no_checksums if reason == NO_CHECKSUMS else reason}"
+    out += [f"{unreadable}{location}: {no_checksums if reason == NO_CHECKSUMS else reason}"
             for location, reason in result.lists_unreadable]
     return out

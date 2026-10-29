@@ -40,7 +40,7 @@ class GameInfo(Widget):
         for piece in text.split("~"):
             if piece:
                 surface.draw_text(x, y, piece, bright if on else plain, max(0, width - 1 - x))
-                x += len(piece)
+                x += display_width(piece)
             on = not on
         surface.draw_text(0, y, edges[0], plain, 1)
         surface.draw_text(width - 1, y, edges[1], plain, 1)

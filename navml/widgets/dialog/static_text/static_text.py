@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 
 from navkit.bidi import display_width, painted_cells
-from navkit.screen import Surface
+from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.widget import Widget
 
@@ -74,32 +74,74 @@ def link_urls(surface: Surface, x: int, y: int, line: str) -> None:
                 surface.set_cell(cell, y, char, style.derive(link=match.group()))
 
 
+#: What may not begin a line of Chinese or Japanese (kinsoku): closing marks,
+#: the long-vowel mark and the small kana.  And what may not end one.
+_NO_START = set("、。，．,.)）」』】〕〉》！？!?：；:;ー…・々ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ")
+_NO_END = set("（「『【〔〈《(")
+
+
+def _cells(text: str) -> int:
+    """The cells *text* paints, its ``~`` hotkey marks left out."""
+    return display_width(text.replace("~", ""))
+
+
+def _units(paragraph: str) -> list[tuple[str, str]]:
+    """*paragraph* as ``(joiner, chunk)`` pieces a line may break between:
+    the words between blanks (joined by ``" "``), and those cut again beside
+    every wide character (joined by ``""``) -- Chinese and Japanese write no
+    blanks and break between any two characters, kinsoku aside."""
+    units: list[tuple[str, str]] = []
+    for number, word in enumerate(paragraph.split(" ")):
+        joiner, chunk = (" " if number else ""), ""
+        for char in word:
+            if chunk and (char_width(chunk[-1]) == 2 or char_width(char) == 2) \
+                    and char not in _NO_START and chunk[-1] not in _NO_END:
+                units.append((joiner, chunk))
+                joiner, chunk = "", ""
+            chunk += char
+        units.append((joiner, chunk))
+    return units
+
+
+def _fitting(chunk: str, width: int) -> int:
+    """How many characters of *chunk* fit in *width* cells; at least one."""
+    used = 0
+    for index, char in enumerate(chunk):
+        used += 0 if char == "~" else char_width(char)
+        if used > width:
+            return max(1, index)
+    return len(chunk)
+
+
 def wrapped(text: str, width: int) -> list[str]:
-    """*text* broken to *width*, honouring the newlines it already has.
+    """*text* broken to *width* cells, honouring the newlines it already has.
 
     Greedy on whitespace and never splits a word that fits, which is what a
     prompt wants; a word longer than the line is broken rather than allowed to
     clip, because a path or a filename is exactly the case that happens and
-    losing its tail is worse than a hard break.
+    losing its tail is worse than a hard break.  Chinese and Japanese break
+    between characters (:func:`_units`), and every width is counted in cells,
+    a wide character two of them.
     """
     if width < 1:
         return []
     lines: list[str] = []
     for paragraph in text.split("\n"):
-        words, current = paragraph.split(" "), ""
-        for word in words:
-            while len(word) > width:
+        current = ""
+        for joiner, chunk in _units(paragraph):
+            while _cells(chunk) > width:
                 if current:
                     lines.append(current)
                     current = ""
-                lines.append(word[:width])
-                word = word[width:]
-            candidate = f"{current} {word}" if current else word
-            if len(candidate) <= width:
+                cut = _fitting(chunk, width)
+                lines.append(chunk[:cut])
+                chunk = chunk[cut:]
+            candidate = f"{current}{joiner}{chunk}" if current else chunk
+            if _cells(candidate) <= width:
                 current = candidate
             else:
                 lines.append(current)
-                current = word
+                current = chunk
         lines.append(current)
     return lines
 

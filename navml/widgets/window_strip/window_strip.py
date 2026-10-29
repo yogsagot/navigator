@@ -28,6 +28,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import commands
+from navkit.bidi import display_width, fit_cells
 from navkit.events import MouseClickEvent
 from navkit.reactive import reactive
 from navkit.screen import Surface
@@ -74,7 +75,7 @@ class WindowStrip(Widget):
     def window_at(self, column: int) -> Any:
         """The window whose chip is under *column*, or None."""
         for start, text, window in self.chips():
-            if start <= column < start + len(text):
+            if start <= column < start + display_width(text):
                 return window
         return None
 
@@ -99,13 +100,14 @@ class WindowStrip(Widget):
     def _fit(self, names: list[str]) -> list[str]:
         """*names* cut evenly until every chip fits, or to nothing."""
         def width(cut: int) -> int:
-            return sum(3 + (min(len(n), cut) + 1 if n and cut else 0) for n in names)
+            return sum(3 + (min(display_width(n), cut) + 1 if n and cut else 0) for n in names)
 
-        cut = max((len(n) for n in names), default=0)
+        cut = max((display_width(n) for n in names), default=0)
         while cut > 0 and width(cut) > self.width:
             cut -= 1
         ellipsis = "\u2026" if self.glyphs > 1 else "~"
-        return [n if len(n) <= cut else n[: cut - 1] + ellipsis if cut > 1 else n[:cut] for n in names]
+        return [n if display_width(n) <= cut else fit_cells(n, cut - 1) + ellipsis if cut > 1 else fit_cells(n, cut)
+                for n in names]
 
     def _layout(self) -> tuple[list[tuple[int, str, Any]], int, int]:
         """The chips shown, how many windows were left out, and where the
@@ -119,11 +121,11 @@ class WindowStrip(Widget):
         for index, (window, name) in enumerate(zip(windows, names)):
             text = f" {window.number} {name} " if name else f" {window.number} "
             rest = len(windows) - index - 1
-            if x + len(text) > self.width - (len(f"+{rest}") if rest else 0):
+            if x + display_width(text) > self.width - (len(f"+{rest}") if rest else 0):
                 hidden = len(windows) - index
                 break
             chips.append((x, text, window))
-            x += len(text)
+            x += display_width(text)
         used = x + (len(f"+{hidden}") if hidden else 0)
         shift = max(0, self.width - used) if self.align == "right" else 0
         return [(start + shift, text, w) for start, text, w in chips], hidden, x + shift

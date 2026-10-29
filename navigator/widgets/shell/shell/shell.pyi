@@ -20,6 +20,7 @@ import os
 import random
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
+from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr

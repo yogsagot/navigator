@@ -1,3 +1,4 @@
+from navkit.bidi import display_width
 from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.viewer.commands import CloseViewer, NextDifference, PreviousDifference
 from navigator.widgets.viewer.diff_view import DiffView
@@ -59,7 +60,7 @@ DiffWindow(Window):
         name: "info"
         x: 1
         y: max(0, parent.height - 1)
-        width: min(len(view.info_text), max(0, parent.width - 3))
+        width: min(display_width(view.info_text), max(0, parent.width - 3))
         height: 1
         text: view.info_text
 

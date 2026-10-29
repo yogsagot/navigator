@@ -83,7 +83,7 @@ class ColorsDialog(Dialog, _Component):
 
         self.group_caption.x = 2    # colors_dialog.nml:26
         self.group_caption.y = 2    # colors_dialog.nml:27
-        self.group_caption.width = 8    # colors_dialog.nml:28
+        self.group_caption.width = 21    # colors_dialog.nml:28
         self.group_caption.height = 1    # colors_dialog.nml:29
         self.group_caption.text = _bind(    # colors_dialog.nml:30
             lambda _o: _tr('~G~roup'),

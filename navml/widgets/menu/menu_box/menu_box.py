@@ -45,7 +45,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from navkit.bidi import display_width
+from navkit.bidi import display_width, fit_cells
 from navkit import commands
 from navkit.glyphs import GLYPHS_ASCII, GLYPHS_UNICODE, SCROLLBARS
 from navkit.reactive import reactive
@@ -116,7 +116,7 @@ class MenuBox(Widget):
                 footer: str = "") -> tuple[int, int]:
         """The ``(width, height)`` a box for *menu* takes, as ``TMenuBox.Init``,
         widened to hold *title* and *footer* between the frame's corners."""
-        width = max([10] + [len(text) + 8 for text in (title, footer) if text])
+        width = max([10] + [display_width(text) + 8 for text in (title, footer) if text])
         height = 2
         for entry in menu.entries():
             height += 1
@@ -125,9 +125,9 @@ class MenuBox(Widget):
             length = display_width(parse_shortcut(entry.text)[0]) + 6
             key = key_caption(entry, app, behind)
             if isinstance(entry, SubMenu):
-                length += 3 + (len(key) + 1 if key else 0)
+                length += 3 + (display_width(key) + 1 if key else 0)
             elif key:
-                length += len(key) + 2
+                length += display_width(key) + 2
             width = max(width, length)
         return width, height
 
@@ -256,7 +256,7 @@ class MenuBox(Widget):
         top, rows = self.scroll(), self.rows()
         frame_line(0, (tl, tr), horizontal, normal)
         if self.title and width >= 8:
-            label = f" {self.title} "[: width - 6]
+            label = fit_cells(f" {self.title} ", width - 6)
             surface.draw_text((width - display_width(label)) // 2, 0, label, normal)
         for index in range(top, min(len(entries), top + rows)):
             entry = entries[index]
@@ -279,13 +279,13 @@ class MenuBox(Widget):
                 # is mirrored with the screen when that is right-to-left.
                 surface.set_cell(width - 4, y, arrow, row)
                 if key:
-                    surface.draw_text(width - 5 - len(key), y, key, row)
+                    surface.draw_text(width - 5 - display_width(key), y, key, row)
             elif key:
-                surface.draw_text(width - 3 - len(key), y, key, row)
+                surface.draw_text(width - 3 - display_width(key), y, key, row)
         bottom = min(len(entries), rows) + 1
         frame_line(bottom, (bl, br), horizontal, normal)
         if self.footer and width >= 8:
-            label = f" {self.footer} "[: width - 6]
+            label = fit_cells(f" {self.footer} ", width - 6)
             surface.draw_text((width - display_width(label)) // 2, bottom, label, normal)
         if width >= 6:
             bars = SCROLLBARS["dos" if self.glyphs >= GLYPHS_UNICODE else "ascii"]

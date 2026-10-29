@@ -39,9 +39,11 @@ A departure: DN had no tooltips.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
+from navkit.bidi import display_width
 from navkit.commands import Command, chain, key_label, layer_key
 from navkit.events import MouseClickEvent
 from navkit.i18n import tr
@@ -61,6 +63,11 @@ class Hint:
     is, already translated; the item is never greyed and a click does nothing."""
 
     title: str
+
+
+#: An item's key that is a function key, ``F1``..``F12``: what a row is
+#: laid out tight to keep (:meth:`KeyBar.items`).
+FKEY = re.compile(r"F\d+")
 
 
 class KeyBar(Widget):
@@ -83,10 +90,26 @@ class KeyBar(Widget):
         unless its text, without those two spaces, ends before the right edge
         -- ``I + L < Size.X`` there, which lets the last item's trailing space
         fall off the end.
+
+        A row that would lose an F-key so is laid out tight instead: one blank
+        after each item and none before, so one between items rather than two
+        and the row starting at the left edge.  A departure, for the captions
+        of Chinese and Japanese (two cells to a character): DN's English row is
+        exactly 80 cells, and theirs would lose F10 there.  Letters falling
+        off the end of a held modifier's row (Alt+B, Ctrl+Y) are DN's way and
+        leave it loose.
         """
+        row = [(key, command, display_width(_label(key, command)) + 1 + display_width(_title(command)))
+               for key, command in self._row()]
+        column, lead = 0, 1
+        for key, command, text in row:
+            if column + text >= self.width and FKEY.fullmatch(_label(key, command)):
+                lead = 0
+                break
+            column += text + 2
         found, column = [], 0
-        for key, command in self._row():
-            width = len(_label(key, command)) + 1 + len(_title(command)) + 2
+        for key, command, text in row:
+            width = lead + text + 1
             if column + width - 2 >= self.width:
                 break
             found.append((key, command, column, width))
@@ -148,16 +171,19 @@ class KeyBar(Widget):
         if hint:
             surface.draw_text(1, 0, hint, self.part_style("label"), max(0, self.width - 1))
             return
-        for key, command, start, _width in self.items():
+        for key, command, start, width in self.items():
             hint = isinstance(command, Hint)
             disabled = not hint and app is not None and not app.command_enabled(command)
             label = self.part_style("label", disabled=disabled)
             name = _label(key, command)
-            surface.draw_text(start, 0, " ", label)
+            # A tight row's items (:meth:`items`) have no blank before them.
+            lead = width - display_width(name) - display_width(_title(command)) - 2
+            if lead:
+                surface.draw_text(start, 0, " ", label)
             surface.draw_text(
-                start + 1, 0, name, self.part_style("key", disabled=disabled)
+                start + lead, 0, name, self.part_style("key", disabled=disabled)
             )
-            surface.draw_text(start + 1 + len(name), 0, f" {_title(command)} ", label)
+            surface.draw_text(start + lead + display_width(name), 0, f" {_title(command)} ", label)
 
     def tooltip_at(self, x: int, y: int) -> str:
         """The item's command's place in the menus, ``File > Make directory``,

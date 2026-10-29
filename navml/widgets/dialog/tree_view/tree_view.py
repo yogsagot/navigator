@@ -64,7 +64,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable
 
 from navkit import glyphs as glyphs_module
-from navkit.bidi import reveal
+from navkit.bidi import display_width, reveal
 from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.i18n import tr
 from navkit.reactive import computed, effect, peek, reactive
@@ -545,7 +545,7 @@ class TreeView(ListViewer):
             return None
         if self.framed:
             footer = self.footer_text()
-            x = self.label_x(footer) + len(tr(" Search: ")) + len(self.search_path)
+            x = self.label_x(footer) + display_width(tr(" Search: ")) + display_width(self.search_path)
             return min(x, self.width - 2), self.height - 1
         row = self.selected
         if row is None or not self.caret_on_name:

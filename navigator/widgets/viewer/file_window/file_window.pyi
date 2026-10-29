@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
+from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight

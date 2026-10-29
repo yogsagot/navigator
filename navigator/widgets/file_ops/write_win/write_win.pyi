@@ -4,6 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
+from navkit.bidi import display_width
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar

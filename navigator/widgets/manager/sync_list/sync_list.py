@@ -37,7 +37,7 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
-from navkit.bidi import display_width
+from navkit.bidi import display_width, pad_cells
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.events import KeyEvent
@@ -483,5 +483,5 @@ class SyncList(ListViewer):
             cut_start = column == 2 and not isinstance(item, Line)
             text = self._cut_start(text, room) if cut_start else fit_text(text, room, self.ellipsis)
             if flush_right:
-                text = text.rjust(room)
+                text = pad_cells(text, room, "right")
             surface.draw_text(x + 1, y, text, style, room)

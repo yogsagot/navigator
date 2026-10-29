@@ -1,3 +1,4 @@
+from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
@@ -80,7 +81,7 @@ FileWindow(Window):
         name: "info"
         x: 1
         y: max(0, parent.height - 1)
-        width: min(len(viewer.info_text), max(0, parent.width - 3))
+        width: min(display_width(viewer.info_text), max(0, parent.width - 3))
         height: 1
         text: viewer.info_text
 
@@ -90,7 +91,7 @@ FileWindow(Window):
         id: md_mark
         x: info.x + info.width
         y: max(0, parent.height - 1)
-        width: min(len(viewer.render_mark), max(0, parent.width - 3 - info.width))
+        width: min(display_width(viewer.render_mark), max(0, parent.width - 3 - info.width))
         height: 1
         text: viewer.render_mark
         classes: frozenset({'rendered'}) if viewer.rendered else frozenset({'rendered', 'off'})

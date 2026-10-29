@@ -10,6 +10,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.static_text import StaticText
 
 from typing import Any
+from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr, tr_n
 from navigator.lib.file_ops.checksum import NO_CHECKSUMS, VerifyResult
 

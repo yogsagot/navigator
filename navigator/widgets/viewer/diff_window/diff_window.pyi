@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
+from navkit.bidi import display_width
 from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.viewer.commands import CloseViewer, NextDifference, PreviousDifference
 from navigator.widgets.viewer.diff_view import DiffView

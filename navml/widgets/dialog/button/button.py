@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from navkit import commands
+from navkit.bidi import display_width
 from navkit.events import Event, KeyEvent, KeyReleaseEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, effect
@@ -22,7 +23,7 @@ from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.widgets.dialog.commands import Cancel, Default
-from navml.widgets.dialog.control import Control
+from navml.widgets.dialog.control import Control, parse_shortcut
 
 if TYPE_CHECKING:
     from navkit.application import Repeat
@@ -141,6 +142,15 @@ class Button(Control):
     def marked(self) -> bool:
         """Whether ``▶`` and ``◀`` are drawn: the button Enter would press."""
         return not self.inert and (self.focused or self.am_default)
+
+    @computed
+    def crowded(self) -> bool:
+        """Whether the caption is wider than the face between its markers --
+        a Chinese or Japanese ``ヘルプ(~H~)`` in a button sized for ``Help``.
+        Such a caption takes the whole face and the markers step aside, the
+        face's colour still telling the default button: a departure, as DN's
+        resources set each language's dialogs apart and these share one."""
+        return display_width(parse_shortcut(self.text)[0]) > self.face[0] - 2
 
     def tooltip_at(self, x: int, y: int) -> str:
         """``Enter, Alt-K``; after the button's own tooltip, in brackets."""
@@ -323,7 +333,7 @@ class Button(Control):
         unicode = self.glyphs >= GLYPHS_UNICODE
         left = 1 if self.down and not self.flat else 0
         surface.fill(left, 0, width, height, " ", style)
-        if self.marked and width >= 2:
+        if self.marked and width >= 2 and not self.crowded:
             first, last = MARKERS["dos" if unicode else "ascii"]
             surface.draw_text(left, 0, first, style)
             surface.draw_text(left + width - 1, 0, last, style)

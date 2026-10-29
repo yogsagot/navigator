@@ -47,6 +47,7 @@ import datetime
 from typing import Any
 
 from navkit import commands
+from navkit.bidi import display_width, fit_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr, tr_n
@@ -218,8 +219,8 @@ class CalendarView(Widget):
         """Where the month's name and the year are painted, and what they say."""
         month, year = month_names()[self.day.month - 1], str(self.day.year)
         inner = self.width - 2 * self.inset
-        start = self.inset + max(0, (inner - len(month) - 1 - len(year)) // 2)
-        return (start, month), (start + len(month) + 1, year)
+        start = self.inset + max(0, (inner - display_width(month) - 1 - display_width(year)) // 2)
+        return (start, month), (start + display_width(month) + 1, year)
 
     def drop(self, section: str) -> HistoryList | None:
         """Drop the month list or the year list over its name, on the one shown."""
@@ -245,7 +246,7 @@ class CalendarView(Widget):
         # and room for the scroll bar; pushed in from the screen's edges.
         (mx, _), (yx, _) = self.title_spans()
         ox, oy = self.offset()
-        widest = max(len(item) for item in items)
+        widest = max(display_width(item) for item in items)
         # Wide enough for `` Search: 1985 `` on its bottom edge as well.
         width, height = max(widest + 3, 16), min(len(items) + 2, 14)
         root = app.root
@@ -355,9 +356,9 @@ class CalendarView(Widget):
             return keyed(tr("The month before"), PreviousMonth)
         if top and self.width - inset - 3 <= x <= self.width - inset - 1:
             return keyed(tr("The month after"), NextMonth)
-        if top and mx <= x < mx + len(month):
+        if top and mx <= x < mx + display_width(month):
             return keyed(tr("A click chooses the month"), ChooseMonth)
-        if top and yx <= x < yx + len(year):
+        if top and yx <= x < yx + display_width(year):
             return keyed(tr("A click chooses the year"), ChooseYear)
         if y == inset + 1 and inset <= x < inset + 3 * 7:
             return weekday_full_names()[(self.first_weekday + (x - inset) // 3) % 7]
@@ -408,9 +409,9 @@ class CalendarView(Widget):
             self.turn(-1)
         elif top and self.width - inset - 3 <= event.x <= self.width - inset - 1:
             self.turn(1)
-        elif top and mx <= event.x < mx + len(month):
+        elif top and mx <= event.x < mx + display_width(month):
             self.drop("month")
-        elif top and yx <= event.x < yx + len(year):
+        elif top and yx <= event.x < yx + display_width(year):
             self.drop("year")
         else:
             day = self.day_at(event.x, event.y)
@@ -457,8 +458,8 @@ class CalendarView(Widget):
         if self.date_format:
             spelled = day.strftime(self.date_format)
             inner = self.width - 2 * inset
-            x = inset + max(0, (inner - len(spelled)) // 2)
-            surface.draw_text(x, inset + 2 + 6, spelled[:inner], self.part_style("title"))
+            x = inset + max(0, (inner - display_width(spelled)) // 2)
+            surface.draw_text(x, inset + 2 + 6, fit_cells(spelled, inner), self.part_style("title"))
 
 
 class Calendar(CalendarView, DropDown):

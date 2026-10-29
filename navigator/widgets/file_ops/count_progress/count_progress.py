@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr
 from navkit.reactive import unbind
 
@@ -48,7 +49,7 @@ class CountProgress(Dialog):
         """How wide the table is with nothing to spare, which the box grows to."""
         rows, here_width, total_width = self._rows(several, here_size, size, here_files, files,
                                                    here_directories, directories)
-        label_width = max(len(label) for label, _, _ in rows) + GAP
+        label_width = max(display_width(label) for label, _, _ in rows) + GAP
         return label_width + (here_width + GAP if several else 0) + total_width
 
     def counts(self, width: int, several: bool, here_size: int, size: int, here_files: int,
@@ -61,11 +62,13 @@ class CountProgress(Dialog):
         counts = (here_width + GAP if several else 0) + total_width
         lines = []
         for label, here, total in rows:
-            line = f"{label:<{max(len(label) + GAP, width - counts)}}"
+            line = pad_cells(label, max(display_width(label) + GAP, width - counts))
             if several:
-                line += f"{here:>{here_width}}{'':{GAP}}"
-            line += f"{total:>{total_width}}"
-            lines.append(line[-width:] if width > 0 else "")
+                line += pad_cells(here, here_width, "right") + " " * GAP
+            line += pad_cells(total, total_width, "right")
+            while display_width(line) > max(0, width):
+                line = line[1:]
+            lines.append(line)
         return "\n".join(lines)
 
     @staticmethod
@@ -82,8 +85,8 @@ class CountProgress(Dialog):
             rows.insert(0, ("", tr("This directory"), tr("Total")))
         else:
             rows = [(label, "", total) for label, _, total in rows]
-        here_width = max(len(here) for _, here, _ in rows)
-        total_width = max(len(total) for _, _, total in rows)
+        here_width = max(display_width(here) for _, here, _ in rows)
+        total_width = max(display_width(total) for _, _, total in rows)
         return rows, here_width, total_width
 
     def accept(self) -> Any:

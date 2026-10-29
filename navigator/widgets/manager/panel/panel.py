@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-from navkit.bidi import REVEALED, display_width, reveal, reveal_runs
+from navkit.bidi import REVEALED, display_width, fit_cells, reveal, reveal_runs
 from navkit.commands import key_for, key_label
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
@@ -448,7 +448,7 @@ class Panel(ContextMenuHost, ListViewer):
         """The columns the option strip may take: up to the quick search's
         label while one runs, else the bottom frame less its corners."""
         footer = self.footer_text()
-        start = self.label_x(footer) + len(footer) + 1 if footer else 1
+        start = self.label_x(footer) + display_width(footer) + 1 if footer else 1
         return max(0, self.width - 3 - start)
 
     @property
@@ -1599,7 +1599,7 @@ class Panel(ContextMenuHost, ListViewer):
         if text is None or not self.framed:
             return None
         footer = self.footer_text()
-        x = self.label_x(footer) + len(self.search_label) + len(text)
+        x = self.label_x(footer) + display_width(self.search_label) + display_width(text)
         return min(x, self.width - 2), self.height - 1
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
@@ -2509,8 +2509,9 @@ class Panel(ContextMenuHost, ListViewer):
                 room = left + width - x
                 if piece and room > 0:
                     style = self.part_style(f"{part}-numbers" if bright else part)
-                    surface.draw_text(x, y, piece[:room], style, room)
-                    x += len(piece[:room])
+                    piece = fit_cells(piece, room)
+                    surface.draw_text(x, y, piece, style, room)
+                    x += text_width(piece)
                 bright = not bright
             y += 1
 

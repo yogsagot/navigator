@@ -1,4 +1,5 @@
-from navml.widgets.dialog.control import Control
+from navkit.bidi import display_width
+from navml.widgets.dialog.control import Control, parse_shortcut
 from navml.widgets.dialog.static_text import StaticText
 
 #: A pressable box with a centred caption.
@@ -31,11 +32,13 @@ Button(Control):
     StaticText:
         id: caption
         #: One in from the face, which is where the ``►`` marker goes; the
-        #: face itself is one further right while the button is down.
-        x: 2 if parent.down and not parent.flat else 1
+        #: face itself is one further right while the button is down.  A
+        #: caption wider than its room takes the markers' cells as well
+        #: (``Button.crowded``, spelled out so the markup stands alone).
+        x: (2 if parent.down and not parent.flat else 1) - (1 if display_width(parse_shortcut(parent.text)[0]) > parent.width - (2 if parent.flat else 3) else 0)
         y: 0
         #: Two for the markers and one for the shadow's column.
-        width: max(0, parent.width - (2 if parent.flat else 3))
+        width: max(0, parent.width - (2 if parent.flat else 3) + (2 if display_width(parse_shortcut(parent.text)[0]) > parent.width - (2 if parent.flat else 3) else 0))
         height: 1
         text: parent.text
         align: "center"
